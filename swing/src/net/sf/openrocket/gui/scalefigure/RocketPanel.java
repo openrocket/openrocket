@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.scalefigure;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -41,7 +42,9 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ColorChooserButton;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
+import net.sf.openrocket.gui.components.PreferencesOptionPanel;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
@@ -53,7 +56,9 @@ import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.gui.simulation.SimulationWorker;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.RigidBody;
@@ -356,23 +361,46 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		viewSelector.setRenderer(new SeparatorComboBoxRenderer(viewSelector.getRenderer()));
 		ribbon.add(viewSelector, "cell 0 1");
 
+		ColorChooserButton colorChooser = new ColorChooserButton(Color.WHITE);
+		colorChooser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Color c = colorChooser.getSelectedColor();
+				if (is3d && c != figure3d.getBackground()) {
+					figure3d.setBackground(c);
+					// Change text color
+					Color textColor = Color.BLACK;
+					// Calculate luminance based on https://www.w3.org/WAI/GL/wiki/Relative_luminance
+					// If the codebase already uses a strategy, use that instead
+					double luminance = 0.2126 * c.getRed() + 0.7152 * c.getGreen() + 0.0722 * c.getBlue();
+					if (luminance <= 140.0) {
+						textColor = Color.WHITE;
+					}
+					extraText.setTextColor(textColor);
+				}
+				updateFigures();
+			}
+		});
+
+		ribbon.add(colorChooser, "cell 1 1");
+
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
 		JButton zoomOutButton = scaleSelector.getZoomOutButton();
 		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
 		JButton zoomInButton = scaleSelector.getZoomInButton();
-		ribbon.add(zoomOutButton, "gapleft para, cell 1 1");
-		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 2 0, spanx 2");
-		ribbon.add(scaleSelectorCombo, "cell 2 1");
-		ribbon.add(zoomInButton, "cell 3 1");
+		ribbon.add(zoomOutButton, "gapleft para, cell 2 1");
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 3 0, spanx 2");
+		ribbon.add(scaleSelectorCombo, "cell 3 1");
+		ribbon.add(zoomInButton, "cell 4 1");
 
 		// Show CG/CP
 		JCheckBox showCGCP = new JCheckBox();
 		showCGCP.setText(trans.get("RocketPanel.checkbox.ShowCGCP"));
 		showCGCP.setSelected(true);
 		showCGCP.setToolTipText(trans.get("RocketPanel.checkbox.ShowCGCP.ttip"));
-		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stability")), "cell 4 0, gapleft para");
-		ribbon.add(showCGCP, "cell 4 1, gapleft para");
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stability")), "cell 5 0, gapleft para");
+		ribbon.add(showCGCP, "cell 5 1, gapleft para");
 
 		showCGCP.addActionListener(new ActionListener() {
 			@Override
@@ -392,21 +420,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		Dimension d_sep = sep.getPreferredSize();
 		d_sep.height = (int) (0.7 * ribbon.getPreferredSize().height);
 		sep.setPreferredSize(d_sep);
-		ribbon.add(sep, "cell 5 0, spany 2, gapleft para, gapright para");
+		ribbon.add(sep, "cell 6 0, spany 2, gapleft para, gapright para");
 
 		// Stage selector
 		StageSelector stageSelector = new StageSelector( rkt );
 		rkt.addChangeListener(stageSelector);
-		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stages")), "cell 6 0, pushx");
-		ribbon.add(stageSelector, "cell 6 1, pushx");
+		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stages")), "cell 7 0, pushx");
+		ribbon.add(stageSelector, "cell 7 1, pushx");
 
 		// Flight configuration selector
 		//// Flight configuration:
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Flightcfg"));
-		ribbon.add(label, "cell 7 0");
+		ribbon.add(label, "cell 8 0");
 
 		final ConfigurationComboBox configComboBox = new ConfigurationComboBox(rkt);
-		ribbon.add(configComboBox, "cell 7 1, width 16%, wmin 100");
+		ribbon.add(configComboBox, "cell 8 1, width 16%, wmin 100");
 
 		add(ribbon, "growx, span, wrap");
 
