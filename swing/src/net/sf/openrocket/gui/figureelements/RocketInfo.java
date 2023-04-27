@@ -62,7 +62,8 @@ public class RocketInfo implements FigureElement {
 	private float line = 0;
 	private float x1, x2, y1, y2;
 	
-	
+	private Color textColor = Color.BLACK;
+
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
@@ -153,6 +154,10 @@ public class RocketInfo implements FigureElement {
 	public void setCalculatingData(boolean calc) {
 		this.calculatingData = calc;
 	}
+
+	public void setTextColor(Color color) {
+		textColor = color;
+	}
 	
 	private void drawMainInfo() {
 		GlyphVector name = createText(configuration.getRocket().getName());
@@ -172,7 +177,7 @@ public class RocketInfo implements FigureElement {
 
 		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
 
-		g2.setColor(Color.BLACK);
+		g2.setColor(textColor);
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
