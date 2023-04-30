@@ -84,7 +84,6 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
@@ -122,11 +121,23 @@
 			<zipfileset src="${core.dir}/lib/logback-classic-1.2.11.jar"/>
 			<zipfileset src="${core.dir}/lib/logback-core-1.2.11.jar"/>
 			<zipfileset src="${lib.dir}/rsyntaxtextarea-3.2.0.jar"/>
-
-			<!-- JOGL libraries need to be jar-in-jar -->
-			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
-				<include name="*.jar"/>
-			</zipfileset>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-aarch64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-armv6hf.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-linux-i586.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-macosx-universal.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt-natives-windows-i586.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen-rt.jar"/>
+			<zipfileset src="${lib.dir}/jogl/gluegen.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-aarch64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-armv6hf.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-linux-i586.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-macosx-universal.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-amd64.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all-natives-windows-i586.jar"/>
+			<zipfileset src="${lib.dir}/jogl/jogl-all.jar"/>
 			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
