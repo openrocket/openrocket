@@ -99,7 +99,7 @@ tasks.register('externalComponentsValidate') {
     def externalResourceComponents = './resources-src/datafiles/components-dbcook/orc';
     def git = '../.git';
     if (!project.file(externalResourceComponents).exists()) {
-        println 'found: ${project.file(externalResourceComponents)}'
+        println "found: ${project.file(externalResourceComponents)}"
         def message = "The component database is now a submodule, and must be included into\n" +
                 "this project to compile and run the app.\n" +
                 "\n";

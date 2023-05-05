@@ -48,6 +48,8 @@ shadowJar {
 
 //shadowJar.dependsOn([':core:serializeEngines'])
 
+// Runs a build of the application.  This does not include executions of the
+// serialization of engines.
 tasks.register('deploy') {
     group = 'openrocket'
     dependsOn 'shadowJar'
@@ -55,6 +57,8 @@ tasks.register('deploy') {
         println "Completed the deployable jar in './build/libs"
     }
 }
+// Runs a complete build of the application.  This includes executions the
+// serialization of engines by fetching data from ThrustCurve.
 tasks.register('deployFull') {
     group = 'openrocket'
     dependsOn ':core:serializeEngines', 'shadowJar'

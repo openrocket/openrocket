@@ -54,10 +54,12 @@ dependencies {
 }
 
 def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'
+// Deletes the serialize engine file if it exists.
 tasks.register('serializeEnginesDelete', Delete) {
     group = 'openrocket'
     delete fileTree(serializedEnginesPath)
 }
+// Executes the serialization of engines from ThrustCurve.
 tasks.register('serializeEngines') {
     group = 'openrocket'
     if (!project.file(serializedEnginesPath).exists()) {
@@ -65,7 +67,7 @@ tasks.register('serializeEngines') {
         dependsOn serializeEnginesExecute
     }
     else {
-        println 'Serialized engines in ${project.file(serializedEnginesPath)} already exist.'
+        println "Serialized engines in ${project.file(serializedEnginesPath)} already exist."
     }
 }
 tasks.register('serializeEnginesExecute', JavaExec) {
@@ -85,7 +87,7 @@ tasks.register('copyReadmeMain', Copy) {
     }
 }
 
-clean.dependsOn([serializeEnginesDelete])
+//clean.dependsOn([serializeEnginesDelete])
 compileJava.dependsOn([copyReadmeMain])
 
 // https://docs.gradle.org/7.4/userguide/cross_project_publications.html
