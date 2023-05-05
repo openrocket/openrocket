@@ -1,11 +1,6 @@
 language: java
 dist: bionic
 sudo: false
-addons:
-  apt:
-    packages:
-      - ant
-      - ant-optional
 
 jdk:
   - openjdk11
@@ -14,7 +9,7 @@ jdk:
   - oraclejdk13
  
 script:
-  - "ant -buildfile build.xml clean check jar unittest"
+  - gradlew clean test deployFull
 
 notifications:
     webhooks: https://www.travisbuddy.com/
