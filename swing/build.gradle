@@ -118,11 +118,11 @@ tasks.register('externalComponentsValidate') {
         } else {
             message +=
                     "If you retrieved this code by downloading and uncompressing a zip file,\n" +
-                            "Download the code\n" +
-                            "from https://github.com/dbcook/openrocket-database and uncompress it.\n" +
-                            "Copy the files and directories under openrocket-database-master\n" +
-                            "into ''./swing/${externalResourceComponents}''\n" +
-                            "\n";
+                    "Download the code\n" +
+                    "from https://github.com/dbcook/openrocket-database and uncompress it.\n" +
+                    "Copy the files and directories under openrocket-database-master\n" +
+                    "into ''./swing/${externalResourceComponents}''\n" +
+                    "\n";
             println message
             throw new GradleException('Invalid external component resources.')
         }

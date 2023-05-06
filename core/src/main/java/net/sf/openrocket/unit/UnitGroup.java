@@ -212,6 +212,7 @@ public class UnitGroup {
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "g/cm" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000999, "kg/cm" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "kg/dm" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1, "kg/m" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404, "oz/in" + CUBED));
@@ -220,13 +221,18 @@ public class UnitGroup {
 		UNITS_DENSITY_SURFACE = new UnitGroup();
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10, "g/cm" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001, "g/m" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10000, "kg/cm" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(100, "kg/dm" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1, "kg/m" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487, "oz/in" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727, "oz/ft" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764, "lb/ft" + SQUARED));
 		
 		UNITS_DENSITY_LINE = new UnitGroup();
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.1, "g/cm"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.001, "g/m"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(100, "kg/cm"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(10, "kg/dm"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(1, "kg/m"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.0930102465, "oz/ft"));
 		
@@ -428,7 +434,7 @@ public class UnitGroup {
 		UNITS_ANGLE.setDefaultUnit(0);
 		UNITS_DENSITY_BULK.setDefaultUnit(0);
 		UNITS_DENSITY_SURFACE.setDefaultUnit(1);
-		UNITS_DENSITY_LINE.setDefaultUnit(0);
+		UNITS_DENSITY_LINE.setDefaultUnit(1);
 		UNITS_FORCE.setDefaultUnit(0);
 		UNITS_IMPULSE.setDefaultUnit(0);
 		UNITS_TIME_STEP.setDefaultUnit(1);

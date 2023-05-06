@@ -1,7 +1,8 @@
 package net.sf.openrocket.file.rasaero.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -40,7 +41,7 @@ public class BoosterHandler extends BodyTubeHandler {
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-        if (RASAeroCommonConstants.BOAT_TAIL_LENGTH.equals(element) || RASAeroCommonConstants.BOAT_TAIL_REAR_DIAMETER.equals(element)
+        if (RASAeroCommonConstants.BOATTAIL_LENGTH.equals(element) || RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER.equals(element)
                 || RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
@@ -50,12 +51,12 @@ public class BoosterHandler extends BodyTubeHandler {
     @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.closeElement(element, attributes, content, warnings);
-        if (RASAeroCommonConstants.BOAT_TAIL_LENGTH.equals(element)) {
-            this.boatTailLength = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
-        } else if (RASAeroCommonConstants.BOAT_TAIL_REAR_DIAMETER.equals(element)) {
-            this.boatTailRearDiameter = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+        if (RASAeroCommonConstants.BOATTAIL_LENGTH.equals(element)) {
+            this.boatTailLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        } else if (RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER.equals(element)) {
+            this.boatTailRearDiameter = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         } else if (RASAeroCommonConstants.SHOULDER_LENGTH.equals(element)) {
-            this.shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+            this.shoulderLength = Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
         }
     }
 

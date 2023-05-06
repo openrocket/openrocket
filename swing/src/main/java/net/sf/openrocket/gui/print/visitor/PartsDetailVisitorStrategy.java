@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 
-import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +19,25 @@ import net.sf.openrocket.gui.print.PrintUtilities;
 import net.sf.openrocket.gui.print.PrintableFinSet;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.BodyComponent;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.Bulkhead;
+import net.sf.openrocket.rocketcomponent.Coaxial;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.RingComponent;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.ShockCord;
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.Streamer;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 

@@ -68,7 +68,8 @@ public class SwingStartup {
 		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
 
 		// Check JRE version
-		if (!checkJREVersion()) {
+		boolean ignoreJRE = System.getProperty("openrocket.ignore-jre") != null;
+		if (!ignoreJRE && !checkJREVersion()) {
 			return;
 		}
 		
@@ -82,7 +83,7 @@ public class SwingStartup {
 //			OSXSetup.setupOSX();
 //		}
 // thzero - end
-		
+
 		final SwingStartup runner = new SwingStartup();
 		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.

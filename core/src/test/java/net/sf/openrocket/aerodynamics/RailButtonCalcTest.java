@@ -1,6 +1,7 @@
 package net.sf.openrocket.aerodynamics;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -8,8 +9,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.ServicesForTesting;
-import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.barrowman.RailButtonCalc;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -21,7 +22,6 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.util.Transformation;
 
 public class RailButtonCalcTest {
 	protected final double EPSILON = 0.0001;

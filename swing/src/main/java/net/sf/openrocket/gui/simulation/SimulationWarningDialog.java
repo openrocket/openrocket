@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.l10n.Translator;

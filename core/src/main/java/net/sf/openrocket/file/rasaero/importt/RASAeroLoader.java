@@ -27,7 +27,7 @@ public class RASAeroLoader extends AbstractRocketLoader {
      *          if an error occurs during loading.
      */
     @Override
-    protected void loadFromStream(DocumentLoadingContext context, InputStream source, String fileName) throws IOException, RocketLoadException {
+    public void loadFromStream(DocumentLoadingContext context, InputStream source, String fileName) throws IOException, RocketLoadException {
         InputSource xmlSource = new InputSource(source);
 
         RASAeroHandler handler = new RASAeroHandler(context, fileName);

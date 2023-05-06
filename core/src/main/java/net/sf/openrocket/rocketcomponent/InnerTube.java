@@ -363,7 +363,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
 	public boolean hasMotor() {
 		// the default MotorInstance is the EMPTY_INSTANCE.  If we have more than that, then the other instance will have a motor.
-		return ( 1 < this.motors.size());
+		return this.motors.size() > 0;
 	}
 	
 	@Override

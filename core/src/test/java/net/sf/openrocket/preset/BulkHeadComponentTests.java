@@ -64,15 +64,15 @@ public class BulkHeadComponentTests extends BaseTestCase {
 	@Test
 	public void changeLengthLeavesPreset() {
 		Bulkhead bt = new Bulkhead();
-
+		
 		bt.loadPreset(preset);
-
+		
 		bt.setLength(1.0);
-
+		
 		assertSame(preset, bt.getPresetComponent());
 	}
 	*/
-
+	
 	@Test
 	public void changeODClearsPreset() {
 		Bulkhead bt = new Bulkhead();

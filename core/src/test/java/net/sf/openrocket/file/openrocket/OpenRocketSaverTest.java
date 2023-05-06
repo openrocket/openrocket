@@ -30,6 +30,8 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -364,7 +366,7 @@ public class OpenRocketSaverTest {
 		try {
 			file = File.createTempFile( TMP_DIR.getName(), ".ork");
 			out = new FileOutputStream(file);
-			this.saver.save(out, rocketDoc, options);
+			this.saver.save(out, rocketDoc, options, new WarningSet(), new ErrorSet());
 		} catch (FileNotFoundException e) {
 			fail("FileNotFound saving temp file in: " + TMP_DIR.getName() + ": " + e.getMessage());
 		} catch (IOException e) {

@@ -3,8 +3,8 @@ package net.sf.openrocket.file.openrocket.importt;
 import java.util.HashMap;
 import java.util.Locale;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;

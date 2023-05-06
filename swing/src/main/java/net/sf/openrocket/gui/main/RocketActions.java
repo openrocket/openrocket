@@ -337,7 +337,7 @@ public class RocketActions {
 				RocketComponent originalParent = components.get(i).getParent();
 				int originalParentIdx = components.indexOf(originalParent);
 
-				result.get(originalParentIdx).addChild(result.get(i));
+				result.get(originalParentIdx).addChild(result.get(i), false);
 			} else if (RocketComponent.listContainsParent(components, components.get(i))){
 				RocketComponent originalParent = components.get(i);
 				while (originalParent != components.get(i)) {
@@ -346,7 +346,7 @@ public class RocketActions {
 					}
 				}
 				int originalParentIdx = components.indexOf(originalParent);
-				result.get(originalParentIdx).addChild(result.get(i));
+				result.get(originalParentIdx).addChild(result.get(i), false);
 			}
 		}
 

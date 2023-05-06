@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.rasaero.importt;
 
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
@@ -14,8 +15,8 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
  */
 public abstract class LaunchLugHandler {
     public static void addLaunchLug(BodyTube parent, double diameter, double length) {
-        diameter = diameter / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
-        length = length / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH;
+        diameter = diameter / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
+        length = length / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH;
 
         LaunchLug lug = generateLaunchLugFromRASAeroRailGuide(diameter, length, parent.getLength());
         parent.addChild(lug);

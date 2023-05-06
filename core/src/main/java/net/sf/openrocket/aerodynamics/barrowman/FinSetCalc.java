@@ -1,15 +1,14 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
 import static java.lang.Math.pow;
-import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.Arrays;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;

@@ -1,13 +1,12 @@
 package net.sf.openrocket.file;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.Motor.Type;
 import net.sf.openrocket.startup.Application;

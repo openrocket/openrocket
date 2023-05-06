@@ -8,6 +8,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.plugin.PluginModule;

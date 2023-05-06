@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,7 @@ public class RockSimSaver extends RocketSaver {
 	}
 	
 	@Override
-	public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException {
+	public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options, WarningSet warnings, ErrorSet errors) throws IOException {
 		log.info("Saving .rkt file");
 		
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));

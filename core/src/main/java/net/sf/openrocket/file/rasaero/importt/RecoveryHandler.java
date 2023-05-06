@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.rasaero.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -163,17 +164,17 @@ public class RecoveryHandler extends AbstractElementHandler {
         recoveryDevice.setName("Recovery Event " + (recoveryDeviceNr+1));
         DeploymentConfiguration config = recoveryDevice.getDeploymentConfigurations().getDefault();
 
-        recoveryDevice.setDiameter(size / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        recoveryDevice.setDiameter(size / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         recoveryDevice.setLineLength(recoveryDevice.getDiameter());
         recoveryDevice.setCD(CD);
-        config.setDeployAltitude(altitude / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_ALTITUDE);
+        config.setDeployAltitude(altitude / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
 
         // There is a special RASAero rule: if event 1 AND event 2 are set to apogee, then set event 2 to altitude
         if (recoveryDeviceNr == 1 && eventType.equals("Apogee") && this.eventType[0].equals("Apogee")) {
             eventType = "Altitude";
             warnings.add("Recovery device 2 is set to apogee, but recovery device 1 is also set to apogee. Setting recovery device 2 to altitude.");
         }
-        config.setDeployEvent(RASAeroCommonConstants.getDeployEventFromRASAero(eventType, warnings));
+        config.setDeployEvent(RASAeroCommonConstants.RASAERO_TO_OPENROCKET_DEPLOY_EVENT(eventType, warnings));
 
         // Shroud line count = diameter / 6 inches. 6 inches = 0.1524 meters. Minimum is 6 lines.
         recoveryDevice.setLineCount(Math.max(6, (int) Math.round(recoveryDevice.getDiameter() / 0.1524)));
@@ -366,6 +367,10 @@ public class RecoveryHandler extends AbstractElementHandler {
         offset += parentBodyTube.getOuterRadius() * 2.25;        // 1.125 calibers
         recoveryDevice.setAxialMethod(AxialMethod.TOP);
         if (offset + recoveryDevice.getLength() > parentBodyTube.getLength()) {
+            // For rule 1, device 2 should be below device 1, so just in case, put this at the bottom instead of at the top
+            if (bodyTubes.size() == 1) {
+                recoveryDevice.setAxialMethod(AxialMethod.BOTTOM);
+            }
             offset = 0;
         }
         recoveryDevice.setAxialOffset(offset);

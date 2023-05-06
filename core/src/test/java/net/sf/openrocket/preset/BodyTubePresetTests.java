@@ -251,6 +251,7 @@ public class BodyTubePresetTests {
 
 	// TODO - test fails, could not find when running ant
 	/*
+	
 	@Test
 	public void testComputeDensityWithMaterial() throws Exception {
 		TypedPropertyMap presetspec = new TypedPropertyMap();

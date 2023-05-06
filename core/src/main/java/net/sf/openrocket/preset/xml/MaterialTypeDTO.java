@@ -20,8 +20,7 @@ public enum MaterialTypeDTO {
 
     public static MaterialTypeDTO asDTO(Material.Type targetType) {
         MaterialTypeDTO[] values = values();
-        for (int i = 0; i < values.length; i++) {
-            MaterialTypeDTO value = values[i];
+        for (MaterialTypeDTO value : values) {
             if (value.corollary.equals(targetType)) {
                 return value;
             }
