@@ -1,10 +1,7 @@
-// thzero
 package net.sf.openrocket.startup.jij;
 
-// thzero - begin
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-// thzero - end
 
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -35,7 +32,6 @@ public class JarInJarStarter {
 			}
 		}
 
-// thzero - begin
         String version = System.getProperty("java.version");
         System.out.println(version);
         boolean result = SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_9);
@@ -47,9 +43,6 @@ public class JarInJarStarter {
             loader = new URLClassLoader(urlArray);
         else
             loader = new URLClassLoader(urlArray, null);
-        if (loader == null)
-            throw new RuntimeException("Invalid class loader.");
-// thzero - end
 
 		try {
 			Thread.currentThread().setContextClassLoader(loader);
