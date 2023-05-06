@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.startup;
 
 import java.awt.GraphicsEnvironment;
@@ -78,11 +77,9 @@ public class SwingStartup {
 		checkHead();
 		
 		// If running on a MAC set up OSX UI Elements.
-// thzero - begin
-//		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
-//			OSXSetup.setupOSX();
-//		}
-// thzero - end
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+			OSXSetup.setupOSX();
+		}
 
 		final SwingStartup runner = new SwingStartup();
 		
@@ -212,12 +209,10 @@ public class SwingStartup {
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
 		
 		Databases.fakeMethod();
-// thzero - begin
 		// Set up the OSX file open handler here so that it can handle files that are opened when OR is not yet running.
-//		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
-//			OSXSetup.setupOSXOpenFileHandler();
-//		}
-// thzero - end
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+			OSXSetup.setupOSXOpenFileHandler();
+		}
 
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
