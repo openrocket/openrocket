@@ -18,7 +18,7 @@ public abstract class Warning extends Message {
 	 * @return a Warning with the specific text.
 	 */
 	public static Warning fromString(String text) {
-		return new Warning.Other(text);
+		return new Other(text);
 	}
 
 

@@ -1,6 +1,8 @@
 package net.sf.openrocket.aerodynamics;
 
 import static org.junit.Assert.assertEquals;
+
+import net.sf.openrocket.logging.WarningSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
