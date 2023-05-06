@@ -13,7 +13,7 @@ public abstract class Error extends Message {
      * @return an Error with the specific text.
      */
     public static Error fromString(String text) {
-        return new Error.Other(text);
+        return new Other(text);
     }
 
 
