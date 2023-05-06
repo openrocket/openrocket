@@ -9,7 +9,7 @@ jdk:
   - oraclejdk13
  
 script:
-  - gradlew clean test deployFull
+  - gradlew clean test distFull
 
 notifications:
     webhooks: https://www.travisbuddy.com/
