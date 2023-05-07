@@ -1,13 +1,10 @@
-// thzero
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.*;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +58,7 @@ public class EngineBlockComponentTests extends BaseTestCase {
 		assertEquals(100.0, eb.getMass(), 0.05);
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void changeLengthLeavesPreset() {

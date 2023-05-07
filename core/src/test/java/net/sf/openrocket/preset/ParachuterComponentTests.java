@@ -1,13 +1,10 @@
-// thzero
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.*;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.Parachute;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Before;
 import org.junit.Test;
@@ -95,7 +92,7 @@ public class ParachuterComponentTests extends BaseTestCase {
 		assertNull(cr.getPresetComponent());
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 /*
 	@Test
 	public void changeLineLengthLeavesPreset() {
@@ -120,7 +117,7 @@ public class ParachuterComponentTests extends BaseTestCase {
 		assertNull(cr.getPresetComponent());
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void changeLineMaterialLeavesPreset() {

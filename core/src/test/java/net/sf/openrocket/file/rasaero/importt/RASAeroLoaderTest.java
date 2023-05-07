@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.file.rasaero.importt;
 
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -15,9 +14,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -39,9 +36,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     @Test
     public void testThreeStageRocket() {
         RASAeroLoader loader = new RASAeroLoader();
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rasaero/importt/Three-stage rocket.CDX1");
-// thzero - end
         assertNotNull("Could not open Three-stage rocket.CDX1", stream);
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -163,9 +158,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     @Test
     public void testShowRocket() {
         RASAeroLoader loader = new RASAeroLoader();
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rasaero/importt/Show-off.CDX1");
-// thzero - end
         assertNotNull("Could not open Show-off.CDX1", stream);
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -189,9 +182,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     @Test
     public void testComplexTwoStageRocket() {
         RASAeroLoader loader = new RASAeroLoader();
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1");
-// thzero - end
         assertNotNull("Could not open Complex.Two-Stage.CDX1", stream);
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();

@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 //import junit.framework.TestCase;
@@ -11,9 +10,7 @@ import junit.framework.Assert;
 import net.sf.openrocket.rocketcomponent.position.*;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.TestRockets;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 public class ParallelStageTest extends BaseTestCase {
 	

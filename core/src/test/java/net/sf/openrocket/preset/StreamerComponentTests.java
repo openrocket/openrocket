@@ -1,13 +1,10 @@
-// thzero
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.*;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.Streamer;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +56,7 @@ public class StreamerComponentTests extends BaseTestCase {
 		assertEquals(80.0, cr.getMass(), 0.05);
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void changeLengthClearsPreset() {

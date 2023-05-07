@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -9,9 +8,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 public class TransitionTest extends BaseTestCase {
 	protected final double EPSILON = MathUtil.EPSILON*1000;

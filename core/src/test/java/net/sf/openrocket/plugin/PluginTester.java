@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.plugin;
 
 import static org.junit.Assert.assertEquals;
@@ -21,10 +20,10 @@ public class PluginTester {
 	
 	
 	public void testPlugins() {
-// TODO: thzero.com
+// TODO - test fails, the JarPluginImpl does not test correctly.
 //		assertContains(examplePlugins, ExamplePluginImpl.class, MultiPluginImpl.class, JarPluginImpl.class);
 		assertContains(examplePlugins, ExamplePluginImpl.class, MultiPluginImpl.class);
-// TODO: thzero.com
+// TODO
 		assertContains(example2Plugins, MultiPluginImpl.class);
 	}
 	

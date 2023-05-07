@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -22,9 +21,7 @@ import org.junit.Test;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 public class FlightConfigurationTest extends BaseTestCase {
 	private final static double EPSILON = MathUtil.EPSILON*1E3;

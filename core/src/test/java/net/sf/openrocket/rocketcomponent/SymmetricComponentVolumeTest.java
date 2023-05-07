@@ -1,12 +1,9 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import static org.junit.Assert.assertEquals;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.util.Coordinate;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Test;
 

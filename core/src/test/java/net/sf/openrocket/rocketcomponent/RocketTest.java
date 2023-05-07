@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -19,9 +18,7 @@ import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 public class RocketTest extends BaseTestCase {
 	final double EPSILON = MathUtil.EPSILON;

@@ -1,9 +1,6 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 import net.sf.openrocket.util.MathUtil;
 import org.junit.Test;
 import org.junit.Assert;

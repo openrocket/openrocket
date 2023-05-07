@@ -1,11 +1,8 @@
-// thzero
 package net.sf.openrocket.simulation.customexpression;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Test;
 

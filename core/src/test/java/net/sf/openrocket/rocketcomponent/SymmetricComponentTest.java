@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import static org.junit.Assert.assertEquals;
@@ -6,9 +5,7 @@ import static org.junit.Assert.assertNull;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import net.sf.openrocket.util.TestRockets;
 import org.junit.Test;

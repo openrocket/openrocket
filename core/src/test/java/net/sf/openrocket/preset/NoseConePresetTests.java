@@ -1,13 +1,10 @@
-// thzero
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.assertEquals;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.Transition;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Test;
 
@@ -142,7 +139,7 @@ public class NoseConePresetTests extends BaseTestCase {
 		}
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityNoMaterial() throws Exception {
@@ -186,7 +183,7 @@ public class NoseConePresetTests extends BaseTestCase {
 		
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityWithMaterial() throws Exception {

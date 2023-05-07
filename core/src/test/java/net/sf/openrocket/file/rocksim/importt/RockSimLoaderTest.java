@@ -1,4 +1,3 @@
-// thzero
 /*
  * RockSimLoaderTest.java
  *
@@ -34,9 +33,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import org.junit.Test;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 /**
  * RockSimLoader Tester.
@@ -50,9 +47,7 @@ public class RockSimLoaderTest extends BaseTestCase {
     @org.junit.Test
     public void testFinsOnInnerTube() throws Exception {
         RockSimLoader loader = new RockSimLoader();
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/PodFins.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open PodFins.rkt", stream);
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -80,9 +75,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("FinsOnTransitions", doc.getRocket().getName());
         Assert.assertTrue(loader.getWarnings().isEmpty());
 
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/FinsOnTransitions.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open FinsOnTransitions.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -171,9 +164,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("FooBar Test", doc.getRocket().getName());
         Assert.assertTrue(loader.getWarnings().isEmpty());
 
-// thzero - begin
         stream = this.getClass().getResourceAsStream("/file/rocksim/importt/rocksimTestRocket2.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open rocksimTestRocket2.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -201,9 +192,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertFalse(stage3.isMassOverridden());
         Assert.assertFalse(stage3.isCGOverridden());
 
-// thzero - begin
         stream = this.getClass().getResourceAsStream("/file/rocksim/importt/rocksimTestRocket3.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -299,9 +288,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("Body Tube Children Test", doc.getRocket().getName());
         Assert.assertTrue(loader.getWarnings().isEmpty());
 
-// thzero - begin
         stream = this.getClass().getResourceAsStream("/file/rocksim/importt/BodyTubeChildrenTest.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open BodyTubeChildrenTest.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -342,9 +329,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("SubAssembly Test", doc.getRocket().getName());
         Assert.assertEquals(2, loader.getWarnings().size());    // can't add BodyTube to NoseCone, and can't add Transition to Transition
 
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/SubAssemblyTest.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open SubAssemblyTest.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -409,9 +394,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("Pod Test", doc.getRocket().getName());
         Assert.assertEquals(3, loader.getWarnings().size());
 
-// thzero - begin
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/PodTest.rkt");
-// thzero - end
         Assert.assertNotNull("Could not open PodTest.rkt", stream);
 
         doc = OpenRocketDocumentFactory.createEmptyRocket();
@@ -492,9 +475,7 @@ public class RockSimLoaderTest extends BaseTestCase {
     }
 
     public static OpenRocketDocument loadRockSimRocket(RockSimLoader theLoader, String fileName) throws IOException, RocketLoadException {
-// thzero - begin
         try (InputStream stream = RockSimLoaderTest.class.getResourceAsStream("/file/rocksim/importt/" + fileName)) {
-// thzero - end
             Assert.assertNotNull("Could not open " + fileName, stream);
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();

@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.simulation;
 
 import net.sf.openrocket.document.Simulation;
@@ -11,9 +10,7 @@ import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.exception.SimulationException;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 import net.sf.openrocket.util.TestRockets;
 import org.junit.Test;
 

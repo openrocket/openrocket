@@ -194,9 +194,7 @@ public class RASAeroSaverTest {
 
     private OpenRocketDocument loadRocket(String fileName) {
         GeneralRocketLoader loader = new GeneralRocketLoader(new File(fileName));
-// thzero - begin
         InputStream is = this.getClass().getResourceAsStream("/file/rasaero/export/" + fileName);
-// thzero - end
         String failMsg = String.format("Problem in unit test, cannot find %s", fileName);
         assertNotNull(failMsg, is);
 

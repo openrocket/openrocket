@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.file.motor;
 
 import static org.junit.Assert.assertEquals;
@@ -25,40 +24,30 @@ public class TestMotorLoader {
 	public void testGeneralMotorLoader() throws IOException {
 		MotorLoader loader = new GeneralMotorLoader();
 		
-// thzero - begin
 		test(loader, "/file/motor/test1.eng", DIGEST1);
 		test(loader, "/file/motor/test2.rse", DIGEST2);
 		test(loader, "/file/motor/test.zip", DIGEST2, DIGEST1);
 		test(loader, "/file/motor/test3.rse", DIGEST3);
-// thzero - end
 	}
 	
 	@Test
 	public void testRASPMotorLoader() throws IOException {
-// thzero - begin
 		test(new RASPMotorLoader(), "/file/motor/test1.eng", DIGEST1);
-// thzero - end
 	}
 	
 	@Test
 	public void testRockSimMotorLoader() throws IOException {
-// thzero - begin
 		test(new RockSimMotorLoader(), "/file/motor/test2.rse", DIGEST2);
-// thzero - end
 	}
 	
 	@Test
 	public void testRockSimMotorLoader3() throws IOException {
-// thzero - begin
 		test(new RockSimMotorLoader(), "/file/motor/test3.rse", DIGEST3);
-// thzero - end
 	}
 	
 	@Test
 	public void testZipMotorLoader() throws IOException {
-// thzero - begin
 		test(new ZipFileMotorLoader(), "/file/motor/test.zip", DIGEST2, DIGEST1);
-// thzero - end
 	}
 	
 	

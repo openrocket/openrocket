@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket;
 
 import static org.junit.Assert.assertEquals;
@@ -109,9 +108,7 @@ public class IntegrationTest {
 	public void testSimpleRocket() throws SimulationException {
 		System.setProperty("openrocket.unittest", "true");
 
-// thzero - begin
 		document = loadRocket("/simplerocket.ork");
-// thzero - end
 
 		undoAction = UndoRedoAction.newUndoAction(document);
 		redoAction = UndoRedoAction.newRedoAction(document);
@@ -266,9 +263,7 @@ public class IntegrationTest {
 	
 	private static ThrustCurveMotor readMotor() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-// thzero - begin
 		InputStream is = IntegrationTest.class.getResourceAsStream("/Estes_A8.rse");
-// thzero - end
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
 			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {

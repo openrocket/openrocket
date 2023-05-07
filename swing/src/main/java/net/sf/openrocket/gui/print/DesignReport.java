@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.gui.print;
 
 import java.awt.Graphics2D;
@@ -20,9 +19,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
-// thzero - begin
 import com.itextpdf.awt.DefaultFontMapper;
-// thzero - end
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;

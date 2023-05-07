@@ -107,7 +107,7 @@ public class BulkHeadPresetTests {
 		}
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityNoMaterial() throws Exception {
@@ -149,7 +149,7 @@ public class BulkHeadPresetTests {
 		
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityWithMaterial() throws Exception {

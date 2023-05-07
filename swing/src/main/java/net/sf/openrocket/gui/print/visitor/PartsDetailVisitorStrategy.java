@@ -1,4 +1,3 @@
-// thzero
 /*
  * PartsDetailVisitorStrategy.java
  */
@@ -626,11 +625,9 @@ public class PartsDetailVisitorStrategy {
         para.setLeading(12f, 0);
         Chunk c = new Chunk();
         c.setFont(PrintUtilities.NORMAL);
-// thzero - begin
         // TODO: Deprecated (External Dependency)
         // TODO: Needs a lot more work as "Note that separator chunks can't be used in combination with tab chunks!"
         Chunk tab1 = new Chunk(new VerticalPositionMark(), (level - 2) * 10, true);
-// thzero - end
 
         if (withIndent) {
             para.add(new Chunk(tab1));

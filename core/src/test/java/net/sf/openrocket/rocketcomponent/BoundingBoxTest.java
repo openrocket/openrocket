@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.util.BoundingBox;
@@ -6,9 +5,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 import org.junit.Test;
 
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;

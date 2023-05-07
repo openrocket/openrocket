@@ -1,13 +1,10 @@
-// thzero
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.logging.WarningSet;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.TestRockets;
 import org.junit.Test;

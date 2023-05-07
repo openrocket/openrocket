@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.assertEquals;
@@ -203,7 +202,7 @@ public class TubeCouplerPresetTests {
 		assertEquals(0.5, preset.get(ComponentPreset.THICKNESS).doubleValue(), 0.0);
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityNoMaterial() throws Exception {
@@ -247,7 +246,7 @@ public class TubeCouplerPresetTests {
 		
 	}
 
-	// TODO - test fails, could not find when running ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityWithMaterial() throws Exception {

@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.gui.configdialog;
 
 import java.lang.reflect.Method;
@@ -14,9 +13,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 public class FinSetConfigTest extends BaseTestCase {
 

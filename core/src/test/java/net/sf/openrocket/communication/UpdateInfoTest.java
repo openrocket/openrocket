@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.communication;
 
 import static org.junit.Assert.assertEquals;
@@ -9,9 +8,7 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.List;
 
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Test;
 

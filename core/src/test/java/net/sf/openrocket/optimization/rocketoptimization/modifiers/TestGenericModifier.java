@@ -1,4 +1,3 @@
-// thzero
 package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
 import static net.sf.openrocket.util.MathUtil.EPSILON;
@@ -8,9 +7,7 @@ import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.unit.UnitGroup;
 
-// thzero - begin
 import net.sf.openrocket.util.BaseTestCase;
-// thzero - end
 
 import org.junit.Assert;
 import org.junit.Before;
