@@ -64,6 +64,7 @@ dependencies {
 }
 
 def externalComponentsPath = './src/main/resources/datafiles/components'
+// Copies the external components to the Swing resource folder.
 tasks.register('externalComponentsCopy', Copy) {
     group = 'openrocket'
     dependsOn 'externalComponentsValidate'
@@ -79,21 +80,13 @@ tasks.register('externalComponentsCopy', Copy) {
         println "Copying $details.sourcePath to $details.path ..."
     }
 }
+// Deletes the external components resource folder.
 tasks.register('externalComponentsDelete', Delete) {
     group = 'openrocket'
     delete fileTree(externalComponentsPath)
 }
-tasks.register('externalComponentsInit') {
-    group = 'openrocket'
-    doLast {
-        exec {
-            workingDir "../"
-            executable 'git'
-            args 'submodule', 'init'
-        }
-        println "Executed externalComponentsInit!"
-    }
-}
+// Validates the external components resource folder.  If it is a Git project, then
+// calls the submodule updates to fetch the latest submodules.
 tasks.register('externalComponentsValidate') {
     group = 'openrocket'
     def externalResourceComponents = './resources-src/datafiles/components-dbcook/orc';
@@ -114,7 +107,7 @@ tasks.register('externalComponentsValidate') {
                     "% git submodule update --remote\n" +
                     "\n";
             println message
-            dependsOn externalComponentsUpdate
+            dependsOn subModuleUpdate
         } else {
             message +=
                     "If you retrieved this code by downloading and uncompressing a zip file,\n" +
@@ -128,16 +121,30 @@ tasks.register('externalComponentsValidate') {
         }
     }
 }
-tasks.register('externalComponentsUpdate') {
+
+// Initializes the submodules in Git.
+tasks.register('submoduleInit') {
     group = 'openrocket'
-    dependsOn 'externalComponentsInit'
+    doLast {
+        exec {
+            workingDir "../"
+            executable 'git'
+            args 'submodule', 'init'
+        }
+        println "Executed submoduleInit!"
+    }
+}
+// Updates the initialized submodules in Git.
+tasks.register('subModuleUpdate') {
+    group = 'openrocket'
+    dependsOn 'submoduleInit'
     doLast {
         exec {
             workingDir "../"
             executable 'git'
             args 'submodule', 'update', '--remote'
         }
-        println "Executed externalComponentsUpdate!"
+        println "Executed subModuleUpdate!"
     }
 }
 

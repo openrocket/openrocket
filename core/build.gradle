@@ -54,11 +54,6 @@ dependencies {
 }
 
 def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'
-// Deletes the serialize engine file if it exists.
-tasks.register('serializeEnginesDelete', Delete) {
-    group = 'openrocket'
-    delete fileTree(serializedEnginesPath)
-}
 // Executes the serialization of engines from ThrustCurve.
 tasks.register('serializeEngines') {
     group = 'openrocket'
@@ -70,6 +65,12 @@ tasks.register('serializeEngines') {
         println "Serialized engines in ${project.file(serializedEnginesPath)} already exist."
     }
 }
+// Deletes the serialize engine file if it exists.
+tasks.register('serializeEnginesDelete', Delete) {
+    group = 'openrocket'
+    delete fileTree(serializedEnginesPath)
+}
+// Excutes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
 tasks.register('serializeEnginesExecute', JavaExec) {
     group = 'openrocket'
     workingDir  new File(projectDir, 'build/tmp')
