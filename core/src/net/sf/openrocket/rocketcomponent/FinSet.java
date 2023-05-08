@@ -581,7 +581,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * 5. Return twice that since there is a fillet on each side of the fin.
 	 */
 	protected Coordinate calculateFilletVolumeCentroid() {
-		if((null == this.parent) || (!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))){
+		if ((this.filletRadius == 0) || (this.parent == null) ||
+				(!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))) {
 			return Coordinate.ZERO;
 		}
 		Coordinate[] mountPoints = this.getRootPoints();
@@ -594,7 +595,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		final Coordinate finLead = getFinFront();
 		final double xFinEnd = finLead.x + getLength();
 		final Coordinate[] rootPoints = getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
-		if (0 == rootPoints.length) {
+		if (rootPoints.length == 0) {
 			return Coordinate.ZERO;
 		}
 		
@@ -624,7 +625,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset());
 			return rotation.transform(filletVolumeCentroid);
-		}else{
+		} else{
 			return filletVolumeCentroid.setY(0.);
 		}
 	}
