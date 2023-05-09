@@ -246,7 +246,7 @@ public class CenteringRingPresetTests {
 		
 	}
 
-	/// TODO - test fails, could not find when running Ant
+	// TODO - test fails, could not find when running Ant
 	/*
 	@Test
 	public void testComputeDensityWithMaterial() throws Exception {
