@@ -9,7 +9,7 @@ jdk:
   - oraclejdk13
  
 script:
-  - gradlew clean test distFull
+  - gradlew clean serializeEnginesDist build dist
 
 notifications:
     webhooks: https://www.travisbuddy.com/

@@ -3,13 +3,13 @@ name: Build
 on: 
   push:
     branches:
-      - unstable
+      - test_gradle
   pull_request:
     branches:
-      - unstable
+      - test_gradle
 
 jobs:
-  build:
+  gradle:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +22,21 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Ant build
-        run: ant -noinput -buildfile build.xml clean check jar unittest
-      - name: Upload Artifact
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+#      Not sure why this is needed, per a support issue (https://github.com/gradle/gradle-build-action/issues/517) it should not
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Execute Gradle build
+        run: ./gradlew clean serializeEnginesDist build dist
+      - name: Upload build reports
         uses: actions/upload-artifact@v3
         with:
-          name: openrocket_build_${{ github.run_number }}
-          path: ${{github.workspace}}/swing/build/jar/OpenRocket.jar
+          name: build-reports
+          path: build/reports/
+#      - name: Upload Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: openrocket_build_${{ github.run_number }}
+#          path: ${{github.workspace}}/build/lib/openrocket*.jar
 

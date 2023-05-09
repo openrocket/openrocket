@@ -54,29 +54,63 @@ dependencies {
 }
 
 def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'
-// Executes the serialization of engines from ThrustCurve.
+def serializedEnginesPathDist = './build/resources/main/datafiles/thrustcurves/thrustcurves.ser'
+// Executes the serialization of engines from ThrustCurve for a build.
 tasks.register('serializeEngines') {
     group = 'openrocket'
-    if (!project.file(serializedEnginesPath).exists()) {
-        println 'Serializing engines.'
-        dependsOn serializeEnginesExecute
-    }
-    else {
-        println "Serialized engines in ${project.file(serializedEnginesPath)} already exist."
-    }
+    dependsOn serializeEnginesDelete
+    dependsOn serializeEnginesExecute
+}
+tasks.register('serializeEnginesDist') {
+    group = 'openrocket'
+    dependsOn serializeEnginesExecuteDist
 }
 // Deletes the serialize engine file if it exists.
 tasks.register('serializeEnginesDelete', Delete) {
     group = 'openrocket'
     delete fileTree(serializedEnginesPath)
+
+    doFirst {
+        println "Starting serializeEnginesDelete..."
+    }
+    doLast {
+        println "...serializeEnginesDelete Completed"
+    }
 }
-// Excutes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
+// Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
 tasks.register('serializeEnginesExecute', JavaExec) {
     group = 'openrocket'
+    dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors')
     args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPath
+
+    doFirst {
+        println "Starting serializeEnginesExecute..."
+//        println "${serializedEnginesPath}"
+    }
+    doLast {
+        println "...serializeEnginesExecute Completed"
+    }
+}
+// Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
+// TODO: Shouldn't need a seperate task, but the args are not changing when dynamically updating
+// the variable.
+tasks.register('serializeEnginesExecuteDist', JavaExec) {
+    group = 'openrocket'
+    dependsOn serializeEnginesDelete
+    workingDir  new File(projectDir, 'build/tmp')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors')
+    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist
+
+    doFirst {
+        println "Starting serializeEnginesExecuteDist..."
+    }
+    doLast {
+        println "...serializeEnginesExecuteDist Completed"
+    }
 }
 
 tasks.register('copyReadmeMain', Copy) {
@@ -89,7 +123,8 @@ tasks.register('copyReadmeMain', Copy) {
 }
 
 //clean.dependsOn([serializeEnginesDelete])
-compileJava.dependsOn([copyReadmeMain])
+processResources.dependsOn([copyReadmeMain])
+//jar.dependsOn([serializeEnginesExecute])
 
 // https://docs.gradle.org/7.4/userguide/cross_project_publications.html
 tasks.register('testCoreArtifactsJar', Jar) {
