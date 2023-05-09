@@ -24,11 +24,13 @@ jobs:
           distribution: 'adopt'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-#      Not sure why this is needed, per a support issue (https://github.com/gradle/gradle-build-action/issues/517) it should not
+# Not sure why this is needed, per a support issue (https://github.com/gradle/gradle-build-action/issues/517) it should not
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Execute Gradle build
-        run: ./gradlew clean serializeEnginesDist build dist
+        run: ./gradlew clean build dist
+# If wanting to serialize all the engines during build
+#        run: ./gradlew clean serializeEnginesDist build dist
       - name: Upload build reports
         uses: actions/upload-artifact@v3
         with:

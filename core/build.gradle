@@ -112,6 +112,21 @@ tasks.register('serializeEnginesExecuteDist', JavaExec) {
         println "...serializeEnginesExecuteDist Completed"
     }
 }
+// Validates that the serialize engines file exists.
+tasks.register('serializeEnginesValidate') {
+    group = 'openrocket'
+    if (!project.file(serializedEnginesPath).exists()) {
+        def message = "The serialized engine file does not exist at the following location:\n${project.file(serializedEnginesPath)}.\n" +
+                "You will need to run the following from the command line in order to generate the serialized engine file:\n"
+                "% ./gradlew serializeEngines\n" +
+                "\n";
+            println message
+            throw new GradleException('Invalid serialized engine file.')
+    } else {
+        def message = "Serialized engine file found.\n\n";
+        println message
+    }
+}
 
 tasks.register('copyReadmeMain', Copy) {
     doLast {
@@ -122,9 +137,8 @@ tasks.register('copyReadmeMain', Copy) {
     }
 }
 
-//clean.dependsOn([serializeEnginesDelete])
 processResources.dependsOn([copyReadmeMain])
-//jar.dependsOn([serializeEnginesExecute])
+processResources.dependsOn([serializeEnginesValidate])
 
 // https://docs.gradle.org/7.4/userguide/cross_project_publications.html
 tasks.register('testCoreArtifactsJar', Jar) {

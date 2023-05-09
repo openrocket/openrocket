@@ -26,7 +26,6 @@
 /core/build
 /core/tmp
 /core/misc
-/core/src/main/resources/datafiles/thrustcurves/thrustcurves.ser
 /core/src/main/resources/ReleaseNotes.md
 /core/src/test/resources/ReleaseNotes.md
 
