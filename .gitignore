@@ -13,14 +13,6 @@
 /tmp
 /loganalysis
 
-# /android/
-/android/bin
-
-# /android-libraries/achartengine/
-/android-libraries/achartengine/gen
-/android-libraries/achartengine/bin
-/android-libraries/achartengine/lint.xml
-
 # /core/
 /core/loganalysis
 /core/build
