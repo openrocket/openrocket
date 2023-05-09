@@ -3,10 +3,10 @@ name: Build
 on: 
   push:
     branches:
-      - test_gradle
+      - gradle
   pull_request:
     branches:
-      - test_gradle
+      - gradle
 
 jobs:
   gradle:
