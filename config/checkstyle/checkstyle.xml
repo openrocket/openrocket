@@ -38,13 +38,13 @@
     <module name="TreeWalker">
         <module name="Regexp">
             <property name="format" value="(FIXME|TODO:.*CRITICAL)"/>
-<!--            <property name="illegalPattern" value="true"/>-->
+            <property name="illegalPattern" value="true"/>
             <property name="message"
                       value="CRITICAL TODOs exist in project."/>
         </module>
         <module name="Regexp">
             <property name="format" value="\P{ASCII}"/>
-<!--            <property name="illegalPattern" value="true"/>-->
+            <property name="illegalPattern" value="true"/>
             <property name="message"
                       value="Non-ASCII characters exist in project."/>
         </module>
