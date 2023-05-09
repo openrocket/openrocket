@@ -34,9 +34,9 @@ jobs:
         with:
           name: build-reports
           path: build/reports/
-#      - name: Upload Artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: openrocket_build_${{ github.run_number }}
-#          path: ${{github.workspace}}/build/lib/openrocket*.jar
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: openrocket_build_${{ github.run_number }}
+          path: ${{github.workspace}}/build/lib/openrocket*.jar
 
