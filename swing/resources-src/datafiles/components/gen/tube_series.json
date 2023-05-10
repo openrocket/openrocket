@@ -1,0 +1,778 @@
+// Master tube series definitions.  These only specify the series name and the inside/outside diameters.
+// Because this file has comments, it has to be passed thru jsmin before decoding
+{ 
+    // Estes and Semroc "BT" tube series
+    // These share nomenclature.  Semroc makes various sizes that Estes never did.
+    // Except for BT-10, the Semroc sizes are a proper superset of the Estes sizes.
+    // Semroc BT-19 (missing!) is out of size order as it is smaller than BT-10
+
+    "BT-1+":
+    {
+        "name": "BT-1+",
+        "aliases": ["T-1+"],
+        "id" : "0.220 in",
+        "od" : "0.246 in",
+        "rmk": "Quest MMX motor size"
+    },
+    "BT-2":
+    {
+        "name": "BT-2",
+        "id" : "0.255 in",
+        "od" : "0.281 in",
+        "rmk": "Slips over MMX motor mount"
+    },
+    "BT-2+":
+    {
+        "name": "BT-2+",
+        "id" : "0.292 in",
+        "od" : "0.318 in",
+        "rmk": "Slips over BT-2"
+    },
+    "BT-3":
+    {
+        "name": "BT-3",
+        "id" : "0.349 in",
+        "od" : "0.375 in"
+    },
+    "BT-4":
+    {
+        "name": "BT-4",
+        "id" : "0.422 in",
+        "od" : "0.448 in"
+    },
+    "BT-4+":
+    {
+        "name": "BT-4+",
+        "id" : "0.452 in",
+        "od" : "0.478 in",
+        "rmk": "Slips over BT-4"
+    },
+    "BT-5":
+    {
+        "name": "BT-5",
+        "id" : "0.515 in",
+        "od" : "0.543 in",
+        "rmk": "13mm motor tube"
+    },
+    "BT-5+":
+    {
+        "name": "BT-5+",
+        "id" : "0.559 in",
+        "od" : "0.585 in",
+        "rmk": "Slips over BT-5"
+    },
+    "BT-10":
+    {
+        "name": "BT-10",
+        "id" : "0.710 in",
+        "od" : "0.720 in",
+        "rmk": "Ultra thin Mylar motor tube"
+    },
+    "BT-20":
+    {
+        "name": "BT-20",
+        "id" : "0.710 in",
+        "od" : "0.736 in",
+        "rmk": "18mm motor tube"
+    },
+    "BT-20+":
+    {
+        "name": "BT-20+",
+        "id" : "0.744 in",
+        "od" : "0.770 in",
+        "rmk": "Slips over BT-20"
+    },
+    "BT-30":
+    {
+        "name": "BT-30",
+        "id" : "0.725 in",
+        "od" : "0.767 in",
+        "rmk": "legacy 18mm motor tube"
+    },
+    "BT-40":
+    {
+        "name": "BT-40",
+        "id" : "0.765 in",
+        "od" : "0.825 in"
+    },
+    "BT-46":
+    {
+        "name": "BT-46",
+        "id" : "0.865 in",
+        "od" : "0.908 in"
+    },
+    "BT-50": 
+    { 
+        "name": "BT-50",
+        "aliases": ["PST-50"],
+        "id" : "0.950 in",
+        "od" : "0.976 in",
+        "rmk": "24mm motor tube"
+    },
+    "BTH-50": 
+    { 
+        "name": "BTH-50",
+        "id" : "0.950 in",
+        "od" : "0.992 in",
+        "rmk": "heavy wall 24mm motor tube"
+    },
+    // BT-50+, BT-51 and BT-52 are all within .004" of each other
+    "BT-50+": 
+    { 
+        "name": "BT-50+",
+        "id" : "0.984 in",
+        "od" : "1.010 in",
+        "rmk": "Slips over BT-50; only .001 inch different from BT-51"
+    },
+    "BT-51": 
+    { 
+        "name": "BT-51",
+        "id" : "0.985 in",
+        "od" : "1.011 in",
+        "rmk": "Slips over BT-50"
+    },
+    "BT-52": 
+    { 
+        "name": "BT-52",
+        "id" : "0.988 in",
+        "od" : "1.014 in",
+        "rmk": "Slips over BT-50"
+    },
+    "BTH-52": 
+    { 
+        "name": "BTH-52",
+        "id" : "1.140 in",
+        "od" : "1.220 in",
+        "rmk": "29mm motor tube; not same as BT-52; identical to Centuri LT-115"
+    },
+    "BT-55": 
+    { 
+        "name": "BT-55",
+        "aliases": ["PST-55"],
+        "id" : "1.283 in",
+        "od" : "1.325 in"
+    },
+    "BT-56": 
+    { 
+        "name": "BT-56",
+        "id" : "1.304 in",
+        "od" : "1.346 in",
+        "rmk": "Nearly identical to Centuri ST-13, from which it was derived"
+    },
+    "BT-58": 
+    { 
+        "name": "BT-58",
+        "id" : "1.498 in",
+        "od" : "1.540 in"
+    },
+    "BT-60": 
+    { 
+        "name": "BT-60",
+        "id" : "1.595 in",
+        "od" : "1.637 in"
+    },
+    "BT-70": 
+    { 
+        "name": "BT-70",
+        "id" : "2.175 in",
+        "od" : "2.217 in"
+    },
+    "BTH-70": 
+    { 
+        "name": "BTH-70",
+        "id" : "2.175 in",
+        "od" : "2.247 in",
+        "rmk": "heavy wall version of BT-70"
+    },
+    "BT-80": 
+    { 
+        "name": "BT-80",
+        "id" : "2.558 in",
+        "od" : "2.600 in"
+    },
+    "BTH-80": 
+    { 
+        "name": "BTH-80",
+        "id" : "2.558 in",
+        "od" : "2.640 in",
+        "rmk": "heavy wall version of BT-80"
+    },
+    "BT-99": 
+    { 
+        "name": "BT-99",
+        "aliases": ["RT-99"],
+        "id" : "3.668 in",
+        "od" : "3.700 in"
+    },
+    "BT-100": 
+    { 
+        "name": "BT-100",
+        "id" : "3.702 in",
+        "od" : "3.744 in"
+    },
+    "BT-101": 
+    { 
+        "name": "BT-101",
+        "id" : "3.896 in",
+        "od" : "3.938 in"
+    },
+
+    // Estes clear plastic tube sizes - only the PST-65 is unique
+    // PST-50 and PST-55 are aliased to BT-50 and BT-55 above
+
+    "PST-65": 
+    { 
+        "name": "PST-65",
+        "id" : "1.750 in",
+        "od" : "1.774 in"
+    },
+
+    // Estes Pro Series II tube sizes - all up thru 3" diam with .034 wall (measured)
+
+    "PS2-29MMT": 
+    { 
+        "name": "PS2-29MMT",
+        "id" : "1.140 in",
+        "od" : "1.208 in"
+    },
+    "PS2-2.0": 
+    { 
+        "name": "PS2-2.0",
+        "id" : "1.932 in",
+        "od" : "2.000 in"
+    },
+    "PS2-2.5": 
+    { 
+        "name": "PS2-2.5",
+        "id" : "2.432 in",
+        "od" : "2.500 in"
+    },
+    "PS2-3.0": 
+    { 
+        "name": "PS2-3.0",
+        "id" : "2.932 in",
+        "od" : "3.000 in"
+    },
+    // PS2-4.0 is same as LOC 4" size and is aliased to that
+
+
+
+    // Centuri regular tube series
+
+    "ST-2":
+    {
+        "name": "ST-2",
+        "aliases": [ "#2" ],
+        "id": "0.234 in",
+        "od": "0.260 in"
+    },
+    "ST-5":
+    {
+        "name": "ST-5",
+        "aliases": [ "#5" ],
+        "id": "0.515 in",
+        "od": "0.543 in",
+        "rmk": "Identical to BT-5"
+    },
+    "ST-6":
+    {
+        "name": "ST-6",
+        "aliases": [ "#6" ],
+        "id": "0.610 in",
+        "od": "0.650 in"
+    },
+    "ST-7":
+    {
+        "name": "ST-7",
+        "aliases": [ "#7" ],
+        "id": "0.715 in",
+        "od": "0.759 in"
+    },
+    "ST-8":
+    {
+        "name": "ST-8",
+        "aliases": [ "#8" ],
+        "id": "0.865 in",
+        "od": "0.908 in"
+    },
+    "ST-9":
+    {
+        "name": "ST-9",
+        "aliases": [ "#9" ],
+        "id": "0.950 in",
+        "od": "0.998 in",
+        "rmk": "24mm motor tube, same ID as BT-50"
+    },
+    "ST-10":
+    {
+        "name": "ST-10",
+        "aliases": [ "#10" ],
+        "id": "1.000 in",
+        "od": "1.040 in"
+    },
+    "ST-11":
+    {
+        "name": "ST-11",
+        "aliases": [ "#11" ],
+        "id": "1.130 in",
+        "od": "1.170 in"
+    },
+    "ST-13":
+    {
+        "name": "ST-13",
+        "aliases": [ "#13" ],
+        "id": "1.300 in",
+        "od": "1.340 in",
+        "rmk": "originally same as BT-56"
+    },
+    "ST-16":
+    {
+        "name": "ST-16",
+        "aliases": [ "#16" ],
+        "id": "1.600 in",
+        "od": "1.640 in"
+    },
+    "ST-18":
+    {
+        "name": "ST-18",
+        "aliases": [ "#18" ],
+        "id": "1.800 in",
+        "od": "1.840 in"
+    },
+    "ST-20":
+    {
+        "name": "ST-20",
+        "aliases": [ "#20" ],
+        "id": "2.000 in",
+        "od": "2.040 in"
+    },
+    "ST-27":
+    {
+        "name": "ST-27",
+        "aliases": [ "#27" ],
+        "id": "2.674 in",
+        "od": "2.700 in"
+    },
+    "ST-36":
+    {
+        "name": "ST-36",
+        "aliases": [ "#36" ],
+        "id": "3.600 in",
+        "od": "3.690 in"
+    },
+
+    // Centuri "large tube" LT-xxx sizes with heavy wall
+    "LT-085":
+    {
+        "name": "LT-085",
+        "id": "0.865 in",
+        "od": "0.945 in",
+        "rmk": "heavy wall version of ST-8"
+    },
+    "LT-115":
+    {
+        "name": "LT-115",
+        "id": "1.140 in",
+        "od": "1.220 in",
+        "rmk": "29mm motor tube"
+    },
+    "LT-125":
+    {
+        "name": "LT-125",
+        "id": "1.250 in",
+        "od": "1.340 in"
+    },
+    "LT-150":
+    {
+        "name": "LT-150",
+        "id": "1.500 in",
+        "od": "1.590 in"
+    },
+    "LT-175":
+    {
+        "name": "LT-175",
+        "id": "1.750 in",
+        "od": "1.840 in"
+    },
+    "LT-200":
+    {
+        "name": "LT-200",
+        "id": "2.000 in",
+        "od": "2.080 in"
+    },
+    "LT-225":
+    {
+        "name": "LT-225",
+        "id": "2.250 in",
+        "od": "2.340 in"
+    },
+    "LT-275":
+    {
+        "name": "LT-275",
+        "id": "2.750 in",
+        "od": "2.840 in"
+    },
+
+    // Centuri clear plastic tube sizes are same as corresponding ST-xx
+
+    // Aerotech tube sizes.  Dimensions are not considered fully precise;
+    // in a rocketry forum post of 16 Nov 2014, Aerotech said dimensions are +/- .005"
+    "AER-1.9": 
+    { 
+        "name": "AER-1.9",
+        "id" : "1.800 in",
+        "od" : "1.880 in",
+        "rmk": "dimensions from Rocketarium"
+    },
+    "AER-2.6": 
+    { 
+        "name": "AER-2.6",
+        "id" : "2.560 in",
+        "od" : "2.640 in",
+        "rmk": "dimensions from Aerotech TRF post 16 Nov 2014"
+    },
+    "AER-4.0": 
+    { 
+        "name": "AER-4.0",
+        "id" : "3.900 in",
+        "od" : "3.987 in",
+        "rmk": "dimensions from Aerotech TRF post 16 Nov 2014"
+    },
+
+    // Blue tube sizes
+    // NOW AUTHORITATIVE - Rocksim data table published 2017 on AlwaysReadyRocketry site
+    // it has been said that not all production batches of blue tube are exactly the same
+    // The IDs start with BT20 which means "Blue Tube 2.0"
+    "BT20-29A": 
+    { 
+        "name": "BT20-29A",
+        "id" : "1.141 in",
+        "od" : "1.265 in",
+        "rmk": "29mm motor tube"
+    },
+    "BT20-38A": 
+    { 
+        "name": "BT20-38A",
+        "id" : "1.525 in",
+        "od" : "1.649 in",
+        "rmk": "38mm motor tube"
+    },
+    "BT20-54A": 
+    { 
+        "name": "BT20-54A",
+        "id" : "2.140 in",
+        "od" : "2.264 in",
+        "rmk": "54mm motor tube"
+    },
+    "BT20-63A": 
+    { 
+        "name": "BT20-63A",
+        "id" : "2.550 in",
+        "od" : "2.674 in"
+    },
+    "BT20-75A": 
+    { 
+        "name": "BT20-75A",
+        "id" : "3.000 in",
+        "od" : "3.124 in",
+        "rmk": "75mm motor tube"
+    },
+    "BT20-98A": 
+    { 
+        "name": "BT20-98A",
+        "id" : "3.900 in",
+        "od" : "4.024 in",
+        "rmk": "98mm motor tube"
+    },
+    "BT20-139A": 
+    { 
+        "name": "BT20-139A",
+        "id" : "5.345 in",
+        "od" : "5.503 in"
+    },
+    "BT20-152A": 
+    { 
+        "name": "BT20-152A",
+        "id" : "6.000 in",
+        "od" : "6.160 in"
+    },
+    "BT20-191A": 
+    { 
+        "name": "BT20-191A",
+        "id" : "7.510 in",
+        "od" : "7.670 in"
+    },
+
+
+
+    // LOC tube sizes - the basis for many large cardboard body tubes
+    "BT-0.71": 
+    { 
+        "name": "BT-0.71",
+        "aliases": [ "MMT-0.71" ],
+        "id" : "0.715 in",
+        "od" : "0.765 in",
+        "rmk": "18mm motor tube"
+    },
+    "BT-0.95": 
+    { 
+        "name": "BT-0.95",
+        "aliases": [ "MMT-0.95" ],
+        "id" : "0.950 in",
+        "od" : "1.000 in",
+        "rmk": "24mm motor tube"
+    },
+    "BT-1.14": 
+    { 
+        "name": "BT-1.14",
+        "aliases": [ "MMT-1.14" ],
+        "id" : "1.140 in",
+        "od" : "1.210 in",
+        "rmk": "29mm motor tube"
+    },
+    "BT-1.52": 
+    { 
+        "name": "BT-1.52",
+        "aliases": [ "MMT-1.52" ],
+        "id" : "1.52 in",
+        "od" : "1.630 in",
+        "rmk": "38mm motor tube"
+    },
+    "BT-2.14": 
+    { 
+        "name": "BT-2.14",
+        "aliases": [ "MMT-2.14" ],
+        "id" : "2.140 in",
+        "od" : "2.260 in",
+        "rmk": "54mm motor tube"
+    },
+    "BT-2.56": 
+    { 
+        "name": "BT-2.56",
+        "id" : "2.560 in",
+        "od" : "2.630 in"
+    },
+    "BT-3.00": 
+    { 
+        "name": "BT-3.00",
+        "id" : "3.000 in",
+        "od" : "3.100 in"
+    },
+    "BT-3.9": 
+    { 
+        "name": "BT-3.9",
+        "aliases": [ "PS2-4.0" ],
+        "id" : "3.9 in",
+        "od" : "4.0 in"
+    },
+    "BT-5.38": 
+    { 
+        "name": "BT-5.38",
+        "id" : "5.380 in",
+        "od" : "5.540 in"
+    },
+    "BT-7.51": 
+    { 
+        "name": "BT-7.51",
+        "id" : "7.515 in",
+        "od" : "7.675 in"
+    },
+
+    // LOC heavy wall motor tube sizes
+    "MMTHD-3.00": 
+    { 
+        "name": "MMTHD-3.00",
+        "id" : "3.000 in",
+        "od" : "3.120 in",
+        "rmk": "75mm motor tube"
+    },
+    "MMTHD-3.90": 
+    { 
+        "name": "MMTHD-3.90",
+        "id" : "3.900 in",
+        "od" : "4.020 in",
+        "rmk": "98mm motor tube"
+    },
+
+
+    // LOC tube coupler sizes
+    "TC-1.14": 
+    { 
+        "name": "TC-1.14",
+        "id" : "1.006 in",
+        "od" : "1.127 in"
+    },
+    "TC-1.52": 
+    { 
+        "name": "TC-1.52",
+        "id" : "1.398 in",
+        "od" : "1.520 in",
+        "rmk": "LOC mfr spec has zero clearance"
+    },
+    "TC-2.14": 
+    { 
+        "name": "TC-2.14",
+        "id" : "2.017 in",
+        "od" : "2.138 in",
+        "rmk": "LOC mfr spec has only .002 clearance"
+    },
+    "TC-2.56": 
+    { 
+        "name": "TC-2.56",
+        "id" : "2.479 in",
+        "od" : "2.555 in"
+    },
+    "TC-3.00": 
+    { 
+        "name": "TC-3.00",
+        "id" : "2.880 in",
+        "od" : "2.990 in"
+    },
+    "TC-3.90": 
+    { 
+        "name": "TC-3.90",
+        "id" : "3.811 in",
+        "od" : "3.884 in"
+    },
+    "TC-5.38": 
+    { 
+        "name": "TC-5.38",
+        "id" : "5.272 in",
+        "od" : "5.372 in"
+    },
+    "TC-7.51": 
+    { 
+        "name": "TC-7.51",
+        "id" : "7.398 in",
+        "od" : "7.508 in"
+    },
+
+    // LOC tube coupler stiffener sizes
+    "STC-2.14": 
+    { 
+        "name": "STC-2.14",
+        "id" : "1.755 in",
+        "od" : "2.000 in"
+    },
+    "STC-2.56": 
+    { 
+        "name": "STC-2.56",
+        "id" : "2.245 in",
+        "od" : "4.278 in"
+    },
+    "STC-3.00": 
+    { 
+        "name": "STC-3.00",
+        "id" : "2.625 in",
+        "od" : "2.878 in"
+    },
+    "STC-3.90": 
+    { 
+        "name": "STC-3.90",
+        "id" : "3.555 in",
+        "od" : "3.785 in"
+    },
+    "STC-5.38": 
+    { 
+        "name": "STC-5.38",
+        "id" : "4.980 in",
+        "od" : "5.240 in"
+    },
+    "STC-7.51": 
+    { 
+        "name": "STC-7.51",
+        "id" : "7.398 in",
+        "od" : "7.508 in"
+    },
+
+    // CMR tube sizes
+    "RB-50": 
+    { 
+        "name": "RB-50",
+        "id" : "0.538 in",
+        "od" : "0.558 in",
+        "rmk": "13mm motor tube"
+    },
+    "RB-52": 
+    { 
+        "name": "RB-52",
+        "id" : "0.564 in",
+        "od" : "0.584 in",
+        "rmk": "slip fit over RB-50"
+    },
+    "RB-74": 
+    { 
+        "name": "RB-74",
+        "id" : "0.710 in",
+        "od" : "0.736 in",
+        "rmk": "18mm motor tube"
+    },
+    "RB-77": 
+    { 
+        "name": "RB-77",
+        "id" : "0.740 in",
+        "od" : "0.766 in",
+        "rmk": "slip fit over RB-74"
+    },
+    "RB-90": 
+    { 
+        "name": "RB-90",
+        "id" : "0.864 in",
+        "od" : "0.890 in",
+        "rmk": "21mm FSI motor tube"
+    },
+    "RB-92": 
+    { 
+        "name": "RB-92",
+        "id" : "0.894 in",
+        "od" : "0.920 in",
+        "rmk": "slip fit over RB-90"
+    },
+    "RB-120": 
+    { 
+        "name": "RB-120",
+        "id" : "1.120 in",
+        "od" : "1.170 in",
+        "rmk": "27mm FSI motor tube"
+    },
+
+    // FSI tube sizes
+    "HRT-8": 
+    { 
+        "name": "HRT-8",
+        "id" : "0.903 in",
+        "od" : "0.921 in",
+        "rmk": "21mm FSI motor tube"
+    },
+    "HRT-10": 
+    { 
+        "name": "HRT-10",
+        "id" : "1.130 in",
+        "od" : "1.170 in",
+        "rmk": "27mm FSI motor tube"
+    },
+    "RT-12": 
+    { 
+        "name": "RT-12",
+        "id" : "1.300 in",
+        "od" : "1.340 in"
+    },
+    "RT-15": 
+    { 
+        "name": "RT-15",
+        "id" : "1.600 in",
+        "od" : "1.640 in"
+    },
+    "RT-19": 
+    { 
+        "name": "RT-19",
+        "id" : "2.000 in",
+        "od" : "2.040 in"
+    },
+
+
+    // dummy entry at end without the trailing comma, kept valid so it will parse
+    "zzzdummy":
+    { "name": "zzzdummy", "id": "0 in", "od": "0 in"}
+
+}

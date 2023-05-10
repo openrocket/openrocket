@@ -1,0 +1,61 @@
+Mfg.,Part no,Desc,Units,Root chord,Tip chord,Span,Sweep Dist.,Thickness,Shape,Tip shape,Material,Sweep Mode,Sweep Mode,Sweep Mode,Sweep Mode,Sweep Mode,Sweep Mode,Sweep Mode
+PML,1-2Pat1,1/2 Patriot fins,in,12.5,4.5,6.625,7.9997,0.0938,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,1-4Pat1,1/4 Patriot fins,in,6.75,2.125,3.5,4.5008,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,AM21,AMRAAM-2 Upper fins,in,3,0.001,1.5,3.0007,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,AM22,AMRAAM-2 Lower fins,in,3.5,1.125,2.75,2.2501,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,AM31,AMRAAM-3 Upper fins,in,3.375,0.001,2,3.3751,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,AM32,AMRAAM-3 Lower fins,in,5.25,1.5,3.875,3.7499,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,AM41,AMRAAM-4 Upper fins,in,6,0.001,3,6.0013,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,AM42,AMRAAM-4 Lower fins,in,7,2,5.5,4.7508,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,Arie1,Ariel fins,in,5,2.25,5,1.5001,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,Auro1,Aurora fins,in,9.5,0.001,5.5,9.4995,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,BBV1,Black Brant VB fins,in,6.25,3.75,3.125,6.2514,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,BBX1,Black Brant X Upper fins,in,3,0.001,1.75,2.9996,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,BBX2,Black Brant X Lower fins,in,10,6,4.75,7.9493,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,Buld1,Bulldog Upper fins,in,3.125,0.001,2,3.1249,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,Buld2,Bulldog lower fins,in,9,2.5,9,6.5006,0.0625,trapezoid,square,G10 fiberglass,1,,,,,,
+PML,Bulp1,Bullpup Upper fins,in,2.125,0.001,1,2.1251,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Bulp2,Bullpup Lower fins,in,4.5,1.5,4.5,3,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Call1,Callisto fins,in,4,1.75,4,1.0003,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Eclp1,Eclipse fins,in,11,2.625,4,8.0018,0.0625,trapezoid,square,G10 fiberglass,1
+PML,End1,Endeavour Upper fins,in,7.75,2.125,3.5,7.4989,0.0625,trapezoid,square,G10 fiberglass,1
+PML,End2,Endeavour Lower fins,in,5,3,3.5,2.0004,0.0625,trapezoid,square,G10 fiberglass,1
+PML,IO,IO fins,in,4,1.75,4,1.0003,0.1875,trapezoid,square,G10 fiberglass,1
+PML,LER,LunarExp Rudders,in,9.375,6,3.75,4.4993,0.0625,trapezoid,square,G10 fiberglass,1
+PML,LEW,LunarExp Wings,in,12.5,7,7.75,8.0002,0.0625,trapezoid,square,G10 fiberglass,1
+PML,LLER,LilLunarExp Rudders,in,6.125,4,2.5,2.8756,0.0625,trapezoid,square,G10 fiberglass,1
+PML,LLEW,LilLunarExp Wings,in,7.75,4.75,4.75,4.4997,0.0625,trapezoid,square,G10 fiberglass,1
+PML,LLnExp Averaged,Fins,in,6.938,4.275,3.625,4.1248,0.063,trapezoid,square,G10 fiberglass,1
+PML,LunExp Averaged,Fins,in,10.938,6.5,5.75,7.999,0.063,trapezoid,square,G10 phenolic,0
+PML,Matrix,Upper Main Fins,in,14,0,2,14.0002,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Nimb1,Nimbus fins,in,9,1.5,3.625,5.2508,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Phan1,Phantom Longer fins,in,7.75,0.001,3,6.2503,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Phan2,Phantom Shorter fins,in,4.25,0.001,2.25,2.7499,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Phob1,Phobos fins,in,6.5,0.001,3.75,6.5004,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Quas1,Quasar fins,in,8.25,0.001,3.375,6.2498,0.0625,trapezoid,square,G10 fiberglass,1
+PML,SmEnd1,Small Endeavour Upper fins,in,4.5,1,2.5,4.75,0.0625,trapezoid,square,G10 fiberglass,1
+PML,SmEnd2,Small Endeavour Lower fins,in,3,1.75,2.5,1.2503,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Stra1,Stratus fins,in,6,0.001,2.5,4.7497,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Sudd1,Sudden Rush fins,in,8.5,0.001,4.25,7.2498,0.0625,trapezoid,square,G10 fiberglass,1
+PML,T&L1,Thund/Light upper fins,in,11.5,0.001,4,8.6252,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Temp1,Tempest fins,in,11.25,0.001,4.25,9.7511,0.0625,trapezoid,square,G10 fiberglass,1
+PML,Tethys or T&L lwr or C-05,Fins,in,6,1.75,5,2.8751,0.0938,trapezoid,square,G10 fiberglass,1
+PML,Tomy1,D-Region Tomahawk fins,in,6.5,3,4.875,4.7507,0.0625,trapezoid,square,G10 fiberglass,1
+PML,UEnd1,Ultimate Endeavour Upper fins,in,11.5,3,5.5,11.0024,0.0938,trapezoid,square,G10 fiberglass,1
+PML,UEnd2,Ultimate Endeavour Lower fins,in,7.25,4.75,5.5,2.4995,0.0938,trapezoid,square,G10 fiberglass,1
+PML,PML A-01,Fins,in,4,2,4,2.0004,0.0625,trapezoid,square,G10 fiberglass,1
+PML,PML A-05 & Miranda,Fins,in,4,1.5,3,1.7503,0.0625,trapezoid,square,G10 fiberglass,1
+PML,PML A-06,Fins,in,5.5,1.5,4,4,0.0625,trapezoid,square,G10 fiberglass,1
+PML,PML A-08,Fins,in,4,1.875,4,3.3564,0.0625,trapezoid,square,G10 fiberglass,0
+PML,PML B-01,Fins,in,5,2.5,5,2.5005,0.0625,trapezoid,square,G10 fiberglass,1
+PML,PML B-05,Fins,in,5,1.625,4,2.2502,0.0625,trapezoid,square,G10 fiberglass,1
+PML,PML Qleap lwr & B-06,Fins,in,7,2,5,5,0.0625,trapezoid,square,G10 fiberglass,1
+PML,PML B-08,Fins,in,5,2.5,5,4.1955,0.0625,trapezoid,square,G10 fiberglass,0
+PML,PML C-01,Fins,in,6,3,6,3.0007,0.0938,trapezoid,square,G10 fiberglass,1
+PML,PML C-04,Fins,in,10,0.001,6,10.186,0.0938,trapezoid,square,G10 fiberglass,0
+PML,PML C-06,Fins,in,9,3.125,6,6,0.0938,trapezoid,square,G10 fiberglass,0
+PML,PML C-08,Fins,in,6,2.875,6,5.0346,0.0938,trapezoid,square,G10 fiberglass,0
+PML,PML D-01,Fins,in,8,3.875,8,4.0009,0.0938,trapezoid,square,G10 fiberglass,0
+PML,PML D-04,Fins,in,13.5,0.001,8,13.5813,0.0938,trapezoid,square,G10 fiberglass,0
+PML,PML D-06,Fins,in,12,4,8,8,0.094,trapezoid,square,G10 fiberglass,0
+PML,PML D-08,Fins,in,8,3.5,8,6.8327,0.094,trapezoid,square,G10 fiberglass,0

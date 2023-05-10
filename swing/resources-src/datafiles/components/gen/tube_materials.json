@@ -1,0 +1,38 @@
+{
+    "kraft_glassine_estes_avg":
+    {
+        "desc": "paper, spiral, kraft, glassine outer wrap, Estes type",
+        "material": "paper",
+        "construction": "spiral",
+        "material_attributes": ["kraft", "glassine outer wrap", "Estes type"],
+        "density" : "0.894 g/cm3",
+        "rmk": "average from Estes catalog specs"
+    },
+    "kraft_coupler_loc":
+    {
+        "desc": "paper, spiral, kraft, LOC coupler type",
+        "material": "paper",
+        "construction": "spiral",
+        "material_attributes": ["kraft", "LOC coupler type"],
+        "density": "0.790 g/cm3",
+        "rmk": "average derived from Apogee data on LOC couplers"
+    },
+    "bluetube_2":
+    {
+        "desc": "paper, vulcanized, Blue Tube 2.0",
+        "material": "paper",
+        "construction": "spiral",
+        "material_attributes": ["vulcanized", "BlueTube 2.0"],
+        "density": "1.162 g/cm3",
+        "rmk": "measured value from samples circa 2016"
+    },
+    "fiberglass_g12_filament_wound":
+    {
+        "desc": "fiberglass, G12, filament wound",
+        "material": "fiberglass",
+        "construction": "G12",
+        "material_attributes": ["filament wound"],
+        "density": "1.182 g/cm3",
+        "rmk": "typical for filament wound G12 tube"
+    }
+}

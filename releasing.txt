@@ -1,0 +1,50 @@
+Steps for making a release:
+
+Prerequisites:
+  Must have clone of https://github.com/openrocket/openrocket.git
+     
+The steps below will use '(git)' to note the step requires working in the files stored on GitHub.
+
+1.  Update ./core/src/main/resources/build.properties for the new version.
+
+2.  Update ./ReleaseNotes.md
+
+3.  Update ./ChangeLog
+
+4.  gradlew clean check build dist
+
+5.  Test new features 
+    - Execute the jar created by the distribution process in the ./build/libs folder.
+    - Do not execute it from the project directory.
+
+7.  Update ./web/html/actions/updates.php and test various versions using a different url:
+
+    scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/testupdates.php
+    java -Dopenrocket.debug.updateurl=http://openrocket.sourceforge.net/actions/testupdates.php -jar openrocket-22.02.jar
+
+8.  Update HTML: ./web/htp/htp.def (version number) ./web/htp/news.htp (release info)
+
+9.  Run "htp @" and check the web pages locally (htp is available from htp.sourceforge.net)
+
+10. Tag the version in Git 'git tag -a release-XX.YY'
+
+11. Commit files+tag to git (OpenRocket and dists, 'git push origin release-XX.YY')
+
+12. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
+     - Files -> Add Folder -> Add File
+
+13. Update HTML to web server:
+    cd ./web/html; scp * plaa,openrocket@web.sourceforge.net:htdocs/
+
+14. Test downloading from GitHub and web site
+
+15. Update update.php to web server:
+
+    cd ./web/html/actions/; scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/
+
+16. Test update checking without specific options
+
+17. Update build.properties to "dev" version + commit
+
+18. Send email about new release to openrocket-announce@lists.sourceforge.net
+

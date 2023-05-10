@@ -1,0 +1,59 @@
+//// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+plugins {
+    id "com.github.johnrengelman.shadow"
+    id "java"
+    id 'checkstyle'
+}
+
+Properties props = new Properties()
+try {
+    props.load(file('./core/src/main/resources/build.properties').newDataInputStream())
+} catch (Exception ex) {
+    throw new Exception("Missing build.properties. file: " + ex.getMessage())
+}
+
+allprojects {
+    group 'net.sf.openrocket'
+    version = props['build.version']
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':swing')
+}
+
+//tasks.register('serializeEngines') {
+//    dependsOn ':core:serializeEngines'
+//}
+
+jar {
+    archiveBaseName.set('openrocket')
+
+    manifest {
+        attributes (
+            'Main-Class': 'net.sf.openrocket.startup.OpenRocket',
+            'SplashScreen-Image': 'pix/splashscreen.png'
+        )
+    }
+}
+
+shadowJar {
+    archiveBaseName.set('openrocket')
+    archiveClassifier.set(null)
+}
+
+//shadowJar.dependsOn([':core:serializeEngines'])
+
+// Packages the application for distribution.
+tasks.register('dist') {
+    group = 'openrocket'
+    dependsOn 'shadowJar'
+    doLast {
+        println "Completed the deployable jar in './build/libs"
+    }
+}
