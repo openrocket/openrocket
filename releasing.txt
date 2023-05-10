@@ -11,7 +11,7 @@ The steps below will use '(git)' to note the step requires working in the files 
 
 3.  Update ./ChangeLog
 
-4.  gradlew clean test distFull
+4.  gradlew clean check build dist
 
 5.  Test new features 
     - Execute the jar created by the distribution process in the ./build/libs folder.
