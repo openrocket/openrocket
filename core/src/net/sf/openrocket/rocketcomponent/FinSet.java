@@ -544,7 +544,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return centerOfMass;
 	}
 
-	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius){
+	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius) {
 		final double hypotenuse = filletRadius + bodyRadius;
 		final double innerArcAngle = Math.asin(filletRadius / hypotenuse);
 		final double outerArcAngle = Math.acos(filletRadius / hypotenuse);
@@ -554,17 +554,17 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 				- outerArcAngle * filletRadius * filletRadius / 2
 				- innerArcAngle * bodyRadius * bodyRadius / 2);
 
-		if(Double.isNaN(crossSectionArea)) {
+		if (Double.isNaN(crossSectionArea)) {
 			crossSectionArea = 0.;
-		}else {
+		} else {
 			// each fin has a fillet on each side
 			crossSectionArea *= 2;
 		}
 
 		// heuristic, relTo the body center
-		double yCentroid = bodyRadius + filletRadius /5;
+		double yCentroid = bodyRadius + filletRadius / 5;
 
-		return new Coordinate(0,yCentroid,0,crossSectionArea);
+		return new Coordinate(0, yCentroid, 0, crossSectionArea);
 	}
 
 	/*
@@ -617,7 +617,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 			final Coordinate segmentCentroid = segmentCrossSection.setWeight(segmentVolume);
 
-			filletVolumeCentroid = filletVolumeCentroid.add(segmentCentroid);
+			filletVolumeCentroid = filletVolumeCentroid.average(segmentCentroid);
 
 			prev = cur;
 		}
