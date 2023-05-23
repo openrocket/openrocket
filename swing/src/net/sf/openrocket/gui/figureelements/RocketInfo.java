@@ -189,16 +189,6 @@ public class RocketInfo implements FigureElement {
 	
 	
 	private void drawStabilityInfo() {
-		String at;
-		//// at M=
-		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(this.mach);
-		if (!Double.isNaN(aoa)) {
-			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
-		}
-		if (!Double.isNaN(theta)) {
-			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
-		}
-		
 		GlyphVector cgValue = createText(getCg());
 		GlyphVector cpValue = createText(getCp());
 		GlyphVector stabValue = createText(getStabilityCombined());
@@ -209,6 +199,15 @@ public class RocketInfo implements FigureElement {
 		GlyphVector cpText = createText(trans.get("RocketInfo.cpText"));
 		//// Stability:
 		GlyphVector stabText = createText(trans.get("RocketInfo.stabText"));
+
+		//// at M=...
+		String at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(this.mach);
+		if (!Double.isNaN(aoa)) {
+			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
+		}
+		if (!Double.isNaN(theta)) {
+			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
+		}
 		GlyphVector atText = createSmallText(at);
 		
 		// GlyphVector visual bounds drops the spaces, so we'll add them
