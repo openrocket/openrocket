@@ -1269,5 +1269,37 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(0.02, bodyTube.getMass(), EPSILON);
 		assertEquals(0.02, bodyTube.getSectionMass(), EPSILON);
 	}
+
+
+	@Test
+	public void testTubeFinMass() {
+		Rocket rocket = OpenRocketDocumentFactory.createNewRocket().getRocket();
+		AxialStage stage = rocket.getStage(0);
+		BodyTube bodyTube = new BodyTube();
+		stage.addChild(bodyTube);
+		TubeFinSet tubeFinSet = new TubeFinSet();
+		tubeFinSet.setOuterRadius(0.04);
+		tubeFinSet.setThickness(0.002);
+		tubeFinSet.setLength(0.1);
+		tubeFinSet.setInstanceCount(3);
+		bodyTube.addChild(tubeFinSet);
+
+		assertEquals(0.0001470265, tubeFinSet.getComponentVolume(), EPSILON);
+		assertEquals(0.0999780446, tubeFinSet.getComponentMass(), EPSILON);
+		assertEquals(0.0999780446, tubeFinSet.getMass(), EPSILON);
+
+		tubeFinSet.setInstanceCount(4);
+
+		assertEquals(0.000196035, tubeFinSet.getComponentVolume(), EPSILON);
+		assertEquals(0.133304059, tubeFinSet.getComponentMass(), EPSILON);
+		assertEquals(0.133304059, tubeFinSet.getMass(), EPSILON);
+
+		tubeFinSet.setMassOverridden(true);
+		tubeFinSet.setOverrideMass(0.02);
+
+		assertEquals(0.133304059, tubeFinSet.getComponentMass(), EPSILON);
+		assertEquals(0.02, tubeFinSet.getMass(), EPSILON);
+	}
+
 	
 }
