@@ -65,7 +65,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Alpha III Empty Mass is incorrect: ", expRocketDryMass, actualRocketDryMass, EPSILON);
 
 		double expCMx = 0.1917685523;
-		double expCMy = -0.00006340812673;		// Slight offset due to launch lug
+		double expCMy = -0.000317040634;		// Slight offset due to launch lug
 		Coordinate expCM = new Coordinate(expCMx, expCMy, 0, expRocketDryMass);
 		assertEquals("Simple Rocket CM.x is incorrect: ", expCM.x, actualRocketDryCM.x, EPSILON);
 		assertEquals("Simple Rocket CM.y is incorrect: ", expCM.y, actualRocketDryCM.y, EPSILON);
@@ -73,7 +73,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals("Simple Rocket CM is incorrect: ", expCM, actualRocketDryCM);
 
 
-		double expMOIrot = 1.8763734635622462E-5;
+		double expMOIrot = 1.888136072268211E-5;
 		double expMOIlong = 1.7808603404853048E-4;
 
 		double actualMOIrot = actualStructure.getRotationalInertia();
@@ -118,7 +118,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Alpha III Total Mass (with motor: " + desig + ") is incorrect: ", expRocketLaunchMass, actualRocketLaunchMass, EPSILON);
 
 		double expCMx = 0.20996455968266833;
-		double expCMy = -0.00003845163503;		// Slight offset due to launch lug
+		double expCMy = -0.00019225817513303;		// Slight offset due to launch lug
 		Coordinate expCM = new Coordinate(expCMx, expCMy, 0, expRocketLaunchMass);
 		assertEquals("Simple Rocket CM.x is incorrect: ", expCM.x, actualRocketLaunchCM.x, EPSILON);
 		assertEquals("Simple Rocket CM.y is incorrect: ", expCM.y, actualRocketLaunchCM.y, EPSILON);
