@@ -304,7 +304,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
 		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
 		final double volScrew = 2f/3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
-		return volOuter + volInner + volStandoff + volScrew;
+		final double volInstance = volOuter + volInner + volStandoff + volScrew;
+		return volInstance * getInstanceCount();
 	}
 	
 	@Override

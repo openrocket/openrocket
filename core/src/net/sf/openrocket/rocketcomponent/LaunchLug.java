@@ -215,7 +215,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	
 	@Override
 	public double getComponentVolume() {
-		return length * Math.PI * (MathUtil.pow2(radius) - MathUtil.pow2(radius - thickness));
+		return length * Math.PI * (MathUtil.pow2(radius) - MathUtil.pow2(radius - thickness)) * getInstanceCount();
 	}
 	
 	@Override
