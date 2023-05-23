@@ -41,7 +41,7 @@ public class RocketInfo implements FigureElement {
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
 	
-	private UnitGroup stabilityUnits;
+	private UnitGroup.StabilityUnitGroup stabilityUnits;
 	
 	private FlightConfiguration configuration;
 	private double cg = 0, cp = 0;
@@ -201,7 +201,7 @@ public class RocketInfo implements FigureElement {
 		
 		GlyphVector cgValue = createText(getCg());
 		GlyphVector cpValue = createText(getCp());
-		GlyphVector stabValue = createText(getStability());
+		GlyphVector stabValue = createText(getStabilityCombined());
 		
 		//// CG:		
 		GlyphVector cgText = createText(trans.get("RocketInfo.cgText"));
@@ -276,15 +276,46 @@ public class RocketInfo implements FigureElement {
     public String getMassWithMotors(Unit u) {
         return u.toStringUnit(massWithMotors);
     }
-    
+
+
     /**
-     * Get the stability, in calibers.
+     * Get the stability in both the selected stability unit and in percentage, e.g. "2.4 cal (14.1 %)".
+	 * If the current unit is already the percentage length unit, only use that.
      * 
-     * @return  the current stability margin
+     * @return the current stability margin in the currently selected stability unit and in percentage
      */
-    public String getStability () {
-        return stabilityUnits.getDefaultUnit().toStringUnit(cp-cg);
+    public String getStabilityCombined() {
+		Unit defaultUnit = stabilityUnits.getDefaultUnit();
+		String stability = getStability();
+
+		if (Double.isNaN(getStabilityValue()) || defaultUnit == stabilityUnits.getPercentageOfLengthUnit()) {
+			return stability;
+		}
+
+		String stabilityPercentage = getStabilityPercentage();
+
+		return stability + " (" + stabilityPercentage + ")";
     }
+
+	/**
+	 * Get the stability in the currently selected unit.
+	 * @return the current stability margin in the currently selected stability unit
+	 */
+	private String getStability() {
+		return stabilityUnits.getDefaultUnit().toStringUnit(getStabilityValue());
+	}
+
+	/**
+	 * Get the stability in the percentage length unit.
+	 * @return the current stability margin in the percentage length unit
+	 */
+	private String getStabilityPercentage() {
+		return stabilityUnits.getPercentageOfLengthUnit().toStringUnit(getStabilityValue());
+	}
+
+	private double getStabilityValue() {
+		return cp - cg;
+	}
 
     /**
      * Get the center of pressure in default length units.

@@ -456,7 +456,7 @@ public class UnitGroup {
 	 * @param rocket	the rocket from which to calculate the caliber
 	 * @return			the unit group
 	 */
-	public static UnitGroup stabilityUnits(Rocket rocket) {
+	public static StabilityUnitGroup stabilityUnits(Rocket rocket) {
 		return new StabilityUnitGroup(rocket);
 	}
 	
@@ -467,7 +467,7 @@ public class UnitGroup {
 	 * @param config	the rocket configuration from which to calculate the caliber
 	 * @return			the unit group
 	 */
-	public static UnitGroup stabilityUnits(FlightConfiguration config) {
+	public static StabilityUnitGroup stabilityUnits(FlightConfiguration config) {
 		return new StabilityUnitGroup(config);
 	}
 	
@@ -717,7 +717,8 @@ public class UnitGroup {
 	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.
 	 */
-	private static class StabilityUnitGroup extends UnitGroup {
+	public static class StabilityUnitGroup extends UnitGroup {
+		private final PercentageOfLengthUnit percentageOfLengthUnit;
 		
 		public StabilityUnitGroup(double ref) { this(new CaliberUnit(ref), new PercentageOfLengthUnit(ref)); }
 		
@@ -728,6 +729,7 @@ public class UnitGroup {
 		public StabilityUnitGroup(FlightConfiguration config) { this(new CaliberUnit(config), new PercentageOfLengthUnit(config)); }
 		
 		private StabilityUnitGroup(CaliberUnit caliberUnit, PercentageOfLengthUnit percentageOfLengthUnit) {
+			this.percentageOfLengthUnit = percentageOfLengthUnit;
 			this.units.addAll(UnitGroup.UNITS_STABILITY.units);
 			this.defaultUnit = UnitGroup.UNITS_STABILITY.defaultUnit;
 			for (int i = 0; i < units.size(); i++) {
@@ -745,6 +747,14 @@ public class UnitGroup {
 		public void setDefaultUnit(int n) {
 			super.setDefaultUnit(n);
 			UNITS_STABILITY.setDefaultUnit(n);
+		}
+
+		/**
+		 * Returns the percentage of length unit. (Stability in %)
+		 * @return the percentage of length unit.
+		 */
+		public Unit getPercentageOfLengthUnit() {
+			return this.percentageOfLengthUnit;
 		}
 	}
 }

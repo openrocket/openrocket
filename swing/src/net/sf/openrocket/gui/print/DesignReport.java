@@ -256,7 +256,7 @@ public class DesignReport {
 		canvas.showText(text.getMassWithMotors(UnitGroup.UNITS_MASS.getDefaultUnit()));
 		
 		canvas.newlineShowText(STABILITY);
-		canvas.showText(text.getStability());
+		canvas.showText(text.getStabilityCombined());
 		
 		canvas.newlineShowText(CG);
 		canvas.showText(text.getCg());
