@@ -228,9 +228,12 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	
 	@Override
 	public Coordinate getComponentCG() {
+		final double parentRadius = parent instanceof SymmetricComponent ?
+				((SymmetricComponent) parent).getRadius(getAxialOffset()) : 0;
+
 		final double CMx = length / 2 + (instanceSeparation * (instanceCount-1)) / 2;
-		final double CMy = Math.cos(this.angleOffsetRad)*getOuterRadius();
-		final double CMz = Math.sin(this.angleOffsetRad)*getOuterRadius();
+		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + getOuterRadius());
+		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + getOuterRadius());
 		return new Coordinate(CMx, CMy, CMz, getComponentMass());
 	}
 	

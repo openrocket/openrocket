@@ -381,14 +381,16 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double flangeCM = this.totalHeight_m - getFlangeHeight()/2;
 		final double screwCM = this.totalHeight_m + 4 * this.screwHeight_m / (3 * Math.PI);
 		final double heightCM = (massBase*baseCM + massInner*innerCM + massFlange*flangeCM + massScrew*screwCM)/totalMass;
+		final double parentRadius = parent instanceof SymmetricComponent ?
+				((SymmetricComponent) parent).getRadius(getAxialOffset()) : 0;
 
 		if (heightCM > this.totalHeight_m + this.screwHeight_m) {
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
 
 		final double CMx = (instanceSeparation * (instanceCount-1)) / 2;
-		final double CMy = Math.cos(this.angleOffsetRad)*heightCM;
-		final double CMz = Math.sin(this.angleOffsetRad)*heightCM;
+		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + heightCM);
+		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + heightCM);
 		
 		return new Coordinate( CMx, CMy, CMz, getComponentMass());
 	}
