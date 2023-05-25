@@ -518,6 +518,19 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 		
 	}
 
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.autoRadius = false;
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.outerRadius = outerDiameter / 2.0;
+			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+				this.thickness = (outerDiameter - innerDiameter) / 2.0;
+			}
+		}
+	}
 
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {

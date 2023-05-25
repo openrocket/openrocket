@@ -172,8 +172,8 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		this.autoRadius = false;
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.autoRadius = false;
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
 			this.outerRadius = outerDiameter / 2.0;
 			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
