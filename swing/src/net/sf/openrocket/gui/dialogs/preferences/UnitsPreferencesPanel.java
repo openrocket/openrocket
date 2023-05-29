@@ -3,8 +3,11 @@ package net.sf.openrocket.gui.dialogs.preferences;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -77,8 +80,32 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		
 		//// Stability:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
-		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
+		combo = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
+
+		//// Secondary stability:
+		final JLabel labelSecStab = new JLabel(trans.get("pref.dlg.lbl.SecondaryStability"));
+		labelSecStab.setToolTipText(trans.get("pref.dlg.lbl.SecondaryStability.ttip"));
+		labelSecStab.setEnabled(preferences.isDisplaySecondaryStability());
+		leftPanel.add(labelSecStab);
+		final JComboBox<?> comboSecStab = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_SECONDARY_STABILITY));
+		comboSecStab.setToolTipText(trans.get("pref.dlg.lbl.SecondaryStability.ttip"));
+		comboSecStab.setEnabled(preferences.isDisplaySecondaryStability());
+		leftPanel.add(comboSecStab, "sizegroup boxes, wrap");
+
+		//// Display secondary stability unit:
+		JCheckBox displaySecondary = new JCheckBox(trans.get("pref.dlg.checkbox.DisplaySecondaryStability"));
+		displaySecondary.setToolTipText(trans.get("pref.dlg.checkbox.DisplaySecondaryStability.ttip"));
+		displaySecondary.setSelected(preferences.isDisplaySecondaryStability());
+		displaySecondary.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				preferences.setDisplaySecondaryStability(e.getStateChange() == ItemEvent.SELECTED);
+				labelSecStab.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+				comboSecStab.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		leftPanel.add(displaySecondary, "spanx, wrap");
 
 
 		// -------------- RIGHT PANEL
@@ -133,8 +160,8 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
 		rightPanel.add(combo, "sizegroup boxes, wrap");
 
-		this.add(leftPanel);
-		this.add(rightPanel, "wrap para");
+		this.add(leftPanel, "top");
+		this.add(rightPanel, "top, wrap para");
 		
 		
 		//// Default metric button

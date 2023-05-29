@@ -11,6 +11,7 @@ import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
@@ -31,6 +32,7 @@ import net.sf.openrocket.util.MathUtil;
 public class RocketInfo implements FigureElement {
 	
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	// Margin around the figure edges, pixels
 	private static final int MARGIN = 8;
 
@@ -42,6 +44,7 @@ public class RocketInfo implements FigureElement {
 	private final Caret cgCaret = new CGCaret(0,0);
 	
 	private UnitGroup.StabilityUnitGroup stabilityUnits;
+	private UnitGroup.StabilityUnitGroup secondaryStabilityUnits;
 	
 	private FlightConfiguration configuration;
 	private double cg = 0, cp = 0;
@@ -66,6 +69,7 @@ public class RocketInfo implements FigureElement {
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
+		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(configuration);
 	}
 	
 	
@@ -284,16 +288,21 @@ public class RocketInfo implements FigureElement {
      * @return the current stability margin in the currently selected stability unit and in percentage
      */
     public String getStabilityCombined() {
-		Unit defaultUnit = stabilityUnits.getDefaultUnit();
-		String stability = getStability();
+		Unit stabilityUnit = stabilityUnits.getDefaultUnit();
+		Unit secondaryStabilityUnit = secondaryStabilityUnits.getDefaultUnit();
 
-		if (Double.isNaN(getStabilityValue()) || defaultUnit == stabilityUnits.getPercentageOfLengthUnit()) {
-			return stability;
+		String stabilityStr = getStability();
+
+		// Don't display secondary units if the stability is NaN, or if the secondary unit is the same as the primary unit,
+		// or if it is disabled in the preferences
+		if (Double.isNaN(getStabilityValue()) || secondaryStabilityUnit.equals(stabilityUnit) ||
+				!preferences.isDisplaySecondaryStability()) {
+			return stabilityStr;
 		}
 
-		String stabilityPercentage = getStabilityPercentage();
+		String secondaryStabilityStr = getSecondaryStability();
 
-		return stability + " (" + stabilityPercentage + ")";
+		return stabilityStr + " / " + secondaryStabilityStr;
     }
 
 	/**
@@ -305,11 +314,11 @@ public class RocketInfo implements FigureElement {
 	}
 
 	/**
-	 * Get the stability in the percentage length unit.
-	 * @return the current stability margin in the percentage length unit
+	 * Get the stability in the secondary stability unit.
+	 * @return the current stability margin in the secondary stability unit
 	 */
-	private String getStabilityPercentage() {
-		return stabilityUnits.getPercentageOfLengthUnit().toStringUnit(getStabilityValue());
+	private String getSecondaryStability() {
+		return secondaryStabilityUnits.getDefaultUnit().toStringUnit(getStabilityValue());
 	}
 
 	private double getStabilityValue() {
@@ -508,5 +517,6 @@ public class RocketInfo implements FigureElement {
 	public void setCurrentConfig(FlightConfiguration newConfig) {
 		this.configuration = newConfig;
 		this.stabilityUnits = UnitGroup.stabilityUnits(newConfig);
+		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(newConfig);
 	}
 }
