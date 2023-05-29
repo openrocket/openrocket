@@ -11,6 +11,7 @@ import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
@@ -31,6 +32,7 @@ import net.sf.openrocket.util.MathUtil;
 public class RocketInfo implements FigureElement {
 	
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	// Margin around the figure edges, pixels
 	private static final int MARGIN = 8;
 
@@ -41,7 +43,8 @@ public class RocketInfo implements FigureElement {
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
 	
-	private UnitGroup stabilityUnits;
+	private UnitGroup.StabilityUnitGroup stabilityUnits;
+	private UnitGroup.StabilityUnitGroup secondaryStabilityUnits;
 	
 	private FlightConfiguration configuration;
 	private double cg = 0, cp = 0;
@@ -66,6 +69,7 @@ public class RocketInfo implements FigureElement {
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
+		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(configuration);
 	}
 	
 	
@@ -189,19 +193,9 @@ public class RocketInfo implements FigureElement {
 	
 	
 	private void drawStabilityInfo() {
-		String at;
-		//// at M=
-		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(this.mach);
-		if (!Double.isNaN(aoa)) {
-			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
-		}
-		if (!Double.isNaN(theta)) {
-			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
-		}
-		
 		GlyphVector cgValue = createText(getCg());
 		GlyphVector cpValue = createText(getCp());
-		GlyphVector stabValue = createText(getStability());
+		GlyphVector stabValue = createText(getStabilityCombined());
 		
 		//// CG:		
 		GlyphVector cgText = createText(trans.get("RocketInfo.cgText"));
@@ -209,6 +203,15 @@ public class RocketInfo implements FigureElement {
 		GlyphVector cpText = createText(trans.get("RocketInfo.cpText"));
 		//// Stability:
 		GlyphVector stabText = createText(trans.get("RocketInfo.stabText"));
+
+		//// at M=...
+		String at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(this.mach);
+		if (!Double.isNaN(aoa)) {
+			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
+		}
+		if (!Double.isNaN(theta)) {
+			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
+		}
 		GlyphVector atText = createSmallText(at);
 		
 		// GlyphVector visual bounds drops the spaces, so we'll add them
@@ -276,15 +279,51 @@ public class RocketInfo implements FigureElement {
     public String getMassWithMotors(Unit u) {
         return u.toStringUnit(massWithMotors);
     }
-    
+
+
     /**
-     * Get the stability, in calibers.
+     * Get the stability in both the selected stability unit and in percentage, e.g. "2.4 cal (14.1 %)".
+	 * If the current unit is already the percentage length unit, only use that.
      * 
-     * @return  the current stability margin
+     * @return the current stability margin in the currently selected stability unit and in percentage
      */
-    public String getStability () {
-        return stabilityUnits.getDefaultUnit().toStringUnit(cp-cg);
+    public String getStabilityCombined() {
+		Unit stabilityUnit = stabilityUnits.getDefaultUnit();
+		Unit secondaryStabilityUnit = secondaryStabilityUnits.getDefaultUnit();
+
+		String stabilityStr = getStability();
+
+		// Don't display secondary units if the stability is NaN, or if the secondary unit is the same as the primary unit,
+		// or if it is disabled in the preferences
+		if (Double.isNaN(getStabilityValue()) || secondaryStabilityUnit.equals(stabilityUnit) ||
+				!preferences.isDisplaySecondaryStability()) {
+			return stabilityStr;
+		}
+
+		String secondaryStabilityStr = getSecondaryStability();
+
+		return stabilityStr + " / " + secondaryStabilityStr;
     }
+
+	/**
+	 * Get the stability in the currently selected unit.
+	 * @return the current stability margin in the currently selected stability unit
+	 */
+	private String getStability() {
+		return stabilityUnits.getDefaultUnit().toStringUnit(getStabilityValue());
+	}
+
+	/**
+	 * Get the stability in the secondary stability unit.
+	 * @return the current stability margin in the secondary stability unit
+	 */
+	private String getSecondaryStability() {
+		return secondaryStabilityUnits.getDefaultUnit().toStringUnit(getStabilityValue());
+	}
+
+	private double getStabilityValue() {
+		return cp - cg;
+	}
 
     /**
      * Get the center of pressure in default length units.
@@ -478,5 +517,6 @@ public class RocketInfo implements FigureElement {
 	public void setCurrentConfig(FlightConfiguration newConfig) {
 		this.configuration = newConfig;
 		this.stabilityUnits = UnitGroup.stabilityUnits(newConfig);
+		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(newConfig);
 	}
 }
