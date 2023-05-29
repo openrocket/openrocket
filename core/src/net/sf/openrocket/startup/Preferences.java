@@ -79,10 +79,10 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
 	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
-	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
-	private static final String SHOW_MARKERS = "SHOW_MARKERS";
-	private static final String SHOW_RASAERO_FORMAT_WARNING = "SHOW_RASAERO_FORMAT_WARNING";
-	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
+	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
+	private static final String SHOW_MARKERS = "ShowMarkers";
+	private static final String SHOW_RASAERO_FORMAT_WARNING = "ShowRASAeroFormatWarning";
+	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRockSimFormatWarning";
 	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
 	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 	
