@@ -79,6 +79,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
 	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
+	private static final String SHOW_DISCARD_PREFERENCES_CONFIRMATION = "IgnoreDiscardPreferencesWarning";
 	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
 	private static final String SHOW_MARKERS = "SHOW_MARKERS";
 	private static final String SHOW_RASAERO_FORMAT_WARNING = "SHOW_RASAERO_FORMAT_WARNING";
@@ -580,6 +581,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final void setShowDiscardSimulationConfirmation(boolean enabled) {
 		this.putBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, enabled);
+	}
+
+	/**
+	 * Answer if a confirmation dialog should be shown when canceling preferences changes.
+	 *
+	 * @return true if the confirmation dialog should be shown.
+	 */
+	public final boolean isShowDiscardPreferencesConfirmation() {
+		return this.getBoolean(SHOW_DISCARD_PREFERENCES_CONFIRMATION, true);
+	}
+
+	/**
+	 * Enable/Disable showing a confirmation warning when canceling preferences changes.
+	 */
+	public final void setShowDiscardPreferencesConfirmation(boolean enabled) {
+		this.putBoolean(SHOW_DISCARD_PREFERENCES_CONFIRMATION, enabled);
 	}
 
 	/**
