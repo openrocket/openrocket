@@ -44,6 +44,10 @@ public abstract class Preferences implements ChangeSource {
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
 	
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
+
+	// Preferences related to units
+	public static final String DISPLAY_SECONDARY_STABILITY = "DisplaySecondaryStability";
+
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_DECIMAL_PLACES = "ExportDecimalPlaces";
@@ -80,10 +84,10 @@ public abstract class Preferences implements ChangeSource {
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
 	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
 	private static final String SHOW_DISCARD_PREFERENCES_CONFIRMATION = "IgnoreDiscardPreferencesWarning";
-	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
-	private static final String SHOW_MARKERS = "SHOW_MARKERS";
-	private static final String SHOW_RASAERO_FORMAT_WARNING = "SHOW_RASAERO_FORMAT_WARNING";
-	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
+	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
+	private static final String SHOW_MARKERS = "ShowMarkers";
+	private static final String SHOW_RASAERO_FORMAT_WARNING = "ShowRASAeroFormatWarning";
+	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRockSimFormatWarning";
 	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
 	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 	
@@ -199,6 +203,27 @@ public abstract class Preferences implements ChangeSource {
 
 	public final void setCheckBetaUpdates(boolean check) {
 		this.putBoolean(CHECK_BETA_UPDATES, check);
+	}
+
+
+	/*
+	 * *********************** Unit Preferences *******************************************
+	 */
+
+	/**
+	 * Return whether to display a secondary stability unit in the rocket design view.
+	 * @return true if the secondary unit should be displayed, false if not.
+	 */
+	public final boolean isDisplaySecondaryStability() {
+		return this.getBoolean(DISPLAY_SECONDARY_STABILITY, true);
+	}
+
+	/**
+	 * Set whether to display a secondary stability unit in the rocket design view.
+	 * @param check if true, display the secondary unit, if false not.
+	 */
+	public final void setDisplaySecondaryStability(boolean check) {
+		this.putBoolean(DISPLAY_SECONDARY_STABILITY, check);
 	}
 
 
