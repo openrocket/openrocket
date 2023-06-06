@@ -49,6 +49,10 @@ public abstract class PreferencesImporter {
     public static boolean importPreferences(File importFile) {
         try (FileInputStream fis = new FileInputStream(importFile)) {
             Preferences.importPreferences(fis);
+
+            // Ensure units are updated
+            ((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
+
             log.info("Preferences imported successfully.");
             return true;
         } catch (IOException | InvalidPreferencesFormatException e) {

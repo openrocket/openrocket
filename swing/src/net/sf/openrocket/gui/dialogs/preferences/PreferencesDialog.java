@@ -154,9 +154,6 @@ public class PreferencesDialog extends JDialog {
 					initPrefsFile.delete();
 				}
 
-				// Ensure the units are properly stored
-				preferences.storeDefaultUnits();
-
 				// Make sure unit change applies to the rocket figure
 				if (parent != null) {
 					parent.getRocketPanel().updateExtras();
