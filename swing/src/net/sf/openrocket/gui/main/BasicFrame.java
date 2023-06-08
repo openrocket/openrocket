@@ -1259,7 +1259,11 @@ public class BasicFrame extends JFrame {
 	 */
 	public static BasicFrame open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file);
-		return open(worker, file.getName(), parent, false);
+		BasicFrame frame = open(worker, file.getName(), parent, false);
+		if (frame != null) {
+			MRUDesignFile.getInstance().addFile(file.getAbsolutePath());
+		}
+		return frame;
 	}
 
 
