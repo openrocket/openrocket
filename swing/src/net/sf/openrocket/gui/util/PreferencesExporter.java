@@ -121,25 +121,32 @@ public abstract class PreferencesExporter {
         keysToIgnore.add(SwingPreferences.UPDATE_PLATFORM);     // Don't export platform-specific settings
     }
 
-    private static void exportFilteredPreferences(Preferences preferences, FileOutputStream fos) throws BackingStoreException, IOException {
+    public static void exportPreferencesToFile(Preferences preferences, FileOutputStream fos, boolean filterPreferences)
+                throws BackingStoreException, IOException {
+        // If no filtering is required, just export the preferences
+        if (!filterPreferences) {
+            preferences.exportSubtree(fos);
+            return;
+        }
+
         // Filter out user directories
         Preferences root = Preferences.userRoot();
         String originalNodeName = ((SwingPreferences) prefs).getNodename();
-        String nodeName = originalNodeName + "-temp";
-        if (root.nodeExists(nodeName)) {
-            root.node(nodeName).removeNode();
+        String filteredPrefsNodeName = originalNodeName + "-filtered";
+        if (root.nodeExists(filteredPrefsNodeName)) {
+            root.node(filteredPrefsNodeName).removeNode();
         }
-        Preferences tempPrefs = root.node(nodeName);
+        Preferences filteredPrefs = root.node(filteredPrefsNodeName);
 
         // Fill in all parameters to the temporary preferences, except for user directories
-        copyFilteredPreferences(preferences, tempPrefs, nodesToIgnore, keysToIgnore, prefixKeysToIgnore);
+        copyFilteredPreferences(preferences, filteredPrefs, nodesToIgnore, keysToIgnore, prefixKeysToIgnore);
 
         // Export the filtered preferences
         try {
             // Export the filtered preferences to a temporary file
-            Path tempFile = Files.createTempFile("ORprefs_" + System.currentTimeMillis(), ".xml");
+            Path tempFile = Files.createTempFile("ORPrefs_" + System.currentTimeMillis(), ".xml");
             try (FileOutputStream tempFos = new FileOutputStream(tempFile.toFile())) {
-                tempPrefs.exportSubtree(tempFos);
+                filteredPrefs.exportSubtree(tempFos);
             }
 
             // Read and parse the temporary file
@@ -149,11 +156,11 @@ public abstract class PreferencesExporter {
                 doc = factory.newDocumentBuilder().parse(tempFis);
             }
 
-            // Find and rename the node
+            // Find and rename the filtered prefs node
             NodeList nodeList = doc.getElementsByTagName("node");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
-                if (element.getAttribute("name").equals(nodeName)) {
+                if (element.getAttribute("name").equals(filteredPrefsNodeName)) {
                     element.setAttribute("name", ((SwingPreferences) prefs).getNodename());
                     break;
                 }
@@ -176,8 +183,12 @@ public abstract class PreferencesExporter {
         } catch (ParserConfigurationException | TransformerException | SAXException e) {
             e.printStackTrace();
         } finally {
-            root.node(nodeName).removeNode();
+            root.node(filteredPrefsNodeName).removeNode();
         }
+    }
+
+    private static void exportFilteredPreferences(Preferences preferences, FileOutputStream fos) throws BackingStoreException, IOException {
+        exportPreferencesToFile(preferences, fos, true);
     }
 
     private static void copyFilteredPreferences(Preferences src, Preferences dest,
