@@ -562,6 +562,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getOverrideMass() {
 		mutex.verify();
+		if (!isMassOverridden()) {
+			overrideMass = getComponentMass();
+		}
 		return overrideMass;
 	}
 	
@@ -612,6 +615,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		massOverridden = o;
+
+		// If mass not overridden, set override mass to the component mass
+		if (!massOverridden) {
+			overrideMass = getComponentMass();
+		}
+
 		updateChildrenMassOverriddenBy();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -627,6 +636,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final Coordinate getOverrideCG() {
 		mutex.verify();
+		if (!isCGOverridden()) {
+			overrideCGX = getComponentCG().x;
+		}
 		return getComponentCG().setX(overrideCGX);
 	}
 	
@@ -637,6 +649,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getOverrideCGX() {
 		mutex.verify();
+		if (!isCGOverridden()) {
+			overrideCGX = getComponentCG().x;
+		}
 		return overrideCGX;
 	}
 	
@@ -687,6 +702,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cgOverridden = o;
+
+		// If CG not overridden, set override CG to the component CG
+		if (!cgOverridden) {
+			overrideCGX = getComponentCG().x;
+		}
+
 		updateChildrenCGOverriddenBy();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
