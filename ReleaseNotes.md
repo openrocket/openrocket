@@ -13,6 +13,15 @@ Release Notes
 
 </div>
 
+<div id="23.xx">
+
+OpenRocket 23.xx
+------------------------
+
+Here, the release notes for the next release will be documented.
+
+</div>
+
 <div id="22.02">
 
 OpenRocket 22.02 (2023-02-08)
