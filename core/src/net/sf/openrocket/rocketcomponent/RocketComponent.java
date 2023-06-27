@@ -1206,8 +1206,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		this.id = UniqueID.uuid();
 	}
-	
-	
+
+	/**
+	 * Set the ID for this component.
+	 * Generally not recommended to directly set the ID, this is done automatically. Only use this in case you have to.
+	 * @param newID new ID
+	 */
+	public void setID(String newID) {
+		mutex.verify();
+		this.id = newID;
+	}
 	
 	
 	/**

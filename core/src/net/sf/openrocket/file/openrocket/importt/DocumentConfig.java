@@ -113,6 +113,8 @@ class DocumentConfig {
 		// RocketComponent
 		setters.put("RocketComponent:name", new StringSetter(
 				Reflection.findMethod(RocketComponent.class, "setName", String.class)));
+		setters.put("RocketComponent:id", new StringSetter(
+				Reflection.findMethod(RocketComponent.class, "setID", String.class)));
 		setters.put("RocketComponent:color", new ColorSetter(
 				Reflection.findMethod(RocketComponent.class, "setColor", Color.class)));
 		setters.put("RocketComponent:linestyle", new EnumSetter<LineStyle>(
