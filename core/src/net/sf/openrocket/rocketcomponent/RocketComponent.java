@@ -1979,6 +1979,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		return children;
 	}
+
+	/**
+	 * Checks whether this component contains <component> as one of its (sub-)children.
+	 * @param component component to check
+	 * @return true if component is a (sub-)child of this component
+	 */
+	public final boolean containsChild(RocketComponent component) {
+		List<RocketComponent> allChildren = getAllChildren();
+		return allChildren.contains(component);
+	}
 	
 	
 	/**

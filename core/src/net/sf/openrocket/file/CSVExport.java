@@ -11,6 +11,7 @@ import java.util.List;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -74,7 +75,7 @@ public class CSVExport {
 				writer.println();
 			}
 
-			writeData(writer, branch, fields, units, fieldSeparator, decimalPlaces, isExponentialNotation,
+			writeData(writer, simulation, branch, fields, units, fieldSeparator, decimalPlaces, isExponentialNotation,
 					eventComments, commentStarter);
 
 
@@ -89,28 +90,77 @@ public class CSVExport {
 		}
 	}
 
-	private static void writeData(PrintWriter writer, FlightDataBranch branch,
+	private static void writeData(PrintWriter writer, Simulation simulation, FlightDataBranch branch,
 			FlightDataType[] fields, Unit[] units, String fieldSeparator, int decimalPlaces, boolean isExponentialNotation,
 			boolean eventComments, String commentStarter) {
+		final FlightData data = simulation.getSimulatedData();
+		final int stageNr = data.getStageNr(branch);
+		AxialStage stage = simulation.getRocket().getStage(stageNr);
+
+		// Time variable
+		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
+
+		// Extra stages don't contain all the simulation data. Instead, the data is stored in the sustainer stage
+		// (since the data is the same for all stages until there is separation).
+		// For CSV export however, we want to copy the data from the sustainer stage to the extra stage.
+		boolean copySustainerData = stageNr > 0 && time != null && time.get(0) > 0;
+		FlightDataBranch sustainerBranch = null;
+		Double firstBranchTime = null;
+		int lastSustainerIndex = 0;
+		if (copySustainerData) {
+			firstBranchTime = time.get(0);
+			sustainerBranch = data.getBranch(0);
+			List<Double> sustainerTime = sustainerBranch.get(FlightDataType.TYPE_TIME);
+
+			if (sustainerTime != null) {
+				for (int i = 0; i < sustainerTime.size(); i++) {
+					if (sustainerTime.get(i) >= firstBranchTime) {
+						lastSustainerIndex = i - 1;
+						break;
+					}
+				}
+
+				List<Double> timeToCopy = sustainerTime.subList(0, lastSustainerIndex + 1);
+				time.addAll(0, timeToCopy);
+			}
+		}
 
 		// Number of data points
-		int n = branch.getLength();
+		int n = time != null ? time.size() : branch.getLength();
 
 		// Flight events in occurrence order
 		List<FlightEvent> events = branch.getEvents();
+		if (copySustainerData) {
+			List<FlightEvent> sustainerEvents = sustainerBranch.getEvents();
+
+			// Copy all events from the sustainer that belong to this stage
+			for (FlightEvent event : sustainerEvents) {
+				// Stage separation is present both in the sustainer data and extra stage data (don't really know why...)
+				if (event.getType() == FlightEvent.Type.STAGE_SEPARATION) {
+					continue;
+				}
+				if (stage == event.getSource() || stage.containsChild(event.getSource())) {
+					events.add(event);
+				}
+			}
+		}
 		Collections.sort(events);
 		int eventPosition = 0;
 
 		// List of field values
-		List<List<Double>> fieldValues = new ArrayList<List<Double>>();
+		List<List<Double>> fieldValues = new ArrayList<>();
 		for (FlightDataType t : fields) {
-			fieldValues.add(branch.get(t));
+			List<Double> values = branch.get(t);
+			if (copySustainerData) {
+				List<Double> sustainerValues = sustainerBranch.get(t);
+				List<Double> valuesToCopy = sustainerValues.subList(0, lastSustainerIndex + 1);
+				values.addAll(0, valuesToCopy);
+			}
+			fieldValues.add(values);
 		}
 
-		// Time variable
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
+		// If time information is not available, print events at beginning of file
 		if (eventComments && time == null) {
-			// If time information is not available, print events at beginning of file
 			for (FlightEvent e : events) {
 				printEvent(writer, e, commentStarter);
 			}
