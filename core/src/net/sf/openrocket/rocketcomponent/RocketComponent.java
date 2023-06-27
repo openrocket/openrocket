@@ -737,7 +737,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// This can happen due to a race condition when a loadFrom() action is performed of the rocket (after
 			// an undo operation) but the rocket is not yet fully loaded (the sustainer does not yet have the rocket as
 			// its parent => getRocket() will not return the rocket, but the sustainer). In that case, just return 0 and
-			// hope that a future call of this method will succeed 🤞.
+			// hope that a future call of this method will succeed.
 			return 0;
 		}
 		final FlightConfiguration configuration = rocket.getSelectedConfiguration();
