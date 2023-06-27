@@ -7,8 +7,16 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
+import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
+import net.sf.openrocket.aerodynamics.AerodynamicForces;
+import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
+import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -712,6 +720,43 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
+	/**
+	 * Calculates and returns the CD of the component.
+	 * TODO: LOW: should this value be cached instead of recalculated every time?
+	 * @param AOA angle of attack to use in the calculations (in radians)
+	 * @param theta wind direction to use in the calculations (in radians)
+	 * @param mach mach number to use in the calculations
+	 * @param rollRate roll rate to use in the calculations (in radians per second)
+	 * @return the CD of the component
+	 */
+	public double getComponentCD(double AOA, double theta, double mach, double rollRate) {
+		Rocket rocket;
+		try {
+			rocket = getRocket();
+		} catch (IllegalStateException e) {
+			// This can happen due to a race condition when a loadFrom() action is performed of the rocket (after
+			// an undo operation) but the rocket is not yet fully loaded (the sustainer does not yet have the rocket as
+			// its parent => getRocket() will not return the rocket, but the sustainer). In that case, just return 0 and
+			// hope that a future call of this method will succeed 🤞.
+			return 0;
+		}
+		final FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(configuration);
+		WarningSet warnings = new WarningSet();
+		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
+
+		conditions.setAOA(AOA);
+		conditions.setTheta(theta);
+		conditions.setMach(mach);
+		conditions.setRollRate(rollRate);
+
+		Map<RocketComponent, AerodynamicForces> aeroData = aerodynamicCalculator.getForceAnalysis(configuration, conditions, warnings);
+		AerodynamicForces forces = aeroData.get(this);
+		if (forces != null) {
+			return forces.getCD();
+		}
+		return 0;
+	}
 
 	/** Return the current override CD. The CD is not necessarily overridden.
 	 * 
@@ -719,6 +764,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getOverrideCD() {
 		mutex.verify();
+		if (!isCDOverridden()) {
+			Preferences preferences = Application.getPreferences();
+			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
+		}
 		return overrideCD;
 	}
 
@@ -770,7 +819,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			listener.setCDOverridden(o);
 		}
 
-		if(cdOverridden == o) {
+		if (cdOverridden == o) {
 			return;
 		}
 		checkState();
@@ -783,6 +832,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// also not overriding our descendants
 		if (isSubcomponentsOverriddenCD()) {
 			overrideSubcomponentsCD(o);
+		}
+
+		if (!cdOverridden) {
+			Preferences preferences = Application.getPreferences();
+			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 		
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
@@ -2634,7 +2688,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected List<RocketComponent> copyFrom(RocketComponent src) {
 		checkState();
-		List<RocketComponent> toInvalidate = new ArrayList<RocketComponent>();
+		List<RocketComponent> toInvalidate = new ArrayList<>();
 		
 		if (this.parent != null) {
 			throw new UnsupportedOperationException("copyFrom called for non-root component, parent=" +
