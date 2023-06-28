@@ -148,12 +148,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			Rocket rocket = context.getOpenRocketDocument().getRocket();
 			sourceID = attributes.get("source");
 			if (sourceID != null) {
-				for (RocketComponent child : rocket.getAllChildren()) {
-					if (child.getID().equals(sourceID)) {
-						source = child;
-						break;
-					}
-				}
+				source = rocket.findComponent(sourceID);
 			}
 			
 			branch.addEvent(new FlightEvent(type, time, source));
