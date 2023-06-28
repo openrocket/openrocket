@@ -625,7 +625,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	
 	/////////  Default unit storage
-	
+
+	/**
+	 * Loads the default units from the preferences.
+	 */
 	public void loadDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		try {
@@ -645,7 +648,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			Application.getExceptionHandler().handleErrorCondition(e);
 		}
 	}
-	
+
+	/**
+	 * Stores the standard default units in the preferences.
+	 */
 	public void storeDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		

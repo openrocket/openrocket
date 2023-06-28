@@ -18,6 +18,9 @@ import java.io.FileOutputStream;
 import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -188,6 +191,7 @@ public class DescriptionArea extends JScrollPane {
 			}
 			
 		});
+		setForeground(editorPane.getForeground());
 		editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
 	}
 
@@ -201,6 +205,24 @@ public class DescriptionArea extends JScrollPane {
 		if (font != null) {
 			editorPane.setFont(font);
 		}
+	}
+
+	public void setBackground(Color color) {
+		if (editorPane == null) return;
+		editorPane.setBackground(color);
+		StyledDocument styledDocument = (StyledDocument) editorPane.getDocument();
+		SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributeSet, color);
+		styledDocument.setCharacterAttributes(0, styledDocument.getLength(), attributeSet, false);
+	}
+
+	public void setForeground(Color color) {
+		if (editorPane == null) return;
+		editorPane.setForeground(color);
+		StyledDocument styledDocument = (StyledDocument) editorPane.getDocument();
+		SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributeSet, color);
+		styledDocument.setCharacterAttributes(0, styledDocument.getLength(), attributeSet, false);
 	}
 	
 }

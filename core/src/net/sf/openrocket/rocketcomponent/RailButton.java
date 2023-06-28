@@ -304,7 +304,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
 		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
 		final double volScrew = 2f/3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
-		return volOuter + volInner + volStandoff + volScrew;
+		final double volInstance = volOuter + volInner + volStandoff + volScrew;
+		return volInstance * getInstanceCount();
 	}
 	
 	@Override
@@ -380,14 +381,16 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double flangeCM = this.totalHeight_m - getFlangeHeight()/2;
 		final double screwCM = this.totalHeight_m + 4 * this.screwHeight_m / (3 * Math.PI);
 		final double heightCM = (massBase*baseCM + massInner*innerCM + massFlange*flangeCM + massScrew*screwCM)/totalMass;
+		final double parentRadius = parent instanceof SymmetricComponent ?
+				((SymmetricComponent) parent).getRadius(getAxialOffset()) : 0;
 
 		if (heightCM > this.totalHeight_m + this.screwHeight_m) {
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
 
 		final double CMx = (instanceSeparation * (instanceCount-1)) / 2;
-		final double CMy = Math.cos(this.angleOffsetRad)*heightCM;
-		final double CMz = Math.sin(this.angleOffsetRad)*heightCM;
+		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + heightCM);
+		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + heightCM);
 		
 		return new Coordinate( CMx, CMy, CMz, getComponentMass());
 	}

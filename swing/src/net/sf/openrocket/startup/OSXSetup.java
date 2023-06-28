@@ -6,8 +6,10 @@ import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
 import java.awt.desktop.AppReopenedListener;
+import java.io.File;
 
 import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.gui.main.MRUDesignFile;
 import net.sf.openrocket.gui.util.DummyFrameMenuOSX;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +42,9 @@ final class OSXSetup {
 	 * The handler for file associations
 	 */
 	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
-		log.info("Opening file from association: " + e.getFiles().get(0));
-		BasicFrame.open(e.getFiles().get(0), BasicFrame.lastFrameInstance);
+		File associateFile = e.getFiles().get(0);
+		log.info("Opening file from association: " + associateFile);
+		BasicFrame.open(associateFile, BasicFrame.lastFrameInstance);
 	};
 	
 	/**

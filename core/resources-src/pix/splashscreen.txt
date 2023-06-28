@@ -4,6 +4,7 @@ OpenRocket text:
 Create logo using Gimp's "Blended" logo script.
 Apply suitable gradient to text layer
 (softened "Horizon 1" -> "Horizon 1 soft").
+Font: Kanit (Italic): https://fonts.google.com/specimen/Kanit?query=kanit
 
 
 Background starfield:

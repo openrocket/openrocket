@@ -52,6 +52,32 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		return rkt;
 	}
 
+	private Rocket createFreeformFinOnTransition() {
+		final Rocket rkt = new Rocket();
+		final AxialStage stg = new AxialStage();
+		rkt.addChild(stg);
+		Transition transition = new Transition();
+		transition.setLength(0.2);
+		transition.setForeRadius(0.1);
+		transition.setAftRadius(0.3);
+		transition.setShapeType(Transition.Shape.OGIVE);
+		stg.addChild(transition);
+		FreeformFinSet fins = new FreeformFinSet();
+		fins.setFinCount(1);
+		fins.setAxialOffset(AxialMethod.MIDDLE, 0.0);
+		fins.setMaterial(Material.newMaterial(Material.Type.BULK, "Fin-Test-Material", 1.0, true));
+		fins.setThickness(0.005); // == 5 mm
+
+		transition.addChild(fins);
+
+		fins.setTabLength(0.00);
+
+		fins.setFilletRadius(0.0);
+
+		rkt.enableEvents();
+		return rkt;
+	}
+
 	@Test
 	public void testMultiplicity() {
 		final TrapezoidFinSet trapFins = new TrapezoidFinSet();
@@ -185,6 +211,33 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals("Complete centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
 			assertEquals("Complete centroid y doesn't match: ", 0.11971548, actCentroid.y, EPSILON);
 		}
+	}
+
+	@Test
+	public void testFilletCalculationsOnTransition() {
+		final Rocket rkt = createFreeformFinOnTransition();
+		Transition transition = (Transition) rkt.getChild(0).getChild(0);
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
+
+		fins.setFilletRadius(0.005);
+		fins.setFilletMaterial(Material.newMaterial(Material.Type.BULK, "Fillet-Test-Material", 1.0, true));
+
+		// used for fillet and edge calculations:
+		//
+		//      [1] +--+ [2]
+		//         /    \
+		//        /      \
+		//   [0] +--------+ [3]
+		//
+		assertEquals(0.05, fins.getLength(), EPSILON);
+		assertEquals("Transition fore radius doesn't match: ", 0.1, transition.getForeRadius(), EPSILON);
+		assertEquals("Transition aft radius doesn't match: ", 0.3, transition.getAftRadius(), EPSILON);
+
+		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
+
+		assertEquals("Fin volume doesn't match: ", 5.973e-07, actVolume.weight, EPSILON);
+		assertEquals("Fin mass center.x doesn't match: ", 0.024393025, actVolume.x, EPSILON);
+		assertEquals("Fin mass center.y doesn't match: ", 0.190479957, actVolume.y, EPSILON);
 	}
 
 	@Test

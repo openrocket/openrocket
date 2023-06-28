@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.dialogs.preferences;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +42,6 @@ import net.sf.openrocket.gui.util.PreferencesExporter;
 import net.sf.openrocket.gui.util.PreferencesImporter;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Named;
@@ -255,6 +256,17 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(rocksimWarningDialogBox,"spanx, wrap");
 
+		//// Show confirmation dialog when discarding preferences
+		final JCheckBox prefsDiscardBox = new JCheckBox(trans.get("pref.dlg.checkbox.ShowDiscardPreferencesConfirmation"));
+		prefsDiscardBox.setSelected(preferences.isShowDiscardPreferencesConfirmation());
+		prefsDiscardBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				preferences.setShowDiscardPreferencesConfirmation(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		this.add(prefsDiscardBox,"spanx, wrap");
+
 		// Preference buttons
 		JPanel buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));
 
@@ -315,7 +327,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				}
 			}
 		});
-		buttonPanel.add(resetAllPreferences, "pushx, right, wrap");
+		buttonPanel.add(resetAllPreferences, "pushx, right, gaptop 20lp, wrap");
 
 		this.add(buttonPanel, "spanx, growx, pushy, bottom, wrap");
 	}

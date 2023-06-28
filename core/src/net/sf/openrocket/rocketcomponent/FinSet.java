@@ -544,7 +544,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return centerOfMass;
 	}
 
-	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius){
+	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius) {
 		final double hypotenuse = filletRadius + bodyRadius;
 		final double innerArcAngle = Math.asin(filletRadius / hypotenuse);
 		final double outerArcAngle = Math.acos(filletRadius / hypotenuse);
@@ -554,17 +554,17 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 				- outerArcAngle * filletRadius * filletRadius / 2
 				- innerArcAngle * bodyRadius * bodyRadius / 2);
 
-		if(Double.isNaN(crossSectionArea)) {
+		if (Double.isNaN(crossSectionArea)) {
 			crossSectionArea = 0.;
-		}else {
+		} else {
 			// each fin has a fillet on each side
 			crossSectionArea *= 2;
 		}
 
 		// heuristic, relTo the body center
-		double yCentroid = bodyRadius + filletRadius /5;
+		double yCentroid = bodyRadius + filletRadius / 5;
 
-		return new Coordinate(0,yCentroid,0,crossSectionArea);
+		return new Coordinate(0, yCentroid, 0, crossSectionArea);
 	}
 
 	/*
@@ -581,7 +581,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * 5. Return twice that since there is a fillet on each side of the fin.
 	 */
 	protected Coordinate calculateFilletVolumeCentroid() {
-		if((null == this.parent) || (!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))){
+		if ((this.filletRadius == 0) || (this.parent == null) ||
+				(!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))) {
 			return Coordinate.ZERO;
 		}
 		Coordinate[] mountPoints = this.getRootPoints();
@@ -594,7 +595,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		final Coordinate finLead = getFinFront();
 		final double xFinEnd = finLead.x + getLength();
 		final Coordinate[] rootPoints = getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
-		if (0 == rootPoints.length) {
+		if (rootPoints.length == 0) {
 			return Coordinate.ZERO;
 		}
 		
@@ -616,7 +617,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 			final Coordinate segmentCentroid = segmentCrossSection.setWeight(segmentVolume);
 
-			filletVolumeCentroid = filletVolumeCentroid.add(segmentCentroid);
+			filletVolumeCentroid = filletVolumeCentroid.average(segmentCentroid);
 
 			prev = cur;
 		}
@@ -624,7 +625,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset());
 			return rotation.transform(filletVolumeCentroid);
-		}else{
+		} else{
 			return filletVolumeCentroid.setY(0.);
 		}
 	}

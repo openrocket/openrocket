@@ -100,8 +100,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		toSimulate.push(currentStatus);
 		
 		SimulationListenerHelper.fireStartSimulation(currentStatus);
-		do{
-			if( null == toSimulate.peek()){
+		do {
+			if (toSimulate.peek() == null) {
 				break;
 			}
 			currentStatus = toSimulate.pop();
@@ -121,7 +121,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (dataBranch.getLength() == 0) {
 				flightData.getWarningSet().add(Warning.EMPTY_BRANCH, dataBranch.getBranchName());
 			}
-		}while( ! toSimulate.isEmpty());
+		} while (!toSimulate.isEmpty());
 		
 		SimulationListenerHelper.fireEndSimulation(currentStatus, null);
 		
@@ -707,7 +707,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 	
-	private FlightData computeCoastTime() {
+	private FlightData computeCoastTime() throws SimulationException {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
@@ -715,6 +715,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 			FlightData d = e.simulate(conds);
 			return d;
+		} catch (SimulationException e) {
+			throw e;
 		} catch (Exception e) {
 			log.warn("Exception computing coast time: ", e);
 			return null;
