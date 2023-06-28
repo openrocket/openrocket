@@ -25,6 +25,8 @@ public class TubeFinSetCalc extends TubeCalc {
 	
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	private final double[] poly = new double[6];
+
+	private final TubeFinSet tubes;
 	
 	// parameters straight from configuration; we'll be grabbing them once
 	// so code is a bit shorter elsewhere
@@ -44,14 +46,14 @@ public class TubeFinSetCalc extends TubeCalc {
 	private final double cnaconst;
 		
 	protected final WarningSet geometryWarnings = new WarningSet();
-	
+
 	public TubeFinSetCalc(RocketComponent component) {
 		super(component);
 		if (!(component instanceof TubeFinSet)) {
 			throw new IllegalArgumentException("Illegal component type " + component);
 		}
 		
-		final TubeFinSet tubes = (TubeFinSet) component;
+		tubes = (TubeFinSet) component;
 
 		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
 			geometryWarnings.add(Warning.TUBE_SEPARATION);
@@ -88,24 +90,26 @@ public class TubeFinSetCalc extends TubeCalc {
 		// Find length of d
 		final double d = Math.sqrt(MathUtil.pow2(bodyRadius + outerRadius) - MathUtil.pow2(outerRadius));
 
-		// Area of diamond consisting of triangle reflected on its hypotenuse
+		// Area of diamond formed by mirroring triangle on its hypotenuse (same area as rectangle
+		// formed by d and outerarea, but it *isn't* that rectangle)
 		double a = d * outerRadius;
-		
+
 		// angle between outerRadius and bodyRadius+outerRadius
 		final double theta1 = Math.acos(outerRadius/(outerRadius + bodyRadius));
 		
-		// area of arc from tube fin, doubled so we have area to remove from diamond
+		// area of arc from tube fin, doubled to get both halves of diamond
 		final double a1 = MathUtil.pow2(outerRadius) * theta1;
-
+		
 		// angle between bodyRadius+outerRadius and d
 		final double theta2 = Math.PI/2.0 - theta1;
+		System.out.println("theta2 " + theta2);
 		
 		// area of arc from body tube.  Doubled so we have area to remove from diamond
 		final double a2 = MathUtil.pow2(bodyRadius) * theta2;
-		
+
 		// area of interstice for one tube fin
 		intersticeArea = (a - a1 - a2);
-
+		
 		// for comparison, what's the area of a tube fin?
 		double tubeArea = MathUtil.pow2(outerRadius) * Math.PI;
 		
@@ -113,13 +117,18 @@ public class TubeFinSetCalc extends TubeCalc {
 		// that affects the pressure drop through the tube and so (indirecctly) affects the pressure drag.
 			
 		// Area of the outer surface of a tube, not including portion masked by interstice
-		final double outerArea = chord * 2 * (Math.PI - theta1) * outerRadius;
+		final double outerArea = chord * 2.0 * (Math.PI - theta1) * outerRadius;
+
+		// Area of inner surface of a tube
+		final double innerArea = chord * 2.0 * Math.PI * innerRadius;
 			
-		// Surface area of the portion of the body tube masked by the tube fins, per tube
-		final BodyTube parent = (BodyTube) tubes.getParent();
-		final double maskedArea = chord * 2.0 * Math.PI * bodyRadius / tubeCount;
+		// Surface area of the portion of the body tube masked by the tube fin.  We'll subtract it from
+		// the tube fin area rather than go in and change the body tube surface area calculation. If tube
+		// fin and body tube roughness aren't the same this will result in an inaccuracy.
+		final double maskedArea = chord * 2.0 * theta2 * bodyRadius;
 		
-		wettedArea = outerArea - maskedArea;
+		wettedArea = innerArea + outerArea - maskedArea;
+		System.out.println(tubes + " outer " + outerArea + ", masked " + maskedArea);
 		log.debug("wetted area of tube fin " + wettedArea);
 
 		// Precompute most of CNa.  Equation comes from Ribner, "The ring airfoil in nonaxial
@@ -261,6 +270,7 @@ public class TubeFinSetCalc extends TubeCalc {
 
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
+		System.out.println(tubes + "wetted area " + wettedArea);
 		final double frictionCD = componentCf * wettedArea / conditions.getRefArea();
 		
 		return frictionCD;
@@ -271,9 +281,10 @@ public class TubeFinSetCalc extends TubeCalc {
 					  double stagnationCD, double baseCD, WarningSet warnings) {
 		
 	    warnings.addAll(geometryWarnings);
+		System.out.println(tubes + " stag CD " + stagnationCD + ",  base CD " + baseCD);
 						    
 		final double cd = super.calculatePressureCD(conditions, stagnationCD, baseCD, warnings) +
-			(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
+		    (stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
 	    
 	    return cd;
 	}
