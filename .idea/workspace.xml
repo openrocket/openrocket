@@ -81,10 +81,11 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-    <changelist id="2ecf826f-1227-4870-b9d4-17215cf24a1b" name="Changes" comment="Fix transition config layout" />
-    <created>1625095153807</created>
-    <option name="number" value="Default" />
-    <option name="presentableId" value="Default" />
-    <updated>1625095153807</updated>
+      <changelist id="2ecf826f-1227-4870-b9d4-17215cf24a1b" name="Changes" comment="Fix transition config layout" />
+      <created>1625095153807</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1625095153807</updated>
+    </task>
   </component>
 </project>
