@@ -375,6 +375,9 @@ public class Rocket extends ComponentAssembly {
 		copyRocket.stageMap = new ConcurrentHashMap<>();
 		for( Map.Entry<Integer,AxialStage> entry : this.stageMap.entrySet()){
 			final AxialStage stage = (AxialStage)copyRocket.findComponent(entry.getValue().getID());
+			if (stage == null) {
+				throw new IllegalStateException("Stage not found in copy");
+			}
 			copyRocket.stageMap.put(entry.getKey(), stage);
 		}
 
