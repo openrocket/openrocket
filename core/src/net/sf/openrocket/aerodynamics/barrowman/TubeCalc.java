@@ -59,22 +59,19 @@ public abstract class TubeCalc extends RocketComponentCalc {
 			double f = 0.25/MathUtil.pow2(Math.log10((epsilon / (3.7 * diameter) + 5.74/Math.pow(Re, 0.9))));
 
 			// If we're supersonic, apply a correction
-			// if (conditions.getMach() > 1) {
-			// 	f = f / conditions.getBeta();
-			// }
+			if (conditions.getMach() > 1) {
+			 	f = f / conditions.getBeta();
+			}
 
 			// pressure drop using Darcy-Weissbach equation
 			deltap = f * (length * rho * MathUtil.pow2(v)) / (2 * diameter);
-			System.out.println(tube + ", v " + v + ", Re " + Re + ", p " + p + ": " + "deltap " + deltap);
 
 			// drag coefficient of tube interior from pressure drop
 			tubeCD = 2 * (deltap * innerArea) / (rho * MathUtil.pow2(v) * innerArea);
 		}
 		   
 		// convert to CD and return
-		System.out.println(tube + " tube CD " + tubeCD + ", stagnationCD " + stagnationCD + ", baseCD " + baseCD + ", inner area " + innerArea + ", frontal area " + frontalArea);
-		final double cd = (tubeCD * innerArea + (stagnationCD + baseCD) * frontalArea) / conditions.getRefArea();
-		System.out.println(tube + " cd " + cd);
+		final double cd = (tubeCD * innerArea + 0.7*(stagnationCD + baseCD) * frontalArea) / conditions.getRefArea();
 		return cd;
 	}
 }

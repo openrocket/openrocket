@@ -102,7 +102,6 @@ public class TubeFinSetCalc extends TubeCalc {
 		
 		// angle between bodyRadius+outerRadius and d
 		final double theta2 = Math.PI/2.0 - theta1;
-		System.out.println("theta2 " + theta2);
 		
 		// area of arc from body tube.  Doubled so we have area to remove from diamond
 		final double a2 = MathUtil.pow2(bodyRadius) * theta2;
@@ -118,18 +117,13 @@ public class TubeFinSetCalc extends TubeCalc {
 			
 		// Area of the outer surface of a tube, not including portion masked by interstice
 		final double outerArea = chord * 2.0 * (Math.PI - theta1) * outerRadius;
-
-		// Area of inner surface of a tube
-		final double innerArea = chord * 2.0 * Math.PI * innerRadius;
 			
 		// Surface area of the portion of the body tube masked by the tube fin.  We'll subtract it from
 		// the tube fin area rather than go in and change the body tube surface area calculation. If tube
 		// fin and body tube roughness aren't the same this will result in an inaccuracy.
 		final double maskedArea = chord * 2.0 * theta2 * bodyRadius;
 		
-		wettedArea = innerArea + outerArea - maskedArea;
-		System.out.println(tubes + " outer " + outerArea + ", masked " + maskedArea);
-		log.debug("wetted area of tube fin " + wettedArea);
+		wettedArea = outerArea - maskedArea;
 
 		// Precompute most of CNa.  Equation comes from Ribner, "The ring airfoil in nonaxial
 		// flow", Journal of the Aeronautical Sciences 14(9) pp 529-530 (1947) equation (5).
@@ -270,9 +264,8 @@ public class TubeFinSetCalc extends TubeCalc {
 
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
-		System.out.println(tubes + "wetted area " + wettedArea);
 		final double frictionCD = componentCf * wettedArea / conditions.getRefArea();
-		
+
 		return frictionCD;
 	}
 
@@ -281,11 +274,10 @@ public class TubeFinSetCalc extends TubeCalc {
 					  double stagnationCD, double baseCD, WarningSet warnings) {
 		
 	    warnings.addAll(geometryWarnings);
-		System.out.println(tubes + " stag CD " + stagnationCD + ",  base CD " + baseCD);
 						    
 		final double cd = super.calculatePressureCD(conditions, stagnationCD, baseCD, warnings) +
-		    (stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
-	    
+					(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
+
 	    return cd;
 	}
 }
