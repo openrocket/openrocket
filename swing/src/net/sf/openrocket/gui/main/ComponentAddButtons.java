@@ -209,7 +209,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			for (col = 0; col < buttons[row].length; col++) {
 				buttons[row][col].setMinimumSize(d);
 				buttons[row][col].setPreferredSize(d);
-				buttons[row][col].getComponent(0).validate();
+				buttons[row][col].validate();
 			}
 		}
 		
@@ -315,29 +315,32 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * The label may contain "\n" as a newline.
 		 */
 		public ComponentButton(String text, Icon enabled, Icon disabled) {
-			super();
-			setLayout(new MigLayout("fill, flowy, insets 0, gap 0", "", ""));
-			
-			add(new JLabel(), "push, sizegroup spacing");
-			
-			// Add Icon
-			if (enabled != null) {
-				JLabel label = new JLabel(enabled);
-				if (disabled != null)
-					label.setDisabledIcon(disabled);
-				add(label, "growx");
+			super(text, enabled);
+
+			setVerticalTextPosition(SwingConstants.BOTTOM); // this will put the text below the icon
+			setHorizontalTextPosition(SwingConstants.CENTER); // this will center the text horizontally beneath the icon
+			//setIconTextGap(0); // this is optional, it sets the gap between the icon and the text
+
+			// set the disabled icon if it is not null
+			if (disabled != null) {
+				setDisabledIcon(disabled);
 			}
-			
-			// Add labels
-			String[] l = text.split("\n");
-			for (int i = 0; i < l.length; i++) {
-				add(new StyledLabel(l[i], SwingConstants.CENTER, -2.0f), "growx");
+
+			setHorizontalAlignment(SwingConstants.CENTER); // this will center the button itself in its parent component
+
+			// if you have multiline text, you could use html to format it
+			if (text != null && text.contains("\n")) {
+				text = "<html>" + text.replace("\n", "<br>") + "</html>";
+				setText(text);
 			}
-			
-			add(new JLabel(), "push, sizegroup spacing");
-			
-			valueChanged(null); // Update enabled status
-			selectionModel.addTreeSelectionListener(this);
+
+			// Initialize enabled status
+			valueChanged(null);
+
+			// Attach a tree selection listener if selection model is not null
+			if (selectionModel != null) {
+				selectionModel.addTreeSelectionListener(this);
+			}
 		}
 		
 		
