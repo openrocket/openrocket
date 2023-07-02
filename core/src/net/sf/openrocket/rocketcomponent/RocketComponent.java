@@ -408,7 +408,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			checkState();
 			RocketComponent clone;
 			try {
-				clone = (RocketComponent) this.clone();
+				clone = this.clone();
+				clone.id = this.id;
 			} catch (CloneNotSupportedException e) {
 				throw new BugException("CloneNotSupportedException encountered, report a bug!", e);
 			}
