@@ -3,22 +3,22 @@
   <Version>0.1</Version>
   <Legacy />
     <Materials>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Balsa</Name>
             <Density>128.1477072</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Fiber</Name>
             <Density>656.7569994</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Paper</Name>
             <Density>1121.2924380000002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>lite ply</Name>
             <Density>352.40619480000004</Density>
             <Type>BULK</Type>
