@@ -64,6 +64,9 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.IntelliJTheme;
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
@@ -76,6 +79,7 @@ import org.slf4j.LoggerFactory;
 
 public class GUIUtil {
 	private static final Logger log = LoggerFactory.getLogger(GUIUtil.class);
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	private static final KeyStroke ESCAPE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 	private static final String CLOSE_ACTION_KEY = "escape:WINDOW_CLOSING";
@@ -253,7 +257,10 @@ public class GUIUtil {
 		});
 	}
 	
-	
+	public static void setLAF() {
+		UITheme.Theme theme = preferences.getUITheme();
+		theme.applyTheme();
+	}
 	
 	/**
 	 * Set the best available look-and-feel into use.
@@ -265,8 +272,13 @@ public class GUIUtil {
 		 * other alternatives.
 		 */
 		try {
-			// Set system L&F
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			// Linux systems often default to a dark mode LAF, so explicitly use light mode
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.UNIX) {
+				LafManager.install(new IntelliJTheme());
+			} else {
+				// Set system L&F
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			}
 			
 			// Check whether we have an ugly L&F
 			LookAndFeel laf = UIManager.getLookAndFeel();
@@ -295,6 +307,15 @@ public class GUIUtil {
 			}
 			// Set the select foreground for buttons to not be black on a blue background
 			UIManager.put("Button.selectForeground", Color.WHITE);
+
+			// Fix some UI bugs on macOS
+			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+				// Set the foreground of active tabs to black; there was a bug where you had a white background and white foreground
+				UIManager.put("TabbedPane.foreground", Color.black);
+
+				// Set the select foreground for buttons to not be black on a blue background
+				UIManager.put("ToggleButton.selectForeground", Color.WHITE);
+			}
 		} catch (Exception e) {
 			log.warn("Error setting LAF: " + e);
 		}

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -75,6 +76,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
+		textPane.setBorder(BorderFactory.createLineBorder(preferences.getUITheme().getTextColor()));
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
 		textPane.setMargin(new Insets(10, 10, 40, 10));

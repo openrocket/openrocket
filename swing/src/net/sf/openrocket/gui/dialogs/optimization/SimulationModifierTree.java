@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.dialogs.optimization;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.util.Enumeration;
@@ -17,6 +16,7 @@ import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.gui.components.BasicTree;
 import net.sf.openrocket.gui.main.ComponentIcons;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -37,6 +37,7 @@ public class SimulationModifierTree extends BasicTree {
 	
 	private final List<SimulationModifier> selectedModifiers;
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	/**
 	 * Sole constructor.
@@ -151,11 +152,13 @@ public class SimulationModifierTree extends BasicTree {
 			
 			// Set icon (for rocket components, null for others)
 			setIcon(ComponentIcons.getSmallIcon(object.getClass()));
-			
+
+			// By default, set background to transparent
+			setOpaque(false);
 			
 			// Set text color/style
 			if (object instanceof RocketComponent) {
-				setForeground(Color.GRAY);
+				setForeground(prefs.getUITheme().getDimTextColor());
 				setFont(componentFont);
 				
 				// Set tooltip
@@ -169,21 +172,24 @@ public class SimulationModifierTree extends BasicTree {
 					this.setToolTipText(null);
 				}
 			} else if (object instanceof String) {
-				setForeground(Color.GRAY);
+				setForeground(prefs.getUITheme().getDimTextColor());
 				setFont(stringFont);
 			} else if (object instanceof SimulationModifier) {
 				
 				if (selectedModifiers.contains(object)) {
-					setForeground(Color.GRAY);
+					setForeground(prefs.getUITheme().getDimTextColor());
+					setFont(stringFont);
 				} else {
 					if (tree.getSelectionRows() != null &&
 							IntStream.of(tree.getSelectionRows()).anyMatch(r -> r == row)) {
-						setForeground(Color.WHITE);
+						setForeground(prefs.getUITheme().getTextSelectionForegroundColor());
+						setBackground(prefs.getUITheme().getTextSelectionBackgroundColor());
+						setOpaque(true);
 					} else {
-						setForeground(Color.BLACK);
+						setForeground(prefs.getUITheme().getTextColor());
 					}
+					setFont(modifierFont);
 				}
-				setFont(modifierFont);
 				setText(((SimulationModifier) object).getName());
 				setToolTipText(((SimulationModifier) object).getDescription());
 			}

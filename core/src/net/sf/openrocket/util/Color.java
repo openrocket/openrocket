@@ -66,6 +66,10 @@ public class Color {
 		return new java.awt.Color(red, green, blue, alpha);
 	}
 
+	public static Color fromAWTColor(java.awt.Color AWTColor) {
+		return new Color(AWTColor.getRed(), AWTColor.getGreen(), AWTColor.getBlue(), AWTColor.getAlpha());
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (super.equals(obj)) {

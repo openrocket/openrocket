@@ -39,7 +39,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.adaptors.TextComponentSelectionKeyListener;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -50,6 +49,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.widgets.IconToggleButton;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -65,7 +65,7 @@ public class RocketComponentConfig extends JPanel {
 	private static final long serialVersionUID = -2925484062132243982L;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences preferences = Application.getPreferences();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
@@ -501,7 +501,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelMassOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy"), component.getMassOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelMassOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelMassOverriddenBy.setFontColor(preferences.getUITheme().getDarkWarningColor());
 			labelMassOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy.ttip"), component.getMassOverriddenBy().getName()));
 			checkboxes.add(labelMassOverriddenBy, "gapleft 25lp, wrap");
@@ -564,7 +564,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelCGOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy"), component.getCGOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCGOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelCGOverriddenBy.setFontColor(preferences.getUITheme().getDarkWarningColor());
 			labelCGOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy.ttip"), component.getCGOverriddenBy().getName()));
 			checkboxes.add(labelCGOverriddenBy, "gapleft 25lp, wrap");
@@ -658,7 +658,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelCDOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCDOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelCDOverriddenBy.setFontColor(preferences.getUITheme().getDarkWarningColor());
 			labelCDOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()));
 			checkboxes.add(labelCDOverriddenBy, "gapleft 25lp, wrap");
@@ -714,6 +714,7 @@ public class RocketComponentConfig extends JPanel {
 		commentTextArea.setLineWrap(true);
 		commentTextArea.setWrapStyleWord(true);
 		commentTextArea.setEditable(true);
+		commentTextArea.setBorder(preferences.getUITheme().getBorder());
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
 		commentTextArea.addKeyListener(new TextComponentSelectionKeyListener(commentTextArea));

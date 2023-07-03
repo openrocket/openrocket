@@ -23,6 +23,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,8 @@ import net.sf.openrocket.util.Pair;
 public abstract class FlightConfigurablePanel<T extends FlightConfigurableComponent> extends JPanel implements ComponentChangeListener {
 
 	protected static final Translator trans = Application.getTranslator();
+	protected static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+
 	private static final Logger log = LoggerFactory.getLogger(FlightConfigurablePanel.class);
 	protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
@@ -363,7 +366,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			}	
 		}
 
-		private final void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
+		private void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
 			c.setOpaque(true);
 			if ( isSelected) {
 				c.setBackground(table.getSelectionBackground());
@@ -387,12 +390,12 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 		protected final void shaded(JLabel label) {
 			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(Color.GRAY);
+			label.setForeground(prefs.getUITheme().getDimTextColor());
 		}
 
 		protected final void regular(JLabel label) {
 			GUIUtil.changeFontStyle(label, Font.PLAIN);
-			label.setForeground(Color.BLACK);
+			label.setForeground(prefs.getUITheme().getTextColor());
 		}
 
 		protected abstract JLabel format( T component, FlightConfigurationId configId, JLabel label );

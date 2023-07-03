@@ -198,9 +198,9 @@ public class SwingStartup {
 		// Start update info fetching
 		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
 		
-		// Set the best available look-and-feel
-		log.info("Setting best LAF");
-		GUIUtil.setBestLAF();
+		// Set the look-and-feel
+		log.info("Setting LAF");
+		GUIUtil.setLAF();
 		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);

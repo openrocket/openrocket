@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -20,6 +21,17 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
+import net.sf.openrocket.rocketcomponent.BodyComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.InternalComponent;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +58,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
+	private static final String UI_THEME = "UITheme";
+	private static final String UI_FONT_SIZE = "UIFontSize";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
@@ -58,6 +72,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		list.add(new Locale("uk", "UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
+
+	private final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<>();
 	
 	
 	/**
@@ -94,8 +110,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			}
 		}
 		PREFNODE = root.node(NODENAME);
+		fillDefaultComponentColors();
 	}
-	
+
+	private void fillDefaultComponentColors() {
+		DEFAULT_COLORS.put(BodyComponent.class, getUITheme().getDefaultBodyComponentColor());
+		DEFAULT_COLORS.put(TubeFinSet.class, getUITheme().getDefaultTubeFinSetColor());
+		DEFAULT_COLORS.put(FinSet.class, getUITheme().getDefaultFinSetColor());
+		DEFAULT_COLORS.put(LaunchLug.class, getUITheme().getDefaultLaunchLugColor());
+		DEFAULT_COLORS.put(RailButton.class, getUITheme().getDefaultRailButtonColor());
+		DEFAULT_COLORS.put(InternalComponent.class, getUITheme().getDefaultInternalComponentColor());
+		DEFAULT_COLORS.put(MassObject.class, getUITheme().getDefaultMassObjectColor());
+		DEFAULT_COLORS.put(RecoveryDevice.class, getUITheme().getDefaultRecoveryDeviceColor());
+		DEFAULT_COLORS.put(PodSet.class, getUITheme().getDefaultPodSetColor());
+		DEFAULT_COLORS.put(ParallelStage.class, getUITheme().getDefaultParallelStageColor());
+	}
+
 	public String getNodename() {
 		return NODENAME;
 	}
@@ -297,6 +327,76 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	public static List<Locale> getSupportedLocales() {
 		return SUPPORTED_LOCALES;
 	}
+
+	/**
+	 * Get the current theme used for the UI.
+	 * @return the current theme
+	 */
+	public UITheme.Theme getUITheme() {
+		String theme = getString(UI_THEME, UITheme.Themes.LIGHT.name());
+		if (theme == null) return UITheme.Themes.LIGHT;		// Default theme
+		return UITheme.Themes.valueOf(theme);
+	}
+
+	/**
+	 * Set the theme used for the UI.
+	 * @param theme the theme to set
+	 */
+	public void setUITheme(UITheme.Theme theme) {
+		if (theme == null) return;
+		putString(UI_THEME, theme.name());
+		storeVersion();
+	}
+
+	/**
+	 * Get the current font size used for the UI.
+	 * @return the current font size
+	 */
+	public int getUIFontSize() {
+		return getInt(UI_FONT_SIZE, getDefaultFontSize());
+	}
+
+	public final float getRocketInfoFontSize() {
+		return (float) ((getUIFontSize() - 2) + 3 * Application.getPreferences().getChoice(net.sf.openrocket.startup.Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+	}
+
+	private static int getDefaultFontSize() {
+		javax.swing.UIDefaults uiDefaults = javax.swing.UIManager.getDefaults();
+		Object value = uiDefaults.get("defaultFont");
+		if (value instanceof javax.swing.plaf.FontUIResource fontUIResource) {
+			return fontUIResource.getSize();
+		} else {
+			return 12;
+		}
+	}
+
+	/**
+	 * Set the font size used for the UI.
+	 * @param size the font size to set
+	 */
+	public void setUIFontSize(int size) {
+		putInt(UI_FONT_SIZE, size);
+		storeVersion();
+	}
+
+	public net.sf.openrocket.util.Color getDefaultColor(Class<? extends RocketComponent> c) {
+		String color = get("componentColors", c, DEFAULT_COLORS);
+		if (color == null)
+			return net.sf.openrocket.util.Color.fromAWTColor(getUITheme().getTextColor());
+
+		net.sf.openrocket.util.Color clr = parseColor(color);
+		if (clr != null) {
+			return clr;
+		} else {
+			return net.sf.openrocket.util.Color.fromAWTColor(getUITheme().getTextColor());
+		}
+	}
+
+	public final void setDefaultColor(Class<? extends RocketComponent> c, net.sf.openrocket.util.Color color) {
+		if (color == null)
+			return;
+		putString("componentColors", c.getSimpleName(), stringifyColor(color));
+	}
 	
 	public File getDefaultDirectory() {
 		String file = getString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, null);
@@ -431,18 +531,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		}
 		putString(USER_THRUST_CURVES_KEY, str);
 	}
-	
-	public Color getMotorBorderColor() {
-		// TODO: MEDIUM:  Motor color (settable?)
-		return new Color(0, 0, 0, 200);
-	}
-	
-	
-	public Color getMotorFillColor() {
-		// TODO: MEDIUM:  Motor fill color (settable?)
-		return new Color(0, 0, 0, 100);
-	}
-	
 	
 	public static int getMaxThreadCount() {
 		return Runtime.getRuntime().availableProcessors();

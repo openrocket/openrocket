@@ -25,6 +25,8 @@ import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -312,6 +314,8 @@ public class ScaleScrollPane extends JScrollPane
 		public static final int VERTICAL = 1;
 		
 		private final int orientation;
+
+		private final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 		
 		public Ruler(int orientation) {
 			this.orientation = orientation;
@@ -398,7 +402,7 @@ public class ScaleScrollPane extends JScrollPane
             }
 			
 			// Set color & hints
-			g2.setColor(Color.BLACK);
+			g2.setColor(prefs.getUITheme().getTextColor());
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 					RenderingHints.VALUE_STROKE_NORMALIZE);
 			g2.setRenderingHint(RenderingHints.KEY_RENDERING,

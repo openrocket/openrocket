@@ -257,7 +257,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			// Set component color and line style
 			net.sf.openrocket.util.Color color = rcs.color;
 			if (color == null) {
-				color = Application.getPreferences().getDefaultColor(c.getClass());
+				color = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 			}
 			g2.setColor(ColorConversion.toAwtColor(color));
 			
@@ -290,8 +290,8 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_STROKE_NORMALIZE);
 	
 		// Draw motors
-		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
-		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
+		Color fillColor = ((SwingPreferences)Application.getPreferences()).getUITheme().getMotorFillColor();
+		Color borderColor = ((SwingPreferences)Application.getPreferences()).getUITheme().getMotorBorderColor();
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		for (MotorConfiguration curInstance : config.getActiveMotors()) {

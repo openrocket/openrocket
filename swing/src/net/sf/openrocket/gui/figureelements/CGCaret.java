@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.figureelements;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.startup.Application;
+
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -16,6 +19,8 @@ public class CGCaret extends Caret {
 	private static final float RADIUS = 7;
 	
 	private static Area caret = null;
+
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	/**
 	 * Create a new CGCaret at the specified coordinates.
@@ -56,7 +61,7 @@ public class CGCaret extends Caret {
 	 */
 	@Override
 	protected Color getColor() {
-		return Color.BLUE;
+		return prefs.getUITheme().getCGColor();
 	}
 
 }

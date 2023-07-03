@@ -1,9 +1,10 @@
 package net.sf.openrocket.gui.components;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.URLUtil;
+import net.sf.openrocket.startup.Application;
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -31,6 +32,8 @@ import javax.swing.SwingUtilities;
 public class DescriptionArea extends JScrollPane {
 	
 	private final JEditorPane editorPane;
+
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	
 	/**
@@ -94,7 +97,7 @@ public class DescriptionArea extends JScrollPane {
 		editorPane.addHyperlinkListener(new HyperlinkListener() {
 				public void hyperlinkUpdate(HyperlinkEvent e) {
 					if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-						URI uri = null;
+						URI uri;
 						try {
 							uri = e.getURL().toURI();
 						}
@@ -125,8 +128,8 @@ public class DescriptionArea extends JScrollPane {
 
 
 							// create temporary file and copy resource to it
-							File of = null;
-							BufferedOutputStream os = null;
+							File of;
+							BufferedOutputStream os;
 							try {
 								of = File.createTempFile(prefix, suffix);
 								os = new BufferedOutputStream(new FileOutputStream(of));
@@ -175,6 +178,8 @@ public class DescriptionArea extends JScrollPane {
 		Dimension dim = editorPane.getPreferredSize();
 		dim.height = lineheight * rows + extraheight + 2;
 		this.setPreferredSize(dim);
+
+		editorPane.setBorder(prefs.getUITheme().getBorder());
 		
 		this.setViewportView(editorPane);
 		this.setText(text);

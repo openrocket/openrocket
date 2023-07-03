@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.util;
 
+import net.sf.openrocket.startup.Application;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -12,6 +14,8 @@ import java.awt.Component;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class BetterListCellRenderer extends DefaultListCellRenderer {
+    private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
@@ -20,16 +24,16 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
         // Alternating row colors
         if (!isSelected) {
             if (index % 2 == 0) {
-                label.setBackground(Color.WHITE);
+                label.setBackground(prefs.getUITheme().getRowBackgroundDarkerColor());
             } else {
-                label.setBackground(new Color(245, 245, 245));
+                label.setBackground(prefs.getUITheme().getRowBackgroundLighterColor());
             }
         }
         // Text color
         if (isSelected) {
-            label.setForeground(Color.WHITE);
+            label.setForeground(prefs.getUITheme().getTextSelectionForegroundColor());
         } else {
-            label.setForeground(Color.BLACK);
+            label.setForeground(prefs.getUITheme().getTextColor());
         }
         return label;
     }

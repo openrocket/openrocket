@@ -74,7 +74,7 @@
 		<echo level="info">Java/JVM detail version: ${java.version}</echo>
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.8" target="1.8"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="17" target="17"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
@@ -116,6 +116,22 @@
 			<zipfileset src="${core.dir}/lib/jaxb-runtime.2.3.1.jar"/>
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-compatibility-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-core-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-iconset-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-macos-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-native-utils-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-platform-base-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-platform-decorations-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-platform-preferences-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-property-loader-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-theme-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-theme-spec-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-utils-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/darklaf-windows-3.0.3-SNAPSHOT.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/jsvg-0.0.9.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/swing-extensions-laf-support-0.1.3.jar"/>
+			<zipfileset src="${lib.dir}/darklaf/swing-extensions-visual-padding-0.1.3.jar"/>
 			<zipfileset src="${core.dir}/lib/opencsv-5.7.1.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.5.jar"/>
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.30.jar"/>

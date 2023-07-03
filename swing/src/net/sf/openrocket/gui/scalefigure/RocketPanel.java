@@ -35,6 +35,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -439,8 +440,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JPanel bottomRow = new JPanel(new MigLayout("fill, gapy 0, ins 0"));
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
-		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
-		infoMessage.setFont(new Font("Sans Serif", Font.PLAIN, 9));
+		infoMessage = new StyledLabel(trans.get("RocketPanel.lbl.infoMessage"), -3);
 		bottomRow.add(infoMessage);
 
 		//// Show warnings

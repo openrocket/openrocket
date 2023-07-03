@@ -44,8 +44,8 @@ import org.jfree.chart.JFreeChart;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotDialog extends JDialog {
-	
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
 		//// Flight data plot
@@ -77,7 +77,7 @@ public class SimulationPlotDialog extends JDialog {
 		// Add warning if X axis type is not time
 		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
 			JLabel msg = new StyledLabel(trans.get("PlotDialog.lbl.timeSeriesWarning"), -2);
-			msg.setForeground(Color.DARK_RED.toAWTColor());
+			msg.setForeground(prefs.getUITheme().getDarkWarningColor());
 			panel.add(msg, "wrap");
 		}
 		

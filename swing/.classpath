@@ -11,6 +11,7 @@
 	<classpathentry kind="lib" path="lib/iText-5.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.18.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/darklaf/*.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.30.jar"/>

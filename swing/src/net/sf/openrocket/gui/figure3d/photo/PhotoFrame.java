@@ -371,9 +371,9 @@ public class PhotoFrame extends JFrame {
 
 		guiModule.startLoader();
 
-		// Set the best available look-and-feel
-		log.info("Setting best LAF");
-		GUIUtil.setBestLAF();
+		// Set the look-and-feel
+		log.info("Setting LAF");
+		GUIUtil.setLAF();
 
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();

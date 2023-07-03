@@ -10,6 +10,7 @@ import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 
 import net.sf.openrocket.gui.figure3d.geometry.Geometry;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -80,7 +81,7 @@ public class FigureRenderer extends RocketRenderer {
 			if (defaultColorCache.containsKey(c.getClass())) {
 				figureColor = defaultColorCache.get(c.getClass());
 			} else {
-				figureColor = Application.getPreferences().getDefaultColor(c.getClass());
+				figureColor = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 				defaultColorCache.put(c.getClass(), figureColor);
 			}
 		}

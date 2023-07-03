@@ -12,7 +12,9 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.URLUtil;
+import net.sf.openrocket.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,7 @@ import net.sf.openrocket.util.BugException;
  */
 public class URLLabel extends SelectableLabel {
 	private static final Logger log = LoggerFactory.getLogger(URLLabel.class);
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	/**
 	 * Create a label showing the url it will direct to.
@@ -53,7 +56,7 @@ public class URLLabel extends SelectableLabel {
 			Map<TextAttribute, Object> map = new HashMap<TextAttribute, Object>();
 			map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 			this.setFont(this.getFont().deriveFont(map));
-			this.setForeground(Color.BLUE);
+			this.setForeground(prefs.getUITheme().getURLColor());
 			
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			

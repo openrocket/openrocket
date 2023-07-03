@@ -39,6 +39,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
@@ -70,6 +71,7 @@ import org.slf4j.LoggerFactory;
 
 public class ComponentAnalysisDialog extends JDialog implements StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisDialog.class);
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	private static final long serialVersionUID = 9131240570600307935L;
 	private static ComponentAnalysisDialog singletonDialog = null;
@@ -148,6 +150,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
+		warningList.setBorder(prefs.getUITheme().getBorder());
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, wmin 300lp, grow, height :100lp:, wrap");
@@ -664,6 +667,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		private final Font normalFont;
 		private final Font boldFont;
 
+		private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 		public DragCellRenderer(Color baseColor) {
 			super();
@@ -689,6 +693,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				float val = 1.0f;
 
 				this.setBackground(Color.getHSBColor(hue, sat, val));
+				this.setForeground(Color.BLACK);
 				this.setOpaque(true);
 				this.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -696,6 +701,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 				// Other
 				this.setText(value.toString());
+				this.setForeground(prefs.getUITheme().getTextColor());
 				this.setOpaque(false);
 				this.setHorizontalAlignment(SwingConstants.LEFT);
 

@@ -548,11 +548,6 @@ public abstract class Preferences implements ChangeSource {
 		fireChangeEvent();
 	}
 	
-	
-	public final float getRocketInfoFontSize() {
-		return (float) (11.0 + 3 * Application.getPreferences().getChoice(Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
-	}
-	
 	/**
 	 * Enable/Disable the auto-opening of the last edited design file on startup.
 	 */
@@ -804,25 +799,6 @@ public abstract class Preferences implements ChangeSource {
 		}
 	}
 	
-	public Color getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, StaticFieldHolder.DEFAULT_COLORS);
-		if (color == null)
-			return Color.BLACK;
-			
-		Color clr = parseColor(color);
-		if (clr != null) {
-			return clr;
-		} else {
-			return Color.BLACK;
-		}
-	}
-	
-	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
-		if (color == null)
-			return;
-		putString("componentColors", c.getSimpleName(), stringifyColor(color));
-	}
-	
 	
 	/**
 	 * Retrieve a Line style for the given component.
@@ -1015,19 +991,6 @@ public abstract class Preferences implements ChangeSource {
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
-		}
-		
-		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
-		
-		static {
-			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
-			DEFAULT_COLORS.put(TubeFinSet.class, "0,0,200");
-			DEFAULT_COLORS.put(FinSet.class, "0,0,200");
-			DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
-			DEFAULT_COLORS.put(RailButton.class, "0,0,180");
-			DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
-			DEFAULT_COLORS.put(MassObject.class, "0,0,0");
-			DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
 		}
 	}
 	
