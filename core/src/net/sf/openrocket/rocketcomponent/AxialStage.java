@@ -207,10 +207,10 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public StageSeparationConfiguration getSeparationConfiguration() {
 		FlightConfiguration flConfig = getRocket().getSelectedConfiguration();
 		StageSeparationConfiguration sepConfig = getSeparationConfigurations().get(flConfig.getId());
-		// to ensure the configuration is distinct, and we're not modifying the default
+		// To ensure the configuration is distinct, and we're not modifying the default
 		if ((sepConfig == getSeparationConfigurations().getDefault())
 				&& (flConfig.getId() != FlightConfigurationId.DEFAULT_VALUE_FCID)) {
-			sepConfig = new StageSeparationConfiguration();
+			sepConfig = sepConfig.copy(flConfig.getId());
 			getSeparationConfigurations().set(flConfig.getId(), sepConfig);
 		}
 		return sepConfig;
