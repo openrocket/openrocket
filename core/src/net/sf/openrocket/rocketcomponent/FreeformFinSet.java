@@ -392,7 +392,16 @@ public class FreeformFinSet extends FinSet {
 
 	@Override
 	public Coordinate[] getFinPoints() {
-		return points.toArray(new Coordinate[0]);
+		Coordinate[] finPoints = points.toArray(new Coordinate[0]);
+
+		// Set the start and end fin points the same as the root points (necessary for canted fins)
+		final Coordinate[] rootPoints = getRootPoints();
+		if (rootPoints.length > 1) {
+			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
+		}
+
+		return finPoints;
 	}
 
 	@Override

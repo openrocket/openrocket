@@ -39,13 +39,10 @@ public class FinRenderer {
 
 		{
 		    gl.glPushMatrix();
-            
-			gl.glTranslated(finSet.getLength() / 2, 0, 0);
 
-            gl.glTranslated(0, - finSet.getBodyRadius(), 0);
+            gl.glTranslated(0, - finSet.getBodyRadius(), 0);		// Move to the rocket centerline
             
             gl.glRotated( Math.toDegrees(finSet.getCantAngle()), 0, 1, 0);
-            gl.glTranslated(-finSet.getLength() / 2, 0, 0);
 
             GLUtessellatorCallback cb = new GLUtessellatorCallbackAdapter() {
 				@Override

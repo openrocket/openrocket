@@ -36,11 +36,18 @@ public class EllipticalFinSet extends FinSet {
 	@Override
 	public Coordinate[] getFinPoints() {
 		double len = MathUtil.max(length, 0.0001);
-		Coordinate[] points = new Coordinate[POINTS];
+		Coordinate[] finPoints = new Coordinate[POINTS];
 		for (int i = 0; i < POINTS; i++) {
-			points[i] = new Coordinate(POINT_X[i] * len, POINT_Y[i] * height);
+			finPoints[i] = new Coordinate(POINT_X[i] * len, POINT_Y[i] * height);
 		}
-		return points;
+
+		// Set the start and end fin points the same as the root points (necessary for canted fins)
+		final Coordinate[] rootPoints = getRootPoints();
+		if (rootPoints.length > 1) {
+			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
+		}
+		return finPoints;
 	}
 	
 	@Override
