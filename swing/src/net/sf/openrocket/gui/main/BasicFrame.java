@@ -49,6 +49,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.configdialog.SaveDesignInfoPanel;
 import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
@@ -1596,6 +1597,9 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAsAction() {
+		// Open dialog for saving rocket info
+		showSaveRocketInfoDialog();
+
 		File file = openFileSaveAsDialog(FileType.OPENROCKET);
 		if (file == null) {
 			return false;
@@ -1608,6 +1612,25 @@ public class BasicFrame extends JFrame {
 			opts.addFile(file.getAbsolutePath());
 		}
 		return result;
+	}
+
+	private void showSaveRocketInfoDialog() {
+		if (!prefs.isShowSaveRocketInfo()) {
+			return;
+		}
+
+		// Select the rocket in the component tree to indicate to users that they can edit the rocket info by editing the rocket
+		setSelectedComponent(rocket);
+
+		// Open the save rocket info
+		JDialog dialog = new JDialog();
+		SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
+		dialog.setContentPane(panel);
+		dialog.pack();
+		dialog.setTitle(trans.get("BasicFrame.lbl.SaveRocketInfo"));
+		dialog.setModal(true);
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true);
 	}
 
 
