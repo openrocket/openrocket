@@ -145,14 +145,14 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					worstToggle.setSelected(false);
 			}
 		});
-		panel.add(worstToggle, "");
+		panel.add(worstToggle);
 
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
-		panel.add(scrollPane, "gap paragraph, spany 4, wmin 300lp, grow, height :100lp:, wrap");
+		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
 
 		////Angle of attack:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
