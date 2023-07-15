@@ -34,6 +34,7 @@ public class DescriptionArea extends JScrollPane {
 	private final JEditorPane editorPane;
 
 	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+	private final float size;
 	
 	
 	/**
@@ -89,10 +90,9 @@ public class DescriptionArea extends JScrollPane {
 	public DescriptionArea(String text, int rows, float size, boolean opaque) {
 		super(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		this.size = size;
 		
 		editorPane = new JEditorPane("text/html", "");
-		Font font = editorPane.getFont();
-		editorPane.setFont(font.deriveFont(font.getSize2D() + size));
 		editorPane.setEditable(false);
 		editorPane.addHyperlinkListener(new HyperlinkListener() {
 				public void hyperlinkUpdate(HyperlinkEvent e) {
@@ -166,11 +166,11 @@ public class DescriptionArea extends JScrollPane {
 		}
 		
 		// Calculate correct height
-		editorPane.setText("abc");
+		this.setText("abc");
 		Dimension oneline = editorPane.getPreferredSize();
-		editorPane.setText("abc<br>def");
+		this.setText("abc<br>def");
 		Dimension twolines = editorPane.getPreferredSize();
-		editorPane.setText("");
+		this.setText("");
 		
 		int lineheight = twolines.height - oneline.height;
 		int extraheight = oneline.height - lineheight;
@@ -186,7 +186,12 @@ public class DescriptionArea extends JScrollPane {
 	}
 	
 	public void setText(String txt) {
-		editorPane.setText(txt);
+		// Set the font size (we can't simply set the font to change the font size, because we're using text/html)
+		Font defaultFont = editorPane.getFont();
+		String fontName = defaultFont.getFontName();
+		float fontSize = defaultFont.getSize2D() + size;
+
+		editorPane.setText("<html><body style='font-family:" + fontName + ";font-size:" + fontSize + "pt;'>" + txt + "</body></html>");
 		editorPane.revalidate();
 		SwingUtilities.invokeLater(new Runnable() {
 			
