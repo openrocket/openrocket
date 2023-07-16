@@ -14,73 +14,64 @@ public abstract class TubeCalc extends RocketComponentCalc {
 	
 	private final static Logger log = LoggerFactory.getLogger(TubeFinSetCalc.class);
 
-	// air density (standard conditions)
-	private final double rho = 1.225; // kg/m^3
-	
+	private final Tube tube;
 	private final double diameter;
 	private final double length;
 	protected final double innerArea;
 	private final double totalArea;
 	private final double frontalArea;
+	private final double epsilon;
 	
 	public TubeCalc(RocketComponent component) {
 		super(component);
 
-		Tube tube = (Tube)component;
+		tube = (Tube)component;
 		
 		length = tube.getLength();
 		diameter = 2 * tube.getInnerRadius();
 		innerArea = Math.PI * MathUtil.pow2(tube.getInnerRadius());
 		totalArea = Math.PI * MathUtil.pow2(tube.getOuterRadius());
 		frontalArea = totalArea - innerArea;
+		epsilon = tube.getFinish().getRoughnessSize(); // roughness; note we don't maintain surface roughness of
+		                              // interior separately from exterior.
 	}
 
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
-		
-		// These calculations come from a mix of theoretical and empirical
-		// results, and are marked with (t) for theoretical and (e) for empirical.
-		// The theoretical results should not be modified; the empirical can be adjusted
-		// to better simulate real rockets as we get data.
-
-		// For the sources of the empirical formulas, see Carello, Ivanov, and Mazza,
-		// "Pressure drop in pipe lines for compressed air: comparison between experimental
-		// and theoretical analysis", Transactions on Engineering Sciences vol 18,
-		// ISSN 1743-35331998, 1998.
-		
-		// For the rockets for which we have data, the effect of the stagnation CD appears to be
-		// overstated.  This code multiplies it be a factor of 0.7 to better match experimental
-		// data
 
 		// Need to check for tube inner area 0 in case of rockets using launch lugs with
-		// an inner radius of 0 to emulate rail buttons (or just weird rockets, of course)
+		// an inner radius of 0 to emulate rail guides (or just weird rockets, of course)
+		double tubeCD = 0.0;
 		double deltap;
 		if (innerArea > MathUtil.EPSILON) {
-			// Temperature
-			final double T = conditions.getAtmosphericConditions().getTemperature();
-			
-			// Volume flow rate (t)
-			final double Q = conditions.getVelocity() * innerArea;
+			// Current atmospheric conditions
+			final double p = conditions.getAtmosphericConditions().getPressure();
+			final double t = conditions.getAtmosphericConditions().getTemperature();
+			final double rho = conditions.getAtmosphericConditions().getDensity();
+			final double v = conditions.getVelocity();
 			
 			// Reynolds number (note Reynolds number for the interior of a pipe is based on diameter,
 			// not length (t))
-			final double Re = conditions.getVelocity() * diameter /
-				conditions.getAtmosphericConditions().getKinematicViscosity();
+			final double Re = v * diameter / conditions.getAtmosphericConditions().getKinematicViscosity();
 			
-			// friction coefficient (for smooth tube interior) (e)
-			final double lambda = 1/MathUtil.pow2(2 * Math.log(0.5625 * Math.pow(Re, 0.875)) - 0.8);
-			
-			// pressure drop (e)
-			final double P0 = 100; // standard pressure
-			final double T0 = 273.15; // standard temperature
-			deltap = (lambda * 8 * length * rho * MathUtil.pow2(Q) * T * P0) /
-				(MathUtil.pow2(Math.PI) * Math.pow(diameter, 5) * T0 * conditions.getAtmosphericConditions().getPressure());
-		} else {
-			deltap = 0.0;
+			// friction coefficient using Swamee-Jain equation
+			double f = 0.25/MathUtil.pow2(Math.log10((epsilon / (3.7 * diameter) + 5.74/Math.pow(Re, 0.9))));
+
+			// If we're supersonic, apply a correction
+			if (conditions.getMach() > 1) {
+			 	f = f / conditions.getBeta();
+			}
+
+			// pressure drop using Darcy-Weissbach equation
+			deltap = f * (length * rho * MathUtil.pow2(v)) / (2 * diameter);
+
+			// drag coefficient of tube interior from pressure drop
+			tubeCD = 2 * (deltap * innerArea) / (rho * MathUtil.pow2(v) * innerArea);
 		}
 		   
 		// convert to CD and return
-		return (deltap * innerArea + 0.7 * stagnationCD * frontalArea) / conditions.getRefArea();
+		final double cd = (tubeCD * innerArea + 0.7*(stagnationCD + baseCD) * frontalArea) / conditions.getRefArea();
+		return cd;
 	}
 }

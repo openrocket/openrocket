@@ -366,9 +366,9 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			}	
 		}
 
-		private void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
+		private void setSelected(JComponent c, JTable table, boolean isSelected, boolean hasFocus) {
 			c.setOpaque(true);
-			if ( isSelected) {
+			if (isSelected) {
 				c.setBackground(table.getSelectionBackground());
 				c.setForeground((Color)UIManager.get("Table.selectionForeground"));
 			} else {
@@ -376,11 +376,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				c.setForeground(c.getForeground());
 			}
 			Border b = null;
-			if ( hasFocus ) {
+			if (hasFocus) {
 				if (isSelected) {
 					b = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
 				} else {
-					b = UIManager.getBorder("Table.focusCellHighligtBorder");
+					b = UIManager.getBorder("Table.focusCellHighlightBorder");
 				}
 			} else {
 				b = new EmptyBorder(1,1,1,1);
