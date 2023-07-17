@@ -181,10 +181,13 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		}
 
 		boolean update = false;
-		AxialStage initStage = stages.get(0);
-		FlightConfigurationId initFcId = fcIds.get(0);
+		AxialStage initStage = stages.get(0);			// Arbitrary choice of stage (all stages should have the same settings due to multi-comp editing)
+		FlightConfigurationId initFcId = rocket.getSelectedConfiguration().getId();		// The SeparationSelectionDialog should apply its separation settings to the selected configuration
 
+		// Store the initial configuration so we can check later whether something changed
 		StageSeparationConfiguration initialConfig = initStage.getSeparationConfigurations().get(initFcId).copy(initFcId);
+
+		// Launch the separation config dialog
 		JDialog d = new SeparationSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initStage);
 		d.setVisible(true);
 
@@ -195,6 +198,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		double separationDelay = initStage.getSeparationConfigurations().get(initFcId).getSeparationDelay();
 		SeparationEvent separationEvent= initStage.getSeparationConfigurations().get(initFcId).getSeparationEvent();
 
+		// Parse all stages anc flight configurations to check whether we need to update
 		for (int i = 0; i < stages.size(); i++) {
 			for (int j = 0; j < fcIds.size(); j++) {
 				if ((i == 0) && (j == 0)) break;
@@ -205,7 +209,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 				initialConfig = config.copy(fcId);
 
 				if (stage.getSeparationConfigurations().isDefault(config)) {
-					config = config.clone();
+					config = config.copy(fcId);
 				}
 
 				config.setSeparationDelay(separationDelay);
