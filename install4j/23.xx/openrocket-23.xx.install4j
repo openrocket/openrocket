@@ -48,6 +48,7 @@
     </launcher>
   </launchers>
   <installerGui>
+    <laf type="native" />
     <applications>
       <application id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" customIcnsFile="../../core/resources/pix/icon/icon-macos.icns" customIcoFile="../../core/resources/pix/icon/icon-windows.ico">
         <serializedBean>
