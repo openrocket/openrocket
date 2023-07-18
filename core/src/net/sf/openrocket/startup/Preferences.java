@@ -82,6 +82,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String AUTO_OPEN_LAST_DESIGN = "AutoOpenLastDesign";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
+	private static final String SHOW_SAVE_ROCKET_INFO = "ShowSaveRocketInfo";
 	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
 	private static final String SHOW_DISCARD_PREFERENCES_CONFIRMATION = "IgnoreDiscardPreferencesWarning";
 	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
@@ -592,6 +593,21 @@ public abstract class Preferences implements ChangeSource {
 		this.putBoolean(SHOW_DISCARD_CONFIRMATION, enabled);
 	}
 
+	/**
+	 * Returns whether a 'save rocket information' dialog should be shown after saving a new design file.
+	 * @return true if the 'save rocket information' dialog should be shown.
+	 */
+	public final boolean isShowSaveRocketInfo() {
+		return this.getBoolean(SHOW_SAVE_ROCKET_INFO, true);
+	}
+
+	/**
+	 * Enable/Disable showing a 'save rocket information' dialog after saving a new design file.
+	 * @return true if the 'save rocket information' dialog should be shown.
+	 */
+	public final void setShowSaveRocketInfo(boolean enabled) {
+		this.putBoolean(SHOW_SAVE_ROCKET_INFO, enabled);
+	}
 	/**
 	 * Answer if a confirmation dialog should be shown when canceling a simulation config operation.
 	 *

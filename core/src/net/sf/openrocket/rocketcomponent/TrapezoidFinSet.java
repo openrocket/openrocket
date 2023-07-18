@@ -193,16 +193,25 @@ public class TrapezoidFinSet extends FinSet {
 	 */
 	@Override
 	public Coordinate[] getFinPoints() {
-		List<Coordinate> list = new ArrayList<Coordinate>(4);
-		
-		list.add(Coordinate.NUL);
-		list.add(new Coordinate(sweep, height));
+		List<Coordinate> points = new ArrayList<>(4);
+
+		points.add(Coordinate.NUL);
+		points.add(new Coordinate(sweep, height));
 		if (tipChord > 0.0001) {
-			list.add(new Coordinate(sweep + tipChord, height));
+			points.add(new Coordinate(sweep + tipChord, height));
 		}
-		list.add(new Coordinate(MathUtil.max(length, 0.0001), 0));
+		points.add(new Coordinate(MathUtil.max(length, 0.0001), 0));
+
+		Coordinate[] finPoints = points.toArray(new Coordinate[0]);
+
+		// Set the start and end fin points the same as the root points (necessary for canted fins)
+		final Coordinate[] rootPoints = getRootPoints();
+		if (rootPoints.length > 1) {
+			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
+		}
 		
-		return list.toArray(new Coordinate[list.size()]);
+		return finPoints;
 	}
 	
 	/**

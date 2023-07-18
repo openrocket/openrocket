@@ -329,6 +329,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.motorMass = calculateMotorMass(status);
 		store.rocketMass = structureMassData.add( store.motorMass );
 
+		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
+			throw new SimulationException(trans.get("SimulationStepper.error.totalMassZero"));
+		}
+		
 		// Calculate the forces from the aerodynamic coefficients
 		
 		double dynP = (0.5 * store.flightConditions.getAtmosphericConditions().getDensity() *

@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 
@@ -108,6 +109,71 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals(" generated fin point [" + index + "] doesn't match! ", expPoints[index].x, actPoints[index].x, EPSILON);
 			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x, EPSILON);
 			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x, EPSILON);
+		}
+	}
+
+	@Test
+	public void testGenerateTrapezoidalPointsWithCant() {
+		final Rocket rkt = createSimpleTrapezoidalFin();
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
+		fins.setCantAngle(Math.toRadians(15));
+
+		// Fin length = 0.05
+		// Tab Length = 0.01
+		//          +--+
+		//         /    \
+		//        /      \
+		//   +---+--------+---+
+		//
+		Coordinate[] actPoints = fins.getFinPoints();
+		Coordinate[] rootPoints = fins.getRootPoints();
+
+		final Coordinate[] expPoints = new Coordinate[] {
+				new Coordinate(0.00, -0.00030189855, 0.00),
+				new Coordinate(0.02, 0.05, 0.00),
+				new Coordinate(0.04, 0.05, 0.00),
+				new Coordinate(0.06, -0.00030189855, 0.00)
+		};
+
+		final Coordinate[] expRootPoints = new Coordinate[] {
+				new Coordinate(0.0000, -0.000301899, 0.0000),
+				new Coordinate(0.0025, -0.000253617, 0.0000),
+				new Coordinate(0.0050, -0.000209555, 0.0000),
+				new Coordinate(0.0075, -0.000169706, 0.0000),
+				new Coordinate(0.0100, -0.000134064, 0.0000),
+				new Coordinate(0.0125, -0.000102627, 0.0000),
+				new Coordinate(0.0150, -0.000075389, 0.0000),
+				new Coordinate(0.0175, -0.000052348, 0.0000),
+				new Coordinate(0.0200, -0.000033499, 0.0000),
+				new Coordinate(0.0225, -0.000018842, 0.0000),
+				new Coordinate(0.0250, -0.000008374, 0.0000),
+				new Coordinate(0.0275, -0.000002093, 0.0000),
+				new Coordinate(0.0300, 0.0000, 0.0000),
+				new Coordinate(0.0325, -0.000002093, 0.0000),
+				new Coordinate(0.0350, -0.000008374, 0.0000),
+				new Coordinate(0.0375, -0.000018842, 0.0000),
+				new Coordinate(0.0400, -0.000033499, 0.0000),
+				new Coordinate(0.0425, -0.000052348, 0.0000),
+				new Coordinate(0.0450, -0.000075389, 0.0000),
+				new Coordinate(0.0475, -0.000102627, 0.0000),
+				new Coordinate(0.0500, -0.000134064, 0.0000),
+				new Coordinate(0.0525, -0.000169706, 0.0000),
+				new Coordinate(0.0550, -0.000209555, 0.0000),
+				new Coordinate(0.0575, -0.000253617, 0.0000),
+				new Coordinate(0.0600, -0.000301899, 0.0000)
+		};
+
+		assertEquals("Canted fin number of points doesn't match! ", expPoints.length, actPoints.length);
+		assertEquals("Canted root number of points doesn't match! ", expRootPoints.length, rootPoints.length);
+		for (int i = 0; i < expPoints.length; i++) {
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].x, actPoints[i].x, EPSILON);
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].y, actPoints[i].y, EPSILON);
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].z, actPoints[i].z, EPSILON);
+		}
+		for (int i = 0; i < expRootPoints.length; i++) {
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].x, rootPoints[i].x, EPSILON);
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].y, rootPoints[i].y, EPSILON);
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].z, rootPoints[i].z, EPSILON);
 		}
 	}
 

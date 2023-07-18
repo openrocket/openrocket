@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -31,9 +32,10 @@ import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
@@ -143,14 +145,14 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					worstToggle.setSelected(false);
 			}
 		});
-		panel.add(worstToggle, "");
+		panel.add(worstToggle);
 
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
-		panel.add(scrollPane, "gap paragraph, spany 4, wmin 300lp, grow, height :100lp:, wrap");
+		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
 
 		////Angle of attack:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
@@ -213,7 +215,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(stabData.get(row).eachMass);
+						return unit.toUnit(stabData.get(row).eachMass);
 					}
 				},
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.AllMass") + " (" + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit() + ")") {
@@ -221,7 +223,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(stabData.get(row).cm.weight);
+						return unit.toUnit(stabData.get(row).cm.weight);
 					}
 				},
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.CG") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
@@ -229,7 +231,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(stabData.get(row).cm.x);
+						return unit.toUnit(stabData.get(row).cm.x);
 					}
 				},
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.CP") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
@@ -237,13 +239,13 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(stabData.get(row).cpx);
+						return unit.toUnit(stabData.get(row).cpx);
 					}
 				},
 				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
 					@Override
 					public Object getValueAt(int row) {
-						return NOUNIT.toString(stabData.get(row).cna);
+						return NOUNIT.toUnit(stabData.get(row).cna);
 					}
 				}
 	
@@ -261,14 +263,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		};
 
 		table = new ColumnTable(longitudeStabilityTableModel);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setSelectionBackground(Color.LIGHT_GRAY);
-		table.setSelectionForeground(Color.BLACK);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		longitudeStabilityTableModel.setColumnWidths(table.getColumnModel());
 
-		table.setDefaultRenderer(Object.class, new CustomCellRenderer());
-		//		table.setShowHorizontalLines(false);
-		//		table.setShowVerticalLines(true);
+		table.setDefaultRenderer(Object.class, new StabilityCellRenderer());
 
 		JScrollPane scrollpane = new JScrollPane(table);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
@@ -339,14 +337,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 		table = new JTable(dragTableModel);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setSelectionBackground(Color.LIGHT_GRAY);
-		table.setSelectionForeground(Color.BLACK);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		dragTableModel.setColumnWidths(table.getColumnModel());
 
-		table.setDefaultRenderer(Object.class, new DragCellRenderer(new Color(0.5f, 1.0f, 0.5f)));
-		//		table.setShowHorizontalLines(false);
-		//		table.setShowVerticalLines(true);
+		table.setDefaultRenderer(Object.class, new DragCellRenderer());
 
 		scrollpane = new JScrollPane(table);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
@@ -406,10 +400,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 		table = new JTable(rollTableModel);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setSelectionBackground(Color.LIGHT_GRAY);
-		table.setSelectionForeground(Color.BLACK);
-		table.setDefaultRenderer(Object.class, new CustomCellRenderer());
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		table.setDefaultRenderer(Object.class, new RollDynamicsCellRenderer());
 
 		scrollpane = new JScrollPane(table);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
@@ -622,94 +614,131 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		rollTableModel.fireTableDataChanged();
 	}
 
-	private class CustomCellRenderer extends JLabel implements TableCellRenderer {
-		/**
-		 * 
-		 */
+	/**
+	 * Default cell renderer for the tables.
+	 */
+	private class CustomCellRenderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 1L;
-		private final Font normalFont;
-		private final Font boldFont;
+		protected final Font normalFont;
+		protected final Font boldFont;
 
-		public CustomCellRenderer() {
+		private final List<?> data;
+		protected final int decimalPlaces;
+
+		public CustomCellRenderer(List<?> data, int decimalPlaces) {
 			super();
-			normalFont = getFont();
-			boldFont = normalFont.deriveFont(Font.BOLD);
+			this.decimalPlaces = decimalPlaces;
+			this.data = data;
+			this.normalFont = getFont();
+			this.boldFont = normalFont.deriveFont(Font.BOLD);
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column) {
+													   boolean isSelected, boolean hasFocus, int row, int column) {
+			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-			this.setText(value == null ? null : value.toString());
-
-			if ((row < 0) || (row >= stabData.size()))
-				return this;
-
-			if ( 0 == row ) {
-				this.setFont(boldFont);
+			if (value instanceof Double) {
+				label.setText(formatDouble((Double) value));
 			} else {
-				this.setFont(normalFont);
+				// Other
+				label.setText(value != null ? value.toString() : null);
 			}
-			return this;
+
+			label.setOpaque(true);
+			label.setBackground(Color.WHITE);
+			label.setHorizontalAlignment(SwingConstants.LEFT);
+
+			if ((row < 0) || (row >= data.size()))
+				return label;
+
+			// Set selected color
+			if (isSelected) {
+				label.setBackground(table.getSelectionBackground());
+				label.setForeground((Color) UIManager.get("Table.selectionForeground"));
+			} else {
+				label.setForeground(table.getForeground());
+			}
+
+			return label;
+		}
+
+		protected String formatDouble(Double value) {
+			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
+			return df.format(value);
 		}
 	}
 
 
+	private class StabilityCellRenderer extends CustomCellRenderer {
+		public StabilityCellRenderer() {
+			super(stabData, 3);
+		}
 
-	private class DragCellRenderer extends JLabel implements TableCellRenderer {
-		/**
-		 * 
-		 */
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value,
+													   boolean isSelected, boolean hasFocus, int row, int column) {
+			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			if (row == 0) {
+				this.setFont(boldFont);
+			} else {
+				this.setFont(normalFont);
+			}
+
+			return label;
+		}
+	}
+
+	private class DragCellRenderer extends CustomCellRenderer {
 		private static final long serialVersionUID = 1L;
-		private final Font normalFont;
-		private final Font boldFont;
 
 
-		public DragCellRenderer(Color baseColor) {
-			super();
-			normalFont = getFont();
-			boldFont = normalFont.deriveFont(Font.BOLD);
+		public DragCellRenderer() {
+			super(dragData, 3);
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
+			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-			if (value instanceof Double) {
-				final double totalCD = dragData.get(0).getCD();
-
-				// A drag coefficient
+			if (!isSelected && (value instanceof Double)) {
 				double cd = (Double) value;
-				this.setText(String.format("%.3f (%.0f%%)", cd, 100 * cd / totalCD));
-
 				float r = (float) (cd / 1.5);
 
 				float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
 				float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
 				float val = 1.0f;
 
-				this.setBackground(Color.getHSBColor(hue, sat, val));
-				this.setOpaque(true);
-				this.setHorizontalAlignment(SwingConstants.CENTER);
-
-			} else {
-
-				// Other
-				this.setText(value.toString());
-				this.setOpaque(false);
-				this.setHorizontalAlignment(SwingConstants.LEFT);
-
+				label.setBackground(Color.getHSBColor(hue, sat, val));
 			}
 
 			if ((row < 0) || (row >= dragData.size()))
-				return this;
+				return label;
 
 			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 4)) {
-				this.setFont(boldFont);
+				label.setFont(boldFont);
 			} else {
-				this.setFont(normalFont);
+				label.setFont(normalFont);
 			}
-			return this;
+
+			return label;
+		}
+
+		@Override
+		protected String formatDouble(Double cd) {
+			final double totalCD = dragData.get(0).getCD();
+
+			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
+			String cdFormatted = df.format(cd);
+			return String.format(cdFormatted + "  (%.0f%%)", cd, 100 * cd / totalCD);
+		}
+	}
+
+	private class RollDynamicsCellRenderer extends CustomCellRenderer {
+		public RollDynamicsCellRenderer() {
+			super(rollData, 3);
 		}
 	}
 

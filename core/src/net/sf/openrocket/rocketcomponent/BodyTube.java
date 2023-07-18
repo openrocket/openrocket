@@ -550,4 +550,19 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		// The motor config also has listeners, so clear them as well
 		getDefaultMotorConfig().clearConfigListeners();
 	}
+
+	/**
+	 * The first time we add a TubeFinSet to the component tree, inherit the tube thickness from
+	 * the parent body tube
+	 */
+	@Override
+	public final void addChild(RocketComponent component, int index, boolean trackStage) {
+		super.addChild(component, index, trackStage);
+		if (component instanceof TubeFinSet) {
+			TubeFinSet finset = (TubeFinSet) component;
+			if (Double.isNaN(finset.getThickness())) {
+				finset.setThickness(getThickness());
+			}
+		}
+	}
 }
