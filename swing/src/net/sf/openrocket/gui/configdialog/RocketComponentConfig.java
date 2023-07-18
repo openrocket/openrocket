@@ -39,7 +39,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.adaptors.TextComponentSelectionKeyListener;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -70,7 +69,7 @@ public class RocketComponentConfig extends JPanel {
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
 	protected final JTabbedPane tabbedPane;
-	protected final ComponentConfigDialog parent;
+	protected final JDialog parent;
 	protected boolean isNewComponent = false;		// Checks whether this config dialog is editing an existing component, or a new one
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
@@ -87,7 +86,7 @@ public class RocketComponentConfig extends JPanel {
 	private DescriptionArea componentInfo;
 	private IconToggleButton infoBtn;
 
-	private JPanel buttonPanel;
+	protected JPanel buttonPanel;
 	protected JButton okButton;
 	protected JButton cancelButton;
 	private AppearancePanel appearancePanel = null;
@@ -103,11 +102,7 @@ public class RocketComponentConfig extends JPanel {
 
 		this.document = document;
 		this.component = component;
-		if (parent instanceof ComponentConfigDialog) {
-			this.parent = (ComponentConfigDialog) parent;
-		} else {
-			this.parent = null;
-		}
+		this.parent = parent;
 
 		// Check the listeners for the same type and massive status
 		allSameType = true;
@@ -195,7 +190,7 @@ public class RocketComponentConfig extends JPanel {
 	/**
 	 * Add a section to the component configuration dialog that displays information about the component.
 	 */
-	private void addComponentInfo(JPanel buttonPanel) {
+	protected void addComponentInfo(JPanel buttonPanel) {
 		// Don't add the info panel if this is a multi-comp edit
 		List<RocketComponent> listeners = component.getConfigListeners();
 		if (listeners != null && listeners.size() > 0) {
@@ -274,14 +269,14 @@ public class RocketComponentConfig extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// Don't do anything on cancel if you are editing an existing component, and it is not modified
-				if (!isNewComponent && parent != null && !parent.isModified()) {
-					ComponentConfigDialog.disposeDialog();
+				if (!isNewComponent && parent != null && (parent instanceof ComponentConfigDialog && !((ComponentConfigDialog) parent).isModified())) {
+					disposeDialog();
 					return;
 				}
 				// Apply the cancel operation if set to auto discard in preferences
 				if (!preferences.isShowDiscardConfirmation()) {
 					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
-					ComponentConfigDialog.disposeDialog();
+					disposeDialog();
 					document.undo();
 					return;
 				}
@@ -292,7 +287,7 @@ public class RocketComponentConfig extends JPanel {
 						trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if (resultYesNo == JOptionPane.YES_OPTION) {
 					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
-					ComponentConfigDialog.disposeDialog();
+					disposeDialog();
 					document.undo();
 				}
 			}
@@ -305,7 +300,7 @@ public class RocketComponentConfig extends JPanel {
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ComponentConfigDialog.disposeDialog();
+				disposeDialog();
 			}
 		});
 		buttonPanel.add(okButton);
@@ -315,7 +310,17 @@ public class RocketComponentConfig extends JPanel {
 		this.add(buttonPanel, "newline, spanx, growx");
 	}
 
-	private JPanel createCancelOperationContent() {
+	protected void disposeDialog() {
+		if (parent != null) {
+			if (parent instanceof ComponentConfigDialog) {
+				ComponentConfigDialog.disposeDialog();
+			} else {
+				parent.dispose();
+			}
+		}
+	}
+
+	protected JPanel createCancelOperationContent() {
 		JPanel panel = new JPanel(new MigLayout());
 		String msg = isNewComponent ? trans.get("RocketCompCfg.CancelOperation.msg.undoAdd") :
 				trans.get("RocketCompCfg.CancelOperation.msg.discardChanges");
