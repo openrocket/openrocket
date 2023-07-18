@@ -211,14 +211,15 @@ public class Parachute extends RecoveryDevice {
 
 		//	//	Set preset parachute packed length
 		if ((preset.has(ComponentPreset.PACKED_LENGTH)) && preset.get(ComponentPreset.PACKED_LENGTH) > 0) {
-			length = preset.get(ComponentPreset.PACKED_LENGTH);
+			setLength(preset.get(ComponentPreset.PACKED_LENGTH));
 		}
 		//	// Set preset parachute packed diameter
 		if ((preset.has(ComponentPreset.PACKED_DIAMETER)) && preset.get(ComponentPreset.PACKED_DIAMETER) > 0) {
-			radius = preset.get(ComponentPreset.PACKED_DIAMETER) / 2;
+			setRadius(preset.get(ComponentPreset.PACKED_DIAMETER) / 2);
 		}
 		//	// Size parachute packed diameter within parent inner diameter
-		if (length > 0 && radius > 0) {
+		if (preset.has(ComponentPreset.PACKED_LENGTH) && (getLength() > 0) &&
+			preset.has(ComponentPreset.PACKED_DIAMETER) && (getRadius() > 0)) {
 			setRadiusAutomatic(true);
 		}
 
