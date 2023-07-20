@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
@@ -28,6 +30,7 @@ import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.MathUtil;
 
 /**
  * This is the core Swing representation of a fin marking guide.  It can handle multiple fin and/or tube fin sets
@@ -239,8 +242,10 @@ public class FinMarkingGuide extends JPanel {
 	private void paintFinMarkingGuide(Graphics2D g2) {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		
-		g2.setColor(Color.BLACK);
+
+		final Color lineColor = Color.BLACK;
+
+		g2.setColor(lineColor);
 		g2.setStroke(thinStroke);
 		int x = MARGIN;
 		int y = MARGIN;
@@ -284,13 +289,95 @@ public class FinMarkingGuide extends JPanel {
 							while (angle > TWO_PI) {
 								angle -= TWO_PI;
 							}
-							
-							int offset = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
-							
-							drawDoubleArrowLine(g2, x, offset, x + width, offset);
-							//   if (hasMultipleComponents) {
-							g2.drawString(externalComponent.getName(), x + (width / 3), offset - 2);
-							//   }
+
+							final int yFinCenter = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
+							final int yStart;
+							final int yEnd;
+
+							// Account for canted fins
+							/*
+							The arrow will be rotated around the fore base end of the fin.
+							This is because this gives the user an easy way to know where the fin should be positioned.
+							Just position the fore end mark to where you want the fore end of the fin to be, then mark
+							the two ends of the arrow, connect them and you have your fin position.
+							 */
+							final double cantAngle = fins.getCantAngle();
+							final boolean isCanted = !MathUtil.equals(cantAngle, 0);
+							if (isCanted) {
+								// We want to start the arrow at the fore end of the fin, so we need add an offset to
+								// the start to account for the y-shift of the fore end of the fin due to the cant.
+								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
+								final int yFinForeEndOffset = - (int) Math.round(finBaseHalfWidth * Math.sin(cantAngle));
+								yStart = yFinCenter + yFinForeEndOffset;
+
+								// Calculate y offset of end point
+								int yOffset = (int) Math.round(width * Math.tan(cantAngle));
+								yEnd = yStart + yOffset;
+							} else {
+								yStart = yFinCenter;
+								yEnd = yFinCenter;
+							}
+
+							// Draw double arrow
+							drawDoubleArrowLine(g2, x, yStart, x + width, yEnd, cantAngle);
+
+							// Draw dotted line where fin fore end is (for canted fins) and cross at the fin center
+							if (isCanted) {
+								//// -- Dashed line
+								// Dashed stroke settings
+								float originalLineWidth = thinStroke.getLineWidth();
+								float[] dashPattern = {10, 10};  // 10 pixel dash, 10 pixel space
+								Stroke dashedStroke = new BasicStroke(
+										originalLineWidth,
+										thinStroke.getEndCap(),
+										thinStroke.getLineJoin(),
+										thinStroke.getMiterLimit(),
+										dashPattern,
+										0
+								);
+
+								// Set color and stroke
+								g2.setColor(Color.GRAY);
+								g2.setStroke(dashedStroke);
+
+								// Draw dashed line
+								g2.drawLine(x, yStart, x + width, yStart);
+
+								// Reset stroke
+								g2.setStroke(thinStroke);
+
+								//// -- Cross
+								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
+
+								// The cant also has an x-shift. We want the fore end to be perfectly flush with the
+								// fore end of the marking guide, so apply an x-shift to fin center position
+								int xFinCenter = x + (int) Math.round(finBaseHalfWidth);
+								int xFinCenterOffset = (int) Math.round(finBaseHalfWidth * (1 - Math.cos(cantAngle)));
+								xFinCenter -= xFinCenterOffset;
+
+								// Draw a cross where the center of the fin should be
+								int crossSize = 3;
+								g2.drawLine(xFinCenter-crossSize, yFinCenter-crossSize, xFinCenter+crossSize, yFinCenter+crossSize);
+								g2.drawLine(xFinCenter-crossSize, yFinCenter+crossSize, xFinCenter+crossSize, yFinCenter-crossSize);
+
+								// Reset color
+								g2.setColor(lineColor);
+							}
+
+							// Draw fin name
+							final int xText = x + (width / 3);
+							int yText = yStart - 2;
+							if (isCanted) {
+								int yTextOffset = (int) Math.round((xText - x) * Math.tan(cantAngle));
+								yText += yTextOffset;
+
+								AffineTransform orig = g2.getTransform();
+								g2.rotate(cantAngle, xText, yText);       	// Rotate text for canted fins
+								g2.drawString(externalComponent.getName(), xText, yText);
+								g2.setTransform(orig);						// Stop rotation
+							} else {
+								g2.drawString(externalComponent.getName(), xText, yText);
+							}
 						}
 					}
 					// END If FinSet instance
@@ -318,9 +405,7 @@ public class FinMarkingGuide extends JPanel {
 							int offset = (int) Math.round(y + angle / TWO_PI * circumferenceInPoints);
 
 							drawDoubleArrowLine(g2, x, offset, x + width, offset);
-							//   if (hasMultipleComponents) {
 							g2.drawString(externalComponent.getName(), x + (width / 3), offset - 2);
-							//   }
 						}
 					}
 					// END If TubeFinSet instance
@@ -534,7 +619,40 @@ public class FinMarkingGuide extends JPanel {
 		g2.rotate(-Math.PI / 2);
 		g2.translate(-rotateX, -rotateY);
 	}
-	
+
+	/**
+	 * Draw a horizontal line with arrows on both endpoints.  Depicts a fin alignment.
+	 *
+	 * @param g2 the graphics context
+	 * @param x1 the starting x coordinate
+	 * @param y1 the starting y coordinate
+	 * @param x2 the ending x coordinate
+	 * @param y2 the ending y coordinate
+	 * @param angle angle to rotate the arrow header to
+	 */
+	void drawDoubleArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2, double angle) {
+		int len = x2 - x1;
+
+		// Draw line
+		g2.drawLine(x1, y1, x1 + len, y2);
+
+		AffineTransform orig = g2.getTransform();
+		g2.rotate(angle, x1 + len, y2);
+
+		// Draw right arrow
+		g2.fillPolygon(new int[] { x1 + len, x1 + len - ARROW_SIZE, x1 + len - ARROW_SIZE, x1 + len },
+				new int[] { y2, y2 - ARROW_SIZE / 2, y2 + ARROW_SIZE / 2, y2 }, 4);
+
+		g2.setTransform(orig);
+		g2.rotate(angle, x1, y1);
+
+		// Draw left arow
+		g2.fillPolygon(new int[] { x1, x1 + ARROW_SIZE, x1 + ARROW_SIZE, x1 },
+				new int[] { y1, y1 - ARROW_SIZE / 2, y1 + ARROW_SIZE / 2, y1 }, 4);
+
+		g2.setTransform(orig);
+	}
+
 	/**
 	 * Draw a horizontal line with arrows on both endpoints.  Depicts a fin alignment.
 	 *
@@ -545,13 +663,6 @@ public class FinMarkingGuide extends JPanel {
 	 * @param y2 the ending y coordinate
 	 */
 	void drawDoubleArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
-		int len = x2 - x1;
-		
-		g2.drawLine(x1, y1, x1 + len, y2);
-		g2.fillPolygon(new int[] { x1 + len, x1 + len - ARROW_SIZE, x1 + len - ARROW_SIZE, x1 + len },
-				new int[] { y2, y2 - ARROW_SIZE / 2, y2 + ARROW_SIZE / 2, y2 }, 4);
-		
-		g2.fillPolygon(new int[] { x1, x1 + ARROW_SIZE, x1 + ARROW_SIZE, x1 },
-				new int[] { y1, y1 - ARROW_SIZE / 2, y1 + ARROW_SIZE / 2, y1 }, 4);
+		drawDoubleArrowLine(g2, x1, y1, x2, y2, 0);
 	}
 }
