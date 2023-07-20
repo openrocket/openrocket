@@ -251,6 +251,7 @@ public class FinMarkingGuide extends JPanel {
 		int y = MARGIN;
 		
 		int width = (int) PrintUnit.INCHES.toPoints(DEFAULT_GUIDE_WIDTH);
+		int length;
 		
 		int column = 0;
 		
@@ -260,8 +261,8 @@ public class FinMarkingGuide extends JPanel {
 			List<ExternalComponent> componentList = markingGuideItems.get(next);
 			//Don't draw the lug if there are no fins.
 			if (hasFins(componentList)) {
-				
-				drawMarkingGuide(g2, x, y, (int) Math.ceil(circumferenceInPoints), width);
+				length = (int) Math.ceil(circumferenceInPoints);
+				drawMarkingGuide(g2, x, y, length, width);
 				
 				double radialOrigin = findRadialOrigin(componentList);
 				
@@ -439,9 +440,9 @@ public class FinMarkingGuide extends JPanel {
 					// END If RailButton instance
 				}
 				// Only if the tube has a lug or button or multiple fin and/or tube fin sets does the orientation of
-				// the marking guide matter. So print 'Front'.
+				// the marking guide matter. So print 'Fore end'.
 				if (hasMultipleComponents) {
-					drawFrontIndication(g2, x, y, 0, (int) circumferenceInPoints, width);
+					drawFrontIndication(g2, x, y + length, width);
 				}
 				
 				// At most, two marking guides horizontally.  After that, move down and back to the left margin.
@@ -590,34 +591,101 @@ public class FinMarkingGuide extends JPanel {
 		g2.drawLine(x + fromEdge, y + length - tickLength, x + fromEdge, y + length);
 		//Lower right
 		g2.drawLine(x + width - fromEdge, y + length - tickLength, x + width - fromEdge, y + length);
+
+		drawFrontIndication(g2, x, y + length, width);
 	}
 	
 	/**
-	 * Draw a vertical string indicating the front of the rocket.  This is necessary when a launch lug and/or
+	 * Draw a tab indicating the fore end of the rocket.  This is necessary when a launch lug and/or
 	 * rail button exists to give proper orientation of the guide (assuming that the lug and/or button is
-	 * asymmetrically positioned with respect to a fin).
+	 * asymmetrically positioned with respect to a fin). Also necessary for canted fins.
 	 *
 	 * @param g2      the graphics context
 	 * @param x       the starting x coordinate
 	 * @param y       the starting y coordinate
-	 * @param spacing the space between fin lines
-	 * @param length  the length, or height, in print units of the marking guide; should be equivalent to the outer tube
-	 *                circumference
 	 * @param width   the width of the marking guide in print units; somewhat arbitrary
 	 */
-	private void drawFrontIndication(Graphics2D g2, int x, int y, int spacing, int length, int width) {
-		//The magic numbers here are fairly arbitrary.  They're chosen in a manner that best positions 'Front' to be
-		//readable, without going to complex string layout prediction logic.
-		int rotateX = x + width - 16;
-		int rotateY = y + (int) (spacing * 1.5) + 20;
-		if (rotateY > y + length + 14) {
-			rotateY = y + length / 2 - 10;
+	private void drawFrontIndication(Graphics2D g2, int x, int y, int width) {
+		// Draw a tab at the bottom of the marking guide to indicate the fore end of the rocket
+		int tabWidth = (int) Math.round(width * 0.8);
+		int tabSpacing = (width - tabWidth) / 2;
+		int tabHeight = 20;
+		Path2D tab = new Path2D.Float(GeneralPath.WIND_EVEN_ODD, 4);
+		tab.moveTo(x, y);
+		tab.lineTo(x + width, y);
+		tab.lineTo(x + width - tabSpacing, y + tabHeight);
+		tab.lineTo(x + tabSpacing, y + tabHeight);
+		tab.closePath();
+
+		// Fill in the tab
+		Color color = g2.getColor();
+		g2.draw(tab);
+		g2.setColor(new Color(220, 220, 220));
+		g2.fill(tab);
+		g2.setColor(color);
+
+		// Draw an arrow to the left and the text "Fore"
+		int arrowXEnd = x + tabSpacing + 50;
+		int arrowY = y + (tabHeight / 2);
+		int textY = arrowY + g2.getFontMetrics().getHeight() / 2 - 3;
+		drawLeftArrowLine(g2, x + tabSpacing, arrowY, arrowXEnd, arrowY);
+		g2.drawString(trans.get("FinMarkingGuide.lbl.Front"), arrowXEnd + 3, textY);
+	}
+
+	/**
+	 * Draw a horizontal line with arrows on both endpoints.  Depicts a fin alignment.
+	 *
+	 * @param g2 the graphics context
+	 * @param x1 the starting x coordinate
+	 * @param y1 the starting y coordinate
+	 * @param x2 the ending x coordinate
+	 * @param y2 the ending y coordinate
+	 */
+	void drawLeftArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
+		drawArrowLine(g2, x1, y1, x2, y2, 0, true, false);
+	}
+
+	/**
+	 * Draw a horizontal line with arrows on both endpoints.  Depicts a fin alignment.
+	 *
+	 * @param g2 the graphics context
+	 * @param x1 the starting x coordinate
+	 * @param y1 the starting y coordinate
+	 * @param x2 the ending x coordinate
+	 * @param y2 the ending y coordinate
+	 * @param angle angle to rotate the arrow header to
+	 * @param leftArrow true if the left arrow should be drawn
+	 * @param rightArrow true if the right arrow should be drawn
+	 */
+	void drawArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2, double angle, boolean leftArrow, boolean rightArrow) {
+		int len = x2 - x1;
+
+		// Draw line
+		int xOffset = (int) Math.round(ARROW_SIZE * Math.abs(Math.cos(angle)));
+		int yOffset = (int) Math.round(ARROW_SIZE * Math.sin(angle));
+		g2.drawLine(x1 + xOffset, y1 + yOffset, x1 + len - xOffset, y2 - yOffset);
+
+		// Rotate for the right arrow
+		AffineTransform orig = g2.getTransform();
+		g2.rotate(angle, x1 + len, y2);
+
+		// Draw right arrow
+		if (rightArrow) {
+			g2.fillPolygon(new int[]{x1 + len, x1 + len - ARROW_SIZE, x1 + len - ARROW_SIZE, x1 + len},
+					new int[]{y2, y2 - ARROW_SIZE / 2, y2 + ARROW_SIZE / 2, y2}, 4);
 		}
-		g2.translate(rotateX, rotateY);
-		g2.rotate(Math.PI / 2);
-		g2.drawString(trans.get("FinMarkingGuide.lbl.Front"), 0, 0);
-		g2.rotate(-Math.PI / 2);
-		g2.translate(-rotateX, -rotateY);
+
+		// Rotate for the left arrow
+		g2.setTransform(orig);
+		g2.rotate(angle, x1, y1);
+
+		// Draw left arrow
+		if (leftArrow) {
+			g2.fillPolygon(new int[]{x1, x1 + ARROW_SIZE, x1 + ARROW_SIZE, x1},
+					new int[]{y1, y1 - ARROW_SIZE / 2, y1 + ARROW_SIZE / 2, y1}, 4);
+		}
+
+		g2.setTransform(orig);
 	}
 
 	/**
@@ -631,26 +699,7 @@ public class FinMarkingGuide extends JPanel {
 	 * @param angle angle to rotate the arrow header to
 	 */
 	void drawDoubleArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2, double angle) {
-		int len = x2 - x1;
-
-		// Draw line
-		g2.drawLine(x1, y1, x1 + len, y2);
-
-		AffineTransform orig = g2.getTransform();
-		g2.rotate(angle, x1 + len, y2);
-
-		// Draw right arrow
-		g2.fillPolygon(new int[] { x1 + len, x1 + len - ARROW_SIZE, x1 + len - ARROW_SIZE, x1 + len },
-				new int[] { y2, y2 - ARROW_SIZE / 2, y2 + ARROW_SIZE / 2, y2 }, 4);
-
-		g2.setTransform(orig);
-		g2.rotate(angle, x1, y1);
-
-		// Draw left arow
-		g2.fillPolygon(new int[] { x1, x1 + ARROW_SIZE, x1 + ARROW_SIZE, x1 },
-				new int[] { y1, y1 - ARROW_SIZE / 2, y1 + ARROW_SIZE / 2, y1 }, 4);
-
-		g2.setTransform(orig);
+		drawArrowLine(g2, x1, y1, x2, y2, angle, true, true);
 	}
 
 	/**
