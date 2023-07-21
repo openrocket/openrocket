@@ -302,11 +302,11 @@ public class FinMarkingGuide extends JPanel {
 							If we were to rotate around the fore end, there's a good chance that the marking guide
 							extends beyond the body tube aft end and thus you cannot draw the arrow.
 							 */
-							final double cantAngle = - fins.getCantAngle();		// Invert cant angle because the front end of the rocket is to the right
+							final double cantAngle = fins.getCantAngle();
 							final boolean isCanted = !MathUtil.equals(cantAngle, 0);
 							if (isCanted) {
 								// We want to end the arrow at the aft end of the fin, so we need add an offset to
-								// the start to account for the y-shift of the aft end of the fin due to the cant.
+								// the end to account for the y-shift of the aft end of the fin due to the cant.
 								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
 								final int yFinForeEndOffset = - (int) Math.round(finBaseHalfWidth * Math.sin(cantAngle));
 								yStart = yFinCenter + yFinForeEndOffset;
@@ -370,9 +370,9 @@ public class FinMarkingGuide extends JPanel {
 
 							// Draw fin name
 							final int xText = x + (width / 3);
-							int yText = yEnd - 2;
+							int yText = yStart - 2;
 							if (isCanted) {
-								int yTextOffset = - (int) Math.round(((x + width) - xText) * Math.tan(cantAngle));
+								int yTextOffset = (int) Math.round((xText - x) * Math.tan(cantAngle));
 								yText += yTextOffset;
 
 								AffineTransform orig = g2.getTransform();
