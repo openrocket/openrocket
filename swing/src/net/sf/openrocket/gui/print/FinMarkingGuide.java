@@ -342,7 +342,10 @@ public class FinMarkingGuide extends JPanel {
 								g2.setStroke(dashedStroke);
 
 								// Draw dashed line
-								g2.drawLine(x, yStart, x + width, yStart);
+								// 		We draw from the aft end to the fore end to ensure that the side with no arrow
+								// 		point has the dashed line touching the marking guide edge
+								//		(is useful for marking the fin position)
+								g2.drawLine(x + width, yStart, x, yStart);
 
 								// Reset stroke
 								g2.setStroke(thinStroke);
