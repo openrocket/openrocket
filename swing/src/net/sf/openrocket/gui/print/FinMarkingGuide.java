@@ -297,24 +297,23 @@ public class FinMarkingGuide extends JPanel {
 
 							// Account for canted fins
 							/*
-							The arrow will be rotated around the fore base end of the fin.
-							This is because this gives the user an easy way to know where the fin should be positioned.
-							Just position the fore end mark to where you want the fore end of the fin to be, then mark
-							the two ends of the arrow, connect them and you have your fin position.
-							NOTE: the front/fore end of the rocket is drawn at the right.
+							The arrow will be rotated around the aft base end of the fin.
+							This is because the aft end will most likely be at the aft end of the body tube.
+							If we were to rotate around the fore end, there's a good chance that the marking guide
+							extends beyond the body tube aft end and thus you cannot draw the arrow.
 							 */
 							final double cantAngle = - fins.getCantAngle();		// Invert cant angle because the front end of the rocket is to the right
 							final boolean isCanted = !MathUtil.equals(cantAngle, 0);
 							if (isCanted) {
-								// We want to end the arrow at the fore end of the fin, so we need add an offset to
-								// the start to account for the y-shift of the fore end of the fin due to the cant.
+								// We want to end the arrow at the aft end of the fin, so we need add an offset to
+								// the start to account for the y-shift of the aft end of the fin due to the cant.
 								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
-								final int yFinForeEndOffset = (int) Math.round(finBaseHalfWidth * Math.sin(cantAngle));
-								yEnd = yFinCenter + yFinForeEndOffset;
+								final int yFinForeEndOffset = - (int) Math.round(finBaseHalfWidth * Math.sin(cantAngle));
+								yStart = yFinCenter + yFinForeEndOffset;
 
-								// Calculate y offset of start point
-								int yOffset = - (int) Math.round(width * Math.tan(cantAngle));
-								yStart = yEnd + yOffset;
+								// Calculate y offset of end point
+								int yOffset = (int) Math.round(width * Math.tan(cantAngle));
+								yEnd = yStart + yOffset;
 							} else {
 								yStart = yFinCenter;
 								yEnd = yFinCenter;
@@ -343,10 +342,10 @@ public class FinMarkingGuide extends JPanel {
 								g2.setStroke(dashedStroke);
 
 								// Draw dashed line
-								// 		We draw from left to right to ensure that the side with no arrow
-								// 		point has the dashed line touching the marking guide edge
+								// 		We draw from right to left to ensure that the side where the side does not touch
+								// 		with an arrow point (fore end) has the dashed line touching the marking guide edge
 								//		(is useful for marking the fin position)
-								g2.drawLine(x, yEnd, x + width, yEnd);
+								g2.drawLine(x + width, yStart, x, yStart);
 
 								// Reset stroke
 								g2.setStroke(thinStroke);
@@ -354,10 +353,10 @@ public class FinMarkingGuide extends JPanel {
 								//// -- Cross
 								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
 
-								// The cant also has an x-shift. We want the fore end to be perfectly flush with the
-								// right of the marking guide, so apply an x-shift to fin center position
-								int xFinCenter = x + width - (int) Math.round(finBaseHalfWidth);
-								int xFinCenterOffset = (int) Math.round(finBaseHalfWidth * (1 - Math.cos(cantAngle)));
+								// The cant also has an x-shift. We want the aft end to be perfectly flush with the
+								// left of the marking guide, so apply an x-shift to fin center position
+								int xFinCenter = x + (int) Math.round(finBaseHalfWidth);
+								int xFinCenterOffset = - (int) Math.round(finBaseHalfWidth * (1 - Math.cos(cantAngle)));
 								xFinCenter += xFinCenterOffset;
 
 								// Draw a cross where the center of the fin should be
