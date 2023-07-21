@@ -613,16 +613,27 @@ public class FinMarkingGuide extends JPanel {
 		int tabWidth = (int) Math.round(width * 0.8);
 		int tabSpacing = (width - tabWidth) / 2;
 		int tabHeight = 20;
+		float strokeWidth = 1.0f;
+		float strokeOffset = thinStroke.getLineWidth() / 2;		// Offset to not draw over the marking guide stroke
+
+		Stroke origStroke = g2.getStroke();
+		Stroke stroke = new BasicStroke(strokeWidth, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
+		g2.setStroke(stroke);
+
+		// Draw the tab outline
 		Path2D tab = new Path2D.Float(GeneralPath.WIND_EVEN_ODD, 4);
-		tab.moveTo(x, y);
-		tab.lineTo(x + width, y);
+		tab.moveTo(x, y + strokeOffset);
+		tab.lineTo(x + width, y + strokeOffset);
 		tab.lineTo(x + width - tabSpacing, y + tabHeight);
 		tab.lineTo(x + tabSpacing, y + tabHeight);
 		tab.closePath();
+		g2.draw(tab);
+
+		// Reset the stroke
+		g2.setStroke(origStroke);
 
 		// Fill in the tab
 		Color color = g2.getColor();
-		g2.draw(tab);
 		g2.setColor(new Color(220, 220, 220));
 		g2.fill(tab);
 		g2.setColor(color);
