@@ -301,19 +301,20 @@ public class FinMarkingGuide extends JPanel {
 							This is because this gives the user an easy way to know where the fin should be positioned.
 							Just position the fore end mark to where you want the fore end of the fin to be, then mark
 							the two ends of the arrow, connect them and you have your fin position.
+							NOTE: the front/fore end of the rocket is drawn at the right.
 							 */
-							final double cantAngle = fins.getCantAngle();
+							final double cantAngle = - fins.getCantAngle();		// Invert cant angle because the front end of the rocket is to the right
 							final boolean isCanted = !MathUtil.equals(cantAngle, 0);
 							if (isCanted) {
-								// We want to start the arrow at the fore end of the fin, so we need add an offset to
+								// We want to end the arrow at the fore end of the fin, so we need add an offset to
 								// the start to account for the y-shift of the fore end of the fin due to the cant.
 								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
-								final int yFinForeEndOffset = - (int) Math.round(finBaseHalfWidth * Math.sin(cantAngle));
-								yStart = yFinCenter + yFinForeEndOffset;
+								final int yFinForeEndOffset = (int) Math.round(finBaseHalfWidth * Math.sin(cantAngle));
+								yEnd = yFinCenter + yFinForeEndOffset;
 
-								// Calculate y offset of end point
-								int yOffset = (int) Math.round(width * Math.tan(cantAngle));
-								yEnd = yStart + yOffset;
+								// Calculate y offset of start point
+								int yOffset = - (int) Math.round(width * Math.tan(cantAngle));
+								yStart = yEnd + yOffset;
 							} else {
 								yStart = yFinCenter;
 								yEnd = yFinCenter;
@@ -338,14 +339,14 @@ public class FinMarkingGuide extends JPanel {
 								);
 
 								// Set color and stroke
-								g2.setColor(Color.GRAY);
+								g2.setColor(new Color(200, 200, 200));
 								g2.setStroke(dashedStroke);
 
 								// Draw dashed line
-								// 		We draw from the aft end to the fore end to ensure that the side with no arrow
+								// 		We draw from left to right to ensure that the side with no arrow
 								// 		point has the dashed line touching the marking guide edge
 								//		(is useful for marking the fin position)
-								g2.drawLine(x + width, yStart, x, yStart);
+								g2.drawLine(x, yEnd, x + width, yEnd);
 
 								// Reset stroke
 								g2.setStroke(thinStroke);
@@ -354,10 +355,10 @@ public class FinMarkingGuide extends JPanel {
 								final double finBaseHalfWidth = PrintUnit.METERS.toPoints(fins.getLength()) / 2;
 
 								// The cant also has an x-shift. We want the fore end to be perfectly flush with the
-								// fore end of the marking guide, so apply an x-shift to fin center position
-								int xFinCenter = x + (int) Math.round(finBaseHalfWidth);
+								// right of the marking guide, so apply an x-shift to fin center position
+								int xFinCenter = x + width - (int) Math.round(finBaseHalfWidth);
 								int xFinCenterOffset = (int) Math.round(finBaseHalfWidth * (1 - Math.cos(cantAngle)));
-								xFinCenter -= xFinCenterOffset;
+								xFinCenter += xFinCenterOffset;
 
 								// Draw a cross where the center of the fin should be
 								int crossSize = 3;
@@ -370,9 +371,9 @@ public class FinMarkingGuide extends JPanel {
 
 							// Draw fin name
 							final int xText = x + (width / 3);
-							int yText = yStart - 2;
+							int yText = yEnd - 2;
 							if (isCanted) {
-								int yTextOffset = (int) Math.round((xText - x) * Math.tan(cantAngle));
+								int yTextOffset = - (int) Math.round(((x + width) - xText) * Math.tan(cantAngle));
 								yText += yTextOffset;
 
 								AffineTransform orig = g2.getTransform();
@@ -639,15 +640,18 @@ public class FinMarkingGuide extends JPanel {
 		g2.setColor(color);
 
 		// Draw an arrow to the left and the text "Fore"
-		int arrowXEnd = x + tabSpacing + 50;
-		int arrowY = y + (tabHeight / 2);
-		int textY = arrowY + g2.getFontMetrics().getHeight() / 2 - 3;
-		drawLeftArrowLine(g2, x + tabSpacing, arrowY, arrowXEnd, arrowY);
-		g2.drawString(trans.get("FinMarkingGuide.lbl.Front"), arrowXEnd + 3, textY);
+		final int arrowXStart = x + width - tabSpacing - 5;
+		final int arrowWidth = 50;
+		final int arrowY = y + (tabHeight / 2);
+		final int textY = arrowY + g2.getFontMetrics().getHeight() / 2 - 3;
+		drawRightArrowLine(g2, arrowXStart - arrowWidth, arrowY, arrowXStart, arrowY);
+		String frontText = trans.get("FinMarkingGuide.lbl.Front");
+		final int textWidth = g2.getFontMetrics().stringWidth(frontText);
+		g2.drawString(frontText, arrowXStart - arrowWidth - textWidth - 3, textY);
 	}
 
 	/**
-	 * Draw a horizontal line with arrows on both endpoints.  Depicts a fin alignment.
+	 * Draw a horizontal line with arrows on only the right endpoint.
 	 *
 	 * @param g2 the graphics context
 	 * @param x1 the starting x coordinate
@@ -655,8 +659,8 @@ public class FinMarkingGuide extends JPanel {
 	 * @param x2 the ending x coordinate
 	 * @param y2 the ending y coordinate
 	 */
-	void drawLeftArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
-		drawArrowLine(g2, x1, y1, x2, y2, 0, true, false);
+	void drawRightArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
+		drawArrowLine(g2, x1, y1, x2, y2, 0, false, true);
 	}
 
 	/**
