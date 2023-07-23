@@ -170,6 +170,11 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 				"  Please set setClusterConfiguration(ClusterConfiguration) instead.",
 				new UnsupportedOperationException("InnerTube.setInstanceCount(..) on an"+this.getClass().getSimpleName()));
 	}
+
+	@Override
+	public boolean isAfter(){
+		return false;
+	}
 	
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
@@ -177,12 +182,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 * pack inside each other.
 	 */
 	public double getClusterScale() {
+		mutex.verify();
 		return clusterScale;
-	}
-	
-	@Override
-	public boolean isAfter(){ 
-		return false;
 	}
 	
 	/**
@@ -202,6 +203,23 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 			return;
 		clusterScale = scale;
 		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
+	}
+
+	/**
+	 * Get the cluster scaling as an absolute distance measurement.  A value of 0 indicates that the tubes are packed
+	 * touching each other, larger values separate the tubes and smaller values pack inside each other.
+	 */
+	public double getClusterScaleAbsolute() {
+		return (getClusterScale() - 1) * getOuterRadius() * 2;
+	}
+
+	/**
+	 * Set the absolute cluster scaling (in terms of distance).
+	 * @see #getClusterScaleAbsolute()
+	 */
+	public void setClusterScaleAbsolute(double scale) {
+		double scaleRel = scale / (getOuterRadius() * 2) + 1;
+		setClusterScale(scaleRel);
 	}
 	
 	
