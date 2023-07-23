@@ -86,7 +86,6 @@ public class FlightEventsTest extends BaseTestCase {
     public void testMultiStage() throws SimulationException {
         final Rocket rocket = TestRockets.makeFalcon9Heavy();
 		TestRockets.addCoreFins(rocket);
-        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/f9.ork");
 		
         final Simulation sim = new Simulation(rocket);
         sim.getOptions().setISAAtmosphere(true);
