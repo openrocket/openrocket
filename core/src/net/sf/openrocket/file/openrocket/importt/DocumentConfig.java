@@ -52,7 +52,7 @@ import net.sf.openrocket.util.Reflection;
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9" };
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
@@ -113,6 +113,8 @@ class DocumentConfig {
 		// RocketComponent
 		setters.put("RocketComponent:name", new StringSetter(
 				Reflection.findMethod(RocketComponent.class, "setName", String.class)));
+		setters.put("RocketComponent:id", new StringSetter(
+				Reflection.findMethod(RocketComponent.class, "setID", String.class)));
 		setters.put("RocketComponent:color", new ColorSetter(
 				Reflection.findMethod(RocketComponent.class, "setColor", Color.class)));
 		setters.put("RocketComponent:linestyle", new EnumSetter<LineStyle>(

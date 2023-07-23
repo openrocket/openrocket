@@ -489,7 +489,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 					
 					// Prepare the new simulation branch
-					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), currentStatus.getFlightData()));
+					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), boosterStage, currentStatus.getFlightData()));
 					boosterStatus.getFlightData().addEvent(event);
 
 					// Mark the current status as having dropped the current stage and all stages below it

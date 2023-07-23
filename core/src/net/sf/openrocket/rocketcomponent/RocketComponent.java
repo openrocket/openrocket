@@ -1282,8 +1282,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		this.id = UniqueID.uuid();
 	}
-	
-	
+
+	/**
+	 * Set the ID for this component.
+	 * Generally not recommended to directly set the ID, this is done automatically. Only use this in case you have to.
+	 * @param newID new ID
+	 */
+	public void setID(String newID) {
+		mutex.verify();
+		this.id = newID;
+	}
 	
 	
 	/**
@@ -2046,6 +2054,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			children.addAll(child.getAllChildren());
 		}
 		return children;
+	}
+
+	/**
+	 * Checks whether this component contains <component> as one of its (sub-)children.
+	 * @param component component to check
+	 * @return true if component is a (sub-)child of this component
+	 */
+	public final boolean containsChild(RocketComponent component) {
+		List<RocketComponent> allChildren = getAllChildren();
+		return allChildren.contains(component);
 	}
 	
 	
