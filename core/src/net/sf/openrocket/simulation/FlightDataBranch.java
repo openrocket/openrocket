@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Monitorable;
@@ -195,9 +197,33 @@ public class FlightDataBranch implements Monitorable {
 			if (event.getType() == FlightEvent.Type.STAGE_SEPARATION) {
 				continue;
 			}
-			if (srcComponent != null && (srcComponent == event.getSource() || srcComponent.containsChild(event.getSource()))) {
+			RocketComponent srcEventComponent = event.getSource();
+			// Ignore null events
+			if (srcComponent == null || srcEventComponent == null) {
+				continue;
+			}
+			// Ignore events from other stages. Important for when the current stage has a booster stage; we don't want to copy over the booster events.
+			if (getStageForComponent(srcComponent) != getStageForComponent(srcEventComponent)) {
+				continue;
+			}
+			if (srcComponent == srcEventComponent || srcComponent.containsChild(srcEventComponent)) {
 				events.add(event);
 			}
+		}
+	}
+
+	/**
+	 * A safer method for checking the stage of a component (that shouldn't throw exceptions when calling on stages/rockets)
+	 * @param component 	the component to get the stage of
+	 * @return the stage of the component, or null if the component is a rocket
+	 */
+	private AxialStage getStageForComponent(RocketComponent component) {
+		if (component instanceof AxialStage) {
+			return (AxialStage) component;
+		} else if (component instanceof Rocket) {
+			return null;
+		} else {
+			return component.getStage();
 		}
 	}
 	
