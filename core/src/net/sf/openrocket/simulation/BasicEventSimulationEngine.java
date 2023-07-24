@@ -485,6 +485,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						currentStatus.getWarnings().add(Warning.SEPARATION_ORDER);
 					}
 
+					// If I haven't cleared the rail yet, flag a warning
+					if (!currentStatus.isLaunchRodCleared()) {
+						currentStatus.getWarnings().add(Warning.EARLY_SEPARATION);
+					}	
+
 					// Create a new simulation branch for the booster
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 					
