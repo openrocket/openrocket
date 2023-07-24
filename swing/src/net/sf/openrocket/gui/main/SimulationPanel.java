@@ -110,6 +110,7 @@ public class SimulationPanel extends JPanel {
 	private final JPopupMenu pm;
 
 	private final SimulationAction editSimulationAction;
+	private final SimulationAction copyValuesSimulationAction;
 	private final SimulationAction runSimulationAction;
 	private final SimulationAction plotSimulationAction;
 	private final SimulationAction duplicateSimulationAction;
@@ -129,6 +130,7 @@ public class SimulationPanel extends JPanel {
 		// Simulation actions
 		SimulationAction newSimulationAction = new NewSimulationAction();
 		editSimulationAction = new EditSimulationAction();
+		copyValuesSimulationAction = new CopyValuesSimulationAction();
 		runSimulationAction = new RunSimulationAction();
 		plotSimulationAction = new PlotSimulationAction();
 		duplicateSimulationAction = new DuplicateSimulationAction();
@@ -155,7 +157,7 @@ public class SimulationPanel extends JPanel {
 		RocketActions.tieActionToButton(runButton, runSimulationAction, trans.get("simpanel.but.runsimulations"));
 		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		this.add(runButton, "gapright para");
-		
+
 		//// Delete simulations button
 		deleteButton = new IconButton();
 		RocketActions.tieActionToButton(deleteButton, deleteSimulationAction, trans.get("simpanel.but.deletesimulations"));
@@ -184,10 +186,12 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
 		simulationTable.setFillsViewportHeight(true);
+		simulationTable.registerKeyboardAction(copyValuesSimulationAction, "Copy", RocketActions.COPY_KEY_STROKE, JComponent.WHEN_FOCUSED);
 
 		// Context menu
 		pm = new JPopupMenu();
 		pm.add(editSimulationAction);
+		pm.add(copyValuesSimulationAction);
 		pm.add(duplicateSimulationAction);
 		pm.add(deleteSimulationAction);
 		pm.addSeparator();
@@ -480,36 +484,40 @@ public class SimulationPanel extends JPanel {
 	}
 
 
-	private void copySimulationAction() {
-		int numCols=simulationTable.getColumnCount();
-		int numRows=simulationTable.getSelectedRowCount();
-		int[] rowsSelected=simulationTable.getSelectedRows();
+	private void copySimulationValuesAction() {
+		int numCols = simulationTable.getColumnCount();
+		int numRows = simulationTable.getSelectedRowCount();
+		int[] rowsSelected = simulationTable.getSelectedRows();
 
-		if (numRows!=rowsSelected[rowsSelected.length-1]-rowsSelected[0]+1 || numRows!=rowsSelected.length) {
-
+		if (numRows != (rowsSelected[rowsSelected.length-1] - rowsSelected[0] + 1) || numRows != rowsSelected.length) {
 			JOptionPane.showMessageDialog(null, "Invalid Copy Selection", "Invalid Copy Selection", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		StringBuilder excelStr =new StringBuilder();
-		for (int k = 1; k < numCols; k++) {
-			excelStr.append(simulationTable.getColumnName(k));
-			if (k < numCols-1) {
-				excelStr.append("\t");
+		StringBuilder valuesStr = new StringBuilder();
+
+		// Copy the column names
+		valuesStr.append(trans.get("simpanel.col.Status")).append("\t");
+		for (int i = 1; i < numCols; i++) {
+			valuesStr.append(simulationTable.getColumnName(i));
+			if (i < numCols-1) {
+				valuesStr.append("\t");
 			}
 		}
-		excelStr.append("\n");
+		valuesStr.append("\n");
+
+		// Copy the values
 		for (int i = 0; i < numRows; i++) {
-			for (int j = 1; j < numCols; j++) {
-				excelStr.append(simulationTable.getValueAt(rowsSelected[i], j));
+			for (int j = 0; j < numCols; j++) {
+				valuesStr.append(simulationTable.getValueAt(rowsSelected[i], j).toString());
 				if (j < numCols-1) {
-					excelStr.append("\t");
+					valuesStr.append("\t");
 				}
 			}
-			excelStr.append("\n");
+			valuesStr.append("\n");
 		}
 
-		StringSelection sel = new StringSelection(excelStr.toString());
+		StringSelection sel = new StringSelection(valuesStr.toString());
 
 		Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
 		cb.setContents(sel, sel);
@@ -545,6 +553,7 @@ public class SimulationPanel extends JPanel {
 	
 	private void updateButtonStates() {
 		editSimulationAction.updateEnabledState();
+		copyValuesSimulationAction.updateEnabledState();
 		deleteSimulationAction.updateEnabledState();
 		runSimulationAction.updateEnabledState();
 		plotSimulationAction.updateEnabledState();
@@ -593,6 +602,61 @@ public class SimulationPanel extends JPanel {
 
 	public ListSelectionModel getSimulationListSelectionModel() {
 		return simulationTable.getSelectionModel();
+	}
+
+	private String getSimulationToolTip(Simulation sim, boolean includeSimName) {
+		String tip;
+		FlightData data = sim.getSimulatedData();
+
+		tip = "<html>";
+		if (includeSimName) {
+			tip += "<b>" + sim.getName() + "</b><br>";
+		}
+		switch (sim.getStatus()) {
+			case CANT_RUN:
+				tip += trans.get("simpanel.ttip.noData")+"<br>";
+				break;
+			case LOADED:
+				tip += trans.get("simpanel.ttip.loaded") + "<br>";
+				break;
+			case UPTODATE:
+				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
+				break;
+
+			case OUTDATED:
+				tip += trans.get("simpanel.ttip.outdated") + "<br>";
+				break;
+
+			case EXTERNAL:
+				tip += trans.get("simpanel.ttip.external") + "<br>";
+				return tip;
+
+			case NOT_SIMULATED:
+				tip += trans.get("simpanel.ttip.notSimulated");
+				return tip;
+		}
+
+		if (data == null) {
+			tip += trans.get("simpanel.ttip.noData");
+			return tip;
+		}
+		WarningSet warnings = data.getWarningSet();
+
+		if (warnings.isEmpty()) {
+			tip += trans.get("simpanel.ttip.noWarnings");
+			return tip;
+		}
+
+		tip += trans.get("simpanel.ttip.warnings");
+		for (Warning w : warnings) {
+			tip += "<br>" + w.toString();
+		}
+
+		return tip;
+	}
+
+	private String getSimulationToolTip(Simulation sim) {
+		return getSimulationToolTip(sim, true);
 	}
 
 	private void openDialog(boolean plotMode, boolean isNewSimulation, final Simulation... sims) {
@@ -662,6 +726,25 @@ public class SimulationPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			editSimulation();
+		}
+
+		@Override
+		public void updateEnabledState() {
+			setEnabled(simulationTable.getSelectedRowCount() > 0);
+		}
+	}
+
+	class CopyValuesSimulationAction extends SimulationAction {
+		public CopyValuesSimulationAction() {
+			putValue(NAME, trans.get("simpanel.pop.copyValues"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+			this.putValue(ACCELERATOR_KEY, RocketActions.COPY_KEY_STROKE);
+			this.putValue(SMALL_ICON, Icons.EDIT_COPY);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			copySimulationValuesAction();
 		}
 
 		@Override
@@ -852,53 +935,24 @@ public class SimulationPanel extends JPanel {
 			}
 			return component;
 		}
+	}
 
-		private String getSimulationToolTip(Simulation sim) {
-			String tip;
-			FlightData data = sim.getSimulatedData();
+	private class StatusLabel extends StyledLabel {
+		private Simulation simulation;
 
-			tip = "<html><b>" + sim.getName() + "</b><br>";
-			switch (sim.getStatus()) {
-			case CANT_RUN:
-				tip += trans.get("simpanel.ttip.noData")+"<br>";
-				break;
-			case LOADED:
-				tip += trans.get("simpanel.ttip.loaded") + "<br>";
-				break;
-			case UPTODATE:
-				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
-				break;
+		public StatusLabel(Simulation simulation, float size) {
+			super(size);
+			this.simulation = simulation;
+		}
 
-			case OUTDATED:
-				tip += trans.get("simpanel.ttip.outdated") + "<br>";
-				break;
+		public void replaceSimulation(Simulation simulation) {
+			this.simulation = simulation;
+		}
 
-			case EXTERNAL:
-				tip += trans.get("simpanel.ttip.external") + "<br>";
-				return tip;
-
-			case NOT_SIMULATED:
-				tip += trans.get("simpanel.ttip.notSimulated");
-				return tip;
-			}
-
-			if (data == null) {
-				tip += trans.get("simpanel.ttip.noData");
-				return tip;
-			}
-			WarningSet warnings = data.getWarningSet();
-
-			if (warnings.isEmpty()) {
-				tip += trans.get("simpanel.ttip.noWarnings");
-				return tip;
-			}
-
-			tip += trans.get("simpanel.ttip.warnings");
-			for (Warning w : warnings) {
-				tip += "<br>" + w.toString();
-			}
-
-			return tip;
+		@Override
+		public String toString() {
+			String text = getSimulationToolTip(simulation, false);
+			return text.replace("<br>", "-").replaceAll("<[^>]*>","");
 		}
 	}
 
@@ -909,31 +963,33 @@ public class SimulationPanel extends JPanel {
 			super(
 					////  Status and warning column
 					new Column("") {
-						private JLabel label = null;
+						private StatusLabel label = null;
 
 						@Override
 						public Object getValueAt(int row) {
 							if (row < 0 || row >= document.getSimulationCount())
 								return null;
 
+							Simulation simulation = document.getSimulation(row);
+
 							// Initialize the label
 							if (label == null) {
-								label = new StyledLabel(2f);
+								label = new StatusLabel(simulation, 2f);
 								label.setIconTextGap(1);
 								//							label.setFont(label.getFont().deriveFont(Font.BOLD));
+							} else {
+								label.replaceSimulation(simulation);
 							}
 
 							// Set simulation status icon
-							Simulation.Status status = document.getSimulation(row).getStatus();
+							Simulation.Status status = simulation.getStatus();
 							label.setIcon(Icons.SIMULATION_STATUS_ICON_MAP.get(status));
 
 
 							// Set warning marker
 							if (status == Simulation.Status.NOT_SIMULATED ||
 									status == Simulation.Status.EXTERNAL) {
-
 								label.setText("");
-
 							} else {
 
 								WarningSet w = document.getSimulation(row).getSimulatedWarnings();
