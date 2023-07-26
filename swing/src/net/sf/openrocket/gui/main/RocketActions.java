@@ -754,6 +754,7 @@ public class RocketActions {
 				}
 
 				OpenRocketClipboard.setClipboard(simsCopy);
+				simulationPanel.copySimulationValuesAction();
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
 			}
 		}

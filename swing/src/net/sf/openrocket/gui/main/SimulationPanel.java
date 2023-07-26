@@ -484,7 +484,7 @@ public class SimulationPanel extends JPanel {
 	}
 
 
-	private void copySimulationValuesAction() {
+	public void copySimulationValuesAction() {
 		int numCols = simulationTable.getColumnCount();
 		int numRows = simulationTable.getSelectedRowCount();
 		int[] rowsSelected = simulationTable.getSelectedRows();
