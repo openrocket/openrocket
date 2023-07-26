@@ -489,8 +489,9 @@ public class SimulationPanel extends JPanel {
 		int numRows = simulationTable.getSelectedRowCount();
 		int[] rowsSelected = simulationTable.getSelectedRows();
 
-		if (numRows != (rowsSelected[rowsSelected.length-1] - rowsSelected[0] + 1) || numRows != rowsSelected.length) {
-			JOptionPane.showMessageDialog(null, "Invalid Copy Selection", "Invalid Copy Selection", JOptionPane.ERROR_MESSAGE);
+		if (numRows != rowsSelected.length) {
+			JOptionPane.showMessageDialog(this, trans.get("simpanel.msg.invalidCopySelection"),
+					trans.get("simpanel.msg.invalidCopySelection"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
