@@ -41,7 +41,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		confirmDelete.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				preferences.setAutoRunSimulations(confirmDelete.isSelected());
+				preferences.setConfirmSimDeletion(confirmDelete.isSelected());
 			}
 		});
 		this.add(confirmDelete, "wrap, growx, sg combos ");
