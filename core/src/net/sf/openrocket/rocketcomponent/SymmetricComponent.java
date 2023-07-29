@@ -852,8 +852,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			(!MathUtil.equals(this.parent.getRadiusMethod().getRadius(this.parent.parent, this, this.parent.getRadiusOffset()), 0)))
 			return false;
 		
-		if ((candidate.parent instanceof RingInstanceable) &&
-			(!MathUtil.equals(candidate.parent.getRadiusMethod().getRadius(candidate.parent.parent, candidate, candidate.parent.getRadiusOffset()), 0)))
+		if ((candidate.parent instanceof RingInstanceable) && ((candidate.parent.parent == this) ||
+			(!MathUtil.equals(candidate.parent.getRadiusMethod().getRadius(candidate.parent.parent, candidate, candidate.parent.getRadiusOffset()), 0))))
 			return false;
 
 		return true;
