@@ -3,8 +3,6 @@ package net.sf.openrocket.gui.plot;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -31,7 +29,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartPanel;
@@ -45,8 +42,7 @@ import org.jfree.chart.JFreeChart;
  */
 public class SimulationPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-	
+
 	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
 		//// Flight data plot
 		super(parent, simulation.getName());
@@ -77,7 +73,7 @@ public class SimulationPlotDialog extends JDialog {
 		// Add warning if X axis type is not time
 		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
 			JLabel msg = new StyledLabel(trans.get("PlotDialog.lbl.timeSeriesWarning"), -2);
-			msg.setForeground(prefs.getUITheme().getDarkWarningColor());
+			msg.setForeground(GUIUtil.getUITheme().getDarkWarningColor());
 			panel.add(msg, "wrap");
 		}
 		

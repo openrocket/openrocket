@@ -36,7 +36,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -399,8 +399,6 @@ class ClusterSelectionPanel extends JPanel {
 	private static final int BUTTON_SIZE = 50;
 	private static final int MOTOR_DIAMETER = 10;
 
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-
 	private static final Color SELECTED_COLOR;
 	private static final Color UNSELECTED_COLOR;
 	private static final Color MOTOR_FILL_COLOR;
@@ -408,7 +406,7 @@ class ClusterSelectionPanel extends JPanel {
 
 	static {
 		SELECTED_COLOR = Color.RED;
-		UNSELECTED_COLOR = prefs.getUITheme().getBackgroundColor();
+		UNSELECTED_COLOR = GUIUtil.getUITheme().getBackgroundColor();
 		MOTOR_FILL_COLOR = Color.GREEN;
 		MOTOR_BORDER_COLOR = Color.BLACK;
 	}

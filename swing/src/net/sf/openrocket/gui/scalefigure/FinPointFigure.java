@@ -14,13 +14,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -32,8 +31,6 @@ import net.sf.openrocket.util.StateChangeListener;
 
 @SuppressWarnings("serial")
 public class FinPointFigure extends AbstractScaleFigure {
- 
-	private final static SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	private static final int GRID_LINE_BASE_WIDTH_PIXELS = 1;
 
@@ -63,7 +60,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
 
-		setBackground(prefs.getUITheme().getBackgroundColor());
+		setBackground(GUIUtil.getUITheme().getBackgroundColor());
 		setOpaque(true);
 
 		updateFigure();
@@ -125,11 +122,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 		Line2D.Double line = new Line2D.Double();
 		for (Tick t : verticalTicks) {
 			if (t.major) {
-				g2.setColor(prefs.getUITheme().getFinPointGridMajorLineColor());
+				g2.setColor(GUIUtil.getUITheme().getFinPointGridMajorLineColor());
 				line.setLine( t.value, y0, t.value, y1);
 				g2.draw(line);
 			}else{
-				g2.setColor(prefs.getUITheme().getFinPointGridMinorLineColor());
+				g2.setColor(GUIUtil.getUITheme().getFinPointGridMinorLineColor());
 				line.setLine( t.value, y0, t.value, y1);
 				g2.draw(line);
 			}
@@ -139,11 +136,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 		Tick[] horizontalTicks = unit.getTicks(y0, y1, MINOR_TICKS / this.scale, MAJOR_TICKS / this.scale);
 		for (Tick t : horizontalTicks) {
 			if (t.major) {
-				g2.setColor(prefs.getUITheme().getFinPointGridMajorLineColor());
+				g2.setColor(GUIUtil.getUITheme().getFinPointGridMajorLineColor());
 				line.setLine( x0, t.value, x1, t.value);
 				g2.draw(line);
 			}else{
-				g2.setColor(prefs.getUITheme().getFinPointGridMinorLineColor());
+				g2.setColor(GUIUtil.getUITheme().getFinPointGridMinorLineColor());
 				line.setLine( x0, t.value, x1, t.value);
 				g2.draw(line);
 			}
@@ -166,7 +163,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		// setup lines
 		final float bodyLineWidth = (float) ( LINE_WIDTH_BODY_PIXELS / scale );
 		g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(prefs.getUITheme().getFinPointBodyLineColor());
+		g2.setColor(GUIUtil.getUITheme().getFinPointBodyLineColor());
 
 		Transition body = (Transition) finset.getParent();
 		final float xResolution_m = 0.01f; // distance between draw points, in meters
@@ -216,7 +213,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final float bodyLineWidth = (float) ( LINE_WIDTH_BODY_PIXELS / scale );
 		g2.setStroke(new BasicStroke( bodyLineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(prefs.getUITheme().getFinPointBodyLineColor());
+		g2.setColor(GUIUtil.getUITheme().getFinPointBodyLineColor());
 		g2.draw(shape);
 	}
 
@@ -233,7 +230,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final float finEdgeWidth_m = (float) (LINE_WIDTH_FIN_PIXELS / scale  );
 		g2.setStroke(new BasicStroke( finEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(prefs.getUITheme().getFinPointBodyLineColor());
+		g2.setColor(GUIUtil.getUITheme().getFinPointBodyLineColor());
 		g2.draw(shape);
 	}
 	
@@ -247,7 +244,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final float boxEdgeWidth_m = (float) ( LINE_WIDTH_BOX_PIXELS / scale );
 		g2.setStroke(new BasicStroke( boxEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-		g2.setColor(prefs.getUITheme().getFinPointPointColor());
+		g2.setColor(GUIUtil.getUITheme().getFinPointPointColor());
 
 		finPointHandles = new Rectangle2D.Double[ drawPoints.length];
 		for (int currentIndex = 0; currentIndex < drawPoints.length; currentIndex++) {
@@ -260,11 +257,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 				final Rectangle2D.Double selectedPointHighlight = new Rectangle2D.Double(c.x - selBoxHalfWidth, c.y - selBoxHalfWidth, selBoxWidth, selBoxWidth);
 
 				// switch to the highlight color
-				g2.setColor(prefs.getUITheme().getFinPointSelectedPointColor());
+				g2.setColor(GUIUtil.getUITheme().getFinPointSelectedPointColor());
 				g2.draw(selectedPointHighlight);
 
 				// reset to the normal color
-				g2.setColor(prefs.getUITheme().getFinPointPointColor());
+				g2.setColor(GUIUtil.getUITheme().getFinPointPointColor());
 			}
 
 			// normal boxes

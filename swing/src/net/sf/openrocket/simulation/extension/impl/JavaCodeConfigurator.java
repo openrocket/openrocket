@@ -9,12 +9,11 @@ import javax.swing.event.DocumentListener;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Color;
 
 @Plugin
 public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfigurator<JavaCode> {
@@ -23,7 +22,6 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 	private StyledLabel errorMsg;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	public JavaCodeConfigurator() {
 		super(JavaCode.class);
@@ -37,7 +35,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 		classNameField = new JTextField(extension.getClassName());
 		panel.add(classNameField, "growx, wrap");
 		this.errorMsg = new StyledLabel();
-		errorMsg.setFontColor(prefs.getUITheme().getDarkWarningColor());
+		errorMsg.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 		errorMsg.setVisible(false);
 		panel.add(errorMsg, "growx, wrap");
 

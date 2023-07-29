@@ -15,7 +15,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.CommonStrings;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -25,8 +24,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class RenameConfigDialog extends JDialog {
 	private static final long serialVersionUID = -5423008694485357248L;
 	private static final Translator trans = Application.getTranslator();
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-	
+
 	public RenameConfigDialog(final Window parent, final Rocket rocket, final FlightConfigurationId fcid) {
 		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
@@ -74,7 +72,7 @@ public class RenameConfigDialog extends JDialog {
 				+ trans.get("RenameConfigDialog.lbl.infoManufacturers")
 				+ trans.get("RenameConfigDialog.lbl.infoCombination");
 		StyledLabel info = new StyledLabel(text, -2);
-		info.setFontColor(prefs.getUITheme().getDimTextColor());
+		info.setFontColor(GUIUtil.getUITheme().getDimTextColor());
 		panel.add(info, "spanx, growx, wrap");
 		
 		this.add(panel);

@@ -36,7 +36,6 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationOptions;
@@ -56,7 +55,6 @@ class SimulationOptionsPanel extends JPanel {
 	private static final long serialVersionUID = -5251458539346201239L;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	private OpenRocketDocument document;
 	final Simulation simulation;
@@ -209,8 +207,8 @@ class SimulationOptionsPanel extends JPanel {
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
-		currentExtensions.setBorder(prefs.getUITheme().getBorder());
-		scroll.setForeground(prefs.getUITheme().getTextColor());
+		currentExtensions.setBorder(GUIUtil.getUITheme().getBorder());
+		scroll.setForeground(GUIUtil.getUITheme().getTextColor());
 		//  &#$%! scroll pane will not honor "growy"...
 		sub.add(scroll, "growx, growy, h 100%");
 		

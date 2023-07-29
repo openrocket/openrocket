@@ -390,12 +390,12 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 		protected final void shaded(JLabel label) {
 			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(prefs.getUITheme().getDimTextColor());
+			label.setForeground(GUIUtil.getUITheme().getDimTextColor());
 		}
 
 		protected final void regular(JLabel label) {
 			GUIUtil.changeFontStyle(label, Font.PLAIN);
-			label.setForeground(prefs.getUITheme().getTextColor());
+			label.setForeground(GUIUtil.getUITheme().getTextColor());
 		}
 
 		protected abstract JLabel format( T component, FlightConfigurationId configId, JLabel label );

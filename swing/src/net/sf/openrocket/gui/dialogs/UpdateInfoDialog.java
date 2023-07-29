@@ -1,12 +1,10 @@
 package net.sf.openrocket.gui.dialogs;
 
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +74,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
-		textPane.setBorder(BorderFactory.createLineBorder(preferences.getUITheme().getTextColor()));
+		textPane.setBorder(BorderFactory.createLineBorder(GUIUtil.getUITheme().getTextColor()));
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
 		textPane.setMargin(new Insets(10, 10, 40, 10));

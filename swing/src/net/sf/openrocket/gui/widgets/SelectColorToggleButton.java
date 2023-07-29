@@ -1,8 +1,7 @@
 package net.sf.openrocket.gui.widgets;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.UITheme;
-import net.sf.openrocket.startup.Application;
 
 import javax.swing.JToggleButton;
 import javax.swing.Action;
@@ -18,7 +17,6 @@ import java.beans.PropertyChangeListener;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class SelectColorToggleButton extends JToggleButton {
-    private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
     public SelectColorToggleButton(Action a) {
         super(a);
@@ -66,7 +64,7 @@ public class SelectColorToggleButton extends JToggleButton {
      * This is to fix an issue on OSX devices where the foreground color would be black on blue (hardly readable)
      */
     private void addChangeListenerSelectColor() {
-        if ((prefs.getUITheme() != UITheme.Themes.LIGHT) ||
+        if ((GUIUtil.getUITheme() != UITheme.Themes.LIGHT) ||
                 (UIManager.getColor("ToggleButton.selectForeground") == null) ||
                 (UIManager.getColor("ToggleButton.foreground") == null))
             return;

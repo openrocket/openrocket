@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
@@ -175,7 +176,7 @@ public class RocketInfo implements FigureElement {
 
 		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
 
-		g2.setColor(preferences.getUITheme().getTextColor());
+		g2.setColor(GUIUtil.getUITheme().getTextColor());
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
@@ -231,7 +232,7 @@ public class RocketInfo implements FigureElement {
 		// Add an extra space worth of width so the text doesn't run into the values
 		unitWidth = unitWidth + spaceWidth;
 
-		g2.setColor(preferences.getUITheme().getTextColor());
+		g2.setColor(GUIUtil.getUITheme().getTextColor());
 
 		g2.drawGlyphVector(stabValue, (float)(x2-stabRect.getWidth()), y1);
 		g2.drawGlyphVector(cgValue, (float)(x2-cgRect.getWidth()), y1+line);
@@ -254,7 +255,7 @@ public class RocketInfo implements FigureElement {
 			atPos = (float)(x2 - atTextRect.getWidth());
 		}
 		
-		g2.setColor(preferences.getUITheme().getDimTextColor());
+		g2.setColor(GUIUtil.getUITheme().getDimTextColor());
 		g2.drawGlyphVector(atText, atPos, y1 + 3*line);
 
 	}
@@ -404,7 +405,7 @@ public class RocketInfo implements FigureElement {
 		
 
 		float y = y2 - line * (texts.length-1);
-		g2.setColor(preferences.getUITheme().getWarningColor());
+		g2.setColor(GUIUtil.getUITheme().getWarningColor());
 
 		for (GlyphVector v: texts) {
 			Rectangle2D rect = v.getVisualBounds();
@@ -420,7 +421,7 @@ public class RocketInfo implements FigureElement {
 		if (calculatingData) {
 			//// Calculating...
 			GlyphVector calculating = createText(trans.get("RocketInfo.Calculating"));
-			g2.setColor(preferences.getUITheme().getTextColor());
+			g2.setColor(GUIUtil.getUITheme().getTextColor());
 			g2.drawGlyphVector(calculating, x1, (float)(y2-height));
 		}
 	}
@@ -478,9 +479,9 @@ public class RocketInfo implements FigureElement {
 		width += 5;
 
 		if (!calculatingData) 
-			g2.setColor(preferences.getUITheme().getFlightDataTextActiveColor());
+			g2.setColor(GUIUtil.getUITheme().getFlightDataTextActiveColor());
 		else
-			g2.setColor(preferences.getUITheme().getFlightDataTextInactiveColor());
+			g2.setColor(GUIUtil.getUITheme().getFlightDataTextInactiveColor());
 
 		g2.drawGlyphVector(apogee, (float)x1, (float)(y2-2*line));
 		g2.drawGlyphVector(maxVelocity, (float)x1, (float)(y2-line));

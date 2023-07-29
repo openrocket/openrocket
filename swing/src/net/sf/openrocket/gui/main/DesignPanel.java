@@ -5,7 +5,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -50,7 +49,6 @@ import static net.sf.openrocket.gui.main.BasicFrame.SHORTCUT_KEY;
  */
 public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
-    private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
     private final Component tree;
 
     public DesignPanel(final BasicFrame parent, final OpenRocketDocument document, final ComponentTree tree) {
@@ -176,7 +174,7 @@ public class DesignPanel extends JSplitPane {
 
         // Place tree inside scroll pane
         JScrollPane scroll = new JScrollPane(tree);
-        tree.setBorder(prefs.getUITheme().getBorder());
+        tree.setBorder(GUIUtil.getUITheme().getBorder());
         panel.add(scroll, "spany, wmin 140px, grow, wrap");
 
 

@@ -23,16 +23,14 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.simulation.SimulationOptions;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class LaunchPreferencesPanel extends PreferencesPanel {
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	public LaunchPreferencesPanel(JDialog parent, LayoutManager layout) {
 		super(parent, layout);
@@ -46,7 +44,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0.5f, StyledLabel.Style.BOLD);
-		warning.setFontColor(prefs.getUITheme().getDarkWarningColor());
+		warning.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 

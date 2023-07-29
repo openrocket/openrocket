@@ -22,7 +22,7 @@ public class Tester {
 		BasicApplication baseApp = new BasicApplication();
 		baseApp.initializeApplication();
 		
-		GUIUtil.setLAF();
+		GUIUtil.applyLAF();
 		
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override

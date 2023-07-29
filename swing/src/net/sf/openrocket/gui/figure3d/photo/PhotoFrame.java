@@ -373,7 +373,7 @@ public class PhotoFrame extends JFrame {
 
 		// Set the look-and-feel
 		log.info("Setting LAF");
-		GUIUtil.setLAF();
+		GUIUtil.applyLAF();
 
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();

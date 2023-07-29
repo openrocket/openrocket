@@ -70,6 +70,7 @@ import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.MemoryManagement;
@@ -79,8 +80,7 @@ import org.slf4j.LoggerFactory;
 
 public class GUIUtil {
 	private static final Logger log = LoggerFactory.getLogger(GUIUtil.class);
-	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
-	
+
 	private static final KeyStroke ESCAPE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 	private static final String CLOSE_ACTION_KEY = "escape:WINDOW_CLOSING";
 	
@@ -256,9 +256,22 @@ public class GUIUtil {
 			}
 		});
 	}
+
+	/**
+	 * Get the current theme used for the UI.
+	 * @return the current theme
+	 */
+	public static UITheme.Theme getUITheme() {
+		Preferences prefs = Application.getPreferences();
+		Object theme = prefs.getUITheme();
+		if (theme instanceof UITheme.Theme) {
+			return (UITheme.Theme) theme;
+		}
+		return UITheme.Themes.LIGHT;
+	}
 	
-	public static void setLAF() {
-		UITheme.Theme theme = preferences.getUITheme();
+	public static void applyLAF() {
+		UITheme.Theme theme = getUITheme();
 		theme.applyTheme();
 	}
 	

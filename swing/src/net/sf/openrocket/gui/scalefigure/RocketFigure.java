@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.Map.Entry;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
@@ -290,8 +291,8 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_STROKE_NORMALIZE);
 	
 		// Draw motors
-		Color fillColor = ((SwingPreferences)Application.getPreferences()).getUITheme().getMotorFillColor();
-		Color borderColor = ((SwingPreferences)Application.getPreferences()).getUITheme().getMotorBorderColor();
+		Color fillColor = GUIUtil.getUITheme().getMotorFillColor();
+		Color borderColor = GUIUtil.getUITheme().getMotorBorderColor();
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		for (MotorConfiguration curInstance : config.getActiveMotors()) {

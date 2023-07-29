@@ -12,8 +12,6 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +23,6 @@ import net.sf.openrocket.util.StateChangeListener;
 public abstract class AbstractScaleFigure extends JPanel {
     
     private final static Logger log = LoggerFactory.getLogger(AbstractScaleFigure.class);
-	private final static SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
     
     public static final double INCHES_PER_METER = 39.3701;
     public static final double METERS_PER_INCH = 0.0254;
@@ -73,7 +70,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 		this.setPreferredSize(new Dimension(100,100));
 		setSize(100,100);
 
-		setBackground(prefs.getUITheme().getBackgroundColor());
+		setBackground(GUIUtil.getUITheme().getBackgroundColor());
 		setOpaque(true);
 	}
 

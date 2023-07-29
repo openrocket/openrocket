@@ -117,6 +117,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
+
+	public static final String UI_THEME = "UITheme";
 	
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
@@ -974,6 +976,29 @@ public abstract class Preferences implements ChangeSource {
 	public abstract void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite);
 	
 	public abstract Set<String> getComponentFavorites(ComponentPreset.Type type);
+
+
+	/*
+	NOTE: It is unusual for the UI Theme to be stored in the preferences instead of SwingPreferences. In fact, this code
+	is not pretty. Sometimes I just really hate Java and circular dependencies...
+	But the reason why this is implemented is because it would otherwise be an even bigger nightmare to fix unit tests
+	that use their own preferences... Also wasn't a fan of always casting the preferences to SwingPreferences.
+	 */
+	/**
+	 * Get the current theme used for the UI.
+	 * @return the current theme
+	 */
+	public Object getUITheme() {
+		return null;
+	}
+
+	/**
+	 * Set the theme used for the UI.
+	 * @param theme the theme to set
+	 */
+	public void setUITheme(Object theme) {}
+
+
 	
 	/*
 	 * Within a holder class so they will load only when needed.

@@ -178,7 +178,7 @@ public class BugReportDialog extends JDialog {
 	private static void addBugReportInformation(StringBuilder sb) {
 		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		Color color = preferences.getUITheme().getDarkWarningColor();
+		Color color = GUIUtil.getUITheme().getDarkWarningColor();
 		sb.append(String.format("<b style='color:rgb(%d, %d, %d)'>Please include a description about what actions you were " +
 				"performing when the exception occurred:</b>\n", color.getRed(), color.getGreen(), color.getBlue()));
 		sb.append("<i>(You can edit text directly in this window)</i>\n");

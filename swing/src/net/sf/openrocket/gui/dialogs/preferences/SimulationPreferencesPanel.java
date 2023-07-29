@@ -17,9 +17,8 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -27,8 +26,6 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class SimulationPreferencesPanel extends PreferencesPanel {
 	private static final long serialVersionUID = 7983195730016979888L;
 
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-	
 	/*
 	 * private GeodeticComputationStrategy geodeticComputation =
 	 * GeodeticComputationStrategy.SPHERICAL;
@@ -88,7 +85,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0, StyledLabel.Style.BOLD);
-		warning.setFontColor(prefs.getUITheme().getDarkWarningColor());
+		warning.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		subsub.add(warning, "spanx, wrap para");
 

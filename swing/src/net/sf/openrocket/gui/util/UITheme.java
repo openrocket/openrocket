@@ -5,6 +5,8 @@ import com.github.weisj.darklaf.theme.DarculaTheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -19,6 +21,7 @@ import java.util.Map;
 
 public class UITheme {
     private static final Translator trans = Application.getTranslator();
+    private static final Logger log = LoggerFactory.getLogger(UITheme.class);
 
     public interface Theme {
         void applyTheme();
@@ -299,7 +302,7 @@ public class UITheme {
                     theme.apply(textArea);
                     textArea.setCurrentLineHighlightColor(new Color(255, 255, 230));
                 } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                   log.warn("Unable to load RSyntaxTextArea theme", ioe);
                 }
             }
         },
@@ -521,7 +524,7 @@ public class UITheme {
                             "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
                     theme.apply(textArea);
                 } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                    log.warn("Unable to load RSyntaxTextArea theme", ioe);
                 }
             }
         }

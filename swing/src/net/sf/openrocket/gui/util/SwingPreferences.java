@@ -58,7 +58,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
-	private static final String UI_THEME = "UITheme";
 	private static final String UI_FONT_SIZE = "UIFontSize";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
@@ -114,16 +113,16 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	private void fillDefaultComponentColors() {
-		DEFAULT_COLORS.put(BodyComponent.class, getUITheme().getDefaultBodyComponentColor());
-		DEFAULT_COLORS.put(TubeFinSet.class, getUITheme().getDefaultTubeFinSetColor());
-		DEFAULT_COLORS.put(FinSet.class, getUITheme().getDefaultFinSetColor());
-		DEFAULT_COLORS.put(LaunchLug.class, getUITheme().getDefaultLaunchLugColor());
-		DEFAULT_COLORS.put(RailButton.class, getUITheme().getDefaultRailButtonColor());
-		DEFAULT_COLORS.put(InternalComponent.class, getUITheme().getDefaultInternalComponentColor());
-		DEFAULT_COLORS.put(MassObject.class, getUITheme().getDefaultMassObjectColor());
-		DEFAULT_COLORS.put(RecoveryDevice.class, getUITheme().getDefaultRecoveryDeviceColor());
-		DEFAULT_COLORS.put(PodSet.class, getUITheme().getDefaultPodSetColor());
-		DEFAULT_COLORS.put(ParallelStage.class, getUITheme().getDefaultParallelStageColor());
+		DEFAULT_COLORS.put(BodyComponent.class, getUIThemeAsTheme().getDefaultBodyComponentColor());
+		DEFAULT_COLORS.put(TubeFinSet.class, getUIThemeAsTheme().getDefaultTubeFinSetColor());
+		DEFAULT_COLORS.put(FinSet.class, getUIThemeAsTheme().getDefaultFinSetColor());
+		DEFAULT_COLORS.put(LaunchLug.class, getUIThemeAsTheme().getDefaultLaunchLugColor());
+		DEFAULT_COLORS.put(RailButton.class, getUIThemeAsTheme().getDefaultRailButtonColor());
+		DEFAULT_COLORS.put(InternalComponent.class, getUIThemeAsTheme().getDefaultInternalComponentColor());
+		DEFAULT_COLORS.put(MassObject.class, getUIThemeAsTheme().getDefaultMassObjectColor());
+		DEFAULT_COLORS.put(RecoveryDevice.class, getUIThemeAsTheme().getDefaultRecoveryDeviceColor());
+		DEFAULT_COLORS.put(PodSet.class, getUIThemeAsTheme().getDefaultPodSetColor());
+		DEFAULT_COLORS.put(ParallelStage.class, getUIThemeAsTheme().getDefaultParallelStageColor());
 	}
 
 	public String getNodename() {
@@ -332,8 +331,13 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * Get the current theme used for the UI.
 	 * @return the current theme
 	 */
-	public UITheme.Theme getUITheme() {
-		String theme = getString(UI_THEME, UITheme.Themes.LIGHT.name());
+	@Override
+	public Object getUITheme() {
+		return getUIThemeAsTheme();
+	}
+
+	private UITheme.Theme getUIThemeAsTheme() {
+		String theme = getString(net.sf.openrocket.startup.Preferences.UI_THEME, UITheme.Themes.LIGHT.name());
 		if (theme == null) return UITheme.Themes.LIGHT;		// Default theme
 		return UITheme.Themes.valueOf(theme);
 	}
@@ -342,9 +346,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * Set the theme used for the UI.
 	 * @param theme the theme to set
 	 */
-	public void setUITheme(UITheme.Theme theme) {
-		if (theme == null) return;
-		putString(UI_THEME, theme.name());
+	@Override
+	public void setUITheme(Object theme) {
+		if (!(theme instanceof UITheme.Theme)) return;
+		putString(net.sf.openrocket.startup.Preferences.UI_THEME, ((UITheme.Theme) theme).name());
 		storeVersion();
 	}
 
@@ -382,13 +387,13 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	public net.sf.openrocket.util.Color getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, DEFAULT_COLORS);
 		if (color == null)
-			return net.sf.openrocket.util.Color.fromAWTColor(getUITheme().getTextColor());
+			return net.sf.openrocket.util.Color.fromAWTColor(getUIThemeAsTheme().getTextColor());
 
 		net.sf.openrocket.util.Color clr = parseColor(color);
 		if (clr != null) {
 			return clr;
 		} else {
-			return net.sf.openrocket.util.Color.fromAWTColor(getUITheme().getTextColor());
+			return net.sf.openrocket.util.Color.fromAWTColor(getUIThemeAsTheme().getTextColor());
 		}
 	}
 

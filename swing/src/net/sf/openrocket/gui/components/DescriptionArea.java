@@ -1,8 +1,7 @@
 package net.sf.openrocket.gui.components;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.URLUtil;
-import net.sf.openrocket.startup.Application;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -33,7 +32,6 @@ public class DescriptionArea extends JScrollPane {
 	
 	private final JEditorPane editorPane;
 
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	private final float size;
 	
 	
@@ -179,7 +177,7 @@ public class DescriptionArea extends JScrollPane {
 		dim.height = lineheight * rows + extraheight + 2;
 		this.setPreferredSize(dim);
 
-		editorPane.setBorder(prefs.getUITheme().getBorder());
+		editorPane.setBorder(GUIUtil.getUITheme().getBorder());
 		
 		this.setViewportView(editorPane);
 		this.setText(text);

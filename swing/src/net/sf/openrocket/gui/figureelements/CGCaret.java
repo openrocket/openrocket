@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.figureelements;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.util.GUIUtil;
 
 import java.awt.Color;
 import java.awt.geom.Area;
@@ -20,8 +19,6 @@ public class CGCaret extends Caret {
 	
 	private static Area caret = null;
 
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-	
 	/**
 	 * Create a new CGCaret at the specified coordinates.
 	 */
@@ -61,7 +58,7 @@ public class CGCaret extends Caret {
 	 */
 	@Override
 	protected Color getColor() {
-		return prefs.getUITheme().getCGColor();
+		return GUIUtil.getUITheme().getCGColor();
 	}
 
 }

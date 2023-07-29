@@ -200,7 +200,7 @@ public class SwingStartup {
 		
 		// Set the look-and-feel
 		log.info("Setting LAF");
-		GUIUtil.setLAF();
+		GUIUtil.applyLAF();
 		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);

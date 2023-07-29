@@ -1,11 +1,9 @@
 package net.sf.openrocket.gui.util;
 
-import net.sf.openrocket.startup.Application;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import java.awt.Color;
 import java.awt.Component;
 
 /**
@@ -14,7 +12,6 @@ import java.awt.Component;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class BetterListCellRenderer extends DefaultListCellRenderer {
-    private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -24,16 +21,16 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
         // Alternating row colors
         if (!isSelected) {
             if (index % 2 == 0) {
-                label.setBackground(prefs.getUITheme().getRowBackgroundDarkerColor());
+                label.setBackground(GUIUtil.getUITheme().getRowBackgroundDarkerColor());
             } else {
-                label.setBackground(prefs.getUITheme().getRowBackgroundLighterColor());
+                label.setBackground(GUIUtil.getUITheme().getRowBackgroundLighterColor());
             }
         }
         // Text color
         if (isSelected) {
-            label.setForeground(prefs.getUITheme().getTextSelectionForegroundColor());
+            label.setForeground(GUIUtil.getUITheme().getTextSelectionForegroundColor());
         } else {
-            label.setForeground(prefs.getUITheme().getTextColor());
+            label.setForeground(GUIUtil.getUITheme().getTextColor());
         }
         return label;
     }

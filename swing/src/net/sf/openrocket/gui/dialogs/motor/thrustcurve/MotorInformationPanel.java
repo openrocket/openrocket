@@ -16,7 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.util.StringUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -39,13 +38,12 @@ import net.sf.openrocket.unit.UnitGroup;
 @SuppressWarnings("serial")
 class MotorInformationPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-	
+
 	private static final int ZOOM_ICON_POSITION_NEGATIVE_X = 50;
 	private static final int ZOOM_ICON_POSITION_POSITIVE_Y = 12;
 
-	private static final Color NO_COMMENT_COLOR = prefs.getUITheme().getDimTextColor();
-	private static final Color WITH_COMMENT_COLOR = prefs.getUITheme().getTextColor();
+	private static final Color NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
+	private static final Color WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
 
 	// Motors in set
 	private List<ThrustCurveMotor> selectedMotorSet;
@@ -192,7 +190,7 @@ class MotorInformationPanel extends JPanel {
 
 			//// Thrust curve:
 			TextTitle title = new TextTitle(trans.get("TCMotorSelPan.title.Thrustcurve"), this.getFont());
-			title.setPaint(prefs.getUITheme().getTextColor());
+			title.setPaint(GUIUtil.getUITheme().getTextColor());
 			chart.setTitle(title);
 			chart.setBackgroundPaint(this.getBackground());
 			plot.setBackgroundPaint(Color.WHITE);

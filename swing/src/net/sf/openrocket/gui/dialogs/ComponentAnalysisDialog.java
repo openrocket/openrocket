@@ -41,7 +41,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
@@ -73,7 +72,6 @@ import org.slf4j.LoggerFactory;
 
 public class ComponentAnalysisDialog extends JDialog implements StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisDialog.class);
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	private static final long serialVersionUID = 9131240570600307935L;
 	private static ComponentAnalysisDialog singletonDialog = null;
@@ -152,7 +150,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
-		warningList.setBorder(prefs.getUITheme().getBorder());
+		warningList.setBorder(GUIUtil.getUITheme().getBorder());
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
@@ -649,7 +647,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 
 			label.setOpaque(true);
-			label.setBackground(prefs.getUITheme().getBackgroundColor());
+			label.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 
 			if ((row < 0) || (row >= data.size()))
@@ -695,8 +693,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 	private class DragCellRenderer extends CustomCellRenderer {
 		private static final long serialVersionUID = 1L;
-
-		private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 		public DragCellRenderer() {
 			super(dragData, 3);

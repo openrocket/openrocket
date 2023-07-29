@@ -12,8 +12,7 @@ import java.util.Map;
 
 import javax.swing.text.html.StyleSheet;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.util.BugException;
 
 /**
@@ -23,8 +22,6 @@ import net.sf.openrocket.util.BugException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SlideSetManager {
-	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-
 	private static final String TOURS_BASE_DIR = "datafiles/tours";
 	
 	private static final String TOURS_FILE = "tours.txt";
@@ -135,7 +132,7 @@ public class SlideSetManager {
 		try {
 			
 			StyleSheet ss = new StyleSheet();
-			Color textColor = prefs.getUITheme().getTextColor();
+			Color textColor = GUIUtil.getUITheme().getTextColor();
 			ss.addRule(String.format("p { color: rgb(%d, %d, %d, %d)",
 					textColor.getRed(), textColor.getGreen(), textColor.getBlue(), textColor.getAlpha()));
 			InputStreamReader reader = new InputStreamReader(in, "UTF-8");

@@ -93,7 +93,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(new StyledLabel(trans.get("generalprefs.lbl.languageEffect"), -3, Style.ITALIC), "span, wrap rel");
 
 		//// UI Theme
-		UITheme.Theme currentTheme = preferences.getUITheme();
+		UITheme.Theme currentTheme = GUIUtil.getUITheme();
 		List<Named<UITheme.Theme>> themes = new ArrayList<>();
 		for (UITheme.Theme t : UITheme.Themes.values()) {
 			themes.add(new Named<>(t, t.getDisplayName()));
@@ -119,7 +119,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 
 		//// You need to restart OpenRocket for the theme change to take effect.
 		final JLabel lblRestartORTheme = new JLabel();
-		lblRestartORTheme.setForeground(preferences.getUITheme().getDarkWarningColor());
+		lblRestartORTheme.setForeground(GUIUtil.getUITheme().getDarkWarningColor());
 		this.add(lblRestartORTheme, "spanx, wrap para*2, growx");
 
 		themesCombo.addActionListener(new ActionListener() {
@@ -129,7 +129,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				Named<UITheme.Theme> selection = (Named<UITheme.Theme>) themesCombo.getSelectedItem();
 				if (selection == null) return;
 				UITheme.Theme t = selection.get();
-				if (t == preferences.getUITheme()) {
+				if (t == GUIUtil.getUITheme()) {
 					lblRestartORTheme.setText("");
 					return;
 				}
@@ -231,8 +231,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		
 		//// Add directories, RASP motor files (*.eng), RockSim engine files (*.rse) or ZIP archives separated by a semicolon (;) to load external thrust curves.  Changes will take effect the next time you start OpenRocket.
 		DescriptionArea desc = new DescriptionArea(trans.get("pref.dlg.DescriptionArea.Adddirectories"), 3, -1.5f, false);
-		desc.setBackground(preferences.getUITheme().getBackgroundColor());
-		desc.setForeground(preferences.getUITheme().getTextColor());
+		desc.setBackground(GUIUtil.getUITheme().getBackgroundColor());
+		desc.setForeground(GUIUtil.getUITheme().getTextColor());
 		this.add(desc, "spanx, growx, wrap 40lp");
 		
 		
