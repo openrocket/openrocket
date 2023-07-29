@@ -134,8 +134,12 @@ public class FlightData {
 		return branches.size();
 	}
 	
-	public FlightDataBranch getBranch(int n) {
-		return branches.get(n);
+	public FlightDataBranch getBranch(int stageNr) {
+		return branches.get(stageNr);
+	}
+
+	public int getStageNr(FlightDataBranch branch) {
+		return branches.indexOf(branch);
 	}
 
 	public List<FlightDataBranch> getBranches() {

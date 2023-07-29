@@ -485,11 +485,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						currentStatus.getWarnings().add(Warning.SEPARATION_ORDER);
 					}
 
+					// If I haven't cleared the rail yet, flag a warning
+					if (!currentStatus.isLaunchRodCleared()) {
+						currentStatus.getWarnings().add(Warning.EARLY_SEPARATION);
+					}	
+
 					// Create a new simulation branch for the booster
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 					
 					// Prepare the new simulation branch
-					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), currentStatus.getFlightData()));
+					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), boosterStage, currentStatus.getFlightData()));
 					boosterStatus.getFlightData().addEvent(event);
 
 					// Mark the current status as having dropped the current stage and all stages below it

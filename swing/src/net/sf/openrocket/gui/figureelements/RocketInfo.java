@@ -226,25 +226,31 @@ public class RocketInfo implements FigureElement {
 		Rectangle2D stabTextRect = stabText.getVisualBounds();
 		Rectangle2D atTextRect = atText.getVisualBounds();
 		
-		double unitWidth = MathUtil.max(cpRect.getWidth(), cgRect.getWidth(), stabRect.getWidth());
+		double unitWidth = MathUtil.max(cpRect.getWidth(), cgRect.getWidth());
+		double stabUnitWidth = stabRect.getWidth();
 		double textWidth = Math.max(cpTextRect.getWidth(), cgTextRect.getWidth());
 		
 		// Add an extra space worth of width so the text doesn't run into the values
 		unitWidth = unitWidth + spaceWidth;
+		stabUnitWidth = stabUnitWidth + spaceWidth;
 
 		g2.setColor(GUIUtil.getUITheme().getTextColor());
 
+		// Draw the stability, CG & CP values (and units)
 		g2.drawGlyphVector(stabValue, (float)(x2-stabRect.getWidth()), y1);
 		g2.drawGlyphVector(cgValue, (float)(x2-cgRect.getWidth()), y1+line);
 		g2.drawGlyphVector(cpValue, (float)(x2-cpRect.getWidth()), y1+2*line);
 
-		g2.drawGlyphVector(stabText, (float)(x2-unitWidth-stabTextRect.getWidth()), y1);
+		// Draw the stability, CG & CP labels
+		g2.drawGlyphVector(stabText, (float)(x2-stabUnitWidth-stabTextRect.getWidth()), y1);
 		g2.drawGlyphVector(cgText, (float)(x2-unitWidth-cgTextRect.getWidth()), y1+line);
 		g2.drawGlyphVector(cpText, (float)(x2-unitWidth-cpTextRect.getWidth()), y1+2*line);
-				
+
+		// Draw the CG caret
 		cgCaret.setPosition(x2 - unitWidth - textWidth - 10, y1+line-0.3*line);
 		cgCaret.paint(g2, 1.7);
 
+		// Draw the CP caret
 		cpCaret.setPosition(x2 - unitWidth - textWidth - 10, y1+2*line-0.3*line);
 		cpCaret.paint(g2, 1.7);
 		

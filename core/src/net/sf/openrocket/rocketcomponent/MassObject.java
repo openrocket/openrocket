@@ -109,7 +109,7 @@ public abstract class MassObject extends InternalComponent {
 			return radius;
 		}
 		if (parent instanceof NoseCone) {
-			return ((NoseCone) parent).getAftRadius();
+			return ((NoseCone) parent).getBaseRadius();
 		} else if (parent instanceof Transition) {
 			double foreRadius = ((Transition) parent).getForeRadius();
 			double aftRadius = ((Transition) parent).getAftRadius();

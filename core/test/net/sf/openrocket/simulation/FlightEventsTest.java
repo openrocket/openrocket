@@ -108,8 +108,8 @@ public class FlightEventsTest extends BaseTestCase {
 		// events whose time is too variable to check are given a time of 1200
         for (int b = 0; b < 3; b++) {
 			FlightEvent[] expectedEvents;
-            final RocketComponent[] expectedSources;
             switch (b) {
+                // Sustainer (payload fairing stage)
                 case 0:
 					expectedEvents = new FlightEvent[] {
 						new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
@@ -129,15 +129,23 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 					};
                     break;
+                // Core stage
                 case 1:
 					expectedEvents = new FlightEvent[] {
+                        new FlightEvent(FlightEvent.Type.IGNITION, 0.0, coreBody),
+                        new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
+                        new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 					};
                     break;
+                // Booster stage
                 case 2:
 					expectedEvents = new FlightEvent[] {
+                        new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMotorTubes),
+                        new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
+                        new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 3.551, null),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
@@ -150,10 +158,7 @@ public class FlightEventsTest extends BaseTestCase {
 
             // Test event count
             final FlightDataBranch branch = sim.getSimulatedData().getBranch(b);
-			final FlightEvent[] events = (FlightEvent[]) branch.getEvents().toArray(new FlightEvent[0]);
-			for (int i = 0; i < events.length; i++) {
-				System.out.println("branch " + b + " index " + i + " event " + events[i]);
-			}
+			final FlightEvent[] events = branch.getEvents().toArray(new FlightEvent[0]);
             assertEquals(" Multi-stage simulation, branch " + b + " invalid number of events ", expectedEvents.length, events.length);
 
 			// Test that all expected events are present, in the right order, at the right time, from the right sources
