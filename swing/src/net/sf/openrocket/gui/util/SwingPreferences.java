@@ -337,9 +337,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	private UITheme.Theme getUIThemeAsTheme() {
-		String theme = getString(net.sf.openrocket.startup.Preferences.UI_THEME, UITheme.Themes.LIGHT.name());
-		if (theme == null) return UITheme.Themes.LIGHT;		// Default theme
-		return UITheme.Themes.valueOf(theme);
+		String themeName = getString(net.sf.openrocket.startup.Preferences.UI_THEME, UITheme.Themes.LIGHT.name());
+		if (themeName == null) return UITheme.Themes.LIGHT;		// Default theme
+		return UITheme.Themes.valueOf(themeName);
 	}
 
 	/**

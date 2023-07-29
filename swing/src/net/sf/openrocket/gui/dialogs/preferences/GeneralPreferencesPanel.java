@@ -24,6 +24,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -54,9 +56,14 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
+	private final UITheme.Theme currentTheme;
+	private final int currentFontSize;
 
 	public GeneralPreferencesPanel(PreferencesDialog parent) {
 		super(parent, new MigLayout("fillx, ins 30lp n n n"));
+
+		this.currentTheme = GUIUtil.getUITheme();
+		this.currentFontSize = preferences.getUIFontSize();
 		
 		//// Language selector
 		Locale userLocale;
@@ -122,6 +129,16 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		lblRestartORTheme.setForeground(GUIUtil.getUITheme().getDarkWarningColor());
 		this.add(lblRestartORTheme, "spanx, wrap para*2, growx");
 
+		fontSizeSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (fontSizeModel.getValue() == currentFontSize) {
+					lblRestartORTheme.setText("");
+					return;
+				}
+				lblRestartORTheme.setText(trans.get("generalprefs.lbl.themeRestartOR"));
+			}
+		});
 		themesCombo.addActionListener(new ActionListener() {
 			@Override
 			@SuppressWarnings("unchecked")
@@ -129,7 +146,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				Named<UITheme.Theme> selection = (Named<UITheme.Theme>) themesCombo.getSelectedItem();
 				if (selection == null) return;
 				UITheme.Theme t = selection.get();
-				if (t == GUIUtil.getUITheme()) {
+				if (t == currentTheme) {
 					lblRestartORTheme.setText("");
 					return;
 				}
