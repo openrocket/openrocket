@@ -61,13 +61,13 @@ public class DesignPanel extends JSplitPane {
 
         // Remove JTree key events that interfere with menu accelerators
         InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), null);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), "none");
 
         // Highlight all child components of a stage/rocket/podset when it is selected
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {

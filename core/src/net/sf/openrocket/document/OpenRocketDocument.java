@@ -383,12 +383,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @param simulation	the simulation to be added
 	 */
 	public void addSimulation(Simulation simulation) {
-		simulations.add(simulation);
-		FlightConfigurationId simId = simulation.getId();
-		if( !rocket.containsFlightConfigurationID( simId )){
-			rocket.createFlightConfiguration(simId);
-		}
-		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
+		addSimulation(simulation, simulations.size());
 	}
 	
 	/**
@@ -399,6 +394,10 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public void addSimulation(Simulation simulation, int n) {
 		simulations.add(n, simulation);
+		FlightConfigurationId simId = simulation.getId();
+		if( !rocket.containsFlightConfigurationID( simId )){
+			rocket.createFlightConfiguration(simId);
+		}
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	
