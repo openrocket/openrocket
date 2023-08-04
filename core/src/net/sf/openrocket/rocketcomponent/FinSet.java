@@ -404,6 +404,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return getTabOffset(this.tabOffsetMethod);
 	}
 
+	public double getTabPosition(AxialMethod method) {
+		return method.getAsPosition(tabOffset, tabLength, length);
+	}
+
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */

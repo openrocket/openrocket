@@ -102,7 +102,7 @@ public class Icons {
 	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
 	public static final Icon MASS_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/mass-override-subcomponent.png", "Mass Override Subcomponent");
 
-// MANUFACTURERS ICONS
+	// MANUFACTURERS ICONS
 	public static final Icon RASAERO = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
 	public static final Icon ROCKSIM = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
 

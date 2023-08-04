@@ -49,6 +49,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory;
 import net.sf.openrocket.gui.configdialog.SaveDesignInfoPanel;
 import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
 import net.sf.openrocket.logging.ErrorSet;
@@ -431,6 +432,19 @@ public class BasicFrame extends JFrame {
 				exportRockSimAction();}
 		});
 		exportSubMenu.add(exportRockSim);
+
+		exportSubMenu.addSeparator();
+
+		////// 		Export Wavefront OBJ
+		JMenuItem exportOBJ = new JMenuItem(trans.get("main.menu.file.exportAs.WavefrontOBJ"));
+		exportOBJ.setIcon(Icons.EXPORT_3D);
+		exportOBJ.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.WavefrontOBJ.desc"));
+		exportOBJ.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportWavefrontOBJAction();}
+		});
+		exportSubMenu.add(exportOBJ);
 
 		fileMenu.add(exportSubMenu);
 		fileMenu.addSeparator();
@@ -1589,6 +1603,15 @@ public class BasicFrame extends JFrame {
 	}
 
 	////	END ROCKSIM Save/Export Action
+
+
+	////	BEGIN WAVEFRONT OBJ Save/Export Action
+	private void exportWavefrontOBJAction() {
+		// TODO: popup dialog for extra options (quality, whether to triangulate, whether to export materials, whether to save all subcomponents of the selected ones, whether to offset the object position to zero or to the location in the rocket, whether to scale the rocket etc.)
+		String filePath = "/Users/SiboVanGool/Downloads/test.obj";
+		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), false, false, true, filePath);
+		exporter.doExport();
+	}
 
 
 	/**

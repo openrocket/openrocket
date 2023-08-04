@@ -53,7 +53,7 @@ OpenRocket needs help to become even better. Implementing features, writing docu
 - Daniel Williams, pod support, maintainer
 - Joe Pfeiffer (maintainer)
 - Billy Olsen (maintainer)
-- Sibo Van Gool (maintainer)
+- Sibo Van Gool (3D OBJ export, maintainer)
 - Neil Weinstock (tester, icons, forum support)
 - H. Craig Miller (tester)
 
