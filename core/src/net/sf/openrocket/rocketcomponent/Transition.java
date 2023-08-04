@@ -116,6 +116,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
 			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
+		setForeShoulderRadius(getForeShoulderRadius());
+
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -204,6 +206,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
 			this.thickness = Math.max(this.foreRadius, this.aftRadius);
+
+		setAftShoulderRadius(getAftShoulderRadius());
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -398,6 +402,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				((Transition) listener).setForeShoulderRadius(foreShoulderRadius);
 			}
 		}
+		foreShoulderRadius = Math.min(foreShoulderRadius, getForeRadius());
 
 		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
 			return;
@@ -470,6 +475,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				((Transition) listener).setAftShoulderRadius(aftShoulderRadius);
 			}
 		}
+
+		aftShoulderRadius = Math.min(aftShoulderRadius, getAftRadius());
 
 		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
 			return;
