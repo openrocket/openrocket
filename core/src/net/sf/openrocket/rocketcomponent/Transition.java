@@ -116,10 +116,10 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
 			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
-		setForeShoulderRadius(getForeShoulderRadius());
-
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		setForeShoulderRadius(getForeShoulderRadius());
 	}
 
 	public void setForeRadius(double radius) {
@@ -207,10 +207,10 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		if (doClamping && this.thickness > this.foreRadius && this.thickness > this.aftRadius)
 			this.thickness = Math.max(this.foreRadius, this.aftRadius);
 
-		setAftShoulderRadius(getAftShoulderRadius());
-
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		setAftShoulderRadius(getAftShoulderRadius());
 	}
 
 	public void setAftRadius(double radius) {
