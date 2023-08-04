@@ -260,27 +260,21 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	}
 	
 	public List<Coordinate> getClusterPoints() {
-		List<Coordinate> list = new ArrayList<Coordinate>(getInstanceCount());
+		List<Coordinate> list = new ArrayList<>(getInstanceCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
+		double yOffset = this.radialPosition * Math.cos(this.radialDirection);
+		double zOffset = this.radialPosition * Math.sin(this.radialDirection);
 		for (int i = 0; i < points.size() / 2; i++) {
-			list.add(new Coordinate(0, points.get(2 * i) * separation, points.get(2 * i + 1) * separation));
+			list.add(new Coordinate(0, points.get(2 * i) * separation + yOffset, points.get(2 * i + 1) * separation + zOffset));
 		}
 		return list;
 	}
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
-		
-		if ( 1 == getInstanceCount()) {
-			double yOffset = this.radialPosition * Math.cos(this.radialDirection);
-			double zOffset = this.radialPosition * Math.sin(this.radialDirection);
-			return new Coordinate[] { Coordinate.ZERO.add(0.0, yOffset, zOffset) };
-		}
-		
 		List<Coordinate> points = getClusterPoints();
-		
-		return points.toArray( new Coordinate[ points.size() ]);
+		return points.toArray(new Coordinate[0]);
 	}
 	
 //	@Override
