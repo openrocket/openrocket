@@ -505,6 +505,7 @@ class ClusterSelectionPanel extends JPanel {
 			setMaximumSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			//			setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+			setToolTipText(config.getXMLName());
 			component.addChangeListener(this);
 			addMouseListener(this);
 		}
