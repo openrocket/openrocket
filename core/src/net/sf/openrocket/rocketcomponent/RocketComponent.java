@@ -1551,12 +1551,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * NOTE: the length of this array MAY OR MAY NOT EQUAL this.getInstanceCount()
      *    --> RocketComponent::getInstanceCount() counts how many times this component replicates on its own
-     *    --> vs. the total instance count due to parent assembly instancing
+     *    --> vs. the total instance count due to parent assembly instancing, e.g. a 2-instance rail button in a
+	 *        3-instance pod set will return 6 locations, not 2
      *
 	 * @return Coordinates of all instance locations in the rocket, relative to the rocket's origin
 	 */
 	public Coordinate[] getComponentLocations() {
-		if (null == this.parent) {
+		if (this.parent == null) {
 			// == improperly initialized components OR the root Rocket instance 
 			return getInstanceOffsets();
 		} else {
@@ -1568,14 +1569,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			int instanceCount = instanceLocations.length;
 			
 			// usual case optimization
-			if((1 == parentCount)&&(1 == instanceCount)){
+			if ((parentCount == 1) && (instanceCount == 1)) {
 				return new Coordinate[]{parentPositions[0].add(instanceLocations[0])};
 			}
 			
-			int thisCount = instanceCount*parentCount;
+			int thisCount = instanceCount * parentCount;
 			Coordinate[] thesePositions = new Coordinate[thisCount];
 			for (int pi = 0; pi < parentCount; pi++) {
-				for( int ii = 0; ii < instanceCount; ii++ ){
+				for (int ii = 0; ii < instanceCount; ii++) {
 					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(instanceLocations[ii]);
 				}
 			}
@@ -1585,6 +1586,45 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	public double[] getInstanceAngles(){
 		return new double[getInstanceCount()]; 
+	}
+
+	/**
+	 * Provides angles of all instances of component *accounting for all parent instancing*
+	 *
+	 * <p>
+	 * NOTE: the length of this array MAY OR MAY NOT EQUAL this.getInstanceCount()
+	 *    --> RocketComponent::getInstanceCount() counts how many times this component replicates on its own
+	 *    --> vs. the total instance count due to parent assembly instancing, e.g. a 2-instance rail button in a
+	 *        3-instance pod set will return 6 locations, not 2
+	 *
+	 * @return Coordinates of all instance angles in the rocket, relative to the rocket's origin
+	 */
+	public double[] getComponentAngles() {
+		if (this.parent == null) {
+			// == improperly initialized components OR the root Rocket instance
+			return getInstanceAngles();
+		} else {
+			double[] parentAngles = this.parent.getComponentAngles();
+			int parentCount = parentAngles.length;
+
+			// override <instance>.getInstanceAngles() in each subclass
+			double[] instanceAngles = this.getInstanceAngles();
+			int instanceCount = instanceAngles.length;
+
+			// usual case optimization
+			if ((parentCount == 1) && (instanceCount == 1)) {
+				return new double[]{parentAngles[0] + instanceAngles[0]};
+			}
+
+			int thisCount = instanceCount * parentCount;
+			double[] theseAngles = new double[thisCount];
+			for (int pi = 0; pi < parentCount; pi++) {
+				for (int ii = 0; ii < instanceCount; ii++) {
+					theseAngles[pi + parentCount*ii] = parentAngles[pi] + instanceAngles[ii];
+				}
+			}
+			return theseAngles;
+		}
 	}
 	
 	///////////  Coordinate changes  ///////////
