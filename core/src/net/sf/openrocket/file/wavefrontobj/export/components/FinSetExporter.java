@@ -4,9 +4,6 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.PolygonExporter;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.ArrayList;
@@ -43,12 +40,12 @@ public class FinSetExporter extends RocketComponentExporter {
 
         // Generate the fin meshes
         for (int i = 0; i < locations.length; i++) {
-            generateMesh(finSet,floatPoints, floatTabPoints, thickness, hasTabs, rocketLength, locations[i], angles[i]);
+            generateMesh(finSet,floatPoints, floatTabPoints, thickness, hasTabs, locations[i], angles[i]);
         }
     }
 
     private void generateMesh(FinSet finSet, FloatPoints floatPoints, FloatPoints floatTabPoints, float thickness,
-                              boolean hasTabs, double rocketLength, Coordinate location, double angle) {
+                              boolean hasTabs, Coordinate location, double angle) {
         // Generate the mesh
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
@@ -58,7 +55,6 @@ public class FinSetExporter extends RocketComponentExporter {
                 floatPoints.getXCoords(), floatPoints.getYCoords(), thickness);
 
         // Generate the fin tabs
-        final int tabStartIdx = obj.getNumVertices();
         if (hasTabs) {
             PolygonExporter.addPolygonMesh(obj, null,
                     floatTabPoints.getXCoords(), floatTabPoints.getYCoords(), thickness);
@@ -67,23 +63,18 @@ public class FinSetExporter extends RocketComponentExporter {
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);                  // Clamp in case no vertices were added
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);     // Clamp in case no normals were added
 
-        // First rotate the fin for a correct orientation
-        final float axialRot = (float) angle;
-        final float cantAngle = (float) finSet.getCantAngle();
+        // First rotate for the cant angle
+        final float cantAngle = (float) - finSet.getCantAngle();
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
-                -(float) Math.PI/2, cantAngle, axialRot, 0, 0, 0);
+                cantAngle, 0, 0, 0, (float) - finSet.getLength(), 0);
 
-        // Translate the mesh
-        final float x = (float) location.y;
-        final float y = (float) (rocketLength - location.x);
-        final float z = (float) location.z;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
+        // Then do the axial rotation
+        final float axialRot = (float) angle;
+        ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
+                0, axialRot, 0, 0, 0, 0);
 
-        // Offset the tabs
-        if (hasTabs) {
-            float yTab = - (float) finSet.getTabPosition(AxialMethod.TOP);
-            ObjUtils.translateVertices(obj, tabStartIdx, endIdx, 0, yTab, 0);
-        }
+        // Translate the mesh to the position in the rocket
+        ObjUtils.translateVerticesFromComponentLocation(obj, finSet, startIdx, endIdx, location, 0);
     }
 
     /**

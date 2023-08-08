@@ -5,7 +5,6 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 
 public class RadiusRingComponentExporter extends RocketComponentExporter {
@@ -25,11 +24,11 @@ public class RadiusRingComponentExporter extends RocketComponentExporter {
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(outerRadius, innerRadius, thickness, rocketLength, location);
+            generateMesh(outerRadius, innerRadius, thickness, location);
         }
     }
 
-    private void generateMesh(float outerRadius, float innerRadius, float thickness, double rocketLength, Coordinate location) {
+    private void generateMesh(float outerRadius, float innerRadius, float thickness, Coordinate location) {
         int startIdx = obj.getNumVertices();
 
         if (Float.compare(innerRadius, 0) == 0) {
@@ -44,10 +43,7 @@ public class RadiusRingComponentExporter extends RocketComponentExporter {
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
-        // Translate the mesh
-        final float x = (float) location.y;
-        final float y = (float) (rocketLength - thickness - location.x);
-        final float z = (float) location.z;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
+        // Translate the mesh to the position in the rocket
+        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, -thickness);
     }
 }

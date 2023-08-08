@@ -1,18 +1,13 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
-import de.javagl.obj.ObjWriter;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
-import net.sf.openrocket.file.wavefrontobj.DefaultObjGroup;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
-
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 
 public class PolygonExporter {
 
     /**
-     * Add a polygon mesh to the obj. It is drawn in the XY plane with the bottom left corner at the origin.
+     * Add a polygon mesh to the obj. It is drawn in the X-Y plane (negative Y) with the bottom left corner at the origin.
      * @param obj The obj to add the mesh to
      * @param groupName The name of the group to add the mesh to, or null if no group should be added (use the active group)
      * @param pointLocationsX The x locations of the points --> NOTE: points should follow a clockwise direction
@@ -37,12 +32,12 @@ public class PolygonExporter {
 
         // Generate front face vertices
         for (int i = 0; i < pointLocationsX.length; i++) {
-            obj.addVertex(pointLocationsX[i], pointLocationsY[i], thickness/2);
+            obj.addVertex(pointLocationsY[i], -pointLocationsX[i], thickness/2);
         }
 
         // Generate back face vertices
         for (int i = 0; i < pointLocationsX.length; i++) {
-            obj.addVertex(pointLocationsX[i], pointLocationsY[i], -thickness/2);
+            obj.addVertex(pointLocationsY[i], -pointLocationsX[i], -thickness/2);
         }
 
         // Create front face
@@ -79,8 +74,8 @@ public class PolygonExporter {
             ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);
 
             // Calculate normals for side faces
-            final float dx = pointLocationsX[nextIdx] - pointLocationsX[i];
-            final float dy = pointLocationsY[nextIdx] - pointLocationsY[i];
+            final float dx = pointLocationsY[nextIdx] - pointLocationsY[i];
+            final float dy = pointLocationsX[nextIdx] - pointLocationsX[i];
 
             // Perpendicular vector in 2D (for clockwise vertices)
             final float nx = -dy;
@@ -109,16 +104,6 @@ public class PolygonExporter {
         if (Float.compare(pointLocationsX[pointLocationsX.length-1], pointLocationsX[0]) == 0 &&
                 Float.compare(pointLocationsY[pointLocationsY.length-1], pointLocationsY[0]) == 0) {
             throw new IllegalArgumentException("The first and last points must be different");
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        DefaultObj obj = new DefaultObj();
-        float[] x = new float[]{0, 0.3f, 1, 0.7f};
-        float[] y = new float[]{0, 0.5f, 0.5f, 0};
-        addPolygonMesh(obj, "polygon", x, y, 0.025f);
-        try (OutputStream objOutputStream = new FileOutputStream("/Users/SiboVanGool/Downloads/poly.obj")) {
-            ObjWriter.write(obj, objOutputStream);
         }
     }
 }

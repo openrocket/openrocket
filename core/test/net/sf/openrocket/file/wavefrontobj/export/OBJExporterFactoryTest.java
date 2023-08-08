@@ -3,7 +3,6 @@ package net.sf.openrocket.file.wavefrontobj.export;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
@@ -17,11 +16,14 @@ import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 import net.sf.openrocket.util.TestRockets;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class OBJExporterFactoryTest extends BaseTestCase {
     @Test
-    public void testExport() {
+    public void testExport() throws IOException {
         Rocket rocket = OpenRocketDocumentFactory.createNewRocket().getRocket();
         AxialStage sustainer = rocket.getStage(0);
 
@@ -52,7 +54,8 @@ public class OBJExporterFactoryTest extends BaseTestCase {
         finSet.setRootChord(0.05);
         finSet.setTabLength(0.03);
         finSet.setTabHeight(0.01);
-        finSet.setTabOffset(0);
+        finSet.setTabOffset(-0.0075);
+        finSet.setCantAngle(Math.toRadians(10));
         bodyTube.addChild(finSet);
 
         TubeFinSet tubeFinSet = new TubeFinSet();
@@ -82,12 +85,20 @@ public class OBJExporterFactoryTest extends BaseTestCase {
 
         RailButton railButton = new RailButton();
         railButton.setScrewHeight(0.0025);
+        railButton.setAngleOffset(Math.toRadians(67));
         bodyTube.addChild(railButton);
+        List<RocketComponent> components = List.of(rocket);
 
-        List<RocketComponent> components = List.of(noseCone);
+        Path tempFile = Files.createTempFile("testExport", ".obj");
 
-        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, false, false, true,
+        finSet.setFinCount(1);
+        finSet.setAngleOffset(Math.toRadians(45));
+
+        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/test.ork");
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, true, false, true,
                 "/Users/SiboVanGool/Downloads/testExport.obj");
         exporterFactory.doExport();
+
+        Files.delete(tempFile);
     }
 }

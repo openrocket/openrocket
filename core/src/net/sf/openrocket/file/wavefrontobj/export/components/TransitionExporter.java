@@ -35,15 +35,14 @@ public class TransitionExporter extends RocketComponentExporter {
         obj.setActiveGroupNames(groupName);
 
         final Coordinate[] locations = transition.getComponentLocations();
-        final double rocketLength = transition.getRocket().getLength();
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(transition, rocketLength, location);
+            generateMesh(transition, location);
         }
     }
 
-    private void generateMesh(Transition transition, double rocketLength, Coordinate location) {
+    private void generateMesh(Transition transition, Coordinate location) {
         int startIdx = obj.getNumVertices();
 
         final boolean hasForeShoulder = Double.compare(transition.getForeShoulderRadius(), 0) > 0
@@ -104,11 +103,8 @@ public class TransitionExporter extends RocketComponentExporter {
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
-        // Translate the mesh
-        final float x = (float) location.y;
-        final float y = (float) (rocketLength - transition.getLength() - location.x);
-        final float z = (float) location.z;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
+        // Translate the mesh to the position in the rocket
+        ObjUtils.translateVerticesFromComponentLocation(obj, transition, startIdx, endIdx, location, -transition.getLength());
     }
 
     /**
@@ -127,7 +123,7 @@ public class TransitionExporter extends RocketComponentExporter {
                                           List<Integer> foreRingVertices, List<Integer> aftRingVertices,
                                           boolean hasForeShoulder, boolean hasAftShoulder) {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
-        final int verticesStartIdx = obj.getNumVertices();
+        final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
 
         final double dyBase = transition.getLength() / numStacks;         // Base step size in the longitudinal direction
@@ -255,16 +251,16 @@ public class TransitionExporter extends RocketComponentExporter {
 
         // Create aft/fore tip faces
         if (isAftTip || isForeTip) {
-            addTipFaces(obj, numSlices, isOutside, isAftTip, normalsStartIdx, verticesStartIdx);
+            addTipFaces(obj, numSlices, isOutside, isAftTip, startIdx, normalsStartIdx);
         }
 
         // Create regular faces
-        int corrVStartIdx = isAftTip ? verticesStartIdx + 1 : verticesStartIdx;
+        int corrVStartIdx = isAftTip ? startIdx + 1 : startIdx;
         int corrNStartIdx = isAftTip ? normalsStartIdx + 1 : normalsStartIdx;
         addQuadFaces(obj, numSlices, actualNumStacks, corrVStartIdx, corrNStartIdx, isOutside);
     }
 
-    private static void addTipFaces(DefaultObj obj, int numSlices, boolean isOutside, boolean isAftTip, int normalsStartIdx, int verticesStartIdx) {
+    private static void addTipFaces(DefaultObj obj, int numSlices, boolean isOutside, boolean isAftTip, int startIdx, int normalsStartIdx) {
         final int lastIdx = obj.getNumVertices() - 1;
         for (int i = 0; i < numSlices; i++) {
             int nextIdx = (i + 1) % numSlices;
@@ -282,7 +278,7 @@ public class TransitionExporter extends RocketComponentExporter {
                 normalIndices = vertexIndices.clone();   // No need to reverse, already done by vertices
 
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
-                ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);    // Do this last, otherwise the normal indices will be wrong
+                ObjUtils.offsetIndex(vertexIndices, startIdx);    // Do this last, otherwise the normal indices will be wrong
             }
             // Fore tip
             else {
@@ -334,7 +330,7 @@ public class TransitionExporter extends RocketComponentExporter {
         }
     }
 
-    private static void addQuadFaces(DefaultObj obj, int numSlices, int numStacks, int verticesStartIdx, int normalsStartIdx, boolean isOutside) {
+    private static void addQuadFaces(DefaultObj obj, int numSlices, int numStacks, int startIdx, int normalsStartIdx, boolean isOutside) {
         for (int i = 0; i < numStacks - 1; i++) {
             for (int j = 0; j < numSlices; j++) {
                 final int nextIdx = (j + 1) % numSlices;
@@ -349,7 +345,7 @@ public class TransitionExporter extends RocketComponentExporter {
                 int[] normalIndices = vertexIndices.clone();     // No reversing needed, already done by vertices
 
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
-                ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);      // Do this last, otherwise the normal indices will be wrong
+                ObjUtils.offsetIndex(vertexIndices, startIdx);      // Do this last, otherwise the normal indices will be wrong
 
                 DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
                 obj.addFace(face);

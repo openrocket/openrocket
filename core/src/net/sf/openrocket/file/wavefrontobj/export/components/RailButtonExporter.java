@@ -38,19 +38,18 @@ public class RailButtonExporter extends RocketComponentExporter {
         final float flangeHeight = (float) railButton.getFlangeHeight();
         final float screwHeight = (float) railButton.getScrewHeight();
         final Coordinate[] locations = railButton.getComponentLocations();
-        final double[] angles = railButton.getInstanceAngles();
-        final double rocketLength = railButton.getRocket().getLength();
+        final double[] angles = railButton.getComponentAngles();
 
         // Generate the mesh
         for (int i = 0; i < locations.length; i++) {
             generateMesh(outerRadius, innerRadius, baseHeight, innerHeight, flangeHeight, screwHeight,
-                    rocketLength, locations[i], angles[i]);
+                    locations[i], angles[i]);
         }
     }
 
     private void generateMesh(float outerRadius, float innerRadius, float baseHeight, float innerHeight, float flangeHeight,
-                              float screwHeight, double rocketLength, Coordinate location, double angle) {
-        final int vertexStartIdx = obj.getNumVertices();
+                              float screwHeight, Coordinate location, double angle) {
+        final int startIdx = obj.getNumVertices();
         final int normalStartIdx = obj.getNumNormals();
 
         // Generate base cylinder
@@ -94,21 +93,20 @@ public class RailButtonExporter extends RocketComponentExporter {
         }
 
 
-        final int vertexEndIdx = Math.max(obj.getNumVertices() - 1, vertexStartIdx);
+        final int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
         final int normalEndIdx = Math.max(obj.getNumNormals() - 1, normalStartIdx);
 
         // Rotate the mesh (also PI/2!)
-        final float rX = - (float) Math.PI / 2;
+        final float rX = 0;
         final float rY = (float) angle;
-        final float rZ = 0;
-        ObjUtils.rotateVertices(obj, vertexStartIdx, vertexEndIdx, normalStartIdx, normalEndIdx,
+        final float rZ = (float) - Math.PI / 2;
+        ObjUtils.rotateVertices(obj, startIdx, endIdx, normalStartIdx, normalEndIdx,
                 rX, rY, rZ, 0, 0, 0);
 
-        // Translate the mesh
-        final float x = (float) location.y;
-        final float y = (float) location.x;
-        final float z = (float) location.z;
-        ObjUtils.translateVertices(obj, vertexStartIdx, vertexEndIdx, x, y, z);
+        ObjUtils.translateVertices(obj, startIdx, endIdx, 1, 0, 0);
+
+        // Translate the mesh to the position in the rocket
+        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, 0);
     }
 
     private void addScrew(DefaultObj obj, float baseHeight, float innerHeight, float flangeHeight, float outerRadius,
@@ -149,14 +147,14 @@ public class RailButtonExporter extends RocketComponentExporter {
 
         // Generate the faces between the flange cylinder and the quad faces
         for (int i = 0; i < nrOfSlices; i++) {
-            int nextIdx = (i+1) % nrOfSlices;
-            int[] vertexIndices = new int[]{
+            int nextIdx = (i + 1) % nrOfSlices;
+            int[] vertexIndices = new int[] {
                     flangeCylinderTopVertices.get(i),           // Bottom-left of quad
                     startIdx + i,                               // Top-left of quad
                     startIdx + nextIdx,                         // Top-right of quad
                     flangeCylinderTopVertices.get(nextIdx),     // Bottom-right of quad
             };
-            int[] normalIndices = new int[]{
+            int[] normalIndices = new int[] {
                     flangeCylinderTopVertices.get(i),           // Bottom-left of quad
                     normalStartIdx + i,                         // Top-left of quad
                     normalStartIdx + nextIdx,                   // Top-right of quad
@@ -170,13 +168,13 @@ public class RailButtonExporter extends RocketComponentExporter {
         }
 
         // Generate the quad mesh faces (no tip)
-        for (int i = 0; i <= nrOfStacks-2; i++) {
+        for (int i = 0; i <= nrOfStacks-3; i++) {       // We do -3 instead of -2 because we offset the i entirely by starting at 0 instead of 1 (so we don't have to offset the indices)
             for (int j = 0; j < nrOfSlices; j++) {
-                int nextIdx = (j+1) % nrOfSlices;
-                int[] vertexIndices = new int[]{
+                int nextIdx = (j + 1) % nrOfSlices;
+                int[] vertexIndices = new int[] {
                         i * nrOfSlices + j,             // Bottom-left of quad outside vertex
-                        (i+1) * nrOfSlices + j,         // Top-left of quad outside vertex
-                        (i+1) * nrOfSlices + nextIdx,   // Top-right of quad inside vertex
+                        (i + 1) * nrOfSlices + j,       // Top-left of quad outside vertex
+                        (i + 1) * nrOfSlices + nextIdx, // Top-right of quad inside vertex
                         i * nrOfSlices + nextIdx        // Bottom-right of quad inside vertex
                 };
                 int[] normalIndices = vertexIndices.clone();
@@ -193,13 +191,13 @@ public class RailButtonExporter extends RocketComponentExporter {
         final int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
         final int normalEndIdx = Math.max(obj.getNumNormals() - 1, normalStartIdx);
         for (int i = 0; i < nrOfSlices; i++) {
-            int nextIdx = (i+1) % nrOfSlices;
-            int[] vertexIndices = new int[]{
+            int nextIdx = (i + 1) % nrOfSlices;
+            int[] vertexIndices = new int[] {
                     endIdx,                         // Tip vertex
                     endIdx - nrOfSlices + nextIdx,
                     endIdx - nrOfSlices + i,
             };
-            int[] normalIndices = new int[]{
+            int[] normalIndices = new int[] {
                     normalEndIdx,                   // Tip normal
                     normalEndIdx - nrOfSlices + nextIdx,
                     normalEndIdx - nrOfSlices + i,

@@ -1,12 +1,9 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
-import de.javagl.obj.ObjWriter;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 public class TubeExporter {
@@ -236,14 +233,5 @@ public class TubeExporter {
 
     public static void addTubeMesh(DefaultObj obj, String groupName, float outerRadius, float innerRadius, float height) {
         addTubeMesh(obj, groupName, outerRadius, outerRadius, innerRadius, innerRadius, height);
-    }
-
-    public static void main(String[] args) throws Exception {
-        DefaultObj obj = new DefaultObj();
-        //addTubeMesh(obj, "tube", 0.1f, 0.085f, 0.3f);
-        addTubeMesh(obj, "tube", 0.14f, 0.06f, 0.13f, 0.05f, 0.3f);
-        try (OutputStream objOutputStream = new FileOutputStream("/Users/SiboVanGool/Downloads/tube.obj")) {
-            ObjWriter.write(obj, objOutputStream);
-        }
     }
 }

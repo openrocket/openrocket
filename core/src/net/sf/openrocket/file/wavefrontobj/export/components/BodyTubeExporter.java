@@ -5,7 +5,6 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 
 public class BodyTubeExporter extends RocketComponentExporter {
@@ -21,17 +20,16 @@ public class BodyTubeExporter extends RocketComponentExporter {
         final float innerRadius = (float) bodyTube.getInnerRadius();
         final float length = (float) bodyTube.getLength();
         final boolean isFilled = bodyTube.isFilled();
-        final double rocketLength = bodyTube.getRocket().getLength();
         final Coordinate[] locations = bodyTube.getComponentLocations();
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(outerRadius, innerRadius, length, isFilled, rocketLength, location);
+            generateMesh(bodyTube, outerRadius, innerRadius, length, isFilled, location);
         }
     }
 
-    private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled,
-                              double rocketLength, Coordinate location) {
+    private void generateMesh(BodyTube bodyTube, float outerRadius, float innerRadius, float length, boolean isFilled,
+                              Coordinate location) {
         int startIdx = obj.getNumVertices();
 
         if (isFilled || Float.compare(innerRadius, 0) == 0) {
@@ -46,10 +44,7 @@ public class BodyTubeExporter extends RocketComponentExporter {
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
-        // Translate the mesh
-        final float x = (float) location.y;
-        final float y = (float) (rocketLength - length - location.x);
-        final float z = (float) location.z;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
+        // Translate the mesh to the position in the rocket
+        ObjUtils.translateVerticesFromComponentLocation(obj, bodyTube, startIdx, endIdx, location, -length);
     }
 }

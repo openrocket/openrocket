@@ -4,7 +4,6 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.RocketComponentUtils;
 
@@ -20,20 +19,18 @@ public class MassObjectExporter extends RocketComponentExporter {
         obj.setActiveGroupNames(groupName);
 
         final Coordinate[] locations = massObject.getComponentLocations();
-        final double rocketLength = massObject.getRocket().getLength();
         final int numSides = LOD.getValue() / 2;
         final int numStacks = LOD.getValue() / 2;
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(massObject, numSides, numStacks, rocketLength, location);
+            generateMesh(massObject, numSides, numStacks, location);
         }
-
     }
 
-    private void generateMesh(MassObject massObject, int numSides, int numStacks, double rocketLength, Coordinate location) {
+    private void generateMesh(MassObject massObject, int numSides, int numStacks, Coordinate location) {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
-        int verticesStartIdx = obj.getNumVertices();
+        int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
         double dy = massObject.getLength() / numStacks;
         double da = 2.0f * Math.PI / numSides;
@@ -72,7 +69,7 @@ public class MassObjectExporter extends RocketComponentExporter {
             }
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, verticesStartIdx);        // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);        // Clamp in case no vertices were added
 
         // Create bottom tip faces
         for (int i = 0; i < numSides; i++) {
@@ -86,7 +83,7 @@ public class MassObjectExporter extends RocketComponentExporter {
             int[] normalIndices = vertexIndices.clone();   // For a smooth surface, the vertex and normal indices are the same
 
             ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
-            ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);      // Only do this after normals are added, since the vertex indices are used for normals
+            ObjUtils.offsetIndex(vertexIndices, startIdx);      // Only do this after normals are added, since the vertex indices are used for normals
 
             DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
             obj.addFace(face);
@@ -106,7 +103,7 @@ public class MassObjectExporter extends RocketComponentExporter {
                 int[] normalIndices = vertexIndices.clone();   // For a smooth surface, the vertex and normal indices are the same
 
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
-                ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);      // Only do this after normals are added, since the vertex indices are used for normals
+                ObjUtils.offsetIndex(vertexIndices, startIdx);      // Only do this after normals are added, since the vertex indices are used for normals
 
                 DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
                 obj.addFace(face);
@@ -134,12 +131,18 @@ public class MassObjectExporter extends RocketComponentExporter {
             obj.addFace(face);
         }
 
-        // Translate the mesh
+        // Translate the mesh to the position in the rocket
+        //      We will create an offset location that has the same effect as the axial rotation of the mass object
+        Coordinate offsetLocation = getOffsetLocation(massObject, location);
+        ObjUtils.translateVerticesFromComponentLocation(obj, massObject, startIdx, endIdx, offsetLocation, -massObject.getLength());
+    }
+
+    private static Coordinate getOffsetLocation(MassObject massObject, Coordinate location) {
+        // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
         final double radialPosition = massObject.getRadialPosition();
         final double radialDirection = massObject.getRadialDirection();
-        final float x = (float) (location.y + radialPosition * Math.cos(radialDirection));
-        final float y = (float) (rocketLength - massObject.getLength() - location.x);
-        final float z = (float) (location.z + radialPosition * Math.sin(radialDirection));
-        ObjUtils.translateVertices(obj, verticesStartIdx, endIdx, x, y, z);
+        final double y = location.y + radialPosition * Math.cos(radialDirection);
+        final double z = location.z + radialPosition * Math.sin(radialDirection);
+        return new Coordinate(location.x, y, z);
     }
 }

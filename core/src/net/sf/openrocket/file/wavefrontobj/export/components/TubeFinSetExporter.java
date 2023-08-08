@@ -2,9 +2,7 @@ package net.sf.openrocket.file.wavefrontobj.export.components;
 
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
-import net.sf.openrocket.file.wavefrontobj.export.shapes.PolygonExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 
@@ -45,12 +43,18 @@ public class TubeFinSetExporter extends RocketComponentExporter {
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);                  // Clamp in case no vertices were added
 
-        // Translate the mesh
-        final float dx = outerRadius * (float) Math.cos(angle);
+        // Translate the mesh to the position in the rocket
+        //      We will create an offset location that has the same effect as the axial rotation of the launch lug
+        Coordinate offsetLocation = getOffsetLocation(outerRadius, location, angle);
+        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, offsetLocation, -length);
+    }
+
+    private static Coordinate getOffsetLocation(float outerRadius, Coordinate location, double angle) {
+        // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
+        final float dy = outerRadius * (float) Math.cos(angle);
         final float dz = outerRadius * (float) Math.sin(angle);
-        final float x = (float) location.y + dx;
-        final float y = (float) (rocketLength - length - location.x);
-        final float z = (float) location.z + dz;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
+        final double y = location.y + dy;
+        final double z = location.z + dz;
+        return new Coordinate(location.x, y, z);
     }
 }

@@ -32,6 +32,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Exporter for rocket components to a Wavefront OBJ file.
+ * <b>NOTE: </b> The coordinate system of the Wavefront OBJ file and OpenRocket is different.
+ * An OBJ file has the y-axis pointing up, the z-axis pointing towards the viewer, and the x-axis pointing to the right (right-handed system).
+ * OpenRocket uses a left-handed system with the y-axis pointing up, the z-axis pointing away from the viewer, and the
+ * x-axis pointing to the right (in the side view). Its origin is also at the tip of the rocket, whereas for the OBJ it
+ * would be the bottom of the rocket.
+ *      => the following transformation applies from OBJ coordinate system to OpenRocket coordinate system:
+ *              x = y
+ *              y = rocketLength - x
+ *              z = -z
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
 public class OBJExporterFactory {
 
     private final List<RocketComponent> components;

@@ -5,7 +5,6 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 
 public class LaunchLugExporter extends RocketComponentExporter {
@@ -18,19 +17,18 @@ public class LaunchLugExporter extends RocketComponentExporter {
         final LaunchLug lug = (LaunchLug) component;
 
         final Coordinate[] locations = lug.getComponentLocations();
-        final double rocketLength = lug.getRocket().getLength();
         final float outerRadius = (float) lug.getOuterRadius();
         final float innerRadius = (float) lug.getInnerRadius();
         final float length = (float) lug.getLength();
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(lug, outerRadius, innerRadius, length, rocketLength, location);
+            generateMesh(lug, outerRadius, innerRadius, length, location);
         }
     }
 
-    private void generateMesh(LaunchLug lug, float outerRadius, float innerRadius, float length, double rocketLength, Coordinate location) {
-        int startIdx2 = obj.getNumVertices();
+    private void generateMesh(LaunchLug lug, float outerRadius, float innerRadius, float length, Coordinate location) {
+        int startIdx = obj.getNumVertices();
 
         // Generate the instance mesh
         if (Float.compare(innerRadius, 0) == 0) {
@@ -43,12 +41,9 @@ public class LaunchLugExporter extends RocketComponentExporter {
             }
         }
 
-        int endIdx2 = Math.max(obj.getNumVertices() - 1, startIdx2);    // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
-        // Translate the lug instance
-        final float x = (float) location.y;
-        final float y = (float) (rocketLength - lug.getLength() - location.x);
-        final float z = (float) location.z;
-        ObjUtils.translateVertices(obj, startIdx2, endIdx2, x, y, z);
+        // Translate the mesh to the position in the rocket
+        ObjUtils.translateVerticesFromComponentLocation(obj, lug, startIdx, endIdx, location, -length);
     }
 }

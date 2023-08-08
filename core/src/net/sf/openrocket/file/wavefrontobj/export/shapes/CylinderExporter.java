@@ -1,12 +1,9 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
-import de.javagl.obj.ObjWriter;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 public class CylinderExporter {
@@ -170,13 +167,5 @@ public class CylinderExporter {
 
     public static void addCylinderMesh(DefaultObj obj, String groupName, float radius, float height, boolean solid) {
         addCylinderMesh(obj, groupName, radius, height, solid, ObjUtils.LevelOfDetail.NORMAL);
-    }
-
-    public static void main(String[] args) throws Exception {
-        DefaultObj obj = new DefaultObj();
-        addCylinderMesh(obj, "cylinder", 1, 2, 15, true, null, null);
-        try (OutputStream objOutputStream = new FileOutputStream("/Users/SiboVanGool/Downloads/cylinder.obj")) {
-            ObjWriter.write(obj, objOutputStream);
-        }
     }
 }

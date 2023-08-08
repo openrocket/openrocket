@@ -4,6 +4,8 @@ import de.javagl.obj.FloatTuple;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.Coordinate;
 
 import java.util.List;
 
@@ -296,6 +298,29 @@ public class ObjUtils {
             final float z = vertex.getZ() + offsetZ;
             obj.setVertex(i, new DefaultFloatTuple(x, y, z));
         }
+    }
+
+
+    /**
+     * Translates the vertices in the obj file so that the component is at the specified location.
+     * See explanation in {@link net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory} about the difference in
+     * coordinate system between OpenRocket and Wavefront OBJ.
+     * @param obj The obj file to translate
+     * @param component The component to translate
+     * @param startIdx The index of the first vertex to translate
+     * @param endIdx The index of the last vertex to translate (inclusive)
+     * @param location The location to translate the component to (in OpenRocket coordinate system)
+     * @param yOffset The offset to apply to the y coordinate of the location
+     */
+    public static void translateVerticesFromComponentLocation(DefaultObj obj, RocketComponent component,
+                                                              int startIdx, int endIdx, Coordinate location, double yOffset) {
+        final double rocketLength = component.getRocket().getLength();
+
+        // Translate the mesh
+        final float x = (float) location.y;
+        final float y = (float) (rocketLength + yOffset - location.x);
+        final float z = (float) - location.z;
+        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
     }
 
     /**
