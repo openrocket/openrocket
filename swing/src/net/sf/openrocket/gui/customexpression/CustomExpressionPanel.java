@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.customexpression;
 
-import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class CustomExpressionPanel extends JPanel {
 	
 	private static final Logger log = LoggerFactory.getLogger(CustomExpressionPanel.class);
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private JPanel expressionSelectorPanel;
 	private OpenRocketDocument doc;
 	
@@ -51,6 +51,7 @@ public class CustomExpressionPanel extends JPanel {
 		expressionSelectorPanel.setToolTipText(trans.get("customExpressionPanel.lbl.CalcNote"));
 		
 		JScrollPane scroll = new JScrollPane(expressionSelectorPanel);
+		expressionSelectorPanel.setBorder(GUIUtil.getUITheme().getBorder());
 		
 		//Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
 		//scroll.setBorder(bdr);
@@ -170,10 +171,10 @@ public class CustomExpressionPanel extends JPanel {
 	 * A JPanel which configures a single expression
 	 */
 	private class SingleExpression extends JPanel {
-		
+
 		// Convenience method to make the labels consistent
 		private JLabel setLabelStyle(JLabel l) {
-			l.setBackground(Color.WHITE);
+			l.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 			l.setOpaque(true);
 			l.setBorder(BorderFactory.createRaisedBevelBorder());
 			l.setText(" " + l.getText() + " ");
@@ -191,13 +192,13 @@ public class CustomExpressionPanel extends JPanel {
 			JLabel symbolLabel = new JLabel(trans.get("customExpression.Symbol") + " :");
 			JLabel symbol = new JLabel(expression.getSymbol());
 			symbol = setLabelStyle(symbol);
-			symbol.setBackground(Color.WHITE);
+			symbol.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 			
 			JLabel unitLabel = new JLabel(trans.get("customExpression.Units") + " :");
 			UnitSelector unitSelector = new UnitSelector(expression.getType().getUnitGroup());
 			//JLabel unitSelector = new JLabel ( expression.getUnit() );
 			//unitSelector = setLabelStyle(unitSelector);
-			//unitSelector.setBackground(Color.WHITE);
+			//unitSelector.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 			
 			JButton editButton = new SelectColorButton(Icons.EDIT_EDIT);
 			editButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Edit"));

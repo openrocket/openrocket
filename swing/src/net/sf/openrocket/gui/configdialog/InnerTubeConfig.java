@@ -9,6 +9,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
@@ -17,12 +19,14 @@ import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
@@ -36,6 +40,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -46,6 +51,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -55,6 +61,9 @@ import net.sf.openrocket.util.StateChangeListener;
 public class InnerTubeConfig extends RocketComponentConfig {
 	private static final long serialVersionUID = 7900041420864324470L;
 	private static final Translator trans = Application.getTranslator();
+	private static final Preferences prefs = Application.getPreferences();
+
+	private static final String PREF_SEPARATION_RELATIVE = "InnerTubeSeparationRelative";
 
 
 	public InnerTubeConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
@@ -279,29 +288,88 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		//// The separation of the tubes, 1.0 = touching each other
 		l.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(l);
-		DoubleModel dm = new DoubleModel(component, "ClusterScale", 1, UnitGroup.UNITS_NONE, 0);
 
-		JSpinner spin = new JSpinner(dm.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		//// The separation of the tubes, 1.0 = touching each other
-		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
-		subPanel.add(spin, "growx");
-		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+		//// Models
+		final boolean useRelativeSeparation = prefs.getBoolean(PREF_SEPARATION_RELATIVE, true);
+		final DoubleModel clusterScaleModelRel = new DoubleModel(component, "ClusterScale", 1, UnitGroup.UNITS_NONE, 0);
+		final DoubleModel clusterScaleModelAbs = new DoubleModel(component, "ClusterScaleAbsolute", 1, UnitGroup.UNITS_LENGTH);
+		final DoubleModel clusterScaleModel = useRelativeSeparation ? clusterScaleModelRel : clusterScaleModelAbs;
 
-		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 1, 4));
-		//// The separation of the tubes, 1.0 = touching each other
-		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
-		subPanel.add(bs, "skip,w 100lp, wrap");
+		final String clusterScaleTtipRel = trans.get("InnerTubeCfg.lbl.ttip.TubeSep");
+		final String clusterScaleTtipAbs = trans.get("InnerTubeCfg.lbl.ttip.TubeSepAbs");
+		final String clusterScaleTtip = useRelativeSeparation ? clusterScaleTtipRel : clusterScaleTtipAbs;
+
+		JSpinner clusterScaleSpin = new JSpinner(clusterScaleModel.getSpinnerModel());
+		clusterScaleSpin.setEditor(new SpinnerEditor(clusterScaleSpin));
+		clusterScaleSpin.setToolTipText(clusterScaleTtip);
+		subPanel.add(clusterScaleSpin, "growx");
+		order.add(((SpinnerEditor) clusterScaleSpin.getEditor()).getTextField());
+
+		UnitSelector clusterScaleUnit = new UnitSelector(clusterScaleModel);
+		subPanel.add(clusterScaleUnit, "growx");
+
+		BasicSlider clusterScaleBs = new BasicSlider(clusterScaleModel.getSliderModel(0, 1, 4));
+		subPanel.add(clusterScaleBs, "w 100lp, wrap");
+
+		// Relative/absolute separation
+		JRadioButton rbRel = new JRadioButton(trans.get("InnerTubeCfg.radioBut.Relative"));
+		JRadioButton rbAbs = new JRadioButton(trans.get("InnerTubeCfg.radioBut.Absolute"));
+		rbRel.setToolTipText(trans.get("InnerTubeCfg.radioBut.Relative.ttip"));
+		rbAbs.setToolTipText(trans.get("InnerTubeCfg.radioBut.Absolute.ttip"));
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(rbRel);
+		bg.add(rbAbs);
+		subPanel.add(rbRel, "skip, spanx, split 2");
+		subPanel.add(rbAbs, "wrap");
+
+		rbRel.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.DESELECTED)
+					return;
+				clusterScaleSpin.setModel(clusterScaleModelRel.getSpinnerModel());
+				clusterScaleSpin.setEditor(new SpinnerEditor(clusterScaleSpin));
+				clusterScaleUnit.setModel(clusterScaleModelRel);
+				clusterScaleBs.setModel(clusterScaleModelRel.getSliderModel(0, 1, 4));
+				clusterScaleSpin.setToolTipText(clusterScaleTtipRel);
+
+				prefs.putBoolean(PREF_SEPARATION_RELATIVE, false);
+			}
+		});
+		rbAbs.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.DESELECTED)
+					return;
+				DoubleModel radiusModelMin = new DoubleModel(component, "OuterRadius", -2, UnitGroup.UNITS_LENGTH);
+				DoubleModel radiusModelMax = new DoubleModel(component, "OuterRadius", 6, UnitGroup.UNITS_LENGTH);
+
+				clusterScaleSpin.setModel(clusterScaleModelAbs.getSpinnerModel());
+				clusterScaleSpin.setEditor(new SpinnerEditor(clusterScaleSpin));
+				clusterScaleUnit.setModel(clusterScaleModelAbs);
+				clusterScaleBs.setModel(clusterScaleModelAbs.getSliderModel(radiusModelMin, radiusModelMax));
+				clusterScaleSpin.setToolTipText(clusterScaleTtipAbs);
+
+				prefs.putBoolean(PREF_SEPARATION_RELATIVE, false);
+			}
+		});
+
+		// Select the button by default
+		if (prefs.getBoolean(PREF_SEPARATION_RELATIVE, true)) {
+			rbRel.setSelected(true);
+		} else {
+			rbAbs.setSelected(true);
+		}
 
 		// Rotation:
 		l = new JLabel(trans.get("InnerTubeCfg.lbl.Rotation"));
 		//// Rotation angle of the cluster configuration
 		l.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(l);
-		dm = new DoubleModel(component, "ClusterRotation", 1, UnitGroup.UNITS_ANGLE,
+		DoubleModel dm = new DoubleModel(component, "ClusterRotation", 1, UnitGroup.UNITS_ANGLE,
 				-Math.PI, Math.PI);
 
-		spin = new JSpinner(dm.getSpinnerModel());
+		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		//// Rotation angle of the cluster configuration
 		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
@@ -309,7 +377,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		subPanel.add(new UnitSelector(dm), "growx");
-		bs = new BasicSlider(dm.getSliderModel());
+		BasicSlider bs = new BasicSlider(dm.getSliderModel());
 		//// Rotation angle of the cluster configuration
 		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(bs, "w 100lp, wrap para");
@@ -398,10 +466,17 @@ class ClusterSelectionPanel extends JPanel {
 	private static final int BUTTON_SIZE = 50;
 	private static final int MOTOR_DIAMETER = 10;
 
-	private static final Color SELECTED_COLOR = Color.RED;
-	private static final Color UNSELECTED_COLOR = Color.WHITE;
-	private static final Color MOTOR_FILL_COLOR = Color.GREEN;
-	private static final Color MOTOR_BORDER_COLOR = Color.BLACK;
+	private static final Color SELECTED_COLOR;
+	private static final Color UNSELECTED_COLOR;
+	private static final Color MOTOR_FILL_COLOR;
+	private static final Color MOTOR_BORDER_COLOR;
+
+	static {
+		SELECTED_COLOR = Color.RED;
+		UNSELECTED_COLOR = GUIUtil.getUITheme().getBackgroundColor();
+		MOTOR_FILL_COLOR = Color.GREEN;
+		MOTOR_BORDER_COLOR = Color.BLACK;
+	}
 
 	public ClusterSelectionPanel(Clusterable component) {
 		super(new MigLayout("gap 0 0",
@@ -438,6 +513,7 @@ class ClusterSelectionPanel extends JPanel {
 			setMaximumSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			//			setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+			setToolTipText(config.getXMLName());
 			component.addChangeListener(this);
 			addMouseListener(this);
 		}

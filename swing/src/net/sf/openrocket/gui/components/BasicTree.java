@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.components;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
@@ -14,7 +16,6 @@ import javax.swing.tree.TreePath;
 
 @SuppressWarnings("serial")
 public class BasicTree extends JTree {
-
 	public BasicTree() {
 		super();
 		setDefaultOptions();
@@ -36,7 +37,7 @@ public class BasicTree extends JTree {
 		plainUI.setLeftChildIndent(15);
 		
 
-		this.setBackground(Color.WHITE);
+		this.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 		this.setShowsRootHandles(false);
 	}
 	

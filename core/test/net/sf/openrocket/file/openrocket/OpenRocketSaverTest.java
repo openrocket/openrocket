@@ -331,9 +331,9 @@ public class OpenRocketSaverTest {
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion108_withSimulationExtension() {
+	public void testFileVersion109_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(108, getCalculatedFileVersion(rocketDoc));
+		assertEquals(109, getCalculatedFileVersion(rocketDoc));
 	}
 	
 

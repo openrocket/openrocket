@@ -216,21 +216,22 @@ public class OpenRocketSaver extends RocketSaver {
 		/*
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 * 
-		 * File version 1.8 is required for:
+		 * File version 1.9 is required for:
 		 *  - new-style positioning
 		 *  - external/parallel booster stages
 		 *  - external pods
 		 *  - Rail Buttons
+		 *  - Flight event source saving
 		 *  
-		 * Otherwise use version 1.8.
+		 * Otherwise use version 1.9.
 		 */
 		
 		/////////////////
-		// Version 1.8 // 
+		// Version 1.9 //
 		/////////////////
 		// for any new-style positioning:  'axialoffset', 'angleoffset', 'radiusoffset' tags
 		// these tags are used for any RocketComponent child classes positioning... so... ALL the classes.
-		return FILE_VERSION_DIVISOR + 8;
+		return FILE_VERSION_DIVISOR + 9;
 		
 	}
 	
@@ -531,8 +532,13 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			writeln("<event time=\"" + TextUtil.doubleToString(event.getTime())
-					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"/>");
+			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
+					+ "\" type=\"" + enumToXMLName(event.getType());
+			if (event.getSource() != null) {
+				eventStr += "\" source=\"" + TextUtil.escapeXML(event.getSource().getID());
+			}
+			eventStr += "\"/>";
+			writeln(eventStr);
 		}
 		
 		// Write the data

@@ -386,7 +386,11 @@ public abstract class Warning extends Message {
 	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"));
 	public static final Warning TUBE_OVERLAP = new Other(trans.get("Warning.TUBE_OVERLAP"));
 
+	/** A <code>Warning</code> that stage separation occurred at other than the last stage */
 	public static final Warning SEPARATION_ORDER = new Other(trans.get("Warning.SEPARATION_ORDER"));
+
+	/** A <code>Warning</code> that stage separation occurred before the rocket cleared the launch rod or rail */
+	public static final Warning EARLY_SEPARATION = new Other(trans.get("Warning.EARLY_SEPARATION"));
 
 	public static final Warning EMPTY_BRANCH = new Other(trans.get("Warning.EMPTY_BRANCH"));
 }

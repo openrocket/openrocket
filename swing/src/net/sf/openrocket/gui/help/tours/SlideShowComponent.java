@@ -12,6 +12,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 
 import net.sf.openrocket.gui.components.ImageDisplayComponent;
+import net.sf.openrocket.gui.util.GUIUtil;
 
 /**
  * Component that displays a single slide, with the image on top and
@@ -28,7 +29,7 @@ public class SlideShowComponent extends JSplitPane {
 	
 	private final ImageDisplayComponent imageDisplay;
 	private final JEditorPane textPane;
-	
+
 	
 	public SlideShowComponent() {
 		super(VERTICAL_SPLIT);
@@ -44,6 +45,7 @@ public class SlideShowComponent extends JSplitPane {
 		textPane.setPreferredSize(new Dimension(WIDTH, HEIGHT_TEXT));
 		
 		JScrollPane scrollPanel = new JScrollPane(textPane);
+		textPane.setBorder(GUIUtil.getUITheme().getBorder());
 		this.setRightComponent(scrollPanel);
 		
 		this.setResizeWeight(((double) HEIGHT_IMAGE) / (HEIGHT_IMAGE + HEIGHT_TEXT));

@@ -1,22 +1,17 @@
 package net.sf.openrocket.gui.components;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.sf.openrocket.util.BugException;
 
 /**
  * A label of a URL that is clickable.  Clicking the URL will launch the URL in
@@ -26,7 +21,7 @@ import net.sf.openrocket.util.BugException;
  */
 public class URLLabel extends SelectableLabel {
 	private static final Logger log = LoggerFactory.getLogger(URLLabel.class);
-	
+
 	/**
 	 * Create a label showing the url it will direct to.
 	 * 
@@ -53,7 +48,7 @@ public class URLLabel extends SelectableLabel {
 			Map<TextAttribute, Object> map = new HashMap<TextAttribute, Object>();
 			map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 			this.setFont(this.getFont().deriveFont(map));
-			this.setForeground(Color.BLUE);
+			this.setForeground(GUIUtil.getUITheme().getURLColor());
 			
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			

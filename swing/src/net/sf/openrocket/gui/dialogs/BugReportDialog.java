@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Window;
@@ -177,8 +178,9 @@ public class BugReportDialog extends JDialog {
 	private static void addBugReportInformation(StringBuilder sb) {
 		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		sb.append("<b style='color:rgb(210, 20, 5)'>Please include a description about what actions you were " +
-				"performing when the exception occurred:</b>\n");
+		Color color = GUIUtil.getUITheme().getDarkWarningColor();
+		sb.append(String.format("<b style='color:rgb(%d, %d, %d)'>Please include a description about what actions you were " +
+				"performing when the exception occurred:</b>\n", color.getRed(), color.getGreen(), color.getBlue()));
 		sb.append("<i>(You can edit text directly in this window)</i>\n");
 		sb.append('\n');
 		sb.append("1. \n");
@@ -204,6 +206,7 @@ public class BugReportDialog extends JDialog {
 		sbTemp.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sbTemp.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
 		sbTemp.append("User-defined thrust curves location: " + preferences.getUserThrustCurveFilesAsString() + "\n");
+		sbTemp.append("LAF: " + UIManager.getLookAndFeel().getClass().getName() + "\n");
 		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
 		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
 		sbTemp.append("System properties:\n");

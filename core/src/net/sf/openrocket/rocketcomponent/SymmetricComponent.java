@@ -849,12 +849,20 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		// have a radial offset of 0 from their centerline, we are in line.
 
 		if ((this.parent instanceof RingInstanceable) &&
-			(!MathUtil.equals(this.parent.getRadiusMethod().getRadius(this.parent.parent, this, this.parent.getRadiusOffset()), 0)))
+			(!MathUtil.equals(this.parent.getRadiusMethod().getRadius(
+					this.parent.parent, this, this.parent.getRadiusOffset()), 0)))
 			return false;
 		
-		if ((candidate.parent instanceof RingInstanceable) &&
-			(!MathUtil.equals(candidate.parent.getRadiusMethod().getRadius(candidate.parent.parent, candidate, candidate.parent.getRadiusOffset()), 0)))
-			return false;
+		if (candidate.parent instanceof RingInstanceable) {
+			// We need to check if the grandparent of the candidate is a body tube and if the outer radius is automatic.
+			// If so, then this would cause an infinite loop when checking the radius of the radiusMethod.
+			if (candidate.parent.parent == this && (this.isAftRadiusAutomatic() || this.isForeRadiusAutomatic())) {
+				return false;
+			} else {
+				return MathUtil.equals(candidate.parent.getRadiusMethod().getRadius(
+						candidate.parent.parent, candidate, candidate.parent.getRadiusOffset()), 0);
+			}
+		}
 
 		return true;
 	}

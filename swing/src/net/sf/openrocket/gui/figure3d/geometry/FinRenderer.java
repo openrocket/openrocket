@@ -16,6 +16,8 @@ import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 
+import java.util.Collections;
+
 public class FinRenderer {
 	private GLUtessellator tess = GLU.gluNewTess();
 	
@@ -96,12 +98,11 @@ public class FinRenderer {
 				GLU.gluTessBeginPolygon(tess, null);
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
-				for (int i = tabPoints.length - 1; i >= 0; i--) {
-					Coordinate c = tabPoints[i];
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0};
-					GLU.gluTessVertex(tess, p, 0, p);
-				}
+                for (Coordinate c : tabPoints) {
+                    double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
+                            c.z + finSet.getThickness() / 2.0};
+                    GLU.gluTessVertex(tess, p, 0, p);
+                }
 				GLU.gluTessEndContour(tess);
 				GLU.gluTessEndPolygon(tess);
 			}
@@ -125,7 +126,8 @@ public class FinRenderer {
 				GLU.gluTessBeginPolygon(tess, null);
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
-				for (Coordinate c : tabPoints) {
+				for (int i = tabPoints.length - 1; i >= 0; i--) {
+					Coordinate c = tabPoints[i];
 					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
 							c.z - finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
@@ -163,7 +165,7 @@ public class FinRenderer {
 				if (!(finSet instanceof EllipticalFinSet))
 					gl.glShadeModel(GLLightingFunc.GL_FLAT);
 				gl.glBegin(GL.GL_TRIANGLE_STRIP);
-				for (int i = 0; i <= tabPoints.length; i++) {
+				for (int i = tabPoints.length; i >= 0; i--) {
 					Coordinate c = tabPoints[i % tabPoints.length];
 					// if ( i > 1 ){
 					Coordinate c2 = tabPoints[(i - 1 + tabPoints.length)

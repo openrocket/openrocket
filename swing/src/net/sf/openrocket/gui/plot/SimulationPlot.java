@@ -192,9 +192,8 @@ public class SimulationPlot {
 				}
 				data[axis].addSeries(series);
 			}
-			// For each of the secondary branches, we use data from branch 0 for the earlier times
+			// Secondary branches
 			for (int branchIndex = 1; branchIndex < branchCount; branchIndex++) {
-				FlightDataBranch primaryBranch = simulation.getSimulatedData().getBranch(0);
 				FlightDataBranch thisBranch = simulation.getSimulatedData().getBranch(branchIndex);
 
 				// Ignore empty branches
@@ -206,25 +205,10 @@ public class SimulationPlot {
 					continue;
 				}
 
-				// Get first time index used in secondary branch;
-				double firstSampleTime = thisBranch.get(FlightDataType.TYPE_TIME).get(0);
-
 				XYSeries series = new XYSeries(seriesCount++, false, true);
 				series.setDescription(thisBranch.getBranchName() + ": " + name);
 
-				// Copy the first points from the primaryBranch.
-				List<Double> primaryT = primaryBranch.get(FlightDataType.TYPE_TIME);
-				List<Double> primaryx = primaryBranch.get(domainType);
-				List<Double> primaryy = primaryBranch.get(type);
-
-				for (int j = 0; j < primaryT.size(); j++) {
-					if (primaryT.get(j) >= firstSampleTime) {
-						break;
-					}
-					series.add(domainUnit.toUnit(primaryx.get(j)), unit.toUnit(primaryy.get(j)));
-				}
-
-				// Now copy all the data from the secondary branch
+				// Copy all the data from the secondary branch
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
 

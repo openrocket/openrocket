@@ -1049,7 +1049,7 @@ public class TestRockets {
 					boosterCone.setThickness(0.002);
 					//payloadFairingNoseCone.setLength(0.118);
 					//payloadFairingNoseCone.setAftRadius(0.052);
-					boosterCone.setAftShoulderRadius( 0.051 );
+					boosterCone.setAftShoulderRadius( 0.0375 );
 					boosterCone.setAftShoulderLength( 0.02 );
 					boosterCone.setAftShoulderThickness( 0.001 );
 					boosterCone.setAftShoulderCapped( false );

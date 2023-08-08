@@ -34,6 +34,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-	
+
 	static {
 		//this allows the GL canvas and things like the motor selection
 		//drop down to z-order themselves.
@@ -288,7 +289,9 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
 
-		gl.glClearColor(1, 1, 1, 1);
+		Color backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		gl.glClearColor(backgroundColor.getRed()/255f, backgroundColor.getGreen()/255f,
+				backgroundColor.getBlue()/255f, backgroundColor.getAlpha()/255f);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
 		setupView(gl, glu);
@@ -315,8 +318,9 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 				
 			}
 			pickPoint = null;
-			
-			gl.glClearColor(1, 1, 1, 1);
+
+			gl.glClearColor(backgroundColor.getRed()/255f, backgroundColor.getGreen()/255f,
+					backgroundColor.getBlue()/255f, backgroundColor.getAlpha()/255f);
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 			gl.glEnable(GL.GL_MULTISAMPLE);
