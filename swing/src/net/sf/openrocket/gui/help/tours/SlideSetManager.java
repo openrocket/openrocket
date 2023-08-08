@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.help.tours;
 
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 import javax.swing.text.html.StyleSheet;
 
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.util.BugException;
 
 /**
@@ -130,6 +132,9 @@ public class SlideSetManager {
 		try {
 			
 			StyleSheet ss = new StyleSheet();
+			Color textColor = GUIUtil.getUITheme().getTextColor();
+			ss.addRule(String.format("p { color: rgb(%d, %d, %d, %d)",
+					textColor.getRed(), textColor.getGreen(), textColor.getBlue(), textColor.getAlpha()));
 			InputStreamReader reader = new InputStreamReader(in, "UTF-8");
 			ss.loadRules(reader, null);
 			return ss;

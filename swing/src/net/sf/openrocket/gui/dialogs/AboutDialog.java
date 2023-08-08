@@ -60,6 +60,9 @@ public class AboutDialog extends JDialog {
 		"<br>" +
 		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
 		"<br>" +
+		"<b>Thank you to our financial contributors who have provided us with the necessary resources to continue this project:</b><br>" +
+		href("https://opencollective.com/openrocket", true, true) + "<br>" +
+		"<br>" +
 		"<b>OpenRocket utilizes the following libraries:</b><br>" +
 		"<br>" +
 		"MiG Layout" + href("http://www.miglayout.com", true, true) + "<br>" +
@@ -72,6 +75,7 @@ public class AboutDialog extends JDialog {
 		"Simple Logging Facade for Java" + href("http://www.slf4j.org", true, true) + "<br>" +
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
 		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
+		"Darklaf (dark theme)" + href("https://github.com/weisJ/darklaf", true, true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +

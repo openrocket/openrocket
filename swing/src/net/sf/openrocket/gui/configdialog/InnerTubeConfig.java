@@ -40,6 +40,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -465,10 +466,17 @@ class ClusterSelectionPanel extends JPanel {
 	private static final int BUTTON_SIZE = 50;
 	private static final int MOTOR_DIAMETER = 10;
 
-	private static final Color SELECTED_COLOR = Color.RED;
-	private static final Color UNSELECTED_COLOR = Color.WHITE;
-	private static final Color MOTOR_FILL_COLOR = Color.GREEN;
-	private static final Color MOTOR_BORDER_COLOR = Color.BLACK;
+	private static final Color SELECTED_COLOR;
+	private static final Color UNSELECTED_COLOR;
+	private static final Color MOTOR_FILL_COLOR;
+	private static final Color MOTOR_BORDER_COLOR;
+
+	static {
+		SELECTED_COLOR = Color.RED;
+		UNSELECTED_COLOR = GUIUtil.getUITheme().getBackgroundColor();
+		MOTOR_FILL_COLOR = Color.GREEN;
+		MOTOR_BORDER_COLOR = Color.BLACK;
+	}
 
 	public ClusterSelectionPanel(Clusterable component) {
 		super(new MigLayout("gap 0 0",

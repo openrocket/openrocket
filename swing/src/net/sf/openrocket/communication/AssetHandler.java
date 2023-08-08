@@ -2,12 +2,10 @@ package net.sf.openrocket.communication;
 
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BuildProperties;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * This class handles assets extracted from a GitHub release page.

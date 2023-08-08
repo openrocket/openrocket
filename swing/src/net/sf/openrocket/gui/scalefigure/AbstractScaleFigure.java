@@ -70,7 +70,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 		this.setPreferredSize(new Dimension(100,100));
 		setSize(100,100);
 
-		setBackground(Color.WHITE);
+		setBackground(GUIUtil.getUITheme().getBackgroundColor());
 		setOpaque(true);
 	}
 

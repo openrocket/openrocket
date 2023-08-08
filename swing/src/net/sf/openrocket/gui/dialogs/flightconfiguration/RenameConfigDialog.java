@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
-import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -25,7 +24,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class RenameConfigDialog extends JDialog {
 	private static final long serialVersionUID = -5423008694485357248L;
 	private static final Translator trans = Application.getTranslator();
-	
+
 	public RenameConfigDialog(final Window parent, final Rocket rocket, final FlightConfigurationId fcid) {
 		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
@@ -47,7 +46,7 @@ public class RenameConfigDialog extends JDialog {
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(okButton);
+		panel.add(okButton, "growx");
 		
 		JButton renameToDefaultButton = new SelectColorButton(trans.get("RenameConfigDialog.but.reset"));
 		renameToDefaultButton.addActionListener(new ActionListener() {
@@ -57,7 +56,7 @@ public class RenameConfigDialog extends JDialog {
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(renameToDefaultButton);
+		panel.add(renameToDefaultButton, "growx");
 		
 		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
@@ -66,14 +65,14 @@ public class RenameConfigDialog extends JDialog {
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(cancel, "wrap para");
+		panel.add(cancel, "growx, wrap para");
 
 		// {motors} & {manufacturers} info
 		String text = "<html>" + CommonStrings.dagger + " " + trans.get("RenameConfigDialog.lbl.infoMotors")
 				+ trans.get("RenameConfigDialog.lbl.infoManufacturers")
 				+ trans.get("RenameConfigDialog.lbl.infoCombination");
 		StyledLabel info = new StyledLabel(text, -2);
-		info.setFontColor(Color.DARK_GRAY);
+		info.setFontColor(GUIUtil.getUITheme().getDimTextColor());
 		panel.add(info, "spanx, growx, wrap");
 		
 		this.add(panel);

@@ -174,6 +174,7 @@ public class DesignPanel extends JSplitPane {
 
         // Place tree inside scroll pane
         JScrollPane scroll = new JScrollPane(tree);
+        tree.setBorder(GUIUtil.getUITheme().getBorder());
         panel.add(scroll, "spany, wmin 140px, grow, wrap");
 
 

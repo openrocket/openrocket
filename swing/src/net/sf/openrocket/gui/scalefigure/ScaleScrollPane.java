@@ -25,6 +25,7 @@ import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -398,7 +399,7 @@ public class ScaleScrollPane extends JScrollPane
             }
 			
 			// Set color & hints
-			g2.setColor(Color.BLACK);
+			g2.setColor(GUIUtil.getUITheme().getTextColor());
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 					RenderingHints.VALUE_STROKE_NORMALIZE);
 			g2.setRenderingHint(RenderingHints.KEY_RENDERING,

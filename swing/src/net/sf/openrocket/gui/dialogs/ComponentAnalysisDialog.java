@@ -150,6 +150,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
+		warningList.setBorder(GUIUtil.getUITheme().getBorder());
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
@@ -646,7 +647,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 
 			label.setOpaque(true);
-			label.setBackground(Color.WHITE);
+			label.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 
 			if ((row < 0) || (row >= data.size()))
@@ -693,7 +694,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private class DragCellRenderer extends CustomCellRenderer {
 		private static final long serialVersionUID = 1L;
 
-
 		public DragCellRenderer() {
 			super(dragData, 3);
 		}
@@ -712,6 +712,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 				float val = 1.0f;
 
 				label.setBackground(Color.getHSBColor(hue, sat, val));
+				label.setForeground(Color.BLACK);
 			}
 
 			if ((row < 0) || (row >= dragData.size()))

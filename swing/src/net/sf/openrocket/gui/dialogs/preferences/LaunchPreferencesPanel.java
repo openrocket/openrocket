@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.unit.UnitGroup;
@@ -43,7 +44,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0.5f, StyledLabel.Style.BOLD);
-		warning.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+		warning.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 
