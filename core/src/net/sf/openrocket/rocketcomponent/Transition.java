@@ -118,6 +118,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		setForeShoulderRadius(getForeShoulderRadius());
 	}
 
 	public void setForeRadius(double radius) {
@@ -207,6 +209,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+		setAftShoulderRadius(getAftShoulderRadius());
 	}
 
 	public void setAftRadius(double radius) {
@@ -398,6 +402,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				((Transition) listener).setForeShoulderRadius(foreShoulderRadius);
 			}
 		}
+		foreShoulderRadius = Math.min(foreShoulderRadius, getForeRadius());
 
 		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
 			return;
@@ -470,6 +475,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				((Transition) listener).setAftShoulderRadius(aftShoulderRadius);
 			}
 		}
+
+		aftShoulderRadius = Math.min(aftShoulderRadius, getAftRadius());
 
 		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
 			return;

@@ -117,7 +117,7 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, coreBody),
 						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.1225, null),
 						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.125, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 1.86, rocket),
+						new FlightEvent(FlightEvent.Type.APOGEE, 1.867, rocket),
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
@@ -147,7 +147,7 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 3.551, null),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 3.428, null),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 					};
