@@ -119,7 +119,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 
 		//// Font size
 		this.add(new JLabel(trans.get("generalprefs.lbl.FontSize")), "gapright para");
-		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSize", 9, 15);
+		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSize", 5, 25);
 		final JSpinner fontSizeSpinner = new JSpinner(fontSizeModel.getSpinnerModel());
 		fontSizeSpinner.setEditor(new SpinnerEditor(fontSizeSpinner));
 		this.add(fontSizeSpinner, "growx, wrap");
