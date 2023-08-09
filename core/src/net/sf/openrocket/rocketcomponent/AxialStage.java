@@ -170,14 +170,14 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 * @return	the previous stage in the rocket
 	 */
 	public AxialStage getUpperStage() {
-		if( null == this.parent ) {
+		if (this.parent == null) {
 			return null; 
-		}else if(Rocket.class.isAssignableFrom(this.parent.getClass()) ){
-			final int thisIndex = getStageNumber();
-			if( 0 < thisIndex ){
-				return (AxialStage)parent.getChild(thisIndex-1);
+		} else if (Rocket.class.isAssignableFrom(this.parent.getClass())) {
+			final int thisIndex = parent.getChildPosition(this);
+			if (thisIndex > 0) {
+				return (AxialStage) parent.getChild(thisIndex-1);
 			}
-		}else {
+		} else {
 			return this.parent.getStage();
 		}
 		return null;

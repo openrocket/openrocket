@@ -27,7 +27,7 @@ import net.sf.openrocket.startup.Application;
 
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private TextFieldListener textFieldListener;
 	
 	private JTextArea designerTextArea;
@@ -55,6 +55,7 @@ public class RocketConfig extends RocketComponentConfig {
 		designerTextArea.setLineWrap(true);
 		designerTextArea.setWrapStyleWord(true);
 		designerTextArea.setEditable(true);
+		designerTextArea.setBorder(GUIUtil.getUITheme().getBorder());
 		GUIUtil.setTabToFocusing(designerTextArea);
 		designerTextArea.addFocusListener(textFieldListener);
 		this.add(new JScrollPane(designerTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
@@ -69,6 +70,7 @@ public class RocketConfig extends RocketComponentConfig {
 		revisionTextArea.setLineWrap(true);
 		revisionTextArea.setWrapStyleWord(true);
 		revisionTextArea.setEditable(true);
+		revisionTextArea.setBorder(GUIUtil.getUITheme().getBorder());
 		GUIUtil.setTabToFocusing(revisionTextArea);
 		revisionTextArea.addFocusListener(textFieldListener);
 		

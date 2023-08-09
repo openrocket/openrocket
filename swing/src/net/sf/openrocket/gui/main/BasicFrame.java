@@ -579,12 +579,12 @@ public class BasicFrame extends JFrame {
 
 		editMenu.addSeparator();
 
-		JMenu subMenu = new JMenu(trans.get("RocketActions.Select"));
-		editMenu.add(subMenu);
+		JMenu selectSubMenu = new JMenu(trans.get("RocketActions.Select"));
+		editMenu.add(selectSubMenu);
 		item = new JMenuItem(actions.getSelectSameColorAction());
-		subMenu.add(item);
+		selectSubMenu.add(item);
 		item = new JMenuItem(actions.getDeselectAllAction());
-		subMenu.add(item);
+		selectSubMenu.add(item);
 
 		editMenu.addSeparator();
 

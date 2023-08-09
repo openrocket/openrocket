@@ -506,7 +506,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelMassOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy"), component.getMassOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelMassOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelMassOverriddenBy.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 			labelMassOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy.ttip"), component.getMassOverriddenBy().getName()));
 			checkboxes.add(labelMassOverriddenBy, "gapleft 25lp, wrap");
@@ -569,7 +569,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelCGOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy"), component.getCGOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCGOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelCGOverriddenBy.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 			labelCGOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy.ttip"), component.getCGOverriddenBy().getName()));
 			checkboxes.add(labelCGOverriddenBy, "gapleft 25lp, wrap");
@@ -663,7 +663,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelCDOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCDOverriddenBy.setFontColor(net.sf.openrocket.util.Color.DARK_RED.toAWTColor());
+			labelCDOverriddenBy.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
 			labelCDOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()));
 			checkboxes.add(labelCDOverriddenBy, "gapleft 25lp, wrap");
@@ -719,6 +719,7 @@ public class RocketComponentConfig extends JPanel {
 		commentTextArea.setLineWrap(true);
 		commentTextArea.setWrapStyleWord(true);
 		commentTextArea.setEditable(true);
+		commentTextArea.setBorder(GUIUtil.getUITheme().getBorder());
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
 		commentTextArea.addKeyListener(new TextComponentSelectionKeyListener(commentTextArea));

@@ -29,6 +29,7 @@ import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.logging.PrintStreamToSLF4J;
 import net.sf.openrocket.plugin.PluginModule;
@@ -198,9 +199,15 @@ public class SwingStartup {
 		// Start update info fetching
 		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
 		
-		// Set the best available look-and-feel
-		log.info("Setting best LAF");
-		GUIUtil.setBestLAF();
+		// Set the look-and-feel
+		log.info("Setting LAF");
+		String cmdLAF = System.getProperty("openrocket.laf");
+		if (cmdLAF != null) {
+			log.info("Setting cmd line LAF '{}'", cmdLAF);
+			Preferences prefs = Application.getPreferences();
+			prefs.setUITheme(UITheme.Themes.valueOf(cmdLAF));
+		}
+		GUIUtil.applyLAF();
 		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);

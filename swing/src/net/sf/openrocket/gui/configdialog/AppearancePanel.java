@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
@@ -170,6 +169,7 @@ public class AppearancePanel extends JPanel {
 
 				Color awtColor = ColorConversion.toAwtColor(c);
 				colorChooser.setColor(awtColor);
+				colorChooser.updateUI();		// Needed for darklaf color chooser to update
 
 				// Bind a change of color selection to a change in the components color
 				ColorSelectionModel model = colorChooser.getSelectionModel();
@@ -183,7 +183,8 @@ public class AppearancePanel extends JPanel {
 
 				JDialog d = JColorChooser.createDialog(AppearancePanel.this,
 						trans.get("RocketCompCfg.lbl.Choosecolor"), true,
-						colorChooser, new ActionListener() {
+						colorChooser,
+						new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent okEvent) {
 								changeComponentColor(colorChooser.getColor());
@@ -262,8 +263,7 @@ public class AppearancePanel extends JPanel {
 
 		net.sf.openrocket.util.Color figureColor = c.getColor();
 		if (figureColor == null) {
-			figureColor = Application.getPreferences().getDefaultColor(
-					c.getClass());
+			figureColor = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 		}
 		final JButton figureColorButton = new SelectColorButton(
 				new ColorIcon(figureColor));
@@ -278,8 +278,7 @@ public class AppearancePanel extends JPanel {
 			public void stateChanged(EventObject e) {
 				net.sf.openrocket.util.Color col = c.getColor();
 				if (col == null) {
-					col = Application.getPreferences().getDefaultColor(
-							c.getClass());
+					col = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 				}
 				figureColorButton.setIcon(new ColorIcon(col));
 			}

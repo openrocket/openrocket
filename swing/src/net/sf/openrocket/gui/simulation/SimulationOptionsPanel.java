@@ -207,6 +207,8 @@ class SimulationOptionsPanel extends JPanel {
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
+		currentExtensions.setBorder(GUIUtil.getUITheme().getBorder());
+		scroll.setForeground(GUIUtil.getUITheme().getTextColor());
 		//  &#$%! scroll pane will not honor "growy"...
 		sub.add(scroll, "growx, growy, h 100%");
 		

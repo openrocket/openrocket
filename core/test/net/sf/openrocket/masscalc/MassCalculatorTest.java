@@ -498,7 +498,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		// ====== ====== ======
 		ParallelStage boosters = (ParallelStage) coreStage.getChild(0).getChild(0);
 		{
-			expMass = 0.0222459863653;
+			expMass = 0.0210923935430;
 			// think of the casts as an assert that ( child instanceof NoseCone) == true  
 			NoseCone nose = (NoseCone) boosters.getChild(0);
 			compMass = nose.getComponentMass();
@@ -582,7 +582,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		// ====== ====== ======
 		ParallelStage boosters = (ParallelStage) coreStage.getChild(0).getChild(0);
 		{
-			expCMx = 0.055710581052;
+			expCMx = 0.053835211739;
 			// think of the casts as an assert that ( child instanceof NoseCone) == true
 			NoseCone nose = (NoseCone) boosters.getChild(0);
 			actCMx = nose.getComponentCG().x;
@@ -692,10 +692,10 @@ public class MassCalculatorTest extends BaseTestCase {
 		ParallelStage boosters = (ParallelStage) coreStage.getChild(0).getChild(0);
 		{
 			final NoseCone boosterNose = (NoseCone) boosters.getChild(0);
-			expInertia = 1.82665797857e-5;
+			expInertia = 1.73189409900e-5;
 			compInertia = boosterNose.getRotationalInertia();
 			assertEquals(boosterNose.getName() + " Rotational MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			expInertia = 1.96501191666e-7;
+			expInertia = 4.51796586171e-6;
 			compInertia = boosterNose.getLongitudinalInertia();
 			assertEquals(boosterNose.getName() + " Longitudinal MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
 
@@ -832,8 +832,8 @@ public class MassCalculatorTest extends BaseTestCase {
 		final RigidBody actualData = MassCalculator.calculateStructure(config);
 		final Coordinate actualCM = actualData.getCM();
 
-		double expMass = 0.608663395;
-		double expCMx = 1.073157592;
+		double expMass = 0.6063562096;
+		double expCMx = 1.075056887;
 		assertEquals("Heavy Booster Mass is incorrect: ", expMass, actualCM.weight, EPSILON);
 
 		assertEquals("Heavy Booster CM.x is incorrect: ", expCMx, actualCM.x, EPSILON);
@@ -852,11 +852,11 @@ public class MassCalculatorTest extends BaseTestCase {
 		RigidBody actualBoosterLaunchData = MassCalculator.calculateLaunch(config);
 
 		double actualMass = actualBoosterLaunchData.getMass();
-		double expectedMass = 1.592663395;
+		double expectedMass = 1.5903562096;
 		assertEquals(" Booster Launch Mass is incorrect: ", expectedMass, actualMass, EPSILON);
 
 		final Coordinate actualCM = actualBoosterLaunchData.getCM();
-		double expectedCMx = 1.22216804;
+		double expectedCMx = 1.22310836;
 		Coordinate expCM = new Coordinate(expectedCMx, 0, 0, expectedMass);
 		assertEquals(" Booster Launch CM.x is incorrect: ", expCM.x, actualCM.x, EPSILON);
 		assertEquals(" Booster Launch CM.y is incorrect: ", expCM.y, actualCM.y, EPSILON);
@@ -876,8 +876,8 @@ public class MassCalculatorTest extends BaseTestCase {
 		RigidBody spentData = MassCalculator.calculateBurnout(config);
 		Coordinate spentCM = spentData.getCM();
 
-		double expSpentMass = 1.12066339;
-		double expSpentCMx = 1.18334714;
+		double expSpentMass = 1.11835621;
+		double expSpentCMx = 1.18460423;
 		Coordinate expLaunchCM = new Coordinate(expSpentCMx, 0, 0, expSpentMass);
 		assertEquals(" Booster Launch Mass is incorrect: ", expLaunchCM.weight, spentCM.weight, EPSILON);
 		assertEquals(" Booster Launch CM.x is incorrect: ", expLaunchCM.x, spentCM.x, EPSILON);
@@ -942,11 +942,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		RigidBody spent = MassCalculator.calculateBurnout(config);
 
-		double expMOIRotational = 0.009205665421431532;
+		double expMOIRotational = 0.00919009169;
 		double boosterMOIRotational = spent.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOIRotational, boosterMOIRotational, EPSILON);
 
-		double expMOI_tr = 0.0582250994240395;
+		double expMOI_tr = 0.0573781722;
 		double boosterMOI_tr = spent.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
@@ -962,9 +962,9 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		RigidBody launchData = MassCalculator.calculateLaunch(config);
 
-		final double expIxx = 0.01226617242143153;
+		final double expIxx = 0.0122505987;
 		final double actIxx = launchData.getRotationalInertia();
-		final double expIyy = 0.06455356411879717;
+		final double expIyy = 0.0635943662;
 		final double actIyy = launchData.getLongitudinalInertia();
 
 		assertEquals(" Booster x-axis MOI is incorrect: ", expIxx, actIxx, EPSILON);
@@ -1006,11 +1006,11 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Booster Launch CM is incorrect: ", expCM, boosterSetCM);
 
 		// Validate MOI
-		double expMOI_axial = 0.005885793421431532;
+		double expMOI_axial = 0.00587021969016;
 		double boosterMOI_xx = burnout.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 
-		double expMOI_tr =  17.86133586701;
+		double expMOI_tr =  17.78076176335;
 		double boosterMOI_tr = burnout.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
@@ -1052,7 +1052,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		double expTotalMass = 3.3565872;
 		assertEquals(" Booster Launch Mass is incorrect: ", expTotalMass, boosterData.getMass(), EPSILON);
 
-		double expCMx = 0.2835089882645608;
+		double expCMx = 0.2827156156318;
 		Coordinate expCM = new Coordinate(expCMx, 0, 0, expTotalMass);
 		assertEquals(" Booster Launch CM.x is incorrect: ", expCM.x, boosterCM.x, EPSILON);
 		assertEquals(" Booster Launch CM.y is incorrect: ", expCM.y, boosterCM.y, EPSILON);
@@ -1064,7 +1064,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		double boosterMOI_xx = boosterData.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 
-		double expMOI_tr =  0.34567788938578525;
+		double expMOI_tr =  0.347611843243;
 		double boosterMOI_tr = boosterData.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
@@ -1095,11 +1095,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		RigidBody structure = MassCalculator.calculateStructure(config);
 
-		final double expMass = 0.6086633952494;
+		final double expMass = 0.6063562096046;
 		double calcTotalMass = structure.getMass();
 		assertEquals(" Booster Launch Mass is incorrect: ", expMass, calcTotalMass, EPSILON);
 
-		final double expCMx = 0.5551303646438673;
+		final double expCMx = 0.55670993586431;
 		Coordinate expCM = new Coordinate(expCMx, 0, 0, expMass);
 		assertEquals(" Booster Launch CM.x is incorrect: ", expCM.x, structure.getCM().x, EPSILON);
 		assertEquals(" Booster Launch CM.y is incorrect: ", expCM.y, structure.getCM().y, EPSILON);
@@ -1107,11 +1107,11 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(" Booster Launch CM is incorrect: ", expCM, structure.getCM());
 
 		// Validate MOI
-		final double expMOI_axial = 0.005885793421;
+		final double expMOI_axial = 0.005870219690;
 		double boosterMOI_xx = structure.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 
-		final double expMOI_tr = 0.040989095911;
+		final double expMOI_tr = 0.040598624476;
 		double boosterMOI_tr = structure.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
