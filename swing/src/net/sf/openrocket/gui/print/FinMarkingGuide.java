@@ -322,9 +322,10 @@ public class FinMarkingGuide extends JPanel {
 							// Draw double arrow
 							drawDoubleArrowLine(g2, x, yStart, x + width, yEnd, cantAngle);
 
-							// Draw dotted line where fin fore end is (for canted fins) and cross at the fin center
+							// Draw horizontal dotted line where fin aft end is, vertical dotted line where the fore end is
+							// and cross at the fin center
 							if (isCanted) {
-								//// -- Dashed line
+								//// -- Aft end dashed line
 								// Dashed stroke settings
 								float originalLineWidth = thinStroke.getLineWidth();
 								float[] dashPattern = {10, 10};  // 10 pixel dash, 10 pixel space
@@ -341,11 +342,33 @@ public class FinMarkingGuide extends JPanel {
 								g2.setColor(new Color(200, 200, 200));
 								g2.setStroke(dashedStroke);
 
-								// Draw dashed line
+								// Draw aft end horizontal dashed line
 								// 		We draw from right to left to ensure that the side where the side does not touch
 								// 		with an arrow point (fore end) has the dashed line touching the marking guide edge
 								//		(is useful for marking the fin position)
 								g2.drawLine(x + width, yStart, x, yStart);
+
+								//// -- Fore end dashed line
+								// Dashed stroke settings
+								dashPattern = new float[] {4, 6};  // 4 pixel dash, 6 pixel space
+								dashedStroke = new BasicStroke(
+										originalLineWidth * 0.7f,
+										thinStroke.getEndCap(),
+										thinStroke.getLineJoin(),
+										thinStroke.getMiterLimit(),
+										dashPattern,
+										0
+								);
+
+								// Set color and stroke
+								g2.setColor(new Color(220, 220, 220));
+								g2.setStroke(dashedStroke);
+
+								// Draw fore end vertical dashed line
+								final int finBaseWidth = (int) PrintUnit.METERS.toPoints(fins.getLength());
+								if (finBaseWidth < width) {
+									g2.drawLine(x + finBaseWidth, y, x + finBaseWidth, y + length);
+								}
 
 								// Reset stroke
 								g2.setStroke(thinStroke);
