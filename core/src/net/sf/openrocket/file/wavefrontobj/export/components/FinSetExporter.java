@@ -31,7 +31,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         final float thickness = (float) component.getThickness();
         boolean hasTabs = component.getTabLength() > 0 && component.getTabHeight() > 0;
         final Coordinate[] locations = component.getComponentLocations();
-        final double[] angles = component.getComponentAngles();
+        final Coordinate[] angles = component.getComponentAngles();
 
         if (locations.length != angles.length) {
             throw new IllegalArgumentException("Number of locations and angles must match");
@@ -44,7 +44,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
     }
 
     private void generateMesh(FloatPoints floatPoints, FloatPoints floatTabPoints, float thickness,
-                              boolean hasTabs, Coordinate location, double angle) {
+                              boolean hasTabs, Coordinate location, Coordinate angle) {
         // Generate the mesh
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
@@ -68,7 +68,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
                 cantAngle, 0, 0, 0, (float) -component.getLength(), 0);
 
         // Then do the axial rotation
-        final float axialRot = (float) angle;
+        final float axialRot = (float) angle.x;
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
                 0, axialRot, 0, 0, 0, 0);
 

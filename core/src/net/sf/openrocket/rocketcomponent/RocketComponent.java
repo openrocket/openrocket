@@ -1598,33 +1598,50 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *        3-instance pod set will return 6 locations, not 2
 	 *
 	 * @return Coordinates of all instance angles in the rocket, relative to the rocket's origin
+	 * 				x-component = rotation around x-axis, y = around y-axis, and z around z-axis
+	 * 	  			!!! OpenRocket rotations follow left-hand rule of rotation !!!
 	 */
-	public double[] getComponentAngles() {
+	public Coordinate[] getComponentAngles() {
 		if (this.parent == null) {
 			// == improperly initialized components OR the root Rocket instance
-			return getInstanceAngles();
+			return axialRotToCoord(getInstanceAngles());
 		} else {
-			double[] parentAngles = this.parent.getComponentAngles();
+			Coordinate[] parentAngles = this.parent.getComponentAngles();
 			int parentCount = parentAngles.length;
 
 			// override <instance>.getInstanceAngles() in each subclass
-			double[] instanceAngles = this.getInstanceAngles();
+			Coordinate[] instanceAngles = axialRotToCoord(this.getInstanceAngles());
 			int instanceCount = instanceAngles.length;
 
 			// usual case optimization
 			if ((parentCount == 1) && (instanceCount == 1)) {
-				return new double[]{parentAngles[0] + instanceAngles[0]};
+				return new Coordinate[] {parentAngles[0].add(instanceAngles[0])};
 			}
 
 			int thisCount = instanceCount * parentCount;
-			double[] theseAngles = new double[thisCount];
+			Coordinate[] theseAngles = new Coordinate[thisCount];
 			for (int pi = 0; pi < parentCount; pi++) {
 				for (int ii = 0; ii < instanceCount; ii++) {
-					theseAngles[pi + parentCount*ii] = parentAngles[pi] + instanceAngles[ii];
+					theseAngles[pi + parentCount*ii] = parentAngles[pi].add(instanceAngles[ii]);
 				}
 			}
 			return theseAngles;
 		}
+	}
+
+	/**
+	 * Converts an array of axial angles to an array of coordinates.
+	 * x-component = rotation around x-axis, y = around y-axis, and z around z-axis
+	 * 		!!! OpenRocket rotations follow left-hand rule of rotation !!!
+	 * @param angles array of axial angles
+	 * @return array of coordinates
+	 */
+	private Coordinate[] axialRotToCoord(double[] angles) {
+		Coordinate[] coords = new Coordinate[angles.length];
+		for (int i = 0; i < angles.length; i++) {
+			coords[i] = new Coordinate(angles[i], 0, 0);
+		}
+		return coords;
 	}
 	
 	///////////  Coordinate changes  ///////////

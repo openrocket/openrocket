@@ -37,7 +37,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         final float flangeHeight = (float) component.getFlangeHeight();
         final float screwHeight = (float) component.getScrewHeight();
         final Coordinate[] locations = component.getComponentLocations();
-        final double[] angles = component.getComponentAngles();
+        final Coordinate[] angles = component.getComponentAngles();
 
         // Generate the mesh
         for (int i = 0; i < locations.length; i++) {
@@ -47,7 +47,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
     }
 
     private void generateMesh(float outerRadius, float innerRadius, float baseHeight, float innerHeight, float flangeHeight,
-                              float screwHeight, Coordinate location, double angle) {
+                              float screwHeight, Coordinate location, Coordinate angle) {
         final int startIdx = obj.getNumVertices();
         final int normalStartIdx = obj.getNumNormals();
 
@@ -97,7 +97,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
 
         // Rotate the mesh (also PI/2!)
         final float rX = 0;
-        final float rY = (float) angle;
+        final float rY = (float) angle.x;
         final float rZ = (float) - Math.PI / 2;
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalStartIdx, normalEndIdx,
                 rX, rY, rZ, 0, 0, 0);
