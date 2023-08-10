@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.wavefrontobj.export;
 
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -91,11 +93,12 @@ public class OBJExporterFactoryTest extends BaseTestCase {
 
         Path tempFile = Files.createTempFile("testExport", ".obj");
 
-        finSet.setFinCount(1);
+        /*finSet.setFinCount(1);
         finSet.setAngleOffset(Math.toRadians(45));
 
-        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/test.ork");
-        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, true, false, true,
+        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/test.ork");*/
+        CoordTransform transformer = new DefaultCoordTransform(rocket.getLength());
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, true, false, true, transformer,
                 "/Users/SiboVanGool/Downloads/testExport.obj");
         exporterFactory.doExport();
 

@@ -1,18 +1,18 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
 import net.sf.openrocket.rocketcomponent.RailButton;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RailButtonExporter extends RocketComponentExporter {
+public class RailButtonExporter extends RocketComponentExporter<RailButton> {
     /**
      * Wavefront OBJ exporter for a rail button.
      *
@@ -21,24 +21,23 @@ public class RailButtonExporter extends RocketComponentExporter {
      * @param groupName The name of the group to export to
      * @param LOD       Level of detail to use for the export (e.g. '80')
      */
-    public RailButtonExporter(DefaultObj obj, RailButton component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, component, groupName, LOD);
+    public RailButtonExporter(DefaultObj obj, RailButton component, String groupName,
+                              ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+        super(obj, component, groupName, LOD, transformer);
     }
 
     @Override
     public void addToObj() {
-        final RailButton railButton = (RailButton) component;
-
         obj.setActiveGroupNames(groupName);
 
-        final float outerRadius = (float) railButton.getOuterDiameter() / 2;
-        final float innerRadius = (float) railButton.getInnerDiameter() / 2;
-        final float baseHeight = (float) railButton.getBaseHeight();
-        final float innerHeight = (float) railButton.getInnerHeight();
-        final float flangeHeight = (float) railButton.getFlangeHeight();
-        final float screwHeight = (float) railButton.getScrewHeight();
-        final Coordinate[] locations = railButton.getComponentLocations();
-        final double[] angles = railButton.getComponentAngles();
+        final float outerRadius = (float) component.getOuterDiameter() / 2;
+        final float innerRadius = (float) component.getInnerDiameter() / 2;
+        final float baseHeight = (float) component.getBaseHeight();
+        final float innerHeight = (float) component.getInnerHeight();
+        final float flangeHeight = (float) component.getFlangeHeight();
+        final float screwHeight = (float) component.getScrewHeight();
+        final Coordinate[] locations = component.getComponentLocations();
+        final double[] angles = component.getComponentAngles();
 
         // Generate the mesh
         for (int i = 0; i < locations.length; i++) {

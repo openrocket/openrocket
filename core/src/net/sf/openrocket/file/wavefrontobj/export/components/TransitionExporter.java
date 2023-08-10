@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
@@ -12,7 +13,7 @@ import net.sf.openrocket.util.Coordinate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransitionExporter extends RocketComponentExporter {
+public class TransitionExporter extends RocketComponentExporter<Transition> {
     private static final double RADIUS_EPSILON = 1e-4;
     private final int nrOfSides;
 
@@ -23,34 +24,33 @@ public class TransitionExporter extends RocketComponentExporter {
      * @param groupName Name of the group to export to
      * @param LOD Level of detail to use for the export
      */
-    public TransitionExporter(DefaultObj obj, Transition component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, component, groupName, LOD);
+    public TransitionExporter(DefaultObj obj, Transition component, String groupName,
+                              ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+        super(obj, component, groupName, LOD, transformer);
         this.nrOfSides = LOD.getNrOfSides(Math.max(component.getForeRadius(), component.getAftRadius()));
     }
 
     @Override
     public void addToObj() {
-        final Transition transition = (Transition) component;
-
         obj.setActiveGroupNames(groupName);
 
-        final Coordinate[] locations = transition.getComponentLocations();
+        final Coordinate[] locations = component.getComponentLocations();
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(transition, location);
+            generateMesh(location);
         }
     }
 
-    private void generateMesh(Transition transition, Coordinate location) {
+    private void generateMesh(Coordinate location) {
         int startIdx = obj.getNumVertices();
 
-        final boolean hasForeShoulder = Double.compare(transition.getForeShoulderRadius(), 0) > 0
-                && Double.compare(transition.getForeShoulderLength(), 0) > 0
-                && transition.getForeRadius() > 0;
-        final boolean hasAftShoulder = Double.compare(transition.getAftShoulderRadius(), 0) > 0
-                && Double.compare(transition.getAftShoulderLength(), 0) > 0
-                && transition.getAftRadius() > 0;
+        final boolean hasForeShoulder = Double.compare(component.getForeShoulderRadius(), 0) > 0
+                && Double.compare(component.getForeShoulderLength(), 0) > 0
+                && component.getForeRadius() > 0;
+        final boolean hasAftShoulder = Double.compare(component.getAftShoulderRadius(), 0) > 0
+                && Double.compare(component.getAftShoulderLength(), 0) > 0
+                && component.getAftRadius() > 0;
 
         final List<Integer> outsideForeRingVertices = new ArrayList<>();
         final List<Integer> outsideAftRingVertices = new ArrayList<>();
@@ -58,59 +58,57 @@ public class TransitionExporter extends RocketComponentExporter {
         final List<Integer> insideAftRingVertices = new ArrayList<>();
 
         // Check if geometry is a simple cylinder
-        if (Double.compare(transition.getAftRadius(), transition.getForeRadius()) == 0 ||
-                transition.getShapeType() == Transition.Shape.CONICAL ||
-                (transition.getShapeType() == Transition.Shape.OGIVE && transition.getShapeParameter() == 0) ||
-                (transition.getShapeType() == Transition.Shape.POWER && transition.getShapeParameter() == 1) ||
-                (transition.getShapeType() == Transition.Shape.PARABOLIC && transition.getShapeParameter() == 0)) {
+        if (Double.compare(component.getAftRadius(), component.getForeRadius()) == 0 ||
+                component.getShapeType() == Transition.Shape.CONICAL ||
+                (component.getShapeType() == Transition.Shape.OGIVE && component.getShapeParameter() == 0) ||
+                (component.getShapeType() == Transition.Shape.POWER && component.getShapeParameter() == 1) ||
+                (component.getShapeType() == Transition.Shape.PARABOLIC && component.getShapeParameter() == 0)) {
 
-            float outerAft = (float) transition.getAftRadius();
-            float innerAft = (float) (transition.getAftRadius() - transition.getThickness());
-            float outerFore = (float) transition.getForeRadius();
-            float innerFore = (float) (transition.getForeRadius() - transition.getThickness());
+            float outerAft = (float) component.getAftRadius();
+            float innerAft = (float) (component.getAftRadius() - component.getThickness());
+            float outerFore = (float) component.getForeRadius();
+            float innerFore = (float) (component.getForeRadius() - component.getThickness());
 
             TubeExporter.addTubeMesh(obj, null, outerAft, outerFore, innerAft, innerFore,
-                    (float) transition.getLength(), this.nrOfSides,
+                    (float) component.getLength(), this.nrOfSides,
                     outsideAftRingVertices, outsideForeRingVertices, insideAftRingVertices, insideForeRingVertices);
         }
         // Otherwise, use complex geometry
         else {
-            int numStacks = transition.getShapeType() == Transition.Shape.CONICAL ? 4 : this.nrOfSides / 2;
+            int numStacks = component.getShapeType() == Transition.Shape.CONICAL ? 4 : this.nrOfSides / 2;
 
             // Draw outside
-            addTransitionMesh(obj, transition, this.nrOfSides, numStacks, 0, true,
+            addTransitionMesh(this.nrOfSides, numStacks, 0, true,
                     outsideForeRingVertices, outsideAftRingVertices, hasForeShoulder, hasAftShoulder);
 
             // Draw inside
-            if (!transition.isFilled()) {
-                addTransitionMesh(obj, transition, this.nrOfSides, numStacks, -transition.getThickness(), false,
+            if (!component.isFilled()) {
+                addTransitionMesh(this.nrOfSides, numStacks, -component.getThickness(), false,
                         insideForeRingVertices, insideAftRingVertices, hasForeShoulder, hasAftShoulder);
             }
 
             // Draw bottom and top face
             if (!hasForeShoulder)  {
-                closeFace(obj, transition, outsideForeRingVertices, insideForeRingVertices, true);
+                closeFace(outsideForeRingVertices, insideForeRingVertices, true);
             }
             if (!hasAftShoulder) {
-                closeFace(obj, transition, outsideAftRingVertices, insideAftRingVertices, false);
+                closeFace(outsideAftRingVertices, insideAftRingVertices, false);
             }
 
         }
 
         // Add shoulders
-        addShoulders(obj, transition, this.nrOfSides, outsideForeRingVertices, outsideAftRingVertices,
+        addShoulders(this.nrOfSides, outsideForeRingVertices, outsideAftRingVertices,
                 insideForeRingVertices, insideAftRingVertices, hasForeShoulder, hasAftShoulder);
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, transition, startIdx, endIdx, location, -transition.getLength());
+        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, -component.getLength());
     }
 
     /**
      * Add a transition mesh to the obj.
-     * @param obj the obj to add the mesh to
-     * @param transition the transition to draw
      * @param numSlices the number of slices to use (= number of vertices in the circumferential direction)
      * @param numStacks the number of stacks to use (= number of vertices in the longitudinal direction)
      * @param offsetRadius offset radius from the transition radius
@@ -118,16 +116,15 @@ public class TransitionExporter extends RocketComponentExporter {
      * @param foreRingVertices list of vertices of the fore ring
      * @param aftRingVertices list of vertices of the aft ring
      */
-    private static void addTransitionMesh(DefaultObj obj, Transition transition,
-                                         int numSlices, int numStacks, double offsetRadius, boolean isOutside,
+    private void addTransitionMesh(int numSlices, int numStacks, double offsetRadius, boolean isOutside,
                                           List<Integer> foreRingVertices, List<Integer> aftRingVertices,
                                           boolean hasForeShoulder, boolean hasAftShoulder) {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
 
-        final double dyBase = transition.getLength() / numStacks;         // Base step size in the longitudinal direction
-        final double actualLength = estimateActualLength(transition, offsetRadius, dyBase);
+        final double dyBase = component.getLength() / numStacks;         // Base step size in the longitudinal direction
+        final double actualLength = estimateActualLength(offsetRadius, dyBase);
 
         // Generate vertices and normals
         float y = 0;                                        // Distance from the aft end
@@ -135,19 +132,19 @@ public class TransitionExporter extends RocketComponentExporter {
         boolean isForeTip = false;                          // True if the fore end of the transition is a tip (radius = 0)
         boolean isAftTip = false;                           // True if the aft end of the transition is a tip (radius = 0)
         int actualNumStacks = 0;                            // Number of stacks added, deviates from set point due to reduced step size near the tip (does not include aft/fore tip rings)
-        while (y <= (float) transition.getLength()) {
+        while (y <= (float) component.getLength()) {
             // When closer to the tip, decrease the step size
             double t = Math.min(1, y / actualLength);
-            if (transition.getForeRadius() < transition.getAftRadius()) {
+            if (component.getForeRadius() < component.getAftRadius()) {
                 t = 1 - t;
             }
             float dy = t < 0.2 ? (float) (dyBase / (5.0 - 20*t)) : (float) dyBase;
             float yNext = y + dy;
-            yNext = Math.min(yNext, (float) transition.getLength());
+            yNext = Math.min(yNext, (float) component.getLength());
 
             // Calculate the radius at this height
-            r = Math.max(0, transition.getRadius(transition.getLength()-y) + offsetRadius);     // y = 0 is aft and, but this would return the fore radius, so subtract it from the length
-            double rNext = Math.max(0, transition.getRadius(transition.getLength()-yNext) + offsetRadius);
+            r = Math.max(0, component.getRadius(component.getLength()-y) + offsetRadius);     // y = 0 is aft and, but this would return the fore radius, so subtract it from the length
+            double rNext = Math.max(0, component.getRadius(component.getLength()-yNext) + offsetRadius);
 
 
             /*
@@ -173,7 +170,7 @@ public class TransitionExporter extends RocketComponentExporter {
                     } else {
                         // Case 2: Add a single vertex at the center (= aft tip)
                         float epsilon = dy / 20;
-                        float yTip = getTipLocation(transition, y, yNext, offsetRadius, epsilon);
+                        float yTip = getTipLocation(y, yNext, offsetRadius, epsilon);
                         obj.addVertex(0, yTip, 0);
                         obj.addNormal(0, isOutside ? -1 : 1, 0);
                         isAftTip = true;
@@ -191,8 +188,8 @@ public class TransitionExporter extends RocketComponentExporter {
                 // because this is where the shoulder base will be
                 float yClamped = y;
                 if (!isOutside) {
-                    final double yForeShoulder = transition.getLength() - transition.getForeShoulderThickness();
-                    final double yAftShoulder = transition.getAftShoulderThickness();
+                    final double yForeShoulder = component.getLength() - component.getForeShoulderThickness();
+                    final double yAftShoulder = component.getAftShoulderThickness();
                     if (hasForeShoulder) {
                         if (y < yForeShoulder) {
                             // If the current ring is before the fore shoulder ring and the next ring is after, clamp the
@@ -218,10 +215,10 @@ public class TransitionExporter extends RocketComponentExporter {
                     }
                 }
 
-                if (Double.compare(rNext, RADIUS_EPSILON) <= 0 && Double.compare(yClamped, transition.getLength()) != 0) {
+                if (Double.compare(rNext, RADIUS_EPSILON) <= 0 && Double.compare(yClamped, component.getLength()) != 0) {
                     // Case 3: Add a single vertex at the center at the next y position (= fore tip)
                     float epsilon = dy / 20;
-                    float yTip = getTipLocation(transition, yClamped, yNext, offsetRadius, epsilon);
+                    float yTip = getTipLocation(yClamped, yNext, offsetRadius, epsilon);
                     obj.addVertex(0, yTip, 0);
                     obj.addNormal(0, isOutside ? 1 : -1, 0);
                     isForeTip = true;
@@ -233,16 +230,16 @@ public class TransitionExporter extends RocketComponentExporter {
                 } else {
                     // Check on which ring we are
                     boolean isAftRing = actualNumStacks == 0 && aftRingVertices.isEmpty();
-                    boolean isForeRing = Double.compare(yClamped, (float) transition.getLength()) == 0;
+                    boolean isForeRing = Double.compare(yClamped, (float) component.getLength()) == 0;
 
                     // Case 5: Add normal vertices
-                    addQuadVertices(obj, numSlices, foreRingVertices, aftRingVertices, r, rNext, yClamped, isAftRing, isForeRing, isOutside);
+                    addQuadVertices(numSlices, foreRingVertices, aftRingVertices, r, rNext, yClamped, isAftRing, isForeRing, isOutside);
                     actualNumStacks++;
                 }
             }
 
             // If we're at the fore end, stop
-            if (Float.compare(y, (float) transition.getLength()) == 0) {
+            if (Float.compare(y, (float) component.getLength()) == 0) {
                 break;
             }
 
@@ -251,16 +248,16 @@ public class TransitionExporter extends RocketComponentExporter {
 
         // Create aft/fore tip faces
         if (isAftTip || isForeTip) {
-            addTipFaces(obj, numSlices, isOutside, isAftTip, startIdx, normalsStartIdx);
+            addTipFaces(numSlices, isOutside, isAftTip, startIdx, normalsStartIdx);
         }
 
         // Create regular faces
         int corrVStartIdx = isAftTip ? startIdx + 1 : startIdx;
         int corrNStartIdx = isAftTip ? normalsStartIdx + 1 : normalsStartIdx;
-        addQuadFaces(obj, numSlices, actualNumStacks, corrVStartIdx, corrNStartIdx, isOutside);
+        addQuadFaces(numSlices, actualNumStacks, corrVStartIdx, corrNStartIdx, isOutside);
     }
 
-    private static void addTipFaces(DefaultObj obj, int numSlices, boolean isOutside, boolean isAftTip, int startIdx, int normalsStartIdx) {
+    private void addTipFaces(int numSlices, boolean isOutside, boolean isAftTip, int startIdx, int normalsStartIdx) {
         final int lastIdx = obj.getNumVertices() - 1;
         for (int i = 0; i < numSlices; i++) {
             int nextIdx = (i + 1) % numSlices;
@@ -305,7 +302,7 @@ public class TransitionExporter extends RocketComponentExporter {
         }
     }
 
-    private static void addQuadVertices(DefaultObj obj, int numSlices, List<Integer> foreRingVertices, List<Integer> aftRingVertices,
+    private void addQuadVertices(int numSlices, List<Integer> foreRingVertices, List<Integer> aftRingVertices,
                                         double r, double rNext, float y, boolean isAftRing, boolean isForeRing, boolean isOutside) {
         for (int i = 0; i < numSlices; i++) {
             double angle = 2 * Math.PI * i / numSlices;
@@ -330,7 +327,7 @@ public class TransitionExporter extends RocketComponentExporter {
         }
     }
 
-    private static void addQuadFaces(DefaultObj obj, int numSlices, int numStacks, int startIdx, int normalsStartIdx, boolean isOutside) {
+    private void addQuadFaces(int numSlices, int numStacks, int startIdx, int normalsStartIdx, boolean isOutside) {
         for (int i = 0; i < numStacks - 1; i++) {
             for (int j = 0; j < numSlices; j++) {
                 final int nextIdx = (j + 1) % numSlices;
@@ -353,32 +350,30 @@ public class TransitionExporter extends RocketComponentExporter {
         }
     }
 
-    private static void addShoulders(DefaultObj obj, Transition transition, int nrOfSides,
-                                     List<Integer> outsideForeRingVertices, List<Integer> outsideAftRingVertices,
-                                        List<Integer> insideForeRingVertices, List<Integer> insideAftRingVertices,
-                                     boolean hasForeShoulder, boolean hasAftShoulder) {
-        final float foreShoulderRadius = (float) transition.getForeShoulderRadius();
-        final float aftShoulderRadius = (float) transition.getAftShoulderRadius();
-        final float foreShoulderLength = (float) transition.getForeShoulderLength();
-        final float aftShoulderLength = (float) transition.getAftShoulderLength();
-        final float foreShoulderThickness = (float) transition.getForeShoulderThickness();
-        final float aftShoulderThickness = (float) transition.getAftShoulderThickness();
-        final boolean foreShoulderCapped = transition.isForeShoulderCapped();
-        final boolean aftShoulderCapped = transition.isAftShoulderCapped();
+    private void addShoulders(int nrOfSides, List<Integer> outsideForeRingVertices, List<Integer> outsideAftRingVertices,
+                              List<Integer> insideForeRingVertices, List<Integer> insideAftRingVertices,
+                              boolean hasForeShoulder, boolean hasAftShoulder) {
+        final float foreShoulderRadius = (float) component.getForeShoulderRadius();
+        final float aftShoulderRadius = (float) component.getAftShoulderRadius();
+        final float foreShoulderLength = (float) component.getForeShoulderLength();
+        final float aftShoulderLength = (float) component.getAftShoulderLength();
+        final float foreShoulderThickness = (float) component.getForeShoulderThickness();
+        final float aftShoulderThickness = (float) component.getAftShoulderThickness();
+        final boolean foreShoulderCapped = component.isForeShoulderCapped();
+        final boolean aftShoulderCapped = component.isAftShoulderCapped();
 
         if (hasForeShoulder) {
-            addShoulder(obj, transition, foreShoulderRadius, foreShoulderLength, foreShoulderThickness, foreShoulderCapped,
+            addShoulder(foreShoulderRadius, foreShoulderLength, foreShoulderThickness, foreShoulderCapped,
                     true, nrOfSides, outsideForeRingVertices, insideForeRingVertices);
         }
         if (hasAftShoulder) {
-            addShoulder(obj, transition, aftShoulderRadius, aftShoulderLength, aftShoulderThickness, aftShoulderCapped,
+            addShoulder(aftShoulderRadius, aftShoulderLength, aftShoulderThickness, aftShoulderCapped,
                     false, nrOfSides, outsideAftRingVertices, insideAftRingVertices);
         }
     }
 
-    private static void addShoulder(DefaultObj obj, Transition transition, float shoulderRadius, float shoulderLength,
-                                    float shoulderThickness, boolean isCapped, boolean isForeSide, int nrOfSides,
-                                    List<Integer> outerRingVertices, List<Integer> innerRingVertices) {
+    private void addShoulder(float shoulderRadius, float shoulderLength, float shoulderThickness, boolean isCapped,
+                             boolean isForeSide, int nrOfSides, List<Integer> outerRingVertices, List<Integer> innerRingVertices) {
         final float innerCylinderRadius = isCapped ? 0 : shoulderRadius - shoulderThickness;
         final List<Integer> outerCylinderBottomVertices = new ArrayList<>();
         final List<Integer> outerCylinderTopVertices = new ArrayList<>();
@@ -417,7 +412,7 @@ public class TransitionExporter extends RocketComponentExporter {
         endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
 
         // Translate the outer cylinder to the correct position
-        float dy = isForeSide ? (float) transition.getLength() : -shoulderLength;
+        float dy = isForeSide ? (float) component.getLength() : -shoulderLength;
         ObjUtils.translateVertices(obj, startIdx, endIdx, 0, dy, 0);
 
         // Generate inner cylinder (no. 7)
@@ -428,7 +423,7 @@ public class TransitionExporter extends RocketComponentExporter {
             endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
 
             // Translate the outer cylinder to the correct position
-            dy = isForeSide ? (float) transition.getLength() - shoulderThickness : -shoulderLength;
+            dy = isForeSide ? (float) component.getLength() - shoulderThickness : -shoulderLength;
             ObjUtils.translateVertices(obj, startIdx, endIdx, 0, dy, 0);
         }
 
@@ -454,31 +449,29 @@ public class TransitionExporter extends RocketComponentExporter {
         }
     }
 
-    private static void closeFace(DefaultObj obj, Transition transition, List<Integer> outerVertices, List<Integer> innerVertices,
-                                  boolean isTopFace) {
-        boolean filledCap = transition.isFilled() || innerVertices.size() <= 1;
+    private void closeFace(List<Integer> outerVertices, List<Integer> innerVertices, boolean isTopFace) {
+        boolean filledCap = component.isFilled() || innerVertices.size() <= 1;
         DiskExporter.closeDiskMesh(obj, null, outerVertices, filledCap ? null : innerVertices, isTopFace);
     }
 
     /**
      * Due to the offsetRadius, the length of the transition to be drawn can be smaller than the actual length of the transition,
      * because the offsetRadius causes the mesh to "shrink". This method estimates the length of the transition to be drawn.
-     * @param transition the transition to estimate the length for
      * @param offsetRadius the offset radius to the radius
      * @param dyBase the base of the dy
      * @return the estimated length of the transition to be drawn
      */
-    private static float estimateActualLength(Transition transition, double offsetRadius, double dyBase) {
+    private float estimateActualLength(double offsetRadius, double dyBase) {
         if (Double.compare(offsetRadius, 0) >= 0) {
-            return (float) transition.getLength();
+            return (float) component.getLength();
         }
 
         double y = 0;
         final float increment = (float) dyBase / 4;
         float actualLength = 0;
 
-        while (y < transition.getLength()) {
-            final double r = transition.getRadius(transition.getLength()-y) + offsetRadius;
+        while (y < component.getLength()) {
+            final double r = component.getRadius(component.getLength()-y) + offsetRadius;
 
             if (Double.compare(r, 0) > 0) {
                 actualLength += increment;
@@ -492,23 +485,22 @@ public class TransitionExporter extends RocketComponentExporter {
 
     /**
      * Locate the best location for the tip of a transition.
-     * @param transition the transition to look the tip for
      * @param yStart the start position to look for
      * @param yEnd the end position to look for
      * @param offsetRadius the offset radius to the radius
      * @param epsilon the increment to parse the next y location
      * @return the best location for the tip
      */
-    private static float getTipLocation(Transition transition, float yStart, float yEnd, double offsetRadius, float epsilon) {
+    private float getTipLocation(float yStart, float yEnd, double offsetRadius, float epsilon) {
         if (Float.compare(yStart, yEnd) == 0 || Float.compare(epsilon, 0) == 0) {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        boolean isStartSmaller = transition.getRadius(transition.getLength()-yStart) < transition.getRadius(transition.getLength()-yEnd);
+        boolean isStartSmaller = component.getRadius(component.getLength()-yStart) < component.getRadius(component.getLength()-yEnd);
 
         if (isStartSmaller) {
             for (float y = yEnd; y >= yStart; y -= epsilon) {
-                double r = Math.max(0, transition.getRadius(transition.getLength() - y) + offsetRadius);
+                double r = Math.max(0, component.getRadius(component.getLength() - y) + offsetRadius);
                 if (Double.compare(r, 0) == 0) {
                     return y;
                 }
@@ -517,7 +509,7 @@ public class TransitionExporter extends RocketComponentExporter {
             return yStart;
         } else {
             for (float y = yStart; y <= yEnd; y += epsilon) {
-                double r = Math.max(0, transition.getRadius(transition.getLength() - y) + offsetRadius);
+                double r = Math.max(0, component.getRadius(component.getLength() - y) + offsetRadius);
                 if (Double.compare(r, 0) == 0) {
                     return y;
                 }

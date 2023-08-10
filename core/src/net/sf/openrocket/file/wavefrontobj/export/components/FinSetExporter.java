@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.PolygonExporter;
@@ -9,30 +10,28 @@ import net.sf.openrocket.util.Coordinate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FinSetExporter extends RocketComponentExporter {
-    public FinSetExporter(DefaultObj obj, FinSet component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, component, groupName, LOD);
+public class FinSetExporter extends RocketComponentExporter<FinSet> {
+    public FinSetExporter(DefaultObj obj, FinSet component, String groupName,
+                          ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+        super(obj, component, groupName, LOD, transformer);
     }
 
     @Override
     public void addToObj() {
-        final FinSet finSet = (FinSet) component;
-
         obj.setActiveGroupNames(groupName);
 
-        final Coordinate[] points = finSet.getFinPointsWithRoot();
-        final Coordinate[] tabPoints = finSet.getTabPoints();
+        final Coordinate[] points = component.getFinPointsWithRoot();
+        final Coordinate[] tabPoints = component.getTabPoints();
         final Coordinate[] tabPointsReversed = new Coordinate[tabPoints.length];
         for (int i = 0; i < tabPoints.length; i++) {
             tabPointsReversed[i] = tabPoints[tabPoints.length - i - 1];
         }
         final FloatPoints floatPoints = getPointsAsFloat(points);
         final FloatPoints floatTabPoints = getPointsAsFloat(tabPointsReversed);
-        final float thickness = (float) finSet.getThickness();
-        final double rocketLength = finSet.getRocket().getLength();
-        boolean hasTabs = finSet.getTabLength() > 0 && finSet.getTabHeight() > 0;
-        final Coordinate[] locations = finSet.getComponentLocations();
-        final double[] angles = finSet.getComponentAngles();
+        final float thickness = (float) component.getThickness();
+        boolean hasTabs = component.getTabLength() > 0 && component.getTabHeight() > 0;
+        final Coordinate[] locations = component.getComponentLocations();
+        final double[] angles = component.getComponentAngles();
 
         if (locations.length != angles.length) {
             throw new IllegalArgumentException("Number of locations and angles must match");
@@ -40,11 +39,11 @@ public class FinSetExporter extends RocketComponentExporter {
 
         // Generate the fin meshes
         for (int i = 0; i < locations.length; i++) {
-            generateMesh(finSet,floatPoints, floatTabPoints, thickness, hasTabs, locations[i], angles[i]);
+            generateMesh(floatPoints, floatTabPoints, thickness, hasTabs, locations[i], angles[i]);
         }
     }
 
-    private void generateMesh(FinSet finSet, FloatPoints floatPoints, FloatPoints floatTabPoints, float thickness,
+    private void generateMesh(FloatPoints floatPoints, FloatPoints floatTabPoints, float thickness,
                               boolean hasTabs, Coordinate location, double angle) {
         // Generate the mesh
         final int startIdx = obj.getNumVertices();
@@ -64,9 +63,9 @@ public class FinSetExporter extends RocketComponentExporter {
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);     // Clamp in case no normals were added
 
         // First rotate for the cant angle
-        final float cantAngle = (float) - finSet.getCantAngle();
+        final float cantAngle = (float) -component.getCantAngle();
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
-                cantAngle, 0, 0, 0, (float) - finSet.getLength(), 0);
+                cantAngle, 0, 0, 0, (float) -component.getLength(), 0);
 
         // Then do the axial rotation
         final float axialRot = (float) angle;
@@ -74,7 +73,7 @@ public class FinSetExporter extends RocketComponentExporter {
                 0, axialRot, 0, 0, 0, 0);
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, finSet, startIdx, endIdx, location, 0);
+        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, 0);
     }
 
     /**

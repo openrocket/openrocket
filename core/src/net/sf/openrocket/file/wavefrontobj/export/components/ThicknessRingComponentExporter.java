@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
@@ -7,19 +8,18 @@ import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.util.Coordinate;
 
-public class ThicknessRingComponentExporter extends RocketComponentExporter {
-    public ThicknessRingComponentExporter(DefaultObj obj, ThicknessRingComponent component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, component, groupName, LOD);
+public class ThicknessRingComponentExporter extends RocketComponentExporter<ThicknessRingComponent> {
+    public ThicknessRingComponentExporter(DefaultObj obj, ThicknessRingComponent component, String groupName,
+                                          ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+        super(obj, component, groupName, LOD, transformer);
     }
 
     @Override
     public void addToObj() {
-        final ThicknessRingComponent thicknessRing = (ThicknessRingComponent) component;
-
-        final float outerRadius = (float) thicknessRing.getOuterRadius();
-        final float innerRadius = (float) thicknessRing.getInnerRadius();
-        final float length = (float) thicknessRing.getLength();
-        final Coordinate[] locations = thicknessRing.getComponentLocations();
+        final float outerRadius = (float) component.getOuterRadius();
+        final float innerRadius = (float) component.getInnerRadius();
+        final float length = (float) component.getLength();
+        final Coordinate[] locations = component.getComponentLocations();
 
         // Generate the mesh
         for (Coordinate location : locations) {

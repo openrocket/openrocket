@@ -1,28 +1,27 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 
-public class TubeFinSetExporter extends RocketComponentExporter {
-    public TubeFinSetExporter(DefaultObj obj, TubeFinSet component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, component, groupName, LOD);
+public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
+    public TubeFinSetExporter(DefaultObj obj, TubeFinSet component, String groupName,
+                              ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+        super(obj, component, groupName, LOD, transformer);
     }
 
     @Override
     public void addToObj() {
-        final TubeFinSet tubeFinSet = (TubeFinSet) component;
-
         obj.setActiveGroupNames(groupName);
 
-        final float outerRadius = (float) tubeFinSet.getOuterRadius();
-        final float innerRadius = (float) tubeFinSet.getInnerRadius();
-        final float length = (float) tubeFinSet.getLength();
-        final Coordinate[] locations = tubeFinSet.getComponentLocations();
-        final double[] angles = tubeFinSet.getInstanceAngles();
-        final double rocketLength = tubeFinSet.getRocket().getLength();
+        final float outerRadius = (float) component.getOuterRadius();
+        final float innerRadius = (float) component.getInnerRadius();
+        final float length = (float) component.getLength();
+        final Coordinate[] locations = component.getComponentLocations();
+        final double[] angles = component.getInstanceAngles();
 
         if (locations.length != angles.length) {
             throw new IllegalArgumentException("Number of locations and angles must match");
@@ -30,11 +29,11 @@ public class TubeFinSetExporter extends RocketComponentExporter {
 
         // Generate the fin meshes
         for (int i = 0; i < locations.length; i++) {
-            generateMesh(outerRadius, innerRadius, length, rocketLength, locations[i], angles[i]);
+            generateMesh(outerRadius, innerRadius, length, locations[i], angles[i]);
         }
     }
 
-    private void generateMesh(float outerRadius, float innerRadius, float length, double rocketLength, Coordinate location, double angle) {
+    private void generateMesh(float outerRadius, float innerRadius, float length, Coordinate location, double angle) {
         // Create the fin meshes
         final int startIdx = obj.getNumVertices();
 

@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
+import de.javagl.obj.FloatTuple;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class TubeExporter {
     /**
-     * Add a tube mesh to the obj. The longitudinal axis is the y axis (in OBJ coordinate system).
+     * Add a tube mesh to the obj.
      * @param obj The obj to add the mesh to
      * @param groupName The name of the group to add the mesh to, or null if no group should be added (use the active group)
      * @param bottomOuterRadius The outer radius of the bottom of the tube
@@ -49,6 +50,7 @@ public class TubeExporter {
             float x = bottomOuterRadius * (float) Math.cos(angle);
             float z = bottomOuterRadius * (float) Math.sin(angle);
 
+            //FloatTuple vertex = ObjUtils.
             obj.addVertex(x, 0, z);
             obj.addNormal(x, 0, z);     // This kind of normal ensures the object is smoothly rendered (like the 'Shade Smooth' option in Blender)
 

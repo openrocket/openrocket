@@ -1,5 +1,6 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
@@ -7,28 +8,27 @@ import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.util.Coordinate;
 
-public class BodyTubeExporter extends RocketComponentExporter {
-    public BodyTubeExporter(DefaultObj obj, BodyTube component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, component, groupName, LOD);
+public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
+    public BodyTubeExporter(DefaultObj obj, BodyTube component, String groupName,
+                            ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+        super(obj, component, groupName, LOD, transformer);
     }
 
     @Override
     public void addToObj() {
-        final BodyTube bodyTube = (BodyTube) component;
-
-        final float outerRadius = (float) bodyTube.getOuterRadius();
-        final float innerRadius = (float) bodyTube.getInnerRadius();
-        final float length = (float) bodyTube.getLength();
-        final boolean isFilled = bodyTube.isFilled();
-        final Coordinate[] locations = bodyTube.getComponentLocations();
+        final float outerRadius = (float) component.getOuterRadius();
+        final float innerRadius = (float) component.getInnerRadius();
+        final float length = (float) component.getLength();
+        final boolean isFilled = component.isFilled();
+        final Coordinate[] locations = component.getComponentLocations();
 
         // Generate the mesh
         for (Coordinate location : locations) {
-            generateMesh(bodyTube, outerRadius, innerRadius, length, isFilled, location);
+            generateMesh(outerRadius, innerRadius, length, isFilled, location);
         }
     }
 
-    private void generateMesh(BodyTube bodyTube, float outerRadius, float innerRadius, float length, boolean isFilled,
+    private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled,
                               Coordinate location) {
         int startIdx = obj.getNumVertices();
 
@@ -45,6 +45,6 @@ public class BodyTubeExporter extends RocketComponentExporter {
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, bodyTube, startIdx, endIdx, location, -length);
+        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, -length);
     }
 }
