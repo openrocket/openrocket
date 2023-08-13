@@ -1,5 +1,7 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import com.sun.istack.NotNull;
+import de.javagl.obj.FloatTuple;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
@@ -17,16 +19,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private static final double RADIUS_EPSILON = 1e-4;
     private final int nrOfSides;
 
-    /**
-     * Exporter for transition components
-     * @param obj Wavefront OBJ file to export to
-     * @param component Component to export
-     * @param groupName Name of the group to export to
-     * @param LOD Level of detail to use for the export
-     */
-    public TransitionExporter(DefaultObj obj, Transition component, String groupName,
-                              ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
-        super(obj, component, groupName, LOD, transformer);
+    public TransitionExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, Transition component,
+                              String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, transformer, component, groupName, LOD);
         this.nrOfSides = LOD.getNrOfSides(Math.max(component.getForeRadius(), component.getAftRadius()));
     }
 
@@ -69,7 +64,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             float outerFore = (float) component.getForeRadius();
             float innerFore = (float) (component.getForeRadius() - component.getThickness());
 
-            TubeExporter.addTubeMesh(obj, null, outerAft, outerFore, innerAft, innerFore,
+            TubeExporter.addTubeMesh(obj, transformer, null, outerAft, outerFore, innerAft, innerFore,
                     (float) component.getLength(), this.nrOfSides,
                     outsideAftRingVertices, outsideForeRingVertices, insideAftRingVertices, insideForeRingVertices);
         }
@@ -89,10 +84,10 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
             // Draw bottom and top face
             if (!hasForeShoulder)  {
-                closeFace(outsideForeRingVertices, insideForeRingVertices, true);
+                closeFace(insideForeRingVertices, outsideForeRingVertices, true);
             }
             if (!hasAftShoulder) {
-                closeFace(outsideAftRingVertices, insideAftRingVertices, false);
+                closeFace(insideAftRingVertices, outsideAftRingVertices, false);
             }
 
         }
@@ -104,7 +99,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, -component.getLength());
+        ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 
     /**
@@ -123,28 +118,28 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
 
-        final double dyBase = component.getLength() / numStacks;         // Base step size in the longitudinal direction
-        final double actualLength = estimateActualLength(offsetRadius, dyBase);
+        final double dxBase = component.getLength() / numStacks;         // Base step size in the longitudinal direction
+        final double actualLength = estimateActualLength(offsetRadius, dxBase);
 
         // Generate vertices and normals
-        float y = 0;                                        // Distance from the aft end
-        double r;                                           // Current radius at height y
+        float x = 0;                                        // Distance from the fore end
+        double r;                                           // Current radius at location x
         boolean isForeTip = false;                          // True if the fore end of the transition is a tip (radius = 0)
         boolean isAftTip = false;                           // True if the aft end of the transition is a tip (radius = 0)
         int actualNumStacks = 0;                            // Number of stacks added, deviates from set point due to reduced step size near the tip (does not include aft/fore tip rings)
-        while (y <= (float) component.getLength()) {
-            // When closer to the tip, decrease the step size
-            double t = Math.min(1, y / actualLength);
-            if (component.getForeRadius() < component.getAftRadius()) {
+        while (x <= (float) component.getLength()) {
+            // When closer to the smallest section of the transition, decrease the step size
+            double t = Math.min(1, x / actualLength);
+            if (component.getForeRadius() > component.getAftRadius()) {
                 t = 1 - t;
             }
-            float dy = t < 0.2 ? (float) (dyBase / (5.0 - 20*t)) : (float) dyBase;
-            float yNext = y + dy;
-            yNext = Math.min(yNext, (float) component.getLength());
+            float dx = t < 0.2 ? (float) (dxBase / (5.0 - 20*t)) : (float) dxBase;
+            float xNext = x + dx;
+            xNext = Math.min(xNext, (float) component.getLength());
 
             // Calculate the radius at this height
-            r = Math.max(0, component.getRadius(component.getLength()-y) + offsetRadius);     // y = 0 is aft and, but this would return the fore radius, so subtract it from the length
-            double rNext = Math.max(0, component.getRadius(component.getLength()-yNext) + offsetRadius);
+            r = Math.max(0, component.getRadius(x) + offsetRadius);
+            double rNext = Math.max(0, component.getRadius(xNext) + offsetRadius);
 
 
             /*
@@ -155,118 +150,117 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             mesh. For this, we need to set isAftRing and isForeRing.
 
             The following rules apply:
-            1. If actualNumStacks == 0, r == 0 and rNext == 0, skip this ring (you're at the aft end, before the aft tip)
-            2. If actualNumStacks == 0, r == 0 and rNext > 0, add a single vertex at the center (= aft tip)
-            3. If r > 0 and rNext == 0, set isForeRing = true & add a single vertex at the center at the next y position (= fore tip)
-            4. If actualNumStacks > 0, r == 0 and rNext == 0, break the loop (you're at the fore tip)
+            1. If actualNumStacks == 0, r == 0 and rNext == 0, skip this ring (you're at the fore end, before the fore tip)
+            2. If actualNumStacks == 0, r == 0 and rNext > 0, add a single vertex at the center (= fore tip)
+            3. If r > 0 and rNext == 0, set isForeRing = true & add a single vertex at the center at the next x position (= aft tip)
+            4. If actualNumStacks > 0, r == 0 and rNext == 0, break the loop (you're at the aft tip)
             5. If r > 0, add normal vertices
              */
             if (actualNumStacks == 0) {
-                if (Double.compare(r, 0) == 0) {
+                if (Double.compare(r, RADIUS_EPSILON) <= 0) {
                     if (Double.compare(rNext, 0) == 0) {
-                        // Case 1: Skip this ring (you're at the aft end, before the aft tip)
-                        y = yNext;
+                        // Case 1: Skip this ring (you're at the fore end, before the fore tip)
+                        x = xNext;
                         continue;
                     } else {
-                        // Case 2: Add a single vertex at the center (= aft tip)
-                        float epsilon = dy / 20;
-                        float yTip = getTipLocation(y, yNext, offsetRadius, epsilon);
-                        obj.addVertex(0, yTip, 0);
-                        obj.addNormal(0, isOutside ? -1 : 1, 0);
-                        isAftTip = true;
+                        // Case 2: Add a single vertex at the center (= fore tip)
+                        float epsilon = dx / 20;
+                        float xTip = getTipLocation(x, xNext, offsetRadius, epsilon);
+                        obj.addVertex(transformer.convertLoc(xTip, 0, 0));
+                        obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? -1 : 1, 0, 0));
+                        isForeTip = true;
 
-                        // The aft tip is the first aft "ring"
-                        aftRingVertices.add(obj.getNumVertices() - 1);
+                        // The fore tip is the first fore "ring"
+                        foreRingVertices.add(obj.getNumVertices() - 1);
                     }
                 }
             } else if (actualNumStacks > 0 && Double.compare(r, 0) == 0 && Double.compare(rNext, 0) == 0) {
-                // Case 4: Break the loop (you're at the fore tip)
+                // Case 4: Break the loop (you're at the aft tip)
                 break;
             }
             if (Double.compare(r, RADIUS_EPSILON) > 0) {        // Don't just compare to 0, otherwise you could still have really small rings that could be better replaced by a tip
                 // For the inside transition shape if we're in the shoulder base region, we need to skip adding rings,
                 // because this is where the shoulder base will be
-                float yClamped = y;
                 if (!isOutside) {
-                    final double yForeShoulder = component.getLength() - component.getForeShoulderThickness();
-                    final double yAftShoulder = component.getAftShoulderThickness();
-                    if (hasForeShoulder) {
-                        if (y < yForeShoulder) {
-                            // If the current ring is before the fore shoulder ring and the next ring is after, clamp the
-                            // next ring to the fore shoulder ring
-                            if (yNext > yForeShoulder) {
-                                yNext = (float) yForeShoulder;
-                            }
-                        }
-                        // Skip the ring
-                        else if (y > yForeShoulder) {
+                    // Get the location where the fore/aft shoulder would end (due to its thickness)
+                    final double xForeShoulder = component.getAftShoulderThickness();
+                    final double xAftShoulder = component.getLength() - component.getForeShoulderThickness();
+                    if (hasForeShoulder && x < xForeShoulder) {
+                        // If the current ring is before the fore shoulder ring and the next ring is after, clamp the
+                        // next ring to the fore shoulder ring
+                        if (xNext > xForeShoulder) {
+                            xNext = (float) xForeShoulder;
+                        } else {
+                            // Skip the ring
+                            x = xNext;
                             continue;
                         }
-                    } else if (hasAftShoulder && y < yAftShoulder) {
-                        // The aft shoulder point is between this and the next ring, so clamp the y value to the shoulder height
+                    } else if (hasAftShoulder && x < xAftShoulder) {
+                        // The aft shoulder point is between this and the next ring, so clamp the x value to the shoulder height
                         // and add the ring
-                        if (yNext > yAftShoulder) {
-                            yClamped = (float) yAftShoulder;
+                        if (xNext > xAftShoulder) {
+                            xNext = (float) xAftShoulder;
                         }
                         // Skip the ring
                         else {
+                            x = xNext;
                             continue;
                         }
                     }
                 }
 
-                if (Double.compare(rNext, RADIUS_EPSILON) <= 0 && Double.compare(yClamped, component.getLength()) != 0) {
-                    // Case 3: Add a single vertex at the center at the next y position (= fore tip)
-                    float epsilon = dy / 20;
-                    float yTip = getTipLocation(yClamped, yNext, offsetRadius, epsilon);
-                    obj.addVertex(0, yTip, 0);
-                    obj.addNormal(0, isOutside ? 1 : -1, 0);
-                    isForeTip = true;
+                if (Double.compare(rNext, RADIUS_EPSILON) <= 0 && Double.compare(x, component.getLength()) != 0) {
+                    // Case 3: Add a single vertex at the center at the next x position (= aft tip)
+                    float epsilon = dx / 20;
+                    float xTip = getTipLocation(x, xNext, offsetRadius, epsilon);
+                    obj.addVertex(transformer.convertLoc(xTip, 0, 0));
+                    obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? 1 : -1, 0, 0));
+                    isAftTip = true;
 
-                    // The fore tip is the first fore "ring"
-                    foreRingVertices.add(obj.getNumVertices() - 1);
+                    // The aft tip is the aft "ring"
+                    aftRingVertices.add(obj.getNumVertices() - 1);
 
                     break;
                 } else {
                     // Check on which ring we are
-                    boolean isAftRing = actualNumStacks == 0 && aftRingVertices.isEmpty();
-                    boolean isForeRing = Double.compare(yClamped, (float) component.getLength()) == 0;
+                    boolean isForeRing = actualNumStacks == 0 && foreRingVertices.isEmpty();
+                    boolean isAftRing = Double.compare(x, (float) component.getLength()) == 0;
 
                     // Case 5: Add normal vertices
-                    addQuadVertices(numSlices, foreRingVertices, aftRingVertices, r, rNext, yClamped, isAftRing, isForeRing, isOutside);
+                    addQuadVertices(numSlices, foreRingVertices, aftRingVertices, r, rNext, x, isForeRing, isAftRing, isOutside);
                     actualNumStacks++;
                 }
             }
 
             // If we're at the fore end, stop
-            if (Float.compare(y, (float) component.getLength()) == 0) {
+            if (Float.compare(x, (float) component.getLength()) == 0) {
                 break;
             }
 
-            y = yNext;
+            x = xNext;
         }
 
         // Create aft/fore tip faces
         if (isAftTip || isForeTip) {
-            addTipFaces(numSlices, isOutside, isAftTip, startIdx, normalsStartIdx);
+            addTipFaces(numSlices, isOutside, isForeTip, startIdx, normalsStartIdx);
         }
 
         // Create regular faces
-        int corrVStartIdx = isAftTip ? startIdx + 1 : startIdx;
-        int corrNStartIdx = isAftTip ? normalsStartIdx + 1 : normalsStartIdx;
+        int corrVStartIdx = isForeTip ? startIdx + 1 : startIdx;
+        int corrNStartIdx = isForeTip ? normalsStartIdx + 1 : normalsStartIdx;
         addQuadFaces(numSlices, actualNumStacks, corrVStartIdx, corrNStartIdx, isOutside);
     }
 
-    private void addTipFaces(int numSlices, boolean isOutside, boolean isAftTip, int startIdx, int normalsStartIdx) {
+    private void addTipFaces(int numSlices, boolean isOutside, boolean isForeTip, int startIdx, int normalsStartIdx) {
         final int lastIdx = obj.getNumVertices() - 1;
         for (int i = 0; i < numSlices; i++) {
             int nextIdx = (i + 1) % numSlices;
             int[] vertexIndices;
             int[] normalIndices;
-            // Aft tip
-            if (isAftTip) {
+            // Fore tip
+            if (isForeTip) {
                 vertexIndices = new int[] {
-                        0,                      // Aft tip vertex
+                        0,                      // Fore tip vertex
                         1 + i,
                         1 + nextIdx
                 };
@@ -277,10 +271,10 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
                 ObjUtils.offsetIndex(vertexIndices, startIdx);    // Do this last, otherwise the normal indices will be wrong
             }
-            // Fore tip
+            // Aft tip
             else {
                 vertexIndices = new int[] {
-                        lastIdx,                // Fore tip vertex
+                        lastIdx,                // Aft tip vertex
                         lastIdx - numSlices + nextIdx,
                         lastIdx - numSlices + i,
                 };
@@ -288,7 +282,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
                 int lastNormalIdx = obj.getNumNormals() - 1;
                 normalIndices = new int[] {
-                        lastNormalIdx,                // Fore tip vertex
+                        lastNormalIdx,                // Aft tip vertex
                         lastNormalIdx - numSlices + nextIdx,
                         lastNormalIdx - numSlices + i,
                 };
@@ -303,27 +297,27 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     }
 
     private void addQuadVertices(int numSlices, List<Integer> foreRingVertices, List<Integer> aftRingVertices,
-                                        double r, double rNext, float y, boolean isAftRing, boolean isForeRing, boolean isOutside) {
+                                        double r, double rNext, float x, boolean isForeRing, boolean isAftRing, boolean isOutside) {
         for (int i = 0; i < numSlices; i++) {
             double angle = 2 * Math.PI * i / numSlices;
-            float x = (float) (r * Math.cos(angle));
+            float y = (float) (r * Math.cos(angle));
             float z = (float) (r * Math.sin(angle));
 
-            obj.addVertex(x, y, z);
+            obj.addVertex(transformer.convertLoc(x, y, z));
 
             // Add the ring vertices to the lists
-            if (isAftRing) {
-                aftRingVertices.add(obj.getNumVertices()-1);
-            }
             if (isForeRing) {
                 foreRingVertices.add(obj.getNumVertices()-1);
             }
+            if (isAftRing) {
+                aftRingVertices.add(obj.getNumVertices()-1);
+            }
 
             // Calculate the normal
-            final float nx = isOutside ? x : -x;
-            final float ny = isOutside ? (float) (r - rNext) : (float) (rNext -r);
+            final float nx = isOutside ? (float) (r - rNext) : (float) (rNext -r);
+            final float ny = isOutside ? y : -y;
             final float nz = isOutside ? z : -z;
-            obj.addNormal(nx, ny, nz);
+            obj.addNormal(transformer.convertLocWithoutOriginOffs(nx, ny, nz));
         }
     }
 
@@ -407,77 +401,79 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Generate outer cylinder (no. 3)
         startIdx = obj.getNumVertices();
-        CylinderExporter.addCylinderMesh(obj, null, shoulderRadius, shoulderLength,
+        CylinderExporter.addCylinderMesh(obj, transformer, null, shoulderRadius, shoulderLength,
                 false, nrOfSides, outerCylinderBottomVertices, outerCylinderTopVertices);
         endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
 
         // Translate the outer cylinder to the correct position
-        float dy = isForeSide ? (float) component.getLength() : -shoulderLength;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, 0, dy, 0);
+        float dx = isForeSide ? -shoulderLength : (float) component.getLength();
+        FloatTuple offsetLoc = transformer.convertLocWithoutOriginOffs(dx, 0, 0);
+        ObjUtils.translateVertices(obj, startIdx, endIdx, offsetLoc.getX(), offsetLoc.getY(), offsetLoc.getZ());
 
         // Generate inner cylinder (no. 7)
         if (!isCapped) {
             startIdx = obj.getNumVertices();
-            CylinderExporter.addCylinderMesh(obj, null, innerCylinderRadius, shoulderLength + shoulderThickness,
+            CylinderExporter.addCylinderMesh(obj, transformer, null, innerCylinderRadius, shoulderLength + shoulderThickness,
                     false, false, nrOfSides, innerCylinderBottomVertices, innerCylinderTopVertices);
             endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
 
             // Translate the outer cylinder to the correct position
-            dy = isForeSide ? (float) component.getLength() - shoulderThickness : -shoulderLength;
-            ObjUtils.translateVertices(obj, startIdx, endIdx, 0, dy, 0);
+            dx = isForeSide ? -shoulderLength : (float) component.getLength() - shoulderThickness;
+            offsetLoc = transformer.convertLocWithoutOriginOffs(dx, 0, 0);
+            ObjUtils.translateVertices(obj, startIdx, endIdx, offsetLoc.getX(), offsetLoc.getY(), offsetLoc.getZ());
         }
 
         // Generate shoulder top disk (no. 4)
         if (isForeSide) {
-            DiskExporter.closeDiskMesh(obj, null, outerCylinderTopVertices, innerCylinderTopVertices, true);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderTopVertices, innerCylinderTopVertices, false, true);
         } else {
-            DiskExporter.closeDiskMesh(obj, null, outerCylinderBottomVertices, innerCylinderBottomVertices, false);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderBottomVertices, innerCylinderBottomVertices, false, false);
         }
 
         // Generate transition outer disk (no. 5)
         if (isForeSide) {
-            DiskExporter.closeDiskMesh(obj, null, outerRingVertices, outerCylinderBottomVertices, true);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerRingVertices, outerCylinderBottomVertices, false, true);
         } else {
-            DiskExporter.closeDiskMesh(obj, null, outerRingVertices, outerCylinderTopVertices, false);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerRingVertices, outerCylinderTopVertices, false, false);
         }
 
         // Generate transition inner disk (no. 6)
         if (isForeSide) {
-            DiskExporter.closeDiskMesh(obj, null, innerRingVertices, innerCylinderBottomVertices, false);
+            DiskExporter.closeDiskMesh(obj, transformer, null, innerRingVertices, innerCylinderBottomVertices, false, false);
         } else {
-            DiskExporter.closeDiskMesh(obj, null, innerRingVertices, innerCylinderTopVertices, true);
+            DiskExporter.closeDiskMesh(obj, transformer, null, innerRingVertices, innerCylinderTopVertices, false, true);
         }
     }
 
     private void closeFace(List<Integer> outerVertices, List<Integer> innerVertices, boolean isTopFace) {
         boolean filledCap = component.isFilled() || innerVertices.size() <= 1;
-        DiskExporter.closeDiskMesh(obj, null, outerVertices, filledCap ? null : innerVertices, isTopFace);
+        DiskExporter.closeDiskMesh(obj, transformer, null, outerVertices, filledCap ? null : innerVertices, true, isTopFace);
     }
 
     /**
      * Due to the offsetRadius, the length of the transition to be drawn can be smaller than the actual length of the transition,
      * because the offsetRadius causes the mesh to "shrink". This method estimates the length of the transition to be drawn.
      * @param offsetRadius the offset radius to the radius
-     * @param dyBase the base of the dy
+     * @param dxBase the base of the dx
      * @return the estimated length of the transition to be drawn
      */
-    private float estimateActualLength(double offsetRadius, double dyBase) {
+    private float estimateActualLength(double offsetRadius, double dxBase) {
         if (Double.compare(offsetRadius, 0) >= 0) {
             return (float) component.getLength();
         }
 
-        double y = 0;
-        final float increment = (float) dyBase / 4;
+        double x = 0;
+        final float increment = (float) dxBase / 4;
         float actualLength = 0;
 
-        while (y < component.getLength()) {
-            final double r = component.getRadius(component.getLength()-y) + offsetRadius;
+        while (x < component.getLength()) {
+            final double r = component.getRadius(x) + offsetRadius;
 
             if (Double.compare(r, 0) > 0) {
                 actualLength += increment;
             }
 
-            y += increment;
+            x += increment;
         }
 
         return actualLength;
@@ -485,37 +481,37 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
     /**
      * Locate the best location for the tip of a transition.
-     * @param yStart the start position to look for
-     * @param yEnd the end position to look for
+     * @param xStart the start position to look for
+     * @param xEnd the end position to look for
      * @param offsetRadius the offset radius to the radius
      * @param epsilon the increment to parse the next y location
      * @return the best location for the tip
      */
-    private float getTipLocation(float yStart, float yEnd, double offsetRadius, float epsilon) {
-        if (Float.compare(yStart, yEnd) == 0 || Float.compare(epsilon, 0) == 0) {
+    private float getTipLocation(float xStart, float xEnd, double offsetRadius, float epsilon) {
+        if (Float.compare(xStart, xEnd) == 0 || Float.compare(epsilon, 0) == 0) {
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-        boolean isStartSmaller = component.getRadius(component.getLength()-yStart) < component.getRadius(component.getLength()-yEnd);
+        boolean isStartSmaller = component.getRadius(xStart) < component.getRadius(xEnd);
 
         if (isStartSmaller) {
-            for (float y = yEnd; y >= yStart; y -= epsilon) {
-                double r = Math.max(0, component.getRadius(component.getLength() - y) + offsetRadius);
+            for (float x = xEnd; x >= xStart; x -= epsilon) {
+                double r = Math.max(0, component.getRadius(x) + offsetRadius);
                 if (Double.compare(r, 0) == 0) {
-                    return y;
+                    return x;
                 }
             }
 
-            return yStart;
+            return xStart;
         } else {
-            for (float y = yStart; y <= yEnd; y += epsilon) {
-                double r = Math.max(0, component.getRadius(component.getLength() - y) + offsetRadius);
+            for (float x = xStart; x <= xEnd; x += epsilon) {
+                double r = Math.max(0, component.getRadius(x) + offsetRadius);
                 if (Double.compare(r, 0) == 0) {
-                    return y;
+                    return x;
                 }
             }
 
-            return yEnd;
+            return xEnd;
         }
     }
 }

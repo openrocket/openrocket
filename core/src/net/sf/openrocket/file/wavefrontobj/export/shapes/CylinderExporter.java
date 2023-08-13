@@ -1,5 +1,7 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
+import com.sun.istack.NotNull;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
@@ -10,9 +12,10 @@ public class CylinderExporter {
     /**
      * Adds a cylinder mesh to the given obj
      * @param obj The obj to add the mesh to
+     * @param transformer The coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param groupName The name of the group to add the mesh to, or null if no group should be added (use the active group)
      * @param radius The radius of the cylinder
-     * @param height The height of the cylinder
+     * @param length The length of the cylinder
      * @param numSides The number of sides of the cylinder
      * @param solid Whether the cylinder should be solid (true) or hollow (false)
      *                 NOTE: Culling is not really thought of for the hollow cylinder; this mode is really meant to be
@@ -21,8 +24,8 @@ public class CylinderExporter {
      * @param bottomRingVertices A list to add the bottom ring vertex indices to
      * @param topRingVertices A list to add the top ring vertex indices to
      */
-    public static void addCylinderMesh(DefaultObj obj, String groupName,
-                                       float radius, float height, int numSides, boolean solid, boolean isOutside,
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float length, int numSides, boolean solid, boolean isOutside,
                                        List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
         // Set the new group
         if (groupName != null) {
@@ -30,52 +33,24 @@ public class CylinderExporter {
         }
 
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
-        int verticesStartIdx = obj.getNumVertices();
+        int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
 
         if (solid) {
-            // Bottom center vertex
-            obj.addVertex(0, 0, 0);
-            obj.addNormal(0, isOutside ? -1 : 1, 0);
-
             // Top center vertex
-            obj.addVertex(0, height, 0);
-            obj.addNormal(0, isOutside ? 1 : -1, 0);
-        }
+            obj.addVertex(transformer.convertLoc(0, 0, 0));
+            obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? -1 : 1, 0, 0));
 
-        // Generate side bottom vertices
-        int tmpStartIdx = obj.getNumVertices();
-        for (int i = 0; i < numSides; i++) {
-            double angle = 2 * Math.PI * i / numSides;
-            float x = radius * (float) Math.cos(angle);
-            float z = radius * (float) Math.sin(angle);
-
-            obj.addVertex(x, 0, z);
-            final float nx = isOutside ? x : -x;
-            final float nz = isOutside ? z : -z;
-            obj.addNormal(nx, 0, nz);     // This kind of normal ensures the object is smoothly rendered (like the 'Shade Smooth' option in Blender)
-
-            if (bottomRingVertices != null) {
-                bottomRingVertices.add(tmpStartIdx + i);
-            }
+            // Bottom center vertex
+            obj.addVertex(transformer.convertLoc(length, 0, 0));
+            obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? 1 : -1, 0, 0));
         }
 
         // Generate side top vertices
-        tmpStartIdx = obj.getNumVertices();
-        for (int i = 0; i < numSides; i++) {
-            double angle = 2 * Math.PI * i / numSides;
-            float x = radius * (float) Math.cos(angle);
-            float z = radius * (float) Math.sin(angle);
+        generateRingVertices(obj, transformer, startIdx, numSides, 0, radius, isOutside, topRingVertices);
 
-            obj.addVertex(x, height, z);
-            final float nx = isOutside ? x : -x;
-            final float nz = isOutside ? z : -z;
-            obj.addNormal(nx, height, nz);     // For smooth shading
-
-            if (topRingVertices != null) {
-                topRingVertices.add(tmpStartIdx + i);
-            }
-        }
+        // Generate side bottom vertices
+        generateRingVertices(obj, transformer, startIdx + numSides, numSides, length, radius, isOutside, bottomRingVertices);
 
         // Create faces for the bottom and top
         if (solid) {
@@ -88,7 +63,7 @@ public class CylinderExporter {
                         2 + nextIdx
                 };
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
-                ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);
+                ObjUtils.offsetIndex(vertexIndices, startIdx);
 
                 int[] normalIndices = new int[]{0, 0, 0};
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
@@ -103,7 +78,7 @@ public class CylinderExporter {
                         2 + numSides + i
                 };
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
-                ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);
+                ObjUtils.offsetIndex(vertexIndices, startIdx);
 
                 normalIndices = new int[] {1, 1, 1};
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
@@ -129,43 +104,57 @@ public class CylinderExporter {
             int[] normalIndices = vertexIndices.clone();        // No need to reverse winding, already done by vertices
 
             ObjUtils.offsetIndex(normalIndices, normalsStartIdx + offset);
-            ObjUtils.offsetIndex(vertexIndices, verticesStartIdx + offset);     // ! Only add offset here, otherwise you mess up the indices for the normals
+            ObjUtils.offsetIndex(vertexIndices, startIdx + offset);     // ! Only add offset here, otherwise you mess up the indices for the normals
 
             DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
             obj.addFace(face);
         }
     }
 
-    public static void addCylinderMesh(DefaultObj obj, String groupName,
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float radius, float height, int numSides, boolean solid,
                                        List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, groupName, radius, height, numSides, solid, true, bottomRingVertices, topRingVertices);
+        addCylinderMesh(obj, transformer, groupName, radius, height, numSides, solid, true, bottomRingVertices, topRingVertices);
     }
 
-    public static void addCylinderMesh(DefaultObj obj, String groupName, float radius, float height, boolean solid,
-                                       ObjUtils.LevelOfDetail LOD,
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float height, boolean solid, ObjUtils.LevelOfDetail LOD,
                                        List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, groupName, radius, height, LOD.getNrOfSides(radius), solid, bottomRingVertices, topRingVertices);
+        addCylinderMesh(obj, transformer, groupName, radius, height, LOD.getNrOfSides(radius), solid, bottomRingVertices, topRingVertices);
     }
 
-    public static void addCylinderMesh(DefaultObj obj, String groupName, float radius, float height, boolean solid,
-                                       boolean isOutside, int nrOfSlices,
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float height, boolean solid, boolean isOutside, int nrOfSlices,
                                        List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, groupName, radius, height, nrOfSlices, solid, isOutside, bottomRingVertices, topRingVertices);
+        addCylinderMesh(obj, transformer, groupName, radius, height, nrOfSlices, solid, isOutside, bottomRingVertices, topRingVertices);
     }
 
-    public static void addCylinderMesh(DefaultObj obj, String groupName, float radius, float height, boolean solid,
-                                       int nrOfSlices,
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float height, boolean solid, int nrOfSlices,
                                        List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, groupName, radius, height, nrOfSlices, solid, bottomRingVertices, topRingVertices);
+        addCylinderMesh(obj, transformer, groupName, radius, height, nrOfSlices, solid, bottomRingVertices, topRingVertices);
     }
 
-    public static void addCylinderMesh(DefaultObj obj, String groupName, float radius, float height, boolean solid,
-                                       ObjUtils.LevelOfDetail LOD) {
-        addCylinderMesh(obj, groupName, radius, height, LOD.getNrOfSides(radius), solid, null, null);
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float height, boolean solid, ObjUtils.LevelOfDetail LOD) {
+        addCylinderMesh(obj, transformer, groupName, radius, height, LOD.getNrOfSides(radius), solid, null, null);
     }
 
-    public static void addCylinderMesh(DefaultObj obj, String groupName, float radius, float height, boolean solid) {
-        addCylinderMesh(obj, groupName, radius, height, solid, ObjUtils.LevelOfDetail.NORMAL);
+    public static void generateRingVertices(DefaultObj obj, CoordTransform transformer, int startIdx,
+                                            int numSides, float x, float radius, boolean isOutside,
+                                            List<Integer> vertexList) {
+        for (int i = 0; i < numSides; i++) {
+            final double angle = 2 * Math.PI * i / numSides;
+            final float y = radius * (float) Math.cos(angle);
+            final float z = radius * (float) Math.sin(angle);
+
+            // Side top vertices
+            obj.addVertex(transformer.convertLoc(x, y, z));
+            obj.addNormal(transformer.convertLocWithoutOriginOffs(0, isOutside ? y : -y, isOutside ? z : -z));     // This kind of normal ensures the object is smoothly rendered (like the 'Shade Smooth' option in Blender)
+
+            if (vertexList != null) {
+                vertexList.add(startIdx + i);
+            }
+        }
     }
 }

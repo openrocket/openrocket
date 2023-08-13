@@ -1,5 +1,7 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
+import com.sun.istack.NotNull;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
@@ -7,15 +9,16 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 public class PolygonExporter {
 
     /**
-     * Add a polygon mesh to the obj. It is drawn in the X-Y plane (negative Y) with the bottom left corner at the origin.
+     * Add a polygon mesh to the obj. It is drawn in the OpenRocket XY plane with the bottom left corner at the OpenRocket origin.
      * @param obj The obj to add the mesh to
+     * @param transformer The coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param groupName The name of the group to add the mesh to, or null if no group should be added (use the active group)
      * @param pointLocationsX The x locations of the points --> NOTE: points should follow a clockwise direction
      * @param pointLocationsY The y locations of the points --> NOTE: points should follow a clockwise direction
      * @param thickness The thickness of the polygon
      */
-    public static void addPolygonMesh(DefaultObj obj, String groupName,
-                                  float[] pointLocationsX, float[] pointLocationsY, float thickness) {
+    public static void addPolygonMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                      float[] pointLocationsX, float[] pointLocationsY, float thickness) {
         verifyPoints(pointLocationsX, pointLocationsY);
 
         // Set the new group
@@ -24,30 +27,32 @@ public class PolygonExporter {
         }
 
         // Other meshes may have been added to the group, so we need to keep track of the starting indices
-        int verticesStartIdx = obj.getNumVertices();
+        int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
 
-        obj.addNormal(0, 0, 1);        // Front faces normal
-        obj.addNormal(0, 0, -1);       // Back faces normal
+        // NOTE: "front" is the side view with the normal pointing towards the viewer, "back" is the side with the normal pointing away from the viewer
+
+        obj.addNormal(transformer.convertLocWithoutOriginOffs(0, 0, -1));       // Front faces normal
+        obj.addNormal(transformer.convertLocWithoutOriginOffs(0, 0, 1));        // Back faces normal
 
         // Generate front face vertices
         for (int i = 0; i < pointLocationsX.length; i++) {
-            obj.addVertex(pointLocationsY[i], -pointLocationsX[i], thickness/2);
+            obj.addVertex(transformer.convertLoc(pointLocationsX[i], pointLocationsY[i], -thickness/2));
         }
 
         // Generate back face vertices
         for (int i = 0; i < pointLocationsX.length; i++) {
-            obj.addVertex(pointLocationsY[i], -pointLocationsX[i], -thickness/2);
+            obj.addVertex(transformer.convertLoc(pointLocationsX[i], pointLocationsY[i], thickness/2));
         }
 
         // Create front face
         int[] vertexIndices = new int[pointLocationsX.length];
         int[] normalIndices = new int[pointLocationsX.length];
         for (int i = 0; i < pointLocationsX.length; i++) {
-            vertexIndices[i] = pointLocationsX.length - i -1;
+            vertexIndices[i] = pointLocationsX.length-1 - i;
             normalIndices[i] = normalsStartIdx;
         }
-        ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);
+        ObjUtils.offsetIndex(vertexIndices, startIdx);
         DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
         obj.addFace(face);
 
@@ -58,7 +63,7 @@ public class PolygonExporter {
             vertexIndices[i] = pointLocationsX.length + i;
             normalIndices[i] = normalsStartIdx + 1;
         }
-        ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);
+        ObjUtils.offsetIndex(vertexIndices, startIdx);
         face = new DefaultObjFace(vertexIndices, null, normalIndices);
         obj.addFace(face);
 
@@ -71,7 +76,7 @@ public class PolygonExporter {
                     pointLocationsX.length + nextIdx,           // Top-right of quad
                     pointLocationsX.length + i                  // Bottom-right of quad
             };
-            ObjUtils.offsetIndex(vertexIndices, verticesStartIdx);
+            ObjUtils.offsetIndex(vertexIndices, startIdx);
 
             // Calculate normals for side faces
             final float dx = pointLocationsY[nextIdx] - pointLocationsY[i];

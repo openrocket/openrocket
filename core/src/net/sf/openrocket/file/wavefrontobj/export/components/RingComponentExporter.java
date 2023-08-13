@@ -1,17 +1,18 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import com.sun.istack.NotNull;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
-import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
+import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.util.Coordinate;
 
-public class ThicknessRingComponentExporter extends RocketComponentExporter<ThicknessRingComponent> {
-    public ThicknessRingComponentExporter(DefaultObj obj, ThicknessRingComponent component, String groupName,
-                                          ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
-        super(obj, component, groupName, LOD, transformer);
+public class RingComponentExporter extends RocketComponentExporter<RingComponent> {
+    public RingComponentExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, RingComponent component,
+                                 String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -31,18 +32,18 @@ public class ThicknessRingComponentExporter extends RocketComponentExporter<Thic
         int startIdx = obj.getNumVertices();
 
         if (Float.compare(innerRadius, 0) == 0) {
-            CylinderExporter.addCylinderMesh(obj, groupName, outerRadius, length, true, LOD);
+            CylinderExporter.addCylinderMesh(obj, transformer, groupName, outerRadius, length, true, LOD);
         } else {
             if (Float.compare(innerRadius, outerRadius) == 0) {
-                CylinderExporter.addCylinderMesh(obj, groupName, outerRadius, length, false, LOD);
+                CylinderExporter.addCylinderMesh(obj, transformer, groupName, outerRadius, length, false, LOD);
             } else {
-                TubeExporter.addTubeMesh(obj, groupName, outerRadius, innerRadius, length, LOD);
+                TubeExporter.addTubeMesh(obj, transformer, groupName, outerRadius, innerRadius, length, LOD);
             }
         }
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, -length);
+        ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 }

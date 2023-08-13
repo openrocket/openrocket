@@ -1,5 +1,7 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import com.sun.istack.NotNull;
+import de.javagl.obj.FloatTuple;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
@@ -21,9 +23,9 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
      * @param groupName The name of the group to export to
      * @param LOD       Level of detail to use for the export (e.g. '80')
      */
-    public RailButtonExporter(DefaultObj obj, RailButton component, String groupName,
-                              ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
-        super(obj, component, groupName, LOD, transformer);
+    public RailButtonExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, RailButton component,
+                              String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -54,58 +56,70 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         // Generate base cylinder
         List<Integer> baseCylinderBottomVertices = new ArrayList<>();
         List<Integer> baseCylinderTopVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, null, outerRadius, baseHeight, false, LOD,
+        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, baseHeight, false, LOD,
                 baseCylinderBottomVertices, baseCylinderTopVertices);
 
         // Generate inner cylinder
         int tmpStartIdx = obj.getNumVertices();
         List<Integer> innerCylinderBottomVertices = new ArrayList<>();
         List<Integer> innerCylinderTopVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, null, innerRadius, innerHeight, false, LOD,
+        CylinderExporter.addCylinderMesh(obj, transformer, null, innerRadius, innerHeight, false, LOD,
                 innerCylinderBottomVertices, innerCylinderTopVertices);
         int tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
-        ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, 0, baseHeight, 0);
+        FloatTuple locOffs = transformer.convertLocWithoutOriginOffs(baseHeight, 0, 0);
+        ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
 
         // Generate flange cylinder
         tmpStartIdx = obj.getNumVertices();
         List<Integer> flangeCylinderBottomVertices = new ArrayList<>();
         List<Integer> flangeCylinderTopVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, null, outerRadius, flangeHeight, false, LOD,
+        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, flangeHeight, false, LOD,
                 flangeCylinderBottomVertices, flangeCylinderTopVertices);
         tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
-        ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, 0, baseHeight + innerHeight, 0);
+        locOffs = transformer.convertLocWithoutOriginOffs(baseHeight + innerHeight, 0, 0);
+        ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
 
         // Generate base disk
-        DiskExporter.closeDiskMesh(obj, null, baseCylinderBottomVertices, true);        // Not a top face, but otherwise the culling isn't right...
+        DiskExporter.closeDiskMesh(obj, transformer, null, baseCylinderTopVertices, false, true);
 
         // Generate base inner disk
-        DiskExporter.closeDiskMesh(obj, null, baseCylinderTopVertices, innerCylinderBottomVertices, true);
+        DiskExporter.closeDiskMesh(obj, transformer, null, baseCylinderBottomVertices, innerCylinderTopVertices, false, false);
 
         // Generate flange inner disk
-        DiskExporter.closeDiskMesh(obj, null, innerCylinderTopVertices, flangeCylinderBottomVertices, true);        // Not a top face, but otherwise the culling isn't right...
+        DiskExporter.closeDiskMesh(obj, transformer, null, innerCylinderBottomVertices, flangeCylinderTopVertices, true, true);
 
         // Generate flange disk/screw
         if (Float.compare(screwHeight, 0) == 0) {
-            DiskExporter.closeDiskMesh(obj, null, flangeCylinderTopVertices, false);        // Not a bottom face, but otherwise the culling isn't right...
+            DiskExporter.closeDiskMesh(obj, transformer, null, flangeCylinderBottomVertices, false, false);
         } else {
-            addScrew(obj, baseHeight, innerHeight, flangeHeight, outerRadius, screwHeight, LOD, flangeCylinderTopVertices);
+            addScrew(obj, baseHeight, innerHeight, flangeHeight, outerRadius, screwHeight, LOD, flangeCylinderBottomVertices);
         }
 
 
         final int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
         final int normalEndIdx = Math.max(obj.getNumNormals() - 1, normalStartIdx);
 
-        // Rotate the mesh (also PI/2!)
-        final float rX = 0;
-        final float rY = (float) angle.x;
-        final float rZ = (float) - Math.PI / 2;
+        // First orient the rail button correctly (upwards, not in the longitudinal direction)
+        double rX = 0;
+        double rY = 0;
+        double rZ = Math.PI / 2;
+        FloatTuple rot = transformer.convertRot(rX, rY, rZ);
+        FloatTuple orig = transformer.convertLoc(0, 0, 0);
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalStartIdx, normalEndIdx,
-                rX, rY, rZ, 0, 0, 0);
+                rot.getX(), rot.getY(), rot.getZ(),
+                orig.getX(), orig.getY(), orig.getZ());
 
-        ObjUtils.translateVertices(obj, startIdx, endIdx, 1, 0, 0);
+        // Then do the axial rotation
+        rX = angle.x + component.getAngleOffset();
+        rY = 0;
+        rZ = 0;
+        rot = transformer.convertRot(rX, rY, rZ);
+        ObjUtils.rotateVertices(obj, startIdx, endIdx, normalStartIdx, normalEndIdx,
+                rot.getX(), rot.getY(), rot.getZ(),
+                orig.getX(), orig.getY(), orig.getZ());
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, 0);
+        ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 
     private void addScrew(DefaultObj obj, float baseHeight, float innerHeight, float flangeHeight, float outerRadius,
@@ -116,9 +130,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         final int normalStartIdx = obj.getNumNormals();
         final float buttonHeight = baseHeight + innerHeight + flangeHeight;
 
-        final float centerX = 0;
-        final float centerY = buttonHeight;
-        final float centerZ = 0;
+        final float centerX = buttonHeight;
 
         // Generate the mesh vertices (no tip)
         for (int i = 1; i <= nrOfStacks-1; i++) {
@@ -126,23 +138,21 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
                 final float theta = (float) (Math.PI / 2) - (i / (float) nrOfStacks) * (float) (Math.PI / 2); // Adjusted to start from π/2 and decrease
                 final float phi = (float) j / nrOfSlices * (float) (2.0 * Math.PI);
 
-                final float x = outerRadius * (float) Math.sin(theta) * (float) Math.cos(phi);
-                final float y = buttonHeight + (screwHeight * (float) Math.cos(theta)); // Now the y coordinate increases as theta decreases
+                final float x = centerX + (screwHeight * (float) Math.cos(theta));
+                final float y = outerRadius * (float) Math.sin(theta) * (float) Math.cos(phi);
                 final float z = outerRadius * (float) Math.sin(theta) * (float) Math.sin(phi);
 
-                obj.addVertex(x, y, z);
+                obj.addVertex(transformer.convertLoc(x, y, z));
 
                 // Calculate the optimal normal
                 float nx = x - centerX;
-                float ny = y - centerY;
-                float nz = z - centerZ;
-                obj.addNormal(nx, ny, nz);
+                obj.addNormal(transformer.convertLocWithoutOriginOffs(nx, y, z));
             }
         }
 
         // Generate the tip vertex
-        obj.addVertex(0, buttonHeight+screwHeight, 0);
-        obj.addNormal(0, 1, 0);
+        obj.addVertex(transformer.convertLoc(buttonHeight + screwHeight, 0, 0));
+        obj.addNormal(transformer.convertLocWithoutOriginOffs(1, 0, 0));
 
         // Generate the faces between the flange cylinder and the quad faces
         for (int i = 0; i < nrOfSlices; i++) {

@@ -1,5 +1,7 @@
 package net.sf.openrocket.file.wavefrontobj.export.components;
 
+import com.sun.istack.NotNull;
+import de.javagl.obj.FloatTuple;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
@@ -11,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FinSetExporter extends RocketComponentExporter<FinSet> {
-    public FinSetExporter(DefaultObj obj, FinSet component, String groupName,
-                          ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
-        super(obj, component, groupName, LOD, transformer);
+    public FinSetExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, FinSet component,
+                          String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -22,7 +24,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
 
         final Coordinate[] points = component.getFinPointsWithRoot();
         final Coordinate[] tabPoints = component.getTabPoints();
-        final Coordinate[] tabPointsReversed = new Coordinate[tabPoints.length];
+        final Coordinate[] tabPointsReversed = new Coordinate[tabPoints.length];        // We need clockwise points for the PolygonExporter
         for (int i = 0; i < tabPoints.length; i++) {
             tabPointsReversed[i] = tabPoints[tabPoints.length - i - 1];
         }
@@ -50,12 +52,12 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         final int normalsStartIdx = obj.getNumNormals();
 
         // Generate the instance mesh
-        PolygonExporter.addPolygonMesh(obj, null,
+        PolygonExporter.addPolygonMesh(obj, transformer, null,
                 floatPoints.getXCoords(), floatPoints.getYCoords(), thickness);
 
         // Generate the fin tabs
         if (hasTabs) {
-            PolygonExporter.addPolygonMesh(obj, null,
+            PolygonExporter.addPolygonMesh(obj, transformer, null,
                     floatTabPoints.getXCoords(), floatTabPoints.getYCoords(), thickness);
         }
 
@@ -63,17 +65,25 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);     // Clamp in case no normals were added
 
         // First rotate for the cant angle
-        final float cantAngle = (float) -component.getCantAngle();
+        /*
+        Note: I first thought you had to do the cant rotation with the fin center as origin, but you just have to
+        rotate around the fin start. The offset due to the cant rotation around the fin start is already taken care of by
+        the component location.
+         */
+        FloatTuple rot = transformer.convertRot(0, component.getCantAngle(), 0);
+        FloatTuple orig = transformer.convertLoc(0, 0, 0);
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
-                cantAngle, 0, 0, 0, (float) -component.getLength(), 0);
+                rot.getX(), rot.getY(), rot.getZ(),
+                orig.getX(), orig.getY(), orig.getZ());
 
-        // Then do the axial rotation
-        final float axialRot = (float) angle.x;
+        // Then do the component rotation (axial rotation)
+        rot = transformer.convertRot(angle.x, angle.y, angle.z);
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
-                0, axialRot, 0, 0, 0, 0);
+                rot.getX(), rot.getY(), rot.getZ(),
+                orig.getX(), orig.getY(), orig.getZ());
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, 0);
+        ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 
     /**

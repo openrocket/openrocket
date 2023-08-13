@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.wavefrontobj.export.shapes;
 
+import com.sun.istack.NotNull;
 import de.javagl.obj.FloatTuple;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
@@ -11,13 +13,16 @@ public class DiskExporter {
     /**
      * Adds a disk mesh to the obj by using existing outer and inner vertices
      * @param obj The obj to add the mesh to
+     * @param transformer The coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param groupName The name of the group to add the mesh to
      * @param outerVertices The indices of the outer vertices
      * @param innerVertices The indices of the inner vertices, or null if the disk is solid
+     * @param isClockwise Whether the vertices are in clockwise order (true) or counter-clockwise order (false)
      * @param isTopFace Whether the disk is a top face (true) or bottom face (false)
      */
-    public static void closeDiskMesh(DefaultObj obj, String groupName, List<Integer> outerVertices, List<Integer> innerVertices,
-                                     boolean isTopFace) {
+    public static void closeDiskMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                     @NotNull List<Integer> outerVertices, List<Integer> innerVertices,
+                                     boolean isClockwise, boolean isTopFace) {
         if (outerVertices.isEmpty()) {
             throw new IllegalArgumentException("Outer vertices cannot be empty");
         }
@@ -37,7 +42,7 @@ public class DiskExporter {
         }
 
         // Flat disk, so all vertices have the same normal
-        obj.addNormal(0, isTopFace ? 1 : -1, 0);        // TODO: hm, what if the object is rotated? If the disk is not drawn in the y direction?
+        obj.addNormal(transformer.convertLocWithoutOriginOffs(isTopFace ? -1 : 1, 0, 0));        // TODO: hm, what if the object is rotated? If the disk is not drawn in the y direction?
         final int normalIndex = obj.getNumNormals() - 1;
 
         if (isSolid) {
@@ -51,7 +56,7 @@ public class DiskExporter {
                 centerVertexIdx = obj.getNumVertices() - 1;
             }
 
-            // Add the faces
+            // Add the triangle faces
             for (int i = 0; i < outerVertices.size(); i++) {
                 int nextIdx = (i + 1) % outerVertices.size();
                 int[] vertexIndices = new int[] {
@@ -59,23 +64,23 @@ public class DiskExporter {
                         outerVertices.get(nextIdx),
                         outerVertices.get(i),
                 };
-                vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, isTopFace);
+                vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, isTopFace != isClockwise);
 
                 int[] normalIndices = new int[] { normalIndex, normalIndex, normalIndex };
                 DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
                 obj.addFace(face);
             }
         } else {
-            // Add the faces
+            // Add the quad faces
             for (int i = 0; i < outerVertices.size(); i++) {
                 int nextIdx = (i + 1) % outerVertices.size();
                 int[] vertexIndices = new int[] {
                         outerVertices.get(i),           // Bottom-left of quad
-                        outerVertices.get(nextIdx),      // Bottom-right of quad
-                        innerVertices.get(nextIdx),     // Top-right of quad
                         innerVertices.get(i),           // Top-left of quad
+                        innerVertices.get(nextIdx),     // Top-right of quad
+                        outerVertices.get(nextIdx),     // Bottom-right of quad
                 };
-                vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, isTopFace);
+                vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, isTopFace != isClockwise);
 
                 int[] normalIndices = new int[] { normalIndex, normalIndex, normalIndex, normalIndex };
                 DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
@@ -87,13 +92,15 @@ public class DiskExporter {
     /**
      * Adds a (closed) disk mesh to the obj by using existing outer and inner vertices
      * @param obj The obj to add the mesh to
+     * @param transformer The coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param groupName The name of the group to add the mesh to
      * @param outerVertices The indices of the outer vertices
+     * @param isClockwise Whether the vertices are in clockwise order (true) or counter-clockwise order (false)
      * @param isTopFace Whether the disk is a top face (true) or bottom face (false)
      */
-    public static void closeDiskMesh(DefaultObj obj, String groupName, List<Integer> outerVertices,
-                                     boolean isTopFace) {
-        closeDiskMesh(obj, groupName, outerVertices, null, isTopFace);
+    public static void closeDiskMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                     @NotNull List<Integer> outerVertices, boolean isClockwise, boolean isTopFace) {
+        closeDiskMesh(obj, transformer, groupName, outerVertices, null, isClockwise, isTopFace);
     }
 
 }

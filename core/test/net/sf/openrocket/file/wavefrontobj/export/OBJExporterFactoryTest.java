@@ -1,10 +1,28 @@
 package net.sf.openrocket.file.wavefrontobj.export;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+import net.sf.openrocket.ServicesForTesting;
+import net.sf.openrocket.database.ComponentPresetDao;
+import net.sf.openrocket.database.motor.MotorDatabase;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
+import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.file.openrocket.OpenRocketSaverTest;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
+import net.sf.openrocket.l10n.DebugTranslator;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.CenteringRing;
+import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
@@ -14,16 +32,53 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 import net.sf.openrocket.util.TestRockets;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class OBJExporterFactoryTest extends BaseTestCase {
+import static org.junit.Assert.fail;
+
+public class OBJExporterFactoryTest {
+    private final OpenRocketSaver saver = new OpenRocketSaver();
+    private static final File TMP_DIR = new File("./tmp/");
+
+    public static final String SIMULATION_EXTENSION_SCRIPT = "// Test <  &\n// >\n// <![CDATA[";
+
+    private static Injector injector;
+
+    @BeforeClass
+    public static void setup() {
+        Module applicationModule = new ServicesForTesting();
+        Module pluginModule = new PluginModule();
+
+        Module dbOverrides = new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(ComponentPresetDao.class).toProvider(new OpenRocketSaverTest.EmptyComponentDbProvider());
+                bind(MotorDatabase.class).toProvider(new OpenRocketSaverTest.MotorDbProvider());
+                bind(Translator.class).toInstance(new DebugTranslator(null));
+            }
+        };
+
+        injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
+        Application.setInjector(injector);
+
+        if( !(TMP_DIR.exists() && TMP_DIR.isDirectory()) ){
+            boolean success = TMP_DIR.mkdirs();
+            if (!success) {
+                fail("Unable to create core/tmp dir needed for tests.");
+            }
+        }
+    }
+
     @Test
     public void testExport() throws IOException {
         Rocket rocket = OpenRocketDocumentFactory.createNewRocket().getRocket();
@@ -54,6 +109,7 @@ public class OBJExporterFactoryTest extends BaseTestCase {
 
         TrapezoidFinSet finSet = new TrapezoidFinSet();
         finSet.setRootChord(0.05);
+        finSet.setThickness(0.005);
         finSet.setTabLength(0.03);
         finSet.setTabHeight(0.01);
         finSet.setTabOffset(-0.0075);
@@ -69,7 +125,7 @@ public class OBJExporterFactoryTest extends BaseTestCase {
         bodyTube.addChild(tubeFinSet);
 
         Transition transition = new Transition();
-        transition.setLength(0.1);
+        transition.setLength(0.15);
         transition.setForeRadius(0.05);
         transition.setAftRadius(0.025);
         transition.setThickness(0.003);
@@ -89,19 +145,54 @@ public class OBJExporterFactoryTest extends BaseTestCase {
         railButton.setScrewHeight(0.0025);
         railButton.setAngleOffset(Math.toRadians(67));
         bodyTube.addChild(railButton);
+
+        CenteringRing centeringRing = new CenteringRing();
+        centeringRing.setOuterRadius(0.04);
+        centeringRing.setInnerRadiusAutomatic(false);
+        centeringRing.setInnerRadius(0.03);
+        centeringRing.setLength(0.1);
+        bodyTube.addChild(centeringRing);
+
+        InnerTube innerTube = new InnerTube();
+        bodyTube.addChild(innerTube);
+
+        rocket = loadRocket("/Users/SiboVanGool/Downloads/blbl.ork").getRocket();        // TODO: delete me
+
         List<RocketComponent> components = List.of(rocket);
 
         Path tempFile = Files.createTempFile("testExport", ".obj");
+        String filePath = tempFile.toAbsolutePath().toString();
+        filePath = "/Users/SiboVanGool/Downloads/testExport.obj";                               // TODO: delete me
+        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/test.ork");        // TODO: delete me
 
-        /*finSet.setFinCount(1);
-        finSet.setAngleOffset(Math.toRadians(45));
-
-        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/test.ork");*/
         CoordTransform transformer = new DefaultCoordTransform(rocket.getLength());
-        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, true, false, true, transformer,
-                "/Users/SiboVanGool/Downloads/testExport.obj");
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), true, false, true,
+                transformer, filePath);
         exporterFactory.doExport();
 
+        // Test with other parameters
+        /*noseCone.setShoulderCapped(false);
+        railButton.setScrewHeight(0);
+
+
+        transformer = new DefaultCoordTransform(rocket.getLength());
+        exporterFactory = new OBJExporterFactory(components, false, false, true,
+                transformer, filePath);
+        exporterFactory.doExport();*/
+
+
         Files.delete(tempFile);
+    }
+
+    private OpenRocketDocument loadRocket(String fileName) {
+        GeneralRocketLoader loader = new GeneralRocketLoader(new File(fileName));
+        OpenRocketDocument rocketDoc = null;
+        try {
+            rocketDoc = loader.load();
+        } catch (RocketLoadException e) {
+            e.printStackTrace();
+            fail("RocketLoadException while loading file " + fileName + " : " + e.getMessage());
+        }
+        return rocketDoc;
     }
 }

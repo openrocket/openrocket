@@ -1612,7 +1612,8 @@ public class BasicFrame extends JFrame {
 		// TODO: popup dialog for extra options (quality, whether to triangulate, whether to export materials, whether to save all subcomponents of the selected ones, whether to offset the object position to zero or to the location in the rocket, whether to save the rocket dimensions in SI units or in mm (add tooltip text that mm is useful for 3D printing) etc.)
 		String filePath = "/Users/SiboVanGool/Downloads/test.obj";
 		CoordTransform transformer = new DefaultCoordTransform(rocket.getLength());
-		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), false, false, true, transformer, filePath);
+		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
+				false, false, true, transformer, filePath);
 		exporter.doExport();
 	}
 

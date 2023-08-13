@@ -9,9 +9,9 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.util.Coordinate;
 
 public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
-    public BodyTubeExporter(DefaultObj obj, BodyTube component, String groupName,
-                            ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
-        super(obj, component, groupName, LOD, transformer);
+    public BodyTubeExporter(DefaultObj obj, CoordTransform transformer, BodyTube component, String groupName,
+                            ObjUtils.LevelOfDetail LOD) {
+        super(obj, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -33,18 +33,18 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
         int startIdx = obj.getNumVertices();
 
         if (isFilled || Float.compare(innerRadius, 0) == 0) {
-            CylinderExporter.addCylinderMesh(obj, groupName, outerRadius, length, true, LOD);
+            CylinderExporter.addCylinderMesh(obj, transformer, groupName, outerRadius, length, true, LOD);
         } else {
             if (Float.compare(innerRadius, outerRadius) == 0) {
-                CylinderExporter.addCylinderMesh(obj, groupName, outerRadius, length, false, LOD);
+                CylinderExporter.addCylinderMesh(obj, transformer, groupName, outerRadius, length, false, LOD);
             } else {
-                TubeExporter.addTubeMesh(obj, groupName, outerRadius, innerRadius, length, LOD);
+                TubeExporter.addTubeMesh(obj, transformer, groupName, outerRadius, innerRadius, length, LOD);
             }
         }
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
-        ObjUtils.translateVerticesFromComponentLocation(obj, component, startIdx, endIdx, location, -length);
+        ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 }

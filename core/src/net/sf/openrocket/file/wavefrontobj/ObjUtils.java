@@ -277,50 +277,63 @@ public class ObjUtils {
      * in the position that it is in the rocket. This may not be useful for individual components.
      * @param obj The obj file to remove the offset from
      */
-    public static void removeVertexOffset(DefaultObj obj) {
+    public static void removeVertexOffset(DefaultObj obj, CoordTransform transformer) {
         final FloatTupleBounds bounds = obj.getVertexBounds();
         final FloatTuple min = bounds.getMin();
         final FloatTuple max = bounds.getMax();
-        final float minX = min.getX();
-        final float minY = min.getY();
-        final float minZ = min.getZ();
-        final float maxX = max.getX();
-        final float maxZ = max.getZ();
 
-        final float offsetX = -(maxX + minX) / 2;
-        final float offsetY = -minY;        // We want the bottom of the object to be at y=0
-        final float offsetZ = -(maxZ + minZ) / 2;
+        // These are all referenced in the OBJ coordinate system
+        float minX = min.getX();
+        float minY = min.getY();
+        float minZ = min.getZ();
+        float maxX = max.getX();
+        float maxY = max.getY();
+        float maxZ = max.getZ();
+
+        // Adjust the min/max values based on the axial axis so that in the offset calculations, one of the two
+        // cancels out. This is necessary to ensure that the rocket bottom is at the OBJ coordinate system origin.
+        Axis axialAxis = transformer.getAxialAxis();
+        switch (axialAxis) {
+            case X -> {
+                minX = maxX;
+            } case X_MIN -> {
+                maxX = minX;
+            } case Y -> {
+                minY = maxY;
+            } case Y_MIN -> {
+                maxY = minY;
+            } case Z -> {
+                minZ = maxZ;
+            } case Z_MIN -> {
+                maxZ = minZ;
+            }
+        }
+
+        final float offsetX = (maxX + minX) / 2;
+        final float offsetY = (maxY + minY) / 2;
+        final float offsetZ = (maxZ + minZ) / 2;
 
         for (int i = 0; i < obj.getNumVertices(); i++) {
             FloatTuple vertex = obj.getVertex(i);
-            final float x = vertex.getX() + offsetX;
-            final float y = vertex.getY() + offsetY;
-            final float z = vertex.getZ() + offsetZ;
+            final float x = vertex.getX() - offsetX;
+            final float y = vertex.getY() - offsetY;
+            final float z = vertex.getZ() - offsetZ;
             obj.setVertex(i, new DefaultFloatTuple(x, y, z));
         }
     }
 
 
     /**
-     * Translates the vertices in the obj file so that the component is at the specified location.
-     * See explanation in {@link net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory} about the difference in
-     * coordinate system between OpenRocket and Wavefront OBJ.
+     * Translates the vertices in the obj file so that the component is at the specified translation.
      * @param obj The obj file to translate
-     * @param component The component to translate
      * @param startIdx The index of the first vertex to translate
      * @param endIdx The index of the last vertex to translate (inclusive)
-     * @param location The location to translate the component to (in OpenRocket coordinate system)
-     * @param yOffset The offset to apply to the y coordinate of the location
+     * @param translation The translation coordinates to translate the component with (in OpenRocket coordinate system)
      */
-    public static void translateVerticesFromComponentLocation(DefaultObj obj, RocketComponent component,
-                                                              int startIdx, int endIdx, Coordinate location, double yOffset) {
-        final double rocketLength = component.getRocket().getLength();
-
-        // Translate the mesh
-        final float x = (float) location.y;
-        final float y = (float) (rocketLength + yOffset - location.x);
-        final float z = (float) - location.z;
-        ObjUtils.translateVertices(obj, startIdx, endIdx, x, y, z);
+    public static void translateVerticesFromComponentLocation(DefaultObj obj, CoordTransform transformer,
+                                                              int startIdx, int endIdx, Coordinate translation) {
+        FloatTuple translatedLoc = transformer.convertLoc(translation);
+        ObjUtils.translateVertices(obj, startIdx, endIdx, translatedLoc.getX(), translatedLoc.getY(), translatedLoc.getZ());
     }
 
     /**

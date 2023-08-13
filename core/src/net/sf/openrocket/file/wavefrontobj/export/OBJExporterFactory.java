@@ -8,21 +8,20 @@ import net.sf.openrocket.file.wavefrontobj.export.components.BodyTubeExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.FinSetExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.LaunchLugExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.MassObjectExporter;
-import net.sf.openrocket.file.wavefrontobj.export.components.RadiusRingComponentExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.RailButtonExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.RocketComponentExporter;
-import net.sf.openrocket.file.wavefrontobj.export.components.ThicknessRingComponentExporter;
+import net.sf.openrocket.file.wavefrontobj.export.components.RingComponentExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.TransitionExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.TubeFinSetExporter;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RailButton;
+import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 
@@ -50,6 +49,7 @@ import java.util.Set;
  */
 public class OBJExporterFactory {
     private final List<RocketComponent> components;
+    private final FlightConfiguration configuration;
     private final boolean exportChildren;
     private final boolean triangulate;
     private final boolean removeOffset;
@@ -64,8 +64,7 @@ public class OBJExporterFactory {
             LaunchLug.class, (ExporterFactory<LaunchLug>) LaunchLugExporter::new,
             TubeFinSet.class, (ExporterFactory<TubeFinSet>) TubeFinSetExporter::new,
             FinSet.class, (ExporterFactory<FinSet>) FinSetExporter::new,
-            ThicknessRingComponent.class, (ExporterFactory<ThicknessRingComponent>) ThicknessRingComponentExporter::new,
-            RadiusRingComponent.class, (ExporterFactory<RadiusRingComponent>) RadiusRingComponentExporter::new,
+            RingComponent.class, (ExporterFactory<RingComponent>) RingComponentExporter::new,
             MassObject.class, (ExporterFactory<MassObject>) MassObjectExporter::new,
             RailButton.class, (ExporterFactory<RailButton>) RailButtonExporter::new
     );
@@ -74,6 +73,7 @@ public class OBJExporterFactory {
      * Exports a list of rocket components to a Wavefront OBJ file.
      * <b>NOTE: </b> you must call {@link #doExport()} to actually perform the export.
      * @param components List of components to export
+     * @param configuration Flight configuration to use for the export
      * @param exportChildren If true, export all children of the components as well
      * @param triangulate If true, triangulate all faces
      * @param removeOffset If true, remove the offset of the object so it is centered at the origin (but the bottom of the object is at y=0)
@@ -81,9 +81,10 @@ public class OBJExporterFactory {
      * @param transformer Coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param filePath Path to the file to export to
      */
-    public OBJExporterFactory(List<RocketComponent> components, boolean exportChildren, boolean triangulate,
+    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, boolean exportChildren, boolean triangulate,
                               boolean removeOffset, ObjUtils.LevelOfDetail LOD, CoordTransform transformer, String filePath) {
         this.components = components;
+        this.configuration = configuration;
         this.exportChildren = exportChildren;
         this.triangulate = triangulate;
         this.removeOffset = removeOffset;
@@ -95,15 +96,16 @@ public class OBJExporterFactory {
     /**
      * Wavefront OBJ exporter.
      * @param components List of components to export
+     * @param configuration Flight configuration to use for the export
      * @param exportChildren If true, export all children of the components as well
      * @param triangulate If true, triangulate all faces
      * @param removeOffset If true, remove the offset of the object so it is centered at the origin (but the bottom of the object is at y=0)
      * @param transformer Coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param filePath Path to the file to export to
      */
-    public OBJExporterFactory(List<RocketComponent> components, boolean exportChildren, boolean triangulate,
+    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, boolean exportChildren, boolean triangulate,
                               boolean removeOffset, CoordTransform transformer, String filePath) {
-        this(components, exportChildren, triangulate, removeOffset, ObjUtils.LevelOfDetail.NORMAL, transformer, filePath);
+        this(components, configuration, exportChildren, triangulate, removeOffset, ObjUtils.LevelOfDetail.NORMAL, transformer, filePath);
     }
 
     /**
@@ -125,8 +127,15 @@ public class OBJExporterFactory {
                 continue;
             }
 
+            // Don't export inactive components
+            if (!this.configuration.isComponentActive(component)) {
+                continue;
+            }
+
             String groupName = component.getName() + "_" + idx;
-            handleComponent(obj, component, groupName, this.LOD, this.transformer);
+            handleComponent(obj, this.transformer, component, groupName, this.LOD);
+
+            // TODO: motor rendering
 
             idx++;
         }
@@ -141,7 +150,7 @@ public class OBJExporterFactory {
             // Is a bit computationally expensive, but it's the only way to be sure...
             obj.recalculateAllVertexBounds();
 
-            ObjUtils.removeVertexOffset(obj);
+            ObjUtils.removeVertexOffset(obj, transformer);
         }
 
         try (OutputStream objOutputStream = new FileOutputStream(this.filePath)) {
@@ -152,8 +161,8 @@ public class OBJExporterFactory {
     }
 
     @SuppressWarnings("unchecked") // This is safe because of the structure we set up.
-    private <T extends RocketComponent> void handleComponent(DefaultObj obj, T component, String groupName,
-            ObjUtils.LevelOfDetail LOD, CoordTransform transformer) {
+    private <T extends RocketComponent> void handleComponent(DefaultObj obj, CoordTransform transformer, T component,
+                                                             String groupName, ObjUtils.LevelOfDetail LOD) {
         ExporterFactory<T> factory = null;
         Class<?> currentClass = component.getClass();
 
@@ -167,12 +176,12 @@ public class OBJExporterFactory {
             throw new IllegalArgumentException("Unsupported component type: " + component.getClass().getName());
         }
 
-        final RocketComponentExporter<T> exporter = factory.create(obj, component, groupName, LOD, transformer);
+        final RocketComponentExporter<T> exporter = factory.create(obj, transformer, component, groupName, LOD);
         exporter.addToObj();
     }
 
     interface ExporterFactory<T extends RocketComponent> {
-        RocketComponentExporter<T> create(DefaultObj obj, T component, String groupName,
-                                          ObjUtils.LevelOfDetail LOD, CoordTransform transformer);
+        RocketComponentExporter<T> create(DefaultObj obj, CoordTransform transformer, T component, String groupName,
+                                          ObjUtils.LevelOfDetail LOD);
     }
 }
