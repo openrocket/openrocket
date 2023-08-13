@@ -8,6 +8,8 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.util.Coordinate;
 
@@ -23,9 +25,9 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
      * @param groupName The name of the group to export to
      * @param LOD       Level of detail to use for the export (e.g. '80')
      */
-    public RailButtonExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, RailButton component,
-                              String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, transformer, component, groupName, LOD);
+    public RailButtonExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+                              RailButton component, String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, config, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -38,18 +40,15 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         final float innerHeight = (float) component.getInnerHeight();
         final float flangeHeight = (float) component.getFlangeHeight();
         final float screwHeight = (float) component.getScrewHeight();
-        final Coordinate[] locations = component.getComponentLocations();
-        final Coordinate[] angles = component.getComponentAngles();
 
         // Generate the mesh
-        for (int i = 0; i < locations.length; i++) {
-            generateMesh(outerRadius, innerRadius, baseHeight, innerHeight, flangeHeight, screwHeight,
-                    locations[i], angles[i]);
+        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+            generateMesh(outerRadius, innerRadius, baseHeight, innerHeight, flangeHeight, screwHeight, context);
         }
     }
 
     private void generateMesh(float outerRadius, float innerRadius, float baseHeight, float innerHeight, float flangeHeight,
-                              float screwHeight, Coordinate location, Coordinate angle) {
+                              float screwHeight, InstanceContext context) {
         final int startIdx = obj.getNumVertices();
         final int normalStartIdx = obj.getNumNormals();
 
@@ -109,16 +108,17 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
                 rot.getX(), rot.getY(), rot.getZ(),
                 orig.getX(), orig.getY(), orig.getZ());
 
-        // Then do the axial rotation
-        rX = angle.x + component.getAngleOffset();
-        rY = 0;
-        rZ = 0;
-        rot = transformer.convertRot(rX, rY, rZ);
+        // Then do the component rotation (axial rotation)
+        final double rotX = context.transform.getXrotation() + component.getAngleOffset();
+        final double rotY = context.transform.getYrotation();
+        final double rotZ = context.transform.getZrotation();
+        rot = transformer.convertRot(rotX, rotY, rotZ);
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalStartIdx, normalEndIdx,
                 rot.getX(), rot.getY(), rot.getZ(),
                 orig.getX(), orig.getY(), orig.getZ());
 
         // Translate the mesh to the position in the rocket
+        final Coordinate location = context.getLocation();
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 

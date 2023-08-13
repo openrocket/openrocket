@@ -5,31 +5,32 @@ import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.RocketComponentUtils;
 
 public class MassObjectExporter extends RocketComponentExporter<MassObject> {
-    public MassObjectExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, MassObject component,
-                              String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, transformer, component, groupName, LOD);
+    public MassObjectExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+                              MassObject component, String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, config, transformer, component, groupName, LOD);
     }
 
     @Override
     public void addToObj() {
         obj.setActiveGroupNames(groupName);
 
-        final Coordinate[] locations = component.getComponentLocations();
         final int numSides = LOD.getValue() / 2;
         final int numStacks = LOD.getValue() / 2;
 
         // Generate the mesh
-        for (Coordinate location : locations) {
-            generateMesh(numSides, numStacks, location);
+        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+            generateMesh(numSides, numStacks, context);
         }
     }
 
-    private void generateMesh(int numSides, int numStacks, Coordinate location) {
+    private void generateMesh(int numSides, int numStacks, InstanceContext context) {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
         int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
@@ -134,6 +135,7 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
 
         // Translate the mesh to the position in the rocket
         //      We will create an offset location that has the same effect as the axial rotation of the mass object
+        final Coordinate location = context.getLocation();
         Coordinate offsetLocation = getOffsetLocation(location);
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, offsetLocation);
     }

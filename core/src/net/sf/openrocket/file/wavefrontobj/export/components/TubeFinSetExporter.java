@@ -5,13 +5,15 @@ import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 
 public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
-    public TubeFinSetExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, TubeFinSet component, String groupName,
-                              ObjUtils.LevelOfDetail LOD) {
-        super(obj, transformer, component, groupName, LOD);
+    public TubeFinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+                              TubeFinSet component, String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, config, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -21,20 +23,14 @@ public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
         final float outerRadius = (float) component.getOuterRadius();
         final float innerRadius = (float) component.getInnerRadius();
         final float length = (float) component.getLength();
-        final Coordinate[] locations = component.getComponentLocations();
-        final double[] angles = component.getInstanceAngles();
-
-        if (locations.length != angles.length) {
-            throw new IllegalArgumentException("Number of locations and angles must match");
-        }
 
         // Generate the fin meshes
-        for (int i = 0; i < locations.length; i++) {
-            generateMesh(outerRadius, innerRadius, length, locations[i], angles[i]);
+        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+            generateMesh(outerRadius, innerRadius, length, context);
         }
     }
 
-    private void generateMesh(float outerRadius, float innerRadius, float length, Coordinate location, double angle) {
+    private void generateMesh(float outerRadius, float innerRadius, float length, InstanceContext context) {
         // Create the fin meshes
         final int startIdx = obj.getNumVertices();
 
@@ -45,14 +41,16 @@ public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
 
         // Translate the mesh to the position in the rocket
         //      We will create an offset location that has the same effect as the axial rotation of the launch lug
-        Coordinate offsetLocation = getOffsetLocation(outerRadius, location, angle);
+        final double rotX = context.transform.getXrotation();
+        final Coordinate location = context.getLocation();
+        Coordinate offsetLocation = getOffsetLocation(outerRadius, location, rotX);
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, offsetLocation);
     }
 
-    private static Coordinate getOffsetLocation(float outerRadius, Coordinate location, double angle) {
+    private static Coordinate getOffsetLocation(float outerRadius, Coordinate location, double rotX) {
         // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
-        final float dy = outerRadius * (float) Math.cos(angle);
-        final float dz = outerRadius * (float) Math.sin(angle);
+        final float dy = outerRadius * (float) Math.cos(rotX);
+        final float dz = outerRadius * (float) Math.sin(rotX);
         final double x = location.x;
         final double y = location.y + dy;
         final double z = location.z + dz;

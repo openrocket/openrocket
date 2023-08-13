@@ -7,15 +7,17 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.PolygonExporter;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FinSetExporter extends RocketComponentExporter<FinSet> {
-    public FinSetExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, FinSet component,
-                          String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, transformer, component, groupName, LOD);
+    public FinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+                          FinSet component, String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, config, transformer, component, groupName, LOD);
     }
 
     @Override
@@ -32,21 +34,15 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         final FloatPoints floatTabPoints = getPointsAsFloat(tabPointsReversed);
         final float thickness = (float) component.getThickness();
         boolean hasTabs = component.getTabLength() > 0 && component.getTabHeight() > 0;
-        final Coordinate[] locations = component.getComponentLocations();
-        final Coordinate[] angles = component.getComponentAngles();
-
-        if (locations.length != angles.length) {
-            throw new IllegalArgumentException("Number of locations and angles must match");
-        }
 
         // Generate the fin meshes
-        for (int i = 0; i < locations.length; i++) {
-            generateMesh(floatPoints, floatTabPoints, thickness, hasTabs, locations[i], angles[i]);
+        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+            generateMesh(floatPoints, floatTabPoints, thickness, hasTabs, context);
         }
     }
 
     private void generateMesh(FloatPoints floatPoints, FloatPoints floatTabPoints, float thickness,
-                              boolean hasTabs, Coordinate location, Coordinate angle) {
+                              boolean hasTabs, InstanceContext context) {
         // Generate the mesh
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
@@ -77,12 +73,16 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
                 orig.getX(), orig.getY(), orig.getZ());
 
         // Then do the component rotation (axial rotation)
-        rot = transformer.convertRot(angle.x, angle.y, angle.z);
+        final double rotX = context.transform.getXrotation();
+        final double rotY = context.transform.getYrotation();
+        final double rotZ = context.transform.getZrotation();
+        rot = transformer.convertRot(rotX, rotY, rotZ);
         ObjUtils.rotateVertices(obj, startIdx, endIdx, normalsStartIdx, normalsEndIdx,
                 rot.getX(), rot.getY(), rot.getZ(),
                 orig.getX(), orig.getY(), orig.getZ());
 
         // Translate the mesh to the position in the rocket
+        final Coordinate location = context.getLocation();
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 

@@ -9,6 +9,8 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.util.Coordinate;
 
@@ -19,9 +21,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private static final double RADIUS_EPSILON = 1e-4;
     private final int nrOfSides;
 
-    public TransitionExporter(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, Transition component,
-                              String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, transformer, component, groupName, LOD);
+    public TransitionExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD) {
+        super(obj, config, transformer, component, groupName, LOD);
         this.nrOfSides = LOD.getNrOfSides(Math.max(component.getForeRadius(), component.getAftRadius()));
     }
 
@@ -29,15 +31,13 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     public void addToObj() {
         obj.setActiveGroupNames(groupName);
 
-        final Coordinate[] locations = component.getComponentLocations();
-
         // Generate the mesh
-        for (Coordinate location : locations) {
-            generateMesh(location);
+        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+            generateMesh(context);
         }
     }
 
-    private void generateMesh(Coordinate location) {
+    private void generateMesh(InstanceContext context) {
         int startIdx = obj.getNumVertices();
 
         final boolean hasForeShoulder = Double.compare(component.getForeShoulderRadius(), 0) > 0
@@ -99,6 +99,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
+        final Coordinate location = context.getLocation();
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 

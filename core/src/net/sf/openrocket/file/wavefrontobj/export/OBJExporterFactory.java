@@ -17,6 +17,8 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InstanceContext;
+import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RailButton;
@@ -28,6 +30,7 @@ import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -132,8 +135,13 @@ public class OBJExporterFactory {
                 continue;
             }
 
+            InstanceMap map = configuration.getActiveInstances();
+            ArrayList<InstanceContext> contexts = map.get(component);
+            contexts.get(0).transform.getXrotation();
+
+
             String groupName = component.getName() + "_" + idx;
-            handleComponent(obj, this.transformer, component, groupName, this.LOD);
+            handleComponent(obj, this.configuration, this.transformer, component, groupName, this.LOD);
 
             // TODO: motor rendering
 
@@ -161,8 +169,8 @@ public class OBJExporterFactory {
     }
 
     @SuppressWarnings("unchecked") // This is safe because of the structure we set up.
-    private <T extends RocketComponent> void handleComponent(DefaultObj obj, CoordTransform transformer, T component,
-                                                             String groupName, ObjUtils.LevelOfDetail LOD) {
+    private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
+                                                             T component, String groupName, ObjUtils.LevelOfDetail LOD) {
         ExporterFactory<T> factory = null;
         Class<?> currentClass = component.getClass();
 
@@ -176,12 +184,12 @@ public class OBJExporterFactory {
             throw new IllegalArgumentException("Unsupported component type: " + component.getClass().getName());
         }
 
-        final RocketComponentExporter<T> exporter = factory.create(obj, transformer, component, groupName, LOD);
+        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD);
         exporter.addToObj();
     }
 
     interface ExporterFactory<T extends RocketComponent> {
-        RocketComponentExporter<T> create(DefaultObj obj, CoordTransform transformer, T component, String groupName,
-                                          ObjUtils.LevelOfDetail LOD);
+        RocketComponentExporter<T> create(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
+                                          T component, String groupName, ObjUtils.LevelOfDetail LOD);
     }
 }
