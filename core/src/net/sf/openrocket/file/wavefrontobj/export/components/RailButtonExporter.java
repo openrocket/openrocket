@@ -51,18 +51,19 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
                               float screwHeight, InstanceContext context) {
         final int startIdx = obj.getNumVertices();
         final int normalStartIdx = obj.getNumNormals();
+        final int nrOfSides = LOD.getNrOfSides(outerRadius);
 
         // Generate base cylinder
         List<Integer> baseCylinderForeVertices = new ArrayList<>();
         List<Integer> baseCylinderAftVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, baseHeight, false, LOD,
+        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, baseHeight, false, nrOfSides,
                 baseCylinderForeVertices, baseCylinderAftVertices);
 
         // Generate inner cylinder
         int tmpStartIdx = obj.getNumVertices();
         List<Integer> innerCylinderForeVertices = new ArrayList<>();
         List<Integer> innerCylinderAftVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, transformer, null, innerRadius, innerHeight, false, LOD,
+        CylinderExporter.addCylinderMesh(obj, transformer, null, innerRadius, innerHeight, false, nrOfSides,
                 innerCylinderForeVertices, innerCylinderAftVertices);
         int tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
         FloatTuple locOffs = transformer.convertLocWithoutOriginOffs(baseHeight, 0, 0);
@@ -72,8 +73,9 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         tmpStartIdx = obj.getNumVertices();
         List<Integer> flangeCylinderForeVertices = new ArrayList<>();
         List<Integer> flangeCylinderAftVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, flangeHeight, false, LOD,
-                flangeCylinderForeVertices, flangeCylinderAftVertices);
+        List<Integer> flangeCylinderAftNormals = new ArrayList<>();
+        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, outerRadius, flangeHeight, nrOfSides,
+                false, true, flangeCylinderForeVertices, flangeCylinderAftVertices, null, flangeCylinderAftNormals);
         tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
         locOffs = transformer.convertLocWithoutOriginOffs(baseHeight + innerHeight, 0, 0);
         ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
@@ -91,7 +93,8 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         if (Float.compare(screwHeight, 0) == 0) {
             DiskExporter.closeDiskMesh(obj, transformer, null, flangeCylinderAftVertices, false, false);
         } else {
-            addScrew(obj, baseHeight, innerHeight, flangeHeight, outerRadius, screwHeight, LOD, flangeCylinderAftVertices);
+            addScrew(obj, baseHeight, innerHeight, flangeHeight, outerRadius, screwHeight, LOD,
+                    flangeCylinderAftVertices, flangeCylinderAftNormals);
         }
 
 
@@ -123,14 +126,19 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
     }
 
     private void addScrew(DefaultObj obj, float baseHeight, float innerHeight, float flangeHeight, float outerRadius,
-                          float screwHeight, ObjUtils.LevelOfDetail LOD, List<Integer> flangeCylinderTopVertices) {
+                          float screwHeight, ObjUtils.LevelOfDetail LOD,
+                          List<Integer> flangeCylinderAftVertices, List<Integer> flangeCylinderAftNormals) {
         final int nrOfStacks = LOD.getValue() / 10;
-        final int nrOfSlices = flangeCylinderTopVertices.size();
+        final int nrOfSlices = flangeCylinderAftVertices.size();
         final int startIdx = obj.getNumVertices();
         final int normalStartIdx = obj.getNumNormals();
         final float buttonHeight = baseHeight + innerHeight + flangeHeight;
 
         final float centerX = buttonHeight;
+
+        if (flangeCylinderAftNormals.size() != nrOfSlices) {
+            throw new IllegalArgumentException("The number of normals must be equal to the number of slices");
+        }
 
         // Generate the mesh vertices (no tip)
         for (int i = 1; i <= nrOfStacks-1; i++) {
@@ -158,16 +166,16 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         for (int i = 0; i < nrOfSlices; i++) {
             int nextIdx = (i + 1) % nrOfSlices;
             int[] vertexIndices = new int[] {
-                    flangeCylinderTopVertices.get(i),           // Bottom-left of quad
+                    flangeCylinderAftVertices.get(i),           // Bottom-left of quad
                     startIdx + i,                               // Top-left of quad
                     startIdx + nextIdx,                         // Top-right of quad
-                    flangeCylinderTopVertices.get(nextIdx),     // Bottom-right of quad
+                    flangeCylinderAftVertices.get(nextIdx),     // Bottom-right of quad
             };
             int[] normalIndices = new int[] {
-                    flangeCylinderTopVertices.get(i),           // Bottom-left of quad
+                    flangeCylinderAftNormals.get(i),           // Bottom-left of quad
                     normalStartIdx + i,                         // Top-left of quad
                     normalStartIdx + nextIdx,                   // Top-right of quad
-                    flangeCylinderTopVertices.get(nextIdx),     // Bottom-right of quad
+                    flangeCylinderAftNormals.get(nextIdx),     // Bottom-right of quad
             };
 
             // No need to offset! We already directly reference the indices
