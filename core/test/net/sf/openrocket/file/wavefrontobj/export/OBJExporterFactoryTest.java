@@ -12,7 +12,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.openrocket.OpenRocketSaverTest;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
@@ -33,8 +32,6 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
-import net.sf.openrocket.util.TestRockets;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -47,12 +44,7 @@ import java.util.List;
 import static org.junit.Assert.fail;
 
 public class OBJExporterFactoryTest {
-    private final OpenRocketSaver saver = new OpenRocketSaver();
     private static final File TMP_DIR = new File("./tmp/");
-
-    public static final String SIMULATION_EXTENSION_SCRIPT = "// Test <  &\n// >\n// <![CDATA[";
-
-    private static Injector injector;
 
     @BeforeClass
     public static void setup() {
@@ -68,10 +60,10 @@ public class OBJExporterFactoryTest {
             }
         };
 
-        injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
+        Injector injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
         Application.setInjector(injector);
 
-        if( !(TMP_DIR.exists() && TMP_DIR.isDirectory()) ){
+        if (!(TMP_DIR.exists() && TMP_DIR.isDirectory())) {
             boolean success = TMP_DIR.mkdirs();
             if (!success) {
                 fail("Unable to create core/tmp dir needed for tests.");
@@ -81,6 +73,7 @@ public class OBJExporterFactoryTest {
 
     @Test
     public void testExport() throws IOException {
+        // Rocket generation
         Rocket rocket = OpenRocketDocumentFactory.createNewRocket().getRocket();
         AxialStage sustainer = rocket.getStage(0);
 
@@ -156,43 +149,35 @@ public class OBJExporterFactoryTest {
         InnerTube innerTube = new InnerTube();
         bodyTube.addChild(innerTube);
 
-        rocket = loadRocket("/Users/SiboVanGool/Downloads/blbl.ork").getRocket();        // TODO: delete me
 
+        // ------------------------------
+
+
+        // Create a list of components to export
         List<RocketComponent> components = List.of(rocket);
 
+        // Create a temp file for storing the exported OBJ
         Path tempFile = Files.createTempFile("testExport", ".obj");
         String filePath = tempFile.toAbsolutePath().toString();
-        filePath = "/Users/SiboVanGool/Downloads/testExport.obj";                               // TODO: delete me
-        TestRockets.dumpRocket(rocket, "/Users/SiboVanGool/Downloads/test.ork");        // TODO: delete me
 
+        // Do the exporting
         CoordTransform transformer = new DefaultCoordTransform(rocket.getLength());
         OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), true, false, true,
                 transformer, filePath);
         exporterFactory.doExport();
 
-        // Test with other parameters
-        /*noseCone.setShoulderCapped(false);
-        railButton.setScrewHeight(0);
 
+        // Test with other parameters
+        noseCone.setShoulderCapped(false);
+        railButton.setScrewHeight(0);
+        bodyTube.setFilled(true);
 
         transformer = new DefaultCoordTransform(rocket.getLength());
-        exporterFactory = new OBJExporterFactory(components, false, false, true,
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), false, false, true,
                 transformer, filePath);
-        exporterFactory.doExport();*/
+        exporterFactory.doExport();
 
-
+        // Clean up
         Files.delete(tempFile);
-    }
-
-    private OpenRocketDocument loadRocket(String fileName) {
-        GeneralRocketLoader loader = new GeneralRocketLoader(new File(fileName));
-        OpenRocketDocument rocketDoc = null;
-        try {
-            rocketDoc = loader.load();
-        } catch (RocketLoadException e) {
-            e.printStackTrace();
-            fail("RocketLoadException while loading file " + fileName + " : " + e.getMessage());
-        }
-        return rocketDoc;
     }
 }

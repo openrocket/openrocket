@@ -29,20 +29,10 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
         }
     }
 
-    private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled,
-                              InstanceContext context) {
+    private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled, InstanceContext context) {
+        // Generate the mesh
         int startIdx = obj.getNumVertices();
-
-        if (isFilled || Float.compare(innerRadius, 0) == 0) {
-            CylinderExporter.addCylinderMesh(obj, transformer, groupName, outerRadius, length, true, LOD);
-        } else {
-            if (Float.compare(innerRadius, outerRadius) == 0) {
-                CylinderExporter.addCylinderMesh(obj, transformer, groupName, outerRadius, length, false, LOD);
-            } else {
-                TubeExporter.addTubeMesh(obj, transformer, groupName, outerRadius, innerRadius, length, LOD);
-            }
-        }
-
+        TubeExporter.addTubeMesh(obj, transformer, groupName, outerRadius, isFilled ? 0 : innerRadius, length, LOD);
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket

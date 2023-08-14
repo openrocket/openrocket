@@ -14,19 +14,20 @@ public class CylinderExporter {
      * @param obj The obj to add the mesh to
      * @param transformer The coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param groupName The name of the group to add the mesh to, or null if no group should be added (use the active group)
-     * @param radius The radius of the cylinder
+     * @param foreRadius The fore (top) radius of the cylinder
+     * @param aftRadius The aft (bottom) radius of the cylinder
      * @param length The length of the cylinder
      * @param numSides The number of sides of the cylinder
      * @param solid Whether the cylinder should be solid (true) or hollow (false)
      *                 NOTE: Culling is not really thought of for the hollow cylinder; this mode is really meant to be
      *                       combined with other objects
      * @param isOutside Whether the cylinder is an outside face (true) or inside face (false)
-     * @param bottomRingVertices A list to add the bottom ring vertex indices to
-     * @param topRingVertices A list to add the top ring vertex indices to
+     * @param foreRingVertices A list to add the fore (top) ring vertex indices to
+     * @param aftRingVertices A list to add the aft (bottom) ring vertex indices to
      */
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                       float radius, float length, int numSides, boolean solid, boolean isOutside,
-                                       List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
+                                       float foreRadius, float aftRadius, float length, int numSides, boolean solid, boolean isOutside,
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
         // Set the new group
         if (groupName != null) {
             obj.setActiveGroupNames(groupName);
@@ -47,10 +48,10 @@ public class CylinderExporter {
         }
 
         // Generate side top vertices
-        generateRingVertices(obj, transformer, startIdx, numSides, 0, radius, isOutside, topRingVertices);
+        generateRingVertices(obj, transformer, startIdx, numSides, 0, foreRadius, isOutside, foreRingVertices);
 
         // Generate side bottom vertices
-        generateRingVertices(obj, transformer, startIdx + numSides, numSides, length, radius, isOutside, bottomRingVertices);
+        generateRingVertices(obj, transformer, startIdx + numSides, numSides, length, aftRadius, isOutside, aftRingVertices);
 
         // Create faces for the bottom and top
         if (solid) {
@@ -112,27 +113,33 @@ public class CylinderExporter {
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float length, int numSides, boolean solid, boolean isOutside,
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, radius, radius, length, numSides, solid, isOutside, foreRingVertices, aftRingVertices);
+    }
+
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float radius, float height, int numSides, boolean solid,
-                                       List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, transformer, groupName, radius, height, numSides, solid, true, bottomRingVertices, topRingVertices);
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, radius, height, numSides, solid, true, foreRingVertices, aftRingVertices);
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float radius, float height, boolean solid, ObjUtils.LevelOfDetail LOD,
-                                       List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, transformer, groupName, radius, height, LOD.getNrOfSides(radius), solid, bottomRingVertices, topRingVertices);
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, radius, height, LOD.getNrOfSides(radius), solid, foreRingVertices, aftRingVertices);
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float radius, float height, boolean solid, boolean isOutside, int nrOfSlices,
-                                       List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, transformer, groupName, radius, height, nrOfSlices, solid, isOutside, bottomRingVertices, topRingVertices);
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, radius, height, nrOfSlices, solid, isOutside, foreRingVertices, aftRingVertices);
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float radius, float height, boolean solid, int nrOfSlices,
-                                       List<Integer> bottomRingVertices, List<Integer> topRingVertices) {
-        addCylinderMesh(obj, transformer, groupName, radius, height, nrOfSlices, solid, bottomRingVertices, topRingVertices);
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, radius, height, nrOfSlices, solid, foreRingVertices, aftRingVertices);
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,

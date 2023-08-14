@@ -6,6 +6,7 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter.generateRingVertices;
@@ -16,23 +17,25 @@ public class TubeExporter {
      * It is drawn in the origin of the OBJ coordinate system. The longitudinal axis is positive, converted OpenRocket x-axis.
      * @param obj The obj to add the mesh to
      * @param groupName The name of the group to add the mesh to, or null if no group should be added (use the active group)
-     * @param aftOuterRadius The outer radius of the aft (bottom) of the tube
      * @param foreOuterRadius The outer radius of the fore (top) of the tube
-     * @param aftInnerRadius The inner radius of the aft (bottom) of the tube
+     * @param aftOuterRadius The outer radius of the aft (bottom) of the tube
      * @param foreInnerRadius The inner radius of the fore (top) of the tube
+     *                        Set to 0, together with aftInnerRadius, to create a solid tube
+     * @param aftInnerRadius The inner radius of the aft (bottom) of the tube
+     *                       Set to 0, together with foreInnerRadius, to create a solid tube
      * @param length The length of the tube
      * @param numSides The number of sides of the tube
-     * @param bottomOuterVertices A list to add the indices of the bottom outer vertices to, or null if the indices are not needed
-     * @param topOuterVertices A list to add the indices of the top outer vertices to, or null if the indices are not needed
-     * @param bottomInnerVertices A list to add the indices of the bottom inner vertices to, or null if the indices are not needed
-     * @param topInnerVertices A list to add the indices of the top inner vertices to, or null if the indices are not needed
+     * @param foreOuterVertices A list to add the indices of the fore (top) outer vertices to, or null if the indices are not needed
+     * @param aftOuterVertices A list to add the indices of the aft (bottom) outer vertices to, or null if the indices are not needed
+     * @param foreInnerVertices A list to add the indices of the fore (top) inner vertices to, or null if the indices are not needed
+     * @param aftInnerVertices A list to add the indices of the aft (bottom) inner vertices to, or null if the indices are not needed
      */
     public static void addTubeMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                   float aftOuterRadius, float foreOuterRadius,
-                                   float aftInnerRadius, float foreInnerRadius, float length, int numSides,
-                                   List<Integer> bottomOuterVertices, List<Integer> topOuterVertices,
-                                   List<Integer> bottomInnerVertices, List<Integer> topInnerVertices) {
-        if (aftInnerRadius > aftOuterRadius || foreInnerRadius > foreOuterRadius) {
+                                   float foreOuterRadius, float aftOuterRadius,
+                                   float foreInnerRadius, float aftInnerRadius, float length, int numSides,
+                                   List<Integer> foreOuterVertices, List<Integer> aftOuterVertices,
+                                   List<Integer> foreInnerVertices, List<Integer> aftInnerVertices) {
+        if (Float.compare(aftInnerRadius, aftOuterRadius) > 0 || Float.compare(foreInnerRadius, foreOuterRadius) > 0) {
             throw new IllegalArgumentException("Inner radius must be less than outer radius");
         }
 
@@ -41,102 +44,38 @@ public class TubeExporter {
             obj.setActiveGroupNames(groupName);
         }
 
-        // Other meshes may have been added to the obj, so we need to keep track of the starting indices
-        int startIdx = obj.getNumVertices();
-        int normalsStartIdx = obj.getNumNormals();
-
-        obj.addNormal(transformer.convertLocWithoutOriginOffs(-1, 0, 0));       // Top faces normal
-        obj.addNormal(transformer.convertLocWithoutOriginOffs(1, 0, 0));        // Bottom faces normal
-
-        // Generate top outside vertices
-        generateRingVertices(obj, transformer, startIdx, numSides, 0, foreOuterRadius, true, topOuterVertices);
-
-        // Generate top inside vertices
-        generateRingVertices(obj, transformer, startIdx + numSides, numSides, 0, foreInnerRadius, false, topInnerVertices);
-
-        // Generate bottom outside vertices
-        generateRingVertices(obj, transformer, startIdx + 2*numSides, numSides, length, aftOuterRadius, true, bottomOuterVertices);
-
-        // Generate bottom inside vertices
-        generateRingVertices(obj, transformer, startIdx + 3*numSides, numSides, length, aftInnerRadius, false, bottomInnerVertices);
-
-        // Create top faces
-        for (int i = 0; i < numSides; i++) {
-            int[] vertexIndices = new int[] {
-                    i,                                  // Bottom-left of quad outside vertex
-                    ((i + 1) % numSides),               // Bottom-right of quad outside vertex
-                    numSides + ((i + 1) % numSides),    // Top-right of quad inside vertex
-                    numSides + i,                       // Top-left of quad inside vertex
-            };
-            ObjUtils.offsetIndex(vertexIndices, startIdx);
-            int[] normalIndices = new int[] {0, 0, 0, 0};
-            ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
-
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
-            obj.addFace(face);
+        // We need to store the vertices to create the closing disks, so we'll create lists if they do not exist
+        if (foreOuterVertices == null) {
+            foreOuterVertices = new ArrayList<>();
+        }
+        if (aftOuterVertices == null) {
+            aftOuterVertices = new ArrayList<>();
+        }
+        if (foreInnerVertices == null) {
+            foreInnerVertices = new ArrayList<>();
+        }
+        if (aftInnerVertices == null) {
+            aftInnerVertices = new ArrayList<>();
         }
 
-        // Create bottom faces
-        for (int i = 0; i < numSides; i++) {
-            int[] vertexIndices = new int[] {
-                    2*numSides + i,                         // Bottom-left of quad outside vertex
-                    3*numSides + i,                         // Top-left of quad inside vertex
-                    3*numSides + ((i + 1) % numSides),      // Top-right of quad inside vertex
-                    2*numSides + ((i + 1) % numSides),      // Bottom-right of quad outside vertex
-            };
-            ObjUtils.offsetIndex(vertexIndices, startIdx);
-
-            int[] normalIndices = new int[] {1, 1, 1, 1};
-            ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
-
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
-            obj.addFace(face);
+        // Generate inside mesh
+        boolean hasForeThickness = Float.compare(foreOuterRadius, foreInnerRadius) > 0 && Float.compare(foreInnerRadius, 0) > 0;
+        boolean hasAftThickness = Float.compare(aftOuterRadius, aftInnerRadius) > 0  && Float.compare(aftInnerRadius, 0) > 0;
+        if (hasForeThickness || hasAftThickness) {
+            CylinderExporter.addCylinderMesh(obj, transformer, null, foreInnerRadius, aftInnerRadius, length, numSides,
+                    false, false, foreInnerVertices, aftInnerVertices);
         }
 
-        // Create outside side faces
-        for (int i = 0; i < numSides; i++) {
-            final int nextIdx = (i + 1) % numSides;
-            int[] vertexIndices = new int[]{
-                    i,                                  // Bottom-left of quad outside vertex
-                    2*numSides + i,                     // Top-left of quad outside vertex
-                    2*numSides + nextIdx,               // Top-right of quad outside vertex
-                    nextIdx,                            // Bottom-right of quad outside vertex
-            };
-            ObjUtils.offsetIndex(vertexIndices, startIdx);
+        // Generate outside mesh
+        CylinderExporter.addCylinderMesh(obj, transformer, null, foreOuterRadius, aftOuterRadius, length, numSides,
+                !hasForeThickness && !hasAftThickness, true, foreOuterVertices, aftOuterVertices);
 
-            int[] normalIndices = new int[]{
-                    i,                                  // Bottom-left of quad outside vertex
-                    2*numSides + i,                     // Top-left of quad outside vertex
-                    2*numSides + nextIdx,               // Top-right of quad outside vertex
-                    nextIdx,                            // Bottom-right of quad outside vertex
-            };
-            ObjUtils.offsetIndex(normalIndices, normalsStartIdx + 2);       // Extra 2 offset for bottom and top normals
-
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
-            obj.addFace(face);
+        // Close the mesh
+        if (hasForeThickness) {
+            DiskExporter.closeDiskMesh(obj, transformer, null, foreOuterVertices, foreInnerVertices, false, true);
         }
-
-        // Create inside side faces
-        for (int i = 0; i < numSides; i++) {
-            final int nextIdx = (i + 1) % numSides;
-            int[] vertexIndices = new int[]{
-                    numSides + i,                           // Bottom-left of quad inside vertex
-                    numSides + nextIdx,                     // Bottom-right of quad inside vertex
-                    3*numSides + nextIdx,                   // Top-right of quad inside vertex
-                    3*numSides + i,                         // Top-left of quad inside vertex
-            };
-            ObjUtils.offsetIndex(vertexIndices, startIdx);
-
-            int[] normalIndices = new int[]{
-                    numSides + i,                           // Bottom-left of quad inside vertex
-                    numSides + nextIdx,                     // Bottom-right of quad inside vertex
-                    3*numSides + nextIdx,                   // Top-right of quad inside vertex
-                    3*numSides + i,                         // Top-left of quad inside vertex
-            };
-            ObjUtils.offsetIndex(normalIndices, normalsStartIdx + 2);       // Extra 2 offset for bottom and top normals
-
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
-            obj.addFace(face);
+        if (hasAftThickness) {
+            DiskExporter.closeDiskMesh(obj, transformer, null, aftOuterVertices, aftInnerVertices, false, false);
         }
     }
 

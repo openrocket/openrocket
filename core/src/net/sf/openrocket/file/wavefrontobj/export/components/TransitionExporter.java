@@ -64,9 +64,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             float outerFore = (float) component.getForeRadius();
             float innerFore = (float) (component.getForeRadius() - component.getThickness());
 
-            TubeExporter.addTubeMesh(obj, transformer, null, outerAft, outerFore, innerAft, innerFore,
+            TubeExporter.addTubeMesh(obj, transformer, null, outerFore, outerAft, innerFore, innerAft,
                     (float) component.getLength(), this.nrOfSides,
-                    outsideAftRingVertices, outsideForeRingVertices, insideAftRingVertices, insideForeRingVertices);
+                    outsideForeRingVertices, outsideAftRingVertices, insideForeRingVertices, insideAftRingVertices);
         }
         // Otherwise, use complex geometry
         else {
@@ -370,10 +370,10 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private void addShoulder(float shoulderRadius, float shoulderLength, float shoulderThickness, boolean isCapped,
                              boolean isForeSide, int nrOfSides, List<Integer> outerRingVertices, List<Integer> innerRingVertices) {
         final float innerCylinderRadius = isCapped ? 0 : shoulderRadius - shoulderThickness;
-        final List<Integer> outerCylinderBottomVertices = new ArrayList<>();
-        final List<Integer> outerCylinderTopVertices = new ArrayList<>();
-        final List<Integer> innerCylinderBottomVertices = isCapped ? null : new ArrayList<>();
-        final List<Integer> innerCylinderTopVertices = isCapped ? null : new ArrayList<>();
+        final List<Integer> outerCylinderForeVertices = new ArrayList<>();
+        final List<Integer> outerCylinderAftVertices = new ArrayList<>();
+        final List<Integer> innerCylinderForeVertices = isCapped ? null : new ArrayList<>();
+        final List<Integer> innerCylinderAftVertices = isCapped ? null : new ArrayList<>();
         int startIdx;
         int endIdx;
 
@@ -403,7 +403,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         // Generate outer cylinder (no. 3)
         startIdx = obj.getNumVertices();
         CylinderExporter.addCylinderMesh(obj, transformer, null, shoulderRadius, shoulderLength,
-                false, nrOfSides, outerCylinderBottomVertices, outerCylinderTopVertices);
+                false, nrOfSides, outerCylinderForeVertices, outerCylinderAftVertices);
         endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
 
         // Translate the outer cylinder to the correct position
@@ -415,7 +415,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         if (!isCapped) {
             startIdx = obj.getNumVertices();
             CylinderExporter.addCylinderMesh(obj, transformer, null, innerCylinderRadius, shoulderLength + shoulderThickness,
-                    false, false, nrOfSides, innerCylinderBottomVertices, innerCylinderTopVertices);
+                    false, false, nrOfSides, innerCylinderForeVertices, innerCylinderAftVertices);
             endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
 
             // Translate the outer cylinder to the correct position
@@ -426,23 +426,23 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Generate shoulder top disk (no. 4)
         if (isForeSide) {
-            DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderTopVertices, innerCylinderTopVertices, false, true);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderForeVertices, innerCylinderForeVertices, false, true);
         } else {
-            DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderBottomVertices, innerCylinderBottomVertices, false, false);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderAftVertices, innerCylinderAftVertices, false, false);
         }
 
         // Generate transition outer disk (no. 5)
         if (isForeSide) {
-            DiskExporter.closeDiskMesh(obj, transformer, null, outerRingVertices, outerCylinderBottomVertices, false, true);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerRingVertices, outerCylinderAftVertices, false, true);
         } else {
-            DiskExporter.closeDiskMesh(obj, transformer, null, outerRingVertices, outerCylinderTopVertices, false, false);
+            DiskExporter.closeDiskMesh(obj, transformer, null, outerRingVertices, outerCylinderForeVertices, false, false);
         }
 
         // Generate transition inner disk (no. 6)
         if (isForeSide) {
-            DiskExporter.closeDiskMesh(obj, transformer, null, innerRingVertices, innerCylinderBottomVertices, false, false);
+            DiskExporter.closeDiskMesh(obj, transformer, null, innerRingVertices, innerCylinderAftVertices, false, false);
         } else {
-            DiskExporter.closeDiskMesh(obj, transformer, null, innerRingVertices, innerCylinderTopVertices, false, true);
+            DiskExporter.closeDiskMesh(obj, transformer, null, innerRingVertices, innerCylinderForeVertices, false, true);
         }
     }
 
