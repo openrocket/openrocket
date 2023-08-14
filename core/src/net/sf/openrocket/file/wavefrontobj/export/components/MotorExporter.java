@@ -130,7 +130,8 @@ public class MotorExporter {
 
         // Translate the mesh to the position in the rocket
         Coordinate location = context.getLocation();
-        location = location.add(mount.getLength() - length, 0, 0);      // Motor starts at the aft end of the mount
+        final double xOffs = mount.getLength() + ((MotorMount) mount).getMotorOverhang() - length;
+        location = location.add(xOffs, 0, 0);      // Motor starts at the aft end of the mount
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 }
