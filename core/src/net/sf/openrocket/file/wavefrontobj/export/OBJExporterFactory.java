@@ -8,6 +8,7 @@ import net.sf.openrocket.file.wavefrontobj.export.components.BodyTubeExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.FinSetExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.LaunchLugExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.MassObjectExporter;
+import net.sf.openrocket.file.wavefrontobj.export.components.MotorExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.RailButtonExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.RocketComponentExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.RingComponentExporter;
@@ -21,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -135,15 +137,14 @@ public class OBJExporterFactory {
                 continue;
             }
 
+            // Get the instance transforms
             InstanceMap map = configuration.getActiveInstances();
             ArrayList<InstanceContext> contexts = map.get(component);
             contexts.get(0).transform.getXrotation();
 
-
+            // Component exporting
             String groupName = component.getName() + "_" + idx;
             handleComponent(obj, this.configuration, this.transformer, component, groupName, this.LOD);
-
-            // TODO: motor rendering
 
             idx++;
         }
@@ -184,8 +185,15 @@ public class OBJExporterFactory {
             throw new IllegalArgumentException("Unsupported component type: " + component.getClass().getName());
         }
 
+        // Export component
         final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD);
         exporter.addToObj();
+
+        // Export motor
+        if (component instanceof MotorMount) {
+            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD);
+            motorExporter.addToObj();
+        }
     }
 
     interface ExporterFactory<T extends RocketComponent> {
