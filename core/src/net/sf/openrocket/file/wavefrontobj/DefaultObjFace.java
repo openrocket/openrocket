@@ -53,9 +53,9 @@ public final class DefaultObjFace implements ObjFace {
      * Creates a face from the given parameters. References to the
      * given objects will be stored.
      *
-     * @param vertexIndices The vertex indices
+     * @param vertexIndices   The vertex indices
      * @param texCoordIndices The texture coordinate indices
-     * @param normalIndices The normal indices
+     * @param normalIndices   The normal indices
      */
     public DefaultObjFace(int[] vertexIndices, int[] texCoordIndices, int[] normalIndices) {
         this.vertexIndices = vertexIndices;
@@ -92,7 +92,7 @@ public final class DefaultObjFace implements ObjFace {
     /**
      * Set the specified index to the given value
      *
-     * @param n The index to set
+     * @param n     The index to set
      * @param index The value of the index
      */
     public void setVertexIndex(int n, int index) {
@@ -102,7 +102,7 @@ public final class DefaultObjFace implements ObjFace {
     /**
      * Set the specified index to the given value
      *
-     * @param n The index to set
+     * @param n     The index to set
      * @param index The value of the index
      */
     public void setNormalIndex(int n, int index) {
@@ -112,7 +112,7 @@ public final class DefaultObjFace implements ObjFace {
     /**
      * Set the specified index to the given value
      *
-     * @param n The index to set
+     * @param n     The index to set
      * @param index The value of the index
      */
     public void setTexCoordIndex(int n, int index) {
@@ -127,9 +127,9 @@ public final class DefaultObjFace implements ObjFace {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("ObjFace[");
-        for(int i = 0; i < getNumVertices(); i++) {
+        for (int i = 0; i < getNumVertices(); i++) {
             result.append(vertexIndices[i]);
-            if( texCoordIndices != null || normalIndices != null) {
+            if (texCoordIndices != null || normalIndices != null) {
                 result.append("/");
             }
             if (texCoordIndices != null) {

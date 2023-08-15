@@ -178,6 +178,7 @@ public final class DefaultObj implements Obj {
 
     /**
      * Return a list of vertices from a list of vertex indices.
+     *
      * @param indices List of vertex indices
      * @return List of vertices
      */
@@ -252,6 +253,7 @@ public final class DefaultObj implements Obj {
     /**
      * Returns the {@link DefaultObjGroup} with the given name. If no such group exists in this object,
      * create a new one, add it to this object, and return it.
+     *
      * @param groupName The group name
      * @return The {@link DefaultObjGroup}
      */
@@ -293,7 +295,8 @@ public final class DefaultObj implements Obj {
 
     /**
      * Adds a vertex to this object. You can specify whether the added vertex should affect the objects bounds.
-     * @param vertex The vertex to add
+     *
+     * @param vertex       The vertex to add
      * @param updateBounds Whether the added vertex should affect the objects bounds
      */
     public void addVertex(FloatTuple vertex, boolean updateBounds) {
@@ -311,9 +314,10 @@ public final class DefaultObj implements Obj {
 
     /**
      * Adds a vertex to this object. You can specify whether the added vertex should affect the objects bounds.
-     * @param x The x coordinate of the vertex
-     * @param y The y coordinate of the vertex
-     * @param z The z coordinate of the vertex
+     *
+     * @param x            The x coordinate of the vertex
+     * @param y            The y coordinate of the vertex
+     * @param z            The z coordinate of the vertex
      * @param updateBounds Whether the added vertex should affect the objects bounds
      */
     public void addVertex(float x, float y, float z, boolean updateBounds) {
@@ -357,6 +361,7 @@ public final class DefaultObj implements Obj {
 
     /**
      * Adds a normal to this object. The normal will be normalized.
+     *
      * @param normal The normal
      */
     @Override
@@ -373,7 +378,8 @@ public final class DefaultObj implements Obj {
 
     /**
      * Sets the normal at the given index. The normal will be normalized.
-     * @param index The index to set the normal at
+     *
+     * @param index  The index to set the normal at
      * @param normal The normal to set
      */
     public void setNormal(int index, FloatTuple normal) {
@@ -442,7 +448,7 @@ public final class DefaultObj implements Obj {
 
 
     @Override
-    public void addFace(int ... v) {
+    public void addFace(int... v) {
         addFace(v, null, null);
     }
 
@@ -482,7 +488,7 @@ public final class DefaultObj implements Obj {
     @Override
     public String toString() {
         return "Obj[" +
-                "#vertices="+ vertices.size() + "," +
+                "#vertices=" + vertices.size() + "," +
                 "#texCoords=" + texCoords.size() + "," +
                 "#normals=" + normals.size() + "," +
                 "#faces=" + faces.size() + "," +
@@ -538,6 +544,7 @@ public final class DefaultObj implements Obj {
 
     /**
      * Returns the bounds (min and max vertex values) of the vertices of this Obj.
+     *
      * @return The bounds of this object
      */
     public FloatTupleBounds getVertexBounds() {
@@ -570,23 +577,23 @@ public final class DefaultObj implements Obj {
      * the given maximum.
      *
      * @param indices The indices
-     * @param max The maximum index, exclusive
-     * @param name The name of the index set
+     * @param max     The maximum index, exclusive
+     * @param name    The name of the index set
      * @throws IllegalArgumentException If the given indices are not valid
      */
     private static void checkIndices(int[] indices, int max, String name) {
         if (indices == null) {
             return;
         }
-        for (int i=0; i<indices.length; i++) {
+        for (int i = 0; i < indices.length; i++) {
             if (indices[i] < 0) {
                 throw new IllegalArgumentException(
-                        name+" index is negative: "+indices[i]);
+                        name + " index is negative: " + indices[i]);
             }
             if (indices[i] >= max) {
                 throw new IllegalArgumentException(
-                        name+" index is "+indices[i]+
-                                ", but must be smaller than "+max);
+                        name + " index is " + indices[i] +
+                                ", but must be smaller than " + max);
             }
         }
     }

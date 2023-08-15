@@ -67,8 +67,7 @@ public final class DefaultObjGroup implements ObjGroup {
      *
      * @param face The face to add
      */
-    public void addFace(ObjFace face)
-    {
+    public void addFace(ObjFace face) {
         faces.add(face);
     }
 
@@ -77,20 +76,17 @@ public final class DefaultObjGroup implements ObjGroup {
     }
 
     @Override
-    public int getNumFaces()
-    {
+    public int getNumFaces() {
         return faces.size();
     }
 
     @Override
-    public ObjFace getFace(int index)
-    {
+    public ObjFace getFace(int index) {
         return faces.get(index);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "ObjGroup[name=" + name + ",#faces=" + faces.size() + "]";
     }
 

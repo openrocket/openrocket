@@ -58,7 +58,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param w The w value
      */
     DefaultFloatTuple(float x, float y, float z, float w) {
-        this(new float[]{x,y,z,w});
+        this(new float[]{x, y, z, w});
     }
 
     /**
@@ -69,7 +69,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param z The z value
      */
     DefaultFloatTuple(float x, float y, float z) {
-        this(new float[]{x,y,z});
+        this(new float[]{x, y, z});
     }
 
     /**
@@ -79,7 +79,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param y The y value
      */
     DefaultFloatTuple(float x, float y) {
-        this(new float[]{x,y});
+        this(new float[]{x, y});
     }
 
     /**
@@ -108,14 +108,12 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @return The values
      */
     private static float[] getValues(FloatTuple f) {
-        if (f instanceof DefaultFloatTuple)
-        {
-            DefaultFloatTuple other = (DefaultFloatTuple)f;
+        if (f instanceof DefaultFloatTuple) {
+            DefaultFloatTuple other = (DefaultFloatTuple) f;
             return other.values.clone();
         }
         float values[] = new float[f.getDimensions()];
-        for (int i=0; i<values.length; i++)
-        {
+        for (int i = 0; i < values.length; i++) {
             values[i] = f.get(i);
         }
         return values;
@@ -136,7 +134,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      *
      * @param x The component to set
      * @throws IndexOutOfBoundsException If this tuple has less than 1
-     * dimensions
+     *                                   dimensions
      */
     public void setX(float x) {
         values[0] = x;
@@ -152,7 +150,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      *
      * @param y The component to set
      * @throws IndexOutOfBoundsException If this tuple has less than 2
-     * dimensions
+     *                                   dimensions
      */
     public void setY(float y) {
         values[1] = y;
@@ -168,7 +166,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      *
      * @param z The component to set
      * @throws IndexOutOfBoundsException If this tuple has less than 3
-     * dimensions
+     *                                   dimensions
      */
     public void setZ(float z) {
         values[2] = z;
@@ -184,7 +182,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      *
      * @param w The component to set
      * @throws IndexOutOfBoundsException If this tuple has less than 4
-     * dimensions
+     *                                   dimensions
      */
     void setW(float w) {
         values[3] = w;
@@ -200,9 +198,9 @@ public final class DefaultFloatTuple implements FloatTuple {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
-        for (int i=0; i<getDimensions(); i++) {
+        for (int i = 0; i < getDimensions(); i++) {
             sb.append(get(i));
-            if (i < getDimensions()-1) {
+            if (i < getDimensions() - 1) {
                 sb.append(",");
             }
         }
@@ -224,15 +222,15 @@ public final class DefaultFloatTuple implements FloatTuple {
             return false;
         }
         if (object instanceof DefaultFloatTuple) {
-            DefaultFloatTuple other = (DefaultFloatTuple)object;
+            DefaultFloatTuple other = (DefaultFloatTuple) object;
             return Arrays.equals(values, other.values);
         }
         if (object instanceof FloatTuple) {
-            FloatTuple other = (FloatTuple)object;
+            FloatTuple other = (FloatTuple) object;
             if (other.getDimensions() != getDimensions()) {
                 return false;
             }
-            for (int i=0; i<getDimensions(); i++) {
+            for (int i = 0; i < getDimensions(); i++) {
                 if (get(i) != other.get(i)) {
                     return false;
                 }

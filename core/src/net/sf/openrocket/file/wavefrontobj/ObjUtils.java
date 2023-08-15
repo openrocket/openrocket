@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.wavefrontobj;
 
 import de.javagl.obj.FloatTuple;
+import de.javagl.obj.FloatTuples;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
@@ -117,6 +118,19 @@ public class ObjUtils {
             FloatTuple translatedVertex = new DefaultFloatTuple(x + transX, y + transY, z + transZ);
             obj.setVertex(i, translatedVertex);
         }
+    }
+
+    /**
+     * Translates the vertices in the obj file so that the component is at the specified translation.
+     * @param obj The obj file to translate
+     * @param startIdx The index of the first vertex to translate
+     * @param endIdx The index of the last vertex to translate (inclusive)
+     * @param translation The translation coordinates to translate the component with (in OpenRocket coordinate system)
+     */
+    public static void translateVerticesFromComponentLocation(DefaultObj obj, CoordTransform transformer,
+                                                              int startIdx, int endIdx, Coordinate translation) {
+        FloatTuple translatedLoc = transformer.convertLoc(translation);
+        ObjUtils.translateVertices(obj, startIdx, endIdx, translatedLoc.getX(), translatedLoc.getY(), translatedLoc.getZ());
     }
 
     /**
@@ -389,20 +403,6 @@ public class ObjUtils {
         }
     }
 
-
-    /**
-     * Translates the vertices in the obj file so that the component is at the specified translation.
-     * @param obj The obj file to translate
-     * @param startIdx The index of the first vertex to translate
-     * @param endIdx The index of the last vertex to translate (inclusive)
-     * @param translation The translation coordinates to translate the component with (in OpenRocket coordinate system)
-     */
-    public static void translateVerticesFromComponentLocation(DefaultObj obj, CoordTransform transformer,
-                                                              int startIdx, int endIdx, Coordinate translation) {
-        FloatTuple translatedLoc = transformer.convertLoc(translation);
-        ObjUtils.translateVertices(obj, startIdx, endIdx, translatedLoc.getX(), translatedLoc.getY(), translatedLoc.getZ());
-    }
-
     /**
      * Merge a list of objs into a single obj.
      * @param objs The objs to merge
@@ -430,5 +430,59 @@ public class ObjUtils {
         }
 
         return merged;
+    }
+
+    /**
+     * Creates a {@link FloatTuple} from the given UVW values, treating
+     * optional values as described in the MTL specification: If
+     * the <code>u</code> component is <code>null</code>, then
+     * <code>null</code> is returned. If the <code>v</code> or
+     * <code>w</code> component is null, then the given default value
+     * will be used.
+     *
+     * @param u            The u-component
+     * @param v            The v-component
+     * @param w            The w-component
+     * @param defaultValue The default value for v and w
+     * @return The {@link FloatTuple}
+     */
+    public static FloatTuple createUvwTuple(
+            Float u, Float v, Float w, float defaultValue) {
+        if (u == null) {
+            return null;
+        }
+        float fu = u;
+        float fv = (v == null ? defaultValue : v);
+        float fw = (w == null ? defaultValue : w);
+        return FloatTuples.create(fu, fv, fw);
+    }
+
+    /**
+     * Creates a {@link FloatTuple} from the given RGB values, treating
+     * optional values as described in the MTL specification: If
+     * the <code>r</code> component is <code>null</code>, then
+     * <code>null</code> is returned. If the <code>g</code> or
+     * <code>b</code> component is null, then the <code>r</code>
+     * component will be used instead.
+     *
+     * @param r The r-component
+     * @param g The g-component
+     * @param b The b-component
+     * @return The {@link FloatTuple}
+     */
+    public static FloatTuple createRgbTuple(Float r, Float g, Float b) {
+        if (r == null) {
+            return null;
+        }
+        float fr = r;
+        float fg = r;
+        float fb = r;
+        if (g != null) {
+            fg = g;
+        }
+        if (b != null) {
+            fb = b;
+        }
+        return FloatTuples.create(fr, fg, fb);
     }
 }
