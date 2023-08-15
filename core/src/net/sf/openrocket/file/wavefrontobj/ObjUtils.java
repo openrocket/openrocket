@@ -203,6 +203,63 @@ public class ObjUtils {
         }
     }
 
+    /**
+     * Scale the vertices of an object around a certain origin.
+     * <b>NOTE: this uses the Wavefront OBJ coordinate system</b>
+     * @param obj The object to scale the vertices of
+     * @param startIdx The starting vertex index to scale
+     * @param endIdx The ending vertex index to scale (inclusive)
+     * @param scaleX The scaling factor in the x direction
+     * @param scaleY The scaling factor in the y direction
+     * @param scaleZ The scaling factor in the z direction
+     * @param origX The x coordinate of the origin of the scaling
+     * @param origY The y coordinate of the origin of the scaling
+     * @param origZ The z coordinate of the origin of the scaling
+     */
+    public static void scaleVertices(DefaultObj obj, int startIdx, int endIdx,
+                                     float scaleX, float scaleY, float scaleZ,
+                                     float origX, float origY, float origZ) {
+        verifyIndexRange(obj, startIdx, endIdx);
+
+        if (Float.compare(scaleX, 1) == 0 && Float.compare(scaleY, 1) == 0 && Float.compare(scaleZ, 1) == 0) {
+            return;
+        }
+
+        for (int i = startIdx; i <= endIdx; i++) {
+            FloatTuple vertex = obj.getVertex(i);
+
+            // Translate vertex to origin
+            final float x = vertex.getX() - origX;
+            final float y = vertex.getY() - origY;
+            final float z = vertex.getZ() - origZ;
+
+            // Apply scaling
+            float scaledX = x * scaleX;
+            float scaledY = y * scaleY;
+            float scaledZ = z * scaleZ;
+
+            // Translate vertex back to its original position
+            scaledX += origX;
+            scaledY += origY;
+            scaledZ += origZ;
+
+            FloatTuple scaledVertex = new DefaultFloatTuple(scaledX, scaledY, scaledZ);
+            obj.setVertex(i, scaledVertex);
+        }
+    }
+
+    /**
+     * Scale the vertices of an object around the origin
+     * <b>NOTE: this uses the Wavefront OBJ coordinate system</b>
+     * @param obj The object to scale the vertices of
+     * @param scaling The uniform scaling factor
+     */
+    public static void scaleVertices(DefaultObj obj, float scaling) {
+        scaleVertices(obj, 0, obj.getNumVertices() - 1,
+                scaling, scaling, scaling,
+                0, 0, 0);
+    }
+
     private static void verifyIndexRange(DefaultObj obj, int startIdx, int endIdx) {
         if (startIdx < 0 || startIdx >= obj.getNumVertices()) {
             throw new IllegalArgumentException("startIdx must be between 0 and the number of vertices");

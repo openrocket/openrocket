@@ -36,6 +36,10 @@ public class OBJExportOptions {
      * This is used to convert the coordinates from the rocket's coordinate system to the OBJ coordinate system (which is arbitrary).
      */
     private CoordTransform transformer;
+    /**
+     * The scaling factor to use for the export (1 = no scaling).
+     */
+    private float scaling;
 
     // TODO: scaling (to mm = x1000, or SI units)
 
@@ -47,6 +51,7 @@ public class OBJExportOptions {
         this.triangulate = false;
         this.LOD = ObjUtils.LevelOfDetail.NORMAL;
         this.transformer = new DefaultCoordTransform(rocket.getLength());
+        this.scaling = 1.0f;
     }
 
     public boolean isExportChildren() {
@@ -103,5 +108,13 @@ public class OBJExportOptions {
 
     public void setExportAsSeparateFiles(boolean exportAsSeparateFiles) {
         this.exportAsSeparateFiles = exportAsSeparateFiles;
+    }
+
+    public float getScaling() {
+        return scaling;
+    }
+
+    public void setScaling(float scaling) {
+        this.scaling = scaling;
     }
 }

@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +93,14 @@ public class OBJExporterFactory {
      */
     public void doExport() {
         DefaultObj obj = new DefaultObj();
+        Map<String, DefaultObj> objFileMap;
         boolean exportAsSeparateFiles = this.options.isExportAsSeparateFiles();
+
+        if (exportAsSeparateFiles) {
+            objFileMap = new HashMap<>();
+        } else {
+            objFileMap = Map.of(this.filePath, obj);
+        }
 
         // Get all the components to export
         Set<RocketComponent> componentsToExport = new HashSet<>(this.components);
@@ -127,30 +135,42 @@ public class OBJExporterFactory {
             String groupName = idx + "_" + component.getName();
             handleComponent(obj, this.configuration, this.options.getTransformer(), component, groupName, this.options.getLOD());
 
-            // If separate export, already need to write the OBJ here
+            // If separate export, add this object to the map of objects to export
             if (exportAsSeparateFiles) {
                 String path = FileUtils.removeExtension(this.filePath) + "_" + groupName + ".obj";
-                writeObj(obj, path);
+                objFileMap.put(path, obj);
             }
 
             idx++;
         }
 
-        if (this.options.isTriangulate()) {
-            obj = de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
-        }
+        // Apply export options and write the OBJ files
+        for (Map.Entry<String, DefaultObj> entry : objFileMap.entrySet()) {
+            String filePath = entry.getKey();
+            obj = entry.getValue();
 
-        if (this.options.isRemoveOffset()) {
-            // Because of some rotation and translation operations when creating the meshes, the bounds can be inaccurate.
-            // Therefore, we will recalculate them to be sure.
-            // Is a bit computationally expensive, but it's the only way to be sure...
-            obj.recalculateAllVertexBounds();
+            // Triangulate mesh
+            if (this.options.isTriangulate()) {
+                obj = de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
+            }
 
-            ObjUtils.removeVertexOffset(obj, this.options.getTransformer());
-        }
+            // Remove position offset
+            if (this.options.isRemoveOffset()) {
+                // Because of some rotation and translation operations when creating the meshes, the bounds can be inaccurate.
+                // Therefore, we will recalculate them to be sure.
+                // Is a bit computationally expensive, but it's the only way to be sure...
+                obj.recalculateAllVertexBounds();
 
-        if (!exportAsSeparateFiles) {
-            writeObj(obj, this.filePath);
+                ObjUtils.removeVertexOffset(obj, this.options.getTransformer());
+            }
+
+            // Perform scaling
+            if (Float.compare(options.getScaling(), 1) != 0) {
+                ObjUtils.scaleVertices(obj, options.getScaling());
+            }
+
+            // Write the OBJ file
+            writeObj(obj, filePath);
         }
     }
 
