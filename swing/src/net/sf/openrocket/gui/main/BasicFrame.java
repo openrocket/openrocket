@@ -51,6 +51,8 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
+import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory;
 import net.sf.openrocket.gui.configdialog.SaveDesignInfoPanel;
 import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
@@ -1387,15 +1389,24 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
 	 * @param fileType file type to use (e.g. RASAero)
+	 * @param selectedComponents list of selected components in the design
 	 * @return the file selected from the dialog, or null if no file was selected.
 	 */
-	private File openFileSaveAsDialog(FileType fileType) {
-		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType);
+	private File openFileSaveAsDialog(FileType fileType, List<RocketComponent> selectedComponents) {
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType, selectedComponents);
+		OBJOptionChooser objChooser = null;
+		if (chooser.getAccessory() instanceof OBJOptionChooser) {
+			objChooser = (OBJOptionChooser) chooser.getAccessory();
+		}
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return null;
+		}
+
+		if (objChooser != null) {
+			objChooser.storeOptions(document.getDefaultOBJOptions());
 		}
 
 		File file = chooser.getSelectedFile();
@@ -1407,6 +1418,15 @@ public class BasicFrame extends JFrame {
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
 		return file;
+	}
+
+	/**
+	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
+	 * @param fileType file type to use (e.g. RASAero)
+	 * @return the file selected from the dialog, or null if no file was selected.
+	 */
+	private File openFileSaveAsDialog(FileType fileType) {
+		return openFileSaveAsDialog(fileType, null);
 	}
 
 
@@ -1608,13 +1628,42 @@ public class BasicFrame extends JFrame {
 
 
 	////	BEGIN WAVEFRONT OBJ Save/Export Action
-	private void exportWavefrontOBJAction() {
-		// TODO: popup dialog for extra options (quality, whether to triangulate, whether to export materials, whether to save all subcomponents of the selected ones, whether to offset the object position to zero or to the location in the rocket, whether to save the rocket dimensions in SI units or in mm (add tooltip text that mm is useful for 3D printing) etc.)
-		String filePath = "/Users/SiboVanGool/Downloads/test.obj";
-		CoordTransform transformer = new DefaultCoordTransform(rocket.getLength());
+	/**
+	 * MODEL "Export as" Wavefront OBJ file format
+	 *
+	 * @return true if the file was saved, false otherwise
+	 */
+	private boolean exportWavefrontOBJAction() {
+		File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
+		if (file == null) {
+			return false;
+		}
+
+		file = FileHelper.forceExtension(file, "obj");
+		boolean isExportAsSeparateFiles = document.getDefaultOBJOptions().isExportAsSeparateFiles();
+		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
+			return saveAsWavefrontOBJ(file);
+		}
+		return false;
+	}
+
+	private boolean saveAsWavefrontOBJ(File file) {
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		return saveWavefrontOBJFile(file, options);
+	}
+
+	/**
+	 * Perform the actual saving of the Wavefront OBJ file
+	 * @param file file to be stored
+	 * @param options OBJ export options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveWavefrontOBJFile(File file, OBJExportOptions options) {
 		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
-				false, false, true, transformer, filePath);
+				file.getAbsolutePath(), options);
 		exporter.doExport();
+
+		return true;
 	}
 
 

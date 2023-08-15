@@ -28,6 +28,7 @@ import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.util.FileUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,12 +56,8 @@ import java.util.Set;
 public class OBJExporterFactory {
     private final List<RocketComponent> components;
     private final FlightConfiguration configuration;
-    private final boolean exportChildren;
-    private final boolean triangulate;
-    private final boolean removeOffset;
-    private final ObjUtils.LevelOfDetail LOD;          // Level of detailed used for the export
+    private final OBJExportOptions options;
     private final String filePath;
-    private final CoordTransform transformer;
 
     // The different exporters for each component
     private static final Map<Class<? extends RocketComponent>, ExporterFactory<?>> EXPORTER_MAP = Map.of(
@@ -79,38 +76,15 @@ public class OBJExporterFactory {
      * <b>NOTE: </b> you must call {@link #doExport()} to actually perform the export.
      * @param components List of components to export
      * @param configuration Flight configuration to use for the export
-     * @param exportChildren If true, export all children of the components as well
-     * @param triangulate If true, triangulate all faces
-     * @param removeOffset If true, remove the offset of the object so it is centered at the origin (but the bottom of the object is at y=0)
-     * @param LOD Level of detail to use for the export (e.g. '80')
-     * @param transformer Coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
+     * @param options Options to use for the export
      * @param filePath Path to the file to export to
      */
-    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, boolean exportChildren, boolean triangulate,
-                              boolean removeOffset, ObjUtils.LevelOfDetail LOD, CoordTransform transformer, String filePath) {
+    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, String filePath,
+                              OBJExportOptions options) {
         this.components = components;
         this.configuration = configuration;
-        this.exportChildren = exportChildren;
-        this.triangulate = triangulate;
-        this.removeOffset = removeOffset;
-        this.LOD = LOD;
-        this.transformer = transformer;
         this.filePath = filePath;
-    }
-
-    /**
-     * Wavefront OBJ exporter.
-     * @param components List of components to export
-     * @param configuration Flight configuration to use for the export
-     * @param exportChildren If true, export all children of the components as well
-     * @param triangulate If true, triangulate all faces
-     * @param removeOffset If true, remove the offset of the object so it is centered at the origin (but the bottom of the object is at y=0)
-     * @param transformer Coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
-     * @param filePath Path to the file to export to
-     */
-    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, boolean exportChildren, boolean triangulate,
-                              boolean removeOffset, CoordTransform transformer, String filePath) {
-        this(components, configuration, exportChildren, triangulate, removeOffset, ObjUtils.LevelOfDetail.NORMAL, transformer, filePath);
+        this.options = options;
     }
 
     /**
@@ -118,9 +92,11 @@ public class OBJExporterFactory {
      */
     public void doExport() {
         DefaultObj obj = new DefaultObj();
+        boolean exportAsSeparateFiles = this.options.isExportAsSeparateFiles();
 
+        // Get all the components to export
         Set<RocketComponent> componentsToExport = new HashSet<>(this.components);
-        if (this.exportChildren) {
+        if (this.options.isExportChildren()) {
             for (RocketComponent component : this.components) {
                 componentsToExport.addAll(component.getAllChildren());
             }
@@ -142,27 +118,44 @@ public class OBJExporterFactory {
             ArrayList<InstanceContext> contexts = map.get(component);
             contexts.get(0).transform.getXrotation();
 
+            // If separate export, create a new OBJ for each component
+            if (exportAsSeparateFiles) {
+                obj = new DefaultObj();
+            }
+
             // Component exporting
-            String groupName = component.getName() + "_" + idx;
-            handleComponent(obj, this.configuration, this.transformer, component, groupName, this.LOD);
+            String groupName = idx + "_" + component.getName();
+            handleComponent(obj, this.configuration, this.options.getTransformer(), component, groupName, this.options.getLOD());
+
+            // If separate export, already need to write the OBJ here
+            if (exportAsSeparateFiles) {
+                String path = FileUtils.removeExtension(this.filePath) + "_" + groupName + ".obj";
+                writeObj(obj, path);
+            }
 
             idx++;
         }
 
-        if (this.triangulate) {
+        if (this.options.isTriangulate()) {
             obj = de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
         }
 
-        if (this.removeOffset) {
+        if (this.options.isRemoveOffset()) {
             // Because of some rotation and translation operations when creating the meshes, the bounds can be inaccurate.
             // Therefore, we will recalculate them to be sure.
             // Is a bit computationally expensive, but it's the only way to be sure...
             obj.recalculateAllVertexBounds();
 
-            ObjUtils.removeVertexOffset(obj, transformer);
+            ObjUtils.removeVertexOffset(obj, this.options.getTransformer());
         }
 
-        try (OutputStream objOutputStream = new FileOutputStream(this.filePath)) {
+        if (!exportAsSeparateFiles) {
+            writeObj(obj, this.filePath);
+        }
+    }
+
+    private static void writeObj(DefaultObj obj, String filePath) {
+        try (OutputStream objOutputStream = new FileOutputStream(filePath)) {
             ObjWriter.write(obj, objOutputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -4,7 +4,9 @@ import de.javagl.obj.FloatTuple;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.List;
@@ -15,19 +17,22 @@ import java.util.List;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class ObjUtils {
+    private static final Translator trans = Application.getTranslator();
 
     /**
      * Level of detail to use for the export.
      */
     public enum LevelOfDetail {
-        LOW_QUALITY(25),
-        NORMAL(60),
-        HIGH_QUALITY(100);
+        LOW_QUALITY(25, trans.get("LevelOfDetail.LOW_QUALITY")),
+        NORMAL(60, trans.get("LevelOfDetail.NORMAL")),
+        HIGH_QUALITY(100, trans.get("LevelOfDetail.HIGH_QUALITY"));
 
         private final int value;
+        private final String label;
 
-        LevelOfDetail(int value) {
+        LevelOfDetail(int value, String label) {
             this.value = value;
+            this.label = label;
         }
 
         public int getValue() {
@@ -43,6 +48,11 @@ public class ObjUtils {
             final int MIN_SIDES = 10;
             final double refRadius = 0.05;      // Reference radius for the number of sides (the "most common radius") <-- very arbitrary, oh well.
             return Math.max(MIN_SIDES, (int) (0.75*value + (radius/refRadius * 0.25*value)));   // Adjust if needed
+        }
+
+        @Override
+        public String toString() {
+            return label;
         }
     }
 

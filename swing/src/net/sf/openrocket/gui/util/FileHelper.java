@@ -48,6 +48,10 @@ public final class FileHelper {
 	public static final FileFilter RASAERO_DESIGN_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.RASAERO_DESIGN_FILTER"), ".CDX1", ".CDX1.gz");
 
+	/** File filter for RASAero II designs (*.CDX1) */
+	public static final FileFilter WAVEFRONT_OBJ_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.WAVEFRONT_OBJ_FILTER"), ".obj");
+
 	/** File filter for OpenRocket components and presets (*.orc) */
 	public static final FileFilter OPEN_ROCKET_COMPONENT_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.OPEN_ROCKET_COMPONENT_FILTER"), ".orc", ".orc.gz");

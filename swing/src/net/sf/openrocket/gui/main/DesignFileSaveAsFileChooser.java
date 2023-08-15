@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.main;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -10,12 +11,15 @@ import javax.swing.filechooser.FileFilter;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
+import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.FileUtils;
 
 public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 
@@ -24,11 +28,15 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 
 	private static final Translator trans = Application.getTranslator();
 
-	public static DesignFileSaveAsFileChooser build(OpenRocketDocument document, FileType type ) {
-		return new DesignFileSaveAsFileChooser(document,type);
+	public static DesignFileSaveAsFileChooser build(OpenRocketDocument document, FileType type) {
+		return new DesignFileSaveAsFileChooser(document, type, null);
 	}
 
-	private DesignFileSaveAsFileChooser(OpenRocketDocument document, FileType type ) {
+	public static DesignFileSaveAsFileChooser build(OpenRocketDocument document, FileType type, List<RocketComponent> selectedComponents) {
+		return new DesignFileSaveAsFileChooser(document, type, selectedComponents);
+	}
+
+	private DesignFileSaveAsFileChooser(OpenRocketDocument document, FileType type, List<RocketComponent> selectedComponents) {
 		this.document = document;
 		this.type = type;
 
@@ -57,6 +65,14 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 				this.setDialogTitle(trans.get("saveAs.rasaero.title"));
 				this.addChoosableFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
 				this.setFileFilter(FileHelper.RASAERO_DESIGN_FILTER);
+				break;
+			case WAVEFRONT_OBJ:
+				defaultFilename = FileHelper.forceExtension(defaultFilename,"obj");
+				this.setDialogTitle(trans.get("saveAs.wavefront.title"));
+				OBJOptionChooser objChooser = new OBJOptionChooser(document.getDefaultOBJOptions(), selectedComponents);
+				this.setAccessory(objChooser);
+				this.addChoosableFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
+				this.setFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
 				break;
 		}
 		
@@ -108,18 +124,10 @@ class RememberFilenamePropertyListener implements PropertyChangeListener {
 			String currentFileName = oldFileName;
 
 			if (!filter.accept(new File(currentFileName))) {
-				currentFileName = removeExtension(currentFileName);
+				currentFileName = FileUtils.removeExtension(currentFileName);
 				chooser.setSelectedFile(new File(currentFileName + desiredExtension));
 			}
 		}
-	}
-
-	private String removeExtension(String fileName) {
-		String[] splitResults = fileName.split("\\.");
-		if (splitResults.length > 0) {
-			return splitResults[0];
-		}
-		return fileName;
 	}
 }
 
