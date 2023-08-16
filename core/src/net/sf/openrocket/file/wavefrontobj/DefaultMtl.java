@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Default implementation of an Mtl (material)
  */
-final class DefaultMtl implements Mtl {
+public final class DefaultMtl implements Mtl {
     /**
      * The name of this material
      */
@@ -210,7 +210,7 @@ final class DefaultMtl implements Mtl {
      *
      * @param name The name of this material
      */
-    DefaultMtl(String name) {
+    public DefaultMtl(String name) {
         this.name = name;
         this.reflOptions = new ArrayList<TextureOptions>();
     }

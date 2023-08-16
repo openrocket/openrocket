@@ -79,9 +79,11 @@ public class DefaultMtlWriter {
      *
      * @param mtl    The {@link Mtl}
      * @param writer The writer
-     * @throws IOException If an IO error occurs
+     * @throws IOExcept
+     *
+     * ion If an IO error occurs
      */
-    private static void write(Mtl mtl, Writer writer)
+    public static void write(Mtl mtl, Writer writer)
             throws IOException {
         writer.write(createString(mtl));
         writer.flush();

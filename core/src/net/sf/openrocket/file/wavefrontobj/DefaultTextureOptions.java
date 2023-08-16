@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * Default implementation of {@link TextureOptions}
  */
-final class DefaultTextureOptions implements TextureOptions {
+public final class DefaultTextureOptions implements TextureOptions {
     /**
      * The file name
      */
@@ -110,7 +110,7 @@ final class DefaultTextureOptions implements TextureOptions {
     /**
      * Default constructor
      */
-    DefaultTextureOptions() {
+    public DefaultTextureOptions() {
         // Default constructor
     }
 
