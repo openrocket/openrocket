@@ -3,7 +3,6 @@ package net.sf.openrocket.file.wavefrontobj.export.components;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
-import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -18,6 +17,8 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
 
     @Override
     public void addToObj() {
+        obj.setActiveGroupNames(groupName);
+
         final float outerRadius = (float) component.getOuterRadius();
         final float innerRadius = (float) component.getInnerRadius();
         final float length = (float) component.getLength();
@@ -32,7 +33,7 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
     private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled, InstanceContext context) {
         // Generate the mesh
         int startIdx = obj.getNumVertices();
-        TubeExporter.addTubeMesh(obj, transformer, groupName, outerRadius, isFilled ? 0 : innerRadius, length, LOD);
+        TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, isFilled ? 0 : innerRadius, length, LOD);
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
