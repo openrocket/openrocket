@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.util;
 
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
+import com.jthemedetecor.OsThemeDetector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -10,14 +11,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UITheme {
     private static final Translator trans = Application.getTranslator();
@@ -526,6 +530,243 @@ public class UITheme {
                 } catch (IOException ioe) {
                     log.warn("Unable to load RSyntaxTextArea theme", ioe);
                 }
+            }
+        },
+        AUTO {
+            private final String displayName = trans.get("UITheme.Auto");
+
+            private Theme getCurrentTheme() {
+                try {
+                    final OsThemeDetector detector = OsThemeDetector.getDetector();
+                    final boolean isDarkThemeUsed = detector.isDark();
+                    if (isDarkThemeUsed) {
+                        return Themes.DARK;
+                    } else {
+                        return Themes.LIGHT;
+                    }
+                } catch (Exception ignore) {}
+
+                return Themes.LIGHT;
+            }
+
+            @Override
+            public void applyTheme() {
+                getCurrentTheme().applyTheme();
+            }
+
+            @Override
+            public String getDisplayName() {
+                return displayName;
+            }
+
+            @Override
+            public Color getBackgroundColor() {
+                return getCurrentTheme().getBackgroundColor();
+            }
+
+            @Override
+            public Color getBorderColor() {
+                return getCurrentTheme().getBorderColor();
+            }
+
+            @Override
+            public Color getTextColor() {
+                return getCurrentTheme().getTextColor();
+            }
+
+            @Override
+            public Color getDimTextColor() {
+                return getCurrentTheme().getDimTextColor();
+            }
+
+            @Override
+            public Color getTextSelectionForegroundColor() {
+                return getCurrentTheme().getTextSelectionForegroundColor();
+            }
+
+            @Override
+            public Color getTextSelectionBackgroundColor() {
+                return getCurrentTheme().getTextSelectionBackgroundColor();
+            }
+
+            @Override
+            public Color getWarningColor() {
+                return getCurrentTheme().getWarningColor();
+            }
+
+            @Override
+            public Color getDarkWarningColor() {
+                return getCurrentTheme().getDarkWarningColor();
+            }
+
+            @Override
+            public Color getRowBackgroundLighterColor() {
+                return getCurrentTheme().getRowBackgroundLighterColor();
+            }
+
+            @Override
+            public Color getRowBackgroundDarkerColor() {
+                return getCurrentTheme().getRowBackgroundDarkerColor();
+            }
+
+            @Override
+            public Color getFlightDataTextActiveColor() {
+                return getCurrentTheme().getFlightDataTextActiveColor();
+            }
+
+            @Override
+            public Color getFlightDataTextInactiveColor() {
+                return getCurrentTheme().getFlightDataTextInactiveColor();
+            }
+
+            @Override
+            public String getDefaultBodyComponentColor() {
+                return getCurrentTheme().getDefaultBodyComponentColor();
+            }
+
+            @Override
+            public String getDefaultTubeFinSetColor() {
+                return getCurrentTheme().getDefaultTubeFinSetColor();
+            }
+
+            @Override
+            public String getDefaultFinSetColor() {
+                return getCurrentTheme().getDefaultFinSetColor();
+            }
+
+            @Override
+            public String getDefaultLaunchLugColor() {
+                return getCurrentTheme().getDefaultLaunchLugColor();
+            }
+
+            @Override
+            public String getDefaultRailButtonColor() {
+                return getCurrentTheme().getDefaultRailButtonColor();
+            }
+
+            @Override
+            public String getDefaultInternalComponentColor() {
+                return getCurrentTheme().getDefaultInternalComponentColor();
+            }
+
+            @Override
+            public String getDefaultMassObjectColor() {
+                return getCurrentTheme().getDefaultMassObjectColor();
+            }
+
+            @Override
+            public String getDefaultRecoveryDeviceColor() {
+                return getCurrentTheme().getDefaultRecoveryDeviceColor();
+            }
+
+            @Override
+            public String getDefaultPodSetColor() {
+                return getCurrentTheme().getDefaultPodSetColor();
+            }
+
+            @Override
+            public String getDefaultParallelStageColor() {
+                return getCurrentTheme().getDefaultParallelStageColor();
+            }
+
+            @Override
+            public Color getMotorBorderColor() {
+                return getCurrentTheme().getMotorBorderColor();
+            }
+
+            @Override
+            public Color getMotorFillColor() {
+                return getCurrentTheme().getMotorFillColor();
+            }
+
+            @Override
+            public Color getCGColor() {
+                return getCurrentTheme().getCGColor();
+            }
+
+            @Override
+            public Color getCPColor() {
+                return getCurrentTheme().getCPColor();
+            }
+
+            @Override
+            public Color getURLColor() {
+                return getCurrentTheme().getURLColor();
+            }
+
+            @Override
+            public Color getComponentTreeBackgroundColor() {
+                return getCurrentTheme().getComponentTreeBackgroundColor();
+            }
+
+            @Override
+            public Color getComponentTreeForegroundColor() {
+                return getCurrentTheme().getComponentTreeForegroundColor();
+            }
+
+            @Override
+            public Color getFinPointGridMajorLineColor() {
+                return getCurrentTheme().getFinPointGridMajorLineColor();
+            }
+
+            @Override
+            public Color getFinPointGridMinorLineColor() {
+                return getCurrentTheme().getFinPointGridMinorLineColor();
+            }
+
+            @Override
+            public Color getFinPointPointColor() {
+                return getCurrentTheme().getFinPointPointColor();
+            }
+
+            @Override
+            public Color getFinPointSelectedPointColor() {
+                return getCurrentTheme().getFinPointSelectedPointColor();
+            }
+
+            @Override
+            public Color getFinPointBodyLineColor() {
+                return getCurrentTheme().getFinPointBodyLineColor();
+            }
+
+            @Override
+            public Icon getMassOverrideIcon() {
+                return getCurrentTheme().getMassOverrideIcon();
+            }
+
+            @Override
+            public Icon getMassOverrideSubcomponentIcon() {
+                return getCurrentTheme().getMassOverrideSubcomponentIcon();
+            }
+
+            @Override
+            public Icon getCGOverrideIcon() {
+                return getCurrentTheme().getCGOverrideIcon();
+            }
+
+            @Override
+            public Icon getCGOverrideSubcomponentIcon() {
+                return getCurrentTheme().getCGOverrideSubcomponentIcon();
+            }
+
+            @Override
+            public Icon getCDOverrideIcon() {
+                return getCurrentTheme().getCDOverrideIcon();
+            }
+
+            @Override
+            public Icon getCDOverrideSubcomponentIcon() {
+                return getCurrentTheme().getCDOverrideSubcomponentIcon();
+            }
+
+            @Override
+            public Border getBorder() {
+                return getCurrentTheme().getBorder();
+            }
+
+            @Override
+            public void formatScriptTextArea(RSyntaxTextArea textArea) {
+                getCurrentTheme().formatScriptTextArea(textArea);
             }
         }
     }

@@ -5,6 +5,13 @@
     <libelement value="jar://$MODULE_DIR$/lib/iText-5.0.2.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/jcommon-1.0.18.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/jfreechart-1.0.15.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jSystemThemeDetector-3.8.jar!/" />$
+    <libelement value="jar://$MODULE_DIR$/lib/oshi-core-6.4.4.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jna-5.13.0.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jna-platform-5.13.0.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/annotations-24.0.1.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jfa-1.2.0.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/versioncompare-1.4.1.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/darklaf/*.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/OrangeExtensions-1.2.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/jogl/gluegen-rt.jar!/" />
@@ -109,9 +116,63 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="flatlaf-3.1.1.jar">
+      <library name="jSystemThemeDetector-3.8.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/flatlaf-3.1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/jSystemThemeDetector-3.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="oshi-core-6.4.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/oshi-core-6.4.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jna-5.13.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jna-5.13.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jna-platform-5.13.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jna-platform-5.13.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="versioncompare-1.4.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/versioncompare-1.4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="annotations-24.0.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/annotations-24.0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jfa-1.2.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jfa-1.2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
