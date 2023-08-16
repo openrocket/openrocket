@@ -19,6 +19,8 @@ public class RingComponentExporter extends RocketComponentExporter<RingComponent
 
     @Override
     public void addToObj() {
+        obj.setActiveGroupNames(groupName);
+
         final float outerRadius = (float) component.getOuterRadius();
         final float innerRadius = (float) component.getInnerRadius();
         final float length = (float) component.getLength();
@@ -32,7 +34,7 @@ public class RingComponentExporter extends RocketComponentExporter<RingComponent
     private void generateMesh(float outerRadius, float innerRadius, float length, InstanceContext context) {
         // Generate the mesh
         int startIdx = obj.getNumVertices();
-        TubeExporter.addTubeMesh(obj, transformer, groupName, outerRadius, innerRadius, length, LOD);
+        TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, innerRadius, length, LOD);
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket

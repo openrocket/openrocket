@@ -2,6 +2,8 @@ package net.sf.openrocket.file.wavefrontobj.export;
 
 import de.javagl.obj.ObjWriter;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.DefaultMtl;
+import net.sf.openrocket.file.wavefrontobj.DefaultMtlWriter;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.components.BodyTubeExporter;
@@ -94,6 +96,8 @@ public class OBJExporterFactory {
     public void doExport() {
         DefaultObj obj = new DefaultObj();
         Map<String, DefaultObj> objFileMap;
+        Map<DefaultObj, List<DefaultMtl>> materials = new HashMap<>();
+        materials.put(obj, new ArrayList<>());
         boolean exportAsSeparateFiles = this.options.isExportAsSeparateFiles();
 
         if (exportAsSeparateFiles) {
@@ -129,11 +133,13 @@ public class OBJExporterFactory {
             // If separate export, create a new OBJ for each component
             if (exportAsSeparateFiles) {
                 obj = new DefaultObj();
+                materials.put(obj, new ArrayList<>());
             }
 
             // Component exporting
             String groupName = idx + "_" + component.getName();
-            handleComponent(obj, this.configuration, this.options.getTransformer(), component, groupName, this.options.getLOD());
+            handleComponent(obj, this.configuration, this.options.getTransformer(), component, groupName,
+                    materials.get(obj), this.options.getLOD(), options);
 
             // If separate export, add this object to the map of objects to export
             if (exportAsSeparateFiles) {
@@ -169,6 +175,18 @@ public class OBJExporterFactory {
                 ObjUtils.scaleVertices(obj, options.getScaling());
             }
 
+            // Export materials
+            if (options.isExportAppearance()) {
+                String mtlFilePath = FileUtils.removeExtension(filePath) + ".mtl";
+                List<DefaultMtl> mtls = materials.get(obj);
+                try (OutputStream mtlOutputStream = new FileOutputStream(mtlFilePath)) {
+                    DefaultMtlWriter.write(mtls, mtlOutputStream);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                obj.setMtlFileNames(List.of(mtlFilePath));
+            }
+
             // Write the OBJ file
             writeObj(obj, filePath);
         }
@@ -184,7 +202,8 @@ public class OBJExporterFactory {
 
     @SuppressWarnings("unchecked") // This is safe because of the structure we set up.
     private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
-                                                             T component, String groupName, ObjUtils.LevelOfDetail LOD) {
+                                                             T component, String groupName, List<DefaultMtl> materials,
+                                                             ObjUtils.LevelOfDetail LOD, OBJExportOptions options) {
         ExporterFactory<T> factory = null;
         Class<?> currentClass = component.getClass();
 
@@ -196,6 +215,12 @@ public class OBJExporterFactory {
 
         if (factory == null) {
             throw new IllegalArgumentException("Unsupported component type: " + component.getClass().getName());
+        }
+
+        // Export material
+        if (options.isExportAppearance()) {
+            MtlExpoter mtlExpoter = new MtlExpoter(obj, component, "mat_" + groupName, materials);
+            mtlExpoter.doExport();
         }
 
         // Export component
