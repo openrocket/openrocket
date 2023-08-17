@@ -51,10 +51,10 @@ public class CylinderExporter {
         }
 
         // Generate side top vertices
-        generateRingVertices(obj, transformer, numSides, 0, foreRadius, isOutside, foreRingVertices, foreRingNormals);
+        generateRingVertices(obj, transformer, numSides, 0, length, foreRadius, aftRadius, isOutside, foreRingVertices, foreRingNormals);
 
         // Generate side bottom vertices
-        generateRingVertices(obj, transformer, numSides, length, aftRadius, isOutside, aftRingVertices, aftRingNormals);
+        generateRingVertices(obj, transformer, numSides, length, 0, aftRadius, foreRadius, isOutside, aftRingVertices, aftRingNormals);
 
         // Create faces for the bottom and top
         if (solid) {
@@ -135,12 +135,6 @@ public class CylinderExporter {
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
-                                       float radius, float length, boolean solid, ObjUtils.LevelOfDetail LOD,
-                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
-        addCylinderMesh(obj, transformer, groupName, radius, length, LOD.getNrOfSides(radius), solid, foreRingVertices, aftRingVertices);
-    }
-
-    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float radius, float length, boolean solid, boolean isOutside, int nrOfSlices,
                                        List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
         addCylinderMesh(obj, transformer, groupName, radius, length, nrOfSlices, solid, isOutside, foreRingVertices, aftRingVertices);
@@ -153,8 +147,8 @@ public class CylinderExporter {
     }
 
     public static void generateRingVertices(DefaultObj obj, CoordTransform transformer,
-                                            int numSides, float x, float radius, boolean isOutside,
-                                            List<Integer> vertexList, List<Integer> normalList) {
+                                            int numSides, float x, float nextX, float radius, float nextRadius,
+                                            boolean isOutside, List<Integer> vertexList, List<Integer> normalList) {
         int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
 
@@ -165,7 +159,23 @@ public class CylinderExporter {
 
             // Side top vertices
             obj.addVertex(transformer.convertLoc(x, y, z));
-            obj.addNormal(transformer.convertLocWithoutOriginOffs(0, isOutside ? y : -y, isOutside ? z : -z));     // This kind of normal ensures the object is smoothly rendered (like the 'Shade Smooth' option in Blender)
+
+            // We need special nx normal when the radius changes
+            float nx;
+            if (Float.compare(radius, nextRadius) != 0) {
+                final double slopeAngle = Math.atan(Math.abs(nextX - x) / (nextRadius - radius));
+                nx = (float) Math.cos(Math.PI - slopeAngle);
+            } else {
+                nx = 0;
+            }
+            float ny = (float) Math.cos(angle);
+            float nz = (float) Math.sin(angle);
+
+            nx = isOutside ? nx : -nx;
+            ny = isOutside ? ny : -ny;
+            nz = isOutside ? nz : -nz;
+
+            obj.addNormal(transformer.convertLocWithoutOriginOffs(nx, ny, nz));     // This kind of normal ensures the object is smoothly rendered (like the 'Shade Smooth' option in Blender)
 
             if (vertexList != null) {
                 vertexList.add(startIdx + i);

@@ -226,7 +226,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                     boolean isAftRing = Double.compare(x, (float) component.getLength()) == 0;
 
                     // Case 5: Add normal vertices
-                    addQuadVertices(numSlices, foreRingVertices, aftRingVertices, r, rNext, x, isForeRing, isAftRing, isOutside);
+                    addQuadVertices(numSlices, foreRingVertices, aftRingVertices, r, rNext, x, xNext, isForeRing, isAftRing, isOutside);
                     actualNumStacks++;
                 }
             }
@@ -296,7 +296,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     }
 
     private void addQuadVertices(int numSlices, List<Integer> foreRingVertices, List<Integer> aftRingVertices,
-                                        double r, double rNext, float x, boolean isForeRing, boolean isAftRing, boolean isOutside) {
+                                        double r, double rNext, float x, float xNext, boolean isForeRing, boolean isAftRing, boolean isOutside) {
         for (int i = 0; i < numSlices; i++) {
             double angle = 2 * Math.PI * i / numSlices;
             float y = (float) (r * Math.cos(angle));
@@ -313,9 +313,20 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             }
 
             // Calculate the normal
-            final float nx = isOutside ? (float) (r - rNext) : (float) (rNext -r);
-            final float ny = isOutside ? y : -y;
-            final float nz = isOutside ? z : -z;
+            // We need special nx normal when the radius changes
+            float nx;
+            if (Double.compare(r, rNext) != 0) {
+                final double slopeAngle = Math.atan(Math.abs(xNext - x) / (rNext - r));
+                nx = (float) Math.cos(Math.PI - slopeAngle);
+            } else {
+                nx = 0;
+            }
+            float ny = (float) Math.cos(angle);
+            float nz = (float) Math.sin(angle);
+
+            nx = isOutside ? nx : -nx;
+            ny = isOutside ? ny : -ny;
+            nz = isOutside ? nz : -nz;
             obj.addNormal(transformer.convertLocWithoutOriginOffs(nx, ny, nz));
         }
     }

@@ -3,13 +3,10 @@ package net.sf.openrocket.file.wavefrontobj.export.shapes;
 import com.sun.istack.NotNull;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
-import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter.generateRingVertices;
 
 public class TubeExporter {
     /**
