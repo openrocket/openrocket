@@ -76,6 +76,7 @@ public class AboutDialog extends JDialog {
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
 		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
 		"Darklaf (dark theme)" + href("https://github.com/weisJ/darklaf", true, true) + "<br>" +
+		"jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +

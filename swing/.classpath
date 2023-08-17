@@ -11,6 +11,13 @@
 	<classpathentry kind="lib" path="lib/iText-5.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.18.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/jSystemThemeDetector-3.8.jar"/>
+	<classpathentry kind="lib" path="lib/oshi-core-6.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/jna-5.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform-5.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/annotations-24.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jfa-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/versioncompare-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/darklaf/*.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
