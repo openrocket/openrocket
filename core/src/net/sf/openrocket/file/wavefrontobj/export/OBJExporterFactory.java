@@ -38,6 +38,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,8 +115,11 @@ public class OBJExporterFactory {
             }
         }
 
+        // Sort the components according to how they are ordered in the rocket (component tree)
+        Set<RocketComponent> sortedComponents = sortComponents(componentsToExport);
+
         int idx = 1;
-        for (RocketComponent component : componentsToExport) {
+        for (RocketComponent component : sortedComponents) {
             if (component instanceof ComponentAssembly) {
                 continue;
             }
@@ -179,7 +183,7 @@ public class OBJExporterFactory {
             if (options.isExportAppearance()) {
                 String mtlFilePath = FileUtils.removeExtension(filePath) + ".mtl";
                 List<DefaultMtl> mtls = materials.get(obj);
-                try (OutputStream mtlOutputStream = new FileOutputStream(mtlFilePath)) {
+                try (OutputStream mtlOutputStream = new FileOutputStream(mtlFilePath, false)) {
                     DefaultMtlWriter.write(mtls, mtlOutputStream);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -231,6 +235,27 @@ public class OBJExporterFactory {
         if (component instanceof MotorMount) {
             MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD);
             motorExporter.addToObj();
+        }
+    }
+
+    /**
+     * Sort a set of components according to how they are ordered in the rocket (component tree).
+     * @param components components to sort
+     * @return sorted components
+     */
+    private Set<RocketComponent> sortComponents(Set<RocketComponent> components) {
+        Set<RocketComponent> sortedComponents = new LinkedHashSet<>();
+        addChildComponentToList(this.configuration.getRocket(), components, sortedComponents);
+
+        return sortedComponents;
+    }
+
+    private void addChildComponentToList(RocketComponent parent, Set<RocketComponent> components, Set<RocketComponent> sortedComponents) {
+        for (RocketComponent child : parent.getChildren()) {
+            if (components.contains(child)) {
+                sortedComponents.add(child);
+            }
+            addChildComponentToList(child, components, sortedComponents);
         }
     }
 
