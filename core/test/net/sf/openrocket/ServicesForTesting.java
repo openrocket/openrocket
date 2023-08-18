@@ -158,6 +158,11 @@ public class ServicesForTesting extends AbstractModule {
 		public java.util.prefs.Preferences getNode(String nodeName) {
 			return getBaseNode().node(nodeName);
 		}
+
+		@Override
+		public java.util.prefs.Preferences getPreferences() {
+			return getBaseNode();
+		}
 		
 		private java.util.prefs.Preferences getBaseNode() {
 			if (root == null) {

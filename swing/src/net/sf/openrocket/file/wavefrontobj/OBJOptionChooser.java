@@ -28,8 +28,12 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox triangulate;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
 
+    private final List<RocketComponent> selectedComponents;
+
     public OBJOptionChooser(OBJExportOptions opts, List<RocketComponent> selectedComponents) {
         super(new MigLayout());
+
+        this.selectedComponents = selectedComponents;
 
         // ------------ Basic options ------------
         //// Export children
@@ -101,17 +105,11 @@ public class OBJOptionChooser extends JPanel {
         });
         this.add(advancedOptionsPanel);
 
-        loadOptions(opts, selectedComponents);
+        loadOptions(opts);
     }
 
-    public void loadOptions(OBJExportOptions opts, List<RocketComponent> selectedComponents) {
-        boolean onlyComponentAssemblies = true;
-        for (RocketComponent component : selectedComponents) {
-            if (!(component instanceof ComponentAssembly)) {
-                onlyComponentAssemblies = false;
-                break;
-            }
-        }
+    public void loadOptions(OBJExportOptions opts) {
+        boolean onlyComponentAssemblies = isOnlyComponentAssembliesSelected(selectedComponents);
         if (onlyComponentAssemblies) {
             exportChildren.setEnabled(false);
             exportChildren.setSelected(true);
@@ -131,11 +129,26 @@ public class OBJOptionChooser extends JPanel {
     }
 
     public void storeOptions(OBJExportOptions opts) {
-        opts.setExportChildren(exportChildren.isSelected());
+        boolean onlyComponentAssemblies = isOnlyComponentAssembliesSelected(selectedComponents);
+        // Don't save the state when the checkbox is set automatically due to component assemblies
+        if (!onlyComponentAssemblies) {
+            opts.setExportChildren(exportChildren.isSelected());
+        }
         opts.setExportAppearance(exportAppearance.isSelected());
         opts.setExportAsSeparateFiles(exportAsSeparateFiles.isSelected());
         opts.setRemoveOffset(removeOffset.isSelected());
         opts.setTriangulate(triangulate.isSelected());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
+    }
+
+    private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
+        boolean onlyComponentAssemblies = true;
+        for (RocketComponent component : selectedComponents) {
+            if (!(component instanceof ComponentAssembly)) {
+                onlyComponentAssemblies = false;
+                break;
+            }
+        }
+        return onlyComponentAssemblies;
     }
 }

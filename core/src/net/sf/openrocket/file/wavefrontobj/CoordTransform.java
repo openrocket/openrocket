@@ -140,17 +140,6 @@ public class CoordTransform {
     }
 
     /**
-     * Returns the equivalent axis for the x-axis in the OpenRocket coordinate system (axial axis).
-     * ! The direction is relative to the OpenRocket x-axis ! For instance, if the OBJ coordinate system uses the z-axis
-     * that runs in the opposite direction of the OR x-axis (z-axis runs from the bottom of the rocket to the tip), you
-     * must return Axis.Z_MIN.
-     * @return the equivalent axis for the x-axis in the OpenRocket coordinate system (axial axis)
-     */
-    public Axis getAxialAxis() {
-        return axialAxis;
-    }
-
-    /**
      * Returns the transformed coordinate for the given axis.
      * @param axis the OpenRocket axis to transform
      * @param x the x-coordinate in the OpenRocket coordinate system
@@ -203,5 +192,40 @@ public class CoordTransform {
             case Z_MIN -> rotZ;
             default -> throw new IllegalStateException("Unknown axis");
         };
+    }
+
+    public Axis getXAxis() {
+        return xAxis;
+    }
+
+    public Axis getYAxis() {
+        return yAxis;
+    }
+
+    public Axis getZAxis() {
+        return zAxis;
+    }
+
+    /**
+     * Returns the equivalent axis for the x-axis in the OpenRocket coordinate system (axial axis).
+     * ! The direction is relative to the OpenRocket x-axis ! For instance, if the OBJ coordinate system uses the z-axis
+     * that runs in the opposite direction of the OR x-axis (z-axis runs from the bottom of the rocket to the tip), you
+     * must return Axis.Z_MIN.
+     * @return the equivalent axis for the x-axis in the OpenRocket coordinate system (axial axis)
+     */
+    public Axis getAxialAxis() {
+        return axialAxis;
+    }
+
+    public double getOrigXOffs() {
+        return origXOffs;
+    }
+
+    public double getOrigYOffs() {
+        return origYOffs;
+    }
+
+    public double getOrigZOffs() {
+        return origZOffs;
     }
 }

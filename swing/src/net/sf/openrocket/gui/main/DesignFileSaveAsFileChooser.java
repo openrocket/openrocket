@@ -9,9 +9,9 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.FileUtils;
 
 public class DesignFileSaveAsFileChooser extends SaveFileChooser {
@@ -27,6 +28,7 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 	private final OpenRocketDocument document;
 
 	private static final Translator trans = Application.getTranslator();
+	private static final Preferences prefs = Application.getPreferences();
 
 	public static DesignFileSaveAsFileChooser build(OpenRocketDocument document, FileType type) {
 		return new DesignFileSaveAsFileChooser(document, type, null);
@@ -69,7 +71,8 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 			case WAVEFRONT_OBJ:
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"obj");
 				this.setDialogTitle(trans.get("saveAs.wavefront.title"));
-				OBJOptionChooser objChooser = new OBJOptionChooser(document.getDefaultOBJOptions(), selectedComponents);
+				OBJExportOptions initialOptions = prefs.loadOBJExportOptions(document.getRocket());
+				OBJOptionChooser objChooser = new OBJOptionChooser(initialOptions, selectedComponents);
 				this.setAccessory(objChooser);
 				this.addChoosableFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
 				this.setFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);

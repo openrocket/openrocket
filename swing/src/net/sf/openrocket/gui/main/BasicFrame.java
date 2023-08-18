@@ -1406,7 +1406,9 @@ public class BasicFrame extends JFrame {
 		}
 
 		if (objChooser != null) {
-			objChooser.storeOptions(document.getDefaultOBJOptions());
+			OBJExportOptions selectedOptions = new OBJExportOptions(rocket);
+			objChooser.storeOptions(selectedOptions);
+			prefs.saveOBJExportOptions(selectedOptions);
 		}
 
 		File file = chooser.getSelectedFile();
@@ -1640,7 +1642,8 @@ public class BasicFrame extends JFrame {
 		}
 
 		file = FileHelper.forceExtension(file, "obj");
-		boolean isExportAsSeparateFiles = document.getDefaultOBJOptions().isExportAsSeparateFiles();
+		OBJExportOptions options = prefs.loadOBJExportOptions(rocket);
+		boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
 		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
 			return saveAsWavefrontOBJ(file);
 		}
@@ -1648,7 +1651,7 @@ public class BasicFrame extends JFrame {
 	}
 
 	private boolean saveAsWavefrontOBJ(File file) {
-		OBJExportOptions options = document.getDefaultOBJOptions();
+		OBJExportOptions options = prefs.loadOBJExportOptions(rocket);
 		return saveWavefrontOBJFile(file, options);
 	}
 

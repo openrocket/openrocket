@@ -132,6 +132,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	//////////////////////
 
+	@Override
 	public Preferences getPreferences() {
 		return PREFNODE;
 	}

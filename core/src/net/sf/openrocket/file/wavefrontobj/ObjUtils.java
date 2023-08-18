@@ -6,7 +6,6 @@ import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
@@ -24,20 +23,35 @@ public class ObjUtils {
      * Level of detail to use for the export.
      */
     public enum LevelOfDetail {
-        LOW_QUALITY(25, trans.get("LevelOfDetail.LOW_QUALITY")),
-        NORMAL(60, trans.get("LevelOfDetail.NORMAL")),
-        HIGH_QUALITY(100, trans.get("LevelOfDetail.HIGH_QUALITY"));
+        LOW_QUALITY(25, trans.get("LevelOfDetail.LOW_QUALITY"), "LOW"),
+        NORMAL(60, trans.get("LevelOfDetail.NORMAL"), "NORMAL"),
+        HIGH_QUALITY(100, trans.get("LevelOfDetail.HIGH_QUALITY"), "HIGH");
 
         private final int value;
         private final String label;
+        private final String exportLabel;
 
-        LevelOfDetail(int value, String label) {
+        LevelOfDetail(int value, String label, String exportLabel) {
             this.value = value;
             this.label = label;
+            this.exportLabel = exportLabel;
         }
 
         public int getValue() {
             return value;
+        }
+
+        public String getExportLabel() {
+            return exportLabel;
+        }
+
+        public static LevelOfDetail fromExportLabel(String exportLabel) {
+            for (LevelOfDetail lod : LevelOfDetail.values()) {
+                if (lod.getExportLabel().equals(exportLabel)) {
+                    return lod;
+                }
+            }
+            return LevelOfDetail.NORMAL;
         }
 
         /**
