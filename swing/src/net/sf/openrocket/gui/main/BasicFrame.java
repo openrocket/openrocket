@@ -448,6 +448,12 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				exportWavefrontOBJAction();}
 		});
+		selectionModel.addDocumentSelectionListener(new DocumentSelectionListener() {
+			@Override
+			public void valueChanged(int changeType) {
+				exportOBJ.setEnabled(getSelectedComponents() != null && !getSelectedComponents().isEmpty());
+			}
+		});
 		exportSubMenu.add(exportOBJ);
 
 		fileMenu.add(exportSubMenu);
