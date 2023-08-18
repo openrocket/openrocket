@@ -128,10 +128,16 @@ public class OBJOptionChooser extends JPanel {
         this.LOD.setSelectedItem(opts.getLOD());
     }
 
-    public void storeOptions(OBJExportOptions opts) {
+    /**
+     * Store the options from this GUI in the given {@link OBJExportOptions} object.
+     * @param opts The options to store the options in
+     * @param alwaysStoreExportChildren if true, store the export children option even. If false, only store it if the
+     *                                  checkbox was not disabled.
+     */
+    public void storeOptions(OBJExportOptions opts, boolean alwaysStoreExportChildren) {
         boolean onlyComponentAssemblies = isOnlyComponentAssembliesSelected(selectedComponents);
         // Don't save the state when the checkbox is set automatically due to component assemblies
-        if (!onlyComponentAssemblies) {
+        if (alwaysStoreExportChildren || !onlyComponentAssemblies) {
             opts.setExportChildren(exportChildren.isSelected());
         }
         opts.setExportAppearance(exportAppearance.isSelected());

@@ -3,6 +3,7 @@ package net.sf.openrocket.document;
 import java.io.File;
 import java.util.*;
 
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.StateChangeListener;
@@ -93,6 +94,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	private int savedID = -1;
 	
 	private final StorageOptions storageOptions = new StorageOptions();
+	private final OBJExportOptions objOptions;
 
 	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
@@ -105,6 +107,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
+		this.objOptions = prefs.loadOBJExportOptions(rocket);
 		rocket.enableEvents();
 		init();
 	}
@@ -249,6 +252,10 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public StorageOptions getDefaultStorageOptions() {
 		return storageOptions;
+	}
+
+	public OBJExportOptions getDefaultOBJOptions() {
+		return objOptions;
 	}
 	
 	

@@ -1405,10 +1405,16 @@ public class BasicFrame extends JFrame {
 			return null;
 		}
 
+		// Store the OBJ options
 		if (objChooser != null) {
-			OBJExportOptions selectedOptions = new OBJExportOptions(rocket);
-			objChooser.storeOptions(selectedOptions);
-			prefs.saveOBJExportOptions(selectedOptions);
+			objChooser.storeOptions(document.getDefaultOBJOptions(), true);
+
+			// We need to separately store the preference options, because the export children option can be
+			// automatically selected based on whether only component assemblies are selected. We don't want to
+			// store that state in the preferences.
+			OBJExportOptions prefOptions = new OBJExportOptions(rocket);
+			objChooser.storeOptions(prefOptions, false);
+			prefs.saveOBJExportOptions(prefOptions);
 		}
 
 		File file = chooser.getSelectedFile();
@@ -1642,7 +1648,7 @@ public class BasicFrame extends JFrame {
 		}
 
 		file = FileHelper.forceExtension(file, "obj");
-		OBJExportOptions options = prefs.loadOBJExportOptions(rocket);
+		OBJExportOptions options = document.getDefaultOBJOptions();
 		boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
 		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
 			return saveAsWavefrontOBJ(file);
@@ -1651,7 +1657,7 @@ public class BasicFrame extends JFrame {
 	}
 
 	private boolean saveAsWavefrontOBJ(File file) {
-		OBJExportOptions options = prefs.loadOBJExportOptions(rocket);
+		OBJExportOptions options = document.getDefaultOBJOptions();
 		return saveWavefrontOBJFile(file, options);
 	}
 
