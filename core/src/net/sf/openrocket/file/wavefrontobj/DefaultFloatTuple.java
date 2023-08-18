@@ -57,7 +57,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param z The z value
      * @param w The w value
      */
-    DefaultFloatTuple(float x, float y, float z, float w) {
+    public DefaultFloatTuple(float x, float y, float z, float w) {
         this(new float[]{x, y, z, w});
     }
 
@@ -68,7 +68,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param y The y value
      * @param z The z value
      */
-    DefaultFloatTuple(float x, float y, float z) {
+    public DefaultFloatTuple(float x, float y, float z) {
         this(new float[]{x, y, z});
     }
 
@@ -78,7 +78,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param x The x value
      * @param y The y value
      */
-    DefaultFloatTuple(float x, float y) {
+    public DefaultFloatTuple(float x, float y) {
         this(new float[]{x, y});
     }
 
@@ -87,7 +87,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      *
      * @param x The x value
      */
-    DefaultFloatTuple(float x) {
+    public DefaultFloatTuple(float x) {
         this(new float[]{x});
     }
 
