@@ -255,6 +255,9 @@ public class BasicFrame extends JFrame {
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
+
+			popupMenu.addSeparator();
+			popupMenu.add(actions.getExportOBJAction());
 		}
 
 		createMenu();
@@ -1647,7 +1650,7 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @return true if the file was saved, false otherwise
 	 */
-	private boolean exportWavefrontOBJAction() {
+	public boolean exportWavefrontOBJAction() {
 		File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
 		if (file == null) {
 			return false;
