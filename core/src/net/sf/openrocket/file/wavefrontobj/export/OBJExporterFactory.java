@@ -197,7 +197,7 @@ public class OBJExporterFactory {
     }
 
     private static void writeObj(DefaultObj obj, String filePath) {
-        try (OutputStream objOutputStream = new FileOutputStream(filePath)) {
+        try (OutputStream objOutputStream = new FileOutputStream(filePath, false)) {
             ObjWriter.write(obj, objOutputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -223,8 +223,8 @@ public class OBJExporterFactory {
 
         // Export material
         if (options.isExportAppearance()) {
-            MtlExpoter mtlExpoter = new MtlExpoter(obj, component, "mat_" + groupName, materials);
-            mtlExpoter.doExport();
+            AppearanceExporter appearanceExporter = new AppearanceExporter(obj, component, "mat_" + groupName, materials);
+            appearanceExporter.doExport();
         }
 
         // Export component
