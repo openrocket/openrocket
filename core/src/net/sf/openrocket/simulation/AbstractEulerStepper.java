@@ -126,7 +126,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 		// Store data
 		FlightDataBranch data = status.getFlightData();
-		boolean extra = status.getSimulationConditions().isCalculateExtras();
 		data.addPoint();
 		
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
@@ -135,24 +134,23 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 
 		airSpeed = status.getRocketVelocity().add(windSpeed);
-		if (extra) {
-			data.setValue(FlightDataType.TYPE_POSITION_XY,
-					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-			data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
-			
-			data.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-			data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-					MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
-			
-			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
-			
-			double Re = airSpeed.length() *
-					status.getConfiguration().getLengthAerodynamic() /
-					atmosphere.getKinematicViscosity();
-			data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
-		}
+
+		data.setValue(FlightDataType.TYPE_POSITION_XY,
+					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
+		data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
+					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
+		
+		data.setValue(FlightDataType.TYPE_VELOCITY_XY,
+					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
+		data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
+					  MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+		
+		data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
+		
+		double Re = airSpeed.length() *
+			status.getConfiguration().getLengthAerodynamic() /
+			atmosphere.getKinematicViscosity();
+		data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		
 
 		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
