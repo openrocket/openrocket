@@ -56,7 +56,7 @@ public class MotorExporter {
             return;
         }
 
-        obj.setActiveGroupNames(motor.getMotorName());
+        obj.setActiveGroupNames(groupName + "_" + motor.getMotorName());
 
         for (InstanceContext context : config.getActiveInstances().getInstanceContexts(mount)) {
             generateMesh(motor, context);

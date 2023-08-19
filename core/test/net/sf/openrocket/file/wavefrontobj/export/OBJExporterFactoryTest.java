@@ -15,6 +15,7 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.openrocket.OpenRocketSaverTest;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
+import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.PluginModule;
@@ -158,29 +159,29 @@ public class OBJExporterFactoryTest {
 
         // Create a temp file for storing the exported OBJ
         Path tempFile = Files.createTempFile("testExport", ".obj");
-        String filePath = tempFile.toAbsolutePath().toString();
-
-
-        filePath = "/Users/SiboVanGool/Downloads/testExport.obj";       // TODO: remove this line
-
 
         // Do the exporting
         OBJExportOptions options = new OBJExportOptions(rocket);
         options.setScaling(30);
         options.setExportChildren(true);
-        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), filePath, options);
+        options.setExportAppearance(true);
+        options.setRemoveOffset(true);
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options);
         exporterFactory.doExport();
 
 
         // Test with other parameters
-        /*noseCone.setShoulderCapped(false);
+        noseCone.setShoulderCapped(false);
         railButton.setScrewHeight(0);
         bodyTube.setFilled(true);
 
-        transformer = new DefaultCoordTransform(rocket.getLength());
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), true, false, false,
-                transformer, filePath);
-        exporterFactory.doExport();*/
+        options.setTriangulate(true);
+        options.setRemoveOffset(false);
+        options.setScaling(1000);
+        options.setLOD(ObjUtils.LevelOfDetail.LOW_QUALITY);
+
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options);
+        exporterFactory.doExport();
 
         // Clean up
         Files.delete(tempFile);

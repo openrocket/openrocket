@@ -119,6 +119,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
+        final int texCoordsStartIdx = obj.getNumTexCoords();
 
         final double dxBase = component.getLength() / numStacks;                    // Base step size in the longitudinal direction
         final double actualLength = estimateActualLength(offsetRadius, dxBase);     // Actual length of the transition (due to reduced step size near the fore/aft end)
@@ -176,6 +177,12 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                         float xTip = getTipLocation(x, xNext, offsetRadius, epsilon);
                         obj.addVertex(transformer.convertLoc(xTip, 0, 0));
                         obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? -1 : 1, 0, 0));
+                        for (int i = 0; i <= numSides; i++) {
+                            float u = (float) i / numSides;
+                            float v = 1f;
+                            obj.addTexCoord(u, v);
+                        }
+
                         isForeTip = true;
 
                         // The fore tip is the first fore "ring"
@@ -218,6 +225,11 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                     float xTip = getTipLocation(x, xNext, offsetRadius, epsilon);
                     obj.addVertex(transformer.convertLoc(xTip, 0, 0));
                     obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? 1 : -1, 0, 0));
+                    for (int i = 0; i <= numSides; i++) {
+                        float u = (float) i / numSides;
+                        float v = 0f;
+                        obj.addTexCoord(u, v);
+                    }
                     isAftTip = true;
 
                     // The aft tip is the aft "ring"
@@ -251,17 +263,20 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         // Create regular faces
         int corrVStartIdx = isForeTip ? startIdx + 1 : startIdx;
         int corrNStartIdx = isForeTip ? normalsStartIdx + 1 : normalsStartIdx;
-        addQuadFaces(numSlices, actualNumStacks, corrVStartIdx, corrNStartIdx, isOutside);
+        int corrTStartIdx = isForeTip ? texCoordsStartIdx + numSides+1 : texCoordsStartIdx;
+        addQuadFaces(numSides, actualNumStacks, corrVStartIdx, corrNStartIdx, corrTStartIdx, isOutside);
     }
 
-    private void addTipFaces(int numSlices, boolean isOutside, boolean isForeTip, int startIdx, int normalsStartIdx) {
+    private void addTipFaces(int numSides, boolean isOutside, boolean isForeTip, int startIdx, int normalsStartIdx, int texCoordsStartIdx) {
         final int lastIdx = obj.getNumVertices() - 1;
-        for (int i = 0; i < numSlices; i++) {
-            int nextIdx = (i + 1) % numSlices;
+        for (int i = 0; i < numSides; i++) {
+            int nextIdx = (i + 1) % numSides;
             int[] vertexIndices;
             int[] normalIndices;
+            int[] texCoordsIndices;
             // Fore tip
             if (isForeTip) {
+                // Vertices
                 vertexIndices = new int[] {
                         0,                      // Fore tip vertex
                         1 + i,
@@ -269,46 +284,69 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 };
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
 
+                // Normals
                 normalIndices = vertexIndices.clone();   // No need to reverse, already done by vertices
 
+                // Texture coordinates
+                texCoordsIndices = new int[] {
+                        i,
+                        numSides+1 + i,
+                        numSides+1 + i+1,
+                };
+                texCoordsIndices = ObjUtils.reverseIndexWinding(texCoordsIndices, !isOutside);
+
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
+                ObjUtils.offsetIndex(texCoordsIndices, texCoordsStartIdx);
                 ObjUtils.offsetIndex(vertexIndices, startIdx);    // Do this last, otherwise the normal indices will be wrong
             }
             // Aft tip
             else {
+                // Vertices
                 vertexIndices = new int[] {
                         lastIdx,                // Aft tip vertex
-                        lastIdx - numSlices + nextIdx,
-                        lastIdx - numSlices + i,
+                        lastIdx - numSides + nextIdx,
+                        lastIdx - numSides + i,
                 };
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
 
+                // Normals
                 int lastNormalIdx = obj.getNumNormals() - 1;
                 normalIndices = new int[] {
                         lastNormalIdx,                // Aft tip vertex
-                        lastNormalIdx - numSlices + nextIdx,
-                        lastNormalIdx - numSlices + i,
+                        lastNormalIdx - numSides + nextIdx,
+                        lastNormalIdx - numSides + i,
                 };
                 normalIndices = ObjUtils.reverseIndexWinding(normalIndices, !isOutside);
+
+                // Texture coordinates
+                int lastTexCoordsIdx = obj.getNumTexCoords() - 1;
+                texCoordsIndices = new int[] {
+                        lastTexCoordsIdx - (numSides+1) + i,    // Aft tip vertex
+                        lastTexCoordsIdx - 2*(numSides+1) + i+1,
+                        lastTexCoordsIdx - 2*(numSides+1) + i,
+                };
 
                 // No need to offset the indices, because we reference the last vertex (this caused a lot of debugging frustration hmfmwl)
             }
 
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+            DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordsIndices, normalIndices);
             obj.addFace(face);
         }
     }
 
-    private void addQuadVertices(int numSlices, List<Integer> foreRingVertices, List<Integer> aftRingVertices,
+    private void addQuadVertices(int numSides, List<Integer> foreRingVertices, List<Integer> aftRingVertices,
                                         double r, double rNext, float x, float xNext, boolean isForeRing, boolean isAftRing, boolean isOutside) {
-        for (int i = 0; i < numSlices; i++) {
-            double angle = 2 * Math.PI * i / numSlices;
+        final double length = component.getLength();
+
+        for (int i = 0; i < numSides; i++) {
+            double angle = 2 * Math.PI * i / numSides;
             float y = (float) (r * Math.cos(angle));
             float z = (float) (r * Math.sin(angle));
 
+            // Vertex
             obj.addVertex(transformer.convertLoc(x, y, z));
 
-            // Add the ring vertices to the lists
+            //// Add the ring vertices to the lists
             if (isForeRing) {
                 foreRingVertices.add(obj.getNumVertices()-1);
             }
@@ -316,8 +354,8 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 aftRingVertices.add(obj.getNumVertices()-1);
             }
 
-            // Calculate the normal
-            // We need special nx normal when the radius changes
+            // Normal
+            //// We need special nx normal when the radius changes
             float nx;
             if (Double.compare(r, rNext) != 0) {
                 final double slopeAngle = Math.atan(Math.abs(xNext - x) / (rNext - r));
@@ -332,27 +370,49 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             ny = isOutside ? ny : -ny;
             nz = isOutside ? nz : -nz;
             obj.addNormal(transformer.convertLocWithoutOriginOffs(nx, ny, nz));
+
+            // Texture coordinates
+            float u = (float) i / numSides;
+            float v = (float) ((length-x) / length);
+            obj.addTexCoord(u, v);
         }
+
+        // Need to add a last texture coordinate to close the texture
+        final float v = (float) ((length-x) / length);
+        obj.addTexCoord(1f, v);
     }
 
-    private void addQuadFaces(int numSlices, int numStacks, int startIdx, int normalsStartIdx, boolean isOutside) {
+    private void addQuadFaces(int numSides, int numStacks, int startIdx, int normalsStartIdx, int texCoordsStartIdx, boolean isOutside) {
         for (int i = 0; i < numStacks - 1; i++) {
-            for (int j = 0; j < numSlices; j++) {
-                final int nextIdx = (j + 1) % numSlices;
+            for (int j = 0; j < numSides; j++) {
+                final int nextIdx = (j + 1) % numSides;
+
+                // Vertices
                 int[] vertexIndices = new int[] {
-                        i * numSlices + j,              // Bottom-left of quad
-                        (i + 1) * numSlices + j,        // Top-left of quad
-                        (i + 1) * numSlices + nextIdx,  // Top-right of quad
-                        i * numSlices + nextIdx,        // Bottom-right of quad
+                        i * numSides + j,              // Bottom-left of quad
+                        (i + 1) * numSides + j,        // Top-left of quad
+                        (i + 1) * numSides + nextIdx,  // Top-right of quad
+                        i * numSides + nextIdx,        // Bottom-right of quad
                 };
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
 
+                // Normals
                 int[] normalIndices = vertexIndices.clone();     // No reversing needed, already done by vertices
 
+                // Texture coordinates
+                int[] texCoordsIndices = new int[] {
+                        i * (numSides+1) + j,
+                        (i + 1) * (numSides+1) + j,
+                        (i + 1) * (numSides+1) + j+1,
+                        i * (numSides+1) + j+1,
+                };
+                texCoordsIndices = ObjUtils.reverseIndexWinding(texCoordsIndices, !isOutside);
+
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
+                ObjUtils.offsetIndex(texCoordsIndices, texCoordsStartIdx);
                 ObjUtils.offsetIndex(vertexIndices, startIdx);      // Do this last, otherwise the normal indices will be wrong
 
-                DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+                DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordsIndices, normalIndices);
                 obj.addFace(face);
             }
         }

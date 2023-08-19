@@ -1678,7 +1678,7 @@ public class BasicFrame extends JFrame {
 	 */
 	private boolean saveWavefrontOBJFile(File file, OBJExportOptions options) {
 		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
-				file.getAbsolutePath(), options);
+				file, options);
 		exporter.doExport();
 
 		return true;

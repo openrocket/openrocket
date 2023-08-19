@@ -32,39 +32,60 @@ public class PolygonExporter {
 
         // NOTE: "front" is the side view with the normal pointing towards the viewer, "back" is the side with the normal pointing away from the viewer
 
+        // Calculate the boundaries of the polygon
+        Boundaries boundaries = new Boundaries(pointLocationsX, pointLocationsY);
+
         obj.addNormal(transformer.convertLocWithoutOriginOffs(0, 0, -1));       // Front faces normal
         obj.addNormal(transformer.convertLocWithoutOriginOffs(0, 0, 1));        // Back faces normal
 
         // Generate front face vertices
         for (int i = 0; i < pointLocationsX.length; i++) {
             obj.addVertex(transformer.convertLoc(pointLocationsX[i], pointLocationsY[i], -thickness/2));
+
+            // Compute texture coordinates based on normalized position
+            float u = (pointLocationsX[i] - boundaries.getMinX()) / (boundaries.getMaxX() - boundaries.getMinX());
+            u = 1f - u;
+            float v = (pointLocationsY[i] - boundaries.getMinY()) / (boundaries.getMaxY() - boundaries.getMinY());
+            v = 1f - v;
+            obj.addTexCoord(u, v);
         }
 
         // Generate back face vertices
         for (int i = 0; i < pointLocationsX.length; i++) {
             obj.addVertex(transformer.convertLoc(pointLocationsX[i], pointLocationsY[i], thickness/2));
+
+            // Compute texture coordinates based on normalized position
+            float u = (pointLocationsX[i] - boundaries.getMinX()) / (boundaries.getMaxX() - boundaries.getMinX());
+            u = 1f - u;
+            float v = (pointLocationsY[i] - boundaries.getMinY()) / (boundaries.getMaxY() - boundaries.getMinY());
+            v = 1f - v;
+            obj.addTexCoord(u, v);
         }
 
         // Create front face
         int[] vertexIndices = new int[pointLocationsX.length];
         int[] normalIndices = new int[pointLocationsX.length];
+        int[] texCoordsIndices = new int[pointLocationsX.length];
         for (int i = 0; i < pointLocationsX.length; i++) {
             vertexIndices[i] = pointLocationsX.length-1 - i;
             normalIndices[i] = normalsStartIdx;
+            texCoordsIndices[i] = pointLocationsX.length-1 - i;
         }
         ObjUtils.offsetIndex(vertexIndices, startIdx);
-        DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+        DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordsIndices, normalIndices);
         obj.addFace(face);
 
         // Create back face
         vertexIndices = new int[pointLocationsX.length];
         normalIndices = new int[pointLocationsX.length];
+        texCoordsIndices = new int[pointLocationsX.length];
         for (int i = 0; i < pointLocationsX.length; i++) {
             vertexIndices[i] = pointLocationsX.length + i;
             normalIndices[i] = normalsStartIdx + 1;
+            texCoordsIndices[i] = pointLocationsX.length + i;
         }
         ObjUtils.offsetIndex(vertexIndices, startIdx);
-        face = new DefaultObjFace(vertexIndices, null, normalIndices);
+        face = new DefaultObjFace(vertexIndices, texCoordsIndices, normalIndices);
         obj.addFace(face);
 
         // Create side faces
@@ -109,6 +130,57 @@ public class PolygonExporter {
         if (Float.compare(pointLocationsX[pointLocationsX.length-1], pointLocationsX[0]) == 0 &&
                 Float.compare(pointLocationsY[pointLocationsY.length-1], pointLocationsY[0]) == 0) {
             throw new IllegalArgumentException("The first and last points must be different");
+        }
+    }
+
+    /**
+     * Calculate the boundaries of a polygon.
+     */
+    private static class Boundaries {
+        private float minX;
+        private float maxX;
+        private float minY;
+        private float maxY;
+
+        public Boundaries(float[] pointsX, float[] pointsY) {
+            this.minX = Float.MAX_VALUE;
+            this.maxX = Float.MIN_VALUE;
+            this.minY = Float.MAX_VALUE;
+            this.maxY = Float.MIN_VALUE;
+
+            for (int i = 0; i < pointsX.length; i++) {
+                float x = pointsX[i];
+                float y = pointsY[i];
+
+                if (x < minX) {
+                    minX = x;
+                }
+                if (x > maxX) {
+                    maxX = x;
+                }
+                if (y < minY) {
+                    minY = y;
+                }
+                if (y > maxY) {
+                    maxY = y;
+                }
+            }
+        }
+
+        public float getMinX() {
+            return minX;
+        }
+
+        public float getMaxX() {
+            return maxX;
+        }
+
+        public float getMinY() {
+            return minY;
+        }
+
+        public float getMaxY() {
+            return maxY;
         }
     }
 }

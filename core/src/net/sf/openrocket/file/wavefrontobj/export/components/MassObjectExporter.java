@@ -33,11 +33,12 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
     private void generateMesh(int numSides, int numStacks, InstanceContext context) {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
         int startIdx = obj.getNumVertices();
+        int texCoordsStartIdx = obj.getNumTexCoords();
         int normalsStartIdx = obj.getNumNormals();
         double dx = component.getLength() / numStacks;
         double da = 2.0f * Math.PI / numSides;
 
-        // Generate vertices and normals
+        // Generate vertices, normals and UVs
         for (int j = 0; j <= numStacks; j++) {
             double x = j * dx;
 
@@ -45,6 +46,11 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                 // Add a center vertex
                 obj.addVertex(transformer.convertLoc(x, 0, 0));
                 obj.addNormal(transformer.convertLocWithoutOriginOffs(j == 0 ? -1 : 1, 0, 0));
+                for (int i = 0; i <= numSides; i++) {
+                    final float u = (float) i / numSides;
+                    final float v = j == 0 ? 1 : 0;
+                    obj.addTexCoord(u, v);
+                }
             } else {
                 // Add a vertex for each side
                 for (int i = 0; i < numSides; i++) {
@@ -53,9 +59,10 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                     double y = r * Math.cos(angle);
                     double z = r * Math.sin(angle);
 
+                    // Vertex
                     obj.addVertex(transformer.convertLoc(x, y, z));
 
-                    // Add normals
+                    // Normal
                     if (Double.compare(r, component.getRadius()) == 0) {        // If in cylindrical section, use cylinder normals
                         obj.addNormal(transformer.convertLocWithoutOriginOffs(0, y, z));
                     } else {
@@ -67,13 +74,23 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                         }
                         obj.addNormal(transformer.convertLocWithoutOriginOffs(x - xCenter, y, z));     // For smooth shading
                     }
+
+                    // Texture coordinate
+                    final float u = (float) i / numSides;
+                    final float v = (float) (numStacks-j) / numStacks;
+                    obj.addTexCoord(u, v);
                 }
+
+                // Add final UV coordinate to close the texture
+                final float u = 1f;
+                final float v = (float) (numStacks-j) / numStacks;
+                obj.addTexCoord(u, v);
             }
         }
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);        // Clamp in case no vertices were added
 
-        // Create bottom tip faces
+        // Create top tip faces
         for (int i = 0; i < numSides; i++) {
             int nextIdx = (i + 1) % numSides;
 
@@ -83,11 +100,17 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                     1 + nextIdx,
             };
             int[] normalIndices = vertexIndices.clone();   // For a smooth surface, the vertex and normal indices are the same
+            int[] texCoordIndices = new int[] {
+                    i,
+                    numSides+1 + i,
+                    numSides+1 + i+1,
+            };
 
             ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
+            ObjUtils.offsetIndex(texCoordIndices, texCoordsStartIdx);
             ObjUtils.offsetIndex(vertexIndices, startIdx);      // Only do this after normals are added, since the vertex indices are used for normals
 
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+            DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordIndices, normalIndices);
             obj.addFace(face);
         }
 
@@ -103,16 +126,23 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                         1 + j * numSides + nextIdx
                 };
                 int[] normalIndices = vertexIndices.clone();   // For a smooth surface, the vertex and normal indices are the same
+                int[] texCoordIndices = new int[] {
+                        j + j * numSides + i,
+                        j+1 + (j + 1) * numSides + i,
+                        j+1 + (j + 1) * numSides + i+1,
+                        j + j * numSides + i+1
+                };
 
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
+                ObjUtils.offsetIndex(texCoordIndices, texCoordsStartIdx + numSides+1);
                 ObjUtils.offsetIndex(vertexIndices, startIdx);      // Only do this after normals are added, since the vertex indices are used for normals
 
-                DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+                DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordIndices, normalIndices);
                 obj.addFace(face);
             }
         }
 
-        // Create top tip faces
+        // Create bottom tip faces
         final int normalEndIdx = obj.getNumNormals() - 1;
         for (int i = 0; i < numSides; i++) {
             int nextIdx = (i + 1) % numSides;
@@ -126,10 +156,16 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                     normalEndIdx - numSides + nextIdx,
                     normalEndIdx - numSides + i,
             };
+            int[] texCoordIndices = new int[] {
+                    numSides+1 + i,
+                    i+1,
+                    i,
+            };
 
-            // Don't offset! We reference from the last index
+            ObjUtils.offsetIndex(texCoordIndices, texCoordsStartIdx + ((numStacks-1) * (numSides + 1)) );
+            // Don't offset vertices or normals! We reference from the last index
 
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+            DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordIndices, normalIndices);
             obj.addFace(face);
         }
 

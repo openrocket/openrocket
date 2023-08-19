@@ -28,6 +28,10 @@ public class OBJExportOptions {
      */
     private boolean triangulate;
     /**
+     * If true, use sRGB colors instead of linear color space.
+     */
+    private boolean useSRGB;
+    /**
      * The level of detail to use for the export (e.g. low-quality, normal quality...).
      */
     private ObjUtils.LevelOfDetail LOD;
@@ -40,8 +44,6 @@ public class OBJExportOptions {
      * The scaling factor to use for the export (1 = no scaling).
      */
     private float scaling;
-
-    // TODO: scaling (to mm = x1000, or SI units)
 
     public OBJExportOptions(Rocket rocket) {
         this.exportChildren = false;
@@ -116,5 +118,13 @@ public class OBJExportOptions {
 
     public void setScaling(float scaling) {
         this.scaling = scaling;
+    }
+
+    public boolean isUseSRGB() {
+        return useSRGB;
+    }
+
+    public void setUseSRGB(boolean useSRGB) {
+        this.useSRGB = useSRGB;
     }
 }

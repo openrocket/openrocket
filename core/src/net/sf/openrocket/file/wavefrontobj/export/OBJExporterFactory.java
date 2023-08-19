@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.wavefrontobj.export;
 
 import de.javagl.obj.ObjWriter;
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultMtl;
 import net.sf.openrocket.file.wavefrontobj.DefaultMtlWriter;
@@ -16,6 +18,8 @@ import net.sf.openrocket.file.wavefrontobj.export.components.RocketComponentExpo
 import net.sf.openrocket.file.wavefrontobj.export.components.RingComponentExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.TransitionExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.TubeFinSetExporter;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -32,6 +36,7 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.FileUtils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -61,7 +66,7 @@ public class OBJExporterFactory {
     private final List<RocketComponent> components;
     private final FlightConfiguration configuration;
     private final OBJExportOptions options;
-    private final String filePath;
+    private final File file;
 
     // The different exporters for each component
     private static final Map<Class<? extends RocketComponent>, ExporterFactory<?>> EXPORTER_MAP = Map.of(
@@ -81,13 +86,13 @@ public class OBJExporterFactory {
      * @param components List of components to export
      * @param configuration Flight configuration to use for the export
      * @param options Options to use for the export
-     * @param filePath Path to the file to export to
+     * @param file The file to export the OBJ to
      */
-    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, String filePath,
+    public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, File file,
                               OBJExportOptions options) {
         this.components = components;
         this.configuration = configuration;
-        this.filePath = filePath;
+        this.file = file;
         this.options = options;
     }
 
@@ -104,7 +109,7 @@ public class OBJExporterFactory {
         if (exportAsSeparateFiles) {
             objFileMap = new HashMap<>();
         } else {
-            objFileMap = Map.of(this.filePath, obj);
+            objFileMap = Map.of(this.file.getAbsolutePath(), obj);
         }
 
         // Get all the components to export
@@ -147,7 +152,7 @@ public class OBJExporterFactory {
 
             // If separate export, add this object to the map of objects to export
             if (exportAsSeparateFiles) {
-                String path = FileUtils.removeExtension(this.filePath) + "_" + groupName + ".obj";
+                String path = FileUtils.removeExtension(this.file.getAbsolutePath()) + "_" + groupName + ".obj";
                 objFileMap.put(path, obj);
             }
 
@@ -223,7 +228,15 @@ public class OBJExporterFactory {
 
         // Export material
         if (options.isExportAppearance()) {
-            AppearanceExporter appearanceExporter = new AppearanceExporter(obj, component, "mat_" + groupName, materials);
+            String materialName = "mat_" + groupName;
+
+            // Get the component appearance
+            Appearance appearance = component.getAppearance();
+            if (appearance == null) {
+                appearance = DefaultAppearance.getDefaultAppearance(component);
+            }
+
+            AppearanceExporter appearanceExporter = new AppearanceExporter(obj, appearance, file, options, materialName, materials);
             appearanceExporter.doExport();
         }
 
@@ -233,6 +246,19 @@ public class OBJExporterFactory {
 
         // Export motor
         if (component instanceof MotorMount) {
+            // Get the motor
+            MotorConfiguration motoConfig = ((MotorMount) component).getMotorConfig(config.getId());
+            Motor motor = motoConfig.getMotor();
+
+            // Export the motor appearance
+            if (options.isExportAppearance() && motor != null) {
+                String materialName = "mat_" + groupName + "_" + motor.getMotorName();
+                Appearance appearance = DefaultAppearance.getDefaultAppearance(motor);
+                AppearanceExporter appearanceExporter = new AppearanceExporter(obj, appearance, file, options, materialName, materials);
+                appearanceExporter.doExport();
+            }
+
+            // Export the motor geometry
             MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD);
             motorExporter.addToObj();
         }

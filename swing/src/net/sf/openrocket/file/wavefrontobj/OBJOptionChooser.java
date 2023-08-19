@@ -26,6 +26,7 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox exportAsSeparateFiles;
     private final JCheckBox removeOffset;
     private final JCheckBox triangulate;
+    private final JCheckBox sRGB;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
 
     private final List<RocketComponent> selectedComponents;
@@ -73,6 +74,10 @@ public class OBJOptionChooser extends JPanel {
         this.triangulate.setToolTipText(trans.get("OBJOptionChooser.checkbox.triangulate.ttip"));
         advancedOptionsPanel.add(triangulate, "spanx, wrap");
 
+        //// Export colors in sRGB
+        this.sRGB = new JCheckBox(trans.get("OBJOptionChooser.checkbox.sRGB"));
+        this.sRGB.setToolTipText(trans.get("OBJOptionChooser.checkbox.sRGB.ttip"));
+        advancedOptionsPanel.add(sRGB, "spanx, wrap");
 
         //// Level of detail
         JLabel LODLabel = new JLabel(trans.get("OBJOptionChooser.lbl.LevelOfDetail"));
@@ -124,6 +129,7 @@ public class OBJOptionChooser extends JPanel {
         this.exportAsSeparateFiles.setSelected(opts.isExportAsSeparateFiles());
         this.removeOffset.setSelected(opts.isRemoveOffset());
         this.triangulate.setSelected(opts.isTriangulate());
+        this.sRGB.setSelected(opts.isUseSRGB());
 
         this.LOD.setSelectedItem(opts.getLOD());
     }
@@ -144,6 +150,7 @@ public class OBJOptionChooser extends JPanel {
         opts.setExportAsSeparateFiles(exportAsSeparateFiles.isSelected());
         opts.setRemoveOffset(removeOffset.isSelected());
         opts.setTriangulate(triangulate.isSelected());
+        opts.setUseSRGB(sRGB.isSelected());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
     }
 

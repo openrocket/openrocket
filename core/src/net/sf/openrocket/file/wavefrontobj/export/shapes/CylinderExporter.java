@@ -38,6 +38,7 @@ public class CylinderExporter {
 
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
         int startIdx = obj.getNumVertices();
+        int texCoordsStartIdx = obj.getNumTexCoords();
         int normalsStartIdx = obj.getNumNormals();
 
         if (solid) {
@@ -51,16 +52,18 @@ public class CylinderExporter {
         }
 
         // Generate side top vertices
-        generateRingVertices(obj, transformer, numSides, 0, length, foreRadius, aftRadius, isOutside, foreRingVertices, foreRingNormals);
+        generateRingVertices(obj, transformer, numSides, 0, length, length, foreRadius, aftRadius, isOutside, foreRingVertices, foreRingNormals);
 
         // Generate side bottom vertices
-        generateRingVertices(obj, transformer, numSides, length, 0, aftRadius, foreRadius, isOutside, aftRingVertices, aftRingNormals);
+        generateRingVertices(obj, transformer, numSides, length, 0, length, aftRadius, foreRadius, isOutside, aftRingVertices, aftRingNormals);
 
         // Create faces for the bottom and top
         if (solid) {
             for (int i = 0; i < numSides; i++) {
                 int nextIdx = (i + 1) % numSides;
+
                 // Bottom face
+                //// Vertices
                 int[] vertexIndices = new int[] {
                         0,              // Bottom center vertex
                         2 + i,
@@ -69,13 +72,18 @@ public class CylinderExporter {
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
                 ObjUtils.offsetIndex(vertexIndices, startIdx);
 
+                //// Normals
                 int[] normalIndices = new int[]{0, 0, 0};
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
+
+                //// Texture coordinates
+                // TODO?
 
                 DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
                 obj.addFace(face);
 
                 // Top face
+                //// Vertices
                 vertexIndices = new int[] {
                         1,                  // Top center vertex
                         2 + numSides + ((i + 1) % numSides),
@@ -84,8 +92,12 @@ public class CylinderExporter {
                 vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
                 ObjUtils.offsetIndex(vertexIndices, startIdx);
 
+                //// Normals
                 normalIndices = new int[] {1, 1, 1};
                 ObjUtils.offsetIndex(normalIndices, normalsStartIdx);
+
+                //// Texture coordinates
+                // TODO
 
                 face = new DefaultObjFace(vertexIndices, null, normalIndices);
                 obj.addFace(face);
@@ -97,6 +109,7 @@ public class CylinderExporter {
             final int nextIdx = (i + 1) % numSides;
             final int offset = solid ? 2 : 0;             // Offset by 2 to skip the bottom and top center vertices
 
+            //// Vertices
             int[] vertexIndices = new int[]{
                     i,                                  // Bottom-left of quad
                     numSides + i,                       // Top-left of quad
@@ -105,12 +118,23 @@ public class CylinderExporter {
             };
             vertexIndices = ObjUtils.reverseIndexWinding(vertexIndices, !isOutside);
 
+            //// Normals
             int[] normalIndices = vertexIndices.clone();        // No need to reverse winding, already done by vertices
 
+            //// Texture coordinates
+            int[] texCoordIndices = new int[]{
+                    i,                                  // Bottom-left of quad
+                    numSides+1 + i,                     // Top-left of quad
+                    numSides+1 + i+1,                   // Top-right of quad (don't use nextIdx, we don't want roll-over)
+                    i+1,                                // Bottom-right of quad (don't use nextIdx, we don't want roll-over)
+            };
+            texCoordIndices = ObjUtils.reverseIndexWinding(texCoordIndices, !isOutside);
+
             ObjUtils.offsetIndex(normalIndices, normalsStartIdx + offset);
+            ObjUtils.offsetIndex(texCoordIndices, texCoordsStartIdx);
             ObjUtils.offsetIndex(vertexIndices, startIdx + offset);     // ! Only add offset here, otherwise you mess up the indices for the normals
 
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+            DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordIndices, normalIndices);
             obj.addFace(face);
         }
     }
@@ -147,7 +171,7 @@ public class CylinderExporter {
     }
 
     public static void generateRingVertices(DefaultObj obj, CoordTransform transformer,
-                                            int numSides, float x, float nextX, float radius, float nextRadius,
+                                            int numSides, float x, float nextX, float xMax, float radius, float nextRadius,
                                             boolean isOutside, List<Integer> vertexList, List<Integer> normalList) {
         int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
@@ -183,6 +207,15 @@ public class CylinderExporter {
             if (normalList != null) {
                 normalList.add(normalsStartIdx + i);
             }
+
+            // Texture coordinates
+            final float u = (float) i / numSides;
+            final float v = isOutside ? (xMax - x) / xMax : x / xMax;       // For some reason, the texture is vertically flipped in OR for inside cylinders. Don't really like it, but it is what it is
+            obj.addTexCoord(u, v);
         }
+
+        // Need to add a last texture coordinate for the end of the texture
+        final float v = isOutside ? (xMax - x) / xMax : x / xMax;
+        obj.addTexCoord(1f, v);
     }
 }
