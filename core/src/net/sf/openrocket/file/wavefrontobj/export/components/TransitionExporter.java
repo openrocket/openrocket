@@ -106,14 +106,14 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
     /**
      * Add a transition mesh to the obj.
-     * @param numSlices the number of slices to use (= number of vertices in the circumferential direction)
+     * @param numSides the number of sides to use (= number of vertices in the circumferential direction)
      * @param numStacks the number of stacks to use (= number of vertices in the longitudinal direction)
      * @param offsetRadius offset radius from the transition radius
      * @param isOutside true if the mesh is on the outside of the rocket, false if it is on the inside
      * @param foreRingVertices list of vertices of the fore ring
      * @param aftRingVertices list of vertices of the aft ring
      */
-    private void addTransitionMesh(int numSlices, int numStacks, double offsetRadius, boolean isOutside,
+    private void addTransitionMesh(int numSides, int numStacks, double offsetRadius, boolean isOutside,
                                           List<Integer> foreRingVertices, List<Integer> aftRingVertices,
                                           boolean hasForeShoulder, boolean hasAftShoulder) {
         // Other meshes may have been added to the obj, so we need to keep track of the starting indices
@@ -124,14 +124,16 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         final double actualLength = estimateActualLength(offsetRadius, dxBase);     // Actual length of the transition (due to reduced step size near the fore/aft end)
 
         // Get the location where the fore/aft shoulder would end (due to its thickness)
-        final double xForeShoulder = component.getAftShoulderThickness();
-        final double xAftShoulder = component.getLength() - component.getForeShoulderThickness();
+        final double xForeShoulder = component.getForeShoulderThickness();
+        final double xAftShoulder = component.getLength() - component.getAftShoulderThickness();
 
         // Generate vertices and normals
         float x = 0;                                        // Distance from the fore end
         double r;                                           // Current radius at location x
         boolean isForeTip = false;                          // True if the fore end of the transition is a tip (radius = 0)
+        boolean isForeRing = false;                         // True if the current ring is the first fore ring
         boolean isAftTip = false;                           // True if the aft end of the transition is a tip (radius = 0)
+        boolean isAftRing = false;                          // True if the current ring is the last aft ring
         int actualNumStacks = 0;                            // Number of stacks added, deviates from set point due to reduced step size near the tip (does not include aft/fore tip rings)
         while (x <= (float) component.getLength()) {
             // When closer to the smallest section of the transition, decrease the step size
@@ -190,9 +192,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 if (!isOutside) {
                     if (hasForeShoulder && x < xForeShoulder) {
                         // If the current ring is before the fore shoulder ring and the next ring is after, clamp the
-                        // next ring to the fore shoulder ring
+                        // current ring to the fore shoulder ring
                         if (xNext > xForeShoulder) {
-                            xNext = (float) xForeShoulder;
+                            x = (float) xForeShoulder;
                         } else {
                             // Skip the ring
                             x = xNext;
@@ -208,6 +210,8 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                     }
                 }
 
+                // If the current radius is larger than 0, and the next radius is (approximately) a tip,
+                // and you're not yet at the aft end, add the aft tip vertex
                 if (Double.compare(rNext, RADIUS_EPSILON) <= 0 && Double.compare(x, component.getLength()) != 0) {
                     // Case 3: Add a single vertex at the center at the next x position (= aft tip)
                     float epsilon = dx / 20;
@@ -222,17 +226,17 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                     break;
                 } else {
                     // Check on which ring we are
-                    boolean isForeRing = actualNumStacks == 0 && foreRingVertices.isEmpty();
-                    boolean isAftRing = Double.compare(x, (float) component.getLength()) == 0;
+                    isForeRing = actualNumStacks == 0 && foreRingVertices.isEmpty();
+                    isAftRing = Float.compare(x, (float) component.getLength()) == 0 || Float.compare(x, (float) xAftShoulder) >= 0;
 
                     // Case 5: Add normal vertices
-                    addQuadVertices(numSlices, foreRingVertices, aftRingVertices, r, rNext, x, xNext, isForeRing, isAftRing, isOutside);
+                    addQuadVertices(numSides, foreRingVertices, aftRingVertices, r, rNext, x, xNext, isForeRing, isAftRing, isOutside);
                     actualNumStacks++;
                 }
             }
 
             // If we're at the aft end or aft shoulder, stop
-            if (Float.compare(x, (float) component.getLength()) == 0 || Float.compare(x, (float) xAftShoulder) >= 0) {
+            if (isAftRing) {
                 break;
             }
 
@@ -241,7 +245,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Create aft/fore tip faces
         if (isAftTip || isForeTip) {
-            addTipFaces(numSlices, isOutside, isForeTip, startIdx, normalsStartIdx);
+            addTipFaces(numSides, isOutside, isForeTip, startIdx, normalsStartIdx, texCoordsStartIdx);
         }
 
         // Create regular faces
