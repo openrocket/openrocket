@@ -164,7 +164,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
              */
             if (actualNumStacks == 0) {
                 if (Double.compare(r, RADIUS_EPSILON) <= 0) {
-                    if (Double.compare(rNext, 0) == 0) {
+                    if (Double.compare(rNext, RADIUS_EPSILON) <= 0) {
                         // Case 1: Skip this ring (you're at the fore end, before the fore tip)
                         x = xNext;
                         continue;
