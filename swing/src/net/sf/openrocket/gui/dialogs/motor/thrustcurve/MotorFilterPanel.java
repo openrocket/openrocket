@@ -185,7 +185,12 @@ public abstract class MotorFilterPanel extends JPanel {
 			}
 		});
 
-		sub.add(new JScrollPane(manufacturerCheckList.getList()), "grow, pushy, wrap");
+		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
+		Border border1 = GUIUtil.getUITheme().getBorder();
+		if (border1 != null) {
+			scrollPane.setBorder(border1);
+		}
+		sub.add(scrollPane, "grow, pushy, wrap");
 
 		JButton clearMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkNone"));
 		clearMotors.addActionListener( new ActionListener() {
