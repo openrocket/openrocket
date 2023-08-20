@@ -45,6 +45,7 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.StateChangeListener;
 import org.jfree.chart.ChartColor;
 import org.slf4j.Logger;
@@ -335,7 +336,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			nrOfMotorsLabel = new StyledLabel(-2f, StyledLabel.Style.ITALIC);
 			nrOfMotorsLabel.setToolTipText(trans.get("TCMotorSelPan.lbl.ttip.nrOfMotors"));
 			updateNrOfMotors();
-			nrOfMotorsLabel.setForeground(Color.darkGray);
+			nrOfMotorsLabel.setForeground(GUIUtil.getUITheme().getDimTextColor());
 			panel.add(nrOfMotorsLabel, "gapleft para, spanx, wrap");
 			sorter.addRowSorterListener(new RowSorterListener() {
 				@Override
