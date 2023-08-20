@@ -159,6 +159,7 @@ class MotorInformationPanel extends JPanel {
 
 
 			comment = new JTextArea(5, 5);
+			comment.setBorder(GUIUtil.getUITheme().getBorder());
 			GUIUtil.changeFontSize(comment, -2);
 			withCommentFont = comment.getFont();
 			noCommentFont = withCommentFont.deriveFont(Font.ITALIC);
