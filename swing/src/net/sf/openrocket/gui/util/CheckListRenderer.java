@@ -33,10 +33,8 @@ package net.sf.openrocket.gui.util;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Rectangle;
 import java.io.Serializable;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JList;
@@ -49,7 +47,7 @@ import javax.swing.border.EmptyBorder;
 public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Serializable {
 		
 	private static final Border NO_FOCUS_BORDER = new EmptyBorder(1, 1, 1, 1);
-	private static final Border SAFE_NO_FOCUS_BORDER = NO_FOCUS_BORDER; // may change in the feature
+	private static final Border SAFE_NO_FOCUS_BORDER = NO_FOCUS_BORDER; // may change in the future
 	
 	/**
 	 * Constructs a default renderer object for an item in a list.
@@ -160,68 +158,6 @@ public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Se
 			
 			super.firePropertyChange(propertyName, oldValue, newValue);
 		}
-	}
-	
-	// Methods below are overridden for performance reasons.
-	
-	@Override
-	public void validate() {
-	}
-	
-	@Override
-	public void invalidate() {
-	}
-	
-	@Override
-	public void repaint() {
-	}
-	
-	@Override
-	public void revalidate() {
-	}
-	
-	@Override
-	public void repaint(long tm, int x, int y, int width, int height) {
-	}
-	
-	@Override
-	public void repaint(Rectangle r) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, char oldValue, char newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, short oldValue, short newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, int oldValue, int newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, long oldValue, long newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, float oldValue, float newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, double oldValue, double newValue) {
-	}
-	
-	@Override
-	public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
-	}
-	
-	@SuppressWarnings("serial")
-	public static class UIResource extends DefaultListCellRenderer implements javax.swing.plaf.UIResource {
 	}
 	
 }
