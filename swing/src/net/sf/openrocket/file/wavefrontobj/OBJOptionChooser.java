@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -17,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
+import java.awt.Window;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
@@ -117,6 +119,12 @@ public class OBJOptionChooser extends JPanel {
                 // Refresh the UI after changing visibility
                 OBJOptionChooser.this.revalidate();
                 OBJOptionChooser.this.repaint();
+
+                // Adjust the size of the parent dialog
+                Window window = GUIUtil.getWindowAncestor(OBJOptionChooser.this);
+                if (window != null) {
+                    window.pack();
+                }
             }
         });
         this.add(advancedOptionsPanel);
