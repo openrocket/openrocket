@@ -77,7 +77,7 @@ public class OBJOptionChooser extends JPanel {
         this.scalingModel = new DoubleModel(opts, "ScalingDouble", UnitGroup.UNITS_SCALING, 0, 10000);
         JSpinner spin = new JSpinner(scalingModel.getSpinnerModel());
         spin.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
-        spin.setEditor(new SpinnerEditor(spin));
+        spin.setEditor(new SpinnerEditor(spin, 5));
         this.add(spin, "wrap para");
 
 
