@@ -7,6 +7,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -35,13 +36,19 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox sRGB;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
     private final DoubleModel scalingModel;
+    private final JComboBox<Axis> axialCombo;
+    private final JComboBox<Axis> forwardCombo;
 
     private final List<RocketComponent> selectedComponents;
+    private final Rocket rocket;
 
-    public OBJOptionChooser(OBJExportOptions opts, List<RocketComponent> selectedComponents) {
-        super(new MigLayout());
+    private boolean isProgrammaticallyChanging = false;
+
+    public OBJOptionChooser(OBJExportOptions opts, List<RocketComponent> selectedComponents, Rocket rocket) {
+        super(new MigLayout("hidemode 3"));
 
         this.selectedComponents = selectedComponents;
+        this.rocket = rocket;
 
         // ------------ Basic options ------------
         //// Export children
@@ -102,11 +109,48 @@ public class OBJOptionChooser extends JPanel {
         advancedOptionsPanel.add(LODLabel, "spanx, split 2");
         this.LOD = new JComboBox<>(ObjUtils.LevelOfDetail.values());
         this.LOD.setToolTipText(trans.get("OBJOptionChooser.lbl.LevelOfDetail.ttip"));
-        advancedOptionsPanel.add(LOD, "growx, wrap para");
+        advancedOptionsPanel.add(LOD, "growx, wrap unrel");
 
 
         //// Coordinate transformer
-        // TODO
+        JLabel coordTransLabel = new JLabel(trans.get("OBJOptionChooser.lbl.CoordinateTransform"));
+        coordTransLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.CoordinateTransform.ttip"));
+        advancedOptionsPanel.add(coordTransLabel, "spanx, wrap");
+
+        ////// Axial (up) axis
+        JLabel axialLabel = new JLabel(trans.get("OBJOptionChooser.lbl.CoordinateTransform.Axial"));
+        axialLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.CoordinateTransform.Axial.ttip"));
+        advancedOptionsPanel.add(axialLabel, "gapleft 10lp");
+        this.axialCombo = new JComboBox<>(Axis.values());
+        this.axialCombo.setToolTipText(trans.get("OBJOptionChooser.lbl.CoordinateTransform.Axial.ttip"));
+        advancedOptionsPanel.add(axialCombo, "wrap");
+
+        ////// Forward axis
+        JLabel forwardLabel = new JLabel(trans.get("OBJOptionChooser.lbl.CoordinateTransform.Forward"));
+        forwardLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.CoordinateTransform.Forward.ttip"));
+        advancedOptionsPanel.add(forwardLabel, "gapleft 10lp");
+        this.forwardCombo = new JComboBox<>(Axis.values());
+        this.forwardCombo.setToolTipText(trans.get("OBJOptionChooser.lbl.CoordinateTransform.Forward.ttip"));
+        advancedOptionsPanel.add(forwardCombo, "wrap");
+
+        //// Set up the listeners for the coordinate transformer combo boxes
+        this.axialCombo.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (!isProgrammaticallyChanging) {
+                    coordTransComboAction(e, forwardCombo);
+                }
+            }
+        });
+        // Let's just keep all the options for the axial axis, and only remove the forward axis options
+        /*this.forwardCombo.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (!isProgrammaticallyChanging) {
+                    coordTransComboAction(e, axialCombo);
+                }
+            }
+        });*/
 
 
         // Add action listener to the toggle button
@@ -153,6 +197,10 @@ public class OBJOptionChooser extends JPanel {
         this.scalingModel.setValue(opts.getScaling());
 
         this.LOD.setSelectedItem(opts.getLOD());
+
+        CoordTransform transformer = opts.getTransformer();
+        this.axialCombo.setSelectedItem(transformer.getAxialAxis());
+        this.forwardCombo.setSelectedItem(transformer.getForwardAxis());
     }
 
     /**
@@ -174,6 +222,11 @@ public class OBJOptionChooser extends JPanel {
         opts.setUseSRGB(sRGB.isSelected());
         opts.setScaling((float) scalingModel.getValue());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
+
+        CoordTransform transformer = CoordTransform.generateUsingLongitudinalAndForwardAxes(
+                (Axis) axialCombo.getSelectedItem(), (Axis) forwardCombo.getSelectedItem(),
+                rocket.getLength(), 0, 0);
+        opts.setTransformer(transformer);
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
@@ -185,5 +238,38 @@ public class OBJOptionChooser extends JPanel {
             }
         }
         return onlyComponentAssemblies;
+    }
+
+    private void coordTransComboAction(ItemEvent e, JComboBox<Axis> otherCombo) {
+        if (e.getStateChange() != ItemEvent.SELECTED) {
+            return;
+        }
+
+        Axis selected = (Axis) e.getItem();
+        Object otherAxis = otherCombo.getSelectedItem();
+        if (!(otherAxis instanceof Axis)) {
+            return;
+        }
+
+        // Set the flag to denote we're changing combo box items programmatically
+        this.isProgrammaticallyChanging = true;
+
+        // Change the combobox items to axes that don't conflict with the selected axis
+        otherCombo.removeAllItems();
+        for (Axis axis : Axis.values()) {
+            if (!axis.isSameAxis(selected)) {
+                otherCombo.addItem(axis);
+            }
+        }
+
+        // Select the first item in the combobox
+        if (!((Axis) otherAxis).isSameAxis(selected)) {
+            otherCombo.setSelectedItem(otherAxis);
+        } else {
+            otherCombo.setSelectedIndex(0);
+        }
+
+        // Reset the flag after changes are done
+        this.isProgrammaticallyChanging = false;
     }
 }

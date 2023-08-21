@@ -11,6 +11,6 @@ package net.sf.openrocket.file.wavefrontobj;
  */
 public class DefaultCoordTransform extends CoordTransform {
     public DefaultCoordTransform(double rocketLength) {
-        super(Axis.Y, Axis.Z, Axis.X_MIN, Axis.Z_MIN, 0, 0, rocketLength);
+        super(Axis.Y, Axis.Z, Axis.X_MIN, 0, 0, rocketLength);
     }
 }

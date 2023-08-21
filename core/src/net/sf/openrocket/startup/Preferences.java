@@ -133,7 +133,6 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OBJ_X_AXIS = "xAxis";
 	private static final String OBJ_Y_AXIS = "yAxis";
 	private static final String OBJ_Z_AXIS = "zAxis";
-	private static final String OBJ_AXIAL_AXIS = "AxialAxis";
 	private static final String OBJ_ORIG_X_OFFS = "OrigXOffs";
 	private static final String OBJ_ORIG_Y_OFFS = "OrigYOffs";
 	private static final String OBJ_ORIG_Z_OFFS = "OrigZOffs";
@@ -1056,7 +1055,6 @@ public abstract class Preferences implements ChangeSource {
 		coordTransformNode.put(OBJ_X_AXIS, transform.getXAxis().toString());
 		coordTransformNode.put(OBJ_Y_AXIS, transform.getYAxis().toString());
 		coordTransformNode.put(OBJ_Z_AXIS, transform.getZAxis().toString());
-		coordTransformNode.put(OBJ_AXIAL_AXIS, transform.getAxialAxis().toString());
 		coordTransformNode.putDouble(OBJ_ORIG_X_OFFS, transform.getOrigXOffs());
 		coordTransformNode.putDouble(OBJ_ORIG_Y_OFFS, transform.getOrigYOffs());
 		coordTransformNode.putDouble(OBJ_ORIG_Z_OFFS, transform.getOrigZOffs());
@@ -1084,12 +1082,11 @@ public abstract class Preferences implements ChangeSource {
 		Axis xAxis = Axis.fromString(coordTransformNode.get(OBJ_X_AXIS, Axis.Y.toString()));
 		Axis yAxis = Axis.fromString(coordTransformNode.get(OBJ_Y_AXIS, Axis.Z.toString()));
 		Axis zAxis = Axis.fromString(coordTransformNode.get(OBJ_Z_AXIS, Axis.X_MIN.toString()));
-		Axis axialAxis = Axis.fromString(coordTransformNode.get(OBJ_AXIAL_AXIS, Axis.Z_MIN.toString()));
 		double origXOffs = coordTransformNode.getDouble(OBJ_ORIG_X_OFFS, 0.0);
 		double origYOffs = coordTransformNode.getDouble(OBJ_ORIG_Y_OFFS, 0.0);
 		double origZOffs = coordTransformNode.getDouble(OBJ_ORIG_Z_OFFS, rocket.getLength());
 
-		CoordTransform transform = new CoordTransform(xAxis, yAxis, zAxis, axialAxis, origXOffs, origYOffs, origZOffs);
+		CoordTransform transform = new CoordTransform(xAxis, yAxis, zAxis, origXOffs, origYOffs, origZOffs);
 		options.setTransformer(transform);
 
 		return options;

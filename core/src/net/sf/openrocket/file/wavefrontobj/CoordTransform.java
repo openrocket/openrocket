@@ -7,8 +7,8 @@ import net.sf.openrocket.util.Coordinate;
 /**
  * Interface for classes that can convert location and rotation coordinates from the OpenRocket coordinate system
  * to a custom OBJ coordinate system.
- * OpenRocket uses a left-handed coordinate system with the y-axis pointing up, the z-axis pointing away from the viewer,
- * and the x-axis pointing to the right (in the side view). Its origin is also at the tip of the rocket.
+ * OpenRocket uses a left-handed coordinate system with the forward (y-)axis pointing up, the depth (z-)axis pointing away from the viewer,
+ * and the longitudinal (x-)axis pointing to the right (in the side view). Its origin is also at the tip of the rocket.
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
@@ -17,7 +17,6 @@ public class CoordTransform {
     protected final Axis xAxis;
     protected final Axis yAxis;
     protected final Axis zAxis;
-    protected final Axis axialAxis;
 
     // Origin offsets
     protected final double origXOffs;
@@ -34,16 +33,13 @@ public class CoordTransform {
      *              of the OpenRocket x-axis), then you must pass Axis.X_MIN as the xAxis parameter.
      *              You must also add an offset to the origin of the transformed coordinate system, so that it starts
      *              at the bottom of the rocket => set origZOffs to the length of the rocket.
-     * @param axialAxis the axial/longitudinal axis <b>in the transformed coordinate system, with the direction
-     *                         relative to the OpenRocket x-axis !!</b>
-     *              From the previous example, the longitudinal axis would be Axis.Z_MIN.
      * @param origXOffs the x-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      * @param origYOffs the y-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      * @param origZOffs the z-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      */
-    public CoordTransform(@NotNull Axis xAxis, @NotNull Axis yAxis, @NotNull Axis zAxis, @NotNull Axis axialAxis,
+    public CoordTransform(@NotNull Axis xAxis, @NotNull Axis yAxis, @NotNull Axis zAxis,
                           double origXOffs, double origYOffs, double origZOffs) {
-        if (xAxis == null || yAxis == null || zAxis == null || axialAxis == null) {
+        if (xAxis == null || yAxis == null || zAxis == null) {
             throw new IllegalArgumentException("Axes cannot be null");
         }
 
@@ -54,11 +50,70 @@ public class CoordTransform {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.zAxis = zAxis;
-        this.axialAxis = axialAxis;
 
         this.origXOffs = origXOffs;
         this.origYOffs = origYOffs;
         this.origZOffs = origZOffs;
+    }
+
+    /**
+     * Create a new coordinate system converter.
+     * @param axialAxis the OBJ axis that corresponds to the OpenRocket axial (x-)axis
+     * @param forwardAxis the OBJ axis that corresponds to the OpenRocket forward (y-)axis
+     * @param origXOffs the x-offset of the origin of the OBJ coordinate system, <b>in the OBJ coordinate system</b>
+     * @param origYOffs the y-offset of the origin of the OBJ coordinate system, <b>in the OBJ coordinate system</b>
+     * @param origZOffs the z-offset of the origin of the OBJ coordinate system, <b>in the OBJ coordinate system</b>
+     */
+    public static CoordTransform generateUsingLongitudinalAndForwardAxes(Axis axialAxis, Axis forwardAxis,
+                                                                         double origXOffs, double origYOffs, double origZOffs) {
+        if (axialAxis == null || forwardAxis == null) {
+            throw new IllegalArgumentException("Axes cannot be null");
+        }
+
+        if (axialAxis.isSameAxis(forwardAxis)) {
+            throw new IllegalArgumentException("Axes must be different");
+        }
+
+        Axis xAxis = null;
+        Axis yAxis = null;
+        Axis zAxis = null;
+
+        switch (axialAxis) {
+            case X -> xAxis = Axis.X;
+            case X_MIN -> xAxis = Axis.X_MIN;
+            case Y -> yAxis = Axis.X;
+            case Y_MIN -> yAxis = Axis.X_MIN;
+            case Z -> zAxis = Axis.X;
+            case Z_MIN -> zAxis = Axis.X_MIN;
+        }
+        switch (forwardAxis) {
+            case X -> xAxis = Axis.Y;
+            case X_MIN -> xAxis = Axis.Y_MIN;
+            case Y -> yAxis = Axis.Y;
+            case Y_MIN -> yAxis = Axis.Y_MIN;
+            case Z -> zAxis = Axis.Y;
+            case Z_MIN -> zAxis = Axis.Y_MIN;
+        }
+
+        Axis depthAxis = Axis.getThirdAxis(axialAxis, forwardAxis);
+        switch (depthAxis) {
+            case X -> xAxis = Axis.Z;
+            case X_MIN -> xAxis = Axis.Z_MIN;
+            case Y -> yAxis = Axis.Z;
+            case Y_MIN -> yAxis = Axis.Z_MIN;
+            case Z -> zAxis = Axis.Z;
+            case Z_MIN -> zAxis = Axis.Z_MIN;
+        }
+
+        if (xAxis == null || yAxis == null || zAxis == null) {
+            throw new IllegalStateException("Axes should not be null");
+        }
+
+        final double origXTrans = getTransformedOriginOffset(xAxis, origXOffs, origYOffs, origZOffs);
+        final double origYTrans = getTransformedOriginOffset(yAxis, origXOffs, origYOffs, origZOffs);
+        final double origZTrans = getTransformedOriginOffset(zAxis, origXOffs, origYOffs, origZOffs);
+
+        return new CoordTransform(xAxis, yAxis, zAxis, origXTrans, origYTrans, origZTrans);
     }
 
 
@@ -147,7 +202,7 @@ public class CoordTransform {
      * @param z the z-coordinate in the OpenRocket coordinate system
      * @return the coordinate in the transformed OBJ coordinate system
      */
-    private double getTransformedCoordinate(Axis axis, double x, double y, double z) {
+    private static double getTransformedCoordinate(Axis axis, double x, double y, double z) {
         return switch (axis) {
             case X -> x;
             case X_MIN -> -x;
@@ -164,7 +219,7 @@ public class CoordTransform {
      * @param axis the axis to get the offset for
      * @return the offset of the origin of the OBJ coordinate system for the given axis
      */
-    private double getTransformedOriginOffset(Axis axis, double origXOffs, double origYOffs, double origZOffs) {
+    private static double getTransformedOriginOffset(Axis axis, double origXOffs, double origYOffs, double origZOffs) {
         return switch (axis) {
             case X, X_MIN -> origXOffs;
             case Y, Y_MIN -> origYOffs;
@@ -181,7 +236,7 @@ public class CoordTransform {
      * @param rotZ the rotation in radians around the OpenRocket z-axis
      * @return the rotation in radians around the transformed OBJ axis
      */
-    private double getTransformedRotation(Axis axis, double rotX, double rotY, double rotZ) {
+    private static double getTransformedRotation(Axis axis, double rotX, double rotY, double rotZ) {
         // OpenRocket uses left-handed coordinate system, we'll use right-handed
         return switch (axis) {
             case X -> -rotX;
@@ -214,7 +269,61 @@ public class CoordTransform {
      * @return the equivalent axis for the x-axis in the OpenRocket coordinate system (axial axis)
      */
     public Axis getAxialAxis() {
-        return axialAxis;
+        switch (xAxis) {
+            case X -> {
+                return Axis.X;
+            }
+            case X_MIN -> {
+                return Axis.X_MIN;
+            }
+        }
+        switch (yAxis) {
+            case X -> {
+                return Axis.Y;
+            }
+            case X_MIN -> {
+                return Axis.Y_MIN;
+            }
+        }
+        switch (zAxis) {
+            case X -> {
+                return Axis.Z;
+            }
+            case X_MIN -> {
+                return Axis.Z_MIN;
+            }
+        }
+
+        throw new IllegalStateException("No axial axis found");
+    }
+
+    public Axis getForwardAxis() {
+        switch (xAxis) {
+            case Y -> {
+                return Axis.X;
+            }
+            case Y_MIN -> {
+                return Axis.X_MIN;
+            }
+        }
+        switch (yAxis) {
+            case Y -> {
+                return Axis.Y;
+            }
+            case Y_MIN -> {
+                return Axis.Y_MIN;
+            }
+        }
+        switch (zAxis) {
+            case Y -> {
+                return Axis.Z;
+            }
+            case Y_MIN -> {
+                return Axis.Z_MIN;
+            }
+        }
+
+        throw new IllegalStateException("No forward axis found");
     }
 
     public double getOrigXOffs() {
