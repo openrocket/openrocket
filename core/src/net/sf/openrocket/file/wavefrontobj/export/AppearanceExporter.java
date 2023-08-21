@@ -109,9 +109,11 @@ public class AppearanceExporter {
         textureOptions.setS(scaleX, scaleY, 1f);
 
         // Texture offset
+        // Need an extra offset because the texture scale origin is different in OR
         final Coordinate origin = texture.getOffset();
-        float origX = (float) origin.x;
-        float origY = (float) (origin.y - 1 - 1/scaleY);       // Need an extra offset because the texture scale origin is different in OR
+        float origX = (float) (scaleX*(-1 - origin.x) + 1);
+        float origY = (float) (scaleY*(-1 - origin.y) + 1);
+
         textureOptions.setO(origX, origY, 0f);
 
         // Texture rotation is not possible in MTL...
