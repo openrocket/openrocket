@@ -5,6 +5,7 @@ import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.util.MathUtil;
 
 import java.util.List;
 
@@ -22,6 +23,10 @@ public class CylinderExporter {
      *                 NOTE: Culling is not really thought of for the hollow cylinder; this mode is really meant to be
      *                       combined with other objects
      * @param isOutside Whether the cylinder is an outside face (true) or inside face (false)
+     * @param uMin The minimum u texture coordinate
+     * @param uMax The maximum u texture coordinate
+     * @param vMin The minimum v texture coordinate
+     * @param vMax The maximum v texture coordinate
      * @param foreRingVertices A list to add the fore (top) ring vertex indices to
      * @param aftRingVertices A list to add the aft (bottom) ring vertex indices to
      * @param foreRingNormals A list to add the fore (top) ring normal indices to
@@ -29,6 +34,7 @@ public class CylinderExporter {
      */
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float foreRadius, float aftRadius, float length, int numSides, boolean solid, boolean isOutside,
+                                       float uMin, float uMax, float vMin, float vMax,
                                        List<Integer> foreRingVertices, List<Integer> aftRingVertices,
                                        List<Integer> foreRingNormals, List<Integer> aftRingNormals) {
         // Set the new group
@@ -52,10 +58,12 @@ public class CylinderExporter {
         }
 
         // Generate side top vertices
-        generateRingVertices(obj, transformer, numSides, 0, length, length, foreRadius, aftRadius, isOutside, foreRingVertices, foreRingNormals);
+        generateRingVertices(obj, transformer, numSides, 0, length, length, foreRadius, aftRadius, isOutside,
+                uMin, uMax, vMin, vMax, foreRingVertices, foreRingNormals);
 
         // Generate side bottom vertices
-        generateRingVertices(obj, transformer, numSides, length, 0, length, aftRadius, foreRadius, isOutside, aftRingVertices, aftRingNormals);
+        generateRingVertices(obj, transformer, numSides, length, 0, length, aftRadius, foreRadius, isOutside,
+                uMin, uMax, vMin, vMax, aftRingVertices, aftRingNormals);
 
         // Create faces for the bottom and top
         if (solid) {
@@ -138,12 +146,35 @@ public class CylinderExporter {
             obj.addFace(face);
         }
     }
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float foreRadius, float aftRadius, float length, int numSides, boolean solid, boolean isOutside,
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices,
+                                       List<Integer> foreRingNormals, List<Integer> aftRingNormals) {
+        addCylinderMesh(obj, transformer, groupName, foreRadius, aftRadius, length, numSides, solid, isOutside,
+                0, 1, 0, 1, foreRingVertices, aftRingVertices, foreRingNormals, aftRingNormals);
+    }
+
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float foreRadius, float aftRadius, float length, int numSides, boolean solid, boolean isOutside,
+                                       float uMin, float uMax, float vMin, float vMax,
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, foreRadius, aftRadius, length, numSides, solid, isOutside,
+                uMin, uMax, vMin, vMax, foreRingVertices, aftRingVertices, null, null);
+    }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
                                        float foreRadius, float aftRadius, float length, int numSides, boolean solid, boolean isOutside,
                                        List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
         addCylinderMesh(obj, transformer, groupName, foreRadius, aftRadius, length, numSides, solid, isOutside,
                 foreRingVertices, aftRingVertices, null, null);
+    }
+
+    public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
+                                       float radius, float length, int numSides, boolean solid, boolean isOutside,
+                                       float uMin, float uMax, float vMin, float vMax,
+                                       List<Integer> foreRingVertices, List<Integer> aftRingVertices) {
+        addCylinderMesh(obj, transformer, groupName, radius, radius, length, numSides, solid, isOutside,
+                uMin, uMax, vMin, vMax, foreRingVertices, aftRingVertices);
     }
 
     public static void addCylinderMesh(@NotNull DefaultObj obj, @NotNull CoordTransform transformer, String groupName,
@@ -172,7 +203,8 @@ public class CylinderExporter {
 
     public static void generateRingVertices(DefaultObj obj, CoordTransform transformer,
                                             int numSides, float x, float nextX, float xMax, float radius, float nextRadius,
-                                            boolean isOutside, List<Integer> vertexList, List<Integer> normalList) {
+                                            boolean isOutside, float uMin, float uMax, float vMin, float vMax,
+                                            List<Integer> vertexList, List<Integer> normalList) {
         int startIdx = obj.getNumVertices();
         int normalsStartIdx = obj.getNumNormals();
 
@@ -181,10 +213,11 @@ public class CylinderExporter {
             final float y = radius * (float) Math.cos(angle);
             final float z = radius * (float) Math.sin(angle);
 
-            // Side top vertices
+            // Vertex
             obj.addVertex(transformer.convertLoc(x, y, z));
 
-            // We need special nx normal when the radius changes
+            // Normal
+            //// We need special nx normal when the radius changes
             float nx;
             if (Float.compare(radius, nextRadius) != 0) {
                 final double slopeAngle = Math.atan(Math.abs(nextX - x) / (nextRadius - radius));
@@ -209,13 +242,17 @@ public class CylinderExporter {
             }
 
             // Texture coordinates
-            final float u = (float) i / numSides;
-            final float v = isOutside ? (xMax - x) / xMax : x / xMax;       // For some reason, the texture is vertically flipped in OR for inside cylinders. Don't really like it, but it is what it is
+
+            float u = ((float) i) / numSides;
+            u = (float) MathUtil.map(u, 0, 1, uMin, uMax);
+            float v = isOutside ? (xMax - x) / xMax : x / xMax;       // For some reason, the texture is vertically flipped in OR for inside cylinders. Don't really like it, but it is what it is
+            v = (float) MathUtil.map(v, 0, 1, vMin, vMax);
             obj.addTexCoord(u, v);
         }
 
         // Need to add a last texture coordinate for the end of the texture
-        final float v = isOutside ? (xMax - x) / xMax : x / xMax;
-        obj.addTexCoord(1f, v);
+        float v = isOutside ? (xMax - x) / xMax : x / xMax;
+        v = (float) MathUtil.map(v, 0, 1, vMin, vMax);
+        obj.addTexCoord(uMax, v);
     }
 }

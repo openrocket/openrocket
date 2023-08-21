@@ -74,10 +74,10 @@ public class MotorExporter {
         List<Integer> foreRingVertices = new ArrayList<>();
         List<Integer> aftRingVertices = new ArrayList<>();
         CylinderExporter.addCylinderMesh(obj, transformer, null, (float) radius, (float) length, numSides, false, true,
-                foreRingVertices, aftRingVertices);
+                0, 1, 0.125f, 0.875f, foreRingVertices, aftRingVertices);
 
         // Close the fore end
-        DiskExporter.closeDiskMesh(obj, transformer, null, foreRingVertices, false, true);
+        DiskExporter.closeDiskMesh(obj, transformer, null, foreRingVertices, false, true, 0, 1, 0.875f, 1);
 
         // Generate the aft end inner ring vertices
         List<Integer> aftInnerRingVertices = new ArrayList<>();
@@ -100,11 +100,25 @@ public class MotorExporter {
         }
 
         // Close outer and inner aft ring
-        DiskExporter.closeDiskMesh(obj, transformer, null, aftRingVertices, aftInnerRingVertices, false, false);
+        DiskExporter.closeDiskMesh(obj, transformer, null, aftRingVertices, aftInnerRingVertices, false, false, 0, 1, 0.125f, 0.1f);
 
         // Add cone tip vertex
         obj.addVertex(transformer.convertLoc(length - coneLength, 0, 0));
         obj.addNormal(transformer.convertLocWithoutOriginOffs(1, 0, 0));
+
+        // Add texture coordinates
+        final int texCoordsStartIdx = obj.getNumTexCoords();
+        //// Inner aft ring
+        for (int i = 0; i <= numSides; i++) {
+            final float u = ((float) i) / numSides;
+            obj.addTexCoord(u, 0.1f);
+        }
+
+        //// Cone tip
+        for (int i = 0; i <= numSides; i++) {
+            final float u = ((float) i) / numSides;
+            obj.addTexCoord(u, 0f);
+        }
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);
@@ -122,8 +136,14 @@ public class MotorExporter {
                     normalsStartIdx + nextIdx,
                     normalsStartIdx + i,
             };
+            final int[] texCoordIndices = new int[] {
+                    numSides+1 + i,
+                    i+1,
+                    i,
+            };
+            ObjUtils.offsetIndex(texCoordIndices, texCoordsStartIdx);
 
-            DefaultObjFace face = new DefaultObjFace(vertexIndices, null, normalIndices);
+            DefaultObjFace face = new DefaultObjFace(vertexIndices, texCoordIndices, normalIndices);
             obj.addFace(face);
         }
 
