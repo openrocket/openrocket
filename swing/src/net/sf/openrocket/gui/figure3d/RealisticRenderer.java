@@ -21,7 +21,6 @@ import net.sf.openrocket.util.Color;
 import com.jogamp.opengl.util.texture.Texture;
 
 public class RealisticRenderer extends RocketRenderer {
-	private final float[] colorClear = { 0, 0, 0, 0 };
 	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
 	
@@ -165,7 +164,7 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
 			
 			
-			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
+			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, convertedColor, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
 			

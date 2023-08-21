@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -144,26 +146,25 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		// Manufacturer selection
 		JPanel sub = new JPanel(new MigLayout("fill"));
-		TitledBorder border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.MANUFACTURER"));
+		Border templateBorder = GUIUtil.getUITheme().getBorder();
+		TitledBorder border = BorderFactory.createTitledBorder(templateBorder);
+		border.setTitle(trans.get("TCurveMotorCol.MANUFACTURER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
 
 		this.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-		List<Manufacturer> manufacturers = new ArrayList<Manufacturer>();
-		for (Manufacturer m : allManufacturers) {
-			manufacturers.add(m);
-		}
+        List<Manufacturer> manufacturers = new ArrayList<>(allManufacturers);
 
-		Collections.sort(manufacturers, new Comparator<Manufacturer>() {
-			@Override
-			public int compare(Manufacturer o1, Manufacturer o2) {
-				return o1.getSimpleName().compareTo( o2.getSimpleName());
-			}
+		manufacturers.sort(new Comparator<Manufacturer>() {
+            @Override
+            public int compare(Manufacturer o1, Manufacturer o2) {
+                return o1.getSimpleName().compareTo(o2.getSimpleName());
+            }
 
-		});
+        });
 
-		manufacturerCheckList = new CheckList.Builder().<Manufacturer>build();
+		manufacturerCheckList = new CheckList.Builder().build();
 		manufacturerCheckList.setData(manufacturers);
 
 		manufacturerCheckList.setUncheckedItems(unselectedManusFromPreferences);
@@ -184,7 +185,12 @@ public abstract class MotorFilterPanel extends JPanel {
 			}
 		});
 
-		sub.add(new JScrollPane(manufacturerCheckList.getList()), "grow, pushy, wrap");
+		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
+		Border border1 = GUIUtil.getUITheme().getBorder();
+		if (border1 != null) {
+			scrollPane.setBorder(border1);
+		}
+		sub.add(scrollPane, "grow, pushy, wrap");
 
 		JButton clearMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkNone"));
 		clearMotors.addActionListener( new ActionListener() {
@@ -213,7 +219,8 @@ public abstract class MotorFilterPanel extends JPanel {
 		// Total Impulse selection
 		{
 			sub = new JPanel(new MigLayout("fill"));
-			border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
+			border = BorderFactory.createTitledBorder(templateBorder);
+			border.setTitle(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
 			GUIUtil.changeFontStyle(border, Font.BOLD);
 			sub.setBorder(border);
 
@@ -240,7 +247,8 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		// Motor Dimensions
 		sub = new JPanel(new MigLayout("fill"));
-		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCMotorSelPan.MotorSize"));
+		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(templateBorder);
+		diameterTitleBorder.setTitle(trans.get("TCMotorSelPan.MotorSize"));
 		GUIUtil.changeFontStyle(diameterTitleBorder, Font.BOLD);
 		sub.setBorder(diameterTitleBorder);
 

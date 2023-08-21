@@ -116,6 +116,13 @@
 			<zipfileset src="${core.dir}/lib/jaxb-runtime.2.3.1.jar"/>
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
+			<zipfileset src="${lib.dir}/jSystemThemeDetector-3.8.jar"/>
+			<zipfileset src="${lib.dir}/oshi-core-6.4.4.jar"/>
+			<zipfileset src="${lib.dir}/jna-5.13.0.jar"/>
+			<zipfileset src="${lib.dir}/jna-platform-5.13.0.jar"/>
+			<zipfileset src="${lib.dir}/annotations-24.0.1.jar"/>
+			<zipfileset src="${lib.dir}/jfa-1.2.0.jar"/>
+			<zipfileset src="${lib.dir}/versioncompare-1.4.1.jar"/>
 			<zipfileset src="${lib.dir}/darklaf/darklaf-compatibility-3.0.3-SNAPSHOT.jar"/>
 			<zipfileset src="${lib.dir}/darklaf/darklaf-core-3.0.3-SNAPSHOT.jar"/>
 			<zipfileset src="${lib.dir}/darklaf/darklaf-iconset-3.0.3-SNAPSHOT.jar"/>
