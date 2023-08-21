@@ -2,16 +2,20 @@ package net.sf.openrocket.file.wavefrontobj;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
+import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -28,6 +32,7 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox triangulate;
     private final JCheckBox sRGB;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
+    private final DoubleModel scalingModel;
 
     private final List<RocketComponent> selectedComponents;
 
@@ -41,6 +46,11 @@ public class OBJOptionChooser extends JPanel {
         this.exportChildren = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportChildren"));
         this.add(exportChildren, "spanx, wrap");
 
+        //// Remove origin offset
+        this.removeOffset = new JCheckBox(trans.get("OBJOptionChooser.checkbox.removeOffset"));
+        this.removeOffset.setToolTipText(trans.get("OBJOptionChooser.checkbox.removeOffset.ttip"));
+        this.add(removeOffset, "spanx, wrap unrel");
+
         //// Export appearance
         this.exportAppearance = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportAppearance"));
         this.exportAppearance.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAppearance.ttip"));
@@ -49,12 +59,17 @@ public class OBJOptionChooser extends JPanel {
         //// Export as separate files
         this.exportAsSeparateFiles = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportAsSeparateFiles"));
         this.exportAsSeparateFiles.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAsSeparateFiles.ttip"));
-        this.add(exportAsSeparateFiles, "spanx, wrap");
+        this.add(exportAsSeparateFiles, "spanx, wrap unrel");
 
-        //// Remove offsets
-        this.removeOffset = new JCheckBox(trans.get("OBJOptionChooser.checkbox.removeOffset"));
-        this.removeOffset.setToolTipText(trans.get("OBJOptionChooser.checkbox.removeOffset.ttip"));
-        this.add(removeOffset, "spanx, wrap para");
+        //// Scaling
+        JLabel scalingLabel = new JLabel(trans.get("OBJOptionChooser.lbl.Scaling"));
+        scalingLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
+        this.add(scalingLabel, "spanx, split 2");
+        this.scalingModel = new DoubleModel(opts, "ScalingDouble", UnitGroup.UNITS_SCALING, 0, 10000);
+        JSpinner spin = new JSpinner(scalingModel.getSpinnerModel());
+        spin.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
+        spin.setEditor(new SpinnerEditor(spin));
+        this.add(spin, "wrap para");
 
 
         // ------------ Advanced options ------------
@@ -69,27 +84,23 @@ public class OBJOptionChooser extends JPanel {
         advancedOptionsPanel.setLayout(new MigLayout("ins 0"));
         advancedOptionsPanel.setVisible(false);
 
-        //// Triangulate
-        this.triangulate = new JCheckBox(trans.get("OBJOptionChooser.checkbox.triangulate"));
-        this.triangulate.setToolTipText(trans.get("OBJOptionChooser.checkbox.triangulate.ttip"));
-        advancedOptionsPanel.add(triangulate, "spanx, wrap");
-
         //// Export colors in sRGB
         this.sRGB = new JCheckBox(trans.get("OBJOptionChooser.checkbox.sRGB"));
         this.sRGB.setToolTipText(trans.get("OBJOptionChooser.checkbox.sRGB.ttip"));
         advancedOptionsPanel.add(sRGB, "spanx, wrap");
 
+        //// Triangulate
+        this.triangulate = new JCheckBox(trans.get("OBJOptionChooser.checkbox.triangulate"));
+        this.triangulate.setToolTipText(trans.get("OBJOptionChooser.checkbox.triangulate.ttip"));
+        advancedOptionsPanel.add(triangulate, "spanx, wrap");
+
         //// Level of detail
         JLabel LODLabel = new JLabel(trans.get("OBJOptionChooser.lbl.LevelOfDetail"));
         LODLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.LevelOfDetail.ttip"));
-        advancedOptionsPanel.add(LODLabel);
+        advancedOptionsPanel.add(LODLabel, "spanx, split 2");
         this.LOD = new JComboBox<>(ObjUtils.LevelOfDetail.values());
         this.LOD.setToolTipText(trans.get("OBJOptionChooser.lbl.LevelOfDetail.ttip"));
-        advancedOptionsPanel.add(LOD, "spanx, wrap para");
-
-
-        //// Scale
-        // TODO: + (add tooltip text that mm is useful for 3D printing)
+        advancedOptionsPanel.add(LOD, "growx, wrap para");
 
 
         //// Coordinate transformer
@@ -131,6 +142,8 @@ public class OBJOptionChooser extends JPanel {
         this.triangulate.setSelected(opts.isTriangulate());
         this.sRGB.setSelected(opts.isUseSRGB());
 
+        this.scalingModel.setValue(opts.getScaling());
+
         this.LOD.setSelectedItem(opts.getLOD());
     }
 
@@ -151,6 +164,7 @@ public class OBJOptionChooser extends JPanel {
         opts.setRemoveOffset(removeOffset.isSelected());
         opts.setTriangulate(triangulate.isSelected());
         opts.setUseSRGB(sRGB.isSelected());
+        opts.setScaling((float) scalingModel.getValue());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
     }
 

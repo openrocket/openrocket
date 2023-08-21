@@ -116,8 +116,16 @@ public class OBJExportOptions {
         return scaling;
     }
 
+    public double getScalingDouble() {
+        return scaling;
+    }
+
     public void setScaling(float scaling) {
         this.scaling = scaling;
+    }
+
+    public void setScalingDouble(double scaling) {
+        this.scaling = (float) scaling;
     }
 
     public boolean isUseSRGB() {

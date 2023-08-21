@@ -80,6 +80,8 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_MOMENTUM;
 	public static final UnitGroup UNITS_VOLTAGE;
 	public static final UnitGroup UNITS_CURRENT;
+
+	public static final UnitGroup UNITS_SCALING;
 	
 	
 	public static final Map<String, UnitGroup> UNITS; // keys such as "LENGTH", "VELOCITY"
@@ -290,6 +292,9 @@ public class UnitGroup {
 		
 		UNITS_COEFFICIENT = new UnitGroup();
 		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.001)); // zero-width space
+
+		UNITS_SCALING = new UnitGroup();
+		UNITS_SCALING.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 		
 		
 		// This is not used by OpenRocket, and not extensively tested:
@@ -328,6 +333,7 @@ public class UnitGroup {
 		map.put("RELATIVE", UNITS_RELATIVE);
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
+		map.put("SCALING", UNITS_SCALING);
 		map.put("VOLTAGE", UNITS_VOLTAGE);
 		map.put("CURRENT", UNITS_CURRENT);
 		map.put("ENERGY", UNITS_ENERGY);
@@ -450,6 +456,7 @@ public class UnitGroup {
 		UNITS_RELATIVE.setDefaultUnit(1);
 		UNITS_ROUGHNESS.setDefaultUnit(0);
 		UNITS_COEFFICIENT.setDefaultUnit(0);
+		UNITS_SCALING.setDefaultUnit(0);
 		UNITS_FREQUENCY.setDefaultUnit(1);
 	}
 
