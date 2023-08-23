@@ -36,8 +36,8 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox sRGB;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
     private final DoubleModel scalingModel;
-    private final JComboBox<Axis> axialCombo;
-    private final JComboBox<Axis> forwardCombo;
+    //private final JComboBox<Axis> axialCombo;
+    //private final JComboBox<Axis> forwardCombo;
 
     private final List<RocketComponent> selectedComponents;
     private final Rocket rocket;
@@ -112,8 +112,10 @@ public class OBJOptionChooser extends JPanel {
         advancedOptionsPanel.add(LOD, "growx, wrap unrel");
 
 
+        // TODO: there were just too many bugs with the coordinate transform options, so I'm disabling them for now
+        //   future Sibo, if you want to work on this, good luck...
         //// Coordinate transformer
-        JLabel coordTransLabel = new JLabel(trans.get("OBJOptionChooser.lbl.CoordinateTransform"));
+        /*JLabel coordTransLabel = new JLabel(trans.get("OBJOptionChooser.lbl.CoordinateTransform"));
         coordTransLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.CoordinateTransform.ttip"));
         advancedOptionsPanel.add(coordTransLabel, "spanx, wrap");
 
@@ -141,7 +143,7 @@ public class OBJOptionChooser extends JPanel {
                     coordTransComboAction(e, forwardCombo);
                 }
             }
-        });
+        });*/
         // Let's just keep all the options for the axial axis, and only remove the forward axis options
         /*this.forwardCombo.addItemListener(new ItemListener() {
             @Override
@@ -198,9 +200,9 @@ public class OBJOptionChooser extends JPanel {
 
         this.LOD.setSelectedItem(opts.getLOD());
 
-        CoordTransform transformer = opts.getTransformer();
+        /*CoordTransform transformer = opts.getTransformer();
         this.axialCombo.setSelectedItem(transformer.getAxialAxis());
-        this.forwardCombo.setSelectedItem(transformer.getForwardAxis());
+        this.forwardCombo.setSelectedItem(transformer.getForwardAxis());*/
     }
 
     /**
@@ -223,10 +225,10 @@ public class OBJOptionChooser extends JPanel {
         opts.setScaling((float) scalingModel.getValue());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
 
-        CoordTransform transformer = CoordTransform.generateUsingAxialAndForwardAxes(
+        /*CoordTransform transformer = CoordTransform.generateUsingAxialAndForwardAxes(
                 (Axis) axialCombo.getSelectedItem(), (Axis) forwardCombo.getSelectedItem(),
-                rocket.getLength(), 0, 0);
-        opts.setTransformer(transformer);
+                rocket.getLength(), 0, 0);*/
+        opts.setTransformer(new DefaultCoordTransform(rocket.getLength()));
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
