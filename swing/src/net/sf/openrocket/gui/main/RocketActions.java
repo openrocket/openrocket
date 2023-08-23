@@ -1236,7 +1236,22 @@ public class RocketActions {
 		@Override
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			this.setEnabled(!components.isEmpty());
+			boolean containsMassiveComponent = containsMassiveComponent(components);
+			this.setEnabled(containsMassiveComponent);
+		}
+
+		private static boolean containsMassiveComponent(List<RocketComponent> components) {
+			for (RocketComponent component : components) {
+				if (component.isMassive()) {
+					return true;
+				}
+				for (RocketComponent child : component.getAllChildren()) {
+					if (child.isMassive()) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 	}
 
