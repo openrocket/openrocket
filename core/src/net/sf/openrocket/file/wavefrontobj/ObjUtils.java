@@ -143,7 +143,7 @@ public class ObjUtils {
      */
     public static void translateVerticesFromComponentLocation(DefaultObj obj, CoordTransform transformer,
                                                               int startIdx, int endIdx, Coordinate translation) {
-        FloatTuple translatedLoc = transformer.convertLoc(translation);
+        FloatTuple translatedLoc = transformer.convertLocWithoutOriginOffs(translation);
         ObjUtils.translateVertices(obj, startIdx, endIdx, translatedLoc.getX(), translatedLoc.getY(), translatedLoc.getZ());
     }
 

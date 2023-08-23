@@ -60,9 +60,9 @@ public class CoordTransform {
      * Create a new coordinate system converter.
      * @param axialAxis the OBJ axis that corresponds to the OpenRocket axial (x-)axis
      * @param forwardAxis the OBJ axis that corresponds to the OpenRocket forward (y-)axis
-     * @param origXOffs the x-offset of the origin of the OBJ coordinate system, <b>in the OBJ coordinate system</b>
-     * @param origYOffs the y-offset of the origin of the OBJ coordinate system, <b>in the OBJ coordinate system</b>
-     * @param origZOffs the z-offset of the origin of the OBJ coordinate system, <b>in the OBJ coordinate system</b>
+     * @param origXOffs the x-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
+     * @param origYOffs the y-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
+     * @param origZOffs the z-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      */
     public static CoordTransform generateUsingLongitudinalAndForwardAxes(Axis axialAxis, Axis forwardAxis,
                                                                          double origXOffs, double origYOffs, double origZOffs) {
@@ -79,12 +79,13 @@ public class CoordTransform {
         Axis zAxis = null;
 
         switch (axialAxis) {
-            case X -> xAxis = Axis.X;
-            case X_MIN -> xAxis = Axis.X_MIN;
-            case Y -> yAxis = Axis.X;
-            case Y_MIN -> yAxis = Axis.X_MIN;
-            case Z -> zAxis = Axis.X;
-            case Z_MIN -> zAxis = Axis.X_MIN;
+            // X-axis points from the tip to the bottom, so invert it
+            case X -> xAxis = Axis.X_MIN;
+            case X_MIN -> xAxis = Axis.X;
+            case Y -> yAxis = Axis.X_MIN;
+            case Y_MIN -> yAxis = Axis.X;
+            case Z -> zAxis = Axis.X_MIN;
+            case Z_MIN -> zAxis = Axis.X;
         }
         switch (forwardAxis) {
             case X -> xAxis = Axis.Y;
@@ -109,11 +110,7 @@ public class CoordTransform {
             throw new IllegalStateException("Axes should not be null");
         }
 
-        final double origXTrans = getTransformedOriginOffset(xAxis, origXOffs, origYOffs, origZOffs);
-        final double origYTrans = getTransformedOriginOffset(yAxis, origXOffs, origYOffs, origZOffs);
-        final double origZTrans = getTransformedOriginOffset(zAxis, origXOffs, origYOffs, origZOffs);
-
-        return new CoordTransform(xAxis, yAxis, zAxis, origXTrans, origYTrans, origZTrans);
+        return new CoordTransform(xAxis, yAxis, zAxis, origXOffs, origYOffs, origZOffs);
     }
 
 
@@ -177,6 +174,10 @@ public class CoordTransform {
      */
     public FloatTuple convertLocWithoutOriginOffs(double x, double y, double z) {
         return convertLoc(x, y, z, 0, 0, 0);
+    }
+
+    public FloatTuple convertLocWithoutOriginOffs(Coordinate coordinate) {
+        return convertLoc(coordinate.x, coordinate.y, coordinate.z, 0, 0, 0);
     }
 
     /**
