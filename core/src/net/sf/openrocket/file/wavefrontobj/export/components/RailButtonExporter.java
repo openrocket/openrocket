@@ -143,7 +143,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         // Generate the mesh vertices (no tip)
         for (int i = 1; i <= nrOfStacks-1; i++) {
             for (int j = 0; j < nrOfSlices; j++) {
-                final float theta = (float) (Math.PI / 2) - (i / (float) nrOfStacks) * (float) (Math.PI / 2); // Adjusted to start from π/2 and decrease
+                final float theta = (float) (Math.PI / 2) - (i / (float) nrOfStacks) * (float) (Math.PI / 2); // Adjusted to start from pi/2 and decrease
                 final float phi = (float) j / nrOfSlices * (float) (2.0 * Math.PI);
 
                 final float x = centerX + (screwHeight * (float) Math.cos(theta));
