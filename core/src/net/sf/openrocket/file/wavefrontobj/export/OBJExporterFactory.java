@@ -35,6 +35,8 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,6 +69,8 @@ public class OBJExporterFactory {
     private final FlightConfiguration configuration;
     private final OBJExportOptions options;
     private final File file;
+
+    private static final Logger log = LoggerFactory.getLogger(OBJExporterFactory.class);
 
     // The different exporters for each component
     private static final Map<Class<? extends RocketComponent>, ExporterFactory<?>> EXPORTER_MAP = Map.of(
@@ -188,10 +192,14 @@ public class OBJExporterFactory {
             if (options.isExportAppearance()) {
                 String mtlFilePath = FileUtils.removeExtension(filePath) + ".mtl";
                 List<DefaultMtl> mtls = materials.get(obj);
-                try (OutputStream mtlOutputStream = new FileOutputStream(mtlFilePath, false)) {
-                    DefaultMtlWriter.write(mtls, mtlOutputStream);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                if (mtls != null) {
+                    try (OutputStream mtlOutputStream = new FileOutputStream(mtlFilePath, false)) {
+                        DefaultMtlWriter.write(mtls, mtlOutputStream);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    log.debug("No materials to export for {}", filePath);
                 }
                 obj.setMtlFileNames(List.of(mtlFilePath));
             }
