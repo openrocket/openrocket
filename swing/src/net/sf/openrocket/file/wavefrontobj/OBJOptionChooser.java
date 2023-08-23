@@ -11,7 +11,6 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -23,12 +22,16 @@ import javax.swing.JToggleButton;
 import java.awt.Window;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OBJOptionChooser extends JPanel {
     private static final Translator trans = Application.getTranslator();
 
     // Widgets
+    private final JLabel componentsLabel;
     private final JCheckBox exportChildren;
     private final JCheckBox exportAppearance;
     private final JCheckBox exportAsSeparateFiles;
@@ -52,32 +55,9 @@ public class OBJOptionChooser extends JPanel {
         this.rocket = rocket;
 
         // ------------ Component selection ------------
-        final boolean singleComponent = selectedComponents.size() == 1;
-        String componentName = singleComponent ?
-                "<b>" + selectedComponents.get(0).getName() + "</b>":
-                trans.get("OBJOptionChooser.lbl.multipleComponents");
-        JLabel components = new JLabel(String.format(trans.get("OBJOptionChooser.lbl.component"),
-                componentName));
-        if (!singleComponent) {
-            StringBuilder tooltipBuilder = new StringBuilder("<html>");
-            int counter = 0;
-            for (int i = 0; i < selectedComponents.size()-1; i++) {
-                tooltipBuilder.append(selectedComponents.get(i).getName()).append(", ");
-
-                // Add line break every 4 components
-                if (counter == 4) {
-                    tooltipBuilder.append("<br>");
-                    counter = 0;
-                } else {
-                    counter++;
-                }
-            }
-            tooltipBuilder.append(selectedComponents.get(selectedComponents.size()-1).getComponentName());
-            tooltipBuilder.append("</html>");
-
-            components.setToolTipText(tooltipBuilder.toString());
-        }
-        this.add(components, "spanx, wrap");
+        componentsLabel = new JLabel();
+        updateComponentsLabel(selectedComponents);
+        this.add(componentsLabel, "spanx, wrap");
 
         this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
@@ -85,6 +65,25 @@ public class OBJOptionChooser extends JPanel {
         // ------------ Basic options ------------
         //// Export children
         this.exportChildren = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportChildren"));
+        this.exportChildren.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                List<RocketComponent> components;
+                // Case: export children
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    final Set<RocketComponent> allComponents = new HashSet<>();
+                    for (RocketComponent component : selectedComponents) {
+                        allComponents.addAll(component.getAllChildren());
+                    }
+                    components = new ArrayList<>(allComponents);
+                }
+                // Case: don't export children
+                else {
+                    components = selectedComponents;
+                }
+                updateComponentsLabel(components);
+            }
+        });
         this.add(exportChildren, "spanx, wrap");
 
         //// Remove origin offset
@@ -225,12 +224,50 @@ public class OBJOptionChooser extends JPanel {
         loadOptions(opts);
     }
 
+    private void updateComponentsLabel(List<RocketComponent> components) {
+        final String labelText;
+        final String tooltip;
+
+        final boolean isSingleComponent = components.size() == 1;
+        final String componentName = isSingleComponent ? "<b>" + components.get(0).getName() + "</b>":
+                trans.get("OBJOptionChooser.lbl.multipleComponents");
+        labelText = String.format(trans.get("OBJOptionChooser.lbl.component"), componentName);
+
+        if (!isSingleComponent) {
+            tooltip = createComponentsTooltip(components);
+        } else {
+            tooltip = "";
+        }
+
+        componentsLabel.setText(labelText);
+        componentsLabel.setToolTipText(tooltip);
+    }
+
+    private static String createComponentsTooltip(List<RocketComponent> selectedComponents) {
+        StringBuilder tooltipBuilder = new StringBuilder("<html>");
+        int counter = 0;
+        for (int i = 0; i < selectedComponents.size()-1; i++) {
+            tooltipBuilder.append(selectedComponents.get(i).getName()).append(", ");
+
+            // Add line break every 4 components
+            if (counter == 4) {
+                tooltipBuilder.append("<br>");
+                counter = 0;
+            } else {
+                counter++;
+            }
+        }
+        tooltipBuilder.append(selectedComponents.get(selectedComponents.size()-1).getComponentName());
+        tooltipBuilder.append("</html>");
+        return tooltipBuilder.toString();
+    }
+
     public void loadOptions(OBJExportOptions opts) {
         boolean onlyComponentAssemblies = isOnlyComponentAssembliesSelected(selectedComponents);
         boolean hasChildren = isComponentsHaveChildren(selectedComponents);
         if (onlyComponentAssemblies || !hasChildren) {
-            exportChildren.setEnabled(false);
             exportChildren.setSelected(true);
+            exportChildren.setEnabled(false);
             if (onlyComponentAssemblies) {
                 exportChildren.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportChildren.assemblies.ttip"));
             } else {
