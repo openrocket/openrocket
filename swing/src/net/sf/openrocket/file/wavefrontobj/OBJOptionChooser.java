@@ -50,6 +50,37 @@ public class OBJOptionChooser extends JPanel {
         this.selectedComponents = selectedComponents;
         this.rocket = rocket;
 
+        // ------------ Component selection ------------
+        final boolean singleComponent = selectedComponents.size() == 1;
+        String componentName = singleComponent ?
+                "<b>" + selectedComponents.get(0).getName() + "</b>":
+                trans.get("OBJOptionChooser.lbl.multipleComponents");
+        JLabel components = new JLabel(String.format(trans.get("OBJOptionChooser.lbl.component"),
+                componentName));
+        if (!singleComponent) {
+            StringBuilder tooltipBuilder = new StringBuilder("<html>");
+            int counter = 0;
+            for (int i = 0; i < selectedComponents.size()-1; i++) {
+                tooltipBuilder.append(selectedComponents.get(i).getName()).append(", ");
+
+                // Add line break every 4 components
+                if (counter == 4) {
+                    tooltipBuilder.append("<br>");
+                    counter = 0;
+                } else {
+                    counter++;
+                }
+            }
+            tooltipBuilder.append(selectedComponents.get(selectedComponents.size()-1).getComponentName());
+            tooltipBuilder.append("</html>");
+
+            components.setToolTipText(tooltipBuilder.toString());
+        }
+        this.add(components, "spanx, wrap");
+
+        this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
+
+
         // ------------ Basic options ------------
         //// Export children
         this.exportChildren = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportChildren"));
@@ -78,12 +109,11 @@ public class OBJOptionChooser extends JPanel {
         JSpinner spin = new JSpinner(scalingModel.getSpinnerModel());
         spin.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
         spin.setEditor(new SpinnerEditor(spin, 5));
-        this.add(spin, "wrap para");
+        this.add(spin, "wrap");
 
+        this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
         // ------------ Advanced options ------------
-        this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
-
         // Show advanced options toggle
         JToggleButton advancedToggle = new JToggleButton(trans.get("OBJOptionChooser.btn.showAdvanced"));
         this.add(advancedToggle, "spanx, wrap para");
