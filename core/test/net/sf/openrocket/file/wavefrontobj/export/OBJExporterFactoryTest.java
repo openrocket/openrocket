@@ -164,7 +164,6 @@ public class OBJExporterFactoryTest {
         OBJExportOptions options = new OBJExportOptions(rocket);
         options.setScaling(30);
         options.setExportChildren(true);
-        options.setExportAppearance(true);
         options.setRemoveOffset(true);
         OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options);
         exporterFactory.doExport();
@@ -177,6 +176,7 @@ public class OBJExporterFactoryTest {
 
         options.setTriangulate(true);
         options.setRemoveOffset(false);
+        options.setExportAppearance(true);
         options.setScaling(1000);
         options.setLOD(ObjUtils.LevelOfDetail.LOW_QUALITY);
 
