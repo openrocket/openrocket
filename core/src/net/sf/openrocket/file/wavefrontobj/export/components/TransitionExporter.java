@@ -85,10 +85,10 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
             // Draw bottom and top face
             if (!hasForeShoulder)  {
-                closeFace(insideForeRingVertices, outsideForeRingVertices, true);
+                closeFace(outsideForeRingVertices, insideForeRingVertices, true);
             }
             if (!hasAftShoulder) {
-                closeFace(insideAftRingVertices, outsideAftRingVertices, false);
+                closeFace(outsideAftRingVertices, insideAftRingVertices, false);
             }
 
         }
@@ -359,8 +359,12 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             //// We need special nx normal when the radius changes
             float nx;
             if (Double.compare(r, rNext) != 0) {
-                final double slopeAngle = Math.atan(Math.abs(xNext - x) / (rNext - r));
-                nx = (float) Math.cos(Math.PI - slopeAngle);
+                final double slopeAngle = Math.atan((xNext - x) / (rNext - r));
+                if (rNext > r) {
+                    nx = (float) -Math.cos(slopeAngle);
+                } else {
+                    nx = (float) Math.cos(slopeAngle);
+                }
             } else {
                 nx = 0;
             }
