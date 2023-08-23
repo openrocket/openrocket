@@ -223,7 +223,7 @@ public class OBJOptionChooser extends JPanel {
         opts.setScaling((float) scalingModel.getValue());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
 
-        CoordTransform transformer = CoordTransform.generateUsingLongitudinalAndForwardAxes(
+        CoordTransform transformer = CoordTransform.generateUsingAxialAndForwardAxes(
                 (Axis) axialCombo.getSelectedItem(), (Axis) forwardCombo.getSelectedItem(),
                 rocket.getLength(), 0, 0);
         opts.setTransformer(transformer);

@@ -64,8 +64,8 @@ public class CoordTransform {
      * @param origYOffs the y-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      * @param origZOffs the z-offset of the origin of the OBJ coordinate system, <b>in the OpenRocket coordinate system</b>
      */
-    public static CoordTransform generateUsingLongitudinalAndForwardAxes(Axis axialAxis, Axis forwardAxis,
-                                                                         double origXOffs, double origYOffs, double origZOffs) {
+    public static CoordTransform generateUsingAxialAndForwardAxes(Axis axialAxis, Axis forwardAxis,
+                                                                  double origXOffs, double origYOffs, double origZOffs) {
         if (axialAxis == null || forwardAxis == null) {
             throw new IllegalArgumentException("Axes cannot be null");
         }
@@ -73,6 +73,8 @@ public class CoordTransform {
         if (axialAxis.isSameAxis(forwardAxis)) {
             throw new IllegalArgumentException("Axes must be different");
         }
+
+        Axis depthAxis = Axis.getThirdAxis(axialAxis, forwardAxis);
 
         Axis xAxis = null;
         Axis yAxis = null;
@@ -96,14 +98,15 @@ public class CoordTransform {
             case Z_MIN -> zAxis = Axis.Y_MIN;
         }
 
-        Axis depthAxis = Axis.getThirdAxis(axialAxis, forwardAxis);
+
         switch (depthAxis) {
-            case X -> xAxis = Axis.Z;
-            case X_MIN -> xAxis = Axis.Z_MIN;
-            case Y -> yAxis = Axis.Z;
-            case Y_MIN -> yAxis = Axis.Z_MIN;
-            case Z -> zAxis = Axis.Z;
-            case Z_MIN -> zAxis = Axis.Z_MIN;
+            // OpenRocket uses left-handed coordinate system, so invert the axis
+            case X -> xAxis = Axis.Z_MIN;
+            case X_MIN -> xAxis = Axis.Z;
+            case Y -> yAxis = Axis.Z_MIN;
+            case Y_MIN -> yAxis = Axis.Z;
+            case Z -> zAxis = Axis.Z_MIN;
+            case Z_MIN -> zAxis = Axis.Z;
         }
 
         if (xAxis == null || yAxis == null || zAxis == null) {
