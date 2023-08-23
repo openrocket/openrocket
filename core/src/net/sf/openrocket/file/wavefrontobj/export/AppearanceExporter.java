@@ -67,8 +67,6 @@ public class AppearanceExporter {
         applyTexture(appearance, material);
 
         materials.add(material);
-
-        // TODO: default back to default material?
     }
 
     private void applyTexture(Appearance appearance, DefaultMtl material) {

@@ -141,6 +141,8 @@ public final class DefaultObj implements Obj {
 
     private final FloatTupleBounds vertexBounds;
 
+    private static final String BLANK_MATERIAL = "___blank___";
+
     /**
      * Creates a new, empty DefaultObj.
      */
@@ -413,6 +415,10 @@ public final class DefaultObj implements Obj {
             return;
         }
         nextActiveMaterialGroupName = materialGroupName;
+    }
+
+    public void resetToBlankMaterial() {
+        setActiveMaterialGroupName(BLANK_MATERIAL);
     }
 
     @Override

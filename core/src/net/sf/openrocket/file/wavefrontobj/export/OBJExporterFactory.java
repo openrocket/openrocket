@@ -206,6 +206,11 @@ public class OBJExporterFactory {
 
             // Write the OBJ file
             writeObj(obj, filePath);
+
+            // Reset the material
+            if (options.isExportAppearance()) {
+                obj.resetToBlankMaterial();
+            }
         }
     }
 
