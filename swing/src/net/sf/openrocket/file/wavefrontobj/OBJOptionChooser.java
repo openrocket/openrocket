@@ -11,6 +11,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -226,10 +227,15 @@ public class OBJOptionChooser extends JPanel {
 
     public void loadOptions(OBJExportOptions opts) {
         boolean onlyComponentAssemblies = isOnlyComponentAssembliesSelected(selectedComponents);
-        if (onlyComponentAssemblies) {
+        boolean hasChildren = isComponentsHaveChildren(selectedComponents);
+        if (onlyComponentAssemblies || !hasChildren) {
             exportChildren.setEnabled(false);
             exportChildren.setSelected(true);
-            exportChildren.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportChildren.assemblies.ttip"));
+            if (onlyComponentAssemblies) {
+                exportChildren.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportChildren.assemblies.ttip"));
+            } else {
+                exportChildren.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportChildren.noChildren.ttip"));
+            }
         } else {
             exportChildren.setEnabled(true);
             exportChildren.setSelected(opts.isExportChildren());
@@ -278,14 +284,21 @@ public class OBJOptionChooser extends JPanel {
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
-        boolean onlyComponentAssemblies = true;
         for (RocketComponent component : selectedComponents) {
             if (!(component instanceof ComponentAssembly)) {
-                onlyComponentAssemblies = false;
-                break;
+                return false;
             }
         }
-        return onlyComponentAssemblies;
+        return true;
+    }
+
+    private static boolean isComponentsHaveChildren(List<RocketComponent> selectedComponents) {
+        for (RocketComponent component : selectedComponents) {
+            if (component.getChildCount() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void coordTransComboAction(ItemEvent e, JComboBox<Axis> otherCombo) {
