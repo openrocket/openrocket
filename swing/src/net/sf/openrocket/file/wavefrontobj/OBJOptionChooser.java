@@ -102,6 +102,22 @@ public class OBJOptionChooser extends JPanel {
         this.triangulate = new JCheckBox(trans.get("OBJOptionChooser.checkbox.triangulate"));
         this.triangulate.setToolTipText(trans.get("OBJOptionChooser.checkbox.triangulate.ttip"));
         advancedOptionsPanel.add(triangulate, "spanx, wrap");
+        this.triangulate.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    // Disable the export appearance, it is not supported in combination with triangulate
+                    exportAppearance.setEnabled(false);
+                    exportAppearance.setSelected(false);
+                    exportAppearance.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAppearance.ttip.triangulate"));
+                } else {
+                    // Re-enable
+                    exportAppearance.setEnabled(true);
+                    exportAppearance.setSelected(opts.isExportAppearance());
+                    exportAppearance.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAppearance.ttip"));
+                }
+            }
+        });
 
         //// Level of detail
         JLabel LODLabel = new JLabel(trans.get("OBJOptionChooser.lbl.LevelOfDetail"));
