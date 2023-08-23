@@ -239,7 +239,8 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 } else {
                     // Check on which ring we are
                     isForeRing = actualNumStacks == 0 && foreRingVertices.isEmpty();
-                    isAftRing = Float.compare(x, (float) component.getLength()) == 0 || Float.compare(x, (float) xAftShoulder) >= 0;
+                    isAftRing = Float.compare(x, (float) component.getLength()) == 0 ||
+                            (hasAftShoulder && !isOutside && Float.compare(x, (float) xAftShoulder) >= 0);
 
                     // Case 5: Add normal vertices
                     addQuadVertices(numSides, foreRingVertices, aftRingVertices, r, rNext, x, xNext, isForeRing, isAftRing, isOutside);
