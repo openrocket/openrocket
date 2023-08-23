@@ -529,7 +529,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
     private void closeFace(List<Integer> outerVertices, List<Integer> innerVertices, boolean isTopFace) {
         boolean filledCap = component.isFilled() || innerVertices.size() <= 1;
-        DiskExporter.closeDiskMesh(obj, transformer, null, outerVertices, filledCap ? null : innerVertices, true, isTopFace);
+        DiskExporter.closeDiskMesh(obj, transformer, null, outerVertices, filledCap ? null : innerVertices, false, isTopFace);
     }
 
     /**
