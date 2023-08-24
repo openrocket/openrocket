@@ -88,10 +88,12 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
             List<String> separators = new ArrayList<>();
             int lastEnd = 0;
             for (int i = 0; i < foundKeys.size() - 1; i++) {
-                int startOfNextKey = tagContent.indexOf(foundKeys.get(i + 1), lastEnd);
-                String separator = tagContent.substring(lastEnd + foundKeys.get(i).length(), startOfNextKey);
+                int startOfThisKey = tagContent.indexOf(foundKeys.get(i), lastEnd);
+                int endOfThisKey = startOfThisKey + foundKeys.get(i).length();
+                int startOfNextKey = tagContent.indexOf(foundKeys.get(i + 1), endOfThisKey);
+                String separator = tagContent.substring(endOfThisKey, startOfNextKey);
                 separators.add(separator);
-                lastEnd = startOfNextKey + foundKeys.get(i + 1).length();
+                lastEnd = startOfNextKey;
             }
 
             // Continue with the original function
