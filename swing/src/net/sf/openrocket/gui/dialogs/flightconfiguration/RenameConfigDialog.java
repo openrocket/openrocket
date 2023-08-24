@@ -46,17 +46,17 @@ public class RenameConfigDialog extends JDialog {
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(okButton, "growx");
+		panel.add(okButton);
 		
-		JButton renameToDefaultButton = new SelectColorButton(trans.get("RenameConfigDialog.but.reset"));
-		renameToDefaultButton.addActionListener(new ActionListener() {
+		JButton resetToDefaultButton = new SelectColorButton(trans.get("RenameConfigDialog.but.reset"));
+		resetToDefaultButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				rocket.getFlightConfiguration(fcid).setName(null);
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(renameToDefaultButton, "growx");
+		panel.add(resetToDefaultButton);
 		
 		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
@@ -65,11 +65,12 @@ public class RenameConfigDialog extends JDialog {
 				RenameConfigDialog.this.setVisible(false);
 			}
 		});
-		panel.add(cancel, "growx, wrap para");
+		panel.add(cancel, "wrap para");
 
 		// {motors} & {manufacturers} info
 		String text = "<html>" + CommonStrings.dagger + " " + trans.get("RenameConfigDialog.lbl.infoMotors")
 				+ trans.get("RenameConfigDialog.lbl.infoManufacturers")
+				+ trans.get("RenameConfigDialog.lbl.infoCases")
 				+ trans.get("RenameConfigDialog.lbl.infoCombination");
 		StyledLabel info = new StyledLabel(text, -2);
 		info.setFontColor(GUIUtil.getUITheme().getDimTextColor());
