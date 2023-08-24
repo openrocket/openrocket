@@ -601,7 +601,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		selected.setName("[{cases}]");
 
 		selected.setAllStages();
-		assertEquals("[[Rocket.motorCount.noStageMotors]; SU 75/512; 4×SU 29/180]", selected.getName());
+		assertEquals("[[Rocket.motorCount.noStageMotors]; SU 75/512; 4\u00D7SU 29/180]", selected.getName());
 
 		// Test only motors or only manufacturers
 		selected.setName("[{motors}] - [{manufacturers}]");
@@ -656,7 +656,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		selected.setName("[{motors manufacturers | cases}]");
 
 		selected.setAllStages();
-		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4×G77-0 AeroTech | SU 29/180]", selected.getName());
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]", selected.getName());
 
 		// Test empty tags
 		selected.setName("{}");
