@@ -26,8 +26,9 @@ import java.util.regex.Pattern;
  * General substitutor for motor configurations. This currently includes substitutions for
  *  - {motors} - the motor designation (e.g. "M1350-0")
  *  - {manufacturers} - the motor manufacturer (e.g. "AeroTech")
- *  - a combination of motors and manufacturers, e.g. {motors manufacturers} -> "M1350-0 AeroTech"
- *      You can choose which comes first is. E.g. {manufacturers motors} -> "AeroTech M1350-0".
+ *  - {cases} - the motor case (e.g. "SU 18.0x70.0")
+ *  - a combination of motors and manufacturers, e.g. {motors | manufacturers} -> "M1350-0 | AeroTech"
+ *      You can choose which comes first and what the separator is. E.g. {manufacturers, motors} -> "AeroTech, M1350-0".
  *
  * <p>
  * This substitutor is added through injection. All substitutors with the "@Plugin" tag in the formatting package will
@@ -75,10 +76,27 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
 
         while (matcher.find()) {
             String tagContent = matcher.group(1).trim();
-            String[] keys = tagContent.split("\\s");
 
+            // Step 1: Find the keys
+            List<String> foundKeys = new ArrayList<>();
+            Matcher keyMatcher = Pattern.compile("\\b(" + String.join("|", SUBSTITUTIONS.keySet()) + ")\\b").matcher(tagContent);
+            while (keyMatcher.find()) {
+                foundKeys.add(keyMatcher.group());
+            }
+
+            // Step 2: Extracting the separators
+            List<String> separators = new ArrayList<>();
+            int lastEnd = 0;
+            for (int i = 0; i < foundKeys.size() - 1; i++) {
+                int startOfNextKey = tagContent.indexOf(foundKeys.get(i + 1), lastEnd);
+                String separator = tagContent.substring(lastEnd + foundKeys.get(i).length(), startOfNextKey);
+                separators.add(separator);
+                lastEnd = startOfNextKey + foundKeys.get(i + 1).length();
+            }
+
+            // Continue with the original function
             List<Map<AxialStage, List<String>>> stageSubstitutes = new ArrayList<>();
-            for (String key : keys) {
+            for (String key : foundKeys) {
                 if (SUBSTITUTIONS.containsKey(key)) {
                     Map<AxialStage, List<String>> sub = SUBSTITUTIONS.get(key).substitute(rocket, configId);
                     stageSubstitutes.add(sub);
@@ -86,7 +104,8 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
             }
 
             FlightConfiguration config = rocket.getFlightConfiguration(configId);
-            List<String> combinations = combineSubstitutesForStages(rocket, config, stageSubstitutes, " ");
+            // Use the extracted separators instead of a single space
+            List<String> combinations = combineSubstitutesForStages(rocket, config, stageSubstitutes, separators);
 
             String combined = String.join("; ", combinations);
             matcher.appendReplacement(resultBuffer, Matcher.quoteReplacement(combined));
@@ -98,7 +117,7 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
     }
 
     private List<String> combineSubstitutesForStages(Rocket rocket, FlightConfiguration config,
-                                                     List<Map<AxialStage, List<String>>> stageSubstitutes, String separator) {
+                                                     List<Map<AxialStage, List<String>>> stageSubstitutes, List<String> separators) {
         List<String> combinations = new ArrayList<>();
 
         // Parse through all the stages to get the final configuration string
@@ -110,6 +129,7 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
 
             StringBuilder sbStageSub = new StringBuilder();
             // Parse through all the substitutes (motors, manufacturers, etc.) for each stage to build a combined stage substitution
+            int idx = 0;
             for (Map<AxialStage, List<String>> substituteMap : stageSubstitutes) {
                 List<String> substitutes = substituteMap.get(stage);
                 if (substitutes == null || substitutes.isEmpty()) {
@@ -117,13 +137,15 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
                 }
 
                 // If this is not the first substitute, add a separator between the different substitutes (motor, manufacturer, etc.)
-                if (!sbStageSub.isEmpty()) {
-                    sbStageSub.append(separator);
+                if (!sbStageSub.isEmpty() && idx > 0) {
+                    sbStageSub.append(separators.get(idx - 1));
                 }
 
                 // Create a final substitute for this sub tag from the list of substitutes
                 String finalSubstitute = getFinalSubstitute(substitutes, sbStageSub);
                 sbStageSub.append(finalSubstitute);
+
+                idx++;
             }
 
             if (sbStageSub.isEmpty()) {
