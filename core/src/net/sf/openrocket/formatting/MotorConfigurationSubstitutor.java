@@ -12,11 +12,11 @@ import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Chars;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
  * General substitutor for motor configurations. This currently includes substitutions for
  *  - {motors} - the motor designation (e.g. "M1350-0")
  *  - {manufacturers} - the motor manufacturer (e.g. "AeroTech")
- *  - a combination of motors and manufacturers, e.g. {motors | manufacturers} -> "M1350-0 | AeroTech"
- *      You can choose which comes first and what the separator is. E.g. {manufacturers, motors} -> "AeroTech, M1350-0".
+ *  - a combination of motors and manufacturers, e.g. {motors manufacturers} -> "M1350-0 AeroTech"
+ *      You can choose which comes first is. E.g. {manufacturers motors} -> "AeroTech M1350-0".
  *
  * <p>
  * This substitutor is added through injection. All substitutors with the "@Plugin" tag in the formatting package will
@@ -35,217 +35,250 @@ import java.util.regex.Pattern;
  */
 @Plugin
 public class MotorConfigurationSubstitutor implements RocketSubstitutor {
-    public static final String SUBSTITUTION_START = "{";
-    public static final String SUBSTITUTION_END = "}";
-    public static final String SUBSTITUTION_MOTORS = "motors";
-    public static final String SUBSTITUTION_MANUFACTURERS = "manufacturers";
+    // Substitution start and end
+    public static final String SUB_START = "{";
+    public static final String SUB_END = "}";
 
-    // Substitutions for combinations of motors and manufacturers
-    private static final String SUBSTITUTION_PATTERN = "\\" + SUBSTITUTION_START +
-            "(" + SUBSTITUTION_MOTORS + "|" + SUBSTITUTION_MANUFACTURERS + ")" +
-            "(.*?)" +
-            "(" + SUBSTITUTION_MOTORS + "|" + SUBSTITUTION_MANUFACTURERS + ")" +
-            "\\" + SUBSTITUTION_END;
+    // Map containing substitution words and their corresponding replacement strings.
+    private static final Map<String, Substitutor> SUBSTITUTIONS = new HashMap<>();
+
+    static {
+        SUBSTITUTIONS.put("motors", new MotorSubstitutor());
+        SUBSTITUTIONS.put("manufacturers", new ManufacturerSubstitutor());
+        SUBSTITUTIONS.put("cases", new CaseSubstitutor());
+    }
 
     @Inject
     private Translator trans;
 
     @Override
     public boolean containsSubstitution(String input) {
-        return getSubstitutionContent(input) != null;
+        Pattern pattern = Pattern.compile("\\" + SUB_START + "(.*?[^\\s])\\" + SUB_END);  // ensures non-whitespace content
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            String tagContent = matcher.group(1).trim();
+            for (String key : SUBSTITUTIONS.keySet()) {
+                if (tagContent.contains(key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     public String substitute(String input, Rocket rocket, FlightConfigurationId configId) {
-        String description = getConfigurationSubstitution(input, rocket, configId);
-        String substitutionString = getSubstiutionString(input);
-        if (substitutionString != null) {
-            return input.replace(substitutionString, description);
+        Pattern pattern = Pattern.compile("\\" + SUB_START + "(.*?)\\" + SUB_END);
+        Matcher matcher = pattern.matcher(input);
+        StringBuilder resultBuffer = new StringBuilder();
+
+        while (matcher.find()) {
+            String tagContent = matcher.group(1).trim();
+            String[] keys = tagContent.split("\\s");
+
+            List<Map<AxialStage, List<String>>> stageSubstitutes = new ArrayList<>();
+            for (String key : keys) {
+                if (SUBSTITUTIONS.containsKey(key)) {
+                    Map<AxialStage, List<String>> sub = SUBSTITUTIONS.get(key).substitute(rocket, configId);
+                    stageSubstitutes.add(sub);
+                }
+            }
+
+            FlightConfiguration config = rocket.getFlightConfiguration(configId);
+            List<String> combinations = combineSubstitutesForStages(rocket, config, stageSubstitutes, " ");
+
+            String combined = String.join("; ", combinations);
+            matcher.appendReplacement(resultBuffer, Matcher.quoteReplacement(combined));
         }
-        return input;
+
+        matcher.appendTail(resultBuffer);
+
+        return resultBuffer.toString();
     }
+
+    private List<String> combineSubstitutesForStages(Rocket rocket, FlightConfiguration config,
+                                                     List<Map<AxialStage, List<String>>> stageSubstitutes, String separator) {
+        List<String> combinations = new ArrayList<>();
+
+        // Parse through all the stages to get the final configuration string
+        for (AxialStage stage : rocket.getStageList()) {
+            if (!config.isStageActive(stage.getStageNumber())) {
+                combinations.add("");
+                continue;
+            }
+
+            StringBuilder sbStageSub = new StringBuilder();
+            // Parse through all the substitutes (motors, manufacturers, etc.) for each stage to build a combined stage substitution
+            for (Map<AxialStage, List<String>> substituteMap : stageSubstitutes) {
+                List<String> substitutes = substituteMap.get(stage);
+                if (substitutes == null || substitutes.isEmpty()) {
+                    continue;
+                }
+
+                // If this is not the first substitute, add a separator between the different substitutes (motor, manufacturer, etc.)
+                if (!sbStageSub.isEmpty()) {
+                    sbStageSub.append(separator);
+                }
+
+                // Create a final substitute for this sub tag from the list of substitutes
+                String finalSubstitute = getFinalSubstitute(substitutes, sbStageSub);
+                sbStageSub.append(finalSubstitute);
+            }
+
+            if (sbStageSub.isEmpty()) {
+                sbStageSub.append(trans.get("Rocket.motorCount.noStageMotors"));
+            }
+            combinations.add(sbStageSub.toString());
+        }
+
+        // Check if all the stages are empty
+        boolean onlyEmpty = true;
+        for (String s : combinations) {
+            if (!s.isEmpty() && !s.equals(trans.get("Rocket.motorCount.noStageMotors"))) {
+                onlyEmpty = false;
+                break;
+            }
+        }
+
+        // If all the stages are empty, return a single "No motors" string
+        if (combinations.isEmpty() || onlyEmpty) {
+            return Collections.singletonList(trans.get("Rocket.motorCount.Nomotor"));
+        }
+
+        return combinations;
+    }
+
+    private static String getFinalSubstitute(List<String> substitutes, StringBuilder sbStageSub) {
+        if (substitutes.size() == 1 || !sbStageSub.isEmpty()) {
+            return substitutes.get(0);
+        }
+
+        // Change multiple occurrences of a configuration to 'n x configuration'
+        String stageName = "";
+        String previous = null;
+        int count = 0;
+
+        Collections.sort(substitutes);
+        for (String current : substitutes) {
+            if (current.isEmpty()) {
+                continue;
+            }
+            if (current.equals(previous)) {
+                count++;
+            } else {
+                if (previous != null) {
+                    String s = count > 1 ? count + Chars.TIMES + previous : previous;
+                    stageName = stageName.isEmpty() ? s : stageName + "," + s;
+                }
+
+                previous = current;
+                count = 1;
+            }
+        }
+
+        if (previous != null) {
+            String s = count > 1 ? "" + count + Chars.TIMES + previous : previous;
+            stageName = stageName.isEmpty() ? s : stageName + "," + s;
+        }
+
+        return stageName;
+    }
+
 
     @Override
     public Map<String, String> getDescriptions() {
         return null;
     }
 
-    public String getConfigurationSubstitution(String input, Rocket rocket, FlightConfigurationId fcid) {
-        StringBuilder configurations = new StringBuilder();
-        int motorCount = 0;
+    private interface Substitutor {
+        /**
+         * Generates a string to substitute a certain substitutor word with.
+         * @param rocket The used rocket
+         * @param fcid The flight configuration id
+         * @return A list of strings to substitute the substitutor word with for each stage
+         */
+        Map<AxialStage, List<String>> substitute(Rocket rocket, FlightConfigurationId fcid);
+    }
 
-        // Iterate over each stage and store the manufacturer of each motor
-        List<List<String>> list = new ArrayList<>();
-        List<String> currentList = new ArrayList<>();
+    public abstract static class BaseSubstitutor implements Substitutor {
 
-        String[] content = getSubstitutionContent(input);
-        if (content == null) {
+        protected abstract String getData(Motor motor, MotorConfiguration motorConfig);
+
+        @Override
+        public Map<AxialStage, List<String>> substitute(Rocket rocket, FlightConfigurationId fcid) {
+            List<String> dataList;                              // Data for one stage. Is a list because multiple motors per stage are possible
+            Map<AxialStage, List<String>> stageMap = new HashMap<>();   // Data for all stages
+
+            FlightConfiguration config = rocket.getFlightConfiguration(fcid);
+
+            for (AxialStage stage : rocket.getStageList()) {
+                if (config.isStageActive(stage.getStageNumber())) {
+                    dataList = new ArrayList<>();
+                    stageMap.put(stage, dataList);
+                } else {
+                    stageMap.put(stage, null);
+                    continue;
+                }
+
+                for (RocketComponent child : stage.getAllChildren()) {
+                    // If the child is nested inside another stage (e.g. booster), skip it
+                    // Plus other conditions :) But I'm not gonna bore you with those details. The goal
+                    // of code documentation is to not waste a programmers time by making them read too
+                    // much text when you can word something in a more concise way. I think I've done that
+                    // here. I think I have succeeded. Yes. Anyway, have a good day reader!
+                    if (child.getStage() != stage || !(child instanceof MotorMount mount) || !mount.isMotorMount()) {
+                        continue;
+                    }
+
+                    MotorConfiguration inst = mount.getMotorConfig(fcid);
+                    Motor motor = inst.getMotor();
+
+                    // Mount has no motor
+                    if (motor == null) {
+                        dataList.add("");
+                        continue;
+                    }
+
+                    // Get the data for this substitutor word
+                    String data = getData(motor, inst);
+
+                    // Add the data for each motor instance
+                    for (int i = 0; i < mount.getMotorCount(); i++) {
+                        dataList.add(data);
+                    }
+                }
+            }
+
+            return stageMap;
+        }
+    }
+
+    private static class MotorSubstitutor extends BaseSubstitutor {
+        @Override
+        protected String getData(Motor motor, MotorConfiguration motorConfig) {
+            return motor.getMotorName(motorConfig.getEjectionDelay());
+        }
+    }
+
+    private static class ManufacturerSubstitutor extends BaseSubstitutor {
+        @Override
+        protected String getData(Motor motor, MotorConfiguration motorConfig) {
+            if (motor instanceof ThrustCurveMotor) {
+                return ((ThrustCurveMotor) motor).getManufacturer().getDisplayName();
+            }
             return "";
         }
-
-        FlightConfiguration config = rocket.getFlightConfiguration(fcid);
-        for (RocketComponent c : rocket) {
-            if (c instanceof AxialStage) {
-                currentList = new ArrayList<>();
-                list.add(currentList);
-            } else if (c instanceof MotorMount) {
-                MotorMount mount = (MotorMount) c;
-                MotorConfiguration inst = mount.getMotorConfig(fcid);
-                Motor motor = inst.getMotor();
-
-                if (mount.isMotorMount() && config.isComponentActive(mount) && (motor != null)) {
-                    String motorDesignation = motor.getMotorName(inst.getEjectionDelay());
-                    String manufacturer = "";
-                    if (motor instanceof ThrustCurveMotor) {
-                        manufacturer = ((ThrustCurveMotor) motor).getManufacturer().getDisplayName();
-                    }
-
-                    for (int i = 0; i < mount.getMotorCount(); i++) {
-                        if (content.length == 2) {
-                            if (SUBSTITUTION_MOTORS.equals(content[1])) {
-                                currentList.add(motorDesignation);
-                            } else if (SUBSTITUTION_MANUFACTURERS.equals(content[1])) {
-                                currentList.add(manufacturer);
-                            } else {
-                                continue;
-                            }
-                        } else if (content.length == 4) {
-                            String configString;
-                            if (content[1].equals(SUBSTITUTION_MOTORS)) {
-                                configString = motorDesignation;
-                            } else if (content[1].equals(SUBSTITUTION_MANUFACTURERS)) {
-                                configString = manufacturer;
-                            } else {
-                                continue;
-                            }
-                            configString += content[2];
-                            if (content[3].equals(SUBSTITUTION_MOTORS)) {
-                                configString += motorDesignation;
-                            } else if (content[3].equals(SUBSTITUTION_MANUFACTURERS)) {
-                                configString += manufacturer;
-                            } else {
-                                continue;
-                            }
-                            currentList.add(configString);
-                        } else {
-                            continue;
-                        }
-                        motorCount++;
-                    }
-                }
-            }
-        }
-
-        if (motorCount == 0) {
-            return trans.get("Rocket.motorCount.Nomotor");
-        }
-
-        // Change multiple occurrences of a motor to n x motor
-        List<String> stages = new ArrayList<>();
-        for (List<String> stage : list) {
-            String stageName = "";
-            String previous = null;
-            int count = 0;
-
-            Collections.sort(stage);
-            for (String current : stage) {
-                if (current.equals(previous)) {
-                    count++;
-                } else {
-                    if (previous != null) {
-                        String s = count > 1 ? count + Chars.TIMES + previous : previous;
-                        stageName = stageName.equals("") ? s : stageName + "," + s;
-                    }
-
-                    previous = current;
-                    count = 1;
-                }
-            }
-
-            if (previous != null) {
-                String s = count > 1 ? "" + count + Chars.TIMES + previous : previous;
-                stageName = stageName.equals("") ? s : stageName + "," + s;
-            }
-
-            stages.add(stageName);
-        }
-
-        for (int i = 0; i < stages.size(); i++) {
-            String s = stages.get(i);
-            if (s.equals("") && config.isStageActive(i)) {
-                s = trans.get("Rocket.motorCount.noStageMotors");
-            }
-
-            configurations.append(i == 0 ? s : "; " + s);
-        }
-
-        return configurations.toString();
     }
 
-    /**
-     * Returns which string in input should be replaced, or null if no text needs to be replaced.
-     * @param input The input string
-     * @return The string to replace, or null if no text needs to be replaced.
-     */
-    private static String getSubstiutionString(String input) {
-        String[] content = getSubstitutionContent(input);
-        if (content != null) {
-            return content[0];
-        }
-        return null;
-    }
-
-    /**
-     * Fills in the content of the substitution tag and the separator.
-     * If there are both a motor and a manufacturer substitution tag, the array will contain the following:
-     *  [0] = The full tag, including substitution start and end
-     *  [1] = The motor/manufacturer substitution tag, depending on which one was found first.
-     *  if there are two substitution tags, the array will also contain the following:
-     *  ([2] = The separator)
-     *  ([3] = The motor/manufacturer substitution tag, depending on which one was found first.)
-     * @param input The input string
-     * @return The content of the substitution tag and the separator, or null if no text needs to be replaced.
-     */
-    private static String[] getSubstitutionContent(String input) {
-        // First try with only the motors tag
-        String pattern = "\\" + SUBSTITUTION_START + "(" + SUBSTITUTION_MOTORS + ")" + "\\" + SUBSTITUTION_END;
-        Pattern regexPattern = Pattern.compile(pattern);
-        Matcher matcher = regexPattern.matcher(input);
-        if (matcher.find()) {
-            String[] content = new String[2];
-            content[0] = matcher.group(0);
-            content[1] = matcher.group(1);
-            return content;
-        }
-        // First try with only the manufacturers tag
-        pattern = "\\" + SUBSTITUTION_START + "(" + SUBSTITUTION_MANUFACTURERS + ")" + "\\" + SUBSTITUTION_END;
-        regexPattern = Pattern.compile(pattern);
-        matcher = regexPattern.matcher(input);
-        if (matcher.find()) {
-            String[] content = new String[2];
-            content[0] = matcher.group(0);
-            content[1] = matcher.group(1);
-            return content;
-        }
-
-        // Then try combined patterns
-        pattern = SUBSTITUTION_PATTERN;
-        regexPattern = Pattern.compile(pattern);
-        matcher = regexPattern.matcher(input);
-        if (matcher.find()) {
-            String[] content = new String[4];
-            content[0] = matcher.group(0);
-            content[1] = matcher.group(1);
-            if (matcher.groupCount() >= 3) {
-                content[2] = matcher.group(2);
-                content[3] = matcher.group(3);
-                for (int i = 4; i < matcher.groupCount(); i++) {
-                    content[3] += matcher.group(i);
-                }
+    private static class CaseSubstitutor extends BaseSubstitutor {
+        @Override
+        protected String getData(Motor motor, MotorConfiguration motorConfig) {
+            if (motor instanceof ThrustCurveMotor) {
+                return ((ThrustCurveMotor) motor).getCaseInfo();
             }
-            return content;
+            return "";
         }
-        return null;
     }
 }
 
