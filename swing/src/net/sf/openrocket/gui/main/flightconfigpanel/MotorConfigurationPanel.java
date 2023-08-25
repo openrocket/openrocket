@@ -28,6 +28,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
@@ -49,7 +50,7 @@ import net.sf.openrocket.util.Chars;
 
 @SuppressWarnings("serial")
 public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount> {
-	
+
 	private static final String NONE = trans.get("edtmotorconfdlg.tbl.None");
 
 	private final JButton selectMotorButton, deleteMotorButton, selectIgnitionButton, resetIgnitionButton;
@@ -64,8 +65,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	public MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(flightConfigurationPanel, rocket);
+	public MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
+		super(flightConfigurationPanel, document, rocket);
 
 		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
 
@@ -306,6 +307,9 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
         double initDelay = initMount.getMotorConfig(initFcId).getEjectionDelay();
 
+		document.addUndoPosition("Select motor");
+
+		// Open the motor chooser dialog
 		motorChooserDialog.setMotorMountAndConfig(initFcId, initMount);
 		motorChooserDialog.open();
 
@@ -343,6 +347,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
             return;
         }
 
+		document.addUndoPosition("Delete motor(s)");
+
 		for (MotorMount mount : mounts) {
 			for (FlightConfigurationId fcId : fcIds) {
 				mount.setMotorConfig(null, fcId);
@@ -366,6 +372,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		MotorConfiguration initConfig = initMount.getMotorConfig(initFcId);
 		IgnitionEvent initialIgnitionEvent = initConfig.getIgnitionEvent();
 		double initialIgnitionDelay = initConfig.getIgnitionDelay();
+
+		document.addUndoPosition("Select ignition");
 
 		// this call also performs the update changes
 		IgnitionSelectionDialog ignitionDialog = new IgnitionSelectionDialog(
@@ -409,6 +417,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
 			return;
 		}
+
+		document.addUndoPosition("Reset ignition");
 
 		boolean update = false;
 		for (MotorMount mount : mounts) {

@@ -88,15 +88,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		tabs = new JTabbedPane();
 		
 		//// Motor tabs
-		motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
+		motorConfigurationPanel = new MotorConfigurationPanel(this, document, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
 		
 		//// Recovery tab
-		recoveryConfigurationPanel = new RecoveryConfigurationPanel(this, rocket);
+		recoveryConfigurationPanel = new RecoveryConfigurationPanel(this, document, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel);
 		
 		//// Stage tab
-		separationConfigurationPanel = new SeparationConfigurationPanel(this, rocket);
+		separationConfigurationPanel = new SeparationConfigurationPanel(this, document, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
 
 		//// New configuration
@@ -239,14 +239,14 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		FlightConfigurationId initFcId = fcIds.get(0);
 		String initName = rocket.getFlightConfiguration(initFcId).getNameRaw();
 
+		document.addUndoPosition("Rename configuration(s)");
+
 		// Launch the rename dialog
 		RenameConfigDialog dialog = new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId);
 		dialog.setVisible(true);
 
 		// Get the name of the (potentially renamed) config
 		String newName = rocket.getFlightConfiguration(initFcId).getNameRaw();
-
-		document.addUndoPosition("Rename configuration(s)");
 
 		boolean update = !newName.equals(initName);
 		for (int i = 1; i < fcIds.size(); i++) {
@@ -266,6 +266,8 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if (fcIds == null || fcIds.size() == 0)
 			return;
+
+		document.addUndoPosition("Remove configuration(s)");
 
 		for (FlightConfigurationId fcId : fcIds) {
 			document.removeFlightConfigurationAndSimulations(fcId);

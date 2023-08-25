@@ -21,6 +21,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
@@ -42,8 +43,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	public RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(flightConfigurationPanel,rocket);
+	public RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
+		super(flightConfigurationPanel, document, rocket);
 
 		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "span, grow, pushy, wrap");
@@ -176,7 +177,11 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		FlightConfigurationId initFcId = fcIds.get(0);
 
 		DeploymentConfiguration initialConfig = initDevice.getDeploymentConfigurations().get(initFcId).copy(initFcId);
-		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initDevice);
+
+		document.addUndoPosition("Select deployment");
+
+		// Open the configuration dialog
+		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId, initDevice);
 		d.setVisible(true);
 
 		final DeploymentConfiguration modifiedConfig = initDevice.getDeploymentConfigurations().get(initFcId);
@@ -220,6 +225,8 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		if ((devices == null) || (fcIds == null) || (devices.size() == 0) || fcIds.size() == 0) {
 			return;
 		}
+
+		document.addUndoPosition("Reset deployment");
 
 		boolean update = false;
 		for (RecoveryDevice device : devices) {

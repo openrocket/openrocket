@@ -22,6 +22,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.util.ArrayList;
@@ -51,12 +52,14 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	protected final FlightConfigurationPanel flightConfigurationPanel;
+	protected final OpenRocketDocument document;
 	protected final Rocket rocket;
 	protected final JTable table;
 	
-	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
+	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
 		super(new MigLayout("fill"));
 		this.flightConfigurationPanel = flightConfigurationPanel;
+		this.document = document;
 		this.rocket = rocket;
 		table = doTableInitialization();
 
