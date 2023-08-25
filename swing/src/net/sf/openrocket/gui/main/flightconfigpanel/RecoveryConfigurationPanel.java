@@ -171,7 +171,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			return;
 		}
 
-		boolean update = false;
+		// Get the device and fcid that will be used in the config dialog
 		RecoveryDevice initDevice = devices.get(0);
 		FlightConfigurationId initFcId = fcIds.get(0);
 
@@ -179,32 +179,30 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initDevice);
 		d.setVisible(true);
 
-		if (!initialConfig.equals(initDevice.getDeploymentConfigurations().get(initFcId))) {
-			update = true;
-		}
+		final DeploymentConfiguration modifiedConfig = initDevice.getDeploymentConfigurations().get(initFcId);
+		boolean update = !initialConfig.equals(modifiedConfig);
 
-		double deployDelay = initDevice.getDeploymentConfigurations().get(initFcId).getDeployDelay();
-		double deployAltitude = initDevice.getDeploymentConfigurations().get(initFcId).getDeployAltitude();
-		DeployEvent deployEvent = initDevice.getDeploymentConfigurations().get(initFcId).getDeployEvent();
+		double deployDelay = modifiedConfig.getDeployDelay();
+		double deployAltitude = modifiedConfig.getDeployAltitude();
+		DeployEvent deployEvent = modifiedConfig.getDeployEvent();
 
-		for (int i = 0; i < devices.size(); i++) {
-			for (int j = 0; j < fcIds.size(); j++) {
-				if ((i == 0) && (j == 0)) break;
+		for (RecoveryDevice device : devices) {
+			for (FlightConfigurationId fcId : fcIds) {
+				// Skip the config that was used for the config dialog (it has already been modified)
+				if ((device == initDevice) && (fcId == initFcId))
+					continue;
 
-				final RecoveryDevice device = devices.get(i);
-				final FlightConfigurationId fcId = fcIds.get(j);
-				DeploymentConfiguration config = device.getDeploymentConfigurations().get(fcId).copy(fcId);
-				initialConfig = config.copy(fcId);
+				DeploymentConfiguration currentConfig = device.getDeploymentConfigurations().get(fcId);
 
-				config.setDeployDelay(deployDelay);
-				config.setDeployAltitude(deployAltitude);
-				config.setDeployEvent(deployEvent);
-
-				device.getDeploymentConfigurations().set(fcId, config);
-
-				if (!initialConfig.equals(device.getDeploymentConfigurations().get(fcId))) {
-					update = true;
+				if (currentConfig.equals(modifiedConfig)) {
+					continue;
 				}
+
+				update = true;
+
+				currentConfig.setDeployDelay(deployDelay);
+				currentConfig.setDeployAltitude(deployAltitude);
+				currentConfig.setDeployEvent(deployEvent);
 			}
 		}
 

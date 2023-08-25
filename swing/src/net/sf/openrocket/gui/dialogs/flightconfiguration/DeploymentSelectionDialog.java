@@ -47,11 +47,9 @@ public class DeploymentSelectionDialog extends JDialog {
 	private final UnitSelector altUnit;
 	private final JSlider altSlider;
 	
-	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final RecoveryDevice component) {
+	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final FlightConfigurationId id, final RecoveryDevice component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectdeploymentconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		
-		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		
+
 		newConfiguration = component.getDeploymentConfigurations().get(id).clone();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -149,6 +147,7 @@ public class DeploymentSelectionDialog extends JDialog {
 		
 		this.setContentPane(panel);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+		// TODO: closes wrong, doesn't use okButton action
 	}
 	
 	private void updateState() {
