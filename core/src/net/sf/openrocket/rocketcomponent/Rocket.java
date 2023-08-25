@@ -386,7 +386,7 @@ public class Rocket extends ComponentAssembly {
 		copyRocket.configSet = new FlightConfigurableParameterSet<>(new FlightConfiguration(copyRocket));
 		for (FlightConfigurationId key : this.configSet.getIds()) {
 			FlightConfiguration newCfg = new FlightConfiguration(copyRocket, key);
-			newCfg.setName(this.configSet.get(key).getName());			// Copy config name
+			newCfg.setName(this.configSet.get(key).getNameRaw());			// Copy config name
 			copyRocket.configSet.set(key, newCfg);
 		}
 
@@ -438,7 +438,7 @@ public class Rocket extends ComponentAssembly {
 		this.configSet.setDefault(new FlightConfiguration(this));
 		for (FlightConfigurationId key : source.configSet.map.keySet()) {
 			FlightConfiguration newCfg = new FlightConfiguration(this, key);
-			newCfg.setName(source.configSet.get(key).getName());			// Copy config name
+			newCfg.setName(source.configSet.get(key).getNameRaw());			// Copy config name
 			this.configSet.set(key, newCfg);
 		}
 		this.selectedConfiguration = this.configSet.get(source.getSelectedConfiguration().getId());

@@ -882,7 +882,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public void setName(final String newName) {
-		if ((newName == null) || ("".equals(newName))) {
+		if ((newName == null) || (newName.isEmpty())) {
 			this.configurationName = DEFAULT_CONFIG_NAME;
 			return;
 		}else if( ! this.getId().isValid()){
