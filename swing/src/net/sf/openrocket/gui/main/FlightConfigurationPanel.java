@@ -237,12 +237,29 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		List<FlightConfigurationId> fcIds = getSelectedConfigurationIds();
 		if (fcIds == null) return;
 		FlightConfigurationId initFcId = fcIds.get(0);
-		new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId).setVisible(true);
+		String initName = rocket.getFlightConfiguration(initFcId).getNameRaw();
+
+		// Launch the rename dialog
+		RenameConfigDialog dialog = new RenameConfigDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId);
+		dialog.setVisible(true);
+
+		// Get the name of the (potentially renamed) config
 		String newName = rocket.getFlightConfiguration(initFcId).getNameRaw();
+
+		document.addUndoPosition("Rename configuration(s)");
+
+		boolean update = !newName.equals(initName);
 		for (int i = 1; i < fcIds.size(); i++) {
-			rocket.getFlightConfiguration(fcIds.get(i)).setName(newName);
+			FlightConfiguration config = rocket.getFlightConfiguration(fcIds.get(i));
+			if (!config.getNameRaw().equals(newName)) {
+				update = true;
+				config.setName(newName);
+			}
 		}
-		configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+
+		if (update) {
+			configurationChanged(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		}
 	}
 	
 	private void removeConfigurationAction() {
