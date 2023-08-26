@@ -365,7 +365,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return;
 		}
 
-		boolean update = false;
 		MotorMount initMount = mounts.get(0);
 		FlightConfigurationId initFcId = fcIds.get(0);
 
@@ -381,25 +380,34 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				initFcId,
 				initMount);
 		ignitionDialog.setVisible(true);
+		boolean isOverrideDefault = ignitionDialog.isOverrideDefault();
 
-		if (!initialIgnitionEvent.equals(initConfig.getIgnitionEvent()) || (initialIgnitionDelay != initConfig.getIgnitionDelay())) {
-			update = true;
-		}
+		boolean update = !initialIgnitionEvent.equals(initConfig.getIgnitionEvent()) ||
+				(initialIgnitionDelay != initConfig.getIgnitionDelay());
 
-		for (int i = 0; i < mounts.size(); i++) {
-			for (int j = 0; j < fcIds.size(); j++) {
-				if ((i == 0) && (j == 0)) break;
+		for (MotorMount mount : mounts) {
+			for (FlightConfigurationId fcId : fcIds) {
+				if ((mount == initMount) && (fcId == initFcId))
+					continue;
 
-				MotorConfiguration config = mounts.get(i).getMotorConfig(fcIds.get(j));
-				initialIgnitionEvent = config.getIgnitionEvent();
-				initialIgnitionDelay = config.getIgnitionDelay();
+				MotorConfiguration currentConfig = mount.getMotorConfig(fcId);
 
-				config.setIgnitionEvent(initConfig.getIgnitionEvent());
-				config.setIgnitionDelay(initConfig.getIgnitionDelay());
-
-				if (!initialIgnitionEvent.equals(config.getIgnitionEvent()) || (initialIgnitionDelay != config.getIgnitionDelay())) {
-					update = true;
+				// It could be that the current config is the default config, but the user has selected to override it.
+				if (isOverrideDefault && !mount.getMotorConfigurationSet().containsId(fcId)) {
+					mount.getMotorConfigurationSet().set(fcId, mount.getMotorConfigurationSet().getDefault().clone());
 				}
+
+				initialIgnitionEvent = currentConfig.getIgnitionEvent();
+				initialIgnitionDelay = currentConfig.getIgnitionDelay();
+
+				if (initialIgnitionEvent.equals(currentConfig.getIgnitionEvent()) && (initialIgnitionDelay != currentConfig.getIgnitionDelay())) {
+					continue;
+				}
+
+				update = true;
+
+				currentConfig.setIgnitionEvent(initConfig.getIgnitionEvent());
+				currentConfig.setIgnitionDelay(initConfig.getIgnitionDelay());
 			}
 		}
 
