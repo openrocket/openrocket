@@ -181,7 +181,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		document.addUndoPosition("Select deployment");
 
 		// Open the configuration dialog
-		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId, initDevice);
+		DeploymentSelectionDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initFcId, initDevice);
 		d.setVisible(true);
 
 		final DeploymentConfiguration modifiedConfig = initDevice.getDeploymentConfigurations().get(initFcId);
@@ -190,12 +190,18 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		double deployDelay = modifiedConfig.getDeployDelay();
 		double deployAltitude = modifiedConfig.getDeployAltitude();
 		DeployEvent deployEvent = modifiedConfig.getDeployEvent();
+		boolean isOverrideDefault = d.isOverrideDefault();
 
 		for (RecoveryDevice device : devices) {
 			for (FlightConfigurationId fcId : fcIds) {
 				// Skip the config that was used for the config dialog (it has already been modified)
 				if ((device == initDevice) && (fcId == initFcId))
 					continue;
+
+				// It could be that the current config is the default config, but the user has selected to override it.
+				if (isOverrideDefault && !device.getDeploymentConfigurations().containsId(fcId)) {
+					device.getDeploymentConfigurations().set(fcId, device.getDeploymentConfigurations().getDefault().clone());
+				}
 
 				DeploymentConfiguration currentConfig = device.getDeploymentConfigurations().get(fcId);
 

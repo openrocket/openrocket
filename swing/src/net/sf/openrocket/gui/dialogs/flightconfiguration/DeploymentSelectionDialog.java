@@ -4,6 +4,7 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -46,6 +47,8 @@ public class DeploymentSelectionDialog extends JDialog {
 	private final JSpinner altSpinner;
 	private final UnitSelector altUnit;
 	private final JSlider altSlider;
+
+	private boolean isOverrideDefault;
 	
 	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final FlightConfigurationId id, final RecoveryDevice component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectdeploymentconf"), Dialog.ModalityType.APPLICATION_MODAL);
@@ -59,7 +62,9 @@ public class DeploymentSelectionDialog extends JDialog {
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
 		String str = trans.get("DeploymentSelectionDialog.opt.override");
 		str = str.replace("{0}", descriptor.format(rocket, id));
-		final JRadioButton overrideButton = new JRadioButton(str, false);
+		final JRadioButton overrideButton = new JRadioButton(str);
+		overrideButton.addItemListener(e -> isOverrideDefault = e.getStateChange() == ItemEvent.SELECTED);
+		overrideButton.setSelected(false);
 		panel.add(overrideButton, "span, gapleft para, wrap para");
 		
 		ButtonGroup buttonGroup = new ButtonGroup();
@@ -156,6 +161,12 @@ public class DeploymentSelectionDialog extends JDialog {
 		altUnit.setEnabled(enabled);
 		altSlider.setEnabled(enabled);
 	}
-	
-	
+
+	/**
+	 * Returns true if this dialog was used to override the default configuration.
+	 * @return true if this dialog was used to override the default configuration.
+	 */
+	public boolean isOverrideDefault() {
+		return isOverrideDefault;
+	}
 }

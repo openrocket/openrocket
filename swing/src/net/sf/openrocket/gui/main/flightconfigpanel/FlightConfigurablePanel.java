@@ -253,7 +253,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if (tableValue instanceof Pair) {
 					@SuppressWarnings("unchecked")
 					Pair<String, T> selectedComponent = (Pair<String, T>) tableValue;
-					components.add(selectedComponent.getV());
+					T comp = selectedComponent.getV();
+					if (!components.contains(comp)) {
+						components.add(comp);
+					}
 				}
 			}
 		}
@@ -292,11 +295,17 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				@SuppressWarnings("unchecked")
 				Pair<FlightConfigurationId, T> selectedComponent = (Pair<FlightConfigurationId, T>) tableValue;
 				FlightConfigurationId fcid = selectedComponent.getU();
-				Ids.add(fcid);
+				if (!Ids.contains(fcid)) {
+					Ids.add(fcid);
+				}
 			} else if (tableValue instanceof FlightConfigurationId) {
-				Ids.add((FlightConfigurationId) tableValue);
+				if (!Ids.contains(tableValue)) {
+					Ids.add((FlightConfigurationId) tableValue);
+				}
 			} else {
-				Ids.add(FlightConfigurationId.ERROR_FCID);
+				if (!Ids.contains(FlightConfigurationId.ERROR_FCID)) {
+					Ids.add(FlightConfigurationId.ERROR_FCID);
+				}
 			}
 		}
 
