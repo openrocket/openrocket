@@ -1066,18 +1066,19 @@ public abstract class Preferences implements ChangeSource {
 		java.util.prefs.Preferences preferences = getPreferences();
 		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
 
+		// By default, we will use options optimized for 3D printing (most-used case)
 		OBJExportOptions options = new OBJExportOptions(rocket);
 		options.setExportChildren(objExportOptionsNode.getBoolean(OBJ_EXPORT_CHILDREN, false));
 		options.setExportAppearance(objExportOptionsNode.getBoolean(OBJ_EXPORT_APPEARANCE, false));
 		options.setExportAsSeparateFiles(objExportOptionsNode.getBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, false));
 		options.setRemoveOffset(objExportOptionsNode.getBoolean(OBJ_REMOVE_OFFSET, true));
-		options.setTriangulate(objExportOptionsNode.getBoolean(OBJ_TRIANGULATE, false));
+		options.setTriangulate(objExportOptionsNode.getBoolean(OBJ_TRIANGULATE, true));
 		options.setUseSRGB(objExportOptionsNode.getBoolean(OBJ_SRGB, false));
 
-		options.setScaling(objExportOptionsNode.getFloat(OBJ_SCALING, 1));
+		options.setScaling(objExportOptionsNode.getFloat(OBJ_SCALING, 1000));
 
 		options.setLOD(ObjUtils.LevelOfDetail.fromExportLabel(
-				objExportOptionsNode.get(OBJ_LOD, ObjUtils.LevelOfDetail.NORMAL.getExportLabel())));
+				objExportOptionsNode.get(OBJ_LOD, ObjUtils.LevelOfDetail.HIGH_QUALITY.getExportLabel())));
 
 		// Load CoordTransform
 		java.util.prefs.Preferences coordTransformNode = objExportOptionsNode.node(OBJ_TRANSFORMER_NODE);

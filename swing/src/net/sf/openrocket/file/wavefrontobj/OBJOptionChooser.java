@@ -12,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -20,6 +21,8 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -54,10 +57,37 @@ public class OBJOptionChooser extends JPanel {
         this.selectedComponents = selectedComponents;
         this.rocket = rocket;
 
-        // ------------ Component selection ------------
+        // ------------ Component/optimization selection ------------
+        // Component
         componentsLabel = new JLabel();
         updateComponentsLabel(selectedComponents);
-        this.add(componentsLabel, "spanx, wrap");
+        this.add(componentsLabel, "spanx, wrap unrel");
+
+        // Optimize for:
+        JLabel label = new JLabel(trans.get("OBJOptionChooser.lbl.optimizeFor"));
+        this.add(label);
+
+        // 3D printing
+        JButton opt3DPrint = new JButton(trans.get("OBJOptionChooser.btn.opt3DPrint"));
+        opt3DPrint.setToolTipText(trans.get("OBJOptionChooser.btn.opt3DPrint.ttip"));
+        opt3DPrint.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                optimizeSettingsFor3DPrinting(opts);
+            }
+        });
+        this.add(opt3DPrint, "wrap");
+
+        // 3D rendering
+        JButton opt3DRend = new JButton(trans.get("OBJOptionChooser.btn.opt3DRend"));
+        opt3DRend.setToolTipText(trans.get("OBJOptionChooser.btn.opt3DRend.ttip"));
+        opt3DRend.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                optimizeSettingsFor3DRendering(opts);
+            }
+        });
+        this.add(opt3DRend, "skip 1, wrap");
 
         this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
@@ -101,16 +131,6 @@ public class OBJOptionChooser extends JPanel {
         this.exportAsSeparateFiles.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAsSeparateFiles.ttip"));
         this.add(exportAsSeparateFiles, "spanx, wrap unrel");
 
-        //// Scaling
-        JLabel scalingLabel = new JLabel(trans.get("OBJOptionChooser.lbl.Scaling"));
-        scalingLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
-        this.add(scalingLabel, "spanx, split 2");
-        this.scalingModel = new DoubleModel(opts, "ScalingDouble", UnitGroup.UNITS_SCALING, 0, 10000);
-        JSpinner spin = new JSpinner(scalingModel.getSpinnerModel());
-        spin.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
-        spin.setEditor(new SpinnerEditor(spin, 5));
-        this.add(spin, "wrap");
-
         this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
         // ------------ Advanced options ------------
@@ -122,6 +142,16 @@ public class OBJOptionChooser extends JPanel {
         JPanel advancedOptionsPanel = new JPanel();
         advancedOptionsPanel.setLayout(new MigLayout("ins 0"));
         advancedOptionsPanel.setVisible(false);
+
+        //// Scaling
+        JLabel scalingLabel = new JLabel(trans.get("OBJOptionChooser.lbl.Scaling"));
+        scalingLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
+        advancedOptionsPanel.add(scalingLabel, "spanx, split 2");
+        this.scalingModel = new DoubleModel(opts, "ScalingDouble", UnitGroup.UNITS_SCALING, 0, 10000);
+        JSpinner spin = new JSpinner(scalingModel.getSpinnerModel());
+        spin.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
+        spin.setEditor(new SpinnerEditor(spin, 5));
+        advancedOptionsPanel.add(spin, "wrap");
 
         //// Export colors in sRGB
         this.sRGB = new JCheckBox(trans.get("OBJOptionChooser.checkbox.sRGB"));
@@ -318,6 +348,20 @@ public class OBJOptionChooser extends JPanel {
                 (Axis) axialCombo.getSelectedItem(), (Axis) forwardCombo.getSelectedItem(),
                 rocket.getLength(), 0, 0);*/
         opts.setTransformer(new DefaultCoordTransform(rocket.getLength()));
+    }
+
+    private static void optimizeSettingsFor3DPrinting(OBJExportOptions options) {
+        options.setExportAppearance(false);
+        options.setScaling(1000);
+        options.setTriangulate(true);
+        options.setLOD(ObjUtils.LevelOfDetail.HIGH_QUALITY);
+    }
+
+    private static void optimizeSettingsFor3DRendering(OBJExportOptions options) {
+        options.setExportAppearance(true);
+        options.setScaling(1);
+        options.setTriangulate(false);
+        options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {

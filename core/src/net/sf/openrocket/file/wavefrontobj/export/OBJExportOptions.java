@@ -51,7 +51,7 @@ public class OBJExportOptions {
         this.exportAsSeparateFiles = false;
         this.removeOffset = true;
         this.triangulate = false;
-        this.LOD = ObjUtils.LevelOfDetail.NORMAL;
+        this.LOD = ObjUtils.LevelOfDetail.NORMAL_QUALITY;
         this.transformer = new DefaultCoordTransform(rocket.getLength());
         this.scaling = 1.0f;
     }

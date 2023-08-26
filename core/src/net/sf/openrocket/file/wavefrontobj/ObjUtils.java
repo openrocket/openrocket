@@ -24,7 +24,7 @@ public class ObjUtils {
      */
     public enum LevelOfDetail {
         LOW_QUALITY(25, trans.get("LevelOfDetail.LOW_QUALITY"), "LOW"),
-        NORMAL(60, trans.get("LevelOfDetail.NORMAL"), "NORMAL"),
+        NORMAL_QUALITY(60, trans.get("LevelOfDetail.NORMAL_QUALITY"), "NORMAL"),
         HIGH_QUALITY(100, trans.get("LevelOfDetail.HIGH_QUALITY"), "HIGH");
 
         private final int value;
@@ -51,7 +51,7 @@ public class ObjUtils {
                     return lod;
                 }
             }
-            return LevelOfDetail.NORMAL;
+            return LevelOfDetail.NORMAL_QUALITY;
         }
 
         /**
