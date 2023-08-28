@@ -85,6 +85,26 @@ public class UITheme {
         void formatScriptTextArea(RSyntaxTextArea textArea);
     }
 
+    public static boolean isLightTheme(Theme theme) {
+        if (theme == Themes.DARK) {
+            return false;
+        } else if (theme == Themes.LIGHT) {
+            return true;
+        } else if (theme == Themes.AUTO) {
+            try {
+                final OsThemeDetector detector = OsThemeDetector.getDetector();
+                final boolean isDarkThemeUsed = detector.isDark();
+                if (isDarkThemeUsed) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (Exception ignore) {}
+        }
+
+        return false;
+    }
+
     public enum Themes implements Theme {
         LIGHT {
             private final String displayName = trans.get("UITheme.Light");

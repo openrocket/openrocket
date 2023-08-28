@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.main;
 
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -8,13 +9,16 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
 import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -76,6 +80,15 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 				this.setAccessory(objChooser);
 				this.addChoosableFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
 				this.setFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
+
+				// TODO: update this dynamically instead of hard-coded values
+				//   The macOS file chooser has an issue where it does not update its size when the accessory is added.
+				if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
+					Dimension currentSize = this.getPreferredSize();
+					Dimension newSize = new Dimension((int) (1.35 * currentSize.width), (int) (1.5 * currentSize.height));
+					this.setPreferredSize(newSize);
+				}
+
 				break;
 		}
 		
