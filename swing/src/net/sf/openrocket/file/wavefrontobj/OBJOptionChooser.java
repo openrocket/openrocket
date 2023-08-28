@@ -112,6 +112,7 @@ public class OBJOptionChooser extends JPanel {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     final Set<RocketComponent> allComponents = new HashSet<>();
                     for (RocketComponent component : selectedComponents) {
+                        allComponents.add(component);
                         allComponents.addAll(component.getAllChildren());
                     }
                     components = new ArrayList<>(allComponents);
@@ -279,18 +280,16 @@ public class OBJOptionChooser extends JPanel {
         final String componentName = isSingleComponent ? "<b>" + components.get(0).getName() + "</b>":
                 trans.get("OBJOptionChooser.lbl.multipleComponents");
         labelText = String.format(trans.get("OBJOptionChooser.lbl.component"), componentName);
-
-        if (!isSingleComponent) {
-            tooltip = createComponentsTooltip(components);
-        } else {
-            tooltip = "";
-        }
-
+        tooltip = createComponentsTooltip(components);
         componentsLabel.setText(labelText);
         componentsLabel.setToolTipText(tooltip);
     }
 
     private static String createComponentsTooltip(List<RocketComponent> selectedComponents) {
+        if (selectedComponents.size() <= 1) {
+            return "";
+        }
+
         StringBuilder tooltipBuilder = new StringBuilder("<html>");
         int counter = 0;
         for (int i = 0; i < selectedComponents.size()-1; i++) {
