@@ -11,12 +11,15 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -24,11 +27,16 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,8 +44,11 @@ import java.util.Set;
 
 public class OBJOptionChooser extends JPanel {
     private static final Translator trans = Application.getTranslator();
+    private final JComponent parent;
 
     // Widgets
+    private final JButton opt3DPrint;
+    private final JButton optRend;
     private final JLabel componentsLabel;
     private final JCheckBox exportChildren;
     private final JCheckBox exportAppearance;
@@ -57,8 +68,10 @@ public class OBJOptionChooser extends JPanel {
 
     private int totallyNormalCounter = 0;
 
-    public OBJOptionChooser(OBJExportOptions opts, List<RocketComponent> selectedComponents, Rocket rocket) {
+    public OBJOptionChooser(JComponent parent, OBJExportOptions opts, List<RocketComponent> selectedComponents, Rocket rocket) {
         super(new MigLayout("hidemode 3"));
+
+        this.parent = parent;
 
         this.selectedComponents = selectedComponents;
         this.rocket = rocket;
@@ -74,25 +87,53 @@ public class OBJOptionChooser extends JPanel {
         this.add(label);
 
         //// 3D printing
-        JButton opt3DPrint = new JButton(trans.get("OBJOptionChooser.btn.opt3DPrint"));
-        opt3DPrint.setToolTipText(trans.get("OBJOptionChooser.btn.opt3DPrint.ttip"));
-        opt3DPrint.addActionListener(new ActionListener() {
+        this.opt3DPrint = new JButton(trans.get("OBJOptionChooser.btn.opt3DPrint"));
+        this.opt3DPrint.setToolTipText(trans.get("OBJOptionChooser.btn.opt3DPrint.ttip"));
+        this.opt3DPrint.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 optimizeSettingsFor3DPrinting();
-                totallyNormalCounter++;
-                youMayIgnoreThisCode();
+                opt3DPrint.setEnabled(false);
             }
         });
-        this.add(opt3DPrint);
+
+        JPanel overlay = generateOverlayPane();
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setLayout(null);
+        layeredPane.setPreferredSize(opt3DPrint.getPreferredSize());
+
+        opt3DPrint.setBounds(0, 0, layeredPane.getPreferredSize().width, layeredPane.getPreferredSize().height);
+        overlay.setBounds(opt3DPrint.getBounds());
+
+        opt3DPrint.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                adjustOverlayBounds();
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                adjustOverlayBounds();
+            }
+
+            private void adjustOverlayBounds() {
+                overlay.setBounds(opt3DPrint.getBounds());
+            }
+        });
+
+        layeredPane.add(opt3DPrint, JLayeredPane.DEFAULT_LAYER);
+        layeredPane.add(overlay, JLayeredPane.PALETTE_LAYER);
+
+        this.add(layeredPane);
 
         //// Rendering
-        JButton optRend = new JButton(trans.get("OBJOptionChooser.btn.optRend"));
-        optRend.setToolTipText(trans.get("OBJOptionChooser.btn.optRend.ttip"));
-        optRend.addActionListener(new ActionListener() {
+        this.optRend = new JButton(trans.get("OBJOptionChooser.btn.optRend"));
+        this.optRend.setToolTipText(trans.get("OBJOptionChooser.btn.optRend.ttip"));
+        this.optRend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 optimizeSettingsForRendering();
+                optRend.setEnabled(false);
             }
         });
         destroyTheMagic(optRend);
@@ -131,18 +172,21 @@ public class OBJOptionChooser extends JPanel {
         this.removeOffset = new JCheckBox(trans.get("OBJOptionChooser.checkbox.removeOffset"));
         this.removeOffset.setToolTipText(trans.get("OBJOptionChooser.checkbox.removeOffset.ttip"));
         destroyTheMagic(removeOffset);
+        addOptimizationListener(removeOffset);
         this.add(removeOffset, "spanx, wrap unrel");
 
         //// Export appearance
         this.exportAppearance = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportAppearance"));
         this.exportAppearance.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAppearance.ttip"));
         destroyTheMagic(exportAppearance);
+        addOptimizationListener(exportAppearance);
         this.add(exportAppearance, "spanx, wrap");
 
         //// Export as separate files
         this.exportAsSeparateFiles = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportAsSeparateFiles"));
         this.exportAsSeparateFiles.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAsSeparateFiles.ttip"));
         destroyTheMagic(exportAsSeparateFiles);
+        addOptimizationListener(exportAsSeparateFiles);
         this.add(exportAsSeparateFiles, "spanx, wrap unrel");
 
         this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
@@ -166,6 +210,7 @@ public class OBJOptionChooser extends JPanel {
         spin.setToolTipText(trans.get("OBJOptionChooser.lbl.Scaling.ttip"));
         spin.setEditor(new SpinnerEditor(spin, 5));
         destroyTheMagic(scalingModel);
+        addOptimizationListener(scalingModel);
         advancedOptionsPanel.add(spin, "wrap");
 
         //// Export colors in sRGB
@@ -178,6 +223,7 @@ public class OBJOptionChooser extends JPanel {
         this.triangulate = new JCheckBox(trans.get("OBJOptionChooser.checkbox.triangulate"));
         this.triangulate.setToolTipText(trans.get("OBJOptionChooser.checkbox.triangulate.ttip"));
         destroyTheMagic(triangulate);
+        addOptimizationListener(triangulate);
         advancedOptionsPanel.add(triangulate, "spanx, wrap");
         this.triangulate.addItemListener(new ItemListener() {
             @Override
@@ -203,6 +249,7 @@ public class OBJOptionChooser extends JPanel {
         this.LOD = new JComboBox<>(ObjUtils.LevelOfDetail.values());
         this.LOD.setToolTipText(trans.get("OBJOptionChooser.lbl.LevelOfDetail.ttip"));
         destroyTheMagic(LOD);
+        addOptimizationListener(LOD);
         advancedOptionsPanel.add(LOD, "growx, wrap unrel");
 
 
@@ -270,6 +317,58 @@ public class OBJOptionChooser extends JPanel {
         this.add(advancedOptionsPanel, "spanx");
 
         loadOptions(opts);
+    }
+
+    @NotNull
+    private JPanel generateOverlayPane() {
+        JPanel overlay = new JPanel();
+        overlay.setOpaque(false);       // Make it transparent
+        overlay.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                totallyNormalCounter++;
+                youMayIgnoreThisCode();
+                dispatchEventToButton(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                dispatchEventToButton(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                dispatchEventToButton(e);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                dispatchEventToButton(e);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                dispatchEventToButton(e);
+            }
+
+            private void dispatchEventToButton(MouseEvent originalEvent) {
+                MouseEvent newEvent = new MouseEvent(
+                        opt3DPrint,
+                        originalEvent.getID(),
+                        originalEvent.getWhen(),
+                        originalEvent.getModifiersEx(),
+                        originalEvent.getX(),
+                        originalEvent.getY(),
+                        originalEvent.getXOnScreen(),
+                        originalEvent.getYOnScreen(),
+                        originalEvent.getClickCount(),
+                        originalEvent.isPopupTrigger(),
+                        originalEvent.getButton()
+                );
+                Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(newEvent);
+            }
+        });
+        return overlay;
     }
 
     private void updateComponentsLabel(List<RocketComponent> components) {
@@ -383,6 +482,16 @@ public class OBJOptionChooser extends JPanel {
         loadOptions(options);
     }
 
+    /**
+     * Check whether the current settings are optimized for 3D printing.
+     * @param options The options to check
+     * @return True if the settings are optimized for 3D printing, false otherwise
+     */
+    private boolean isOptimizedFor3DPrinting(OBJExportOptions options) {
+        return !options.isExportAppearance() && options.isTriangulate() && options.getLOD() == ObjUtils.LevelOfDetail.HIGH_QUALITY &&
+                options.isRemoveOffset() && options.getScaling() == 1000;
+    }
+
     private void optimizeSettingsForRendering() {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
@@ -393,6 +502,16 @@ public class OBJOptionChooser extends JPanel {
         options.setLOD(ObjUtils.LevelOfDetail.NORMAL_QUALITY);
 
         loadOptions(options);
+    }
+
+    /**
+     * Check whether the current settings are optimized for rendering.
+     * @param options The options to check
+     * @return True if the settings are optimized for rendering, false otherwise
+     */
+    private boolean isOptimizedForRendering(OBJExportOptions options) {
+        return options.isExportAppearance() && !options.isTriangulate() && options.getLOD() == ObjUtils.LevelOfDetail.NORMAL_QUALITY &&
+                options.getScaling() == 20;
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
@@ -411,6 +530,40 @@ public class OBJOptionChooser extends JPanel {
             }
         }
         return false;
+    }
+
+    private void addOptimizationListener(AbstractButton component) {
+        component.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateOptimizationButtons();
+            }
+        });
+    }
+
+    private void addOptimizationListener(DoubleModel model) {
+        model.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateOptimizationButtons();
+            }
+        });
+    }
+
+    private void addOptimizationListener(JComboBox comboBox) {
+        comboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                updateOptimizationButtons();
+            }
+        });
+    }
+
+    private void updateOptimizationButtons() {
+        OBJExportOptions options = new OBJExportOptions(rocket);
+        storeOptions(options, true);
+        opt3DPrint.setEnabled(!isOptimizedFor3DPrinting(options));
+        optRend.setEnabled(!isOptimizedForRendering(options));
     }
 
     private void destroyTheMagic(AbstractButton component) {
@@ -442,16 +595,16 @@ public class OBJOptionChooser extends JPanel {
 
     private void youMayIgnoreThisCode() {
         if (totallyNormalCounter == 4) {
-            JOptionPane.showMessageDialog(null, trans.get("OBJOptionChooser.easterEgg.msg"),
+            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
         } else if (totallyNormalCounter == 15) {
-            JOptionPane.showMessageDialog(null, trans.get("OBJOptionChooser.easterEgg.msg2"),
+            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg2"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
         } else if (totallyNormalCounter == 25) {
-            JOptionPane.showMessageDialog(null, trans.get("OBJOptionChooser.easterEgg.msg3"),
+            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg3"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
         } else if (totallyNormalCounter == 40) {
-            JOptionPane.showMessageDialog(null, trans.get("OBJOptionChooser.easterEgg.msg4"),
+            JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg4"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
             totallyNormalCounter = 0;
         }

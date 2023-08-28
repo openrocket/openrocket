@@ -72,7 +72,7 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 				defaultFilename = FileHelper.forceExtension(defaultFilename,"obj");
 				this.setDialogTitle(trans.get("saveAs.wavefront.title"));
 				OBJExportOptions initialOptions = prefs.loadOBJExportOptions(document.getRocket());
-				OBJOptionChooser objChooser = new OBJOptionChooser(initialOptions, selectedComponents, document.getRocket());
+				OBJOptionChooser objChooser = new OBJOptionChooser(this, initialOptions, selectedComponents, document.getRocket());
 				this.setAccessory(objChooser);
 				this.addChoosableFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
 				this.setFileFilter(FileHelper.WAVEFRONT_OBJ_FILTER);
