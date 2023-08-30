@@ -46,7 +46,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         final boolean hasAftShoulder = Double.compare(component.getAftShoulderRadius(), 0) > 0
                 && Double.compare(component.getAftShoulderLength(), 0) > 0
                 && component.getAftRadius() > 0;
-        final boolean isFilled = component.isFilled();
+        final boolean isFilled = component.isFilled() ||
+                (Double.compare(component.getForeRadius(), component.getThickness()) <= 0 &&
+                        Double.compare(component.getAftRadius(), component.getThickness()) <= 0);
 
         final List<Integer> outsideForeRingVertices = new ArrayList<>();
         final List<Integer> outsideAftRingVertices = new ArrayList<>();
@@ -95,7 +97,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Add shoulders
         addShoulders(this.nrOfSides, outsideForeRingVertices, outsideAftRingVertices,
-                insideForeRingVertices, insideAftRingVertices, hasForeShoulder, hasAftShoulder);
+                insideForeRingVertices, insideAftRingVertices, isFilled, hasForeShoulder, hasAftShoulder);
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
@@ -130,6 +132,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Generate vertices and normals
         float x = 0;                                        // Distance from the fore end
+        float xNext;
         double r;                                           // Current radius at location x
         boolean isForeTip = false;                          // True if the fore end of the transition is a tip (radius = 0)
         boolean isForeRing = false;                         // True if the current ring is the first fore ring
@@ -143,7 +146,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 t = 1 - t;
             }
             float dx = t < 0.2 ? (float) (dxBase / (5.0 - 20*t)) : (float) dxBase;
-            float xNext = x + dx;
+            xNext = x + dx;
             xNext = Math.min(xNext, (float) component.getLength());
 
             // Calculate the radius at this height
@@ -425,7 +428,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
     private void addShoulders(int nrOfSides, List<Integer> outsideForeRingVertices, List<Integer> outsideAftRingVertices,
                               List<Integer> insideForeRingVertices, List<Integer> insideAftRingVertices,
-                              boolean hasForeShoulder, boolean hasAftShoulder) {
+                              boolean isFilled, boolean hasForeShoulder, boolean hasAftShoulder) {
         final float foreShoulderRadius = (float) component.getForeShoulderRadius();
         final float aftShoulderRadius = (float) component.getAftShoulderRadius();
         final float foreShoulderLength = (float) component.getForeShoulderLength();
@@ -437,17 +440,16 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         if (hasForeShoulder) {
             addShoulder(foreShoulderRadius, foreShoulderLength, foreShoulderThickness, foreShoulderCapped,
-                    true, nrOfSides, outsideForeRingVertices, insideForeRingVertices);
+                    isFilled, true, nrOfSides, outsideForeRingVertices, insideForeRingVertices);
         }
         if (hasAftShoulder) {
             addShoulder(aftShoulderRadius, aftShoulderLength, aftShoulderThickness, aftShoulderCapped,
-                    false, nrOfSides, outsideAftRingVertices, insideAftRingVertices);
+                    isFilled, false, nrOfSides, outsideAftRingVertices, insideAftRingVertices);
         }
     }
 
-    private void addShoulder(float shoulderRadius, float shoulderLength, float shoulderThickness, boolean isCapped,
+    private void addShoulder(float shoulderRadius, float shoulderLength, float shoulderThickness, boolean isCapped, boolean isFilled,
                              boolean isForeSide, int nrOfSides, List<Integer> outerRingVertices, List<Integer> innerRingVertices) {
-        final boolean isFilled = component.isFilled();
         final float innerCylinderRadius = isCapped || isFilled ? 0 : shoulderRadius - shoulderThickness;
         final List<Integer> outerCylinderForeVertices = new ArrayList<>();
         final List<Integer> outerCylinderAftVertices = new ArrayList<>();
