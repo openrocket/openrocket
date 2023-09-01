@@ -11,32 +11,27 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -92,39 +87,20 @@ public class OBJOptionChooser extends JPanel {
         this.opt3DPrint.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int temp = totallyNormalCounter;
+
                 optimizeSettingsFor3DPrinting();
-                opt3DPrint.setEnabled(false);
+
+                // Highlight the button to show that it is selected
+                highlightButton(opt3DPrint, optRend);
+
+                // Shhhh...
+                totallyNormalCounter = temp + 1;
+                youMayIgnoreThisCode();
             }
         });
 
-        JPanel overlay = generateOverlayPane();
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setLayout(null);
-        layeredPane.setPreferredSize(opt3DPrint.getPreferredSize());
-
-        opt3DPrint.setBounds(0, 0, layeredPane.getPreferredSize().width, layeredPane.getPreferredSize().height);
-        overlay.setBounds(opt3DPrint.getBounds());
-
-        opt3DPrint.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                adjustOverlayBounds();
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                adjustOverlayBounds();
-            }
-
-            private void adjustOverlayBounds() {
-                overlay.setBounds(opt3DPrint.getBounds());
-            }
-        });
-
-        layeredPane.add(opt3DPrint, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.add(overlay, JLayeredPane.PALETTE_LAYER);
-
-        this.add(layeredPane);
+        this.add(opt3DPrint);
 
         //// Rendering
         this.optRend = new JButton(trans.get("OBJOptionChooser.btn.optRend"));
@@ -133,7 +109,9 @@ public class OBJOptionChooser extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 optimizeSettingsForRendering();
-                optRend.setEnabled(false);
+
+                // Highlight the button to show that it is selected
+                highlightButton(optRend, opt3DPrint);
             }
         });
         destroyTheMagic(optRend);
@@ -319,56 +297,14 @@ public class OBJOptionChooser extends JPanel {
         loadOptions(opts);
     }
 
-    @NotNull
-    private JPanel generateOverlayPane() {
-        JPanel overlay = new JPanel();
-        overlay.setOpaque(false);       // Make it transparent
-        overlay.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                totallyNormalCounter++;
-                youMayIgnoreThisCode();
-                dispatchEventToButton(e);
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                dispatchEventToButton(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                dispatchEventToButton(e);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                dispatchEventToButton(e);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                dispatchEventToButton(e);
-            }
-
-            private void dispatchEventToButton(MouseEvent originalEvent) {
-                MouseEvent newEvent = new MouseEvent(
-                        opt3DPrint,
-                        originalEvent.getID(),
-                        originalEvent.getWhen(),
-                        originalEvent.getModifiersEx(),
-                        originalEvent.getX(),
-                        originalEvent.getY(),
-                        originalEvent.getXOnScreen(),
-                        originalEvent.getYOnScreen(),
-                        originalEvent.getClickCount(),
-                        originalEvent.isPopupTrigger(),
-                        originalEvent.getButton()
-                );
-                Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(newEvent);
-            }
-        });
-        return overlay;
+    /**
+     * Highlight the given button and un-highlight the other button.
+     * @param highlightButton The button to highlight
+     * @param loserButton The button to un-highlight
+     */
+    private void highlightButton(JButton highlightButton, JButton loserButton) {
+        highlightButton.setBorder(BorderFactory.createLineBorder(GUIUtil.getUITheme().getDarkWarningColor()));
+        loserButton.setBorder(UIManager.getBorder("Button.border"));
     }
 
     private void updateComponentsLabel(List<RocketComponent> components) {
@@ -562,8 +498,14 @@ public class OBJOptionChooser extends JPanel {
     private void updateOptimizationButtons() {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
-        opt3DPrint.setEnabled(!isOptimizedFor3DPrinting(options));
-        optRend.setEnabled(!isOptimizedForRendering(options));
+        if (isOptimizedFor3DPrinting(options)) {
+            highlightButton(opt3DPrint, optRend);
+        } else if (isOptimizedForRendering(options)) {
+            highlightButton(optRend, opt3DPrint);
+        } else {
+            opt3DPrint.setBorder(UIManager.getBorder("Button.border"));
+            optRend.setBorder(UIManager.getBorder("Button.border"));
+        }
     }
 
     private void destroyTheMagic(AbstractButton component) {
