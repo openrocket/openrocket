@@ -4,6 +4,7 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.util.Iterator;
 
 import javax.swing.ButtonGroup;
@@ -44,6 +45,8 @@ public class IgnitionSelectionDialog extends JDialog {
 	
 	private IgnitionEvent startIgnitionEvent;
 	private double startIgnitionDelay;
+
+	private boolean isOverrideDefault;
 	
 	public IgnitionSelectionDialog(Window parent, final FlightConfigurationId curFCID, MotorMount _mount) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
@@ -62,15 +65,16 @@ public class IgnitionSelectionDialog extends JDialog {
 		Rocket rkt = ((RocketComponent)_mount).getRocket();
 		str = str.replace("{0}", descriptor.format(rkt, curFCID));
 		
-		final JRadioButton overrideButton = new JRadioButton(str, !isDefault);
+		final JRadioButton overrideButton = new JRadioButton(str);
+		overrideButton.addItemListener(e -> isOverrideDefault = e.getStateChange() == ItemEvent.SELECTED);
+		overrideButton.setSelected(!isDefault);
 		panel.add(overrideButton, "span, gapleft para, wrap para");
 		
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(defaultButton);
 		buttonGroup.add(overrideButton);
 		
-		// Select the button based on current configuration.  If the configuration is overridden
-		// The the overrideButton is selected.
+		// Select the button based on current configuration.  If the configuration is overridden the overrideButton is selected.
 		boolean isOverridden = !isDefault;
 		if (isOverridden) {
 			overrideButton.setSelected(true);
@@ -114,18 +118,11 @@ public class IgnitionSelectionDialog extends JDialog {
 					// and change all remaining configs
 					// this seems like odd behavior to me, but it matches the text on the UI dialog popup. -teyrana (equipoise@gmail.com) 
 					Iterator<MotorConfiguration> iter = curMount.getMotorIterator();
-					while( iter.hasNext() ){
+					while(iter.hasNext() ) {
 						MotorConfiguration next = iter.next();
-						next.setIgnitionDelay( cid);
-						next.setIgnitionEvent( cie);
+						next.setIgnitionDelay(cid);
+						next.setIgnitionEvent(cie);
 					}
-					
-//					System.err.println("setting default motor ignition ("+defaultMotorInstance.getMotorID().toString()+") to: ");
-//					System.err.println("    event: "+defaultMotorInstance.getIgnitionEvent().name+" w/delay: "+defaultMotorInstance.getIgnitionDelay());
-//				}else {
-//					System.err.println("setting motor ignition to.... new values: ");
-//					//destMotorInstance.setIgnitionEvent((IgnitionEvent)eventBox.getSelectedItem());
-//					System.err.println("    "+curMotorInstance.getIgnitionEvent()+" w/ "+curMotorInstance.getIgnitionDelay());
 				}
 				IgnitionSelectionDialog.this.setVisible(false);
 			}
@@ -150,5 +147,14 @@ public class IgnitionSelectionDialog extends JDialog {
 		this.setContentPane(panel);
 		
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+		GUIUtil.installEscapeCloseButtonOperation(this, okButton);
+	}
+
+	/**
+	 * Returns true if this dialog was used to override the default configuration.
+	 * @return true if this dialog was used to override the default configuration.
+	 */
+	public boolean isOverrideDefault() {
+		return isOverrideDefault;
 	}
 }

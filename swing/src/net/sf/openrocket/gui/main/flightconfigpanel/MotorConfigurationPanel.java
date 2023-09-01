@@ -28,6 +28,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
@@ -49,7 +50,7 @@ import net.sf.openrocket.util.Chars;
 
 @SuppressWarnings("serial")
 public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount> {
-	
+
 	private static final String NONE = trans.get("edtmotorconfdlg.tbl.None");
 
 	private final JButton selectMotorButton, deleteMotorButton, selectIgnitionButton, resetIgnitionButton;
@@ -64,8 +65,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	public MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(flightConfigurationPanel, rocket);
+	public MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
+		super(flightConfigurationPanel, document, rocket);
 
 		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
 
@@ -306,6 +307,9 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
         double initDelay = initMount.getMotorConfig(initFcId).getEjectionDelay();
 
+		document.addUndoPosition("Select motor");
+
+		// Open the motor chooser dialog
 		motorChooserDialog.setMotorMountAndConfig(initFcId, initMount);
 		motorChooserDialog.open();
 
@@ -343,6 +347,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
             return;
         }
 
+		document.addUndoPosition("Delete motor(s)");
+
 		for (MotorMount mount : mounts) {
 			for (FlightConfigurationId fcId : fcIds) {
 				mount.setMotorConfig(null, fcId);
@@ -359,7 +365,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			return;
 		}
 
-		boolean update = false;
 		MotorMount initMount = mounts.get(0);
 		FlightConfigurationId initFcId = fcIds.get(0);
 
@@ -367,31 +372,42 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		IgnitionEvent initialIgnitionEvent = initConfig.getIgnitionEvent();
 		double initialIgnitionDelay = initConfig.getIgnitionDelay();
 
+		document.addUndoPosition("Select ignition");
+
 		// this call also performs the update changes
 		IgnitionSelectionDialog ignitionDialog = new IgnitionSelectionDialog(
 				SwingUtilities.getWindowAncestor(this.flightConfigurationPanel),
 				initFcId,
 				initMount);
 		ignitionDialog.setVisible(true);
+		boolean isOverrideDefault = ignitionDialog.isOverrideDefault();
 
-		if (!initialIgnitionEvent.equals(initConfig.getIgnitionEvent()) || (initialIgnitionDelay != initConfig.getIgnitionDelay())) {
-			update = true;
-		}
+		boolean update = !initialIgnitionEvent.equals(initConfig.getIgnitionEvent()) ||
+				(initialIgnitionDelay != initConfig.getIgnitionDelay());
 
-		for (int i = 0; i < mounts.size(); i++) {
-			for (int j = 0; j < fcIds.size(); j++) {
-				if ((i == 0) && (j == 0)) break;
+		for (MotorMount mount : mounts) {
+			for (FlightConfigurationId fcId : fcIds) {
+				if ((mount == initMount) && (fcId == initFcId))
+					continue;
 
-				MotorConfiguration config = mounts.get(i).getMotorConfig(fcIds.get(j));
-				initialIgnitionEvent = config.getIgnitionEvent();
-				initialIgnitionDelay = config.getIgnitionDelay();
+				MotorConfiguration currentConfig = mount.getMotorConfig(fcId);
 
-				config.setIgnitionEvent(initConfig.getIgnitionEvent());
-				config.setIgnitionDelay(initConfig.getIgnitionDelay());
-
-				if (!initialIgnitionEvent.equals(config.getIgnitionEvent()) || (initialIgnitionDelay != config.getIgnitionDelay())) {
-					update = true;
+				// It could be that the current config is the default config, but the user has selected to override it.
+				if (isOverrideDefault && !mount.getMotorConfigurationSet().containsId(fcId)) {
+					mount.getMotorConfigurationSet().set(fcId, mount.getMotorConfigurationSet().getDefault().clone());
 				}
+
+				initialIgnitionEvent = currentConfig.getIgnitionEvent();
+				initialIgnitionDelay = currentConfig.getIgnitionDelay();
+
+				if (initialIgnitionEvent.equals(currentConfig.getIgnitionEvent()) && (initialIgnitionDelay != currentConfig.getIgnitionDelay())) {
+					continue;
+				}
+
+				update = true;
+
+				currentConfig.setIgnitionEvent(initConfig.getIgnitionEvent());
+				currentConfig.setIgnitionDelay(initConfig.getIgnitionDelay());
 			}
 		}
 
@@ -409,6 +425,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
 			return;
 		}
+
+		document.addUndoPosition("Reset ignition");
 
 		boolean update = false;
 		for (MotorMount mount : mounts) {
