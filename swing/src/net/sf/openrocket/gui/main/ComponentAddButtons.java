@@ -237,7 +237,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	/**
 	 * Adds a buttons to the panel in a row.  Assumes.
 	 *
-	 * @param label  Label placed before the row
 	 * @param row    Row number
 	 * @param b      List of ComponentButtons to place on the row
 	 */
@@ -318,20 +317,20 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public ComponentButton(String text, Icon enabled, Icon disabled) {
 			super(text, enabled);
 
-			setVerticalTextPosition(SwingConstants.BOTTOM); // this will put the text below the icon
-			setHorizontalTextPosition(SwingConstants.CENTER); // this will center the text horizontally beneath the icon
-			//setIconTextGap(0); // this is optional, it sets the gap between the icon and the text
+			setVerticalTextPosition(SwingConstants.BOTTOM); 		// Put the text below the icon
+			setHorizontalTextPosition(SwingConstants.CENTER); 		// Center the text horizontally
+			//setIconTextGap(0); // Optional; sets the gap between the icon and the text
 
 			// set the disabled icon if it is not null
 			if (disabled != null) {
 				setDisabledIcon(disabled);
 			}
 
-			setHorizontalAlignment(SwingConstants.CENTER); // this will center the button itself in its parent component
+			setHorizontalAlignment(SwingConstants.CENTER); 			// Center the button in its parent component
 
 			// if you have multiline text, you could use html to format it
 			if (text != null && text.contains("\n")) {
-				text = "<html>" + text.replace("\n", "<br>") + "</html>";
+				text = "<html><center>" + text.replace("\n", "<br>") + "</center></html>";
 				setText(text);
 			}
 
