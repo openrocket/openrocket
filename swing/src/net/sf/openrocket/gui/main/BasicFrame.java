@@ -49,6 +49,11 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
+import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory;
 import net.sf.openrocket.gui.configdialog.SaveDesignInfoPanel;
 import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
 import net.sf.openrocket.logging.ErrorSet;
@@ -250,6 +255,9 @@ public class BasicFrame extends JFrame {
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
+
+			popupMenu.addSeparator();
+			popupMenu.add(actions.getExportOBJAction());
 		}
 
 		createMenu();
@@ -431,6 +439,25 @@ public class BasicFrame extends JFrame {
 				exportRockSimAction();}
 		});
 		exportSubMenu.add(exportRockSim);
+
+		exportSubMenu.addSeparator();
+
+		////// 		Export Wavefront OBJ
+		JMenuItem exportOBJ = new JMenuItem(trans.get("main.menu.file.exportAs.WavefrontOBJ"));
+		exportOBJ.setIcon(Icons.EXPORT_3D);
+		exportOBJ.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.WavefrontOBJ.desc"));
+		exportOBJ.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportWavefrontOBJAction();}
+		});
+		selectionModel.addDocumentSelectionListener(new DocumentSelectionListener() {
+			@Override
+			public void valueChanged(int changeType) {
+				exportOBJ.setEnabled(getSelectedComponents() != null && !getSelectedComponents().isEmpty());
+			}
+		});
+		exportSubMenu.add(exportOBJ);
 
 		fileMenu.add(exportSubMenu);
 		fileMenu.addSeparator();
@@ -1371,15 +1398,32 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
 	 * @param fileType file type to use (e.g. RASAero)
+	 * @param selectedComponents list of selected components in the design
 	 * @return the file selected from the dialog, or null if no file was selected.
 	 */
-	private File openFileSaveAsDialog(FileType fileType) {
-		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType);
+	private File openFileSaveAsDialog(FileType fileType, List<RocketComponent> selectedComponents) {
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType, selectedComponents);
+		OBJOptionChooser objChooser = null;
+		if (chooser.getAccessory() instanceof OBJOptionChooser) {
+			objChooser = (OBJOptionChooser) chooser.getAccessory();
+		}
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return null;
+		}
+
+		// Store the OBJ options
+		if (objChooser != null) {
+			objChooser.storeOptions(document.getDefaultOBJOptions(), true);
+
+			// We need to separately store the preference options, because the export children option can be
+			// automatically selected based on whether only component assemblies are selected. We don't want to
+			// store that state in the preferences.
+			OBJExportOptions prefOptions = new OBJExportOptions(rocket);
+			objChooser.storeOptions(prefOptions, false);
+			prefs.saveOBJExportOptions(prefOptions);
 		}
 
 		File file = chooser.getSelectedFile();
@@ -1391,6 +1435,15 @@ public class BasicFrame extends JFrame {
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
 		return file;
+	}
+
+	/**
+	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
+	 * @param fileType file type to use (e.g. RASAero)
+	 * @return the file selected from the dialog, or null if no file was selected.
+	 */
+	private File openFileSaveAsDialog(FileType fileType) {
+		return openFileSaveAsDialog(fileType, null);
 	}
 
 
@@ -1589,6 +1642,47 @@ public class BasicFrame extends JFrame {
 	}
 
 	////	END ROCKSIM Save/Export Action
+
+
+	////	BEGIN WAVEFRONT OBJ Save/Export Action
+	/**
+	 * MODEL "Export as" Wavefront OBJ file format
+	 *
+	 * @return true if the file was saved, false otherwise
+	 */
+	public boolean exportWavefrontOBJAction() {
+		File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
+		if (file == null) {
+			return false;
+		}
+
+		file = FileHelper.forceExtension(file, "obj");
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
+		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
+			return saveAsWavefrontOBJ(file);
+		}
+		return false;
+	}
+
+	private boolean saveAsWavefrontOBJ(File file) {
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		return saveWavefrontOBJFile(file, options);
+	}
+
+	/**
+	 * Perform the actual saving of the Wavefront OBJ file
+	 * @param file file to be stored
+	 * @param options OBJ export options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveWavefrontOBJFile(File file, OBJExportOptions options) {
+		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
+				file, options);
+		exporter.doExport();
+
+		return true;
+	}
 
 
 	/**

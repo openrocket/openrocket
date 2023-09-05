@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 
 public abstract class FileUtils {
 
@@ -36,6 +37,28 @@ public abstract class FileUtils {
 
 		return bos.toByteArray();
 
+	}
+
+	/**
+	 * Remove the extension from a file name.
+	 * @param fileName the file name
+	 * @return the file name without extension
+	 */
+	public static String removeExtension(String fileName) {
+		String[] splitResults = fileName.split("\\.");
+		if (splitResults.length > 0) {
+			return splitResults[0];
+		}
+		return fileName;
+	}
+
+	/**
+	 * Get the file name from a path.
+	 * @param pathString the path (e.g. "my/file/path.txt")
+	 * @return the file name (e.g. "path.txt")
+	 */
+	public static String getFileNameFromPath(String pathString) {
+		return Paths.get(pathString).getFileName().toString();
 	}
 
 }

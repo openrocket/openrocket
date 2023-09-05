@@ -470,6 +470,16 @@ public class GUIUtil {
 			table.getColumnModel().getColumn(col).setPreferredWidth(Math.min(widths[col], max) * 100);
 		}
 	}
+
+	public static Window getWindowAncestor(Component c) {
+		while (c != null) {
+			if (c instanceof Window) {
+				return (Window) c;
+			}
+			c = c.getParent();
+		}
+		return null;
+	}
 	
 	/**
 	 * Changes the style of the font of the specified border.

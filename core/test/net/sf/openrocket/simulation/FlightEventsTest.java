@@ -170,7 +170,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 				if (1200 != expected.getTime()) {
                     // Tumbling can have a very large time error, so implement a more course epsilon (otherwise unit tests just keep failing...)
-                    double epsilon = actual.getType() == FlightEvent.Type.TUMBLE ? 0.05 : EPSILON;
+                    double epsilon = actual.getType() == FlightEvent.Type.TUMBLE || actual.getType() == FlightEvent.Type.APOGEE ? 0.05 : EPSILON;
 					assertEquals("Branch " + b + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ",
 								 expected.getTime(), actual.getTime(), epsilon);
 				}

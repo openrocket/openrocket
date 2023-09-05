@@ -43,7 +43,7 @@ public class AboutDialog extends JDialog {
 		"Daniel Williams (pod support, maintainer)<br>" +
 		"Joe Pfeiffer (maintainer)<br>" +
 		"Billy Olsen (maintainer)<br>" +
-		"Sibo Van Gool (RASAero file format, maintainer)<br>" +
+		"Sibo Van Gool (RASAero file format, 3D OBJ export, dark theme, maintainer)<br>" +
 		"Justin Hanney (maintainer)<br>" +
 		"Neil Weinstock (tester, icons, forum support)<br>" +
 		"H. Craig Miller (tester)<br><br>" +
@@ -76,8 +76,9 @@ public class AboutDialog extends JDialog {
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
 		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
 		"Darklaf (dark theme)" + href("https://github.com/weisJ/darklaf", true, true) + "<br>" +
-		"jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
-		"<br>" +
+        "jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
+        "Obj" + href("https://github.com/javagl/Obj", true, true) + "<br>" +
+        "<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
 		"Rocket Motor Data" + href("https://www.thrustcurve.org", true, true) + "<br>" +
