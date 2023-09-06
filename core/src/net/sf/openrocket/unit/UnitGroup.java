@@ -36,6 +36,7 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_LENGTH;
 	public static final UnitGroup UNITS_ALL_LENGTHS;
 	public static final UnitGroup UNITS_DISTANCE;
+	public static final UnitGroup UNITS_SHAPE_PARAMETER;
 	
 	public static final UnitGroup UNITS_AREA;
 	public static final UnitGroup UNITS_STABILITY;
@@ -127,7 +128,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
-		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 0.1));
+		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 1));
 		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		
@@ -163,6 +164,9 @@ public class UnitGroup {
 		UNITS_AREA.addUnit(new GeneralUnit(1, "m" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254), "in" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048), "ft" + SQUARED));
+
+		UNITS_SHAPE_PARAMETER = new UnitGroup();
+		UNITS_SHAPE_PARAMETER.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 		
 		
 		UNITS_STABILITY = new UnitGroup();
