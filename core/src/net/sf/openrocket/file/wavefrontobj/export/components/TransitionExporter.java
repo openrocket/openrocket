@@ -133,8 +133,11 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         final double actualLength = estimateActualLength(offsetRadius, dxBase);     // Actual length of the transition (due to reduced step size near the fore/aft end)
 
         // Get the location where the fore/aft shoulder would end (due to its thickness)
-        final double xForeShoulder = component.getForeShoulderThickness();
-        final double xAftShoulder = component.getLength() - component.getAftShoulderThickness();
+        final double shoulderMargin = 0.001;     // Margin to prevent the shoulder from being too close to the transition end
+        final double foreShoulderMargin = hasForeShoulder ? shoulderMargin : 0;
+        final double aftShoulderMargin = hasAftShoulder ? shoulderMargin : 0;
+        final double xForeShoulder = component.getForeShoulderThickness() + foreShoulderMargin;
+        final double xAftShoulder = component.getLength() - component.getAftShoulderThickness() - aftShoulderMargin;
 
         // Generate vertices and normals
         float x = 0;                                        // Distance from the fore end
