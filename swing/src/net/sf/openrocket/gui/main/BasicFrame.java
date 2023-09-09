@@ -1530,8 +1530,9 @@ public class BasicFrame extends JFrame {
 								//	//	Some design features may not have been exported correctly.
 								trans.get("BasicFrame.WarningDialog.saving.txt2")
 						},
-						//	//	Warnings while opening file
-						trans.get("BasicFrame.WarningDialog.saving.title"), warnings);
+						////	Warnings while saving file
+						trans.get("BasicFrame.WarningDialog.saving.title"),
+						warnings);
 			} else if (!errors.isEmpty()) {
 				ErrorWarningDialog.showErrorsAndWarnings(BasicFrame.this,
 						new Object[]{
@@ -1677,9 +1678,20 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was written
 	 */
 	private boolean saveWavefrontOBJFile(File file, OBJExportOptions options) {
+		WarningSet warnings = new WarningSet();
 		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
-				file, options);
+				file, options, warnings);
 		exporter.doExport();
+
+		// Show warning dialog
+		if (!warnings.isEmpty()) {
+			WarningDialog.showWarnings(this,
+					////	The following problems were encountered while saving
+					trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+					////	Warnings while saving file
+					trans.get("BasicFrame.WarningDialog.saving.title"),
+					warnings);
+		}
 
 		return true;
 	}

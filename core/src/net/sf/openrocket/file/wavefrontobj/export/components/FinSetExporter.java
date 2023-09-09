@@ -6,6 +6,8 @@ import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.PolygonExporter;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
@@ -16,8 +18,8 @@ import java.util.List;
 
 public class FinSetExporter extends RocketComponentExporter<FinSet> {
     public FinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                          FinSet component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, config, transformer, component, groupName, LOD);
+                          FinSet component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
     @Override
@@ -34,6 +36,10 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         final FloatPoints floatTabPoints = getPointsAsFloat(tabPointsReversed);
         final float thickness = (float) component.getThickness();
         boolean hasTabs = component.getTabLength() > 0 && component.getTabHeight() > 0;
+
+        if (Float.compare(thickness, 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+        }
 
         // Generate the fin meshes
         for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {

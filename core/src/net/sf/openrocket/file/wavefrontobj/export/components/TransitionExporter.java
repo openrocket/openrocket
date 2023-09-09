@@ -9,6 +9,8 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -22,14 +24,18 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private final int nrOfSides;
 
     public TransitionExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, config, transformer, component, groupName, LOD);
+                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, warnings);
         this.nrOfSides = LOD.getNrOfSides(Math.max(component.getForeRadius(), component.getAftRadius()));
     }
 
     @Override
     public void addToObj() {
         obj.setActiveGroupNames(groupName);
+
+        if (Double.compare(component.getThickness(), 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+        }
 
         // Generate the mesh
         for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {

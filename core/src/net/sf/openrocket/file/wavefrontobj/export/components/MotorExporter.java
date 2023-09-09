@@ -6,6 +6,7 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -24,6 +25,7 @@ public class MotorExporter {
     protected final String groupName;
     protected final ObjUtils.LevelOfDetail LOD;
     protected final CoordTransform transformer;
+    protected final WarningSet warnings;
 
     /**
      * Wavefront OBJ exporter for a rocket component.
@@ -36,7 +38,7 @@ public class MotorExporter {
      * @param LOD         Level of detail to use for the export (e.g. '80')
      */
     public MotorExporter(DefaultObj obj, FlightConfiguration config, CoordTransform transformer, RocketComponent mount,
-                         String groupName, ObjUtils.LevelOfDetail LOD) {
+                         String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         if (!(mount instanceof MotorMount)) {
             throw new IllegalArgumentException("Motor exporter can only be used for motor mounts");
         }
@@ -46,6 +48,7 @@ public class MotorExporter {
         this.mount = mount;
         this.groupName = groupName;
         this.LOD = LOD;
+        this.warnings = warnings;
     }
 
     public void addToObj() {
