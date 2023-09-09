@@ -836,7 +836,7 @@ public class RocketComponentConfig extends JPanel {
 			sub.setBorder(null);
 		} else {
 			//// Aft shoulder
-			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
+			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.border.Aftshoulder")));
 		}
 
 

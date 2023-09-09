@@ -9,11 +9,13 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.List;
 public class TransitionExporter extends RocketComponentExporter<Transition> {
     private static final double RADIUS_EPSILON = 1e-4;
     private final int nrOfSides;
+    private static final Translator trans = Application.getTranslator();
 
     public TransitionExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
                               Transition component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
@@ -55,6 +58,16 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         final boolean isFilled = component.isFilled() ||
                 (Double.compare(component.getForeRadius(), component.getThickness()) <= 0 &&
                         Double.compare(component.getAftRadius(), component.getThickness()) <= 0);
+
+        // Warn for zero-thickness shoulders
+        if (hasForeShoulder && Double.compare(component.getForeShoulderThickness(), 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName() +
+                    " (" + trans.get("RocketCompCfg.border.Foreshoulder") + ")");
+        }
+        if (hasAftShoulder && Double.compare(component.getAftShoulderThickness(), 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName() +
+                    " (" + trans.get("RocketCompCfg.border.Aftshoulder") + ")");
+        }
 
         final List<Integer> outsideForeRingVertices = new ArrayList<>();
         final List<Integer> outsideAftRingVertices = new ArrayList<>();
