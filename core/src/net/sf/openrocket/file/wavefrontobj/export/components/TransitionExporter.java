@@ -49,15 +49,20 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private void generateMesh(InstanceContext context) {
         int startIdx = obj.getNumVertices();
 
-        final boolean hasForeShoulder = Double.compare(component.getForeShoulderRadius(), 0) > 0
-                && Double.compare(component.getForeShoulderLength(), 0) > 0
+        final boolean hasForeShoulder = Double.compare(component.getForeShoulderLength(), 0) > 0
                 && component.getForeRadius() > 0;
-        final boolean hasAftShoulder = Double.compare(component.getAftShoulderRadius(), 0) > 0
-                && Double.compare(component.getAftShoulderLength(), 0) > 0
+        final boolean hasAftShoulder = Double.compare(component.getAftShoulderLength(), 0) > 0
                 && component.getAftRadius() > 0;
+
+        final boolean foreSmallerThickn = Double.compare(component.getForeRadius(), component.getThickness()) <= 0;
+        final boolean aftSmallerThickn = Double.compare(component.getAftRadius(), component.getThickness()) <= 0;
+        final boolean foreShoulderCapped = hasForeShoulder && component.isForeShoulderCapped();
+        final boolean aftShoulderCapped = hasAftShoulder && component.isAftShoulderCapped();
         final boolean isFilled = component.isFilled() ||
-                (Double.compare(component.getForeRadius(), component.getThickness()) <= 0 &&
-                        Double.compare(component.getAftRadius(), component.getThickness()) <= 0);
+                (foreSmallerThickn && aftSmallerThickn) ||
+                (foreSmallerThickn && aftShoulderCapped) ||
+                (aftSmallerThickn && foreShoulderCapped) ||
+                (foreShoulderCapped && aftShoulderCapped);
 
         // Warn for zero-thickness shoulders
         if (hasForeShoulder && Double.compare(component.getForeShoulderThickness(), 0) == 0) {
