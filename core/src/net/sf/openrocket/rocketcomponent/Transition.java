@@ -119,7 +119,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 
-		setForeShoulderRadius(getForeShoulderRadius());
+		setForeShoulderRadius(getForeShoulderRadius(), doClamping);
 	}
 
 	public void setForeRadius(double radius) {
@@ -396,19 +396,29 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return foreShoulderRadius;
 	}
 
-	public void setForeShoulderRadius(double foreShoulderRadius) {
+	public void setForeShoulderRadius(double foreShoulderRadius, boolean doClamping) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
-				((Transition) listener).setForeShoulderRadius(foreShoulderRadius);
+				((Transition) listener).setForeShoulderRadius(foreShoulderRadius, doClamping);
 			}
 		}
 		foreShoulderRadius = Math.min(foreShoulderRadius, getForeRadius());
 
 		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
 			return;
+
 		this.foreShoulderRadius = foreShoulderRadius;
+
+		if (doClamping) {
+			this.foreShoulderThickness = Math.min(this.foreShoulderRadius, this.foreShoulderThickness);
+		}
+
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	public void setForeShoulderRadius(double foreShoulderRadius) {
+		setForeShoulderRadius(foreShoulderRadius, true);
 	}
 
 	public double getForeShoulderThickness() {
@@ -469,10 +479,10 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		return aftShoulderRadius;
 	}
 
-	public void setAftShoulderRadius(double aftShoulderRadius) {
+	public void setAftShoulderRadius(double aftShoulderRadius, boolean doClamping) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Transition) {
-				((Transition) listener).setAftShoulderRadius(aftShoulderRadius);
+				((Transition) listener).setAftShoulderRadius(aftShoulderRadius, doClamping);
 			}
 		}
 
@@ -480,9 +490,19 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 
 		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
 			return;
+
 		this.aftShoulderRadius = aftShoulderRadius;
+
+		if (doClamping) {
+			this.aftShoulderThickness = Math.min(this.aftShoulderRadius, this.aftShoulderThickness);
+		}
+
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	public void setAftShoulderRadius(double aftShoulderRadius) {
+		setAftShoulderRadius(aftShoulderRadius, true);
 	}
 
 	public double getAftShoulderThickness() {
