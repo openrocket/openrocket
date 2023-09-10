@@ -8,6 +8,7 @@ import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.RailButton;
@@ -26,8 +27,8 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
      * @param LOD       Level of detail to use for the export (e.g. '80')
      */
     public RailButtonExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              RailButton component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, config, transformer, component, groupName, LOD);
+                              RailButton component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
     @Override

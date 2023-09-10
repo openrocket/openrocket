@@ -9,9 +9,13 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.CylinderExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.DiskExporter;
 import net.sf.openrocket.file.wavefrontobj.export.shapes.TubeExporter;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 import java.util.ArrayList;
@@ -20,16 +24,21 @@ import java.util.List;
 public class TransitionExporter extends RocketComponentExporter<Transition> {
     private static final double RADIUS_EPSILON = 1e-4;
     private final int nrOfSides;
+    private static final Translator trans = Application.getTranslator();
 
     public TransitionExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, config, transformer, component, groupName, LOD);
+                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, warnings);
         this.nrOfSides = LOD.getNrOfSides(Math.max(component.getForeRadius(), component.getAftRadius()));
     }
 
     @Override
     public void addToObj() {
         obj.setActiveGroupNames(groupName);
+
+        if (Double.compare(component.getThickness(), 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+        }
 
         // Generate the mesh
         for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
@@ -40,15 +49,30 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private void generateMesh(InstanceContext context) {
         int startIdx = obj.getNumVertices();
 
-        final boolean hasForeShoulder = Double.compare(component.getForeShoulderRadius(), 0) > 0
-                && Double.compare(component.getForeShoulderLength(), 0) > 0
+        final boolean hasForeShoulder = Double.compare(component.getForeShoulderLength(), 0) > 0
                 && component.getForeRadius() > 0;
-        final boolean hasAftShoulder = Double.compare(component.getAftShoulderRadius(), 0) > 0
-                && Double.compare(component.getAftShoulderLength(), 0) > 0
+        final boolean hasAftShoulder = Double.compare(component.getAftShoulderLength(), 0) > 0
                 && component.getAftRadius() > 0;
+
+        final boolean foreSmallerThickn = Double.compare(component.getForeRadius(), component.getThickness()) <= 0;
+        final boolean aftSmallerThickn = Double.compare(component.getAftRadius(), component.getThickness()) <= 0;
+        final boolean foreShoulderCapped = hasForeShoulder && component.isForeShoulderCapped();
+        final boolean aftShoulderCapped = hasAftShoulder && component.isAftShoulderCapped();
         final boolean isFilled = component.isFilled() ||
-                (Double.compare(component.getForeRadius(), component.getThickness()) <= 0 &&
-                        Double.compare(component.getAftRadius(), component.getThickness()) <= 0);
+                (foreSmallerThickn && aftSmallerThickn) ||
+                (foreSmallerThickn && aftShoulderCapped) ||
+                (aftSmallerThickn && foreShoulderCapped) ||
+                (foreShoulderCapped && aftShoulderCapped);
+
+        // Warn for zero-thickness shoulders
+        if (hasForeShoulder && Double.compare(component.getForeShoulderThickness(), 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName() +
+                    " (" + trans.get("RocketCompCfg.border.Foreshoulder") + ")");
+        }
+        if (hasAftShoulder && Double.compare(component.getAftShoulderThickness(), 0) == 0) {
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName() +
+                    " (" + trans.get("RocketCompCfg.border.Aftshoulder") + ")");
+        }
 
         final List<Integer> outsideForeRingVertices = new ArrayList<>();
         final List<Integer> outsideAftRingVertices = new ArrayList<>();
@@ -127,8 +151,11 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         final double actualLength = estimateActualLength(offsetRadius, dxBase);     // Actual length of the transition (due to reduced step size near the fore/aft end)
 
         // Get the location where the fore/aft shoulder would end (due to its thickness)
-        final double xForeShoulder = component.getForeShoulderThickness();
-        final double xAftShoulder = component.getLength() - component.getAftShoulderThickness();
+        final double shoulderMargin = 0.001;     // Margin to prevent the shoulder from being too close to the transition end
+        final double foreShoulderMargin = hasForeShoulder ? shoulderMargin : 0;
+        final double aftShoulderMargin = hasAftShoulder ? shoulderMargin : 0;
+        final double xForeShoulder = component.getForeShoulderThickness() + foreShoulderMargin;
+        final double xAftShoulder = component.getLength() - component.getAftShoulderThickness() - aftShoulderMargin;
 
         // Generate vertices and normals
         float x = 0;                                        // Distance from the fore end

@@ -8,16 +8,12 @@ import com.google.inject.util.Modules;
 import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.motor.MotorDatabase;
-import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
-import net.sf.openrocket.file.GeneralRocketLoader;
-import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.openrocket.OpenRocketSaverTest;
-import net.sf.openrocket.file.wavefrontobj.CoordTransform;
-import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -43,6 +39,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 public class OBJExporterFactoryTest {
     private static final File TMP_DIR = new File("./tmp/");
@@ -165,8 +162,11 @@ public class OBJExporterFactoryTest {
         options.setScaling(30);
         options.setExportChildren(true);
         options.setRemoveOffset(true);
-        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options);
+        WarningSet warnings = new WarningSet();
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
+        //// Just hope for no exceptions :)
+        assertEquals(warnings.size(), 0);
 
 
         // Test with other parameters
@@ -180,8 +180,18 @@ public class OBJExporterFactoryTest {
         options.setScaling(1000);
         options.setLOD(ObjUtils.LevelOfDetail.LOW_QUALITY);
 
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options);
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
+        //// Just hope for no exceptions :)
+        assertEquals(warnings.size(), 0);
+
+        // Test zero-thickness nose cone
+        noseCone.setThickness(0);
+
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
+        exporterFactory.doExport();
+        //// Just hope for no exceptions :)
+        assertEquals(warnings.size(), 1);
 
         // Clean up
         Files.delete(tempFile);

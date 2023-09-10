@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -20,6 +21,7 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
     protected final String groupName;
     protected final ObjUtils.LevelOfDetail LOD;
     protected final CoordTransform transformer;
+    protected final WarningSet warnings;
 
     /**
      * Wavefront OBJ exporter for a rocket component.
@@ -31,13 +33,15 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
      * @param LOD Level of detail to use for the export (e.g. '80')
      */
     public RocketComponentExporter(@NotNull DefaultObj obj, @NotNull FlightConfiguration config, @NotNull CoordTransform transformer,
-                                   T component, String groupName, ObjUtils.LevelOfDetail LOD) {
+                                   T component, String groupName, ObjUtils.LevelOfDetail LOD,
+                                   WarningSet warnings) {
         this.obj = obj;
         this.config = config;
         this.component = component;
         this.groupName = groupName;
         this.LOD = LOD;
         this.transformer = transformer;
+        this.warnings = warnings;
     }
 
     public abstract void addToObj();

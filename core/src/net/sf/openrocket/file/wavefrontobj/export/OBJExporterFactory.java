@@ -18,6 +18,7 @@ import net.sf.openrocket.file.wavefrontobj.export.components.RocketComponentExpo
 import net.sf.openrocket.file.wavefrontobj.export.components.RingComponentExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.TransitionExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.TubeFinSetExporter;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -69,6 +70,7 @@ public class OBJExporterFactory {
     private final FlightConfiguration configuration;
     private final OBJExportOptions options;
     private final File file;
+    private final WarningSet warnings;
 
     private static final Logger log = LoggerFactory.getLogger(OBJExporterFactory.class);
 
@@ -93,11 +95,12 @@ public class OBJExporterFactory {
      * @param file The file to export the OBJ to
      */
     public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, File file,
-                              OBJExportOptions options) {
+                              OBJExportOptions options, WarningSet warnings) {
         this.components = components;
         this.configuration = configuration;
         this.file = file;
         this.options = options;
+        this.warnings = warnings;
     }
 
     /**
@@ -152,7 +155,7 @@ public class OBJExporterFactory {
             // Component exporting
             String groupName = idx + "_" + component.getName();
             handleComponent(obj, this.configuration, this.options.getTransformer(), component, groupName,
-                    materials.get(obj), this.options.getLOD(), options);
+                    materials.get(obj), this.options.getLOD(), options, warnings);
 
             // If separate export, add this object to the map of objects to export
             if (exportAsSeparateFiles) {
@@ -225,7 +228,8 @@ public class OBJExporterFactory {
     @SuppressWarnings("unchecked") // This is safe because of the structure we set up.
     private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
                                                              T component, String groupName, List<DefaultMtl> materials,
-                                                             ObjUtils.LevelOfDetail LOD, OBJExportOptions options) {
+                                                             ObjUtils.LevelOfDetail LOD, OBJExportOptions options,
+                                                             WarningSet warnings) {
         ExporterFactory<T> factory = null;
         Class<?> currentClass = component.getClass();
 
@@ -254,7 +258,7 @@ public class OBJExporterFactory {
         }
 
         // Export component
-        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD);
+        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD, warnings);
         exporter.addToObj();
 
         // Export motor
@@ -272,7 +276,7 @@ public class OBJExporterFactory {
             }
 
             // Export the motor geometry
-            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD);
+            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD, warnings);
             motorExporter.addToObj();
         }
     }
@@ -300,6 +304,6 @@ public class OBJExporterFactory {
 
     interface ExporterFactory<T extends RocketComponent> {
         RocketComponentExporter<T> create(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
-                                          T component, String groupName, ObjUtils.LevelOfDetail LOD);
+                                          T component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings);
     }
 }

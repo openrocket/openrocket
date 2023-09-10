@@ -5,6 +5,7 @@ import net.sf.openrocket.file.wavefrontobj.CoordTransform;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultObjFace;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.InstanceContext;
 import net.sf.openrocket.rocketcomponent.MassObject;
@@ -13,8 +14,8 @@ import net.sf.openrocket.util.RocketComponentUtils;
 
 public class MassObjectExporter extends RocketComponentExporter<MassObject> {
     public MassObjectExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              MassObject component, String groupName, ObjUtils.LevelOfDetail LOD) {
-        super(obj, config, transformer, component, groupName, LOD);
+                              MassObject component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
     @Override
