@@ -20,14 +20,20 @@ OpenRocket 23.09b1
 
 This is beta release of 23.09.
 
-### Major New Features and Bug Fixes
+### Major Updates
+
+#### New Features:
 * **Export any component or combination to OBJ file, for 3D printing or import into CAD** (fixes #604)
 * **Import/Export to/from RASAero** (fixes #875 and #1147)
 * **Dark mode and custom UI font size support** (fixes 1089)
-* **Tube fin drag fixed** (fixes #2065)
 * **Export sim table to CSV** (fixes #2077)
-* **Properly sanitize XML in ORK file** (eliminates corrupt ORK files, fixes #2051)
+
+#### Bug Fixes:
+* **Tube fin drag fixed** (fixes #2065)
 * **Fix base drag when using Cd override** (fixes base drag hack sim error, fixes #2118)
+* **Use correct atmospheric pressure when using ISA conditions** (fixes #2103)
+* **Properly sanitize XML in ORK file** (eliminates corrupt ORK files, fixes #2051)
+
 
 ### Other New Features
 * App updated to Java 17
