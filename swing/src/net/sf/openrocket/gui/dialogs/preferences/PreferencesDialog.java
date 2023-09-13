@@ -141,8 +141,10 @@ public class PreferencesDialog extends JDialog {
 				// We don't want to lose the preference for the confirmation dialog
 				boolean isShowDiscardConfirmation = preferences.isShowDiscardPreferencesConfirmation();
 
-				// Reload initial preferences
-				if (!storePreferences) {
+				// Either store changed preferences (if OK) or reload initial preferences (if Cancel)
+				if (storePreferences) {
+					preferences.storeDefaultUnits();
+				} else {
 					loadInitPreferences();
 				}
 
