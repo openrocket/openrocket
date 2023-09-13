@@ -24,7 +24,7 @@ This is beta release of 23.09.
 
 #### New Features:
 * **3D Printing Support: Export any component or combination to OBJ file** (fixes #604)
-* **RASAero compatibility: Import/Export .CDX1 files** (fixes #875 and #1147)
+* **RASAero compatibility: Import/Export CDX1 files** (fixes #875 and #1147)
 * **Dark mode and custom UI font size support** (fixes 1089)
 * **Export sim table to CSV** (fixes #2077)
 
