@@ -29,9 +29,9 @@ This is beta release of 23.09.
 * **Export sim table to CSV** (fixes #2077)
 
 #### Bug Fixes:
-* **Tube fin drag fixed** (fixes #2065)
-* **Base drag fixed when using Cd override** (fixes base drag hack sim error, fixes #2118)
-* **Atmospheric pressure fixed when using ISA conditions** (fixes #2103)
+* **Fix Tube fin drag** (fixes #2065)
+* **Fix Base drag when using Cd override** (fixes base drag hack sim error, fixes #2118)
+* **Fix Atmospheric pressure when using ISA conditions** (fixes #2103)
 * **Properly sanitize XML in ORK file** (eliminates corrupt ORK files, fixes #2051)
 
 
