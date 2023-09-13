@@ -15,8 +15,10 @@ Release Notes
 
 <div id="23.xx">
 
-OpenRocket 23.09
+OpenRocket 23.09b1
 ------------------------
+
+This is beta release of 23.09.
 
 ### Major New Features and Bug Fixes
 * **Export any component or combination to OBJ file, for 3D printing or import into CAD** (fixes #604)
