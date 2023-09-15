@@ -37,8 +37,8 @@ This is the first beta release of version 23.09.
 
 ### Other New Features
 * Bumped app to Java 17
-* Export and import preferences
-* Display secondary stability unit.  This means you can display stability in both calibers *and* percentage of length (fixes #2079)
+* Export and import preferences to XML file
+* Display secondary stability unit. This means you can display stability in both calibers *and* percentage of length (fixes #2079)
 * Added "cases" and "manufacturers" substitution in motor config names (fixes #2055 and #2204)
 * Selection of "common name" or "manufacturer's designation" in motor selection table is now reflected everywhere else in the program (fixes #2072)
 * Added "plugged" option in charge delay combobox (fixes #2090)
