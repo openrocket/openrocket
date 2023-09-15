@@ -262,7 +262,7 @@ public class OBJExporterFactory {
         exporter.addToObj();
 
         // Export motor
-        if (component instanceof MotorMount) {
+        if (component instanceof MotorMount && options.isExportMotors()) {
             // Get the motor
             MotorConfiguration motoConfig = ((MotorMount) component).getMotorConfig(config.getId());
             Motor motor = motoConfig.getMotor();

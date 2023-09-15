@@ -46,6 +46,7 @@ public class OBJOptionChooser extends JPanel {
     private final JButton optRend;
     private final JLabel componentsLabel;
     private final JCheckBox exportChildren;
+    private final JCheckBox exportMotors;
     private final JCheckBox exportAppearance;
     private final JCheckBox exportAsSeparateFiles;
     private final JCheckBox removeOffset;
@@ -145,6 +146,13 @@ public class OBJOptionChooser extends JPanel {
         });
         destroyTheMagic(exportChildren);
         this.add(exportChildren, "spanx, wrap");
+
+        //// Export motors
+        this.exportMotors = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportMotors"));
+        this.exportMotors.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportMotors.ttip"));
+        destroyTheMagic(exportMotors);
+        addOptimizationListener(exportMotors);
+        this.add(exportMotors, "spanx, wrap");
 
         //// Remove origin offset
         this.removeOffset = new JCheckBox(trans.get("OBJOptionChooser.checkbox.removeOffset"));
@@ -360,6 +368,7 @@ public class OBJOptionChooser extends JPanel {
             exportChildren.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportChildren.ttip"));
         }
 
+        this.exportMotors.setSelected(opts.isExportMotors());
         this.exportAppearance.setSelected(opts.isExportAppearance());
         this.exportAsSeparateFiles.setSelected(opts.isExportAsSeparateFiles());
         this.removeOffset.setSelected(opts.isRemoveOffset());
@@ -391,6 +400,7 @@ public class OBJOptionChooser extends JPanel {
         if (alwaysStoreExportChildren || !onlyComponentAssemblies) {
             opts.setExportChildren(exportChildren.isSelected());
         }
+        opts.setExportMotors(exportMotors.isSelected());
         opts.setExportAppearance(exportAppearance.isSelected());
         opts.setExportAsSeparateFiles(exportAsSeparateFiles.isSelected());
         opts.setRemoveOffset(removeOffset.isSelected());
@@ -409,6 +419,7 @@ public class OBJOptionChooser extends JPanel {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
 
+        options.setExportMotors(false);
         options.setExportAppearance(false);
         options.setRemoveOffset(true);
         options.setScaling(1000);
@@ -424,14 +435,15 @@ public class OBJOptionChooser extends JPanel {
      * @return True if the settings are optimized for 3D printing, false otherwise
      */
     private boolean isOptimizedFor3DPrinting(OBJExportOptions options) {
-        return !options.isExportAppearance() && options.isTriangulate() && options.getLOD() == ObjUtils.LevelOfDetail.HIGH_QUALITY &&
-                options.isRemoveOffset() && options.getScaling() == 1000;
+        return !options.isExportMotors() && !options.isExportAppearance() && options.isTriangulate() &&
+                options.getLOD() == ObjUtils.LevelOfDetail.HIGH_QUALITY && options.isRemoveOffset() && options.getScaling() == 1000;
     }
 
     private void optimizeSettingsForRendering() {
         OBJExportOptions options = new OBJExportOptions(rocket);
         storeOptions(options, true);
 
+        options.setExportMotors(true);
         options.setExportAppearance(true);
         options.setScaling(20);     // Idk, pretty arbitrary
         options.setTriangulate(false);
@@ -446,8 +458,8 @@ public class OBJOptionChooser extends JPanel {
      * @return True if the settings are optimized for rendering, false otherwise
      */
     private boolean isOptimizedForRendering(OBJExportOptions options) {
-        return options.isExportAppearance() && !options.isTriangulate() && options.getLOD() == ObjUtils.LevelOfDetail.NORMAL_QUALITY &&
-                options.getScaling() == 20;
+        return options.isExportMotors() && options.isExportAppearance() && !options.isTriangulate() &&
+                options.getLOD() == ObjUtils.LevelOfDetail.NORMAL_QUALITY && options.getScaling() == 20;
     }
 
     private static boolean isOnlyComponentAssembliesSelected(List<RocketComponent> selectedComponents) {
