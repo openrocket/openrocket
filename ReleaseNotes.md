@@ -36,7 +36,7 @@ This is the first beta release of version 23.09.
 
 
 ### Other New Features
-* Updated app to Java 17
+* Bumped app to Java 17
 * Export and import preferences
 * Display secondary stability unit.  This means you can display stability in both calibers *and* percentage of length (fixes #2079)
 * Added "cases" and "manufacturers" substitution in motor config names (fixes #2055 and #2204)
