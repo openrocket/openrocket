@@ -42,9 +42,5 @@ public class ComponentTree extends BasicTree {
 		
 		// Enable tooltips for this component
 		ToolTipManager.sharedInstance().registerComponent(this);
-		
 	}
-	
-
-
 }
