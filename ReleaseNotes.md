@@ -13,13 +13,81 @@ Release Notes
 
 </div>
 
-<div id="23.xx">
+<div id="23.09.beta.01">
 
-OpenRocket 23.xx
+OpenRocket 23.09.beta.01
 ------------------------
 
-Here, the release notes for the next release will be documented.
+This is the first beta release of version 23.09.
 
+### Major Updates
+
+#### New Features:
+* **3D Printing Support: Export any component or combination to OBJ file** (fixes #604)
+* **RASAero compatibility: Import/Export CDX1 files** (fixes #875 and #1147)
+* **Dark mode and custom UI font size support** (fixes #1089)
+* **Export sim table to CSV** (fixes #2077)
+
+#### Bug Fixes:
+* **Fix Tube fin drag** (fixes #2065)
+* **Fix Base drag when using Cd override** (fixes base drag hack sim error, fixes #2118)
+* **Fix Atmospheric pressure when using ISA conditions** (fixes #2103)
+* **Properly sanitize XML in ORK file** (eliminates corrupt ORK files, fixes #2051)
+
+
+### Other New Features
+* Bumped app to Java 17
+* Export and import preferences to XML file
+* Display secondary stability unit. This means you can display stability in both calibers *and* percentage of length (fixes #2079)
+* Added "cases" and "manufacturers" substitution in motor config names (fixes #2055 and #2204)
+* Selection of "common name" or "manufacturer's designation" in motor selection table is now reflected everywhere else in the program (fixes #2072)
+* Added "plugged" option in charge delay combobox (fixes #2090)
+* Added motor type to "show details" in motor selection (fixes #2069)
+* Added instances settings in launch lug config (fixes #2035)
+* Account for fin cant in fin root points, and support canted fins in fin marking guide (fixes #2231 and #2242)
+* Set cluster tube separation in absolute or relative units (fixes #1970)
+* Support transparent rendering and export of Photo Studio images (fixes #2076)
+* Added "Select -> Components of same color" and "Select -> None" options (fixes #2129)
+
+### Bug Fixes
+* Fix mass issues with fin sets (fixes #2217)
+* Fix CG issues for launch lugs and rail buttons (fixes #2040)
+* Improved rail button drag calculations
+* Add parts detail for pods and boosters (fixes #2084)
+* Fix parachute position when using auto radius (fixes #2036)
+* Fixed pod set and booster marker position under certain circumstances (fixes #2047)
+* Fix CG marker location in top view (fixes #2050)
+* Handle zero-area fins (warn and don't crash with NaN error) (fixes #2032)
+* Don't dispose config dialog when no components are selected in 3D view (fixes #2108)
+* Display ISA values in temp and pressure fields (fixes #2104)
+* Improve simulation of fins on transitions and nose cones (fixes #2113)
+* Cleaned up multi-sim editing (fixes #2138 and #1826)
+* Update ruler units immediately when preferences are changed (fixes #2151)
+* Compute CG and CP based on currently active stages (fixes #2171)
+* Improved mass/CG calculations for fillets (fixes 2209)
+* Set auto radius correctly for mass objects (fixes #2267)
+* Apply radial positioning to multi-engine clusters (fixes #2283)
+* Fix 3D rendering of fin tabs (fixes #2286)
+* Update recent file list when opening via file association (fixes #2222)
+
+### Miscellaneous
+* Updated example rockets (including brand-new two stage example)
+* Show calculated values in override tab (fixes #1629)
+* Decrease minimum FoV to 10 degrees in Photo Studio
+* Increase resolution of launch temperature and pressure to 2 decimal places (fixes #2003)
+* Display Cd oerride with 3 decimal places
+* Add wiki button to help menu (fixes #2046)
+* Eliminate option to save "some" sim data (fixes #2024)
+* Add OK/Cancel buttons when editing simulations (fixes #2158)
+* Add OK/Cancel buttons when editing preferences (fixes #2266)
+* Added multi-sim edit indicators (fixes #2159)
+* Show warning when motor file has illegal format (fixes #2150)
+* Reset window position if off-screen (fixes #2141)
+* Keep current field value when "auto" option is unchecked (fixes #2096)
+* Open dialog to save design info when first saving file
+
+
+...along with numerous other minor fixes and enhancements.
 </div>
 
 <div id="22.02">
