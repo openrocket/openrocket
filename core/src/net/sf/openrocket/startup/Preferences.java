@@ -122,6 +122,7 @@ public abstract class Preferences implements ChangeSource {
 	// OBJ Export options
 	private static final String OBJ_EXPORT_OPTIONS_NODE = "OBJExportOptions";
 	private static final String OBJ_EXPORT_CHILDREN = "ExportChildren";
+	private static final String OBJ_EXPORT_MOTORS = "ExportMotors";
 	private static final String OBJ_EXPORT_APPEARANCE = "ExportAppearance";
 	private static final String OBJ_EXPORT_AS_SEPARATE_FILES = "ExportAsSeparateFiles";
 	private static final String OBJ_REMOVE_OFFSET = "RemoveOffset";
@@ -1040,6 +1041,7 @@ public abstract class Preferences implements ChangeSource {
 		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
 
 		objExportOptionsNode.putBoolean(OBJ_EXPORT_CHILDREN, options.isExportChildren());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_MOTORS, options.isExportMotors());
 		objExportOptionsNode.putBoolean(OBJ_EXPORT_APPEARANCE, options.isExportAppearance());
 		objExportOptionsNode.putBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, options.isExportAsSeparateFiles());
 		objExportOptionsNode.putBoolean(OBJ_REMOVE_OFFSET, options.isRemoveOffset());
@@ -1069,6 +1071,7 @@ public abstract class Preferences implements ChangeSource {
 		// By default, we will use options optimized for 3D printing (most-used case)
 		OBJExportOptions options = new OBJExportOptions(rocket);
 		options.setExportChildren(objExportOptionsNode.getBoolean(OBJ_EXPORT_CHILDREN, false));
+		options.setExportMotors(objExportOptionsNode.getBoolean(OBJ_EXPORT_MOTORS, false));
 		options.setExportAppearance(objExportOptionsNode.getBoolean(OBJ_EXPORT_APPEARANCE, false));
 		options.setExportAsSeparateFiles(objExportOptionsNode.getBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, false));
 		options.setRemoveOffset(objExportOptionsNode.getBoolean(OBJ_REMOVE_OFFSET, true));

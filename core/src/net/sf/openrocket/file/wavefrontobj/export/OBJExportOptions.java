@@ -6,10 +6,16 @@ import net.sf.openrocket.file.wavefrontobj.ObjUtils;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
 public class OBJExportOptions {
+    // ! Update Preferences when adding new options !
+
     /**
      * If true, export all children of the components as well
      */
     private boolean exportChildren;
+    /**
+     * If true, export the motors of the components as well.
+     */
+    private boolean exportMotors;
     /**
      * If true, export the appearance of the components to an MTL file.
      */
@@ -62,6 +68,14 @@ public class OBJExportOptions {
 
     public void setExportChildren(boolean exportChildren) {
         this.exportChildren = exportChildren;
+    }
+
+    public boolean isExportMotors() {
+        return exportMotors;
+    }
+
+    public void setExportMotors(boolean exportMotors) {
+        this.exportMotors = exportMotors;
     }
 
     public boolean isRemoveOffset() {
