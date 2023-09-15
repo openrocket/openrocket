@@ -13,19 +13,19 @@ Release Notes
 
 </div>
 
-<div id="23.xx">
+<div id="23.09.beta.01">
 
-OpenRocket 23.09b1
+OpenRocket 23.09.beta.01
 ------------------------
 
-This is beta release of 23.09.
+This is the first beta release of version 23.09.
 
 ### Major Updates
 
 #### New Features:
 * **3D Printing Support: Export any component or combination to OBJ file** (fixes #604)
 * **RASAero compatibility: Import/Export CDX1 files** (fixes #875 and #1147)
-* **Dark mode and custom UI font size support** (fixes 1089)
+* **Dark mode and custom UI font size support** (fixes #1089)
 * **Export sim table to CSV** (fixes #2077)
 
 #### Bug Fixes:
@@ -36,7 +36,7 @@ This is beta release of 23.09.
 
 
 ### Other New Features
-* App updated to Java 17
+* Updated app to Java 17
 * Export and import preferences
 * Display secondary stability unit.  This means you can display stability in both calibers *and* percentage of length (fixes #2079)
 * Added "cases" and "manufacturers" substitution in motor config names (fixes #2055 and #2204)
@@ -44,19 +44,19 @@ This is beta release of 23.09.
 * Added "plugged" option in charge delay combobox (fixes #2090)
 * Added motor type to "show details" in motor selection (fixes #2069)
 * Added instances settings in launch lug config (fixes #2035)
-* Account for fin cant in fin root points, and support canted fins in fin marking guide (fixes 2231 and 2242)
+* Account for fin cant in fin root points, and support canted fins in fin marking guide (fixes #2231 and #2242)
 * Set cluster tube separation in absolute or relative units (fixes #1970)
 * Support transparent rendering and export of Photo Studio images (fixes #2076)
 * Added "Select -> Components of same color" and "Select -> None" options (fixes #2129)
 
 ### Bug Fixes
 * Fix mass issues with fin sets (fixes #2217)
-* Fix CG issues for launch lugs and rail buttons
+* Fix CG issues for launch lugs and rail buttons (fixes #2040)
 * Improved rail button drag calculations
 * Add parts detail for pods and boosters (fixes #2084)
 * Fix parachute position when using auto radius (fixes #2036)
 * Fixed pod set and booster marker position under certain circumstances (fixes #2047)
-* Fix CG marker location in top view
+* Fix CG marker location in top view (fixes #2050)
 * Handle zero-area fins (warn and don't crash with NaN error) (fixes #2032)
 * Don't dispose config dialog when no components are selected in 3D view (fixes #2108)
 * Display ISA values in temp and pressure fields (fixes #2104)
@@ -74,7 +74,7 @@ This is beta release of 23.09.
 * Updated example rockets (including brand-new two stage example)
 * Show calculated values in override tab (fixes #1629)
 * Decrease minimum FoV to 10 degrees in Photo Studio
-* Increase resolution of launch temp and pressure to 2 decimal places (fixes #2003)
+* Increase resolution of launch temperature and pressure to 2 decimal places (fixes #2003)
 * Display Cd oerride with 3 decimal places
 * Add wiki button to help menu (fixes #2046)
 * Eliminate option to save "some" sim data (fixes #2024)
@@ -87,7 +87,7 @@ This is beta release of 23.09.
 * Open dialog to save design info when first saving file
 
 
-...and a plethora of other small fixes and improvements.
+...along with numerous other minor fixes and enhancements.
 </div>
 
 <div id="22.02">
