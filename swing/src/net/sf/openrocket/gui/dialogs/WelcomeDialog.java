@@ -61,6 +61,7 @@ public class WelcomeDialog extends JDialog {
         textPane.setContentType("text/html");
         textPane.setMargin(new Insets(10, 10, 10, 10));
         textPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+        textPane.setBorder(GUIUtil.getUITheme().getBorder());
 
         String sb = "<html>" +
                 MarkdownUtil.toHtml(releaseNotes) + "<br><br>" +
