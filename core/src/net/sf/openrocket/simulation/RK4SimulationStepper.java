@@ -623,6 +623,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, store.thrustForce);
+		double weight = store.rocketMass.getMass() * store.gravity;
+		data.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, store.thrustForce / weight);
 		data.setValue(FlightDataType.TYPE_DRAG_FORCE, store.dragForce);
 		data.setValue(FlightDataType.TYPE_GRAVITY, store.gravity);
 		
