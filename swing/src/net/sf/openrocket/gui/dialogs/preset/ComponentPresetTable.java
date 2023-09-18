@@ -51,11 +51,12 @@ public class ComponentPresetTable extends JTable {
 		this.presets = presets;
 		this.presetType = presetType;
 		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
-		this.columns = new ComponentPresetTableColumn[ComponentPreset.ORDERED_KEY_LIST.size()+1];
+		this.columns = new ComponentPresetTableColumn[ComponentPreset.ORDERED_KEY_LIST.size() + 1];
 
 
 		tableModel = new AbstractTableModel() {
 			final ComponentPresetTableColumn[] myColumns = columns;
+
 			@Override
 			public int getRowCount() {
 				return ComponentPresetTable.this.presets.size();
@@ -68,7 +69,7 @@ public class ComponentPresetTable extends JTable {
 
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-				return myColumns[columnIndex].getValueFromPreset(favorites,ComponentPresetTable.this.presets.get(rowIndex));
+				return myColumns[columnIndex].getValueFromPreset(favorites, ComponentPresetTable.this.presets.get(rowIndex));
 			}
 
 			@Override
@@ -109,25 +110,25 @@ public class ComponentPresetTable extends JTable {
 		List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
 		{
 			int index = 1;
-			for (final TypedKey<?> key: ComponentPreset.ORDERED_KEY_LIST ) {
-				if ( key.getType() == Double.class && key.getUnitGroup() != null ) {
-					columns[index] = new ComponentPresetTableColumn.DoubleWithUnit((TypedKey<Double>)key,index);
+			for (final TypedKey<?> key : ComponentPreset.ORDERED_KEY_LIST) {
+				if (key.getType() == Double.class && key.getUnitGroup() != null) {
+					columns[index] = new ComponentPresetTableColumn.DoubleWithUnit((TypedKey<Double>) key, index);
 				} else {
-					columns[index] = new ComponentPresetTableColumn.Parameter(key,index);
+					columns[index] = new ComponentPresetTableColumn.Parameter(key, index);
 				}
 				tableColumnModel.addColumn(columns[index]);
-				if ( key == ComponentPreset.PARTNO ) {
+				if (key == ComponentPreset.PARTNO) {
 					sorter.setComparator(index, new AlphanumComparator());
-				} else if ( key.getType() == Double.class ) {
-					sorter.setComparator(index,  new Comparator<Value>() {
+				} else if (key.getType() == Double.class) {
+					sorter.setComparator(index, new Comparator<Value>() {
 
 						@Override
 						public int compare(Value o1, Value o2) {
 							return Double.compare(o1.getValue(), o2.getValue());
 						}
-						
+
 					});
-				} else if ( key.getType() == Boolean.class ) {
+				} else if (key.getType() == Boolean.class) {
 					sorter.setComparator(index, new Comparator<Boolean>() {
 
 						@Override
@@ -140,42 +141,43 @@ public class ComponentPresetTable extends JTable {
 								return 0;
 							}
 						}
-						});
+					});
 				}
-				
-				if ( visibleColumnKeys.indexOf(key) < 0 ) {
+
+				if (visibleColumnKeys.indexOf(key) < 0) {
 					hiddenColumns.add(columns[index]);
 				}
-				index ++;
-				}
+				index++;
+			}
 		}
 
 		this.setAutoCreateColumnsFromModel(false);
-		this.setColumnModel( tableColumnModel );
+		this.setColumnModel(tableColumnModel);
 		this.setModel(tableModel);
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.setRowSorter(sorter);
-		sorter.toggleSortOrder(2);		// Sort by the first column (manufacturer) by default
+		sorter.toggleSortOrder(2);        // Sort by the first column (manufacturer) by default
 
-		for ( TableColumn hiddenColumn : hiddenColumns ) {
+		for (TableColumn hiddenColumn : hiddenColumns) {
 			tableColumnModel.setColumnVisible(hiddenColumn, false);
 		}
 
 		JTableHeader header = this.getTableHeader();
-		
+
 		header.setReorderingAllowed(true);
 
-		header.addMouseListener( new MouseAdapter() {
+		header.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if ( e.isPopupTrigger() ) {
+				if (e.isPopupTrigger()) {
 					doPopup(e);
 				}
 			}
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if ( e.isPopupTrigger() ) {
+				if (e.isPopupTrigger()) {
 					doPopup(e);
 				}
 			}
@@ -186,49 +188,49 @@ public class ComponentPresetTable extends JTable {
 		return tableColumnModel;
 	}
 
-	public void setRowFilter( RowFilter<? super TableModel ,? super Integer> filter ) {
-		sorter.setRowFilter( filter );
+	public void setRowFilter(RowFilter<? super TableModel, ? super Integer> filter) {
+		sorter.setRowFilter(filter);
 	}
 
-	public void updateData( List<ComponentPreset> myPresets ) {
+	public void updateData(List<ComponentPreset> myPresets) {
 		this.presets = myPresets;
 		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
 		this.tableModel.fireTableDataChanged();
 	}
-	
+
 	public void updateFavorites() {
 		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
 		this.tableModel.fireTableDataChanged();
 	}
 
-	private void doPopup(MouseEvent evt ) {
-		
+	private void doPopup(MouseEvent evt) {
+
 		// Figure out what column header was clicked on.
-		int colIndex = tableColumnModel.getColumnIndexAtX( evt.getX() );
+		int colIndex = tableColumnModel.getColumnIndexAtX(evt.getX());
 		ComponentPresetTableColumn colClicked = null;
-		if ( colIndex >=0 ) {
+		if (colIndex >= 0) {
 			colClicked = (ComponentPresetTableColumn) tableColumnModel.getColumn(colIndex);
 		}
-		
+
 		JPopupMenu columnMenu = new ColumnPopupMenu(colClicked, colIndex);
-		columnMenu.show(evt.getComponent(),evt.getX(),evt.getY());
+		columnMenu.show(evt.getComponent(), evt.getX(), evt.getY());
 	}
 
 	private class ColumnPopupMenu extends JPopupMenu {
 
 		ColumnPopupMenu(ComponentPresetTableColumn colClicked, int colClickedIndex) {
-			if ( colClickedIndex >= 0 ) {
+			if (colClickedIndex >= 0) {
 				JCheckBoxMenuItem item = new SortAscColumnMenuItem(colClickedIndex);
 				this.add(item);
 				item = new SortDescColumnMenuItem(colClickedIndex);
 				this.add(item);
 				this.addSeparator();
-				if ( colClicked instanceof ComponentPresetTableColumn.DoubleWithUnit ) {
-					this.add( new UnitSelectorMenuItem( (ComponentPresetTableColumn.DoubleWithUnit) colClicked ));
+				if (colClicked instanceof ComponentPresetTableColumn.DoubleWithUnit) {
+					this.add(new UnitSelectorMenuItem((ComponentPresetTableColumn.DoubleWithUnit) colClicked));
 					this.addSeparator();
 				}
 			}
-			for( TableColumn c: columns ) {
+			for (TableColumn c : columns) {
 				JCheckBoxMenuItem item = new ToggleColumnMenuItem(c);
 				this.add(item);
 			}
@@ -237,67 +239,74 @@ public class ComponentPresetTable extends JTable {
 
 		private class SortAscColumnMenuItem extends JCheckBoxMenuItem implements ItemListener {
 			private int columnClicked;
+
 			SortAscColumnMenuItem(int columnClicked) {
-				super( trans.get("ComponentPresetChooserDialog.menu.sortAsc") );
+				super(trans.get("ComponentPresetChooserDialog.menu.sortAsc"));
 				this.addItemListener(this);
 				this.columnClicked = columnClicked;
 			}
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				sorter.setSortKeys( Collections.singletonList( new SortKey(columnClicked, SortOrder.ASCENDING)));
+				sorter.setSortKeys(Collections.singletonList(new SortKey(columnClicked, SortOrder.ASCENDING)));
 			}
 		}
-		
+
 		private class SortDescColumnMenuItem extends JCheckBoxMenuItem implements ItemListener {
 			private int columnClicked;
+
 			SortDescColumnMenuItem(int columnClicked) {
-				super( trans.get("ComponentPresetChooserDialog.menu.sortDesc") );
+				super(trans.get("ComponentPresetChooserDialog.menu.sortDesc"));
 				this.addItemListener(this);
 				this.columnClicked = columnClicked;
 			}
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				sorter.setSortKeys( Collections.singletonList( new SortKey(columnClicked, SortOrder.DESCENDING)));
+				sorter.setSortKeys(Collections.singletonList(new SortKey(columnClicked, SortOrder.DESCENDING)));
 			}
 		}
-		
+
 		private class ToggleColumnMenuItem extends JCheckBoxMenuItem implements ItemListener {
 			TableColumn col;
-			ToggleColumnMenuItem( TableColumn col ) {
-				super( String.valueOf(col.getHeaderValue()), tableColumnModel.isColumnVisible(col));
+
+			ToggleColumnMenuItem(TableColumn col) {
+				super(String.valueOf(col.getHeaderValue()), tableColumnModel.isColumnVisible(col));
 				this.addItemListener(this);
 				this.col = col;
 			}
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				tableColumnModel.setColumnVisible(col, !tableColumnModel.isColumnVisible(col));
 			}
 		}
-		
+
 		private class UnitSelectorMenuItem extends JMenu implements ItemListener {
 			ComponentPresetTableColumn.DoubleWithUnit col;
-			UnitSelectorMenuItem( ComponentPresetTableColumn.DoubleWithUnit col ) {
+
+			UnitSelectorMenuItem(ComponentPresetTableColumn.DoubleWithUnit col) {
 				super(trans.get("ComponentPresetChooserDialog.menu.units"));
 				this.col = col;
 				UnitGroup group = col.unitGroup;
 				Unit selectedUnit = col.selectedUnit;
-				for( Unit u : group.getUnits() ) {
-					JCheckBoxMenuItem item = new JCheckBoxMenuItem( u.toString() );
-					if ( u == selectedUnit ) {
+				for (Unit u : group.getUnits()) {
+					JCheckBoxMenuItem item = new JCheckBoxMenuItem(u.toString());
+					if (u == selectedUnit) {
 						item.setSelected(true);
 					}
 					item.addItemListener(this);
 					this.add(item);
 				}
-				
+
 			}
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getItem();
 				String val = item.getText();
 				col.selectedUnit = col.unitGroup.findApproximate(val);
 				ComponentPresetTable.this.tableModel.fireTableDataChanged();
-				return;
 			}
 
 		}
