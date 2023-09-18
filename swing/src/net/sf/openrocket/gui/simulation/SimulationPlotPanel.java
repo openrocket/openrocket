@@ -220,6 +220,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
+		scroll.setBorder(GUIUtil.getUITheme().getBorder());
 		this.add(scroll, "spany 3, height 10px, wmin 400lp, grow 100, gapright para");
 		
 		
