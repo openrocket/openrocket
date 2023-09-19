@@ -424,12 +424,32 @@ public class GUIUtil {
 					key, column.getModelIndex());
 			if (width != null) {
 				column.setPreferredWidth(width);
+			} else {
+				column.setPreferredWidth(getOptimalColumnWidth(table, column.getModelIndex()));
 			}
 		}
 	}
 
 	public static void rememberTableColumnWidths(final JTable table) {
 		rememberTableColumnWidths(table, null);
+	}
+
+	public static int getOptimalColumnWidth(JTable table, int columnIndex) {
+		TableColumn column = table.getColumnModel().getColumn(columnIndex);
+		Component headerRenderer = table.getTableHeader().getDefaultRenderer()
+				.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, 0, columnIndex);
+
+		int maxWidth = headerRenderer.getPreferredSize().width;
+
+		for (int row = 0; row < table.getRowCount(); row++) {
+			Component renderer = table.getCellRenderer(row, columnIndex)
+					.getTableCellRendererComponent(table, table.getValueAt(row, columnIndex), false, false, row, columnIndex);
+			maxWidth = Math.max(maxWidth, renderer.getPreferredSize().width);
+		}
+
+		// Optional: Add some padding
+		int padding = 5;  // adjust this value as needed
+		return maxWidth + padding;
 	}
 	
 	
