@@ -251,10 +251,17 @@ public class ComponentPresetChooserDialog extends JDialog {
 		showLegacyCheckBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				updateFilters();
-				tm.setColumnVisible(legacyColumn, showLegacyCheckBox.isSelected());
+				boolean selected = e != null && e.getStateChange() == ItemEvent.SELECTED;
+				if (tm.isColumnVisible(legacyColumn) == selected) {
+					// No change
+					return;
+				}
 
-				if (showLegacyCheckBox.isSelected()) {
+				updateFilters();
+
+				tm.setColumnVisible(legacyColumn, selected);
+
+				if (selected) {
 					// Let's say the optimal width is 100 (you can adjust this as needed)
 					int optimalWidth = 50;
 					legacyColumn.setPreferredWidth(optimalWidth);
