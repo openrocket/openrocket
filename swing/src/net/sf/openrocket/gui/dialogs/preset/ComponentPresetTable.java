@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.dialogs.preset;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -7,13 +9,14 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
@@ -286,33 +289,38 @@ public class ComponentPresetTable extends JTable {
 			}
 		}
 
-		private class UnitSelectorMenuItem extends JMenu implements ItemListener {
+		private class UnitSelectorMenuItem extends JMenu {
 			ComponentPresetTableColumn.DoubleWithUnit col;
+			ButtonGroup buttonGroup; // To group the radio buttons
 
 			UnitSelectorMenuItem(ComponentPresetTableColumn.DoubleWithUnit col) {
 				super(trans.get("ComponentPresetChooserDialog.menu.units"));
 				this.col = col;
+
+				buttonGroup = new ButtonGroup(); // Create a new ButtonGroup to hold the radio buttons
+
 				UnitGroup group = col.unitGroup;
 				Unit selectedUnit = col.selectedUnit;
+
 				for (Unit u : group.getUnits()) {
-					JCheckBoxMenuItem item = new JCheckBoxMenuItem(u.toString());
+					JRadioButtonMenuItem item = new JRadioButtonMenuItem(u.toString());
+
 					if (u == selectedUnit) {
 						item.setSelected(true);
 					}
-					item.addItemListener(this);
-					this.add(item);
+
+					item.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							col.selectedUnit = u;
+							ComponentPresetTable.this.tableModel.fireTableDataChanged();
+						}
+					});
+
+					buttonGroup.add(item); // Add the radio button to the button group
+					this.add(item);       // Add the radio button to the menu
 				}
-
 			}
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				JCheckBoxMenuItem item = (JCheckBoxMenuItem) e.getItem();
-				String val = item.getText();
-				col.selectedUnit = col.unitGroup.findApproximate(val);
-				ComponentPresetTable.this.tableModel.fireTableDataChanged();
-			}
-
 		}
 	}
 }
