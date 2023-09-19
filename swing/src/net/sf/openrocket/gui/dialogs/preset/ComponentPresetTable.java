@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
@@ -45,6 +46,7 @@ public class ComponentPresetTable extends JTable {
 	private final AbstractTableModel tableModel;
 	private final XTableColumnModel tableColumnModel;
 	private final ComponentPresetTableColumn[] columns;
+	private final List<TableColumn> hiddenColumns;
 
 	public ComponentPresetTable(final ComponentPreset.Type presetType, List<ComponentPreset> presets, List<TypedKey<?>> visibleColumnKeys) {
 		super();
@@ -54,7 +56,7 @@ public class ComponentPresetTable extends JTable {
 		this.columns = new ComponentPresetTableColumn[ComponentPreset.ORDERED_KEY_LIST.size() + 1];
 
 
-		tableModel = new AbstractTableModel() {
+		this.tableModel = new AbstractTableModel() {
 			final ComponentPresetTableColumn[] myColumns = columns;
 
 			@Override
@@ -97,17 +99,16 @@ public class ComponentPresetTable extends JTable {
 		};
 
 
-		sorter = new TableRowSorter<TableModel>(tableModel);
-
-		tableColumnModel = new XTableColumnModel();
+		this.sorter = new TableRowSorter<TableModel>(tableModel);
+		this.tableColumnModel = new XTableColumnModel();
 
 		/*
 		 * Set up the Column Table model, and customize the sorting.
 		 */
-		columns[0] = new ComponentPresetTableColumn.Favorite(0);
-		tableColumnModel.addColumn(columns[0]);
+		this.columns[0] = new ComponentPresetTableColumn.Favorite(0);
+		this.tableColumnModel.addColumn(columns[0]);
 
-		List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
+		this.hiddenColumns = new ArrayList<>();
 		{
 			int index = 1;
 			for (final TypedKey<?> key : ComponentPreset.ORDERED_KEY_LIST) {
@@ -144,7 +145,7 @@ public class ComponentPresetTable extends JTable {
 					});
 				}
 
-				if (visibleColumnKeys.indexOf(key) < 0) {
+				if (!visibleColumnKeys.contains(key)) {
 					hiddenColumns.add(columns[index]);
 				}
 				index++;
@@ -156,10 +157,10 @@ public class ComponentPresetTable extends JTable {
 		this.setModel(tableModel);
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.setRowSorter(sorter);
-		sorter.toggleSortOrder(2);        // Sort by the first column (manufacturer) by default
+		this.sorter.toggleSortOrder(2);        // Sort by the first column (manufacturer) by default
 
-		for (TableColumn hiddenColumn : hiddenColumns) {
-			tableColumnModel.setColumnVisible(hiddenColumn, false);
+		for (TableColumn hiddenColumn : this.hiddenColumns) {
+			this.tableColumnModel.setColumnVisible(hiddenColumn, false);
 		}
 
 		JTableHeader header = this.getTableHeader();
@@ -185,7 +186,7 @@ public class ComponentPresetTable extends JTable {
 	}
 
 	public XTableColumnModel getXColumnModel() {
-		return tableColumnModel;
+		return this.tableColumnModel;
 	}
 
 	public void setRowFilter(RowFilter<? super TableModel, ? super Integer> filter) {
@@ -231,6 +232,9 @@ public class ComponentPresetTable extends JTable {
 				}
 			}
 			for (TableColumn c : columns) {
+				if (hiddenColumns.contains(c)) {
+					continue;
+				}
 				JCheckBoxMenuItem item = new ToggleColumnMenuItem(c);
 				this.add(item);
 			}
