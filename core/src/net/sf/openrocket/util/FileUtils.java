@@ -9,31 +9,29 @@ import java.io.OutputStream;
 import java.nio.file.Paths;
 
 public abstract class FileUtils {
+	private static final char[] ILLEGAL_CHARS = new char[] { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
 
-	public static void copy( InputStream is, OutputStream os ) throws IOException {
-		
-		if ( ! (os instanceof BufferedOutputStream ) ) {
+	public static void copy(InputStream is, OutputStream os) throws IOException {
+		if (!(os instanceof BufferedOutputStream)) {
 			os = new BufferedOutputStream(os);
 		}
 		
-		if ( ! (is instanceof BufferedInputStream ) ) {
+		if (!(is instanceof BufferedInputStream)) {
 			is = new BufferedInputStream(is);
 		}
 		
 		byte[] buffer = new byte[1024];
 		int bytesRead = 0;
 		
-		while( (bytesRead = is.read(buffer)) > 0 ) {
-			os.write(buffer,0,bytesRead);
+		while( (bytesRead = is.read(buffer)) > 0) {
+			os.write(buffer, 0, bytesRead);
 		}
 		os.flush();
 	}
 	
-	public static byte[] readBytes( InputStream is ) throws IOException {
-
+	public static byte[] readBytes(InputStream is) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-
-		copy( is, bos );
+		copy(is, bos);
 
 		return bos.toByteArray();
 
@@ -59,6 +57,24 @@ public abstract class FileUtils {
 	 */
 	public static String getFileNameFromPath(String pathString) {
 		return Paths.get(pathString).getFileName().toString();
+	}
+
+
+	/**
+	 * Returns an illegal character if one is found in the filename, otherwise returns null.
+	 * @param filename The filename to check
+	 * @return The illegal character, or null if none is found
+	 */
+	public static Character getIllegalFilenameChar(String filename) {
+		if (filename == null || filename.isEmpty()) {
+			return null;
+		}
+		for (char c : ILLEGAL_CHARS) {
+			if (filename.indexOf(c) >= 0) {
+				return c;
+			}
+		}
+		return null;
 	}
 
 }

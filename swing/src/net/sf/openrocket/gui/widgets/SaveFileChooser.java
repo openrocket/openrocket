@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.widgets;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.FileUtils;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -12,7 +13,6 @@ import java.util.regex.PatternSyntaxException;
 public class SaveFileChooser extends JFileChooser {
     private static final Translator trans = Application.getTranslator();
 
-    private static final char[] ILLEGAL_CHARS = new char[] { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
 
     private File cwd = null;
     private File currentFile = null;
@@ -30,7 +30,7 @@ public class SaveFileChooser extends JFileChooser {
         if (file.getParentFile() != getCurrentDirectory()) {
             cwd = getCurrentDirectory();
             fileName = getFilenameInput(currentFile, cwd);
-            if (getIllegalChar(fileName) != null) {
+            if (FileUtils.getIllegalFilenameChar(fileName) != null) {
                 return;
             }
         }
@@ -42,7 +42,7 @@ public class SaveFileChooser extends JFileChooser {
 
     @Override
     public void approveSelection() {
-        Character c = getIllegalChar(fileName);
+        Character c = FileUtils.getIllegalFilenameChar(fileName);
         if (c != null) {
             // Illegal character found
             JOptionPane.showMessageDialog(getParent(),
@@ -55,23 +55,6 @@ public class SaveFileChooser extends JFileChooser {
             setCurrentDirectory(cwd);
             super.approveSelection();
         }
-    }
-
-    /**
-     * Returns an illegal character if one is found in the filename, otherwise returns null.
-     * @param filename The filename to check
-     * @return The illegal character, or null if none is found
-     */
-    private Character getIllegalChar(String filename) {
-        if (filename == null || filename.isEmpty()) {
-            return null;
-        }
-        for (char c : ILLEGAL_CHARS) {
-            if (filename.indexOf(c) >= 0) {
-                return c;
-            }
-        }
-        return null;
     }
 
     /**
