@@ -154,6 +154,7 @@ public class OBJExporterFactory {
 
             // Component exporting
             String groupName = idx + "_" + component.getName();
+            groupName = sanitizeGroupName(groupName);
             handleComponent(obj, this.configuration, this.options.getTransformer(), component, groupName,
                     materials.get(obj), this.options.getLOD(), options, warnings);
 
@@ -291,6 +292,20 @@ public class OBJExporterFactory {
         addChildComponentToList(this.configuration.getRocket(), components, sortedComponents);
 
         return sortedComponents;
+    }
+
+    /**
+     * Sanitize the group name by replacing illegal characters with underscores.
+     * @param groupName the group name to sanitize
+     * @return the sanitized group name
+     */
+    private static String sanitizeGroupName(String groupName) {
+        Character c = FileUtils.getIllegalFilenameChar(groupName);
+        while (c != null) {
+            groupName = groupName.replace(c, '_');
+            c = FileUtils.getIllegalFilenameChar(groupName);
+        }
+        return groupName;
     }
 
     private void addChildComponentToList(RocketComponent parent, Set<RocketComponent> components, Set<RocketComponent> sortedComponents) {
