@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,6 +57,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -404,29 +406,50 @@ public class GUIUtil {
 
 	public static void rememberTableColumnWidths(final JTable table, String keyName) {
 		final String key = keyName == null ? table.getClass().getName() : keyName;
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			final int column = i;
-			table.getColumnModel().getColumn(i).addPropertyChangeListener(new PropertyChangeListener() {
+		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
+		while (columns.hasMoreElements()) {
+			TableColumn column = columns.nextElement();
+			column.addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
 					if (evt.getPropertyName().equals("width")) {
-						log.debug("Storing width of " + table.getName() + "-" + table.getColumnName(column) + ": " + table.getColumnModel().getColumn(column).getWidth());
+						log.debug("Storing width of " + table.getName() + "-" + column + ": " + column.getWidth());
 						((SwingPreferences) Application.getPreferences()).setTableColumnWidth(
-								key, column, table.getColumnModel().getColumn(column).getWidth());
+								key, column.getModelIndex(), column.getWidth());
 					}
 				}
 			});
 
 			final Integer width = ((SwingPreferences) Application.getPreferences()).getTableColumnWidth(
-					key, column);
+					key, column.getModelIndex());
 			if (width != null) {
-				table.getColumnModel().getColumn(column).setPreferredWidth(width);
+				column.setPreferredWidth(width);
+			} else {
+				column.setPreferredWidth(getOptimalColumnWidth(table, column.getModelIndex()));
 			}
 		}
 	}
 
 	public static void rememberTableColumnWidths(final JTable table) {
 		rememberTableColumnWidths(table, null);
+	}
+
+	public static int getOptimalColumnWidth(JTable table, int columnIndex) {
+		TableColumn column = table.getColumnModel().getColumn(columnIndex);
+		Component headerRenderer = table.getTableHeader().getDefaultRenderer()
+				.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, 0, columnIndex);
+
+		int maxWidth = headerRenderer.getPreferredSize().width;
+
+		for (int row = 0; row < table.getRowCount(); row++) {
+			Component renderer = table.getCellRenderer(row, columnIndex)
+					.getTableCellRendererComponent(table, table.getValueAt(row, columnIndex), false, false, row, columnIndex);
+			maxWidth = Math.max(maxWidth, renderer.getPreferredSize().width);
+		}
+
+		// Optional: Add some padding
+		int padding = 5;  // adjust this value as needed
+		return maxWidth + padding;
 	}
 	
 	
