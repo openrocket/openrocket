@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -58,23 +59,33 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private Rectangle2D.Double[] finPointHandles = null;
 	private int selectedIndex = -1;
 
+	private static Color backgroundColor;
 	private static Color finPointBodyLineColor;
 	private static Color finPointGridMajorLineColor;
 	private static Color finPointGridMinorLineColor;
 	private static Color finPointPointColor;
 	private static Color finPointSelectedPointColor;
+
+	static {
+		initColors();
+	}
 	
 	public FinPointFigure(FreeformFinSet finset) {
 		this.finset = finset;
 
-		setBackground(GUIUtil.getUITheme().getBackgroundColor());
+		setBackground(backgroundColor);
 		setOpaque(true);
 
-		updateColors();
 		updateFigure();
 	}
 
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(FinPointFigure::updateColors);
+	}
+
 	private static void updateColors() {
+		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		finPointBodyLineColor = GUIUtil.getUITheme().getFinPointBodyLineColor();
 		finPointGridMajorLineColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
 		finPointGridMinorLineColor = GUIUtil.getUITheme().getFinPointGridMinorLineColor();

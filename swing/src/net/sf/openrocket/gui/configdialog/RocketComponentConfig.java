@@ -30,6 +30,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -49,6 +50,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.IconToggleButton;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -96,6 +98,13 @@ public class RocketComponentConfig extends JPanel {
 
 	private boolean allSameType;		// Checks whether all listener components are of the same type as <component>
 	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
+
+	private static Color darkWarningColor;
+	private static Border border;
+
+	static {
+		initColors();
+	}
 
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component, JDialog parent) {
 		setLayout(new MigLayout("fill, gap 4!, ins panel, hidemode 3", "[]:5[]", "[growprio 5]5![fill, grow, growprio 500]5![growprio 5]"));
@@ -185,6 +194,16 @@ public class RocketComponentConfig extends JPanel {
 		addButtons();
 
 		updateFields();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketComponentConfig::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	/**
@@ -506,7 +525,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelMassOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy"), component.getMassOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelMassOverriddenBy.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+			labelMassOverriddenBy.setFontColor(darkWarningColor);
 			labelMassOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy.ttip"), component.getMassOverriddenBy().getName()));
 			checkboxes.add(labelMassOverriddenBy, "gapleft 25lp, wrap");
@@ -569,7 +588,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelCGOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy"), component.getCGOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCGOverriddenBy.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+			labelCGOverriddenBy.setFontColor(darkWarningColor);
 			labelCGOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy.ttip"), component.getCGOverriddenBy().getName()));
 			checkboxes.add(labelCGOverriddenBy, "gapleft 25lp, wrap");
@@ -663,7 +682,7 @@ public class RocketComponentConfig extends JPanel {
 			StyledLabel labelCDOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCDOverriddenBy.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+			labelCDOverriddenBy.setFontColor(darkWarningColor);
 			labelCDOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()));
 			checkboxes.add(labelCDOverriddenBy, "gapleft 25lp, wrap");
@@ -719,7 +738,7 @@ public class RocketComponentConfig extends JPanel {
 		commentTextArea.setLineWrap(true);
 		commentTextArea.setWrapStyleWord(true);
 		commentTextArea.setEditable(true);
-		commentTextArea.setBorder(GUIUtil.getUITheme().getBorder());
+		commentTextArea.setBorder(border);
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
 		commentTextArea.addKeyListener(new TextComponentSelectionKeyListener(commentTextArea));

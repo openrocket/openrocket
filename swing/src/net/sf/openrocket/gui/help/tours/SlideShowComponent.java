@@ -7,12 +7,14 @@ import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.border.Border;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 
 import net.sf.openrocket.gui.components.ImageDisplayComponent;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 
 /**
  * Component that displays a single slide, with the image on top and
@@ -30,10 +32,16 @@ public class SlideShowComponent extends JSplitPane {
 	private final ImageDisplayComponent imageDisplay;
 	private final JEditorPane textPane;
 
+	private static Border border;
+
+	static {
+		initColors();
+	}
+
 	
 	public SlideShowComponent() {
 		super(VERTICAL_SPLIT);
-		
+
 		imageDisplay = new ImageDisplayComponent();
 		imageDisplay.setPreferredSize(new Dimension(WIDTH, HEIGHT_IMAGE));
 		this.setLeftComponent(imageDisplay);
@@ -45,10 +53,19 @@ public class SlideShowComponent extends JSplitPane {
 		textPane.setPreferredSize(new Dimension(WIDTH, HEIGHT_TEXT));
 		
 		JScrollPane scrollPanel = new JScrollPane(textPane);
-		textPane.setBorder(GUIUtil.getUITheme().getBorder());
+		textPane.setBorder(border);
 		this.setRightComponent(scrollPanel);
 		
 		this.setResizeWeight(((double) HEIGHT_IMAGE) / (HEIGHT_IMAGE + HEIGHT_TEXT));
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SlideShowComponent::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 	
 	
