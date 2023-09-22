@@ -100,6 +100,7 @@ public class RocketComponentConfig extends JPanel {
 	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
 
 	private static Color darkWarningColor;
+	private static Color multiCompEditColor;
 	private static Border border;
 
 	static {
@@ -203,6 +204,7 @@ public class RocketComponentConfig extends JPanel {
 
 	private static void updateColors() {
 		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
 		border = GUIUtil.getUITheme().getBorder();
 	}
 
@@ -270,7 +272,7 @@ public class RocketComponentConfig extends JPanel {
 
 		//// Multi-comp edit label
 		multiCompEditLabel = new StyledLabel(" ", -1, Style.BOLD);
-		multiCompEditLabel.setFontColor(new Color(170, 0, 100));
+		multiCompEditLabel.setFontColor(multiCompEditColor);
 		buttonPanel.add(multiCompEditLabel, "split 2");
 
 		//// Mass:

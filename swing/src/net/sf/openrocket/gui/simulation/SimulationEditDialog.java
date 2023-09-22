@@ -33,6 +33,7 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -61,6 +62,12 @@ public class SimulationEditDialog extends JDialog {
 	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
 	private boolean isModified = false;			// Whether the simulation has been modified
 	private final boolean isNewSimulation;		// Whether you are editing a new simulation, or an existing one
+
+	private static Color multiCompEditColor;
+
+	static {
+		initColors();
+	}
 	
 	public SimulationEditDialog(Window parent, final OpenRocketDocument document, boolean isNewSimulation, Simulation... sims) {
 		//// Edit simulation
@@ -101,6 +108,15 @@ public class SimulationEditDialog extends JDialog {
 		this.addWindowListener(applyChangesToSimsListener);
 		
 		GUIUtil.setDisposableDialogOptions(this, null);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SimulationEditDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
 	}
 	
 	private boolean isSingleEdit() {
@@ -247,7 +263,7 @@ public class SimulationEditDialog extends JDialog {
 		//// Multi-simulation edit
 		if (simulationList.length > 1) {
 			StyledLabel multiSimEditLabel = new StyledLabel("", -1, StyledLabel.Style.BOLD);
-			multiSimEditLabel.setFontColor(new Color(170, 0, 100));
+			multiSimEditLabel.setFontColor(multiCompEditColor);
 			multiSimEditLabel.setText(trans.get("simedtdlg.title.MultiSimEdit"));
 			StringBuilder components = new StringBuilder(trans.get("simedtdlg.title.MultiSimEdit.ttip"));
 			for (int i = 0; i < simulationList.length; i++) {

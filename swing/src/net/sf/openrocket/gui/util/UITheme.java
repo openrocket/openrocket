@@ -45,6 +45,7 @@ public class UITheme {
         Color getRowBackgroundDarkerColor();
         Color getFlightDataTextActiveColor();
         Color getFlightDataTextInactiveColor();
+        Color getMultiCompEditColor();
 
         // Component colors
         String getDefaultBodyComponentColor();
@@ -206,6 +207,11 @@ public class UITheme {
             @Override
             public Color getFlightDataTextInactiveColor() {
             	return new Color(0,0,127,127);
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return new Color(170, 0, 100);
             }
 
             @Override
@@ -432,6 +438,11 @@ public class UITheme {
             @Override
             public Color getFlightDataTextInactiveColor() {
                 return new Color(128, 166, 230, 127);
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return new Color(222, 146, 176);
             }
 
             @Override
@@ -666,6 +677,11 @@ public class UITheme {
             @Override
             public Color getFlightDataTextInactiveColor() {
                 return getCurrentTheme().getFlightDataTextInactiveColor();
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return getCurrentTheme().getMultiCompEditColor();
             }
 
             @Override
