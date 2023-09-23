@@ -59,9 +59,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private static final double MAX_PITCH_CHANGE = 4 * Math.PI / 180;
 	
 	private Random random;
-	
-	
-	
+	DataStore store = new DataStore();
 	
 	@Override
 	public RK4SimulationStatus initialize(SimulationStatus original) {
@@ -90,28 +88,26 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	public void step(SimulationStatus simulationStatus, double maxTimeStep) throws SimulationException {
 		
 		RK4SimulationStatus status = (RK4SimulationStatus) simulationStatus;
-		DataStore store = new DataStore();
 		
 		////////  Perform RK4 integration:  ////////
 		
 		RK4SimulationStatus status2;
 		RK4Parameters k1, k2, k3, k4;
 		
+		
 		/*
 		 * Start with previous time step which is used to compute the initial thrust estimate.
 		 * Don't make it longer than maxTimeStep, but at least MIN_TIME_STEP.
 		 */
-		store.timestep = status.getPreviousTimeStep();
 		store.timestep = MathUtil.max(MathUtil.min(store.timestep, maxTimeStep), MIN_TIME_STEP);
 		checkNaN(store.timestep);
-		
+
 		/*
 		 * Compute the initial thrust estimate.  This is used for the first time step computation.
 		 */
-		store.thrustForce = calculateAverageThrust(status, store.timestep, status.getPreviousAcceleration(),
+		store.thrustForce = calculateAverageThrust(status, store.timestep, store.timestep,
 				status.getPreviousAtmosphericConditions(), false);
 		
-
 		/*
 		 * Perform RK4 integration.  Decide the time step length after the first step.
 		 */
@@ -150,7 +146,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			dt[0] /= 5.0;
 			dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
 		}
-		dt[7] = 1.5 * status.getPreviousTimeStep();
+		dt[7] = 1.5 * store.timestep;
 		
 		store.timestep = Double.MAX_VALUE;
 		int limitingValue = -1;
@@ -260,8 +256,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			throw new IllegalArgumentException("Stepping backwards in time, timestep=" +store.timestep);
 		}
 		status.setSimulationTime(status.getSimulationTime() + store.timestep);
-		
-		status.setPreviousTimeStep(store.timestep);
 		
 		// Store data
 		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
