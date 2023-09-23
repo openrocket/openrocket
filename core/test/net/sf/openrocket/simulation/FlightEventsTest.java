@@ -67,8 +67,12 @@ public class FlightEventsTest extends BaseTestCase {
 
         // Test that the event times are correct
         for (int i = 0; i < expectedEventTimes.length; i++) {
+			FlightEvent actual = eventList.get(i);
+			double epsilon = ((actual.getType() == FlightEvent.Type.TUMBLE) ||
+							  (actual.getType() == FlightEvent.Type.APOGEE)) ? sim.getOptions().getTimeStep() : EPSILON;
+			
             assertEquals(" Flight type " + expectedEventTypes[i] + " has wrong time ",
-                    expectedEventTimes[i], eventList.get(i).getTime(), EPSILON);
+                    expectedEventTimes[i], actual.getTime(), epsilon);
 
         }
 
@@ -169,8 +173,10 @@ public class FlightEventsTest extends BaseTestCase {
 						   expected.getType(), actual.getType());
 
 				if (1200 != expected.getTime()) {
-                    // Tumbling can have a very large time error, so implement a more course epsilon (otherwise unit tests just keep failing...)
-                    double epsilon = actual.getType() == FlightEvent.Type.TUMBLE ? 0.05 : EPSILON;
+					// Events whose timing depends on the results of the steppers can't be expected to be more accurate than
+					// the length of a time step
+                    double epsilon = ((actual.getType() == FlightEvent.Type.TUMBLE) ||
+									  (actual.getType() == FlightEvent.Type.APOGEE)) ? sim.getOptions().getTimeStep() : EPSILON;
 					assertEquals("Branch " + b + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ",
 								 expected.getTime(), actual.getTime(), epsilon);
 				}
