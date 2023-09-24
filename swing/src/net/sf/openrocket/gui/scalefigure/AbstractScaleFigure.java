@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import net.sf.openrocket.gui.util.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,12 @@ public abstract class AbstractScaleFigure extends JPanel {
 	protected AffineTransform projection = null;
 
 	protected final List<EventListener> listeners = new LinkedList<EventListener>();
+
+	private static Color backgroundColor;
+
+	static {
+		initColors();
+	}
 	
 	
 	public AbstractScaleFigure() {
@@ -70,8 +77,17 @@ public abstract class AbstractScaleFigure extends JPanel {
 		this.setPreferredSize(new Dimension(100,100));
 		setSize(100,100);
 
-		setBackground(GUIUtil.getUITheme().getBackgroundColor());
+		setBackground(backgroundColor);
 		setOpaque(true);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(AbstractScaleFigure::updateColors);
+	}
+
+	private static void updateColors() {
+		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 	}
 
 	public int getBorderHeight(){ return borderThickness_px.height; }

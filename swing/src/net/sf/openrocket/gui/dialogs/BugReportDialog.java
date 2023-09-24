@@ -29,6 +29,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
@@ -47,6 +48,12 @@ public class BugReportDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+
+	private static Color darkWarningColor;
+
+	static {
+		initColors();
+	}
 	
 	
 	public BugReportDialog(Window parent, String labelText, final String message, final boolean sendIfUnchanged) {
@@ -102,6 +109,15 @@ public class BugReportDialog extends JDialog {
 		this.setLocationRelativeTo(parent);
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(BugReportDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
 	}
 	
 	/**
@@ -178,7 +194,7 @@ public class BugReportDialog extends JDialog {
 	private static void addBugReportInformation(StringBuilder sb) {
 		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		Color color = GUIUtil.getUITheme().getDarkWarningColor();
+		Color color = darkWarningColor;
 		sb.append(String.format("<b style='color:rgb(%d, %d, %d)'>Please include a description about what actions you were " +
 				"performing when the exception occurred:</b>\n", color.getRed(), color.getGreen(), color.getBlue()));
 		sb.append("<i>(You can edit text directly in this window)</i>\n");

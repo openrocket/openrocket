@@ -12,7 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -33,6 +33,7 @@ import net.sf.openrocket.gui.plot.SimulationPlotDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -40,7 +41,6 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -107,11 +107,18 @@ public class SimulationPlotPanel extends JPanel {
 	
 	private int modifying = 0;
 
-	private DescriptionArea simPlotPanelDesc;	
+	private DescriptionArea simPlotPanelDesc;
+
+	private static java.awt.Color darkWarningColor;
+	private static Border border;
+
+	static {
+		initColors();
+	}
 	
 	public SimulationPlotPanel(final Simulation simulation) {
 		super(new MigLayout("fill"));
-		
+
 		this.simulation = simulation;
 		if (simulation.getSimulatedData() == null ||
 				simulation.getSimulatedData().getBranchCount() == 0) {
@@ -205,7 +212,7 @@ public class SimulationPlotPanel extends JPanel {
 		//// The data will be plotted in time order even if the X axis type is not time.
 		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
 		simPlotPanelDesc.setVisible(false);
-		simPlotPanelDesc.setForeground(GUIUtil.getUITheme().getDarkWarningColor());
+		simPlotPanelDesc.setForeground(darkWarningColor);
 		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.add(simPlotPanelDesc, "width 1px, growx 1, wrap unrel");
 		
@@ -220,7 +227,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		scroll.setBorder(GUIUtil.getUITheme().getBorder());
+		scroll.setBorder(border);
 		this.add(scroll, "spany 3, height 10px, wmin 400lp, grow 100, gapright para");
 		
 		
@@ -377,6 +384,16 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(button, "right");
 		*/
 		updatePlots();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SimulationPlotPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	private void updateStyleEventWidgets(JLabel styleEventMarker, JRadioButton radioVerticalMarker, JRadioButton radioIcon) {
