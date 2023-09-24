@@ -15,7 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.StringUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -42,8 +44,10 @@ class MotorInformationPanel extends JPanel {
 	private static final int ZOOM_ICON_POSITION_NEGATIVE_X = 50;
 	private static final int ZOOM_ICON_POSITION_POSITIVE_Y = 12;
 
-	private static final Color NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
-	private static final Color WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
+	private static Color NO_COMMENT_COLOR;
+	private static Color WITH_COMMENT_COLOR;
+	private static Color textColor;
+	private static Border border;
 
 	// Motors in set
 	private List<ThrustCurveMotor> selectedMotorSet;
@@ -73,6 +77,10 @@ class MotorInformationPanel extends JPanel {
 	private final JFreeChart chart;
 	private final ChartPanel chartPanel;
 	private final JLabel zoomIcon;
+
+	static {
+		initColors();
+	}
 
 	public MotorInformationPanel() {
 		super(new MigLayout("fill"));
@@ -159,7 +167,7 @@ class MotorInformationPanel extends JPanel {
 
 
 			comment = new JTextArea(5, 5);
-			comment.setBorder(GUIUtil.getUITheme().getBorder());
+			comment.setBorder(border);
 			GUIUtil.changeFontSize(comment, -2);
 			withCommentFont = comment.getFont();
 			noCommentFont = withCommentFont.deriveFont(Font.ITALIC);
@@ -191,7 +199,7 @@ class MotorInformationPanel extends JPanel {
 
 			//// Thrust curve:
 			TextTitle title = new TextTitle(trans.get("TCMotorSelPan.title.Thrustcurve"), this.getFont());
-			title.setPaint(GUIUtil.getUITheme().getTextColor());
+			title.setPaint(textColor);
 			chart.setTitle(title);
 			chart.setBackgroundPaint(this.getBackground());
 			plot.setBackgroundPaint(Color.WHITE);
@@ -238,6 +246,18 @@ class MotorInformationPanel extends JPanel {
 
 			this.add(layer, "width 300:300:, height 180:180:, grow, spanx");
 		}
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(MotorInformationPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
+		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
+		textColor = GUIUtil.getUITheme().getTextColor();
+		border = GUIUtil.getUITheme().getBorder();
 	}
 	
 	public void clearData() {

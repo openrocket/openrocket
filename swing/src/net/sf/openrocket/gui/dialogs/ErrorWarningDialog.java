@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.BetterListCellRenderer;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Error;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.Warning;
@@ -16,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -25,12 +28,30 @@ import java.awt.event.MouseEvent;
  */
 @SuppressWarnings("serial")
 public abstract class ErrorWarningDialog {
+    private static Border border;
+    private static Color darkWarningColor;
+    private static Color textSelectionForegroundColor;
+
+    static {
+        initColors();
+    }
+
+    private static void initColors() {
+        updateColors();
+        UITheme.Theme.addUIThemeChangeListener(ErrorWarningDialog::updateColors);
+    }
+
+    private static void updateColors() {
+        border = GUIUtil.getUITheme().getBorder();
+        darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+        textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
+    }
 
     public static void showErrorsAndWarnings(Component parent, Object message, String title, ErrorSet errors, WarningSet warnings) {
         JPanel content = new JPanel(new MigLayout("ins 0, fillx"));
 
         StyledLabel label = new StyledLabel("Errors");
-        label.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+        label.setFontColor(darkWarningColor);
         content.add(label, "wrap, gaptop 15lp");
 
         Error[] e = errors.toArray(new Error[0]);
@@ -38,7 +59,7 @@ public abstract class ErrorWarningDialog {
         errorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         errorList.setCellRenderer(new ErrorListCellRenderer());
         JScrollPane errorPane = new JScrollPane(errorList);
-        errorList.setBorder(GUIUtil.getUITheme().getBorder());
+        errorList.setBorder(border);
         content.add(errorPane, "wrap, growx");
 
         // Deselect items if clicked on blank region
@@ -60,7 +81,7 @@ public abstract class ErrorWarningDialog {
         final JList<Warning> warningList = new JList<>(w);
         warningList.setCellRenderer(new BetterListCellRenderer());
         JScrollPane warningPane = new JScrollPane(warningList);
-        warningList.setBorder(GUIUtil.getUITheme().getBorder());
+        warningList.setBorder(border);
         content.add(warningPane, "wrap, growx");
 
         // Deselect items if clicked on blank region
@@ -87,9 +108,9 @@ public abstract class ErrorWarningDialog {
 
             // Text color
             if (isSelected) {
-                label.setForeground(GUIUtil.getUITheme().getTextSelectionForegroundColor());
+                label.setForeground(textSelectionForegroundColor);
             } else {
-                label.setForeground(GUIUtil.getUITheme().getDarkWarningColor());
+                label.setForeground(darkWarningColor);
             }
 
             return label;

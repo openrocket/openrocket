@@ -5,6 +5,7 @@ import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -27,6 +28,7 @@ import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -63,6 +65,12 @@ public class OBJOptionChooser extends JPanel {
     //private boolean isProgrammaticallyChanging = false;
 
     private int totallyNormalCounter = 0;
+
+    private static Color darkWarningColor;
+
+    static {
+        initColors();
+    }
 
     public OBJOptionChooser(JComponent parent, OBJExportOptions opts, List<RocketComponent> selectedComponents, Rocket rocket) {
         super(new MigLayout("hidemode 3"));
@@ -305,13 +313,22 @@ public class OBJOptionChooser extends JPanel {
         loadOptions(opts);
     }
 
+    private static void initColors() {
+        updateColors();
+        UITheme.Theme.addUIThemeChangeListener(OBJOptionChooser::updateColors);
+    }
+
+    private static void updateColors() {
+        darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+    }
+
     /**
      * Highlight the given button and un-highlight the other button.
      * @param highlightButton The button to highlight
      * @param loserButton The button to un-highlight
      */
     private void highlightButton(JButton highlightButton, JButton loserButton) {
-        highlightButton.setBorder(BorderFactory.createLineBorder(GUIUtil.getUITheme().getDarkWarningColor()));
+        highlightButton.setBorder(BorderFactory.createLineBorder(darkWarningColor));
         loserButton.setBorder(UIManager.getBorder("Button.border"));
     }
 

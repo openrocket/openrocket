@@ -19,8 +19,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -44,6 +46,7 @@ public class UITheme {
         Color getRowBackgroundDarkerColor();
         Color getFlightDataTextActiveColor();
         Color getFlightDataTextInactiveColor();
+        Color getMultiCompEditColor();
 
         // Component colors
         String getDefaultBodyComponentColor();
@@ -84,6 +87,27 @@ public class UITheme {
         Border getBorder();
 
         void formatScriptTextArea(RSyntaxTextArea textArea);
+
+        // Static list of listeners
+        static List<Runnable> themeChangeListeners = new ArrayList<>();
+
+        // Static method to add a listener
+        static void addUIThemeChangeListener(Runnable listener) {
+            // TODO: implement this once you have implemented invalidation for each listener so that we don't get memory leaks
+            //themeChangeListeners.add(listener);
+        }
+
+        // Static method to remove a listener
+        static void removeUIThemeChangeListener(Runnable listener) {
+            themeChangeListeners.remove(listener);
+        }
+
+        // Static method to notify all listeners
+        static void notifyUIThemeChangeListeners() {
+            for (Runnable listener : themeChangeListeners) {
+                listener.run();
+            }
+        }
     }
 
     public static boolean isLightTheme(Theme theme) {
@@ -119,6 +143,9 @@ public class UITheme {
 
                 GUIUtil.setBestLAF();
                 setGlobalFontSize(prefs.getUIFontSize());
+
+                // After applying the theme settings, notify listeners
+                Theme.notifyUIThemeChangeListeners();
             }
 
             @Override
@@ -184,6 +211,11 @@ public class UITheme {
             @Override
             public Color getFlightDataTextInactiveColor() {
             	return new Color(0,0,127,127);
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return new Color(170, 0, 100);
             }
 
             @Override
@@ -346,6 +378,9 @@ public class UITheme {
 
                 LafManager.install(new DarculaTheme());
                 setGlobalFontSize(prefs.getUIFontSize());
+
+                // After applying the theme settings, notify listeners
+                Theme.notifyUIThemeChangeListeners();
             }
 
             @Override
@@ -411,6 +446,11 @@ public class UITheme {
             @Override
             public Color getFlightDataTextInactiveColor() {
                 return new Color(128, 166, 230, 127);
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return new Color(222, 146, 176);
             }
 
             @Override
@@ -874,6 +914,11 @@ public class UITheme {
             @Override
             public Color getFlightDataTextInactiveColor() {
                 return getCurrentTheme().getFlightDataTextInactiveColor();
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return getCurrentTheme().getMultiCompEditColor();
             }
 
             @Override

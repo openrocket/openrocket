@@ -4,6 +4,7 @@ package net.sf.openrocket.gui.util;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import java.awt.Color;
 import java.awt.Component;
 
 /**
@@ -12,6 +13,14 @@ import java.awt.Component;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class BetterListCellRenderer extends DefaultListCellRenderer {
+    private static Color rowBackgroundDarkerColor;
+    private static Color rowBackgroundLighterColor;
+    private static Color textSelectionForegroundColor;
+    private static Color textColor;
+
+    static {
+        initColors();
+    }
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -21,17 +30,29 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
         // Alternating row colors
         if (!isSelected) {
             if (index % 2 == 0) {
-                label.setBackground(GUIUtil.getUITheme().getRowBackgroundDarkerColor());
+                label.setBackground(rowBackgroundDarkerColor);
             } else {
-                label.setBackground(GUIUtil.getUITheme().getRowBackgroundLighterColor());
+                label.setBackground(rowBackgroundLighterColor);
             }
         }
         // Text color
         if (isSelected) {
-            label.setForeground(GUIUtil.getUITheme().getTextSelectionForegroundColor());
+            label.setForeground(textSelectionForegroundColor);
         } else {
-            label.setForeground(GUIUtil.getUITheme().getTextColor());
+            label.setForeground(textColor);
         }
         return label;
+    }
+
+    private static void initColors() {
+        updateColors();
+        UITheme.Theme.addUIThemeChangeListener(BetterListCellRenderer::updateColors);
+    }
+
+    private static void updateColors() {
+        rowBackgroundDarkerColor = GUIUtil.getUITheme().getRowBackgroundDarkerColor();
+        rowBackgroundLighterColor = GUIUtil.getUITheme().getRowBackgroundLighterColor();
+        textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
+        textColor = GUIUtil.getUITheme().getTextColor();
     }
 }

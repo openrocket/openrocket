@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
@@ -93,6 +94,13 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
 	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<FigureElement>();
+
+	private static Color motorFillColor;
+	private static Color motorBorderColor;
+
+	static {
+		initColors();
+	}
 	
 	
 	/**
@@ -106,6 +114,16 @@ public class RocketFigure extends AbstractScaleFigure {
 		this.axialRotation = Transformation.rotate_x(0.0);
 
 		updateFigure();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketFigure::updateColors);
+	}
+
+	private static void updateColors() {
+		motorFillColor = GUIUtil.getUITheme().getMotorFillColor();
+		motorBorderColor = GUIUtil.getUITheme().getMotorBorderColor();
 	}
 
 	public Point getAutoZoomPoint(){
@@ -291,8 +309,8 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_STROKE_NORMALIZE);
 	
 		// Draw motors
-		Color fillColor = GUIUtil.getUITheme().getMotorFillColor();
-		Color borderColor = GUIUtil.getUITheme().getMotorBorderColor();
+		Color fillColor = motorFillColor;
+		Color borderColor = motorBorderColor;
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		for (MotorConfiguration curInstance : config.getActiveMotors()) {

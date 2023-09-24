@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.customexpression;
 
+import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,10 +16,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,13 @@ public class CustomExpressionPanel extends JPanel {
 
 	private JPanel expressionSelectorPanel;
 	private OpenRocketDocument doc;
-	
+
+	private static Border border;
+
+	static {
+		initColors();
+	}
+
 	public CustomExpressionPanel(final OpenRocketDocument doc, final JDialog parentDialog) {
 		super(new MigLayout("fill"));
 		this.doc = doc;
@@ -51,7 +60,7 @@ public class CustomExpressionPanel extends JPanel {
 		expressionSelectorPanel.setToolTipText(trans.get("customExpressionPanel.lbl.CalcNote"));
 		
 		JScrollPane scroll = new JScrollPane(expressionSelectorPanel);
-		expressionSelectorPanel.setBorder(GUIUtil.getUITheme().getBorder());
+		expressionSelectorPanel.setBorder(border);
 		
 		//Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
 		//scroll.setBorder(bdr);
@@ -131,7 +140,16 @@ public class CustomExpressionPanel extends JPanel {
 		
 		updateExpressions();
 	}
-	
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(CustomExpressionPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
+	}
+
 	/*
 	 * Update the expressionSelectorPanel
 	 */
@@ -171,10 +189,24 @@ public class CustomExpressionPanel extends JPanel {
 	 * A JPanel which configures a single expression
 	 */
 	private class SingleExpression extends JPanel {
+		private static Color backgroundColor;
+
+		private static void initColors() {
+			updateColors();
+			UITheme.Theme.addUIThemeChangeListener(SingleExpression::updateColors);
+		}
+
+		static {
+			initColors();
+		}
+
+		private static void updateColors() {
+			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		}
 
 		// Convenience method to make the labels consistent
 		private JLabel setLabelStyle(JLabel l) {
-			l.setBackground(GUIUtil.getUITheme().getBackgroundColor());
+			l.setBackground(backgroundColor);
 			l.setOpaque(true);
 			l.setBorder(BorderFactory.createRaisedBevelBorder());
 			l.setText(" " + l.getText() + " ");
@@ -192,7 +224,7 @@ public class CustomExpressionPanel extends JPanel {
 			JLabel symbolLabel = new JLabel(trans.get("customExpression.Symbol") + " :");
 			JLabel symbol = new JLabel(expression.getSymbol());
 			symbol = setLabelStyle(symbol);
-			symbol.setBackground(GUIUtil.getUITheme().getBackgroundColor());
+			symbol.setBackground(backgroundColor);
 			
 			JLabel unitLabel = new JLabel(trans.get("customExpression.Units") + " :");
 			UnitSelector unitSelector = new UnitSelector(expression.getType().getUnitGroup());

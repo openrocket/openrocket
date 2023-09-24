@@ -33,6 +33,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -41,6 +42,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
@@ -97,6 +99,12 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
 	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
 
+	private static Border border;
+
+	static {
+		initColors();
+	}
+
 
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
 		////Component analysis
@@ -150,7 +158,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
-		warningList.setBorder(GUIUtil.getUITheme().getBorder());
+		warningList.setBorder(border);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
@@ -499,6 +507,14 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	}
 
 
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ComponentAnalysisDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
+	}
 
 	/**
 	 * Updates the data in the table and fires a table data change event.
@@ -626,12 +642,27 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		private final List<?> data;
 		protected final int decimalPlaces;
 
+		private static Color backgroundColor;
+
+		static {
+			initColors();
+		}
+
 		public CustomCellRenderer(List<?> data, int decimalPlaces) {
 			super();
 			this.decimalPlaces = decimalPlaces;
 			this.data = data;
 			this.normalFont = getFont();
 			this.boldFont = normalFont.deriveFont(Font.BOLD);
+		}
+
+		private static void initColors() {
+			updateColors();
+			UITheme.Theme.addUIThemeChangeListener(CustomCellRenderer::updateColors);
+		}
+
+		private static void updateColors() {
+			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		}
 
 		@Override
@@ -647,7 +678,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 
 			label.setOpaque(true);
-			label.setBackground(GUIUtil.getUITheme().getBackgroundColor());
+			label.setBackground(backgroundColor);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 
 			if ((row < 0) || (row >= data.size()))
