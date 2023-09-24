@@ -142,6 +142,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		DescriptionArea info = new DescriptionArea(5);
+		info.setBorder(GUIUtil.getUITheme().getBorder());
 		info.setText(CREDITS);
 		info.setTextFont(UIManager.getFont("Label.font"));
 		panel.add(info, "newline, width 10px, height 250lp, pushy, grow, spanx, wrap para");

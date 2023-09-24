@@ -330,7 +330,7 @@ class SimulationOptionsPanel extends JPanel {
 		
 		if (simulation.getSimulationExtensions().isEmpty()) {
 			StyledLabel l = new StyledLabel(trans.get("simedtdlg.SimExt.noExtensions"), Style.ITALIC);
-			l.setForeground(Color.DARK_GRAY);
+			l.setForeground(GUIUtil.getUITheme().getDimTextColor());
 			currentExtensions.add(l, "growx, pad 5 5 5 5, wrap");
 		} else {
 			for (SimulationExtension e : simulation.getSimulationExtensions()) {
