@@ -680,6 +680,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getMultiCompEditColor() {
+                return new Color(255, 165, 200);
+            }
+
+            @Override
             public String getDefaultBodyComponentColor() {
                 return "150,175,255";
             }
