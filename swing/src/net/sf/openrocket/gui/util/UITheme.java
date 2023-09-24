@@ -611,12 +611,12 @@ public class UITheme {
 
             @Override
             public Color getWarningColor() {
-                return new Color(255, 162, 162);
+                return new Color(255, 173, 173);
             }
 
             @Override
             public Color getDarkWarningColor() {
-                return new Color(238, 125, 125);
+                return new Color(255, 178, 178);
             }
 
             @Override
