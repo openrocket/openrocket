@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.preferences;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -18,6 +19,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -25,6 +27,12 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class SimulationPreferencesPanel extends PreferencesPanel {
 	private static final long serialVersionUID = 7983195730016979888L;
+
+	private static Color darkWarningColor;
+
+	static {
+		initColors();
+	}
 
 	/*
 	 * private GeodeticComputationStrategy geodeticComputation =
@@ -85,7 +93,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0, StyledLabel.Style.BOLD);
-		warning.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+		warning.setFontColor(darkWarningColor);
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		subsub.add(warning, "spanx, wrap para");
 
@@ -294,4 +302,13 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 	 * public void fireContentsChanged() { super.fireContentsChanged(this, 0,
 	 * getSize()); } }
 	 */
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SimulationPreferencesPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+	}
 }

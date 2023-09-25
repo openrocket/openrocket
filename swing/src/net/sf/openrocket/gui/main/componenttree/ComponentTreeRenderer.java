@@ -1,12 +1,14 @@
 package net.sf.openrocket.gui.main.componenttree;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,6 +20,7 @@ import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.gui.main.ComponentIcons;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassComponent.MassComponentType;
@@ -31,6 +34,21 @@ import net.sf.openrocket.util.TextUtil;
 public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 	private static final Translator trans = Application.getTranslator();
+	
+	private static Color textSelectionBackgroundColor;
+	private static Color textSelectionForegroundColor;
+	private static Color componentTreeBackgroundColor;
+	private static Color componentTreeForegroundColor;
+	private static Icon massOverrideSubcomponentIcon;
+	private static Icon massOverrideIcon;
+	private static Icon CGOverrideSubcomponentIcon;
+	private static Icon CGOverrideIcon;
+	private static Icon CDOverrideSubcomponentIcon;
+	private static Icon CDOverrideIcon;
+
+	static {
+		initColors();
+	}
 
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -81,12 +99,12 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		// Set the background and foreground colors of the text JLabel
 		if (sel) {
 			textLabel.setOpaque(true);
-			textLabel.setBackground(GUIUtil.getUITheme().getTextSelectionBackgroundColor());
-			textLabel.setForeground(GUIUtil.getUITheme().getTextSelectionForegroundColor());
+			textLabel.setBackground(textSelectionBackgroundColor);
+			textLabel.setForeground(textSelectionForegroundColor);
 		} else {
 			textLabel.setOpaque(true); // Set this to true to allow the background color to be visible
-			textLabel.setBackground(GUIUtil.getUITheme().getComponentTreeBackgroundColor());
-			textLabel.setForeground(GUIUtil.getUITheme().getComponentTreeForegroundColor());
+			textLabel.setBackground(componentTreeBackgroundColor);
+			textLabel.setForeground(componentTreeForegroundColor);
 		}
 
 		applyToolTipText(components, c, panel);
@@ -99,23 +117,23 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 				c.isCDOverridden() || c.getCDOverriddenBy() != null) {
 			JPanel p = new JPanel();
 			p.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 1));
-			p.setBackground(GUIUtil.getUITheme().getComponentTreeBackgroundColor());
-			p.setForeground(GUIUtil.getUITheme().getComponentTreeForegroundColor());
+			p.setBackground(componentTreeBackgroundColor);
+			p.setForeground(componentTreeForegroundColor);
 			p.add(comp/* , BorderLayout.WEST */);
 			if (c.getMassOverriddenBy() != null) {
-				p.add(new JLabel(GUIUtil.getUITheme().getMassOverrideSubcomponentIcon()));
+				p.add(new JLabel(massOverrideSubcomponentIcon));
 			} else if (c.isMassOverridden()) {
-				p.add(new JLabel(GUIUtil.getUITheme().getMassOverrideIcon()));
+				p.add(new JLabel(massOverrideIcon));
 			}
 			if (c.getCGOverriddenBy() != null) {
-				p.add(new JLabel(GUIUtil.getUITheme().getCGOverrideSubcomponentIcon()));
+				p.add(new JLabel(CGOverrideSubcomponentIcon));
 			} else if (c.isCGOverridden()) {
-				p.add(new JLabel(GUIUtil.getUITheme().getCGOverrideIcon()));
+				p.add(new JLabel(CGOverrideIcon));
 			}
 			if (c.getCDOverriddenBy() != null) {
-				p.add(new JLabel(GUIUtil.getUITheme().getCDOverrideSubcomponentIcon()));
+				p.add(new JLabel(CDOverrideSubcomponentIcon));
 			} else if (c.isCDOverridden()) {
-				p.add(new JLabel(GUIUtil.getUITheme().getCDOverrideIcon()));
+				p.add(new JLabel(CDOverrideIcon));
 			}
 			
 			// Make sure the tooltip also works on the override icons
@@ -129,6 +147,25 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		applyToolTipText(components, c, this);
 
 		return comp;
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ComponentTreeRenderer::updateColors);
+	}
+	
+	private static void updateColors() {
+		textSelectionBackgroundColor = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
+		textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
+		componentTreeBackgroundColor = GUIUtil.getUITheme().getComponentTreeBackgroundColor();
+		componentTreeForegroundColor = GUIUtil.getUITheme().getComponentTreeForegroundColor();
+
+		massOverrideSubcomponentIcon = GUIUtil.getUITheme().getMassOverrideSubcomponentIcon();
+		massOverrideIcon = GUIUtil.getUITheme().getMassOverrideIcon();
+		CGOverrideSubcomponentIcon = GUIUtil.getUITheme().getCGOverrideSubcomponentIcon();
+		CGOverrideIcon = GUIUtil.getUITheme().getCGOverrideIcon();
+		CDOverrideSubcomponentIcon = GUIUtil.getUITheme().getCDOverrideSubcomponentIcon();
+		CDOverrideIcon = GUIUtil.getUITheme().getCDOverrideIcon();
 	}
 
 	private void applyToolTipText(List<RocketComponent> components, RocketComponent c, JComponent comp) {

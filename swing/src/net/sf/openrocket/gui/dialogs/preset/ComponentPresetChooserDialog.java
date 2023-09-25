@@ -22,8 +22,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -245,12 +249,54 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(showLegacyCheckBox, "wrap");
 		
 		showLegacyCheckBox.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					updateFilters();
-					tm.setColumnVisible(legacyColumn, showLegacyCheckBox.isSelected());
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				boolean selected = e != null && e.getStateChange() == ItemEvent.SELECTED;
+				if (tm.isColumnVisible(legacyColumn) == selected) {
+					// No change
+					return;
 				}
-			});			
+
+				updateFilters();
+
+				tm.setColumnVisible(legacyColumn, selected);
+
+				if (selected) {
+					// Let's say the optimal width is 100 (you can adjust this as needed)
+					int optimalWidth = 50;
+					legacyColumn.setPreferredWidth(optimalWidth);
+				}
+			}
+		});
+
+		// When the legacy column changes visibility (by right-clicking on the column header and toggling the legacy header checkbox),
+		// update the main legacy checkbox
+		tm.addColumnModelListener(new TableColumnModelListener() {
+			@Override
+			public void columnAdded(TableColumnModelEvent e) {
+				TableColumn column = tm.getColumn(e.getToIndex());
+				if (column == legacyColumn) {
+					showLegacyCheckBox.setSelected(true);
+				}
+			}
+
+			@Override
+			public void columnRemoved(TableColumnModelEvent e) {
+				// Use 'getFromIndex' since the column has been removed
+				if (e.getFromIndex() == legacyColumnIndex) {
+					showLegacyCheckBox.setSelected(false);
+				}
+			}
+
+			@Override
+			public void columnMoved(TableColumnModelEvent e) {}
+
+			@Override
+			public void columnMarginChanged(ChangeEvent e) {}
+
+			@Override
+			public void columnSelectionChanged(ListSelectionEvent e) {}
+		});
 		
 		if(component instanceof SymmetricComponent) {
 			final SymmetricComponent curSym = (SymmetricComponent) component;

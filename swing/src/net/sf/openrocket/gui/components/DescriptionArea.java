@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.components;
 
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.util.URLUtil;
 
 import java.awt.Color;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import javax.swing.JTextPane;
+import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.SimpleAttributeSet;
@@ -33,6 +35,12 @@ public class DescriptionArea extends JScrollPane {
 	private final JEditorPane editorPane;
 
 	private final float size;
+
+	private static Border border;
+
+	static {
+		initColors();
+	}
 	
 	
 	/**
@@ -177,10 +185,19 @@ public class DescriptionArea extends JScrollPane {
 		dim.height = lineheight * rows + extraheight + 2;
 		this.setPreferredSize(dim);
 
-		editorPane.setBorder(GUIUtil.getUITheme().getBorder());
+		editorPane.setBorder(border);
 		
 		this.setViewportView(editorPane);
 		this.setText(text);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(DescriptionArea::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 	
 	public void setText(String txt) {

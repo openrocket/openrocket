@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.preferences;
 
+import java.awt.Color;
 import java.awt.LayoutManager;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -24,6 +25,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.unit.UnitGroup;
@@ -31,6 +33,11 @@ import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class LaunchPreferencesPanel extends PreferencesPanel {
+	private static Color darkWarningColor;
+
+	static {
+		initColors();
+	}
 
 	public LaunchPreferencesPanel(JDialog parent, LayoutManager layout) {
 		super(parent, layout);
@@ -44,7 +51,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0.5f, StyledLabel.Style.BOLD);
-		warning.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+		warning.setFontColor(darkWarningColor);
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 
@@ -449,6 +456,15 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		intoWind.addEnableComponent(unit, false);
 		intoWind.addEnableComponent(directionSlider, false);
 
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(LaunchPreferencesPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
 	}
 
 	private String getIntensityDescription(double i) {
