@@ -34,6 +34,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.CheckList;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.MultiSlider;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Manufacturer;
@@ -118,6 +119,12 @@ public abstract class MotorFilterPanel extends JPanel {
 	private final MultiSlider lengthSlider;
 	private final MultiSlider diameterSlider;
 
+	private static Border border;
+
+	static {
+		initColors();
+	}
+
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
 		super(new MigLayout("fill", "[grow]"));
 		this.filter = filter;
@@ -146,7 +153,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		// Manufacturer selection
 		JPanel sub = new JPanel(new MigLayout("fill"));
-		Border templateBorder = GUIUtil.getUITheme().getBorder();
+		Border templateBorder = border;
 		TitledBorder border = BorderFactory.createTitledBorder(templateBorder);
 		border.setTitle(trans.get("TCurveMotorCol.MANUFACTURER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
@@ -186,9 +193,8 @@ public abstract class MotorFilterPanel extends JPanel {
 		});
 
 		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
-		Border border1 = GUIUtil.getUITheme().getBorder();
-		if (border1 != null) {
-			scrollPane.setBorder(border1);
+		if (border != null) {
+			scrollPane.setBorder(border);
 		}
 		sub.add(scrollPane, "grow, pushy, wrap");
 
@@ -366,6 +372,15 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 		this.add(sub, "grow,wrap");
 
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(MotorFilterPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	public void setMotorMount( MotorMount mount ) {

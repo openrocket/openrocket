@@ -10,10 +10,13 @@ import javax.swing.event.DocumentListener;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
 import net.sf.openrocket.startup.Application;
+
+import java.awt.Color;
 
 @Plugin
 public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfigurator<JavaCode> {
@@ -23,8 +26,23 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 
 	private static final Translator trans = Application.getTranslator();
 
+	private static Color darkWarningColor;
+
+	static {
+		initColors();
+	}
+
 	public JavaCodeConfigurator() {
 		super(JavaCode.class);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(JavaCodeConfigurator::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
 	}
 	
 	@Override
@@ -35,7 +53,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 		classNameField = new JTextField(extension.getClassName());
 		panel.add(classNameField, "growx, wrap");
 		this.errorMsg = new StyledLabel();
-		errorMsg.setFontColor(GUIUtil.getUITheme().getDarkWarningColor());
+		errorMsg.setFontColor(darkWarningColor);
 		errorMsg.setVisible(false);
 		panel.add(errorMsg, "growx, wrap");
 

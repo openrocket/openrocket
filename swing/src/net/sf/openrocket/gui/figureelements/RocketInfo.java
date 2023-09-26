@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.figureelements;
 import static net.sf.openrocket.util.Chars.ALPHA;
 import static net.sf.openrocket.util.Chars.THETA;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -12,6 +13,7 @@ import java.awt.geom.Rectangle2D;
 
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
@@ -64,12 +66,34 @@ public class RocketInfo implements FigureElement {
 	private Graphics2D g2 = null;
 	private float line = 0;
 	private float x1, x2, y1, y2;
-	
+
+	private static Color textColor;
+	private static Color dimTextColor;
+	private static Color warningColor;
+	private static Color flightDataTextActiveColor;
+	private static Color flightDataTextInactiveColor;
+
+	static {
+		initColors();
+	}
 	
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
 		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(configuration);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketInfo::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		warningColor = GUIUtil.getUITheme().getWarningColor();
+		flightDataTextActiveColor = GUIUtil.getUITheme().getFlightDataTextActiveColor();
+		flightDataTextInactiveColor = GUIUtil.getUITheme().getFlightDataTextInactiveColor();
 	}
 	
 	
@@ -176,7 +200,7 @@ public class RocketInfo implements FigureElement {
 
 		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
 
-		g2.setColor(GUIUtil.getUITheme().getTextColor());
+		g2.setColor(textColor);
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
@@ -234,7 +258,7 @@ public class RocketInfo implements FigureElement {
 		unitWidth = unitWidth + spaceWidth;
 		stabUnitWidth = stabUnitWidth + spaceWidth;
 
-		g2.setColor(GUIUtil.getUITheme().getTextColor());
+		g2.setColor(textColor);
 
 		// Draw the stability, CG & CP values (and units)
 		g2.drawGlyphVector(stabValue, (float)(x2-stabRect.getWidth()), y1);
@@ -261,7 +285,7 @@ public class RocketInfo implements FigureElement {
 			atPos = (float)(x2 - atTextRect.getWidth());
 		}
 		
-		g2.setColor(GUIUtil.getUITheme().getDimTextColor());
+		g2.setColor(dimTextColor);
 		g2.drawGlyphVector(atText, atPos, y1 + 3*line);
 
 	}
@@ -411,7 +435,7 @@ public class RocketInfo implements FigureElement {
 		
 
 		float y = y2 - line * (texts.length-1);
-		g2.setColor(GUIUtil.getUITheme().getWarningColor());
+		g2.setColor(warningColor);
 
 		for (GlyphVector v: texts) {
 			Rectangle2D rect = v.getVisualBounds();
@@ -427,7 +451,7 @@ public class RocketInfo implements FigureElement {
 		if (calculatingData) {
 			//// Calculating...
 			GlyphVector calculating = createText(trans.get("RocketInfo.Calculating"));
-			g2.setColor(GUIUtil.getUITheme().getTextColor());
+			g2.setColor(textColor);
 			g2.drawGlyphVector(calculating, x1, (float)(y2-height));
 		}
 	}
@@ -485,17 +509,17 @@ public class RocketInfo implements FigureElement {
 		width += 5;
 
 		if (!calculatingData) 
-			g2.setColor(GUIUtil.getUITheme().getFlightDataTextActiveColor());
+			g2.setColor(flightDataTextActiveColor);
 		else
-			g2.setColor(GUIUtil.getUITheme().getFlightDataTextInactiveColor());
+			g2.setColor(flightDataTextInactiveColor);
 
-		g2.drawGlyphVector(apogee, (float)x1, (float)(y2-2*line));
-		g2.drawGlyphVector(maxVelocity, (float)x1, (float)(y2-line));
-		g2.drawGlyphVector(maxAcceleration, (float)x1, (float)(y2));
+		g2.drawGlyphVector(apogee, x1, y2-2*line);
+		g2.drawGlyphVector(maxVelocity, x1, y2-line);
+		g2.drawGlyphVector(maxAcceleration, x1, y2);
 
-		g2.drawGlyphVector(apogeeValue, (float)(x1+width), (float)(y2-2*line));
-		g2.drawGlyphVector(velocityValue, (float)(x1+width), (float)(y2-line));
-		g2.drawGlyphVector(accelerationValue, (float)(x1+width), (float)(y2));
+		g2.drawGlyphVector(apogeeValue, (float)(x1+width), y2-2*line);
+		g2.drawGlyphVector(velocityValue, (float)(x1+width), y2-line);
+		g2.drawGlyphVector(accelerationValue, (float)(x1+width), y2);
 		
 		return 3*line;
 	}
