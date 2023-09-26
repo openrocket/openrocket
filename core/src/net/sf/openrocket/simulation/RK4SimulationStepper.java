@@ -103,10 +103,16 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		checkNaN(store.timestep);
 
 		/*
+		 * Get the current atmospheric conditions
+		 */
+		calculateFlightConditions(status, store);
+		store.atmosphericConditions = store.flightConditions.getAtmosphericConditions();
+
+		/*
 		 * Compute the initial thrust estimate.  This is used for the first time step computation.
 		 */
-		store.thrustForce = calculateAverageThrust(status, store.timestep, store.timestep,
-				status.getPreviousAtmosphericConditions(), false);
+		store.thrustForce = calculateAverageThrust(status, store.timestep, store.longitudinalAcceleration,
+												   store.atmosphericConditions, false);
 		
 		/*
 		 * Perform RK4 integration.  Decide the time step length after the first step.
