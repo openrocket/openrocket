@@ -283,11 +283,17 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			throws SimulationException {
 		RK4Parameters params = new RK4Parameters();
 		
-		//		if (dataStore == null) {
-		//			dataStore = new DataStore();
-		//		}
+		// Call pre-listeners
+		store.accelerationData = SimulationListenerHelper.firePreAccelerationCalculation(status);
+
+		// Calculate acceleration (if not overridden by pre-listeners)
+		if (store.accelerationData == null) {
+			store.accelerationData = calculateAcceleration(status, dataStore);
+		}
 		
-		calculateAcceleration(status, dataStore);
+		// Call post-listeners
+		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
+		
 		params.a = dataStore.linearAcceleration;
 		params.ra = dataStore.angularAcceleration;
 		params.v = status.getRocketVelocity();
@@ -312,13 +318,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @param status   the status of the rocket.
 	 * @throws SimulationException 
 	 */
-	private void calculateAcceleration(RK4SimulationStatus status, DataStore store) throws SimulationException {
-		
-		// Call pre-listeners
-		store.accelerationData = SimulationListenerHelper.firePreAccelerationCalculation(status);
-		if (store.accelerationData != null) {
-			return;
-		}
+	private AccelerationData calculateAcceleration(RK4SimulationStatus status, DataStore store) throws SimulationException {
 		
 		// Compute the forces affecting the rocket
 		calculateForces(status, store);
@@ -403,9 +403,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			store.angularAcceleration = status.getRocketOrientationQuaternion().rotate(store.angularAcceleration);
 			
 		}
-		
-		// Call post-listeners
-		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
+
+		return new AccelerationData(null, null, store.linearAcceleration, store.angularAcceleration, status.getRocketOrientationQuaternion());
 	}
 	
 	
