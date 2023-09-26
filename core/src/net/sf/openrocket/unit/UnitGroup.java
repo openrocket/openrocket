@@ -36,6 +36,7 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_LENGTH;
 	public static final UnitGroup UNITS_ALL_LENGTHS;
 	public static final UnitGroup UNITS_DISTANCE;
+	public static final UnitGroup UNITS_SHAPE_PARAMETER;
 	
 	public static final UnitGroup UNITS_AREA;
 	public static final UnitGroup UNITS_STABILITY;
@@ -80,6 +81,8 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_MOMENTUM;
 	public static final UnitGroup UNITS_VOLTAGE;
 	public static final UnitGroup UNITS_CURRENT;
+
+	public static final UnitGroup UNITS_SCALING;
 	
 	
 	public static final Map<String, UnitGroup> UNITS; // keys such as "LENGTH", "VELOCITY"
@@ -125,7 +128,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
-		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 0.1));
+		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 1));
 		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		
@@ -161,6 +164,9 @@ public class UnitGroup {
 		UNITS_AREA.addUnit(new GeneralUnit(1, "m" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254), "in" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048), "ft" + SQUARED));
+
+		UNITS_SHAPE_PARAMETER = new UnitGroup();
+		UNITS_SHAPE_PARAMETER.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 		
 		
 		UNITS_STABILITY = new UnitGroup();
@@ -290,6 +296,9 @@ public class UnitGroup {
 		
 		UNITS_COEFFICIENT = new UnitGroup();
 		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.001)); // zero-width space
+
+		UNITS_SCALING = new UnitGroup();
+		UNITS_SCALING.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 		
 		
 		// This is not used by OpenRocket, and not extensively tested:
@@ -328,6 +337,7 @@ public class UnitGroup {
 		map.put("RELATIVE", UNITS_RELATIVE);
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
+		map.put("SCALING", UNITS_SCALING);
 		map.put("VOLTAGE", UNITS_VOLTAGE);
 		map.put("CURRENT", UNITS_CURRENT);
 		map.put("ENERGY", UNITS_ENERGY);
@@ -450,6 +460,7 @@ public class UnitGroup {
 		UNITS_RELATIVE.setDefaultUnit(1);
 		UNITS_ROUGHNESS.setDefaultUnit(0);
 		UNITS_COEFFICIENT.setDefaultUnit(0);
+		UNITS_SCALING.setDefaultUnit(0);
 		UNITS_FREQUENCY.setDefaultUnit(1);
 	}
 

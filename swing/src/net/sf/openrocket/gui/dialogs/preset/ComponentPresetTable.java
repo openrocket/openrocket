@@ -74,14 +74,13 @@ public class ComponentPresetTable extends JTable {
 			@Override
 			public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 				// Only support favorite
-				if ( columnIndex != 0 ) {
+				if (columnIndex != 0) {
 					return;
 				}
-				int selectedRow = ComponentPresetTable.this.getSelectedRow();
 				ComponentPreset preset = ComponentPresetTable.this.presets.get(rowIndex);
 				Application.getComponentPresetDao().setFavorite(preset, presetType, (Boolean) aValue);
 				ComponentPresetTable.this.updateFavorites();
-				ComponentPresetTable.this.setRowSelectionInterval(selectedRow, selectedRow);
+				ComponentPresetTable.this.setRowSelectionInterval(rowIndex, rowIndex);
 			}
 
 			@Override

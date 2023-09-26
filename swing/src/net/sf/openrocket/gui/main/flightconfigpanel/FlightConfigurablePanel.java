@@ -22,6 +22,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.util.ArrayList;
@@ -51,12 +52,14 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	protected final FlightConfigurationPanel flightConfigurationPanel;
+	protected final OpenRocketDocument document;
 	protected final Rocket rocket;
 	protected final JTable table;
 	
-	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
+	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
 		super(new MigLayout("fill"));
 		this.flightConfigurationPanel = flightConfigurationPanel;
+		this.document = document;
 		this.rocket = rocket;
 		table = doTableInitialization();
 
@@ -250,7 +253,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if (tableValue instanceof Pair) {
 					@SuppressWarnings("unchecked")
 					Pair<String, T> selectedComponent = (Pair<String, T>) tableValue;
-					components.add(selectedComponent.getV());
+					T comp = selectedComponent.getV();
+					if (!components.contains(comp)) {
+						components.add(comp);
+					}
 				}
 			}
 		}
@@ -289,11 +295,17 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				@SuppressWarnings("unchecked")
 				Pair<FlightConfigurationId, T> selectedComponent = (Pair<FlightConfigurationId, T>) tableValue;
 				FlightConfigurationId fcid = selectedComponent.getU();
-				Ids.add(fcid);
+				if (!Ids.contains(fcid)) {
+					Ids.add(fcid);
+				}
 			} else if (tableValue instanceof FlightConfigurationId) {
-				Ids.add((FlightConfigurationId) tableValue);
+				if (!Ids.contains(tableValue)) {
+					Ids.add((FlightConfigurationId) tableValue);
+				}
 			} else {
-				Ids.add(FlightConfigurationId.ERROR_FCID);
+				if (!Ids.contains(FlightConfigurationId.ERROR_FCID)) {
+					Ids.add(FlightConfigurationId.ERROR_FCID);
+				}
 			}
 		}
 

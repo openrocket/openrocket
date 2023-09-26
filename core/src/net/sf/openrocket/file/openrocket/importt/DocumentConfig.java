@@ -234,7 +234,8 @@ class DocumentConfig {
 				false));
 		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
-				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class)));
+				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class, boolean.class),
+				null, null, false));
 		setters.put("Transition:foreshoulderlength", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeShoulderLength", double.class)));
 		setters.put("Transition:foreshoulderthickness", new DoubleSetter(
@@ -243,7 +244,8 @@ class DocumentConfig {
 				Reflection.findMethod(Transition.class, "setForeShoulderCapped", boolean.class)));
 		
 		setters.put("Transition:aftshoulderradius", new DoubleSetter(
-				Reflection.findMethod(Transition.class, "setAftShoulderRadius", double.class)));
+				Reflection.findMethod(Transition.class, "setAftShoulderRadius", double.class, boolean.class),
+				null, null, false));
 		setters.put("Transition:aftshoulderlength", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setAftShoulderLength", double.class)));
 		setters.put("Transition:aftshoulderthickness", new DoubleSetter(

@@ -76,7 +76,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			this.shapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Shapeparam"));
 			panel.add(shapeLabel);
 
-			final DoubleModel parameterModel = new DoubleModel(component, "ShapeParameter");
+			final DoubleModel parameterModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
 
 			this.shapeSpinner = new JSpinner(parameterModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));

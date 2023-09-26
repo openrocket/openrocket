@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
@@ -88,6 +89,8 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 			textLabel.setForeground(GUIUtil.getUITheme().getComponentTreeForegroundColor());
 		}
 
+		applyToolTipText(components, c, panel);
+
 		comp = panel;
 
 		// Add mass/CG/CD overridden icons
@@ -116,24 +119,26 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 			}
 			
 			// Make sure the tooltip also works on the override icons
-			if (components != null && components.size() > 1 && components.contains(c)) {
-				p.setToolTipText(getToolTipMultipleComponents(components));
-			} else {
-				p.setToolTipText(getToolTipSingleComponent(c));
-			}
+			applyToolTipText(components, c, p);
 
 			Font originalFont = tree.getFont();
 			p.setFont(originalFont);
 			comp = p;
 		}
 
-		if (components != null && components.size() > 1 && components.contains(c)) {
-			this.setToolTipText(getToolTipMultipleComponents(components));
-		} else {
-			this.setToolTipText(getToolTipSingleComponent(c));
-		}
+		applyToolTipText(components, c, this);
 
 		return comp;
+	}
+
+	private void applyToolTipText(List<RocketComponent> components, RocketComponent c, JComponent comp) {
+		String tooltipText;
+		if (components != null && components.size() > 1 && components.contains(c)) {
+			tooltipText = getToolTipMultipleComponents(components);
+		} else {
+			tooltipText = getToolTipSingleComponent(c);
+		}
+		comp.setToolTipText(tooltipText);
 	}
 
 	private static String getToolTipSingleComponent(RocketComponent c) {

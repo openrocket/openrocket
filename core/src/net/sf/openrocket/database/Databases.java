@@ -69,6 +69,9 @@ public class Databases {
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Titanium", 4500));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Quantum tubing", 1050));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Blue tube", 1300));
+		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "PLA - 100% infill", 1250));
+		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "PETG - 100% infill", 1250));
+		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "ABS - 100% infill", 1050));
 		
 		SURFACE_MATERIAL.add(newMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067));
 		SURFACE_MATERIAL.add(newMaterial(Material.Type.SURFACE, "Mylar", 0.021));

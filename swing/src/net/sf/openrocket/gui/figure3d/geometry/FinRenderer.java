@@ -42,7 +42,7 @@ public class FinRenderer {
 		{
 		    gl.glPushMatrix();
 
-            gl.glTranslated(0, - finSet.getBodyRadius(), 0);		// Move to the rocket centerline
+            gl.glTranslated(0, - finSet.getBodyRadius(), 0);		// Move to the parent centerline
             
             gl.glRotated( Math.toDegrees(finSet.getCantAngle()), 0, 1, 0);
 

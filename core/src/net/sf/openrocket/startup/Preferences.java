@@ -9,19 +9,17 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.file.wavefrontobj.Axis;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.BodyComponent;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.InternalComponent;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.RailButton;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
@@ -120,7 +118,26 @@ public abstract class Preferences implements ChangeSource {
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
 
 	public static final String UI_THEME = "UITheme";
-	
+
+	// OBJ Export options
+	private static final String OBJ_EXPORT_OPTIONS_NODE = "OBJExportOptions";
+	private static final String OBJ_EXPORT_CHILDREN = "ExportChildren";
+	private static final String OBJ_EXPORT_MOTORS = "ExportMotors";
+	private static final String OBJ_EXPORT_APPEARANCE = "ExportAppearance";
+	private static final String OBJ_EXPORT_AS_SEPARATE_FILES = "ExportAsSeparateFiles";
+	private static final String OBJ_REMOVE_OFFSET = "RemoveOffset";
+	private static final String OBJ_TRIANGULATE = "Triangulate";
+	private static final String OBJ_SRGB = "sRGB";
+	private static final String OBJ_LOD = "LOD";
+	private static final String OBJ_SCALING = "Scaling";
+	//// Coordinate transformer
+	private static final String OBJ_TRANSFORMER_NODE = "CoordTransform";
+	private static final String OBJ_X_AXIS = "xAxis";
+	private static final String OBJ_Y_AXIS = "yAxis";
+	private static final String OBJ_Z_AXIS = "zAxis";
+	private static final String OBJ_ORIG_X_OFFS = "OrigXOffs";
+	private static final String OBJ_ORIG_Y_OFFS = "OrigYOffs";
+	private static final String OBJ_ORIG_Z_OFFS = "OrigZOffs";
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
@@ -158,6 +175,8 @@ public abstract class Preferences implements ChangeSource {
 	public abstract void putString(String directory, String key, String value);
 	
 	public abstract java.util.prefs.Preferences getNode(String nodeName);
+
+	public abstract java.util.prefs.Preferences getPreferences();
 
 	/*
 	 * Welcome dialog
@@ -1015,6 +1034,70 @@ public abstract class Preferences implements ChangeSource {
 	public void setUITheme(Object theme) {}
 
 
+	public void saveOBJExportOptions(OBJExportOptions options) {
+		// ! Don't forget to update the loadOBJExportOptions method and OBJOptionChooser.storeOptions if you add new options !
+
+		java.util.prefs.Preferences preferences = getPreferences();
+		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
+
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_CHILDREN, options.isExportChildren());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_MOTORS, options.isExportMotors());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_APPEARANCE, options.isExportAppearance());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, options.isExportAsSeparateFiles());
+		objExportOptionsNode.putBoolean(OBJ_REMOVE_OFFSET, options.isRemoveOffset());
+		objExportOptionsNode.putBoolean(OBJ_TRIANGULATE, options.isTriangulate());
+		objExportOptionsNode.putBoolean(OBJ_SRGB, options.isUseSRGB());
+
+		objExportOptionsNode.putFloat(OBJ_SCALING, options.getScaling());
+
+		objExportOptionsNode.put(OBJ_LOD, options.getLOD().getExportLabel());
+
+		// Save CoordTransform
+		java.util.prefs.Preferences coordTransformNode = objExportOptionsNode.node(OBJ_TRANSFORMER_NODE);
+		CoordTransform transform = options.getTransformer();
+
+		coordTransformNode.put(OBJ_X_AXIS, transform.getXAxis().toString());
+		coordTransformNode.put(OBJ_Y_AXIS, transform.getYAxis().toString());
+		coordTransformNode.put(OBJ_Z_AXIS, transform.getZAxis().toString());
+		coordTransformNode.putDouble(OBJ_ORIG_X_OFFS, transform.getOrigXOffs());
+		coordTransformNode.putDouble(OBJ_ORIG_Y_OFFS, transform.getOrigYOffs());
+		coordTransformNode.putDouble(OBJ_ORIG_Z_OFFS, transform.getOrigZOffs());
+	}
+
+	public OBJExportOptions loadOBJExportOptions(Rocket rocket) {
+		java.util.prefs.Preferences preferences = getPreferences();
+		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
+
+		// By default, we will use options optimized for 3D printing (most-used case)
+		OBJExportOptions options = new OBJExportOptions(rocket);
+		options.setExportChildren(objExportOptionsNode.getBoolean(OBJ_EXPORT_CHILDREN, false));
+		options.setExportMotors(objExportOptionsNode.getBoolean(OBJ_EXPORT_MOTORS, false));
+		options.setExportAppearance(objExportOptionsNode.getBoolean(OBJ_EXPORT_APPEARANCE, false));
+		options.setExportAsSeparateFiles(objExportOptionsNode.getBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, false));
+		options.setRemoveOffset(objExportOptionsNode.getBoolean(OBJ_REMOVE_OFFSET, true));
+		options.setTriangulate(objExportOptionsNode.getBoolean(OBJ_TRIANGULATE, true));
+		options.setUseSRGB(objExportOptionsNode.getBoolean(OBJ_SRGB, false));
+
+		options.setScaling(objExportOptionsNode.getFloat(OBJ_SCALING, 1000));
+
+		options.setLOD(ObjUtils.LevelOfDetail.fromExportLabel(
+				objExportOptionsNode.get(OBJ_LOD, ObjUtils.LevelOfDetail.HIGH_QUALITY.getExportLabel())));
+
+		// Load CoordTransform
+		java.util.prefs.Preferences coordTransformNode = objExportOptionsNode.node(OBJ_TRANSFORMER_NODE);
+
+		Axis xAxis = Axis.fromString(coordTransformNode.get(OBJ_X_AXIS, Axis.Y.toString()));
+		Axis yAxis = Axis.fromString(coordTransformNode.get(OBJ_Y_AXIS, Axis.Z.toString()));
+		Axis zAxis = Axis.fromString(coordTransformNode.get(OBJ_Z_AXIS, Axis.X_MIN.toString()));
+		double origXOffs = coordTransformNode.getDouble(OBJ_ORIG_X_OFFS, 0.0);
+		double origYOffs = coordTransformNode.getDouble(OBJ_ORIG_Y_OFFS, 0.0);
+		double origZOffs = coordTransformNode.getDouble(OBJ_ORIG_Z_OFFS, rocket.getLength());
+
+		CoordTransform transform = new CoordTransform(xAxis, yAxis, zAxis, origXOffs, origYOffs, origZOffs);
+		options.setTransformer(transform);
+
+		return options;
+	}
 	
 	/*
 	 * Within a holder class so they will load only when needed.

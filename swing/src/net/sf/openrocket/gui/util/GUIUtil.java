@@ -165,6 +165,25 @@ public class GUIUtil {
 		installEscapeCloseOperation(dialog, null);
 	}
 
+	public static void installEscapeCloseButtonOperation(final JDialog dialog, final JButton buttonToClick) {
+		Action triggerButtonAndClose = new AbstractAction() {
+			private static final long serialVersionUID = 9196153713666242274L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				log.info(Markers.USER_MARKER, "Closing dialog " + dialog);
+
+				if (buttonToClick != null) {
+					buttonToClick.doClick();  // Programmatically "press" the button
+				}
+
+				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
+			}
+		};
+
+		installEscapeCloseOperation(dialog, triggerButtonAndClose);
+	}
+
 	/**
 	 * Add the correct action to close a JDialog when the ESC key is pressed.
 	 * The dialog is closed by sending it a WINDOW_CLOSING event.
@@ -450,6 +469,16 @@ public class GUIUtil {
 			//System.err.println("Setting column " + col + " to width " + widths[col]);
 			table.getColumnModel().getColumn(col).setPreferredWidth(Math.min(widths[col], max) * 100);
 		}
+	}
+
+	public static Window getWindowAncestor(Component c) {
+		while (c != null) {
+			if (c instanceof Window) {
+				return (Window) c;
+			}
+			c = c.getParent();
+		}
+		return null;
 	}
 	
 	/**

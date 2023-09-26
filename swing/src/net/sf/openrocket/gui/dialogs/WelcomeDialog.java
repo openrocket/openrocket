@@ -81,7 +81,9 @@ public class WelcomeDialog extends JDialog {
         textPane.setText(sb);
         textPane.setCaretPosition(0);	// Scroll to the top
 
-        panel.add(new JScrollPane(textPane), "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
+        JScrollPane scrollPane = new JScrollPane(textPane);
+        scrollPane.setBorder(GUIUtil.getUITheme().getBorder());
+        panel.add(scrollPane, "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
 
         // Don't show this dialog again
         JCheckBox dontShowAgain = new JCheckBox(trans.get("welcome.dlg.checkbox.dontShowAgain"));
