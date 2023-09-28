@@ -889,7 +889,7 @@ public class UITheme {
 
             @Override
             public Color getDimTextColor() {
-                return new Color(189, 189, 189);
+                return new Color(165, 171, 184);
             }
 
             @Override
@@ -924,12 +924,12 @@ public class UITheme {
 
             @Override
             public Color getFlightDataTextActiveColor() {
-                return new Color(173, 206, 255);
+                return new Color(212, 230, 255);
             }
 
             @Override
             public Color getFlightDataTextInactiveColor() {
-                return new Color(149, 186, 255, 127);
+                return new Color(170, 201, 255, 127);
             }
 
             @Override
