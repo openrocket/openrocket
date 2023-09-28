@@ -1083,6 +1083,121 @@ public class UITheme {
                     log.warn("Unable to load RSyntaxTextArea theme", ioe);
                 }
             }
+
+            @Override
+            public String getComponentIconNoseCone() {
+                return DARK.getComponentIconNoseCone();
+            }
+            @Override
+            public String getComponentIconBodyTube() {
+                return DARK.getComponentIconBodyTube();
+            }
+            @Override
+            public String getComponentIconTransition() {
+                return DARK.getComponentIconTransition();
+            }
+
+            @Override
+            public String getComponentIconTrapezoidFinSet() {
+                return DARK.getComponentIconTrapezoidFinSet();
+            }
+            @Override
+            public String getComponentIconEllipticalFinSet() {
+                return DARK.getComponentIconEllipticalFinSet();
+            }
+            @Override
+            public String getComponentIconFreeformFinSet() {
+                return DARK.getComponentIconFreeformFinSet();
+            }
+            @Override
+            public String getComponentIconTubeFinSet() {
+                return DARK.getComponentIconTubeFinSet();
+            }
+            @Override
+            public String getComponentIconLaunchLug() {
+                return DARK.getComponentIconLaunchLug();
+            }
+            @Override
+            public String getComponentIconRailButton() {
+                return DARK.getComponentIconRailButton();
+            }
+            @Override
+            public String getComponentIconInnerTube() {
+                return DARK.getComponentIconInnerTube();
+            }
+            @Override
+            public String getComponentIconTubeCoupler() {
+                return DARK.getComponentIconTubeCoupler();
+            }
+            @Override
+            public String getComponentIconCenteringRing() {
+                return DARK.getComponentIconCenteringRing();
+            }
+            @Override
+            public String getComponentIconBulkhead() {
+                return DARK.getComponentIconBulkhead();
+            }
+            @Override
+            public String getComponentIconEngineBlock() {
+                return DARK.getComponentIconEngineBlock();
+            }
+            @Override
+            public String getComponentIconParachute() {
+                return DARK.getComponentIconParachute();
+            }
+            @Override
+            public String getComponentIconStreamer() {
+                return DARK.getComponentIconStreamer();
+            }
+            @Override
+            public String getComponentIconShockCord() {
+                return DARK.getComponentIconShockCord();
+            }
+            @Override
+            public String getComponentIconMass() {
+                return DARK.getComponentIconMass();
+            }
+            @Override
+            public String getComponentIconStage() {
+                return DARK.getComponentIconStage();
+            }
+            @Override
+            public String getComponentIconBoosters() {
+                return DARK.getComponentIconBoosters();
+            }
+            @Override
+            public String getComponentIconPods() {
+                return DARK.getComponentIconPods();
+            }
+            @Override
+            public String getComponentIconMassAltimeter() {
+                return DARK.getComponentIconMassAltimeter();
+            }
+
+            @Override
+            public String getComponentIconMassBattery() {
+                return DARK.getComponentIconMassBattery();
+            }
+            @Override
+            public String getComponentIconMassDeploymentCharge() {
+                return DARK.getComponentIconMassDeploymentCharge();
+            }
+            @Override
+            public String getComponentIconMassPayload() {
+                return DARK.getComponentIconMassPayload();
+            }
+            @Override
+            public String getComponentIconMassFlightComp() {
+                return DARK.getComponentIconMassFlightComp();
+            }
+            @Override
+            public String getComponentIconMassRecoveryHardware() {
+                return DARK.getComponentIconMassRecoveryHardware();
+            }
+            @Override
+            public String getComponentIconMassTracker() {
+                return DARK.getComponentIconMassTracker();
+            }
         },
         /*
         Detect best theme based on operating system theme
