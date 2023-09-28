@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -32,6 +33,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -50,6 +52,12 @@ public class UpdateInfoDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(UpdateInfoDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	private final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+
+	private static Color textColor;
+
+	static {
+		initColors();
+	}
 
 	public UpdateInfoDialog(UpdateInfo info) {
 		//// OpenRocket update available
@@ -74,7 +82,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
-		textPane.setBorder(BorderFactory.createLineBorder(GUIUtil.getUITheme().getTextColor()));
+		textPane.setBorder(BorderFactory.createLineBorder(textColor));
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
 		textPane.setMargin(new Insets(10, 10, 40, 10));
@@ -199,6 +207,15 @@ public class UpdateInfoDialog extends JDialog {
 		this.pack();
 		this.setLocationRelativeTo(null);
 		GUIUtil.setDisposableDialogOptions(this, btnLater);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(UpdateInfoDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 
 	/**

@@ -26,6 +26,7 @@ import javax.swing.event.ChangeListener;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -72,6 +73,12 @@ public class ScaleScrollPane extends JScrollPane
 
 	private Point2D.Double viewCenter_frac = new Point2D.Double(0.5f, 0.5f);
 
+	private static Color textColor;
+
+	static {
+		initColors();
+	}
+
 	/**
 	 * Create a scale scroll pane.
 	 * 
@@ -83,7 +90,7 @@ public class ScaleScrollPane extends JScrollPane
 		if (!(component instanceof AbstractScaleFigure)) {
 			throw new IllegalArgumentException("component must implement ScaleFigure");
 		}
-		
+
 		this.component = component;
 		this.figure = (AbstractScaleFigure) component;
 
@@ -126,6 +133,15 @@ public class ScaleScrollPane extends JScrollPane
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		viewport.addComponentListener(this);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ScaleScrollPane::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 	
 	public AbstractScaleFigure getFigure() {
@@ -399,7 +415,7 @@ public class ScaleScrollPane extends JScrollPane
             }
 			
 			// Set color & hints
-			g2.setColor(GUIUtil.getUITheme().getTextColor());
+			g2.setColor(textColor);
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 					RenderingHints.VALUE_STROKE_NORMALIZE);
 			g2.setRenderingHint(RenderingHints.KEY_RENDERING,

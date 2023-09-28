@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.text.html.StyleSheet;
 
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.BugException;
 
 /**
@@ -32,7 +33,12 @@ public class SlideSetManager {
 	
 	private final String baseDir;
 	private final Map<String, SlideSet> slideSets = new LinkedHashMap<String, SlideSet>();
-	
+
+	private static Color textColor;
+
+	static {
+		initColors();
+	}
 	
 	/**
 	 * Sole constructor.
@@ -44,6 +50,15 @@ public class SlideSetManager {
 			baseDir = baseDir + "/";
 		}
 		this.baseDir = baseDir;
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SlideSetManager::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 	
 	
@@ -132,7 +147,6 @@ public class SlideSetManager {
 		try {
 			
 			StyleSheet ss = new StyleSheet();
-			Color textColor = GUIUtil.getUITheme().getTextColor();
 			ss.addRule(String.format("p { color: rgb(%d, %d, %d, %d)",
 					textColor.getRed(), textColor.getGreen(), textColor.getBlue(), textColor.getAlpha()));
 			InputStreamReader reader = new InputStreamReader(in, "UTF-8");

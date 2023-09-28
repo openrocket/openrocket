@@ -790,6 +790,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			cgy = cg.y * Math.cos(rotation) + cg.z*Math.sin(rotation);
 		}
 
+		// We need to flip the y coordinate if we are in top view
+		if (figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.TopView) {
+			cgy = -cgy;
+		}
+
 		double length = curConfig.getLength();
 		
 		double diameter = Double.NaN;

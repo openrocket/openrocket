@@ -29,7 +29,7 @@
           <versionLine x="489" y="143" text="version ${compiler:sys.version}" fontSize="10" fontColor="255,255,255" />
         </text>
       </splashScreen>
-      <java mainClass="net.sf.openrocket.startup.OpenRocket">
+      <java mainClass="net.sf.openrocket.startup.OpenRocket" vmParameters="--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
         <classPath>
           <archive location="OpenRocket.jar" failOnError="false" />
         </classPath>
