@@ -12,19 +12,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class UITheme {
     private static final Translator trans = Application.getTranslator();
@@ -87,6 +84,36 @@ public class UITheme {
         Border getBorder();
 
         void formatScriptTextArea(RSyntaxTextArea textArea);
+
+        // Rocket component icons
+        String getComponentIconNoseCone();
+        String getComponentIconBodyTube();
+        String getComponentIconTransition();
+        String getComponentIconTrapezoidFinSet();
+        String getComponentIconEllipticalFinSet();
+        String getComponentIconFreeformFinSet();
+        String getComponentIconTubeFinSet();
+        String getComponentIconLaunchLug();
+        String getComponentIconRailButton();
+        String getComponentIconInnerTube();
+        String getComponentIconTubeCoupler();
+        String getComponentIconCenteringRing();
+        String getComponentIconBulkhead();
+        String getComponentIconEngineBlock();
+        String getComponentIconParachute();
+        String getComponentIconStreamer();
+        String getComponentIconShockCord();
+        String getComponentIconMass();
+        String getComponentIconStage();
+        String getComponentIconBoosters();
+        String getComponentIconPods();
+        String getComponentIconMassAltimeter();
+        String getComponentIconMassBattery();
+        String getComponentIconMassDeploymentCharge();
+        String getComponentIconMassPayload();
+        String getComponentIconMassFlightComp();
+        String getComponentIconMassRecoveryHardware();
+        String getComponentIconMassTracker();
 
         // Static list of listeners
         static List<Runnable> themeChangeListeners = new ArrayList<>();
@@ -365,6 +392,119 @@ public class UITheme {
                    log.warn("Unable to load RSyntaxTextArea theme", ioe);
                 }
             }
+
+            @Override
+            public String getComponentIconNoseCone() {
+                return "nosecone";
+            }
+            @Override
+            public String getComponentIconBodyTube() {
+                return "bodytube";
+            }
+            @Override
+            public String getComponentIconTransition() {
+                return "transition";
+            }
+            @Override
+            public String getComponentIconTrapezoidFinSet() {
+                return "trapezoidfin";
+            }
+            @Override
+            public String getComponentIconEllipticalFinSet() {
+                return "ellipticalfin";
+            }
+            @Override
+            public String getComponentIconFreeformFinSet() {
+                return "freeformfin";
+            }
+            @Override
+            public String getComponentIconTubeFinSet() {
+                return "tubefin";
+            }
+            @Override
+            public String getComponentIconLaunchLug() {
+                return "launchlug";
+            }
+            @Override
+            public String getComponentIconRailButton() {
+                return "railbutton";
+            }
+            @Override
+            public String getComponentIconInnerTube() {
+                return "innertube";
+            }
+            @Override
+            public String getComponentIconTubeCoupler() {
+                return "tubecoupler";
+            }
+            @Override
+            public String getComponentIconCenteringRing() {
+                return "centeringring";
+            }
+            @Override
+            public String getComponentIconBulkhead() {
+                return "bulkhead";
+            }
+            @Override
+            public String getComponentIconEngineBlock() {
+                return "engineblock";
+            }
+            @Override
+            public String getComponentIconParachute() {
+                return "parachute";
+            }
+            @Override
+            public String getComponentIconStreamer() {
+                return "streamer";
+            }
+            @Override
+            public String getComponentIconShockCord() {
+                return "shockcord";
+            }
+            @Override
+            public String getComponentIconMass() {
+                return "mass";
+            }
+            @Override
+            public String getComponentIconStage() {
+                return "stage";
+            }
+            @Override
+            public String getComponentIconBoosters() {
+                return "boosters";
+            }
+            @Override
+            public String getComponentIconPods() {
+                return "pods";
+            }
+            @Override
+            public String getComponentIconMassAltimeter() {
+                return "altimeter";
+            }
+            @Override
+            public String getComponentIconMassBattery() {
+                return "battery";
+            }
+            @Override
+            public String getComponentIconMassDeploymentCharge() {
+                return "deployment-charge";
+            }
+            @Override
+            public String getComponentIconMassPayload() {
+                return "payload";
+            }
+            @Override
+            public String getComponentIconMassFlightComp() {
+                return "flight-comp";
+            }
+            @Override
+            public String getComponentIconMassRecoveryHardware() {
+                return "recovery-hardware";
+            }
+            @Override
+            public String getComponentIconMassTracker() {
+                return "tracker";
+            }
         },
         /*
         Dark theme
@@ -598,6 +738,119 @@ public class UITheme {
                 } catch (IOException ioe) {
                     log.warn("Unable to load RSyntaxTextArea theme", ioe);
                 }
+            }
+
+            @Override
+            public String getComponentIconNoseCone() {
+                return "nosecone";
+            }
+            @Override
+            public String getComponentIconBodyTube() {
+                return "bodytube";
+            }
+            @Override
+            public String getComponentIconTransition() {
+                return "transition";
+            }
+            @Override
+            public String getComponentIconTrapezoidFinSet() {
+                return "trapezoidfin";
+            }
+            @Override
+            public String getComponentIconEllipticalFinSet() {
+                return "ellipticalfin_dark";
+            }
+            @Override
+            public String getComponentIconFreeformFinSet() {
+                return "freeformfin_dark";
+            }
+            @Override
+            public String getComponentIconTubeFinSet() {
+                return "tubefin";
+            }
+            @Override
+            public String getComponentIconLaunchLug() {
+                return "launchlug_dark";
+            }
+            @Override
+            public String getComponentIconRailButton() {
+                return "railbutton";
+            }
+            @Override
+            public String getComponentIconInnerTube() {
+                return "innertube";
+            }
+            @Override
+            public String getComponentIconTubeCoupler() {
+                return "tubecoupler";
+            }
+            @Override
+            public String getComponentIconCenteringRing() {
+                return "centeringring";
+            }
+            @Override
+            public String getComponentIconBulkhead() {
+                return "bulkhead";
+            }
+            @Override
+            public String getComponentIconEngineBlock() {
+                return "engineblock";
+            }
+            @Override
+            public String getComponentIconParachute() {
+                return "parachute_dark";
+            }
+            @Override
+            public String getComponentIconStreamer() {
+                return "streamer_dark";
+            }
+            @Override
+            public String getComponentIconShockCord() {
+                return "shockcord_dark";
+            }
+            @Override
+            public String getComponentIconMass() {
+                return "mass_dark";
+            }
+            @Override
+            public String getComponentIconStage() {
+                return "stage";
+            }
+            @Override
+            public String getComponentIconBoosters() {
+                return "boosters";
+            }
+            @Override
+            public String getComponentIconPods() {
+                return "pods_dark";
+            }
+            @Override
+            public String getComponentIconMassAltimeter() {
+                return "altimeter_dark";
+            }
+            @Override
+            public String getComponentIconMassBattery() {
+                return "battery_dark";
+            }
+            @Override
+            public String getComponentIconMassDeploymentCharge() {
+                return "deployment-charge_dark";
+            }
+            @Override
+            public String getComponentIconMassPayload() {
+                return "payload";
+            }
+            @Override
+            public String getComponentIconMassFlightComp() {
+                return "flight-comp_dark";
+            }
+            @Override
+            public String getComponentIconMassRecoveryHardware() {
+                return "recovery-hardware_dark";
+            }
+            @Override
+            public String getComponentIconMassTracker() {
+                return "tracker_dark";
             }
         },
         /*
@@ -1074,6 +1327,119 @@ public class UITheme {
             @Override
             public void formatScriptTextArea(RSyntaxTextArea textArea) {
                 getCurrentTheme().formatScriptTextArea(textArea);
+            }
+
+            @Override
+            public String getComponentIconNoseCone() {
+                return getCurrentTheme().getComponentIconNoseCone();
+            }
+            @Override
+            public String getComponentIconBodyTube() {
+                return getCurrentTheme().getComponentIconBodyTube();
+            }
+            @Override
+            public String getComponentIconTransition() {
+                return getCurrentTheme().getComponentIconTransition();
+            }
+            @Override
+            public String getComponentIconTrapezoidFinSet() {
+                return getCurrentTheme().getComponentIconTrapezoidFinSet();
+            }
+            @Override
+            public String getComponentIconEllipticalFinSet() {
+                return getCurrentTheme().getComponentIconEllipticalFinSet();
+            }
+            @Override
+            public String getComponentIconFreeformFinSet() {
+                return getCurrentTheme().getComponentIconFreeformFinSet();
+            }
+            @Override
+            public String getComponentIconTubeFinSet() {
+                return getCurrentTheme().getComponentIconTubeFinSet();
+            }
+            @Override
+            public String getComponentIconLaunchLug() {
+                return getCurrentTheme().getComponentIconLaunchLug();
+            }
+            @Override
+            public String getComponentIconRailButton() {
+                return getCurrentTheme().getComponentIconRailButton();
+            }
+            @Override
+            public String getComponentIconInnerTube() {
+                return getCurrentTheme().getComponentIconInnerTube();
+            }
+            @Override
+            public String getComponentIconTubeCoupler() {
+                return getCurrentTheme().getComponentIconTubeCoupler();
+            }
+            @Override
+            public String getComponentIconCenteringRing() {
+                return getCurrentTheme().getComponentIconCenteringRing();
+            }
+            @Override
+            public String getComponentIconBulkhead() {
+                return getCurrentTheme().getComponentIconBulkhead();
+            }
+            @Override
+            public String getComponentIconEngineBlock() {
+                return getCurrentTheme().getComponentIconEngineBlock();
+            }
+            @Override
+            public String getComponentIconParachute() {
+                return getCurrentTheme().getComponentIconParachute();
+            }
+            @Override
+            public String getComponentIconStreamer() {
+                return getCurrentTheme().getComponentIconStreamer();
+            }
+            @Override
+            public String getComponentIconShockCord() {
+                return getCurrentTheme().getComponentIconShockCord();
+            }
+            @Override
+            public String getComponentIconMass() {
+                return getCurrentTheme().getComponentIconMass();
+            }
+            @Override
+            public String getComponentIconStage() {
+                return getCurrentTheme().getComponentIconStage();
+            }
+            @Override
+            public String getComponentIconBoosters() {
+                return getCurrentTheme().getComponentIconBoosters();
+            }
+            @Override
+            public String getComponentIconPods() {
+                return getCurrentTheme().getComponentIconPods();
+            }
+            @Override
+            public String getComponentIconMassAltimeter() {
+                return getCurrentTheme().getComponentIconMassAltimeter();
+            }
+            @Override
+            public String getComponentIconMassBattery() {
+                return getCurrentTheme().getComponentIconMassBattery();
+            }
+            @Override
+            public String getComponentIconMassDeploymentCharge() {
+                return getCurrentTheme().getComponentIconMassDeploymentCharge();
+            }
+            @Override
+            public String getComponentIconMassPayload() {
+                return getCurrentTheme().getComponentIconMassPayload();
+            }
+            @Override
+            public String getComponentIconMassFlightComp() {
+                return getCurrentTheme().getComponentIconMassFlightComp();
+            }
+            @Override
+            public String getComponentIconMassRecoveryHardware() {
+                return getCurrentTheme().getComponentIconMassRecoveryHardware();
+            }
+            @Override
+            public String getComponentIconMassTracker() {
+                return getCurrentTheme().getComponentIconMassTracker();
             }
         }
     }
