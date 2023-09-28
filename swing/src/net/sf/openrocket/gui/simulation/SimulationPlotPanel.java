@@ -497,7 +497,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = new JComboBox<FlightDataType>(types);
+			typeSelector = new FlightDataComboBox(types);
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override

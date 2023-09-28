@@ -15,7 +15,7 @@ import net.sf.openrocket.util.StringUtils;
 /**
  * A class defining a storable simulation variable type.  This class defined numerous ready
  * types, and allows also creating new types with any name.  When retrieving types based on
- * a name, you should use {@link #getType(String, UnitGroup)} to return the default unit type,
+ * a name, you should use {@link #getType(String, String, UnitGroup)} to return the default unit type,
  * or a new type if the name does not currently exist.
  * <p>
  * Each type has a type name (description), a unit group and a priority.  The type is identified
@@ -42,37 +42,50 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	//// Vertical position and motion
 	//// Altitude
-	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), "h", UnitGroup.UNITS_DISTANCE, 10);
+	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), "h", UnitGroup.UNITS_DISTANCE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 0);
 	//// Vertical velocity
-	public static final FlightDataType TYPE_VELOCITY_Z = newType(trans.get("FlightDataType.TYPE_VELOCITY_Z"), "Vz", UnitGroup.UNITS_VELOCITY, 11);
+	public static final FlightDataType TYPE_VELOCITY_Z = newType(trans.get("FlightDataType.TYPE_VELOCITY_Z"), "Vz", UnitGroup.UNITS_VELOCITY,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 1);
 	//// Vertical acceleration
-	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"), "Az", UnitGroup.UNITS_ACCELERATION, 12);
+	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"), "Az", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 2);
 	
 	
 	//// Total motion
 	//// Total velocity
-	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"), "Vt", UnitGroup.UNITS_VELOCITY, 20);
+	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"), "Vt", UnitGroup.UNITS_VELOCITY,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 3);
 	//// Total acceleration
-	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), "At", UnitGroup.UNITS_ACCELERATION, 21);
+	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), "At", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 4);
 	
 	
 	//// Lateral position and motion
 	//// Position East of launch
-	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px", UnitGroup.UNITS_DISTANCE, 30);
+	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px", UnitGroup.UNITS_DISTANCE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 5);
 	//// Position North of launch
-	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), "Py", UnitGroup.UNITS_DISTANCE, 31);
+	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), "Py", UnitGroup.UNITS_DISTANCE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 6);
 	//// Lateral distance
-	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl", UnitGroup.UNITS_DISTANCE, 32);
+	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl", UnitGroup.UNITS_DISTANCE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 7);
 	//// Lateral direction
-	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "\u03b8l", UnitGroup.UNITS_ANGLE, 33);
+	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "\u03b8l", UnitGroup.UNITS_ANGLE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 8);
 	//// Lateral velocity
-	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl", UnitGroup.UNITS_VELOCITY, 34);
+	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl", UnitGroup.UNITS_VELOCITY,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 9);
 	//// Lateral acceleration
-	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION, 35);
+	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 10);
 	//// Latitude
-	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE, 36);
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 11);
 	//// Longitude
-	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE, 37);
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 12);
 	
 	//// Gravity
 	public static final FlightDataType TYPE_GRAVITY = newType(trans.get("FlightDataType.TYPE_GRAVITY"), "g", UnitGroup.UNITS_ACCELERATION, 38);
@@ -283,7 +296,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			// otherwise, just return what we found
 			if ( !u.equals(type.getUnitGroup()) )
 			   {
-				oldPriority = type.priority;
+				oldPriority = type.groupPriority;
 				EXISTING_TYPES.remove(type);
 				log.info("Unitgroup of type "+type.getName() + 
 						 ", has changed from "+type.getUnitGroup().toString() + 
@@ -291,7 +304,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 						 ". Removing old version.");
 			}
 			else if (!s.equals(type.getName())) {
-				oldPriority = type.priority;
+				oldPriority = type.groupPriority;
 				EXISTING_TYPES.remove(type);
 				log.info("Name of type "+type.getName()+", has changed to "+s+". Removing old version.");
 			}
@@ -326,9 +339,20 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	/**
 	 * Used while initializing the class.
+	 * @param s the name of the type.
+	 * @param symbol the mathematical symbol of the type.
+	 * @param u the unit group of the type.
+	 * @param group the group of the type.
+	 * @param priority the priority of the type within the group.
 	 */
+	private static synchronized FlightDataType newType(String s, String symbol, UnitGroup u, FlightDataTypeGroup group, int priority) {
+		FlightDataType type = new FlightDataType(s, symbol, u, group, priority);
+		//EXISTING_TYPES.put(s.toLowerCase(Locale.ENGLISH), type);
+		EXISTING_TYPES.put(symbol, type);
+		return type;
+	}
 	private static synchronized FlightDataType newType(String s, String symbol, UnitGroup u, int priority) {
-		FlightDataType type = new FlightDataType(s, symbol, u, priority);
+		FlightDataType type = new FlightDataType(s, symbol, u, FlightDataTypeGroup.CUSTOM, priority);
 		//EXISTING_TYPES.put(s.toLowerCase(Locale.ENGLISH), type);
 		EXISTING_TYPES.put(symbol, type);
 		return type;
@@ -338,11 +362,12 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	private final String name;
 	private final String symbol;
 	private final UnitGroup units;
-	private final int priority;
+	private final FlightDataTypeGroup group;
+	private final int groupPriority;
 	private final int hashCode;
 	
 	
-	private FlightDataType(String typeName, String symbol, UnitGroup units, int priority) {
+	private FlightDataType(String typeName, String symbol, UnitGroup units, FlightDataTypeGroup group, int priority) {
 		if (typeName == null)
 			throw new IllegalArgumentException("typeName is null");
 		if (units == null)
@@ -350,15 +375,10 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		this.name = typeName;
 		this.symbol = symbol;
 		this.units = units;
-		this.priority = priority;
+		this.group = group;
+		this.groupPriority = priority;
 		this.hashCode = this.name.toLowerCase(Locale.ENGLISH).hashCode();
 	}
-	
-	/*
-	public void setPriority(int p){
-		this.priority = p;
-	}
-	*/
 	
 	public String getName() {
 		return name;
@@ -370,6 +390,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	public UnitGroup getUnitGroup() {
 		return units;
+	}
+
+	public FlightDataTypeGroup getGroup() {
+		return group;
+	}
+
+	public int getGroupPriority() {
+		return groupPriority;
 	}
 	
 	@Override
@@ -391,8 +419,8 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	@Override
 	public int compareTo(FlightDataType o) {
-		if (this.priority != o.priority)
-			return this.priority - o.priority;
+		if (this.groupPriority != o.groupPriority)
+			return this.groupPriority - o.groupPriority;
 		return this.name.compareToIgnoreCase(o.name);
 	}
 }
