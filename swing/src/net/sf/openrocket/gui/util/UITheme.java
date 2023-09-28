@@ -545,7 +545,7 @@ public class UITheme {
 
             @Override
             public Color getDimTextColor() {
-                return new Color(162, 162, 162);
+                return new Color(182, 182, 182);
             }
 
             @Override
