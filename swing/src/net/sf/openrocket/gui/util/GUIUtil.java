@@ -435,6 +435,10 @@ public class GUIUtil {
 	}
 
 	public static int getOptimalColumnWidth(JTable table, int columnIndex) {
+		if (columnIndex >= table.getColumnModel().getColumnCount()) {
+			return -1;
+		}
+
 		TableColumn column = table.getColumnModel().getColumn(columnIndex);
 		Component headerRenderer = table.getTableHeader().getDefaultRenderer()
 				.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, 0, columnIndex);
