@@ -1210,7 +1210,7 @@ public class UITheme {
                     final OsThemeDetector detector = OsThemeDetector.getDetector();
                     final boolean isDarkThemeUsed = detector.isDark();
                     if (isDarkThemeUsed) {
-                        return Themes.DARK;
+                        return Themes.DARK_CONTRAST;
                     } else {
                         return Themes.LIGHT;
                     }
