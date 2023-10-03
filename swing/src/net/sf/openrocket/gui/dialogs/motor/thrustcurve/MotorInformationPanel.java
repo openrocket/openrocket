@@ -47,6 +47,7 @@ class MotorInformationPanel extends JPanel {
 	private static Color NO_COMMENT_COLOR;
 	private static Color WITH_COMMENT_COLOR;
 	private static Color textColor;
+	private static Color dimTextColor;
 	private static Border border;
 
 	// Motors in set
@@ -103,7 +104,7 @@ class MotorInformationPanel extends JPanel {
 			this.add(totalImpulseLabel, "split");
 
 			classificationLabel = new JLabel();
-			classificationLabel.setEnabled(false); // Gray out
+			classificationLabel.setForeground(dimTextColor);
 			this.add(classificationLabel, "gapleft unrel, wrap");
 
 			//// Avg. thrust:
@@ -194,8 +195,8 @@ class MotorInformationPanel extends JPanel {
 			// Add the data and formatting to the plot
 			XYPlot plot = chart.getXYPlot();
 
-			changeLabelFont(plot.getRangeAxis(), -2);
-			changeLabelFont(plot.getDomainAxis(), -2);
+			changeLabelFont(plot.getRangeAxis(), -2, textColor);
+			changeLabelFont(plot.getDomainAxis(), -2, textColor);
 
 			//// Thrust curve:
 			TextTitle title = new TextTitle(trans.get("TCMotorSelPan.title.Thrustcurve"), this.getFont());
@@ -257,6 +258,7 @@ class MotorInformationPanel extends JPanel {
 		NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
 		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
 		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		border = GUIUtil.getUITheme().getBorder();
 	}
 	
@@ -372,10 +374,11 @@ class MotorInformationPanel extends JPanel {
 		comment.setCaretPosition(0);
 	}
 
-	void changeLabelFont(ValueAxis axis, float size) {
+	void changeLabelFont(ValueAxis axis, float size, Color color) {
 		Font font = axis.getTickLabelFont();
 		font = font.deriveFont(font.getSize2D() + size);
 		axis.setTickLabelFont(font);
+		axis.setTickLabelPaint(color);
 	}
 
 	/**
