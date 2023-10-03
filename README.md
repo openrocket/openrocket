@@ -5,6 +5,7 @@ OpenRocket
 
 ![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
 [![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
+[![Join our Discord server!](https://img.shields.io/discord/1073297014814691328?logo=discord)](https://discord.gg/qD2G5v2FAw)
 
 --------
 
