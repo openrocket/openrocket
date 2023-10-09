@@ -1306,14 +1306,10 @@ public class SimulationPanel extends JPanel {
 								return null;
 
 							FlightData data = document.getSimulation(row).getSimulatedData();
-							if (data == null || data.getBranchCount() == 0)
+							if (data == null)
 								return null;
 
-							double val = data.getBranch(0).getOptimumDelay();
-							if (Double.isNaN(val)) {
-								return null;
-							}
-							return val;
+							return data.getOptimumDelay();
 						}
 					},
 
