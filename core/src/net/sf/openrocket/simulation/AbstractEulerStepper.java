@@ -77,7 +77,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		linearAcceleration = linearAcceleration.add(coriolisAcceleration);
 
 		// Select tentative time step
-		double timeStep = RECOVERY_TIME_STEP;
+		double timeStep = Math.min(maxTimeStep, RECOVERY_TIME_STEP);
 
 		// adjust based on change in acceleration (ie jerk)
 		final double jerk = Math.abs(linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length());
