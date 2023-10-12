@@ -1306,14 +1306,10 @@ public class SimulationPanel extends JPanel {
 								return null;
 
 							FlightData data = document.getSimulation(row).getSimulatedData();
-							if (data == null || data.getBranchCount() == 0)
+							if (data == null)
 								return null;
 
-							double val = data.getBranch(0).getOptimumDelay();
-							if (Double.isNaN(val)) {
-								return null;
-							}
-							return val;
+							return data.getOptimumDelay();
 						}
 					},
 
@@ -1404,21 +1400,26 @@ public class SimulationPanel extends JPanel {
 	 * Focus on the simulation table and maintain the previous row selection(s).
 	 */
 	public void takeTheSpotlight() {
-		simulationTable.requestFocusInWindow();
-		if (simulationTable.getRowCount() == 0 || simulationTable.getSelectedRows().length > 0) {
-			return;
-		}
-		if (previousSelection == null || previousSelection.length == 0) {
-			simulationTable.getSelectionModel().setSelectionInterval(0, 0);
-		} else {
-			simulationTable.clearSelection();
-			for (int row : previousSelection) {
-				if (row < 0 || row >= simulationTable.getRowCount()) {
-					continue;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				simulationTable.requestFocusInWindow();
+				if (simulationTable.getRowCount() == 0 || simulationTable.getSelectedRows().length > 0) {
+					return;
 				}
-				simulationTable.addRowSelectionInterval(row, row);
+				if (previousSelection == null || previousSelection.length == 0) {
+					simulationTable.getSelectionModel().setSelectionInterval(0, 0);
+				} else {
+					simulationTable.clearSelection();
+					for (int row : previousSelection) {
+						if (row < 0 || row >= simulationTable.getRowCount()) {
+							continue;
+						}
+						simulationTable.addRowSelectionInterval(row, row);
+					}
+				}
+				updateActions();
 			}
-		}
-		updateActions();
+		});
 	}
 }

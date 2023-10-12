@@ -609,7 +609,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 
 	public static Color getColor(int index) {
-		return (Color) CURVE_COLORS[index % CURVE_COLORS.length];
+		Color color = (Color) CURVE_COLORS[index % CURVE_COLORS.length];
+		if (UITheme.isLightTheme(GUIUtil.getUITheme())) {
+			return color;
+		} else {
+			return color.brighter().brighter();
+		}
 	}
 
 
