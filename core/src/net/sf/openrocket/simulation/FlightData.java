@@ -89,7 +89,6 @@ public class FlightData {
 		this.launchRodVelocity = launchRodVelocity;
 		this.deploymentVelocity = deploymentVelocity;
 		this.optimumDelay = optimumDelay;
-		System.out.println("optimum delay " + optimumDelay);
 	}
 	
 	
