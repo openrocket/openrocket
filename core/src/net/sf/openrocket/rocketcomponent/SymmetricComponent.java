@@ -281,14 +281,25 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	
 	
 	/**
-	 * Calculate CG of the component by integrating over the length of the component.
-	 * The method caches the result, so subsequent calls are instant.  Subclasses may
+	 * Return the CG and mass of the component.  Subclasses may
 	 * override this method for simple shapes and use this method as necessary.
 	 * 
 	 * @return  The CG+mass of the component.
 	 */
 	@Override
 	public Coordinate getComponentCG() {
+		return getSymmetricComponentCG();
+	}
+
+	/**
+	 * Calculate CG of the symmetric component by integrating over the length of the component.
+	 * The method caches the result, so subsequent calls are instant.  We need this method because subclasses
+	 * override getComponentCG() and include mass of shoulders
+	 * 
+	 * @return  The CG+mass of the component.
+	 */
+
+	private Coordinate getSymmetricComponentCG() {
 		if (cg == null)
 			integrate();
 		return cg;
@@ -491,7 +502,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		longitudinalInertia /= vol;
 		
 		// Shift longitudinal inertia to CG
-		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
+		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
 	}
 	
 	
@@ -548,7 +559,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		rotationalInertia /= surface;
 		
 		// Shift longitudinal inertia to CG
-		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
+		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
 	}
 	
 	
