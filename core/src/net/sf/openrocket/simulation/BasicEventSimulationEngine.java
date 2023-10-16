@@ -255,7 +255,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					final boolean wantToTumble = (cg > cp && aoa > AOA_TUMBLE_CONDITION);
 					final boolean isSustainer = currentStatus.getConfiguration().isStageActive(0);
 					final boolean isApogee = currentStatus.isApogeeReached();
-					if (wantToTumble && (isApogee || !isSustainer)) {
+					if (wantToTumble) {
 						addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
 					}					
 				}
