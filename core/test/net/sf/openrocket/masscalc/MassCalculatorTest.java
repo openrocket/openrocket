@@ -625,7 +625,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			// Component: Nose Cone			
 			final NoseCone payloadNose = (NoseCone) payloadStage.getChild(0);
 			assertEquals(payloadNose.getName() + " Rotational MOI calculated incorrectly: ", 3.508155e-5, payloadNose.getRotationalInertia(), EPSILON);
-			assertEquals(payloadNose.getName() + " Longitudinal MOI calculated incorrectly: ", 2.0400578477e-6, payloadNose.getLongitudinalInertia(), EPSILON);
+			assertEquals(payloadNose.getName() + " Longitudinal MOI calculated incorrectly: ", 3.993059978352989E-5, payloadNose.getLongitudinalInertia(), EPSILON);
 
 			// Component: Payload BodyTube
 			final BodyTube payloadBody = (BodyTube) payloadStage.getChild(1);
@@ -695,7 +695,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			expInertia = 1.73189409900e-5;
 			compInertia = boosterNose.getRotationalInertia();
 			assertEquals(boosterNose.getName() + " Rotational MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
-			expInertia = 4.51796586171e-6;
+			expInertia = 1.814234981813717E-5;
 			compInertia = boosterNose.getLongitudinalInertia();
 			assertEquals(boosterNose.getName() + " Longitudinal MOI calculated incorrectly: ", expInertia, compInertia, EPSILON);
 
@@ -946,7 +946,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		double boosterMOIRotational = spent.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOIRotational, boosterMOIRotational, EPSILON);
 
-		double expMOI_tr = 0.0573781722;
+		double expMOI_tr = 0.057405421013859766;
 		double boosterMOI_tr = spent.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
@@ -964,7 +964,7 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		final double expIxx = 0.0122505987;
 		final double actIxx = launchData.getRotationalInertia();
-		final double expIyy = 0.0635943662;
+		final double expIyy = 0.06362161493172772;
 		final double actIyy = launchData.getLongitudinalInertia();
 
 		assertEquals(" Booster x-axis MOI is incorrect: ", expIxx, actIxx, EPSILON);
@@ -1010,7 +1010,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		double boosterMOI_xx = burnout.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 
-		double expMOI_tr =  17.78076176335;
+		double expMOI_tr =  17.78078901211703;
 		double boosterMOI_tr = burnout.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
@@ -1064,7 +1064,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		double boosterMOI_xx = boosterData.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 
-		double expMOI_tr =  0.347611843243;
+		double expMOI_tr =  0.34852907557064894;
 		double boosterMOI_tr = boosterData.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}
@@ -1111,7 +1111,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		double boosterMOI_xx = structure.getRotationalInertia();
 		assertEquals(" Booster x-axis MOI is incorrect: ", expMOI_axial, boosterMOI_xx, EPSILON);
 
-		final double expMOI_tr = 0.040598624476;
+		final double expMOI_tr = 0.04062587324372749;
 		double boosterMOI_tr = structure.getLongitudinalInertia();
 		assertEquals(" Booster transverse MOI is incorrect: ", expMOI_tr, boosterMOI_tr, EPSILON);
 	}

@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.util;
 
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
+import com.github.weisj.darklaf.theme.OneDarkTheme;
 import com.jthemedetecor.OsThemeDetector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -157,6 +158,9 @@ public class UITheme {
     }
 
     public enum Themes implements Theme {
+        /*
+        Standard light theme
+         */
         LIGHT {
             private final String displayName = trans.get("UITheme.Light");
 
@@ -502,8 +506,12 @@ public class UITheme {
                 return "tracker";
             }
         },
+        /*
+        Dark theme
+         */
         DARK {
             private final String displayName = trans.get("UITheme.Dark");
+
             @Override
             public void applyTheme() {
                 final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
@@ -537,7 +545,7 @@ public class UITheme {
 
             @Override
             public Color getDimTextColor() {
-                return new Color(162, 162, 162);
+                return new Color(182, 182, 182);
             }
 
             @Override
@@ -845,6 +853,355 @@ public class UITheme {
                 return "tracker_dark";
             }
         },
+        /*
+        High-contrast dark theme
+         */
+        DARK_CONTRAST {
+            private final String displayName = trans.get("UITheme.DarkContrast");
+
+            @Override
+            public void applyTheme() {
+                final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+
+                LafManager.install(new OneDarkTheme());
+                setGlobalFontSize(prefs.getUIFontSize());
+            }
+
+            @Override
+            public String getDisplayName() {
+                return displayName;
+            }
+
+            @Override
+            public Color getBackgroundColor() {
+                return new Color(43, 45, 51);
+            }
+
+            @Override
+            public Color getBorderColor() {
+                return new Color(163, 163, 163, 204);
+            }
+
+            @Override
+            public Color getTextColor() {
+                return UIManager.getColor("Label.foreground");
+            }
+
+            @Override
+            public Color getDimTextColor() {
+                return new Color(165, 171, 184);
+            }
+
+            @Override
+            public Color getTextSelectionForegroundColor() {
+                return Color.WHITE;
+            }
+
+            @Override
+            public Color getTextSelectionBackgroundColor() {
+                return new Color(62, 108, 173);
+            }
+
+            @Override
+            public Color getWarningColor() {
+                return new Color(255, 173, 173);
+            }
+
+            @Override
+            public Color getDarkWarningColor() {
+                return new Color(255, 178, 178);
+            }
+
+            @Override
+            public Color getRowBackgroundLighterColor() {
+                return new Color(43, 49, 58);
+            }
+
+            @Override
+            public Color getRowBackgroundDarkerColor() {
+                return new Color(34, 37, 44);
+            }
+
+            @Override
+            public Color getFlightDataTextActiveColor() {
+                return new Color(212, 230, 255);
+            }
+
+            @Override
+            public Color getFlightDataTextInactiveColor() {
+                return new Color(170, 201, 255, 127);
+            }
+
+            @Override
+            public Color getMultiCompEditColor() {
+                return new Color(255, 165, 200);
+            }
+
+            @Override
+            public String getDefaultBodyComponentColor() {
+                return "150,175,255";
+            }
+            @Override
+            public String getDefaultTubeFinSetColor() {
+                return "150,184,254";
+            }
+            @Override
+            public String getDefaultFinSetColor() {
+                return "150,184,255";
+            }
+            @Override
+            public String getDefaultLaunchLugColor() {
+                return "142,153,238";
+            }
+            @Override
+            public String getDefaultRailButtonColor() {
+                return "142,153,238";
+            }
+            @Override
+            public String getDefaultInternalComponentColor() {
+                return "181,128,151";
+            }
+            @Override
+            public String getDefaultMassObjectColor() {
+                return "210,210,210";
+            }
+            @Override
+            public String getDefaultRecoveryDeviceColor() {
+                return "220,90,90";
+            }
+            @Override
+            public String getDefaultPodSetColor() {
+                return "190,190,235";
+            }
+            @Override
+            public String getDefaultParallelStageColor() {
+                return "210,180,195";
+            }
+
+            @Override
+            public Color getMotorBorderColor() {
+                return new Color(255, 255, 255, 200);
+            }
+
+            @Override
+            public Color getMotorFillColor() {
+                return new Color(0, 0, 0, 70);
+            }
+
+            @Override
+            public Color getCGColor() {
+                return new Color(85, 133, 253);
+            }
+
+            @Override
+            public Color getCPColor() {
+                return new Color(255, 72, 106);
+            }
+
+            @Override
+            public Color getURLColor() {
+                return new Color(171, 185, 255);
+            }
+
+            @Override
+            public Color getComponentTreeBackgroundColor() {
+                return getBackgroundColor();
+            }
+
+            @Override
+            public Color getComponentTreeForegroundColor() {
+                return getTextColor();
+            }
+
+            @Override
+            public Color getFinPointGridMajorLineColor() {
+                return new Color(164, 164, 224, 197);
+            }
+
+            @Override
+            public Color getFinPointGridMinorLineColor() {
+                return new Color(134, 134, 201, 69);
+            }
+
+            @Override
+            public Color getFinPointPointColor() {
+                return new Color(242, 121, 121, 255);
+            }
+
+            @Override
+            public Color getFinPointSelectedPointColor() {
+                return new Color(232, 78, 78, 255);
+            }
+
+            @Override
+            public Color getFinPointBodyLineColor() {
+                return Color.WHITE;
+            }
+
+            @Override
+            public Icon getMassOverrideIcon() {
+                return Icons.MASS_OVERRIDE_DARK;
+            }
+
+            @Override
+            public Icon getMassOverrideSubcomponentIcon() {
+                return Icons.MASS_OVERRIDE_SUBCOMPONENT_DARK;
+            }
+
+            @Override
+            public Icon getCGOverrideIcon() {
+                return Icons.CG_OVERRIDE_DARK;
+            }
+
+            @Override
+            public Icon getCGOverrideSubcomponentIcon() {
+                return Icons.CG_OVERRIDE_SUBCOMPONENT_DARK;
+            }
+
+            @Override
+            public Icon getCDOverrideIcon() {
+                return Icons.CD_OVERRIDE_DARK;
+            }
+
+            @Override
+            public Icon getCDOverrideSubcomponentIcon() {
+                return Icons.CD_OVERRIDE_SUBCOMPONENT_DARK;
+            }
+
+            @Override
+            public Border getBorder() {
+                return BorderFactory.createLineBorder(getBorderColor());
+            }
+
+            @Override
+            public void formatScriptTextArea(RSyntaxTextArea textArea) {
+                try {
+                    org.fife.ui.rsyntaxtextarea.Theme theme = org.fife.ui.rsyntaxtextarea.Theme.load(getClass().getResourceAsStream(
+                            "/org/fife/ui/rsyntaxtextarea/themes/monokai.xml"));
+                    theme.apply(textArea);
+                } catch (IOException ioe) {
+                    log.warn("Unable to load RSyntaxTextArea theme", ioe);
+                }
+            }
+
+            @Override
+            public String getComponentIconNoseCone() {
+                return DARK.getComponentIconNoseCone();
+            }
+            @Override
+            public String getComponentIconBodyTube() {
+                return DARK.getComponentIconBodyTube();
+            }
+            @Override
+            public String getComponentIconTransition() {
+                return DARK.getComponentIconTransition();
+            }
+
+            @Override
+            public String getComponentIconTrapezoidFinSet() {
+                return DARK.getComponentIconTrapezoidFinSet();
+            }
+            @Override
+            public String getComponentIconEllipticalFinSet() {
+                return DARK.getComponentIconEllipticalFinSet();
+            }
+            @Override
+            public String getComponentIconFreeformFinSet() {
+                return DARK.getComponentIconFreeformFinSet();
+            }
+            @Override
+            public String getComponentIconTubeFinSet() {
+                return DARK.getComponentIconTubeFinSet();
+            }
+            @Override
+            public String getComponentIconLaunchLug() {
+                return DARK.getComponentIconLaunchLug();
+            }
+            @Override
+            public String getComponentIconRailButton() {
+                return DARK.getComponentIconRailButton();
+            }
+            @Override
+            public String getComponentIconInnerTube() {
+                return DARK.getComponentIconInnerTube();
+            }
+            @Override
+            public String getComponentIconTubeCoupler() {
+                return DARK.getComponentIconTubeCoupler();
+            }
+            @Override
+            public String getComponentIconCenteringRing() {
+                return DARK.getComponentIconCenteringRing();
+            }
+            @Override
+            public String getComponentIconBulkhead() {
+                return DARK.getComponentIconBulkhead();
+            }
+            @Override
+            public String getComponentIconEngineBlock() {
+                return DARK.getComponentIconEngineBlock();
+            }
+            @Override
+            public String getComponentIconParachute() {
+                return DARK.getComponentIconParachute();
+            }
+            @Override
+            public String getComponentIconStreamer() {
+                return DARK.getComponentIconStreamer();
+            }
+            @Override
+            public String getComponentIconShockCord() {
+                return DARK.getComponentIconShockCord();
+            }
+            @Override
+            public String getComponentIconMass() {
+                return DARK.getComponentIconMass();
+            }
+            @Override
+            public String getComponentIconStage() {
+                return DARK.getComponentIconStage();
+            }
+            @Override
+            public String getComponentIconBoosters() {
+                return DARK.getComponentIconBoosters();
+            }
+            @Override
+            public String getComponentIconPods() {
+                return DARK.getComponentIconPods();
+            }
+            @Override
+            public String getComponentIconMassAltimeter() {
+                return DARK.getComponentIconMassAltimeter();
+            }
+
+            @Override
+            public String getComponentIconMassBattery() {
+                return DARK.getComponentIconMassBattery();
+            }
+            @Override
+            public String getComponentIconMassDeploymentCharge() {
+                return DARK.getComponentIconMassDeploymentCharge();
+            }
+            @Override
+            public String getComponentIconMassPayload() {
+                return DARK.getComponentIconMassPayload();
+            }
+            @Override
+            public String getComponentIconMassFlightComp() {
+                return DARK.getComponentIconMassFlightComp();
+            }
+            @Override
+            public String getComponentIconMassRecoveryHardware() {
+                return DARK.getComponentIconMassRecoveryHardware();
+            }
+            @Override
+            public String getComponentIconMassTracker() {
+                return DARK.getComponentIconMassTracker();
+            }
+        },
+        /*
+        Detect best theme based on operating system theme
+         */
         AUTO {
             private final String displayName = trans.get("UITheme.Auto");
 
@@ -853,7 +1210,7 @@ public class UITheme {
                     final OsThemeDetector detector = OsThemeDetector.getDetector();
                     final boolean isDarkThemeUsed = detector.isDark();
                     if (isDarkThemeUsed) {
-                        return Themes.DARK;
+                        return Themes.DARK_CONTRAST;
                     } else {
                         return Themes.LIGHT;
                     }
