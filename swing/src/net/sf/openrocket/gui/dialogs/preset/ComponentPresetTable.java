@@ -163,7 +163,7 @@ public class ComponentPresetTable extends JTable {
 		this.sorter.toggleSortOrder(2);        // Sort by the first column (manufacturer) by default
 
 		for (TableColumn hiddenColumn : this.hiddenColumns) {
-			this.tableColumnModel.setColumnVisible(hiddenColumn, false);
+			this.tableColumnModel.removeColumn(hiddenColumn);
 		}
 
 		JTableHeader header = this.getTableHeader();
