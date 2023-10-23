@@ -364,7 +364,11 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 									trans.get("generalprefs.ImportWarning.msg"),
 									trans.get("generalprefs.ImportWarning.title"),
 									JOptionPane.WARNING_MESSAGE);
-							PreferencesDialog.showPreferences(parent.getParentFrame());        // Refresh the preferences dialog
+
+							// Need to execute after delay, otherwise the dialog will not be disposed
+							GUIUtil.executeAfterDelay(100, () -> {
+								PreferencesDialog.showPreferences(parent.getParentFrame());		// Refresh the preferences dialog
+							});
 						}
 					});
 				}
