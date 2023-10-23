@@ -136,6 +136,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	public Preferences getPreferences() {
 		return PREFNODE;
 	}
+
+	/**
+	 * Returns the preference node responsible for saving UI window information (position, size...)
+	 * @return the preference node for window information
+	 */
+	public Preferences getWindowsPreferences() {
+		return PREFNODE.node(NODE_WINDOWS);
+	}
+
+	/**
+	 * Returns the preference node responsible for saving table information (column widths, order...)
+	 * @return the preference node for table information
+	 */
+	public Preferences getTablePreferences() {
+		return PREFNODE.node(NODE_TABLES);
+	}
 	
 	public void clearPreferences() {
 		try {
@@ -550,7 +566,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Point getWindowPosition(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node(NODE_WINDOWS).get("position." + c.getCanonicalName(), null);
+		String pref = getWindowsPreferences().get("position." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -575,7 +591,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
-		PREFNODE.node(NODE_WINDOWS).put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
+		getWindowsPreferences().put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
 
@@ -603,7 +619,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Dimension getWindowSize(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node(NODE_WINDOWS).get("size." + c.getCanonicalName(), null);
+		String pref = getWindowsPreferences().get("size." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -622,22 +638,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	
 	public boolean isWindowMaximized(Class<?> c) {
-		String pref = PREFNODE.node(NODE_WINDOWS).get("size." + c.getCanonicalName(), null);
+		String pref = getWindowsPreferences().get("size." + c.getCanonicalName(), null);
 		return "max".equals(pref);
 	}
 	
 	public void setWindowSize(Class<?> c, Dimension d) {
-		PREFNODE.node(NODE_WINDOWS).put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
+		getWindowsPreferences().put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
 		storeVersion();
 	}
 	
 	public void setWindowMaximized(Class<?> c) {
-		PREFNODE.node(NODE_WINDOWS).put("size." + c.getCanonicalName(), "max");
+		getWindowsPreferences().put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
 
 	public Integer getTableColumnWidth(String keyName, int columnIdx) {
-		String pref = PREFNODE.node(NODE_TABLES).get(
+		String pref = getTablePreferences().get(
 				"cw." + keyName + "." + columnIdx, null);
 		if (pref == null)
 			return null;
@@ -655,7 +671,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	public void setTableColumnWidth(String keyName, int columnIdx, Integer width) {
-		PREFNODE.node(NODE_TABLES).put(
+		getTablePreferences().put(
 				"cw." + keyName + "." + columnIdx, width.toString());
 		storeVersion();
 	}

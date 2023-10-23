@@ -36,6 +36,7 @@ import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.TableUIPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
@@ -52,6 +53,7 @@ import net.sf.openrocket.utils.TableRowTraversalPolicy;
  */
 @SuppressWarnings("serial")
 public class ComponentPresetChooserDialog extends JDialog {
+	private static final String TABLE_ID = "CmpPrst.";
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -202,6 +204,8 @@ public class ComponentPresetChooserDialog extends JDialog {
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				TableUIPreferences.storeTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
+						preferences.getTablePreferences());
 				ComponentPresetChooserDialog.this.setVisible(false);
 				applySelectedPreset();
 			}
@@ -214,7 +218,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 		GUIUtil.rememberWindowSize(this);
 		this.setLocationByPlatform(true);
 		GUIUtil.rememberWindowPosition(this);
-		GUIUtil.rememberTableColumnWidths(componentSelectionTable, "Presets" + component.getClass().getCanonicalName());
+
+		TableUIPreferences.loadTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
+				preferences.getTablePreferences());
 
 		updateFilters();
 	}

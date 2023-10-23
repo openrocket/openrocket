@@ -404,36 +404,6 @@ public class GUIUtil {
 		}
 	}
 
-	public static void rememberTableColumnWidths(final JTable table, String keyName) {
-		final String key = keyName == null ? table.getClass().getName() : keyName;
-		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
-		while (columns.hasMoreElements()) {
-			TableColumn column = columns.nextElement();
-			column.addPropertyChangeListener(new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					if (evt.getPropertyName().equals("width")) {
-						log.debug("Storing width of " + table.getName() + "-" + column + ": " + column.getWidth());
-						((SwingPreferences) Application.getPreferences()).setTableColumnWidth(
-								key, column.getModelIndex(), column.getWidth());
-					}
-				}
-			});
-
-			final Integer width = ((SwingPreferences) Application.getPreferences()).getTableColumnWidth(
-					key, column.getModelIndex());
-			if (width != null) {
-				column.setPreferredWidth(width);
-			} else {
-				column.setPreferredWidth(getOptimalColumnWidth(table, column.getModelIndex()));
-			}
-		}
-	}
-
-	public static void rememberTableColumnWidths(final JTable table) {
-		rememberTableColumnWidths(table, null);
-	}
-
 	public static int getOptimalColumnWidth(JTable table, int columnIndex) {
 		if (columnIndex >= table.getColumnModel().getColumnCount()) {
 			return -1;
