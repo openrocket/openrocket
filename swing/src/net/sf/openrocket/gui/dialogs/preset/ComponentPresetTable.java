@@ -86,7 +86,10 @@ public class ComponentPresetTable extends JTable {
 				ComponentPreset preset = ComponentPresetTable.this.presets.get(rowIndex);
 				Application.getComponentPresetDao().setFavorite(preset, presetType, (Boolean) aValue);
 				ComponentPresetTable.this.updateFavorites();
-				ComponentPresetTable.this.setRowSelectionInterval(rowIndex, rowIndex);
+				int viewIndex = ComponentPresetTable.this.convertRowIndexToView(rowIndex);
+				if (viewIndex != -1) {
+					ComponentPresetTable.this.setRowSelectionInterval(viewIndex, viewIndex);
+				}
 			}
 
 			@Override

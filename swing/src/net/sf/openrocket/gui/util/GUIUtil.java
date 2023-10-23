@@ -51,6 +51,7 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
@@ -760,6 +761,23 @@ public class GUIUtil {
 			}
 		}
 		
+	}
+
+	/**
+	 * Executes the given code after a specified delay.
+	 *
+	 * @param delayMillis the delay in milliseconds.
+	 * @param runnable the code to be executed after the delay.
+	 */
+	public static void executeAfterDelay(int delayMillis, Runnable runnable) {
+		Timer timer = new Timer(delayMillis, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				runnable.run();
+			}
+		});
+		timer.setRepeats(false);
+		timer.start();
 	}
 	
 }
