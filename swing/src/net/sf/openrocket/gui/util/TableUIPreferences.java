@@ -60,7 +60,19 @@ public class TableUIPreferences {
 			table.addColumn(col);
 		}
 
-		// Restore column order
+		// Get all columns from the table's column model and restore visibility
+		if (table.getColumnModel() instanceof XTableColumnModel customModel) {
+			Enumeration<TableColumn> columns = customModel.getAllColumns();  // Use getAllColumns to get all columns, including invisible ones
+			while (columns.hasMoreElements()) {
+				TableColumn column = columns.nextElement();
+				String identifier = column.getIdentifier().toString();
+				// Default to true if the preference is not found
+				boolean isVisible = preferences.getBoolean(tableName + TABLE_COLUMN_VISIBILITY_PREFIX + identifier, true);
+				customModel.setColumnVisible(column, isVisible);
+			}
+		}
+
+		// Now, restore column order
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			TableColumn column = table.getColumnModel().getColumn(i);
 			int storedOrder = preferences.getInt(tableName + TABLE_COLUMN_ORDER_PREFIX + column.getIdentifier(), i);
@@ -90,19 +102,6 @@ public class TableUIPreferences {
 			int defaultWidth = (optimalWidths != null) ? optimalWidths[i] : column.getWidth();
 			int width = preferences.getInt(tableName + TABLE_COLUMN_WIDTH_PREFIX + column.getIdentifier(), defaultWidth);
 			column.setPreferredWidth(width);
-		}
-
-		// Get all columns from the table's column model
-		if (table.getColumnModel() instanceof XTableColumnModel customModel) {
-			Enumeration<TableColumn> columns = customModel.getAllColumns();  // Use getAllColumns to get all columns, including invisible ones
-
-			while (columns.hasMoreElements()) {
-				TableColumn column = columns.nextElement();
-				String identifier = column.getIdentifier().toString();
-				// Default to true if the preference is not found
-				boolean isVisible = preferences.getBoolean(tableName + TABLE_COLUMN_VISIBILITY_PREFIX + identifier, true);
-				customModel.setColumnVisible(column, isVisible);
-			}
 		}
 	}
 }
