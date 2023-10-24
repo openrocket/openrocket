@@ -69,10 +69,25 @@ public class TableUIPreferences {
 			}
 		}
 
+		// Check if any column width is missing from preferences
+		boolean computeOptimalWidths = false;
+		for (int i = 0; i < table.getColumnCount() && !computeOptimalWidths; i++) {
+			TableColumn column = table.getColumnModel().getColumn(i);
+			if (preferences.get(tableName + TABLE_COLUMN_WIDTH_PREFIX + column.getIdentifier(), null) == null) {
+				computeOptimalWidths = true;
+			}
+		}
+
+		// If any column width is missing, compute optimal widths for all columns
+		int[] optimalWidths = null;
+		if (computeOptimalWidths) {
+			optimalWidths = GUIUtil.computeOptimalColumnWidths(table, 20, true);
+		}
+
 		// Restore column widths
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			TableColumn column = table.getColumnModel().getColumn(i);
-			int defaultWidth = column.getWidth();
+			int defaultWidth = (optimalWidths != null) ? optimalWidths[i] : column.getWidth();
 			int width = preferences.getInt(tableName + TABLE_COLUMN_WIDTH_PREFIX + column.getIdentifier(), defaultWidth);
 			column.setPreferredWidth(width);
 		}

@@ -156,10 +156,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 		// need to create componentSelectionTable before filter checkboxes,
 		// but add to panel after
 		componentSelectionTable = new ComponentPresetTable(presetType, presets, displayedColumnKeys);
-		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
+
+		// Make the first column (the favorite column) as small as possible
 		int w = componentSelectionTable.getRowHeight() + 4;
 		XTableColumnModel tm = componentSelectionTable.getXColumnModel();
-		//TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);
 		TableColumn tc = tm.getColumn(0);
 		tc.setPreferredWidth(w);
 		tc.setMaxWidth(w);
@@ -168,7 +168,14 @@ public class ComponentPresetChooserDialog extends JDialog {
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(componentSelectionTable);
 
+		// Add checkboxes (legacy, match fore diameter, ...)
 		panel.add(getFilterCheckboxes(tm, legacyColumnIndex), "wrap para");
+
+		// Load the table UI settings from the preferences
+		boolean legacySelected = showLegacyCheckBox.isSelected();
+		TableUIPreferences.loadTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
+				preferences.getTablePreferences());
+		showLegacyCheckBox.setSelected(legacySelected);		// Restore legacy state (may change during UI preference loading)
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
@@ -218,9 +225,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 		GUIUtil.rememberWindowSize(this);
 		this.setLocationByPlatform(true);
 		GUIUtil.rememberWindowPosition(this);
-
-		TableUIPreferences.loadTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
-				preferences.getTablePreferences());
 
 		updateFilters();
 	}

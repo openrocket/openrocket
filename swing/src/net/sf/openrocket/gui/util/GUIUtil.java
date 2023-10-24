@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -447,26 +448,46 @@ public class GUIUtil {
 			window.setLocation(position);
 		}
 	}
-	
-	
-	public static void setAutomaticColumnTableWidths(JTable table, int max) {
+
+	/**
+	 * Computes the optimal column widths for the specified table, based on the content in all rows for that column,
+	 * and optionally also the column header content.
+	 * @param table the table
+	 * @param max the maximum width for a column
+	 * @param includeHeaderWidth whether to include the width of the column header
+	 * @return an array of column widths
+	 */
+	public static int[] computeOptimalColumnWidths(JTable table, int max, boolean includeHeaderWidth) {
 		int columns = table.getColumnCount();
-		int widths[] = new int[columns];
+		int[] widths = new int[columns];
 		Arrays.fill(widths, 1);
-		
+
+		// Consider the width required by the header text if includeHeaderWidth is true
+		if (includeHeaderWidth) {
+			TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
+			for (int col = 0; col < columns; col++) {
+				TableColumn column = table.getColumnModel().getColumn(col);
+				Component headerComp = headerRenderer.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, 0, col);
+				widths[col] = headerComp.getPreferredSize().width;
+			}
+		}
+
+		// Compare header width to the width required by the cell data
 		for (int row = 0; row < table.getRowCount(); row++) {
 			for (int col = 0; col < columns; col++) {
 				Object value = table.getValueAt(row, col);
-				//System.out.println("row=" + row + " col=" + col + " : " + value);
-				widths[col] = Math.max(widths[col], value == null ? 0 : value.toString().length());
+				TableCellRenderer cellRenderer = table.getCellRenderer(row, col);
+				Component cellComp = cellRenderer.getTableCellRendererComponent(table, value, false, false, row, col);
+				int cellWidth = cellComp.getPreferredSize().width;
+				widths[col] = Math.max(widths[col], cellWidth);
 			}
 		}
-		
-		
+
 		for (int col = 0; col < columns; col++) {
-			//System.err.println("Setting column " + col + " to width " + widths[col]);
-			table.getColumnModel().getColumn(col).setPreferredWidth(Math.min(widths[col], max) * 100);
+			widths[col] = Math.min(widths[col], max * 100);  // Adjusting for your max value and scaling
 		}
+
+		return widths;
 	}
 
 	public static Window getWindowAncestor(Component c) {
