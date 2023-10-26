@@ -75,7 +75,7 @@ This is the first beta release of version 23.09.
 * Show calculated values in override tab (fixes #1629)
 * Decrease minimum FoV to 10 degrees in Photo Studio
 * Increase resolution of launch temperature and pressure to 2 decimal places (fixes #2003)
-* Display Cd oerride with 3 decimal places
+* Display Cd override with 3 decimal places
 * Add wiki button to help menu (fixes #2046)
 * Eliminate option to save "some" sim data (fixes #2024)
 * Add OK/Cancel buttons when editing simulations (fixes #2158)

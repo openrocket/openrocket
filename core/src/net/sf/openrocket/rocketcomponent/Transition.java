@@ -402,7 +402,10 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				((Transition) listener).setForeShoulderRadius(foreShoulderRadius, doClamping);
 			}
 		}
-		foreShoulderRadius = Math.min(foreShoulderRadius, getForeRadius());
+
+		if (doClamping) {
+			foreShoulderRadius = Math.min(foreShoulderRadius, getForeRadius());
+		}
 
 		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
 			return;
@@ -486,7 +489,9 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 		}
 
-		aftShoulderRadius = Math.min(aftShoulderRadius, getAftRadius());
+		if (doClamping) {
+			aftShoulderRadius = Math.min(aftShoulderRadius, getAftRadius());
+		}
 
 		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
 			return;
