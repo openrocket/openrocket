@@ -51,12 +51,14 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -404,36 +406,6 @@ public class GUIUtil {
 		}
 	}
 
-	public static void rememberTableColumnWidths(final JTable table, String keyName) {
-		final String key = keyName == null ? table.getClass().getName() : keyName;
-		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
-		while (columns.hasMoreElements()) {
-			TableColumn column = columns.nextElement();
-			column.addPropertyChangeListener(new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					if (evt.getPropertyName().equals("width")) {
-						log.debug("Storing width of " + table.getName() + "-" + column + ": " + column.getWidth());
-						((SwingPreferences) Application.getPreferences()).setTableColumnWidth(
-								key, column.getModelIndex(), column.getWidth());
-					}
-				}
-			});
-
-			final Integer width = ((SwingPreferences) Application.getPreferences()).getTableColumnWidth(
-					key, column.getModelIndex());
-			if (width != null) {
-				column.setPreferredWidth(width);
-			} else {
-				column.setPreferredWidth(getOptimalColumnWidth(table, column.getModelIndex()));
-			}
-		}
-	}
-
-	public static void rememberTableColumnWidths(final JTable table) {
-		rememberTableColumnWidths(table, null);
-	}
-
 	public static int getOptimalColumnWidth(JTable table, int columnIndex) {
 		if (columnIndex >= table.getColumnModel().getColumnCount()) {
 			return -1;
@@ -476,26 +448,46 @@ public class GUIUtil {
 			window.setLocation(position);
 		}
 	}
-	
-	
-	public static void setAutomaticColumnTableWidths(JTable table, int max) {
+
+	/**
+	 * Computes the optimal column widths for the specified table, based on the content in all rows for that column,
+	 * and optionally also the column header content.
+	 * @param table the table
+	 * @param max the maximum width for a column
+	 * @param includeHeaderWidth whether to include the width of the column header
+	 * @return an array of column widths
+	 */
+	public static int[] computeOptimalColumnWidths(JTable table, int max, boolean includeHeaderWidth) {
 		int columns = table.getColumnCount();
-		int widths[] = new int[columns];
+		int[] widths = new int[columns];
 		Arrays.fill(widths, 1);
-		
+
+		// Consider the width required by the header text if includeHeaderWidth is true
+		if (includeHeaderWidth) {
+			TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
+			for (int col = 0; col < columns; col++) {
+				TableColumn column = table.getColumnModel().getColumn(col);
+				Component headerComp = headerRenderer.getTableCellRendererComponent(table, column.getHeaderValue(), false, false, 0, col);
+				widths[col] = headerComp.getPreferredSize().width;
+			}
+		}
+
+		// Compare header width to the width required by the cell data
 		for (int row = 0; row < table.getRowCount(); row++) {
 			for (int col = 0; col < columns; col++) {
 				Object value = table.getValueAt(row, col);
-				//System.out.println("row=" + row + " col=" + col + " : " + value);
-				widths[col] = Math.max(widths[col], value == null ? 0 : value.toString().length());
+				TableCellRenderer cellRenderer = table.getCellRenderer(row, col);
+				Component cellComp = cellRenderer.getTableCellRendererComponent(table, value, false, false, row, col);
+				int cellWidth = cellComp.getPreferredSize().width;
+				widths[col] = Math.max(widths[col], cellWidth);
 			}
 		}
-		
-		
+
 		for (int col = 0; col < columns; col++) {
-			//System.err.println("Setting column " + col + " to width " + widths[col]);
-			table.getColumnModel().getColumn(col).setPreferredWidth(Math.min(widths[col], max) * 100);
+			widths[col] = Math.min(widths[col], max * 100);  // Adjusting for your max value and scaling
 		}
+
+		return widths;
 	}
 
 	public static Window getWindowAncestor(Component c) {
@@ -760,6 +752,23 @@ public class GUIUtil {
 			}
 		}
 		
+	}
+
+	/**
+	 * Executes the given code after a specified delay.
+	 *
+	 * @param delayMillis the delay in milliseconds.
+	 * @param runnable the code to be executed after the delay.
+	 */
+	public static void executeAfterDelay(int delayMillis, Runnable runnable) {
+		Timer timer = new Timer(delayMillis, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				runnable.run();
+			}
+		});
+		timer.setRepeats(false);
+		timer.start();
 	}
 	
 }

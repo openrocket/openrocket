@@ -354,15 +354,10 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 									trans.get("generalprefs.ImportWarning.title"),
 									JOptionPane.WARNING_MESSAGE);
 
-							// Introduce a small delay before showing the PreferencesDialog
-							Timer timer = new Timer(100, new ActionListener() {  // 100ms delay
-								@Override
-								public void actionPerformed(ActionEvent arg0) {
-									PreferencesDialog.showPreferences(parent.getParentFrame());		// Refresh the preferences dialog
-								}
+							// Need to execute after delay, otherwise the dialog will not be disposed
+							GUIUtil.executeAfterDelay(100, () -> {
+								PreferencesDialog.showPreferences(parent.getParentFrame());		// Refresh the preferences dialog
 							});
-							timer.setRepeats(false); // Only execute once
-							timer.start(); // Start the timer
 						}
 					});
 				}

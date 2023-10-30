@@ -239,4 +239,13 @@ public class XTableColumnModel extends DefaultTableColumnModel {
 	public TableColumn getColumn(int columnIndex, boolean onlyVisible) {
 		return tableColumns.elementAt(columnIndex);
 	}
+
+	/**
+	 * Returns an Enumeration of all columns, regardless of their visibility.
+	 *
+	 * @return an Enumeration of all TableColumn objects in this model
+	 */
+	public Enumeration<TableColumn> getAllColumns() {
+		return allTableColumns.elements();
+	}
 }

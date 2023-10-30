@@ -303,14 +303,21 @@ public class RocketComponentConfig extends JPanel {
 				}
 
 				// Yes/No dialog: Are you sure you want to discard your changes?
-				JPanel msg = createCancelOperationContent();
-				int resultYesNo = JOptionPane.showConfirmDialog(RocketComponentConfig.this, msg,
-						trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if (resultYesNo == JOptionPane.YES_OPTION) {
-					ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
-					disposeDialog();
-					document.undo();
-				}
+				SwingUtilities.invokeLater(() -> {
+					JPanel msg = createCancelOperationContent();
+					int resultYesNo = JOptionPane.showConfirmDialog(RocketComponentConfig.this, msg,
+							trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+					if (resultYesNo == JOptionPane.YES_OPTION) {
+						ComponentConfigDialog.clearConfigListeners = false;
+
+						// Need to execute after delay, otherwise the dialog will not be disposed
+						GUIUtil.executeAfterDelay(100, () -> {
+							disposeDialog();
+							document.undo();
+						});
+					}
+				});
 			}
 		});
 		buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
