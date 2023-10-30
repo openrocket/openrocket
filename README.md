@@ -41,10 +41,6 @@ Find the OpenRocket installers [here](https://openrocket.info/downloads.html)
 
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
-## 📜 License
-
-OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licenses/gpl-3.0.en.html) license. Feel free to use, study, and extend.
-
 ## 💪 Contribute
 
 Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](http://openrocket.sourceforge.net/getinvolved.html) and the [practicalities of contributing](CONTRIBUTING.md).
@@ -64,6 +60,8 @@ Help us soar higher! Whether it's implementing features, writing documentation, 
 - [Neil Weinstock](https://github.com/neilweinstock) - Tester, icons, forum support
 - [H. Craig Miller](https://github.com/hcraigmiller) - Tester
 
+You can view the full list of contributors [here](https://github.com/openrocket/openrocket/graphs/contributors).
+
 ### 🌍Translators
 - Tripoli France
 - Tripoli Spain
@@ -75,6 +73,11 @@ Help us soar higher! Whether it's implementing features, writing documentation, 
 - Sibo Van Gool
 - Mohamed Amin Elkebsi
 
+## 📜 License
+
+OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licenses/gpl-3.0.en.html) license. Feel free to use, study, and extend.
+
 ---
  
 ⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
+[![Star History Chart](https://api.star-history.com/svg?repos=openrocket/openrocket&type=Date)](https://star-history.com/#openrocket/openrocket&Date)
