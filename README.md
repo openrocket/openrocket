@@ -47,7 +47,7 @@ The easiest way to get started is to open one of our in-program example designs:
 
 ![Get started with the example designs](.github/getting-started.png)
 
-You can now experiment the basics: plot one of the simulations, change some component dimensions and see how it affects the simulations, change the motors... Just have fun 😊.
+Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, ... Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
 ## 💪 Contribute
 
