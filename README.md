@@ -41,7 +41,7 @@ Find the OpenRocket installers [here](https://openrocket.info/downloads.html)
 
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
-## Getting started
+## 🚀 Getting started
 
 The easiest way to get started is to open one of our in-program example designs:
 
