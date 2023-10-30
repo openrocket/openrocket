@@ -18,7 +18,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 2. **Visualize** your masterpiece in 3D:
    ![Three-stage rocket - 3D](.github/OpenRocket_home_3D.png)
 
-3. **Analyze & Plot** your simulation results for precision and improvements:
+3. **Plot & Analyze** your simulation results for precision and improvements:
    ![Three-stage rocket - Simulation plot](.github/OpenRocket_sim.png)
 
 ## 🌟 Features
