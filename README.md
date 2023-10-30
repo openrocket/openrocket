@@ -41,6 +41,14 @@ Find the OpenRocket installers [here](https://openrocket.info/downloads.html)
 
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
+## Getting started
+
+The easiest way to get started is to open one of our in-program example designs:
+
+![Get started with the example designs](.github/getting-started.png)
+
+You can now experiment the basics: plot one of the simulations, change some component dimensions and see how it affects the simulations, change the motors... Just have fun 😊.
+
 ## 💪 Contribute
 
 Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](http://openrocket.sourceforge.net/getinvolved.html) and the [practicalities of contributing](CONTRIBUTING.md).
