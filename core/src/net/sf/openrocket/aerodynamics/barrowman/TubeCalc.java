@@ -40,6 +40,11 @@ public abstract class TubeCalc extends RocketComponentCalc {
 	public double calculatePressureCD(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
 
+		// If we aren't moving, treat CD as 0
+		final double v = conditions.getVelocity();
+		if (v < MathUtil.EPSILON)
+			return 0;
+		
 		// Need to check for tube inner area 0 in case of rockets using launch lugs with
 		// an inner radius of 0 to emulate rail guides (or just weird rockets, of course)
 		double tubeCD = 0.0;
@@ -49,7 +54,6 @@ public abstract class TubeCalc extends RocketComponentCalc {
 			final double p = conditions.getAtmosphericConditions().getPressure();
 			final double t = conditions.getAtmosphericConditions().getTemperature();
 			final double rho = conditions.getAtmosphericConditions().getDensity();
-			final double v = conditions.getVelocity();
 			
 			// Reynolds number (note Reynolds number for the interior of a pipe is based on diameter,
 			// not length (t))
