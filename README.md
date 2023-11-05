@@ -31,7 +31,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 
 ... plus many more
 
-📖 Read more on the [OpenRocket Wiki](http://wiki.openrocket.info).
+📖 Read more on [our website](https://openrocket.info/) or the [OpenRocket Wiki](http://wiki.openrocket.info).
 
 ## 💾 Installers
 
