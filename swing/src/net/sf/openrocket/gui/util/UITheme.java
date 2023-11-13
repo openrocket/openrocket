@@ -14,6 +14,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
@@ -82,6 +85,8 @@ public class UITheme {
         Icon getCDOverrideSubcomponentIcon();
 
         Border getBorder();
+        Border getUnitSelectorBorder();
+        Border getUnitSelectorFocusBorder();
 
         void formatScriptTextArea(RSyntaxTextArea textArea);
 
@@ -379,6 +384,20 @@ public class UITheme {
             @Override
             public Border getBorder() {
                 return null;
+            }
+
+            @Override
+            public Border getUnitSelectorBorder() {
+                return new CompoundBorder(
+                        new LineBorder(new Color(0f, 0f, 0f, 0.08f), 1),
+                        new EmptyBorder(1, 1, 1, 1));
+            }
+
+            @Override
+            public Border getUnitSelectorFocusBorder() {
+                return new CompoundBorder(
+                        new LineBorder(new Color(0f, 0f, 0f, 0.6f)),
+                        new EmptyBorder(1, 1, 1, 1));
             }
 
             @Override
@@ -730,6 +749,20 @@ public class UITheme {
             }
 
             @Override
+            public Border getUnitSelectorBorder() {
+                return new CompoundBorder(
+                        new LineBorder(new Color(1f, 1f, 1f, 0.08f), 1),
+                        new EmptyBorder(1, 1, 1, 1));
+            }
+
+            @Override
+            public Border getUnitSelectorFocusBorder() {
+                return new CompoundBorder(
+                        new LineBorder(new Color(1f, 1f, 1f, 0.6f)),
+                        new EmptyBorder(1, 1, 1, 1));
+            }
+
+            @Override
             public void formatScriptTextArea(RSyntaxTextArea textArea) {
                 try {
                     org.fife.ui.rsyntaxtextarea.Theme theme = org.fife.ui.rsyntaxtextarea.Theme.load(getClass().getResourceAsStream(
@@ -1071,6 +1104,20 @@ public class UITheme {
             @Override
             public Border getBorder() {
                 return BorderFactory.createLineBorder(getBorderColor());
+            }
+
+            @Override
+            public Border getUnitSelectorBorder() {
+                return new CompoundBorder(
+                        new LineBorder(new Color(.9f, 0.9f, 0.9f, 0.15f), 1),
+                        new EmptyBorder(1, 1, 1, 1));
+            }
+
+            @Override
+            public Border getUnitSelectorFocusBorder() {
+                return new CompoundBorder(
+                        new LineBorder(new Color(0.9f, 0.9f, 0.9f, 0.6f)),
+                        new EmptyBorder(1, 1, 1, 1));
             }
 
             @Override
@@ -1437,6 +1484,16 @@ public class UITheme {
             @Override
             public Border getBorder() {
                 return getCurrentTheme().getBorder();
+            }
+
+            @Override
+            public Border getUnitSelectorBorder() {
+                return getCurrentTheme().getUnitSelectorBorder();
+            }
+
+            @Override
+            public Border getUnitSelectorFocusBorder() {
+                return getCurrentTheme().getUnitSelectorFocusBorder();
             }
 
             @Override
