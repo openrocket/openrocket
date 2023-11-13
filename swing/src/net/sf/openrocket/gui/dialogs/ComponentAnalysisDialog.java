@@ -42,6 +42,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.gui.components.*;
 import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
@@ -49,11 +50,6 @@ import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ConfigurationComboBox;
-import net.sf.openrocket.gui.components.StageSelector;
-import net.sf.openrocket.gui.components.StyledLabel;
-import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
@@ -134,7 +130,9 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		//// Wind direction:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")), "width 120lp!");
-		panel.add(new UnitSelector(theta, true), "width 50lp!");
+		EditableSpinner spinner = new EditableSpinner(theta.getSpinnerModel());
+		panel.add(spinner, "growx");
+		panel.add(new UnitSelector(theta), "width 50lp!");
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
@@ -165,17 +163,20 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		////Angle of attack:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
-		panel.add(new UnitSelector(aoa, true), "width 50lp!");
+		panel.add(new EditableSpinner(aoa.getSpinnerModel()), "growx");
+		panel.add(new UnitSelector(aoa), "width 50lp!");
 		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
 
 		//// Mach number:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")), "width 120lp!");
+		panel.add(new EditableSpinner(mach.getSpinnerModel()), "width 120lp!");
 		panel.add(new UnitSelector(mach, true), "width 50lp!");
 		panel.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
 
 		//// Roll rate:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")), "width 120lp!");
-		panel.add(new UnitSelector(roll, true), "width 50lp!");
+		panel.add(new EditableSpinner(roll.getSpinnerModel()), "growx");
+		panel.add(new UnitSelector(roll), "width 50lp!");
 		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap");
 
