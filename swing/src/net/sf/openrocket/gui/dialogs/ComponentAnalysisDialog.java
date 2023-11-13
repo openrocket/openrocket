@@ -42,7 +42,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.gui.components.*;
 import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
@@ -50,6 +49,12 @@ import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.components.EditableSpinner;
+import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ConfigurationComboBox;
+import net.sf.openrocket.gui.components.StageSelector;
+import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.widgets.SelectColorToggleButton;
@@ -109,7 +114,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		JTable table;
 
-		JPanel panel = new JPanel(new MigLayout("fill", "[120lp][70lp][]"));
+		JPanel panel = new JPanel(new MigLayout("fill", "[120lp][70lp][50lp][]"));
 		add(panel);
 
 		rkt = rocketPanel.getDocument().getRocket();
