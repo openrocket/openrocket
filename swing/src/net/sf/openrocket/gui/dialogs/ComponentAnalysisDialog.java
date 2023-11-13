@@ -109,7 +109,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		JTable table;
 
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill", "[120lp][70lp][]"));
 		add(panel);
 
 		rkt = rocketPanel.getDocument().getRocket();
@@ -129,10 +129,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		roll = new DoubleModel(rocketPanel, "CPRoll", UnitGroup.UNITS_ROLL);
 
 		//// Wind direction:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")), "width 120lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")));
 		EditableSpinner spinner = new EditableSpinner(theta.getSpinnerModel());
 		panel.add(spinner, "growx");
-		panel.add(new UnitSelector(theta), "width 50lp!");
+		panel.add(new UnitSelector(theta));
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
@@ -162,21 +162,21 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
 
 		////Angle of attack:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")));
 		panel.add(new EditableSpinner(aoa.getSpinnerModel()), "growx");
-		panel.add(new UnitSelector(aoa), "width 50lp!");
+		panel.add(new UnitSelector(aoa));
 		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
 
 		//// Mach number:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")), "width 120lp!");
-		panel.add(new EditableSpinner(mach.getSpinnerModel()), "width 120lp!");
-		panel.add(new UnitSelector(mach, true), "width 50lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")));
+		panel.add(new EditableSpinner(mach.getSpinnerModel()));
+		panel.add(new UnitSelector(mach));
 		panel.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
 
 		//// Roll rate:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")), "width 120lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")));
 		panel.add(new EditableSpinner(roll.getSpinnerModel()), "growx");
-		panel.add(new UnitSelector(roll), "width 50lp!");
+		panel.add(new UnitSelector(roll));
 		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap");
 
