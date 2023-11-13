@@ -51,29 +51,29 @@ You can find a visual overview of what's new for this release on [our website](h
 * Remember column width, order and visibility in component preset table (fixes #2357)
 
 ### Bug Fixes
-* Fix mass issues with fin sets (fixes #2217)
-* Fix CG issues for launch lugs and rail buttons (fixes #2040)
+* Fixed mass issues with fin sets (fixes #2217)
+* Fixed CG issues for launch lugs and rail buttons (fixes #2040)
 * Improved rail button drag calculations
-* Add parts detail for pods and boosters (fixes #2084)
-* Fix parachute position when using auto radius (fixes #2036)
+* Added parts detail for pods and boosters (fixes #2084)
+* Fixed parachute position when using auto radius (fixes #2036)
 * Fixed pod set and booster marker position under certain circumstances (fixes #2047)
 * Fix CG marker location in top view (fixes #2050)
 * Handle zero-area fins (warn and don't crash with NaN error) (fixes #2032)
 * Don't dispose config dialog when no components are selected in 3D view (fixes #2108)
 * Display ISA values in temp and pressure fields (fixes #2104)
-* Improve simulation of fins on transitions and nose cones (fixes #2113)
+* Improved simulation of fins on transitions and nose cones (fixes #2113)
 * Cleaned up multi-sim editing (fixes #2138 and #1826)
 * Update ruler units immediately when preferences are changed (fixes #2151)
 * Compute CG and CP based on currently active stages (fixes #2171)
 * Improved mass/CG calculations for fillets (fixes 2209)
 * Set auto radius correctly for mass objects (fixes #2267)
 * Apply radial positioning to multi-engine clusters (fixes #2283)
-* Fix 3D rendering of fin tabs (fixes #2286)
+* Fixed 3D rendering of fin tabs (fixes #2286)
 * Update recent file list when opening via file association (fixes #2222)
 * Corrected the columns displayed in the component preset table's popup menu, ensuring only relevant columns appear
 * Ensured optimum delay is saved in flight summary and .ork files (fixes #2353)
 * Corrected longitudinal moment of inertia calculations by excluding shoulders (fixes #2278)
-* Fix exception when setting wind speed to zero (fixes #2386)
+* Fixed exception when setting wind speed to zero (fixes #2386)
 
 ### Miscellaneous
 * Updated example rockets (including brand-new two stage example)
@@ -81,16 +81,16 @@ You can find a visual overview of what's new for this release on [our website](h
 * Decrease minimum FoV to 10 degrees in Photo Studio
 * Increase resolution of launch temperature and pressure to 2 decimal places (fixes #2003)
 * Display Cd override with 3 decimal places
-* Add wiki button to help menu (fixes #2046)
+* Added wiki button to help menu (fixes #2046)
 * Eliminate option to save "some" sim data (fixes #2024)
-* Add OK/Cancel buttons when editing simulations (fixes #2158)
-* Add OK/Cancel buttons when editing preferences (fixes #2266)
+* Added OK/Cancel buttons when editing simulations (fixes #2158)
+* Added OK/Cancel buttons when editing preferences (fixes #2266)
 * Added multi-sim edit indicators (fixes #2159)
 * Show warning when motor file has illegal format (fixes #2150)
 * Reset window position if off-screen (fixes #2141)
 * Keep current field value when "auto" option is unchecked (fixes #2096)
 * Open dialog to save design info when first saving file
-* Add 'A 3D printable model rocket.ork' to example rockets
+* Added '3D Printable Nose Cone and Fins' to example rockets
 * Use more sensible colors for thrust curve selection in motor selection dialog (fixes #2385)
 
 
