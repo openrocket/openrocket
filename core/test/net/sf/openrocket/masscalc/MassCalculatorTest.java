@@ -49,6 +49,68 @@ public class MassCalculatorTest extends BaseTestCase {
 	}
 
 	@Test
+	public void testStageOverride() {
+		Rocket rocket = new Rocket();
+
+		AxialStage stage = new AxialStage();
+		rocket.addChild(stage);
+		
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		config.setAllStages();
+		rocket.enableEvents();
+		
+		BodyTube tube1 = new BodyTube();
+		tube1.setLength(1.0);
+		tube1.setMassOverridden(true);
+		tube1.setOverrideMass(1.0);
+		stage.addChild(tube1);
+		
+		BodyTube tube2 = new BodyTube();
+		tube2.setLength(2.0);
+		tube2.setMassOverridden(true);
+		tube2.setOverrideMass(2.0);
+		stage.addChild(tube2);
+		// tube2.setAxialMethod(AxialMethod.ABSOLUTE);
+		// tube2.setAxialOffset(1.0);
+
+		RigidBody structure = MassCalculator.calculateStructure(config);
+		assertEquals("No overrides -- mass incorrect", 3.0, structure.cm.weight, EPSILON);
+		assertEquals("No overrides -- CG incorrect", 1.5, structure.cm.x, EPSILON);
+
+		stage.setMassOverridden(true);
+		stage.setOverrideMass(1.0);
+		structure = MassCalculator.calculateStructure(config);
+		assertEquals("Overrides: mass -- mass incorrect", 4.0, structure.cm.weight, EPSILON);
+		assertEquals("Overrides: mass -- CG incorrect", 1.5, structure.cm.x, EPSILON);
+
+		stage.setSubcomponentsOverriddenMass(true);
+		structure = MassCalculator.calculateStructure(config);
+		assertEquals("Overrides: mass, children mass --  mass incorrect", 1.0, structure.cm.weight, EPSILON);
+		assertEquals("Overrides: mass, children mass -- CG incorrect", 1.5, structure.cm.x, EPSILON);
+
+		stage.setCGOverridden(true);
+		stage.setOverrideCGX(1.0);
+		structure = MassCalculator.calculateStructure(config);
+		assertEquals("Overrides: mass, children mass, CG -- mass incorrect", 1.0, structure.cm.weight, EPSILON);
+		assertEquals("Overrides: mass, children mass, CG -- CG incorrect", 1.0, structure.cm.x, EPSILON);
+
+		stage.setSubcomponentsOverriddenCG(true);
+		structure = MassCalculator.calculateStructure(config);
+		assertEquals("Overrides: mass, children mass, CG, children CG -- mass incorrect", 1.0, structure.cm.weight, EPSILON);
+		assertEquals("Overrides: mass, children mass, CG, children CG -- CG incorrect", 1.0, structure.cm.x, EPSILON);
+
+		stage.setSubcomponentsOverriddenMass(false);
+		structure = MassCalculator.calculateStructure(config);
+		assertEquals("Overrides: mass, CG, children CG -- mass incorrect", 4.0, structure.cm.weight, EPSILON);
+		assertEquals("Overrides: mass, CG, children CG -- CG incorrect", 1.0, structure.cm.x, EPSILON);
+
+		stage.setSubcomponentsOverriddenCG(false);
+		structure = MassCalculator.calculateStructure(config);
+		assertEquals("Overrides: mass, CG -- mass incorrect", 4.0, structure.cm.weight, EPSILON);
+		assertEquals("Overrides: mass, CG -- CG incorrect", 1.375, structure.cm.x, EPSILON);
+	}
+		
+	@Test
 	public void testAlphaIIIStructure() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -1094,7 +1156,6 @@ public class MassCalculatorTest extends BaseTestCase {
 		mmt.setOverrideCGX(0.395);
 
 		RigidBody structure = MassCalculator.calculateStructure(config);
-
 		final double expMass = 0.6063562096046;
 		double calcTotalMass = structure.getMass();
 		assertEquals(" Booster Launch Mass is incorrect: ", expMass, calcTotalMass, EPSILON);
