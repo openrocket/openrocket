@@ -112,17 +112,17 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 
-		m = new DoubleModel(target, "WindSpeedAverage", UnitGroup.UNITS_WINDSPEED, 0);
+		DoubleModel windSpeedAverage = new DoubleModel(target, "WindSpeedAverage", UnitGroup.UNITS_WINDSPEED, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(windSpeedAverage.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
-		unit = new UnitSelector(m);
+		unit = new UnitSelector(windSpeedAverage);
 		unit.setToolTipText(tip);
 		sub.add(unit, "growx");
-		slider = new BasicSlider(m.getSliderModel(0, 10.0));
+		slider = new BasicSlider(windSpeedAverage.getSliderModel(0, 10.0));
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 
@@ -136,22 +136,28 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 
-		m = new DoubleModel(target, "WindSpeedDeviation", UnitGroup.UNITS_WINDSPEED, 0);
-		DoubleModel m2 = new DoubleModel(target, "WindSpeedAverage", 0.25,
-				UnitGroup.UNITS_COEFFICIENT, 0);
+		DoubleModel windSpeedDeviation = new DoubleModel(target, "WindSpeedDeviation", UnitGroup.UNITS_WINDSPEED, 0);
+		DoubleModel m2 = new DoubleModel(target, "WindSpeedAverage", 0.25, UnitGroup.UNITS_COEFFICIENT, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(windSpeedDeviation.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
 		addEasterEgg(spin, parent);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
-		unit = new UnitSelector(m);
+		unit = new UnitSelector(windSpeedDeviation);
 		unit.setToolTipText(tip);
 		sub.add(unit, "growx");
-		slider = new BasicSlider(m.getSliderModel(new DoubleModel(0), m2));
+		slider = new BasicSlider(windSpeedDeviation.getSliderModel(new DoubleModel(0), m2));
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
+
+		windSpeedAverage.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				windSpeedDeviation.stateChanged(e);
+			}
+		});
 
 
 		// Wind turbulence intensity
@@ -168,14 +174,14 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 
-		m = new DoubleModel(target, "WindTurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0);
+		DoubleModel windTurbulenceIntensity = new DoubleModel(target, "WindTurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0);
 
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(windTurbulenceIntensity.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
-		unit = new UnitSelector(m);
+		unit = new UnitSelector(windTurbulenceIntensity);
 		unit.setToolTipText(tip);
 		sub.add(unit, "growx");
 
@@ -183,11 +189,18 @@ public class SimulationConditionsPanel extends JPanel {
 				getIntensityDescription(target.getWindTurbulenceIntensity()));
 		intensityLabel.setToolTipText(tip);
 		sub.add(intensityLabel, "w 75lp, wrap");
-		m.addChangeListener(new ChangeListener() {
+		windTurbulenceIntensity.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				intensityLabel.setText(
 						getIntensityDescription(target.getWindTurbulenceIntensity()));
+				windSpeedDeviation.stateChanged(e);
+			}
+		});
+		windSpeedDeviation.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				windTurbulenceIntensity.stateChanged(e);
 			}
 		});
 
@@ -204,7 +217,7 @@ public class SimulationConditionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
