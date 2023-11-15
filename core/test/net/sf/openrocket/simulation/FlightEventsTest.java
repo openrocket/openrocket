@@ -59,9 +59,6 @@ public class FlightEventsTest extends BaseTestCase {
 			new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
 			new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 		};
-		//        final double[] expectedEventTimes = {0.0, 0.0, 0.1275, 0.13, 2.0, 2.0, 2.001, 2.48338};       // Ground hit time is too variable, so don't include it
-        // final RocketComponent[] expectedSources = {rocket, motorMountTube, null, null, motorMountTube,
-        //        stage, parachute, rocket, null, null};
 	
 		checkEvents(expectedEvents, sim, 0);
 	}
