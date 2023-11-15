@@ -74,6 +74,7 @@ You can find a visual overview of what's new for this release on [our website](h
 * Ensured optimum delay is saved in flight summary and .ork files (fixes #2353)
 * Corrected longitudinal moment of inertia calculations by excluding shoulders (fixes #2278)
 * Fixed exception when setting wind speed to zero (fixes #2386)
+* Fixed unexpected mass and CG override interaction (fixes #2394)
 
 ### Miscellaneous
 * Updated example rockets (including brand-new two stage example)
