@@ -240,13 +240,8 @@ public class SimulationPlot {
 		plot.setDomainGridlinesVisible(true);
 		plot.setDomainGridlinePaint(Color.lightGray);
 
-		Color[] colors = {new Color(0,114,189),		// Colors for data lines
-				new Color(217,83,25),
-				new Color(237,177,32),
-				new Color(126,49,142),
-				new Color(119,172,48),
-				new Color(77,190,238),
-				new Color(162,20,47)};
+		int cumulativeSeriesCount = 0;
+
 		for (int axisno = 0; axisno < 2; axisno++) {
 			// Check whether axis has any data
 			if (data[axisno].getSeriesCount() > 0) {
@@ -299,13 +294,19 @@ public class SimulationPlot {
 				plot.setRenderer(axisno, r);
 				r.setBaseShapesVisible(initialShowPoints);
 				r.setBaseShapesFilled(true);
-				r.setSeriesPaint(0, colors[axisno]);
-				r.setSeriesPaint(1, colors[axisno+2]);
-				r.setSeriesPaint(2, colors[axisno+4]);
-				for (int j = 0; j < data[axisno].getSeriesCount(); j++) {
+
+				// Set colors for all series of the current axis
+				for (int seriesIndex = 0; seriesIndex < data[axisno].getSeriesCount(); seriesIndex++) {
+					int colorIndex = cumulativeSeriesCount + seriesIndex;
+					r.setSeriesPaint(seriesIndex, Util.getPlotColor(colorIndex));
+
 					Stroke lineStroke = new BasicStroke(PLOT_STROKE_WIDTH);
-					r.setSeriesStroke(j, lineStroke);
+					r.setSeriesStroke(seriesIndex, lineStroke);
 				}
+
+				// Update the cumulative count for the next axis
+				cumulativeSeriesCount += data[axisno].getSeriesCount();
+
 				// Now we pull the colors for the legend.
 				for (int j = 0; j < data[axisno].getSeriesCount(); j += branchCount) {
 					String name = data[axisno].getSeries(j).getDescription();

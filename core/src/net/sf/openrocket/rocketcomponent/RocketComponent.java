@@ -855,7 +855,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Return whether the mass and/or CG override overrides all subcomponent values
+	 * Return whether the mass override overrides all subcomponent values
 	 * as well.  The default implementation is a normal getter/setter implementation,
 	 * however, subclasses are allowed to override this behavior if some subclass
 	 * always or never overrides subcomponents.  In this case the subclass should
@@ -869,7 +869,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return overrideSubcomponentsMass;
 	}
 
-	// TODO: delete when compatibility with OR 15.03 is not needed anymore
+	// For compatibility with files created with 15.03
 	public void setSubcomponentsOverridden(boolean override) {
 		setSubcomponentsOverriddenMass(override);
 		setSubcomponentsOverriddenCG(override);
@@ -878,10 +878,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Set whether the mass and/or CG override overrides all subcomponent values
+	 * Set whether the mass override overrides all subcomponent values
 	 * as well.  See {@link #isSubcomponentsOverriddenMass()} for details.
 	 *
-	 * @param override	whether the mass and/or CG override overrides all subcomponent.
+	 * @param override	whether the mass override overrides all subcomponent.
 	 */
 	public void setSubcomponentsOverriddenMass(boolean override) {
 		for (RocketComponent listener : configListeners) {
@@ -916,10 +916,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 
 	/**
-	 * Set whether the mass and/or CG override overrides all subcomponent values
+	 * Set whether the CG override overrides all subcomponent values
 	 * as well.  See {@link #isSubcomponentsOverriddenCG()} for details.
 	 *
-	 * @param override	whether the mass and/or CG override overrides all subcomponent.
+	 * @param override	whether the CG override overrides all subcomponent.
 	 */
 	public void setSubcomponentsOverriddenCG(boolean override) {
 		for (RocketComponent listener : configListeners) {
