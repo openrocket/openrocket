@@ -338,17 +338,6 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		// Preference buttons
 		JPanel buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));
 
-		//// Export preferences
-		final JButton exportPreferences = new SelectColorButton(trans.get("pref.dlg.but.exportPreferences"));
-		exportPreferences.setToolTipText(trans.get("pref.dlg.but.exportPreferences.ttip"));
-		exportPreferences.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PreferencesExporter.exportPreferences(parent, preferences.getPreferences());
-			}
-		});
-		buttonPanel.add(exportPreferences);
-
 		//// Import preferences
 		final JButton importPreferences = new SelectColorButton(trans.get("pref.dlg.but.importPreferences"));
 		importPreferences.setToolTipText(trans.get("pref.dlg.but.importPreferences.ttip"));
@@ -375,6 +364,17 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		buttonPanel.add(importPreferences);
+
+		//// Export preferences
+		final JButton exportPreferences = new SelectColorButton(trans.get("pref.dlg.but.exportPreferences"));
+		exportPreferences.setToolTipText(trans.get("pref.dlg.but.exportPreferences.ttip"));
+		exportPreferences.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PreferencesExporter.exportPreferences(parent, preferences.getPreferences());
+			}
+		});
+		buttonPanel.add(exportPreferences);
 
 		//// Reset all preferences
 		final JButton resetAllPreferences = new SelectColorButton(trans.get("pref.dlg.but.resetAllPreferences"));
