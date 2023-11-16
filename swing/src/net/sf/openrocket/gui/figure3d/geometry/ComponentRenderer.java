@@ -29,8 +29,6 @@ import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
-import static com.jogamp.opengl.GL2ES3.GL_QUADS;
-
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
  * @author Daniel Williams <equipoise@gmail.com>
@@ -39,7 +37,7 @@ public class ComponentRenderer {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(ComponentRenderer.class);
 
-	private int LOD = 80;
+	private int LOD = 80;		// Level of detail for rendering
 
 	GLU glu;
 	GLUquadric q;
@@ -149,7 +147,7 @@ public class ComponentRenderer {
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CCW);
 			}
-			TransitionRenderer.drawTransition(gl, t, LOD, t.getType() == Shape.CONICAL ? 4 : LOD / 2, which == Surface.INSIDE ? -t.getThickness() : 0);
+			TransitionRenderer.drawTransition(gl, t, LOD, t.getShapeType() == Shape.CONICAL ? 4 : LOD / 2, which == Surface.INSIDE ? -t.getThickness() : 0);
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CW);
 			}

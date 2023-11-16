@@ -375,6 +375,9 @@ public class Rocket extends ComponentAssembly {
 		copyRocket.stageMap = new ConcurrentHashMap<>();
 		for( Map.Entry<Integer,AxialStage> entry : this.stageMap.entrySet()){
 			final AxialStage stage = (AxialStage)copyRocket.findComponent(entry.getValue().getID());
+			if (stage == null) {
+				throw new IllegalStateException("Stage not found in copy");
+			}
 			copyRocket.stageMap.put(entry.getKey(), stage);
 		}
 
@@ -382,7 +385,9 @@ public class Rocket extends ComponentAssembly {
 		// the default value needs to be explicitly set, because it has different semantics
 		copyRocket.configSet = new FlightConfigurableParameterSet<>(new FlightConfiguration(copyRocket));
 		for (FlightConfigurationId key : this.configSet.getIds()) {
-			copyRocket.configSet.set(key, new FlightConfiguration(copyRocket, key));
+			FlightConfiguration newCfg = new FlightConfiguration(copyRocket, key);
+			newCfg.setName(this.configSet.get(key).getNameRaw());			// Copy config name
+			copyRocket.configSet.set(key, newCfg);
 		}
 
 		copyRocket.selectedConfiguration = copyRocket.configSet.get( this.getSelectedConfiguration().getId());
@@ -432,7 +437,9 @@ public class Rocket extends ComponentAssembly {
 		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
 		for (FlightConfigurationId key : source.configSet.map.keySet()) {
-			this.configSet.set(key, new FlightConfiguration(this, key));
+			FlightConfiguration newCfg = new FlightConfiguration(this, key);
+			newCfg.setName(source.configSet.get(key).getNameRaw());			// Copy config name
+			this.configSet.set(key, newCfg);
 		}
 		this.selectedConfiguration = this.configSet.get(source.getSelectedConfiguration().getId());
 

@@ -10,6 +10,7 @@
     <libelement value="jar://$MODULE_DIR$/lib/aopalliance.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/slf4j-api-1.7.5.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/annotation-detector-3.0.2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/obj-0.4.0.jar!/" />
     <libelement value="jar://$MODULE_DIR$/../lib-test/hamcrest-core-2.2.jar!/" />
     <libelement value="jar://$MODULE_DIR$/../lib-test/hamcrest-2.2.jar!/" />
     <libelement value="jar://$MODULE_DIR$/../lib-test/jmock-2.12.0.jar!/" />
@@ -227,6 +228,15 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/obj-0.4.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/opencsv-5.7.1.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -237,6 +247,15 @@
           <library>
             <CLASSES>
               <root url="jar://$MODULE_DIR$/lib/commons-lang3-3.12.0!/" />
+            </CLASSES>
+            <JAVADOC />
+            <SOURCES />
+          </library>
+        </orderEntry>
+    <orderEntry type="module-library">
+          <library>
+            <CLASSES>
+              <root url="jar://$MODULE_DIR$/lib/commons-text-1.10.0!/" />
             </CLASSES>
             <JAVADOC />
             <SOURCES />

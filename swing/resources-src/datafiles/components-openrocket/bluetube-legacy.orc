@@ -3,7 +3,7 @@
     <Version>0.1</Version>
     <Legacy />
     <Materials>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Vulcanized Fiber</Name>
             <Density>1250.0</Density>
             <Type>BULK</Type>

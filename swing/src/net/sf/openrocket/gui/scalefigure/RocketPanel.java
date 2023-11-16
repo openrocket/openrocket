@@ -35,7 +35,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -271,6 +272,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure3d.updateFigure();
 	}
 
+	/**
+	 * Updates the rulers of the rocket panel to the currently selected default unit.
+	 */
+	public void updateRulers() {
+		scrollPane.updateRulerUnit();
+		scrollPane.revalidate();
+		scrollPane.repaint();
+	}
+
 	private void go3D() {
 		if (is3d)
 			return;
@@ -430,8 +440,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JPanel bottomRow = new JPanel(new MigLayout("fill, gapy 0, ins 0"));
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
-		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
-		infoMessage.setFont(new Font("Sans Serif", Font.PLAIN, 9));
+		infoMessage = new StyledLabel(trans.get("RocketPanel.lbl.infoMessage"), -3);
 		bottomRow.add(infoMessage);
 
 		//// Show warnings
@@ -646,7 +655,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
@@ -732,7 +740,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		double cgy = Double.NaN;
 		double cpx = Double.NaN;
 		double cpy = Double.NaN;
-		final double rotation = rotationModel.getValue();
+		final double rotation = figure.getRotation(true);
 
 		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		// TODO: MEDIUM: User-definable conditions
@@ -780,6 +788,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			cgx = cg.x;
 			// map the 3D value into the 2D Display Panel
 			cgy = cg.y * Math.cos(rotation) + cg.z*Math.sin(rotation);
+		}
+
+		// We need to flip the y coordinate if we are in top view
+		if (figure.getCurrentViewType() == RocketPanel.VIEW_TYPE.TopView) {
+			cgy = -cgy;
 		}
 
 		double length = curConfig.getLength();

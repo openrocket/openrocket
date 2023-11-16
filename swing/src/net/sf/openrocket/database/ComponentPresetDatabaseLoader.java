@@ -3,9 +3,7 @@ package net.sf.openrocket.database;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.Collection;
-import java.util.List;
 
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
@@ -14,7 +12,6 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 
 import org.slf4j.Logger;

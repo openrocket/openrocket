@@ -21,7 +21,6 @@ import net.sf.openrocket.util.Color;
 import com.jogamp.opengl.util.texture.Texture;
 
 public class RealisticRenderer extends RocketRenderer {
-	private final float[] colorClear = { 0, 0, 0, 0 };
 	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
 	
@@ -42,9 +41,9 @@ public class RealisticRenderer extends RocketRenderer {
 		
 		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, new float[] { 0, 0, 0 }, 0);
 		
-		float amb = 0.3f;
-		float dif = 1.0f - amb;
-		float spc = 1.0f;
+		float amb = 0.4f;
+		float dif = 0.65f;
+		float spc = 0.65f;
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT, new float[] { amb, amb, amb, 1 }, 0);
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE, new float[] { dif, dif, dif, 1 }, 0);
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR, new float[] { spc, spc, spc, 1 }, 0);
@@ -101,15 +100,15 @@ public class RealisticRenderer extends RocketRenderer {
 
 			render(gl, geom, Surface.INSIDE, innerApp, true, alpha);
 			if (((InsideColorComponent) c).getInsideColorComponentHandler().isEdgesSameAsInside()) {
-				render(gl, geom, Surface.EDGES, innerApp, true, alpha);
+				render(gl, geom, Surface.EDGES, innerApp, false, alpha);
 			}
 			else {
-				render(gl, geom, Surface.EDGES, app, true, alpha);
+				render(gl, geom, Surface.EDGES, app, false, alpha);
 			}
 		}
 	    else {
 			render(gl, geom, Surface.INSIDE, app, true, alpha);
-			render(gl, geom, Surface.EDGES, app, true, alpha);
+			render(gl, geom, Surface.EDGES, app, false, alpha);
 		}
 		render(gl, geom, Surface.OUTSIDE, app, true, alpha);
 
@@ -165,7 +164,7 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
 			
 			
-			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
+			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, convertedColor, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
 			

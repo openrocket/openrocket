@@ -2,7 +2,7 @@ package net.sf.openrocket.util;
 
 public class Color {
 
-	public static Color BLACK = new Color(255,255,255);
+	public static Color BLACK = new Color(0,0,0);
 	public static Color INVISIBLE = new Color(1, 1, 1, 0);
 	public static Color DARK_RED = new Color(200, 0, 0);
 	
@@ -65,5 +65,20 @@ public class Color {
 	public java.awt.Color toAWTColor() {
 		return new java.awt.Color(red, green, blue, alpha);
 	}
-	
+
+	public static Color fromAWTColor(java.awt.Color AWTColor) {
+		return new Color(AWTColor.getRed(), AWTColor.getGreen(), AWTColor.getBlue(), AWTColor.getAlpha());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (super.equals(obj)) {
+			return true;
+		}
+		if (!(obj instanceof Color)) {
+			return false;
+		}
+		Color c = (Color) obj;
+		return c.getRed() == getRed() && c.getGreen() == getGreen() && c.getBlue() == getBlue() && c.getAlpha() == getAlpha();
+	}
 }

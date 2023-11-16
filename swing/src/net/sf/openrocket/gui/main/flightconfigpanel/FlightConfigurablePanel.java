@@ -22,7 +22,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,21 +47,42 @@ import net.sf.openrocket.util.Pair;
 public abstract class FlightConfigurablePanel<T extends FlightConfigurableComponent> extends JPanel implements ComponentChangeListener {
 
 	protected static final Translator trans = Application.getTranslator();
+	protected static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+
 	private static final Logger log = LoggerFactory.getLogger(FlightConfigurablePanel.class);
 	protected RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	protected final FlightConfigurationPanel flightConfigurationPanel;
+	protected final OpenRocketDocument document;
 	protected final Rocket rocket;
 	protected final JTable table;
+
+	private static Color textColor;
+	private static Color dimTextColor;
+
+	static {
+		initColors();
+	}
 	
-	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
+	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
 		super(new MigLayout("fill"));
 		this.flightConfigurationPanel = flightConfigurationPanel;
+		this.document = document;
 		this.rocket = rocket;
 		table = doTableInitialization();
 
 		installTableListener();
 		synchronizeConfigurationSelection();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(FlightConfigurablePanel::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 
 	/**
@@ -247,7 +271,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				if (tableValue instanceof Pair) {
 					@SuppressWarnings("unchecked")
 					Pair<String, T> selectedComponent = (Pair<String, T>) tableValue;
-					components.add(selectedComponent.getV());
+					T comp = selectedComponent.getV();
+					if (!components.contains(comp)) {
+						components.add(comp);
+					}
 				}
 			}
 		}
@@ -286,11 +313,17 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				@SuppressWarnings("unchecked")
 				Pair<FlightConfigurationId, T> selectedComponent = (Pair<FlightConfigurationId, T>) tableValue;
 				FlightConfigurationId fcid = selectedComponent.getU();
-				Ids.add(fcid);
+				if (!Ids.contains(fcid)) {
+					Ids.add(fcid);
+				}
 			} else if (tableValue instanceof FlightConfigurationId) {
-				Ids.add((FlightConfigurationId) tableValue);
+				if (!Ids.contains(tableValue)) {
+					Ids.add((FlightConfigurationId) tableValue);
+				}
 			} else {
-				Ids.add(FlightConfigurationId.ERROR_FCID);
+				if (!Ids.contains(FlightConfigurationId.ERROR_FCID)) {
+					Ids.add(FlightConfigurationId.ERROR_FCID);
+				}
 			}
 		}
 
@@ -363,9 +396,9 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			}	
 		}
 
-		private final void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
+		private void setSelected(JComponent c, JTable table, boolean isSelected, boolean hasFocus) {
 			c.setOpaque(true);
-			if ( isSelected) {
+			if (isSelected) {
 				c.setBackground(table.getSelectionBackground());
 				c.setForeground((Color)UIManager.get("Table.selectionForeground"));
 			} else {
@@ -373,11 +406,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				c.setForeground(c.getForeground());
 			}
 			Border b = null;
-			if ( hasFocus ) {
+			if (hasFocus) {
 				if (isSelected) {
 					b = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
 				} else {
-					b = UIManager.getBorder("Table.focusCellHighligtBorder");
+					b = UIManager.getBorder("Table.focusCellHighlightBorder");
 				}
 			} else {
 				b = new EmptyBorder(1,1,1,1);
@@ -385,14 +418,14 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			c.setBorder(b);
 		}
 
-		protected final void shaded(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(Color.GRAY);
-		}
-
 		protected final void regular(JLabel label) {
 			GUIUtil.changeFontStyle(label, Font.PLAIN);
-			label.setForeground(Color.BLACK);
+			label.setForeground(textColor);
+		}
+
+		protected final void shaded(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.ITALIC);
+			label.setForeground(dimTextColor);
 		}
 
 		protected abstract JLabel format( T component, FlightConfigurationId configId, JLabel label );

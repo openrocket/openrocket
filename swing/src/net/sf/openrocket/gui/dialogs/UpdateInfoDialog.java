@@ -1,16 +1,16 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -33,6 +33,8 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -50,6 +52,12 @@ public class UpdateInfoDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(UpdateInfoDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	private final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+
+	private static Color textColor;
+
+	static {
+		initColors();
+	}
 
 	public UpdateInfoDialog(UpdateInfo info) {
 		//// OpenRocket update available
@@ -74,6 +82,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
+		textPane.setBorder(BorderFactory.createLineBorder(textColor));
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
 		textPane.setMargin(new Insets(10, 10, 40, 10));
@@ -94,9 +103,8 @@ public class UpdateInfoDialog extends JDialog {
 				  @Override
 				  public void hyperlinkUpdate(HyperlinkEvent e) {
 					  if (e.getEventType().equals(HyperlinkEvent.EventType.ACTIVATED)) {
-						  Desktop desktop = Desktop.getDesktop();
 						  try {
-							  desktop.browse(e.getURL().toURI());
+							  URLUtil.openWebpage(e.getURL().toURI());
 						  } catch (Exception ex) {
 							  log.warn("Exception hyperlink: " + ex.getMessage());
 						  }
@@ -180,9 +188,8 @@ public class UpdateInfoDialog extends JDialog {
 				String url = AssetHandler.getInstallerURLForPlatform((UpdatePlatform) comboBox.getSelectedItem(),
 						release.getReleaseName());
 				if (url == null) return;
-				Desktop desktop = Desktop.getDesktop();
 				try {
-					desktop.browse(new URI(url));
+					URLUtil.openWebpage(url);
 				} catch (Exception ex) {
 					log.warn("Exception install link: " + ex.getMessage());
 				}
@@ -200,6 +207,15 @@ public class UpdateInfoDialog extends JDialog {
 		this.pack();
 		this.setLocationRelativeTo(null);
 		GUIUtil.setDisposableDialogOptions(this, btnLater);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(UpdateInfoDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 
 	/**

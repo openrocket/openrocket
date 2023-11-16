@@ -6,13 +6,13 @@
 					
 	<Materials>				
 					
-		<Material UnitsOfMeasure="kg/m">			
+		<Material UnitsOfMeasure="kg/m3">
 			<Name>Delrin</Name>		
 			<Density>1420</Density>		
 			<Type>BULK</Type>		
 		 </Material>			
 					
-		<Material UnitsOfMeasure="kg/m">			
+		<Material UnitsOfMeasure="kg/m3">
 			<Name>Nylon</Name>		
 			<Density>1150</Density>		
 			<Type>BULK</Type>		

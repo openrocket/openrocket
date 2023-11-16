@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -75,6 +76,7 @@ public class EditDecalDialog extends JDialog {
 						int action = fc.showOpenDialog(owner);
 						if (action == JFileChooser.APPROVE_OPTION) {
 							commandText.setText(fc.getSelectedFile().getAbsolutePath());
+							((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
 						}
 						
 					}
@@ -109,6 +111,7 @@ public class EditDecalDialog extends JDialog {
 						int action = fc.showOpenDialog(owner);
 						if (action == JFileChooser.APPROVE_OPTION) {
 							commandText.setText(fc.getSelectedFile().getAbsolutePath());
+							((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
 						}
 						
 					}

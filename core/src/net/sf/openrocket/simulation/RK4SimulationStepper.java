@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.RigidBody;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
@@ -329,6 +329,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.motorMass = calculateMotorMass(status);
 		store.rocketMass = structureMassData.add( store.motorMass );
 
+		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
+			throw new SimulationException(trans.get("SimulationStepper.error.totalMassZero"));
+		}
+		
 		// Calculate the forces from the aerodynamic coefficients
 		
 		double dynP = (0.5 * store.flightConditions.getAtmosphericConditions().getDensity() *
@@ -547,7 +551,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private void storeData(RK4SimulationStatus status, DataStore store) {
 		
 		FlightDataBranch data = status.getFlightData();
-		boolean extra = status.getSimulationConditions().isCalculateExtras();
 		
 		data.addPoint();
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
@@ -561,28 +564,26 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, store.coriolisAcceleration.length());
 		}
 		
-		if (extra) {
-			data.setValue(FlightDataType.TYPE_POSITION_XY,
-					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-			data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
+		data.setValue(FlightDataType.TYPE_POSITION_XY,
+					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
+		data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
+					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
+		
+		data.setValue(FlightDataType.TYPE_VELOCITY_XY,
+					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
+		
+		if (store.linearAcceleration != null) {
+			data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
+						  MathUtil.hypot(store.linearAcceleration.x, store.linearAcceleration.y));
 			
-			data.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
+			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, store.linearAcceleration.length());
+		}
 			
-			if (store.linearAcceleration != null) {
-				data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-						MathUtil.hypot(store.linearAcceleration.x, store.linearAcceleration.y));
-				
-				data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, store.linearAcceleration.length());
-			}
-			
-			if (store.flightConditions != null) {
-				double Re = (store.flightConditions.getVelocity() *
-						status.getConfiguration().getLengthAerodynamic() /
-						store.flightConditions.getAtmosphericConditions().getKinematicViscosity());
-				data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
-			}
+		if (store.flightConditions != null) {
+			double Re = (store.flightConditions.getVelocity() *
+						 status.getConfiguration().getLengthAerodynamic() /
+						 store.flightConditions.getAtmosphericConditions().getKinematicViscosity());
+			data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		}
 		
 		data.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
@@ -660,16 +661,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_AOA, store.flightConditions.getAOA());
 		}
 		
-
-		if (extra) {
-			Coordinate c = status.getRocketOrientationQuaternion().rotateZ();
-			double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
-			double phi = Math.atan2(c.y, c.x);
-			if (phi < -(Math.PI - 0.0001))
-				phi = Math.PI;
-			data.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
-			data.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
-		}
+		Coordinate c = status.getRocketOrientationQuaternion().rotateZ();
+		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
+		double phi = Math.atan2(c.y, c.x);
+		if (phi < -(Math.PI - 0.0001))
+			phi = Math.PI;
+		data.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
+		data.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
 		
 		data.setValue(FlightDataType.TYPE_WIND_VELOCITY, store.windSpeed);
 		

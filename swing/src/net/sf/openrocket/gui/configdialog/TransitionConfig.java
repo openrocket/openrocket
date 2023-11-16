@@ -83,7 +83,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			this.shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
 			panel.add(shapeLabel);
 
-			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter");
+			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
 
 			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
@@ -185,7 +185,7 @@ public class TransitionConfig extends RocketComponentConfig {
 		JPanel panel2 = new JPanel(new MigLayout("ins 0"));
 		
 		description = new DescriptionArea(5);
-		description.setText(PREDESC + ((Transition) component).getType().
+		description.setText(PREDESC + ((Transition) component).getShapeType().
 				getTransitionDescription());
 		panel2.add(description, "wmin 250lp, spanx, growx, wrap para");
 		
@@ -214,7 +214,7 @@ public class TransitionConfig extends RocketComponentConfig {
 	
 
 	private void updateEnabled() {
-		boolean e = ((Transition) component).getType().usesParameter();
+		boolean e = ((Transition) component).getShapeType().usesParameter();
 		shapeLabel.setEnabled(e);
 		shapeSpinner.setEnabled(e);
 		shapeSlider.setEnabled(e);

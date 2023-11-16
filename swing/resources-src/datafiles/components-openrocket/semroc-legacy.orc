@@ -3,62 +3,62 @@
     <Version>0.1</Version>
     <Legacy />
     <Materials>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>1/16 In. braided nylon</Name>
             <Density>0.00102</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>30 Lb. kevlar</Name>
             <Density>1.78E-4</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Balsa</Name>
             <Density>128.1477072</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Fiber</Name>
             <Density>656.7569994</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Paper</Name>
             <Density>1121.2924380000002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>Paper(0.051)</Name>
             <Density>0.05696165585040001</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Polycarbonate</Name>
             <Density>1199.7829086600002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Polyethylene LDPE</Name>
             <Density>924.2653381800002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>Polyethylene LDPE(0.025)</Name>
             <Density>0.023476339589772004</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>Rip stop nylon</Name>
             <Density>0.06684999999999999</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Spiral/Glassine</Name>
             <Density>848.9785602000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>lite ply</Name>
             <Density>352.40619480000004</Density>
             <Type>BULK</Type>

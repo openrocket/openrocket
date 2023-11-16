@@ -19,6 +19,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
@@ -41,7 +42,7 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 	
 	private ScriptingExtension extension;
 	private Simulation simulation;
-	
+
 	public ScriptingConfigurator() {
 		super(ScriptingExtension.class);
 	}
@@ -70,7 +71,7 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		text.setLineWrap(true);
 		text.setWrapStyleWord(true);
 		text.setEditable(true);
-		text.setCurrentLineHighlightColor(new Color(255, 255, 230));
+		GUIUtil.getUITheme().formatScriptTextArea(text);
 		text.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent event) {

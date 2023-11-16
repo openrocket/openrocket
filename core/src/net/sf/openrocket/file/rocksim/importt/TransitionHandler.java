@@ -5,7 +5,7 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
 import net.sf.openrocket.file.rocksim.RockSimFinishCode;
@@ -64,7 +64,7 @@ class TransitionHandler extends BaseHandler<Transition> {
 		
 		try {
 			if ("ShapeCode".equals(element)) {
-				transition.setType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
+				transition.setShapeType(RockSimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
 			}
 			if ("Len".equals(element)) {
 				transition.setLength(Math.max(0, Double.parseDouble(
@@ -98,9 +98,9 @@ class TransitionHandler extends BaseHandler<Transition> {
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if ("ShapeParameter".equals(element)) {
-				if (Transition.Shape.POWER.equals(transition.getType()) ||
-						Transition.Shape.HAACK.equals(transition.getType()) ||
-						Transition.Shape.PARABOLIC.equals(transition.getType())) {
+				if (Transition.Shape.POWER.equals(transition.getShapeType()) ||
+						Transition.Shape.HAACK.equals(transition.getShapeType()) ||
+						Transition.Shape.PARABOLIC.equals(transition.getShapeType())) {
 					transition.setShapeParameter(Double.parseDouble(content));
 				}
 			}

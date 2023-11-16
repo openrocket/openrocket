@@ -40,7 +40,7 @@ public class Appearance {
 	}
 	
 	/**
-	*	@return colr of the appearance
+	*	@return color of the appearance
 	*/
 	public Color getPaint() {
 		return paint;

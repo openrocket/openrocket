@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.components;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
+
 import javax.swing.BoundedRangeModel;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
@@ -27,7 +30,11 @@ public class BasicSlider extends JSlider {
 		setOrientation(orientation);
 		setInverted(inverted);
 		setFocusable(false);
-		setUI(new BasicSliderUI(this));
+		if (UITheme.isLightTheme(GUIUtil.getUITheme())) {
+			setUI(new BasicSliderUI(this));
+		} else {
+			setUI(new DarkBasicSliderUI(this));
+		}
 	}
 
 }

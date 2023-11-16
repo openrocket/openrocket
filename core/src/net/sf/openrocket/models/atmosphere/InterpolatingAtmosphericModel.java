@@ -36,6 +36,10 @@ public abstract class InterpolatingAtmosphericModel implements AtmosphericModel 
 		int n = (int) (altitude / DELTA);
 		double d = (altitude - n * DELTA) / DELTA;
 		AtmosphericConditions c = new AtmosphericConditions();
+		// TODO: LOW: levels[n] returned null in some cases, see GitHub issue #2180 for more information
+		if (levels[n] == null) {
+			computeLayers();
+		}
 		c.setTemperature(levels[n].getTemperature() * (1 - d) + levels[n + 1].getTemperature() * d);
 		c.setPressure(levels[n].getPressure() * (1 - d) + levels[n + 1].getPressure() * d);
 		

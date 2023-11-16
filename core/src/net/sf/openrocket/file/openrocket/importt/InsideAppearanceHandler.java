@@ -1,13 +1,7 @@
 package net.sf.openrocket.file.openrocket.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.appearance.AppearanceBuilder;
-import net.sf.openrocket.appearance.Decal;
-import net.sf.openrocket.document.Attachment;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.simplesax.AbstractElementHandler;
-import net.sf.openrocket.file.simplesax.ElementHandler;
-import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import org.xml.sax.SAXException;

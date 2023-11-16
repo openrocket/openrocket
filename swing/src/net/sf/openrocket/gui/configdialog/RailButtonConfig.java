@@ -110,30 +110,9 @@ public class RailButtonConfig extends RocketComponentConfig {
 			panel.add(new UnitSelector(heightModel), "growx");
 			panel.add(new BasicSlider(heightModel.getSliderModel(0, 0.02)), "w 100lp, wrap 30lp");
 		}
-
-		{ //// Instance Count
-			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceCount")));
-			IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
-			JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
-			countSpinner.setEditor(new SpinnerEditor(countSpinner));
-			panel.add(countSpinner, "growx, wrap rel");
-			order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
-		}
-
-		{ //// Instance separation
-			panel.add(new JLabel(trans.get("RocketCompCfg.lbl.InstanceSeparation")));
-			DoubleModel separationModel = new DoubleModel(component, "InstanceSeparation", UnitGroup.UNITS_LENGTH);
-			JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
-			separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
-			panel.add(separationSpinner, "growx");
-			order.add(((SpinnerEditor) separationSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector(separationModel), "growx");
-			double maxSeparationDistance = 0.1;
-			if (component.getParent() != null && component.getParent().getLength() > 0) {
-				maxSeparationDistance = component.getParent().getLength();
-			}
-			panel.add(new BasicSlider(separationModel.getSliderModel(0, 0.001, maxSeparationDistance)), "w 100lp, wrap para");
-		}
+  
+		// -------- Instances ------
+		panel.add(new InstancesPanel(component, order), "span, grow, wrap para");
 
 
 		primary.add(panel, "grow, gapright 40lp");

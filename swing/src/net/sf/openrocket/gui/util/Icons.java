@@ -33,7 +33,7 @@ public class Icons {
 		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon("pix/spheres/gray-16x16.png", "Not simulated"));
 		map.put(Simulation.Status.CANT_RUN, loadImageIcon("pix/spheres/yellow-16x16.png", "Can't run, no motors assigned."));
 		map.put(Simulation.Status.UPTODATE, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
-		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
+		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/blue-16x16.png", "Loaded from File"));
 		map.put(Simulation.Status.OUTDATED, loadImageIcon("pix/spheres/red-16x16.png", "Out-of-date"));
 		map.put(Simulation.Status.EXTERNAL, loadImageIcon("pix/spheres/blue-16x16.png", "Imported data"));
 		SIMULATION_STATUS_ICON_MAP = Collections.unmodifiableMap(map);
@@ -54,9 +54,10 @@ public class Icons {
 	public static final Icon FILE_SAVE_AS = loadImageIcon("pix/icons/document-save-as.png", "Save document as");
 	public static final Icon SAVE_DECAL = loadImageIcon("pix/icons/Painting-Transparent-PNG_16.png", "Save decal image");
 	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/print-design.specs.png", "Print specifications");
-//	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
-	public static final Icon FILE_EXPORT_AS = loadImageIcon("pix/icons/model_export.png", "Export model as");
-	public static final Icon ENCODE_3D = loadImageIcon("pix/icons/model_encode3d.png", "Encode 3D");
+	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
+	public static final Icon FILE_EXPORT = loadImageIcon("pix/icons/model_export.png", "Export");
+	public static final Icon SIM_TABLE_EXPORT = loadImageIcon("pix/icons/sim_table_export.png", "Export simulation table");
+	public static final Icon EXPORT_3D = loadImageIcon("pix/icons/model_export3d.png", "Export 3D");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");
 	public static final Icon EDIT_UNDO = loadImageIcon("pix/icons/edit-undo.png", trans.get("Icons.Undo"));
@@ -78,7 +79,8 @@ public class Icons {
 	public static final Icon HELP_BUG_REPORT = loadImageIcon("pix/icons/help-bug.png", "Bug report");
 	public static final Icon HELP_DEBUG_LOG = loadImageIcon("pix/icons/help-log.png", "Debug log");
 	public static final Icon HELP_TOURS = loadImageIcon("pix/icons/help-tours.png", "Guided tours");
-	
+	public static final Icon WIKI = loadImageIcon("pix/icons/wiki.png", "Wiki (Documentation)");
+
 	public static final Icon ZOOM_IN = loadImageIcon("pix/icons/zoom-in.png", "Zoom in");
 	public static final Icon ZOOM_OUT = loadImageIcon("pix/icons/zoom-out.png", "Zoom out");
 	public static final Icon ZOOM_RESET = loadImageIcon("pix/icons/zoom-reset.png", "Reset Zoom & Pan");
@@ -92,17 +94,23 @@ public class Icons {
 	
 	public static final Icon NOT_FAVORITE = loadImageIcon("pix/icons/star_silver.png", "Not favorite");
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
-	
-	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
-	public static final Icon CG_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/cg-override-subcomponent.png", "CG Override Subcomponent");
-	public static final Icon CD_OVERRIDE = loadImageIcon("pix/icons/cd-override.png", "CD Override");
-	public static final Icon CD_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/cd-override-subcomponent.png", "CD Override Subcomponent");
-	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
-	public static final Icon MASS_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/mass-override-subcomponent.png", "Mass Override Subcomponent");
 
-// MANUFACTURERS ICONS
-	public static final Icon RASAERO_ICON = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
-	public static final Icon ROCKSIM_ICON = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
+	public static final Icon MASS_OVERRIDE_LIGHT = loadImageIcon("pix/icons/mass-override_light.png", "Mass Override");
+	public static final Icon MASS_OVERRIDE_DARK = loadImageIcon("pix/icons/mass-override_dark.png", "Mass Override");
+	public static final Icon MASS_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/mass-override-subcomponent_light.png", "Mass Override Subcomponent");
+	public static final Icon MASS_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/mass-override-subcomponent_dark.png", "Mass Override Subcomponent");
+	public static final Icon CG_OVERRIDE_LIGHT = loadImageIcon("pix/icons/cg-override_light.png", "CG Override");
+	public static final Icon CG_OVERRIDE_DARK = loadImageIcon("pix/icons/cg-override_dark.png", "CG Override");
+	public static final Icon CG_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/cg-override-subcomponent_light.png", "CG Override Subcomponent");
+	public static final Icon CG_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/cg-override-subcomponent_dark.png", "CG Override Subcomponent");
+	public static final Icon CD_OVERRIDE_LIGHT = loadImageIcon("pix/icons/cd-override_light.png", "CD Override");
+	public static final Icon CD_OVERRIDE_DARK = loadImageIcon("pix/icons/cd-override_dark.png", "CD Override");
+	public static final Icon CD_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/cd-override-subcomponent_light.png", "CD Override Subcomponent");
+	public static final Icon CD_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/cd-override-subcomponent_dark.png", "CD Override Subcomponent");
+
+	// MANUFACTURERS ICONS
+	public static final Icon RASAERO = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
+	public static final Icon ROCKSIM = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
 
 
 	static {

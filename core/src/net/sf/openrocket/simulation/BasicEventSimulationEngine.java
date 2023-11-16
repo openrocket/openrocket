@@ -1,17 +1,15 @@
 package net.sf.openrocket.simulation;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Deque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -86,13 +84,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
 
-		// Can't calculate stability
-		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
-			.getCP(currentStatus.getConfiguration(),
-				   new FlightConditions(currentStatus.getConfiguration()),
-				   new WarningSet()).weight < MathUtil.EPSILON)
-			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.cantCalculateStability"));
-
 		// Problems that let us simulate, but result is likely bad
 			
 		// No recovery device
@@ -109,8 +100,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		toSimulate.push(currentStatus);
 		
 		SimulationListenerHelper.fireStartSimulation(currentStatus);
-		do{
-			if( null == toSimulate.peek()){
+		do {
+			if (toSimulate.peek() == null) {
 				break;
 			}
 			currentStatus = toSimulate.pop();
@@ -130,7 +121,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (dataBranch.getLength() == 0) {
 				flightData.getWarningSet().add(Warning.EMPTY_BRANCH, dataBranch.getBranchName());
 			}
-		}while( ! toSimulate.isEmpty());
+		} while (!toSimulate.isEmpty());
 		
 		SimulationListenerHelper.fireEndSimulation(currentStatus, null);
 		
@@ -157,6 +148,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		Coordinate originVelocity = currentStatus.getRocketVelocity();
 		
 		try {
+
+			checkGeometry(currentStatus);
 			
 			// Start the simulation
 			while (handleEvents()) {
@@ -284,6 +277,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
 
 			e.setFlightData(flightData);
+			e.setFlightDataBranch(currentStatus.getFlightData());
 			
 			throw e;
 		}
@@ -329,7 +323,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// TODO:  this event seems to get enqueue'd multiple times ... 
 					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
-					//log.info("     Because of "+event.getType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
+					//log.info("     Because of "+event.getShapeType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
 					
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, (RocketComponent) mount, state ));
 				}
@@ -491,11 +485,17 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						currentStatus.getWarnings().add(Warning.SEPARATION_ORDER);
 					}
 
+					// If I haven't cleared the rail yet, flag a warning
+					if (!currentStatus.isLaunchRodCleared()) {
+						currentStatus.getWarnings().add(Warning.EARLY_SEPARATION);
+					}	
+
 					// Create a new simulation branch for the booster
 					SimulationStatus boosterStatus = new SimulationStatus(currentStatus);
 					
 					// Prepare the new simulation branch
-					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), FlightDataType.TYPE_TIME));
+					boosterStatus.setFlightData(new FlightDataBranch(boosterStage.getName(), boosterStage, currentStatus.getFlightData()));
+					boosterStatus.getFlightData().addEvent(event);
 
 					// Mark the current status as having dropped the current stage and all stages below it
 					currentStatus.getConfiguration().clearStagesBelow( stageNumber);
@@ -504,6 +504,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					boosterStatus.getConfiguration().clearStagesAbove(stageNumber);
 					
 					toSimulate.push(boosterStatus);
+
+					// Make sure upper stages can still be simulated
+					checkGeometry(currentStatus);
+					
 					log.info(String.format("==>> @ %g; from Branch: %s ---- Branching: %s ---- \n",
 										   currentStatus.getSimulationTime(), 
 										   currentStatus.getFlightData().getBranchName(), boosterStatus.getFlightData().getBranchName()));
@@ -519,7 +523,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				currentStatus.setApogeeReached(true);
 				currentStatus.getFlightData().addEvent(event);
 				// This apogee event might be the optimum if recovery has not already happened.
-				if (currentStatus.getSimulationConditions().isCalculateExtras() && currentStatus.getDeployedRecoveryDevices().size() == 0) {
+				if (currentStatus.getDeployedRecoveryDevices().size() == 0) {
 					currentStatus.getFlightData().setOptimumAltitude(currentStatus.getMaxAlt());
 					currentStatus.getFlightData().setTimeToOptimumAltitude(currentStatus.getMaxAltTime());
 				}
@@ -555,7 +559,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// If we haven't already reached apogee, then we need to compute the actual coast time
 					// to determine the optimum altitude.
-					if (currentStatus.getSimulationConditions().isCalculateExtras() && !currentStatus.isApogeeReached()) {
+					if (!currentStatus.isApogeeReached()) {
 						FlightData coastStatus = computeCoastTime();
 
 						currentStatus.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
@@ -665,8 +669,24 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			return null;
 		}
 	}
-	
-	
+
+	// we need to check geometry to make sure we can simulation the active
+	// stages in a simulation branch when the branch starts executing, and
+	// whenever a stage separation occurs
+	private void checkGeometry(SimulationStatus currentStatus) throws SimulationException {
+		
+		// Active stages have total length of 0.
+		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
+			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.activeLengthZero"));
+		}
+		
+		// Can't calculate stability
+		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
+			.getCP(currentStatus.getConfiguration(),
+				   new FlightConditions(currentStatus.getConfiguration()),
+				   new WarningSet()).weight < MathUtil.EPSILON)
+			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.cantCalculateStability"));
+	}
 	
 	private void checkNaN() throws SimulationException {
 		double d = 0;
@@ -692,7 +712,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 	
-	private FlightData computeCoastTime() {
+	private FlightData computeCoastTime() throws SimulationException {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
@@ -700,6 +720,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 			FlightData d = e.simulate(conds);
 			return d;
+		} catch (SimulationException e) {
+			throw e;
 		} catch (Exception e) {
 			log.warn("Exception computing coast time: ", e);
 			return null;

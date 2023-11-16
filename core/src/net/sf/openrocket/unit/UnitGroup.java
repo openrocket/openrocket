@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 
 
 /**
@@ -36,9 +36,12 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_LENGTH;
 	public static final UnitGroup UNITS_ALL_LENGTHS;
 	public static final UnitGroup UNITS_DISTANCE;
+	public static final UnitGroup UNITS_SHAPE_PARAMETER;
 	
 	public static final UnitGroup UNITS_AREA;
 	public static final UnitGroup UNITS_STABILITY;
+	public static final UnitGroup UNITS_SECONDARY_STABILITY;
+
 	/**
 	 * This unit group contains only the caliber unit that never scales the originating "SI" value.
 	 * It can be used in cases where the originating value is already in calibers to obtains the correct unit.
@@ -78,6 +81,8 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_MOMENTUM;
 	public static final UnitGroup UNITS_VOLTAGE;
 	public static final UnitGroup UNITS_CURRENT;
+
+	public static final UnitGroup UNITS_SCALING;
 	
 	
 	public static final Map<String, UnitGroup> UNITS; // keys such as "LENGTH", "VELOCITY"
@@ -123,7 +128,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
-		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in"));
+		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 1));
 		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		
@@ -159,15 +164,16 @@ public class UnitGroup {
 		UNITS_AREA.addUnit(new GeneralUnit(1, "m" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254), "in" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048), "ft" + SQUARED));
+
+		UNITS_SHAPE_PARAMETER = new UnitGroup();
+		UNITS_SHAPE_PARAMETER.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 		
 		
 		UNITS_STABILITY = new UnitGroup();
-		UNITS_STABILITY.addUnit(new GeneralUnit(0.001, "mm"));
-		UNITS_STABILITY.addUnit(new GeneralUnit(0.01, "cm"));
-		UNITS_STABILITY.addUnit(new GeneralUnit(1, "m"));
-		UNITS_STABILITY.addUnit(new GeneralUnit(0.0254, "in"));
-		UNITS_STABILITY.addUnit(new CaliberUnit((Rocket) null));
-		UNITS_STABILITY.addUnit(new PercentageOfLengthUnit((Rocket) null));
+		UNITS_SECONDARY_STABILITY = new UnitGroup();
+		addStabilityUnits(UNITS_STABILITY);
+		addStabilityUnits(UNITS_SECONDARY_STABILITY);
+
 		
 		UNITS_STABILITY_CALIBERS = new UnitGroup();
 		UNITS_STABILITY_CALIBERS.addUnit(new GeneralUnit(1, "cal"));
@@ -212,6 +218,7 @@ public class UnitGroup {
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "g/cm" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000999, "kg/cm" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "kg/dm" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1, "kg/m" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404, "oz/in" + CUBED));
@@ -220,13 +227,18 @@ public class UnitGroup {
 		UNITS_DENSITY_SURFACE = new UnitGroup();
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10, "g/cm" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001, "g/m" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10000, "kg/cm" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(100, "kg/dm" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1, "kg/m" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487, "oz/in" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727, "oz/ft" + SQUARED));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764, "lb/ft" + SQUARED));
 		
 		UNITS_DENSITY_LINE = new UnitGroup();
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.1, "g/cm"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.001, "g/m"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(100, "kg/cm"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(10, "kg/dm"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(1, "kg/m"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.0930102465, "oz/ft"));
 		
@@ -257,17 +269,17 @@ public class UnitGroup {
 		UNITS_ROLL.addUnit(new GeneralUnit(2 * Math.PI / 60, "rpm"));
 		
 		UNITS_TEMPERATURE = new UnitGroup();
-		UNITS_TEMPERATURE.addUnit(new FixedPrecisionUnit("K", 1));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, DEGREE + "C"));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0 / 9.0, 459.67, DEGREE + "F"));
+		UNITS_TEMPERATURE.addUnit(new FixedPrecisionUnit("K", 0.01));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, 0.01, DEGREE + "C"));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0 / 9.0, 459.67, 0.01, DEGREE + "F"));
 		
 		UNITS_PRESSURE = new UnitGroup();
-		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mbar", 1, 1.0e2));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mbar", 0.01, 1.0e2));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("bar", 0.001, 1.0e5));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("atm", 0.001, 1.01325e5));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(101325.0 / 760.0, "mmHg"));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(3386.389, "inHg"));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(6894.75729, "psi"));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mmHg", 0.01, 101325.0 / 760.0));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("inHg", 0.01, 3386.389));
+		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("psi", 0.01, 6894.75729));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(1, "Pa"));
 		
 		UNITS_RELATIVE = new UnitGroup();
@@ -283,7 +295,10 @@ public class UnitGroup {
 		
 		
 		UNITS_COEFFICIENT = new UnitGroup();
-		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01)); // zero-width space
+		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.001)); // zero-width space
+
+		UNITS_SCALING = new UnitGroup();
+		UNITS_SCALING.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 		
 		
 		// This is not used by OpenRocket, and not extensively tested:
@@ -304,6 +319,7 @@ public class UnitGroup {
 		map.put("ACCELERATION", UNITS_ACCELERATION);
 		map.put("AREA", UNITS_AREA);
 		map.put("STABILITY", UNITS_STABILITY);
+		map.put("SECONDARY_STABILITY", UNITS_SECONDARY_STABILITY);
 		map.put("MASS", UNITS_MASS);
 		map.put("INERTIA", UNITS_INERTIA);
 		map.put("ANGLE", UNITS_ANGLE);
@@ -321,6 +337,7 @@ public class UnitGroup {
 		map.put("RELATIVE", UNITS_RELATIVE);
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
+		map.put("SCALING", UNITS_SCALING);
 		map.put("VOLTAGE", UNITS_VOLTAGE);
 		map.put("CURRENT", UNITS_CURRENT);
 		map.put("ENERGY", UNITS_ENERGY);
@@ -360,6 +377,7 @@ public class UnitGroup {
 		UNITS_DISTANCE.setDefaultUnit("m");
 		UNITS_AREA.setDefaultUnit("cm" + SQUARED);
 		UNITS_STABILITY.setDefaultUnit("cal");
+		UNITS_SECONDARY_STABILITY.setDefaultUnit("%");
 		UNITS_VELOCITY.setDefaultUnit("m/s");
 		UNITS_ACCELERATION.setDefaultUnit("m/s" + SQUARED);
 		UNITS_MASS.setDefaultUnit("g");
@@ -386,6 +404,7 @@ public class UnitGroup {
 		UNITS_DISTANCE.setDefaultUnit("ft");
 		UNITS_AREA.setDefaultUnit("in" + SQUARED);
 		UNITS_STABILITY.setDefaultUnit("cal");
+		UNITS_SECONDARY_STABILITY.setDefaultUnit("%");
 		UNITS_VELOCITY.setDefaultUnit("ft/s");
 		UNITS_ACCELERATION.setDefaultUnit("ft/s" + SQUARED);
 		UNITS_MASS.setDefaultUnit("oz");
@@ -419,6 +438,7 @@ public class UnitGroup {
 		UNITS_ALL_LENGTHS.setDefaultUnit(2);
 		UNITS_AREA.setDefaultUnit(1);
 		UNITS_STABILITY.setDefaultUnit(4);
+		UNITS_SECONDARY_STABILITY.setDefaultUnit(5);
 		UNITS_STABILITY_CALIBERS.setDefaultUnit(0);
 		UNITS_VELOCITY.setDefaultUnit(0);
 		UNITS_WINDSPEED.setDefaultUnit(0);
@@ -428,7 +448,7 @@ public class UnitGroup {
 		UNITS_ANGLE.setDefaultUnit(0);
 		UNITS_DENSITY_BULK.setDefaultUnit(0);
 		UNITS_DENSITY_SURFACE.setDefaultUnit(1);
-		UNITS_DENSITY_LINE.setDefaultUnit(0);
+		UNITS_DENSITY_LINE.setDefaultUnit(1);
 		UNITS_FORCE.setDefaultUnit(0);
 		UNITS_IMPULSE.setDefaultUnit(0);
 		UNITS_TIME_STEP.setDefaultUnit(1);
@@ -440,7 +460,17 @@ public class UnitGroup {
 		UNITS_RELATIVE.setDefaultUnit(1);
 		UNITS_ROUGHNESS.setDefaultUnit(0);
 		UNITS_COEFFICIENT.setDefaultUnit(0);
+		UNITS_SCALING.setDefaultUnit(0);
 		UNITS_FREQUENCY.setDefaultUnit(1);
+	}
+
+	private static void addStabilityUnits(UnitGroup stabilityUnit) {
+		stabilityUnit.addUnit(new GeneralUnit(0.001, "mm"));
+		stabilityUnit.addUnit(new GeneralUnit(0.01, "cm"));
+		stabilityUnit.addUnit(new GeneralUnit(1, "m"));
+		stabilityUnit.addUnit(new GeneralUnit(0.0254, "in"));
+		stabilityUnit.addUnit(new CaliberUnit((Rocket) null));
+		stabilityUnit.addUnit(new PercentageOfLengthUnit((Rocket) null));
 	}
 	
 	
@@ -450,8 +480,18 @@ public class UnitGroup {
 	 * @param rocket	the rocket from which to calculate the caliber
 	 * @return			the unit group
 	 */
-	public static UnitGroup stabilityUnits(Rocket rocket) {
-		return new StabilityUnitGroup(rocket);
+	public static StabilityUnitGroup stabilityUnits(Rocket rocket) {
+		return new StabilityUnitGroup(UnitGroup.UNITS_STABILITY, rocket);
+	}
+
+	/**
+	 * Return a UnitGroup for secondary stability units based on the rocket.
+	 *
+	 * @param rocket	the rocket from which to calculate the caliber
+	 * @return			the unit group
+	 */
+	public static StabilityUnitGroup secondaryStabilityUnits(Rocket rocket) {
+		return new StabilityUnitGroup(UnitGroup.UNITS_SECONDARY_STABILITY, rocket);
 	}
 	
 	
@@ -461,8 +501,18 @@ public class UnitGroup {
 	 * @param config	the rocket configuration from which to calculate the caliber
 	 * @return			the unit group
 	 */
-	public static UnitGroup stabilityUnits(FlightConfiguration config) {
-		return new StabilityUnitGroup(config);
+	public static StabilityUnitGroup stabilityUnits(FlightConfiguration config) {
+		return new StabilityUnitGroup(UnitGroup.UNITS_STABILITY, config);
+	}
+
+	/**
+	 * Return a UnitGroup for stability units based on the rocket configuration.
+	 *
+	 * @param config	the rocket configuration from which to calculate the caliber
+	 * @return			the unit group
+	 */
+	public static StabilityUnitGroup secondaryStabilityUnits(FlightConfiguration config) {
+		return new StabilityUnitGroup(UnitGroup.UNITS_SECONDARY_STABILITY, config);
 	}
 	
 	
@@ -473,7 +523,17 @@ public class UnitGroup {
 	 * @return			the unit group
 	 */
 	public static UnitGroup stabilityUnits(double reference) {
-		return new StabilityUnitGroup(reference);
+		return new StabilityUnitGroup(UnitGroup.UNITS_STABILITY, reference);
+	}
+
+	/**
+	 * Return a UnitGroup for secondary stability units based on a constant caliber.
+	 *
+	 * @param reference	the constant reference length
+	 * @return			the unit group
+	 */
+	public static UnitGroup secondaryStabilityUnits(double reference) {
+		return new StabilityUnitGroup(UnitGroup.UNITS_SECONDARY_STABILITY, reference);
 	}
 	
 	
@@ -672,7 +732,7 @@ public class UnitGroup {
 			throw new NumberFormatException("string did not match required pattern");
 		}
 
-		double value = StringUtil.convertToDouble(matcher.group(1));
+		double value = StringUtils.convertToDouble(matcher.group(1));
 		String unit = matcher.group(2).trim();
 		
 		if (unit.equals("")) {
@@ -711,19 +771,27 @@ public class UnitGroup {
 	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.
 	 */
-	private static class StabilityUnitGroup extends UnitGroup {
+	public static class StabilityUnitGroup extends UnitGroup {
+		private final PercentageOfLengthUnit percentageOfLengthUnit;
+		private final UnitGroup stabilityUnit;
 		
-		public StabilityUnitGroup(double ref) { this(new CaliberUnit(ref), new PercentageOfLengthUnit(ref)); }
-		
-		public StabilityUnitGroup(Rocket rocket) {
-			this(new CaliberUnit(rocket), new PercentageOfLengthUnit(rocket));
+		public StabilityUnitGroup(UnitGroup stabilityUnit, double ref) {
+			this(stabilityUnit, new CaliberUnit(ref), new PercentageOfLengthUnit(ref));
 		}
 		
-		public StabilityUnitGroup(FlightConfiguration config) { this(new CaliberUnit(config), new PercentageOfLengthUnit(config)); }
+		public StabilityUnitGroup(UnitGroup stabilityUnit, Rocket rocket) {
+			this(stabilityUnit, new CaliberUnit(rocket), new PercentageOfLengthUnit(rocket));
+		}
 		
-		private StabilityUnitGroup(CaliberUnit caliberUnit, PercentageOfLengthUnit percentageOfLengthUnit) {
-			this.units.addAll(UnitGroup.UNITS_STABILITY.units);
-			this.defaultUnit = UnitGroup.UNITS_STABILITY.defaultUnit;
+		public StabilityUnitGroup(UnitGroup stabilityUnit, FlightConfiguration config) {
+			this(stabilityUnit, new CaliberUnit(config), new PercentageOfLengthUnit(config));
+		}
+		
+		private StabilityUnitGroup(UnitGroup stabilityUnit, CaliberUnit caliberUnit, PercentageOfLengthUnit percentageOfLengthUnit) {
+			this.percentageOfLengthUnit = percentageOfLengthUnit;
+			this.stabilityUnit = stabilityUnit;
+			this.units.addAll(stabilityUnit.units);
+			this.defaultUnit = stabilityUnit.defaultUnit;
 			for (int i = 0; i < units.size(); i++) {
 				if (units.get(i) instanceof CaliberUnit) {
 					units.set(i, caliberUnit);
@@ -738,7 +806,15 @@ public class UnitGroup {
 		@Override
 		public void setDefaultUnit(int n) {
 			super.setDefaultUnit(n);
-			UNITS_STABILITY.setDefaultUnit(n);
+			this.stabilityUnit.setDefaultUnit(n);
+		}
+
+		/**
+		 * Returns the percentage of length unit. (Stability in %)
+		 * @return the percentage of length unit.
+		 */
+		public Unit getPercentageOfLengthUnit() {
+			return this.percentageOfLengthUnit;
 		}
 	}
 }

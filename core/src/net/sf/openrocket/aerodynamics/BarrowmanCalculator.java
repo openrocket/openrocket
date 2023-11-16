@@ -1,10 +1,11 @@
 package net.sf.openrocket.aerodynamics;
 
-import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.*;
 
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -380,6 +381,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 								}
 								
 							}
+						} else {
+							/*
+							It could be that the component is a child of a PodSet or ParallelStage, and it is flush with
+							the previous component.  In this case, the component is overlapping.
+							 */
+							RocketComponent prevCompParent = prevComp.getParent();
+							RocketComponent compParent = comp.getParent();
+							int prevCompPos = prevCompParent.getChildPosition(prevComp);
+							RocketComponent nextComp = prevCompPos + 1 >= prevCompParent.getChildCount() ?
+									null : prevCompParent.getChild(prevCompPos + 1);
+							if ((compParent instanceof PodSet || compParent instanceof ParallelStage) &&
+									MathUtil.equals(symXfore, prevXaft) && (compParent.getParent() == nextComp)) {
+								warnings.add(Warning.PODSET_OVERLAP, comp.getParent().toString());
+							}
 						}
 					}
 					prevComp = sym;
@@ -741,11 +756,17 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		final InstanceMap imap = configuration.getActiveInstances();
 	    for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent c = entry.getKey();
-			
+
 			if (!(c instanceof SymmetricComponent)) {
 				continue;
 			}
 
+			
+			if (c.isCDOverridden() ||
+				c.isCDOverriddenByAncestor()) {
+				continue;
+			}
+			
 			SymmetricComponent s = (SymmetricComponent) c;
 			double foreRadius = s.getForeRadius();
 			double aftRadius = s.getAftRadius();
@@ -756,35 +777,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			int instanceCount = entry.getValue().size();
-			
-			if (c.isCDOverridden() ||
-				c.isCDOverriddenByAncestor()) {
-				continue;
+
+			// get forward radius of next component
+			final SymmetricComponent nextComponent = s.getNextSymmetricComponent();
+			double nextRadius;
+			if ((nextComponent != null) && configuration.isComponentActive(nextComponent)) {
+				nextRadius = nextComponent.getForeRadius();
+			} else {
+				nextRadius = 0.0;
 			}
-				
-			// if aft radius of previous component is greater than my forward radius, set
-			// its aft CD
-			double radius = 0;
-			final SymmetricComponent prevComponent = s.getPreviousSymmetricComponent();
-			if (prevComponent != null && configuration.isComponentActive(prevComponent)) {
-				radius = prevComponent.getAftRadius();
-			}
-			
-			if (radius > foreRadius) {
-				double area = Math.PI * (pow2(radius) - pow2(foreRadius));
-				double cd = base * area / conditions.getRefArea();
-				total += instanceCount * cd;
-				if ((forceMap != null) && (prevComponent != null)) {
-					forceMap.get(prevComponent).setBaseCD(cd);
-				}
-			}
-				
-			// if I'm the last component, set my base CD
-			// note:  the iterator *should* serve up the next component.... buuuut ....
-			//        this code is tested, and there's no compelling reason to change.
-			final SymmetricComponent n = s.getNextSymmetricComponent();
-			if ((n == null) || !configuration.isStageActive(n.getStageNumber())) {
-				double area = Math.PI * pow2(aftRadius);
+
+			// if fore radius of next component is less than my aft radius, set my
+			// base CD
+			if (nextRadius < aftRadius) {
+				double area = Math.PI * (pow2(aftRadius) - pow2(nextRadius));
 				double cd = base * area / conditions.getRefArea();
 				total += instanceCount * cd;
 				if (forceMap != null) {

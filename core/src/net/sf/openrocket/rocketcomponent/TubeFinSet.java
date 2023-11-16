@@ -24,7 +24,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	
 	private boolean autoRadius = true; // Radius chosen automatically based on parent component
 	private double outerRadius = DEFAULT_RADIUS;
-	protected double thickness = 0.002;
+	protected double thickness = Double.NaN;
 	private AngleMethod angleMethod = AngleMethod.FIXED;
 	protected RadiusMethod radiusMethod = RadiusMethod.RELATIVE;
 
@@ -49,7 +49,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	
 	
 	/**
-	 * New FinSet with given number of fins and given base rotation angle.
+	 * New TubeFinSet with default values
 	 * Sets the component relative position to POSITION_RELATIVE_BOTTOM,
 	 * i.e. fins are positioned at the bottom of the parent component.
 	 */
@@ -146,6 +146,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	 * Sets whether the radius is selected automatically or not.
 	 */
 	public void setOuterRadiusAutomatic(boolean auto) {
+		
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof TubeFinSet) {
 				((TubeFinSet) listener).setOuterRadiusAutomatic(auto);
@@ -195,8 +196,9 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 		if ((this.thickness == thickness))
 			return;
+
 		this.thickness = MathUtil.clamp(thickness, 0, getOuterRadius());
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		clearPreset();
 	}
 	
@@ -518,6 +520,19 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 		
 	}
 
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.autoRadius = false;
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.outerRadius = outerDiameter / 2.0;
+			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
+				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+				this.thickness = (outerDiameter - innerDiameter) / 2.0;
+			}
+		}
+	}
 
 	@Override
 	public InsideColorComponentHandler getInsideColorComponentHandler() {

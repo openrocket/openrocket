@@ -51,7 +51,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 	private double radialDistance_m=0;
 	protected static final AngleMethod angleMethod = AngleMethod.RELATIVE;
-	private double angle_rad = Math.PI;
+	private double angleOffsetRad = Math.PI;
 	private int instanceCount = 1;
 	private double instanceSeparation = 0; // front-front along the positive rocket axis. i.e. [1,0,0];
 	
@@ -210,7 +210,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	
 	@Override
 	public double getAngleOffset(){
-		return angle_rad;
+		return angleOffsetRad;
 	}
 	
 	@Override
@@ -234,9 +234,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 
 		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
 		
-		if (MathUtil.equals(this.angle_rad, clamped_rad))
+		if (MathUtil.equals(this.angleOffsetRad, clamped_rad))
 			return;
-		this.angle_rad = clamped_rad;
+		this.angleOffsetRad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
@@ -265,8 +265,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	public Coordinate[] getInstanceOffsets(){
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		
-		final double yOffset = Math.cos(this.angle_rad) * ( this.radialDistance_m );
-		final double zOffset = Math.sin(this.angle_rad) * ( this.radialDistance_m );
+		final double yOffset = Math.cos(this.angleOffsetRad) * ( this.radialDistance_m );
+		final double zOffset = Math.sin(this.angleOffsetRad) * ( this.radialDistance_m );
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
 			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
@@ -304,7 +304,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
 		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
 		final double volScrew = 2f/3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
-		return volOuter + volInner + volStandoff + volScrew;
+		final double volInstance = volOuter + volInner + volStandoff + volScrew;
+		return volInstance * getInstanceCount();
 	}
 	
 	@Override
@@ -320,6 +321,9 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			}
 		}
 
+		if (MathUtil.equals(this.instanceSeparation, _separation)) {
+			return;
+		}
 		this.instanceSeparation = _separation;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
@@ -332,9 +336,10 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 			}
 		}
 
-		if( 0 < newCount ){
-			this.instanceCount = newCount;
+		if (newCount == this.instanceCount || newCount <= 0) {
+			return;
 		}
+		this.instanceCount = newCount;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -376,17 +381,20 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 		final double flangeCM = this.totalHeight_m - getFlangeHeight()/2;
 		final double screwCM = this.totalHeight_m + 4 * this.screwHeight_m / (3 * Math.PI);
 		final double heightCM = (massBase*baseCM + massInner*innerCM + massFlange*flangeCM + massScrew*screwCM)/totalMass;
+		final double parentRadius = parent instanceof SymmetricComponent ?
+				((SymmetricComponent) parent).getRadius(getAxialOffset()) : 0;
 
 		if (heightCM > this.totalHeight_m + this.screwHeight_m) {
 			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
+
+		final double CMx = (instanceSeparation * (instanceCount-1)) / 2;
+		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + heightCM);
+		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + heightCM);
 		
-		final double CMy = Math.cos(this.angle_rad)*heightCM;
-		final double CMz = Math.sin(this.angle_rad)*heightCM;
-		
-		return new Coordinate( 0, CMy, CMz, getComponentMass());
+		return new Coordinate( CMx, CMy, CMz, getComponentMass());
 	}
-	
+
 	@Override
 	public String getComponentName() {
 		return trans.get("RailButton.RailButton");

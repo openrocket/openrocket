@@ -7,7 +7,6 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 
@@ -68,11 +67,11 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		return ignitionOveride;
 	}
 
-	public String toMotorCommonName(){
+	public String toMotorName(){
 		if( motor == null ){
 			return trans.get("empty");
 		}else{
-			return this.motor.getCommonName(this.getEjectionDelay());
+			return this.motor.getMotorName(this.getEjectionDelay());
 		}
 	}
 	
@@ -273,7 +272,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	}
 
 	public String toDescription(){
-		return ( this.toMotorCommonName()+
+		return ( this.toMotorName()+
 				" in: "+mount.getDebugName()+
 				" ign@: "+this.toIgnitionDescription() );
 	}
@@ -289,7 +288,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 				mount.getDebugName(),
 				fcid.toShortKey(),
 				mid.toDebug(),
-				toMotorCommonName(),
+				toMotorName(),
 				toIgnitionDescription() ));
 		
 		return buf.toString();

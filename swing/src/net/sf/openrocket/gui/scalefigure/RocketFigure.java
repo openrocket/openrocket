@@ -17,6 +17,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.*;
 import java.util.Map.Entry;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
@@ -92,6 +94,13 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
 	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<FigureElement>();
+
+	private static Color motorFillColor;
+	private static Color motorBorderColor;
+
+	static {
+		initColors();
+	}
 	
 	
 	/**
@@ -105,6 +114,16 @@ public class RocketFigure extends AbstractScaleFigure {
 		this.axialRotation = Transformation.rotate_x(0.0);
 
 		updateFigure();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketFigure::updateColors);
+	}
+
+	private static void updateColors() {
+		motorFillColor = GUIUtil.getUITheme().getMotorFillColor();
+		motorBorderColor = GUIUtil.getUITheme().getMotorBorderColor();
 	}
 
 	public Point getAutoZoomPoint(){
@@ -125,10 +144,17 @@ public class RocketFigure extends AbstractScaleFigure {
 		updateFigure();
         fireChangeEvent();
 	}
-	
+
+	public double getRotation(boolean applyTopViewOffset) {
+		if (applyTopViewOffset && currentViewType == RocketPanel.VIEW_TYPE.TopView) {
+			return this.rotation - Math.PI/2;
+		} else {
+			return this.rotation;
+		}
+	}
 	
 	public double getRotation() {
-		return rotation;
+		return getRotation(false);
 	}
 	
 	public void setRotation(double rot) {
@@ -142,7 +168,7 @@ public class RocketFigure extends AbstractScaleFigure {
 
 	private Transformation getFigureRotation() {
 		if (currentViewType == RocketPanel.VIEW_TYPE.TopView) {
-			return this.axialRotation.applyTransformation(Transformation.rotate_x(-Math.PI / 2));
+			return this.axialRotation.applyTransformation(Transformation.rotate_x(-Math.PI/2));
 		} else {
 			return this.axialRotation;
 		}
@@ -250,7 +276,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			// Set component color and line style
 			net.sf.openrocket.util.Color color = rcs.color;
 			if (color == null) {
-				color = Application.getPreferences().getDefaultColor(c.getClass());
+				color = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 			}
 			g2.setColor(ColorConversion.toAwtColor(color));
 			
@@ -283,8 +309,8 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_STROKE_NORMALIZE);
 	
 		// Draw motors
-		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
-		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
+		Color fillColor = motorFillColor;
+		Color borderColor = motorBorderColor;
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		for (MotorConfiguration curInstance : config.getActiveMotors()) {
@@ -299,10 +325,8 @@ public class RocketFigure extends AbstractScaleFigure {
 			Coordinate[] mountLocations = mount.getLocations();
 
 			double mountLength = mountComponent.getLength();
-//			System.err.println("Drawing Motor: "+motor.getDesignation()+" (x"+mountLocations.length+")");
 			for (Coordinate curMountLocation : mountLocations) {
 				Coordinate curMotorLocation = curMountLocation.add(mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
-//		        System.err.println(String.format("        mount instance:   %s  =>  %s", curMountLocation.toString(), curMotorLocation.toString() )); 
 
 				// rotate by figure's axial rotation:
 				curMotorLocation = getFigureRotation().transform(curMotorLocation);

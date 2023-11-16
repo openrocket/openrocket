@@ -170,6 +170,11 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 				"  Please set setClusterConfiguration(ClusterConfiguration) instead.",
 				new UnsupportedOperationException("InnerTube.setInstanceCount(..) on an"+this.getClass().getSimpleName()));
 	}
+
+	@Override
+	public boolean isAfter(){
+		return false;
+	}
 	
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
@@ -177,12 +182,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	 * pack inside each other.
 	 */
 	public double getClusterScale() {
+		mutex.verify();
 		return clusterScale;
-	}
-	
-	@Override
-	public boolean isAfter(){ 
-		return false;
 	}
 	
 	/**
@@ -202,6 +203,23 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 			return;
 		clusterScale = scale;
 		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
+	}
+
+	/**
+	 * Get the cluster scaling as an absolute distance measurement.  A value of 0 indicates that the tubes are packed
+	 * touching each other, larger values separate the tubes and smaller values pack inside each other.
+	 */
+	public double getClusterScaleAbsolute() {
+		return (getClusterScale() - 1) * getOuterRadius() * 2;
+	}
+
+	/**
+	 * Set the absolute cluster scaling (in terms of distance).
+	 * @see #getClusterScaleAbsolute()
+	 */
+	public void setClusterScaleAbsolute(double scale) {
+		double scaleRel = scale / (getOuterRadius() * 2) + 1;
+		setClusterScale(scaleRel);
 	}
 	
 	
@@ -242,27 +260,21 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	}
 	
 	public List<Coordinate> getClusterPoints() {
-		List<Coordinate> list = new ArrayList<Coordinate>(getInstanceCount());
+		List<Coordinate> list = new ArrayList<>(getInstanceCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
+		double yOffset = this.radialPosition * Math.cos(this.radialDirection);
+		double zOffset = this.radialPosition * Math.sin(this.radialDirection);
 		for (int i = 0; i < points.size() / 2; i++) {
-			list.add(new Coordinate(0, points.get(2 * i) * separation, points.get(2 * i + 1) * separation));
+			list.add(new Coordinate(0, points.get(2 * i) * separation + yOffset, points.get(2 * i + 1) * separation + zOffset));
 		}
 		return list;
 	}
 	
 	@Override
 	public Coordinate[] getInstanceOffsets(){
-		
-		if ( 1 == getInstanceCount()) {
-			double yOffset = this.radialPosition * Math.cos(this.radialDirection);
-			double zOffset = this.radialPosition * Math.sin(this.radialDirection);
-			return new Coordinate[] { Coordinate.ZERO.add(0.0, yOffset, zOffset) };
-		}
-		
 		List<Coordinate> points = getClusterPoints();
-		
-		return points.toArray( new Coordinate[ points.size() ]);
+		return points.toArray(new Coordinate[0]);
 	}
 	
 //	@Override
@@ -363,7 +375,7 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
 	public boolean hasMotor() {
 		// the default MotorInstance is the EMPTY_INSTANCE.  If we have more than that, then the other instance will have a motor.
-		return ( 1 < this.motors.size());
+		return this.motors.size() > 0;
 	}
 	
 	@Override

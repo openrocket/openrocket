@@ -6,8 +6,8 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
@@ -56,7 +56,7 @@ public class RockSimHandler extends AbstractElementHandler {
 			WarningSet warnings) {
 		
 		// Check for unknown elements
-		if (!element.equals("RockSimDocument")) {
+		if (!RockSimCommonConstants.ROCK_SIM_DOCUMENT.equals(element)) {
 			warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
 			return null;
 		}

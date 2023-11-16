@@ -2,7 +2,7 @@ package net.sf.openrocket.simulation.extension;
 
 import java.util.List;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightDataType;

@@ -115,6 +115,19 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(showDiscardConfirmation, "wrap, growx, spanx");
 
+		// // Show confirmation dialog for discarding simulation configuration changes
+		final JCheckBox showDiscardSimulationConfirmation = new JCheckBox(
+				trans.get("pref.dlg.checkbox.ShowDiscardSimulationConfirmation"));
+		showDiscardSimulationConfirmation.setSelected(preferences.isShowDiscardSimulationConfirmation());
+		showDiscardSimulationConfirmation.setToolTipText(trans.get("pref.dlg.checkbox.ShowDiscardSimulationConfirmation.ttip"));
+		showDiscardSimulationConfirmation.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				preferences.setShowDiscardSimulationConfirmation(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		this.add(showDiscardSimulationConfirmation, "wrap, growx, spanx");
+
 		// // Update flight estimates in the design window
 		final JCheckBox updateEstimates = new JCheckBox(
 				trans.get("pref.dlg.checkbox.Updateestimates"));

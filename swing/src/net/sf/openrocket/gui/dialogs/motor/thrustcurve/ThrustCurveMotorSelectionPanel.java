@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -45,6 +44,8 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.sf.openrocket.gui.plot.Util;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.StateChangeListener;
 import org.jfree.chart.ChartColor;
 import org.slf4j.Logger;
@@ -99,6 +100,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final JLabel curveSelectionLabel;
 	private final JComboBox<MotorHolder> curveSelectionBox;
 	private final DefaultComboBoxModel<MotorHolder> curveSelectionModel;
+	private final JLabel ejectionChargeDelayLabel;
 	private final JComboBox<String> delayBox;
 	private final JLabel nrOfMotorsLabel;
 
@@ -108,6 +110,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotor selectedMotor;
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
+
+	private static Color dimTextColor;
+
+	static {
+		initColors();
+	}
 
 	public ThrustCurveMotorSelectionPanel( final FlightConfigurationId fcid, MotorMount mount ) {
 		this();
@@ -172,17 +180,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Ejection charge delay:
 		{
-			panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay")));
+			ejectionChargeDelayLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay"));
+			panel.add(ejectionChargeDelayLabel);
 
 			delayBox = new JComboBox<String>();
 			delayBox.setEditable(true);
 			delayBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
 					String sel = (String) delayBox.getSelectedItem();
-					//// None
-					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.equalsIgnoreCase.None"))) {
+					if (sel == null) {
+						log.debug("Selected charge delay is null");
+						return;
+					}
+					//// Plugged (or None)
+					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.Plugged")) ||
+							sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.PluggedNone"))) {
 						selectedDelay = Motor.PLUGGED_DELAY;
 					} else {
 						try {
@@ -194,8 +207,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 			});
 			panel.add(delayBox, "growx,wrap");
-			//// (Number of seconds or \"None\")
-			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.NumberofsecondsorNone"), -3), "skip, wrap");
+			//// (or type in desired delay in seconds)
+			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "skip, wrap");
 			setDelays(false);
 		}
 
@@ -248,6 +261,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					if (selectedRow >= 0) {
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 					}
+					curveSelectionBox.revalidate();
+					curveSelectionBox.repaint();
 				}
 			});
 			designation.addActionListener(new ActionListener() {
@@ -259,6 +274,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					if (selectedRow >= 0) {
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 					}
+					curveSelectionBox.revalidate();
+					curveSelectionBox.repaint();
 				}
 			});
 
@@ -322,11 +339,10 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Number of motors
 		{
-			nrOfMotorsLabel = new JLabel();
+			nrOfMotorsLabel = new StyledLabel(-2f, StyledLabel.Style.ITALIC);
 			nrOfMotorsLabel.setToolTipText(trans.get("TCMotorSelPan.lbl.ttip.nrOfMotors"));
 			updateNrOfMotors();
-			nrOfMotorsLabel.setForeground(Color.darkGray);
-			nrOfMotorsLabel.setFont(new Font(Font.SANS_SERIF, Font.ITALIC, 11));
+			nrOfMotorsLabel.setForeground(dimTextColor);
 			panel.add(nrOfMotorsLabel, "gapleft para, spanx, wrap");
 			sorter.addRowSorterListener(new RowSorterListener() {
 				@Override
@@ -388,6 +404,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		hideUnavailableBox.getActionListeners()[0].actionPerformed(null);
 		hideSimilarBox.getActionListeners()[0].actionPerformed(null);
 
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ThrustCurveMotorSelectionPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 
 	public void setMotorMountAndConfig( final FlightConfigurationId _fcid,  MotorMount mountToEdit ) {
@@ -503,10 +528,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionModel.removeAllElements();
 			curveSelectionBox.setEnabled(false);
 			curveSelectionLabel.setEnabled(false);
+			ejectionChargeDelayLabel.setEnabled(false);
+			delayBox.setEnabled(false);
 			motorInformationPanel.clearData();
 			table.clearSelection();
 			return;
 		}
+
+		ejectionChargeDelayLabel.setEnabled(true);
+		delayBox.setEnabled(true);
 
 		// Check which thrust curves to display
 		List<ThrustCurveMotor> motors = getFilteredCurves();
@@ -558,7 +588,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private void updateNrOfMotors() {
 		if (table != null && nrOfMotorsLabel != null) {
 			int rowCount = table.getRowCount();
-			String motorCount = "None";
+			String motorCount = trans.get("TCMotorSelPan.lbl.nrOfMotors.None");
 			if (rowCount > 0) {
 				motorCount = String.valueOf(rowCount);
 			}
@@ -570,7 +600,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private void scrollSelectionVisible() {
 		if (selectedMotorSet != null) {
 			int index = table.convertRowIndexToView(model.getIndex(selectedMotorSet));
-			//System.out.println("index=" + index);
 			table.getSelectionModel().setSelectionInterval(index, index);
 			Rectangle rect = table.getCellRect(index, 0, true);
 			rect = new Rectangle(rect.x, rect.y - 100, rect.width, rect.height + 200);
@@ -580,7 +609,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 
 	public static Color getColor(int index) {
-		return (Color) CURVE_COLORS[index % CURVE_COLORS.length];
+		Color color = Util.getPlotColor(index);
+		if (UITheme.isLightTheme(GUIUtil.getUITheme())) {
+			return color;
+		} else {
+			return color.brighter().brighter();
+		}
 	}
 
 
@@ -659,47 +693,45 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 */
 	private void setDelays(boolean reset) {
 		if (selectedMotor == null) {
-
-			//// None
-			delayBox.setModel(new DefaultComboBoxModel<String>(new String[] { trans.get("TCMotorSelPan.delayBox.None") }));
-			delayBox.setSelectedIndex(0);
-
+			//// Display nothing
+			delayBox.setModel(new DefaultComboBoxModel<>(new String[] {}));
 		} else {
-
 			List<Double> delays = selectedMotorSet.getDelays();
-			String[] delayStrings = new String[delays.size()];
+			boolean containsPlugged = delays.contains(Motor.PLUGGED_DELAY);
+			int size = delays.size() + (containsPlugged ? 0 : 1);
+			String[] delayStrings = new String[size];
 			double currentDelay = selectedDelay; // Store current setting locally
 
 			for (int i = 0; i < delays.size(); i++) {
-				//// None
-				delayStrings[i] = ThrustCurveMotor.getDelayString(delays.get(i), trans.get("TCMotorSelPan.delayBox.None"));
+				//// Plugged
+				delayStrings[i] = ThrustCurveMotor.getDelayString(delays.get(i), trans.get("TCMotorSelPan.delayBox.Plugged"));
+			}
+			// We always want the plugged option in the combobox, even if the motor doesn't have it
+			if (!containsPlugged) {
+				delayStrings[delayStrings.length - 1] = trans.get("TCMotorSelPan.delayBox.Plugged");
 			}
 			delayBox.setModel(new DefaultComboBoxModel<String>(delayStrings));
 
 			if (reset) {
-
 				// Find and set the closest value
 				double closest = Double.NaN;
-				for (int i = 0; i < delays.size(); i++) {
+				for (Double delay : delays) {
 					// if-condition to always become true for NaN
-					if (!(Math.abs(delays.get(i) - currentDelay) > Math.abs(closest - currentDelay))) {
-						closest = delays.get(i);
+					if (!(Math.abs(delay - currentDelay) > Math.abs(closest - currentDelay))) {
+						closest = delay;
 					}
 				}
 				if (!Double.isNaN(closest)) {
 					selectedDelay = closest;
-					//// None
-					delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(closest, trans.get("TCMotorSelPan.delayBox.None")));
+					delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(closest, trans.get("TCMotorSelPan.delayBox.Plugged")));
 				} else {
-					delayBox.setSelectedItem("None");
+					//// Plugged
+					delayBox.setSelectedItem(trans.get("TCMotorSelPan.delayBox.Plugged"));
 				}
 
 			} else {
-
 				selectedDelay = currentDelay;
-				//// None
-				delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(currentDelay, trans.get("TCMotorSelPan.delayBox.None")));
-
+				delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(currentDelay, trans.get("TCMotorSelPan.delayBox.Plugged")));
 			}
 
 		}
@@ -720,16 +752,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		public Component getListCellRendererComponent(JList<? extends MotorHolder> list, MotorHolder value, int index,
 				boolean isSelected, boolean cellHasFocus) {
 
-			Component c = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value instanceof MotorHolder) {
-				MotorHolder m = (MotorHolder) value;
-				c.setForeground(getColor(m.getIndex()));
+			JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (value != null) {
+				Color color = getColor(value.getIndex());
+				if (isSelected || cellHasFocus) {
+					label.setBackground(color);
+					label.setOpaque(true);
+					Color fg = list.getBackground();
+					fg = new Color(fg.getRed(), fg.getGreen(), fg.getBlue());		// List background changes for some reason, so clone the color
+					label.setForeground(fg);
+				} else {
+					label.setBackground(list.getBackground());
+					label.setForeground(color);
+				}
 			}
 
-			return c;
+			return label;
 		}
-
 	}
-
-
 }

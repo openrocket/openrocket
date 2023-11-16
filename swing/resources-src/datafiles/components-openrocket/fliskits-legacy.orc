@@ -3,32 +3,32 @@
   <Version>0.1</Version>
   <Legacy />
     <Materials>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Balsa</Name>
             <Density>128.1477072</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Fiber</Name>
             <Density>656.7569994</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Light Ply</Name>
             <Density>0.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>Paper</Name>
             <Density>90</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Paper</Name>
             <Density>671.1787601020637</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Spiral-Wound Paper/Glassine</Name>
             <Density>1047.6648350683759</Density>
             <Type>BULK</Type>

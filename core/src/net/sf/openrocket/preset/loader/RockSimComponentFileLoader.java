@@ -18,7 +18,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.StringUtil;
+import net.sf.openrocket.util.StringUtils;
 import com.opencsv.CSVReader;
 
 /**
@@ -138,7 +138,7 @@ public abstract class RockSimComponentFileLoader {
 				if (data.length == 0) {
 					continue;
 				}
-				if (data.length == 1 && StringUtil.isEmpty(data[0])) {
+				if (data.length == 1 && StringUtils.isEmpty(data[0])) {
 					continue;
 				}
 				parseData(data);

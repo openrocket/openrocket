@@ -22,19 +22,21 @@ import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
@@ -137,7 +139,7 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
 		
 		StorageOptions options = new StorageOptions();
-		options.setSimulationTimeSkip(0.05);
+		options.setSaveSimulationData(true);
 		
 		// Save rockets, load, validate
 		for (OpenRocketDocument rocketDoc : rocketDocs) {
@@ -151,7 +153,7 @@ public class OpenRocketSaverTest {
 	public void testSaveStageActiveness() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v108_withDisabledStage();
 		StorageOptions options = new StorageOptions();
-		options.setSimulationTimeSkip(0.05);
+		options.setSaveSimulationData(true);
 
 		// Save rockets, load, validate
 		File file = saveRocket(rocketDoc, options);
@@ -258,25 +260,83 @@ public class OpenRocketSaverTest {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v104_withSimulationData();
 		
 		StorageOptions options = new StorageOptions();
-		options.setSimulationTimeSkip(0.05);
+		options.setSaveSimulationData(true);
 		
 		long estimatedSize = saver.estimateFileSize(rocketDoc, options);
 		
 		// TODO: fix estimateFileSize so that it's a lot more accurate
 	}
-	
+
+	/**
+	 * Test sim status with/without sim data in file.
+	 */
+	@Test
+	public void TestSimStatus() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		
+		// Hook up some simulations.
+		// First sim will not have options set
+		Simulation sim1 = new Simulation(rocket);
+		rocketDoc.addSimulation(sim1);
+
+		// Second sim has options, but hasn't been simulated
+		Simulation sim2 = new Simulation(rocket);
+        sim2.getOptions().setISAAtmosphere(true);
+        sim2.getOptions().setTimeStep(0.05);
+        sim2.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		rocketDoc.addSimulation(sim2);
+
+		// Third sim has been executed
+		Simulation sim3 = new Simulation(rocket);
+        sim3.getOptions().setISAAtmosphere(true);
+        sim3.getOptions().setTimeStep(0.05);
+        sim3.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		try {
+			sim3.simulate();
+		} catch (Exception e) {
+			fail(e.toString());
+		}
+		rocketDoc.addSimulation(sim3);
+
+		// Fourth sim has been executed, then configuration changed
+		Simulation sim4 = new Simulation(rocket);
+        sim4.getOptions().setISAAtmosphere(true);
+        sim4.getOptions().setTimeStep(0.05);
+        sim4.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+		try {
+			sim4.simulate();
+		} catch (Exception e) {
+			fail(e.toString());
+		}
+        sim4.getOptions().setTimeStep(0.1);
+		rocketDoc.addSimulation(sim4);
+
+		// save, then load document
+		StorageOptions options = new StorageOptions();
+		options.setSaveSimulationData(true);
+
+		File file = saveRocket(rocketDoc, options);
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		
+		assertEquals(Simulation.Status.CANT_RUN, rocketDocLoaded.getSimulations().get(0).getStatus());
+		assertEquals(Simulation.Status.NOT_SIMULATED, rocketDocLoaded.getSimulations().get(1).getStatus());
+		assertEquals(Simulation.Status.LOADED, rocketDocLoaded.getSimulations().get(2).getStatus());		
+		assertEquals(Simulation.Status.OUTDATED, rocketDocLoaded.getSimulations().get(3).getStatus());
+	}
 	
 	////////////////////////////////
 	// Tests for File Version 1.7 // 
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion108_withSimulationExtension() {
+	public void testFileVersion109_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(108, getCalculatedFileVersion(rocketDoc));
+		assertEquals(109, getCalculatedFileVersion(rocketDoc));
 	}
 	
-	
+
+	////////////////////////////////
 	/*
 	 * Utility Functions
 	 */
@@ -304,7 +364,7 @@ public class OpenRocketSaverTest {
 		try {
 			file = File.createTempFile( TMP_DIR.getName(), ".ork");
 			out = new FileOutputStream(file);
-			this.saver.save(out, rocketDoc, options);
+			this.saver.save(out, rocketDoc, options, new WarningSet(), new ErrorSet());
 		} catch (FileNotFoundException e) {
 			fail("FileNotFound saving temp file in: " + TMP_DIR.getName() + ": " + e.getMessage());
 		} catch (IOException e) {
@@ -339,7 +399,7 @@ public class OpenRocketSaverTest {
 		throw new RuntimeException("Could not load motor");
 	}
 	
-	private static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
+	public static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
 		
 		final ComponentPresetDao db = new ComponentPresetDatabase();
 		
@@ -348,8 +408,8 @@ public class OpenRocketSaverTest {
 			return db;
 		}
 	}
-	
-	private static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
+
+	public static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
 		
 		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
 		

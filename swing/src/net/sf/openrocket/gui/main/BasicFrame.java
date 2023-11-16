@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -43,11 +44,20 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
+import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory;
+import net.sf.openrocket.gui.configdialog.SaveDesignInfoPanel;
+import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -58,6 +68,7 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
@@ -84,9 +95,9 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -235,8 +246,18 @@ public class BasicFrame extends JFrame {
 			popupMenu.add(actions.getPasteAction());
 			popupMenu.add(actions.getDuplicateAction());
 			popupMenu.add(actions.getDeleteAction());
+
+			popupMenu.addSeparator();
+			JMenu selectMenu = new JMenu(trans.get("RocketActions.Select"));
+			selectMenu.add(actions.getSelectSameColorAction());
+			selectMenu.add(actions.getDeselectAllAction());
+			popupMenu.add(selectMenu);
+
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
+
+			popupMenu.addSeparator();
+			popupMenu.add(actions.getExportOBJAction());
 		}
 
 		createMenu();
@@ -344,63 +365,23 @@ public class BasicFrame extends JFrame {
 	 */
 	private void createMenu() {
 		JMenuBar menubar = new JMenuBar();
-		JMenu menu;
+		JMenu fileMenu;
 		JMenuItem item;
 
-		////  File
-		menu = new JMenu(trans.get("main.menu.file"));
-		menu.setMnemonic(KeyEvent.VK_F);
-		//// File-handling related tasks
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
-		menubar.add(menu);
+		//  File
+		fileMenu = new JMenu(trans.get("main.menu.file"));
+		fileMenu.setMnemonic(KeyEvent.VK_F);
+		fileMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
+		menubar.add(fileMenu);
 
-		//// New
-		item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY));
-		item.setMnemonic(KeyEvent.VK_N);
-		//// Create a new rocket design
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
-		item.setIcon(Icons.FILE_NEW);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "New... selected");
-				newAction();
-				closeIfReplaceable();
-			}
-		});
-		menu.add(item);
+		//// 	New etc.
+		addFileCreateAndOpenMenuItems(fileMenu, this);
 
-		//// Open...
-		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
-		//// Open a rocket design
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.open.desc"));
-		item.setIcon(Icons.FILE_OPEN);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Open... selected");
-				openAction();
-			}
-		});
-		menu.add(item);
+		// ------------------------------------------------------------------------------------------
 
-		//// Open Recent...
-		item = new MRUDesignFileAction(trans.get("main.menu.file.openRecent"), this);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.openRecent.desc"));
-		item.setIcon(Icons.FILE_OPEN);
-		menu.add(item);
+		fileMenu.addSeparator();
 
-		//// Open example...
-		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), this);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.openExample.desc"));
-		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
-		menu.add(item);
-
-		menu.addSeparator();
-
-		//// Save
+		//// 	Save
 		item = new JMenuItem(trans.get("main.menu.file.save"), KeyEvent.VK_S);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
 		//// Save the current rocket design
@@ -413,9 +394,9 @@ public class BasicFrame extends JFrame {
 				saveAction();
 			}
 		});
-		menu.add(item);
+		fileMenu.add(item);
 
-		//// Save as...
+		//// 	Save as...
 		item = new JMenuItem(trans.get("main.menu.file.saveAs"), KeyEvent.VK_A);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
 				SHORTCUT_KEY | ActionEvent.SHIFT_MASK));
@@ -429,51 +410,59 @@ public class BasicFrame extends JFrame {
 				saveAsAction();
 			}
 		});
-		menu.add(item);
+		fileMenu.add(item);
 
-		////	BEGIN CREATE and implement File > "Export as" menu and submenu
 
-		//	//	INITIALIZE "Export as" submenu with options list
-		JMenu exportSubMenu = new JMenu();
-		JMenuItem exportMenu = new JMenuItem(),
-				RASAero= new JMenuItem("RASAero (Unavailable)"),
-				RockSim = new JMenuItem("RockSim"),
-				Print3D = new JMenuItem("Exterior airframe");
+		//// 	Export as
+		JMenu exportSubMenu = new JMenu(trans.get("main.menu.file.exportAs"));
+		exportSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.desc"));
+		exportSubMenu.setIcon(Icons.FILE_EXPORT);
 
-		//	//	CREATE File > "Export as" menu line with icon, and "Export as" submenu
-		exportSubMenu = new JMenu(trans.get("main.menu.file.export_as"));
-		exportSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.export_as.desc"));
-		exportSubMenu.setIcon(Icons.FILE_EXPORT_AS);
-
-/*		//	//	PENDING Future development
-		//	//	ADD RASAero to "Export as" exportSubMenu options
-		exportSubMenu.add(RASAero);
-		RASAero.setForeground(Color.lightGray);
-
-		//	//	PENDING Future development
-		//	//	CREATE RASAero listener
-		RASAero.addActionListener(new ActionListener() {
+		////// 		Export RASAero
+		JMenuItem exportRASAero = new JMenuItem(trans.get("main.menu.file.exportAs.RASAero"));
+		exportRASAero.setIcon(Icons.RASAERO);
+		exportRASAero.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.RASAero.desc"));
+		exportRASAero.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				exportRASAeroAction();}});
-*/
-		//	//	ADD RockSim to "Export as" exportSubMenu options
-		exportSubMenu.add(RockSim);
+				exportRASAeroAction();}
+		});
+		exportSubMenu.add(exportRASAero);
 
-		//	//	CREATE RockSim listener
-		RockSim.addActionListener(new ActionListener() {
+		////// 		Export RockSim
+		JMenuItem exportRockSim = new JMenuItem(trans.get("main.menu.file.exportAs.RockSim"));
+		exportRockSim.setIcon(Icons.ROCKSIM);
+		exportRockSim.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.RockSim.desc"));
+		exportRockSim.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				exportRockSimAction();}});
+				exportRockSimAction();}
+		});
+		exportSubMenu.add(exportRockSim);
 
-		//	//	ADD Export options in exportSubMenu to "Export as" menu
-		menu.add(exportSubMenu);
+		exportSubMenu.addSeparator();
 
-		//	//	END CREATE and implement File > "Export as" menu and submenu
+		////// 		Export Wavefront OBJ
+		JMenuItem exportOBJ = new JMenuItem(trans.get("main.menu.file.exportAs.WavefrontOBJ"));
+		exportOBJ.setIcon(Icons.EXPORT_3D);
+		exportOBJ.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.WavefrontOBJ.desc"));
+		exportOBJ.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportWavefrontOBJAction();}
+		});
+		selectionModel.addDocumentSelectionListener(new DocumentSelectionListener() {
+			@Override
+			public void valueChanged(int changeType) {
+				exportOBJ.setEnabled(getSelectedComponents() != null && !getSelectedComponents().isEmpty());
+			}
+		});
+		exportSubMenu.add(exportOBJ);
 
-		////	BEGIN CREATE na implement File > "Save decal image. . . menu and submenu
+		fileMenu.add(exportSubMenu);
+		fileMenu.addSeparator();
 
-		menu.addSeparator();
+		// ------------------------------------------------------------------------------------------
 
 		////	Save decal image...
 		item = new JMenuItem(trans.get("main.menu.file.exportDecal"));
@@ -486,25 +475,20 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		item.setEnabled(document.getDecalList().size() > 0);
-		final JMenuItem exportMenuItem = item;
-/**
-		document.getRocket().addChangeListener(new StateChangeListener() {
+
+		// TODO
+		/* document.getRocket().addChangeListener(new StateChangeListener() {
 
 		@Override
 		public void stateChanged(EventObject e) {
 			exportMenuItem.setEnabled(document.getDecalList().size() > 0);
 		}
-		});
- */
-		menu.add(item);
+		}); */
+		fileMenu.add(item);
 
-		////	END CREATE na implement File > "Save decal image. . . menu and submenu
-
-		////	BEGIN PRINT Design specifications, including parts list and templates
-
+		//// 	Print design info...
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_KEY));
-		//// Print specifications, including parts list and fin template
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.print.desc"));
 		item.setIcon(Icons.FILE_PRINT);
 		item.addActionListener(new ActionListener() {
@@ -514,58 +498,16 @@ public class BasicFrame extends JFrame {
 				printAction();
 			}
 		});
-		menu.add(item);
+		fileMenu.add(item);
 
-		////	END PRINT Design specifications, including parts list and templates
+		//  export sim table...
+		AbstractAction simTableExportAction = simulationPanel.getExportSimulationTableAsCSVAction();
+		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(simTableExportAction);
+		fileMenu.add(exportSimTableToCSVMenuItem);
 
-/*		////	THE IMPORT ROCKSIM .RKT FEATURE IS FULLY WITHIN THE SCOPE OF THE "OPEN" FEATURE
- 		////	THIS FEATURE IS BEING DEACTIVATED PENDING REMOVAL
+		fileMenu.addSeparator();
 
-		menu.addSeparator();
-
-		////	BEGIN IMPORT RockSim RKT design file
-		JMenuItem importMenu;
-		item = new JMenuItem(trans.get("main.menu.file.import"));
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
-		item.setIcon(Icons.FILE_IMPORT);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Import... selected");
-				importAction();
-			}
-		});
-		menu.add(item);
-		////	END IMPORT RockSim RKT design file
-*/
-
-/* 		////	PENDING Future development
-		////	BEGIN CREATE and implement File > "Encode 3D" menu and submenu
-
-		//	//	INITIALIZE "Encode 3D" submenu with options list
-		JMenu encode3dSubmenu = new JMenu();
-		JMenuItem encodeMenu = new JMenuItem(),
-				External_Airframe = new JMenuItem("External airframe (unavailable)"),
-				Single_Component = new JMenuItem("Component (unavailable)");
-
-		//	//	CREATE File > "Encode 3D" menu line with icon
-		JMenuItem encode3dSubMenu = new JMenu(trans.get("main.menu.file.encode_3d"));
-		encode3dSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.encode_3d.desc"));
-				encode3dSubMenu.setForeground(Color.lightGray);
-				encode3dSubMenu.setIcon(Icons.ENCODE_3D);
-
-		//	//	CREATE "Encode 3D" submenu
-		//	//	ADD Encode 3D option items to submenu
-		encode3dSubMenu.add(External_Airframe);
-				External_Airframe.setForeground(Color.lightGray);
-		encode3dSubMenu.add(Single_Component);
-				Single_Component.setForeground(Color.lightGray);
-
-		//	//	ADD Listeners
-
-		////	END CREATE and implement File > "Encode 3D" menu and submenu
-*/
-		menu.addSeparator();
+		// ------------------------------------------------------------------------------------------
 
 		////	Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
@@ -581,9 +523,9 @@ public class BasicFrame extends JFrame {
 			}
 		});
 
-		menu.add(item);
+		fileMenu.add(item);
 
-		menu.addSeparator();
+		fileMenu.addSeparator();
 
 		////	Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
@@ -598,15 +540,15 @@ public class BasicFrame extends JFrame {
 				quitAction();
 			}
 		});
-		menu.add(item);
+		fileMenu.add(item);
 
 		////	Edit
-		menu = new JMenu(trans.get("main.menu.edit"));
-		menu.setMnemonic(KeyEvent.VK_E);
+		JMenu editMenu = new JMenu(trans.get("main.menu.edit"));
+		editMenu.setMnemonic(KeyEvent.VK_E);
 
 		////	Rocket editing
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.desc"));
-		menubar.add(menu);
+		editMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.desc"));
+		menubar.add(editMenu);
 
 		Action action = UndoRedoAction.newUndoAction(document);
 		item = new JMenuItem(action);
@@ -616,7 +558,7 @@ public class BasicFrame extends JFrame {
 		////	Undo the previous operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
 
-		menu.add(item);
+		editMenu.add(item);
 
 		action = UndoRedoAction.newRedoAction(document);
 		item = new JMenuItem(action);
@@ -625,33 +567,42 @@ public class BasicFrame extends JFrame {
 
 		////	Redo the previously undone operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.redo.desc"));
-		menu.add(item);
+		editMenu.add(item);
 
-		menu.addSeparator();
+		editMenu.addSeparator();
 
 
 		item = new JMenuItem(actions.getEditAction());
-		menu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getCutAction());
-		menu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getCopyAction());
-		menu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getPasteAction());
-		menu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getDuplicateAction());
-		menu.add(item);
+		editMenu.add(item);
 
 		item = new JMenuItem(actions.getDeleteAction());
-		menu.add(item);
+		editMenu.add(item);
 
-		menu.addSeparator();
+		editMenu.addSeparator();
+
+		JMenu selectSubMenu = new JMenu(trans.get("RocketActions.Select"));
+		editMenu.add(selectSubMenu);
+		item = new JMenuItem(actions.getSelectSameColorAction());
+		selectSubMenu.add(item);
+		item = new JMenuItem(actions.getDeselectAllAction());
+		selectSubMenu.add(item);
+
+		editMenu.addSeparator();
 
 		item = new JMenuItem(actions.getScaleAction());
-		menu.add(item);
+		editMenu.add(item);
 
 
 		////	Preferences
@@ -667,10 +618,10 @@ public class BasicFrame extends JFrame {
 				PreferencesDialog.showPreferences(BasicFrame.this);
 			}
 		});
-		menu.add(item);
+		editMenu.add(item);
 
 		////	Edit Component Preset File
-		if (System.getProperty("openrocket.preseteditor.menu") != null) {
+		if (System.getProperty("openrocket.preseteditor.fileMenu") != null) {
 			item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
 			item.addActionListener(new ActionListener() {
 				@Override
@@ -682,13 +633,13 @@ public class BasicFrame extends JFrame {
 					dialog.setVisible(true);
 				}
 			});
-			menu.add(item);
+			editMenu.add(item);
 		}
 
 
 		//	Tools
-		menu = new JMenu(trans.get("main.menu.tools"));
-		menubar.add(menu);
+		JMenu toolsMenu = new JMenu(trans.get("main.menu.tools"));
+		menubar.add(toolsMenu);
 
 		////	Component analysis
 		item = new JMenuItem(trans.get("main.menu.tools.componentAnalysis"), KeyEvent.VK_C);
@@ -702,7 +653,7 @@ public class BasicFrame extends JFrame {
 				ComponentAnalysisDialog.showDialog(rocketpanel);
 			}
 		});
-		menu.add(item);
+		toolsMenu.add(item);
 
 		////	Optimize
 		item = new JMenuItem(trans.get("main.menu.tools.optimization"), KeyEvent.VK_O);
@@ -718,7 +669,7 @@ public class BasicFrame extends JFrame {
 				}
 			}
 		});
-		menu.add(item);
+		toolsMenu.add(item);
 
 		////	Custom expressions
 		item = new JMenuItem(trans.get("main.menu.tools.customExpressions"), KeyEvent.VK_E);
@@ -730,7 +681,7 @@ public class BasicFrame extends JFrame {
 				new CustomExpressionDialog(document, BasicFrame.this).setVisible(true);
 			}
 		});
-		menu.add(item);
+		toolsMenu.add(item);
 
 		item = new JMenuItem(trans.get("PhotoFrame.title"), KeyEvent.VK_P);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.desc"));
@@ -742,15 +693,24 @@ public class BasicFrame extends JFrame {
 				pa.setVisible(true);
 			}
 		});
-		menu.add(item);
+		toolsMenu.add(item);
 
 		////	Debug
-		//	//	(shown if openrocket.debug.menu is defined)
-		if (System.getProperty("openrocket.debug.menu") != null) {
+		//	//	(shown if openrocket.debug.fileMenu is defined)
+		if (System.getProperty("openrocket.debug.fileMenu") != null) {
 			menubar.add(makeDebugMenu());
 		}
 
 		////	Help
+		generateHelpMenu(menubar, this);
+
+		this.setJMenuBar(menubar);
+	}
+
+	public static void generateHelpMenu(JMenuBar menubar, JFrame parent) {
+		JMenu menu;
+		JMenuItem item;
+
 		menu = new JMenu(trans.get("main.menu.help"));
 		menu.setMnemonic(KeyEvent.VK_H);
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
@@ -764,7 +724,20 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Guided tours selected");
-				GuidedTourSelectionDialog.showDialog(BasicFrame.this);
+				GuidedTourSelectionDialog.showDialog(parent);
+			}
+		});
+		menu.add(item);
+
+		////	Wiki (Online Help)
+		item = new JMenuItem(trans.get("main.menu.help.wiki"));
+		item.setIcon(Icons.WIKI);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.wiki.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Wiki selected");
+				URLUtil.openWebpage(URLUtil.WIKI_URL);
 			}
 		});
 		menu.add(item);
@@ -779,7 +752,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Bug report selected");
-				BugReportDialog.showBugReportDialog(BasicFrame.this);
+				BugReportDialog.showBugReportDialog(parent);
 			}
 		});
 		menu.add(item);
@@ -793,7 +766,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Debug log selected");
-				new DebugLogDialog(BasicFrame.this).setVisible(true);
+				new DebugLogDialog(parent).setVisible(true);
 			}
 		});
 		menu.add(item);
@@ -808,7 +781,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "License selected");
-				new LicenseDialog(BasicFrame.this).setVisible(true);
+				new LicenseDialog(parent).setVisible(true);
 			}
 		});
 		menu.add(item);
@@ -821,12 +794,89 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "About selected");
-				new AboutDialog(BasicFrame.this).setVisible(true);
+				new AboutDialog(parent).setVisible(true);
 			}
 		});
 		menu.add(item);
+	}
 
-		this.setJMenuBar(menubar);
+	public static void addFileCreateAndOpenMenuItems(JMenu fileMenu, Window parent) {
+		JMenuItem item;
+
+		//// New
+		item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY));
+		item.setMnemonic(KeyEvent.VK_N);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
+		item.setIcon(Icons.FILE_NEW);
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "New... selected");
+				newAction();
+				if (parent instanceof BasicFrame) {
+					((BasicFrame) parent).closeIfReplaceable();
+				}
+			}
+		});
+		fileMenu.add(item);
+
+		//// 	Open...
+		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.open.desc"));
+		item.setIcon(Icons.FILE_OPEN);
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Open... selected");
+				openAction(parent);
+			}
+		});
+		fileMenu.add(item);
+
+		//// 	Open Recent
+		item = new MRUDesignFileAction(trans.get("main.menu.file.openRecent"), parent);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.openRecent.desc"));
+		item.setIcon(Icons.FILE_OPEN);
+		fileMenu.add(item);
+
+		//// 	Open example
+		BasicFrame basicFrame = parent instanceof BasicFrame ? (BasicFrame) parent : null;
+		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), basicFrame);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.openExample.desc"));
+		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
+		fileMenu.add(item);
+
+		//// 	Import
+		JMenu importSubMenu = new JMenu(trans.get("main.menu.file.import"));
+		importSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.desc"));
+		importSubMenu.setIcon(Icons.FILE_IMPORT);
+		fileMenu.add(importSubMenu);
+
+		////// 		Import RASAero
+		JMenuItem importRASAero = new JMenuItem(trans.get("main.menu.file.import.RASAero"));
+		importRASAero.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.RASAero.desc"));
+		importRASAero.setIcon(Icons.RASAERO);
+		importRASAero.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				importRASAeroAction(parent);
+			}
+		});
+		importSubMenu.add(importRASAero);
+
+		////// 		Import RockSim
+		JMenuItem importRockSim = new JMenuItem(trans.get("main.menu.file.import.RockSim"));
+		importRockSim.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.import.RockSim.desc"));
+		importRockSim.setIcon(Icons.ROCKSIM);
+		importRockSim.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				importRockSimAction(parent);
+			}
+		});
+		importSubMenu.add(importRockSim);
 	}
 
 	public RocketActions getRocketActions() {
@@ -1109,16 +1159,17 @@ public class BasicFrame extends JFrame {
 	}
 
 
-	private void openAction() {
-		openAction(this);
-	}
-
-	public static void openAction(Window parent) {
+	/**
+	 * Open a custom design file, specified by the file filter.
+	 * @param parent parent window to open the file chooser on
+	 * @param filter the file filter to use, or null for no filter. E.g. use "RockSim" for RockSim files.
+	 */
+	public static void openAction(Window parent, FileFilter filter) {
 		JFileChooser chooser = new JFileChooser();
 
 		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-		chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-		chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+		chooser.addChoosableFileFilter(filter);
+		chooser.setFileFilter(filter);
 
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
@@ -1143,38 +1194,34 @@ public class BasicFrame extends JFrame {
 		}
 	}
 
-	public void importAction() {
-		JFileChooser chooser = new JFileChooser();
-
-		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-		chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-		chooser.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setMultiSelectionEnabled(true);
-		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		int option = chooser.showOpenDialog(this);
-		if (option != JFileChooser.APPROVE_OPTION) {
-			log.info(Markers.USER_MARKER, "Decided not to open files, option=" + option);
-			return;
-		}
-
-		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
-
-		File[] files = chooser.getSelectedFiles();
-		log.info(Markers.USER_MARKER, "Opening files " + Arrays.toString(files));
-
-		for (File file : files) {
-			log.info("Opening file: " + file);
-			if (open(file, this) != null) {
-				MRUDesignFile opts = MRUDesignFile.getInstance();
-				opts.addFile(file.getAbsolutePath());
-			}
-		}
+	/**
+	 * Open an OpenRocket file.
+	 */
+	public static void openAction(Window parent) {
+		openAction(parent, FileHelper.OPENROCKET_DESIGN_FILTER);
 	}
 
 
-	void closeIfReplaceable() {
+	/**
+	 * Import a RockSim file.
+	 * @param parent parent window to open the file chooser on
+	 */
+	public static void importRockSimAction(Window parent) {
+		log.info(Markers.USER_MARKER, "Import RockSim selected");
+		openAction(parent, FileHelper.ROCKSIM_DESIGN_FILTER);
+	}
+
+	/**
+	 * Import a RASAero file.
+	 * @param parent parent window to open the file chooser on
+	 */
+	public static void importRASAeroAction(Window parent) {
+		log.info(Markers.USER_MARKER, "Import RASAero selected");
+		openAction(parent, FileHelper.RASAERO_DESIGN_FILTER);
+	}
+
+
+	private void closeIfReplaceable() {
 		// Close previous window if replacing
 		if (replaceable && document.isSaved()) {
 			// We are replacing the frame, make new window have current location
@@ -1240,7 +1287,11 @@ public class BasicFrame extends JFrame {
 	 */
 	public static BasicFrame open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file);
-		return open(worker, file.getName(), parent, false);
+		BasicFrame frame = open(worker, file.getName(), parent, false);
+		if (frame != null) {
+			MRUDesignFile.getInstance().addFile(file.getAbsolutePath());
+		}
+		return frame;
 	}
 
 
@@ -1265,34 +1316,24 @@ public class BasicFrame extends JFrame {
 		////	Handle the document
 		OpenRocketDocument doc = null;
 		try {
-
 			doc = worker.get();
-
 		} catch (ExecutionException e) {
-
 			Throwable cause = e.getCause();
-
 			if (cause instanceof FileNotFoundException) {
-
 				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
 						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return null;
-
 			} else if (cause instanceof RocketLoadException) {
-
 				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
 						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 								"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return null;
-
 			} else {
-
 				throw new BugException("Unknown error when opening file", e);
-
 			}
 
 		} catch (InterruptedException e) {
@@ -1302,7 +1343,6 @@ public class BasicFrame extends JFrame {
 		if (doc == null) {
 			throw new BugException("Document loader returned null");
 		}
-
 
 		////	Show warnings
 		WarningSet warnings = worker.getRocketLoader().getWarnings();
@@ -1338,14 +1378,16 @@ public class BasicFrame extends JFrame {
 	/**
 	 * "Save" action.  If the design is new, then this is identical to "Save As", with a default file filter for .ork.
 	 * If the rocket being edited previously was opened from a .ork file, then it will be saved immediately to the same
-	 * file.  But clicking on 'Save' for an existing design file with a .rkt will bring up a confirmation dialog because
-	 * it's potentially a destructive write (loss of some fidelity if it's truly an original RockSim generated file).
+	 * file.  But clicking on 'Save' for an existing design file with a RockSim or RASAero file will bring up a confirmation
+	 * dialog because it's potentially a destructive write (loss of some fidelity if it's truly an original RockSim/RASAero
+	 * generated file).
 	 *
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAction() {
 		File file = document.getFile();
-		if (file == null || document.getDefaultStorageOptions().getFileType().equals(FileType.ROCKSIM)) {
+		if (file == null || document.getDefaultStorageOptions().getFileType().equals(FileType.ROCKSIM)
+				|| document.getDefaultStorageOptions().getFileType().equals(FileType.RASAERO)) {
 			log.info("Document does not contain file, opening save as dialog instead");
 			return saveAsAction();
 		}
@@ -1353,62 +1395,189 @@ public class BasicFrame extends JFrame {
 		return saveAsOpenRocket(file);
 	}
 
+	/**
+	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
+	 * @param fileType file type to use (e.g. RASAero)
+	 * @param selectedComponents list of selected components in the design
+	 * @return the file selected from the dialog, or null if no file was selected.
+	 */
+	private File openFileSaveAsDialog(FileType fileType, List<RocketComponent> selectedComponents) {
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType, selectedComponents);
+		OBJOptionChooser objChooser = null;
+		if (chooser.getAccessory() instanceof OBJOptionChooser) {
+			objChooser = (OBJOptionChooser) chooser.getAccessory();
+		}
+		int option = chooser.showSaveDialog(BasicFrame.this);
 
-	////	BEGIN RASAERO Export Action							*** UNDER CONSTRUCTION -- CURRENTLY FOR TESTING ONLY ***
+		if (option != JFileChooser.APPROVE_OPTION) {
+			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
+			return null;
+		}
+
+		// Store the OBJ options
+		if (objChooser != null) {
+			objChooser.storeOptions(document.getDefaultOBJOptions(), true);
+
+			// We need to separately store the preference options, because the export children option can be
+			// automatically selected based on whether only component assemblies are selected. We don't want to
+			// store that state in the preferences.
+			OBJExportOptions prefOptions = new OBJExportOptions(rocket);
+			objChooser.storeOptions(prefOptions, false);
+			prefs.saveOBJExportOptions(prefOptions);
+		}
+
+		File file = chooser.getSelectedFile();
+		if (file == null) {
+			log.info(Markers.USER_MARKER, "User did not select a file");
+			return null;
+		}
+
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+
+		return file;
+	}
+
+	/**
+	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
+	 * @param fileType file type to use (e.g. RASAero)
+	 * @return the file selected from the dialog, or null if no file was selected.
+	 */
+	private File openFileSaveAsDialog(FileType fileType) {
+		return openFileSaveAsDialog(fileType, null);
+	}
+
+
+	////	BEGIN RASAero Save/Export Action
 	 /**
 	 * MODEL "Export as" RASAero file format
 	 *
 	 *	@return true if the file was saved, false otherwise
 	 */
 
-	 /*
+
 	public boolean exportRASAeroAction() {
-		Object exportRASAeroAction = ExportFileTranslator_RASAero.exportRASAeroAction;
+		File file = openFileSaveAsDialog(FileType.RASAERO);
+		if (file == null) {
+			return false;
+		}
+
+		file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
+		if (FileHelper.confirmWrite(file, BasicFrame.this)) {
+			boolean result = saveAsRASAero(file);
+			if (!result) {
+				file.delete();
+			}
+			return result;
+		}
 		return false;
 	}
-	*/
-	////	END RASAERO Export Action
 
-	public void actionPerformed(ActionEvent e) {
-		log.info(Markers.USER_MARKER, "Import... selected");
-		importAction();
+	/**
+	 * Perform the writing of the design to the given file in RASAero format.
+	 * @param file  the chosen file
+	 * @return true if the file was written
+	 */
+	private boolean saveAsRASAero(File file) {
+		if (prefs.getShowRASAeroFormatWarning())  {
+			// Show RASAero format warning
+			JPanel panel = new JPanel(new MigLayout());
+			panel.add(new StyledLabel(trans.get("SaveRASAeroWarningDialog.txt1")), "wrap");
+			final JCheckBox check = new JCheckBox(trans.get("SaveRASAeroWarningDialog.donotshow"));
+			check.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					prefs.setShowRASAeroFormatWarning(!check.isSelected());
+				}
+			});
+			panel.add(check);
+			int sel = JOptionPane.showOptionDialog(BasicFrame.this,
+					panel,
+					"", // title
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE,
+					null, // icon
+					null, // options
+					null // default option
+			);
+			if (sel == 1) {
+				return false;
+			}
+		}
+
+		StorageOptions options = new StorageOptions();
+		options.setFileType(FileType.RASAERO);
+		return saveRASAeroFile(file, options);
 	}
 
+	/**
+	 * Perform the actual saving of the RASAero file
+	 * @param file file to be stored
+	 * @param options storage options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveRASAeroFile(File file, StorageOptions options) {
+		try {
+			ROCKET_SAVER.save(file, document, options);
 
-	////	BEGIN ROCKSIM Export Action
+			WarningSet warnings = ROCKET_SAVER.getWarnings();
+			ErrorSet errors = ROCKET_SAVER.getErrors();
+
+			if (!warnings.isEmpty() && errors.isEmpty()) {
+				WarningDialog.showWarnings(BasicFrame.this,
+						new Object[]{
+								//	//	The following problems were encountered while saving
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								//	//	Some design features may not have been exported correctly.
+								trans.get("BasicFrame.WarningDialog.saving.txt2")
+						},
+						////	Warnings while saving file
+						trans.get("BasicFrame.WarningDialog.saving.title"),
+						warnings);
+			} else if (!errors.isEmpty()) {
+				ErrorWarningDialog.showErrorsAndWarnings(BasicFrame.this,
+						new Object[]{
+								//	//	The following problems were encountered while saving
+								trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+								//	//	Please correct the errors.
+								trans.get("BasicFrame.ErrorWarningDialog.txt1")
+						},
+						//	//	Errors/Warnings while saving file
+						trans.get("BasicFrame.ErrorWarningDialog.saving.title"), errors, warnings);
+			}
+			// Do not update the save state of the document.
+			return errors.isEmpty();
+		} catch (IOException e) {
+			return false;
+		} catch (DecalNotFoundException decex) {
+			DecalImage decal = decex.getDecal();
+			// Check if the user replaced the source file, if not, just ignore the faulty decal on the next save
+			if (!DecalNotFoundDialog.showDialog(null, decex) && decal != null) {
+				decal.setIgnored(true);
+			}
+			return saveRASAeroFile(file, options);	// Re-save
+		}
+	}
+	////	END RASAero Save/Export Action
+
+
+	////	BEGIN ROCKSIM Save/Export Action
 	/**
 	* MODEL "Export as" RASAero file format
 	*
 	* @return true if the file was saved, false otherwise
 	*/
 	public boolean exportRockSimAction() {
-		File file;
-
-		final SaveAsFileChooser chooser = SaveAsFileChooser.build(document, FileType.ROCKSIM);
-
-		int option = chooser.showSaveDialog(BasicFrame.this);
-
-		if (option != JFileChooser.APPROVE_OPTION) {
-			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
-			return false;
-		}
-
-		file = chooser.getSelectedFile();
+		File file = openFileSaveAsDialog(FileType.ROCKSIM);
 		if (file == null) {
-			log.info(Markers.USER_MARKER, "User did not select a file");
 			return false;
 		}
-
-		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
 		file = FileHelper.forceExtension(file, "rkt");
-		if (FileHelper.confirmWrite(file, this) ) {
+		if (FileHelper.confirmWrite(file, BasicFrame.this) ) {
 			return saveAsRockSim(file);
 		}
 		return false;
 	}
-	//	END ROCKSIM Export Action
-
 
 	/**
 	 * Perform the writing of the design to the given file in RockSim format.
@@ -1430,7 +1599,7 @@ public class BasicFrame extends JFrame {
 				}
 			});
 			panel.add(check);
-			int sel = JOptionPane.showOptionDialog(null,
+			int sel = JOptionPane.showOptionDialog(BasicFrame.this,
 					panel,
 					"", // title
 					JOptionPane.OK_CANCEL_OPTION,
@@ -1473,6 +1642,60 @@ public class BasicFrame extends JFrame {
 		}
 	}
 
+	////	END ROCKSIM Save/Export Action
+
+
+	////	BEGIN WAVEFRONT OBJ Save/Export Action
+	/**
+	 * MODEL "Export as" Wavefront OBJ file format
+	 *
+	 * @return true if the file was saved, false otherwise
+	 */
+	public boolean exportWavefrontOBJAction() {
+		File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
+		if (file == null) {
+			return false;
+		}
+
+		file = FileHelper.forceExtension(file, "obj");
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
+		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
+			return saveAsWavefrontOBJ(file);
+		}
+		return false;
+	}
+
+	private boolean saveAsWavefrontOBJ(File file) {
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		return saveWavefrontOBJFile(file, options);
+	}
+
+	/**
+	 * Perform the actual saving of the Wavefront OBJ file
+	 * @param file file to be stored
+	 * @param options OBJ export options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveWavefrontOBJFile(File file, OBJExportOptions options) {
+		WarningSet warnings = new WarningSet();
+		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
+				file, options, warnings);
+		exporter.doExport();
+
+		// Show warning dialog
+		if (!warnings.isEmpty()) {
+			WarningDialog.showWarnings(this,
+					////	The following problems were encountered while saving
+					trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+					////	Warnings while saving file
+					trans.get("BasicFrame.WarningDialog.saving.title"),
+					warnings);
+		}
+
+		return true;
+	}
+
 
 	/**
 	 * "Save As" action.
@@ -1480,33 +1703,40 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAsAction() {
-		File file = null;
+		// Open dialog for saving rocket info
+		showSaveRocketInfoDialog();
 
-		final SaveAsFileChooser chooser = SaveAsFileChooser.build(document, FileType.OPENROCKET);
-
-		int option = chooser.showSaveDialog(BasicFrame.this);
-
-		if (option != JFileChooser.APPROVE_OPTION) {
-			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
-			return false;
-		}
-
-		file = chooser.getSelectedFile();
+		File file = openFileSaveAsDialog(FileType.OPENROCKET);
 		if (file == null) {
-			log.info(Markers.USER_MARKER, "User did not select a file");
 			return false;
 		}
-
-		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
-		chooser.storeOptions(document.getDefaultStorageOptions());
 
 		file = FileHelper.forceExtension(file, "ork");
-		boolean result = FileHelper.confirmWrite(file, this) && saveAsOpenRocket(file);
+		boolean result = FileHelper.confirmWrite(file, BasicFrame.this) && saveAsOpenRocket(file);
 		if (result) {
 			MRUDesignFile opts = MRUDesignFile.getInstance();
 			opts.addFile(file.getAbsolutePath());
 		}
 		return result;
+	}
+
+	private void showSaveRocketInfoDialog() {
+		if (!prefs.isShowSaveRocketInfo()) {
+			return;
+		}
+
+		// Select the rocket in the component tree to indicate to users that they can edit the rocket info by editing the rocket
+		setSelectedComponent(rocket);
+
+		// Open the save rocket info
+		JDialog dialog = new JDialog();
+		SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
+		dialog.setContentPane(panel);
+		dialog.pack();
+		dialog.setTitle(trans.get("BasicFrame.lbl.SaveRocketInfo"));
+		dialog.setModal(true);
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true);
 	}
 
 
@@ -1521,7 +1751,7 @@ public class BasicFrame extends JFrame {
 		file = FileHelper.forceExtension(file, "ork");
 		log.info("Saving document as " + file);
 
-		if (!StorageOptionChooser.verifyStorageOptions(document, this)) {
+		if (!StorageOptionChooser.verifyStorageOptions(document, BasicFrame.this)) {
 			// User cancelled the dialog
 			log.info(Markers.USER_MARKER, "User cancelled saving in storage options dialog");
 			return false;
@@ -1530,7 +1760,7 @@ public class BasicFrame extends JFrame {
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
 		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
 
-		if (!SwingWorkerDialog.runWorker(this, "Saving file",
+		if (!SwingWorkerDialog.runWorker(BasicFrame.this, "Saving file",
 				"Writing " + file.getName() + "...", worker)) {
 
 			// User cancelled the save
@@ -1551,7 +1781,7 @@ public class BasicFrame extends JFrame {
 
 			if (cause instanceof IOException) {
 				log.warn("An I/O error occurred while saving " + file, cause);
-				JOptionPane.showMessageDialog(this, new String[] {
+				JOptionPane.showMessageDialog(BasicFrame.this, new String[] {
 						"An I/O error occurred while saving:",
 						e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
 				return false;
@@ -1581,7 +1811,7 @@ public class BasicFrame extends JFrame {
 		if (!document.isSaved()) {
 			log.info("Confirming whether to save the design");
 			ComponentConfigDialog.disposeDialog();
-			int result = JOptionPane.showConfirmDialog(this,
+			int result = JOptionPane.showConfirmDialog(BasicFrame.this,
 					trans.get("BasicFrame.dlg.lbl1") + rocket.getName() +
 					trans.get("BasicFrame.dlg.lbl2") + "  " +
 					trans.get("BasicFrame.dlg.lbl3"),
@@ -1606,12 +1836,12 @@ public class BasicFrame extends JFrame {
 
 		// Rocket has been saved or discarded
 		log.debug("Disposing window");
-		this.dispose();
+		BasicFrame.this.dispose();
 
 		ComponentConfigDialog.disposeDialog();
 		ComponentAnalysisDialog.hideDialog();
 
-		frames.remove(this);
+		frames.remove(BasicFrame.this);
 		if (frames.isEmpty()) {
 			// Don't quit the application on macOS, but keep the application open
 			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
@@ -1625,13 +1855,13 @@ public class BasicFrame extends JFrame {
 	}
 
 	public void exportDecalAction() {
-		new ExportDecalDialog(this, document).setVisible(true);
+		new ExportDecalDialog(BasicFrame.this, document).setVisible(true);
 	}
 
 
 	public void printAction() {
 		double rotation = rocketpanel.getFigure().getRotation();
-		new PrintDialog(this, document, rotation).setVisible(true);
+		new PrintDialog(BasicFrame.this, document, rotation).setVisible(true);
 	}
 
 	/**

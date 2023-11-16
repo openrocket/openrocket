@@ -2,12 +2,14 @@ package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
@@ -38,7 +40,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			String typeName = split[i];
 			FlightDataType matching = findFlightDataType(typeName);
 			types[i] = matching;
-			//types[i] = FlightDataType.getType(typeName, matching.getSymbol(), matching.getUnitGroup());
+			//types[i] = FlightDataType.getShapeType(typeName, matching.getSymbol(), matching.getUnitGroup());
 		}
 		
 		// TODO: LOW: May throw an IllegalArgumentException
@@ -126,6 +128,8 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		if (element.equals("event")) {
 			double time;
 			FlightEvent.Type type;
+			String sourceID;
+			RocketComponent source = null;
 			
 			try {
 				time = DocumentConfig.stringToDouble(attributes.get("time"));
@@ -139,8 +143,15 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				warnings.add("Illegal event specification, ignoring.");
 				return;
 			}
+
+			// Get the event source
+			Rocket rocket = context.getOpenRocketDocument().getRocket();
+			sourceID = attributes.get("source");
+			if (sourceID != null) {
+				source = rocket.findComponent(sourceID);
+			}
 			
-			branch.addEvent(new FlightEvent(type, time));
+			branch.addEvent(new FlightEvent(type, time, source));
 			return;
 		}
 		

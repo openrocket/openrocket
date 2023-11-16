@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -24,6 +25,8 @@ import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -56,6 +59,7 @@ public class ScaleScrollPane extends JScrollPane
 	private final AbstractScaleFigure figure;
 	
 	private DoubleModel rulerUnit;
+	private UnitSelector unitSelector;
 	private Ruler horizontalRuler;
 	private Ruler verticalRuler;
 
@@ -69,6 +73,12 @@ public class ScaleScrollPane extends JScrollPane
 
 	private Point2D.Double viewCenter_frac = new Point2D.Double(0.5f, 0.5f);
 
+	private static Color textColor;
+
+	static {
+		initColors();
+	}
+
 	/**
 	 * Create a scale scroll pane.
 	 * 
@@ -80,10 +90,10 @@ public class ScaleScrollPane extends JScrollPane
 		if (!(component instanceof AbstractScaleFigure)) {
 			throw new IllegalArgumentException("component must implement ScaleFigure");
 		}
-		
+
 		this.component = component;
 		this.figure = (AbstractScaleFigure) component;
-		
+
 		rulerUnit = new DoubleModel(0.0, UnitGroup.UNITS_LENGTH);
 		rulerUnit.addChangeListener(new ChangeListener() {
 			@Override
@@ -95,10 +105,10 @@ public class ScaleScrollPane extends JScrollPane
 		verticalRuler = new Ruler(Ruler.VERTICAL);
 		this.setColumnHeaderView(horizontalRuler);
 		this.setRowHeaderView(verticalRuler);
-		
-		UnitSelector selector = new UnitSelector(rulerUnit);
-		selector.setFont(new Font("SansSerif", Font.PLAIN, 8));
-		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, selector);
+
+		unitSelector = new UnitSelector(rulerUnit);
+		unitSelector.setFont(new Font("SansSerif", Font.PLAIN, 8));
+		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, unitSelector);
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
@@ -123,6 +133,15 @@ public class ScaleScrollPane extends JScrollPane
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		viewport.addComponentListener(this);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ScaleScrollPane::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 	
 	public AbstractScaleFigure getFigure() {
@@ -175,6 +194,14 @@ public class ScaleScrollPane extends JScrollPane
 	
 	public Unit getCurrentUnit() {
 		return rulerUnit.getCurrentUnit();
+	}
+
+	/**
+	 * Updates the units of the ruler to the default units of the current unit group.
+	 */
+	public void updateRulerUnit() {
+		rulerUnit.setCurrentUnit(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+		unitSelector.stateChanged(new EventObject(this));
 	}
     	
 	public String toViewportString(){
@@ -388,7 +415,7 @@ public class ScaleScrollPane extends JScrollPane
             }
 			
 			// Set color & hints
-			g2.setColor(Color.BLACK);
+			g2.setColor(textColor);
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 					RenderingHints.VALUE_STROKE_NORMALIZE);
 			g2.setRenderingHint(RenderingHints.KEY_RENDERING,
