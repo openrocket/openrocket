@@ -32,3 +32,28 @@ If you use the `macOS_resources/template_dmg_rw.dmg` file, you can skip to step 
 8. Eject the OpenRocket DMG disk from your desktop (important step)
 9. (optional) Delete `template_dmg_rw.dmg`
 10. You're all done!
+
+# Whitelisting OpenRocket on Windows
+Even when you've code signed the Windows installer, Microsoft Defender Smart Screen can still give warnings that the installer is from an unknown publisher. This warning will go away after a couple of months or after the installer has been downloaded enough times. However, you can also whitelist the installer by submitting it to Microsoft for malware analysis.
+
+You can do so through the following link: https://www.microsoft.com/en-us/wdsi/filesubmission
+
+Select 'Software developer' and use the following settings:
+- Select the Microsoft security product used to scan the file
+  - Microsoft Defender SmartScreen
+- Company name
+  - OpenRocket
+- Do you have a Microsoft support case number?
+  - No
+- Software Assurance ID
+  - Don't fill this stuff in
+- Select the file
+  - Upload the .exe installer
+- Should this file be removed from our database at a certain date?
+  - No
+- What do you believe this file is?
+  - Incorrectly detected as PUA (potentially unwanted application)
+- Detection name
+  - Unknown Publisher Security Warning
+- Additional information
+  - Hello, I am a software developer for the open-source program OpenRocket. We are about to release a new version of our program, and have already code-signed it, but Windows SmartScreen still marks the software as an unrecognized app. I think this has to do with building trust because the program isn't downloaded enough yet. However, for our last release, which was published in February of this year, one of our team members contacted Microsoft Support to ask for an acceleration of the trust program, which was successful; you generously whitelisted us. My question now is: is it possible to do this again for our new release?
