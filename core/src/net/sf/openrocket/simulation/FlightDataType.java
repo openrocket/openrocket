@@ -115,12 +115,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Thrust and drag
 	//// Thrust
 	public static final FlightDataType TYPE_THRUST_FORCE = newType(trans.get("FlightDataType.TYPE_THRUST_FORCE"), "Ft", UnitGroup.UNITS_FORCE, 70);
+	//// Thrust-to-weight ratio
+	public static final FlightDataType TYPE_THRUST_WEIGHT_RATIO = newType(trans.get("FlightDataType.TYPE_THRUST_WEIGHT_RATIO"), "Twr", UnitGroup.UNITS_COEFFICIENT, 71);
 	//// Drag force
-	public static final FlightDataType TYPE_DRAG_FORCE = newType(trans.get("FlightDataType.TYPE_DRAG_FORCE"), "Fd", UnitGroup.UNITS_FORCE, 71);
+	public static final FlightDataType TYPE_DRAG_FORCE = newType(trans.get("FlightDataType.TYPE_DRAG_FORCE"), "Fd", UnitGroup.UNITS_FORCE, 72);
 	//// Drag coefficient
-	public static final FlightDataType TYPE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_DRAG_COEFF"), "Cd", UnitGroup.UNITS_COEFFICIENT, 72);
+	public static final FlightDataType TYPE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_DRAG_COEFF"), "Cd", UnitGroup.UNITS_COEFFICIENT, 73);
 	//// Axial drag coefficient
-	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_AXIAL_DRAG_COEFF"), "Cda", UnitGroup.UNITS_COEFFICIENT, 73);
+	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_AXIAL_DRAG_COEFF"), "Cda", UnitGroup.UNITS_COEFFICIENT, 74);
 	
 	
 	////  Component drag coefficients
@@ -218,6 +220,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		TYPE_MACH_NUMBER,
 		TYPE_REYNOLDS_NUMBER,
 		TYPE_THRUST_FORCE,
+		TYPE_THRUST_WEIGHT_RATIO,
 		TYPE_DRAG_FORCE,
 		TYPE_DRAG_COEFF,
 		TYPE_AXIAL_DRAG_COEFF,
