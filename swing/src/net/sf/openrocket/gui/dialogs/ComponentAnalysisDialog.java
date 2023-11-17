@@ -33,6 +33,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -41,12 +42,14 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.components.EditableSpinner;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ConfigurationComboBox;
 import net.sf.openrocket.gui.components.StageSelector;
@@ -97,6 +100,12 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
 	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
 
+	private static Border border;
+
+	static {
+		initColors();
+	}
+
 
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
 		////Component analysis
@@ -105,7 +114,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		JTable table;
 
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill", "[120lp][70lp][50lp][]"));
 		add(panel);
 
 		rkt = rocketPanel.getDocument().getRocket();
@@ -125,8 +134,10 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		roll = new DoubleModel(rocketPanel, "CPRoll", UnitGroup.UNITS_ROLL);
 
 		//// Wind direction:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")), "width 120lp!");
-		panel.add(new UnitSelector(theta, true), "width 50lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")));
+		EditableSpinner spinner = new EditableSpinner(theta.getSpinnerModel());
+		panel.add(spinner, "growx");
+		panel.add(new UnitSelector(theta));
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
@@ -150,24 +161,27 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
-		warningList.setBorder(GUIUtil.getUITheme().getBorder());
+		warningList.setBorder(border);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
 
 		////Angle of attack:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
-		panel.add(new UnitSelector(aoa, true), "width 50lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")));
+		panel.add(new EditableSpinner(aoa.getSpinnerModel()), "growx");
+		panel.add(new UnitSelector(aoa));
 		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
 
 		//// Mach number:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")), "width 120lp!");
-		panel.add(new UnitSelector(mach, true), "width 50lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")));
+		panel.add(new EditableSpinner(mach.getSpinnerModel()));
+		panel.add(new UnitSelector(mach));
 		panel.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
 
 		//// Roll rate:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")), "width 120lp!");
-		panel.add(new UnitSelector(roll, true), "width 50lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")));
+		panel.add(new EditableSpinner(roll.getSpinnerModel()), "growx");
+		panel.add(new UnitSelector(roll));
 		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap");
 
@@ -499,6 +513,14 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	}
 
 
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ComponentAnalysisDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
+	}
 
 	/**
 	 * Updates the data in the table and fires a table data change event.
@@ -626,12 +648,27 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		private final List<?> data;
 		protected final int decimalPlaces;
 
+		private static Color backgroundColor;
+
+		static {
+			initColors();
+		}
+
 		public CustomCellRenderer(List<?> data, int decimalPlaces) {
 			super();
 			this.decimalPlaces = decimalPlaces;
 			this.data = data;
 			this.normalFont = getFont();
 			this.boldFont = normalFont.deriveFont(Font.BOLD);
+		}
+
+		private static void initColors() {
+			updateColors();
+			UITheme.Theme.addUIThemeChangeListener(CustomCellRenderer::updateColors);
+		}
+
+		private static void updateColors() {
+			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		}
 
 		@Override
@@ -647,7 +684,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			}
 
 			label.setOpaque(true);
-			label.setBackground(GUIUtil.getUITheme().getBackgroundColor());
+			label.setBackground(backgroundColor);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 
 			if ((row < 0) || (row >= data.size()))

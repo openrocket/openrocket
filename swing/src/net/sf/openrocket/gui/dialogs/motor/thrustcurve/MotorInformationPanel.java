@@ -15,7 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.StringUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -42,8 +44,13 @@ class MotorInformationPanel extends JPanel {
 	private static final int ZOOM_ICON_POSITION_NEGATIVE_X = 50;
 	private static final int ZOOM_ICON_POSITION_POSITIVE_Y = 12;
 
-	private static final Color NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
-	private static final Color WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
+	private static Color NO_COMMENT_COLOR;
+	private static Color WITH_COMMENT_COLOR;
+	private static Color textColor;
+	private static Color dimTextColor;
+	private static Color backgroundColor;
+	private static Color gridColor;
+	private static Border border;
 
 	// Motors in set
 	private List<ThrustCurveMotor> selectedMotorSet;
@@ -74,6 +81,10 @@ class MotorInformationPanel extends JPanel {
 	private final ChartPanel chartPanel;
 	private final JLabel zoomIcon;
 
+	static {
+		initColors();
+	}
+
 	public MotorInformationPanel() {
 		super(new MigLayout("fill"));
 		
@@ -95,7 +106,7 @@ class MotorInformationPanel extends JPanel {
 			this.add(totalImpulseLabel, "split");
 
 			classificationLabel = new JLabel();
-			classificationLabel.setEnabled(false); // Gray out
+			classificationLabel.setForeground(dimTextColor);
 			this.add(classificationLabel, "gapleft unrel, wrap");
 
 			//// Avg. thrust:
@@ -159,7 +170,7 @@ class MotorInformationPanel extends JPanel {
 
 
 			comment = new JTextArea(5, 5);
-			comment.setBorder(GUIUtil.getUITheme().getBorder());
+			comment.setBorder(border);
 			GUIUtil.changeFontSize(comment, -2);
 			withCommentFont = comment.getFont();
 			noCommentFont = withCommentFont.deriveFont(Font.ITALIC);
@@ -186,17 +197,17 @@ class MotorInformationPanel extends JPanel {
 			// Add the data and formatting to the plot
 			XYPlot plot = chart.getXYPlot();
 
-			changeLabelFont(plot.getRangeAxis(), -2);
-			changeLabelFont(plot.getDomainAxis(), -2);
+			changeLabelFont(plot.getRangeAxis(), -2, textColor);
+			changeLabelFont(plot.getDomainAxis(), -2, textColor);
 
 			//// Thrust curve:
 			TextTitle title = new TextTitle(trans.get("TCMotorSelPan.title.Thrustcurve"), this.getFont());
-			title.setPaint(GUIUtil.getUITheme().getTextColor());
+			title.setPaint(textColor);
 			chart.setTitle(title);
 			chart.setBackgroundPaint(this.getBackground());
-			plot.setBackgroundPaint(Color.WHITE);
-			plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-			plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+			plot.setBackgroundPaint(backgroundColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
 
 			chartPanel = new ChartPanel(chart,
 					false, // properties
@@ -238,6 +249,21 @@ class MotorInformationPanel extends JPanel {
 
 			this.add(layer, "width 300:300:, height 180:180:, grow, spanx");
 		}
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(MotorInformationPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
+		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
+		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		gridColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
+		border = GUIUtil.getUITheme().getBorder();
 	}
 	
 	public void clearData() {
@@ -352,10 +378,11 @@ class MotorInformationPanel extends JPanel {
 		comment.setCaretPosition(0);
 	}
 
-	void changeLabelFont(ValueAxis axis, float size) {
+	void changeLabelFont(ValueAxis axis, float size, Color color) {
 		Font font = axis.getTickLabelFont();
 		font = font.deriveFont(font.getSize2D() + size);
 		axis.setTickLabelFont(font);
+		axis.setTickLabelPaint(color);
 	}
 
 	/**

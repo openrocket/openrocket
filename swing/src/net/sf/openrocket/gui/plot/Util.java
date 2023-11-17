@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.plot;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +8,18 @@ import java.util.List;
 import net.sf.openrocket.document.Simulation;
 
 public abstract class Util {
+	private static final Color[] PLOT_COLORS = {
+			new Color(0,114,189),
+			new Color(217,83,25),
+			new Color(237,177,32),
+			new Color(126,49,142),
+			new Color(119,172,48),
+			new Color(77,190,238),
+			new Color(162,20,47),
+			new Color(197, 106, 122),
+			new Color(255, 127, 80),
+			new Color(85, 107, 47),
+	};
 
 	public static List<String> generateSeriesLabels( Simulation simulation ) {
 		int size = simulation.getSimulatedData().getBranchCount();
@@ -32,5 +45,9 @@ public abstract class Util {
 			}
 		}
 		return stages;
+	}
+
+	public static Color getPlotColor(int index) {
+		return PLOT_COLORS[index % PLOT_COLORS.length];
 	}
 }

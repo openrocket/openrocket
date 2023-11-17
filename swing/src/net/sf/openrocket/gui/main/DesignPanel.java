@@ -5,6 +5,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -24,6 +25,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -50,6 +52,12 @@ import static net.sf.openrocket.gui.main.BasicFrame.SHORTCUT_KEY;
 public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
     private final Component tree;
+
+    private static Border border;
+
+    static {
+        initColors();
+    }
 
     public DesignPanel(final BasicFrame parent, final OpenRocketDocument document, final ComponentTree tree) {
         super(JSplitPane.HORIZONTAL_SPLIT, true);
@@ -174,7 +182,7 @@ public class DesignPanel extends JSplitPane {
 
         // Place tree inside scroll pane
         JScrollPane scroll = new JScrollPane(tree);
-        tree.setBorder(GUIUtil.getUITheme().getBorder());
+        tree.setBorder(border);
         panel.add(scroll, "spany, wmin 140px, grow, wrap");
 
 
@@ -228,6 +236,15 @@ public class DesignPanel extends JSplitPane {
         panel.add(scroll, "grow");
 
         this.setRightComponent(panel);
+    }
+
+    private static void initColors() {
+        updateColors();
+        UITheme.Theme.addUIThemeChangeListener(DesignPanel::updateColors);
+    }
+
+    private static void updateColors() {
+        border = GUIUtil.getUITheme().getBorder();
     }
 
     /**

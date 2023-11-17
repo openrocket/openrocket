@@ -25,6 +25,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,13 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	protected final OpenRocketDocument document;
 	protected final Rocket rocket;
 	protected final JTable table;
+
+	private static Color textColor;
+	private static Color dimTextColor;
+
+	static {
+		initColors();
+	}
 	
 	public FlightConfigurablePanel(final FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
 		super(new MigLayout("fill"));
@@ -65,6 +73,16 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 		installTableListener();
 		synchronizeConfigurationSelection();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(FlightConfigurablePanel::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 
 	/**
@@ -400,14 +418,14 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			c.setBorder(b);
 		}
 
-		protected final void shaded(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(GUIUtil.getUITheme().getDimTextColor());
-		}
-
 		protected final void regular(JLabel label) {
 			GUIUtil.changeFontStyle(label, Font.PLAIN);
-			label.setForeground(GUIUtil.getUITheme().getTextColor());
+			label.setForeground(textColor);
+		}
+
+		protected final void shaded(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.ITALIC);
+			label.setForeground(dimTextColor);
 		}
 
 		protected abstract JLabel format( T component, FlightConfigurationId configId, JLabel label );

@@ -9,6 +9,8 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -41,77 +43,138 @@ public class ComponentIcons {
 	private static final String SMALL_SUFFIX = "-small.png";
 	private static final String LARGE_SUFFIX = "-large.png";
 
+	// Component image file keys
+	private static String noseCone;
+	private static String bodyTube;
+	private static String transition;
+	private static String trapezoidFinSet;
+	private static String ellipticalFinSet;
+	private static String freeformFinSet;
+	private static String tubeFinSet;
+	private static String launchLug;
+	private static String railButton;
+	private static String innerTube;
+	private static String tubeCoupler;
+	private static String centeringRing;
+	private static String bulkhead;
+	private static String engineBlock;
+	private static String parachute;
+	private static String streamer;
+	private static String shockCord;
+	private static String mass;
+	private static String stage;
+	private static String boosters;
+	private static String pods;
+
+	private static String mass_altimeter;
+	private static String mass_battery;
+	private static String mass_deployment_charge;
+	private static String mass_payload;
+	private static String mass_flight_comp;
+	private static String mass_recovery_hardware;
+	private static String mass_tracker;
+
 	private static final HashMap<Class<?>, ImageIcon> SMALL_ICONS = new HashMap<Class<?>, ImageIcon>();
 	private static final HashMap<Class<?>, ImageIcon> LARGE_ICONS = new HashMap<Class<?>, ImageIcon>();
 	private static final HashMap<Class<?>, ImageIcon> DISABLED_ICONS = new HashMap<Class<?>, ImageIcon>();
 	private static final HashMap<MassComponentType, ImageIcon> MASS_COMPONENT_SMALL_ICONS = new HashMap<MassComponentType, ImageIcon>();
 	static {
+		initColors();
+
 		// // Nose cone
-		load("nosecone", trans.get("ComponentIcons.Nosecone"), NoseCone.class);
+		load(noseCone, trans.get("ComponentIcons.Nosecone"), NoseCone.class);
 		// // Body tube
-		load("bodytube", trans.get("ComponentIcons.Bodytube"), BodyTube.class);
+		load(bodyTube, trans.get("ComponentIcons.Bodytube"), BodyTube.class);
 		//// Transition
-		load("transition", trans.get("ComponentIcons.Transition"), Transition.class);
+		load(transition, trans.get("ComponentIcons.Transition"), Transition.class);
 		//// Trapezoidal fin set
-		load("trapezoidfin", trans.get("ComponentIcons.Trapezoidalfinset"), TrapezoidFinSet.class);
+		load(trapezoidFinSet, trans.get("ComponentIcons.Trapezoidalfinset"), TrapezoidFinSet.class);
 		//// Elliptical fin set
-		load("ellipticalfin", trans.get("ComponentIcons.Ellipticalfinset"), EllipticalFinSet.class);
+		load(ellipticalFinSet, trans.get("ComponentIcons.Ellipticalfinset"), EllipticalFinSet.class);
 		//// Freeform fin set
-		load("freeformfin", trans.get("ComponentIcons.Freeformfinset"), FreeformFinSet.class);
+		load(freeformFinSet, trans.get("ComponentIcons.Freeformfinset"), FreeformFinSet.class);
 		//// Tube fin set
-		load("tubefin", trans.get("ComponentIcons.Tubefinset"), TubeFinSet.class);
+		load(tubeFinSet, trans.get("ComponentIcons.Tubefinset"), TubeFinSet.class);
 		//// Launch lug
-		load("launchlug", trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
+		load(launchLug, trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
 		//// Rail Button
-		load("railbutton", trans.get("ComponentIcons.RailButton"), RailButton.class);
+		load(railButton, trans.get("ComponentIcons.RailButton"), RailButton.class);
 		//// Inner tube
-		load("innertube", trans.get("ComponentIcons.Innertube"), InnerTube.class);
+		load(innerTube, trans.get("ComponentIcons.Innertube"), InnerTube.class);
 		//// Tube coupler
-		load("tubecoupler", trans.get("ComponentIcons.Tubecoupler"), TubeCoupler.class);
+		load(tubeCoupler, trans.get("ComponentIcons.Tubecoupler"), TubeCoupler.class);
 		//// Centering ring
-		load("centeringring", trans.get("ComponentIcons.Centeringring"), CenteringRing.class);
+		load(centeringRing, trans.get("ComponentIcons.Centeringring"), CenteringRing.class);
 		//// Bulkhead
-		load("bulkhead", trans.get("ComponentIcons.Bulkhead"), Bulkhead.class);
+		load(bulkhead, trans.get("ComponentIcons.Bulkhead"), Bulkhead.class);
 		// // Engine block
-		load("engineblock", trans.get("ComponentIcons.Engineblock"),
+		load(engineBlock, trans.get("ComponentIcons.Engineblock"),
 				EngineBlock.class);
 		// // Parachute
-		load("parachute", trans.get("ComponentIcons.Parachute"),
+		load(parachute, trans.get("ComponentIcons.Parachute"),
 				Parachute.class);
 		// // Streamer
-		load("streamer", trans.get("ComponentIcons.Streamer"), Streamer.class);
+		load(streamer, trans.get("ComponentIcons.Streamer"), Streamer.class);
 		// // Shock cord
-		load("shockcord", trans.get("ComponentIcons.Shockcord"),
+		load(shockCord, trans.get("ComponentIcons.Shockcord"),
 				ShockCord.class);
-		load("mass", trans.get("ComponentIcons.Masscomponent"),
+		load(mass, trans.get("ComponentIcons.Masscomponent"),
 				MassComponent.class);
 		// // Component Assemblies
-		load("stage", trans.get("ComponentIcons.Stage"),
+		load(stage, trans.get("ComponentIcons.Stage"),
 				AxialStage.class);
-		load("boosters", trans.get("ComponentIcons.Boosters"),
+		load(boosters, trans.get("ComponentIcons.Boosters"),
 				ParallelStage.class);
-		load("pods", trans.get("ComponentIcons.Pods"),
+		load(pods, trans.get("ComponentIcons.Pods"),
 				PodSet.class);
 		// // Mass components
-		loadMassTypeIcon("mass", trans.get("ComponentIcons.Masscomponent"),
-				MassComponentType.MASSCOMPONENT);
-		loadMassTypeIcon("altimeter", trans.get("ComponentIcons.Altimeter"),
-				MassComponentType.ALTIMETER);
-		loadMassTypeIcon("battery", trans.get("ComponentIcons.Battery"),
-				MassComponentType.BATTERY);
-		loadMassTypeIcon("deployment-charge",
-				trans.get("ComponentIcons.Deploymentcharge"),
+		loadMassTypeIcon(mass, trans.get("ComponentIcons.Masscomponent"), MassComponentType.MASSCOMPONENT);
+		loadMassTypeIcon(mass_altimeter, trans.get("ComponentIcons.Altimeter"), MassComponentType.ALTIMETER);
+		loadMassTypeIcon(mass_battery, trans.get("ComponentIcons.Battery"), MassComponentType.BATTERY);
+		loadMassTypeIcon(mass_deployment_charge, trans.get("ComponentIcons.Deploymentcharge"),
 				MassComponentType.DEPLOYMENTCHARGE);
-		loadMassTypeIcon("payload", trans.get("ComponentIcons.Payload"),
-				MassComponentType.PAYLOAD);
-		loadMassTypeIcon("flight-comp",
-				trans.get("ComponentIcons.Flightcomputer"),
-				MassComponentType.FLIGHTCOMPUTER);
-		loadMassTypeIcon("recovery-hardware",
-				trans.get("ComponentIcons.Recoveryhardware"),
-				MassComponentType.RECOVERYHARDWARE);
-		loadMassTypeIcon("tracker", trans.get("ComponentIcons.Tracker"),
-				MassComponentType.TRACKER);
+		loadMassTypeIcon(mass_payload, trans.get("ComponentIcons.Payload"), MassComponentType.PAYLOAD);
+		loadMassTypeIcon(mass_flight_comp,
+				trans.get("ComponentIcons.Flightcomputer"), MassComponentType.FLIGHTCOMPUTER);
+		loadMassTypeIcon(mass_recovery_hardware,
+				trans.get("ComponentIcons.Recoveryhardware"), MassComponentType.RECOVERYHARDWARE);
+		loadMassTypeIcon(mass_tracker, trans.get("ComponentIcons.Tracker"), MassComponentType.TRACKER);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ComponentIcons::updateColors);
+	}
+
+	private static void updateColors() {
+		noseCone = GUIUtil.getUITheme().getComponentIconNoseCone();
+		bodyTube = GUIUtil.getUITheme().getComponentIconBodyTube();
+		transition = GUIUtil.getUITheme().getComponentIconTransition();
+		trapezoidFinSet = GUIUtil.getUITheme().getComponentIconTrapezoidFinSet();
+		ellipticalFinSet = GUIUtil.getUITheme().getComponentIconEllipticalFinSet();
+		freeformFinSet = GUIUtil.getUITheme().getComponentIconFreeformFinSet();
+		tubeFinSet = GUIUtil.getUITheme().getComponentIconTubeFinSet();
+		launchLug = GUIUtil.getUITheme().getComponentIconLaunchLug();
+		railButton = GUIUtil.getUITheme().getComponentIconRailButton();
+		innerTube = GUIUtil.getUITheme().getComponentIconInnerTube();
+		tubeCoupler = GUIUtil.getUITheme().getComponentIconTubeCoupler();
+		centeringRing = GUIUtil.getUITheme().getComponentIconCenteringRing();
+		bulkhead = GUIUtil.getUITheme().getComponentIconBulkhead();
+		engineBlock = GUIUtil.getUITheme().getComponentIconEngineBlock();
+		parachute = GUIUtil.getUITheme().getComponentIconParachute();
+		streamer = GUIUtil.getUITheme().getComponentIconStreamer();
+		shockCord = GUIUtil.getUITheme().getComponentIconShockCord();
+		mass = GUIUtil.getUITheme().getComponentIconMass();
+		stage = GUIUtil.getUITheme().getComponentIconStage();
+		boosters = GUIUtil.getUITheme().getComponentIconBoosters();
+		pods = GUIUtil.getUITheme().getComponentIconPods();
+		mass_altimeter = GUIUtil.getUITheme().getComponentIconMassAltimeter();
+		mass_battery = GUIUtil.getUITheme().getComponentIconMassBattery();
+		mass_deployment_charge = GUIUtil.getUITheme().getComponentIconMassDeploymentCharge();
+		mass_payload = GUIUtil.getUITheme().getComponentIconMassPayload();
+		mass_flight_comp = GUIUtil.getUITheme().getComponentIconMassFlightComp();
+		mass_recovery_hardware = GUIUtil.getUITheme().getComponentIconMassRecoveryHardware();
+		mass_tracker = GUIUtil.getUITheme().getComponentIconMassTracker();
 	}
 
 	private static void load(String filename, String name,

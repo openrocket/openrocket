@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -36,6 +37,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationOptions;
@@ -62,12 +64,20 @@ class SimulationOptionsPanel extends JPanel {
 	private JPanel currentExtensions;
 	final JPopupMenu extensionMenu;
 	JMenu extensionMenuCopyExtension;
+
+	private static Color textColor;
+	private static Color dimTextColor;
+	private static Border border;
+
+	static {
+		initColors();
+	}
 	
 	SimulationOptionsPanel(OpenRocketDocument document, final Simulation simulation) {
 		super(new MigLayout("fill"));
 		this.document = document;
 		this.simulation = simulation;
-		
+
 		final SimulationOptions conditions = simulation.getOptions();
 		
 		JPanel sub, subsub;
@@ -207,13 +217,24 @@ class SimulationOptionsPanel extends JPanel {
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
-		currentExtensions.setBorder(GUIUtil.getUITheme().getBorder());
-		scroll.setForeground(GUIUtil.getUITheme().getTextColor());
+		currentExtensions.setBorder(border);
+		scroll.setForeground(textColor);
 		//  &#$%! scroll pane will not honor "growy"...
 		sub.add(scroll, "growx, growy, h 100%");
 		
 		updateCurrentExtensions();
 		
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SimulationOptionsPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		border = GUIUtil.getUITheme().getBorder();
 	}
 	
 	private JPopupMenu getExtensionMenu() {
@@ -330,7 +351,7 @@ class SimulationOptionsPanel extends JPanel {
 		
 		if (simulation.getSimulationExtensions().isEmpty()) {
 			StyledLabel l = new StyledLabel(trans.get("simedtdlg.SimExt.noExtensions"), Style.ITALIC);
-			l.setForeground(Color.DARK_GRAY);
+			l.setForeground(dimTextColor);
 			currentExtensions.add(l, "growx, pad 5 5 5 5, wrap");
 		} else {
 			for (SimulationExtension e : simulation.getSimulationExtensions()) {

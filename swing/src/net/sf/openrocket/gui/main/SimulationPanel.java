@@ -44,7 +44,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
 import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -534,7 +536,7 @@ public class SimulationPanel extends JPanel {
 
 		// TODO: update this dynamically instead of hard-coded values
 		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
-		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
 			Dimension currentSize = chooser.getPreferredSize();
 			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
 			chooser.setPreferredSize(newSize);
@@ -1306,14 +1308,10 @@ public class SimulationPanel extends JPanel {
 								return null;
 
 							FlightData data = document.getSimulation(row).getSimulatedData();
-							if (data == null || data.getBranchCount() == 0)
+							if (data == null)
 								return null;
 
-							double val = data.getBranch(0).getOptimumDelay();
-							if (Double.isNaN(val)) {
-								return null;
-							}
-							return val;
+							return data.getOptimumDelay();
 						}
 					},
 
@@ -1404,21 +1402,26 @@ public class SimulationPanel extends JPanel {
 	 * Focus on the simulation table and maintain the previous row selection(s).
 	 */
 	public void takeTheSpotlight() {
-		simulationTable.requestFocusInWindow();
-		if (simulationTable.getRowCount() == 0 || simulationTable.getSelectedRows().length > 0) {
-			return;
-		}
-		if (previousSelection == null || previousSelection.length == 0) {
-			simulationTable.getSelectionModel().setSelectionInterval(0, 0);
-		} else {
-			simulationTable.clearSelection();
-			for (int row : previousSelection) {
-				if (row < 0 || row >= simulationTable.getRowCount()) {
-					continue;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				simulationTable.requestFocusInWindow();
+				if (simulationTable.getRowCount() == 0 || simulationTable.getSelectedRows().length > 0) {
+					return;
 				}
-				simulationTable.addRowSelectionInterval(row, row);
+				if (previousSelection == null || previousSelection.length == 0) {
+					simulationTable.getSelectionModel().setSelectionInterval(0, 0);
+				} else {
+					simulationTable.clearSelection();
+					for (int row : previousSelection) {
+						if (row < 0 || row >= simulationTable.getRowCount()) {
+							continue;
+						}
+						simulationTable.addRowSelectionInterval(row, row);
+					}
+				}
+				updateActions();
 			}
-		}
-		updateActions();
+		});
 	}
 }

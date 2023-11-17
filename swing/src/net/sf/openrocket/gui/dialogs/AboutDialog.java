@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.DescriptionArea;
@@ -17,6 +18,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
@@ -85,6 +87,12 @@ public class AboutDialog extends JDialog {
 		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database", true, true) +
 		"</center></html>";
 
+	private static Border border;
+
+	static {
+		initColors();
+	}
+
 	private String href(String url, boolean delimiters, boolean leadingSpace) {
 		return (leadingSpace ? " " : "") + (delimiters ? "(" : "") + "<a href=\"" + url + "\">" + url + "</a>" + (delimiters ? ")" : "");
 	}
@@ -142,6 +150,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		DescriptionArea info = new DescriptionArea(5);
+		info.setBorder(border);
 		info.setText(CREDITS);
 		info.setTextFont(UIManager.getFont("Label.font"));
 		panel.add(info, "newline, width 10px, height 250lp, pushy, grow, spanx, wrap para");
@@ -169,5 +178,14 @@ public class AboutDialog extends JDialog {
 		this.setLocationRelativeTo(parent);
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(AboutDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 }
