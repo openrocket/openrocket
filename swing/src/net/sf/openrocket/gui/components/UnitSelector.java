@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.components;
 
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
@@ -18,11 +17,10 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.StateChangeListener;
@@ -47,12 +45,16 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 
 	private final boolean showValue;
 
-	private final Border normalBorder;
-	private final Border withinBorder;
+	private static Border normalBorder;
+	private static Border withinBorder;
 
 
 	private final List<ItemListener> itemListeners = new ArrayList<ItemListener>();
 
+
+	static {
+		initColors();
+	}
 
 	/**
 	 * Common private constructor that sets the values and sets up the borders.
@@ -85,14 +87,6 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 
 		addMouseListener(this);
 
-		// Define borders to use:
-
-		normalBorder = new CompoundBorder(
-				new LineBorder(new Color(0f, 0f, 0f, 0.08f), 1), new EmptyBorder(1, 1, 1,
-						1));
-		withinBorder = new CompoundBorder(new LineBorder(new Color(0f, 0f, 0f, 0.6f)),
-				new EmptyBorder(1, 1, 1, 1));
-
 		// Add model listener if showing value
 		if (showValue)
 			this.model.addChangeListener(this);
@@ -117,6 +111,15 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 	}
 
 
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(UnitSelector::updateColors);
+	}
+
+	private static void updateColors() {
+		normalBorder = GUIUtil.getUITheme().getUnitSelectorBorder();
+		withinBorder = GUIUtil.getUITheme().getUnitSelectorFocusBorder();
+	}
 
 
 	/**

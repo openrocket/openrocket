@@ -48,6 +48,8 @@ class MotorInformationPanel extends JPanel {
 	private static Color WITH_COMMENT_COLOR;
 	private static Color textColor;
 	private static Color dimTextColor;
+	private static Color backgroundColor;
+	private static Color gridColor;
 	private static Border border;
 
 	// Motors in set
@@ -203,9 +205,9 @@ class MotorInformationPanel extends JPanel {
 			title.setPaint(textColor);
 			chart.setTitle(title);
 			chart.setBackgroundPaint(this.getBackground());
-			plot.setBackgroundPaint(Color.WHITE);
-			plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-			plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+			plot.setBackgroundPaint(backgroundColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
 
 			chartPanel = new ChartPanel(chart,
 					false, // properties
@@ -259,6 +261,8 @@ class MotorInformationPanel extends JPanel {
 		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		gridColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
 		border = GUIUtil.getUITheme().getBorder();
 	}
 	

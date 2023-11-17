@@ -19,6 +19,8 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
@@ -943,42 +945,11 @@ public class RocketActions {
 			}
 
 			RocketComponent component = components.get(0);
-			List<RocketComponent> sameColorComponents;
-
-			// Case 1: component has a default appearance (null)
-			if (component.getAppearance() == null) {
-				sameColorComponents = getComponentsDefaultColor(component);
-			}
-			// Case 2: component has a custom appearance
-			else {
-				sameColorComponents = getComponentsCustomColor(component);
-			}
-
+			List<RocketComponent> sameColorComponents = getComponentsSameColor(component);
 			selectionModel.setSelectedComponents(sameColorComponents);
 		}
 
-		private List<RocketComponent> getComponentsCustomColor(RocketComponent component) {
-			Color targetColor = component.getAppearance().getPaint();
-			List<RocketComponent> components = new ArrayList<>();
-			components.add(component);
-
-			for (RocketComponent c : rocket) {
-				if (c == component || c.getAppearance() == null || c.getAppearance().getPaint() == null) {
-					continue;
-				}
-				Color color = c.getAppearance().getPaint();
-				// Add components with the same RGB values (ignore alpha)
-				if (color.getRed() == targetColor.getRed() &&
-						color.getGreen() == targetColor.getGreen() &&
-						color.getBlue() == targetColor.getBlue()) {
-					components.add(c);
-				}
-			}
-
-			return components;
-		}
-
-		private List<RocketComponent> getComponentsDefaultColor(RocketComponent component) {
+		private List<RocketComponent> getComponentsSameColor(RocketComponent component) {
 			List<RocketComponent> components = new ArrayList<>();
 			components.add(component);
 
@@ -986,14 +957,44 @@ public class RocketActions {
 				if (c == component) {
 					continue;
 				}
-
-				// Only add same components & components that also have the default color
-				if (c.getClass().equals(component.getClass()) && c.getAppearance() == null) {
+				if (isAppearanceEqual(component, c)) {
 					components.add(c);
 				}
 			}
 
 			return components;
+		}
+
+		private boolean isAppearanceEqual(RocketComponent component1, RocketComponent component2) {
+			Appearance appearance1 = component1.getAppearance();
+			Appearance appearance2 = component2.getAppearance();
+
+			// Both components must have the same default material state
+			if ((appearance1 == null && appearance2 != null) || (appearance1 != null && appearance2 == null)) {
+				return false;
+			}
+
+			appearance1 = appearance1 == null ? DefaultAppearance.getDefaultAppearance(component1) : appearance1;
+			appearance2 = appearance2 == null ? DefaultAppearance.getDefaultAppearance(component2) : appearance2;
+
+			return isAppearanceEqual(appearance1, appearance2);
+		}
+
+		private boolean isAppearanceEqual(Appearance app1, Appearance app2) {
+			Color color1 = app1.getPaint();
+			Color color2 = app2.getPaint();
+
+			if (color1 == null && color2 == null) {
+				return true;
+			}
+			if (color1 == null || color2 == null) {
+				return false;
+			}
+
+			// Add components with the same RGB values (ignore alpha)
+			return color1.getRed() == color2.getRed() &&
+					color1.getGreen() == color2.getGreen() &&
+					color1.getBlue() == color2.getBlue();
 		}
 
 		@Override

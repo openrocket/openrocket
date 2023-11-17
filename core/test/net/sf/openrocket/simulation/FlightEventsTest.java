@@ -32,6 +32,10 @@ public class FlightEventsTest extends BaseTestCase {
     @Test
     public void testSingleStage() throws SimulationException {
         final Rocket rocket = TestRockets.makeEstesAlphaIII();
+        final AxialStage stage = rocket.getStage(0);
+        final InnerTube motorMountTube = (InnerTube) stage.getChild(1).getChild(2);
+        final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
+
         final Simulation sim = new Simulation(rocket);
         sim.getOptions().setISAAtmosphere(true);
         sim.getOptions().setTimeStep(0.05);
@@ -43,11 +47,7 @@ public class FlightEventsTest extends BaseTestCase {
         final int branchCount = sim.getSimulatedData().getBranchCount();
         assertEquals(" Single stage simulation invalid branch count ", 1, branchCount);
 
-        final AxialStage stage = rocket.getStage(0);
-        final InnerTube motorMountTube = (InnerTube) stage.getChild(1).getChild(2);
-        final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
-		
-		FlightEvent[] expectedEvents = new FlightEvent[] {
+        final FlightEvent[] expectedEvents = new FlightEvent[] {
 			new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
 			new FlightEvent(FlightEvent.Type.IGNITION, 0.0, motorMountTube),
 			new FlightEvent(FlightEvent.Type.LIFTOFF, 0.1275, null),
@@ -56,12 +56,12 @@ public class FlightEventsTest extends BaseTestCase {
 			new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
 			new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 			new FlightEvent(FlightEvent.Type.APOGEE, 2.48338, rocket),
-			new FlightEvent(FlightEvent.Type.GROUND_HIT, 43.1, null),
-			new FlightEvent(FlightEvent.Type.SIMULATION_END, 43.1, null)
+			new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+			new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 		};
-
-		compareEvents(sim.getSimulatedData().getBranch(0), expectedEvents, sim.getOptions().getTimeStep());
-    }
+	
+		checkEvents(expectedEvents, sim, 0);
+	}
 
     /**
      * Tests for a multi-stage design.
@@ -89,6 +89,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final InnerTube boosterMotorTubes = (InnerTube) boosterStage.getChild(1).getChild(0);
 		final BodyTube coreBody = (BodyTube) coreStage.getChild(0);
 
+		// events whose time is too variable to check are given a time of 1200
         for (int b = 0; b < 3; b++) {
 			FlightEvent[] expectedEvents;
             switch (b) {
@@ -108,8 +109,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),						
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 2.4127, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 13.2, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 13.2, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 					};
                     break;
                 // Core stage
@@ -119,8 +120,8 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 5.9, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 5.9, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 					};
                     break;
                 // Booster stage
@@ -131,47 +132,42 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 3.428, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 10.32, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 10.32, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 					};
                     break;
                 default:
                     throw new IllegalStateException("Invalid branch number " + b);
             }
 
-			compareEvents(sim.getSimulatedData().getBranch(b), expectedEvents, sim.getOptions().getTimeStep());
-        }
-    }
+			checkEvents(expectedEvents, sim, b);
+		}
+	}
 
-	// compare expected vs. actual event types, times, and sources
-	// Note: if an event's time is too variable to test reliably, set expected time to 1200 to ignore
-	private void compareEvents(FlightDataBranch b, FlightEvent[] expectedEvents, double timeStep) {
-		FlightEvent[] actualEvents = b.getEvents().toArray(new FlightEvent[0]);
+	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo)	{
 
-		// test event count
-		assertEquals("Number of flight events in branch " + b, expectedEvents.length, actualEvents.length);
+		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
+		
+		// Test event count
+		assertEquals("Branch " + branchNo + " invalid number of events ", expectedEvents.length, actualEvents.length);
 
 		// Test that all expected events are present, in the right order, at the right time, from the right sources
 		for (int i = 0; i < actualEvents.length; i++) {
 			final FlightEvent expected = expectedEvents[i];
 			final FlightEvent actual = actualEvents[i];
-			System.out.println("event " + actual);
-			assertSame("Branch " + b + " FlightEvent " + i + " type " + expected.getType() +  " not found; FlightEvent " + actual.getType() + " found instead",
+			assertSame("Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() +  " not found; FlightEvent " + actual.getType() + " found instead",
 					   expected.getType(), actual.getType());
-			
+
 			if (1200 != expected.getTime()) {
-				// Events whose timing depends on the results of the steppers can't be expected to be more accurate than
-				// the length of a time step
-				double epsilon = ((actual.getType() == FlightEvent.Type.TUMBLE) ||
-								  (actual.getType() == FlightEvent.Type.APOGEE) ||
-								  (actual.getType() == FlightEvent.Type.GROUND_HIT) ||
-								  (actual.getType() == FlightEvent.Type.SIMULATION_END)) ? timeStep : EPSILON;
-				assertEquals("Branch " + b + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ",
+				// event times that are dependent on simulation step time shouldn't be held to tighter bounds than that
+				double epsilon = actual.getType() == FlightEvent.Type.TUMBLE || actual.getType() == FlightEvent.Type.APOGEE ? sim.getOptions().getTimeStep() : EPSILON;
+				assertEquals("Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ",
 							 expected.getTime(), actual.getTime(), epsilon);
 			}
 
-			assertEquals("FlightEvent from unexpected source", expected.getSource(), actual.getSource());
+			// Test that the event sources are correct
+			assertEquals("Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong source ",
+						 expected.getSource(), actual.getSource());
 		}
 	}
-		
 }
