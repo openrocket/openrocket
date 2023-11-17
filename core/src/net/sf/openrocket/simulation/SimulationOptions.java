@@ -32,7 +32,7 @@ import net.sf.openrocket.util.WorldCoordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SimulationOptions implements ChangeSource, Cloneable {
+public class SimulationOptions implements ChangeSource, Cloneable, SimulationOptionsInterface {
 	
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
@@ -71,7 +71,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double launchLongitude = preferences.getLaunchLongitude();
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
-	private boolean useISA = preferences.getISAAtmosphere();
+	private boolean useISA = preferences.isISAAtmosphere();
 	private double launchTemperature = preferences.getLaunchTemperature();	// In Kelvin
 	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
 	
@@ -146,6 +146,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.windAverage, windAverage))
 			return;
 		this.windAverage = MathUtil.max(windAverage, 0);
+		if (MathUtil.equals(this.windAverage, 0)) {
+			setWindTurbulenceIntensity(0);
+		}
 		fireChangeEvent();
 	}
 	
@@ -161,34 +164,17 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		setWindTurbulenceIntensity(windDeviation / windAverage);
 	}
 	
-	
-	/**
-	 * Return the wind turbulence intensity (standard deviation / average).
-	 * 
-	 * @return  the turbulence intensity
-	 */
+
 	public double getWindTurbulenceIntensity() {
 		return windTurbulence;
 	}
-	
-	/**
-	 * Set the wind standard deviation to match the given turbulence intensity.
-	 * 
-	 * @param intensity   the turbulence intensity
-	 */
+
 	public void setWindTurbulenceIntensity(double intensity) {
 		// Does not check equality so that setWindSpeedDeviation can be sure of event firing
 		this.windTurbulence = intensity;
 		fireChangeEvent();
 	}
-	
-	
-	/**
-	 * Set the wind direction
-	 * 
-	 * @param direction the wind direction
-	 */
-	
+
 	public void setWindDirection(double direction) {
 		direction = MathUtil.reduce2Pi(direction);
 		if (launchIntoWind) {
@@ -312,11 +298,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		fireChangeEvent();
 	}
 	
-	
+
+
 	/**
 	 * Returns an atmospheric model corresponding to the launch conditions.  The
 	 * atmospheric models may be shared between different calls.
-	 * 
+	 *
 	 * @return	an AtmosphericModel object.
 	 */
 	private AtmosphericModel getAtmosphericModel() {

@@ -291,6 +291,7 @@ public class UnitGroup {
 		UNITS_ROUGHNESS = new UnitGroup();
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, MICRO + "m"));
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.0000254, "mil"));
+		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.0254, "in"));
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(1, "m"));
 		
 		

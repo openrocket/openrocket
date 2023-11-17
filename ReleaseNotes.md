@@ -15,7 +15,7 @@ Release Notes
 
 <div id="23.09">
 
-OpenRocket 23.09
+OpenRocket 23.09 (2023-11-16)
 ------------------------
 
 You can find a visual overview of what's new for this release on [our website](https://openrocket.info//downloads.html?vers=23.09#whats-new).
