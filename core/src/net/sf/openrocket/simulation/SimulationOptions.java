@@ -146,6 +146,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (MathUtil.equals(this.windAverage, windAverage))
 			return;
 		this.windAverage = MathUtil.max(windAverage, 0);
+		if (MathUtil.equals(this.windAverage, 0)) {
+			setWindTurbulenceIntensity(0);
+		}
 		fireChangeEvent();
 	}
 	
