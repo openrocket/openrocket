@@ -32,6 +32,7 @@ import net.sf.openrocket.rocketcomponent.RailButton;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.simulation.SimulationOptionsInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 
 
-public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
+public class SwingPreferences extends net.sf.openrocket.startup.Preferences implements SimulationOptionsInterface {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
 	
 	private static final String SPLIT_CHARACTER = "|";
