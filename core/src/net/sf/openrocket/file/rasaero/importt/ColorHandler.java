@@ -1,7 +1,7 @@
 package net.sf.openrocket.file.rasaero.importt;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 /**
  * Handles the 2D outline color handling from RASAero.
@@ -18,10 +18,10 @@ public abstract class ColorHandler {
      */
     public static void applyRASAeroColor(RocketComponent component, String color) {
         if ("Black".equals(color)) {
-            component.setColor(Color.BLACK);
+            component.setColor(ORColor.BLACK);
             return;
         }
         // Default to black
-        component.setColor(Color.BLACK);
+        component.setColor(ORColor.BLACK);
     }
 }

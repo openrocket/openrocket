@@ -3,11 +3,10 @@ package net.sf.openrocket.gui.rocketfigure;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Transformation;
 
 import java.awt.Shape;
@@ -40,7 +39,7 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(correctedTransform, markerRadius);
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
-        shapes[shapes.length - 1].setColor(Color.INVISIBLE);
+        shapes[shapes.length - 1].setColor(ORColor.INVISIBLE);
 
         return shapes;
     }
@@ -64,7 +63,7 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
         Shape[] s = EmptyShapes.getShapesBackWithSelectionSquare(correctedTransform, markerRadius);
         RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
 
-        shapes[shapes.length - 1].setColor(Color.INVISIBLE);
+        shapes[shapes.length - 1].setColor(ORColor.INVISIBLE);
 
         return shapes;
     }

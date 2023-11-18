@@ -10,7 +10,7 @@ import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RockSimCommonConstants;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	
@@ -124,32 +124,32 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 
 	}
 	
-	static Color weight(Color c, double w) {
-		return new Color((int) (c.getRed() * w), (int) (c.getGreen() * w), (int) (c.getBlue() * w), c.getAlpha());
+	static ORColor weight(ORColor c, double w) {
+		return new ORColor((int) (c.getRed() * w), (int) (c.getGreen() * w), (int) (c.getBlue() * w), c.getAlpha());
 	}
 	
-	static Color parseColor(String s) {
+	static ORColor parseColor(String s) {
 		// blue and white came from a real file.
 		if ("blue".equals(s)) {
-			return new Color(0, 0, 255);
+			return new ORColor(0, 0, 255);
 		}
 		if ("white".equals(s)) {
-			return new Color(255, 255, 255);
+			return new ORColor(255, 255, 255);
 		}
 		// I guessed these are valid color names in Rksim.
 		if ("red".equals(s)) {
-			return new Color(255, 0, 0);
+			return new ORColor(255, 0, 0);
 		}
 		if ("green".equals(s)) {
-			return new Color(0, 255, 0);
+			return new ORColor(0, 255, 0);
 		}
 		if ("black".equals(s)) {
-			return new Color(0, 0, 0);
+			return new ORColor(0, 0, 0);
 		}
 		s = s.replace("rgb(", "");
 		s = s.replace(")", "");
 		String[] ss = s.split(",");
-		return new Color(Integer.parseInt(ss[0]), Integer.parseInt(ss[1]), Integer.parseInt(ss[2]));
+		return new ORColor(Integer.parseInt(ss[0]), Integer.parseInt(ss[1]), Integer.parseInt(ss[2]));
 	}
 	
 	public boolean isPreventSeam() {
