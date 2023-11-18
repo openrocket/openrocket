@@ -56,8 +56,8 @@ public class FlightEventsTest extends BaseTestCase {
 			new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
 			new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 			new FlightEvent(FlightEvent.Type.APOGEE, 2.48338, rocket),
-			new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-			new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+			new FlightEvent(FlightEvent.Type.GROUND_HIT, 43.1, null),
+			new FlightEvent(FlightEvent.Type.SIMULATION_END, 43.1, null)
 		};
 	
 		checkEvents(expectedEvents, sim, 0);
@@ -108,9 +108,9 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),						
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.4127, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 13.2, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 13.2, null)
 					};
                     break;
                 // Core stage
@@ -120,8 +120,8 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 5.9, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 5.9, null)
 					};
                     break;
                 // Booster stage
@@ -132,8 +132,8 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 3.428, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 10.3, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 10.3, null)
 					};
                     break;
                 default:
@@ -147,7 +147,7 @@ public class FlightEventsTest extends BaseTestCase {
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo)	{
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
-		
+
 		// Test event count
 		assertEquals("Branch " + branchNo + " invalid number of events ", expectedEvents.length, actualEvents.length);
 
@@ -160,7 +160,10 @@ public class FlightEventsTest extends BaseTestCase {
 
 			if (1200 != expected.getTime()) {
 				// event times that are dependent on simulation step time shouldn't be held to tighter bounds than that
-				double epsilon = actual.getType() == FlightEvent.Type.TUMBLE || actual.getType() == FlightEvent.Type.APOGEE ? sim.getOptions().getTimeStep() : EPSILON;
+				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
+					(actual.getType() == FlightEvent.Type.APOGEE) ||
+					(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
+					(actual.getType() == FlightEvent.Type.SIMULATION_END) ? sim.getOptions().getTimeStep() : EPSILON;
 				assertEquals("Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ",
 							 expected.getTime(), actual.getTime(), epsilon);
 			}
