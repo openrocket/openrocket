@@ -41,7 +41,7 @@ apps:
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
-      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-amd64"
 
 parts:
   openrocket:
