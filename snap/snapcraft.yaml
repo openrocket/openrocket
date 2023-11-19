@@ -71,7 +71,7 @@ parts:
       snapcraftctl build
       mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
-      - openjdk-11-jre
+      - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
     prime:
