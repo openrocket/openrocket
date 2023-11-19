@@ -1,12 +1,6 @@
 package net.sf.openrocket.logging;
 
-import java.util.AbstractSet;
-import java.util.Iterator;
-
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Monitorable;
-import net.sf.openrocket.util.Mutable;
 
 /**
  * A set that contains multiple <code>Warning</code>s.  When adding a

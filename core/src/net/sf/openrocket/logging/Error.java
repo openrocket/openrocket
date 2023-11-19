@@ -33,7 +33,7 @@ public abstract class Error extends Message {
         }
 
         @Override
-        public String toString() {
+        public String getMessageDescription() {
             return description;
         }
 
