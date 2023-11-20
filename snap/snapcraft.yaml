@@ -73,14 +73,14 @@ parts:
       # that to a later pull request.
       #
       # Until then, just use the build.version value
-      snapcraftctl pull
+      craftctl default
       VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
-      snapcraftctl set-version "$VERSION"
+      craftctl set version="$VERSION"
     override-build: |
       export JAVA_HOME=$SNAP/usr/lib/jvm/java-17-openjdk-amd64
       export PATH=$JAVA_HOME/bin:$PATH
-      snapcraftctl build
-      mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
+      craftctl default
+      mv swing/build/jar/OpenRocket.jar $CRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
       - openjdk-17-jre
       - ca-certificates
