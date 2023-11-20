@@ -6,7 +6,7 @@ OpenRocket has two main Wiki-pages for documentation:
 * [OpenRocket website](https://openrocket.info/index.html)
 
 Our main communication channel are:
-* [Discord](https://www.rocketryforum.com/forums/rocketry-electronics-software.36/](https://discord.gg/qD2G5v2FAw) = **primary communication channel**
+* [Discord](https://discord.gg/qD2G5v2FAw) = **primary communication channel**
 * [OpenRocket forum](https://www.rocketryforum.com/forums/rocketry-electronics-software.36/)
 * [OpenRocket-devel mailing list](https://sourceforge.net/projects/openrocket/lists/openrocket-devel) for discussion related to OpenRocket development, documentation and upcoming features
 * [OpenRocket-announce mailing list](https://sourceforge.net/projects/openrocket/lists/openrocket-announce) for announcements of new OpenRocket versions and developments
