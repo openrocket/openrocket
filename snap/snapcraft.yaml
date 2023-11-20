@@ -28,10 +28,13 @@ plugs:
     write:
       - $HOME/.openrocket
 
+architectures:
+  - build-on: [amd64]
+    build-for: [all]
+
 apps:
   openrocket:
-    extensions:
-      - gnome
+    extensions: [gnome]
     command: bin/launcher
     plugs:
       - home
