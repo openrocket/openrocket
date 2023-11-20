@@ -15,7 +15,7 @@ description: |
     * Cross-platform (Java-based)
     * Read more about it on the OpenRocket.info.
 license: GPL-3.0
-base: core18
+base: core22
 confinement: strict
 
 plugs:
@@ -31,7 +31,7 @@ plugs:
 apps:
   openrocket:
     extensions:
-      - gnome-3-28
+      - gnome
     command: bin/launcher
     plugs:
       - home
@@ -46,6 +46,12 @@ apps:
 parts:
   openrocket:
     plugin: ant
+    build-packages:
+      - ant
+      - ant-contrib
+      - ant-optional
+      - openjdk-17-jdk
+      - openjdk-17-jre
     source: .
     source-type: git
     ant-build-targets:
@@ -68,6 +74,8 @@ parts:
       VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
       snapcraftctl set-version "$VERSION"
     override-build: |
+      export JAVA_HOME=$SNAP/usr/lib/jvm/java-17-openjdk-amd64
+      export PATH=$JAVA_HOME/bin:$PATH
       snapcraftctl build
       mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
