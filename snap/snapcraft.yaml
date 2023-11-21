@@ -37,7 +37,6 @@ architectures:
 
 apps:
   openrocket:
-    extensions: [gnome]
     command: bin/launcher
     plugs:
       - home
