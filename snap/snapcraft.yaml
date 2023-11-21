@@ -34,7 +34,6 @@ architectures:
   - build-on: [armhf]
   - build-on: [ppc64el]
   - build-on: [s390x]
-  - build-on: [i386]
 
 apps:
   openrocket:
@@ -48,7 +47,7 @@ apps:
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
-      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-amd64"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH"
 
 parts:
   openrocket:
@@ -81,11 +80,10 @@ parts:
       VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
       craftctl set version="$VERSION"
     override-build: |
-      export JAVA_HOME=$SNAP/usr/lib/jvm/java-17-openjdk-amd64
-      export PATH=$JAVA_HOME/bin:$PATH
       craftctl default
       mv swing/build/jar/OpenRocket.jar $CRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
+      - openjdk-17-jdk
       - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
