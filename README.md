@@ -29,6 +29,8 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 - **Automatic design optimization**
 - **Realtime simulated altitude, velocity, and acceleration display**
 - **Staging and clustering support**
+- **Export to other simulation programs (RockSim, RASAero II)**
+- **Export component(s) to OBJ file for 3D printing**
 - **Cross-platform (Java-based)**
 
 ... plus many more
