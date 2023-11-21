@@ -30,13 +30,13 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	
 
 	// Cached data, default values signify not calculated
-	private double wetArea = -1;
-	private double planArea = -1;
-	private double planCenter = -1;
-	private double volume = -1;
-	private double fullVolume = -1;
-	private double longitudinalInertia = -1;
-	private double rotationalInertia = -1;
+	private double wetArea = Double.NaN;
+	private double planArea = Double.NaN;
+	private double planCenter = Double.NaN;
+	private double volume = Double.NaN;
+	private double fullVolume = Double.NaN;
+	private double longitudinalInertia = Double.NaN;
+	private double rotationalInertia = Double.NaN;
 	private Coordinate cg = null;
 	
 
@@ -213,8 +213,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 */
 	@Override
 	public double getComponentVolume() {
-		if (volume < 0)
+		if (Double.isNaN(volume)) {
 			integrate();
+		}
 		return volume;
 	}
 	
@@ -228,8 +229,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * @return  The filled volume of the component.
 	 */
 	public double getFullVolume() {
-		if (fullVolume < 0)
+		if (Double.isNaN(fullVolume)) {
 			integrate();
+		}
 		return fullVolume;
 	}
 	
@@ -243,8 +245,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * @return  The wetted area of the component.
 	 */
 	public double getComponentWetArea() {
-		if (wetArea < 0)
+		if (Double.isNaN(wetArea)) {
 			integrate();
+		}
 		return wetArea;
 	}
 	
@@ -258,8 +261,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * @return  The planform area of the component.
 	 */
 	public double getComponentPlanformArea() {
-		if (planArea < 0)
+		if (Double.isNaN(planArea)) {
 			integrate();
+		}
 		return planArea;
 	}
 	
@@ -274,8 +278,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * @return  The planform center of the component.
 	 */
 	public double getComponentPlanformCenter() {
-		if (planCenter < 0)
+		if (Double.isNaN(planCenter)) {
 			integrate();
+		}
 		return planCenter;
 	}
 	
@@ -308,7 +313,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	
 	@Override
 	public double getLongitudinalUnitInertia() {
-		if (longitudinalInertia < 0) {
+		if (Double.isNaN(longitudinalInertia)) {
 			if (getComponentVolume() > 0.0000001) // == 0.1cm^3
 				integrateInertiaVolume();
 			else
@@ -320,7 +325,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	
 	@Override
 	public double getRotationalUnitInertia() {
-		if (rotationalInertia < 0) {
+		if (Double.isNaN(rotationalInertia)) {
 			if (getComponentVolume() > 0.0000001) // == 0.1cm^3
 				integrateInertiaVolume();
 			else
@@ -572,13 +577,13 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	protected void componentChanged(ComponentChangeEvent e) {
 		super.componentChanged(e);
 		if( e.isAerodynamicChange() || e.isMassChange()){
-			wetArea = -1;
-			planArea = -1;
-			planCenter = -1;
-			volume = -1;
-			fullVolume = -1;
-			longitudinalInertia = -1;
-			rotationalInertia = -1;
+			wetArea = Double.NaN;
+			planArea = Double.NaN;
+			planCenter = Double.NaN;
+			volume = Double.NaN;
+			fullVolume = Double.NaN;
+			longitudinalInertia = Double.NaN;
+			rotationalInertia = Double.NaN;
 			cg = null;
 		}
 	}
