@@ -314,10 +314,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	@Override
 	public double getLongitudinalUnitInertia() {
 		if (Double.isNaN(longitudinalInertia)) {
-			if (getComponentVolume() > 0.0000001) // == 0.1cm^3
-				integrateInertiaVolume();
-			else
-				integrateInertiaSurface();
+			integrateInertiaVolume();
 		}
 		return longitudinalInertia;
 	}
@@ -326,10 +323,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	@Override
 	public double getRotationalUnitInertia() {
 		if (Double.isNaN(rotationalInertia)) {
-			if (getComponentVolume() > 0.0000001) // == 0.1cm^3
-				integrateInertiaVolume();
-			else
-				integrateInertiaSurface();
+			integrateInertiaVolume();
 		}
 		return rotationalInertia;
 	}
@@ -497,9 +491,11 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			r1 = r2;
 			x += l;
 		}
-		
+
+		// a part so small it has no volume can't contribute to moment of inertia
 		if (MathUtil.equals(vol, 0)) {
-			integrateInertiaSurface();
+			rotationalInertia = 0;
+			longitudinalInertia = 0;
 			return;
 		}
 		
@@ -509,66 +505,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		// Shift longitudinal inertia to CG
 		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
 	}
-	
-	
-
-	/**
-	 * Integrate the longitudinal and rotational inertia based on component surface area.
-	 * This method may be used only if the total volume is zero.
-	 */
-	private void integrateInertiaSurface() {
-		double x, r1, r2;
-
-		longitudinalInertia = 0;
-		rotationalInertia = 0;
-
-		if (getLength() <= 0) return;
-
-		final double l = getLength() / DIVISIONS;
-		
-		r1 = getRadius(0);
-		x = 0;
-		
-		double surface = 0;
-		
-		for (int n = 1; n <= DIVISIONS; n++) {
-			/*
-			 * r1 and r2 are the two radii, outer is their average
-			 * x is the position of r1
-			 * hyp is the length of the hypotenuse from r1 to r2
-			 * height if the y-axis height of the component if not filled
-			 */
-			r2 = getRadius(x + l);
-			final double hyp = MathUtil.hypot(r2 - r1, l);
-			final double outer = (r1 + r2) / 2;
-			
-			final double dS = hyp * (r1 + r2) * Math.PI;
-			
-			rotationalInertia += dS * pow2(outer);
-			longitudinalInertia += dS * ((6 * pow2(outer) + pow2(l)) / 12 + pow2(x + l / 2));
-			
-			surface += dS;
-			
-			// Update for next iteration
-			r1 = r2;
-			x += l;
-		}
-		
-		if (MathUtil.equals(surface, 0)) {
-			longitudinalInertia = 0;
-			rotationalInertia = 0;
-			return;
-		}
-		
-		longitudinalInertia /= surface;
-		rotationalInertia /= surface;
-		
-		// Shift longitudinal inertia to CG
-		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
-	}
-	
-	
-
 
 	/**
 	 * Invalidates the cached volume and CG information.
