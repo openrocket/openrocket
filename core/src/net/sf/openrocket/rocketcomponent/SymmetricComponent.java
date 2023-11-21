@@ -314,7 +314,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	@Override
 	public double getLongitudinalUnitInertia() {
 		if (Double.isNaN(longitudinalInertia)) {
-			integrateInertiaVolume();
+			integrate();
 		}
 		return longitudinalInertia;
 	}
@@ -323,7 +323,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	@Override
 	public double getRotationalUnitInertia() {
 		if (Double.isNaN(rotationalInertia)) {
-			integrateInertiaVolume();
+			integrate();
 		}
 		return rotationalInertia;
 	}
@@ -341,17 +341,21 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		fullVolume = 0;
 		volume = 0;
 		cg = Coordinate.NUL;
+		longitudinalInertia = 0;
+		rotationalInertia = 0;
 
 		// Check length > 0
 		if (getLength() <= 0) {
 			return;
 		}
-		
 
-		// Integrate for volume, CG, wetted area and planform area
+		// Integrate for volume, CG, wetted area, planform area, and moments of inertia
 		
-		final double step = getLength() / DIVISIONS;
+		final double l = getLength() / DIVISIONS;
 		final double pi3 = Math.PI / 3.0;
+		final double pil = Math.PI * l;
+		final double pil3 = Math.PI * l / 3;
+		
 		r1 = getRadius(0);
 		x = 0;
 		cgx = 0;
@@ -361,43 +365,40 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			 * r1 and r2 are the two radii
 			 * x is the position of r1
 			 * hyp is the length of the hypotenuse from r1 to r2
-			 * height if the y-axis height of the component if not filled
+			 * height is the y-axis height of the component if not filled
 			 */
-			/*
-			 * l is the step size for the current loop.  Could also be called delta-x.
-			 * 
-			 * to account for accumulated errors in the x position during the loop
-			 * during the last iteration (n== DIVISIONS) we recompute l to be
-			 * whatever is left.
-			 */
-			double l = (n==DIVISIONS) ? getLength() -x : step;
-
+		
 			// Further to prevent round off error from the previous statement,
 			// we clamp r2 to length at the last iteration.
 			r2 = getRadius((n==DIVISIONS) ? getLength() : x + l);
 			
+			final double outer = (r1 + r2) / 2;	
 			final double hyp = MathUtil.hypot(r2 - r1, l);
+			final double height = thickness * hyp / l;
 			
 			// Volume differential elements
+			final double inner;
 			final double dV;
 			final double dFullV;
 			
 			dFullV = pi3 * l * (r1 * r1 + r1 * r2 + r2 * r2);
 			
-			if ( filled ) {
+			if ( filled || r1 < height || r2 < height ) {
+				inner = 0;
 				dV = dFullV;
 			} else {
 				// hollow
 				// Thickness is normal to the surface of the component
 				// here we use simple trig to project the Thickness
 				// on to the y dimension (radius).
-				double height = thickness * hyp / l;
 				if (r1 < height || r2 < height) {
 					// Filled portion of piece
 					dV = dFullV;
+					inner = 0;
 				} else {
 					// Hollow portion of piece
 					dV = MathUtil.max(Math.PI* l * height * (r1 + r2 - height), 0);
+					inner = Math.max(outer - height, 0.);
 				}
 			}
 
@@ -414,6 +415,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			planArea += p;
 			planCenter += (x + l / 2) * p;
 
+			rotationalInertia += dV * (pow2(outer) + pow2(inner)) / 2;
+			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12 + pow2(x + l / 2));
+			
 			// Update for next iteration
 			r1 = r2;
 			x += l;
@@ -433,74 +437,16 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			// includes the shoulders
 			cg = new Coordinate(cgx / volume, 0, 0, getMaterial().getDensity() * volume );
 		}
-	}
-	
-	
-	/**
-	 * Integrate the longitudinal and rotational inertia based on component volume.
-	 * This method may be used only if the total volume is zero.
-	 */
-	private void integrateInertiaVolume() {
-		double x, r1, r2;
-
-		longitudinalInertia = 0;
-		rotationalInertia = 0;
-
-		if (getLength() <= 0) return;
-
-		final double l = getLength() / DIVISIONS;
-		final double pil = Math.PI * l; // PI * l
-		final double pil3 = Math.PI * l / 3; // PI * l/3
 		
-		r1 = getRadius(0);
-		x = 0;
-		
-		double vol = 0;
-		
-		for (int n = 1; n <= DIVISIONS; n++) {
-			/*
-			 * r1 and r2 are the two radii, outer is their average
-			 * x is the position of r1
-			 * hyp is the length of the hypotenuse from r1 to r2
-			 * height if the y-axis height of the component if not filled
-			 */
-			r2 = getRadius(x + l);
-			final double outer = (r1 + r2) / 2;
-			
-
-			// Volume differential elements
-			final double inner;
-			final double dV;
-			
-			final double hyp = MathUtil.hypot(r2 - r1, l);
-			final double height = thickness * hyp / l;
-			if (filled || r1 < height || r2 < height ) {
-				inner = 0;
-				dV = pil3 * (r1 * r1 + r1 * r2 + r2 * r2);
-			} else {
-				dV = pil * height * (r1 + r2 - height);
-				inner = Math.max(outer - height, 0.);
-			}
-			
-			rotationalInertia += dV * (pow2(outer) + pow2(inner)) / 2;
-			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12 + pow2(x + l / 2));
-			
-			vol += dV;
-			
-			// Update for next iteration
-			r1 = r2;
-			x += l;
-		}
-
 		// a part so small it has no volume can't contribute to moment of inertia
-		if (MathUtil.equals(vol, 0)) {
+		if (MathUtil.equals(volume, 0)) {
 			rotationalInertia = 0;
 			longitudinalInertia = 0;
 			return;
 		}
 		
-		rotationalInertia /= vol;
-		longitudinalInertia /= vol;
+		rotationalInertia /= volume;
+		longitudinalInertia /= volume;
 		
 		// Shift longitudinal inertia to CG
 		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
