@@ -23,7 +23,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	public static final double DEFAULT_RADIUS = 0.025;
 	public static final double DEFAULT_THICKNESS = 0.002;
 	
-	private static final int DIVISIONS = 100; // No. of divisions when integrating
+	private static final int DIVISIONS = 128; // No. of divisions when integrating
 	
 	protected boolean filled = false;
 	protected double thickness = DEFAULT_THICKNESS;
@@ -332,9 +332,6 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 * Performs integration over the length of the component and updates the cached variables.
 	 */
 	private void integrate() {
-		double x, r1, r2;
-		double cgx;
-
 		wetArea = 0;
 		planArea = 0;
 		planCenter = 0;
@@ -343,6 +340,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		cg = Coordinate.NUL;
 		longitudinalInertia = 0;
 		rotationalInertia = 0;
+		
+		double cgx = 0;
 
 		// Check length > 0
 		if (getLength() <= 0) {
@@ -350,27 +349,18 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		}
 
 		// Integrate for volume, CG, wetted area, planform area, and moments of inertia
-		
-		final double l = getLength() / DIVISIONS;
-		final double pi3 = Math.PI / 3.0;
-		final double pil = Math.PI * l;
-		final double pil3 = Math.PI * l / 3;
-		
-		r1 = getRadius(0);
-		x = 0;
-		cgx = 0;
-		
-		for (int n = 1; n <= DIVISIONS; n++) {
+		for (int n = 0; n < DIVISIONS; n++) {
 			/*
-			 * r1 and r2 are the two radii
-			 * x is the position of r1
+			 * x1 and x2 are the bounds on this section
 			 * hyp is the length of the hypotenuse from r1 to r2
 			 * height is the y-axis height of the component if not filled
 			 */
-		
-			// Further to prevent round off error from the previous statement,
-			// we clamp r2 to length at the last iteration.
-			r2 = getRadius((n==DIVISIONS) ? getLength() : x + l);
+			final double x1 = n * getLength() / DIVISIONS;
+			final double r1 = getRadius(x1);
+			final double x2 = (n + 1) * getLength() / DIVISIONS;
+			final double r2 = getRadius(x2);
+			final double l = x2 - x1;
+			final double xmean = (x1 + x2) / 2;
 			
 			final double outer = (r1 + r2) / 2;	
 			final double hyp = MathUtil.hypot(r2 - r1, l);
@@ -381,7 +371,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			final double dV;
 			final double dFullV;
 			
-			dFullV = pi3 * l * (r1 * r1 + r1 * r2 + r2 * r2);
+			dFullV = Math.PI * l * (r1 * r1 + r1 * r2 + r2 * r2) / 3.0;
 			
 			if ( filled || r1 < height || r2 < height ) {
 				inner = 0;
@@ -405,7 +395,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			// Add to the volume-related components
 			volume += dV;
 			fullVolume += dFullV;
-			cgx += (x + l / 2) * dV;
+			cgx += xmean * dV;
 			
 			// Wetted area ( * PI at the end)
 			wetArea += hyp * (r1 + r2);
@@ -413,14 +403,10 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			// Planform area & center
 			final double p = l * (r1 + r2);
 			planArea += p;
-			planCenter += (x + l / 2) * p;
+			planCenter += xmean * p;
 
 			rotationalInertia += dV * (pow2(outer) + pow2(inner)) / 2;
-			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12 + pow2(x + l / 2));
-			
-			// Update for next iteration
-			r1 = r2;
-			x += l;
+			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12 + pow2(xmean));
 		}
 		
 		wetArea *= Math.PI;
