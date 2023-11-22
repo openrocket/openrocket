@@ -55,7 +55,7 @@ public abstract class PreferencesExporter {
 
         // TODO: update this dynamically instead of hard-coded values
         // The macOS file chooser has an issue where it does not update its size when the accessory is added.
-        if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+        if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
             Dimension currentSize = chooser.getPreferredSize();
             Dimension newSize = new Dimension((int) (1.35 * currentSize.width), (int) (1.2 * currentSize.height));
             chooser.setPreferredSize(newSize);

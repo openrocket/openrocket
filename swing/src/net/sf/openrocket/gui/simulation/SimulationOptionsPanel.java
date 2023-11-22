@@ -66,6 +66,7 @@ class SimulationOptionsPanel extends JPanel {
 	JMenu extensionMenuCopyExtension;
 
 	private static Color textColor;
+	private static Color dimTextColor;
 	private static Border border;
 
 	static {
@@ -232,6 +233,7 @@ class SimulationOptionsPanel extends JPanel {
 
 	private static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		border = GUIUtil.getUITheme().getBorder();
 	}
 	
@@ -349,7 +351,7 @@ class SimulationOptionsPanel extends JPanel {
 		
 		if (simulation.getSimulationExtensions().isEmpty()) {
 			StyledLabel l = new StyledLabel(trans.get("simedtdlg.SimExt.noExtensions"), Style.ITALIC);
-			l.setForeground(Color.DARK_GRAY);
+			l.setForeground(dimTextColor);
 			currentExtensions.add(l, "growx, pad 5 5 5 5, wrap");
 		} else {
 			for (SimulationExtension e : simulation.getSimulationExtensions()) {
