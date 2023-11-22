@@ -166,7 +166,7 @@ public class UnitGroup {
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048), "ft" + SQUARED));
 
 		UNITS_SHAPE_PARAMETER = new UnitGroup();
-		UNITS_SHAPE_PARAMETER.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
+		UNITS_SHAPE_PARAMETER.addUnit(new GeneralUnit(1, "" + ZWSP, 1, 10, 0.1));
 		
 		
 		UNITS_STABILITY = new UnitGroup();
