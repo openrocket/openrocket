@@ -42,6 +42,7 @@ public class SimulationModifierTree extends BasicTree {
 
 	private static Color textColor;
 	private static Color dimTextColor;
+	private static Color disabledTextColor;
 	private static Color textSelectionForegroundColor;
 	private static Color textSelectionBackgroundColor;
 
@@ -77,6 +78,7 @@ public class SimulationModifierTree extends BasicTree {
 	private static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		disabledTextColor = GUIUtil.getUITheme().getDisabledTextColor();
 		textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
 		textSelectionBackgroundColor = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
 	}
@@ -197,16 +199,18 @@ public class SimulationModifierTree extends BasicTree {
 				setForeground(dimTextColor);
 				setFont(stringFont);
 			} else if (object instanceof SimulationModifier) {
+				boolean isSelected = tree.getSelectionRows() != null && IntStream.of(tree.getSelectionRows()).anyMatch(r -> r == row);
+				if (isSelected) {
+					setBackground(textSelectionBackgroundColor);
+					setOpaque(true);
+				}
 				
 				if (selectedModifiers.contains(object)) {
-					setForeground(dimTextColor);
+					setForeground(disabledTextColor);
 					setFont(stringFont);
 				} else {
-					if (tree.getSelectionRows() != null &&
-							IntStream.of(tree.getSelectionRows()).anyMatch(r -> r == row)) {
+					if (isSelected) {
 						setForeground(textSelectionForegroundColor);
-						setBackground(textSelectionBackgroundColor);
-						setOpaque(true);
 					} else {
 						setForeground(textColor);
 					}
