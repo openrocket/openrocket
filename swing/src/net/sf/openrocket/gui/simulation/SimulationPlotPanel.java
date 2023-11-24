@@ -37,6 +37,7 @@ import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.FlightDataTypeGroup;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -497,7 +498,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = new FlightDataComboBox(types);
+			typeSelector = new FlightDataComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override
