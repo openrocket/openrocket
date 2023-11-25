@@ -54,6 +54,6 @@ public class FlightDataTypeGroup {
 
 	@Override
 	public String toString() {
-		return name;
+		return getName();
 	}
 }

@@ -488,7 +488,7 @@ public class SimulationPlotPanel extends JPanel {
 		private final String[] POSITIONS = { AUTO_NAME, LEFT_NAME, RIGHT_NAME };
 		
 		private final int index;
-		private JComboBox<FlightDataType> typeSelector;
+		private final JComboBox<FlightDataType> typeSelector;
 		private UnitSelector unitSelector;
 		private JComboBox<String> axisSelector;
 		
@@ -498,7 +498,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = new FlightDataComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
+			typeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override
