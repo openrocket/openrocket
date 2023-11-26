@@ -37,6 +37,7 @@ import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.FlightDataTypeGroup;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -171,7 +172,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = new JComboBox<FlightDataType>(types);
+		domainTypeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
@@ -487,7 +488,7 @@ public class SimulationPlotPanel extends JPanel {
 		private final String[] POSITIONS = { AUTO_NAME, LEFT_NAME, RIGHT_NAME };
 		
 		private final int index;
-		private JComboBox<FlightDataType> typeSelector;
+		private final JComboBox<FlightDataType> typeSelector;
 		private UnitSelector unitSelector;
 		private JComboBox<String> axisSelector;
 		
@@ -497,7 +498,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = new JComboBox<FlightDataType>(types);
+			typeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override
