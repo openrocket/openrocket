@@ -160,6 +160,17 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
 		rightPanel.add(combo, "sizegroup boxes, wrap");
 
+		//// Latitude
+		rightPanel.add(new JLabel(trans.get("pref.dlg.lbl.Latitude")));
+		combo = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_LATITUDE));
+		rightPanel.add(combo, "sizegroup boxes, wrap");
+
+		//// Longitude
+		rightPanel.add(new JLabel(trans.get("pref.dlg.lbl.Longitude")));
+		combo = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_LONGITUDE));
+		rightPanel.add(combo, "sizegroup boxes, wrap");
+
+
 		this.add(leftPanel, "top");
 		this.add(rightPanel, "top, wrap para");
 		
