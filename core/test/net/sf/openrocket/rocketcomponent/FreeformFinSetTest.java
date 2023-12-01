@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
@@ -246,6 +246,141 @@ public class FreeformFinSetTest extends BaseTestCase {
 		assertEquals( -0.015, finSet.getTabOffset(), EPSILON);
 		assertEquals( 0.005, finSet.getThickness(), EPSILON);
 
+	}
+
+	@Test
+	public void testGenerateTrapezoidalPointsWithCant() {
+		final Rocket rkt = createTemplateRocket();
+		final Transition tailCone = (Transition) rkt.getChild(0).getChild(2);
+		final FreeformFinSet fins = createFinOnConicalTransition(tailCone);
+		fins.setCantAngle(Math.toRadians(15));
+
+		Coordinate[] actPoints = fins.getFinPoints();
+		Coordinate[] rootPoints = fins.getRootPoints();
+
+		final Coordinate[] expPoints = new Coordinate[] {
+				new Coordinate(0, -0.001683625, 0),
+				new Coordinate(0.4, 0.2, 0),
+				new Coordinate(0.4, -0.202224401, 0)
+		};
+
+		final Coordinate[] expRootPoints = new Coordinate[]{
+				new Coordinate(0, -0.001683625, 0),
+				new Coordinate(0.004, -0.003620824, 0),
+				new Coordinate(0.008, -0.005559077, 0),
+				new Coordinate(0.012, -0.00749839, 0),
+				new Coordinate(0.016, -0.009438771, 0),
+				new Coordinate(0.02, -0.011380227, 0),
+				new Coordinate(0.024, -0.013322767, 0),
+				new Coordinate(0.028, -0.015266398, 0),
+				new Coordinate(0.032, -0.017211128, 0),
+				new Coordinate(0.036, -0.019156966, 0),
+				new Coordinate(0.04, -0.021103918, 0),
+				new Coordinate(0.044, -0.023051993, 0),
+				new Coordinate(0.048, -0.0250012, 0),
+				new Coordinate(0.052, -0.026951546, 0),
+				new Coordinate(0.056, -0.028903041, 0),
+				new Coordinate(0.06, -0.030855692, 0),
+				new Coordinate(0.064, -0.032809508, 0),
+				new Coordinate(0.068, -0.034764497, 0),
+				new Coordinate(0.072, -0.036720669, 0),
+				new Coordinate(0.076, -0.038678032, 0),
+				new Coordinate(0.08, -0.040636596, 0),
+				new Coordinate(0.084, -0.042596368, 0),
+				new Coordinate(0.088, -0.044557359, 0),
+				new Coordinate(0.092, -0.046519577, 0),
+				new Coordinate(0.096, -0.048483032, 0),
+				new Coordinate(0.1, -0.050447733, 0),
+				new Coordinate(0.104, -0.052413689, 0),
+				new Coordinate(0.108, -0.054380911, 0),
+				new Coordinate(0.112, -0.056349408, 0),
+				new Coordinate(0.116, -0.05831919, 0),
+				new Coordinate(0.12, -0.060290266, 0),
+				new Coordinate(0.124, -0.062262648, 0),
+				new Coordinate(0.128, -0.064236344, 0),
+				new Coordinate(0.132, -0.066211365, 0),
+				new Coordinate(0.136, -0.068187722, 0),
+				new Coordinate(0.14, -0.070165425, 0),
+				new Coordinate(0.144, -0.072144484, 0),
+				new Coordinate(0.148, -0.074124911, 0),
+				new Coordinate(0.152, -0.076106716, 0),
+				new Coordinate(0.156, -0.07808991, 0),
+				new Coordinate(0.16, -0.080074505, 0),
+				new Coordinate(0.164, -0.082060511, 0),
+				new Coordinate(0.168, -0.08404794, 0),
+				new Coordinate(0.172, -0.086036803, 0),
+				new Coordinate(0.176, -0.088027112, 0),
+				new Coordinate(0.18, -0.090018879, 0),
+				new Coordinate(0.184, -0.092012115, 0),
+				new Coordinate(0.188, -0.094006834, 0),
+				new Coordinate(0.192, -0.096003045, 0),
+				new Coordinate(0.196, -0.098000763, 0),
+				new Coordinate(0.2, -0.1, 0),
+				new Coordinate(0.204, -0.102000768, 0),
+				new Coordinate(0.208, -0.104003079, 0),
+				new Coordinate(0.212, -0.106006948, 0),
+				new Coordinate(0.216, -0.108012386, 0),
+				new Coordinate(0.22, -0.110019407, 0),
+				new Coordinate(0.224, -0.112028025, 0),
+				new Coordinate(0.228, -0.114038253, 0),
+				new Coordinate(0.232, -0.116050104, 0),
+				new Coordinate(0.236, -0.118063594, 0),
+				new Coordinate(0.24, -0.120078734, 0),
+				new Coordinate(0.244, -0.122095541, 0),
+				new Coordinate(0.248, -0.124114028, 0),
+				new Coordinate(0.252, -0.126134209, 0),
+				new Coordinate(0.256, -0.1281561, 0),
+				new Coordinate(0.26, -0.130179716, 0),
+				new Coordinate(0.264, -0.132205071, 0),
+				new Coordinate(0.268, -0.134232181, 0),
+				new Coordinate(0.272, -0.136261062, 0),
+				new Coordinate(0.276, -0.138291728, 0),
+				new Coordinate(0.28, -0.140324197, 0),
+				new Coordinate(0.284, -0.142358484, 0),
+				new Coordinate(0.288, -0.144394605, 0),
+				new Coordinate(0.292, -0.146432578, 0),
+				new Coordinate(0.296, -0.148472418, 0),
+				new Coordinate(0.3, -0.150514143, 0),
+				new Coordinate(0.304, -0.152557769, 0),
+				new Coordinate(0.308, -0.154603316, 0),
+				new Coordinate(0.312, -0.156650799, 0),
+				new Coordinate(0.316, -0.158700236, 0),
+				new Coordinate(0.32, -0.160751647, 0),
+				new Coordinate(0.324, -0.16280505, 0),
+				new Coordinate(0.328, -0.164860462, 0),
+				new Coordinate(0.332, -0.166917903, 0),
+				new Coordinate(0.336, -0.168977392, 0),
+				new Coordinate(0.34, -0.171038948, 0),
+				new Coordinate(0.344, -0.173102591, 0),
+				new Coordinate(0.348, -0.175168341, 0),
+				new Coordinate(0.352, -0.177236218, 0),
+				new Coordinate(0.356, -0.179306243, 0),
+				new Coordinate(0.36, -0.181378435, 0),
+				new Coordinate(0.364, -0.183452818, 0),
+				new Coordinate(0.368, -0.18552941, 0),
+				new Coordinate(0.372, -0.187608235, 0),
+				new Coordinate(0.376, -0.189689315, 0),
+				new Coordinate(0.38, -0.191772671, 0),
+				new Coordinate(0.384, -0.193858326, 0),
+				new Coordinate(0.388, -0.195946303, 0),
+				new Coordinate(0.392, -0.198036625, 0),
+				new Coordinate(0.396, -0.200129317, 0),
+				new Coordinate(0.4, -0.202224401, 0)
+		};
+
+
+		assertEquals("Canted fin number of points doesn't match! ", expPoints.length, actPoints.length);
+		assertEquals("Canted root number of points doesn't match! ", expRootPoints.length, rootPoints.length);
+		for (int i = 0; i < expPoints.length; i++) {
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].x, actPoints[i].x, EPSILON);
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].y, actPoints[i].y, EPSILON);
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].z, actPoints[i].z, EPSILON);
+		}
+		for (int i = 0; i < expRootPoints.length; i++) {
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].x, rootPoints[i].x, EPSILON);
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].y, rootPoints[i].y, EPSILON);
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].z, rootPoints[i].z, EPSILON);
+		}
 	}
 
 	@Test

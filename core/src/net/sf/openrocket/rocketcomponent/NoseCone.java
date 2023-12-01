@@ -53,14 +53,6 @@ public class NoseCone extends Transition implements InsideColorComponent {
 	}
 
 	/**
-	 * Returns the raw base radius of the nose cone (independent of whether the nose cone is flipped or not).
-	 * This method should be used over {@link #getAftRadiusNoAutomatic()} because it works for both normal and flipped nose cones.
-	 */
-	public double getBaseRadiusNoAutomatic() {
-		return isFlipped ? getForeRadiusNoAutomatic() : getAftRadiusNoAutomatic();
-	}
-
-	/**
 	 * Sets the base radius of the nose cone (independent of whether the nose cone is flipped or not).
 	 * This method should be used over {@link #setAftRadius(double)} because it works for both normal and flipped nose cones.
 	 */
@@ -203,7 +195,7 @@ public class NoseCone extends Transition implements InsideColorComponent {
 		boolean previousByPass = isBypassComponentChangeEvent();
 		setBypassChangeEvent(true);
 		if (flipped) {
-			setForeRadius(getAftRadiusNoAutomatic());
+			setForeRadius(getAftRadius());
 			setForeRadiusAutomatic(isAftRadiusAutomatic(), sanityCheck);
 			setForeShoulderLength(getAftShoulderLength());
 			setForeShoulderRadius(getAftShoulderRadius());
@@ -212,7 +204,7 @@ public class NoseCone extends Transition implements InsideColorComponent {
 
 			resetAftRadius();
 		} else {
-			setAftRadius(getForeRadiusNoAutomatic());
+			setAftRadius(getForeRadius());
 			setAftRadiusAutomatic(isForeRadiusAutomatic(), sanityCheck);
 			setAftShoulderLength(getForeShoulderLength());
 			setAftShoulderRadius(getForeShoulderRadius());

@@ -5,6 +5,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.AxialStage;
@@ -24,6 +25,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -51,6 +53,12 @@ public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
     private final Component tree;
 
+    private static Border border;
+
+    static {
+        initColors();
+    }
+
     public DesignPanel(final BasicFrame parent, final OpenRocketDocument document, final ComponentTree tree) {
         super(JSplitPane.HORIZONTAL_SPLIT, true);
         setResizeWeight(0.5);
@@ -61,13 +69,13 @@ public class DesignPanel extends JSplitPane {
 
         // Remove JTree key events that interfere with menu accelerators
         InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), null);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), null);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), "none");
 
         // Highlight all child components of a stage/rocket/podset when it is selected
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
@@ -174,6 +182,7 @@ public class DesignPanel extends JSplitPane {
 
         // Place tree inside scroll pane
         JScrollPane scroll = new JScrollPane(tree);
+        tree.setBorder(border);
         panel.add(scroll, "spany, wmin 140px, grow, wrap");
 
 
@@ -227,6 +236,15 @@ public class DesignPanel extends JSplitPane {
         panel.add(scroll, "grow");
 
         this.setRightComponent(panel);
+    }
+
+    private static void initColors() {
+        updateColors();
+        UITheme.Theme.addUIThemeChangeListener(DesignPanel::updateColors);
+    }
+
+    private static void updateColors() {
+        border = GUIUtil.getUITheme().getBorder();
     }
 
     /**

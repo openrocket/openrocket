@@ -192,9 +192,8 @@ public class SimulationPlot {
 				}
 				data[axis].addSeries(series);
 			}
-			// For each of the secondary branches, we use data from branch 0 for the earlier times
+			// Secondary branches
 			for (int branchIndex = 1; branchIndex < branchCount; branchIndex++) {
-				FlightDataBranch primaryBranch = simulation.getSimulatedData().getBranch(0);
 				FlightDataBranch thisBranch = simulation.getSimulatedData().getBranch(branchIndex);
 
 				// Ignore empty branches
@@ -206,25 +205,10 @@ public class SimulationPlot {
 					continue;
 				}
 
-				// Get first time index used in secondary branch;
-				double firstSampleTime = thisBranch.get(FlightDataType.TYPE_TIME).get(0);
-
 				XYSeries series = new XYSeries(seriesCount++, false, true);
 				series.setDescription(thisBranch.getBranchName() + ": " + name);
 
-				// Copy the first points from the primaryBranch.
-				List<Double> primaryT = primaryBranch.get(FlightDataType.TYPE_TIME);
-				List<Double> primaryx = primaryBranch.get(domainType);
-				List<Double> primaryy = primaryBranch.get(type);
-
-				for (int j = 0; j < primaryT.size(); j++) {
-					if (primaryT.get(j) >= firstSampleTime) {
-						break;
-					}
-					series.add(domainUnit.toUnit(primaryx.get(j)), unit.toUnit(primaryy.get(j)));
-				}
-
-				// Now copy all the data from the secondary branch
+				// Copy all the data from the secondary branch
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
 
@@ -256,13 +240,8 @@ public class SimulationPlot {
 		plot.setDomainGridlinesVisible(true);
 		plot.setDomainGridlinePaint(Color.lightGray);
 
-		Color[] colors = {new Color(0,114,189),		// Colors for data lines
-				new Color(217,83,25),
-				new Color(237,177,32),
-				new Color(126,49,142),
-				new Color(119,172,48),
-				new Color(77,190,238),
-				new Color(162,20,47)};
+		int cumulativeSeriesCount = 0;
+
 		for (int axisno = 0; axisno < 2; axisno++) {
 			// Check whether axis has any data
 			if (data[axisno].getSeriesCount() > 0) {
@@ -315,13 +294,19 @@ public class SimulationPlot {
 				plot.setRenderer(axisno, r);
 				r.setBaseShapesVisible(initialShowPoints);
 				r.setBaseShapesFilled(true);
-				r.setSeriesPaint(0, colors[axisno]);
-				r.setSeriesPaint(1, colors[axisno+2]);
-				r.setSeriesPaint(2, colors[axisno+4]);
-				for (int j = 0; j < data[axisno].getSeriesCount(); j++) {
+
+				// Set colors for all series of the current axis
+				for (int seriesIndex = 0; seriesIndex < data[axisno].getSeriesCount(); seriesIndex++) {
+					int colorIndex = cumulativeSeriesCount + seriesIndex;
+					r.setSeriesPaint(seriesIndex, Util.getPlotColor(colorIndex));
+
 					Stroke lineStroke = new BasicStroke(PLOT_STROKE_WIDTH);
-					r.setSeriesStroke(j, lineStroke);
+					r.setSeriesStroke(seriesIndex, lineStroke);
 				}
+
+				// Update the cumulative count for the next axis
+				cumulativeSeriesCount += data[axisno].getSeriesCount();
+
 				// Now we pull the colors for the legend.
 				for (int j = 0; j < data[axisno].getSeriesCount(); j += branchCount) {
 					String name = data[axisno].getSeries(j).getDescription();

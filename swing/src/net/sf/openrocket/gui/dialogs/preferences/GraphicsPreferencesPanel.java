@@ -29,6 +29,8 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
@@ -119,6 +121,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 							String commandLine = fc.getSelectedFile().getAbsolutePath();
 							commandText.setText(commandLine);
 							preferences.setDecalEditorPreference(false, commandLine);
+							((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
 						}
 						
 					}

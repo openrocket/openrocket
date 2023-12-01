@@ -2,8 +2,8 @@ package net.sf.openrocket.file.simplesax;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 
 /**
  * An element handler that does not allow any sub-elements.  If any are encountered

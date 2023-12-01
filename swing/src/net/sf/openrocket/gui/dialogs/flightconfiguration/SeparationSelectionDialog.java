@@ -4,6 +4,7 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -38,11 +39,12 @@ public class SeparationSelectionDialog extends JDialog {
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private StageSeparationConfiguration newConfiguration;
+
+	private boolean isOverrideDefault;
 	
-	public SeparationSelectionDialog(Window parent, final Rocket rocket, final AxialStage stage) {
+	public SeparationSelectionDialog(Window parent, final Rocket rocket, final AxialStage stage, FlightConfigurationId id) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectseparationconf"), Dialog.ModalityType.APPLICATION_MODAL);
-		final FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
-		
+
 		newConfiguration = stage.getSeparationConfigurations().get(id);
 		if( stage.getSeparationConfigurations().isDefault( newConfiguration )){
 			newConfiguration = newConfiguration.clone();
@@ -59,7 +61,9 @@ public class SeparationSelectionDialog extends JDialog {
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
 		String str = trans.get("SeparationSelectionDialog.opt.override");
 		str = str.replace("{0}", descriptor.format(rocket, id));
-		final JRadioButton overrideButton = new JRadioButton(str, false);
+		final JRadioButton overrideButton = new JRadioButton(str);
+		overrideButton.addItemListener(e -> isOverrideDefault = e.getStateChange() == ItemEvent.SELECTED);
+		overrideButton.setSelected(false);
 		panel.add(overrideButton, "span, gapleft para, wrap para");
 		
 		ButtonGroup buttonGroup = new ButtonGroup();
@@ -123,5 +127,14 @@ public class SeparationSelectionDialog extends JDialog {
 		this.setContentPane(panel);
 		
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+		GUIUtil.installEscapeCloseButtonOperation(this, okButton);
+	}
+
+	/**
+	 * Returns true if this dialog was used to override the default configuration.
+	 * @return true if this dialog was used to override the default configuration.
+	 */
+	public boolean isOverrideDefault() {
+		return isOverrideDefault;
 	}
 }

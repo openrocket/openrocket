@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 
 /**
  * Tests the FlightData object.
@@ -52,11 +52,12 @@ public class TestFlightData {
 		double maxAltitude = 355.1;
 		double maxMachNumber = 0.31;
 		double timeToApogee = 7.96;
+		double optimumDelay = 5.2;
 		
 		FlightData data = new FlightData(maxAltitude, maxVelocity, maxAcceleration,
 				                         maxMachNumber, timeToApogee, flightTime,
 				                         groundHitVelocity, launchRodVelocity,
-				                         deploymentVelocity);
+				                         deploymentVelocity, optimumDelay);
 		
 		WarningSet warnings = data.getWarningSet();
 		assertNotNull(warnings);
@@ -71,6 +72,7 @@ public class TestFlightData {
 		assertEquals(maxAltitude, data.getMaxAltitude(), 0.00);
 		assertEquals(maxMachNumber, data.getMaxMachNumber(), 0.00);
 		assertEquals(timeToApogee, data.getTimeToApogee(), 0.00);
+		assertEquals(optimumDelay, data.getOptimumDelay(), 0.00);
 	}
 	
 	/**

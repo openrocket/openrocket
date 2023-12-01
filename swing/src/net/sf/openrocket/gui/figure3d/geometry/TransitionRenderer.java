@@ -123,7 +123,7 @@ final class TransitionRenderer {
 	private TransitionRenderer() {
 	}
 	
-	static final void drawTransition(final GL2 gl, final Transition tr,
+	static void drawTransition(final GL2 gl, final Transition tr,
 			final int slices, final int stacks, final double offsetRadius) {
 		
 		double da, r, dzBase;
@@ -131,14 +131,16 @@ final class TransitionRenderer {
 		int i;
 		
 		da = 2.0f * Math.PI / slices;
-		dzBase = (double) tr.getLength() / stacks;
+		dzBase = tr.getLength() / stacks;
 		
 		double ds = 1.0f / slices;
 		
 		z = 0.0f;
-		r = (double) tr.getForeRadius();
 		while (z < tr.getLength()) {
 			double t = z / tr.getLength();
+			if (tr.getForeRadius() > tr.getAftRadius()) {
+				t = 1 - t;
+			}
 			
 			double dz = t < 0.025 ? dzBase / 8.0 : dzBase;
 			double zNext = Math.min(z + dz, tr.getLength());

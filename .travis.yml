@@ -8,10 +8,8 @@ addons:
       - ant-optional
 
 jdk:
-  - openjdk11
-  - openjdk13
-  - oraclejdk11
-  - oraclejdk13
+  - openjdk17
+  - oraclejdk17
  
 script:
   - "ant -buildfile build.xml clean check jar unittest"

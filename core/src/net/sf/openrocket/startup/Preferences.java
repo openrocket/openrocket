@@ -9,19 +9,17 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.file.wavefrontobj.Axis;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.BodyComponent;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.InternalComponent;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.RailButton;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
@@ -44,6 +42,10 @@ public abstract class Preferences implements ChangeSource {
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
 	
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
+
+	// Preferences related to units
+	public static final String DISPLAY_SECONDARY_STABILITY = "DisplaySecondaryStability";
+
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_DECIMAL_PLACES = "ExportDecimalPlaces";
@@ -53,7 +55,8 @@ public abstract class Preferences implements ChangeSource {
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
-	
+	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
+
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
@@ -73,19 +76,24 @@ public abstract class Preferences implements ChangeSource {
 	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
 	
 	// Node names
-	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
-	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
-	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OPEN_LEFTMOST_DESIGN_TAB";
+	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "PreferredThrustCurveMotors";
+	private static final String AUTO_OPEN_LAST_DESIGN = "AutoOpenLastDesign";
+	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";
+	private static final String SHOW_SAVE_ROCKET_INFO = "ShowSaveRocketInfo";
 	private static final String SHOW_DISCARD_SIMULATION_CONFIRMATION = "IgnoreDiscardSimulationEditingWarning";
-	public static final String MARKER_STYLE_ICON = "MARKER_STYLE_ICON";
-	private static final String SHOW_MARKERS = "SHOW_MARKERS";
-	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "SHOW_ROCKSIM_FORMAT_WARNING";
+	private static final String SHOW_DISCARD_PREFERENCES_CONFIRMATION = "IgnoreDiscardPreferencesWarning";
+	public static final String MARKER_STYLE_ICON = "MarkerStyleIcon";
+	private static final String SHOW_MARKERS = "ShowMarkers";
+	private static final String SHOW_RASAERO_FORMAT_WARNING = "ShowRASAeroFormatWarning";
+	private static final String SHOW_ROCKSIM_FORMAT_WARNING = "ShowRockSimFormatWarning";
+	private static final String EXPORT_USER_DIRECTORIES = "ExportUserDirectories";
+	private static final String EXPORT_WINDOW_INFORMATION = "ExportWindowInformation";
 	
 	//Preferences related to 3D graphics
-	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
-	public static final String OPENGL_ENABLE_AA = "OpenGL_Antialiasing_Is_Enabled";
-	public static final String OPENGL_USE_FBO = "OpenGL_Use_FBO";
+	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
+	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 	
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
 	
@@ -108,7 +116,28 @@ public abstract class Preferences implements ChangeSource {
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
-	
+
+	public static final String UI_THEME = "UITheme";
+
+	// OBJ Export options
+	private static final String OBJ_EXPORT_OPTIONS_NODE = "OBJExportOptions";
+	private static final String OBJ_EXPORT_CHILDREN = "ExportChildren";
+	private static final String OBJ_EXPORT_MOTORS = "ExportMotors";
+	private static final String OBJ_EXPORT_APPEARANCE = "ExportAppearance";
+	private static final String OBJ_EXPORT_AS_SEPARATE_FILES = "ExportAsSeparateFiles";
+	private static final String OBJ_REMOVE_OFFSET = "RemoveOffset";
+	private static final String OBJ_TRIANGULATE = "Triangulate";
+	private static final String OBJ_SRGB = "sRGB";
+	private static final String OBJ_LOD = "LOD";
+	private static final String OBJ_SCALING = "Scaling";
+	//// Coordinate transformer
+	private static final String OBJ_TRANSFORMER_NODE = "CoordTransform";
+	private static final String OBJ_X_AXIS = "xAxis";
+	private static final String OBJ_Y_AXIS = "yAxis";
+	private static final String OBJ_Z_AXIS = "zAxis";
+	private static final String OBJ_ORIG_X_OFFS = "OrigXOffs";
+	private static final String OBJ_ORIG_Y_OFFS = "OrigYOffs";
+	private static final String OBJ_ORIG_Z_OFFS = "OrigZOffs";
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
@@ -146,6 +175,8 @@ public abstract class Preferences implements ChangeSource {
 	public abstract void putString(String directory, String key, String value);
 	
 	public abstract java.util.prefs.Preferences getNode(String nodeName);
+
+	public abstract java.util.prefs.Preferences getPreferences();
 
 	/*
 	 * Welcome dialog
@@ -198,6 +229,27 @@ public abstract class Preferences implements ChangeSource {
 
 
 	/*
+	 * *********************** Unit Preferences *******************************************
+	 */
+
+	/**
+	 * Return whether to display a secondary stability unit in the rocket design view.
+	 * @return true if the secondary unit should be displayed, false if not.
+	 */
+	public final boolean isDisplaySecondaryStability() {
+		return this.getBoolean(DISPLAY_SECONDARY_STABILITY, true);
+	}
+
+	/**
+	 * Set whether to display a secondary stability unit in the rocket design view.
+	 * @param check if true, display the secondary unit, if false not.
+	 */
+	public final void setDisplaySecondaryStability(boolean check) {
+		this.putBoolean(DISPLAY_SECONDARY_STABILITY, check);
+	}
+
+
+	/*
 	 * ******************************************************************************************
 	 */
 	
@@ -224,6 +276,14 @@ public abstract class Preferences implements ChangeSource {
 	public final void setLaunchIntoWind(boolean check) {
 		this.putBoolean(LAUNCH_INTO_WIND, check);
 	}
+
+	public final boolean getShowRASAeroFormatWarning() {
+		return this.getBoolean(SHOW_RASAERO_FORMAT_WARNING, true);
+	}
+
+	public final void setShowRASAeroFormatWarning(boolean check) {
+		this.putBoolean(SHOW_RASAERO_FORMAT_WARNING, check);
+	}
 	
 	public final boolean getShowRockSimFormatWarning() {
 		return this.getBoolean(SHOW_ROCKSIM_FORMAT_WARNING, true);
@@ -232,7 +292,23 @@ public abstract class Preferences implements ChangeSource {
 	public final void setShowRockSimFormatWarning(boolean check) {
 		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
 	}
-	
+
+	public final boolean getExportUserDirectories() {
+		return this.getBoolean(EXPORT_USER_DIRECTORIES, false);
+	}
+
+	public final void setExportUserDirectories(boolean check) {
+		this.putBoolean(EXPORT_USER_DIRECTORIES, check);
+	}
+
+	public final boolean getExportWindowInformation() {
+		return this.getBoolean(EXPORT_WINDOW_INFORMATION, false);
+	}
+
+	public final void setExportWindowInformation(boolean check) {
+		this.putBoolean(EXPORT_WINDOW_INFORMATION, check);
+	}
+
 	public final double getDefaultMach() {
 		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}
@@ -352,7 +428,7 @@ public abstract class Preferences implements ChangeSource {
 		this.putDouble(LAUNCH_ALTITUDE, altitude);
 
 		// Update the launch temperature and pressure if using ISA
-		if (getISAAtmosphere()) {
+		if (isISAAtmosphere()) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
 		}
@@ -442,7 +518,7 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	
-	public boolean getISAAtmosphere() {
+	public boolean isISAAtmosphere() {
 		return this.getBoolean(LAUNCH_USE_ISA, true);
 	}
 	
@@ -494,11 +570,6 @@ public abstract class Preferences implements ChangeSource {
 		fireChangeEvent();
 	}
 	
-	
-	public final float getRocketInfoFontSize() {
-		return (float) (11.0 + 3 * Application.getPreferences().getChoice(Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
-	}
-	
 	/**
 	 * Enable/Disable the auto-opening of the last edited design file on startup.
 	 */
@@ -539,6 +610,21 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
+	 * Returns whether a 'save rocket information' dialog should be shown after saving a new design file.
+	 * @return true if the 'save rocket information' dialog should be shown.
+	 */
+	public final boolean isShowSaveRocketInfo() {
+		return this.getBoolean(SHOW_SAVE_ROCKET_INFO, true);
+	}
+
+	/**
+	 * Enable/Disable showing a 'save rocket information' dialog after saving a new design file.
+	 * @return true if the 'save rocket information' dialog should be shown.
+	 */
+	public final void setShowSaveRocketInfo(boolean enabled) {
+		this.putBoolean(SHOW_SAVE_ROCKET_INFO, enabled);
+	}
+	/**
 	 * Answer if a confirmation dialog should be shown when canceling a simulation config operation.
 	 *
 	 * @return true if the confirmation dialog should be shown.
@@ -552,6 +638,22 @@ public abstract class Preferences implements ChangeSource {
 	 */
 	public final void setShowDiscardSimulationConfirmation(boolean enabled) {
 		this.putBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, enabled);
+	}
+
+	/**
+	 * Answer if a confirmation dialog should be shown when canceling preferences changes.
+	 *
+	 * @return true if the confirmation dialog should be shown.
+	 */
+	public final boolean isShowDiscardPreferencesConfirmation() {
+		return this.getBoolean(SHOW_DISCARD_PREFERENCES_CONFIRMATION, true);
+	}
+
+	/**
+	 * Enable/Disable showing a confirmation warning when canceling preferences changes.
+	 */
+	public final void setShowDiscardPreferencesConfirmation(boolean enabled) {
+		this.putBoolean(SHOW_DISCARD_PREFERENCES_CONFIRMATION, enabled);
 	}
 
 	/**
@@ -734,25 +836,6 @@ public abstract class Preferences implements ChangeSource {
 		}
 	}
 	
-	public Color getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, StaticFieldHolder.DEFAULT_COLORS);
-		if (color == null)
-			return Color.BLACK;
-			
-		Color clr = parseColor(color);
-		if (clr != null) {
-			return clr;
-		} else {
-			return Color.BLACK;
-		}
-	}
-	
-	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
-		if (color == null)
-			return;
-		putString("componentColors", c.getSimpleName(), stringifyColor(color));
-	}
-	
 	
 	/**
 	 * Retrieve a Line style for the given component.
@@ -928,6 +1011,93 @@ public abstract class Preferences implements ChangeSource {
 	public abstract void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite);
 	
 	public abstract Set<String> getComponentFavorites(ComponentPreset.Type type);
+
+
+	/*
+	NOTE: It is unusual for the UI Theme to be stored in the preferences instead of SwingPreferences. In fact, this code
+	is not pretty. Sometimes I just really hate Java and circular dependencies...
+	But the reason why this is implemented is because it would otherwise be an even bigger nightmare to fix unit tests
+	that use their own preferences... Also wasn't a fan of always casting the preferences to SwingPreferences.
+	 */
+	/**
+	 * Get the current theme used for the UI.
+	 * @return the current theme
+	 */
+	public Object getUITheme() {
+		return null;
+	}
+
+	/**
+	 * Set the theme used for the UI.
+	 * @param theme the theme to set
+	 */
+	public void setUITheme(Object theme) {}
+
+
+	public void saveOBJExportOptions(OBJExportOptions options) {
+		// ! Don't forget to update the loadOBJExportOptions method and OBJOptionChooser.storeOptions if you add new options !
+
+		java.util.prefs.Preferences preferences = getPreferences();
+		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
+
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_CHILDREN, options.isExportChildren());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_MOTORS, options.isExportMotors());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_APPEARANCE, options.isExportAppearance());
+		objExportOptionsNode.putBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, options.isExportAsSeparateFiles());
+		objExportOptionsNode.putBoolean(OBJ_REMOVE_OFFSET, options.isRemoveOffset());
+		objExportOptionsNode.putBoolean(OBJ_TRIANGULATE, options.isTriangulate());
+		objExportOptionsNode.putBoolean(OBJ_SRGB, options.isUseSRGB());
+
+		objExportOptionsNode.putFloat(OBJ_SCALING, options.getScaling());
+
+		objExportOptionsNode.put(OBJ_LOD, options.getLOD().getExportLabel());
+
+		// Save CoordTransform
+		java.util.prefs.Preferences coordTransformNode = objExportOptionsNode.node(OBJ_TRANSFORMER_NODE);
+		CoordTransform transform = options.getTransformer();
+
+		coordTransformNode.put(OBJ_X_AXIS, transform.getXAxis().toString());
+		coordTransformNode.put(OBJ_Y_AXIS, transform.getYAxis().toString());
+		coordTransformNode.put(OBJ_Z_AXIS, transform.getZAxis().toString());
+		coordTransformNode.putDouble(OBJ_ORIG_X_OFFS, transform.getOrigXOffs());
+		coordTransformNode.putDouble(OBJ_ORIG_Y_OFFS, transform.getOrigYOffs());
+		coordTransformNode.putDouble(OBJ_ORIG_Z_OFFS, transform.getOrigZOffs());
+	}
+
+	public OBJExportOptions loadOBJExportOptions(Rocket rocket) {
+		java.util.prefs.Preferences preferences = getPreferences();
+		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
+
+		// By default, we will use options optimized for 3D printing (most-used case)
+		OBJExportOptions options = new OBJExportOptions(rocket);
+		options.setExportChildren(objExportOptionsNode.getBoolean(OBJ_EXPORT_CHILDREN, false));
+		options.setExportMotors(objExportOptionsNode.getBoolean(OBJ_EXPORT_MOTORS, false));
+		options.setExportAppearance(objExportOptionsNode.getBoolean(OBJ_EXPORT_APPEARANCE, false));
+		options.setExportAsSeparateFiles(objExportOptionsNode.getBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, false));
+		options.setRemoveOffset(objExportOptionsNode.getBoolean(OBJ_REMOVE_OFFSET, true));
+		options.setTriangulate(objExportOptionsNode.getBoolean(OBJ_TRIANGULATE, true));
+		options.setUseSRGB(objExportOptionsNode.getBoolean(OBJ_SRGB, false));
+
+		options.setScaling(objExportOptionsNode.getFloat(OBJ_SCALING, 1000));
+
+		options.setLOD(ObjUtils.LevelOfDetail.fromExportLabel(
+				objExportOptionsNode.get(OBJ_LOD, ObjUtils.LevelOfDetail.HIGH_QUALITY.getExportLabel())));
+
+		// Load CoordTransform
+		java.util.prefs.Preferences coordTransformNode = objExportOptionsNode.node(OBJ_TRANSFORMER_NODE);
+
+		Axis xAxis = Axis.fromString(coordTransformNode.get(OBJ_X_AXIS, Axis.Y.toString()));
+		Axis yAxis = Axis.fromString(coordTransformNode.get(OBJ_Y_AXIS, Axis.Z.toString()));
+		Axis zAxis = Axis.fromString(coordTransformNode.get(OBJ_Z_AXIS, Axis.X_MIN.toString()));
+		double origXOffs = coordTransformNode.getDouble(OBJ_ORIG_X_OFFS, 0.0);
+		double origYOffs = coordTransformNode.getDouble(OBJ_ORIG_Y_OFFS, 0.0);
+		double origZOffs = coordTransformNode.getDouble(OBJ_ORIG_Z_OFFS, rocket.getLength());
+
+		CoordTransform transform = new CoordTransform(xAxis, yAxis, zAxis, origXOffs, origYOffs, origZOffs);
+		options.setTransformer(transform);
+
+		return options;
+	}
 	
 	/*
 	 * Within a holder class so they will load only when needed.
@@ -945,19 +1115,6 @@ public abstract class Preferences implements ChangeSource {
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
-		}
-		
-		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
-		
-		static {
-			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
-			DEFAULT_COLORS.put(TubeFinSet.class, "0,0,200");
-			DEFAULT_COLORS.put(FinSet.class, "0,0,200");
-			DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
-			DEFAULT_COLORS.put(RailButton.class, "0,0,180");
-			DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
-			DEFAULT_COLORS.put(MassObject.class, "0,0,0");
-			DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
 		}
 	}
 	

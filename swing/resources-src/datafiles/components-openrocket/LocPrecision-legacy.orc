@@ -3,732 +3,732 @@
     <Version>0.1</Version>
     <Legacy />
     <Materials>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:.060 Carbon Fiber]</Name>
             <Density>1400.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1 In. Flat Elastic]</Name>
             <Density>0.015514109144</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1 in. tubular nylon]</Name>
             <Density>0.044644918400000004</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:1.1 Ounce Rip Stop Nylon]</Name>
             <Density>0.037350571446</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:1.3 oz. Ripstop Nylon (SkyAngle)]</Name>
             <Density>0.04407367430628</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:1.7 oz. Ripstop Nylon]</Name>
             <Density>0.057638523018492004</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:1.9 oz. Ripstop Nylon (PML)]</Name>
             <Density>0.08788369752</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:1.9 oz. Ripstop Nylon (SkyAngle)]</Name>
             <Density>0.06441875028216</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:1.9 oz. Ripstop Nylon]</Name>
             <Density>0.06441875028216</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/16 Aircraft Plywood]</Name>
             <Density>361.3765253</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/16 In. Braided Nylon]</Name>
             <Density>0.00102</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/16 In. Round Elastic]</Name>
             <Density>0.00183</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/16 in. Aircraft Plywood]</Name>
             <Density>361.3765253</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/2 In. Flat Elastic]</Name>
             <Density>0.003125144288</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/2 in. Tubular Nylon]</Name>
             <Density>0.060870160920000006</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/2 in. tubular kevlar]</Name>
             <Density>0.044644918400000004</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/32 In. Kevlar]</Name>
             <Density>6.590000000000001E-4</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/4 Aircraft Plywood]</Name>
             <Density>344.2688068</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/4 In. Flat Elastic]</Name>
             <Density>0.00402</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/4 in. Aircraft Plywood]</Name>
             <Density>344.2688068</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/4 in. tubular kevlar]</Name>
             <Density>0.022322459200000002</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/8 Aircraft Plywood]</Name>
             <Density>337.5410523</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/8 In. Braided Nylon]</Name>
             <Density>0.03267766533600001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/8 In. Flat Elastic]</Name>
             <Density>0.00205</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/8 In. Flat Rubber]</Name>
             <Density>0.00231</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1/8 in. Aircraft Plywood]</Name>
             <Density>337.5410523</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1/8 in. Tubular Kevlar]</Name>
             <Density>0.011161229600000001</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:100 lb Kevlar (Apogee 29505)]</Name>
             <Density>0.006359329969800001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:100lb Kevlar (Apogee 29505)]</Name>
             <Density>3.9698E-4</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:1500 lb Kevlar (Apogee 29507)]</Name>
             <Density>0.0959105496075</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:1500lb Kevlar (Apogee 29507)]</Name>
             <Density>0.0059875</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:260 lb. Elastic]</Name>
             <Density>0.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:3/16 Aircraft Plywood]</Name>
             <Density>344.2688068</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:3/16 in. Aircraft Plywood]</Name>
             <Density>344.2688068</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:3/4 In. Flat Elastic]</Name>
             <Density>0.01227735256</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:3/8 in. Flat Elastic]</Name>
             <Density>0.0038</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:3/8 in. Tubular Nylon (SkyAngle)]</Name>
             <Density>0.18602086537432</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:3/8 in. Tubular Nylon]</Name>
             <Density>0.18602086537432</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:3/8 inch Flat Elastic]</Name>
             <Density>0.0038</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:3/8 tubular nylon (SkyAngle)]</Name>
             <Density>0.18602086537432</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:30 Lb. Kevlar]</Name>
             <Density>1.78E-4</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:300 lb. Kevlar (Apogee 29506)]</Name>
             <Density>0.01807843779324</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:300lb Kevlar (Apogee 29506)]</Name>
             <Density>0.001128609</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:4000 lb. nylon]</Name>
             <Density>0.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:5/64 In. Round Elastic]</Name>
             <Density>0.0024200000000000003</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:5/8 Tubular nylon (SkyAngle)]</Name>
             <Density>0.223224592</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:5/8 in. Tubular Nylon (SkyAngle)]</Name>
             <Density>0.223224592</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:5/8 in. Tubular Nylon]</Name>
             <Density>0.223224592</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:6000 lb. nylon]</Name>
             <Density>0.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:6oz &amp; 2oz FG &amp; Poster board]</Name>
             <Density>798.85</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:7/16 in. Flat braided kevlar]</Name>
             <Density>0.0502255332</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:70 Lb. Kevlar]</Name>
             <Density>3.3E-4</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:9/16 In. Tubular Nylon]</Name>
             <Density>0.0167418444</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Acrylic (Cast)]</Name>
             <Density>1185.3662916</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Aircraft plywood (Birch)]</Name>
             <Density>724.9956534840001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Aircraft plywood (LOC)]</Name>
             <Density>724.9956534840001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Aluminum (Al)]</Name>
             <Density>2698.9</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Aluminum 2024]</Name>
             <Density>2780.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Aluminum 7075]</Name>
             <Density>2810.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Ash]</Name>
             <Density>680.7846945000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:BadNoseMaterial]</Name>
             <Density>128.147704</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Balsa]</Name>
             <Density>128.1477072</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Basswood]</Name>
             <Density>424.48928010000003</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Beech]</Name>
             <Density>720.830853</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Birch]</Name>
             <Density>680.7846945000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Blue Tube]</Name>
             <Density>1237.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Brass]</Name>
             <Density>8553.8594556</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Carbon Fiber]</Name>
             <Density>1400.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Cardboard]</Name>
             <Density>688.7939262000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:Carpet String (Apogee 29500)]</Name>
             <Density>3.2972000000000003E-4</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Cellulose Acetate Propionate]</Name>
             <Density>1199.7829086600002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Chalk (Fine)]</Name>
             <Density>1121.2924380000002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Copper (cast)]</Name>
             <Density>8682.0071628</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Copper (rolled)]</Name>
             <Density>8906.2656504</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Cork (Solid)]</Name>
             <Density>240.27695100000003</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Cottonwood]</Name>
             <Density>400.461585</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Epoxy]</Name>
             <Density>1254.2456842200002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Fiber]</Name>
             <Density>656.7569994</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Fiberglass]</Name>
             <Density>128.147704</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Fir (Douglas)]</Name>
             <Density>560.6462190000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Fir (White)]</Name>
             <Density>400.461585</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:G10 (PML 0.062)1.1]</Name>
             <Density>3.137448001464</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:G10 (PML 0.062)]</Name>
             <Density>3.137448001464</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:G10 (PML 0.093)]</Name>
             <Density>5.022553313268</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:G10 (PML 0.125)]</Name>
             <Density>6.169435565904</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:G10 Fiberglass Filament Wound]</Name>
             <Density>1820.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:G10 fiberglass (LOC)]</Name>
             <Density>1905.2360367960002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:G10 fiberglass]</Name>
             <Density>1905.2360367960002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:G10 phenolic]</Name>
             <Density>1905.2360367960002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:G12 Fiberglass Filament Wound]</Name>
             <Density>1820.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Glassed Phenolic]</Name>
             <Density>1521.753985</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Gold (24 kt.)]</Name>
             <Density>19286.229933600003</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Iron (cast)]</Name>
             <Density>7208.308530000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Iron (cast]</Name>
             <Density>7208.308530000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Iron (wrought)]</Name>
             <Density>7768.954749</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m">
+        <Material UnitsOfMeasure="kg/m">
             <Name>[material:Kevlar Thread (Apogee 29502)]</Name>
             <Density>8.858E-5</Density>
             <Type>LINE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Kraft phenolic (Glassed)]</Name>
             <Density>1153.329336</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Kraft phenolic]</Name>
             <Density>958.7050344900001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Lead (cast)]</Name>
             <Density>11341.072087200002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Lead (rolled)]</Name>
             <Density>11389.127477400001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Lead Shot]</Name>
             <Density>6727.75</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Leather]</Name>
             <Density>945.0893406000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Lexan]</Name>
             <Density>1218.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Lite Plywood]</Name>
             <Density>352.40619480000004</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Maple (Hard)]</Name>
             <Density>632.7293043000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Mylar]</Name>
             <Density>1309.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nickel 200]</Name>
             <Density>8890.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nickel 400]</Name>
             <Density>8800.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nickel 600]</Name>
             <Density>8410.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nickel 625]</Name>
             <Density>8440.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nickel 718]</Name>
             <Density>8230.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nickel C276]</Name>
             <Density>8890.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Nylon]</Name>
             <Density>1140.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Oak (Brown)]</Name>
             <Density>720.830853</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Oak (Red)]</Name>
             <Density>720.830853</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Oak (White)]</Name>
             <Density>752.8677798000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:PVC]</Name>
             <Density>1300.6992280800002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Paper 2]</Name>
             <Density>752.5473917</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Paper/2layers 8 oz.  glass]</Name>
             <Density>1681.94</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Paper]</Name>
             <Density>1121.2924380000002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Pine (White Northern)]</Name>
             <Density>400.461585</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Pine (White Western)]</Name>
             <Density>432.4985118000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Polycarbonate]</Name>
             <Density>1199.7829086600002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Polyethylene LDPE]</Name>
             <Density>924.2653381800002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Polyethylene]</Name>
             <Density>920.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Polystyrene PS]</Name>
             <Density>1049.2093527000002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Poplar (Yellow)]</Name>
             <Density>480.55390200000005</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Quantum Tubing]</Name>
             <Density>1100.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>[material:Rip stop nylon]</Name>
             <Density>0.06684999999999999</Density>
             <Type>SURFACE</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Rocketwood]</Name>
             <Density>529.089846102</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Russian 1/8 in. Plywood]</Name>
             <Density>685.1</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Silver]</Name>
             <Density>10460.056600200001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Spiral/Glassine]</Name>
             <Density>848.9785602000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Spruce]</Name>
             <Density>448.51697520000005</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Stainless steel 17-4PH]</Name>
             <Density>7600.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Stainless steel 17-5PH]</Name>
             <Density>7800.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Stainless steel 17-7PH]</Name>
             <Density>7800.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Steel 4130]</Name>
             <Density>7850.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Steel 4340]</Name>
             <Density>7850.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Steel]</Name>
             <Density>7850.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Sycamore]</Name>
             <Density>560.6462190000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Titanium]</Name>
             <Density>4500.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:Urethane]</Name>
             <Density>847.0563445920002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:]</Name>
             <Density>0.0</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:lite ply]</Name>
             <Density>352.40619480000004</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>[material:paper2]</Name>
             <Density>752.5473917</Density>
             <Type>BULK</Type>

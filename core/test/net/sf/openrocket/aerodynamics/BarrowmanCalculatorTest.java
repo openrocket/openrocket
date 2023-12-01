@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import net.sf.openrocket.logging.WarningSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

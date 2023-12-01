@@ -11,6 +11,8 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
@@ -104,6 +106,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("A"))
 				.setDesignation("F12X")
 				.setDescription("Desc")
+				.setCaseInfo("info")
 				.setMotorType(Motor.Type.UNKNOWN)
 				.setStandardDelays(new double[] {})
 				.setDiameter(0.024)
@@ -121,6 +124,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("A8")
 				.setDescription(" SU Black Powder")
+				.setCaseInfo("SU 18.0x70.0")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] {0,3,5})
 				.setDiameter(0.018)
@@ -139,6 +143,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("B4")
 				.setDescription(" SU Black Powder")
+				.setCaseInfo("SU 18.0x70.0")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] {0,3,5})
 				.setDiameter(0.018)
@@ -157,6 +162,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("Estes"))
 				.setDesignation("C6")
 				.setDescription(" SU Black Powder")
+				.setCaseInfo("SU 18.0x70.0")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] {0,3,5,7})
 				.setDiameter(0.018)
@@ -175,6 +181,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("D21")
 				.setDescription("Desc")
+				.setCaseInfo("SU 18.0x70.0")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] {})
 				.setDiameter(0.018)
@@ -193,6 +200,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("M1350")
 				.setDescription("Desc")
+				.setCaseInfo("SU 75/512")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] {})
 				.setDiameter(0.075)
@@ -211,6 +219,7 @@ public class TestRockets {
 				.setManufacturer(Manufacturer.getManufacturer("AeroTech"))
 				.setDesignation("G77")
 				.setDescription("Desc")
+				.setCaseInfo("SU 29/180")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] {4,7,10})
 				.setDiameter(0.029)
@@ -1047,7 +1056,7 @@ public class TestRockets {
 					boosterCone.setThickness(0.002);
 					//payloadFairingNoseCone.setLength(0.118);
 					//payloadFairingNoseCone.setAftRadius(0.052);
-					boosterCone.setAftShoulderRadius( 0.051 );
+					boosterCone.setAftShoulderRadius( 0.0375 );
 					boosterCone.setAftShoulderLength( 0.02 );
 					boosterCone.setAftShoulderThickness( 0.001 );
 					boosterCone.setAftShoulderCapped( false );
@@ -1830,7 +1839,7 @@ public class TestRockets {
 		OpenRocketSaver saver = new OpenRocketSaver();
 		try {
 			FileOutputStream str = new FileOutputStream(filename);
-			saver.save(str, doc, null);
+			saver.save(str, doc, null, new WarningSet(), new ErrorSet());
 		}
 		catch (Exception e) {
 			System.err.println("exception " + e);

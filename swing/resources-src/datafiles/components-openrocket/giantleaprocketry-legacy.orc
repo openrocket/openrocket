@@ -3,27 +3,27 @@
   <Version>0.1</Version>
   <Legacy />
     <Materials>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Birch</Name>
             <Density>680.7846945000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Cardboard</Name>
             <Density>688.7939262000001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Kraft phenolic</Name>
             <Density>958.7050344900001</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/cm3">
+        <Material UnitsOfMeasure="kg/m3">
             <Name>Polycarbonate</Name>
             <Density>1199.7829086600002</Density>
             <Type>BULK</Type>
         </Material>
-        <Material UnitsOfMeasure="g/m2">
+        <Material UnitsOfMeasure="kg/m2">
             <Name>Rip stop nylon</Name>
             <Density>0.06684999999999999</Density>
             <Type>SURFACE</Type>

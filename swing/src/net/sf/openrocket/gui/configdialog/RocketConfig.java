@@ -16,10 +16,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -27,13 +29,19 @@ import net.sf.openrocket.startup.Application;
 
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private TextFieldListener textFieldListener;
 	
 	private JTextArea designerTextArea;
 	private JTextArea revisionTextArea;
 	
 	private final Rocket rocket;
+
+	private static Border border;
+
+	static {
+		initColors();
+	}
 	
 	public RocketConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
 		super(d, c, parent);
@@ -55,6 +63,7 @@ public class RocketConfig extends RocketComponentConfig {
 		designerTextArea.setLineWrap(true);
 		designerTextArea.setWrapStyleWord(true);
 		designerTextArea.setEditable(true);
+		designerTextArea.setBorder(border);
 		GUIUtil.setTabToFocusing(designerTextArea);
 		designerTextArea.addFocusListener(textFieldListener);
 		this.add(new JScrollPane(designerTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
@@ -69,6 +78,7 @@ public class RocketConfig extends RocketComponentConfig {
 		revisionTextArea.setLineWrap(true);
 		revisionTextArea.setWrapStyleWord(true);
 		revisionTextArea.setEditable(true);
+		revisionTextArea.setBorder(border);
 		GUIUtil.setTabToFocusing(revisionTextArea);
 		revisionTextArea.addFocusListener(textFieldListener);
 		
@@ -77,6 +87,15 @@ public class RocketConfig extends RocketComponentConfig {
 
 		addButtons();
 		addEasterEgg();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketConfig::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	/**

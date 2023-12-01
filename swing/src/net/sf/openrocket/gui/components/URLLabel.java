@@ -6,17 +6,14 @@ import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.sf.openrocket.util.BugException;
 
 /**
  * A label of a URL that is clickable.  Clicking the URL will launch the URL in
@@ -26,7 +23,13 @@ import net.sf.openrocket.util.BugException;
  */
 public class URLLabel extends SelectableLabel {
 	private static final Logger log = LoggerFactory.getLogger(URLLabel.class);
-	
+
+	private static Color URLColor;
+
+	static {
+		initColors();
+	}
+
 	/**
 	 * Create a label showing the url it will direct to.
 	 * 
@@ -53,7 +56,7 @@ public class URLLabel extends SelectableLabel {
 			Map<TextAttribute, Object> map = new HashMap<TextAttribute, Object>();
 			map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 			this.setFont(this.getFont().deriveFont(map));
-			this.setForeground(Color.BLUE);
+			this.setForeground(URLColor);
 			
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			
@@ -70,5 +73,14 @@ public class URLLabel extends SelectableLabel {
 			});
 
 		}
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(URLLabel::updateColors);
+	}
+
+	private static void updateColors() {
+		URLColor = GUIUtil.getUITheme().getURLColor();
 	}
 }

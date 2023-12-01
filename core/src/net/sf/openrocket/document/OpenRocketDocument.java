@@ -3,7 +3,9 @@ package net.sf.openrocket.document;
 import java.io.File;
 import java.util.*;
 
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
 import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ import net.sf.openrocket.util.ArrayList;
  */
 public class OpenRocketDocument implements ComponentChangeListener, StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
+	private static final Preferences prefs = Application.getPreferences();
 	private final List<String> file_extensions = Arrays.asList("ork", "ork.gz", "rkt", "rkt.gz");	// Possible extensions of an OpenRocket document
 	/**
 	 * The minimum number of undo levels that are stored.
@@ -91,7 +94,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	private int savedID = -1;
 	
 	private final StorageOptions storageOptions = new StorageOptions();
-	
+	private final OBJExportOptions objOptions;
+
 	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
 	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
@@ -103,6 +107,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
+		this.objOptions = prefs.loadOBJExportOptions(rocket);
 		rocket.enableEvents();
 		init();
 	}
@@ -239,14 +244,18 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 		else
 			this.savedID = rocket.getModID() + modID;
 	}
-	
+
 	/**
 	 * Retrieve the default storage options for this document.
-	 * 
+	 *
 	 * @return	the storage options.
 	 */
 	public StorageOptions getDefaultStorageOptions() {
 		return storageOptions;
+	}
+
+	public OBJExportOptions getDefaultOBJOptions() {
+		return objOptions;
 	}
 	
 	
@@ -383,12 +392,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @param simulation	the simulation to be added
 	 */
 	public void addSimulation(Simulation simulation) {
-		simulations.add(simulation);
-		FlightConfigurationId simId = simulation.getId();
-		if( !rocket.containsFlightConfigurationID( simId )){
-			rocket.createFlightConfiguration(simId);
-		}
-		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
+		addSimulation(simulation, simulations.size());
 	}
 	
 	/**
@@ -399,6 +403,10 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public void addSimulation(Simulation simulation, int n) {
 		simulations.add(n, simulation);
+		FlightConfigurationId simId = simulation.getId();
+		if( !rocket.containsFlightConfigurationID( simId )){
+			rocket.createFlightConfiguration(simId);
+		}
 		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	

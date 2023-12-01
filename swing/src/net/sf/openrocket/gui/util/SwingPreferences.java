@@ -2,12 +2,17 @@ package net.sf.openrocket.gui.util;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +21,18 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
+import net.sf.openrocket.rocketcomponent.BodyComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.InternalComponent;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RailButton;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.simulation.SimulationOptionsInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +51,16 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 
 
-public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
+public class SwingPreferences extends net.sf.openrocket.startup.Preferences implements SimulationOptionsInterface {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
 	
 	private static final String SPLIT_CHARACTER = "|";
-	
+
+
+	public static final String NODE_WINDOWS = "windows";
+	public static final String NODE_TABLES = "tables";
+	private static final String UI_FONT_SIZE = "UIFontSize";
+	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -50,6 +72,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		list.add(new Locale("uk", "UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
+
+	private final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<>();
 	
 	
 	/**
@@ -86,12 +110,49 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			}
 		}
 		PREFNODE = root.node(NODENAME);
+		fillDefaultComponentColors();
+	}
+
+	private void fillDefaultComponentColors() {
+		DEFAULT_COLORS.put(BodyComponent.class, getUIThemeAsTheme().getDefaultBodyComponentColor());
+		DEFAULT_COLORS.put(TubeFinSet.class, getUIThemeAsTheme().getDefaultTubeFinSetColor());
+		DEFAULT_COLORS.put(FinSet.class, getUIThemeAsTheme().getDefaultFinSetColor());
+		DEFAULT_COLORS.put(LaunchLug.class, getUIThemeAsTheme().getDefaultLaunchLugColor());
+		DEFAULT_COLORS.put(RailButton.class, getUIThemeAsTheme().getDefaultRailButtonColor());
+		DEFAULT_COLORS.put(InternalComponent.class, getUIThemeAsTheme().getDefaultInternalComponentColor());
+		DEFAULT_COLORS.put(MassObject.class, getUIThemeAsTheme().getDefaultMassObjectColor());
+		DEFAULT_COLORS.put(RecoveryDevice.class, getUIThemeAsTheme().getDefaultRecoveryDeviceColor());
+		DEFAULT_COLORS.put(PodSet.class, getUIThemeAsTheme().getDefaultPodSetColor());
+		DEFAULT_COLORS.put(ParallelStage.class, getUIThemeAsTheme().getDefaultParallelStageColor());
+	}
+
+	public String getNodename() {
+		return NODENAME;
 	}
 	
 	
-	
-	
 	//////////////////////
+
+	@Override
+	public Preferences getPreferences() {
+		return PREFNODE;
+	}
+
+	/**
+	 * Returns the preference node responsible for saving UI window information (position, size...)
+	 * @return the preference node for window information
+	 */
+	public Preferences getWindowsPreferences() {
+		return PREFNODE.node(NODE_WINDOWS);
+	}
+
+	/**
+	 * Returns the preference node responsible for saving table information (column widths, order...)
+	 * @return the preference node for table information
+	 */
+	public Preferences getTablePreferences() {
+		return PREFNODE.node(NODE_TABLES);
+	}
 	
 	public void clearPreferences() {
 		try {
@@ -114,7 +175,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
 	}
-	
+
+	/**
+	 * Checks if a certain key exists in the node
+	 * @param node node to check the keys of.
+	 * @param key key to check
+	 * @return true if the key is stored in the preferences, false otherwise
+	 */
+	private boolean keyExists(Preferences node, String key) {
+		try {
+			return Arrays.asList(node.keys()).contains(key);
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	/**
 	 * Return a string preference.
 	 * 
@@ -124,12 +200,28 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public String getString(String key, String def) {
+		if (!keyExists(PREFNODE, key) && key != null && def != null) {
+			PREFNODE.put(key, def);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.get(key, def);
 	}
 	
 	@Override
 	public String getString(String directory, String key, String defaultValue) {
 		Preferences p = PREFNODE.node(directory);
+		if (!keyExists(p, key) && key != null && defaultValue != null) {
+			p.put(key, defaultValue);
+			try {
+				p.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return p.get(key, defaultValue);
 	}
 	
@@ -169,6 +261,16 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public boolean getBoolean(String key, boolean def) {
+		// Check if the key exists
+		if (!keyExists(PREFNODE, key) && key != null) {
+			// Save the default value
+			PREFNODE.putBoolean(key, def);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getBoolean(key, def);
 	}
 	
@@ -183,9 +285,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.putBoolean(key, value);
 		storeVersion();
 	}
-	
+
 	@Override
 	public int getInt(String key, int defaultValue) {
+		if (!keyExists(PREFNODE, key) && key != null) {
+			PREFNODE.putInt(key, defaultValue);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getInt(key, defaultValue);
 	}
 	
@@ -194,9 +304,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE.putInt(key, value);
 		storeVersion();
 	}
-	
+
 	@Override
 	public double getDouble(String key, double defaultValue) {
+		if (!keyExists(PREFNODE, key) && key != null) {
+			PREFNODE.putDouble(key, defaultValue);
+			try {
+				PREFNODE.flush();
+			} catch (BackingStoreException e) {
+				e.printStackTrace();
+			}
+		}
 		return PREFNODE.getDouble(key, defaultValue);
 	}
 	
@@ -226,9 +344,89 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	public static List<Locale> getSupportedLocales() {
 		return SUPPORTED_LOCALES;
 	}
+
+	/**
+	 * Get the current theme used for the UI.
+	 * @return the current theme
+	 */
+	@Override
+	public Object getUITheme() {
+		return getUIThemeAsTheme();
+	}
+
+	private UITheme.Theme getUIThemeAsTheme() {
+		String themeName = getString(net.sf.openrocket.startup.Preferences.UI_THEME, UITheme.Themes.LIGHT.name());
+		if (themeName == null) return UITheme.Themes.LIGHT;		// Default theme
+		try {
+			return UITheme.Themes.valueOf(themeName);
+		} catch (IllegalArgumentException e) {
+			return UITheme.Themes.LIGHT;
+		}
+	}
+
+	/**
+	 * Set the theme used for the UI.
+	 * @param theme the theme to set
+	 */
+	@Override
+	public void setUITheme(Object theme) {
+		if (!(theme instanceof UITheme.Theme)) return;
+		putString(net.sf.openrocket.startup.Preferences.UI_THEME, ((UITheme.Theme) theme).name());
+		storeVersion();
+	}
+
+	/**
+	 * Get the current font size used for the UI.
+	 * @return the current font size
+	 */
+	public int getUIFontSize() {
+		return getInt(UI_FONT_SIZE, getDefaultFontSize());
+	}
+
+	public final float getRocketInfoFontSize() {
+		return (float) ((getUIFontSize() - 2) + 3 * Application.getPreferences().getChoice(net.sf.openrocket.startup.Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+	}
+
+	private static int getDefaultFontSize() {
+		javax.swing.UIDefaults uiDefaults = javax.swing.UIManager.getDefaults();
+		Object value = uiDefaults.get("defaultFont");
+		if (value instanceof javax.swing.plaf.FontUIResource fontUIResource) {
+			return fontUIResource.getSize();
+		} else {
+			return 12;
+		}
+	}
+
+	/**
+	 * Set the font size used for the UI.
+	 * @param size the font size to set
+	 */
+	public void setUIFontSize(int size) {
+		putInt(UI_FONT_SIZE, size);
+		storeVersion();
+	}
+
+	public net.sf.openrocket.util.Color getDefaultColor(Class<? extends RocketComponent> c) {
+		String color = get("componentColors", c, DEFAULT_COLORS);
+		if (color == null)
+			return net.sf.openrocket.util.Color.fromAWTColor(getUIThemeAsTheme().getTextColor());
+
+		net.sf.openrocket.util.Color clr = parseColor(color);
+		if (clr != null) {
+			return clr;
+		} else {
+			return net.sf.openrocket.util.Color.fromAWTColor(getUIThemeAsTheme().getTextColor());
+		}
+	}
+
+	public final void setDefaultColor(Class<? extends RocketComponent> c, net.sf.openrocket.util.Color color) {
+		if (color == null)
+			return;
+		putString("componentColors", c.getSimpleName(), stringifyColor(color));
+	}
 	
 	public File getDefaultDirectory() {
-		String file = getString("defaultDirectory", null);
+		String file = getString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, null);
 		if (file == null)
 			return null;
 		return new File(file);
@@ -241,7 +439,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		} else {
 			d = dir.getAbsolutePath();
 		}
-		putString("defaultDirectory", d);
+		putString(net.sf.openrocket.startup.Preferences.DEFAULT_DIRECTORY, d);
 		storeVersion();
 	}
 	
@@ -262,13 +460,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		return compdir;
 	}
 
+	/**
+	 * Set the operating system that the software updater will use to redirect you to an installer download link.
+	 * @param platform the operating system to use
+	 */
 	public void setUpdatePlatform(UpdatePlatform platform) {
 		if (platform == null) return;
-		putString("UpdatePlatform", platform.name());
+		putString(UPDATE_PLATFORM, platform.name());
 	}
 
+	/**
+	 * Get the operating system that will be selected when asking for a software update.
+	 * E.g. "Windows" will cause the software updater to default to letting you download a Windows installer.
+	 * @return the operating system that is used
+	 */
 	public UpdatePlatform getUpdatePlatform() {
-		String p = getString("UpdatePlatform", SystemInfo.getPlatform().name());
+		String p = getString(UPDATE_PLATFORM, SystemInfo.getPlatform().name());
 		if (p == null) return null;
 		return UpdatePlatform.valueOf(p);
 	}
@@ -352,18 +559,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		putString(USER_THRUST_CURVES_KEY, str);
 	}
 	
-	public Color getMotorBorderColor() {
-		// TODO: MEDIUM:  Motor color (settable?)
-		return new Color(0, 0, 0, 200);
-	}
-	
-	
-	public Color getMotorFillColor() {
-		// TODO: MEDIUM:  Motor fill color (settable?)
-		return new Color(0, 0, 0, 100);
-	}
-	
-	
 	public static int getMaxThreadCount() {
 		return Runtime.getRuntime().availableProcessors();
 	}
@@ -372,7 +567,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	public Point getWindowPosition(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);
+		String pref = getWindowsPreferences().get("position." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -386,20 +581,46 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		return new Point(x, y);
+
+		// If position was on a screen that is not available anymore
+		Point p = new Point(x, y);
+		if (!isPointOnScreen(p)) {
+			return null;
+		}
+
+		return p;
 	}
 	
 	public void setWindowPosition(Class<?> c, Point p) {
-		PREFNODE.node("windows").put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
+		getWindowsPreferences().put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
-	
-	
+
+	/**
+	 * Checks whether the point is present on any of the current monitor screens.
+	 * Can return false if point was e.g. referenced on a secondary monitor that doesn't exist anymore.
+	 * @param p point to check
+	 * @return true if point is present on any of the current screens, false otherwise
+	 */
+	private boolean isPointOnScreen(Point p) {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] screens = ge.getScreenDevices();
+
+		for (GraphicsDevice screen : screens) {
+			GraphicsConfiguration gc = screen.getDefaultConfiguration();
+			Rectangle bounds = gc.getBounds();
+			if (bounds.contains(p)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	
 	
 	public Dimension getWindowSize(Class<?> c) {
 		int x, y;
-		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = getWindowsPreferences().get("size." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -418,22 +639,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	
 	public boolean isWindowMaximized(Class<?> c) {
-		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = getWindowsPreferences().get("size." + c.getCanonicalName(), null);
 		return "max".equals(pref);
 	}
 	
 	public void setWindowSize(Class<?> c, Dimension d) {
-		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
+		getWindowsPreferences().put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
 		storeVersion();
 	}
 	
 	public void setWindowMaximized(Class<?> c) {
-		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "max");
+		getWindowsPreferences().put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
 
 	public Integer getTableColumnWidth(String keyName, int columnIdx) {
-		String pref = PREFNODE.node("tables").get(
+		String pref = getTablePreferences().get(
 				"cw." + keyName + "." + columnIdx, null);
 		if (pref == null)
 			return null;
@@ -451,7 +672,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 
 	public void setTableColumnWidth(String keyName, int columnIdx, Integer width) {
-		PREFNODE.node("tables").put(
+		getTablePreferences().put(
 				"cw." + keyName + "." + columnIdx, width.toString());
 		storeVersion();
 	}
@@ -519,7 +740,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	
 	/////////  Default unit storage
-	
+
+	/**
+	 * Loads the default units from the preferences.
+	 */
 	public void loadDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		try {
@@ -539,7 +763,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			Application.getExceptionHandler().handleErrorCondition(e);
 		}
 	}
-	
+
+	/**
+	 * Stores the standard default units in the preferences.
+	 */
 	public void storeDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		

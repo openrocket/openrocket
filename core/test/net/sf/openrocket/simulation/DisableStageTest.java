@@ -42,7 +42,7 @@ public class DisableStageTest extends BaseTestCase {
             }
         }
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeEstesAlphaIII();
 
         Simulation simOriginal = new Simulation(rocketOriginal);
@@ -81,7 +81,7 @@ public class DisableStageTest extends BaseTestCase {
 
         compareSims(simRemoved, simDisabled, delta);
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeBeta();
         Simulation simOriginal = new Simulation(rocketOriginal);
         simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_1);
@@ -173,7 +173,7 @@ public class DisableStageTest extends BaseTestCase {
 
         compareSims(simRemoved, simDisabled, delta);
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
 		TestRockets.addCoreFins(rocketOriginal);
 		
@@ -232,7 +232,7 @@ public class DisableStageTest extends BaseTestCase {
             }
         }
 
-        //// Test re-enableing the stage.
+        //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
 		TestRockets.addCoreFins(rocketOriginal);
 		

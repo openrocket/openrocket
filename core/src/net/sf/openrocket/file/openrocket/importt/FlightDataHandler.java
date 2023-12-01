@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.Warning;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -104,6 +104,7 @@ class FlightDataHandler extends AbstractElementHandler {
 			double groundHitVelocity = Double.NaN;
 			double launchRodVelocity = Double.NaN;
 			double deploymentVelocity = Double.NaN;
+			double optimumDelay = Double.NaN;
 			
 			try {
 				maxAltitude = DocumentConfig.stringToDouble(attributes.get("maxaltitude"));
@@ -142,9 +143,13 @@ class FlightDataHandler extends AbstractElementHandler {
 				deploymentVelocity = DocumentConfig.stringToDouble(attributes.get("deploymentvelocity"));
 			} catch (NumberFormatException ignore) {
 			}
+			try {
+				optimumDelay = DocumentConfig.stringToDouble(attributes.get("optimumdelay"));
+			} catch (NumberFormatException ignore) {
+			}
 			
 			data = new FlightData(maxAltitude, maxVelocity, maxAcceleration, maxMach,
-					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity);
+					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity, optimumDelay);
 		}
 		
 		data.getWarningSet().addAll(warningSet);

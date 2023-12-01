@@ -29,13 +29,14 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
@@ -329,9 +330,9 @@ public class OpenRocketSaverTest {
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion108_withSimulationExtension() {
+	public void testFileVersion109_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(108, getCalculatedFileVersion(rocketDoc));
+		assertEquals(109, getCalculatedFileVersion(rocketDoc));
 	}
 	
 
@@ -363,7 +364,7 @@ public class OpenRocketSaverTest {
 		try {
 			file = File.createTempFile( TMP_DIR.getName(), ".ork");
 			out = new FileOutputStream(file);
-			this.saver.save(out, rocketDoc, options);
+			this.saver.save(out, rocketDoc, options, new WarningSet(), new ErrorSet());
 		} catch (FileNotFoundException e) {
 			fail("FileNotFound saving temp file in: " + TMP_DIR.getName() + ": " + e.getMessage());
 		} catch (IOException e) {
@@ -398,7 +399,7 @@ public class OpenRocketSaverTest {
 		throw new RuntimeException("Could not load motor");
 	}
 	
-	private static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
+	public static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
 		
 		final ComponentPresetDao db = new ComponentPresetDatabase();
 		
@@ -407,8 +408,8 @@ public class OpenRocketSaverTest {
 			return db;
 		}
 	}
-	
-	private static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
+
+	public static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
 		
 		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
 		

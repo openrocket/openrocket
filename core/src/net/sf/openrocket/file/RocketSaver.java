@@ -3,21 +3,24 @@ package net.sf.openrocket.file;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 
 
 public abstract class RocketSaver {
-	
 	/**
 	 * Save the document to the specified output stream using the default storage options.
 	 * 
 	 * @param dest			the destination stream.
 	 * @param doc			the document to save.
+	 * @param warnings 		list to store save warnings to
+	 * @param errors 		list to store save errors to
 	 * @throws IOException	in case of an I/O error.
 	 */
-	public final void save(OutputStream dest, OpenRocketDocument doc) throws IOException {
-		save(dest, doc, doc.getDefaultStorageOptions());
+	public final void save(OutputStream dest, OpenRocketDocument doc, WarningSet warnings, ErrorSet errors) throws IOException {
+		save(dest, doc, doc.getDefaultStorageOptions(), warnings, errors);
 	}
 
 	/**
@@ -26,9 +29,11 @@ public abstract class RocketSaver {
 	 * @param dest			the destination stream.
 	 * @param doc			the document to save.
 	 * @param options		the storage options.
+	 * @param warnings 		list to store save warnings to
+	 * @param errors 		list to store save errors to
 	 * @throws IOException	in case of an I/O error.
 	 */
-	public abstract void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException;
+	public abstract void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options, WarningSet warnings, ErrorSet errors) throws IOException;
 	
 	/**
 	 * Provide an estimate of the file size when saving the document with the

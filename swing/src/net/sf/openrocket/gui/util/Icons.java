@@ -94,15 +94,21 @@ public class Icons {
 	
 	public static final Icon NOT_FAVORITE = loadImageIcon("pix/icons/star_silver.png", "Not favorite");
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
-	
-	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
-	public static final Icon CG_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/cg-override-subcomponent.png", "CG Override Subcomponent");
-	public static final Icon CD_OVERRIDE = loadImageIcon("pix/icons/cd-override.png", "CD Override");
-	public static final Icon CD_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/cd-override-subcomponent.png", "CD Override Subcomponent");
-	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
-	public static final Icon MASS_OVERRIDE_SUBCOMPONENT = loadImageIcon("pix/icons/mass-override-subcomponent.png", "Mass Override Subcomponent");
 
-// MANUFACTURERS ICONS
+	public static final Icon MASS_OVERRIDE_LIGHT = loadImageIcon("pix/icons/mass-override_light.png", "Mass Override");
+	public static final Icon MASS_OVERRIDE_DARK = loadImageIcon("pix/icons/mass-override_dark.png", "Mass Override");
+	public static final Icon MASS_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/mass-override-subcomponent_light.png", "Mass Override Subcomponent");
+	public static final Icon MASS_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/mass-override-subcomponent_dark.png", "Mass Override Subcomponent");
+	public static final Icon CG_OVERRIDE_LIGHT = loadImageIcon("pix/icons/cg-override_light.png", "CG Override");
+	public static final Icon CG_OVERRIDE_DARK = loadImageIcon("pix/icons/cg-override_dark.png", "CG Override");
+	public static final Icon CG_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/cg-override-subcomponent_light.png", "CG Override Subcomponent");
+	public static final Icon CG_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/cg-override-subcomponent_dark.png", "CG Override Subcomponent");
+	public static final Icon CD_OVERRIDE_LIGHT = loadImageIcon("pix/icons/cd-override_light.png", "CD Override");
+	public static final Icon CD_OVERRIDE_DARK = loadImageIcon("pix/icons/cd-override_dark.png", "CD Override");
+	public static final Icon CD_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/cd-override-subcomponent_light.png", "CD Override Subcomponent");
+	public static final Icon CD_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/cd-override-subcomponent_dark.png", "CD Override Subcomponent");
+
+	// MANUFACTURERS ICONS
 	public static final Icon RASAERO = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
 	public static final Icon ROCKSIM = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
 

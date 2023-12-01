@@ -1,7 +1,8 @@
 package net.sf.openrocket.file.rasaero.importt;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
+import net.sf.openrocket.file.rasaero.RASAeroCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -47,8 +48,8 @@ public class NoseConeHandler extends BaseHandler<NoseCone> {
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         if (RASAeroCommonConstants.SHAPE.equals(element)) {
-            this.noseCone.setShapeType(RASAeroCommonConstants.getNoseConeShapeFromRASAero(content));
-            this.noseCone.setShapeParameter(RASAeroCommonConstants.getNoseConeShapeParameterFromRASAeroShape(content));
+            this.noseCone.setShapeType(RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SHAPE(content));
+            this.noseCone.setShapeParameter(RASAeroCommonConstants.RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(content));
         }
         try {
             if (RASAeroCommonConstants.POWER_LAW.equals(element)) {
@@ -63,8 +64,8 @@ public class NoseConeHandler extends BaseHandler<NoseCone> {
     @Override
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
         super.endHandler(element, attributes, content, warnings);
-        this.noseCone.setLength(length / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
-        this.noseCone.setBaseRadius(diameter/2  / RASAeroCommonConstants.RASAERO_TO_OPENROCKET_LENGTH);
+        this.noseCone.setLength(length / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
+        this.noseCone.setBaseRadius(diameter/2  / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
         this.noseCone.setThickness(0.002);          // Arbitrary value; RASAero doesn't specify this
     }
 

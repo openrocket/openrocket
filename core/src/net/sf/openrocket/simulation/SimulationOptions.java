@@ -32,7 +32,7 @@ import net.sf.openrocket.util.WorldCoordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SimulationOptions implements ChangeSource, Cloneable {
+public class SimulationOptions implements ChangeSource, Cloneable, SimulationOptionsInterface {
 	
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
@@ -66,22 +66,19 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
 	 */
 	
-	private double launchAltitude = preferences.getDouble(Preferences.LAUNCH_ALTITUDE, 0);
-	private double launchLatitude = preferences.getDouble(Preferences.LAUNCH_LATITUDE, 28.61);
-	private double launchLongitude = preferences.getDouble(Preferences.LAUNCH_LONGITUDE, -80.60);
+	private double launchAltitude = preferences.getLaunchAltitude();
+	private double launchLatitude = preferences.getLaunchLatitude();
+	private double launchLongitude = preferences.getLaunchLongitude();
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
-	private boolean useISA = preferences.getBoolean(Preferences.LAUNCH_USE_ISA, true);
-	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);	// In Kelvin
-	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);		// In Pascal
+	private boolean useISA = preferences.isISAAtmosphere();
+	private double launchTemperature = preferences.getLaunchTemperature();	// In Kelvin
+	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
 	
-	private double timeStep = preferences.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+	private double timeStep = preferences.getTimeStep();
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
-	
-	private boolean calculateExtras = true;
-	
 	
 	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
@@ -149,6 +146,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.windAverage, windAverage))
 			return;
 		this.windAverage = MathUtil.max(windAverage, 0);
+		if (MathUtil.equals(this.windAverage, 0)) {
+			setWindTurbulenceIntensity(0);
+		}
 		fireChangeEvent();
 	}
 	
@@ -164,34 +164,17 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		setWindTurbulenceIntensity(windDeviation / windAverage);
 	}
 	
-	
-	/**
-	 * Return the wind turbulence intensity (standard deviation / average).
-	 * 
-	 * @return  the turbulence intensity
-	 */
+
 	public double getWindTurbulenceIntensity() {
 		return windTurbulence;
 	}
-	
-	/**
-	 * Set the wind standard deviation to match the given turbulence intensity.
-	 * 
-	 * @param intensity   the turbulence intensity
-	 */
+
 	public void setWindTurbulenceIntensity(double intensity) {
 		// Does not check equality so that setWindSpeedDeviation can be sure of event firing
 		this.windTurbulence = intensity;
 		fireChangeEvent();
 	}
-	
-	
-	/**
-	 * Set the wind direction
-	 * 
-	 * @param direction the wind direction
-	 */
-	
+
 	public void setWindDirection(double direction) {
 		direction = MathUtil.reduce2Pi(direction);
 		if (launchIntoWind) {
@@ -315,11 +298,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		fireChangeEvent();
 	}
 	
-	
+
+
 	/**
 	 * Returns an atmospheric model corresponding to the launch conditions.  The
 	 * atmospheric models may be shared between different calls.
-	 * 
+	 *
 	 * @return	an AtmosphericModel object.
 	 */
 	private AtmosphericModel getAtmosphericModel() {
@@ -352,23 +336,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		this.maximumAngle = maximumAngle;
 		fireChangeEvent();
 	}
-	
-	
-	
-	public boolean getCalculateExtras() {
-		return calculateExtras;
-	}
-	
-	
-	
-	public void setCalculateExtras(boolean calculateExtras) {
-		if (this.calculateExtras == calculateExtras)
-			return;
-		this.calculateExtras = calculateExtras;
-		fireChangeEvent();
-	}
-	
-	
 	
 	public int getRandomSeed() {
 		return randomSeed;
@@ -468,10 +435,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.windTurbulence = src.windTurbulence;
 		}
-		if (this.calculateExtras != src.calculateExtras) {
-			isChanged = true;
-			this.calculateExtras = src.calculateExtras;
-		}
 		if (this.timeStep != src.timeStep) {
 			isChanged = true;
 			this.timeStep = src.timeStep;
@@ -511,8 +474,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.windAverage, o.windAverage) &&
 				MathUtil.equals(this.windTurbulence, o.windTurbulence) &&
-				MathUtil.equals(this.windDirection, o.windDirection) &&
-				this.calculateExtras == o.calculateExtras && this.randomSeed == o.randomSeed);
+				MathUtil.equals(this.windDirection, o.windDirection));
 	}
 	
 	/**
@@ -581,8 +543,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		conditions.setTimeStep(getTimeStep());
 		conditions.setMaximumAngleStep(getMaximumStepAngle());
 		
-		conditions.setCalculateExtras(getCalculateExtras());
-		
 		return conditions;
 	}
 
@@ -605,7 +565,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			.concat(String.format("    launchPressure:  %f\n", launchPressure))
 			.concat(String.format("    timeStep:  %f\n", timeStep))
 			.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
-			.concat(String.format("    calculateExtras:  %b\n", calculateExtras))
 			.concat("]\n");
 	}
 	

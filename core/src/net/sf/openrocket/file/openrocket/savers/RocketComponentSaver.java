@@ -36,6 +36,7 @@ public class RocketComponentSaver {
 	
 	protected void addParams(net.sf.openrocket.rocketcomponent.RocketComponent c, List<String> elements) {
 		elements.add("<name>" + TextUtil.escapeXML(c.getName()) + "</name>");
+		elements.add("<id>" + TextUtil.escapeXML(c.getID()) + "</id>");
 		
 		ComponentPreset preset = c.getPresetComponent();
 		if (preset != null) {

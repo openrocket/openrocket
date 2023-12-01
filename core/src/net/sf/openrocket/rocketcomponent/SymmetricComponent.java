@@ -281,14 +281,25 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	
 	
 	/**
-	 * Calculate CG of the component by integrating over the length of the component.
-	 * The method caches the result, so subsequent calls are instant.  Subclasses may
+	 * Return the CG and mass of the component.  Subclasses may
 	 * override this method for simple shapes and use this method as necessary.
 	 * 
 	 * @return  The CG+mass of the component.
 	 */
 	@Override
 	public Coordinate getComponentCG() {
+		return getSymmetricComponentCG();
+	}
+
+	/**
+	 * Calculate CG of the symmetric component by integrating over the length of the component.
+	 * The method caches the result, so subsequent calls are instant.  We need this method because subclasses
+	 * override getComponentCG() and include mass of shoulders
+	 * 
+	 * @return  The CG+mass of the component.
+	 */
+
+	private Coordinate getSymmetricComponentCG() {
 		if (cg == null)
 			integrate();
 		return cg;
@@ -491,7 +502,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		longitudinalInertia /= vol;
 		
 		// Shift longitudinal inertia to CG
-		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
+		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
 	}
 	
 	
@@ -548,7 +559,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		rotationalInertia /= surface;
 		
 		// Shift longitudinal inertia to CG
-		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
+		longitudinalInertia = longitudinalInertia - pow2(getSymmetricComponentCG().x);
 	}
 	
 	
@@ -849,12 +860,20 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		// have a radial offset of 0 from their centerline, we are in line.
 
 		if ((this.parent instanceof RingInstanceable) &&
-			(!MathUtil.equals(this.parent.getRadiusMethod().getRadius(this.parent.parent, this, this.parent.getRadiusOffset()), 0)))
+			(!MathUtil.equals(this.parent.getRadiusMethod().getRadius(
+					this.parent.parent, this, this.parent.getRadiusOffset()), 0)))
 			return false;
 		
-		if ((candidate.parent instanceof RingInstanceable) &&
-			(!MathUtil.equals(candidate.parent.getRadiusMethod().getRadius(candidate.parent.parent, candidate, candidate.parent.getRadiusOffset()), 0)))
-			return false;
+		if (candidate.parent instanceof RingInstanceable) {
+			// We need to check if the grandparent of the candidate is a body tube and if the outer radius is automatic.
+			// If so, then this would cause an infinite loop when checking the radius of the radiusMethod.
+			if (candidate.parent.parent == this && (this.isAftRadiusAutomatic() || this.isForeRadiusAutomatic())) {
+				return false;
+			} else {
+				return MathUtil.equals(candidate.parent.getRadiusMethod().getRadius(
+						candidate.parent.parent, candidate, candidate.parent.getRadiusOffset()), 0);
+			}
+		}
 
 		return true;
 	}

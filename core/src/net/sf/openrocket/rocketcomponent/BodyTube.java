@@ -75,35 +75,35 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public double getOuterRadius() {
 		if (autoRadius) {
-			// Return auto radius from front or rear
-			double r = -1;
-			SymmetricComponent c = this.getPreviousSymmetricComponent();
-			// Don't use the radius of a component who already has its auto diameter enabled
-			if (c != null && !c.usesNextCompAutomatic()) {
-				r = c.getFrontAutoRadius();
-				refComp = c;
-			}
-			if (r < 0) {
-				c = this.getNextSymmetricComponent();
-				// Don't use the radius of a component who already has its auto diameter enabled
-				if (c != null && !c.usesPreviousCompAutomatic()) {
-					r = c.getRearAutoRadius();
-					refComp = c;
-				}
-			}
-			if (r < 0)
-				r = DEFAULT_RADIUS;
-			return r;
+			outerRadius = getAutoOuterRadius();
 		}
 		return outerRadius;
 	}
 
 	/**
-	 * Return the outer radius that was manually entered, so not the value that the component received from automatic
-	 * outer radius.
+	 * Returns the automatic outer radius, taken from the previous/next component. Returns the default radius if there
+	 * is no previous/next component.
 	 */
-	public double getOuterRadiusNoAutomatic() {
-		return outerRadius;
+	private double getAutoOuterRadius() {
+		// Return auto radius from front or rear
+		double r = -1;
+		SymmetricComponent c = this.getPreviousSymmetricComponent();
+		// Don't use the radius of a component who already has its auto diameter enabled
+		if (c != null && !c.usesNextCompAutomatic()) {
+			r = c.getFrontAutoRadius();
+			refComp = c;
+		}
+		if (r < 0) {
+			c = this.getNextSymmetricComponent();
+			// Don't use the radius of a component who already has its auto diameter enabled
+			if (c != null && !c.usesPreviousCompAutomatic()) {
+				r = c.getRearAutoRadius();
+				refComp = c;
+			}
+		}
+		if (r < 0)
+			r = DEFAULT_RADIUS;
+		return r;
 	}
 	
 	/**
@@ -172,8 +172,8 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		this.autoRadius = false;
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.autoRadius = false;
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
 			this.outerRadius = outerDiameter / 2.0;
 			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
@@ -451,9 +451,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	
 	@Override
 	public boolean hasMotor() {
-		// the default MotorInstance is the EMPTY_INSTANCE.  
-		// If the class contains more instances, at least one will have motors.
-		return ( 1 < this.motors.size());
+		return this.motors.size() > 0;
 	}
 		
 	@Override
@@ -551,5 +549,20 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		super.clearConfigListeners();
 		// The motor config also has listeners, so clear them as well
 		getDefaultMotorConfig().clearConfigListeners();
+	}
+
+	/**
+	 * The first time we add a TubeFinSet to the component tree, inherit the tube thickness from
+	 * the parent body tube
+	 */
+	@Override
+	public final void addChild(RocketComponent component, int index, boolean trackStage) {
+		super.addChild(component, index, trackStage);
+		if (component instanceof TubeFinSet) {
+			TubeFinSet finset = (TubeFinSet) component;
+			if (Double.isNaN(finset.getThickness())) {
+				finset.setThickness(getThickness());
+			}
+		}
 	}
 }

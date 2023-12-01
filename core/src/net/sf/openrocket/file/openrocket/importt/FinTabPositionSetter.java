@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.*;

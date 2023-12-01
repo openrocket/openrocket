@@ -2,7 +2,7 @@ package net.sf.openrocket.file.simplesax;
 
 import java.util.HashMap;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.WarningSet;
 
 import org.xml.sax.SAXException;
 

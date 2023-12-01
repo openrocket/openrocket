@@ -81,7 +81,12 @@ public class MockPreferences extends Preferences {
 	public java.util.prefs.Preferences getNode(String nodeName) {
 		return NODE.node(nodeName);
 	}
-	
+
+	@Override
+	public java.util.prefs.Preferences getPreferences() {
+		return NODE;
+	}
+
 	@Override
 	public void addUserMaterial(Material m) {
 		throw new UnsupportedOperationException("Not yet implemented");

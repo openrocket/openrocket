@@ -1,64 +1,80 @@
-OpenRocket
-==========
-![Build Status](https://github.com/openrocket/openrocket/actions/workflows/build.yml/badge.svg)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
-![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
-[![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
-
---------
+# OpenRocket 🚀
 
 OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
 
-![Three-stage rocket - 2D](.github/OpenRocket_home_2D.png)
-![Three-stage rocket - 3D](.github/OpenRocket_home_3D.png)
-![Three-stage rocket - Simulation plot](.github/OpenRocket_sim.png)
+![Build Status](https://github.com/openrocket/openrocket/actions/workflows/build.yml/badge.svg)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
+[![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
+[![openrocket](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
+![Chocolatey release](https://img.shields.io/chocolatey/v/openrocket)
+[![Join our Discord server!](https://img.shields.io/discord/1073297014814691328?logo=discord)](https://discord.gg/qD2G5v2FAw)
 
-The main features include:
+--------
 
-* Six-degree-of-freedom flight simulation
-* Automatic design optimization
-* Realtime simulated altitude, velocity and acceleration display
-* Staging and clustering support
-* Cross-platform (Java-based)
+## 🛠️ Design, Visualize, and Analyze
 
-Read more about it on the [OpenRocket Wiki](http://wiki.openrocket.info).
+1. **Design** your rockets using a rich selection of built-in components:
+   ![Three-stage rocket - 2D](.github/OpenRocket_home_2D.png)
 
-Installers
-----------
-OpenRocket maintains an installer for installing the software and Java runtime. You can find the installers on [our
-website](https://openrocket.info/downloads.html).
+2. **Visualize** your masterpiece in 3D:
+   ![Three-stage rocket - 3D](.github/OpenRocket_home_3D.png)
 
-Release Notes
--------------
+3. **Plot & Analyze** your simulation results for precision and improvements:
+   ![Three-stage rocket - Simulation plot](.github/OpenRocket_sim.png)
+
+## 🌟 Features
+
+- **Six-degree-of-freedom flight simulation**
+- **Automatic design optimization**
+- **Realtime simulated altitude, velocity, and acceleration display**
+- **Staging and clustering support**
+- **Export to other simulation programs (RockSim, RASAero II)**
+- **Export component(s) to OBJ file for 3D printing**
+- **Cross-platform (Java-based)**
+
+... plus many more
+
+📖 Read more on [our website](https://openrocket.info/) or the [OpenRocket Wiki](http://wiki.openrocket.info).
+
+## 💾 Installers
+
+You can find the OpenRocket installers [here](https://openrocket.info/downloads.html).
+
+## 📝 Release Notes
+
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
 
-License
--------
+## 🚀 Getting started
 
-OpenRocket is an Open Source project licensed under the [GNU GPL](https://www.gnu.org/licenses/gpl-3.0.en.html). This means that the software is free to use for whatever purposes, and the source code is also available for studying and extending.
+The easiest way to get started is to open one of our in-program example designs:
 
-Contributing
-------------
-OpenRocket needs help to become even better. Implementing features, writing documentation and creating example designs are just a few ways of helping. If you are interested in helping make OpenRocket the best rocket simulator out there, please [click here for information on how to get involved](http://openrocket.sourceforge.net/getinvolved.html) and [read the practicalities of contributing here](CONTRIBUTING.md).
+![Get started with the example designs](.github/getting-started.png)
 
-**Contributors**
-- Sampo Niskanen, main developer
-- Doug Pedrick, support for RockSim designs, printing
-- Kevin Ruland, Android version
-- Bill Kuker, 3D visualization
-- Richard Graham, geodetic computations
-- Jason Blood, freeform fin set import
-- Boris du Reau, internationalization
-- Daniel Williams, pod support, maintainer
-- Joe Pfeiffer (maintainer)
-- Billy Olsen (maintainer)
-- Sibo Van Gool (maintainer)
-- Neil Weinstock (tester, icons, forum support)
-- H. Craig Miller (tester)
+Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, ... Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
+## 💪 Contribute
 
-**Translators**
+Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](http://openrocket.sourceforge.net/getinvolved.html) and the [practicalities of contributing](CONTRIBUTING.md).
+
+### ✨ Contributors
+- [Sampo Niskanen](https://github.com/plaa) - Original developer
+- [Doug Pedrick](https://github.com/rodinia814) - RockSim designs, printing
+- [Kevin Ruland](https://github.com/kruland2607) - Android version
+- [Bill Kuker](https://github.com/bkuker) - 3D visualization
+- [Richard Graham](https://github.com/rdgraham) - Geodetic computations
+- Jason Blood - Freeform fin set import
+- [Boris du Reau](https://github.com/bdureau) - Internationalization
+- [Daniel Williams](https://github.com/teyrana) - Pod support, maintainer
+- [Joe Pfeiffer](https://github.com/JoePfeiffer) - Maintainer
+- [Billy Olsen](https://github.com/wolsen) - Maintainer
+- [Sibo Van Gool](https://github.com/SiboVG) - RASAero file format, 3D OBJ export, dark theme, maintainer
+- [Neil Weinstock](https://github.com/neilweinstock) - Tester, icons, forum support
+- [H. Craig Miller](https://github.com/hcraigmiller) - Tester
+
+You can view the full list of contributors [here](https://github.com/openrocket/openrocket/graphs/contributors).
+
+### 🌍Translators
 - Tripoli France
 - Tripoli Spain
 - Stefan Lobas / ERIG
@@ -68,3 +84,12 @@ OpenRocket needs help to become even better. Implementing features, writing docu
 - Polish Rocketry Society / Łukasz & Alex Kazanski
 - Sibo Van Gool
 - Mohamed Amin Elkebsi
+
+## 📜 License
+
+OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licenses/gpl-3.0.en.html) license. Feel free to use, study, and extend.
+
+---
+ 
+⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
+[![Star History Chart](https://api.star-history.com/svg?repos=openrocket/openrocket&type=Date)](https://star-history.com/#openrocket/openrocket&Date)
