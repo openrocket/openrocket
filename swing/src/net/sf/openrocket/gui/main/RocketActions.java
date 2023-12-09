@@ -35,7 +35,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -981,8 +981,8 @@ public class RocketActions {
 		}
 
 		private boolean isAppearanceEqual(Appearance app1, Appearance app2) {
-			Color color1 = app1.getPaint();
-			Color color2 = app2.getPaint();
+			ORColor color1 = app1.getPaint();
+			ORColor color2 = app2.getPaint();
 
 			if (color1 == null && color2 == null) {
 				return true;

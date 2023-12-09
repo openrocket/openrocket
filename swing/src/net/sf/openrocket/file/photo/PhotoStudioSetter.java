@@ -1,7 +1,7 @@
 package net.sf.openrocket.file.photo;
 
 import net.sf.openrocket.gui.figure3d.photo.PhotoSettings;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class PhotoStudioSetter {
         return photoSettings;
     }
 
-    private static String getColor(Color color) {
+    private static String getColor(ORColor color) {
         if (color == null) return "";
         return color.getRed() + " " + color.getGreen() + " " + color.getBlue() + " " + color.getAlpha();
     }

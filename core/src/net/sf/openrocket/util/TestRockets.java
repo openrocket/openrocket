@@ -380,8 +380,8 @@ public class TestRockets {
 		return (rnd.nextDouble() * 0.2 + 0.9) * scale;
 	}
 	
-	private Color randomColor() {
-		return new Color(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+	private ORColor randomColor() {
+		return new ORColor(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
 	}
 	
 	private <T extends Enum<T>> Enum<T> randomEnum(Class<T> c) {
@@ -1522,7 +1522,7 @@ public class TestRockets {
 		
 		// make body tube with an appearance setting
 		BodyTube bodyTube = new BodyTube(12, 1, 0.05);
-		Appearance appearance = new Appearance(new Color(100, 25, 50), 1, null);
+		Appearance appearance = new Appearance(new ORColor(100, 25, 50), 1, null);
 		bodyTube.setAppearance(appearance);
 		stage.addChild(bodyTube);
 		
