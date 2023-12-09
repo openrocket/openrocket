@@ -79,10 +79,10 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION,
 			FlightDataTypeGroup.POSITION_AND_MOTION, 5);
 	//// Latitude
-	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE,
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_LATITUDE,
 			FlightDataTypeGroup.POSITION_AND_MOTION, 6);
 	//// Longitude
-	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE,
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_LONGITUDE,
 			FlightDataTypeGroup.POSITION_AND_MOTION, 7);
 
 
@@ -212,7 +212,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Reference area
 	public static final FlightDataType TYPE_REFERENCE_AREA = newType(trans.get("FlightDataType.TYPE_REFERENCE_AREA"), "Ar", UnitGroup.UNITS_AREA,
 			FlightDataTypeGroup.REFERENCE_VALUES, 1);
-	
+
 	
 	//  Atmospheric conditions
 	//// Wind velocity
@@ -416,7 +416,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		this.groupPriority = priority;
 		this.hashCode = this.name.toLowerCase(Locale.ENGLISH).hashCode();
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -436,7 +436,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public int getGroupPriority() {
 		return groupPriority;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name; //+" ("+symbol+") "+units.getDefaultUnit().toString();

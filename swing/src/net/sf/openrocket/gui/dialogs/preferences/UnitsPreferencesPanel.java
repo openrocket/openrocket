@@ -26,18 +26,18 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		JComboBox<?> combo;
 		JPanel leftPanel = new JPanel(new MigLayout("ins 0"));
 		JPanel rightPanel = new JPanel(new MigLayout("ins 0"));
-		
+
 		//// Select your preferred units:
 		this.add(new JLabel(trans.get("pref.dlg.lbl.Selectprefunits")), "span, wrap paragraph");
 
 
 		// -------------- LEFT PANEL
-		
+
 		//// Rocket dimensions:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketdimensions")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_LENGTH));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Motor dimensions:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Motordimensions")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_MOTOR_DIMENSIONS));
@@ -47,37 +47,37 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Distance")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_DISTANCE));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Velocity:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Velocity")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_VELOCITY));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Acceleration:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Acceleration")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_ACCELERATION));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Mass:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Mass")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_MASS));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Force:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Force")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_FORCE));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Total impulse:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Totalimpulse")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_IMPULSE));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Moment of inertia:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Momentofinertia")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
 		leftPanel.add(combo, "sizegroup boxes, wrap");
-		
+
 		//// Stability:
 		leftPanel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
 		combo = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
@@ -159,6 +159,17 @@ public class UnitsPreferencesPanel extends PreferencesPanel {
 		rightPanel.add(new JLabel(trans.get("pref.dlg.lbl.Windspeed")));
 		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
 		rightPanel.add(combo, "sizegroup boxes, wrap");
+
+		//// Latitude
+		rightPanel.add(new JLabel(trans.get("pref.dlg.lbl.Latitude")));
+		combo = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_LATITUDE));
+		rightPanel.add(combo, "sizegroup boxes, wrap");
+
+		//// Longitude
+		rightPanel.add(new JLabel(trans.get("pref.dlg.lbl.Longitude")));
+		combo = new JComboBox<>(new DefaultUnitSelector(UnitGroup.UNITS_LONGITUDE));
+		rightPanel.add(combo, "sizegroup boxes, wrap");
+
 
 		this.add(leftPanel, "top");
 		this.add(rightPanel, "top, wrap para");
