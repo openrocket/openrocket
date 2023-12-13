@@ -32,11 +32,11 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	private double wetArea = Double.NaN;
 	private double planArea = Double.NaN;
 	private double planCenter = Double.NaN;
-	private double volume = Double.NaN;
+	protected double volume = Double.NaN;
 	private double fullVolume = Double.NaN;
 	private double longitudinalInertia = Double.NaN;
 	private double rotationalInertia = Double.NaN;
-	private Coordinate cg = null;
+	protected Coordinate cg = null;
 
 	public SymmetricComponent() {
 		super();
@@ -417,7 +417,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	/**
 	 * Performs integration over the length of the component and updates the cached variables.
 	 */
-	private void calculateProperties() {
+	protected void calculateProperties() {
 		wetArea = 0;
 		planArea = 0;
 		planCenter = 0;

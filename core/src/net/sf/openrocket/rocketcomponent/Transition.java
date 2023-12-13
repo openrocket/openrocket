@@ -671,58 +671,46 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	@Override
-	public double getComponentVolume() {
-		double volume =  super.getComponentVolume();
+	protected void calculateProperties() {
+		super.calculateProperties();
 		if (getForeShoulderLength() > 0.001) {
 			final double or = getForeShoulderRadius();
 			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
-			volume += ringVolume( or, ir, getForeShoulderLength() );
-		}
-		if (isForeShoulderCapped()) {
-			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
-			volume += ringVolume(ir, 0, getForeShoulderThickness() );
-		}
-
-		if (getAftShoulderLength() > 0.001) {
-			final double or = getAftShoulderRadius();
-			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
-			volume += ringVolume(or, ir, getAftShoulderLength() );
-		}
-		if (isAftShoulderCapped()) {
-			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
-			volume += ringVolume(ir, 0, getAftShoulderThickness() );
-		}
-
-		return volume;
-	}
-
-	@Override
-	public Coordinate getComponentCG() {
-		Coordinate cg = super.getComponentCG();
-		if (getForeShoulderLength() > 0.001) {
-			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
+			
 			cg = cg.average(ringCG(getForeShoulderRadius(), ir, -getForeShoulderLength(), 0,
 					getMaterial().getDensity()));
+
+			volume += ringVolume( or, ir, getForeShoulderLength() );
+			
 		}
 		if (isForeShoulderCapped()) {
 			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
 			cg = cg.average(ringCG(ir, 0, -getForeShoulderLength(),
 					getForeShoulderThickness() - getForeShoulderLength(),
 					getMaterial().getDensity()));
+
+			volume += ringVolume(ir, 0, getForeShoulderThickness() );
 		}
 
 		if (getAftShoulderLength() > 0.001) {
+			final double or = getAftShoulderRadius();
 			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
+			
 			cg = cg.average(ringCG(getAftShoulderRadius(), ir, getLength(),
 					getLength() + getAftShoulderLength(), getMaterial().getDensity()));
+			
+			volume += ringVolume(or, ir, getAftShoulderLength() );			
 		}
 		if (isAftShoulderCapped()) {
+			final double or = getAftShoulderRadius();
 			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
+			
 			cg = cg.average(ringCG(ir, 0,
 					getLength() + getAftShoulderLength() - getAftShoulderThickness(),
 					getLength() + getAftShoulderLength(), getMaterial().getDensity()));
+
+			volume += ringVolume(ir, 0, getAftShoulderThickness() );			
 		}
-		return cg;
 	}
 
 
