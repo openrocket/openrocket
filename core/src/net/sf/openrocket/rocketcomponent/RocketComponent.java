@@ -2732,6 +2732,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	protected static final double ringLongitudinalUnitInertia(double outerRadius,
 			double innerRadius, double length) {
+		// axis is through center of mass
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
 		return (3 * (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius)) + MathUtil.pow2(length)) / 12;
 	}

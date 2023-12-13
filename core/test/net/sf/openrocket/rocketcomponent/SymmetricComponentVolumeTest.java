@@ -337,6 +337,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 	@Test
 	public void testTransitionVsTubeFilled() {
+		System.err.println(">>>> tube filled");
 		// BodyTubes use closed form solutions for mass properties, while Transitions use
 		// numerical integration from SymmetricComponent. Properties should agree.
 		final double radius = 1.0;
@@ -354,18 +355,21 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		assertEquals("Length is incorrect", bt1.getLength(), trans1.getLength(), EPSILON);
 		assertEquals("Forward radius is incorrect", bt1.getRadius(0), trans1.getRadius(0), EPSILON);
 		assertEquals("Aft radius is incorrect", bt1.getRadius(bt1.getLength()), trans1.getRadius(trans1.getLength()), EPSILON);
+		
 		assertEquals("Volume is incorrect", bt1.getComponentVolume(), trans1.getComponentVolume(), EPSILON);
 		assertEquals("CG is incorrect", bt1.getComponentCG().x, trans1.getComponentCG().x, EPSILON);
+
 		assertEquals("Longitudinal moment of inertia is incorrect", bt1.getLongitudinalUnitInertia(), trans1.getLongitudinalUnitInertia(), EPSILON);
-		assertEquals("Rotational moment of inertia is incorrect", bt1.getRotationalUnitInertia(), trans1.getRotationalUnitInertia(), EPSILON);
+		assertEquals("Rotational unit moment of inertia is incorrect", bt1.getRotationalUnitInertia(), trans1.getRotationalUnitInertia(), EPSILON);
+
 		assertEquals("Wetted area is incorrect", bt1.getComponentWetArea(), trans1.getComponentWetArea(), EPSILON);
 		assertEquals("Planform area is incorrect", bt1.getComponentPlanformArea(), trans1.getComponentPlanformArea(), EPSILON);
 		assertEquals("Planform centroid is incorrect", bt1.getComponentPlanformCenter(), trans1.getComponentPlanformCenter(), EPSILON);
-
 	}
 	
 	@Test
 	public void testTransitionVsTubeHollow() {
+		System.err.println(">>>> tube hollow");
 		final double radius = 1.0;
 		final double innerRadius = 0.1;
 		final double length = 10.0;
@@ -386,6 +390,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		assertEquals("Longitudinal unit moment of inertia is incorrect", bt2.getLongitudinalUnitInertia(), trans2.getLongitudinalUnitInertia(), EPSILON);
 		assertEquals("Rotational unit moment of inertia is incorrect", bt2.getRotationalUnitInertia(), trans2.getRotationalUnitInertia(), EPSILON);
 		assertEquals("Wetted area is incorrect", bt2.getComponentWetArea(), trans2.getComponentWetArea(), EPSILON);
+
 		assertEquals("Planform area is incorrect", bt2.getComponentPlanformArea(), trans2.getComponentPlanformArea(), EPSILON);
 		assertEquals("Planform centroid is incorrect", bt2.getComponentPlanformCenter(), trans2.getComponentPlanformCenter(), EPSILON);
 	}

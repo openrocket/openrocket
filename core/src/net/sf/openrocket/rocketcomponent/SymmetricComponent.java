@@ -34,8 +34,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	private double planCenter = Double.NaN;
 	protected double volume = Double.NaN;
 	private double fullVolume = Double.NaN;
-	private double longitudinalInertia = Double.NaN;
-	private double rotationalInertia = Double.NaN;
+	protected double longitudinalUnitInertia = Double.NaN;
+	protected double rotationalUnitInertia = Double.NaN;
 	protected Coordinate cg = null;
 
 	public SymmetricComponent() {
@@ -284,29 +284,29 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	}
 
 	/*
-	 * Obtain longitudinal unit inertia Ixx
+	 * Obtain longitudinal unit inertia Iyy = Izz
 	 *
-	 * @return longitudinal unit inertia Ixx
+	 * @return longitudinal unit inertia Iyy
 	 */
 	@Override
 	public double getLongitudinalUnitInertia() {
-		if (Double.isNaN(longitudinalInertia)) {
+		if (Double.isNaN(longitudinalUnitInertia)) {
 			calculateProperties();
 		}
-		return longitudinalInertia;
+		return longitudinalUnitInertia;
 	}
 
 	/*
-	 * Obtain rotational unit inertia Iyy = Izz
+	 * Obtain rotational unit inertia Ixx
 	 *
 	 * @return rotational unit inertia
 	 */
 	@Override
 	public double getRotationalUnitInertia() {
-		if (Double.isNaN(rotationalInertia)) {
+		if (Double.isNaN(rotationalUnitInertia)) {
 			calculateProperties();
 		}
-		return rotationalInertia;
+		return rotationalUnitInertia;
 	}
 
 	/**
@@ -335,20 +335,22 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 	/**
 	 * helper method for calculateProperties()
-	 * returns the rotational moment of inertia of a solid frustum
+	 * returns the unit rotational moment of inertia of a solid frustum
 	 * handles special case of cylinder correctly
-	 * @param l length (height) of frustum
+	 * see https://web.mit.edu/8.13/8.13c/references-fall/aip/aip-handbook-section2c.pdf
+	 * page 2-41, table 2c-2
+	 * Caution!  Returns 10/3 times the correct answer.  Will need to be corrected at end
 	 * @param r1 radius of fore end of frustum
 	 * @param r2 radius of aft end of frustum
 	 * @return rotational moment of inertia
 	 */
-	private double calculateRotMOI(double l, double r1, double r2) {
+	private double calculateUnitRotMOI(double r1, double r2) {
 		// check for cylinder special case
 		if (Math.abs(r1 - r2) < MathUtil.EPSILON) {
-			return pow2(r1)/2.0;
+			return 10.0*pow2(r1)/6.0;
 		}
 		
-		return 3.0 * (Math.pow(r2, 5) - Math.pow(r1, 5)) / (10.0 * (Math.pow(r2, 3) - Math.pow(r1, 3)));
+		return (Math.pow(r2, 5) - Math.pow(r1, 5)) / (Math.pow(r2, 3) - Math.pow(r1, 3));
 	}
 
 	/**
@@ -423,8 +425,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		planCenter = 0;
 		fullVolume = 0;
 		volume = 0;
-		longitudinalInertia = 0;
-		rotationalInertia = 0;
+		longitudinalUnitInertia = 0;
+		rotationalUnitInertia = 0;
 		
 		double cgx = 0;
 
@@ -480,22 +482,22 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			final double dCGx = dV * (x1 + dCG);
 			
 			// rotational moment of inertia
-			final double Izzo = calculateRotMOI(l, r1o, r2o);
-			final double Izzi = calculateRotMOI(l, r1i, r2i);
-			final double Izz = Izzo * fullCG.weight - Izzi * innerCG.weight;
+			final double Ixxo = calculateUnitRotMOI(r1o, r2o);
+			final double Ixxi = calculateUnitRotMOI(r1i, r2i);
+			final double Ixx = Ixxo * fullCG.weight - Ixxi * innerCG.weight;
 
 			// longitudinal moment of inertia -- axis through CG of division
-			double Ixx = calculateLongMOI(l, r1o, r2o, fullCG) - calculateLongMOI(l, r1i, r2i, innerCG);
+			double Iyy = calculateLongMOI(l, r1o, r2o, fullCG) - calculateLongMOI(l, r1i, r2i, innerCG);
 
 			// move to axis through forward end of component
-			Ixx += dV * pow2(x1 + dCG);
+			Iyy += dV * pow2(x1 + dCG);
 			
 			// Add to the volume-related components
 			volume += dV;
 			fullVolume += dFullV;
 			cgx += dCGx;
-			rotationalInertia += Izz;
-			longitudinalInertia += Ixx;
+			rotationalUnitInertia += Ixx;
+			longitudinalUnitInertia += Iyy;
 
 			// Wetted area ( * PI at the end)
 			wetArea += (r1o + r2o) * Math.sqrt(pow2(r1o - r2o) + pow2(l));
@@ -506,19 +508,20 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			final double planMoment = dA*x1 + 2.0*pow2(l)*(r1o/6.0 + r2o/3.0);
 			planCenter += planMoment;
 		}
-
-		// get unit moments of inertia
-		rotationalInertia /= volume;
-		longitudinalInertia /= volume;
 		
 		if (planArea > 0)
 			planCenter /= planArea;
+
+		// get unit moments of inertia
+		rotationalUnitInertia /= volume;
+		longitudinalUnitInertia /= volume;
 
 		// Correct for deferred constant factors
 		volume *= Math.PI / 3.0;
 		fullVolume *= Math.PI / 3.0;
 		cgx *= Math.PI / 3.0;
 		wetArea *= Math.PI;
+		rotationalUnitInertia *= 3.0 / 10.0;
 		
 		if (volume < 0.0000000001) { // 0.1 mm^3
 			volume = 0;
@@ -532,13 +535,13 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		
 		// a component so small it has no volume can't contribute to moment of inertia
 		if (MathUtil.equals(volume, 0)) {
-			rotationalInertia = 0;
-			longitudinalInertia = 0;
+			rotationalUnitInertia = 0;
+			longitudinalUnitInertia = 0;
 			return;
 		}
 		
 		// Shift longitudinal inertia to CG
-		longitudinalInertia = longitudinalInertia - pow2(cg.x);
+		longitudinalUnitInertia = longitudinalUnitInertia - pow2(cg.x);
 		
 	}
 
@@ -554,8 +557,8 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			planCenter = Double.NaN;
 			volume = Double.NaN;
 			fullVolume = Double.NaN;
-			longitudinalInertia = Double.NaN;
-			rotationalInertia = Double.NaN;
+			longitudinalUnitInertia = Double.NaN;
+			rotationalUnitInertia = Double.NaN;
 			cg = null;
 		}
 	}
