@@ -5,10 +5,10 @@ import java.util.HashMap;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Reflection;
 
-////  ColorSetter  -  sets a Color value
+////  ColorSetter  -  sets a ORColor value
 class ColorSetter implements Setter {
 	private final Reflection.Method setMethod;
 	
@@ -44,7 +44,7 @@ class ColorSetter implements Setter {
 			return;
 		}
 		
-		Color color = new Color(r, g, b);
+		ORColor color = new ORColor(r, g, b);
 		setMethod.invoke(c, color);
 		
 		if (!s.trim().equals("")) {

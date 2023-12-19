@@ -315,7 +315,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					SymmetricComponent sym = (SymmetricComponent) comp;
 					if( null == prevComp){
 						if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
-							warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym.toString());
+							warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym);
 						}
 					} else {
 						// Check for radius discontinuity
@@ -324,13 +324,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						// present as different if the discontinuity is big enough to matter.
 						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*sym.getForeRadius())
 							.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(2.0*prevComp.getAftRadius()))) {
-							warnings.add( Warning.DIAMETER_DISCONTINUITY, prevComp + ", " + sym);
+							warnings.add(Warning.DIAMETER_DISCONTINUITY, prevComp, sym);
 						}
 
 						// Check for phantom tube
 						if ((sym.getLength() < MathUtil.EPSILON) ||
 							(sym.getAftRadius() < MathUtil.EPSILON && sym.getForeRadius() < MathUtil.EPSILON)) {
-							warnings.add(Warning.ZERO_VOLUME_BODY, sym.getName());
+							warnings.add(Warning.ZERO_VOLUME_BODY, sym);
 						}
 						
 						// check for gap or overlap in airframe.  We'll use a textual comparison to see if there is a
@@ -346,13 +346,13 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(symXfore)
 							.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(prevXaft))) {
 							if (symXfore > prevXaft) {
-								warnings.add(Warning.AIRFRAME_GAP,  prevComp + ", " + sym);
+								warnings.add(Warning.AIRFRAME_GAP,  prevComp, sym);
 							} else {
 								// If we only have the component with a single forward compartment bring up
 								// a body component overlap message								
 								if ((symXfore >= prevXfore) &&
 									((symXaft >= prevXaft) || (null == sym.getNextSymmetricComponent()))) {
-									warnings.add(Warning.AIRFRAME_OVERLAP, prevComp + ", " + sym);
+									warnings.add(Warning.AIRFRAME_OVERLAP, prevComp, sym);
 								} else {
 									// We have a PodSet that is either overlapping or completely forward of its parent component.
 									// We'll find the forward-most and aft-most components and figure out which
@@ -374,9 +374,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 									
 									// completely forward vs. overlap
 									if (lastCompXaft <= firstCompXfore) {
-										warnings.add(Warning.PODSET_FORWARD, comp.getParent().toString());
+										warnings.add(Warning.PODSET_FORWARD, comp.getParent());
 									} else {
-										warnings.add(Warning.PODSET_OVERLAP, comp.getParent().toString());
+										warnings.add(Warning.PODSET_OVERLAP, comp.getParent());
 									}
 								}
 								
@@ -393,7 +393,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 									null : prevCompParent.getChild(prevCompPos + 1);
 							if ((compParent instanceof PodSet || compParent instanceof ParallelStage) &&
 									MathUtil.equals(symXfore, prevXaft) && (compParent.getParent() == nextComp)) {
-								warnings.add(Warning.PODSET_OVERLAP, comp.getParent().toString());
+								warnings.add(Warning.PODSET_OVERLAP, comp.getParent());
 							}
 						}
 					}

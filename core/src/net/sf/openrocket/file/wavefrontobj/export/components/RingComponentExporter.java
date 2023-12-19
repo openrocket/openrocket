@@ -27,7 +27,7 @@ public class RingComponentExporter extends RocketComponentExporter<RingComponent
         final float length = (float) component.getLength();
 
         if (Double.compare(component.getThickness(), 0) == 0) {
-            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component);
         }
 
         // Generate the mesh

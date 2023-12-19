@@ -38,7 +38,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         boolean hasTabs = component.getTabLength() > 0 && component.getTabHeight() > 0;
 
         if (Float.compare(thickness, 0) == 0) {
-            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component);
         }
 
         // Generate the fin meshes

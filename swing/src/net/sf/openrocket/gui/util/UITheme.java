@@ -38,6 +38,7 @@ public class UITheme {
         Color getBorderColor();
         Color getTextColor();
         Color getDimTextColor();
+        Color getDisabledTextColor();
         Color getTextSelectionForegroundColor();
         Color getTextSelectionBackgroundColor();
         Color getWarningColor();
@@ -203,6 +204,11 @@ public class UITheme {
             @Override
             public Color getDimTextColor() {
                 return Color.GRAY;
+            }
+
+            @Override
+            public Color getDisabledTextColor() {
+                return getDimTextColor();
             }
 
             @Override
@@ -568,6 +574,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getDisabledTextColor() {
+                return new Color(161, 161, 161);
+            }
+
+            @Override
             public Color getTextSelectionForegroundColor() {
                 return Color.WHITE;
             }
@@ -924,6 +935,12 @@ public class UITheme {
             public Color getDimTextColor() {
                 return new Color(165, 171, 184);
             }
+
+            @Override
+            public Color getDisabledTextColor() {
+                return new Color(128, 128, 128);
+            }
+
 
             @Override
             public Color getTextSelectionForegroundColor() {
@@ -1294,6 +1311,11 @@ public class UITheme {
             @Override
             public Color getDimTextColor() {
                 return getCurrentTheme().getDimTextColor();
+            }
+
+            @Override
+            public Color getDisabledTextColor() {
+                return getCurrentTheme().getDisabledTextColor();
             }
 
             @Override

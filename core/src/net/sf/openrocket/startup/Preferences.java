@@ -24,7 +24,7 @@ import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ChangeSource;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
@@ -907,13 +907,13 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	/**
-	 * get a net.sf.openrocket.util.Color object for the given key.
+	 * get a net.sf.openrocket.util.ORColor object for the given key.
 	 * @param key
 	 * @param defaultValue
 	 * @return
 	 */
-	public final Color getColor(String key, Color defaultValue) {
-		Color c = parseColor(getString(key, null));
+	public final ORColor getColor(String key, ORColor defaultValue) {
+		ORColor c = parseColor(getString(key, null));
 		if (c == null) {
 			return defaultValue;
 		}
@@ -921,20 +921,20 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	/**
-	 * set a net.sf.openrocket.util.Color preference value for the given key.
+	 * set a net.sf.openrocket.util.ORColor preference value for the given key.
 	 * @param key
 	 * @param value
 	 */
-	public final void putColor(String key, Color value) {
+	public final void putColor(String key, ORColor value) {
 		putString(key, stringifyColor(value));
 	}
 	
 	/**
-	 * Helper function to convert a string representation into a net.sf.openrocket.util.Color object.
+	 * Helper function to convert a string representation into a net.sf.openrocket.util.ORColor object.
 	 * @param color
 	 * @return
 	 */
-	protected static Color parseColor(String color) {
+	protected static ORColor parseColor(String color) {
 		if (color == null) {
 			return null;
 		}
@@ -945,7 +945,7 @@ public abstract class Preferences implements ChangeSource {
 				int red = MathUtil.clamp(Integer.parseInt(rgb[0]), 0, 255);
 				int green = MathUtil.clamp(Integer.parseInt(rgb[1]), 0, 255);
 				int blue = MathUtil.clamp(Integer.parseInt(rgb[2]), 0, 255);
-				return new Color(red, green, blue);
+				return new ORColor(red, green, blue);
 			} catch (NumberFormatException ignore) {
 			}
 		}
@@ -953,12 +953,12 @@ public abstract class Preferences implements ChangeSource {
 	}
 	
 	/**
-	 * Helper function to convert a net.sf.openrocket.util.Color object into a
+	 * Helper function to convert a net.sf.openrocket.util.ORColor object into a
 	 * String before storing in a preference.
 	 * @param color
 	 * @return
 	 */
-	protected static String stringifyColor(Color color) {
+	protected static String stringifyColor(ORColor color) {
 		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 		return string;
 	}

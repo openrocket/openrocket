@@ -15,7 +15,7 @@ description: |
     * Cross-platform (Java-based)
     * Read more about it on the OpenRocket.info.
 license: GPL-3.0
-base: core18
+base: core22
 confinement: strict
 
 plugs:
@@ -28,10 +28,16 @@ plugs:
     write:
       - $HOME/.openrocket
 
+architectures:
+  - build-on: [amd64]
+  - build-on: [arm64]
+  - build-on: [armhf]
+  - build-on: [ppc64el]
+  - build-on: [s390x]
+
 apps:
   openrocket:
-    extensions:
-      - gnome-3-28
+    extensions: [gnome]
     command: bin/launcher
     plugs:
       - home
@@ -41,11 +47,17 @@ apps:
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
-      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH"
 
 parts:
   openrocket:
     plugin: ant
+    build-packages:
+      - ant
+      - ant-contrib
+      - ant-optional
+      - openjdk-17-jdk
+      - openjdk-17-jre
     source: .
     source-type: git
     ant-build-targets:
@@ -64,14 +76,15 @@ parts:
       # that to a later pull request.
       #
       # Until then, just use the build.version value
-      snapcraftctl pull
+      craftctl default
       VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
-      snapcraftctl set-version "$VERSION"
+      craftctl set version="$VERSION"
     override-build: |
-      snapcraftctl build
-      mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
+      craftctl default
+      mv swing/build/jar/OpenRocket.jar $CRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
-      - openjdk-11-jre
+      - openjdk-17-jdk
+      - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
     prime:

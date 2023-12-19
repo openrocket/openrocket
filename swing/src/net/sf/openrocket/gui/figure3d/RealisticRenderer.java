@@ -16,7 +16,7 @@ import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.InsideColorComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 import com.jogamp.opengl.util.texture.Texture;
 
@@ -237,7 +237,7 @@ public class RealisticRenderer extends RocketRenderer {
 		}
 	}
 	
-	protected static void convertColor(Color color, float[] out) {
+	protected static void convertColor(ORColor color, float[] out) {
 		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;

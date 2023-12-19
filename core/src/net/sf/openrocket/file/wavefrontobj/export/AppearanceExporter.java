@@ -6,7 +6,7 @@ import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.file.wavefrontobj.DefaultMtl;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.DefaultTextureOptions;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.FileUtils;
 import org.slf4j.Logger;
@@ -126,7 +126,7 @@ public class AppearanceExporter {
     }
 
     private static void applyColoring(Appearance appearance, DefaultMtl material, OBJExportOptions options) {
-        Color color = appearance.getPaint();
+        ORColor color = appearance.getPaint();
         final float r = convertColorToFloat(color.getRed(), options.isUseSRGB());
         final float g = convertColorToFloat(color.getGreen(), options.isUseSRGB());
         final float b = convertColorToFloat(color.getBlue(), options.isUseSRGB());

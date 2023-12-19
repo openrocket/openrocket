@@ -37,7 +37,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         obj.setActiveGroupNames(groupName);
 
         if (Double.compare(component.getThickness(), 0) == 0) {
-            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component);
         }
 
         // Generate the mesh

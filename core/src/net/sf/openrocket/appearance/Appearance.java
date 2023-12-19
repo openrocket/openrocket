@@ -1,6 +1,6 @@
 package net.sf.openrocket.appearance;
 
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.MathUtil;
 
 /**
@@ -10,9 +10,9 @@ import net.sf.openrocket.util.MathUtil;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class Appearance {
-	public static final Appearance MISSING = new Appearance(new Color(0, 0, 0), 1, null);
+	public static final Appearance MISSING = new Appearance(new ORColor(0, 0, 0), 1, null);
 	
-	private final Color paint;
+	private final ORColor paint;
 	private final double shine;
 	private final Decal texture;
 	
@@ -23,7 +23,7 @@ public class Appearance {
 	*	@param shine	shine of the appearance, will be clamped between 0 and 1
 	*	@param texture	The appearance texture
 	*/
-	public Appearance(final Color paint, final double shine, final Decal texture) {
+	public Appearance(final ORColor paint, final double shine, final Decal texture) {
 		this.paint = paint;
 		this.shine = MathUtil.clamp(shine, 0, 1);
 		this.texture = texture;
@@ -35,14 +35,14 @@ public class Appearance {
 	*	@param paint	the color to be used
 	*	@param shine	shine of the appearance, will be clamped between 0 and 1
 	*/
-	public Appearance(final Color paint, final double shine) {
+	public Appearance(final ORColor paint, final double shine) {
 		this(paint,shine,null);
 	}
 	
 	/**
 	*	@return color of the appearance
 	*/
-	public Color getPaint() {
+	public ORColor getPaint() {
 		return paint;
 	}
 	
