@@ -8,7 +8,6 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	private Coordinate launchRodDirection;
 	
 	private double previousAcceleration = 0;
-	private AtmosphericConditions previousAtmosphericConditions;
 	
 	// Used for determining when to store aerodynamic computation warnings:
 	private double maxZVelocity = 0;
@@ -26,7 +25,6 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 			this.previousAcceleration = ((RK4SimulationStatus) other).previousAcceleration;
 			this.maxZVelocity = ((RK4SimulationStatus) other).maxZVelocity;
 			this.startWarningTime = ((RK4SimulationStatus) other).startWarningTime;
-			this.previousAtmosphericConditions = ((RK4SimulationStatus) other).previousAtmosphericConditions;
 		}
 	}
 	public void setLaunchRodDirection(Coordinate launchRodDirection) {
@@ -48,18 +46,6 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	public void setPreviousAcceleration(double previousAcceleration) {
 		this.previousAcceleration = previousAcceleration;
 	}
-	
-	
-	public AtmosphericConditions getPreviousAtmosphericConditions() {
-		return previousAtmosphericConditions;
-	}
-	
-	
-	public void setPreviousAtmosphericConditions(
-			AtmosphericConditions previousAtmosphericConditions) {
-		this.previousAtmosphericConditions = previousAtmosphericConditions;
-	}
-	
 	
 	public double getMaxZVelocity() {
 		return maxZVelocity;
