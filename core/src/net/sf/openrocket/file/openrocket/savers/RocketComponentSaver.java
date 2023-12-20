@@ -22,7 +22,7 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.TextUtil;
@@ -69,7 +69,7 @@ public class RocketComponentSaver {
 		
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
-			Color color = c.getColor();
+			ORColor color = c.getColor();
 			emitColor("color", elements, color, 0);
 			
 			LineStyle style = c.getLineStyle();
@@ -156,7 +156,7 @@ public class RocketComponentSaver {
 	}
 
 	private void buildAppearanceElements(List<String> elements, Appearance a) {
-		Color paint = a.getPaint();
+		ORColor paint = a.getPaint();
 		emitColor("paint", elements, paint, 1);
 		appendElement(elements, "shine", a.getShine(), 1);
 		Decal decal = a.getTexture();
@@ -271,7 +271,7 @@ public class RocketComponentSaver {
 		return elements;
 	}
 	
-	private final static void emitColor(String elementName, List<String> elements, Color color, int indents) {
+	private final static void emitColor(String elementName, List<String> elements, ORColor color, int indents) {
 		if (color != null) {
 			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
 					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");

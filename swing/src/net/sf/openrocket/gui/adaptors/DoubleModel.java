@@ -123,7 +123,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		@Override
 		public Object getNextValue() {
 			double d = currentUnit.toUnit(DoubleModel.this.getValue());
-			double max = currentUnit.toUnit(maxValue);
+			boolean inverted = DoubleModel.this.currentUnit.getMultiplier() < 0;
+			double max = inverted ? currentUnit.toUnit(minValue) : currentUnit.toUnit(maxValue);
 			if (MathUtil.equals(d, max))
 				return null;
 			d = currentUnit.getNextValue(d);
@@ -135,7 +136,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		@Override
 		public Object getPreviousValue() {
 			double d = currentUnit.toUnit(DoubleModel.this.getValue());
-			double min = currentUnit.toUnit(minValue);
+			boolean inverted = DoubleModel.this.currentUnit.getMultiplier() < 0;
+			double min = inverted ? currentUnit.toUnit(maxValue) : currentUnit.toUnit(minValue);
 			if (MathUtil.equals(d, min))
 				return null;
 			d = currentUnit.getPreviousValue(d);
@@ -315,11 +317,12 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		@Override
 		public int getValue() {
 			double value = DoubleModel.this.getValue();
+			boolean inverted = DoubleModel.this.getCurrentUnit().getMultiplier() < 0;
 			if (value <= min.getValue())
-				return 0;
+				return inverted ? MAX : 0;
 			if (value >= max.getValue())
-				return MAX;
-			
+				return inverted ? 0 : MAX;
+
 			double x;
 			if ((value <= mid.getValue()) || (quad2 == 0)) {		// If quad 2 is 0, the midpoint is perfectly in center
 				// Use linear scale
@@ -333,6 +336,9 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 				//   a*x^2 + b*x + c-value == 0
 				x = (MathUtil.safeSqrt(quad1 * quad1 - 4 * quad2 * (quad0 - value)) - quad1) / (2 * quad2);
 			}
+			if (inverted) {
+				x = 1 - x;
+			}
 			return (int) (x * MAX);
 		}
 		
@@ -345,8 +351,12 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 						" value=" + newValue + ", currently firing events");
 				return;
 			}
-			
+
+			boolean inverted = DoubleModel.this.getCurrentUnit().getMultiplier() < 0;
 			double x = (double) newValue / MAX;
+			if (inverted) {
+				x = 1 - x;
+			}
 			double scaledValue;
 			
 			if (x <= linearPosition) {

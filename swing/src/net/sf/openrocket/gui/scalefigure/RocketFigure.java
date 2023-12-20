@@ -22,6 +22,7 @@ import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,7 +275,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 			
 			// Set component color and line style
-			net.sf.openrocket.util.Color color = rcs.color;
+			ORColor color = rcs.color;
 			if (color == null) {
 				color = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 			}
@@ -455,7 +456,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			final RocketPanel.VIEW_TYPE viewType, 
 			final RocketComponent component, 
 			final Transformation transformation,
-			final net.sf.openrocket.util.Color color) {
+			final ORColor color) {
 		Reflection.Method m;
 		
 		if ((component instanceof Rocket) || (component instanceof AxialStage && !(component instanceof ParallelStage))){
@@ -491,7 +492,7 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		if (color != null) {
 			for (RocketComponentShape rcs : returnValue) {
-				if (rcs.getColor() == net.sf.openrocket.util.Color.INVISIBLE) continue;	// don't change the color of invisible (often selection) components
+				if (rcs.getColor() == ORColor.INVISIBLE) continue;	// don't change the color of invisible (often selection) components
 				rcs.setColor(color);
 			}
 		}

@@ -27,7 +27,7 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
         final boolean isFilled = component.isFilled();
 
         if (Double.compare(component.getThickness(), 0) == 0) {
-            warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName());
+            warnings.add(Warning.OBJ_ZERO_THICKNESS, component);
         }
 
         // Generate the mesh

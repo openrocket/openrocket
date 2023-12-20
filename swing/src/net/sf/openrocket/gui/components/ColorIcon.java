@@ -5,6 +5,7 @@ import java.awt.Color;
 import javax.swing.Icon;
 
 import net.sf.openrocket.gui.util.ColorConversion;
+import net.sf.openrocket.util.ORColor;
 
 /**
  * An Icon that displays a specific color, suitable for drawing into a button.
@@ -18,7 +19,7 @@ public class ColorIcon implements Icon {
 		this.color = c;
 	}
 	
-	public ColorIcon(net.sf.openrocket.util.Color c){
+	public ColorIcon(ORColor c){
 		this.color = ColorConversion.toAwtColor(c);
 	}
 	

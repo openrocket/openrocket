@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 
 import java.awt.geom.Point2D;
 
+import net.sf.openrocket.util.ORColor;
 import org.junit.Test;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
@@ -23,7 +24,6 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Transformation;
@@ -38,7 +38,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		sourceSet.setBaseRotation(1.1);
 		sourceSet.setCantAngle(0.001);
 		sourceSet.setCGOverridden(true);
-		sourceSet.setColor(Color.BLACK);
+		sourceSet.setColor(ORColor.BLACK);
 		sourceSet.setComment("cmt");
 		sourceSet.setCrossSection(CrossSection.ROUNDED);
 		sourceSet.setFinCount(5);
@@ -183,7 +183,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		assertEquals(0.001, finSet.getCantAngle(), EPSILON);
 		assertTrue(finSet.isCGOverridden());
 		assertTrue(finSet.isMassOverridden());
-		assertEquals(Color.BLACK, finSet.getColor());
+		assertEquals(ORColor.BLACK, finSet.getColor());
 		assertEquals("cmt", finSet.getComment());
 		assertEquals(CrossSection.ROUNDED, finSet.getCrossSection());
 		assertEquals(5, finSet.getFinCount());
@@ -220,7 +220,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 		assertEquals(0.001, finSet.getCantAngle(), EPSILON);
 		assertTrue(finSet.isCGOverridden());
 		assertTrue(finSet.isMassOverridden());
-		assertEquals(Color.BLACK, finSet.getColor());
+		assertEquals(ORColor.BLACK, finSet.getColor());
 		assertEquals("cmt", finSet.getComment());
 		assertEquals(CrossSection.ROUNDED, finSet.getCrossSection());
 		assertEquals(5, finSet.getFinCount());

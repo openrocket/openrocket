@@ -4,7 +4,7 @@ import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer.FlameSettings;
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky;
 import net.sf.openrocket.gui.figure3d.photo.sky.builtin.Mountains;
 import net.sf.openrocket.util.AbstractChangeSource;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.MathUtil;
 
 public class PhotoSettings extends AbstractChangeSource implements FlameSettings {
@@ -20,18 +20,18 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	
 	private double lightAlt = .35;
 	private double lightAz = -1;
-	private Color sunlight = new Color(255, 255, 255);
+	private ORColor sunlight = new ORColor(255, 255, 255);
 	private double ambiance = .3f;
 	
-	private Color skyColor = new Color(55, 95, 155);
+	private ORColor skyColor = new ORColor(55, 95, 155);
 	private double skyColorOpacity = 1.0;
 	
 	
 	private boolean motionBlurred = false;
 	private boolean flame = false;
-	private Color flameColor = new Color(255, 100, 50);
+	private ORColor flameColor = new ORColor(255, 100, 50);
 	private boolean smoke = false;
-	private Color smokeColor = new Color(230, 230, 230, 102);
+	private ORColor smokeColor = new ORColor(230, 230, 230, 102);
 	private boolean sparks = false;
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
@@ -163,11 +163,11 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		fireChangeEvent();
 	}
 	
-	public Color getSunlight() {
+	public ORColor getSunlight() {
 		return sunlight;
 	}
 	
-	public void setSunlight(Color sunlight) {
+	public void setSunlight(ORColor sunlight) {
 		this.sunlight = sunlight;
 		fireChangeEvent();
 	}
@@ -181,11 +181,11 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		fireChangeEvent();
 	}
 	
-	public Color getSkyColor() {
+	public ORColor getSkyColor() {
 		return skyColor;
 	}
 	
-	public void setSkyColor(Color skyColor) {
+	public void setSkyColor(ORColor skyColor) {
 		this.skyColor = skyColor;
 		this.skyColorOpacity = skyColor.getAlpha() / 255f;
 		fireChangeEvent();
@@ -201,20 +201,20 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		fireChangeEvent();
 	}
 
-	public Color getFlameColor() {
+	public ORColor getFlameColor() {
 		return flameColor;
 	}
 	
-	public void setFlameColor(Color flameColor) {
+	public void setFlameColor(ORColor flameColor) {
 		this.flameColor = flameColor;
 		fireChangeEvent();
 	}
 	
-	public Color getSmokeColor() {
+	public ORColor getSmokeColor() {
 		return smokeColor;
 	}
 	
-	public void setSmokeColor(Color smokeColor) {
+	public void setSmokeColor(ORColor smokeColor) {
 		this.smokeColor = smokeColor;
 		fireChangeEvent();
 	}
