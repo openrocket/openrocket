@@ -328,8 +328,15 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius())) / 2;
 	}
 	
-	
-	
+	@Override
+	public double getComponentWetArea() {
+		return Math.PI * getOuterRadius() * 2 * getLength();
+	}
+
+	@Override
+	public double getComponentPlanformArea() {
+		return getOuterRadius() * 2 * getLength();
+	}
 	
 	/**
 	 * Helper function for cylinder volume.
