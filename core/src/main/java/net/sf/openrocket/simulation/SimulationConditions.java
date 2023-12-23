@@ -59,10 +59,6 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngleStep = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
-	/* Whether to calculate additional data or only primary simulation figures */
-	private boolean calculateExtras = true;
-	
-	
 	private List<SimulationListener> simulationListeners = new ArrayList<SimulationListener>();
 	
 	
@@ -255,18 +251,6 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		this.maximumAngleStep = maximumAngle;
 		this.modID++;
 	}
-	
-	
-	public boolean isCalculateExtras() {
-		return calculateExtras;
-	}
-	
-	
-	public void setCalculateExtras(boolean calculateExtras) {
-		this.calculateExtras = calculateExtras;
-		this.modID++;
-	}
-	
 	
 	
 	public int getRandomSeed() {

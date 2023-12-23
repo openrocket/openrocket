@@ -29,6 +29,7 @@ import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.logging.PrintStreamToSLF4J;
 import net.sf.openrocket.plugin.PluginModule;
@@ -80,7 +81,7 @@ public class SwingStartup {
 		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
 			OSXSetup.setupOSX();
 		}
-
+		
 		final SwingStartup runner = new SwingStartup();
 		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
@@ -198,9 +199,15 @@ public class SwingStartup {
 		// Start update info fetching
 		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
 		
-		// Set the best available look-and-feel
-		log.info("Setting best LAF");
-		GUIUtil.setBestLAF();
+		// Set the look-and-feel
+		log.info("Setting LAF");
+		String cmdLAF = System.getProperty("openrocket.laf");
+		if (cmdLAF != null) {
+			log.info("Setting cmd line LAF '{}'", cmdLAF);
+			Preferences prefs = Application.getPreferences();
+			prefs.setUITheme(UITheme.Themes.valueOf(cmdLAF));
+		}
+		GUIUtil.applyLAF();
 		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);
@@ -209,11 +216,12 @@ public class SwingStartup {
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
 		
 		Databases.fakeMethod();
+
 		// Set up the OSX file open handler here so that it can handle files that are opened when OR is not yet running.
 		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
 			OSXSetup.setupOSXOpenFileHandler();
 		}
-
+		
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {

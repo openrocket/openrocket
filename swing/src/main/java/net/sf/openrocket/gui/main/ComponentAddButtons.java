@@ -4,6 +4,7 @@ package net.sf.openrocket.gui.main;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -209,7 +210,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			for (col = 0; col < buttons[row].length; col++) {
 				buttons[row][col].setMinimumSize(d);
 				buttons[row][col].setPreferredSize(d);
-				buttons[row][col].getComponent(0).validate();
+				buttons[row][col].validate();
 			}
 		}
 		
@@ -236,7 +237,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	/**
 	 * Adds a buttons to the panel in a row.  Assumes.
 	 *
-	 * @param label  Label placed before the row
 	 * @param row    Row number
 	 * @param b      List of ComponentButtons to place on the row
 	 */
@@ -315,29 +315,32 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * The label may contain "\n" as a newline.
 		 */
 		public ComponentButton(String text, Icon enabled, Icon disabled) {
-			super();
-			setLayout(new MigLayout("fill, flowy, insets 0, gap 0", "", ""));
-			
-			add(new JLabel(), "push, sizegroup spacing");
-			
-			// Add Icon
-			if (enabled != null) {
-				JLabel label = new JLabel(enabled);
-				if (disabled != null)
-					label.setDisabledIcon(disabled);
-				add(label, "growx");
+			super(text, enabled);
+
+			setVerticalTextPosition(SwingConstants.BOTTOM); 		// Put the text below the icon
+			setHorizontalTextPosition(SwingConstants.CENTER); 		// Center the text horizontally
+			//setIconTextGap(0); // Optional; sets the gap between the icon and the text
+
+			// set the disabled icon if it is not null
+			if (disabled != null) {
+				setDisabledIcon(disabled);
 			}
-			
-			// Add labels
-			String[] l = text.split("\n");
-			for (int i = 0; i < l.length; i++) {
-				add(new StyledLabel(l[i], SwingConstants.CENTER, -2.0f), "growx");
+
+			setHorizontalAlignment(SwingConstants.CENTER); 			// Center the button in its parent component
+
+			// if you have multiline text, you could use html to format it
+			if (text != null && text.contains("\n")) {
+				text = "<html><center>" + text.replace("\n", "<br>") + "</center></html>";
+				setText(text);
 			}
-			
-			add(new JLabel(), "push, sizegroup spacing");
-			
-			valueChanged(null); // Update enabled status
-			selectionModel.addTreeSelectionListener(this);
+
+			// Initialize enabled status
+			valueChanged(null);
+
+			// Attach a tree selection listener if selection model is not null
+			if (selectionModel != null) {
+				selectionModel.addTreeSelectionListener(this);
+			}
 		}
 		
 		

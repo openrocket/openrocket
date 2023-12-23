@@ -6,6 +6,7 @@ import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
 import java.awt.desktop.AppReopenedListener;
+import java.io.File;
 
 import net.sf.openrocket.communication.UpdateInfoRetriever;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 
-import javax.swing.*;
 
 /**
  * Static code for initialization of OSX UI Elements: Menu, Icon, Name and
@@ -39,8 +39,9 @@ final class OSXSetup {
 	 * The handler for file associations
 	 */
 	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
-		log.info("Opening file from association: " + e.getFiles().get(0));
-		BasicFrame.open(e.getFiles().get(0), BasicFrame.lastFrameInstance);
+		File associateFile = e.getFiles().get(0);
+		log.info("Opening file from association: " + associateFile);
+		BasicFrame.open(associateFile, BasicFrame.lastFrameInstance);
 	};
 	
 	/**
@@ -112,12 +113,6 @@ final class OSXSetup {
 					SwingStartup.class.getResource(ICON_RSRC));
 			final Taskbar osxTaskbar = Taskbar.getTaskbar();
 			osxTaskbar.setIconImage(dockIcon);
-
-			// Set the foreground of active tabs to black; there was a bug where you had a white background and white foreground
-			UIManager.put("TabbedPane.foreground", Color.black);
-
-			// Set the select foreground for buttons to not be black on a blue background
-			UIManager.put("ToggleButton.selectForeground", Color.WHITE);
 
 		} catch (final Throwable t) {
 			// None of the preceding is critical to the app,

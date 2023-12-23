@@ -404,6 +404,10 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return getTabOffset(this.tabOffsetMethod);
 	}
 
+	public double getTabPosition(AxialMethod method) {
+		return method.getAsPosition(tabOffset, tabLength, length);
+	}
+
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
@@ -544,7 +548,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return centerOfMass;
 	}
 
-	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius){
+	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius) {
 		final double hypotenuse = filletRadius + bodyRadius;
 		final double innerArcAngle = Math.asin(filletRadius / hypotenuse);
 		final double outerArcAngle = Math.acos(filletRadius / hypotenuse);
@@ -554,17 +558,17 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 				- outerArcAngle * filletRadius * filletRadius / 2
 				- innerArcAngle * bodyRadius * bodyRadius / 2);
 
-		if(Double.isNaN(crossSectionArea)) {
+		if (Double.isNaN(crossSectionArea)) {
 			crossSectionArea = 0.;
-		}else {
+		} else {
 			// each fin has a fillet on each side
 			crossSectionArea *= 2;
 		}
 
 		// heuristic, relTo the body center
-		double yCentroid = bodyRadius + filletRadius /5;
+		double yCentroid = bodyRadius + filletRadius / 5;
 
-		return new Coordinate(0,yCentroid,0,crossSectionArea);
+		return new Coordinate(0, yCentroid, 0, crossSectionArea);
 	}
 
 	/*
@@ -581,7 +585,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * 5. Return twice that since there is a fillet on each side of the fin.
 	 */
 	protected Coordinate calculateFilletVolumeCentroid() {
-		if((null == this.parent) || (!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))){
+		if ((this.filletRadius == 0) || (this.parent == null) ||
+				(!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))) {
 			return Coordinate.ZERO;
 		}
 		Coordinate[] mountPoints = this.getRootPoints();
@@ -594,7 +599,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		final Coordinate finLead = getFinFront();
 		final double xFinEnd = finLead.x + getLength();
 		final Coordinate[] rootPoints = getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y);
-		if (0 == rootPoints.length) {
+		if (rootPoints.length == 0) {
 			return Coordinate.ZERO;
 		}
 		
@@ -616,7 +621,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 			final Coordinate segmentCentroid = segmentCrossSection.setWeight(segmentVolume);
 
-			filletVolumeCentroid = filletVolumeCentroid.add(segmentCentroid);
+			filletVolumeCentroid = filletVolumeCentroid.average(segmentCentroid);
 
 			prev = cur;
 		}
@@ -624,7 +629,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		if (finCount == 1) {
 			Transformation rotation = Transformation.rotate_x( getAngleOffset());
 			return rotation.transform(filletVolumeCentroid);
-		}else{
+		} else{
 			return filletVolumeCentroid.setY(0.);
 		}
 	}
@@ -1024,14 +1029,14 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
 	public Coordinate[] getRootPoints(final int maximumBodyDivisionCount) {
-		if( null == parent){
+		if (parent == null) {
 			return new Coordinate[]{Coordinate.ZERO};
 		}
 
 		final Coordinate finLead = getFinFront();
 		final double xFinEnd = finLead.x + getLength();
 
-		return getMountPoints( finLead.x, xFinEnd, -finLead.x, -finLead.y, maximumBodyDivisionCount);
+		return getMountPoints(finLead.x, xFinEnd, -finLead.x, -finLead.y, maximumBodyDivisionCount);
 	}
 
 	/**
@@ -1074,11 +1079,11 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		// for a simple body, one increment is perfectly accurate.
 		int divisionCount = 1;
-		final SymmetricComponent body = (SymmetricComponent) getParent();
+		final SymmetricComponent parent = (SymmetricComponent) getParent();
 		final double intervalLength = xEnd - xStart;
 
 		// for anything more complicated, increase the count:
-		if ((body instanceof Transition) && (((Transition)body).getShapeType() != Shape.CONICAL)) {
+		if ((!MathUtil.equals(getCantAngle(), 0)) || (parent instanceof Transition) && (((Transition)parent).getShapeType() != Shape.CONICAL)) {
 			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
 			final double xWidth = 0.0025; // width (in meters) of each individual iteration
 			divisionCount = (int) Math.ceil(intervalLength / xWidth);
@@ -1092,13 +1097,18 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		double xIncrement = intervalLength / divisionCount;
 
 		// Create the points: step through the radius of the parent
-		double xCur = xStart;
+		double xCurr = xStart;
 		List<Coordinate> points = new ArrayList<>();
 		for (int index = 0; index < divisionCount+1; index++) {
-			double yCur = body.getRadius(xCur);
-			points.add(new Coordinate(xCur, yCur));
+			double yCurr = parent.getRadius(xCurr);
 
-			xCur += xIncrement;
+			// Account for the fin cant angle
+			final double dy = getFinCantYOffset(xStart, xEnd, xCurr);
+			yCurr += dy;
+
+			points.add(new Coordinate(xCurr, yCurr));
+
+			xCurr += xIncrement;
 		}
 
 		/*
@@ -1106,11 +1116,11 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		then we need to add an extra root point at the front of the parent. Same goes for the last point, but vice versa.
 		This ensures that fins are drawn correctly on transitions and nose cones (see GitHub issue #1021 for more info).
 		 */
-		// Front fin point is outside the parent's bounds and last point is still within the parent's bounds
+		// Front fin point is outside the parent's bounds and last point is beyond the parent's fore end
 		if (xStart < 0 && xEnd > 0) {
 			points.add(1, new Coordinate(0, points.get(0).y));
 		}
-		// End fin point is outside the parent's bounds and first point is still within the parent's bounds
+		// End fin point is beyond the parent's aft and first point is still before the parent's aft end
 		if (xEnd > parent.length && xStart < parent.length) {
 			final double x = parent.length;
 			final double y = points.get(points.size() - 1).y;
@@ -1121,8 +1131,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		// correct last point, if beyond a rounding error from body's end.
 		final int lastIndex = rootPoints.length - 1;
-		if (Math.abs(rootPoints[lastIndex].x - body.getLength()) < MathUtil.EPSILON) {
-			rootPoints[lastIndex] = rootPoints[lastIndex].setX(body.getLength()).setY(body.getAftRadius());
+		if (Math.abs(rootPoints[lastIndex].x - parent.getLength()) < MathUtil.EPSILON) {
+			rootPoints[lastIndex] = rootPoints[lastIndex].setX(parent.getLength());
 		}
 
 		// translate the points if needed
@@ -1135,6 +1145,51 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
 		return getMountPoints(xStart, xEnd, xOffset, yOffset, MAX_ROOT_DIVISIONS);
+	}
+
+	/**
+	 * Returns a y offset that should be applied to the fin root point at the given x position to account for the fin cant.
+	 * @param xStart The x position of the fin root point at the front of the fin.
+	 * @param xEnd The x position of the fin root point at the back of the fin.
+	 * @param xCurr The x position of the fin root point to calculate the y offset for.
+	 * @return The y offset to apply to the fin root point at the given x position.
+	 */
+	private double getFinCantYOffset(final double xStart, final double xEnd, double xCurr) {
+		final SymmetricComponent parent = (SymmetricComponent) getParent();
+		final double cantAngle = getCantAngle();
+
+		if (MathUtil.equals(cantAngle, 0) || (xStart > parent.length && xEnd > parent.length) || (xStart < 0 && xEnd < 0)) {
+			return 0;
+		}
+
+		// Limit the x position to the parent's bounds
+		double x = Math.max(xCurr, 0);
+		x = Math.min(x, parent.getLength());
+
+		// Determine the center of rotation
+		final double xCenter = (xStart + xEnd) / 2;
+
+		// Calculate the new x position after rotation
+		final double dx = x - xCenter;		// Distance to the center of rotation
+		final double xCurr_rot = xCenter + dx * Math.abs(Math.cos(cantAngle));	// X coordinate after rotation
+
+		// Extend the root of the fin to touch the surface of the parent
+		final double radius_rot = parent.getRadius(xCurr_rot);
+		final double dz = Math.abs(Math.sin(cantAngle)) * dx;
+
+		final double dy;
+		if (dz >= radius_rot) {
+			dy = 0;
+		} else {
+				/*
+				 Simplification of  r^2 = (r-dy)^2 + dz^2, given that dz < r. (to derive this, draw
+				 the cross-section of the body, which is just a circle, with a tangent line starting on the top of the circle
+				 and reaching a distance dz. Use some Pythagorean theorem and bam, you got this equation.)
+				 */
+			dy = radius_rot - Math.sqrt(Math.pow(radius_rot, 2) - Math.pow(dz, 2));
+		}
+
+		return -dy;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 
@@ -52,6 +53,32 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		return rkt;
 	}
 
+	private Rocket createFreeformFinOnTransition() {
+		final Rocket rkt = new Rocket();
+		final AxialStage stg = new AxialStage();
+		rkt.addChild(stg);
+		Transition transition = new Transition();
+		transition.setLength(0.2);
+		transition.setForeRadius(0.1);
+		transition.setAftRadius(0.3);
+		transition.setShapeType(Transition.Shape.OGIVE);
+		stg.addChild(transition);
+		FreeformFinSet fins = new FreeformFinSet();
+		fins.setFinCount(1);
+		fins.setAxialOffset(AxialMethod.MIDDLE, 0.0);
+		fins.setMaterial(Material.newMaterial(Material.Type.BULK, "Fin-Test-Material", 1.0, true));
+		fins.setThickness(0.005); // == 5 mm
+
+		transition.addChild(fins);
+
+		fins.setTabLength(0.00);
+
+		fins.setFilletRadius(0.0);
+
+		rkt.enableEvents();
+		return rkt;
+	}
+
 	@Test
 	public void testMultiplicity() {
 		final TrapezoidFinSet trapFins = new TrapezoidFinSet();
@@ -82,6 +109,71 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals(" generated fin point [" + index + "] doesn't match! ", expPoints[index].x, actPoints[index].x, EPSILON);
 			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x, EPSILON);
 			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x, EPSILON);
+		}
+	}
+
+	@Test
+	public void testGenerateTrapezoidalPointsWithCant() {
+		final Rocket rkt = createSimpleTrapezoidalFin();
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
+		fins.setCantAngle(Math.toRadians(15));
+
+		// Fin length = 0.05
+		// Tab Length = 0.01
+		//          +--+
+		//         /    \
+		//        /      \
+		//   +---+--------+---+
+		//
+		Coordinate[] actPoints = fins.getFinPoints();
+		Coordinate[] rootPoints = fins.getRootPoints();
+
+		final Coordinate[] expPoints = new Coordinate[] {
+				new Coordinate(0.00, -0.00030189855, 0.00),
+				new Coordinate(0.02, 0.05, 0.00),
+				new Coordinate(0.04, 0.05, 0.00),
+				new Coordinate(0.06, -0.00030189855, 0.00)
+		};
+
+		final Coordinate[] expRootPoints = new Coordinate[] {
+				new Coordinate(0.0000, -0.000301899, 0.0000),
+				new Coordinate(0.0025, -0.000253617, 0.0000),
+				new Coordinate(0.0050, -0.000209555, 0.0000),
+				new Coordinate(0.0075, -0.000169706, 0.0000),
+				new Coordinate(0.0100, -0.000134064, 0.0000),
+				new Coordinate(0.0125, -0.000102627, 0.0000),
+				new Coordinate(0.0150, -0.000075389, 0.0000),
+				new Coordinate(0.0175, -0.000052348, 0.0000),
+				new Coordinate(0.0200, -0.000033499, 0.0000),
+				new Coordinate(0.0225, -0.000018842, 0.0000),
+				new Coordinate(0.0250, -0.000008374, 0.0000),
+				new Coordinate(0.0275, -0.000002093, 0.0000),
+				new Coordinate(0.0300, 0.0000, 0.0000),
+				new Coordinate(0.0325, -0.000002093, 0.0000),
+				new Coordinate(0.0350, -0.000008374, 0.0000),
+				new Coordinate(0.0375, -0.000018842, 0.0000),
+				new Coordinate(0.0400, -0.000033499, 0.0000),
+				new Coordinate(0.0425, -0.000052348, 0.0000),
+				new Coordinate(0.0450, -0.000075389, 0.0000),
+				new Coordinate(0.0475, -0.000102627, 0.0000),
+				new Coordinate(0.0500, -0.000134064, 0.0000),
+				new Coordinate(0.0525, -0.000169706, 0.0000),
+				new Coordinate(0.0550, -0.000209555, 0.0000),
+				new Coordinate(0.0575, -0.000253617, 0.0000),
+				new Coordinate(0.0600, -0.000301899, 0.0000)
+		};
+
+		assertEquals("Canted fin number of points doesn't match! ", expPoints.length, actPoints.length);
+		assertEquals("Canted root number of points doesn't match! ", expRootPoints.length, rootPoints.length);
+		for (int i = 0; i < expPoints.length; i++) {
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].x, actPoints[i].x, EPSILON);
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].y, actPoints[i].y, EPSILON);
+			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].z, actPoints[i].z, EPSILON);
+		}
+		for (int i = 0; i < expRootPoints.length; i++) {
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].x, rootPoints[i].x, EPSILON);
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].y, rootPoints[i].y, EPSILON);
+			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].z, rootPoints[i].z, EPSILON);
 		}
 	}
 
@@ -185,6 +277,33 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals("Complete centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
 			assertEquals("Complete centroid y doesn't match: ", 0.11971548, actCentroid.y, EPSILON);
 		}
+	}
+
+	@Test
+	public void testFilletCalculationsOnTransition() {
+		final Rocket rkt = createFreeformFinOnTransition();
+		Transition transition = (Transition) rkt.getChild(0).getChild(0);
+		FinSet fins = (FinSet) rkt.getChild(0).getChild(0).getChild(0);
+
+		fins.setFilletRadius(0.005);
+		fins.setFilletMaterial(Material.newMaterial(Material.Type.BULK, "Fillet-Test-Material", 1.0, true));
+
+		// used for fillet and edge calculations:
+		//
+		//      [1] +--+ [2]
+		//         /    \
+		//        /      \
+		//   [0] +--------+ [3]
+		//
+		assertEquals(0.05, fins.getLength(), EPSILON);
+		assertEquals("Transition fore radius doesn't match: ", 0.1, transition.getForeRadius(), EPSILON);
+		assertEquals("Transition aft radius doesn't match: ", 0.3, transition.getAftRadius(), EPSILON);
+
+		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
+
+		assertEquals("Fin volume doesn't match: ", 5.973e-07, actVolume.weight, EPSILON);
+		assertEquals("Fin mass center.x doesn't match: ", 0.024393025, actVolume.x, EPSILON);
+		assertEquals("Fin mass center.y doesn't match: ", 0.190479957, actVolume.y, EPSILON);
 	}
 
 	@Test

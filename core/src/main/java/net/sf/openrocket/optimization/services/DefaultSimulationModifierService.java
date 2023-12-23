@@ -10,6 +10,7 @@ import java.util.Map;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.optimization.rocketoptimization.modifiers.FlightConfigurationModifier;
@@ -180,7 +181,8 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
 				if (mount.isMotorMount()) {
-					
+
+					// Motor overhang
 					SimulationModifier mod = new GenericComponentModifier(
 							trans.get("optimization.modifier.motormount.overhang"),
 							trans.get("optimization.modifier.motormount.overhang.desc"),
@@ -188,22 +190,18 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 							1.0, c.getClass(), c.getID(), "MotorOverhang");
 					setDefaultMinMax(mod, simulation);
 					modifiers.add(mod);
-					
-//	TODO: reimplement motor ignition optimization				
-//					mod = new FlightConfigurationModifier<MotorInstance>(
-//							trans.get("optimization.modifier.motormount.delay"),
-//							trans.get("optimization.modifier.motormount.delay.desc"),
-//							c, UnitGroup.UNITS_SHORT_TIME,
-//							1.0,
-//							c.getClass(),
-//							c.getID(),
-//							"IgnitionConfiguration",
-//							IgnitionConfiguration.class,
-//							"IgnitionDelay");
-//					
-//					mod.setMinValue(0);
-//					mod.setMaxValue(5);
-//					modifiers.add(mod);
+
+					// Motor ignition delay
+					mod = new FlightConfigurationModifier<MotorConfiguration>(
+							trans.get("optimization.modifier.motormount.delay"),
+							trans.get("optimization.modifier.motormount.delay.desc"),
+							c, UnitGroup.UNITS_SHORT_TIME,
+							1.0, c.getClass(), c.getID(), "MotorConfigurationSet",
+							MotorConfiguration.class,
+							"IgnitionDelay");
+					mod.setMinValue(0);
+					mod.setMaxValue(5);
+					modifiers.add(mod);
 				}
 			}
 			

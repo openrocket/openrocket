@@ -92,9 +92,11 @@ public class CSVExport {
 	private static void writeData(PrintWriter writer, FlightDataBranch branch,
 			FlightDataType[] fields, Unit[] units, String fieldSeparator, int decimalPlaces, boolean isExponentialNotation,
 			boolean eventComments, String commentStarter) {
+		// Time variable
+		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 
 		// Number of data points
-		int n = branch.getLength();
+		int n = time != null ? time.size() : branch.getLength();
 
 		// Flight events in occurrence order
 		List<FlightEvent> events = branch.getEvents();
@@ -102,15 +104,14 @@ public class CSVExport {
 		int eventPosition = 0;
 
 		// List of field values
-		List<List<Double>> fieldValues = new ArrayList<List<Double>>();
+		List<List<Double>> fieldValues = new ArrayList<>();
 		for (FlightDataType t : fields) {
-			fieldValues.add(branch.get(t));
+			List<Double> values = branch.get(t);
+			fieldValues.add(values);
 		}
 
-		// Time variable
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
+		// If time information is not available, print events at beginning of file
 		if (eventComments && time == null) {
-			// If time information is not available, print events at beginning of file
 			for (FlightEvent e : events) {
 				printEvent(writer, e, commentStarter);
 			}

@@ -241,7 +241,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
 			if ((points[i].y > points[i - 1].y + 0.001) && down) {
-				geometryWarnings.add(Warning.JAGGED_EDGED_FIN, component.toString());
+				geometryWarnings.add(Warning.JAGGED_EDGED_FIN, component);
 				break;
 			}
 			if (points[i].y < points[i - 1].y - 0.001) {
@@ -250,12 +250,12 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 
 		if (finArea < MathUtil.EPSILON) {
-			geometryWarnings.add(Warning.ZERO_AREA_FIN, component.toString());
+			geometryWarnings.add(Warning.ZERO_AREA_FIN, component);
 		}
 
 		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
 			// Add warnings  (radius/2 == diameter/4)
-			geometryWarnings.add(Warning.THICK_FIN, component.toString());
+			geometryWarnings.add(Warning.THICK_FIN, component);
 		}
 		
 		// Calculate the chord lead and trail positions and length.  We do need the points

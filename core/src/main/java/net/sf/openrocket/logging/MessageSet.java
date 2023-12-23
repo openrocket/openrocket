@@ -1,5 +1,6 @@
 package net.sf.openrocket.logging;
 
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Monitorable;
@@ -61,13 +62,30 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     public abstract boolean add(String s);
 
     /**
+     * Add a <code>Message</code> of the specified type with the specified message sources.
+     * @param m the message
+     * @param sources the sources of the message (rocket components that caused the message)
+     *
+     */
+    public boolean add(E m, RocketComponent... sources) {
+        mutable.check();
+        try {
+            m = (E) m.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new BugException("CloneNotSupportedException occurred, report bug!", e);
+        }
+        m.setSources(sources);
+        return add(m);
+    }
+
+    /**
      * Add a <code>Message</code> of the specified type with the specified discriminator to the
      * set.
      * @param m the message
      * @param d the extra discriminator
      *
      */
-    public boolean add (E m, String d) {
+    public boolean add(E m, String d) {
         return this.add(m.toString() + ":  \"" + d + "\"");
     }
 

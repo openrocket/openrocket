@@ -118,6 +118,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.util.RocketComponentUtils;
 
 final class MassObjectRenderer {
 	private static final boolean textureFlag = true;
@@ -133,7 +134,7 @@ final class MassObjectRenderer {
 	 * @param slices number of slices for the 3D object (kind of like subdivision surface)
 	 * @param stacks number of stacks for the 3D object (kind of like subdivision surface)
 	 */
-	static final void drawMassObject(final GL2 gl, final MassObject o,
+	static void drawMassObject(final GL2 gl, final MassObject o,
 			final int slices, final int stacks) {
 
 		double da, r, dz;	// Axial length per slice, radius & length per stack
@@ -148,8 +149,8 @@ final class MassObjectRenderer {
 		double t = 0.0f;
 		z = 0.0f;
 		for (j = 0; j < stacks; j++) {
-			r = getRadius(o, z);
-			double rNext = getRadius(o, z + dz);
+			r = RocketComponentUtils.getMassObjectRadius(o, z);
+			double rNext = RocketComponentUtils.getMassObjectRadius(o, z + dz);
 			
 			if (j == stacks - 1)
 				rNext = 0;
@@ -190,22 +191,6 @@ final class MassObjectRenderer {
 			t += dt;
 			z += dz;
 		} // for stacks
-	}
-	
-	private static final double getRadius(MassObject o, double z) {
-		double arc = Math.min(o.getLength(), 2 * o.getRadius()) * 0.35f;
-		double r = o.getRadius();
-		if (z == 0 || z == o.getLength())
-			return 0;
-		if (z < arc) {
-			double zz = z - arc;
-			return (r - arc) + Math.sqrt(arc * arc - zz * zz);
-		}
-		if (z > o.getLength() - arc) {
-			double zz = (z - o.getLength() + arc);
-			return (r - arc) + Math.sqrt(arc * arc - zz * zz);
-		}
-		return o.getRadius();
 	}
 	
 	// ----------------------------------------------------------------------

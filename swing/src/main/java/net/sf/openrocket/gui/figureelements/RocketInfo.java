@@ -11,6 +11,9 @@ import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
@@ -31,6 +34,7 @@ import net.sf.openrocket.util.MathUtil;
 public class RocketInfo implements FigureElement {
 	
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 	// Margin around the figure edges, pixels
 	private static final int MARGIN = 8;
 
@@ -41,7 +45,8 @@ public class RocketInfo implements FigureElement {
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
 	
-	private UnitGroup stabilityUnits;
+	private UnitGroup.StabilityUnitGroup stabilityUnits;
+	private UnitGroup.StabilityUnitGroup secondaryStabilityUnits;
 	
 	private FlightConfiguration configuration;
 	private double cg = 0, cp = 0;
@@ -61,11 +66,34 @@ public class RocketInfo implements FigureElement {
 	private Graphics2D g2 = null;
 	private float line = 0;
 	private float x1, x2, y1, y2;
-	
+
+	private static Color textColor;
+	private static Color dimTextColor;
+	private static Color warningColor;
+	private static Color flightDataTextActiveColor;
+	private static Color flightDataTextInactiveColor;
+
+	static {
+		initColors();
+	}
 	
 	public RocketInfo(FlightConfiguration configuration) {
 		this.configuration = configuration;
 		this.stabilityUnits = UnitGroup.stabilityUnits(configuration);
+		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(configuration);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketInfo::updateColors);
+	}
+
+	private static void updateColors() {
+		textColor = GUIUtil.getUITheme().getTextColor();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		warningColor = GUIUtil.getUITheme().getWarningColor();
+		flightDataTextActiveColor = GUIUtil.getUITheme().getFlightDataTextActiveColor();
+		flightDataTextInactiveColor = GUIUtil.getUITheme().getFlightDataTextInactiveColor();
 	}
 	
 	
@@ -172,7 +200,7 @@ public class RocketInfo implements FigureElement {
 
 		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
 
-		g2.setColor(Color.BLACK);
+		g2.setColor(textColor);
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
@@ -189,19 +217,9 @@ public class RocketInfo implements FigureElement {
 	
 	
 	private void drawStabilityInfo() {
-		String at;
-		//// at M=
-		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(this.mach);
-		if (!Double.isNaN(aoa)) {
-			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
-		}
-		if (!Double.isNaN(theta)) {
-			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
-		}
-		
 		GlyphVector cgValue = createText(getCg());
 		GlyphVector cpValue = createText(getCp());
-		GlyphVector stabValue = createText(getStability());
+		GlyphVector stabValue = createText(getStabilityCombined());
 		
 		//// CG:		
 		GlyphVector cgText = createText(trans.get("RocketInfo.cgText"));
@@ -209,6 +227,15 @@ public class RocketInfo implements FigureElement {
 		GlyphVector cpText = createText(trans.get("RocketInfo.cpText"));
 		//// Stability:
 		GlyphVector stabText = createText(trans.get("RocketInfo.stabText"));
+
+		//// at M=...
+		String at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(this.mach);
+		if (!Double.isNaN(aoa)) {
+			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
+		}
+		if (!Double.isNaN(theta)) {
+			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
+		}
 		GlyphVector atText = createSmallText(at);
 		
 		// GlyphVector visual bounds drops the spaces, so we'll add them
@@ -223,25 +250,31 @@ public class RocketInfo implements FigureElement {
 		Rectangle2D stabTextRect = stabText.getVisualBounds();
 		Rectangle2D atTextRect = atText.getVisualBounds();
 		
-		double unitWidth = MathUtil.max(cpRect.getWidth(), cgRect.getWidth(), stabRect.getWidth());
+		double unitWidth = MathUtil.max(cpRect.getWidth(), cgRect.getWidth());
+		double stabUnitWidth = stabRect.getWidth();
 		double textWidth = Math.max(cpTextRect.getWidth(), cgTextRect.getWidth());
 		
 		// Add an extra space worth of width so the text doesn't run into the values
 		unitWidth = unitWidth + spaceWidth;
+		stabUnitWidth = stabUnitWidth + spaceWidth;
 
-		g2.setColor(Color.BLACK);
+		g2.setColor(textColor);
 
+		// Draw the stability, CG & CP values (and units)
 		g2.drawGlyphVector(stabValue, (float)(x2-stabRect.getWidth()), y1);
 		g2.drawGlyphVector(cgValue, (float)(x2-cgRect.getWidth()), y1+line);
 		g2.drawGlyphVector(cpValue, (float)(x2-cpRect.getWidth()), y1+2*line);
 
-		g2.drawGlyphVector(stabText, (float)(x2-unitWidth-stabTextRect.getWidth()), y1);
+		// Draw the stability, CG & CP labels
+		g2.drawGlyphVector(stabText, (float)(x2-stabUnitWidth-stabTextRect.getWidth()), y1);
 		g2.drawGlyphVector(cgText, (float)(x2-unitWidth-cgTextRect.getWidth()), y1+line);
 		g2.drawGlyphVector(cpText, (float)(x2-unitWidth-cpTextRect.getWidth()), y1+2*line);
-				
+
+		// Draw the CG caret
 		cgCaret.setPosition(x2 - unitWidth - textWidth - 10, y1+line-0.3*line);
 		cgCaret.paint(g2, 1.7);
 
+		// Draw the CP caret
 		cpCaret.setPosition(x2 - unitWidth - textWidth - 10, y1+2*line-0.3*line);
 		cpCaret.paint(g2, 1.7);
 		
@@ -252,7 +285,7 @@ public class RocketInfo implements FigureElement {
 			atPos = (float)(x2 - atTextRect.getWidth());
 		}
 		
-		g2.setColor(Color.GRAY);
+		g2.setColor(dimTextColor);
 		g2.drawGlyphVector(atText, atPos, y1 + 3*line);
 
 	}
@@ -276,15 +309,51 @@ public class RocketInfo implements FigureElement {
     public String getMassWithMotors(Unit u) {
         return u.toStringUnit(massWithMotors);
     }
-    
+
+
     /**
-     * Get the stability, in calibers.
+     * Get the stability in both the selected stability unit and in percentage, e.g. "2.4 cal (14.1 %)".
+	 * If the current unit is already the percentage length unit, only use that.
      * 
-     * @return  the current stability margin
+     * @return the current stability margin in the currently selected stability unit and in percentage
      */
-    public String getStability () {
-        return stabilityUnits.getDefaultUnit().toStringUnit(cp-cg);
+    public String getStabilityCombined() {
+		Unit stabilityUnit = stabilityUnits.getDefaultUnit();
+		Unit secondaryStabilityUnit = secondaryStabilityUnits.getDefaultUnit();
+
+		String stabilityStr = getStability();
+
+		// Don't display secondary units if the stability is NaN, or if the secondary unit is the same as the primary unit,
+		// or if it is disabled in the preferences
+		if (Double.isNaN(getStabilityValue()) || secondaryStabilityUnit.equals(stabilityUnit) ||
+				!preferences.isDisplaySecondaryStability()) {
+			return stabilityStr;
+		}
+
+		String secondaryStabilityStr = getSecondaryStability();
+
+		return stabilityStr + " / " + secondaryStabilityStr;
     }
+
+	/**
+	 * Get the stability in the currently selected unit.
+	 * @return the current stability margin in the currently selected stability unit
+	 */
+	private String getStability() {
+		return stabilityUnits.getDefaultUnit().toStringUnit(getStabilityValue());
+	}
+
+	/**
+	 * Get the stability in the secondary stability unit.
+	 * @return the current stability margin in the secondary stability unit
+	 */
+	private String getSecondaryStability() {
+		return secondaryStabilityUnits.getDefaultUnit().toStringUnit(getStabilityValue());
+	}
+
+	private double getStabilityValue() {
+		return cp - cg;
+	}
 
     /**
      * Get the center of pressure in default length units.
@@ -366,7 +435,7 @@ public class RocketInfo implements FigureElement {
 		
 
 		float y = y2 - line * (texts.length-1);
-		g2.setColor(Color.RED);
+		g2.setColor(warningColor);
 
 		for (GlyphVector v: texts) {
 			Rectangle2D rect = v.getVisualBounds();
@@ -382,7 +451,7 @@ public class RocketInfo implements FigureElement {
 		if (calculatingData) {
 			//// Calculating...
 			GlyphVector calculating = createText(trans.get("RocketInfo.Calculating"));
-			g2.setColor(Color.BLACK);
+			g2.setColor(textColor);
 			g2.drawGlyphVector(calculating, x1, (float)(y2-height));
 		}
 	}
@@ -440,24 +509,23 @@ public class RocketInfo implements FigureElement {
 		width += 5;
 
 		if (!calculatingData) 
-			g2.setColor(new Color(0,0,127));
+			g2.setColor(flightDataTextActiveColor);
 		else
-			g2.setColor(new Color(0,0,127,127));
+			g2.setColor(flightDataTextInactiveColor);
 
-		
-		g2.drawGlyphVector(apogee, (float)x1, (float)(y2-2*line));
-		g2.drawGlyphVector(maxVelocity, (float)x1, (float)(y2-line));
-		g2.drawGlyphVector(maxAcceleration, (float)x1, (float)(y2));
+		g2.drawGlyphVector(apogee, x1, y2-2*line);
+		g2.drawGlyphVector(maxVelocity, x1, y2-line);
+		g2.drawGlyphVector(maxAcceleration, x1, y2);
 
-		g2.drawGlyphVector(apogeeValue, (float)(x1+width), (float)(y2-2*line));
-		g2.drawGlyphVector(velocityValue, (float)(x1+width), (float)(y2-line));
-		g2.drawGlyphVector(accelerationValue, (float)(x1+width), (float)(y2));
+		g2.drawGlyphVector(apogeeValue, (float)(x1+width), y2-2*line);
+		g2.drawGlyphVector(velocityValue, (float)(x1+width), y2-line);
+		g2.drawGlyphVector(accelerationValue, (float)(x1+width), y2);
 		
 		return 3*line;
 	}
 	
 	private synchronized void updateFontSizes() {
-		float size = Application.getPreferences().getRocketInfoFontSize();
+		float size = ((SwingPreferences) Application.getPreferences()).getRocketInfoFontSize();
 		// No change necessary as the font is the same size, just use the existing version
 		if (font.getSize2D() == size) {
 			return;
@@ -478,5 +546,6 @@ public class RocketInfo implements FigureElement {
 	public void setCurrentConfig(FlightConfiguration newConfig) {
 		this.configuration = newConfig;
 		this.stabilityUnits = UnitGroup.stabilityUnits(newConfig);
+		this.secondaryStabilityUnits = UnitGroup.secondaryStabilityUnits(newConfig);
 	}
 }

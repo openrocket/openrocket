@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.figureelements;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
+
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -15,12 +18,27 @@ public class CPCaret extends Caret {
 	private static final float RADIUS = 7;
 	
 	private static Area caret = null;
-	
+
+	private static Color CPColor;
+
+	static {
+		initColors();
+	}
+
 	/**
 	 * Create a new CPCaret at the specified coordinates.
 	 */
 	public CPCaret(double x, double y) {
 		super(x,y);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(CPCaret::updateColors);
+	}
+
+	private static void updateColors() {
+		CPColor = GUIUtil.getUITheme().getCPColor();
 	}
 
 	/**
@@ -51,6 +69,6 @@ public class CPCaret extends Caret {
 	 */
 	@Override
 	protected Color getColor() {
-		return Color.RED;
+		return CPColor;
 	}
 }

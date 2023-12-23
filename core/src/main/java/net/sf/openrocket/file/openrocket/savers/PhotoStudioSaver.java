@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.openrocket.savers;
 
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class PhotoStudioSaver {
         return elements;
     }
 
-    private static Color getColor(String content) {
+    private static ORColor getColor(String content) {
         if (content == null) return null;
         String[] values = content.split(" ");
         if (values.length < 4) return null;
@@ -64,11 +64,11 @@ public class PhotoStudioSaver {
         int green = Integer.parseInt(values[1]);
         int blue = Integer.parseInt(values[2]);
         int alpha = Integer.parseInt(values[3]);
-        return new Color(red, green, blue, alpha);
+        return new ORColor(red, green, blue, alpha);
     }
 
     private static void emitColor(String elementName, List<String> elements, String content) {
-        Color color = getColor(content);
+        ORColor color = getColor(content);
         if (color != null) {
             elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
                     + "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");

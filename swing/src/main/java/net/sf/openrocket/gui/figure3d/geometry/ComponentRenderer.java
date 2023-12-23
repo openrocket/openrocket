@@ -37,7 +37,7 @@ public class ComponentRenderer {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(ComponentRenderer.class);
 
-	private int LOD = 80;
+	private int LOD = 80;		// Level of detail for rendering
 
 	GLU glu;
 	GLUquadric q;

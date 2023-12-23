@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.DescriptionArea;
@@ -17,6 +18,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.URLLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
@@ -43,7 +45,7 @@ public class AboutDialog extends JDialog {
 		"Daniel Williams (pod support, maintainer)<br>" +
 		"Joe Pfeiffer (maintainer)<br>" +
 		"Billy Olsen (maintainer)<br>" +
-		"Sibo Van Gool (RASAero file format, maintainer)<br>" +
+		"Sibo Van Gool (RASAero file format, 3D OBJ export, dark theme, maintainer)<br>" +
 		"Justin Hanney (maintainer)<br>" +
 		"Neil Weinstock (tester, icons, forum support)<br>" +
 		"H. Craig Miller (tester)<br><br>" +
@@ -60,6 +62,9 @@ public class AboutDialog extends JDialog {
 		"<br>" +
 		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
 		"<br>" +
+		"<b>Thank you to our financial contributors who have provided us with the necessary resources to continue this project:</b><br>" +
+		href("https://opencollective.com/openrocket", true, true) + "<br>" +
+		"<br>" +
 		"<b>OpenRocket utilizes the following libraries:</b><br>" +
 		"<br>" +
 		"MiG Layout" + href("http://www.miglayout.com", true, true) + "<br>" +
@@ -72,12 +77,21 @@ public class AboutDialog extends JDialog {
 		"Simple Logging Facade for Java" + href("http://www.slf4j.org", true, true) + "<br>" +
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
 		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
-		"<br>" +
+		"Darklaf (dark theme)" + href("https://github.com/weisJ/darklaf", true, true) + "<br>" +
+        "jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
+        "Obj" + href("https://github.com/javagl/Obj", true, true) + "<br>" +
+        "<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
 		"Rocket Motor Data" + href("https://www.thrustcurve.org", true, true) + "<br>" +
 		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database", true, true) +
 		"</center></html>";
+
+	private static Border border;
+
+	static {
+		initColors();
+	}
 
 	private String href(String url, boolean delimiters, boolean leadingSpace) {
 		return (leadingSpace ? " " : "") + (delimiters ? "(" : "") + "<a href=\"" + url + "\">" + url + "</a>" + (delimiters ? ")" : "");
@@ -136,6 +150,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		DescriptionArea info = new DescriptionArea(5);
+		info.setBorder(border);
 		info.setText(CREDITS);
 		info.setTextFont(UIManager.getFont("Label.font"));
 		panel.add(info, "newline, width 10px, height 250lp, pushy, grow, spanx, wrap para");
@@ -163,5 +178,14 @@ public class AboutDialog extends JDialog {
 		this.setLocationRelativeTo(parent);
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(AboutDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 }

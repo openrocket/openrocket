@@ -264,7 +264,7 @@ public class TubeCouplerPresetTests {
 		// Compute the volume by hand here using a slightly different formula from
 		// the real implementation.  The magic numbers are based on the 
 		// constants put into the presetspec above.
-		double volume = (Math.PI * 1.0) - (Math.PI * .25); // outer area - inner area
+		double volume = (Math.PI * 1.0) - (Math.PI * .25);
 		volume *= 2.0; // times length
 		
 		double density = 100.0 / volume;

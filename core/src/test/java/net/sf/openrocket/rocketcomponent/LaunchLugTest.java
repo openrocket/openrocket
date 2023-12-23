@@ -39,7 +39,7 @@ public class LaunchLugTest extends BaseTestCase {
 	public void testLaunchLugLocationAtAngles() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		
-		BodyTube body= (BodyTube)rocket.getChild(0).getChild(1);
+		BodyTube body = (BodyTube)rocket.getChild(0).getChild(1);
 		LaunchLug lug = (LaunchLug)rocket.getChild(0).getChild(1).getChild(1);
 		double startAngle = Math.PI/2;
 		lug.setAngleOffset( startAngle );
@@ -67,6 +67,7 @@ public class LaunchLugTest extends BaseTestCase {
 	@Test
 	public void testCMSingleInstance() {
 		BodyTube bodyTube = new BodyTube();
+		bodyTube.setOuterRadius(0.025);
 		LaunchLug lug = new LaunchLug();
 		lug.setLength(0.1);
 		lug.setOuterRadius(0.02);
@@ -75,7 +76,7 @@ public class LaunchLugTest extends BaseTestCase {
 		// Test normal CG
 		Coordinate CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.05, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", -0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", -0.045, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.008331504, CG.weight, EPSILON);
 
@@ -84,14 +85,14 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.05, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.02, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.045, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.008331504, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.05, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.01, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.0173205, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0225, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.03897114, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.008331504, CG.weight, EPSILON);
 
 
@@ -102,7 +103,7 @@ public class LaunchLugTest extends BaseTestCase {
 
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.025, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.015, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.04, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.00309761, CG.weight, EPSILON);
 
@@ -111,20 +112,21 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.025, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.015, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.04, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.00309761, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.025, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0075, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.01299038, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.034641016, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.00309761, CG.weight, EPSILON);
 	}
 
 	@Test
 	public void testCMSingleInstanceOverride() {
 		BodyTube bodyTube = new BodyTube();
+		bodyTube.setOuterRadius(0.025);
 		LaunchLug lug = new LaunchLug();
 		lug.setLength(0.1);
 		lug.setOuterRadius(0.02);
@@ -135,7 +137,7 @@ public class LaunchLugTest extends BaseTestCase {
 		// Test normal CG
 		Coordinate CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0123, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", -0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", -0.045, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.008331504, CG.weight, EPSILON);
 
@@ -144,14 +146,14 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0123, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.02, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.045, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.008331504, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0123, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.01, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.0173205, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0225, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.03897114, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.008331504, CG.weight, EPSILON);
 
 
@@ -165,7 +167,7 @@ public class LaunchLugTest extends BaseTestCase {
 
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0321, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.015, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.04, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.1, CG.weight, EPSILON);
 
@@ -174,20 +176,21 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0321, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.015, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.04, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.1, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0321, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0075, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.01299038, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.034641016, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.1, CG.weight, EPSILON);
 	}
 
 	@Test
 	public void testCMMultipleInstances() {
 		BodyTube bodyTube = new BodyTube();
+		bodyTube.setOuterRadius(0.025);
 		LaunchLug lug = new LaunchLug();
 		lug.setLength(0.1);
 		lug.setOuterRadius(0.02);
@@ -198,7 +201,7 @@ public class LaunchLugTest extends BaseTestCase {
 		// Test normal CG
 		Coordinate CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.25, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", -0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", -0.045, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.024994512, CG.weight, EPSILON);
 
@@ -207,14 +210,14 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.25, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.02, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.045, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.024994512, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.25, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.01, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.0173205, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0225, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.03897114, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.024994512, CG.weight, EPSILON);
 
 
@@ -227,7 +230,7 @@ public class LaunchLugTest extends BaseTestCase {
 
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.1, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.015, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.04, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.00619522, CG.weight, EPSILON);
 
@@ -236,20 +239,21 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.1, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.015, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.04, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.00619522, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.1, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0075, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.01299038, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.034641016, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.00619522, CG.weight, EPSILON);
 	}
 
 	@Test
 	public void testCMMultipleInstancesOverride() {
 		BodyTube bodyTube = new BodyTube();
+		bodyTube.setOuterRadius(0.025);
 		LaunchLug lug = new LaunchLug();
 		lug.setLength(0.1);
 		lug.setOuterRadius(0.02);
@@ -262,7 +266,7 @@ public class LaunchLugTest extends BaseTestCase {
 		// Test normal CG
 		Coordinate CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0123, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", -0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", -0.045, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.024994512, CG.weight, EPSILON);
 
@@ -271,14 +275,14 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0123, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.02, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.045, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.024994512, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0123, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.01, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.0173205, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0225, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.03897114, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.024994512, CG.weight, EPSILON);
 
 
@@ -294,7 +298,7 @@ public class LaunchLugTest extends BaseTestCase {
 
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0321, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.015, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.04, CG.y, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong z value: ", 0, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.2, CG.weight, EPSILON);
 
@@ -303,14 +307,14 @@ public class LaunchLugTest extends BaseTestCase {
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0321, CG.x, EPSILON);
 		assertEquals(" LaunchLug CG has the wrong y value: ", 0, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", 0.015, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", 0.04, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.2, CG.weight, EPSILON);
 
 		lug.setAngleOffset(-Math.PI / 3);
 		CG = lug.getCG();
 		assertEquals(" LaunchLug CG has the wrong x value: ", 0.0321, CG.x, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong y value: ", 0.0075, CG.y, EPSILON);
-		assertEquals(" LaunchLug CG has the wrong z value: ", -0.01299038, CG.z, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong y value: ", 0.02, CG.y, EPSILON);
+		assertEquals(" LaunchLug CG has the wrong z value: ", -0.034641016, CG.z, EPSILON);
 		assertEquals(" LaunchLug CM has the wrong value: ", 0.2, CG.weight, EPSILON);
 	}
 	

@@ -157,7 +157,7 @@ public class NoseConePresetTests extends BaseTestCase {
 		// constants put into the presetspec above.
 		double volume = Math.PI; // base area
 		volume *= 2.0 / 3.0; // times height / one third
-
+		
 		double density = 100.0 / volume;
 		
 		assertEquals("NoseConeCustom", preset.get(ComponentPreset.MATERIAL).getName());
@@ -200,7 +200,7 @@ public class NoseConePresetTests extends BaseTestCase {
 		ComponentPreset preset = ComponentPresetFactory.create(presetspec);
 		
 		// constants put into the presetspec above.
-		double volume = Math.PI; // base area
+		double volume = Math.PI; //base area
 		volume *= 2.0 / 3.0; // times height / one third
 		
 		double density = 100.0 / volume;

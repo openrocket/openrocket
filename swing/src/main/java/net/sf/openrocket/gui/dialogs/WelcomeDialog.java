@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.util.URLUtil;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.l10n.Translator;
@@ -20,9 +21,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -34,6 +35,12 @@ import java.awt.event.ActionListener;
 public class WelcomeDialog extends JDialog {
     private static final Translator trans = Application.getTranslator();
     private static final Logger log = LoggerFactory.getLogger(WelcomeDialog.class);
+
+    private static Border border;
+
+    static {
+        initColors();
+    }
 
     /**
      * @param releaseNotes the release notes to display for the current version
@@ -81,7 +88,9 @@ public class WelcomeDialog extends JDialog {
         textPane.setText(sb);
         textPane.setCaretPosition(0);	// Scroll to the top
 
-        panel.add(new JScrollPane(textPane), "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
+        JScrollPane scrollPane = new JScrollPane(textPane);
+        scrollPane.setBorder(border);
+        panel.add(scrollPane, "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
 
         // Don't show this dialog again
         JCheckBox dontShowAgain = new JCheckBox(trans.get("welcome.dlg.checkbox.dontShowAgain"));
@@ -111,5 +120,14 @@ public class WelcomeDialog extends JDialog {
         this.pack();
         this.setLocationRelativeTo(null);
         GUIUtil.setDisposableDialogOptions(this, closeBtn);
+    }
+
+    private static void initColors() {
+        updateColors();
+        UITheme.Theme.addUIThemeChangeListener(WelcomeDialog::updateColors);
+    }
+
+    private static void updateColors() {
+        border = GUIUtil.getUITheme().getBorder();
     }
 }

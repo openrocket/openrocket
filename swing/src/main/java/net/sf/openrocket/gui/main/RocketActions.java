@@ -4,6 +4,7 @@ package net.sf.openrocket.gui.main;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,15 +14,15 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
@@ -34,8 +35,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +59,7 @@ public class RocketActions {
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke EDIT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_E,
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+	public static final KeyStroke DELETE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
@@ -67,8 +68,6 @@ public class RocketActions {
 	private final SimulationPanel simulationPanel;
 
 
-	private final RocketAction deleteComponentAction;
-	private final RocketAction deleteSimulationAction;
 	private final RocketAction deleteAction;
 	private final RocketAction cutAction;
 	private final RocketAction copyAction;
@@ -80,6 +79,7 @@ public class RocketActions {
 	private final RocketAction scaleAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
+	private final RocketAction exportOBJAction;
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
 
@@ -94,8 +94,6 @@ public class RocketActions {
 
 		// Add action also to updateActions()
 		this.deleteAction = new DeleteAction();
-		this.deleteComponentAction = new DeleteComponentAction();
-		this.deleteSimulationAction = new DeleteSimulationAction();
 		this.cutAction = new CutAction();
 		this.copyAction = new CopyAction();
 		this.pasteAction = new PasteAction();
@@ -106,15 +104,27 @@ public class RocketActions {
 		this.scaleAction = new ScaleAction();
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
+		this.exportOBJAction = new ExportOBJAction();
 
-		OpenRocketClipboard.addClipboardListener(this.pasteAction);
+		OpenRocketClipboard.addClipboardListener(new ClipboardListener() {
+			@Override
+			public void clipboardChanged() {
+				updateActions();
+			}
+		});
 		updateActions();
 
-		// Update all actions when tree selection or rocket changes
+		// Update all actions when tree selection, simulation selection or rocket changes
 
 		selectionModel.addDocumentSelectionListener(new DocumentSelectionListener() {
 			@Override
 			public void valueChanged(int changeType) {
+				updateActions();
+			}
+		});
+		simulationPanel.addSimulationTableListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
 				updateActions();
 			}
 		});
@@ -130,29 +140,23 @@ public class RocketActions {
 	 * Update the state of all of the actions.
 	 */
 	private void updateActions() {
-		deleteAction.clipboardChanged();
+		simulationPanel.updateActions();
+		editAction.clipboardChanged();
 		cutAction.clipboardChanged();
 		copyAction.clipboardChanged();
 		pasteAction.clipboardChanged();
+		deleteAction.clipboardChanged();
 		duplicateAction.clipboardChanged();
-		editAction.clipboardChanged();
 		selectSameColorAction.clipboardChanged();
 		deselectAllAction.clipboardChanged();
 		scaleAction.clipboardChanged();
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
+		exportOBJAction.clipboardChanged();
 	}
-	
-	
 	
 
-	public Action getDeleteComponentAction() {
-		return deleteAction;
-	}
 
-	public Action getDeleteSimulationAction() {
-		return deleteAction;
-	}
 
 	public Action getDeleteAction() {
 		return deleteAction;
@@ -196,6 +200,10 @@ public class RocketActions {
 	
 	public Action getMoveDownAction() {
 		return moveDownAction;
+	}
+
+	public Action getExportOBJAction() {
+		return exportOBJAction;
 	}
 
 	/**
@@ -313,7 +321,7 @@ public class RocketActions {
 	}
 
 	private boolean isCopyable(List<RocketComponent> components) {
-		if (components == null || components.size() == 0) return false;
+		if (components == null || components.isEmpty()) return false;
 		for (RocketComponent component : components) {
 			if (!isCopyable(component)) return false;
 		}
@@ -409,43 +417,14 @@ public class RocketActions {
 	
 	private boolean isSimulationSelected() {
 		Simulation[] selection = selectionModel.getSelectedSimulations();
-		return (selection != null  &&  selection.length > 0);
-	}
-	
-	
-	
-	private boolean verifyDeleteSimulation() {
-		boolean verify = Application.getPreferences().getBoolean(Preferences.CONFIRM_DELETE_SIMULATION, true);
-		if (verify) {
-			JPanel panel = new JPanel(new MigLayout());
-			//// Do not ask me again
-			JCheckBox dontAsk = new JCheckBox(trans.get("RocketActions.checkbox.Donotaskmeagain"));
-			panel.add(dontAsk,"wrap");
-			//// You can change the default operation in the preferences. 
-			panel.add(new StyledLabel(trans.get("RocketActions.lbl.Youcanchangedefop"),-2));
-
-			int ret = JOptionPane.showConfirmDialog(
-					parentFrame,
-					new Object[] {
-					//// Delete the selected simulations?		
-					trans.get("RocketActions.showConfirmDialog.lbl1"),
-					//// <html><i>This operation cannot be undone.</i>
-					trans.get("RocketActions.showConfirmDialog.lbl2"),
-					"",
-					panel },
-					//// Delete simulations
-					trans.get("RocketActions.showConfirmDialog.title"),
-					JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.WARNING_MESSAGE);
-			if (ret != JOptionPane.OK_OPTION)
-				return false;
-
-			if (dontAsk.isSelected()) {
-				Application.getPreferences().putBoolean(Preferences.CONFIRM_DELETE_SIMULATION, false);
+		if (selection != null && selection.length > 0) {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components != null && !components.isEmpty()) {
+				throw new IllegalStateException("Both simulation and component selected");
 			}
+			return true;
 		}
-
-		return true;
+		return false;
 	}
 
 
@@ -517,130 +496,60 @@ public class RocketActions {
 		public abstract void clipboardChanged();
 	}
 
-
 	/**
-	 * Action that deletes the selected component.
+	 * Action to edit the currently selected component.
 	 */
-	private class DeleteComponentAction extends RocketAction {
+	private class EditAction extends RocketAction {
+		@Serial
 		private static final long serialVersionUID = 1L;
 
-		public DeleteComponentAction() {
-			//// Delete
-			this.putValue(NAME, trans.get("RocketActions.DelCompAct.Delete"));
-			//// Delete the selected component.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelCompAct.ttip.Delete"));
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
-//			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
-			clipboardChanged();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			List<RocketComponent> components = new ArrayList<>(selectionModel.getSelectedComponents());
-			if (components.size() == 0) return;
-			components.sort(Comparator.comparing(c -> c.getParent().getChildPosition(c)));
-
-			if (components.size() == 1) {
-				document.addUndoPosition("Delete " + components.get(0).getComponentName());
-			} else {
-				document.addUndoPosition("Delete components");
-			}
-
-			for (RocketComponent component : components) {
-				deleteComponent(component);
-			}
-		}
-
-		private void deleteComponent(RocketComponent component) {
-			if (isDeletable(component)) {
-				ComponentConfigDialog.disposeDialog();
-
-				try {
-					component.getRocket().removeComponentChangeListener(ComponentConfigDialog.getDialog());
-
-					delete(component);
-				} catch (IllegalStateException ignored) { }
-			}
-		}
-
-		@Override
-		public void clipboardChanged() {
-			this.setEnabled(isDeletable(selectionModel.getSelectedComponent()));
-		}
-	}
-
-
-	
-	/**
-	 * Action that deletes the selected component.
-	 */
-	private class DeleteSimulationAction extends RocketAction {
-		private static final long serialVersionUID = 1L;
-
-		public DeleteSimulationAction() {
-			//// Delete
-			this.putValue(NAME, trans.get("RocketActions.DelSimuAct.Delete"));
-			//// Delete the selected simulation.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelSimuAct.ttip.Delete"));
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
-//			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
-			clipboardChanged();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Simulation[] sims = selectionModel.getSelectedSimulations();
-			if (sims.length > 0) {
-				if (verifyDeleteSimulation()) {
-					for (Simulation s: sims) {
-						document.removeSimulation(s);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void clipboardChanged() {
-			this.setEnabled(isSimulationSelected());
-		}
-	}
-
-
-	
-	/**
-	 * Action that deletes the selected component.
-	 */
-	private class DeleteAction extends RocketAction {
-		private static final long serialVersionUID = 1L;
-
-		public DeleteAction() {
-			//// Delete
-			this.putValue(NAME, trans.get("RocketActions.DelAct.Delete"));
-			//// Delete the selected component or simulation.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelAct.ttip.Delete"));
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
-			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
+		public EditAction() {
+			//// Edit
+			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
+			this.putValue(ACCELERATOR_KEY, EDIT_KEY_STROKE);
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
+			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
 			clipboardChanged();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (isSimulationSelected()) {
-				deleteSimulationAction.actionPerformed(e);
+				simulationPanel.getEditSimulationAction().actionPerformed(e);
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
 			} else {
-				deleteComponentAction.actionPerformed(e);
-				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
+				editComponents();
+				// I wouldn't switch to the design tab here, because the user may be editing in the rocket view window
 			}
+		}
+
+		private void editComponents() {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+
+			if (components == null || components.isEmpty()) {
+				return;
+			}
+
+			if (ComponentConfigDialog.isDialogVisible())
+				ComponentConfigDialog.disposeDialog();
+
+			RocketComponent component = components.get(0);
+			component.clearConfigListeners();
+			if (components.size() > 1) {
+				for (int i = 1; i < components.size(); i++) {
+					RocketComponent listener = components.get(i);
+					listener.clearConfigListeners();	// Make sure all the listeners are cleared (should not be possible, but just in case)
+					component.addConfigListener(listener);
+				}
+			}
+			ComponentConfigDialog.showDialog(parentFrame, document, component);
 		}
 
 		@Override
 		public void clipboardChanged() {
-			this.setEnabled(isDeletable(selectionModel.getSelectedComponent()) ||
-					isSimulationSelected());
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			this.setEnabled(!components.isEmpty() || simulationPanel.getEditSimulationAction().isEnabled());
 		}
 	}
 
@@ -650,14 +559,14 @@ public class RocketActions {
 	 * Action the cuts the selected component (copies to clipboard and deletes).
 	 */
 	private class CutAction extends RocketAction {
+		@Serial
 		private static final long serialVersionUID = 1L;
 
 		public CutAction() {
 			//// Cut
 			this.putValue(NAME, trans.get("RocketActions.CutAction.Cut"));
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_T);
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_T);		// Use the 't' in Cut as mnemonic
 			this.putValue(ACCELERATOR_KEY, CUT_KEY_STROKE);
-			//// Cut this component or simulation to the clipboard and remove from this design
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CutAction.ttip.Cut"));
 			this.putValue(SMALL_ICON, Icons.EDIT_CUT);
 			clipboardChanged();
@@ -665,49 +574,49 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (isSimulationSelected()) {
+				simulationPanel.getCutSimulationAction().actionPerformed(e);
+				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			} else {
+				cutComponents();
+			}
+		}
+
+		private void cutComponents() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (components.size() > 0) {
+			if (!components.isEmpty()) {
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
 
 				components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 			}
-			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if (isDeletable(components) && isCopyable(components)) {
-				ComponentConfigDialog.disposeDialog();
-
-				if (components.size() == 1) {
-					document.addUndoPosition("Cut " + components.get(0).getComponentName());
-				} else {
-					document.addUndoPosition("Cut components");
-				}
-
-				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
-				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
-
-				OpenRocketClipboard.setClipboard(copiedComponents);
-				delete(components);
-				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
-			} else if (isSimulationSelected()) {
-
-				Simulation[] simsCopy = new Simulation[sims.length];
-				for (int i=0; i < sims.length; i++) {
-					simsCopy[i] = sims[i].copy();
-				}
-				OpenRocketClipboard.setClipboard(simsCopy);
-
-				for (Simulation s: sims) {
-					document.removeSimulation(s);
-				}
-				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			if (!(isDeletable(components) && isCopyable(components))) {
+				return;
 			}
+
+			ComponentConfigDialog.disposeDialog();
+
+			if (components.size() == 1) {
+				document.addUndoPosition("Cut " + components.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Cut components");
+			}
+
+			List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+			copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
+
+			OpenRocketClipboard.setClipboard(copiedComponents);
+			delete(components);
+
+			parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 		}
 
 		@Override
 		public void clipboardChanged() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			this.setEnabled((isDeletable(components) && isCopyable(components)) || isSimulationSelected());
+			this.setEnabled((isDeletable(components) && isCopyable(components)) ||
+					simulationPanel.getCutSimulationAction().isEnabled());
 		}
 	}
 
@@ -722,46 +631,47 @@ public class RocketActions {
 		public CopyAction() {
 			//// Copy
 			this.putValue(NAME, trans.get("RocketActions.CopyAct.Copy"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.ttip.Copy"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_C);
 			this.putValue(ACCELERATOR_KEY, COPY_KEY_STROKE);
-			//// Copy this component (and subcomponents) to the clipboard.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.ttip.Copy"));
 			this.putValue(SMALL_ICON, Icons.EDIT_COPY);
 			clipboardChanged();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (isSimulationSelected()) {
+				simulationPanel.getCopySimulationAction().actionPerformed(e);
+				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			} else {
+				copyComponents();
+			}
+		}
+
+		private void copyComponents() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (components.size() > 0) {
+			if (!components.isEmpty()) {
 				components = new ArrayList<>(components);
 				fillInMissingSelections(components);
 
 				components.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
 			}
-			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if (isCopyable(components)) {
-				List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
-				copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
-
-				OpenRocketClipboard.setClipboard(copiedComponents);
-				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
-			} else if (sims != null && sims.length > 0) {
-				Simulation[] simsCopy = new Simulation[sims.length];
-				for (int i=0; i < sims.length; i++) {
-					simsCopy[i] = sims[i].copy();
-				}
-
-				OpenRocketClipboard.setClipboard(simsCopy);
-				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			if (!isCopyable(components)) {
+				return;
 			}
+
+			List<RocketComponent> copiedComponents = new LinkedList<>(copyComponentsMaintainParent(components));
+			copiedComponents.sort(Comparator.comparing(c -> c.getParent() != null ? -c.getParent().getChildPosition(c) : 0));
+
+			OpenRocketClipboard.setClipboard(copiedComponents);
+			parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 		}
 
 		@Override
 		public void clipboardChanged() {
 			this.setEnabled(isCopyable(selectionModel.getSelectedComponent()) ||
-					isSimulationSelected());
+					simulationPanel.getCopySimulationAction().isEnabled());
 		}
 		
 	}
@@ -779,9 +689,8 @@ public class RocketActions {
 		public PasteAction() {
 			//// Paste
 			this.putValue(NAME, trans.get("RocketActions.PasteAct.Paste"));
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_P);
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_V);
 			this.putValue(ACCELERATOR_KEY, PASTE_KEY_STROKE);
-			//// Paste the component or simulation on the clipboard to the design.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.PasteAct.ttip.Paste"));
 			this.putValue(SMALL_ICON, Icons.EDIT_PASTE);
 			clipboardChanged();
@@ -789,74 +698,65 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			List<RocketComponent> components = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
-			Simulation[] sims = OpenRocketClipboard.getClipboardSimulations();
-
-			if (components.size() > 0) {
-				ComponentConfigDialog.disposeDialog();
-				
-				List<RocketComponent> pasted = new LinkedList<>();
-				for (RocketComponent component : components) {
-					pasted.add(component.copy());
-				}
-
-				List<Pair<RocketComponent, Integer>> positions = getPastePositions(pasted);
-
-				if (pasted.size() == 1) {
-					document.addUndoPosition("Paste " + pasted.get(0).getComponentName());
-				} else {
-					document.addUndoPosition("Paste components");
-				}
-
-				List<RocketComponent> successfullyPasted = new LinkedList<>();
-				for (int i = 0; i < pasted.size(); i++) {
-					if (positions.get(i) == null) {
-						JOptionPane.showMessageDialog(null,
-								String.format(trans.get("RocketActions.PasteAct.invalidPosition.msg"),
-										pasted.get(i).getComponentName()),
-								trans.get("RocketActions.PasteAct.invalidPosition.title"), JOptionPane.WARNING_MESSAGE);
-					} else {
-						RocketComponent parent = positions.get(i).getU();
-						RocketComponent child = pasted.get(i);
-						if (parent != null && parent.isCompatible(child)) {
-							parent.addChild(child, positions.get(i).getV());
-							successfullyPasted.add(pasted.get(i));
-						} else {
-							log.warn("Pasted component {} is not compatible with {}", child, parent);
-						}
-					}
-				}
-
-				selectionModel.setSelectedComponents(successfullyPasted);
-				
-				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
-				
-			} else if (sims != null) {
-				
-				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
-
-				for (Simulation s: sims) {
-					Simulation copy = s.duplicateSimulation(rocket);
-					String name = copy.getName();
-					if (name.matches(OpenRocketDocument.SIMULATION_NAME_PREFIX + "[0-9]+ *")) {
-						copy.setName(document.getNextSimulationName());
-					}
-					document.addSimulation(copy);
-					copySims.add(copy);
-				}
-				selectionModel.setSelectedSimulations(copySims.toArray(new Simulation[0]));
-				
+			if (isSimulationSelected()) {
+				simulationPanel.getPasteSimulationAction().actionPerformed(e);
 				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			} else {
+				pasteComponents();
 			}
+		}
+
+		private void pasteComponents() {
+			List<RocketComponent> components = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
+
+			if (components.isEmpty()) {
+				return;
+			}
+			ComponentConfigDialog.disposeDialog();
+
+			List<RocketComponent> pasted = new LinkedList<>();
+			for (RocketComponent component : components) {
+				pasted.add(component.copy());
+			}
+
+			List<Pair<RocketComponent, Integer>> positions = getPastePositions(pasted);
+
+			if (pasted.size() == 1) {
+				document.addUndoPosition("Paste " + pasted.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Paste components");
+			}
+
+			List<RocketComponent> successfullyPasted = new LinkedList<>();
+			for (int i = 0; i < pasted.size(); i++) {
+				if (positions.get(i) == null) {
+					JOptionPane.showMessageDialog(null,
+							String.format(trans.get("RocketActions.PasteAct.invalidPosition.msg"),
+									pasted.get(i).getComponentName()),
+							trans.get("RocketActions.PasteAct.invalidPosition.title"), JOptionPane.WARNING_MESSAGE);
+				} else {
+					RocketComponent parent = positions.get(i).getU();
+					RocketComponent child = pasted.get(i);
+					if (parent != null && parent.isCompatible(child)) {
+						parent.addChild(child, positions.get(i).getV());
+						successfullyPasted.add(pasted.get(i));
+					} else {
+						log.warn("Pasted component {} is not compatible with {}", child, parent);
+					}
+				}
+			}
+
+			selectionModel.setSelectedComponents(successfullyPasted);
+			parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 		}
 
 		@Override
 		public void clipboardChanged() {
-			this.setEnabled(
-					(getPastePositions(OpenRocketClipboard.getClipboardComponents()).size() > 0) ||
-					(OpenRocketClipboard.getClipboardSimulations() != null));
+			this.setEnabled(!getPastePositions(OpenRocketClipboard.getClipboardComponents()).isEmpty() ||
+					simulationPanel.getPasteSimulationAction().isEnabled());
 		}
 	}
+
 
 
 	/**
@@ -870,7 +770,6 @@ public class RocketActions {
 			this.putValue(NAME, trans.get("RocketActions.DuplicateAct.Duplicate"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
 			this.putValue(ACCELERATOR_KEY, DUPLICATE_KEY_STROKE);
-			//// Copy this component (and subcomponents) to the clipboard.
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DuplicateAct.ttip.Duplicate"));
 			this.putValue(SMALL_ICON, Icons.EDIT_DUPLICATE);
 			clipboardChanged();
@@ -878,6 +777,15 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (isSimulationSelected()) {
+				simulationPanel.getDuplicateSimulationAction().actionPerformed(e);
+				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			} else {
+				duplicateComponents();
+			}
+		}
+
+		private void duplicateComponents() {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
 			List<RocketComponent> topComponents = new LinkedList<>();		// Components without a parent component in <components>
 			if (components.size() > 0) {
@@ -892,134 +800,128 @@ public class RocketActions {
 					topComponents.add(c);
 				}
 			}
-			Simulation[] sims = selectionModel.getSelectedSimulations();
 
-			if (isCopyable(components)) {
-				if (ComponentConfigDialog.isDialogVisible())
-					ComponentConfigDialog.disposeDialog();
-
-				List<RocketComponent> copiedComponents = copyComponentsMaintainParent(components);
-				OpenRocketClipboard.setClipboard(copiedComponents);
-				copiedComponents = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
-
-				List<RocketComponent> duplicateComponents = new LinkedList<>();
-				for (RocketComponent component : copiedComponents) {
-					duplicateComponents.add(component.copy());
-				}
-
-				List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
-				for (RocketComponent component : duplicateComponents) {
-					Pair<RocketComponent, Integer> pos;
-					if (RocketComponent.listContainsParent(duplicateComponents, component)) {
-						pos = getPastePosition(component, component.getParent());
-					} else {
-						int compIdx = duplicateComponents.indexOf(component);
-						RocketComponent pasteParent = topComponents.get(compIdx).getParent();
-						pos = getPastePosition(component, pasteParent);
-					}
-					positions.add(pos);
-				}
-
-				if (duplicateComponents.size() == 1) {
-					document.addUndoPosition("Duplicate " + duplicateComponents.get(0).getComponentName());
-				} else {
-					document.addUndoPosition("Duplicate components");
-				}
-
-				Collections.reverse(duplicateComponents);
-				Collections.reverse(positions);
-
-				for (int i = 0; i < duplicateComponents.size(); i++) {
-					positions.get(i).getU().addChild(duplicateComponents.get(i), positions.get(i).getV());
-				}
-
-				selectionModel.setSelectedComponents(duplicateComponents);
-
-				parentFrame.selectTab(BasicFrame.DESIGN_TAB);
-			} else if (sims != null && sims.length > 0) {
-				ArrayList<Simulation> copySims = new ArrayList<Simulation>();
-
-				// TODO: the undoing doesn't do anything...
-				if (sims.length == 1) {
-					document.addUndoPosition("Duplicate " + sims[0].getName());
-				} else {
-					document.addUndoPosition("Duplicate simulations");
-				}
-
-				for (Simulation s: sims) {
-					Simulation copy = s.duplicateSimulation(rocket);
-					String name = copy.getName();
-					if (name.matches(OpenRocketDocument.SIMULATION_NAME_PREFIX + "[0-9]+ *")) {
-						copy.setName(document.getNextSimulationName());
-					}
-					document.addSimulation(copy);
-					copySims.add(copy);
-				}
-
-				selectionModel.setSelectedSimulations(copySims.toArray(new Simulation[0]));
-
-				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			if (!isCopyable(components)) {
+				return;
 			}
+
+			if (ComponentConfigDialog.isDialogVisible())
+				ComponentConfigDialog.disposeDialog();
+
+			List<RocketComponent> copiedComponents = copyComponentsMaintainParent(components);
+			OpenRocketClipboard.setClipboard(copiedComponents);
+			copiedComponents = new LinkedList<>(OpenRocketClipboard.getClipboardComponents());
+
+			List<RocketComponent> duplicateComponents = new LinkedList<>();
+			for (RocketComponent component : copiedComponents) {
+				duplicateComponents.add(component.copy());
+			}
+
+			List<Pair<RocketComponent, Integer>> positions = new LinkedList<>();
+			for (RocketComponent component : duplicateComponents) {
+				Pair<RocketComponent, Integer> pos;
+				if (RocketComponent.listContainsParent(duplicateComponents, component)) {
+					pos = getPastePosition(component, component.getParent());
+				} else {
+					int compIdx = duplicateComponents.indexOf(component);
+					RocketComponent pasteParent = topComponents.get(compIdx).getParent();
+					pos = getPastePosition(component, pasteParent);
+				}
+				positions.add(pos);
+			}
+
+			if (duplicateComponents.size() == 1) {
+				document.addUndoPosition("Duplicate " + duplicateComponents.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Duplicate components");
+			}
+
+			Collections.reverse(duplicateComponents);
+			Collections.reverse(positions);
+
+			for (int i = 0; i < duplicateComponents.size(); i++) {
+				positions.get(i).getU().addChild(duplicateComponents.get(i), positions.get(i).getV());
+			}
+
+			selectionModel.setSelectedComponents(duplicateComponents);
+			parentFrame.selectTab(BasicFrame.DESIGN_TAB);
 		}
 
 		@Override
 		public void clipboardChanged() {
 			this.setEnabled(isCopyable(selectionModel.getSelectedComponent()) ||
-					isSimulationSelected());
+					simulationPanel.getDuplicateSimulationAction().isEnabled());
 		}
 
 	}
-	
 
-	
+
+
 	/**
-	 * Action to edit the currently selected component.
+	 * Action that deletes the selected component.
 	 */
-	private class EditAction extends RocketAction {
+	private class DeleteAction extends RocketAction {
 		private static final long serialVersionUID = 1L;
 
-		public EditAction() {
-			//// Edit
-			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_E);
-			this.putValue(ACCELERATOR_KEY, EDIT_KEY_STROKE);
-			//// Edit the selected component.
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
-			this.putValue(SMALL_ICON, Icons.EDIT_EDIT);
+		public DeleteAction() {
+			//// Delete
+			this.putValue(NAME, trans.get("RocketActions.DelAct.Delete"));
+			//// Delete the selected component or simulation.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelAct.ttip.Delete"));
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_DELETE);
+			this.putValue(ACCELERATOR_KEY, DELETE_KEY_STROKE);
+			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
 			clipboardChanged();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			Simulation[] sims = selectionModel.getSelectedSimulations();
+			if (isSimulationSelected()) {
+				simulationPanel.getDeleteSimulationAction().actionPerformed(e);
+				parentFrame.selectTab(BasicFrame.SIMULATION_TAB);
+			} else {
+				deleteComponents();
+			}
+		}
 
-			if (components.size() > 0) {
-				if (ComponentConfigDialog.isDialogVisible())
-					ComponentConfigDialog.disposeDialog();
+		private void deleteComponents() {
+			List<RocketComponent> components = new ArrayList<>(selectionModel.getSelectedComponents());
+			if (components.size() == 0) return;
+			components.sort(Comparator.comparing(c -> c.getParent().getChildPosition(c)));
 
-				RocketComponent component = components.get(0);
-				component.clearConfigListeners();
-				if (components.size() > 1) {
-					for (int i = 1; i < components.size(); i++) {
-						RocketComponent listener = components.get(i);
-						listener.clearConfigListeners();	// Make sure all the listeners are cleared (should not be possible, but just in case)
-						component.addConfigListener(listener);
-					}
-				}
-				ComponentConfigDialog.showDialog(parentFrame, document, component);
-			} else if (sims != null && sims.length > 0 && (simulationPanel != null)) {
-				simulationPanel.editSimulation();
+			if (components.size() == 1) {
+				document.addUndoPosition("Delete " + components.get(0).getComponentName());
+			} else {
+				document.addUndoPosition("Delete components");
+			}
+
+			for (RocketComponent component : components) {
+				deleteComponent(component);
+			}
+
+			parentFrame.selectTab(BasicFrame.DESIGN_TAB);
+		}
+
+		private void deleteComponent(RocketComponent component) {
+			if (isDeletable(component)) {
+				ComponentConfigDialog.disposeDialog();
+
+				try {
+					component.getRocket().removeComponentChangeListener(ComponentConfigDialog.getDialog());
+
+					delete(component);
+				} catch (IllegalStateException ignored) { }
 			}
 		}
 
 		@Override
 		public void clipboardChanged() {
-			List<RocketComponent> components = selectionModel.getSelectedComponents();
-
-			this.setEnabled(components.size() > 0 || isSimulationSelected());
+			this.setEnabled(isDeletable(selectionModel.getSelectedComponent()) ||
+					simulationPanel.getDeleteSimulationAction().isEnabled());
 		}
 	}
+
+
 
 
 	/**
@@ -1038,47 +940,16 @@ public class RocketActions {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<RocketComponent> components = selectionModel.getSelectedComponents();
-			if (components.size() == 0) {
+			if (components.isEmpty()) {
 				return;
 			}
 
 			RocketComponent component = components.get(0);
-			List<RocketComponent> sameColorComponents;
-
-			// Case 1: component has a default appearance (null)
-			if (component.getAppearance() == null) {
-				sameColorComponents = getComponentsDefaultColor(component);
-			}
-			// Case 2: component has a custom appearance
-			else {
-				sameColorComponents = getComponentsCustomColor(component);
-			}
-
+			List<RocketComponent> sameColorComponents = getComponentsSameColor(component);
 			selectionModel.setSelectedComponents(sameColorComponents);
 		}
 
-		private List<RocketComponent> getComponentsCustomColor(RocketComponent component) {
-			Color targetColor = component.getAppearance().getPaint();
-			List<RocketComponent> components = new ArrayList<>();
-			components.add(component);
-
-			for (RocketComponent c : rocket) {
-				if (c == component || c.getAppearance() == null || c.getAppearance().getPaint() == null) {
-					continue;
-				}
-				Color color = c.getAppearance().getPaint();
-				// Add components with the same RGB values (ignore alpha)
-				if (color.getRed() == targetColor.getRed() &&
-						color.getGreen() == targetColor.getGreen() &&
-						color.getBlue() == targetColor.getBlue()) {
-					components.add(c);
-				}
-			}
-
-			return components;
-		}
-
-		private List<RocketComponent> getComponentsDefaultColor(RocketComponent component) {
+		private List<RocketComponent> getComponentsSameColor(RocketComponent component) {
 			List<RocketComponent> components = new ArrayList<>();
 			components.add(component);
 
@@ -1086,14 +957,44 @@ public class RocketActions {
 				if (c == component) {
 					continue;
 				}
-
-				// Only add same components & components that also have the default color
-				if (c.getClass().equals(component.getClass()) && c.getAppearance() == null) {
+				if (isAppearanceEqual(component, c)) {
 					components.add(c);
 				}
 			}
 
 			return components;
+		}
+
+		private boolean isAppearanceEqual(RocketComponent component1, RocketComponent component2) {
+			Appearance appearance1 = component1.getAppearance();
+			Appearance appearance2 = component2.getAppearance();
+
+			// Both components must have the same default material state
+			if ((appearance1 == null && appearance2 != null) || (appearance1 != null && appearance2 == null)) {
+				return false;
+			}
+
+			appearance1 = appearance1 == null ? DefaultAppearance.getDefaultAppearance(component1) : appearance1;
+			appearance2 = appearance2 == null ? DefaultAppearance.getDefaultAppearance(component2) : appearance2;
+
+			return isAppearanceEqual(appearance1, appearance2);
+		}
+
+		private boolean isAppearanceEqual(Appearance app1, Appearance app2) {
+			ORColor color1 = app1.getPaint();
+			ORColor color2 = app2.getPaint();
+
+			if (color1 == null && color2 == null) {
+				return true;
+			}
+			if (color1 == null || color2 == null) {
+				return false;
+			}
+
+			// Add components with the same RGB values (ignore alpha)
+			return color1.getRed() == color2.getRed() &&
+					color1.getGreen() == color2.getGreen() &&
+					color1.getBlue() == color2.getBlue();
 		}
 
 		@Override
@@ -1312,5 +1213,47 @@ public class RocketActions {
 	}
 
 
+	private class ExportOBJAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public ExportOBJAction() {
+			this.putValue(NAME, trans.get("RocketActions.ExportOBJAct.ExportOBJ"));
+			this.putValue(SMALL_ICON, Icons.EXPORT_3D);
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.ExportOBJAct.ttip.ExportOBJ"));
+			clipboardChanged();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			if (components.isEmpty()) {
+				return;
+			}
+
+			ComponentConfigDialog.disposeDialog();
+			parentFrame.exportWavefrontOBJAction();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			List<RocketComponent> components = selectionModel.getSelectedComponents();
+			boolean containsMassiveComponent = containsMassiveComponent(components);
+			this.setEnabled(containsMassiveComponent);
+		}
+
+		private static boolean containsMassiveComponent(List<RocketComponent> components) {
+			for (RocketComponent component : components) {
+				if (component.isMassive()) {
+					return true;
+				}
+				for (RocketComponent child : component.getAllChildren()) {
+					if (child.isMassive()) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
 
 }

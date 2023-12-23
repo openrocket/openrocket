@@ -63,7 +63,6 @@ Right, you've dug into the codebase, found that one nasty line that caused all y
 1. Explain briefly which issue that you are trying to solve, e.g. 'This PR solves #123 in which buttons were displayed as red instead of blue' 
 2. Next explain what the underlying issue was, e.g. 'The problem was that by default Java swing displays buttons as red.' 
 3. Next is how you fixed the issue, e.g. 'Fixed it by overriding the default button color to blue' 
-4. Finally, for other people to test your code, it is good to include a jar file of your fixed OpenRocket. This can be done using ant ([more info here](https://github.com/openrocket/openrocket/wiki/Instructions-to-Build-from-Terminal)). You can upload this jar-file to e.g. Dropbox or Google Drive and include it in your PR, e.g. 'Here is a jar file for testing: ' or if you're really GitHub-savvy, you can add a hyperlink to the 'jar file'-text. If necessary, you can also include information on how to recreate the original issue so that testers can check whether your code solved the issue. If needed, you can also included information about the expected behavior so that others know what your solution should do.
 
 You can take a look at example PR [#979](https://github.com/openrocket/openrocket/pull/979).
 

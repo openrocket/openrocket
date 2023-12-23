@@ -10,6 +10,7 @@ import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 
 import net.sf.openrocket.gui.figure3d.geometry.Geometry;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -18,7 +19,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 
 public class FigureRenderer extends RocketRenderer {
 	private final float[] color = new float[4];
@@ -69,18 +70,18 @@ public class FigureRenderer extends RocketRenderer {
 		return false;
 	}
 	
-	private static final HashMap<Class<?>, Color> defaultColorCache = new HashMap<Class<?>, Color>();
+	private static final HashMap<Class<?>, ORColor> defaultColorCache = new HashMap<Class<?>, ORColor>();
 	
 	@Override
 	public void renderComponent(GL2 gl, Geometry geom, float alpha) {
 		RocketComponent c = geom.getComponent();
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
-		Color figureColor = c.getColor();
+		ORColor figureColor = c.getColor();
 		if (figureColor == null) {
 			if (defaultColorCache.containsKey(c.getClass())) {
 				figureColor = defaultColorCache.get(c.getClass());
 			} else {
-				figureColor = Application.getPreferences().getDefaultColor(c.getClass());
+				figureColor = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 				defaultColorCache.put(c.getClass(), figureColor);
 			}
 		}
@@ -147,7 +148,7 @@ public class FigureRenderer extends RocketRenderer {
 		return 20;
 	}
 	
-	protected static void convertColor(Color color, float[] out) {
+	protected static void convertColor(ORColor color, float[] out) {
 		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;

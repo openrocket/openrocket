@@ -265,7 +265,7 @@ public class CenteringRingPresetTests {
 		// the real implementation.  The magic numbers are based on the 
 		// constants put into the presetspec above.
 		double volume = (Math.PI * 1.0) - (Math.PI * .25); // outer area - inner area
-		volume *= 2.0; // times length
+		volume *= 2.0; /// times length
 		
 		double density = 100.0 / volume;
 		

@@ -166,10 +166,8 @@ public class SimulationTableCSVExport {
 				}
 			}
 
-			// Current "unstable" will have a populated sim table EXCEPT for the optimum delay column on a restart
-			// after a save.  That means any row that WAS simulated will have exactly one null column in it... so we'll
-			// skip row export for the case where there are MORE than one nulls.  Either way the user should run sims.
-			if (nullCnt > 1) { // ignore rows that have null column fields 1 through 8...
+			// If there are any null columns, need to run the simulation before we can export it
+			if (nullCnt > 0) { // ignore rows that have null column fields 1 through 8...
 				continue;
 			}
 

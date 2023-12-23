@@ -49,6 +49,12 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.file.wavefrontobj.CoordTransform;
+import net.sf.openrocket.file.wavefrontobj.DefaultCoordTransform;
+import net.sf.openrocket.file.wavefrontobj.OBJOptionChooser;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExportOptions;
+import net.sf.openrocket.file.wavefrontobj.export.OBJExporterFactory;
+import net.sf.openrocket.gui.configdialog.SaveDesignInfoPanel;
 import net.sf.openrocket.gui.dialogs.ErrorWarningDialog;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
@@ -249,6 +255,9 @@ public class BasicFrame extends JFrame {
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
+
+			popupMenu.addSeparator();
+			popupMenu.add(actions.getExportOBJAction());
 		}
 
 		createMenu();
@@ -431,6 +440,25 @@ public class BasicFrame extends JFrame {
 		});
 		exportSubMenu.add(exportRockSim);
 
+		exportSubMenu.addSeparator();
+
+		////// 		Export Wavefront OBJ
+		JMenuItem exportOBJ = new JMenuItem(trans.get("main.menu.file.exportAs.WavefrontOBJ"));
+		exportOBJ.setIcon(Icons.EXPORT_3D);
+		exportOBJ.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.WavefrontOBJ.desc"));
+		exportOBJ.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportWavefrontOBJAction();}
+		});
+		selectionModel.addDocumentSelectionListener(new DocumentSelectionListener() {
+			@Override
+			public void valueChanged(int changeType) {
+				exportOBJ.setEnabled(getSelectedComponents() != null && !getSelectedComponents().isEmpty());
+			}
+		});
+		exportSubMenu.add(exportOBJ);
+
 		fileMenu.add(exportSubMenu);
 		fileMenu.addSeparator();
 
@@ -564,12 +592,12 @@ public class BasicFrame extends JFrame {
 
 		editMenu.addSeparator();
 
-		JMenu subMenu = new JMenu(trans.get("RocketActions.Select"));
-		editMenu.add(subMenu);
+		JMenu selectSubMenu = new JMenu(trans.get("RocketActions.Select"));
+		editMenu.add(selectSubMenu);
 		item = new JMenuItem(actions.getSelectSameColorAction());
-		subMenu.add(item);
+		selectSubMenu.add(item);
 		item = new JMenuItem(actions.getDeselectAllAction());
-		subMenu.add(item);
+		selectSubMenu.add(item);
 
 		editMenu.addSeparator();
 
@@ -1259,7 +1287,11 @@ public class BasicFrame extends JFrame {
 	 */
 	public static BasicFrame open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file);
-		return open(worker, file.getName(), parent, false);
+		BasicFrame frame = open(worker, file.getName(), parent, false);
+		if (frame != null) {
+			MRUDesignFile.getInstance().addFile(file.getAbsolutePath());
+		}
+		return frame;
 	}
 
 
@@ -1366,15 +1398,32 @@ public class BasicFrame extends JFrame {
 	/**
 	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
 	 * @param fileType file type to use (e.g. RASAero)
+	 * @param selectedComponents list of selected components in the design
 	 * @return the file selected from the dialog, or null if no file was selected.
 	 */
-	private File openFileSaveAsDialog(FileType fileType) {
-		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType);
+	private File openFileSaveAsDialog(FileType fileType, List<RocketComponent> selectedComponents) {
+		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType, selectedComponents);
+		OBJOptionChooser objChooser = null;
+		if (chooser.getAccessory() instanceof OBJOptionChooser) {
+			objChooser = (OBJOptionChooser) chooser.getAccessory();
+		}
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return null;
+		}
+
+		// Store the OBJ options
+		if (objChooser != null) {
+			objChooser.storeOptions(document.getDefaultOBJOptions(), true);
+
+			// We need to separately store the preference options, because the export children option can be
+			// automatically selected based on whether only component assemblies are selected. We don't want to
+			// store that state in the preferences.
+			OBJExportOptions prefOptions = new OBJExportOptions(rocket);
+			objChooser.storeOptions(prefOptions, false);
+			prefs.saveOBJExportOptions(prefOptions);
 		}
 
 		File file = chooser.getSelectedFile();
@@ -1386,6 +1435,15 @@ public class BasicFrame extends JFrame {
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
 		return file;
+	}
+
+	/**
+	 * Opens a file chooser dialog for saving a new file, and returns the selected file.
+	 * @param fileType file type to use (e.g. RASAero)
+	 * @return the file selected from the dialog, or null if no file was selected.
+	 */
+	private File openFileSaveAsDialog(FileType fileType) {
+		return openFileSaveAsDialog(fileType, null);
 	}
 
 
@@ -1472,8 +1530,9 @@ public class BasicFrame extends JFrame {
 								//	//	Some design features may not have been exported correctly.
 								trans.get("BasicFrame.WarningDialog.saving.txt2")
 						},
-						//	//	Warnings while opening file
-						trans.get("BasicFrame.WarningDialog.saving.title"), warnings);
+						////	Warnings while saving file
+						trans.get("BasicFrame.WarningDialog.saving.title"),
+						warnings);
 			} else if (!errors.isEmpty()) {
 				ErrorWarningDialog.showErrorsAndWarnings(BasicFrame.this,
 						new Object[]{
@@ -1586,12 +1645,67 @@ public class BasicFrame extends JFrame {
 	////	END ROCKSIM Save/Export Action
 
 
+	////	BEGIN WAVEFRONT OBJ Save/Export Action
+	/**
+	 * MODEL "Export as" Wavefront OBJ file format
+	 *
+	 * @return true if the file was saved, false otherwise
+	 */
+	public boolean exportWavefrontOBJAction() {
+		File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
+		if (file == null) {
+			return false;
+		}
+
+		file = FileHelper.forceExtension(file, "obj");
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
+		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
+			return saveAsWavefrontOBJ(file);
+		}
+		return false;
+	}
+
+	private boolean saveAsWavefrontOBJ(File file) {
+		OBJExportOptions options = document.getDefaultOBJOptions();
+		return saveWavefrontOBJFile(file, options);
+	}
+
+	/**
+	 * Perform the actual saving of the Wavefront OBJ file
+	 * @param file file to be stored
+	 * @param options OBJ export options to use
+	 * @return true if the file was written
+	 */
+	private boolean saveWavefrontOBJFile(File file, OBJExportOptions options) {
+		WarningSet warnings = new WarningSet();
+		OBJExporterFactory exporter = new OBJExporterFactory(getSelectedComponents(), rocket.getSelectedConfiguration(),
+				file, options, warnings);
+		exporter.doExport();
+
+		// Show warning dialog
+		if (!warnings.isEmpty()) {
+			WarningDialog.showWarnings(this,
+					////	The following problems were encountered while saving
+					trans.get("BasicFrame.WarningDialog.saving.txt1") + " '" + file.getName() + "'.",
+					////	Warnings while saving file
+					trans.get("BasicFrame.WarningDialog.saving.title"),
+					warnings);
+		}
+
+		return true;
+	}
+
+
 	/**
 	 * "Save As" action.
 	 *
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAsAction() {
+		// Open dialog for saving rocket info
+		showSaveRocketInfoDialog();
+
 		File file = openFileSaveAsDialog(FileType.OPENROCKET);
 		if (file == null) {
 			return false;
@@ -1604,6 +1718,25 @@ public class BasicFrame extends JFrame {
 			opts.addFile(file.getAbsolutePath());
 		}
 		return result;
+	}
+
+	private void showSaveRocketInfoDialog() {
+		if (!prefs.isShowSaveRocketInfo()) {
+			return;
+		}
+
+		// Select the rocket in the component tree to indicate to users that they can edit the rocket info by editing the rocket
+		setSelectedComponent(rocket);
+
+		// Open the save rocket info
+		JDialog dialog = new JDialog();
+		SaveDesignInfoPanel panel = new SaveDesignInfoPanel(document, rocket, dialog);
+		dialog.setContentPane(panel);
+		dialog.pack();
+		dialog.setTitle(trans.get("BasicFrame.lbl.SaveRocketInfo"));
+		dialog.setModal(true);
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true);
 	}
 
 

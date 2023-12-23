@@ -4,13 +4,12 @@ import net.sf.openrocket.file.motor.AbstractMotorLoader;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.Transition;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.MathUtil;
 
 import java.util.HashMap;
@@ -480,9 +479,9 @@ public class RASAeroCommonConstants {
         return DeploymentConfiguration.DeployEvent.APOGEE;
     }
 
-    public static String OPENROCKET_TO_RASAERO_COLOR(Color color) {
+    public static String OPENROCKET_TO_RASAERO_COLOR(ORColor color) {
         if (color != null) {
-            if (color.equals(Color.BLACK)) {
+            if (color.equals(ORColor.BLACK)) {
                 return "Black";     // Currently the only officially supported color by RASAero
             }
         }

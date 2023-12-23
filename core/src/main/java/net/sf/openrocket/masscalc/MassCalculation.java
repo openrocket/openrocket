@@ -338,13 +338,11 @@ public class MassCalculation {
 				
 				eachChild.prefix = prefix + "....";
 				eachChild.calculateStructure(); 
-				
+
 				// accumulate children's data
 				children.merge( eachChild );
 			}
 		}
-		
-		this.merge( children );
 		
 		if (this.config.isComponentActive(component) ){
 			Coordinate compCM = component.getComponentCG();
@@ -355,26 +353,25 @@ public class MassCalculation {
 			// setting zero as the CG position means the top of the component, which is component.getPosition()
 			final Coordinate compZero = parentTransform.transform( component.getPosition() );
 
-			if (component.isSubcomponentsOverriddenMass() || component.isSubcomponentsOverriddenCG()) {
-				if (component.isMassive()) {
-					// if this component mass, merge it in before overriding:
-					this.addMass( compCM );
+			if (component.isMassOverridden()) {
+				if (!component.isMassive()) {
+					compCM = children.getCM();
 				}
-				if (component.isSubcomponentsOverriddenMass() && component.isMassOverridden()) {
-					this.setCM( this.getCM().setWeight(component.getOverrideMass()) );
+				compCM = compCM.setWeight(component.getOverrideMass());
+
+				if (component.isSubcomponentsOverriddenMass()) {
+					children.setCM(children.getCM().setWeight(0));
 				}
-				if (component.isSubcomponentsOverriddenCG() && component.isCGOverridden()) {
-					this.setCM( this.getCM().setX(compZero.x + component.getOverrideCGX()));
-				}
-			}else {
-				if (component.isMassOverridden()) {
-					compCM = compCM.setWeight( component.getOverrideMass() );
-				}
-				if (component.isCGOverridden()) {
-					compCM = compCM.setX( compZero.x + component.getOverrideCGX() );
-				}
-				this.addMass( compCM );
 			}
+
+			if (component.isCGOverridden()) {
+				compCM = compCM.setX( compZero.x + component.getOverrideCGX() );
+
+				if (component.isSubcomponentsOverriddenCG()) {
+					children.setCM(children.getCM().setX(compCM.x));
+				}
+			}
+			this.addMass(compCM);
 			
 			if(null != analysisMap){
 				final CMAnalysisEntry entry = analysisMap.get(component.hashCode());
@@ -398,6 +395,8 @@ public class MassCalculation {
 			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
 			// }
 		}
+
+		this.merge( children );
 		
 		// // vvv DEBUG
 		// if( this.config.isComponentActive(component) && 0 < this.getMass() ) {

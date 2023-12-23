@@ -1,0 +1,142 @@
+
+Creating a simple rocket design
+
+<p>This tour shows how to create a simple rocket design from scratch.
+
+
+[01_main_startup_screen.png]
+
+<p>When you choose to create a new design, you are presented with a blank
+design window, and when you double-click on the <em>Rocket</em> label (the root component) in the
+component tree, the <b>Rocket configuration</b> dialog opens.
+
+<p>This is where you can enter general information on the rocket design, such as the design name,
+designer, comments, and create a revision history. For example, the initial <em>Design Name</em> is "Rocket"
+and, if you change the design name, the new design name is displayed as the root component in the component tree.
+
+
+[02_main_rocket_configuration_dialog.png]
+
+<p>Component buttons are greyed-out until available. So, to start adding components to your new design,
+first, left-click on the <em>Sustainer</em> label in the component tree to activate the basic component buttons.
+
+<p>Next, add a <em>Nose cone</em> to the design by clicking the corresponding component button.
+
+
+[03_main_nosecone.png]
+
+<p>This opens the <b>Nose Cone configuration</b> dialog. The configuration dialog contains settings for the
+nose cone shape, dimensions and material.
+
+
+[04_dialog_nosecone.png]
+
+<p>Set the nose cone <em>length</em> to 10&nbsp;cm, <em>Base diameter</em> to 2.5&nbsp;cm and <em>Material</em>
+to polystyrene (plastic). To use inches a different unit of measure, either click the unit to change it, or change
+the default units by going to <em>Edit > Preferences > Units</em>. Close the dialog to display the nose cone.
+
+
+[05_main_body_tube.png]
+
+<p>Next, add a <em>Body Tube</em> to the design.
+
+
+[06_dialog_body_tube.png]
+
+<p>Change the body tube length to 25&nbsp;cm.  The <em>Automatic</em> option for the outer diameter
+is ticked by default, in which case the diameter is automatically the same as that of the nose cone.
+Close the dialog to display the body tube.
+
+
+[07_main_trapezoidal_fin_set.png]
+
+<p>Next, add a <em>Trapezoidal fin set</em> to the rocket.  The body
+tube must be selected in order to add the component.
+
+
+[08_dialog_trapezoidal_fin_set.png]
+
+<p>The trapezoidal fin set has numerous dimension parameters.  The
+most important are the root and tip chord (length next to the body
+tube and tip), height and sweep.
+
+<p>The default values are okay for the example design.
+
+
+[09_main_inner_tube.png]
+
+<p>Next, add an <em>Inner Tube</em> as a motor mount.  Select the body
+tube, and then click the component addition button.
+
+
+[10_dialog_inner_tube.png]
+
+<p>The default dimensions are suitable for Estes A-C motors.  To have
+the motor mount overhang a bit, change the position parameter to
+<em>Bottom of parent component</em> plus 0.5&nbsp;cm.
+
+
+[11_main_centering_ring.png]
+
+<p>To add centering rings to keep the mount in place, select
+the body tube and click the <em>Centering Ring</em> button.
+
+<p>(If you have the inner tube selected when clicking, the centering
+ring will be added inside the inner tube.  Use <b>Edit</b> &rarr;
+<b>Undo</b> to undo the latest action.)
+
+
+[12_dialog_centering_ring.png]
+
+<p>The centering ring automatically selects the appropriate outer and
+inner diameter when the <em>Automatic</em> checkboxes are selected.
+
+<p>Move the centering ring to the front of the engine mount by setting
+the position parameter to <em>Bottom of parent component</em> plus
+-5.0&nbsp;cm.
+
+<p>Next add another centering ring at the aft end with position
+parameter zero.
+
+
+[13_main_parachute.png]
+
+<p>Next add a <em>Parachute</em> to the body tube.
+
+
+[14_dialog_parachute.png]
+
+<p>The <em>canopy diameter</em> and <em>drag coefficient</em>
+determine how much the parachute slows down the rocket during descent.
+The <em>material</em> and <em>shroud lines</em> affect the total
+mass.  The <em>packed length</em>, <em>diameter</em> and
+<em>position</em> affect the packed size and location of the
+parachute.
+
+<p>The <em>Deploys at</em> property can be used to affect when the
+parachute deploys.  The <em>First ejection charge of this stage</em>
+option will deploy the parachute when the ejection charge is fired, as
+is typical in small model rockets.
+
+
+[15_main_rocket_basic.png]
+
+<p>Now the functional aspects of the rocket design are complete.
+
+<p>For completeness you can still attach a <em>Shock cord</em> and a
+<em>Mass component</em> to the body tube for wadding, and an
+<em>Engine block</em> to the inner tube for holding the motor in
+place.
+
+
+[16_main_rocket_complete.png]
+
+<p>Now the rocket design is complete.
+
+# <p>You can now continue to
+# <a href="defining_motors/defining_motors">defining motors</a> to your
+# rocket.
+
+
+
+

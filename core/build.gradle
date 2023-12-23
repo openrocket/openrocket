@@ -39,6 +39,8 @@ dependencies {
     implementation group: 'com.sun.istack', name: 'istack-commons-tools', version: '4.1.1' // TODO: Should be gotten rid of?
     implementation group: 'com.sun.istack', name: 'istack-commons-runtime', version: '4.1.1' // TODO: Should be gotten rid of?
 
+    implementation 'de.javagl:obj:0.4.0'
+
     implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
     implementation 'org.glassfish:javax.json:1.1.3' // 1.1.4

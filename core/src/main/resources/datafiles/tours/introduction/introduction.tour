@@ -1,0 +1,103 @@
+
+Introduction
+
+<p>This first tour provides a quick overview of OpenRocket screens and
+features.
+
+
+[01_logo.png]
+
+<p><b>OpenRocket</b> is a versatile application for designing,
+simulating and optimizing model rockets.  This first tour provides an
+overview of the OpenRocket screens and features.
+
+<p>You can browse through the tour using the <b>Next</b> and
+<b>Previous</b> buttons, or using the <em>left</em> and <em>right
+arrows</em> on your keyboard.
+
+
+[02_main_window_startup_screen.png]
+
+<p>This is the startup screen from which you can create a new rocket
+design or open existing designs.
+
+<p>For this tour, let's open an example design called <em>A simple model
+rocket</em>.
+
+
+[03_main_window_simple.png]
+
+<p>This is the main screen of OpenRocket.  It is divided horizontally
+into two parts:  the rocket design / flight simulation section and the
+rocket design view.
+
+
+[04_main_window_simple_top.png]
+
+<p>On the top left is the component tree of the rocket design.
+It displays which components are attached to what components.
+
+<p>On the top right are component buttons which allow you to add different
+types of new components to the rocket.
+
+
+[05_main_window_simple_bottom.png]
+
+<p>The bottom half of the window contains a diagram of the current
+rocket design.
+
+<p>OpenRocket allows you to view a design in 2D from the <em>Side</em> and <em>Back</em>.
+There are also three 3D views, <em>3D Figure</em>, <em>3D Unfinished</em>, and <em>3D Finished</em>.
+
+# <p>The different viewing options are described in detail in the
+# <a href="FIXME">Viewing options</a> tour.
+
+
+[06_flight_simulations_top.png]
+
+<p>When you select the <b>Flight simulations</b> tab, the top part of
+the window changes to show the simulations that have been defined for
+the rocket.
+
+<p>You can define various simulations with different motor
+configurations and differing launch conditions, such as wind and
+launch rod angle.
+
+
+[07_simulation_edit.png]
+
+<p>By double-clicking on a simulation you open the <b>Edit simulation</b> dialog.
+On the first two tabs you can define the <b>Launch conditions</b> and other <b>Simulation options</b>.
+
+# <p>Simulating a rocket is described in detail in the
+# <a href="FIXME">Simulating a flight</a> tour.
+
+<p>To plot or export simulation results, open the <b>Plot / Export simulation</b> dialog by
+double-clicking the <b>Simulate & Plot</b> button in the lower right-hand corner of the
+<b>Edit simulation</b> dialog (next to the <em> Close</em> button).
+
+
+[08_simulation_plot.png]
+
+<p>Double-clicking the <b>Plot data</b> tab allows you to select from preset plot configurations or set your own
+plot parameters. By double-clicking on the <b>Export data</b> tab, you can export the simulation result using numerous
+data points, and even custom set the decimal point placement for numerical output.
+
+
+[09_component_analysis.png]
+
+<p>Other advanced features include <b>Component analysis</b>...
+
+
+[10_rocket_optimization.png]
+
+<p> and automatic <b>Rocket optimization</b>.
+
+<p>Next you can take a tour on <a href="creating_design/creating_design.tour">Creating a simple rocket
+design</a>,
+
+# browse other tours
+
+or start experimenting with the software.
+
+

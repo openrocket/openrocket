@@ -37,7 +37,6 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
@@ -331,9 +330,9 @@ public class OpenRocketSaverTest {
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion108_withSimulationExtension() {
+	public void testFileVersion109_withSimulationExtension() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(108, getCalculatedFileVersion(rocketDoc));
+		assertEquals(109, getCalculatedFileVersion(rocketDoc));
 	}
 	
 
@@ -400,7 +399,7 @@ public class OpenRocketSaverTest {
 		throw new RuntimeException("Could not load motor");
 	}
 	
-	private static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
+	public static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
 		
 		final ComponentPresetDao db = new ComponentPresetDatabase();
 		
@@ -409,8 +408,8 @@ public class OpenRocketSaverTest {
 			return db;
 		}
 	}
-	
-	private static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
+
+	public static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
 		
 		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
 		

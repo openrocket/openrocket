@@ -69,7 +69,11 @@ public abstract class Unit {
 	public boolean hasSpace() {
 		return true;
 	}
-	
+
+	public double getMultiplier() {
+		return multiplier;
+	}
+
 	@Override
 	public String toString() {
 		return unit;

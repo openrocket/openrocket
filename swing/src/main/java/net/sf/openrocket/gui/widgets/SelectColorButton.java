@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.widgets;
 
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.UITheme;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -7,11 +9,11 @@ import javax.swing.JButton;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.Graphics;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class SelectColorButton extends JButton {
+
     public SelectColorButton() {
         addChangeListenerSelectColor();
     }
@@ -37,8 +39,9 @@ public class SelectColorButton extends JButton {
     }
 
     private void addChangeListenerSelectColor() {
-        if (UIManager.getColor("Button.selectForeground") == null
-                || UIManager.getColor("Button.foreground") == null)
+        if ((GUIUtil.getUITheme() != UITheme.Themes.LIGHT) ||
+                (UIManager.getColor("Button.selectForeground") == null) ||
+                (UIManager.getColor("Button.foreground") == null))
             return;
 
         // Fixes the issue of the background of the button not being blue when selected on macOS

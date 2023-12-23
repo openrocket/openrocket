@@ -1,4 +1,3 @@
-
 /*
  * BaseRocksimTest.java
  */

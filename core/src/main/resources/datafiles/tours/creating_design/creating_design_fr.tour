@@ -1,0 +1,137 @@
+Création d'un design de fusée simple
+
+<p>Cette visite montre comment créer une conception de fusée simple à partir de zéro.
+
+
+[01_main_startup_screen.png]
+
+<p>Lorsque vous choisissez de créer un nouveau design, un espace vierge vous est présenté
+fenêtre de conception, et lorsque vous double-cliquez sur l'étiquette <em>Rocket</em> (le composant racine) dans la
+l'arborescence des composants, la boîte de dialogue <b>Configuration de la fusée</b> s'ouvre.
+
+<p>C'est ici que vous pouvez entrer des informations générales sur la conception de la fusée, telles que le nom de la conception,
+designer, commentez et créez un historique des révisions. Par exemple, le <em>Nom du design</em ? est "Fusée"
+et, si vous modifiez le nom de la conception, le nouveau nom de conception s'affiche en tant que composant racine dans l'arborescence des composants.
+
+
+[02_main_rocket_configuration_dialog.png]
+
+<p>Les boutons des composants sont grisés jusqu'à ce qu'ils soient disponibles. Donc, pour commencer à ajouter des composants à votre nouveau design,
+Tout d'abord, cliquez avec le bouton gauche sur l'étiquette <em>Sustainer</em> dans l'arborescence des composants pour activer les boutons des composants de base.
+
+<p>Ensuite, ajoutez un <em>cône de nez</em> à la conception en cliquant sur le bouton du composant correspondant.
+
+
+[03_main_nosecone.png]
+
+<p>Cela ouvre la boîte de dialogue <b>Nose Cone configuration</b>. La boîte de dialogue de configuration contient les paramètres de
+forme, dimensions et matériau du cône de nez.
+
+
+[04_dialog_nosecone.png]
+
+<p>Réglez la <em>longueur</em> du cône de nez sur 10 cm, le <em>diamètre de la base</em> sur 2,5 cm et le <em>matériau</em>
+au polystyrène (plastique). Pour utiliser les pouces comme unité de mesure différente, cliquez sur l'unité pour la modifier ou modifiez
+les unités par défaut en allant dans <em>Modifier > Préférences > Unités</em>. Fermez la boîte de dialogue pour afficher le cône de nez.
+
+
+[05_main_body_tube.png]
+
+<p>Ensuite, ajoutez un <em>tube corporel</em> au design.
+
+
+[06_dialog_body_tube.png]
+
+<p>Changez la longueur du tube du corps à 25 cm. L'option <em>Automatique</em> pour le diamètre extérieur
+est coché par défaut, auquel cas le diamètre est automatiquement le même que celui du nez.
+Fermez la boîte de dialogue pour afficher le tube du corps.
+
+
+[07_main_trapezoidal_fin_set.png]
+
+<p>Ensuite, ajoutez un <em>jeu d'ailettes trapézoïdales</em> à la fusée. Le corps
+tube doit être sélectionné afin d'ajouter le composant.
+
+
+[08_dialog_trapezoidal_fin_set.png]
+
+<p>Le jeu d'ailettes trapézoïdales a de nombreux paramètres de dimension. La
+les plus importantes sont la racine et la corde de pointe (longueur à côté du corps
+tube et embout), hauteur et balayage.
+
+<p>Les valeurs par défaut conviennent à l'exemple de conception.
+
+
+[09_main_inner_tube.png]
+
+<p>Ensuite, ajoutez une <em>chambre à air</em> comme support moteur. Sélectionnez le corps
+tube, puis cliquez sur le bouton d'ajout de composant.
+
+
+[10_dialog_inner_tube.png]
+
+<p>Les dimensions par défaut conviennent aux moteurs Estes A-C. Avoir
+le support du moteur dépasse un peu, changez le paramètre de position en
+<em>Bas du composant parent</em> plus 0,5 cm.
+
+
+[11_main_centering_ring.png]
+
+<p>Pour ajouter des bagues de centrage pour maintenir le support en place, sélectionnez
+le tube du corps et cliquez sur le bouton <em>Anneau de centrage</em>.
+
+<p>(Si vous avez sélectionné la chambre à air au clic, le centrage
+anneau sera ajouté à l'intérieur du tube intérieur. Utilisez <b>Modifier</b> &rarr;
+<b>Annuler</b> pour annuler la dernière action.)
+
+
+[12_dialog_centering_ring.png]
+
+<p>La bague de centrage sélectionne automatiquement l'extérieur et
+diamètre intérieur lorsque les cases <em>Automatique</em> sont cochées.
+
+<p>Déplacez la bague de centrage vers l'avant du support moteur en réglant
+le paramètre de position sur <em>Bas du composant parent</em> plus
+-5.0&nbsp;cm.
+
+<p>Ensuite, ajoutez un autre anneau de centrage à l'extrémité arrière avec la position
+paramètre zéro.
+
+
+[13_main_parachute.png]
+
+<p>Ajoutez ensuite un <em>parachute</em> au tube du corps.
+
+
+[14_dialog_parachute.png]
+
+<p>Le <em>diamètre de la voilure</em> et le <em>coefficient de traînée</em>
+déterminer de combien le parachute ralentit la fusée pendant la descente.
+Le <em>matériau</em> et les <em>lignes de carénage</em> affectent le total
+Masse. La <em>longueur emballée</em>, le <em>diamètre</em> et
+<em>position</em> affectent la taille et l'emplacement du paquet
+parachute.
+
+<p>La propriété <em>Déploie à</em> peut être utilisée pour déterminer quand le
+parachute se déploie. La <em>Première charge d'éjection de cet étage</em>
+l'option déploiera le parachute lorsque la charge d'éjection est tirée, comme
+est typique des petits modèles de fusées.
+
+
+[15_main_rocket_basic.png]
+
+<p>Maintenant, les aspects fonctionnels de la conception de la fusée sont terminés.
+
+<p>Pour être complet, vous pouvez toujours attacher un <em>cordon de choc</em> et un
+<em>Composant de masse</em> au tube du corps pour la ouate, et un
+<em>Bloc moteur</em> au tube intérieur pour maintenir le moteur en place
+place.
+
+
+[16_main_rocket_complete.png]
+
+<p>Maintenant, la conception de la fusée est terminée.
+
+# <p>Vous pouvez maintenant continuer à
+# <a href="defining_motors/defining_motors">définir des moteurs</a> à votre
+# fusée.

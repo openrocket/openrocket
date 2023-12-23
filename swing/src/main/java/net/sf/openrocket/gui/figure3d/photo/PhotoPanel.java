@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
+import net.sf.openrocket.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -374,7 +374,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		return image;
 	}
 
-	private static void convertColor(Color color, float[] out) {
+	private static void convertColor(ORColor color, float[] out) {
 		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;
@@ -395,7 +395,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	 * @param ratio blend ratio. 0 = full color 1, 0.5 = mid-blend, 1 = full color 2
 	 * @return blended color
 	 */
-	private static Color blendColors(Color color1, Color color2, double ratio) {
+	private static ORColor blendColors(ORColor color1, ORColor color2, double ratio) {
 		if (ratio < 0 || ratio > 1) {
 			throw new IllegalArgumentException("Blend ratio must be between 0 and 1");
 		}
@@ -407,7 +407,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		int b = (int) ((color1.getBlue() * inverseRatio) + (color2.getBlue() * ratio));
 		int a = (int) ((color1.getAlpha() * inverseRatio) + (color2.getAlpha() * ratio));
 
-		return new Color(r, g, b, a);
+		return new ORColor(r, g, b, a);
 	}
 
 	private void draw(final GLAutoDrawable drawable, float dx, boolean useFakeTransparencyRendering) {
@@ -442,7 +442,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		// artificially by blending the sky color with white (= color that is rendered as transparent background)
 		if (useFakeTransparencyRendering && !Application.getPreferences().getBoolean(
 				Preferences.OPENGL_USE_FBO, false)) {
-			convertColor(blendColors(p.getSkyColor(), new Color(255, 255, 255, 0), 1-p.getSkyColorOpacity()),
+			convertColor(blendColors(p.getSkyColor(), new ORColor(255, 255, 255, 0), 1-p.getSkyColorOpacity()),
 					color);
 		} else {
 			convertColor(p.getSkyColor(), color);

@@ -172,8 +172,8 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		this.autoRadius = false;
 		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.autoRadius = false;
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
 			this.outerRadius = outerDiameter / 2.0;
 			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
@@ -328,8 +328,15 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius())) / 2;
 	}
 	
-	
-	
+	@Override
+	public double getComponentWetArea() {
+		return Math.PI * getOuterRadius() * 2 * getLength();
+	}
+
+	@Override
+	public double getComponentPlanformArea() {
+		return getOuterRadius() * 2 * getLength();
+	}
 	
 	/**
 	 * Helper function for cylinder volume.
@@ -549,5 +556,20 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 		super.clearConfigListeners();
 		// The motor config also has listeners, so clear them as well
 		getDefaultMotorConfig().clearConfigListeners();
+	}
+
+	/**
+	 * The first time we add a TubeFinSet to the component tree, inherit the tube thickness from
+	 * the parent body tube
+	 */
+	@Override
+	public final void addChild(RocketComponent component, int index, boolean trackStage) {
+		super.addChild(component, index, trackStage);
+		if (component instanceof TubeFinSet) {
+			TubeFinSet finset = (TubeFinSet) component;
+			if (Double.isNaN(finset.getThickness())) {
+				finset.setThickness(getThickness());
+			}
+		}
 	}
 }

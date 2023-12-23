@@ -3,10 +3,12 @@ package net.sf.openrocket.simulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
@@ -14,6 +16,7 @@ import net.sf.openrocket.util.WorldCoordinate;
 
 public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(AbstractEulerStepper.class);
+	private static final Translator trans = Application.getTranslator();
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
 
@@ -46,12 +49,15 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
 		double dragForce = getCD() * dynP * status.getConfiguration().getReferenceArea();
 
-		// n.b. this is constant, and could be calculated once at the beginning of this simulation branch...
 		double rocketMass = calculateStructureMass(status).getMass();
 		double motorMass = calculateMotorMass(status).getMass();
 		
 		double mass = rocketMass + motorMass;
 
+		if (mass < MathUtil.EPSILON) {
+			throw new SimulationException(trans.get("SimulationStepper.error.totalMassZero"));
+		}
+		
 		// Compute drag acceleration
 		Coordinate linearAcceleration;
 		if (airSpeed.length() > 0.001) {
@@ -120,7 +126,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 		// Store data
 		FlightDataBranch data = status.getFlightData();
-		boolean extra = status.getSimulationConditions().isCalculateExtras();
 		data.addPoint();
 		
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
@@ -129,24 +134,23 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 
 		airSpeed = status.getRocketVelocity().add(windSpeed);
-		if (extra) {
-			data.setValue(FlightDataType.TYPE_POSITION_XY,
-					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-			data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
-			
-			data.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-			data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-					MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
-			
-			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
-			
-			double Re = airSpeed.length() *
-					status.getConfiguration().getLengthAerodynamic() /
-					atmosphere.getKinematicViscosity();
-			data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
-		}
+
+		data.setValue(FlightDataType.TYPE_POSITION_XY,
+					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
+		data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
+					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
+		
+		data.setValue(FlightDataType.TYPE_VELOCITY_XY,
+					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
+		data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
+					  MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+		
+		data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
+		
+		double Re = airSpeed.length() *
+			status.getConfiguration().getLengthAerodynamic() /
+			atmosphere.getKinematicViscosity();
+		data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		
 
 		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());

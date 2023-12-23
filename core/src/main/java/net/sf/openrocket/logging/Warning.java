@@ -2,6 +2,7 @@ package net.sf.openrocket.logging;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.UnitGroup;
@@ -18,7 +19,7 @@ public abstract class Warning extends Message {
 	 * @return a Warning with the specific text.
 	 */
 	public static Warning fromString(String text) {
-		return new Other(text);
+		return new Warning.Other(text);
 	}
 
 
@@ -32,7 +33,7 @@ public abstract class Warning extends Message {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static class LargeAOA extends Warning {
-		private final double aoa;
+		private double aoa;
 		
 		/**
 		 * Sole constructor.  The argument is the AOA that caused this warning.
@@ -44,7 +45,7 @@ public abstract class Warning extends Message {
 		}
 		
 		@Override
-		public String toString() {
+		public String getMessageDescription() {
 			if (Double.isNaN(aoa))
 				//// Large angle of attack encountered.
 				return trans.get("Warning.LargeAOA.str1");
@@ -63,6 +64,18 @@ public abstract class Warning extends Message {
 				return true;
 			return (o.aoa > this.aoa);
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			return super.equals(o) && Double.compare(((LargeAOA) o).aoa, aoa) == 0;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			LargeAOA clone = (LargeAOA) super.clone();
+			clone.aoa = this.aoa;
+			return clone;
+		}
 	}
 	
 	/**
@@ -71,7 +84,7 @@ public abstract class Warning extends Message {
 	 * @author Craig Earls <enderw88@gmail.com>
 	 */
 	public static class HighSpeedDeployment extends Warning {
-		private final double recoverySpeed;
+		private double recoverySpeed;
 		
 		/**
 		 * Sole constructor.  The argument is the speed that caused this warning.
@@ -83,7 +96,7 @@ public abstract class Warning extends Message {
 		}
 		
 		@Override
-		public String toString() {
+		public String getMessageDescription() {
 			if (Double.isNaN(recoverySpeed)) {
 				return trans.get("Warning.RECOVERY_HIGH_SPEED");
 			}
@@ -94,6 +107,18 @@ public abstract class Warning extends Message {
 		public boolean replaceBy(Message other) {
 			return false;
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			return super.equals(o) && Double.compare(((HighSpeedDeployment) o).recoverySpeed, recoverySpeed) == 0;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			HighSpeedDeployment clone = (HighSpeedDeployment) super.clone();
+			clone.recoverySpeed = this.recoverySpeed;
+			return clone;
+		}
 	}
 
 	/**
@@ -101,7 +126,7 @@ public abstract class Warning extends Message {
 	 *
 	 */
 	public static class EventAfterLanding extends Warning {
-		private final FlightEvent event;
+		private FlightEvent event;
 		
 		/**
 		 * Sole constructor.  The argument is an event which has occurred after landing
@@ -121,13 +146,20 @@ public abstract class Warning extends Message {
 		
 
 		@Override
-		public String toString() {
+		public String getMessageDescription() {
 			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
 		}
 
 		@Override
 		public boolean replaceBy(Message other) {
 			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			EventAfterLanding clone = (EventAfterLanding) super.clone();
+			clone.event = this.event;
+			return clone;
 		}
 	}
 	
@@ -142,7 +174,7 @@ public abstract class Warning extends Message {
 		private double delay = Double.NaN;
 		
 		@Override
-		public String toString() {
+		public String getMessageDescription() {
 			String str = "No motor with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
@@ -281,7 +313,23 @@ public abstract class Warning extends Message {
 				return false;
 			if (type != other.type)
 				return false;
+			if (!sourcesEqual(other.getSources(), this.getSources())) {
+				return false;
+			}
 			return true;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			MissingMotor clone = (MissingMotor) super.clone();
+			clone.type = this.type;
+			clone.manufacturer = this.manufacturer;
+			clone.designation = this.designation;
+			clone.digest = this.digest;
+			clone.diameter = this.diameter;
+			clone.length = this.length;
+			clone.delay = this.delay;
+			return clone;
 		}
 		
 	}
@@ -295,24 +343,20 @@ public abstract class Warning extends Message {
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static class Other extends Warning {
-		private final String description;
+		private String description;
 		
 		public Other(String description) {
 			this.description = description;
 		}
 		
 		@Override
-		public String toString() {
+		public String getMessageDescription() {
 			return description;
 		}
 		
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof Other))
-				return false;
-			
-			Other o = (Other) other;
-			return (o.description.equals(this.description));
+			return super.equals(other) && description.equals(((Other) other).description);
 		}
 		
 		@Override
@@ -323,6 +367,13 @@ public abstract class Warning extends Message {
 		@Override
 		public boolean replaceBy(Message other) {
 			return false;
+		}
+
+		@Override
+		protected Object clone() throws CloneNotSupportedException {
+			Other clone = (Other) super.clone();
+			clone.description = this.description;
+			return clone;
 		}
 	}
 	
@@ -386,7 +437,13 @@ public abstract class Warning extends Message {
 	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"));
 	public static final Warning TUBE_OVERLAP = new Other(trans.get("Warning.TUBE_OVERLAP"));
 
+	public static final Warning OBJ_ZERO_THICKNESS = new Other(trans.get("Warning.OBJ_ZERO_THICKNESS"));
+
+	/** A <code>Warning</code> that stage separation occurred at other than the last stage */
 	public static final Warning SEPARATION_ORDER = new Other(trans.get("Warning.SEPARATION_ORDER"));
+
+	/** A <code>Warning</code> that stage separation occurred before the rocket cleared the launch rod or rail */
+	public static final Warning EARLY_SEPARATION = new Other(trans.get("Warning.EARLY_SEPARATION"));
 
 	public static final Warning EMPTY_BRANCH = new Other(trans.get("Warning.EMPTY_BRANCH"));
 }

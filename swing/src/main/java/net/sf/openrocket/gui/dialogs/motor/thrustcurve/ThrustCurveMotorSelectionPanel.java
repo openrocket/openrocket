@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -45,6 +44,8 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.sf.openrocket.gui.plot.Util;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.util.StateChangeListener;
 import org.jfree.chart.ChartColor;
 import org.slf4j.Logger;
@@ -109,6 +110,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotor selectedMotor;
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
+
+	private static Color dimTextColor;
+
+	static {
+		initColors();
+	}
 
 	public ThrustCurveMotorSelectionPanel( final FlightConfigurationId fcid, MotorMount mount ) {
 		this();
@@ -332,11 +339,10 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Number of motors
 		{
-			nrOfMotorsLabel = new JLabel();
+			nrOfMotorsLabel = new StyledLabel(-2f, StyledLabel.Style.ITALIC);
 			nrOfMotorsLabel.setToolTipText(trans.get("TCMotorSelPan.lbl.ttip.nrOfMotors"));
 			updateNrOfMotors();
-			nrOfMotorsLabel.setForeground(Color.darkGray);
-			nrOfMotorsLabel.setFont(new Font(Font.SANS_SERIF, Font.ITALIC, 11));
+			nrOfMotorsLabel.setForeground(dimTextColor);
 			panel.add(nrOfMotorsLabel, "gapleft para, spanx, wrap");
 			sorter.addRowSorterListener(new RowSorterListener() {
 				@Override
@@ -398,6 +404,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		hideUnavailableBox.getActionListeners()[0].actionPerformed(null);
 		hideSimilarBox.getActionListeners()[0].actionPerformed(null);
 
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ThrustCurveMotorSelectionPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 
 	public void setMotorMountAndConfig( final FlightConfigurationId _fcid,  MotorMount mountToEdit ) {
@@ -594,7 +609,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 
 	public static Color getColor(int index) {
-		return (Color) CURVE_COLORS[index % CURVE_COLORS.length];
+		Color color = Util.getPlotColor(index);
+		if (UITheme.isLightTheme(GUIUtil.getUITheme())) {
+			return color;
+		} else {
+			return color.brighter().brighter();
+		}
 	}
 
 
@@ -732,16 +752,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		public Component getListCellRendererComponent(JList<? extends MotorHolder> list, MotorHolder value, int index,
 				boolean isSelected, boolean cellHasFocus) {
 
-			Component c = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value instanceof MotorHolder) {
-				MotorHolder m = (MotorHolder) value;
-				c.setForeground(getColor(m.getIndex()));
+			JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (value != null) {
+				Color color = getColor(value.getIndex());
+				if (isSelected || cellHasFocus) {
+					label.setBackground(color);
+					label.setOpaque(true);
+					Color fg = list.getBackground();
+					fg = new Color(fg.getRed(), fg.getGreen(), fg.getBlue());		// List background changes for some reason, so clone the color
+					label.setForeground(fg);
+				} else {
+					label.setBackground(list.getBackground());
+					label.setForeground(color);
+				}
 			}
 
-			return c;
+			return label;
 		}
-
 	}
-
-
 }

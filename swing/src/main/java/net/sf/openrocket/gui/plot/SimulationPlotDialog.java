@@ -1,10 +1,9 @@
 package net.sf.openrocket.gui.plot;
 
+import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -26,12 +25,12 @@ import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartPanel;
@@ -44,9 +43,14 @@ import org.jfree.chart.JFreeChart;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotDialog extends JDialog {
-	
 	private static final Translator trans = Application.getTranslator();
-	
+
+	private static Color darkWarningColor;
+
+	static {
+		initColors();
+	}
+
 	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
 		//// Flight data plot
 		super(parent, simulation.getName());
@@ -77,7 +81,7 @@ public class SimulationPlotDialog extends JDialog {
 		// Add warning if X axis type is not time
 		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
 			JLabel msg = new StyledLabel(trans.get("PlotDialog.lbl.timeSeriesWarning"), -2);
-			msg.setForeground(Color.DARK_RED.toAWTColor());
+			msg.setForeground(darkWarningColor);
 			panel.add(msg, "wrap");
 		}
 		
@@ -159,7 +163,7 @@ public class SimulationPlotDialog extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				doPngExport(chartPanel,jChart);
+				doPNGExport(chartPanel,jChart);
 			}
 		});
 		panel.add(button, "gapleft rel");
@@ -182,7 +186,16 @@ public class SimulationPlotDialog extends JDialog {
 		GUIUtil.rememberWindowPosition(this);
 	}
 
-	private boolean doPngExport(ChartPanel chartPanel, JFreeChart chart){
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SimulationPlotDialog::updateColors);
+	}
+
+	private static void updateColors() {
+		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+	}
+
+	private boolean doPNGExport(ChartPanel chartPanel, JFreeChart chart){
 		JFileChooser chooser = new SaveFileChooser();
 		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setFileFilter(FileHelper.PNG_FILTER);

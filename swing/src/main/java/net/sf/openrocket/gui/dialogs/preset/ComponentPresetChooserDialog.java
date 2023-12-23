@@ -22,8 +22,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -32,6 +36,7 @@ import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.util.TableUIPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
@@ -48,6 +53,7 @@ import net.sf.openrocket.utils.TableRowTraversalPolicy;
  */
 @SuppressWarnings("serial")
 public class ComponentPresetChooserDialog extends JDialog {
+	private static final String TABLE_ID = "CmpPrst.";
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -150,10 +156,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 		// need to create componentSelectionTable before filter checkboxes,
 		// but add to panel after
 		componentSelectionTable = new ComponentPresetTable(presetType, presets, displayedColumnKeys);
-		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
+
+		// Make the first column (the favorite column) as small as possible
 		int w = componentSelectionTable.getRowHeight() + 4;
 		XTableColumnModel tm = componentSelectionTable.getXColumnModel();
-		//TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);
 		TableColumn tc = tm.getColumn(0);
 		tc.setPreferredWidth(w);
 		tc.setMaxWidth(w);
@@ -162,7 +168,14 @@ public class ComponentPresetChooserDialog extends JDialog {
 		// The normal left/right and tab/shift-tab key action traverses each cell/column of the table instead of going to the next row.
 		TableRowTraversalPolicy.setTableRowTraversalPolicy(componentSelectionTable);
 
+		// Add checkboxes (legacy, match fore diameter, ...)
 		panel.add(getFilterCheckboxes(tm, legacyColumnIndex), "wrap para");
+
+		// Load the table UI settings from the preferences
+		boolean legacySelected = showLegacyCheckBox.isSelected();
+		TableUIPreferences.loadTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
+				preferences.getTablePreferences());
+		showLegacyCheckBox.setSelected(legacySelected);		// Restore legacy state (may change during UI preference loading)
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
@@ -198,6 +211,8 @@ public class ComponentPresetChooserDialog extends JDialog {
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				TableUIPreferences.storeTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
+						preferences.getTablePreferences());
 				ComponentPresetChooserDialog.this.setVisible(false);
 				applySelectedPreset();
 			}
@@ -210,7 +225,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 		GUIUtil.rememberWindowSize(this);
 		this.setLocationByPlatform(true);
 		GUIUtil.rememberWindowPosition(this);
-		GUIUtil.rememberTableColumnWidths(componentSelectionTable, "Presets" + component.getClass().getCanonicalName());
 
 		updateFilters();
 	}
@@ -245,12 +259,54 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(showLegacyCheckBox, "wrap");
 		
 		showLegacyCheckBox.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					updateFilters();
-					tm.setColumnVisible(legacyColumn, showLegacyCheckBox.isSelected());
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				boolean selected = e != null && e.getStateChange() == ItemEvent.SELECTED;
+				if (tm.isColumnVisible(legacyColumn) == selected) {
+					// No change
+					return;
 				}
-			});			
+
+				updateFilters();
+
+				tm.setColumnVisible(legacyColumn, selected);
+
+				if (selected) {
+					// Let's say the optimal width is 100 (you can adjust this as needed)
+					int optimalWidth = 50;
+					legacyColumn.setPreferredWidth(optimalWidth);
+				}
+			}
+		});
+
+		// When the legacy column changes visibility (by right-clicking on the column header and toggling the legacy header checkbox),
+		// update the main legacy checkbox
+		tm.addColumnModelListener(new TableColumnModelListener() {
+			@Override
+			public void columnAdded(TableColumnModelEvent e) {
+				TableColumn column = tm.getColumn(e.getToIndex());
+				if (column == legacyColumn) {
+					showLegacyCheckBox.setSelected(true);
+				}
+			}
+
+			@Override
+			public void columnRemoved(TableColumnModelEvent e) {
+				// Use 'getFromIndex' since the column has been removed
+				if (e.getFromIndex() == legacyColumnIndex) {
+					showLegacyCheckBox.setSelected(false);
+				}
+			}
+
+			@Override
+			public void columnMoved(TableColumnModelEvent e) {}
+
+			@Override
+			public void columnMarginChanged(ChangeEvent e) {}
+
+			@Override
+			public void columnSelectionChanged(ListSelectionEvent e) {}
+		});
 		
 		if(component instanceof SymmetricComponent) {
 			final SymmetricComponent curSym = (SymmetricComponent) component;

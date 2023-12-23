@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -21,6 +20,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.gui.main.FlightConfigurationPanel;
@@ -47,8 +47,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	private final JPopupMenu popupMenuFull;		// popup menu containing all the options
 
 
-	public SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(flightConfigurationPanel,rocket);
+	public SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, OpenRocketDocument document, Rocket rocket) {
+		super(flightConfigurationPanel, document, rocket);
 		
 		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "span, grow, pushy, wrap");
@@ -180,41 +180,47 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 			return;
 		}
 
-		boolean update = false;
-		AxialStage initStage = stages.get(0);
+		AxialStage initStage = stages.get(0);			// Arbitrary choice of stage (all stages should have the same settings due to multi-comp editing)
 		FlightConfigurationId initFcId = fcIds.get(0);
 
+		// Store the initial configuration so we can check later whether something changed
 		StageSeparationConfiguration initialConfig = initStage.getSeparationConfigurations().get(initFcId).copy(initFcId);
-		JDialog d = new SeparationSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initStage);
+
+		document.addUndoPosition("Select separation");
+
+		// Launch the separation config dialog
+		SeparationSelectionDialog d = new SeparationSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, initStage, initFcId);
 		d.setVisible(true);
 
-		if (!initialConfig.equals(initStage.getSeparationConfigurations().get(initFcId))) {
-			update = true;
-		}
+		final StageSeparationConfiguration modifiedConfig = initStage.getSeparationConfigurations().get(initFcId);
+		boolean update = !initialConfig.equals(modifiedConfig);
 
 		double separationDelay = initStage.getSeparationConfigurations().get(initFcId).getSeparationDelay();
 		SeparationEvent separationEvent= initStage.getSeparationConfigurations().get(initFcId).getSeparationEvent();
+		boolean isOverrideDefault = d.isOverrideDefault();
 
-		for (int i = 0; i < stages.size(); i++) {
-			for (int j = 0; j < fcIds.size(); j++) {
-				if ((i == 0) && (j == 0)) break;
+		// Parse all stages and flight configurations to check whether we need to update
+		for (AxialStage stage : stages) {
+			for (FlightConfigurationId fcId : fcIds) {
+				if ((stage == initStage) && (fcId == initFcId))
+					continue;
 
-				final AxialStage stage = stages.get(i);
-				final FlightConfigurationId fcId = fcIds.get(j);
-				StageSeparationConfiguration config = stage.getSeparationConfigurations().get(fcId);
-				initialConfig = config.copy(fcId);
-
-				if (stage.getSeparationConfigurations().isDefault(config)) {
-					config = config.clone();
+				// It could be that the current config is the default config, but the user has selected to override it.
+				if (isOverrideDefault && !stage.getSeparationConfigurations().containsId(fcId)) {
+					stage.getSeparationConfigurations().set(fcId, stage.getSeparationConfigurations().getDefault().clone());
 				}
 
-				config.setSeparationDelay(separationDelay);
-				config.setSeparationEvent(separationEvent);
-				stage.getSeparationConfigurations().set(fcId, config);
+				StageSeparationConfiguration currentConfig = stage.getSeparationConfigurations().get(fcId);
 
-				if (!initialConfig.equals(config)) {
-					update = true;
+				if (currentConfig.equals(modifiedConfig)) {
+					continue;
 				}
+
+				update = true;
+
+				currentConfig.setSeparationDelay(separationDelay);
+				currentConfig.setSeparationEvent(separationEvent);
+				stage.getSeparationConfigurations().set(fcId, currentConfig);
 			}
 		}
 
@@ -231,6 +237,8 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		if ((stages == null) || (fcIds == null) || (stages.size() == 0) || (fcIds.size() == 0)) {
 			return;
 		}
+
+		document.addUndoPosition("Reset separation");
 
 		boolean update = false;
 		for (AxialStage stage : stages) {

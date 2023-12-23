@@ -25,6 +25,8 @@ public class TubeFinSetCalc extends TubeCalc {
 	
 	private static final double STALL_ANGLE = (20 * Math.PI / 180);
 	private final double[] poly = new double[6];
+
+	private final TubeFinSet tubes;
 	
 	// parameters straight from configuration; we'll be grabbing them once
 	// so code is a bit shorter elsewhere
@@ -44,14 +46,14 @@ public class TubeFinSetCalc extends TubeCalc {
 	private final double cnaconst;
 		
 	protected final WarningSet geometryWarnings = new WarningSet();
-	
+
 	public TubeFinSetCalc(RocketComponent component) {
 		super(component);
 		if (!(component instanceof TubeFinSet)) {
 			throw new IllegalArgumentException("Illegal component type " + component);
 		}
 		
-		final TubeFinSet tubes = (TubeFinSet) component;
+		tubes = (TubeFinSet) component;
 
 		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
 			geometryWarnings.add(Warning.TUBE_SEPARATION);
@@ -75,37 +77,53 @@ public class TubeFinSetCalc extends TubeCalc {
 
 		// aspect ratio.
 		ar = 2 * innerRadius / chord;
+
+
+		// Some trigonometry...
+		// We need a triangle with the following three sides:
+		// d is from the center of the body tube to a tangent point on the tube fin
+		// outerRadius is from the center of the tube fin to the tangent point.  Note that
+		//     d and outerRadius are at right angles
+		// bodyRadius + outerRadius is from the center of the body tube to the center of the tube fin.
+		//     This is the hypotenuse of the right triangle.
+		
+		// Find length of d
+		final double d = Math.sqrt(MathUtil.pow2(bodyRadius + outerRadius) - MathUtil.pow2(outerRadius));
+
+		// Area of diamond formed by mirroring triangle on its hypotenuse (same area as rectangle
+		// formed by d and outerarea, but it *isn't* that rectangle)
+		double a = d * outerRadius;
+
+		// angle between outerRadius and bodyRadius+outerRadius
+		final double theta1 = Math.acos(outerRadius/(outerRadius + bodyRadius));
+		
+		// area of arc from tube fin, doubled to get both halves of diamond
+		final double a1 = MathUtil.pow2(outerRadius) * theta1;
+		
+		// angle between bodyRadius+outerRadius and d
+		final double theta2 = Math.PI/2.0 - theta1;
+		
+		// area of arc from body tube.  Doubled so we have area to remove from diamond
+		final double a2 = MathUtil.pow2(bodyRadius) * theta2;
+
+		// area of interstice for one tube fin
+		intersticeArea = (a - a1 - a2);
+		
+		// for comparison, what's the area of a tube fin?
+		double tubeArea = MathUtil.pow2(outerRadius) * Math.PI;
 		
 		// wetted area for friction drag calculation.  We don't consider the inner surface of the tube;
 		// that affects the pressure drop through the tube and so (indirecctly) affects the pressure drag.
 			
-		// Area of the outer surface of tubes.  Since roughly half
-		// of the area is "masked" by the interstices between the tubes and the
-		// body tube, only consider the other half of the area (so only multiplying by pi instead of 2*pi)
-		final double outerArea = chord * Math.PI * outerRadius;
+		// Area of the outer surface of a tube, not including portion masked by interstice
+		final double outerArea = chord * 2.0 * (Math.PI - theta1) * outerRadius;
 			
-		// Surface area of the portion of the body tube masked by the tube fins, per tube
-		final BodyTube parent = (BodyTube) tubes.getParent();
-		final double maskedArea = chord * 2.0 * Math.PI * bodyRadius / tubeCount;
+		// Surface area of the portion of the body tube masked by the tube fin.  We'll subtract it from
+		// the tube fin area rather than go in and change the body tube surface area calculation. If tube
+		// fin and body tube roughness aren't the same this will result in an inaccuracy.
+		final double maskedArea = chord * 2.0 * theta2 * bodyRadius;
 		
 		wettedArea = outerArea - maskedArea;
-		log.debug("wetted area of tube fins " + wettedArea);
-
-		// frontal area of interstices between tubes for pressure drag calculation.
-		// We'll treat them as a closed blunt object.
-
-		// area of disk passing through tube fin centers
-		final double tubeDiskArea = Math.PI * MathUtil.pow2(bodyRadius + outerRadius);
-
-		// half of combined area of tube fin exteriors.  Deliberately using the outer radius here since we
-		// calculate pressure drag from the tube walls in TubeCalc
-		final double tubeOuterArea = tubeCount * Math.PI * MathUtil.pow2(outerRadius) / 2.0;
-
-		// body tube area
-		final double bodyTubeArea = Math.PI * MathUtil.pow2(bodyRadius);
-
-		// area of an interstice
-		intersticeArea = (tubeDiskArea - tubeOuterArea - bodyTubeArea) / tubeCount;
 
 		// Precompute most of CNa.  Equation comes from Ribner, "The ring airfoil in nonaxial
 		// flow", Journal of the Aeronautical Sciences 14(9) pp 529-530 (1947) equation (5).
@@ -246,10 +264,8 @@ public class TubeFinSetCalc extends TubeCalc {
 
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
-		warnings.addAll(geometryWarnings);
+		final double frictionCD = componentCf * wettedArea / conditions.getRefArea();
 
-		final double frictionCD =  componentCf * wettedArea / conditions.getRefArea();
-		
 		return frictionCD;
 	}
 
@@ -258,18 +274,10 @@ public class TubeFinSetCalc extends TubeCalc {
 					  double stagnationCD, double baseCD, WarningSet warnings) {
 		
 	    warnings.addAll(geometryWarnings);
+						    
 		final double cd = super.calculatePressureCD(conditions, stagnationCD, baseCD, warnings) +
-			(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
-	    
+					(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
+
 	    return cd;
-		}
-	
-	private static int calculateInterferenceFinCount(TubeFinSet component) {
-		RocketComponent parent = component.getParent();
-		if (parent == null) {
-			throw new IllegalStateException("fin set without parent component");
-		}
-		
-		return 3 * component.getFinCount();
 	}
 }

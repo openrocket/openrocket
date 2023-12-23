@@ -45,14 +45,14 @@ import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
 
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9" };
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
@@ -113,8 +113,10 @@ class DocumentConfig {
 		// RocketComponent
 		setters.put("RocketComponent:name", new StringSetter(
 				Reflection.findMethod(RocketComponent.class, "setName", String.class)));
+		setters.put("RocketComponent:id", new StringSetter(
+				Reflection.findMethod(RocketComponent.class, "setID", String.class)));
 		setters.put("RocketComponent:color", new ColorSetter(
-				Reflection.findMethod(RocketComponent.class, "setColor", Color.class)));
+				Reflection.findMethod(RocketComponent.class, "setColor", ORColor.class)));
 		setters.put("RocketComponent:linestyle", new EnumSetter<LineStyle>(
 				Reflection.findMethod(RocketComponent.class, "setLineStyle", LineStyle.class),
 				LineStyle.class));
@@ -232,7 +234,8 @@ class DocumentConfig {
 				false));
 		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
-				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class)));
+				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class, boolean.class),
+				null, null, false));
 		setters.put("Transition:foreshoulderlength", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeShoulderLength", double.class)));
 		setters.put("Transition:foreshoulderthickness", new DoubleSetter(
@@ -241,7 +244,8 @@ class DocumentConfig {
 				Reflection.findMethod(Transition.class, "setForeShoulderCapped", boolean.class)));
 		
 		setters.put("Transition:aftshoulderradius", new DoubleSetter(
-				Reflection.findMethod(Transition.class, "setAftShoulderRadius", double.class)));
+				Reflection.findMethod(Transition.class, "setAftShoulderRadius", double.class, boolean.class),
+				null, null, false));
 		setters.put("Transition:aftshoulderlength", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setAftShoulderLength", double.class)));
 		setters.put("Transition:aftshoulderthickness", new DoubleSetter(

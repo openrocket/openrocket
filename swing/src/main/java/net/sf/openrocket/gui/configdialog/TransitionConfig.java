@@ -83,7 +83,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			this.shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
 			panel.add(shapeLabel);
 
-			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter");
+			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
 
 			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));

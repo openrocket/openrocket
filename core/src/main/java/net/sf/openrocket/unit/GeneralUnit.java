@@ -7,6 +7,7 @@ public class GeneralUnit extends Unit {
 	@SuppressWarnings("unused")
 	private final int significantNumbers;
 	private final int decimalRounding;
+	private final double stepValue;
 	
 	// Values smaller that this are rounded using decimal rounding
 	// [pre-calculated as 10^(significantNumbers-1)]
@@ -23,14 +24,19 @@ public class GeneralUnit extends Unit {
 	public GeneralUnit(double multiplier, String unit, int significantNumbers) {
 		this(multiplier, unit, significantNumbers, 10);
 	}
-	
+
 	public GeneralUnit(double multiplier, String unit, int significantNumbers, int decimalRounding) {
+		this(multiplier, unit, significantNumbers, decimalRounding, 1.0);
+	}
+	
+	public GeneralUnit(double multiplier, String unit, int significantNumbers, int decimalRounding, double stepValue) {
 		super(multiplier, unit);
 		assert(significantNumbers>0);
 		assert(decimalRounding>0);
 		
 		this.significantNumbers = significantNumbers;
 		this.decimalRounding = decimalRounding;
+		this.stepValue = stepValue;
 		
 		double d=1;
 		double e=10;
@@ -188,13 +194,13 @@ public class GeneralUnit extends Unit {
 	@Override
 	public double getNextValue(double value) {
 		// TODO: HIGH: Auto-generated method stub
-		return value+1;
+		return value + stepValue;
 	}
 
 	@Override
 	public double getPreviousValue(double value) {
 		// TODO: HIGH: Auto-generated method stub
-		return value-1;
+		return value - stepValue;
 	}
 	
 	

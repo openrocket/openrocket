@@ -7,8 +7,17 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
+import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
+import net.sf.openrocket.aerodynamics.AerodynamicForces;
+import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
+import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
+import net.sf.openrocket.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +31,6 @@ import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
-import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.ComponentChangeAdapter;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Invalidator;
@@ -91,8 +99,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected Coordinate position = new Coordinate();
 
-	// Color of the component, null means to use the default color
-	private Color color = null;
+	// ORColor of the component, null means to use the default color
+	private ORColor color = null;
 	private LineStyle lineStyle = null;
 	
 	
@@ -408,7 +416,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			checkState();
 			RocketComponent clone;
 			try {
-				clone = (RocketComponent) this.clone();
+				clone = this.clone();
+				clone.id = this.id;
 			} catch (CloneNotSupportedException e) {
 				throw new BugException("CloneNotSupportedException encountered, report a bug!", e);
 			}
@@ -511,7 +520,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Return the color of the object to use in 2D figures, or <code>null</code>
 	 * to use the default color.
 	 */
-	public final Color getColor() {
+	public final ORColor getColor() {
 		mutex.verify();
 		return color;
 	}
@@ -519,7 +528,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Set the color of the object to use in 2D figures.
 	 */
-	public final void setColor(Color c) {
+	public final void setColor(ORColor c) {
 		for (RocketComponent listener : configListeners) {
 			listener.setColor(c);
 		}
@@ -562,6 +571,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getOverrideMass() {
 		mutex.verify();
+		if (!isMassOverridden()) {
+			overrideMass = getComponentMass();
+		}
 		return overrideMass;
 	}
 	
@@ -612,6 +624,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		massOverridden = o;
+
+		// If mass not overridden, set override mass to the component mass
+		if (!massOverridden) {
+			overrideMass = getComponentMass();
+		}
+
 		updateChildrenMassOverriddenBy();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -627,6 +645,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final Coordinate getOverrideCG() {
 		mutex.verify();
+		if (!isCGOverridden()) {
+			overrideCGX = getComponentCG().x;
+		}
 		return getComponentCG().setX(overrideCGX);
 	}
 	
@@ -637,6 +658,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getOverrideCGX() {
 		mutex.verify();
+		if (!isCGOverridden()) {
+			overrideCGX = getComponentCG().x;
+		}
 		return overrideCGX;
 	}
 	
@@ -687,10 +711,53 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		checkState();
 		cgOverridden = o;
+
+		// If CG not overridden, set override CG to the component CG
+		if (!cgOverridden) {
+			overrideCGX = getComponentCG().x;
+		}
+
 		updateChildrenCGOverriddenBy();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
+	/**
+	 * Calculates and returns the CD of the component.
+	 * TODO: LOW: should this value be cached instead of recalculated every time?
+	 * @param AOA angle of attack to use in the calculations (in radians)
+	 * @param theta wind direction to use in the calculations (in radians)
+	 * @param mach mach number to use in the calculations
+	 * @param rollRate roll rate to use in the calculations (in radians per second)
+	 * @return the CD of the component
+	 */
+	public double getComponentCD(double AOA, double theta, double mach, double rollRate) {
+		Rocket rocket;
+		try {
+			rocket = getRocket();
+		} catch (IllegalStateException e) {
+			// This can happen due to a race condition when a loadFrom() action is performed of the rocket (after
+			// an undo operation) but the rocket is not yet fully loaded (the sustainer does not yet have the rocket as
+			// its parent => getRocket() will not return the rocket, but the sustainer). In that case, just return 0 and
+			// hope that a future call of this method will succeed.
+			return 0;
+		}
+		final FlightConfiguration configuration = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(configuration);
+		WarningSet warnings = new WarningSet();
+		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
+
+		conditions.setAOA(AOA);
+		conditions.setTheta(theta);
+		conditions.setMach(mach);
+		conditions.setRollRate(rollRate);
+
+		Map<RocketComponent, AerodynamicForces> aeroData = aerodynamicCalculator.getForceAnalysis(configuration, conditions, warnings);
+		AerodynamicForces forces = aeroData.get(this);
+		if (forces != null) {
+			return forces.getCD();
+		}
+		return 0;
+	}
 
 	/** Return the current override CD. The CD is not necessarily overridden.
 	 * 
@@ -698,6 +765,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final double getOverrideCD() {
 		mutex.verify();
+		if (!isCDOverridden()) {
+			Preferences preferences = Application.getPreferences();
+			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
+		}
 		return overrideCD;
 	}
 
@@ -749,7 +820,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			listener.setCDOverridden(o);
 		}
 
-		if(cdOverridden == o) {
+		if (cdOverridden == o) {
 			return;
 		}
 		checkState();
@@ -762,6 +833,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// also not overriding our descendants
 		if (isSubcomponentsOverriddenCD()) {
 			overrideSubcomponentsCD(o);
+		}
+
+		if (!cdOverridden) {
+			Preferences preferences = Application.getPreferences();
+			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 		
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
@@ -779,7 +855,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Return whether the mass and/or CG override overrides all subcomponent values
+	 * Return whether the mass override overrides all subcomponent values
 	 * as well.  The default implementation is a normal getter/setter implementation,
 	 * however, subclasses are allowed to override this behavior if some subclass
 	 * always or never overrides subcomponents.  In this case the subclass should
@@ -793,7 +869,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return overrideSubcomponentsMass;
 	}
 
-	// TODO: delete when compatibility with OR 15.03 is not needed anymore
+	// For compatibility with files created with 15.03
 	public void setSubcomponentsOverridden(boolean override) {
 		setSubcomponentsOverriddenMass(override);
 		setSubcomponentsOverriddenCG(override);
@@ -802,10 +878,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Set whether the mass and/or CG override overrides all subcomponent values
+	 * Set whether the mass override overrides all subcomponent values
 	 * as well.  See {@link #isSubcomponentsOverriddenMass()} for details.
 	 *
-	 * @param override	whether the mass and/or CG override overrides all subcomponent.
+	 * @param override	whether the mass override overrides all subcomponent.
 	 */
 	public void setSubcomponentsOverriddenMass(boolean override) {
 		for (RocketComponent listener : configListeners) {
@@ -840,10 +916,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 
 	/**
-	 * Set whether the mass and/or CG override overrides all subcomponent values
+	 * Set whether the CG override overrides all subcomponent values
 	 * as well.  See {@link #isSubcomponentsOverriddenCG()} for details.
 	 *
-	 * @param override	whether the mass and/or CG override overrides all subcomponent.
+	 * @param override	whether the CG override overrides all subcomponent.
 	 */
 	public void setSubcomponentsOverriddenCG(boolean override) {
 		for (RocketComponent listener : configListeners) {
@@ -1206,8 +1282,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.verify();
 		this.id = UniqueID.uuid();
 	}
-	
-	
+
+	/**
+	 * Set the ID for this component.
+	 * Generally not recommended to directly set the ID, this is done automatically. Only use this in case you have to.
+	 * @param newID new ID
+	 */
+	public void setID(String newID) {
+		mutex.verify();
+		this.id = newID;
+	}
 	
 	
 	/**
@@ -1467,12 +1551,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * NOTE: the length of this array MAY OR MAY NOT EQUAL this.getInstanceCount()
      *    --> RocketComponent::getInstanceCount() counts how many times this component replicates on its own
-     *    --> vs. the total instance count due to parent assembly instancing
+     *    --> vs. the total instance count due to parent assembly instancing, e.g. a 2-instance rail button in a
+	 *        3-instance pod set will return 6 locations, not 2
      *
 	 * @return Coordinates of all instance locations in the rocket, relative to the rocket's origin
 	 */
 	public Coordinate[] getComponentLocations() {
-		if (null == this.parent) {
+		if (this.parent == null) {
 			// == improperly initialized components OR the root Rocket instance 
 			return getInstanceOffsets();
 		} else {
@@ -1484,14 +1569,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			int instanceCount = instanceLocations.length;
 			
 			// usual case optimization
-			if((1 == parentCount)&&(1 == instanceCount)){
+			if ((parentCount == 1) && (instanceCount == 1)) {
 				return new Coordinate[]{parentPositions[0].add(instanceLocations[0])};
 			}
 			
-			int thisCount = instanceCount*parentCount;
+			int thisCount = instanceCount * parentCount;
 			Coordinate[] thesePositions = new Coordinate[thisCount];
 			for (int pi = 0; pi < parentCount; pi++) {
-				for( int ii = 0; ii < instanceCount; ii++ ){
+				for (int ii = 0; ii < instanceCount; ii++) {
 					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(instanceLocations[ii]);
 				}
 			}
@@ -1501,6 +1586,62 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	public double[] getInstanceAngles(){
 		return new double[getInstanceCount()]; 
+	}
+
+	/**
+	 * Provides angles of all instances of component *accounting for all parent instancing*
+	 *
+	 * <p>
+	 * NOTE: the length of this array MAY OR MAY NOT EQUAL this.getInstanceCount()
+	 *    --> RocketComponent::getInstanceCount() counts how many times this component replicates on its own
+	 *    --> vs. the total instance count due to parent assembly instancing, e.g. a 2-instance rail button in a
+	 *        3-instance pod set will return 6 locations, not 2
+	 *
+	 * @return Coordinates of all instance angles in the rocket, relative to the rocket's origin
+	 * 				x-component = rotation around x-axis, y = around y-axis, and z around z-axis
+	 * 	  			!!! OpenRocket rotations follow left-hand rule of rotation !!!
+	 */
+	public Coordinate[] getComponentAngles() {
+		if (this.parent == null) {
+			// == improperly initialized components OR the root Rocket instance
+			return axialRotToCoord(getInstanceAngles());
+		} else {
+			Coordinate[] parentAngles = this.parent.getComponentAngles();
+			int parentCount = parentAngles.length;
+
+			// override <instance>.getInstanceAngles() in each subclass
+			Coordinate[] instanceAngles = axialRotToCoord(this.getInstanceAngles());
+			int instanceCount = instanceAngles.length;
+
+			// usual case optimization
+			if ((parentCount == 1) && (instanceCount == 1)) {
+				return new Coordinate[] {parentAngles[0].add(instanceAngles[0])};
+			}
+
+			int thisCount = instanceCount * parentCount;
+			Coordinate[] theseAngles = new Coordinate[thisCount];
+			for (int pi = 0; pi < parentCount; pi++) {
+				for (int ii = 0; ii < instanceCount; ii++) {
+					theseAngles[pi + parentCount*ii] = parentAngles[pi].add(instanceAngles[ii]);
+				}
+			}
+			return theseAngles;
+		}
+	}
+
+	/**
+	 * Converts an array of axial angles to an array of coordinates.
+	 * x-component = rotation around x-axis, y = around y-axis, and z around z-axis
+	 * 		!!! OpenRocket rotations follow left-hand rule of rotation !!!
+	 * @param angles array of axial angles
+	 * @return array of coordinates
+	 */
+	private Coordinate[] axialRotToCoord(double[] angles) {
+		Coordinate[] coords = new Coordinate[angles.length];
+		for (int i = 0; i < angles.length; i++) {
+			coords[i] = new Coordinate(angles[i], 0, 0);
+		}
+		return coords;
 	}
 	
 	///////////  Coordinate changes  ///////////
@@ -1970,6 +2111,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			children.addAll(child.getAllChildren());
 		}
 		return children;
+	}
+
+	/**
+	 * Checks whether this component contains <component> as one of its (sub-)children.
+	 * @param component component to check
+	 * @return true if component is a (sub-)child of this component
+	 */
+	public final boolean containsChild(RocketComponent component) {
+		List<RocketComponent> allChildren = getAllChildren();
+		return allChildren.contains(component);
 	}
 	
 	
@@ -2581,6 +2732,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	protected static final double ringLongitudinalUnitInertia(double outerRadius,
 			double innerRadius, double length) {
+		// axis is through center of mass
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
 		return (3 * (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius)) + MathUtil.pow2(length)) / 12;
 	}
@@ -2613,7 +2765,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected List<RocketComponent> copyFrom(RocketComponent src) {
 		checkState();
-		List<RocketComponent> toInvalidate = new ArrayList<RocketComponent>();
+		List<RocketComponent> toInvalidate = new ArrayList<>();
 		
 		if (this.parent != null) {
 			throw new UnsupportedOperationException("copyFrom called for non-root component, parent=" +

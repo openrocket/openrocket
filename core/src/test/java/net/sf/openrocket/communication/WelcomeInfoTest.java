@@ -1,6 +1,5 @@
 package net.sf.openrocket.communication;
 
-import org.junit.Test;
 import net.sf.openrocket.util.BaseTestCase;
 import org.junit.Test;
 
