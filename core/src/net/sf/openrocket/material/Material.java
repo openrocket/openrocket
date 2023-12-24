@@ -217,7 +217,7 @@ public abstract class Material implements Comparable<Material> {
 	/**
 	 * Return a material defined by the provided string.
 	 * 
-	 * @param str			the material storage string.
+	 * @param str			the material storage string, formatted as "{type}|{name}|{density}".
 	 * @param userDefined	whether the created material is user-defined.
 	 * @return				a new <code>Material</code> object.
 	 * @throws IllegalArgumentException		if <code>str</code> is invalid or null.

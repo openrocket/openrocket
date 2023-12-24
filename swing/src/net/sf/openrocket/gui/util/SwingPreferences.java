@@ -21,11 +21,13 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.communication.AssetHandler.UpdatePlatform;
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RailButton;
@@ -783,7 +785,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences impl
 	
 	
 	////  Material storage
-	
+	public void loadDefaultComponentMaterials() {
+		setDefaultComponentMaterial(FinSet.class, Databases.findMaterial(Material.Type.BULK, "Balsa"));
+		setDefaultComponentMaterial(NoseCone.class, Databases.findMaterial(Material.Type.BULK, "Polystyrene"));
+	}
 	
 	/**
 	 * Add a user-defined material to the preferences.  The preferences are

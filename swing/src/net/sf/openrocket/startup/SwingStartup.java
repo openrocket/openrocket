@@ -214,6 +214,7 @@ public class SwingStartup {
 		
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
+		((SwingPreferences) Application.getPreferences()).loadDefaultComponentMaterials();
 		
 		Databases.fakeMethod();
 
