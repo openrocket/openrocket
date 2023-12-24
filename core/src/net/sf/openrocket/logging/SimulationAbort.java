@@ -37,12 +37,12 @@ public class SimulationAbort extends Message {
 	public static final SimulationAbort NOCONFIGUREDIGNITION = new SimulationAbort(trans.get("SimulationAbort.noConfiguredIgnition"));
 	
 	// No motors fired (can this really happen without getting a NoMotorsDefined?)
-	public static final SimulationAbort NOMOTORSFIRED = new SimulationAbort(trans.get("SimulationAbort.noMotorsIgnited"));
+	public static final SimulationAbort NOMOTORSFIRED = new SimulationAbort(trans.get("SimulationAbort.noIgnition"));
 
 	// Motors ignited, but rocket did not lift off
 	public static final SimulationAbort NOLIFTOFF = new SimulationAbort(trans.get("SimulationAbort.noLiftOff"));
 																		
-	// It is impossible to calculate the stage's center of pressure
+	// It is impossible to calculate the active components' center of pressure
 	public static final SimulationAbort NOCP = new SimulationAbort(trans.get("SimulationAbort.noCP"));
 
 	// The currently active components have a total length of 0

@@ -39,6 +39,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Total motion vs. time
@@ -54,6 +55,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Flight side profile
@@ -67,6 +69,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 	
 		
@@ -79,6 +82,8 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.APOGEE, true);
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Stability vs. time
@@ -93,7 +98,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
-		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Drag coefficients vs. Mach number
@@ -104,6 +109,7 @@ public class PlotConfiguration implements Cloneable {
 		config.addPlotDataType(FlightDataType.TYPE_BASE_DRAG_COEFF, 0);
 		config.addPlotDataType(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, 0);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Roll characteristics
@@ -121,6 +127,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Angle of attack and orientation vs. time
@@ -136,6 +143,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		//// Simulation time step and computation time
@@ -150,6 +158,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
 		DEFAULT_CONFIGURATIONS = configs.toArray(new PlotConfiguration[0]);

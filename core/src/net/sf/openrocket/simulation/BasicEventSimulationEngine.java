@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
@@ -178,7 +179,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// If we haven't hit the ground, add altitude event
 				if (!currentStatus.isLanded())
-					addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
 											 currentStatus.getConfiguration().getRocket(),
 											 new Pair<Double, Double>(oldAlt, currentStatus.getRocketPosition().z)));
 				
@@ -200,16 +201,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					}
 					// Detect lift-off
 					if (relativePosition.z > 0.02) {
-						addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
+						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
 					}
 					
 				} else {
 					
 					// Check ground hit after liftoff
 					if ((currentStatus.getRocketPosition().z < MathUtil.EPSILON) && !currentStatus.isLanded()) {
-						addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
+						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
 						
-						// addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+						// currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 					}
 					
 				}
@@ -218,14 +219,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (currentStatus.isLiftoff() &&
 					!currentStatus.isLaunchRodCleared() &&
 						relativePosition.length() > currentStatus.getSimulationConditions().getLaunchRodLength()) {
-					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, currentStatus.getSimulationTime(), null));
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, currentStatus.getSimulationTime(), null));
 				}
 				
 				
 				// Check for apogee
 				if (!currentStatus.isApogeeReached() && currentStatus.getRocketPosition().z < currentStatus.getMaxAlt() - 0.01) {
 					currentStatus.setMaxAltTime(previousSimulationTime);
-					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, previousSimulationTime,
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, previousSimulationTime,
 							currentStatus.getConfiguration().getRocket()));
 				}
 				
@@ -234,7 +235,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 //				// Check for burnt out motors
 //				for( MotorClusterState state : currentStatus.getActiveMotors()){
 //					if ( state.isSpent()){
-//						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
+//						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, currentStatus.getSimulationTime(),
 //								(RocketComponent) state.getMount(), state));
 //					}
 //				}
@@ -256,13 +257,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					final boolean isSustainer = currentStatus.getConfiguration().isStageActive(0);
 					final boolean isApogee = currentStatus.isApogeeReached();
 					if (wantToTumble && (isApogee || !isSustainer)) {
-						addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
 					}					
 				}
 
 				// If I'm on the ground and have no events in the queue, I'm done
 				if (currentStatus.isLanded() && currentStatus.getEventQueue().isEmpty())
-					addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 
 				previousSimulationTime = currentStatus.getSimulationTime();
 			}
@@ -270,7 +271,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		} catch (SimulationException e) {
 			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
 
-			// Add FlightEvent for Abort.
+			// Add FlightEvent for exception.
 			currentStatus.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
 
 			flightData.addBranch(currentStatus.getFlightData());
@@ -325,7 +326,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
 					//log.info("     Because of "+event.getShapeType().name()+" @"+event.getTime()+" from: "+event.getSource().getName());
 					
-					addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, (RocketComponent) mount, state ));
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.IGNITION, ignitionTime, (RocketComponent) mount, state ));
 				}
 			}
 			
@@ -360,7 +361,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(this.fcid);
 				if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
-					addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
 							event.getTime() + separationConfig.getSeparationDelay(), stage));
 				}
 			}
@@ -374,7 +375,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfigurations().get(this.fcid);
 				if (deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
-					addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
 							event.getTime() + Math.max(0.001, deployConfig.getDeployDelay()), c));
 				}
 			}
@@ -415,7 +416,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// and queue up the burnout for this motor, as well. 
 				double duration = motorState.getBurnTime();
 				double burnout = currentStatus.getSimulationTime() + duration;
-				addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
+				currentStatus.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, burnout,
 							event.getSource(), motorState ));
 				break;
 			}
@@ -450,7 +451,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				double delay = motorState.getEjectionDelay();
 				if ( motorState.hasEjectionCharge() ){
-					addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, currentStatus.getSimulationTime() + delay,
 							stage, event.getData()));
 				}
 				currentStatus.getFlightData().addEvent(event);
@@ -586,6 +587,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				currentStatus.getFlightData().addEvent(event);
 				break;
 			
+			case SIM_ABORT:
+				ret = false;
+				currentStatus.getFlightData().addEvent(event);
+				break;
+			
 			case SIMULATION_END:
 				ret = false;
 				currentStatus.getFlightData().addEvent(event);
@@ -630,17 +636,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 		
 		return ret;
-	}
-	
-	/**
-	 * Add a flight event to the event queue unless a listener aborts adding it.
-	 *
-	 * @param event		the event to add to the queue.
-	 */
-	private void addEvent(FlightEvent event) throws SimulationException {
-		if (SimulationListenerHelper.fireAddFlightEvent(currentStatus, event)) {
-			currentStatus.getEventQueue().add(event);
-		}
 	}
 	
 	
