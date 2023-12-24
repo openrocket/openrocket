@@ -75,6 +75,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		simulationConfig.copyStages(origConfig);	// Clone the stage activation configuration
 		
 		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
+		// main simulation branch 
+		final String branchName = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration()).getName();
+		FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
+
+		// put a point on it so we can plot if we get an early abort event
+		initialBranch.addPoint();
+		initialBranch.setValue(FlightDataType.TYPE_TIME, 0.0);
+		initialBranch.setValue(FlightDataType.TYPE_ALTITUDE, 0.0);
+		currentStatus.setFlightData(initialBranch);
+		
 
 		// Sanity checks on design and configuration
 
@@ -82,7 +92,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// No motors in configuration
 		if (!simulationConfig.hasMotors() ) {
-			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
+			currentStatus.abortSimulation(SimulationAbort.NOMOTORSDEFINED);
 		}
 
 		// Problems that let us simulate, but result is likely bad
@@ -93,11 +103,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 		
 		currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
-		{
-			// main simulation branch 
-			final String branchName = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration()).getName();
-			currentStatus.setFlightData(new FlightDataBranch( branchName, FlightDataType.TYPE_TIME));
-		}
 		toSimulate.push(currentStatus);
 		
 		SimulationListenerHelper.fireStartSimulation(currentStatus);
@@ -438,7 +443,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case BURNOUT: {
 				// If motor burnout occurs without lift-off, abort
 				if (!currentStatus.isLiftoff()) {
-					throw new SimulationLaunchException(trans.get("BasicEventSimulationEngine.error.earlyMotorBurnout"));
+					currentStatus.abortSimulation(SimulationAbort.NOLIFTOFF);
 				}
 				
 				// Add ejection charge event
@@ -632,7 +637,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		// If no motor has ignited, abort
 		if (!currentStatus.isMotorIgnited()) {
 			// TODO MEDIUM: display this as a warning to the user (e.g. highlight the cell in the simulation panel in red and a hover: 'make sure the motor ignition is correct' or something)
-			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noIgnition"));
+			currentStatus.abortSimulation(SimulationAbort.NOMOTORSFIRED);
 		}
 		
 		return ret;
@@ -665,22 +670,23 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 
-	// we need to check geometry to make sure we can simulation the active
+	// we need to check geometry to make sure we can simulate the active
 	// stages in a simulation branch when the branch starts executing, and
 	// whenever a stage separation occurs
 	private void checkGeometry(SimulationStatus currentStatus) throws SimulationException {
 		
 		// Active stages have total length of 0.
 		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
-			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.activeLengthZero"));
+			currentStatus.abortSimulation(SimulationAbort.ACTIVELENGTHZERO);
 		}
 		
 		// Can't calculate stability
 		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
 			.getCP(currentStatus.getConfiguration(),
 				   new FlightConditions(currentStatus.getConfiguration()),
-				   new WarningSet()).weight < MathUtil.EPSILON)
-			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.cantCalculateStability"));
+				   new WarningSet()).weight < MathUtil.EPSILON) {
+			currentStatus.abortSimulation(SimulationAbort.NOCP);
+		}
 	}
 	
 	private void checkNaN() throws SimulationException {
