@@ -21,9 +21,8 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
-import net.sf.openrocket.simulation.exception.MotorIgnitionException;
+import net.sf.openrocket.simulation.exception.SimulationCalculationException;
 import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.simulation.listeners.system.OptimumCoastListener;
 import net.sf.openrocket.startup.Application;
@@ -709,7 +708,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					" rocketOrientationQuaternion=" + currentStatus.getRocketOrientationQuaternion() +
 					" rocketRotationVelocity=" + currentStatus.getRocketRotationVelocity() +
 					" effectiveLaunchRodLength=" + currentStatus.getEffectiveLaunchRodLength());
-			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.NaNResult"));
+			throw new SimulationCalculationException(trans.get("BasicEventSimulationEngine.error.NaNResult"));
 		}
 	}
 	

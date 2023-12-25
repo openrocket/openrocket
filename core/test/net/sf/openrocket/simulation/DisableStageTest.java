@@ -4,7 +4,6 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 import net.sf.openrocket.util.TestRockets;
@@ -34,6 +33,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setTimeStep(0.05);
 
         // Since there are no stages, the simulation should throw an exception.
+		// Needs fixing for SimulationAbort
         try {
             simDisabled.simulate();
         } catch (SimulationException e) {

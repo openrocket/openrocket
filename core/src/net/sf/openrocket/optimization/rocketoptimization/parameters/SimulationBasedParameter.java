@@ -9,11 +9,9 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationCalculationException;
 import net.sf.openrocket.simulation.exception.SimulationCancelledException;
 import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
 
@@ -40,12 +38,6 @@ public abstract class SimulationBasedParameter implements OptimizableParameter {
 			double value = getResultValue(simulation.getSimulatedData());
 			log.debug("Parameter '" + getName() + " was " + value);
 			return value;
-		} catch (MotorIgnitionException e) {
-			// A problem with motor ignition will cause optimization to fail
-			throw new OptimizationException(e);
-		} catch (SimulationLaunchException e) {
-			// Other launch exceptions result in illegal value
-			return Double.NaN;
 		} catch (SimulationCalculationException e) {
 			// Calculation errors result in illegal value
 			return Double.NaN;
