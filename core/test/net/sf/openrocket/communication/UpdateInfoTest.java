@@ -215,6 +215,30 @@ public class UpdateInfoTest extends BaseTestCase {
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.02"));
 
+		// Test snapshots
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.LATEST,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "23.09"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("24.01", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "24.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("24.01.SNAPSHOT", "23.09"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT.01", "23.09.SNAPSHOT.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.LATEST,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT.02", "23.09.SNAPSHOT.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT.02", "23.09.SNAPSHOT.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.01", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "23.09.01"));
+
 
 		// Test bogus releases
 		assertExceptionCompareLatest("22.02.gamma.01", "22.02");

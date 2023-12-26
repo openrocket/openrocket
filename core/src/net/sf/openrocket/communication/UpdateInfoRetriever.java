@@ -39,6 +39,8 @@ public class UpdateInfoRetriever {
 			{ "RC", 3 },	// Release Candidate
 	}).collect(Collectors.toMap(c -> (String) c[0], c -> (Integer) c[1]));
 
+	public static final String snapshotTag = "SNAPSHOT";
+
 	/* Enum for the current build version. Values:
           OLDER: current build version is older than the latest official release
           LATEST: current build is the latest official release
@@ -280,7 +282,7 @@ public class UpdateInfoRetriever {
 		public static List<String> filterOfficialRelease(List<String> names) {
 			if (names == null) return null;
 			return names.stream().filter(c -> Arrays.stream(devTags.keySet().toArray(new String[0]))
-					.noneMatch(c::contains)).collect(Collectors.toList());
+					.noneMatch(c::contains) && !c.contains(snapshotTag)).collect(Collectors.toList());
 		}
 
 		/**
@@ -358,8 +360,8 @@ public class UpdateInfoRetriever {
 				// If the loop is still going until this condition, you have the situation where tag1 is e.g.
 				// '15.03' and tag2 '15.03.01', so tag is in that case the more recent version.
 				if (i >= tag1Split.length) {
-					// Tag 1 is e.g. '15.03' and tag2 '15.03.01', so tag2 is the more recent version
-					if (tag2Split[i].matches("\\d+")) {
+					// Tag 1 is e.g. '15.03' and tag2 '15.03.01' or '15.03.SNAPSHOT', so tag2 is the more recent version
+					if (tag2Split[i].matches("\\d+") || snapshotTag.equals(tag2Split[i])) {
 						return ReleaseStatus.OLDER;
 					}
 					// Tag 1 is e.g. '15.03' and tag2 '15.03.beta.01', so tag1 is the more recent version (it's an official release)
@@ -390,6 +392,30 @@ public class UpdateInfoRetriever {
 						}
 						// In case when e.g. tag1 is '20.alpha.01' and tag2 '20.alpha.02', go to the next loop to compare '01' and '02'
 						continue;
+					}
+
+					// Handle snapshots
+					if (snapshotTag.equals(tag1Split[i]) || snapshotTag.equals(tag2Split[i])) {
+						// In case when e.g. tag1 is '23.09.SNAPSHOT.02' and tag2 '23.09.SNAPSHOT.01', go to the next loop to compare '01' and '02'
+						if (snapshotTag.equals(tag1Split[i]) && snapshotTag.equals(tag2Split[i])) {
+							continue;
+						}
+						// In case when e.g. tag1 is '23.09.SNAPSHOT' and tag2 '23.09', tag1 is newer
+						else if (snapshotTag.equals(tag1Split[i])) {
+							// E.g. tag1 is '23.09.SNAPSHOT', tag2 is '23.09.01'
+							if (tag2Split[i].matches("\\d+")) {
+								return ReleaseStatus.OLDER;
+							} else {
+								return ReleaseStatus.NEWER;
+							}
+						} else {
+							// E.g. tag1 is '23.09.01', tag2 is '23.09.SNAPSHOT'
+							if (tag1Split[i].matches("\\d+")) {
+								return ReleaseStatus.NEWER;
+							} else {
+								return ReleaseStatus.OLDER;
+							}
+						}
 					}
 
 					// In case tag1 is e.g. '20.alpha.01', but tag2 is already an official release with a number instead of
@@ -445,7 +471,7 @@ public class UpdateInfoRetriever {
 						log.warn(message);
 						throw new UpdateCheckerException(message);
 					}
-					if (!devTags.containsKey(tagSplit[i])) {
+					if (!devTags.containsKey(tagSplit[i]) && !snapshotTag.equals(tagSplit[i])) {
 						String message = String.format("Malformed release tag: '%s'", String.join(".", tagSplit));
 						log.warn(message);
 						throw new UpdateCheckerException(message);
