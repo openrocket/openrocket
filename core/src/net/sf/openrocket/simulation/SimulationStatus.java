@@ -93,6 +93,10 @@ public class SimulationStatus implements Monitorable {
 	
 	private int modID = 0;
 	private int modIDadd = 0;
+
+	// if the simulation is aborted, store the abort event here for later display
+	// in the sim plot window
+	private FlightEvent abortEvent = null;
 	
 	public SimulationStatus(FlightConfiguration configuration, SimulationConditions simulationConditions) {
 		
@@ -568,7 +572,8 @@ public class SimulationStatus implements Monitorable {
 	 * Abort the current simulation branch
 	 */
 	public void abortSimulation(SimulationAbort cause) throws SimulationException {
-		addEvent(new FlightEvent(FlightEvent.Type.SIM_ABORT, getSimulationTime(), null, cause));
+		abortEvent = new FlightEvent(FlightEvent.Type.SIM_ABORT, getSimulationTime(), null, cause);
+		addEvent(abortEvent);
 	}
 				 
 }
