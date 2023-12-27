@@ -14,6 +14,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import org.xml.sax.SAXException;
 
 /**
  * A handler that populates the parameters of a previously constructed rocket component.
@@ -27,6 +28,10 @@ class ComponentParameterHandler extends AbstractElementHandler {
 	public ComponentParameterHandler(RocketComponent c, DocumentLoadingContext context) {
 		this.component = c;
 		this.context = context;
+
+		// Sometimes setting certain component parameters will clear the preset. We don't want that to happen, so
+		// ignore preset clearing.
+		this.component.setIgnorePresetClearing(true);
 	}
 	
 	@Override
@@ -123,5 +128,13 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			warnings.add(Warning.fromString("Unknown parameter type '" + element + "' for "
 					+ component.getComponentName() + ", ignoring."));
 		}
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		super.endHandler(element, attributes, content, warnings);
+
+		// Restore the preset clearing behavior
+		this.component.setIgnorePresetClearing(false);
 	}
 }

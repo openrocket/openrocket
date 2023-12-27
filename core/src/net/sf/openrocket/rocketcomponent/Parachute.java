@@ -153,8 +153,18 @@ public class Parachute extends RecoveryDevice {
 		return false;
 	}
 
+	/**
+	 * Load the component from a preset.
+	 * @param preset	the preset to load from
+	 * @param params    extra parameters to be used in the preset loading
+	 *                  	params[0] = boolean allowAutoRadius: true = allow auto radius to be set during preset loading, false = do not allow auto radius
+	 */
 	@Override
-	protected void loadFromPreset(ComponentPreset preset) {
+	protected void loadFromPreset(ComponentPreset preset, Object...params) {
+		boolean allowAutoRadius = true;
+		if (params != null && params.length > 0) {
+			allowAutoRadius = (boolean) params[0];
+		}
 
 		// SUBSTITUTE preset parachute values for existing component values
 		//	//	Set preset parachute description
@@ -176,13 +186,13 @@ public class Parachute extends RecoveryDevice {
 			this.diameter = DEFAULT_DIAMETER;
 		}
 		//	//	Set preset parachute drag coefficient
-		 if ((preset.has(ComponentPreset.CD)) && preset.get(ComponentPreset.CD) > 0){
-		 		cdAutomatic = false;
-		 		cd = preset.get(ComponentPreset.CD);
-		 } else {
-			 cdAutomatic = true;
-			 cd = Parachute.DEFAULT_CD;
-		 }
+		if ((preset.has(ComponentPreset.CD)) && preset.get(ComponentPreset.CD) > 0){
+			cdAutomatic = false;
+			cd = preset.get(ComponentPreset.CD);
+		} else {
+			cdAutomatic = true;
+			cd = Parachute.DEFAULT_CD;
+		}
 		//	//	Set preset parachute line count
 		if ((preset.has(ComponentPreset.LINE_COUNT)) && preset.get(ComponentPreset.LINE_COUNT) > 0) {
 			this.lineCount = preset.get(ComponentPreset.LINE_COUNT);
@@ -196,7 +206,7 @@ public class Parachute extends RecoveryDevice {
 			this.lineLength = DEFAULT_LINE_LENGTH;
 		}
 		//	//	Set preset parachute line material
-			//	NEED a better way to set preset if field is empty ----
+		//	NEED a better way to set preset if field is empty ----
 		if ((preset.has(ComponentPreset.LINE_MATERIAL))) {
 			String lineMaterialEmpty = preset.get(ComponentPreset.LINE_MATERIAL).toString();
 			int count = lineMaterialEmpty.length();
@@ -219,7 +229,8 @@ public class Parachute extends RecoveryDevice {
 		}
 		//	// Size parachute packed diameter within parent inner diameter
 		if (preset.has(ComponentPreset.PACKED_LENGTH) && (getLength() > 0) &&
-			preset.has(ComponentPreset.PACKED_DIAMETER) && (getRadius() > 0)) {
+				preset.has(ComponentPreset.PACKED_DIAMETER) && (getRadius() > 0) &&
+				allowAutoRadius) {
 			setRadiusAutomatic(true);
 		}
 
@@ -232,7 +243,12 @@ public class Parachute extends RecoveryDevice {
 			massOverridden = false;
 		}
 
-		super.loadFromPreset(preset);
+		super.loadFromPreset(preset, params);
+	}
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		loadFromPreset(preset, true);
 	}
 
 	@Override

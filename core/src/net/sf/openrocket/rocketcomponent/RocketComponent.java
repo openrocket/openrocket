@@ -136,6 +136,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	// Preset component this component is based upon
 	private ComponentPreset presetComponent = null;
+
+	// If set to true, presets will not be cleared
+	private boolean ignorePresetClearing = false;
 	
 	// The realistic appearance of this component
 	private Appearance appearance = null;
@@ -1176,10 +1179,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * preset values.
 	 * 
 	 * @param preset	the preset component to load, or <code>null</code> to clear the preset.
+	 * @param params    extra parameters to be used in the preset loading
 	 */
-	public final void loadPreset(ComponentPreset preset) {
+	public final void loadPreset(ComponentPreset preset, Object...params) {
 		for (RocketComponent listener : configListeners) {
-			listener.loadPreset(preset);
+			listener.loadPreset(preset, params);
 		}
 
 		if (presetComponent == preset) {
@@ -1211,8 +1215,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			if (rocket != null) {
 				rocket.freeze();
 			}
-			
-			loadFromPreset(preset);
+
+			if (params == null || params.length == 0)
+				loadFromPreset(preset);
+			else
+				loadFromPreset(preset, params);
 			
 			this.presetComponent = preset;
 			
@@ -1224,8 +1231,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
-	
+
+	public final void loadPreset(ComponentPreset preset) {
+		loadPreset(preset, (Object[]) null);
+	}
+
 	/**
 	 * Load component properties from the specified preset.  The preset is guaranteed
 	 * to be of the correct type.
@@ -1235,13 +1245,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * This method must FIRST perform the preset loading and THEN call super.loadFromPreset().
 	 * This is because mass setting requires the dimensions to be set beforehand.
-	 * 
+	 *
 	 * @param preset	the preset to load from
+	 * @param params    extra parameters to be used in the preset loading
 	 */
-	protected void loadFromPreset(ComponentPreset preset) {
+	protected void loadFromPreset(ComponentPreset preset, Object...params) {
 		if (preset.has(ComponentPreset.LENGTH)) {
 			this.length = preset.get(ComponentPreset.LENGTH);
 		}
+	}
+
+	protected void loadFromPreset(ComponentPreset preset) {
+		loadFromPreset(preset, (Object[]) null);
 	}
 	
 	
@@ -1254,14 +1269,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			listener.clearPreset();
 		}
 
-		if (presetComponent == null)
+		if (presetComponent == null || ignorePresetClearing)
 			return;
 		presetComponent = null;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
-	
-	
+
+	public void setIgnorePresetClearing(boolean ignorePresetClearing) {
+		this.ignorePresetClearing = ignorePresetClearing;
+	}
+
 	/**
 	 * Returns the unique ID of the component.
 	 *
