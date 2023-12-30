@@ -452,6 +452,9 @@ class DocumentConfig {
 		setters.put("Parachute:linematerial", new MaterialSetter(
 				Reflection.findMethod(Parachute.class, "setLineMaterial", Material.class),
 				Material.Type.LINE));
+		setters.put("Parachute:preset", new ComponentPresetSetter(
+				Reflection.findMethod(Parachute.class, "loadPreset", ComponentPreset.class, Object[].class),
+				false));
 		
 		// PodSet
 		setters.put("PodSet:instancecount", new IntSetter(
