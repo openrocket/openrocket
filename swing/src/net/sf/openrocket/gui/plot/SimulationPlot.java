@@ -444,6 +444,7 @@ public class SimulationPlot {
 		String text = null;
 		Color color = null;
 		Image image = null;
+		int maxOrdinal = -1;
 		for (EventDisplayInfo info : eventList) {
 			if (branch >= 0 && branch != info.stage) {
 				continue;
@@ -451,12 +452,14 @@ public class SimulationPlot {
 
 			double t = info.time;
 			FlightEvent.Type type = info.event.getType();
-
 			if (Math.abs(t - prevTime) <= 0.05) {
 				if (!typeSet.contains(type)) {
 					text = text + ", " + type.toString();
-					color = EventGraphics.getEventColor(type);
-					image = EventGraphics.getEventImage(type);
+					if (type.ordinal() > maxOrdinal) {
+						color = EventGraphics.getEventColor(type);
+						image = EventGraphics.getEventImage(type);
+						maxOrdinal = type.ordinal();
+					}
 					typeSet.add(type);
 				}
 
@@ -473,6 +476,7 @@ public class SimulationPlot {
 				image = EventGraphics.getEventImage(type);
 				typeSet.clear();
 				typeSet.add(type);
+				maxOrdinal = type.ordinal();
 			}
 
 		}
