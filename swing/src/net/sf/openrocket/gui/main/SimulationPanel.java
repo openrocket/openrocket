@@ -78,6 +78,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
@@ -779,8 +780,14 @@ public class SimulationPanel extends JPanel {
 			tip += trans.get("simpanel.ttip.noData");
 			return tip;
 		}
-		WarningSet warnings = data.getWarningSet();
 
+		for (int b = 0; b < data.getBranchCount(); b++) {
+			if (data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT) != null) {
+				tip += trans.get("simpanel.ttip.simAbort");
+			}
+		}
+		
+		WarningSet warnings = data.getWarningSet();
 		if (warnings.isEmpty()) {
 			tip += trans.get("simpanel.ttip.noWarnings");
 			return tip;
