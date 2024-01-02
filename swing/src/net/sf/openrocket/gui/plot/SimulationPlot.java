@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.simulation.SimulationPlotPanel;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
@@ -31,6 +33,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.LinearInterpolator;
 
 import net.sf.openrocket.utils.DecimalFormatter;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
@@ -50,6 +53,8 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.ui.HorizontalAlignment;
+import org.jfree.ui.VerticalAlignment;
 import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -68,8 +73,9 @@ import org.jfree.ui.TextAnchor;
  */
 @SuppressWarnings("serial")
 public class SimulationPlot {
+	private static final Translator trans = Application.getTranslator();
+	
 	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
-
 
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
 
@@ -104,6 +110,7 @@ public class SimulationPlot {
 			}
 		}
 		drawDomainMarkers(branch);
+		drawAborts(branch);
 	}
 
 	SimulationPlot(Simulation simulation, PlotConfiguration config, boolean initialShowPoints) {
@@ -335,6 +342,8 @@ public class SimulationPlot {
 		// Create the event markers
 		drawDomainMarkers(-1);
 
+		// Display aborts (if any)
+		drawAborts(-1);
 	}
 
 	JFreeChart getJFreeChart() {
@@ -583,6 +592,37 @@ public class SimulationPlot {
 
 	}
 
+	/**
+	 * Put all aborts in a text area
+	 */
+	private void drawAborts(int branchno) {
+		String abortString = "";
+
+		for (int b = Math.max(0, branchno);
+			 b < ((branchno < 0) ?
+				  (simulation.getSimulatedData().getBranchCount()) :
+				  (branchno + 1)); b++) {
+			FlightDataBranch branch = simulation.getSimulatedData().getBranch(b);
+			final List<FlightEvent> events = branch.getEvents();
+			for (FlightEvent event: events) {
+				if (event.getType() == FlightEvent.Type.SIM_ABORT) {
+					if (abortString == "") {
+						abortString = trans.get("simulationplot.abort.title");
+					}
+					abortString += "\n" + trans.get("simulationplot.abort.stage") + ": " + branch.getBranchName() +
+						", " + trans.get("simulationplot.abort.time") + ": " + event.getTime() +
+						", " + trans.get("simulationplot.abort.cause") + ": " + ((SimulationAbort)event.getData()).getMessageDescription();
+				}
+			}
+		}
+	
+		TextTitle abortsTitle = new TextTitle(abortString, new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED, RectangleEdge.TOP, HorizontalAlignment.LEFT,
+											  VerticalAlignment.TOP, RectangleInsets.ZERO_INSETS);
+		XYTitleAnnotation abortsAnnotation = new XYTitleAnnotation(0.9, 1, abortsTitle, RectangleAnchor.TOP_RIGHT);
+		
+		chart.getXYPlot().addAnnotation(abortsAnnotation);
+	}
+	
 	private static class LegendItems implements LegendItemSource {
 
 		private final List<String> lineLabels = new ArrayList<String>();
