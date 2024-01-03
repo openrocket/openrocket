@@ -622,7 +622,7 @@ public class SimulationPlot {
 	
 		TextTitle abortsTitle = new TextTitle(abortString, new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED, RectangleEdge.TOP, HorizontalAlignment.LEFT,
 											  VerticalAlignment.TOP, RectangleInsets.ZERO_INSETS);
-		XYTitleAnnotation abortsAnnotation = new XYTitleAnnotation(0.9, 1, abortsTitle, RectangleAnchor.TOP_RIGHT);
+		XYTitleAnnotation abortsAnnotation = new XYTitleAnnotation(0.98, 0.99, abortsTitle, RectangleAnchor.TOP_RIGHT);
 		
 		chart.getXYPlot().addAnnotation(abortsAnnotation);
 	}
