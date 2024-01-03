@@ -81,6 +81,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 					packed = chute.getDiameter() * 0.025;
 				}
 				chute.setRadius(packed);
+				chute.setLength(packed);
 			}
 			if (RockSimCommonConstants.SHROUD_LINE_COUNT.equals(element)) {
 				chute.setLineCount(Math.max(0, Integer.parseInt(content)));

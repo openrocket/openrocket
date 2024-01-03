@@ -505,6 +505,7 @@ public class AppearancePanel extends JPanel {
 
 		DecalModel decalModel = new DecalModel(panel, document, builder);
 		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
+		textureDropDown.setMaximumRowCount(20);
 
 		// We need to add this action listener that triggers a decalModel update when the same item is selected, because
 		// for multi-comp edits, the listeners' decals may not be updated otherwise

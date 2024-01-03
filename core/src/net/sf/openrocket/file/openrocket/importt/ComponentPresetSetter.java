@@ -13,9 +13,15 @@ import net.sf.openrocket.util.Reflection;
 ////ComponentPresetSetter  -  sets a ComponentPreset value
 class ComponentPresetSetter implements Setter {
 	private final Reflection.Method setMethod;
+	private Object[] extraParameters = null;
 	
 	public ComponentPresetSetter(Reflection.Method set) {
 		this.setMethod = set;
+	}
+
+	public ComponentPresetSetter(Reflection.Method set, Object... parameters) {
+		this.setMethod = set;
+		this.extraParameters = parameters;
 	}
 	
 	@Override
@@ -71,7 +77,11 @@ class ComponentPresetSetter implements Setter {
 
 		// The preset loader can override the component name, so first store it and then apply it again
 		String componentName = c.getName();
-		setMethod.invoke(c, matchingPreset);
+		if (extraParameters != null) {
+			setMethod.invoke(c, matchingPreset, extraParameters);
+		} else {
+			setMethod.invoke(c, matchingPreset);
+		}
 		c.setName(componentName);
 	}
 }
