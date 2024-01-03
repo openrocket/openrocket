@@ -612,7 +612,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 				currentStepper = tumbleStepper;
 				currentStatus = currentStepper.initialize(currentStatus);
-				
+
 				final boolean tooMuchThrust = currentStatus.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
 				if (tooMuchThrust) {
 					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);					
@@ -679,12 +679,18 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			currentStatus.abortSimulation(SimulationAbort.Cause.ACTIVELENGTHZERO);
 		}
 		
-		// Can't calculate stability
+		// Can't calculate stability.  If it's the sustainer we'll abort; if a booster
+		// we'll just transition to tumbling (if it's a booster and under thrust code elsewhere
+		// will abort).
 		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
 			.getCP(currentStatus.getConfiguration(),
 				   new FlightConditions(currentStatus.getConfiguration()),
 				   new WarningSet()).weight < MathUtil.EPSILON) {
-			currentStatus.abortSimulation(SimulationAbort.Cause.NOCP);
+			if (currentStatus.getConfiguration().isStageActive(0)) {
+				currentStatus.abortSimulation(SimulationAbort.Cause.NOCP);
+			} else {
+				currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+			}
 		}
 	}
 	
