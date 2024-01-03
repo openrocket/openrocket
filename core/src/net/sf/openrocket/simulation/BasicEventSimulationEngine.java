@@ -615,7 +615,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				final boolean tooMuchThrust = currentStatus.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
 				if (tooMuchThrust) {
-					currentStatus.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
+					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);					
 				}					
 				
 				currentStatus.setTumbling(true);

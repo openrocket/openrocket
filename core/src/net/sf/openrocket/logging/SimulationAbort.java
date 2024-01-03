@@ -43,7 +43,10 @@ public class SimulationAbort extends Message {
 		ACTIVELENGTHZERO(trans.get("SimulationAbort.activeLengthZero")),
 
 		// The currently active components have a total mass of 0
-		ACTIVEMASSZERO(trans.get("SimulationAbort.activeMassZero"));
+		ACTIVEMASSZERO(trans.get("SimulationAbort.activeMassZero")),
+
+		// Stage is tumbling under thrust
+		TUMBLE_UNDER_THRUST(trans.get("SimulationAbort.tumbleUnderThrust"));
 
 		private final String name;
 
