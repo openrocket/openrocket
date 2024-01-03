@@ -147,10 +147,6 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		return data;
 	}
 	
-	
-
-	
-	
 	/**
 	 * Compares this event to another event depending on the event time.  Secondary
 	 * sorting is performed on stages; lower (numerically higher) stage first.  Tertiary

@@ -567,8 +567,8 @@ public class SimulationStatus implements Monitorable {
 	/**
 	 * Abort the current simulation branch
 	 */
-	public void abortSimulation(SimulationAbort cause) throws SimulationException {
-		FlightEvent abortEvent = new FlightEvent(FlightEvent.Type.SIM_ABORT, getSimulationTime(), null, cause);
+	public void abortSimulation(SimulationAbort.Cause cause) throws SimulationException {
+		FlightEvent abortEvent = new FlightEvent(FlightEvent.Type.SIM_ABORT, getSimulationTime(), null, new SimulationAbort(cause));
 		addEvent(abortEvent);
 	}
 	

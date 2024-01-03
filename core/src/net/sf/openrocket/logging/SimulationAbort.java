@@ -10,15 +10,9 @@ public class SimulationAbort extends Message {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private final String description;
-
-	SimulationAbort(String _description) {
-		description = _description;
-	}
-	
 	@Override
 	public String getMessageDescription() {
-		return description;
+		return cause.toString();
 	}
 
 	@Override
@@ -29,29 +23,48 @@ public class SimulationAbort extends Message {
 	/**
 	 * Possible causes of sim aborts
 	 */
+	public enum Cause {
+		// No motors are defined in the sim configuration
+		NOMOTORSDEFINED(trans.get("SimulationAbort.noMotorsDefined")),
 
-	// No motors are defined in the sim configuration
-	public static final SimulationAbort NOMOTORSDEFINED = new SimulationAbort(trans.get("SimulationAbort.noMotorsDefined"));
-
-	// Motors are defined, but none are configured to fire at liftoff
-	public static final SimulationAbort NOCONFIGUREDIGNITION = new SimulationAbort(trans.get("SimulationAbort.noConfiguredIgnition"));
+		// Motors are defined, but none are configured to fire at liftoff
+		NOCONFIGUREDIGNITION(trans.get("SimulationAbort.noConfiguredIgnition")),
 	
-	// No motors fired (can this really happen without getting a NoMotorsDefined?)
-	public static final SimulationAbort NOMOTORSFIRED = new SimulationAbort(trans.get("SimulationAbort.noIgnition"));
+		// No motors fired (can this really happen without getting a NoMotorsDefined?)
+		NOMOTORSFIRED(trans.get("SimulationAbort.noIgnition")),
 
-	// Motors ignited, but rocket did not lift off
-	public static final SimulationAbort NOLIFTOFF = new SimulationAbort(trans.get("SimulationAbort.noLiftOff"));
+		// Motors ignited, but rocket did not lift off
+		NOLIFTOFF(trans.get("SimulationAbort.noLiftOff")),
 																		
-	// It is impossible to calculate the active components' center of pressure
-	public static final SimulationAbort NOCP = new SimulationAbort(trans.get("SimulationAbort.noCP"));
+		// It is impossible to calculate the active components' center of pressure
+		NOCP(trans.get("SimulationAbort.noCP")),
 
-	// The currently active components have a total length of 0
-	public static final SimulationAbort ACTIVELENGTHZERO = new SimulationAbort(trans.get("SimulationAbort.activeLengthZero"));
+		// The currently active components have a total length of 0
+		ACTIVELENGTHZERO(trans.get("SimulationAbort.activeLengthZero")),
 
-	// The currently active components have a total mass of 0
-	public static final SimulationAbort ACTIVEMASSZERO = new SimulationAbort(trans.get("SimulationAbort.activeMassZero"));
+		// The currently active components have a total mass of 0
+		ACTIVEMASSZERO(trans.get("SimulationAbort.activeMassZero"));
+
+		private final String name;
+
+		private Cause(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	private final Cause cause;
+	
+	public SimulationAbort(Cause cause) {
+		this.cause = cause;
+	}
+
+	public Cause getCause() {
+		return cause;
+	}
+	
 }
-
-		
-
-		

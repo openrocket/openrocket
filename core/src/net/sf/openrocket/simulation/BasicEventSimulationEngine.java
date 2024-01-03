@@ -91,7 +91,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// No motors in configuration
 		if (!simulationConfig.hasMotors() ) {
-			currentStatus.abortSimulation(SimulationAbort.NOMOTORSDEFINED);
+			currentStatus.abortSimulation(SimulationAbort.Cause.NOMOTORSDEFINED);
 		}
 
 		// Problems that let us simulate, but result is likely bad
@@ -442,7 +442,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case BURNOUT: {
 				// If motor burnout occurs without lift-off, abort
 				if (!currentStatus.isLiftoff()) {
-					currentStatus.abortSimulation(SimulationAbort.NOLIFTOFF);
+					currentStatus.abortSimulation(SimulationAbort.Cause.NOLIFTOFF);
 				}
 				
 				// Add ejection charge event
@@ -636,7 +636,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		// If no motor has ignited, abort
 		if (!currentStatus.isMotorIgnited()) {
 			// TODO MEDIUM: display this as a warning to the user (e.g. highlight the cell in the simulation panel in red and a hover: 'make sure the motor ignition is correct' or something)
-			currentStatus.abortSimulation(SimulationAbort.NOMOTORSFIRED);
+			currentStatus.abortSimulation(SimulationAbort.Cause.NOMOTORSFIRED);
 		}
 		
 		return ret;
@@ -676,7 +676,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// Active stages have total length of 0.
 		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
-			currentStatus.abortSimulation(SimulationAbort.ACTIVELENGTHZERO);
+			currentStatus.abortSimulation(SimulationAbort.Cause.ACTIVELENGTHZERO);
 		}
 		
 		// Can't calculate stability
@@ -684,7 +684,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			.getCP(currentStatus.getConfiguration(),
 				   new FlightConditions(currentStatus.getConfiguration()),
 				   new WarningSet()).weight < MathUtil.EPSILON) {
-			currentStatus.abortSimulation(SimulationAbort.NOCP);
+			currentStatus.abortSimulation(SimulationAbort.Cause.NOCP);
 		}
 	}
 	

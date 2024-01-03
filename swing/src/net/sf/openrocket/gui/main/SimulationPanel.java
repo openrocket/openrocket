@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -782,8 +783,10 @@ public class SimulationPanel extends JPanel {
 		}
 
 		for (int b = 0; b < data.getBranchCount(); b++) {
-			if (data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT) != null) {
-				tip += trans.get("simpanel.ttip.simAbort");
+			FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
+			if ( abortEvent != null) {
+				tip += "<font color=\"red\"><i><b>" + trans.get("simpanel.ttip.simAbort") + ":</b></i> " +
+					((SimulationAbort)(abortEvent.getData())).toString() + "</font><br />";
 			}
 		}
 		
