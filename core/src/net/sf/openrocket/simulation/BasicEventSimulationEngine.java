@@ -12,6 +12,7 @@ import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
@@ -410,6 +411,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				MotorMount mount = (MotorMount) event.getSource();
 				if (!SimulationListenerHelper.fireMotorIgnition(currentStatus, motorId, mount, motorState)) {
 					continue;
+				}
+
+				// Queue an altitude event for every point in the thrust curve to set the RK4 simulation time
+				// steps
+				ThrustCurveMotor motor = (ThrustCurveMotor) motorState.getMotor();
+				double[] timePoints = motor.getTimePoints();
+				for (double point : timePoints) {
+					addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, point, event.getSource(), motorState));
 				}
 
 				// and queue up the burnout for this motor, as well. 
