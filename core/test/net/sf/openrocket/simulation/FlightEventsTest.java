@@ -56,8 +56,8 @@ public class FlightEventsTest extends BaseTestCase {
 			new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
 			new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 			new FlightEvent(FlightEvent.Type.APOGEE, 2.48338, rocket),
-			new FlightEvent(FlightEvent.Type.GROUND_HIT, 43.1, null),
-			new FlightEvent(FlightEvent.Type.SIMULATION_END, 43.1, null)
+			new FlightEvent(FlightEvent.Type.GROUND_HIT, 43.076, null),
+			new FlightEvent(FlightEvent.Type.SIMULATION_END, 43.076, null)
 		};
 	
 		checkEvents(expectedEvents, sim, 0);
@@ -99,18 +99,18 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMotorTubes),
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, coreBody),
-						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.1225, null),
-						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.125, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 1.867, rocket),
+						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.1275, null),
+						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.130, null),
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),						
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 13.2, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 13.2, null)
+						new FlightEvent(FlightEvent.Type.APOGEE, 2.12, rocket),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.202, null),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 14.12, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 14.12, null)
 					};
                     break;
                 // Core stage
@@ -120,8 +120,10 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 5.9, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 5.9, null)
+						new FlightEvent(FlightEvent.Type.APOGEE, 2.1, rocket),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.15, null),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 7.26, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 7.26, null)
 					};
                     break;
                 // Booster stage
@@ -131,9 +133,10 @@ public class FlightEventsTest extends BaseTestCase {
                         new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
                         new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 3.428, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 10.3, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 10.3, null)
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.05, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 2.06, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 12.0, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 12.0, null)
 					};
                     break;
                 default:
@@ -147,7 +150,7 @@ public class FlightEventsTest extends BaseTestCase {
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo)	{
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
-
+		
 		// Test event count
 		assertEquals("Branch " + branchNo + " invalid number of events ", expectedEvents.length, actualEvents.length);
 
