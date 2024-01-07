@@ -619,12 +619,20 @@ public class SimulationPlot {
 				}
 			}
 		}
+
+		if (abortString != "") {
+			TextTitle abortsTitle = new TextTitle(abortString,
+												  new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED,
+												  RectangleEdge.TOP,
+												  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
+												  new RectangleInsets(5, 5, 5, 5));
+			abortsTitle.setBackgroundPaint(Color.WHITE);
+			BlockBorder abortsBorder = new BlockBorder(Color.RED);
+			abortsTitle.setFrame(abortsBorder);
+			XYTitleAnnotation abortsAnnotation = new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
 	
-		TextTitle abortsTitle = new TextTitle(abortString, new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED, RectangleEdge.TOP, HorizontalAlignment.LEFT,
-											  VerticalAlignment.TOP, RectangleInsets.ZERO_INSETS);
-		XYTitleAnnotation abortsAnnotation = new XYTitleAnnotation(0.98, 0.99, abortsTitle, RectangleAnchor.TOP_RIGHT);
-		
-		chart.getXYPlot().addAnnotation(abortsAnnotation);
+			chart.getXYPlot().addAnnotation(abortsAnnotation);
+		}
 	}
 	
 	private static class LegendItems implements LegendItemSource {
