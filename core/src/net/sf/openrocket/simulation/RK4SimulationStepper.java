@@ -94,26 +94,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		RK4SimulationStatus status2;
 		RK4Parameters k1, k2, k3, k4;
-		
-		
-		/*
-		 * Start with previous time step which is used to compute the initial thrust estimate.
-		 * Don't make it longer than maxTimeStep, but at least MIN_TIME_STEP.
-		 */
-		store.timestep = MathUtil.max(MathUtil.min(store.timestep, maxTimeStep), MIN_TIME_STEP);
-		checkNaN(store.timestep);
 
 		/*
 		 * Get the current atmospheric conditions
 		 */
 		calculateFlightConditions(status, store);
 		store.atmosphericConditions = store.flightConditions.getAtmosphericConditions();
-
-		/*
-		 * Compute the initial thrust estimate.  This is used for the first time step computation.
-		 */
-		store.thrustForce = calculateAverageThrust(status, store.timestep, store.longitudinalAcceleration,
-												   store.atmosphericConditions, false);
 		
 		/*
 		 * Perform RK4 integration.  Decide the time step length after the first step.
@@ -163,48 +149,38 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 				limitingValue = i;
 			}
 		}
-
+		
+		log.trace("Selected time step " + store.timestep + " (limiting factor " + limitingValue + ")");
+		
+		// If we have a scheduled event coming up before the end of our timestep, truncate step
+		// else if the time from the end of our timestep to the next scheduled event time is less than
+		// minTimeStep, stretch it
 		double minTimeStep = status.getSimulationConditions().getTimeStep() / 20;
+		FlightEvent nextEvent = status.getEventQueue().peek();
+		if (nextEvent != null) {
+			double nextEventTime = nextEvent.getTime();
+			if (status.getSimulationTime() + store.timestep > nextEventTime) {
+				store.timestep = nextEventTime - status.getSimulationTime();
+				log.trace("scheduled event at " + nextEventTime + " truncates timestep to " + store.timestep);
+			} else if ((status.getSimulationTime() + store.timestep < nextEventTime) &&
+					   (status.getSimulationTime() + store.timestep + minTimeStep > nextEventTime)) {
+				store.timestep = nextEventTime - status.getSimulationTime();
+				log.trace("Scheduled event at " + nextEventTime + " stretches timestep to " + store.timestep);
+			}
+		}
+
+		// If we've wound up with a too-small timestep, increase it avoid numerical instability even at the
+		// cost of not being *quite* on an event
 		if (store.timestep < minTimeStep) {
 			log.trace("Too small time step " + store.timestep + " (limiting factor " + limitingValue + "), using " +
 					minTimeStep + " instead.");
 			store.timestep = minTimeStep;
-		} else {
-			log.trace("Selected time step " + store.timestep + " (limiting factor " + limitingValue + ")");
 		}
+		
 		checkNaN(store.timestep);
-		
-		/*
-		 * Compute the correct thrust for this time step.  If the original thrust estimate differs more
-		 * than 10% from the true value then recompute the RK4 step 1.  The 10% error in step 1 is
-		 * diminished by it affecting only 1/6th of the total, so it's an acceptable error.
-		 */
-		double thrustEstimate = store.thrustForce;
-		store.thrustForce = calculateAverageThrust(status, store.timestep, store.longitudinalAcceleration,
-				store.atmosphericConditions, true);
-		log.trace("Thrust = " + store.thrustForce);
-		double thrustDiff = Math.abs(store.thrustForce - thrustEstimate);
-		// Log if difference over 1%, recompute if over 10%
-		if (thrustDiff > 0.01 * thrustEstimate) {
-			if (thrustDiff > 0.1 * thrustEstimate + 0.001) {
-				log.debug("Thrust estimate differs from correct value by " +
-						(Math.rint(1000 * (thrustDiff + 0.000001) / thrustEstimate) / 10.0) + "%," +
-						" estimate=" + thrustEstimate +
-						" correct=" + store.thrustForce +
-						" timestep=" + store.timestep +
-						", recomputing k1 parameters");
-				k1 = computeParameters(status, store);
-			} else {
-				log.trace("Thrust estimate differs from correct value by " +
-						(Math.rint(1000 * (thrustDiff + 0.000001) / thrustEstimate) / 10.0) + "%," +
-						" estimate=" + thrustEstimate +
-						" correct=" + store.thrustForce +
-						" timestep=" + store.timestep +
-						", error acceptable");
-			}
-		}
-		
 
+					  
+		
 		//// Second position, k2 = f(t + h/2, y + k1*h/2)
 		
 		status2 = status.clone();
@@ -346,8 +322,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.dragForce = store.forces.getCDaxial() * dynP * refArea;
 		double fN = store.forces.getCN() * dynP * refArea;
 		double fSide = store.forces.getCside() * dynP * refArea;
-		
-		double forceZ = store.thrustForce - store.dragForce;
+
+		store.thrustForce = calculateThrust(status, store.longitudinalAcceleration, store.flightConditions.getAtmosphericConditions(), false);
+		double forceZ =  store.thrustForce - store.dragForce;
 		
 		store.linearAcceleration = new Coordinate(-fN / store.rocketMass.getMass(),
 					-fSide / store.rocketMass.getMass(),
