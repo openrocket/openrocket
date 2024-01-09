@@ -90,12 +90,18 @@ public class SimulationPlot {
 
 	private final LegendItems legendItems;
 
+	private ErrorAnnotationSet errorAnnotations = null;
+	
 	private int branchCount;
 
 	void setShowPoints(boolean showPoints) {
 		for (ModifiedXYItemRenderer r : renderers) {
 			r.setBaseShapesVisible(showPoints);
 		}
+	}
+
+	void setShowErrors(boolean showErrors) {
+		errorAnnotations.setVisible(showErrors);
 	}
 
 	void setShowBranch(int branch) {
@@ -109,8 +115,10 @@ public class SimulationPlot {
 				r.setSeriesVisible(j, show);
 			}
 		}
+		
 		drawDomainMarkers(branch);
-		drawAborts(branch);
+
+		errorAnnotations.setCurrent(branch);
 	}
 
 	SimulationPlot(Simulation simulation, PlotConfiguration config, boolean initialShowPoints) {
@@ -342,8 +350,7 @@ public class SimulationPlot {
 		// Create the event markers
 		drawDomainMarkers(-1);
 
-		// Display aborts (if any)
-		drawAborts(-1);
+		errorAnnotations = new ErrorAnnotationSet(branchCount);
 	}
 
 	JFreeChart getJFreeChart() {
@@ -595,45 +602,6 @@ public class SimulationPlot {
 		return eventList;
 
 	}
-
-	/**
-	 * Put all aborts in a text area
-	 */
-	private void drawAborts(int branchno) {
-		String abortString = "";
-
-		for (int b = Math.max(0, branchno);
-			 b < ((branchno < 0) ?
-				  (simulation.getSimulatedData().getBranchCount()) :
-				  (branchno + 1)); b++) {
-			FlightDataBranch branch = simulation.getSimulatedData().getBranch(b);
-			final List<FlightEvent> events = branch.getEvents();
-			for (FlightEvent event: events) {
-				if (event.getType() == FlightEvent.Type.SIM_ABORT) {
-					if (abortString == "") {
-						abortString = trans.get("simulationplot.abort.title");
-					}
-					abortString += "\n" + trans.get("simulationplot.abort.stage") + ": " + branch.getBranchName() +
-						", " + trans.get("simulationplot.abort.time") + ": " + event.getTime() +
-						", " + trans.get("simulationplot.abort.cause") + ": " + ((SimulationAbort)event.getData()).getMessageDescription();
-				}
-			}
-		}
-
-		if (abortString != "") {
-			TextTitle abortsTitle = new TextTitle(abortString,
-												  new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED,
-												  RectangleEdge.TOP,
-												  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
-												  new RectangleInsets(5, 5, 5, 5));
-			abortsTitle.setBackgroundPaint(Color.WHITE);
-			BlockBorder abortsBorder = new BlockBorder(Color.RED);
-			abortsTitle.setFrame(abortsBorder);
-			XYTitleAnnotation abortsAnnotation = new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
-	
-			chart.getXYPlot().addAnnotation(abortsAnnotation);
-		}
-	}
 	
 	private static class LegendItems implements LegendItemSource {
 
@@ -839,5 +807,106 @@ public class SimulationPlot {
 		FlightEvent event;
 	}
 
+	/**
+	 * Is there really no way to set an annotation invisible?  This class kludges provides a way
+	 * to select at most one from a set of annotations and make it visible.
+	 */
+	private class ErrorAnnotationSet {
+		private XYTitleAnnotation[] errorAnnotations;
+		private XYTitleAnnotation currentAnnotation;
+		private boolean visible = true;
+		private int branchCount;
+
+		protected ErrorAnnotationSet(int branches) {
+			branchCount = branches;
+			errorAnnotations = new XYTitleAnnotation[branchCount+1];
+			
+			for (int b = -1; b < branchCount; b++) {
+				if (b < 0) {
+					errorAnnotations[branchCount] = createAnnotation(b);
+				} else {
+					errorAnnotations[b] = createAnnotation(b);
+				}
+			}
+			setCurrent(-1);
+		}
+
+		private XYTitleAnnotation createAnnotation(int branchNo) {
+
+			String abortString = "";
+
+			for (int b = Math.max(0, branchNo);
+				 b < ((branchNo < 0) ?
+					  (simulation.getSimulatedData().getBranchCount()) :
+					  (branchNo + 1)); b++) {
+				FlightDataBranch branch = simulation.getSimulatedData().getBranch(b);
+				FlightEvent abortEvent = branch.getFirstEvent(FlightEvent.Type.SIM_ABORT);
+				if (abortEvent != null) {
+					if (abortString == "") {
+						abortString = trans.get("simulationplot.abort.title");
+					}
+					abortString += "\n" + trans.get("simulationplot.abort.stage") + ": " + branch.getBranchName() +
+						", " + trans.get("simulationplot.abort.time") + ": " + abortEvent.getTime() +
+						", " + trans.get("simulationplot.abort.cause") + ": " + ((SimulationAbort)abortEvent.getData()).getMessageDescription();
+				}
+			}
+
+			if (abortString != "") {
+				TextTitle abortsTitle = new TextTitle(abortString,
+													  new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED,
+													  RectangleEdge.TOP,
+													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
+													  new RectangleInsets(5, 5, 5, 5));
+				abortsTitle.setBackgroundPaint(Color.WHITE);
+				BlockBorder abortsBorder = new BlockBorder(Color.RED);
+				abortsTitle.setFrame(abortsBorder);
+
+				return new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
+			} else {
+				return null;
+			}
+		}
+
+		protected void setCurrent(int branchNo) {
+			XYPlot plot = chart.getXYPlot();
+			// If we are currently displaying an annotation, and we want to
+			// change to a new branch, stop displaying the old annotation
+
+			XYTitleAnnotation newAnnotation = (branchNo < 0) ?
+				errorAnnotations[branchCount] :
+				errorAnnotations[branchNo];
+
+			// if we're currently displaying an annotation, and it's different
+			// from the new annotation, stop displaying it
+			if ((currentAnnotation != null) &&
+				(currentAnnotation != newAnnotation) &&
+				visible) {
+				plot.removeAnnotation(currentAnnotation);
+			}
+			
+			// set our current annotation
+			currentAnnotation = newAnnotation;
+
+			// if visible, display it
+			if ((currentAnnotation != null) && visible) {
+				plot.addAnnotation(currentAnnotation);
+			}
+		}
+
+		protected void setVisible(boolean v) {
+			if (visible != v) {
+				visible = v;
+				if (currentAnnotation != null) {
+					XYPlot plot = chart.getXYPlot();
+					
+					if (visible) {
+						plot.addAnnotation(currentAnnotation);
+					} else {
+						plot.removeAnnotation(currentAnnotation);
+					}
+				}
+			}
+		}
+	}		
 }
 

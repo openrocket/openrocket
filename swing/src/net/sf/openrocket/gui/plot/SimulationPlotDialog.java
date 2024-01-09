@@ -86,17 +86,29 @@ public class SimulationPlotDialog extends JDialog {
 		}
 		
 		//// Show data points
-		final JCheckBox check = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
-		check.setSelected(initialShowPoints);
-		check.addActionListener(new ActionListener() {
+		final JCheckBox checkData = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
+		checkData.setSelected(initialShowPoints);
+		checkData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean show = check.isSelected();
+				boolean show = checkData.isSelected();
 				Application.getPreferences().putBoolean(Preferences.PLOT_SHOW_POINTS, show);
 				myPlot.setShowPoints(show);
 			}
 		});
-		panel.add(check, "split, left");
+		panel.add(checkData, "split, left");
+
+		//// Show errors
+		//// ALWAYS show errors initially; make user turn it off for themselves
+		final JCheckBox checkErrors = new JCheckBox(trans.get("PlotDialog.CheckBox.ShowErrors"));
+		checkErrors.setSelected(true);
+		checkErrors.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				myPlot.setShowErrors(checkErrors.isSelected());
+			}
+		});
+		panel.add(checkErrors, "split, left");
 
 		//// Add series selection box
 		ArrayList<String> stages = new ArrayList<String>();
