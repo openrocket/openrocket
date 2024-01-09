@@ -808,7 +808,7 @@ public class SimulationPlot {
 	}
 
 	/**
-	 * Is there really no way to set an annotation invisible?  This class kludges provides a way
+	 * Is there really no way to set an annotation invisible?  This class provides a way
 	 * to select at most one from a set of annotations and make it visible.
 	 */
 	private class ErrorAnnotationSet {
