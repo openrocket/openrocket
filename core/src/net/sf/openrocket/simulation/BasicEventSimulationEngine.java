@@ -418,7 +418,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				ThrustCurveMotor motor = (ThrustCurveMotor) motorState.getMotor();
 				double[] timePoints = motor.getTimePoints();
 				for (double point : timePoints) {
-					addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, point, event.getSource(), motorState));
+					addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, point, event.getSource(), null));
 				}
 
 				// and queue up the burnout for this motor, as well. 
