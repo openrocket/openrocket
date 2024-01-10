@@ -98,17 +98,19 @@ public class SimulationPlotDialog extends JDialog {
 		});
 		panel.add(checkData, "split, left");
 
-		//// Show errors
+		//// Show errors if any
 		//// ALWAYS show errors initially; make user turn it off for themselves
-		final JCheckBox checkErrors = new JCheckBox(trans.get("PlotDialog.CheckBox.ShowErrors"));
-		checkErrors.setSelected(true);
-		checkErrors.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				myPlot.setShowErrors(checkErrors.isSelected());
-			}
-		});
-		panel.add(checkErrors, "split, left");
+		if (simulation.hasErrors()) {
+			final JCheckBox checkErrors = new JCheckBox(trans.get("PlotDialog.CheckBox.ShowErrors"));
+			checkErrors.setSelected(true);
+			checkErrors.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						myPlot.setShowErrors(checkErrors.isSelected());
+					}
+				});
+			panel.add(checkErrors, "split, left");
+		}
 
 		//// Add series selection box
 		ArrayList<String> stages = new ArrayList<String>();
