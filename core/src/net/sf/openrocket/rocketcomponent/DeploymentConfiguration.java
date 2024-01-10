@@ -41,7 +41,7 @@ public class DeploymentConfiguration implements FlightConfigurableParameter<Depl
 			@SuppressWarnings("unchecked")
 			@Override
 			public boolean isActivationEvent(DeploymentConfiguration config, FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.ALTITUDE)
+				if ((e.getType() != FlightEvent.Type.ALTITUDE) || (e.getData() == null))
 					return false;
 				
 				double alt = config.deployAltitude;
