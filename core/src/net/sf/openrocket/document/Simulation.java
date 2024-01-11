@@ -363,6 +363,16 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 
 	/**
+	 * Determines whether the specified branch in the simulation has errors
+	 *
+	 * @param branch the branch to check for errors
+	 */
+	public boolean hasErrors(int branch) {
+		FlightData data = getSimulatedData();
+		return data.getBranch(branch).getFirstEvent(FlightEvent.Type.SIM_ABORT) != null;
+	}
+
+	/**
 	 * Returns true if the status indicates that the simulation data is up-to-date.
 	 * @param status status of the simulation to check for if its data is up-to-date
 	 */

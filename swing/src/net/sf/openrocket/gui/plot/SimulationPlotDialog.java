@@ -46,6 +46,7 @@ public class SimulationPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 
 	private static Color darkWarningColor;
+	private final JCheckBox checkErrors;
 
 	static {
 		initColors();
@@ -61,7 +62,7 @@ public class SimulationPlotDialog extends JDialog {
 		final SimulationPlot myPlot = new SimulationPlot(simulation, config, initialShowPoints);
 		
 		// Create the dialog
-		JPanel panel = new JPanel(new MigLayout("fill","[]","[grow][]"));
+		JPanel panel = new JPanel(new MigLayout("fill, hidemode 3","[]","[grow][]"));
 		this.add(panel);
 		
 		final ChartPanel chartPanel = new SimulationChart(myPlot.getJFreeChart());
@@ -99,18 +100,17 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(checkData, "split, left");
 
 		//// Show errors if any
-		//// ALWAYS show errors initially; make user turn it off for themselves
-		if (simulation.hasErrors()) {
-			final JCheckBox checkErrors = new JCheckBox(trans.get("PlotDialog.CheckBox.ShowErrors"));
-			checkErrors.setSelected(true);
-			checkErrors.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						myPlot.setShowErrors(checkErrors.isSelected());
-					}
-				});
-			panel.add(checkErrors, "split, left");
-		}
+		//// Always enable 'show errors' initially; make user turn it off for themselves
+		checkErrors = new JCheckBox(trans.get("PlotDialog.CheckBox.ShowErrors"));
+		checkErrors.setSelected(true);
+		checkErrors.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				myPlot.setShowErrors(checkErrors.isSelected());
+			}
+		});
+		panel.add(checkErrors, "split, left");
+		checkErrors.setVisible(simulation.hasErrors());
 
 		//// Add series selection box
 		ArrayList<String> stages = new ArrayList<String>();
@@ -123,6 +123,7 @@ public class SimulationPlotDialog extends JDialog {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				int selectedStage = stageSelection.getSelectedIndex() - 1;
+				checkErrors.setVisible(selectedStage == -1 ? simulation.hasErrors() : simulation.hasErrors(selectedStage));
 				myPlot.setShowBranch(selectedStage);
 			}
 

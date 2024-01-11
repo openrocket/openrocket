@@ -833,7 +833,7 @@ public class SimulationPlot {
 
 		private XYTitleAnnotation createAnnotation(int branchNo) {
 
-			String abortString = "";
+			StringBuilder abortString = new StringBuilder();
 
 			for (int b = Math.max(0, branchNo);
 				 b < ((branchNo < 0) ?
@@ -842,17 +842,18 @@ public class SimulationPlot {
 				FlightDataBranch branch = simulation.getSimulatedData().getBranch(b);
 				FlightEvent abortEvent = branch.getFirstEvent(FlightEvent.Type.SIM_ABORT);
 				if (abortEvent != null) {
-					if (abortString == "") {
-						abortString = trans.get("simulationplot.abort.title");
+					if (abortString.isEmpty()) {
+						abortString = new StringBuilder(trans.get("simulationplot.abort.title"));
 					}
-					abortString += "\n" + trans.get("simulationplot.abort.stage") + ": " + branch.getBranchName() +
-						", " + trans.get("simulationplot.abort.time") + ": " + abortEvent.getTime() +
-						", " + trans.get("simulationplot.abort.cause") + ": " + ((SimulationAbort)abortEvent.getData()).getMessageDescription();
+					abortString.append("\n")
+							.append(trans.get("simulationplot.abort.stage")).append(": ").append(branch.getBranchName()).append("; ")
+							.append(trans.get("simulationplot.abort.time")).append(": ").append(abortEvent.getTime()).append(" s; ")
+							.append(trans.get("simulationplot.abort.cause")).append(": ").append(((SimulationAbort) abortEvent.getData()).getMessageDescription());
 				}
 			}
 
-			if (abortString != "") {
-				TextTitle abortsTitle = new TextTitle(abortString,
+			if (!abortString.toString().isEmpty()) {
+				TextTitle abortsTitle = new TextTitle(abortString.toString(),
 													  new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED,
 													  RectangleEdge.TOP,
 													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
