@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.RigidBody;
@@ -306,7 +307,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.rocketMass = structureMassData.add( store.motorMass );
 
 		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
-			throw new SimulationException(trans.get("SimulationStepper.error.totalMassZero"));
+			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
 		
 		// Calculate the forces from the aerodynamic coefficients

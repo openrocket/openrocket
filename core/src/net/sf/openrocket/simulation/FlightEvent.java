@@ -1,6 +1,7 @@
 package net.sf.openrocket.simulation;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -80,9 +81,15 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		 * The rocket begins to tumble.
 		 */
 		TUMBLE(trans.get("FlightEvent.Type.TUMBLE")),
+
+		/**
+		 * It is impossible for the simulation proceed due to characteristics
+		 * of the rocket or flight configuration
+		 */
+		SIM_ABORT(trans.get("FlightEvent.Type.SIM_ABORT")),
 		
 		/**
-		 * Simulation aborted
+		 * Simulation exception thrown due to error in OpenRocket code
 		 */
 		EXCEPTION(trans.get("FlightEvent.Type.EXCEPTION"));
 		
@@ -139,10 +146,6 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	public Object getData() {
 		return data;
 	}
-	
-	
-
-	
 	
 	/**
 	 * Compares this event to another event depending on the event time.  Secondary
@@ -237,6 +240,11 @@ public class FlightEvent implements Comparable<FlightEvent> {
 					throw new IllegalStateException(type.name()+" events should have "
 							+MotorClusterState.class.getSimpleName()+" type data payloads");
 				}
+			}
+			break;
+		case SIM_ABORT:
+			if (( null == this.data ) || ( ! ( this.data instanceof SimulationAbort ))) {
+				throw new IllegalStateException(type.name()+" events require SimulationAbort objects");
 			}
 			break;
 		case LAUNCH:

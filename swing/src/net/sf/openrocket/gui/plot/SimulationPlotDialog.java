@@ -46,6 +46,7 @@ public class SimulationPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 
 	private static Color darkWarningColor;
+	private final JCheckBox checkErrors;
 
 	static {
 		initColors();
@@ -61,7 +62,7 @@ public class SimulationPlotDialog extends JDialog {
 		final SimulationPlot myPlot = new SimulationPlot(simulation, config, initialShowPoints);
 		
 		// Create the dialog
-		JPanel panel = new JPanel(new MigLayout("fill","[]","[grow][]"));
+		JPanel panel = new JPanel(new MigLayout("fill, hidemode 3","[]","[grow][]"));
 		this.add(panel);
 		
 		final ChartPanel chartPanel = new SimulationChart(myPlot.getJFreeChart());
@@ -86,21 +87,34 @@ public class SimulationPlotDialog extends JDialog {
 		}
 		
 		//// Show data points
-		final JCheckBox check = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
-		check.setSelected(initialShowPoints);
-		check.addActionListener(new ActionListener() {
+		final JCheckBox checkData = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
+		checkData.setSelected(initialShowPoints);
+		checkData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean show = check.isSelected();
+				boolean show = checkData.isSelected();
 				Application.getPreferences().putBoolean(Preferences.PLOT_SHOW_POINTS, show);
 				myPlot.setShowPoints(show);
 			}
 		});
-		panel.add(check, "split, left");
+		panel.add(checkData, "split, left");
+
+		//// Show errors if any
+		//// Always enable 'show errors' initially; make user turn it off for themselves
+		checkErrors = new JCheckBox(trans.get("PlotDialog.CheckBox.ShowErrors"));
+		checkErrors.setSelected(true);
+		checkErrors.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				myPlot.setShowErrors(checkErrors.isSelected());
+			}
+		});
+		panel.add(checkErrors, "split, left");
+		checkErrors.setVisible(simulation.hasErrors());
 
 		//// Add series selection box
 		ArrayList<String> stages = new ArrayList<String>();
-		stages.add("All");
+		stages.add(trans.get("PlotDialog.StageDropDown.allStages"));
 		stages.addAll(Util.generateSeriesLabels(simulation));
 
 		final JComboBox<String> stageSelection = new JComboBox<>(stages.toArray(new String[0]));
@@ -109,6 +123,7 @@ public class SimulationPlotDialog extends JDialog {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				int selectedStage = stageSelection.getSelectedIndex() - 1;
+				checkErrors.setEnabled(selectedStage == -1 ? simulation.hasErrors() : simulation.hasErrors(selectedStage));
 				myPlot.setShowBranch(selectedStage);
 			}
 

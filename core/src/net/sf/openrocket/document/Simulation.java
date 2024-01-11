@@ -19,6 +19,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationEngine;
@@ -349,7 +350,30 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 
 	/**
-	 * Returns true is the status indicates that the simulation data is up-to-date.
+	 * Determines whether the simulation has errors
+	 */
+	public boolean hasErrors() {
+		FlightData data = getSimulatedData();
+		for (int branchNo = 0; branchNo < data.getBranchCount(); branchNo++) {
+			if (data.getBranch(branchNo).getFirstEvent(FlightEvent.Type.SIM_ABORT) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Determines whether the specified branch in the simulation has errors
+	 *
+	 * @param branch the branch to check for errors
+	 */
+	public boolean hasErrors(int branch) {
+		FlightData data = getSimulatedData();
+		return data.getBranch(branch).getFirstEvent(FlightEvent.Type.SIM_ABORT) != null;
+	}
+
+	/**
+	 * Returns true if the status indicates that the simulation data is up-to-date.
 	 * @param status status of the simulation to check for if its data is up-to-date
 	 */
 	public static boolean isStatusUpToDate(Status status) {

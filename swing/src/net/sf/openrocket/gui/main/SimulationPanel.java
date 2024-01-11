@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -78,6 +79,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
@@ -779,8 +781,16 @@ public class SimulationPanel extends JPanel {
 			tip += trans.get("simpanel.ttip.noData");
 			return tip;
 		}
-		WarningSet warnings = data.getWarningSet();
 
+		for (int b = 0; b < data.getBranchCount(); b++) {
+			FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
+			if ( abortEvent != null) {
+				tip += "<font color=\"red\"><i><b>" + trans.get("simpanel.ttip.simAbort") + ":</b></i> " +
+					((SimulationAbort)(abortEvent.getData())).toString() + "</font><br />";
+			}
+		}
+		
+		WarningSet warnings = data.getWarningSet();
 		if (warnings.isEmpty()) {
 			tip += trans.get("simpanel.ttip.noWarnings");
 			return tip;

@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.MotorConfigurationId;
@@ -550,4 +553,23 @@ public class SimulationStatus implements Monitorable {
 		}
 	}
 
+	/**
+	 * Add a flight event to the event queue unless a listener aborts adding it.
+	 *
+	 * @param event		the event to add to the queue.
+	 */
+	public void addEvent(FlightEvent event) throws SimulationException {
+		if (SimulationListenerHelper.fireAddFlightEvent(this, event)) {
+			getEventQueue().add(event);
+		}
+	}
+
+	/**
+	 * Abort the current simulation branch
+	 */
+	public void abortSimulation(SimulationAbort.Cause cause) throws SimulationException {
+		FlightEvent abortEvent = new FlightEvent(FlightEvent.Type.SIM_ABORT, getSimulationTime(), null, new SimulationAbort(cause));
+		addEvent(abortEvent);
+	}
+	
 }

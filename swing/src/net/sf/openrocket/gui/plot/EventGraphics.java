@@ -40,6 +40,8 @@ public class EventGraphics {
 		EVENT_COLORS.put(FlightEvent.Type.GROUND_HIT, new Color(0, 0, 0));
 		EVENT_COLORS.put(FlightEvent.Type.SIMULATION_END, new Color(128, 0, 0));
 		EVENT_COLORS.put(FlightEvent.Type.TUMBLE, new Color(196, 0, 255));
+		EVENT_COLORS.put(FlightEvent.Type.EXCEPTION, new Color(255, 0, 0));
+		EVENT_COLORS.put(FlightEvent.Type.SIM_ABORT, new Color(255, 0, 0));
 	}
 
 	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES = new HashMap<FlightEvent.Type, Image>();
@@ -58,6 +60,7 @@ public class EventGraphics {
 		loadImage(FlightEvent.Type.GROUND_HIT, "pix/eventicons/event-ground-hit.png");
 		loadImage(FlightEvent.Type.SIMULATION_END, "pix/eventicons/event-simulation-end.png");
 		loadImage(FlightEvent.Type.EXCEPTION, "pix/eventicons/event-exception.png");
+		loadImage(FlightEvent.Type.SIM_ABORT, "pix/eventicons/event-exception.png");
 	}
 
 	private static void loadImage(FlightEvent.Type type, String file) {

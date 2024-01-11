@@ -46,7 +46,7 @@ public class FlightDataBranch implements Monitorable {
 	 * Altitude the rocket would reach if there had been no recovery deployment.
 	 */
 	private double optimumAltitude = Double.NaN;
-	
+
 	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
 	
 	private final Mutable mutable = new Mutable();

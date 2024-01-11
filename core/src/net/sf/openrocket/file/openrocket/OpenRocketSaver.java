@@ -9,6 +9,7 @@ import java.util.*;
 
 import net.sf.openrocket.file.openrocket.savers.PhotoStudioSaver;
 import net.sf.openrocket.logging.ErrorSet;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.WarningSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -539,6 +540,11 @@ public class OpenRocketSaver extends RocketSaver {
 			if (event.getSource() != null) {
 				eventStr += "\" source=\"" + TextUtil.escapeXML(event.getSource().getID());
 			}
+			
+			if (event.getType() == FlightEvent.Type.SIM_ABORT) {
+				eventStr += "\" cause=\"" + enumToXMLName(((SimulationAbort)(event.getData())).getCause());
+			}
+			
 			eventStr += "\"/>";
 			writeln(eventStr);
 		}

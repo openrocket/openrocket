@@ -1,10 +1,10 @@
 package net.sf.openrocket.simulation;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.FlightConfigurationId;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 import net.sf.openrocket.util.TestRockets;
@@ -33,15 +33,13 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        // Since there are no stages, the simulation should throw an exception.
-        try {
-            simDisabled.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation should have thrown a MotorIgnitionException");
-            }
-        }
+		simDisabled.simulate();
 
+        // Since there are no stages, the simulation should abort
+		FlightEvent abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		Assert.assertNotNull("Empty simulation failed to abort", abort);
+		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NO_ACTIVE_STAGES, ((SimulationAbort)(abort.getData())).getCause());
+		
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeEstesAlphaIII();
 
@@ -210,27 +208,32 @@ public class DisableStageTest extends BaseTestCase {
         simRemoved.getOptions().setISAAtmosphere(true);
         simRemoved.getOptions().setTimeStep(0.05);
 
+		try {
+			simRemoved.simulate();
+		} catch(Exception e) {
+			Assert.fail("unexpected exception " + e);
+		}
+		
+        // There should be no motors left at this point, so we should abort on no motors
+		FlightEvent abort = simRemoved.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		Assert.assertNotNull("Empty simulation failed to abort", abort);
+		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NO_MOTORS_DEFINED, ((SimulationAbort)(abort.getData())).getCause());
+
         Simulation simDisabled = new Simulation(rocketDisabled);
         simDisabled.setFlightConfigurationId(fid);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        // There should be no motors left at this point, so a no motors exception should be thrown
-        try {
-            simRemoved.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation failed: " + e);
-            }
-        }
-
-        try {
-            simDisabled.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation failed: " + e);
-            }
-        }
+		try {
+			simDisabled.simulate();
+		} catch(Exception e) {
+			Assert.fail("unexpected exception " + e);
+		}
+		
+        // There should be no motors left at this point, so we should abort on no motors
+		abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		Assert.assertNotNull("Empty simulation failed to abort", abort);
+		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NO_MOTORS_DEFINED, ((SimulationAbort)(abort.getData())).getCause());
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
@@ -265,13 +268,16 @@ public class DisableStageTest extends BaseTestCase {
         //// Test that the top stage is the booster stage
         Assert.assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()), rocketDisabled.getStage(2));
 
-        try {       // Just check that the simulation runs without exceptions
-            simDisabled.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation failed: " + e);
-            }
-        }
+		try {
+			simDisabled.simulate();
+		} catch(Exception e) {
+			Assert.fail("unexpected exception " + e);
+		}
+		
+        // Sim will tumble under
+		FlightEvent abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		Assert.assertNotNull("Unstable booster failed to abort", abort);
+		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.TUMBLE_UNDER_THRUST, ((SimulationAbort)(abort.getData())).getCause());
     }
 
     /**
