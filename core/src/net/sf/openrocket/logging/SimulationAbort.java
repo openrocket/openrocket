@@ -24,6 +24,9 @@ public class SimulationAbort extends Message {
 	 * Possible causes of sim aborts
 	 */
 	public enum Cause {
+		// No active stages in simulation
+		NO_ACTIVE_STAGES(trans.get("SimulationAbort.noActiveStages")),
+		
 		// No motors are defined in the sim configuration
 		NOMOTORSDEFINED(trans.get("SimulationAbort.noMotorsDefined")),
 

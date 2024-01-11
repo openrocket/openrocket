@@ -75,8 +75,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		simulationConfig.copyStages(origConfig);	// Clone the stage activation configuration
 		
 		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
-		// main simulation branch 
-		final String branchName = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration()).getName();
+		// main simulation branch. Need to watch for pathological case with no stages defined
+		final AxialStage topStage = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration());
+		final String branchName;
+			if (topStage != null) {
+				branchName = topStage.getName();
+			} else {
+				branchName = trans.get("BasicEventSimulationEngine.nullBranchName");
+			}
 		FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
 
 		// put a point on it so we can plot if we get an early abort event
@@ -90,6 +96,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Problems that keep us from simulating at all
 
+		// No active stages
+		if (topStage == null) {
+			currentStatus.abortSimulation(SimulationAbort.Cause.NO_ACTIVE_STAGES);
+		}
+		
 		// No motors in configuration
 		if (!simulationConfig.hasMotors() ) {
 			currentStatus.abortSimulation(SimulationAbort.Cause.NOMOTORSDEFINED);
