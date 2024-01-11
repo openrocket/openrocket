@@ -123,7 +123,7 @@ public class SimulationPlotDialog extends JDialog {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				int selectedStage = stageSelection.getSelectedIndex() - 1;
-				checkErrors.setVisible(selectedStage == -1 ? simulation.hasErrors() : simulation.hasErrors(selectedStage));
+				checkErrors.setEnabled(selectedStage == -1 ? simulation.hasErrors() : simulation.hasErrors(selectedStage));
 				myPlot.setShowBranch(selectedStage);
 			}
 
