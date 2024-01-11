@@ -28,25 +28,25 @@ public class SimulationAbort extends Message {
 		NO_ACTIVE_STAGES(trans.get("SimulationAbort.noActiveStages")),
 		
 		// No motors are defined in the sim configuration
-		NOMOTORSDEFINED(trans.get("SimulationAbort.noMotorsDefined")),
+		NO_MOTORS_DEFINED(trans.get("SimulationAbort.noMotorsDefined")),
 
 		// Motors are defined, but none are configured to fire at liftoff
-		NOCONFIGUREDIGNITION(trans.get("SimulationAbort.noConfiguredIgnition")),
+		NO_CONFIGURED_IGNITION(trans.get("SimulationAbort.noConfiguredIgnition")),
 	
 		// No motors fired (can this really happen without getting a NoMotorsDefined?)
-		NOMOTORSFIRED(trans.get("SimulationAbort.noIgnition")),
+		NO_MOTORS_FIRED(trans.get("SimulationAbort.noIgnition")),
 
 		// Motors ignited, but rocket did not lift off
-		NOLIFTOFF(trans.get("SimulationAbort.noLiftOff")),
+		NO_LIFTOFF(trans.get("SimulationAbort.noLiftOff")),
 																		
 		// It is impossible to calculate the active components' center of pressure
-		NOCP(trans.get("SimulationAbort.noCP")),
+		NO_CP(trans.get("SimulationAbort.noCP")),
 
 		// The currently active components have a total length of 0
-		ACTIVELENGTHZERO(trans.get("SimulationAbort.activeLengthZero")),
+		ACTIVE_LENGTH_ZERO(trans.get("SimulationAbort.activeLengthZero")),
 
 		// The currently active components have a total mass of 0
-		ACTIVEMASSZERO(trans.get("SimulationAbort.activeMassZero")),
+		ACTIVE_MASS_ZERO(trans.get("SimulationAbort.activeMassZero")),
 
 		// Stage is tumbling under thrust
 		TUMBLE_UNDER_THRUST(trans.get("SimulationAbort.tumbleUnderThrust"));

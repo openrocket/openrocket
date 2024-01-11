@@ -103,7 +103,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// No motors in configuration
 		if (!simulationConfig.hasMotors() ) {
-			currentStatus.abortSimulation(SimulationAbort.Cause.NOMOTORSDEFINED);
+			currentStatus.abortSimulation(SimulationAbort.Cause.NO_MOTORS_DEFINED);
 		}
 
 		// Problems that let us simulate, but result is likely bad
@@ -462,7 +462,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case BURNOUT: {
 				// If motor burnout occurs without lift-off, abort
 				if (!currentStatus.isLiftoff()) {
-					currentStatus.abortSimulation(SimulationAbort.Cause.NOLIFTOFF);
+					currentStatus.abortSimulation(SimulationAbort.Cause.NO_LIFTOFF);
 				}
 				
 				// Add ejection charge event
@@ -656,7 +656,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		// If no motor has ignited, abort
 		if (!currentStatus.isMotorIgnited()) {
 			// TODO MEDIUM: display this as a warning to the user (e.g. highlight the cell in the simulation panel in red and a hover: 'make sure the motor ignition is correct' or something)
-			currentStatus.abortSimulation(SimulationAbort.Cause.NOMOTORSFIRED);
+			currentStatus.abortSimulation(SimulationAbort.Cause.NO_MOTORS_FIRED);
 		}
 		
 		return ret;
@@ -696,7 +696,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// Active stages have total length of 0.
 		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
-			currentStatus.abortSimulation(SimulationAbort.Cause.ACTIVELENGTHZERO);
+			currentStatus.abortSimulation(SimulationAbort.Cause.ACTIVE_LENGTH_ZERO);
 		}
 		
 		// Can't calculate stability.  If it's the sustainer we'll abort; if a booster
@@ -707,7 +707,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				   new FlightConditions(currentStatus.getConfiguration()),
 				   new WarningSet()).weight < MathUtil.EPSILON) {
 			if (currentStatus.getConfiguration().isStageActive(0)) {
-				currentStatus.abortSimulation(SimulationAbort.Cause.NOCP);
+				currentStatus.abortSimulation(SimulationAbort.Cause.NO_CP);
 			} else {
 				currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
 			}

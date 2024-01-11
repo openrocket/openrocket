@@ -307,7 +307,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.rocketMass = structureMassData.add( store.motorMass );
 
 		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
-			status.abortSimulation(SimulationAbort.Cause.ACTIVEMASSZERO);
+			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
 		
 		// Calculate the forces from the aerodynamic coefficients

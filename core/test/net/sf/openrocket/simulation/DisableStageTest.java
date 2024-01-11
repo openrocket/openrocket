@@ -217,7 +217,7 @@ public class DisableStageTest extends BaseTestCase {
         // There should be no motors left at this point, so we should abort on no motors
 		FlightEvent abort = simRemoved.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
 		Assert.assertNotNull("Empty simulation failed to abort", abort);
-		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NOMOTORSDEFINED, ((SimulationAbort)(abort.getData())).getCause());
+		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NO_MOTORS_DEFINED, ((SimulationAbort)(abort.getData())).getCause());
 
         Simulation simDisabled = new Simulation(rocketDisabled);
         simDisabled.setFlightConfigurationId(fid);
@@ -233,7 +233,7 @@ public class DisableStageTest extends BaseTestCase {
         // There should be no motors left at this point, so we should abort on no motors
 		abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
 		Assert.assertNotNull("Empty simulation failed to abort", abort);
-		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NOMOTORSDEFINED, ((SimulationAbort)(abort.getData())).getCause());
+		Assert.assertEquals("Abort cause did not match", SimulationAbort.Cause.NO_MOTORS_DEFINED, ((SimulationAbort)(abort.getData())).getCause());
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
