@@ -94,13 +94,14 @@ public class RockSimSaver extends RocketSaver {
 	}
 	
 	private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
+		rocket = rocket.copyWithOriginalID();		// Make sure we don't change the original design.
 		RocketDesignDTO result = new RocketDesignDTO();
 		
 		final FlightConfiguration configuration = rocket.getEmptyConfiguration();
 		final RigidBody spentData = MassCalculator.calculateStructure( configuration);
 		final double cg = spentData.cm.x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
-		int stageCount = rocket.getStageCount();
+		int stageCount = rocket.getChildCount();
 		if (stageCount == 3) {
 			result.setStage321CG(cg);
 		} else if (stageCount == 2) {
