@@ -482,15 +482,22 @@ public class Rocket extends ComponentAssembly {
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
 
-		listenerList.add(l);
-
-		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		boolean added = listenerList.add(l);
+		if (added) {
+			log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		} else {
+			log.warn("Attempted to add ComponentChangeListener " + l + " but it was already registered");
+		}
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
-		listenerList.remove(l);
-		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		boolean removed = listenerList.remove(l);
+		if (removed) {
+			log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		} else {
+			log.warn("Attempted to remove ComponentChangeListener " + l + " but it was not registered");
+		}
 	}
 
 	/**
