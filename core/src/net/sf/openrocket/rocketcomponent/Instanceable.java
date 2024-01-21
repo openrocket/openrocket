@@ -5,7 +5,7 @@ import net.sf.openrocket.util.Coordinate;
 public interface Instanceable {
 	
 	@Deprecated
-	public Coordinate[] getLocations();
+	Coordinate[] getLocations();
 	
 	/**
 	 * Returns vector coordinates of each instance of this component relative to this component's parent
@@ -16,7 +16,7 @@ public interface Instanceable {
 	 * 
 	 * @return coordinates location of each instance relative to component's parent
 	 */
-	public Coordinate[] getInstanceLocations();
+	Coordinate[] getInstanceLocations();
 	
 	/**
 	 * Returns vector coordinates of each instance of this component relative to this component's reference point (typically front center)
@@ -27,20 +27,20 @@ public interface Instanceable {
 	 * 
 	 * @return coordinates location of each instance relative to <b>this</b> component's reference point.
 	 */
-	public Coordinate[] getInstanceOffsets();
+	Coordinate[] getInstanceOffsets();
 	
 	/** 
 	 * How many instances of this component are represented.  This should generally be editable.
 	 * @param newCount  number of instances to set
 	 */
-	public void setInstanceCount( final int newCount );
+	void setInstanceCount( final int newCount );
 	
 	/** 
 	 * How many instances of this component are represented.  This should generally be editable.
 	 * 
 	 * @return number of instances this component currently represent. 
 	 */
-	public int getInstanceCount();
+	int getInstanceCount();
 
 	/** 
 	 * Get a human-readable name for this instance arrangement.
@@ -48,6 +48,6 @@ public interface Instanceable {
 	 * 
 	 * @return pattern name
 	 */
-	public String getPatternName();
+	String getPatternName();
 	
 }

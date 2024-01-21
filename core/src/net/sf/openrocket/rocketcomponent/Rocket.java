@@ -412,7 +412,9 @@ public class Rocket extends ComponentAssembly {
 	 * changes.
 	 */
 	public void loadFrom(Rocket source) {
-		
+		checkState();
+		mutex.lock("loadFrom");
+
 		// Store list of components to invalidate after event has been fired
 		List<RocketComponent> toInvalidate = this.copyFrom(source);
 		
@@ -453,6 +455,8 @@ public class Rocket extends ComponentAssembly {
 		for (RocketComponent c : toInvalidate) {
 			c.invalidate();
 		}
+
+		mutex.unlock("loadFrom");
 	}
 	
 	

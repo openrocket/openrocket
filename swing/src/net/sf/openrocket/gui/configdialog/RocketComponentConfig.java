@@ -339,6 +339,7 @@ public class RocketComponentConfig extends JPanel {
 	}
 
 	protected void disposeDialog() {
+		invalidate();
 		if (parent != null) {
 			if (parent instanceof ComponentConfigDialog) {
 				ComponentConfigDialog.disposeDialog();
@@ -700,6 +701,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCD", UnitGroup.UNITS_COEFFICIENT, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		register(m);
 		spin = new JSpinner(m.getSpinnerModel());
 
 		spin.setEditor(new SpinnerEditor(spin));

@@ -1000,6 +1000,9 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			log.warn("Invalidating " + this + " while still having listeners " + listeners);
 		}
 		listeners.clear();
+		if (source instanceof ChangeSource) {
+			((ChangeSource) source).removeChangeListener(this);
+		}
 		MemoryManagement.collectable(this);
 	}
 	

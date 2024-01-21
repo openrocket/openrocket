@@ -15,6 +15,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.ORColor;
@@ -1087,6 +1088,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public int getInstanceCount() {
 		return 1;
+	}
+
+	public void setInstanceCount(int count) {
+		// Do nothing
+		log.warn("setInstanceCount called on component that does not support multiple instances");
 	}
 	
 	/**
@@ -2382,12 +2388,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final RocketComponent findComponent(String idToFind) {
 		checkState();
+		mutex.lock("findComponent");
 		Iterator<RocketComponent> iter = this.iterator(true);
 		while (iter.hasNext()) {
 			final RocketComponent c = iter.next();
-			if (c.getID().equals(idToFind))
+			if (c.getID().equals(idToFind)) {
+				mutex.unlock("findComponent");
 				return c;
+			}
 		}
+		mutex.unlock("findComponent");
 		return null;
 	}
 
@@ -2438,6 +2448,67 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		while (c.getChildCount() > 0)
 			c = c.getChild(c.getChildCount() - 1);
 		return c;
+	}
+
+	/**
+	 * Split the current multi-instance component into multiple single-instance components.
+	 * @param freezeRocket whether to freeze the rocket while splitting
+	 * @return list of all the split components
+	 */
+	public List<RocketComponent> splitInstances(boolean freezeRocket) {
+		final Rocket rocket = getRocket();
+		RocketComponent parent = getParent();
+		int index = parent.getChildPosition(this);
+		int count = getInstanceCount();
+		double angleOffset = getAngleOffset();
+
+		List<RocketComponent> splitComponents = null;		// List of all the split components
+
+		try {
+			// Freeze rocket
+			if (freezeRocket) {
+				rocket.freeze();
+			}
+
+			// Split the components
+			if (count > 1) {
+				parent.removeChild(index, true);			// Remove the original component
+				splitComponents = new java.util.ArrayList<>();
+				for (int i = 0; i < count; i++) {
+					RocketComponent copy = this.copy();
+					copy.setInstanceCount(1);
+					if (copy instanceof AnglePositionable) {
+						((AnglePositionable) copy).setAngleOffset(angleOffset + i * 2 * Math.PI / count);
+					}
+					copy.setName(copy.getName() + " #" + (i + 1));
+					copy.setOverrideMass(getOverrideMass() / count);
+					parent.addChild(copy, index + i, true);		// Add the new component
+
+					splitComponents.add(copy);
+				}
+			}
+
+			// Split components for listeners
+			for (RocketComponent listener : configListeners) {
+				if (listener.getClass().isAssignableFrom(this.getClass())) {
+					listener.splitInstances(false);
+					this.removeConfigListener(listener);
+				}
+			}
+		} finally {
+			// Unfreeze rocket
+			if (freezeRocket) {
+				rocket.thaw();
+			}
+		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+
+		return splitComponents;
+	}
+
+	public List<RocketComponent> splitInstances() {
+		return splitInstances(true);
 	}
 
 	///////////  Event handling  //////////

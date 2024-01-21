@@ -82,7 +82,7 @@ public class SeparationSelectionDialog extends JDialog {
 		panel.add(event, "wrap rel");
 		
 		// ... and delay
-		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.plus")), "alignx 100%");
+		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.plus")), "alignx 100%");
 		
 		final DoubleModel delay = new DoubleModel(newConfiguration, "SeparationDelay", UnitGroup.UNITS_SHORT_TIME, 0);
 		JSpinner spin = new JSpinner(delay.getSpinnerModel());
@@ -90,7 +90,7 @@ public class SeparationSelectionDialog extends JDialog {
 		panel.add(spin, "span, split");
 		
 		//// seconds
-		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.seconds")), "wrap para");
+		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.seconds")), "wrap para");
 		
 		
 		panel.add(new JPanel(), "span, split, growx");
