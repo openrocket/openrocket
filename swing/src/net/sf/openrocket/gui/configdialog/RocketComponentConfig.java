@@ -74,7 +74,7 @@ public class RocketComponentConfig extends JPanel {
 	protected final JDialog parent;
 	protected boolean isNewComponent = false;		// Checks whether this config dialog is editing an existing component, or a new one
 	
-	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
+	private final List<Invalidatable> invalidatables = new ArrayList<>();
 	protected final List<Component> order = new ArrayList<>();		// Component traversal order
 	
 	private JComboBox<?> presetComboBox;
@@ -149,6 +149,7 @@ public class RocketComponentConfig extends JPanel {
 		if (allSameType && component.getPresetType() != null) {
 			// If the component supports a preset, show the preset selection box.
 			presetModel = new PresetModel(this, document, component);
+			register(presetModel);
 			presetComboBox = new JComboBox(presetModel);
 			presetComboBox.setMaximumRowCount(25);
 			presetComboBox.setEditable(false);
@@ -184,6 +185,7 @@ public class RocketComponentConfig extends JPanel {
 		if (allMassive) {
 			//// Appearance options
 			appearancePanel = new AppearancePanel(document, component, parent, order);
+			register(appearancePanel);
 			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, appearancePanel,
 					trans.get("RocketCompCfg.tab.Appearance.ttip"));
 		}
@@ -511,6 +513,7 @@ public class RocketComponentConfig extends JPanel {
 		// OVERRIDE MASS ----------------------------------
 		JPanel checkboxes = new JPanel(new MigLayout("inset 0"));
 		bm = new BooleanModel(component, "MassOverridden");
+		register(bm);
 		check = new JCheckBox(bm);
 		//// Override mass:
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridemass"));
@@ -520,6 +523,7 @@ public class RocketComponentConfig extends JPanel {
 
 		////// Override subcomponents
 		BooleanModel bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenMass");
+		register(bmSubcomp);
 		checkSub = new JCheckBox(bmSubcomp);
 		checkSub.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
 		Font smallFont = checkSub.getFont();
@@ -544,6 +548,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
 		DoubleModel m = new DoubleModel(component, "OverrideMass", UnitGroup.UNITS_MASS, 0);
+		register(m);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -576,6 +581,7 @@ public class RocketComponentConfig extends JPanel {
 		// OVERRIDE CG ----------------------------------
 		checkboxes = new JPanel(new MigLayout("inset 0"));
 		bm = new BooleanModel(component, "CGOverridden");
+		register(bm);
 		check = new JCheckBox(bm);
 		//// Override center of gravity:"
 		check.setText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav"));
@@ -585,6 +591,7 @@ public class RocketComponentConfig extends JPanel {
 
 		////// Override subcomponents
 		bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenCG");
+		register(bmSubcomp);
 		checkSub = new JCheckBox(bmSubcomp);
 		checkSub.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
 		checkSub.setFont(smallFont);
@@ -607,6 +614,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(checkboxes, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCGX", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		// Calculate suitable length for slider
 		DoubleModel length;
 		if (component.getChildCount() > 0) {
@@ -670,6 +678,7 @@ public class RocketComponentConfig extends JPanel {
     	// BEGIN OVERRIDE CD ------------------------------------------
 		checkboxes = new JPanel(new MigLayout("inset 0"));
 		bm = new BooleanModel(component, "CDOverridden");
+		register(bm);
 		check = new JCheckBox(bm);
 		//// Override coefficient of drag:
 		check.setText(trans.get("RocketCompCfg.checkbox.SetDragCoeff"));
@@ -679,6 +688,7 @@ public class RocketComponentConfig extends JPanel {
 
 		////// Override subcomponents
 		bmSubcomp = new BooleanModel(component, "SubcomponentsOverriddenCD");
+		register(bmSubcomp);
 		checkSub = new JCheckBox(bmSubcomp);
 		checkSub.setText(trans.get("RocketCompCfg.checkbox.OverrideSubcomponents"));
 		checkSub.setFont(smallFont);
@@ -764,6 +774,7 @@ public class RocketComponentConfig extends JPanel {
 	protected JPanel shoulderTab() {
 		JPanel panel = new JPanel(new MigLayout("fillx"));
 		DoubleModel m0 = new DoubleModel(0);
+		register(m0);
 		
 		////  Fore shoulder, not for NoseCone
 		if (!(component instanceof NoseCone)) {
@@ -794,7 +805,9 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
 
 		m = new DoubleModel(component, "ForeShoulderRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		m2 = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH);
+		register(m2);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -809,6 +822,7 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
 
 		m = new DoubleModel(component, "ForeShoulderLength", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -823,7 +837,9 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
 
 		m = new DoubleModel(component, "ForeShoulderThickness", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		m2 = new DoubleModel(component, "ForeShoulderRadius", UnitGroup.UNITS_LENGTH);
+		register(m2);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -836,6 +852,7 @@ public class RocketComponentConfig extends JPanel {
 
 		////  Capped
 		bm = new BooleanModel(component, "ForeShoulderCapped");
+		register(bm);
 		check = new JCheckBox(bm);
 		//// End capped
 		check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
@@ -875,7 +892,9 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
 
 		m = new DoubleModel(component, valueNameShoulder+"Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		m2 = new DoubleModel(component, valueNameRadius, 2, UnitGroup.UNITS_LENGTH);
+		register(m2);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -890,6 +909,7 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
 
 		m = new DoubleModel(component, valueNameShoulder+"Length", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -904,7 +924,9 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
 
 		m = new DoubleModel(component, valueNameShoulder+"Thickness", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		m2 = new DoubleModel(component, valueNameShoulder+"Radius", UnitGroup.UNITS_LENGTH);
+		register(m2);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -917,6 +939,7 @@ public class RocketComponentConfig extends JPanel {
 
 		////  Capped
 		bm = new BooleanModel(component, valueNameShoulder+"Capped");
+		register(bm);
 		check = new JCheckBox(bm);
 		//// End capped
 		check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
@@ -985,7 +1008,8 @@ public class RocketComponentConfig extends JPanel {
 	protected void register(Invalidatable model) {
 		this.invalidatables.add(model);
 	}
-	
+
+	@Override
 	public void invalidate() {
 		super.invalidate();
 		for (Invalidatable i : invalidatables) {

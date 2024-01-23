@@ -53,8 +53,10 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 				"spanx, gaptop unrel, wrap 30lp");
 
 		StageSeparationConfiguration sepConfig = stage.getSeparationConfiguration();
-		
-		JComboBox<?> combo = new JComboBox<>(new EnumModel<>( sepConfig, "SeparationEvent", SeparationEvent.values()));
+
+		EnumModel<SeparationEvent> em = new EnumModel<>(sepConfig, "SeparationEvent", SeparationEvent.values());
+		register(em);
+		JComboBox<SeparationEvent> combo = new JComboBox<>(em);
 		
 		//combo.setSelectedItem(sepConfig);
 		panel.add(combo);
@@ -64,6 +66,7 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.plus")));
 		
 		DoubleModel dm = new DoubleModel( sepConfig, "SeparationDelay", 0);
+		register(dm);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "width 65lp");

@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.configdialog;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -68,8 +67,9 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		// radial distance method
 		JLabel radiusMethodLabel = new JLabel(trans.get("RocketComponent.Position.Method.Radius.Label"));
         motherPanel.add( radiusMethodLabel, "align left");
-		final ComboBoxModel<RadiusMethod> radiusMethodModel = new EnumModel<RadiusMethod>( boosters, "RadiusMethod", RadiusMethod.choices());
-		final JComboBox<RadiusMethod> radiusMethodCombo = new JComboBox<RadiusMethod>( radiusMethodModel );
+		final EnumModel<RadiusMethod> radiusMethodModel = new EnumModel<>( boosters, "RadiusMethod", RadiusMethod.choices());
+		register(radiusMethodModel);
+		final JComboBox<RadiusMethod> radiusMethodCombo = new JComboBox<>( radiusMethodModel );
 		motherPanel.add( radiusMethodCombo, "spanx 3, wrap");
 		order.add(radiusMethodCombo);
 		
@@ -78,6 +78,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		motherPanel.add( radiusLabel , "align left");
 		//radiusMethodModel.addEnableComponent(radiusLabel, false);
 		DoubleModel radiusModel = new DoubleModel( boosters, "RadiusOffset", UnitGroup.UNITS_LENGTH, 0);
+		register(radiusModel);
 
 		JSpinner radiusSpinner = new JSpinner(radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner));
@@ -100,6 +101,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		JLabel angleLabel = new JLabel(trans.get("ComponentAssemblyConfig.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
 		DoubleModel angleModel = new DoubleModel( boosters, "AngleOffset", 1.0, UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+		register(angleModel);
 
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
@@ -114,13 +116,16 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		motherPanel.add( countLabel, "align left");
 		
 		IntegerModel countModel = new IntegerModel( boosters, "InstanceCount", 1);
+		register(countModel);
 		JSpinner countSpinner = new JSpinner(countModel.getSpinnerModel());
 		countSpinner.setEditor(new SpinnerEditor(countSpinner));
 		motherPanel.add(countSpinner, "wmin 65lp, growx 1, wrap 30lp");
 		order.add(((SpinnerEditor) countSpinner.getEditor()).getTextField());
 		
 		// Position relative to
-		motherPanel.add(new PlacementPanel(component, order), "span, grow, wrap");
+		PlacementPanel pp = new PlacementPanel(component, order);
+		register(pp);
+		motherPanel.add(pp, "span, grow, wrap");
 		
 		return motherPanel;
 	}

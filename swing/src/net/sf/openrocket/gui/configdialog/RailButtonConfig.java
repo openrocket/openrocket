@@ -49,27 +49,30 @@ public class RailButtonConfig extends RocketComponentConfig {
 			
 		{ //// Outer Diameter
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.OuterDiam")));
-			DoubleModel ODModel = new DoubleModel(component, "OuterDiameter", UnitGroup.UNITS_LENGTH, 0);
-			JSpinner ODSpinner = new JSpinner( ODModel.getSpinnerModel());
-			ODSpinner.setEditor(new SpinnerEditor(ODSpinner));
-			panel.add(ODSpinner, "growx");
-			order.add(((SpinnerEditor) ODSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector(ODModel), "growx");
-			panel.add(new BasicSlider(ODModel.getSliderModel(0, 0.02)), "w 100lp, wrap");
+			DoubleModel odModel = new DoubleModel(component, "OuterDiameter", UnitGroup.UNITS_LENGTH, 0);
+			register(odModel);
+			JSpinner odSpinner = new JSpinner( odModel.getSpinnerModel());
+			odSpinner.setEditor(new SpinnerEditor(odSpinner));
+			panel.add(odSpinner, "growx");
+			order.add(((SpinnerEditor) odSpinner.getEditor()).getTextField());
+			panel.add(new UnitSelector(odModel), "growx");
+			panel.add(new BasicSlider(odModel.getSliderModel(0, 0.02)), "w 100lp, wrap");
 		}
 		{ //// Inner Diameter
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.InnerDiam")));
-			DoubleModel IDModel = new DoubleModel(component, "InnerDiameter", UnitGroup.UNITS_LENGTH, 0);
-			JSpinner IDSpinner = new JSpinner(IDModel.getSpinnerModel());
-			IDSpinner.setEditor(new SpinnerEditor(IDSpinner));
-			panel.add(IDSpinner, "growx");
-			order.add(((SpinnerEditor) IDSpinner.getEditor()).getTextField());
-			panel.add(new UnitSelector(IDModel), "growx");
-			panel.add(new BasicSlider(IDModel.getSliderModel(0, 0.02)), "w 100lp, wrap 20lp");
+			DoubleModel idModel = new DoubleModel(component, "InnerDiameter", UnitGroup.UNITS_LENGTH, 0);
+			register(idModel);
+			JSpinner idSpinner = new JSpinner(idModel.getSpinnerModel());
+			idSpinner.setEditor(new SpinnerEditor(idSpinner));
+			panel.add(idSpinner, "growx");
+			order.add(((SpinnerEditor) idSpinner.getEditor()).getTextField());
+			panel.add(new UnitSelector(idModel), "growx");
+			panel.add(new BasicSlider(idModel.getSliderModel(0, 0.02)), "w 100lp, wrap 20lp");
 		}
 		{ //// Base Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.BaseHeight")));
 			DoubleModel heightModel = new DoubleModel(component, "BaseHeight", UnitGroup.UNITS_LENGTH, 0);
+			register(heightModel);
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
@@ -81,6 +84,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// Flange Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.FlangeHeight")));
 			DoubleModel heightModel = new DoubleModel(component, "FlangeHeight", UnitGroup.UNITS_LENGTH, 0);
+			register(heightModel);
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
@@ -92,6 +96,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// Total Height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.TotalHeight")));
 			DoubleModel heightModel = new DoubleModel(component, "TotalHeight", UnitGroup.UNITS_LENGTH, 0);
+			register(heightModel);
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
@@ -103,6 +108,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		{ //// Screw height
 			panel.add(new JLabel(trans.get("RailBtnCfg.lbl.ScrewHeight")));
 			DoubleModel heightModel = new DoubleModel(component, "ScrewHeight", UnitGroup.UNITS_LENGTH, 0);
+			register(heightModel);
 			JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
 			panel.add(heightSpinner, "growx");
@@ -112,7 +118,9 @@ public class RailButtonConfig extends RocketComponentConfig {
 		}
   
 		// -------- Instances ------
-		panel.add(new InstancesPanel(component, order), "span, grow, wrap para");
+		InstancesPanel ip = new InstancesPanel(component, order);
+		register(ip);
+		panel.add(ip, "span, grow, wrap para");
 
 
 		primary.add(panel, "grow, gapright 40lp");
@@ -122,12 +130,14 @@ public class RailButtonConfig extends RocketComponentConfig {
 
 		{// -------- Placement ------
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow, wrap");
 
 			{ //// Rotation:
 				placementPanel.add(new JLabel(trans.get("RailBtnCfg.lbl.Angle")), "newline");
 				DoubleModel angleModel = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -180, +180);
+				register(angleModel);
 				JSpinner angleSpinner = new JSpinner( angleModel.getSpinnerModel());
 				angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 				placementPanel.add(angleSpinner, "growx");
@@ -139,6 +149,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		panel.add(materialPanel,"span, grow, wrap");
 
 		primary.add(panel, "grow");

@@ -57,6 +57,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		canopyPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Diameter")));
 		
 		DoubleModel m = new DoubleModel(component, "Diameter", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -69,6 +70,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 /*		pacanopyPanelnel.add(new JLabel(trans.get("ParachuteCfg.lbl.SpillDia") + CommonStrings.daggerDouble));
 
 		m = new DoubleModel(component, "SpillDia", UnitGroup.UNITS_LENGTH, 0, 0.08);
+		register(m);
 			// The "max" value does not affect the slider maximum, and manual entry above that value is possible.
 
 		spin = new JSpinner(m.getSpinnerModel());
@@ -83,8 +85,9 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Material:
 		canopyPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "wrap rel");
 
-		JComboBox<Material> surfaceMaterialCombo = new JComboBox<Material>(new MaterialModel(canopyPanel, component,
-				Material.Type.SURFACE));
+		MaterialModel mm = new MaterialModel(canopyPanel, component, Material.Type.SURFACE);
+		register(mm);
+		JComboBox<Material> surfaceMaterialCombo = new JComboBox<>(mm);
 		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
 		canopyPanel.add(surfaceMaterialCombo, "spanx, growx, wrap 15lp");
 		order.add(surfaceMaterialCombo);
@@ -99,6 +102,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		canopyPanel.add(label);
 		
 		m = new DoubleModel(component, "CD", UnitGroup.UNITS_COEFFICIENT, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setToolTipText(tip);
@@ -129,6 +133,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Number of lines:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Numberoflines")));
 		IntegerModel im = new IntegerModel(component, "LineCount", 0);
+		register(im);
 		
 		spin = new JSpinner(im.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -139,6 +144,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Linelength")));
 		
 		m = new DoubleModel(component, "LineLength", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -149,9 +155,10 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		//// Material:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "spanx, wrap rel");
-		
-		JComboBox<Material> shroudMaterialCombo =
-				new JComboBox<Material>(new MaterialModel(shroudPanel, component, Material.Type.LINE, "LineMaterial"));
+
+		mm = new MaterialModel(shroudPanel, component, Material.Type.LINE, "LineMaterial");
+		register(mm);
+		JComboBox<Material> shroudMaterialCombo = new JComboBox<>(mm);
 		shroudPanel.add(shroudMaterialCombo, "spanx, growx");
 		order.add(shroudMaterialCombo);
 
@@ -163,13 +170,15 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 		{// ---------------------------- Placement ----------------------------
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow, wrap");
 
 			//// Packed length:
 			placementPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packedlength")), "newline");
 
 			m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -184,6 +193,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			placementPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packeddiam")));
 
 			final DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+			register(od);
 
 			spin = new JSpinner(od.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -210,10 +220,9 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 			DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfigurations().getDefault();
 			// this issues a warning because EnumModel implements ComboBoxModel without a parameter...
-			ComboBoxModel<DeploymentConfiguration.DeployEvent> deployOptionsModel =
-					new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent");
-			JComboBox<DeploymentConfiguration.DeployEvent> eventCombo =
-					new JComboBox<DeploymentConfiguration.DeployEvent>(deployOptionsModel);
+			EnumModel<DeploymentConfiguration.DeployEvent> deployOptionsModel = new EnumModel<>(deploymentConfig, "DeployEvent");
+			register(deployOptionsModel);
+			JComboBox<DeploymentConfiguration.DeployEvent> eventCombo = new JComboBox<>(deployOptionsModel);
 			if ((component.getStageNumber() + 1) == d.getRocket().getStageCount()) {
 				//	This is the bottom stage:  Restrict deployment options.
 				eventCombo.removeItem(DeployEvent.LOWER_STAGE_SEPARATION);
@@ -232,6 +241,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			deploymentPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
 
 			m = new DoubleModel(deploymentConfig, "DeployDelay", 0);
+			register(m);
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin, 3));
 			deploymentPanel.add(spin, "spanx, split");
@@ -246,6 +256,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			deploymentPanel.add(label);
 
 			m = new DoubleModel(deploymentConfig, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -292,6 +303,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdistance")), "gapright para");
 		
 		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -306,6 +318,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdirection")), "gapright para");
 		
 		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

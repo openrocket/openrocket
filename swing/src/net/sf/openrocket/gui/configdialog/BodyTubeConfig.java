@@ -41,6 +41,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		maxLength = new DoubleModel(2.0);
 		DoubleModel length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		register(length);
 
 		JSpinner spin = new JSpinner(length.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -56,6 +57,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		// Diameter = 2*Radius
 		final DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(od);
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -77,6 +79,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		// Diameter = 2*Radius
 		final DoubleModel innerRadiusModel = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(innerRadiusModel);
 		spin = new JSpinner(innerRadiusModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -90,6 +93,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Wallthickness")));
 
 		final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+		register(thicknessModel);
 		spin = new JSpinner(thicknessModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -99,7 +103,9 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
 
 		//// Filled
-		JCheckBox check = new JCheckBox(new BooleanModel(component, "Filled"));
+		BooleanModel bm = new BooleanModel(component, "Filled");
+		register(bm);
+		JCheckBox check = new JCheckBox(bm);
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		check.setToolTipText(trans.get("BodyTubecfg.checkbox.Filled.ttip"));
 		panel.add(check, "skip, span 2, wrap");
@@ -107,6 +113,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		panel.add(materialPanel, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 
 		//// General and General properties
@@ -116,6 +123,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		tabbedPane.setSelectedIndex(0);
 
 		MotorConfig motorConfig = new MotorConfig((MotorMount)c, order);
+		register(motorConfig);
 
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfig,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);

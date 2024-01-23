@@ -71,7 +71,9 @@ public class TransitionConfig extends RocketComponentConfig {
 		order.add(typeBox);
 
 		{//// Clipped
-			final JCheckBox checkbox = new JCheckBox(new BooleanModel(component, "Clipped"));
+			BooleanModel bm = new BooleanModel(component, "Clipped");
+			register(bm);
+			final JCheckBox checkbox = new JCheckBox(bm);
 			checkbox.setText(trans.get("TransitionCfg.checkbox.Clipped"));
 			checkbox.setToolTipText(trans.get("TransitionCfg.checkbox.Clipped.ttip"));
 			panel.add(checkbox, "wrap");
@@ -84,6 +86,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			panel.add(shapeLabel);
 
 			final DoubleModel shapeModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
+			register(shapeModel);
 
 			this.shapeSpinner = new JSpinner(shapeModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
@@ -92,6 +95,8 @@ public class TransitionConfig extends RocketComponentConfig {
 
 			DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
 			DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
+			register(min);
+			register(max);
 			this.shapeSlider = new BasicSlider(shapeModel.getSliderModel(min, max));
 			panel.add(shapeSlider, "skip, w 100lp, wrap");
 
@@ -103,6 +108,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Transitionlength")));
 
 			final DoubleModel lengthModel = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+			register(lengthModel);
 
 			final JSpinner lengthSpinner = new JSpinner(lengthModel.getSpinnerModel());
 			lengthSpinner.setEditor(new SpinnerEditor(lengthSpinner));
@@ -118,6 +124,7 @@ public class TransitionConfig extends RocketComponentConfig {
 
 	         // Diameter = 2*Radius
 			final DoubleModel foreRadiusModel = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+			register(foreRadiusModel);
 
 			final JSpinner foreRadiusSpinner = new JSpinner(foreRadiusModel.getSpinnerModel());
 			foreRadiusSpinner.setEditor(new SpinnerEditor(foreRadiusSpinner));
@@ -140,6 +147,7 @@ public class TransitionConfig extends RocketComponentConfig {
 
             // Diameter = 2*Radius
 			final DoubleModel aftRadiusModel = new DoubleModel(component, "AftRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+			register(aftRadiusModel);
 
 			final JSpinner aftRadiusSpinner = new JSpinner(aftRadiusModel .getSpinnerModel());
 			aftRadiusSpinner.setEditor(new SpinnerEditor(aftRadiusSpinner));
@@ -161,6 +169,7 @@ public class TransitionConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("TransitionCfg.lbl.Wallthickness")));
 
 			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			register(thicknessModel);
 
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
@@ -192,6 +201,7 @@ public class TransitionConfig extends RocketComponentConfig {
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		panel2.add(materialPanel, "span, wrap");
 		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 		

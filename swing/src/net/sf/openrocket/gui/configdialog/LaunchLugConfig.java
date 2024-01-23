@@ -37,6 +37,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Length")));
 		
 		DoubleModel m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -53,6 +54,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Outerdiam")));
 		
 		DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(od);
 		// Diameter = 2*Radius
 		
 		spin = new JSpinner(od.getSpinnerModel());
@@ -69,6 +71,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		// Diameter = 2*Radius
 		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		
 		spin = new JSpinner(m.getSpinnerModel());
@@ -85,6 +88,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Thickness")));
 		
 		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -95,7 +99,9 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
 
 		// -------- Instances ------
-		panel.add(new InstancesPanel(component, order), "span, grow, wrap para");
+		InstancesPanel ip = new InstancesPanel(component, order);
+		register(ip);
+		panel.add(ip, "span, grow, wrap para");
 		
 		primary.add(panel, "grow, gapright 40lp");
 
@@ -104,13 +110,15 @@ public class LaunchLugConfig extends RocketComponentConfig {
 
 		{//// Placement
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow, wrap");
 
 			////  Rotation:
 			placementPanel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Angle")), "newline");
 
 			m = new DoubleModel(component, "AngleOffset", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -123,6 +131,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		panel.add(materialPanel, "span, grow, wrap");
 
 		primary.add(panel, "grow");
