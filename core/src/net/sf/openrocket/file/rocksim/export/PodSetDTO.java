@@ -39,9 +39,8 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
     @XmlElementRefs({
             @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.EXTERNAL_POD, type = PodSetDTO.class)})
-    List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
+            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class)})
+    List<BasePartDTO> attachedParts = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -89,15 +88,7 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
         addAngleOffsetToChildren(theORPodSet, angleOffset);
 
         for (RocketComponent child : theORPodSet.getChildren()) {
-            if (child instanceof PodSet) {
-                for (PodSetDTO podSetDTO : generatePodSetDTOs((PodSet) child)) {
-                    addAttachedPart(podSetDTO);
-                }
-            } else if (child instanceof ParallelStage) {
-                for (ParallelStageDTO parallelStageDTO : ParallelStageDTO.generateParallelStageDTOs((ParallelStage) child)) {
-                    addAttachedPart(parallelStageDTO);
-                }
-            } else if (child instanceof BodyTube) {
+            if (child instanceof BodyTube) {
                 addAttachedPart(new BodyTubeDTO((BodyTube) child));
             } else if (child instanceof NoseCone) {
                 if (((NoseCone) child).isFlipped()) {
@@ -161,19 +152,19 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
         attachedParts.remove(part);
     }
 
-    public boolean isEjected() {
-        return isEjected;
-    }
-
-    public void setEjected(boolean ejected) {
-        isEjected = ejected;
-    }
-
     public boolean isDetachable() {
         return isDetachable;
     }
 
     public void setDetachable(boolean detachable) {
         isDetachable = detachable;
+    }
+
+    public boolean isEjected() {
+        return isEjected;
+    }
+
+    public void setEjected(boolean ejected) {
+        isEjected = ejected;
     }
 }
