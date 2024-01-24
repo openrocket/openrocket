@@ -19,8 +19,8 @@ public class ParallelStageDTO extends PodSetDTO {
 	 */
 	protected ParallelStageDTO(ParallelStage theORParallelStage) {
 		super(theORParallelStage);
-		setDetachable(true);
-		setEjected(false);
+		setDetachable(1);
+		setEjected(0);
 	}
 
 	/**

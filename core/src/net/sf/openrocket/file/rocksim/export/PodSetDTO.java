@@ -32,9 +32,9 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
     @XmlElement(name = RockSimCommonConstants.AUTO_CALC_RADIAL_ANGLE)
     private int autoCalcRadialAngle = 0;
     @XmlElement(name = RockSimCommonConstants.DETACHABLE)
-    private boolean isDetachable = false;       // This pod can be ejected during simulations
+    private int detachable = 0;       // This pod can be ejected during simulations (0 = false, 1 = true)
     @XmlElement(name = RockSimCommonConstants.REMOVED)
-    private boolean isEjected = false;          // Mark this pod as ejected
+    private int ejected = 0;          // Mark this pod as ejected (0 = false, 1 = true)
     @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
     @XmlElementRefs({
             @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
@@ -74,8 +74,8 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
         // OR should always override the radial angle and distance
         setAutoCalcRadialDistance(false);
         setAutoCalcRadialAngle(false);
-        setDetachable(false);
-        setEjected(false);
+        setDetachable(0);
+        setEjected(0);
         final double angleOffset = theORPodSet.getAngleOffset();
         setRadialAngle(angleOffset);
         setRadialLoc(theORPodSet.getRadiusMethod().getRadius(
@@ -152,19 +152,20 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
         attachedParts.remove(part);
     }
 
-    public boolean isDetachable() {
-        return isDetachable;
+
+    public int getDetachable() {
+        return detachable;
     }
 
-    public void setDetachable(boolean detachable) {
-        isDetachable = detachable;
+    public void setDetachable(int detachable) {
+        this.detachable = detachable;
     }
 
-    public boolean isEjected() {
-        return isEjected;
+    public int getEjected() {
+        return ejected;
     }
 
-    public void setEjected(boolean ejected) {
-        isEjected = ejected;
+    public void setEjected(int ejected) {
+        this.ejected = ejected;
     }
 }
