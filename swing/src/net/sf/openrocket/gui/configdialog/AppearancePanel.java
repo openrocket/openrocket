@@ -65,7 +65,7 @@ import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 
-public class AppearancePanel extends JPanel implements Invalidatable {
+public class AppearancePanel extends JPanel implements Invalidatable, InvalidatingWidget {
 	private static final long serialVersionUID = 2709187552673202019L;
 
 	private static final Translator trans = Application.getTranslator();
@@ -776,7 +776,8 @@ public class AppearancePanel extends JPanel implements Invalidatable {
 		});
 	}
 
-	protected void register(Invalidatable model) {
+	@Override
+	public void register(Invalidatable model) {
 		this.invalidatables.add(model);
 	}
 

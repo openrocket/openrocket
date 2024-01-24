@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Panel for configuring a component's material and finish properties.
  */
-public class MaterialPanel extends JPanel implements Invalidatable {
+public class MaterialPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
     private final List<Invalidatable> invalidatables = new ArrayList<>();
 
@@ -108,7 +108,8 @@ public class MaterialPanel extends JPanel implements Invalidatable {
                 trans.get("MaterialPanel.lbl.ComponentFinish"), "Material", order);
     }
 
-    protected void register(Invalidatable model) {
+    @Override
+    public void register(Invalidatable model) {
         this.invalidatables.add(model);
     }
 

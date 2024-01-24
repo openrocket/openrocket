@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Panel for configuring a component's duplication instances.
  */
-public class InstancesPanel extends JPanel implements Invalidatable {
+public class InstancesPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
     private final List<Invalidatable> invalidatables = new ArrayList<>();
 
@@ -64,7 +64,8 @@ public class InstancesPanel extends JPanel implements Invalidatable {
         }
     }
 
-    protected void register(Invalidatable model) {
+    @Override
+    public void register(Invalidatable model) {
         this.invalidatables.add(model);
     }
 

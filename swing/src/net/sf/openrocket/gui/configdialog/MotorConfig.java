@@ -31,13 +31,13 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
 
-public class MotorConfig extends JPanel implements Invalidatable {
+public class MotorConfig extends JPanel implements Invalidatable, InvalidatingWidget {
 	
 	private static final long serialVersionUID = -4974509134239867067L;
 	private final MotorMount mount;
 	private static final Translator trans = Application.getTranslator();
 	private final List<Invalidatable> invalidatables = new ArrayList<>();
-	
+
 	public MotorConfig(MotorMount motorMount, List<Component> order) {
 		super(new MigLayout("fillx"));
 		
@@ -144,7 +144,8 @@ public class MotorConfig extends JPanel implements Invalidatable {
 		}
 	}
 
-	protected void register(Invalidatable model) {
+	@Override
+	public void register(Invalidatable model) {
 		this.invalidatables.add(model);
 	}
 

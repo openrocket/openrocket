@@ -62,7 +62,7 @@ import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
 
-public class RocketComponentConfig extends JPanel {
+public class RocketComponentConfig extends JPanel implements InvalidatingWidget {
 	private static final long serialVersionUID = -2925484062132243982L;
 
 	private static final Translator trans = Application.getTranslator();
@@ -1004,8 +1004,8 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 	
-	
-	protected void register(Invalidatable model) {
+	@Override
+	public void register(Invalidatable model) {
 		this.invalidatables.add(model);
 	}
 

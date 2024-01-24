@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Panel for configuring a component's placement relative to its parent.
  */
-public class PlacementPanel extends JPanel implements Invalidatable {
+public class PlacementPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
     private final List<Invalidatable> invalidatables = new ArrayList<>();
 
@@ -69,7 +69,8 @@ public class PlacementPanel extends JPanel implements Invalidatable {
                 "w 100lp");
     }
 
-    protected void register(Invalidatable model) {
+    @Override
+    public void register(Invalidatable model) {
         this.invalidatables.add(model);
     }
 
