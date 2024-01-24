@@ -782,10 +782,10 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	}
 
 	@Override
-	public void invalidate() {
+	public void invalidateMe() {
 		super.invalidate();
 		for (Invalidatable i : invalidatables) {
-			i.invalidate();
+			i.invalidateMe();
 		}
 	}
 }

@@ -2918,7 +2918,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	protected void invalidate() {
-		invalidator.invalidate();
+		invalidator.invalidateMe();
 	}
 	
 	

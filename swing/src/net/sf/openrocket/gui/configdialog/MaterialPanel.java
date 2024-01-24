@@ -114,10 +114,10 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
     }
 
     @Override
-    public void invalidate() {
+    public void invalidateMe() {
         super.invalidate();
         for (Invalidatable i : invalidatables) {
-            i.invalidate();
+            i.invalidateMe();
         }
     }
 }

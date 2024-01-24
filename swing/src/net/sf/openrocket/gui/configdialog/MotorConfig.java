@@ -150,10 +150,10 @@ public class MotorConfig extends JPanel implements Invalidatable, InvalidatingWi
 	}
 
 	@Override
-	public void invalidate() {
+	public void invalidateMe() {
 		super.invalidate();
 		for (Invalidatable i : invalidatables) {
-			i.invalidate();
+			i.invalidateMe();
 		}
 	}
 	

@@ -70,10 +70,10 @@ public class InstancesPanel extends JPanel implements Invalidatable, Invalidatin
     }
 
     @Override
-    public void invalidate() {
+    public void invalidateMe() {
         super.invalidate();
         for (Invalidatable i : invalidatables) {
-            i.invalidate();
+            i.invalidateMe();
         }
     }
 }

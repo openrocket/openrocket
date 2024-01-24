@@ -108,8 +108,8 @@ public class PresetModel extends AbstractListModel
 	}
 
 	@Override
-	public void invalidate() {
-		modelInvalidator.invalidate();
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
 	}
 
 	@Override

@@ -301,8 +301,8 @@ public class IntegerModel implements StateChangeListener, Invalidatable {
 	}
 
 	@Override
-	public void invalidate() {
-		modelInvalidator.invalidate();
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
 	}
 	
 }

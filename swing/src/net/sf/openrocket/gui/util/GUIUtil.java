@@ -589,7 +589,7 @@ public class GUIUtil {
 			SpinnerModel model = spinner.getModel();
 			spinner.setModel(new SpinnerNumberModel());
 			if (model instanceof Invalidatable) {
-				((Invalidatable) model).invalidate();
+				((Invalidatable) model).invalidateMe();
 			}
 			
 		} else if (c instanceof JSlider) {
@@ -601,7 +601,7 @@ public class GUIUtil {
 			BoundedRangeModel model = slider.getModel();
 			slider.setModel(new DefaultBoundedRangeModel());
 			if (model instanceof Invalidatable) {
-				((Invalidatable) model).invalidate();
+				((Invalidatable) model).invalidateMe();
 			}
 			
 		} else if (c instanceof JComboBox) {
@@ -613,7 +613,7 @@ public class GUIUtil {
 			ComboBoxModel<?> model = combo.getModel();
 			combo.setModel(new DefaultComboBoxModel<Object>());
 			if (model instanceof Invalidatable) {
-				((Invalidatable) model).invalidate();
+				((Invalidatable) model).invalidateMe();
 			}
 			
 		} else if (c instanceof AbstractButton) {
@@ -631,7 +631,7 @@ public class GUIUtil {
 				}
 			});
 			if (model instanceof Invalidatable) {
-				((Invalidatable) model).invalidate();
+				((Invalidatable) model).invalidateMe();
 			}
 			
 		} else if (c instanceof JTable) {
@@ -640,19 +640,19 @@ public class GUIUtil {
 			TableModel model1 = table.getModel();
 			table.setModel(new DefaultTableModel());
 			if (model1 instanceof Invalidatable) {
-				((Invalidatable) model1).invalidate();
+				((Invalidatable) model1).invalidateMe();
 			}
 			
 			TableColumnModel model2 = table.getColumnModel();
 			table.setColumnModel(new DefaultTableColumnModel());
 			if (model2 instanceof Invalidatable) {
-				((Invalidatable) model2).invalidate();
+				((Invalidatable) model2).invalidateMe();
 			}
 			
 			ListSelectionModel model3 = table.getSelectionModel();
 			table.setSelectionModel(new DefaultListSelectionModel());
 			if (model3 instanceof Invalidatable) {
-				((Invalidatable) model3).invalidate();
+				((Invalidatable) model3).invalidateMe();
 			}
 			
 		} else if (c instanceof JTree) {
@@ -661,13 +661,13 @@ public class GUIUtil {
 			TreeModel model1 = tree.getModel();
 			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
 			if (model1 instanceof Invalidatable) {
-				((Invalidatable) model1).invalidate();
+				((Invalidatable) model1).invalidateMe();
 			}
 			
 			TreeSelectionModel model2 = tree.getSelectionModel();
 			tree.setSelectionModel(new DefaultTreeSelectionModel());
 			if (model2 instanceof Invalidatable) {
-				((Invalidatable) model2).invalidate();
+				((Invalidatable) model2).invalidateMe();
 			}
 			
 		} else if (c instanceof Resettable) {

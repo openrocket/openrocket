@@ -171,8 +171,8 @@ public class MaterialModel extends AbstractListModel<Material> implements
 	}
 
 	@Override
-	public void invalidate() {
-		modelInvalidator.invalidate();
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
 	}
 
 	@Override

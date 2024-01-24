@@ -66,8 +66,8 @@ public class TransitionShapeModel extends AbstractListModel<Transition.Shape>
     }
 
     @Override
-    public void invalidate() {
-        modelInvalidator.invalidate();
+    public void invalidateMe() {
+        modelInvalidator.invalidateMe();
     }
 
     @Override

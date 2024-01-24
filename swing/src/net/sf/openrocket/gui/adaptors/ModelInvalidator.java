@@ -97,9 +97,9 @@ public class ModelInvalidator implements StateChangeListener, Invalidatable, Cha
 	 * model and the value cannot be set.
 	 */
 	@Override
-	public void invalidate() {
+	public void invalidateMe() {
 		log.trace("Invalidating " + this);
-		invalidator.invalidate();
+		invalidator.invalidateMe();
 
 		if (!listeners.isEmpty()) {
 			log.warn("Invalidating " + this + " while still having listeners " + listeners);

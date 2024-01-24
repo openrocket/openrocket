@@ -62,7 +62,7 @@ public class Invalidator implements Invalidatable {
 	
 	
 	@Override
-	public void invalidate() {
+	public void invalidateMe() {
 		if (USE_CHECKS) {
 			if (invalidated != null) {
 				log.warn(monitorable + ": This object has already been invalidated, ignoring", invalidated);

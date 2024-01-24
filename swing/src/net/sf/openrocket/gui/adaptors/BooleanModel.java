@@ -346,7 +346,7 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 	 * model and the value cannot be set.
 	 */
 	@Override
-	public void invalidate() {
+	public void invalidateMe() {
 		PropertyChangeListener[] listeners = this.getPropertyChangeListeners();
 		if (listeners.length > 0) {
 			log.warn("Invalidating " + this + " while still having listeners " + Arrays.toString(listeners));
@@ -354,7 +354,7 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 				this.removePropertyChangeListener(l);
 			}
 		}
-		modelInvalidator.invalidate();
+		modelInvalidator.invalidateMe();
 	}
 	
 

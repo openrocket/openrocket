@@ -156,8 +156,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		@Override
-		public void invalidate() {
-			DoubleModel.this.invalidate();
+		public void invalidateMe() {
+			DoubleModel.this.invalidateMe();
 		}
 	}
 	
@@ -435,8 +435,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		@Override
-		public void invalidate() {
-			DoubleModel.this.invalidate();
+		public void invalidateMe() {
+			DoubleModel.this.invalidateMe();
 		}
 		
 		@Override
@@ -578,8 +578,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		@Override
-		public void invalidate() {
-			DoubleModel.this.invalidate();
+		public void invalidateMe() {
+			DoubleModel.this.invalidateMe();
 		}
 	}
 	
@@ -989,8 +989,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * model and the value cannot be set.
 	 */
 	@Override
-	public void invalidate() {
-		modelInvalidator.invalidate();
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
 	}
 	
 

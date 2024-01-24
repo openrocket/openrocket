@@ -169,7 +169,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 	}
 
 	@Override
-	public void invalidate() {
-		modelInvalidator.invalidate();
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
 	}
 }
