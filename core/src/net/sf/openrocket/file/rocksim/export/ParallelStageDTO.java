@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.rocksim.export;
 
 import net.sf.openrocket.rocketcomponent.ParallelStage;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class ParallelStageDTO extends PodSetDTO {
 
@@ -12,11 +13,12 @@ public class ParallelStageDTO extends PodSetDTO {
 
 	/**
 	 * Copy constructor.  Fully populates this instance with values taken from the OR PodSet.
+	 * This constructor should not be called directly.  Instead, use {@link #generateParallelStageDTOs}.
 	 *
-	 * @param theORParallelStage
+	 * @param theORParallelStage the single-instance OR ParallelStage
 	 */
-	protected ParallelStageDTO(ParallelStage theORParallelStage, double angle) {
-		super(theORParallelStage, angle);
+	protected ParallelStageDTO(ParallelStage theORParallelStage) {
+		super(theORParallelStage);
 		setDetachable(true);
 		setEjected(false);
 	}
@@ -30,8 +32,8 @@ public class ParallelStageDTO extends PodSetDTO {
 	public static ParallelStageDTO[] generateParallelStageDTOs(ParallelStage theORParallelStage) {
 		ParallelStageDTO[] set = new ParallelStageDTO[theORParallelStage.getInstanceCount()];
 		int i = 0;
-		for (double angle : theORParallelStage.getInstanceAngles()) {
-			set[i] = new ParallelStageDTO(theORParallelStage, angle);
+		for (RocketComponent stageInstance : theORParallelStage.splitInstances(false)) {
+			set[i] = new ParallelStageDTO((ParallelStage) stageInstance);
 			i++;
 		}
 		return set;

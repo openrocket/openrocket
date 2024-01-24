@@ -2462,7 +2462,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		int count = getInstanceCount();
 		double angleOffset = getAngleOffset();
 
-		List<RocketComponent> splitComponents = null;		// List of all the split components
+		List<RocketComponent> splitComponents = new java.util.ArrayList<>();		// List of all the split components
 
 		try {
 			// Freeze rocket
@@ -2473,7 +2473,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// Split the components
 			if (count > 1) {
 				parent.removeChild(index, true);			// Remove the original component
-				splitComponents = new java.util.ArrayList<>();
 				for (int i = 0; i < count; i++) {
 					RocketComponent copy = this.copy();
 					copy.setInstanceCount(1);
@@ -2486,6 +2485,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 					splitComponents.add(copy);
 				}
+			} else {
+				splitComponents.add(this);
 			}
 
 			// Split components for listeners

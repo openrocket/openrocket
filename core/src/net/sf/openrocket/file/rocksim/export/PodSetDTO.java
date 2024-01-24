@@ -8,6 +8,7 @@ import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -57,8 +58,8 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
     public static PodSetDTO[] generatePodSetDTOs(ComponentAssembly theORPodSet) {
         PodSetDTO[] set = new PodSetDTO[theORPodSet.getInstanceCount()];
         int i = 0;
-        for (double angle : theORPodSet.getInstanceAngles()) {
-            set[i] = new PodSetDTO(theORPodSet, angle);
+        for (RocketComponent podInstance : theORPodSet.splitInstances()) {
+            set[i] = new PodSetDTO((PodSet) podInstance);
             i++;
         }
         return set;
@@ -66,21 +67,26 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
 
     /**
      * Copy constructor.  Fully populates this instance with values taken from the OR PodSet.
-     *
-     * @param theORPodSet
+     * This constructor should not be called directly.  Instead, use {@link #generatePodSetDTOs}.
+     * @param theORPodSet the single-instance OR PodSet
      */
-    protected PodSetDTO(ComponentAssembly theORPodSet, double angleOffset) {
+    protected PodSetDTO(ComponentAssembly theORPodSet) {
         super(theORPodSet);
         // OR should always override the radial angle and distance
         setAutoCalcRadialDistance(false);
         setAutoCalcRadialAngle(false);
         setDetachable(false);
         setEjected(false);
+        final double angleOffset = theORPodSet.getAngleOffset();
         setRadialAngle(angleOffset);
         setRadialLoc(theORPodSet.getRadiusMethod().getRadius(
                 theORPodSet.getParent(), theORPodSet,
                 theORPodSet.getRadiusOffset()) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setXb(theORPodSet.getAxialOffset(AxialMethod.TOP) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+
+        // Children of a PodSet in RockSim do not use angles relative to their PodSet parent, but instead use absolute angle.
+        // Therefore, we must apply those angles to the children of the PodSet.
+        addAngleOffsetToChildren(theORPodSet, angleOffset);
 
         for (RocketComponent child : theORPodSet.getChildren()) {
             if (child instanceof PodSet) {
@@ -101,6 +107,20 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
                 }
             } else if (child instanceof Transition) {
                 addAttachedPart(new TransitionDTO((Transition) child));
+            }
+        }
+    }
+
+    private void addAngleOffsetToChildren(RocketComponent component, double angleOffset) {
+        for (RocketComponent child : component.getChildren()) {
+            if (child instanceof AnglePositionable anglePositionable) {
+                anglePositionable.setAngleOffset(anglePositionable.getAngleOffset() + angleOffset);
+            }
+            // No need to add an offset to the children of a component assembly. When the component assembly is
+            // converted to a PodSetDTO, its angle offset will be applied to the children (and that angle offset already
+            // includes the angle offset of the parent).
+            if (!(child instanceof ComponentAssembly)) {
+                addAngleOffsetToChildren(child, angleOffset);
             }
         }
     }

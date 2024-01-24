@@ -12,6 +12,7 @@ import javax.xml.bind.Marshaller;
 
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.util.MemoryManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +125,10 @@ public class RockSimSaver extends RocketSaver {
 		//Set the last serial number element and reset it.
 		result.setLastSerialNumber(BasePartDTO.getCurrentSerialNumber());
 		BasePartDTO.resetCurrentSerialNumber();
+
+		// Clean up
+		MemoryManagement.collectable(rocket);
+
 		return result;
 	}
 	
