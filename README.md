@@ -92,4 +92,5 @@ OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licens
 ---
  
 ⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
+
 [![Star History Chart](https://api.star-history.com/svg?repos=openrocket/openrocket&type=Date)](https://star-history.com/#openrocket/openrocket&Date)
