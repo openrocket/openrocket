@@ -2059,7 +2059,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Move a child to another position.
+	 * Move a child to another position within this component.
 	 *
 	 * @param component	the component to move
 	 * @param index	the component's new position
