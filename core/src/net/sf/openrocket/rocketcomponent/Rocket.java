@@ -384,10 +384,12 @@ public class Rocket extends ComponentAssembly {
 		// these flight configurations need to reference the _new_ Rocket copy
 		// the default value needs to be explicitly set, because it has different semantics
 		copyRocket.configSet = new FlightConfigurableParameterSet<>(new FlightConfiguration(copyRocket));
-		for (FlightConfigurationId key : this.configSet.getIds()) {
-			FlightConfiguration newCfg = new FlightConfiguration(copyRocket, key);
-			newCfg.setName(this.configSet.get(key).getNameRaw());			// Copy config name
-			copyRocket.configSet.set(key, newCfg);
+		for (FlightConfigurationId configID : this.configSet.getIds()) {
+			FlightConfiguration originalCfg = this.configSet.get(configID);
+			FlightConfiguration newCfg = new FlightConfiguration(copyRocket, configID);
+			newCfg.setName(originalCfg.getNameRaw());			// Copy config name
+			newCfg.copyStageActiveness(originalCfg);
+			copyRocket.configSet.set(configID, newCfg);
 		}
 
 		copyRocket.selectedConfiguration = copyRocket.configSet.get( this.getSelectedConfiguration().getId());
@@ -438,12 +440,12 @@ public class Rocket extends ComponentAssembly {
 		// these flight configurations need to reference the _this_ Rocket:
 		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
-		for (FlightConfigurationId key : source.configSet.map.keySet()) {
-			FlightConfiguration srcCfg = source.configSet.get(key);
-			FlightConfiguration newCfg = new FlightConfiguration(this, key);
+		for (FlightConfigurationId configID : source.configSet.map.keySet()) {
+			FlightConfiguration srcCfg = source.configSet.get(configID);
+			FlightConfiguration newCfg = new FlightConfiguration(this, configID);
 			newCfg.copyStageActiveness(srcCfg);
 			newCfg.setName(srcCfg.getNameRaw());			// Copy config name
-			this.configSet.set(key, newCfg);
+			this.configSet.set(configID, newCfg);
 		}
 		this.selectedConfiguration = this.configSet.get(source.getSelectedConfiguration().getId());
 
