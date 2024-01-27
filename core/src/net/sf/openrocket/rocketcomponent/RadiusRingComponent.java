@@ -53,8 +53,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 		r = Math.max(r,0);
 
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RadiusRingComponent) {
-				((RadiusRingComponent) listener).setOuterRadius(r);
+			if (listener instanceof Coaxial) {
+				((Coaxial) listener).setOuterRadius(r);
 			}
 		}
 
@@ -82,8 +82,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 		r = Math.max(r,0);
 
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RadiusRingComponent) {
-				((RadiusRingComponent) listener).setInnerRadius(r);
+			if (listener instanceof Coaxial) {
+				((Coaxial) listener).setInnerRadius(r);
 			}
 		}
 
@@ -109,8 +109,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setThickness(double thickness) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RadiusRingComponent) {
-				((RadiusRingComponent) listener).setThickness(thickness);
+			if (listener instanceof RingComponent) {
+				((RingComponent) listener).setThickness(thickness);
 			}
 		}
 
@@ -131,8 +131,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 		this.instanceSeparation = _separation;
 
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RadiusRingComponent) {
-				((RadiusRingComponent) listener).setInstanceSeparation(_separation);
+			if (listener instanceof LineInstanceable) {
+				((LineInstanceable) listener).setInstanceSeparation(_separation);
 			}
 		}
 	}
@@ -140,9 +140,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setInstanceCount( final int newCount ){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RadiusRingComponent) {
-				((RadiusRingComponent) listener).setInstanceCount(newCount);
-			}
+			listener.setInstanceCount(newCount);
 		}
 
 		if( 0 < newCount ){

@@ -2631,7 +2631,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if (listener == null) {
 			return false;
 		}
-		if (listener.getConfigListeners().size() > 0) {
+		if (!listener.getConfigListeners().isEmpty()) {
 			throw new IllegalArgumentException("Listener already has config listeners");
 		}
 		if (configListeners.contains(listener) || listener == this) {

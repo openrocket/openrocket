@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.ArrayList;
 
 
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1310,8 +1311,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	@Override
 	public void setAngleOffset(final double angleRadians) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof FinSet) {
-				((FinSet) listener).setAngleOffset(angleRadians);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleOffset(angleRadians);
 			}
 		}
 

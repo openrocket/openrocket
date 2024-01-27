@@ -138,9 +138,7 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 	@Override
 	public void setAxialMethod( final AxialMethod newMethod ) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ComponentAssembly) {
-				((ComponentAssembly) listener).setAxialMethod(newMethod);
-			}
+			listener.setAxialMethod(newMethod);
 		}
 
 		if (null == this.parent) {

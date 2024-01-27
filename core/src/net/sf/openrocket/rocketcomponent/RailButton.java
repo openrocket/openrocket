@@ -227,8 +227,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	@Override
 	public void setAngleOffset(double angle_rad){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setAngleOffset(angle_rad);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleOffset(angle_rad);
 			}
 		}
 
@@ -316,8 +316,8 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	@Override
 	public void setInstanceSeparation(double _separation){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setInstanceSeparation(_separation);
+			if (listener instanceof LineInstanceable) {
+				((LineInstanceable) listener).setInstanceSeparation(_separation);
 			}
 		}
 
@@ -331,9 +331,7 @@ public class RailButton extends ExternalComponent implements AnglePositionable, 
 	@Override
 	public void setInstanceCount(int newCount ){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setInstanceCount(newCount);
-			}
+			listener.setInstanceCount(newCount);
 		}
 
 		if (newCount == this.instanceCount || newCount <= 0) {
