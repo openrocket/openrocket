@@ -49,7 +49,10 @@ public class SimulationAbort extends Message {
 		ACTIVE_MASS_ZERO(trans.get("SimulationAbort.activeMassZero")),
 
 		// Stage is tumbling under thrust
-		TUMBLE_UNDER_THRUST(trans.get("SimulationAbort.tumbleUnderThrust"));
+		TUMBLE_UNDER_THRUST(trans.get("SimulationAbort.tumbleUnderThrust")),
+
+		// Recovery system deployed while motor is still burning
+		DEPLOY_UNDER_THRUST(trans.get("SimulationAbort.deployUnderThrust"));
 
 		private final String name;
 
