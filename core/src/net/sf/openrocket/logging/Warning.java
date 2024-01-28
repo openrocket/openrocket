@@ -413,9 +413,6 @@ public abstract class Warning extends Message {
 	////Listeners modified the flight simulation
 	public static final Warning LISTENERS_AFFECTED = new Other(trans.get("Warning.LISTENERS_AFFECTED"));
 	
-	////Recovery device opened while motor still burning.
-	public static final Warning RECOVERY_DEPLOYMENT_WHILE_BURNING = new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
-	
 	////No recovery device for simulation
 	public static final Warning NO_RECOVERY_DEVICE = new Other(trans.get("Warning.NO_RECOVERY_DEVICE"));
 	

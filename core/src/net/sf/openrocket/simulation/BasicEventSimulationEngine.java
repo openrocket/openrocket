@@ -566,7 +566,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						if (state.isDelaying() || state.isSpent()) {
 							continue;
 						}
-						currentStatus.getWarnings().add(Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING);
+						currentStatus.abortSimulation(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
 					}
 					
 					// Check for launch rod
