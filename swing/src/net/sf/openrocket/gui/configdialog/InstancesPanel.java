@@ -12,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Invalidatable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -21,14 +22,16 @@ import javax.swing.JSpinner;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
 /**
  * Panel for configuring a component's duplication instances.
  */
-public class InstancesPanel extends JPanel {
+public class InstancesPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
+    private final List<Invalidatable> invalidatables = new ArrayList<>();
 
     public InstancesPanel(RocketComponent component, List<Component> order) {
         super(new MigLayout("gap rel unrel", "[][65lp::][30lp::]"));
@@ -37,6 +40,7 @@ public class InstancesPanel extends JPanel {
         {//// Instance Count
             add(new JLabel(trans.get("InstancesPanel.lbl.InstanceCount")));
             IntegerModel countModel = new IntegerModel(component, "InstanceCount", 1);
+            register(countModel);
             JSpinner countSpinner = new JSpinner( countModel.getSpinnerModel());
             countSpinner.setEditor(new SpinnerEditor(countSpinner));
             add(countSpinner, "growx, wrap rel");
@@ -46,6 +50,7 @@ public class InstancesPanel extends JPanel {
         { //// Instance separation
             add(new JLabel(trans.get("InstancesPanel.lbl.InstanceSeparation")));
             DoubleModel separationModel = new DoubleModel(component, "InstanceSeparation", UnitGroup.UNITS_LENGTH);
+            register(separationModel);
             JSpinner separationSpinner = new JSpinner( separationModel.getSpinnerModel());
             separationSpinner.setEditor(new SpinnerEditor(separationSpinner));
             add(separationSpinner, "growx");
@@ -56,6 +61,19 @@ public class InstancesPanel extends JPanel {
                 maxSeparationDistance = component.getParent().getLength();
             }
             add(new BasicSlider(separationModel.getSliderModel(-maxSeparationDistance, maxSeparationDistance)), "w 100lp, wrap para");
+        }
+    }
+
+    @Override
+    public void register(Invalidatable model) {
+        this.invalidatables.add(model);
+    }
+
+    @Override
+    public void invalidateMe() {
+        super.invalidate();
+        for (Invalidatable i : invalidatables) {
+            i.invalidateMe();
         }
     }
 }

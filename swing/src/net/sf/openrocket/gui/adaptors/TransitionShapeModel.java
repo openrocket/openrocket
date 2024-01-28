@@ -4,17 +4,20 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.util.Invalidatable;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
 public class TransitionShapeModel extends AbstractListModel<Transition.Shape>
-        implements ComboBoxModel<Transition.Shape>, ComponentChangeListener {
+        implements ComboBoxModel<Transition.Shape>, ComponentChangeListener, Invalidatable {
+    private final ModelInvalidator modelInvalidator;
     private final RocketComponent component;
     private final Transition.Shape[] typeList = Transition.Shape.values();
     private Transition.Shape previousType;
 
     public TransitionShapeModel(RocketComponent component) {
+        this.modelInvalidator = new ModelInvalidator(component, this);
         this.component = component;
         if (component instanceof Transition) {
             previousType = ((Transition) component).getShapeType();
@@ -60,5 +63,16 @@ public class TransitionShapeModel extends AbstractListModel<Transition.Shape>
             previousType = ((Transition) component).getShapeType();
             fireContentsChanged(this, 0, 0);
         }
+    }
+
+    @Override
+    public void invalidateMe() {
+        modelInvalidator.invalidateMe();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        modelInvalidator.finalize();
     }
 }

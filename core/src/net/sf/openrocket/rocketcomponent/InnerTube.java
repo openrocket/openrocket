@@ -320,8 +320,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override 
 	public void setMotorConfig( final MotorConfiguration newMotorConfig, final FlightConfigurationId fcid){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof InnerTube) {
-				((InnerTube) listener).setMotorConfig(newMotorConfig, fcid);
+			if (listener instanceof MotorMount) {
+				((MotorMount) listener).setMotorConfig(newMotorConfig, fcid);
 			}
 		}
 
@@ -356,8 +356,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
     public void setMotorMount(boolean _active){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof InnerTube) {
-				((InnerTube) listener).setMotorMount(_active);
+			if (listener instanceof MotorMount) {
+				((MotorMount) listener).setMotorMount(_active);
 			}
 		}
 
@@ -397,8 +397,8 @@ public class InnerTube extends ThicknessRingComponent implements AxialPositionab
 	@Override
 	public void setMotorOverhang(double overhang) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof InnerTube) {
-				((InnerTube) listener).setMotorOverhang(overhang);
+			if (listener instanceof MotorMount) {
+				((MotorMount) listener).setMotorOverhang(overhang);
 			}
 		}
 

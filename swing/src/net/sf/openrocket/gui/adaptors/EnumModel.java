@@ -7,13 +7,15 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.MutableComboBoxModel;
 
+import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
 
 
 public class EnumModel<T extends Enum<T>> extends AbstractListModel<T> 
-		implements ComboBoxModel<T>, MutableComboBoxModel<T>, StateChangeListener {
+		implements ComboBoxModel<T>, MutableComboBoxModel<T>, StateChangeListener, Invalidatable {
 	private static final long serialVersionUID = 7766446027840316797L;
+	private final ModelInvalidator modelInvalidator;
 	private final Object source;
 	private final String valueName;
 	private final String nullText;
@@ -39,6 +41,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 	@SuppressWarnings("unchecked")
 	public EnumModel(Object source, String valueName, T[] values, String nullText) {
 		Class<? extends Enum<T>> enumClass;
+		this.modelInvalidator = new ModelInvalidator(source, this);
 		this.source = source;
 		this.valueName = valueName;
 		
@@ -124,6 +127,8 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void stateChanged(EventObject e) {
+		modelInvalidator.checkState(true);
+
 		T value = (T) getMethod.invoke(source);
 		if (value != currentValue) {
 			currentValue = value;
@@ -163,4 +168,8 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 		this.displayedValues.remove( index );
 	}
 
+	@Override
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
+	}
 }

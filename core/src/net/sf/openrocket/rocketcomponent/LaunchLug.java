@@ -47,8 +47,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	@Override
 	public void setOuterRadius(double radius) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof LaunchLug) {
-				((LaunchLug) listener).setOuterRadius(radius);
+			if (listener instanceof Coaxial) {
+				((Coaxial) listener).setOuterRadius(radius);
 			}
 		}
 
@@ -68,8 +68,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	@Override
 	public void setInnerRadius(double innerRadius) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof LaunchLug) {
-				((LaunchLug) listener).setInnerRadius(innerRadius);
+			if (listener instanceof Coaxial) {
+				((Coaxial) listener).setInnerRadius(innerRadius);
 			}
 		}
 
@@ -103,8 +103,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	@Override
 	public void setAngleOffset(double newAngleRadians) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof LaunchLug) {
-				((LaunchLug) listener).setAngleOffset(newAngleRadians);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleOffset(newAngleRadians);
 			}
 		}
 
@@ -276,8 +276,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	@Override
 	public void setInstanceSeparation(final double _separation){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof LaunchLug) {
-				((LaunchLug) listener).setInstanceSeparation(_separation);
+			if (listener instanceof LineInstanceable) {
+				((LineInstanceable) listener).setInstanceSeparation(_separation);
 			}
 		}
 
@@ -291,9 +291,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	@Override
 	public void setInstanceCount( final int newCount ){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof LaunchLug) {
-				((LaunchLug) listener).setInstanceCount(newCount);
-			}
+			listener.setInstanceCount(newCount);
 		}
 
 		if (newCount == this.instanceCount || newCount <= 0) {

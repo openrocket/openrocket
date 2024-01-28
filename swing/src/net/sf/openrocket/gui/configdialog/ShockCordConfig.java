@@ -44,6 +44,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		m = new DoubleModel(component, "CordLength", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -57,6 +58,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		//// Shock cord material:
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.LINE,
 				trans.get("ShockCordCfg.lbl.Shockcordmaterial"), null, "Material", order);
+		register(materialPanel);
 		panel.add(materialPanel, "spanx 4, wrap, gapright 40lp");
 
 		/////  Right side
@@ -65,13 +67,15 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 		{ // ----------- Placement ----------
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow, wrap");
 
 			{//// Packed length:
 				placementPanel.add(new JLabel(trans.get("ShockCordCfg.lbl.Packedlength")), "newline");
 
 				m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+				register(m);
 
 				spin = new JSpinner(m.getSpinnerModel());
 				spin.setEditor(new SpinnerEditor(spin));
@@ -87,6 +91,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 				placementPanel.add(new JLabel(trans.get("ShockCordCfg.lbl.Packeddiam")));
 
 				DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+				register(od);
 				spin = new JSpinner(od.getSpinnerModel());
 				spin.setEditor(new SpinnerEditor(spin));
 				placementPanel.add(spin, "growx");
@@ -130,6 +135,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("ShockCordCfg.lbl.Radialdistance")));
 
 		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -144,6 +150,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("ShockCordCfg.lbl.Radialdirection")));
 
 		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

@@ -15,6 +15,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.logging.WarningSet;
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.ORColor;
@@ -1088,6 +1089,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public int getInstanceCount() {
 		return 1;
 	}
+
+	public void setInstanceCount(int count) {
+		// Do nothing
+		log.warn("setInstanceCount called on component that does not support multiple instances");
+	}
 	
 	/**
 	 * Get the user-defined name of the component.
@@ -2053,7 +2059,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Move a child to another position.
+	 * Move a child to another position within this component.
 	 *
 	 * @param component	the component to move
 	 * @param index	the component's new position
@@ -2382,12 +2388,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final RocketComponent findComponent(String idToFind) {
 		checkState();
+		mutex.lock("findComponent");
 		Iterator<RocketComponent> iter = this.iterator(true);
 		while (iter.hasNext()) {
 			final RocketComponent c = iter.next();
-			if (c.getID().equals(idToFind))
+			if (c.getID().equals(idToFind)) {
+				mutex.unlock("findComponent");
 				return c;
+			}
 		}
+		mutex.unlock("findComponent");
 		return null;
 	}
 
@@ -2438,6 +2448,68 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		while (c.getChildCount() > 0)
 			c = c.getChild(c.getChildCount() - 1);
 		return c;
+	}
+
+	/**
+	 * Split the current multi-instance component into multiple single-instance components.
+	 * @param freezeRocket whether to freeze the rocket while splitting
+	 * @return list of all the split components
+	 */
+	public List<RocketComponent> splitInstances(boolean freezeRocket) {
+		final Rocket rocket = getRocket();
+		RocketComponent parent = getParent();
+		int index = parent.getChildPosition(this);
+		int count = getInstanceCount();
+		double angleOffset = getAngleOffset();
+
+		List<RocketComponent> splitComponents = new java.util.ArrayList<>();		// List of all the split components
+
+		try {
+			// Freeze rocket
+			if (freezeRocket) {
+				rocket.freeze();
+			}
+
+			// Split the components
+			if (count > 1) {
+				parent.removeChild(index, true);			// Remove the original component
+				for (int i = 0; i < count; i++) {
+					RocketComponent copy = this.copy();
+					copy.setInstanceCount(1);
+					if (copy instanceof AnglePositionable) {
+						((AnglePositionable) copy).setAngleOffset(angleOffset + i * 2 * Math.PI / count);
+					}
+					copy.setName(copy.getName() + " #" + (i + 1));
+					copy.setOverrideMass(getOverrideMass() / count);
+					parent.addChild(copy, index + i, true);		// Add the new component
+
+					splitComponents.add(copy);
+				}
+			} else {
+				splitComponents.add(this);
+			}
+
+			// Split components for listeners
+			for (RocketComponent listener : configListeners) {
+				if (listener.getClass().isAssignableFrom(this.getClass())) {
+					listener.splitInstances(false);
+					this.removeConfigListener(listener);
+				}
+			}
+		} finally {
+			// Unfreeze rocket
+			if (freezeRocket) {
+				rocket.thaw();
+			}
+		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+
+		return splitComponents;
+	}
+
+	public List<RocketComponent> splitInstances() {
+		return splitInstances(true);
 	}
 
 	///////////  Event handling  //////////
@@ -2559,7 +2631,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		if (listener == null) {
 			return false;
 		}
-		if (listener.getConfigListeners().size() > 0) {
+		if (!listener.getConfigListeners().isEmpty()) {
 			throw new IllegalArgumentException("Listener already has config listeners");
 		}
 		if (configListeners.contains(listener) || listener == this) {
@@ -2847,7 +2919,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	protected void invalidate() {
-		invalidator.invalidate();
+		invalidator.invalidateMe();
 	}
 	
 	

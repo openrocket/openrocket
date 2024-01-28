@@ -127,24 +127,26 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		List<RocketComponent> originalChildren = originalRocket.getAllChildren();
 		List<RocketComponent> importedChildren = importedRocket.getAllChildren();
 		assertEquals(" Number of total children doesn't match",
-				originalChildren.size(), importedChildren.size());
+				originalChildren.size() + 5, importedChildren.size());		// More children because RockSim has individual podsets
 		assertEquals(" Number of rocket children doesn't match", 1, importedRocket.getChildCount());
 		AxialStage stage = (AxialStage) importedRocket.getChild(0);
 		assertEquals(" Number of stage children doesn't match", 2, stage.getChildCount());
 		BodyTube tube = (BodyTube) stage.getChild(1);
-		assertEquals(" Number of body tube children doesn't match", 3, tube.getChildCount());
+		assertEquals(" Number of body tube children doesn't match", 6, tube.getChildCount());
 		PodSet pod1 = (PodSet) tube.getChild(0);
 		assertEquals(" Number of pod 1 children doesn't match", 1, pod1.getChildCount());
 		PodSet pod2 = (PodSet) tube.getChild(1);
 		assertEquals(" Number of pod 2 children doesn't match", 2, pod2.getChildCount());
-		PodSet pod3 = (PodSet) tube.getChild(2);
+		PodSet pod3 = (PodSet) tube.getChild(3);
 		assertEquals(" Number of pod 3 children doesn't match", 0, pod3.getChildCount());
 
 		// Test component names
-		for (int i = 1; i < originalChildren.size(); i++) {
-			assertEquals(" Child " + i + " does not match",
-					originalChildren.get(i).getName(), importedChildren.get(i).getName());
-		}
+		assertEquals(" Name does not match", "Pod 1", importedChildren.get(3).getName());
+		assertEquals(" Name does not match", "Pod 2 #1", importedChildren.get(5).getName());
+		assertEquals(" Name does not match", "Pod 2 #2", importedChildren.get(8).getName());
+		assertEquals(" Name does not match", "Pod 3 #1", importedChildren.get(11).getName());
+		assertEquals(" Name does not match", "Pod 3 #2", importedChildren.get(12).getName());
+		assertEquals(" Name does not match", "Pod 3 #3", importedChildren.get(13).getName());
 
 		// Test pod parameters
 		assertEquals(-0.14, pod1.getAxialOffset(), 0.0001);
@@ -163,6 +165,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		stream.close();
 		Files.delete(output);
 	}
+
 	/**
 	 * Tests exporting a design where a tube coupler has children, which is not supported by RockSim, so the children
 	 * need to be moved outside the tube coupler.
@@ -232,7 +235,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		pod2.setName("Pod 2");
 		tube.addChild(pod2);
 		PodSet pod3 = new PodSet();
-		pod2.setName("Pod 3");
+		pod3.setName("Pod 3");
 		tube.addChild(pod3);
 
 		// Pod 1 children

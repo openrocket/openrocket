@@ -5,8 +5,10 @@ import java.util.Collection;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.position.AngleMethod;
+import net.sf.openrocket.rocketcomponent.position.AnglePositionable;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.rocketcomponent.position.RadiusMethod;
+import net.sf.openrocket.rocketcomponent.position.RadiusPositionable;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -118,9 +120,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override 
 	public void setInstanceCount( final int newCount ){
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setInstanceCount(newCount);
-			}
+			listener.setInstanceCount(newCount);
 		}
 
 		mutex.verify();
@@ -182,9 +182,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setAxialMethod(final AxialMethod _newPosition) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setAxialMethod(_newPosition);
-			}
+			listener.setAxialMethod(_newPosition);
 		}
 
 		if (null == this.parent) {
@@ -199,8 +197,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setRadiusOffset(final double radius_m) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setRadiusOffset(radius_m);
+			if (listener instanceof RadiusPositionable) {
+				((RadiusPositionable) listener).setRadiusOffset(radius_m);
 			}
 		}
 
@@ -217,8 +215,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setAngleOffset(final double angle_rad) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setAngleOffset(angle_rad);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleOffset(angle_rad);
 			}
 		}
 
@@ -230,8 +228,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setRadius(RadiusMethod requestedMethod, double requestedRadius ) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setRadius(requestedMethod, requestedRadius);
+			if (listener instanceof RadiusPositionable) {
+				((RadiusPositionable) listener).setRadius(requestedMethod, requestedRadius);
 			}
 		}
 
@@ -257,8 +255,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setAngleMethod(AngleMethod newAngleMethod ) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setAngleMethod(newAngleMethod);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleMethod(newAngleMethod);
 			}
 		}
 
@@ -275,8 +273,8 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	@Override
 	public void setRadiusMethod(RadiusMethod newMethod) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof ParallelStage) {
-				((ParallelStage) listener).setRadiusMethod(newMethod);
+			if (listener instanceof RadiusPositionable) {
+				((RadiusPositionable) listener).setRadiusMethod(newMethod);
 			}
 		}
 

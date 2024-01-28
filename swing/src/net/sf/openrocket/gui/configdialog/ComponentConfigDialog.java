@@ -71,7 +71,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			 */
 			public void windowClosed(WindowEvent e){
 				configurator.clearConfigListeners();
-				configurator.invalidate();
+				configurator.invalidateMe();
 				document.getRocket().removeComponentChangeListener(ComponentConfigDialog.this);
 				ComponentConfigDialog.this.dispose();
 				if (clearConfigListeners) {

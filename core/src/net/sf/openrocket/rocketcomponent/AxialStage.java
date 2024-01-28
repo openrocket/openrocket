@@ -242,7 +242,9 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public void clearConfigListeners() {
 		super.clearConfigListeners();
 		// StageSeparationConfiguration also has config listeners, so clear them as well
-		StageSeparationConfiguration thisConfig = getSeparationConfiguration();
-		thisConfig.clearConfigListeners();
+		if (getRoot() instanceof Rocket) {		// Root can be different from the rocket if this stage (or its parent) has been removed from the rocket
+			StageSeparationConfiguration thisConfig = getSeparationConfiguration();
+			thisConfig.clearConfigListeners();
+		}
 	}
 }

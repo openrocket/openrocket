@@ -384,10 +384,12 @@ public class Rocket extends ComponentAssembly {
 		// these flight configurations need to reference the _new_ Rocket copy
 		// the default value needs to be explicitly set, because it has different semantics
 		copyRocket.configSet = new FlightConfigurableParameterSet<>(new FlightConfiguration(copyRocket));
-		for (FlightConfigurationId key : this.configSet.getIds()) {
-			FlightConfiguration newCfg = new FlightConfiguration(copyRocket, key);
-			newCfg.setName(this.configSet.get(key).getNameRaw());			// Copy config name
-			copyRocket.configSet.set(key, newCfg);
+		for (FlightConfigurationId configID : this.configSet.getIds()) {
+			FlightConfiguration originalCfg = this.configSet.get(configID);
+			FlightConfiguration newCfg = new FlightConfiguration(copyRocket, configID);
+			newCfg.setName(originalCfg.getNameRaw());			// Copy config name
+			newCfg.copyStageActiveness(originalCfg);
+			copyRocket.configSet.set(configID, newCfg);
 		}
 
 		copyRocket.selectedConfiguration = copyRocket.configSet.get( this.getSelectedConfiguration().getId());
@@ -412,7 +414,9 @@ public class Rocket extends ComponentAssembly {
 	 * changes.
 	 */
 	public void loadFrom(Rocket source) {
-		
+		checkState();
+		mutex.lock("loadFrom");
+
 		// Store list of components to invalidate after event has been fired
 		List<RocketComponent> toInvalidate = this.copyFrom(source);
 		
@@ -431,15 +435,17 @@ public class Rocket extends ComponentAssembly {
 		this.functionalModID = source.functionalModID;
 		this.refType = source.refType;
 		this.customReferenceLength = source.customReferenceLength;
-		this.stageMap = source.stageMap;
+		this.stageMap = new ConcurrentHashMap<>(source.stageMap);
 
 		// these flight configurations need to reference the _this_ Rocket:
 		this.configSet.reset();
 		this.configSet.setDefault(new FlightConfiguration(this));
-		for (FlightConfigurationId key : source.configSet.map.keySet()) {
-			FlightConfiguration newCfg = new FlightConfiguration(this, key);
-			newCfg.setName(source.configSet.get(key).getNameRaw());			// Copy config name
-			this.configSet.set(key, newCfg);
+		for (FlightConfigurationId configID : source.configSet.map.keySet()) {
+			FlightConfiguration srcCfg = source.configSet.get(configID);
+			FlightConfiguration newCfg = new FlightConfiguration(this, configID);
+			newCfg.copyStageActiveness(srcCfg);
+			newCfg.setName(srcCfg.getNameRaw());			// Copy config name
+			this.configSet.set(configID, newCfg);
 		}
 		this.selectedConfiguration = this.configSet.get(source.getSelectedConfiguration().getId());
 
@@ -453,6 +459,8 @@ public class Rocket extends ComponentAssembly {
 		for (RocketComponent c : toInvalidate) {
 			c.invalidate();
 		}
+
+		mutex.unlock("loadFrom");
 	}
 	
 	
@@ -482,15 +490,22 @@ public class Rocket extends ComponentAssembly {
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
 
-		listenerList.add(l);
-
-		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		boolean added = listenerList.add(l);
+		if (added) {
+			log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		} else {
+			log.warn("Attempted to add ComponentChangeListener " + l + " but it was already registered");
+		}
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
-		listenerList.remove(l);
-		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		boolean removed = listenerList.remove(l);
+		if (removed) {
+			log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " + listenerList.size());
+		} else {
+			log.warn("Attempted to remove ComponentChangeListener " + l + " but it was not registered");
+		}
 	}
 
 	/**

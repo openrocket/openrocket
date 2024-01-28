@@ -15,6 +15,7 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.ParallelStage;
 import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -205,7 +206,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
         Assert.assertEquals("Three Stage Everything Included Rocket - Override Total Mass/CG", doc.getRocket().getName());
-        Assert.assertEquals(3, rocket.getStageCount());
+        Assert.assertEquals(4, rocket.getStageCount());
         stage1 = (AxialStage) rocket.getChild(0);
         stage2 = (AxialStage) rocket.getChild(1);
         stage3 = (AxialStage) rocket.getChild(2);
@@ -249,11 +250,11 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals("Launch lug", bt1.getChild(3).getName());
         Assert.assertEquals("Pod", bt1.getChild(4).getName());
 
-        PodSet pod = (PodSet) bt1.getChild(4);
-        Assert.assertEquals(1, pod.getChildCount());
-        c = pod.getChild(0);
+        ParallelStage booster = (ParallelStage) bt1.getChild(4);
+        Assert.assertEquals(1, booster.getChildCount());
+        c = booster.getChild(0);
         Assert.assertEquals(BodyTube.class, c.getClass());
-        Assert.assertEquals("Body tube", pod.getChild(0).getName());
+        Assert.assertEquals("Body tube", booster.getChild(0).getName());
 
         Assert.assertEquals(1, stage2.getChildCount());
         Assert.assertEquals("2nd Stage Tube", stage2.getChild(0).getName());
@@ -392,7 +393,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Rocket rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
         Assert.assertEquals("Pod Test", doc.getRocket().getName());
-        Assert.assertEquals(3, loader.getWarnings().size());
+        Assert.assertEquals(5, loader.getWarnings().size());
 
         InputStream stream = this.getClass().getResourceAsStream("PodTest.rkt");
         Assert.assertNotNull("Could not open PodTest.rkt", stream);
@@ -406,7 +407,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertNotNull(doc);
         rocket = doc.getRocket();
         Assert.assertNotNull(rocket);
-        Assert.assertEquals(1, rocket.getStageCount());
+        Assert.assertEquals(3, rocket.getStageCount());
         AxialStage stage1 = (AxialStage) rocket.getChild(0);
 
         Assert.assertEquals(3, stage1.getChildCount());
@@ -427,7 +428,7 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         Assert.assertEquals(2, bodyTube1.getChildCount());
         RocketComponent pod2 = bodyTube1.getChild(0);
-        Assert.assertEquals(PodSet.class, pod2.getClass());
+        Assert.assertEquals(ParallelStage.class, pod2.getClass());
         Assert.assertEquals("Pod 2", pod2.getName());
         component = bodyTube1.getChild(1);
         Assert.assertEquals(Bulkhead.class, component.getClass());
@@ -454,7 +455,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(TrapezoidFinSet.class, component.getClass());
         Assert.assertEquals("Fin set 2", component.getName());
         RocketComponent pod3 = bodyTube2.getChild(1);
-        Assert.assertEquals(PodSet.class, pod3.getClass());
+        Assert.assertEquals(ParallelStage.class, pod3.getClass());
         Assert.assertEquals("Pod 3", pod3.getName());
         component = bodyTube2.getChild(2);
         Assert.assertEquals(LaunchLug.class, component.getClass());
@@ -465,7 +466,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(BodyTube.class, component.getClass());
         Assert.assertEquals("Body tube 3", component.getName());
         Assert.assertEquals(0.04, pod3.getAxialOffset(), MathUtil.EPSILON);
-        Assert.assertEquals(Math.PI / 2, pod3.getAngleOffset(), 0.0001);
+        Assert.assertEquals(1.76043, pod3.getAngleOffset(), 0.0001);
         Assert.assertEquals(0.05, pod3.getRadiusOffset(), MathUtil.EPSILON);
 
         Assert.assertEquals(1, transition1.getChildCount());

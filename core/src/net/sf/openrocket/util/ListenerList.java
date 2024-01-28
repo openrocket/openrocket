@@ -36,7 +36,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	/**
 	 * Adds the specified listener to this list.  The listener is not added if it
 	 * already is in the list (checked by the equality operator ==).  This method throws
-	 * a BugException if {@link #invalidate()} has been called.
+	 * a BugException if {@link #invalidateMe()} has been called.
 	 * 
 	 * @param listener	the listener to add.
 	 * @return			whether the listeners was actually added to the list.
@@ -113,7 +113,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	 * methods produce a warning log message.
 	 */
 	@Override
-	public void invalidate() {
+	public void invalidateMe() {
 		this.invalidated = new Throwable("Invalidation occurred at this point");
 		if (!listeners.isEmpty()) {
 			log.info("Invalidating " + this + " while still having listeners " + listeners);

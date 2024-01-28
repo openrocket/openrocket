@@ -31,8 +31,8 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		// Stage separation config (for non-first stage)
 		if (component.getStageNumber() > 0) {
 			JPanel tab = separationTab((AxialStage) component);
-			tabbedPane.insertTab(trans.get("StageConfig.tab.Separation"), null, tab,
-					trans.get("StageConfig.tab.Separation.ttip"), 0);
+			tabbedPane.insertTab(trans.get("ComponentAssemblyConfig.tab.Separation"), null, tab,
+					trans.get("ComponentAssemblyConfig.tab.Separation.ttip"), 0);
 			tabbedPane.setSelectedIndex(0);
 		}
 
@@ -49,28 +49,31 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
 		JPanel panel = new JPanel(new MigLayout());
 		
 		// Select separation event
-		panel.add(new StyledLabel(trans.get("StageConfig.separation.lbl.title") + " " + CommonStrings.dagger, Style.BOLD),
+		panel.add(new StyledLabel(trans.get("ComponentAssemblyConfig.separation.lbl.title") + " " + CommonStrings.dagger, Style.BOLD),
 				"spanx, gaptop unrel, wrap 30lp");
 
 		StageSeparationConfiguration sepConfig = stage.getSeparationConfiguration();
-		
-		JComboBox<?> combo = new JComboBox<>(new EnumModel<>( sepConfig, "SeparationEvent", SeparationEvent.values()));
+
+		EnumModel<SeparationEvent> em = new EnumModel<>(sepConfig, "SeparationEvent", SeparationEvent.values());
+		register(em);
+		JComboBox<SeparationEvent> combo = new JComboBox<>(em);
 		
 		//combo.setSelectedItem(sepConfig);
 		panel.add(combo);
 		order.add(combo);
 		
 		// ... and delay
-		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.plus")));
+		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.plus")));
 		
 		DoubleModel dm = new DoubleModel( sepConfig, "SeparationDelay", 0);
+		register(dm);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "width 65lp");
 		order.add(((SpinnerEditor)spin.getEditor()).getTextField());
 		
 		//// seconds
-		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.seconds")), "wrap unrel");
+		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.seconds")), "wrap unrel");
 		
 		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, pushy, wrap para");
 

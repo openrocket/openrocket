@@ -37,6 +37,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Nbroffins")));
 		
 		IntegerModel im = new IntegerModel(component, "FinCount", 1, 8);
+		register(im);
 		
 		JSpinner spin = new JSpinner(im.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -47,6 +48,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Length")));
 		
 		DoubleModel m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -62,6 +64,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Outerdiam")));
 		
 		DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(od);
 
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -81,6 +84,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Innerdiam")));
 
 		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -94,6 +98,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Thickness")));
 		
 		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -110,7 +115,8 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 
 		{ //// Placement
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow, wrap");
 
 			//// Fin rotation:
@@ -120,6 +126,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 			placementPanel.add(label, "newline");
 
 			m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -132,6 +139,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 
 		{//// Material
 			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+			register(materialPanel);
 			panel.add(materialPanel, "span, grow, wrap");
 		}
 

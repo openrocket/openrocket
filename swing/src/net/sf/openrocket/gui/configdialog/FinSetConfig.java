@@ -176,6 +176,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
+		register(tabLength);
 		
 		spin = new JSpinner(tabLength.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -194,6 +195,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
+		register(tabHeightModel);
 		component.addChangeListener( tabHeightModel );
 		spin = new JSpinner(tabHeightModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -211,6 +213,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
+		register(tabOffset);
 		component.addChangeListener( tabOffset);
 		spin = new JSpinner(tabOffset.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -226,6 +229,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 
 		final EnumModel<AxialMethod> tabOffsetMethod = new EnumModel<>(component, "TabOffsetMethod");
+		register(tabOffsetMethod);
 		
 		JComboBox<AxialMethod> enumCombo = new JComboBox<>(tabOffsetMethod);
 		
@@ -540,7 +544,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	
 	protected JPanel filletMaterialPanel(){
 	    
-	    JPanel filletPanel=new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
+	    JPanel filletPanel = new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
 	    String tip = trans.get("FinsetConfig.ttip.Finfillets1") +
 		    	trans.get("FinsetConfig.ttip.Finfillets2") +
 		    	trans.get("FinsetConfig.ttip.Finfillets3");
@@ -550,15 +554,18 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    filletPanel.add(new JLabel(trans.get("FinSetConfig.lbl.Filletradius")));
 		
 	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 	    JSpinner spin = new JSpinner(m.getSpinnerModel());
 	    spin.setEditor(new SpinnerEditor(spin));
 	    spin.setToolTipText(tip);
 	    filletPanel.add(spin, "growx, w 40");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
 	    UnitSelector us = new UnitSelector(m); 
 	    filletPanel.add(us, "growx");
 	    us.setToolTipText(tip);
+
 	    BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1));
 	    filletPanel.add(bs, "w 100lp, wrap para");
 	    bs.setToolTipText(tip);
@@ -569,12 +576,14 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    //// The component material affects the weight of the component.
 	    label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
-		
-	    JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
+
+		MaterialModel mm = new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial");
+		register(mm);
+	    JComboBox<Material> materialCombo = new JComboBox<>(mm);
 
 	    //// The component material affects the weight of the component.
 	    materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
-	    filletPanel.add( materialCombo, "spanx 4, growx");
+	    filletPanel.add(materialCombo, "spanx 4, growx");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
 

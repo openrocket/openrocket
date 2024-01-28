@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
+import net.sf.openrocket.util.Invalidatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +23,12 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
-public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset> {
+public class PresetModel extends AbstractListModel
+		implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset>, Invalidatable {
 	
 	private static final Logger log = LoggerFactory.getLogger(PresetModel.class);
 	private static final Translator trans = Application.getTranslator();
+	private final ModelInvalidator modelInvalidator;
 	
 	private static final String NONE_SELECTED = String.format("<html><i>%s</i></html>", trans.get("PresetModel.lbl.custompreset"));
 	
@@ -37,6 +40,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private List<ComponentPreset> presets;
 	
 	public PresetModel(Component parent, OpenRocketDocument document, RocketComponent component) {
+		this.modelInvalidator = new ModelInvalidator(component, this);
 		this.parent = parent;
 		this.document = document;
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
@@ -102,5 +106,15 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
 		this.fireContentsChanged(this, 0, getSize());
 	}
-	
+
+	@Override
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		modelInvalidator.finalize();
+	}
 }

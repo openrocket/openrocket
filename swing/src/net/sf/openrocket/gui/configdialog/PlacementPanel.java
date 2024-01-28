@@ -11,6 +11,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Invalidatable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -20,14 +21,16 @@ import javax.swing.JSpinner;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
 /**
  * Panel for configuring a component's placement relative to its parent.
  */
-public class PlacementPanel extends JPanel {
+public class PlacementPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
+    private final List<Invalidatable> invalidatables = new ArrayList<>();
 
     public PlacementPanel(RocketComponent component, List<Component> order) {
         super(new MigLayout("gap rel unrel", "[][65lp::][30lp::]"));
@@ -36,6 +39,7 @@ public class PlacementPanel extends JPanel {
         this.add(new JLabel(trans.get("PlacementPanel.lbl.PosRelativeTo")));
 
         final EnumModel<AxialMethod> axialMethodModel = new EnumModel<>(component, "AxialMethod", AxialMethod.axialOffsetMethods );
+        register(axialMethodModel);
         final JComboBox<AxialMethod> axialMethodCombo = new JComboBox<>(axialMethodModel);
         this.add(axialMethodCombo, "spanx, growx, wrap");
         order.add(axialMethodCombo);
@@ -44,6 +48,7 @@ public class PlacementPanel extends JPanel {
         this.add(new JLabel(trans.get("PlacementPanel.lbl.plus")), "right");
 
         final DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+        register(axialOffsetModel);
         final JSpinner axialOffsetSpinner = new JSpinner(axialOffsetModel.getSpinnerModel());
         axialOffsetSpinner.setEditor(new SpinnerEditor(axialOffsetSpinner));
 
@@ -62,5 +67,18 @@ public class PlacementPanel extends JPanel {
                         new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
                         new DoubleModel(component.getParent(), "Length"))),
                 "w 100lp");
+    }
+
+    @Override
+    public void register(Invalidatable model) {
+        this.invalidatables.add(model);
+    }
+
+    @Override
+    public void invalidateMe() {
+        super.invalidate();
+        for (Invalidatable i : invalidatables) {
+            i.invalidateMe();
+        }
     }
 }

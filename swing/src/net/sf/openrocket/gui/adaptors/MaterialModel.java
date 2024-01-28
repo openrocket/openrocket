@@ -17,11 +17,13 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.Reflection;
 
 public class MaterialModel extends AbstractListModel<Material> implements
-		ComboBoxModel<Material>, ComponentChangeListener, DatabaseListener<Material> {
+		ComboBoxModel<Material>, ComponentChangeListener, DatabaseListener<Material>, Invalidatable {
 	private static final long serialVersionUID = 4552478532933113655L;
+	private final ModelInvalidator modelInvalidator;
 
 
 	private final Material custom;
@@ -46,6 +48,7 @@ public class MaterialModel extends AbstractListModel<Material> implements
 
 	public MaterialModel(Component parent, RocketComponent component, Material.Type type, 
 			String name) {
+		this.modelInvalidator = new ModelInvalidator(component, this);
 		this.parentUIComponent = parent;
 		this.rocketComponent = component;
 		this.type = type;
@@ -166,5 +169,15 @@ public class MaterialModel extends AbstractListModel<Material> implements
 	public void elementRemoved(Material element, Database<Material> source) {
 		this.fireContentsChanged(this, 0, database.size());
 	}
-	
+
+	@Override
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		modelInvalidator.finalize();
+	}
 }

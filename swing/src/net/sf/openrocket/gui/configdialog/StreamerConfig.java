@@ -55,6 +55,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striplength")));
 		
 		DoubleModel m = new DoubleModel(component, "StripLength", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -67,6 +68,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Stripwidth")));
 		
 		m = new DoubleModel(component, "StripWidth", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -79,6 +81,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
 		
 		m = new DoubleModel(component, "Area", UnitGroup.UNITS_AREA, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -91,6 +94,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Aspectratio")));
 		
 		m = new DoubleModel(component, "AspectRatio", UnitGroup.UNITS_NONE, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -101,9 +105,10 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		//// Material:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
-		
-		JComboBox<Material> streamerMaterialCombo = new JComboBox<Material>(new MaterialModel(panel, component,
-				Material.Type.SURFACE));
+
+		MaterialModel mm = new MaterialModel(panel, component, Material.Type.SURFACE);
+		register(mm);
+		JComboBox<Material> streamerMaterialCombo = new JComboBox<>(mm);
 		//// The component material affects the weight of the component.
 		streamerMaterialCombo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
 		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");
@@ -120,6 +125,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(label);
 		
 		m = new DoubleModel(component, "CD", UnitGroup.UNITS_COEFFICIENT, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setToolTipText(tip);
@@ -145,12 +151,14 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 
 		{//// ---------------------------- Placement ----------------------------
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 
 			////  Packed length:
 			placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")), "newline");
 
 			m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -164,6 +172,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 			placementPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Packeddiam")));
 
 			DoubleModel od = new DoubleModel(component, "Radius", 2, UnitGroup.UNITS_LENGTH, 0);
+			register(od);
 			spin = new JSpinner(od.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			placementPanel.add(spin, "growx");
@@ -190,9 +199,10 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		deploymentPanel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
 		DeploymentConfiguration deploymentConfig = streamer.getDeploymentConfigurations().getDefault();
-		JComboBox<DeploymentConfiguration.DeployEvent> eventCombo = new JComboBox<>(
-				new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
-		if( (component.getStageNumber() + 1 ) == d.getRocket().getStageCount() ){
+		EnumModel<DeploymentConfiguration.DeployEvent> em = new EnumModel<>(deploymentConfig, "DeployEvent");
+		register(em);
+		JComboBox<DeploymentConfiguration.DeployEvent> eventCombo = new JComboBox<>(em);
+		if ((component.getStageNumber() + 1) == d.getRocket().getStageCount()) {
 			//	This is the bottom stage.  restrict deployment options.
 			eventCombo.removeItem( DeployEvent.LOWER_STAGE_SEPARATION );
 		}
@@ -210,6 +220,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		deploymentPanel.add(new JLabel(trans.get("StreamerCfg.lbl.plusdelay")), "right");
 		
 		m = new DoubleModel(deploymentConfig, "DeployDelay", 0);
+		register(m);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		deploymentPanel.add(spin, "spanx, split");
@@ -224,6 +235,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		deploymentPanel.add(label);
 		
 		m = new DoubleModel(deploymentConfig, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -272,6 +284,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdistance")));
 		
 		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -285,6 +298,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdirection")));
 		
 		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
