@@ -321,22 +321,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				(event.getType() != FlightEvent.Type.ALTITUDE) &&
 				(event.getType() != FlightEvent.Type.SIMULATION_END))
 				currentStatus.getWarnings().add(new Warning.EventAfterLanding(event));
-			
+
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
 				if (state.testForIgnition(currentStatus.getConfiguration(), event)) {
-					MotorClusterState sourceState = (MotorClusterState) event.getData();
-					double ignitionDelay = 0;
-					if (event.getType() == FlightEvent.Type.BURNOUT)
-						ignitionDelay = 0;
-					else if (event.getType() == FlightEvent.Type.EJECTION_CHARGE)
-						ignitionDelay = sourceState.getEjectionDelay();
-
+					
 					MotorMount mount = state.getMount();
 					MotorConfiguration motorInstance = mount.getMotorConfig(this.fcid);
-					ignitionDelay += motorInstance.getIgnitionDelay();
 					
-					final double ignitionTime = currentStatus.getSimulationTime() + ignitionDelay; 
+					final double ignitionTime = currentStatus.getSimulationTime() + motorInstance.getIgnitionDelay();
 					
 					// TODO:  this event seems to get enqueue'd multiple times ... 
 					log.info("Queueing Ignition Event for: "+state.toDescription()+" @: "+ignitionTime);
