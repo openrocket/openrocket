@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
@@ -32,6 +35,8 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 
 public class SimulationStatus implements Monitorable {
+	
+	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 
 	private SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
@@ -560,6 +565,9 @@ public class SimulationStatus implements Monitorable {
 	 */
 	public void addEvent(FlightEvent event) throws SimulationException {
 		if (SimulationListenerHelper.fireAddFlightEvent(this, event)) {
+			if (event.getType() != FlightEvent.Type.ALTITUDE) {
+				log.trace("Adding event to queue:  " + event);
+			}
 			getEventQueue().add(event);
 		}
 	}
