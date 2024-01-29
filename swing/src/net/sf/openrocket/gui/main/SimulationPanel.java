@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -501,10 +500,11 @@ public class SimulationPanel extends JPanel {
 			return;
 		}
 
-		String separator = ((CsvOptionPanel) chooser.getAccessory()).getFieldSeparator();
-		int precision = ((CsvOptionPanel) chooser.getAccessory()).getDecimalPlaces();
-		boolean isExponentialNotation = ((CsvOptionPanel) chooser.getAccessory()).isExponentialNotation();
-		((CsvOptionPanel) chooser.getAccessory()).storePreferences();
+		CsvOptionPanel csvOptions = (CsvOptionPanel) chooser.getAccessory();
+		String separator = csvOptions.getFieldSeparator();
+		int precision = csvOptions.getDecimalPlaces();
+		boolean isExponentialNotation = csvOptions.isExponentialNotation();
+		csvOptions.storePreferences();
 
 		// Handle some special separator options from CsvOptionPanel
 		if (separator.equals(trans.get("CsvOptionPanel.separator.space"))) {
