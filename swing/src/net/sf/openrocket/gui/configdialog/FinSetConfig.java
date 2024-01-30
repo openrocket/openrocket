@@ -14,9 +14,12 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -155,12 +158,18 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						return;
 					}
 
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 					SVGOptionPanel svgOptions = (SVGOptionPanel) chooser.getAccessory();
 					prefs.setSVGStrokeColor(svgOptions.getStrokeColor());
 					prefs.setSVGStrokeWidth(svgOptions.getStrokeWidth());
 
-					FinSetConfig.writeSVGFile((FinSet) component, selectedFile, svgOptions);
-					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+					try {
+						FinSetConfig.writeSVGFile((FinSet) component, selectedFile, svgOptions);
+					} catch (Exception svgErr) {
+						JOptionPane.showMessageDialog(FinSetConfig.this,
+								String.format(trans.get("FinSetConfig.errorSVG.msg"), svgErr.getMessage()),
+								trans.get("FinSetConfig.errorSVG.title"), JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			}
 		});
@@ -620,16 +629,19 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    return filletPanel;
 	}
 
-	private static boolean writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) {
+	/**
+	 * Writes the FinSet object to an SVG file.
+	 *
+	 * @param finSet      the FinSet object to write to the SVG file
+	 * @param file        the File object representing the SVG file to be written
+	 * @param svgOptions  the SVGOptionPanel object containing the options for writing the SVG file
+	 * @throws Exception if there is an error writing the SVG file
+	 */
+	private static void writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) throws ParserConfigurationException, TransformerException {
 		Coordinate[] points = finSet.getFinPointsWithRoot();
-		try {
-			SVGBuilder builder = new SVGBuilder();
-			builder.addPath(points, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
-			builder.writeToFile(file);
-			return true;
-		} catch (Exception e) {
-			log.error("Error writing SVG file", e);
-			return false;
-		}
+
+		SVGBuilder builder = new SVGBuilder();
+		builder.addPath(points, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+		builder.writeToFile(file);
 	}
 }
