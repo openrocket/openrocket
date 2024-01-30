@@ -1,8 +1,8 @@
 package net.sf.openrocket.gui.configdialog;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -19,14 +20,18 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.svg.export.SVGBuilder;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.SVGOptionPanel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
@@ -38,6 +43,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -51,6 +57,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final Logger log = LoggerFactory.getLogger(FinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
+	private static final Preferences prefs = Application.getPreferences();
 	
 	private JButton split = null;
 	
@@ -127,15 +134,47 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		});
 		split.setEnabled(((FinSet) component).getFinCount() > 1);
+
+		//// Export to SVG
+		JButton exportSVGBtn = new SelectColorButton(trans.get("FinSetConfig.lbl.exportSVG"));
+		exportSVGBtn.setToolTipText(trans.get("FinSetConfig.lbl.exportSVG.ttip"));
+		exportSVGBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
+
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(FileHelper.SVG_FILTER);
+				chooser.setAccessory(new SVGOptionPanel());
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+
+				if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FinSetConfig.this)){
+					File selectedFile= chooser.getSelectedFile();
+					selectedFile = FileHelper.forceExtension(selectedFile, "svg");
+					if (!FileHelper.confirmWrite(selectedFile, buttonPanel)) {
+						return;
+					}
+
+					SVGOptionPanel svgOptions = (SVGOptionPanel) chooser.getAccessory();
+					prefs.setSVGStrokeColor(svgOptions.getStrokeColor());
+					prefs.setSVGStrokeWidth(svgOptions.getStrokeWidth());
+
+					FinSetConfig.writeSVGFile((FinSet) component, selectedFile, svgOptions);
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+				}
+			}
+		});
 		
 		if (convert == null) {
-			addButtons(split);
+			addButtons(split, exportSVGBtn);
 			order.add(split);
+			order.add(exportSVGBtn);
 		}
 		else {
-			addButtons(split, convert);
+			addButtons(split, convert, exportSVGBtn);
 			order.add(split);
 			order.add(convert);
+			order.add(exportSVGBtn);
 		}
 	}
 	
@@ -579,5 +618,18 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    filletPanel.setToolTipText(tip);
 
 	    return filletPanel;
+	}
+
+	private static boolean writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) {
+		Coordinate[] points = finSet.getFinPointsWithRoot();
+		try {
+			SVGBuilder builder = new SVGBuilder();
+			builder.addPath(points, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+			builder.writeToFile(file);
+			return true;
+		} catch (Exception e) {
+			log.error("Error writing SVG file", e);
+			return false;
+		}
 	}
 }

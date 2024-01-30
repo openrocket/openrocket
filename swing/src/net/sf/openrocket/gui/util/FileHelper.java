@@ -68,6 +68,10 @@ public final class FileHelper {
 	public static final FileFilter PNG_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.PNG_FILTER"), ".png");
 
+	/** File filter for CSV files (*.csv) */
+	public static final FileFilter SVG_FILTER =
+			new SimpleFileFilter(trans.get("FileHelper.SVG_FILTER"), ".svg");
+
 	/** File filter for XML files (*.xml) */
 	public static final FileFilter XML_FILTER =
 			new SimpleFileFilter(trans.get("FileHelper.XML_FILTER"), ".xml");
