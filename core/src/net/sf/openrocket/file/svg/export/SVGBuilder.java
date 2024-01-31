@@ -104,6 +104,10 @@ public class SVGBuilder {
 		svgRoot.appendChild(path);
 	}
 
+	public void addPath(Coordinate[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth) {
+		addPath(coordinates, xPos, yPos, fill, stroke, strokeWidth, LineCap.SQUARE);
+	}
+
 	public void addPath(Coordinate[] coordinates, Color fill, Color stroke, double strokeWidth, LineCap lineCap) {
 		addPath(coordinates, 0, 0, fill, stroke, strokeWidth, lineCap);
 	}

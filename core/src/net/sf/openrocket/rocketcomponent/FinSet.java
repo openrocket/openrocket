@@ -701,7 +701,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 				
 		// get body points, relTo fin front / centerline);
 		final Coordinate[] upperCurve = getMountPoints( xTabFront_body, xTabTrail_body, -xFinFront_body, 0);
-		final Coordinate[] lowerCurve = translateToCenterline( getTabPoints());
+		final Coordinate[] lowerCurve = translateToCenterline( getTabPointsWithRoot());
 		final Coordinate[] tabPoints = combineCurves( upperCurve, lowerCurve);
 
 		return calculateCurveIntegral( tabPoints );
@@ -1083,7 +1083,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		final double intervalLength = xEnd - xStart;
 
 		// for anything more complicated, increase the count:
-		if ((!MathUtil.equals(getCantAngle(), 0)) || (parent instanceof Transition) && (((Transition)parent).getShapeType() != Shape.CONICAL)) {
+		if ((!MathUtil.equals(getCantAngle(), 0)) || (parent instanceof Transition && ((Transition)parent).getShapeType() != Shape.CONICAL)) {
 			// the maximum precision to enforce when calculating the areas of fins (especially on curved parent bodies)
 			final double xWidth = 0.0025; // width (in meters) of each individual iteration
 			divisionCount = (int) Math.ceil(intervalLength / xWidth);
@@ -1210,6 +1210,33 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 
 	/**
+	 * Checks if this fin set has a tab.
+	 *
+	 * @return true if the tab dimensions are greater than 0, otherwise false.
+	 */
+	public boolean hasTab() {
+		return (getTabHeight() > 0) && (getTabLength() > 0);
+	}
+
+	/**
+	 * Checks if the tab is fully beyond the fin.
+	 *
+	 * @return true if the tab is beyond the fin, otherwise false.
+	 */
+	public boolean isTabBeyondFin() {
+		if (!hasTab()) {
+			return false;
+		}
+
+		final double xTabFront = getTabFrontEdge();
+		final double xTabTrail = getTabTrailingEdge();
+
+		final double xFinEnd = getLength();		// Fin tab is referenced to the fin front, so the fin end is the fin front (0) + length
+
+		return (xTabFront > xFinEnd && xTabTrail > xFinEnd) || (xTabTrail < 0 && xTabFront < 0);
+	}
+
+	/**
 	 * Return a list of X,Y coordinates defining the geometry of a single fin tab. 
 	 * The origin is the leading root edge, and the tab height (or 'depth') is 
 	 * the radial distance inwards from the reference point, depending on positioning method: 
@@ -1221,9 +1248,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 * 
 	 * @return  List of XY-coordinates.
 	 */
-	public Coordinate[] getTabPoints() {
-		if (MathUtil.equals(getTabHeight(), 0) ||
-				MathUtil.equals(getTabLength(), 0)){
+	public Coordinate[] getTabPointsWithRoot() {
+		if (!hasTab()) {
 			return new Coordinate[]{};
 		}
 
@@ -1241,6 +1267,62 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	}
 
 	/**
+	 * Generates a combined shape of the fin and tab that is uniform and uninterrupted, creating a continuous contour
+	 * around the entire structure.
+	 *
+	 * The function operates under the following conditions:
+	 * - If the tab is present and does not extend beyond the fin, it combines the fin, root,
+	 *   and tab points in a way that maintains a continuous shape.
+	 * - If the tab extends beyond the fin or if the tab is not present, only the fin points,
+	 *   including the root, are returned, maintaining the fin's original shape.
+	 *
+	 * @return Array of Coordinates representing the continuous shape combining fin and tab points.
+	 *         If the tab is not present or extends beyond the fin, returns only the fin points.
+	 */
+	public Coordinate[] generateContinuousFinAndTabShape() {
+		if (!hasTab() || isTabBeyondFin()) {
+			return getFinPointsWithRoot();
+		}
+
+		final Coordinate[] finPoints = getFinPoints();
+		final Coordinate[] rootPoints = getRootPoints();
+		final Coordinate[] tabPoints = getTabPoints();
+
+		final double finStart = finPoints[0].x;
+
+		final List<Coordinate> uniformPoints = new LinkedList<>(Arrays.asList(finPoints));
+
+		boolean tabAdded = false;
+		for (Coordinate rootPoint : rootPoints) {
+			// If the tab is not yet added, we need to check whether we need to include root tabs before the tab.
+			if (!tabAdded) {
+				// Check if the root point is beyond the tab. If so, add it to the list.
+				if (rootPoint.x > tabPoints[tabPoints.length - 1].x) {
+					uniformPoints.add(rootPoint);
+				}
+				// If the root point is before the tab, we need to first add the tab points.
+				else {
+					for (int j = tabPoints.length - 1; j >= 0; j--) {
+						uniformPoints.add(tabPoints[j]);
+					}
+					tabAdded = true;
+				}
+			}
+			// Once the tab is added, we need to add the remaining root points that lie before the tab.
+			if (tabAdded && rootPoint.x < tabPoints[0].x) {
+				uniformPoints.add(rootPoint);
+			}
+		}
+
+		// Make sure we close the shape in case the tab is before the fin.
+		if (tabPoints[0].x < finStart) {
+			uniformPoints.add(finPoints[0]);
+		}
+
+		return uniformPoints.toArray(new Coordinate[0]);
+	}
+
+	/**
 	 * Return a list of X,Y coordinates defining the geometry of a single fin tab.
 	 * The origin is the leading root edge, and the tab height (or 'depth') is
 	 * the radial distance inwards from the reference point, depending on positioning method:
@@ -1255,7 +1337,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 	 *
 	 * @return  List of XY-coordinates.
 	 */
-	public Coordinate[] getTabPointsLowRes() {
+	public Coordinate[] getTabPointsWithRootLowRes() {
 		if (MathUtil.equals(getTabHeight(), 0) ||
 				MathUtil.equals(getTabLength(), 0)){
 			return new Coordinate[]{};
@@ -1274,7 +1356,26 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		return generateTabPointsWithRoot(rootPoints);
 	}
 
+	/**
+	 * Generates an array of tab points with the root side.
+	 *
+	 * @param rootPoints A list of root points
+	 * @return An array of tab points with the root (relative to the fin front)
+	 */
 	private Coordinate[] generateTabPointsWithRoot(List<Coordinate> rootPoints) {
+		Coordinate[] tabPoints = getTabPoints();
+
+		rootPoints.add(0, new Coordinate(tabPoints[0].x, tabPoints[0].y));
+
+		return combineCurves(tabPoints, rootPoints.toArray(new Coordinate[0]));
+	}
+
+	/**
+	 * Generates an array of coordinates representing the points of a tab (without the root of the tab).
+	 *
+	 * @return an array of Coordinate objects representing the points of a tab (relative to the fin front)
+	 */
+	public Coordinate[] getTabPoints() {
 		final double xTabFront = getTabFrontEdge();
 		final double xTabTrail = getTabTrailingEdge();
 
@@ -1283,13 +1384,12 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		final SymmetricComponent body = (SymmetricComponent)this.getParent();
 
-		// // limit the new heights to be no greater than the current body radius.
 		double yTabFront = Double.NaN;
 		double yTabTrail = Double.NaN;
 		double yTabBottom = Double.NaN;
-		if( null != body ){
-			yTabFront = body.getRadius( finFront.x + xTabFront) - finFront.y;
-			yTabTrail = body.getRadius( finFront.x + xTabTrail) - finFront.y;
+		if (body != null) {
+			yTabFront = body.getRadius(finFront.x + xTabFront) - finFront.y;
+			yTabTrail = body.getRadius(finFront.x + xTabTrail) - finFront.y;
 			yTabBottom = MathUtil.min(yTabFront, yTabTrail) - tabHeight;
 		}
 
@@ -1297,9 +1397,8 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 		tabPoints[1] = new Coordinate(xTabFront, yTabBottom );
 		tabPoints[2] = new Coordinate(xTabTrail, yTabBottom );
 		tabPoints[3] = new Coordinate(xTabTrail, yTabTrail);
-		rootPoints.add(0, new Coordinate(xTabFront, yTabFront));
 
-		return combineCurves(tabPoints, rootPoints.toArray(new Coordinate[0]));
+		return tabPoints;
 	}
 	
 	@Override
@@ -1568,7 +1667,7 @@ public abstract class FinSet extends ExternalComponent implements AxialPositiona
 
 		if( ! this.isTabTrivial() ) {
 			buf.append(String.format("    TabLength: %6.4f TabHeight: %6.4f @ %6.4f    via: %s\n", tabLength, tabHeight, tabPosition, this.tabOffsetMethod));
-			buf.append(getPointDescr(this.getTabPoints(), "Tab Points", ""));
+			buf.append(getPointDescr(this.getTabPointsWithRoot(), "Tab Points", ""));
 		}
 		return buf;
 	}

@@ -48,6 +48,10 @@ public class SVGOptionPanel extends JPanel {
 		return colorChooser.getSelectedColor();
 	}
 
+	public void setStrokeColor(Color color) {
+		colorChooser.setSelectedColor(color);
+	}
+
 	public double getStrokeWidth() {
 		return strokeWidth;
 	}

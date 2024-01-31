@@ -51,7 +51,7 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
     protected void init (FinSet component) {
 
         Coordinate[] points = component.getFinPointsWithRoot();
-        Coordinate[] tabPoints = component.getTabPoints();
+        Coordinate[] tabPoints = component.getTabPointsWithRoot();
 
         finPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, points.length);
         finTabPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, tabPoints.length);

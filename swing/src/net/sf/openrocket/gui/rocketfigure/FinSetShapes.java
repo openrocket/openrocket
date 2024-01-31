@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -35,7 +34,7 @@ public class FinSetShapes extends RocketComponentShape {
         final Transformation compositeTransform = transformation.applyTransformation(cantRotation);
 		
 		Coordinate[] finPoints = finset.getFinPoints();
-        Coordinate[] tabPoints = finset.getTabPoints();
+        Coordinate[] tabPoints = finset.getTabPointsWithRoot();
         Coordinate[] rootPoints = finset.getRootPoints();
 
 		// Translate & rotate points into place
@@ -203,7 +202,7 @@ public class FinSetShapes extends RocketComponentShape {
 		Coordinate[] backPoints;
 		int minIndex;
 
-		Coordinate[] points = finset.getTabPoints();
+		Coordinate[] points = finset.getTabPointsWithRoot();
 
 		// this loop finds the index @ min-y, as visible from the back
 		for (minIndex = points.length-1; minIndex > 0; minIndex--) {

@@ -637,11 +637,20 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	 * @param svgOptions  the SVGOptionPanel object containing the options for writing the SVG file
 	 * @throws Exception if there is an error writing the SVG file
 	 */
-	private static void writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) throws ParserConfigurationException, TransformerException {
-		Coordinate[] points = finSet.getFinPointsWithRoot();
+	public static void writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) throws ParserConfigurationException, TransformerException {
+		Coordinate[] points = finSet.generateContinuousFinAndTabShape();
 
 		SVGBuilder builder = new SVGBuilder();
 		builder.addPath(points, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+
+		// Export fin tab separately if it's beyond the fin
+		if (finSet.isTabBeyondFin()) {
+			Coordinate[] tabPoints = finSet.getTabPointsWithRoot();
+			Coordinate finFront = finSet.getFinFront();
+			// Need to offset to the fin front because the tab points are relative to the fin front
+			builder.addPath(tabPoints, finFront.x, finFront.y, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+		}
+
 		builder.writeToFile(file);
 	}
 }
