@@ -89,6 +89,8 @@ public class UnitGroup {
 
 	public static final UnitGroup UNITS_SCALING;
 
+	public static final UnitGroup UNITS_STROKE_WIDTH;
+
 
 	public static final Map<String, UnitGroup> UNITS; // keys such as "LENGTH", "VELOCITY"
 	public static final Map<String, UnitGroup> SIUNITS; // keys such a "m", "m/s"
@@ -316,6 +318,12 @@ public class UnitGroup {
 		UNITS_SCALING = new UnitGroup();
 		UNITS_SCALING.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 
+		UNITS_STROKE_WIDTH = new UnitGroup();
+		UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(1, "mm"));
+		UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(0.1, MICRO + "m"));
+		//UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(25.4, "in"));
+		UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(0.0254, "mil"));
+
 		
 		// This is not used by OpenRocket, and not extensively tested:
 		UNITS_FREQUENCY = new UnitGroup();
@@ -354,6 +362,7 @@ public class UnitGroup {
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
 		map.put("SCALING", UNITS_SCALING);
+		map.put("STROKE_WIDTH", UNITS_STROKE_WIDTH);
 		map.put("VOLTAGE", UNITS_VOLTAGE);
 		map.put("CURRENT", UNITS_CURRENT);
 		map.put("ENERGY", UNITS_ENERGY);
@@ -416,6 +425,7 @@ public class UnitGroup {
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit(MICRO + "m");
+		UNITS_STROKE_WIDTH.setDefaultUnit("mm");
 	}
 
 	public static void setDefaultImperialUnits() {
@@ -445,6 +455,7 @@ public class UnitGroup {
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit("mil");
+		UNITS_STROKE_WIDTH.setDefaultUnit("mil");
 	}
 
 	public static void resetDefaultUnits() {
@@ -485,6 +496,7 @@ public class UnitGroup {
 		UNITS_ROUGHNESS.setDefaultUnit(0);
 		UNITS_COEFFICIENT.setDefaultUnit(0);
 		UNITS_SCALING.setDefaultUnit(0);
+		UNITS_STROKE_WIDTH.setDefaultUnit(0);
 		UNITS_FREQUENCY.setDefaultUnit(1);
 	}
 

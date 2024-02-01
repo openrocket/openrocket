@@ -1,5 +1,6 @@
 package net.sf.openrocket.startup;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
@@ -138,6 +139,10 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OBJ_ORIG_X_OFFS = "OrigXOffs";
 	private static final String OBJ_ORIG_Y_OFFS = "OrigYOffs";
 	private static final String OBJ_ORIG_Z_OFFS = "OrigZOffs";
+
+	// SVG export options
+	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
+	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
@@ -1097,6 +1102,42 @@ public abstract class Preferences implements ChangeSource {
 		options.setTransformer(transform);
 
 		return options;
+	}
+
+	/**
+	 * Returns the stroke color used for the SVG.
+	 *
+	 * @return the stroke color for the SVG
+	 */
+	public Color getSVGStrokeColor() {
+		return getColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+	}
+
+	/**
+	 * Sets the stroke color used for the SVG.
+	 *
+	 * @param c the stroke color to set
+	 */
+	public void setSVGStrokeColor(Color c) {
+		putColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(c));
+	}
+
+	/**
+	 * Returns the stroke width used for the SVG in mm.
+	 *
+	 * @return the stroke width for the SVG
+	 */
+	public double getSVGStrokeWidth() {
+		return getDouble(SVG_STROKE_WIDTH, 0.1);
+	}
+
+	/**
+	 * Sets the stroke width used for the SVG in mm.
+	 *
+	 * @param width the stroke width to set
+	 */
+	public void setSVGStrokeWidth(double width) {
+		putDouble(SVG_STROKE_WIDTH, width);
 	}
 	
 	/*

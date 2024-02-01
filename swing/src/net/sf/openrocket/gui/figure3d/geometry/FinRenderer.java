@@ -16,8 +16,6 @@ import net.sf.openrocket.util.BoundingBox;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 
-import java.util.Collections;
-
 public class FinRenderer {
 	private GLUtessellator tess = GLU.gluNewTess();
 	
@@ -37,7 +35,7 @@ public class FinRenderer {
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
 		Coordinate[] finPoints = finSet.getFinPointsWithLowResRoot();
-		Coordinate[] tabPoints = finSet.getTabPointsLowRes();
+		Coordinate[] tabPoints = finSet.getTabPointsWithRootLowRes();
 
 		{
 		    gl.glPushMatrix();
