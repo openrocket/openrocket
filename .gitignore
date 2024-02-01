@@ -40,6 +40,7 @@
 
 /swing/build
 /swing/tmp
+/swing/resources/datafiles/components/
 
 # IntelliJ
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
