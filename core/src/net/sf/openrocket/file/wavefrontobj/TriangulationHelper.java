@@ -3,6 +3,7 @@ package net.sf.openrocket.file.wavefrontobj;
 import de.javagl.obj.FloatTuple;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
+import net.sf.openrocket.util.MathUtil;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -70,8 +71,8 @@ public abstract class TriangulationHelper {
 
 	public static List<ObjFace> generateCDTFaces(DefaultObj obj, DefaultObjFace face) {
 		PolygonWithOriginalIndices polygonWithIndices = createProjectedPolygon(obj, face);
-		Polygon polygon = polygonWithIndices.getPolygon();
-		Map<Coordinate3D, Integer> vertexIndexMap = polygonWithIndices.getVertexIndexMap();
+		Polygon polygon = polygonWithIndices.polygon();
+		Map<Coordinate3D, Integer> vertexIndexMap = polygonWithIndices.vertexIndexMap();
 
 		ConstrainedDelaunayTriangulator triangulator = new ConstrainedDelaunayTriangulator(polygon);
 		List<Tri> triangles = triangulator.getTriangles();
@@ -116,7 +117,7 @@ public abstract class TriangulationHelper {
 		for (int vertexIndex : face.getVertexIndices()) {
 			FloatTuple vertex = obj.getVertex(vertexIndex);
 			Coordinate3D originalCoord = new Coordinate3D(vertexToCoordinate(vertex));
-			Coordinate projectedCoord = projectVertexOntoPlane(originalCoord, normal);
+			Coordinate projectedCoord = projectVertexOntoXYPlane(originalCoord, normal);
 			projectedCoord = new Coordinate(projectedCoord.x, projectedCoord.y);
 			projectedCoords.add(projectedCoord);
 
@@ -141,47 +142,23 @@ public abstract class TriangulationHelper {
 	 * @param normal The normal vector of the polygon's face.
 	 * @return The projected 2D coordinate of the vertex.
 	 */
-	private static Coordinate projectVertexOntoPlane(Coordinate3D vertex, Coordinate normal) {
-		Coordinate zAxis = new Coordinate(0, 0, 1);
-		Coordinate rotationAxis = crossProduct(normal, zAxis);
-		double rotationAngle = Math.acos(dotProduct(normal, zAxis) / (magnitude(normal) * magnitude(zAxis)));
-
-		// Normalize the rotation axis
-		double axisLength = magnitude(rotationAxis);
-		if (axisLength > 0) {
-			rotationAxis.x /= axisLength;
-			rotationAxis.y /= axisLength;
-			rotationAxis.z /= axisLength;
+	private static Coordinate projectVertexOntoXYPlane(Coordinate3D vertex, Coordinate normal) {
+		// If the normal is a zero vector, the polygon is degenerate and cannot be projected
+		if (MathUtil.equals(normal.x, 0) && MathUtil.equals(normal.y, 0) && MathUtil.equals(normal.z, 0)) {
+			throw new IllegalArgumentException("Cannot project a degenerate polygon onto a 2D plane");
+		}
+		// If the normal is parallel to the Z-axis, the polygon is already 2D
+		if (MathUtil.equals(normal.x, 0) && MathUtil.equals(normal.y, 0)) {
+			return new Coordinate(vertex.coordinate().x, vertex.coordinate().y);
 		}
 
-		// Use Rodrigues' rotation formula or a rotation matrix to rotate the vertex
-		Coordinate rotatedVertex = rotateVertex(vertex, rotationAxis, rotationAngle);
+		Coordinate u = crossProduct(normal, new Coordinate(0, 0, 1));
+		Coordinate w = crossProduct(normal, u);
 
-		return new Coordinate(rotatedVertex.x, rotatedVertex.y); // Projected vertex
-	}
+		double x2D = dotProduct(vertex.coordinate(), u);
+		double y2D = dotProduct(vertex.coordinate(), w);
 
-	/**
-	 * Rotates a vertex around a given axis by a specified angle.
-	 *
-	 * @param vertex3D The vertex to rotate.
-	 * @param axis The axis of rotation.
-	 * @param angle The angle of rotation in radians.
-	 * @return The rotated vertex.
-	 */
-	private static Coordinate rotateVertex(Coordinate3D vertex3D, Coordinate axis, double angle) {
-		Coordinate vertex = vertex3D.getCoordinate();
-		double cosTheta = Math.cos(angle);
-		double sinTheta = Math.sin(angle);
-		double x = vertex.x, y = vertex.y, z = vertex.z;
-		double u = axis.x, v = axis.y, w = axis.z;
-
-		// Apply Rodrigues' rotation formula
-		double v1 = u * x + v * y + w * z;
-		double xPrime = u * v1 * (1d - cosTheta) + x * cosTheta + (-w * y + v * z) * sinTheta;
-		double yPrime = v * v1 * (1d - cosTheta) + y * cosTheta + (w * x - u * z) * sinTheta;
-		double zPrime = w * v1 * (1d - cosTheta) + z * cosTheta + (-v * x + u * y) * sinTheta;
-
-		return new Coordinate(xPrime, yPrime, zPrime);
+		return new Coordinate(x2D, y2D);
 	}
 
 	/**
@@ -206,7 +183,7 @@ public abstract class TriangulationHelper {
 
 	private static int getNearbyValue(Map<Coordinate3D, Integer> vertexIndexMap, Coordinate coord) {
 		for (Map.Entry<Coordinate3D, Integer> entry : vertexIndexMap.entrySet()) {
-			Coordinate key = entry.getKey().getCoordinate();
+			Coordinate key = entry.getKey().coordinate();
 			if (key.equals3D(coord)) {
 				return entry.getValue();
 			}
@@ -225,7 +202,7 @@ public abstract class TriangulationHelper {
 	}
 
 	private static Coordinate normalize(Coordinate vector) {
-		double magnitude = Math.sqrt(dotProduct(vector, vector)); // Calculate magnitude
+		double magnitude = magnitude(vector);
 		if (magnitude == 0) {
 			// Handle potential divide by zero if the vector is a zero vector
 			return new Coordinate(0, 0, 0);
@@ -245,36 +222,10 @@ public abstract class TriangulationHelper {
 		return normalize(crossProduct(u, v));
 	}
 
-	private static class PolygonWithOriginalIndices {
-		private final Polygon polygon;
-		private final Map<Coordinate3D, Integer> vertexIndexMap;
-
-		public PolygonWithOriginalIndices(Polygon polygon, Map<Coordinate3D, Integer> vertexIndexMap) {
-			this.polygon = polygon;
-			this.vertexIndexMap = vertexIndexMap;
-		}
-
-		public Polygon getPolygon() {
-			return polygon;
-		}
-
-		public Map<Coordinate3D, Integer> getVertexIndexMap() {
-			return vertexIndexMap;
-		}
-	}
+	private record PolygonWithOriginalIndices(Polygon polygon, Map<Coordinate3D, Integer> vertexIndexMap) { }
 
 	// Helper class to wrap Coordinate and override equals and hashCode to account for all 3 dimensions
-	private static class Coordinate3D {
-		private Coordinate coordinate;
-
-		public Coordinate3D(Coordinate coordinate) {
-			this.coordinate = coordinate;
-		}
-
-		public Coordinate getCoordinate() {
-			return coordinate;
-		}
-
+	private record Coordinate3D(Coordinate coordinate) {
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
