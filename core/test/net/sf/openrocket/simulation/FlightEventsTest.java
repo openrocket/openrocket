@@ -68,8 +68,7 @@ public class FlightEventsTest extends BaseTestCase {
      */
     @Test
     public void testMultiStage() throws SimulationException {
-        final Rocket rocket = TestRockets.makeFalcon9Heavy();
-		TestRockets.addCoreFins(rocket);
+        final Rocket rocket = TestRockets.makeMultiStageEventTestRocket();
 		
         final Simulation sim = new Simulation(rocket);
         sim.getOptions().setISAAtmosphere(true);
@@ -80,65 +79,85 @@ public class FlightEventsTest extends BaseTestCase {
 
         sim.simulate();
 
+		/*
+		for (int b = 0; b < sim.getSimulatedData().getBranchCount(); b++) {
+			System.out.println("branch " + b);
+			for (FlightEvent event : sim.getSimulatedData().getBranch(b).getEvents()) {
+				System.out.println("    " + event);
+			}
+		}
+		*/
+
         // Test branch count
         final int branchCount = sim.getSimulatedData().getBranchCount();
         assertEquals(" Multi-stage simulation invalid branch count ", 3, branchCount);
 
-		final AxialStage coreStage = rocket.getStage(1);
-		final ParallelStage boosterStage = (ParallelStage) rocket.getStage(2);
-		final InnerTube boosterMotorTubes = (InnerTube) boosterStage.getChild(1).getChild(0);
-		final BodyTube coreBody = (BodyTube) coreStage.getChild(0);
-
+		final AxialStage sustainer = rocket.getStage(0);
+		final BodyTube sustainerBody = (BodyTube) sustainer.getChild(1);
+		final Parachute sustainerChute = (Parachute) sustainerBody.getChild(0);
+		
+		final AxialStage centerBooster = rocket.getStage(1);
+		final BodyTube centerBoosterBody = (BodyTube) centerBooster.getChild(0);
+		
+		final ParallelStage sideBoosters = (ParallelStage) centerBoosterBody.getChild(1);
+		final BodyTube sideBoosterBodies = (BodyTube) sideBoosters.getChild(1);
+		
 		// events whose time is too variable to check are given a time of 1200
-        for (int b = 0; b < 3; b++) {
+        for (int b = 0; b < 2; b++) {
 			FlightEvent[] expectedEvents;
             switch (b) {
-                // Sustainer (payload fairing stage)
+                // Sustainer
                 case 0:
 					expectedEvents = new FlightEvent[] {
 						new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
-						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMotorTubes),
-						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, coreBody),
-						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.1275, null),
-						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.130, null),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),						
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.APOGEE, 2.12, rocket),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.202, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 14.12, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 14.12, null)
+						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, sideBoosterBodies),
+						new FlightEvent(FlightEvent.Type.IGNITION, 0.01, centerBoosterBody),
+						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.8255, null),
+						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.828, null),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 0.85, sideBoosterBodies),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 0.85, sideBoosters),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 0.85, sideBoosters),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 2.01, centerBoosterBody),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
+						new FlightEvent(FlightEvent.Type.IGNITION, 2.01, sustainerBody),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 4.01, sustainerBody),
+						new FlightEvent(FlightEvent.Type.APOGEE, 8.5, rocket),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 9.01, sustainer),
+						new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 9.01, sustainerChute),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 83.27, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 83.27, null)
 					};
                     break;
-                // Core stage
+					
+                // Center Booster
                 case 1:
 					expectedEvents = new FlightEvent[] {
-                        new FlightEvent(FlightEvent.Type.IGNITION, 0.0, coreBody),
-                        new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, coreBody),
-                        new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, coreStage),
-						new FlightEvent(FlightEvent.Type.APOGEE, 2.1, rocket),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.15, null),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 7.26, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 7.26, null)
+						new FlightEvent(FlightEvent.Type.IGNITION, 0.01, centerBoosterBody),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 2.01, centerBoosterBody),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.85, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.87, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 9.0, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 9.0, null)
 					};
                     break;
-                // Booster stage
-                case 2:
-					expectedEvents = new FlightEvent[] {
-                        new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMotorTubes),
-                        new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMotorTubes),
-                        new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, boosterStage),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, boosterStage),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.05, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 2.06, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 12.0, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 12.0, null)
-					};
-                    break;
+
+					// Side Boosters
+			case 2:
+				expectedEvents = new FlightEvent[] {
+					new FlightEvent(FlightEvent.Type.IGNITION, 0.0, sideBoosterBodies),
+					new FlightEvent(FlightEvent.Type.BURNOUT, 0.85, sideBoosterBodies),
+					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 0.85, sideBoosters),
+					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 0.85, sideBoosters),
+					new FlightEvent(FlightEvent.Type.TUMBLE, 1.0, null),
+					new FlightEvent(FlightEvent.Type.APOGEE, 1.01, rocket),
+					new FlightEvent(FlightEvent.Type.GROUND_HIT, 1.21, null),
+					new FlightEvent(FlightEvent.Type.SIMULATION_END, 1.21, null)
+				};
+					break;
+					
                 default:
                     throw new IllegalStateException("Invalid branch number " + b);
             }

@@ -10,12 +10,14 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.logging.ErrorSet;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.IgnitionEvent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorConfiguration;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -134,6 +136,45 @@ public class TestRockets {
 				.setCGPoints(new Coordinate[] {
 						new Coordinate(0.035, 0, 0, 0.0164),new Coordinate(.035, 0, 0, 0.0145),new Coordinate(.035, 0, 0, 0.0131)})
 				.setDigest("digest A8 test")
+				.build();
+	}
+	
+	// This function is used for unit, integration tests, DO NOT CHANGE (without updating tests).
+	private static Motor generateMotor_A10_13mm(){
+		return new ThrustCurveMotor.Builder()
+				.setManufacturer(Manufacturer.getManufacturer("Estes"))
+				.setDesignation("A10")
+				.setDescription(" SU Black Powder")
+				.setCaseInfo("SU 13.0x45.0")
+				.setMotorType(Motor.Type.SINGLE)
+				.setStandardDelays(new double[] {0,3})
+				.setDiameter(0.013)
+				.setLength(0.045) 
+				.setTimePoints(new double[] {0.0, 0.026, 0.055, 0.093, 0.124, 0.146, 0.166, 0.179, 0.194, 0.203, 0.209, 0.225, 0.26, 0.333, 0.456, 0.575, 0.663, 0.76, 0.811, 0.828, 0.85})
+			.	setThrustPoints(new double[] {0.0, 0.478, 1.919, 4.513, 8.165, 10.956, 12.64, 11.046, 7.966, 6.042, 3.154, 1.421, 1.225, 1.41, 1.206, 1.195, 1.282, 1.273, 1.268, 0.689, 0.0})
+				.setCGPoints(new Coordinate[] {
+						new Coordinate(0.0225, 0, 0, 3.8), 
+						new Coordinate(0.0225, 0, 0, 3.78818), 
+						new Coordinate(0.0225, 0, 0, 3.72207), 
+						new Coordinate(0.0225, 0, 0, 3.48963), 
+						new Coordinate(0.0225, 0, 0, 3.11587), 
+						new Coordinate(0.0225, 0, 0, 2.71582), 
+						new Coordinate(0.0225, 0, 0, 2.26703), 
+						new Coordinate(0.0225, 0, 0, 1.97419), 
+						new Coordinate(0.0225, 0, 0, 1.70299), 
+						new Coordinate(0.0225, 0, 0, 1.58309), 
+						new Coordinate(0.0225, 0, 0, 1.53062), 
+						new Coordinate(0.0225, 0, 0, 1.46101), 
+						new Coordinate(0.0225, 0, 0, 1.37293), 
+						new Coordinate(0.0225, 0, 0, 1.19), 
+						new Coordinate(0.0225, 0, 0, 0.884002), 
+						new Coordinate(0.0225, 0, 0, 0.612283), 
+						new Coordinate(0.0225, 0, 0, 0.404987), 
+						new Coordinate(0.0225, 0, 0, 0.169296), 
+						new Coordinate(0.0225, 0, 0, 0.0460542), 
+						new Coordinate(0.0225, 0, 0, 0.0144153), 
+						new Coordinate(0.0225, 0, 0, 0.0)})
+				.setDigest("digest A10 test")
 				.build();
 	}
 	
@@ -1131,7 +1172,123 @@ public class TestRockets {
 		
 		rocket.getChild(1).getChild(0).addChild(finSet);
 	}
+
+	// This is a rocket with two axial stages and side boosters for multi-stage event tests.
+	// It's like a Falcon 9 Heavy (see above), but vastly simplified so it can be checked by hand
+	// if needed, and (more importantly) aerodynamically stable. It lacks a lot of the internal
+	// structure that's required by a real rocket
+	public static Rocket makeMultiStageEventTestRocket() {
+
+		Rocket rocket = new Rocket();
+
+		FlightConfigurationId selFCID = rocket.createFlightConfiguration(new FlightConfigurationId()).getFlightConfigurationID();
+
+		final double THICKNESS = 0.002;
+		final double CORE_RADIUS = 0.01;
+		final int NUM_FINS = 4;
+		final double ROOT_CHORD = 0.04;
+		final double TIP_CHORD = 0.02;
+		final double SWEEP = 0.015;
+		final double HEIGHT = 0.03;
 		
+		// Sustainer
+		AxialStage sustainer = new AxialStage();
+		sustainer.setName("Sustainer");
+		rocket.addChild(sustainer);
+		{
+			final double NC_LENGTH = 0.1;
+			NoseCone noseCone = new NoseCone(Transition.Shape.OGIVE, NC_LENGTH, CORE_RADIUS);
+			noseCone.setName("Sustainer Nose Cone");
+			sustainer.addChild(noseCone);
+
+			final double BT_LENGTH = 0.2;
+			BodyTube bodyTube = new BodyTube(BT_LENGTH, CORE_RADIUS, THICKNESS);
+			bodyTube.setName("Sustainer Body Tube");
+			bodyTube.setMotorMount(true);
+			sustainer.addChild(bodyTube);
+
+			MotorConfiguration motorConfig = new MotorConfiguration(bodyTube, selFCID);
+			motorConfig.setMotor(TestRockets.generateMotor_C6_18mm());
+			motorConfig.setEjectionDelay(5.0);
+			motorConfig.setIgnitionEvent(IgnitionEvent.BURNOUT);
+			bodyTube.setMotorConfig(motorConfig, selFCID);
+
+			final double CHUTE_DIAM = 0.3;
+			Parachute parachute = new Parachute();
+			parachute.setName("Sustainer Parachute");
+			parachute.setDiameter(CHUTE_DIAM);
+			bodyTube.addChild(parachute);
+
+			final double POSITION = 0.0;
+			TrapezoidFinSet finSet = new TrapezoidFinSet(NUM_FINS, ROOT_CHORD, TIP_CHORD, SWEEP, HEIGHT);
+			finSet.setName("Sustainer Fin Set");
+			finSet.setAxialMethod(AxialMethod.BOTTOM);
+			finSet.setAxialOffset(POSITION);
+			bodyTube.addChild(finSet);
+		}
+
+		// Center Booster
+		AxialStage centerBooster = new AxialStage();
+		centerBooster.setName("Center Booster");
+		rocket.addChild(centerBooster);
+		{
+			final double BT_LENGTH = 0.09;
+			
+			BodyTube bodyTube = new BodyTube(BT_LENGTH, CORE_RADIUS, THICKNESS);
+			bodyTube.setName("Center Booster Body Tube");
+			bodyTube.setMotorMount(true);
+			centerBooster.addChild(bodyTube);
+
+			MotorConfiguration motorConfig = new MotorConfiguration(bodyTube, selFCID);
+			motorConfig.setMotor(TestRockets.generateMotor_C6_18mm());
+			motorConfig.setEjectionDelay(0.0);
+			motorConfig.setIgnitionEvent(IgnitionEvent.LAUNCH);
+			motorConfig.setIgnitionDelay(0.01);
+			bodyTube.setMotorConfig(motorConfig, selFCID);
+
+			final double POSITION = -0.015;
+			TrapezoidFinSet finSet = new TrapezoidFinSet(NUM_FINS, ROOT_CHORD, TIP_CHORD, SWEEP, HEIGHT);
+			finSet.setName("Center Booster Fin Set");
+			finSet.setAxialMethod(AxialMethod.BOTTOM);
+			finSet.setAxialOffset(POSITION);
+			bodyTube.addChild(finSet);
+		}
+
+		// Side Boosters
+		final double SIDE_RADIUS = 0.007;
+		ParallelStage sideBoosters = new ParallelStage(2);
+		sideBoosters.setName("Side boosters");
+		rocket.getChild(1).getChild(0).addChild(sideBoosters);
+		sideBoosters.setAngleOffset(Math.PI/4);
+		{
+			final double NC_LENGTH = 0.05;
+			NoseCone noseCone = new NoseCone(Transition.Shape.OGIVE, NC_LENGTH, SIDE_RADIUS);
+			noseCone.setName("Side Booster Nose Cones");
+			sideBoosters.addChild(noseCone);
+
+			final double BT_LENGTH = 0.09;
+			BodyTube bodyTube = new BodyTube(BT_LENGTH, SIDE_RADIUS, THICKNESS);
+			bodyTube.setName("Side Booster Body Tubes");
+			bodyTube.setMotorMount(true);
+			sideBoosters.addChild(bodyTube);
+
+			MotorConfiguration motorConfig = new MotorConfiguration(bodyTube, selFCID);
+			motorConfig.setMotor(TestRockets.generateMotor_A10_13mm());
+			motorConfig.setEjectionDelay(0.0);
+			motorConfig.setIgnitionEvent(IgnitionEvent.LAUNCH);
+			bodyTube.setMotorConfig(motorConfig, selFCID);
+
+			StageSeparationConfiguration stageSepConfig = new StageSeparationConfiguration();
+			stageSepConfig.setSeparationEvent(StageSeparationConfiguration.SeparationEvent.BURNOUT);
+			sideBoosters.getSeparationConfigurations().set(selFCID, stageSepConfig);
+		}
+
+		rocket.enableEvents();
+		rocket.setSelectedConfiguration(selFCID);
+
+		return rocket;
+	}
+			
 	// This is a simple four-fin rocket with large endplates on the
 	// fins, for testing CG and CP calculations with fins on pods.
 	// not a complete rocket (no motor mount nor recovery system)
