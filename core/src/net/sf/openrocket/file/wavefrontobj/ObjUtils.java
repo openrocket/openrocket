@@ -5,11 +5,16 @@ import de.javagl.obj.FloatTuples;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
+import de.javagl.obj.ReadableObj;
+import de.javagl.obj.WritableObj;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility methods for working with {@link Obj} objects.
@@ -498,5 +503,125 @@ public class ObjUtils {
             fb = b;
         }
         return FloatTuples.create(fr, fg, fb);
+    }
+
+    /**
+     * Returns an array of FloatTuples representing the vertices of the object
+     *
+     * @param obj The DefaultObj object from which to retrieve the vertices
+     * @param vertexIndices An array of vertex indices specifying which vertices to retrieve
+     * @return An array of FloatTuples representing the vertices
+     */
+    public static FloatTuple[] getVertices(DefaultObj obj, int[] vertexIndices) {
+        FloatTuple[] vertices = new FloatTuple[vertexIndices.length];
+        for (int i = 0; i < vertexIndices.length; i++) {
+            vertices[i] = obj.getVertex(vertexIndices[i]);
+        }
+        return vertices;
+    }
+
+    public static FloatTuple[] getVertices(DefaultObj obj, DefaultObjFace face) {
+        return getVertices(obj, face.getVertexIndices());
+    }
+
+    public static DefaultObjFace createFaceWithNewIndices(ObjFace face, int... n) {
+        int[] v = new int[n.length];
+        int[] vt = null;
+        int[] vn = null;
+
+        for (int i = 0; i < n.length; i++) {
+            v[i] = face.getVertexIndex(n[i]);
+        }
+
+        if (face.containsTexCoordIndices()) {
+            vt = new int[n.length];
+
+            for (int i = 0; i < n.length; i++) {
+                vt[i] = face.getTexCoordIndex(n[i]);
+            }
+        }
+
+        if (face.containsNormalIndices()) {
+            vn = new int[n.length];
+
+            for (int i = 0; i < n.length; i++) {
+                vn[i] = face.getNormalIndex(n[i]);
+            }
+        }
+
+        return new DefaultObjFace(v, vt, vn);
+    }
+
+    /**
+     * Copy all vertices, texture coordinates and normals from the input to the output
+     * @param input The input object
+     * @param output The output object
+     */
+    public static void copyAllVertices(ReadableObj input, WritableObj output) {
+        for (int i = 0; i < input.getNumVertices(); i++) {
+            output.addVertex(input.getVertex(i));
+        }
+
+        for (int i = 0; i < input.getNumTexCoords(); i++) {
+            output.addTexCoord(input.getTexCoord(i));
+        }
+
+        for (int i = 0; i < input.getNumNormals(); i++) {
+            output.addNormal(input.getNormal(i));
+        }
+    }
+
+    /**
+     * Copy all faces and groups from the input to the output
+     * @param source The source object
+     * @param target The target object
+     */
+    public static void copyAllFacesAndGroups(DefaultObj source, DefaultObj target) {
+        // Store the copied faces so we don't end up adding multiple copies of the same face
+        Map<DefaultObjFace, DefaultObjFace> srcToTarFaceMap = new HashMap<>();
+
+        // Copy the groups (and their faces)
+        for (int i = 0; i < source.getNumGroups(); i++) {
+            DefaultObjGroup srcGroup = (DefaultObjGroup) source.getGroup(i);
+            DefaultObjGroup tarGroup = new DefaultObjGroup(srcGroup.getName());
+            for (int j = 0; j < srcGroup.getNumFaces(); j++) {
+                DefaultObjFace srcFace = (DefaultObjFace) srcGroup.getFace(j);
+                DefaultObjFace storedFace = srcToTarFaceMap.get(srcFace);
+
+                DefaultObjFace tarFace = storedFace != null ? storedFace : new DefaultObjFace(srcFace);
+                tarGroup.addFace(tarFace);
+                srcToTarFaceMap.put(srcFace, tarFace);
+            }
+            target.addGroup(tarGroup);
+        }
+
+        // Copy the faces
+        for (int i = 0; i < source.getNumFaces(); i++) {
+            DefaultObjFace srcFace = (DefaultObjFace) source.getFace(i);
+            DefaultObjFace tarFace = srcToTarFaceMap.get(srcFace);
+            tarFace = tarFace != null ? tarFace : new DefaultObjFace(srcFace);
+            target.addFace(tarFace);
+        }
+    }
+
+    /**
+     * Activates the groups and materials specified by the given face in the input object,
+     * and sets the active groups and material in the output object accordingly.
+     *
+     * @param input The input object from which to activate the groups and materials
+     * @param face The face containing the groups and materials to activate
+     * @param output The output object in which to set the active groups and materials
+     */
+    public static void activateGroups(ReadableObj input, ObjFace face, WritableObj output) {
+        Set<String> activatedGroupNames = input.getActivatedGroupNames(face);
+        if (activatedGroupNames != null) {
+            output.setActiveGroupNames(activatedGroupNames);
+        }
+
+        String activatedMaterialGroupName = input.getActivatedMaterialGroupName(face);
+        if (activatedMaterialGroupName != null) {
+            output.setActiveMaterialGroupName(activatedMaterialGroupName);
+        }
+
     }
 }

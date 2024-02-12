@@ -175,7 +175,7 @@ public class OBJExporterFactory {
 
             // Triangulate mesh
             if (this.options.isTriangulate()) {
-                obj = TriangulationHelper.simpleTriangulate(obj);
+                obj = TriangulationHelper.constrainedDelaunayTriangulate(obj);
             }
 
             // Remove position offset

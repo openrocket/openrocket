@@ -38,5 +38,6 @@
 	<classpathentry kind="lib" path="lib/istack-commons-runtime.jar"/>
 	<classpathentry kind="lib" path="lib/graal-sdk-22.1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/js-scriptengine-22.1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jts-core-1.19.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
