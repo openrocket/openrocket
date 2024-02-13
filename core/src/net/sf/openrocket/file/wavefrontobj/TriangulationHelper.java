@@ -2,7 +2,6 @@ package net.sf.openrocket.file.wavefrontobj;
 
 import de.javagl.obj.FloatTuple;
 import de.javagl.obj.ObjFace;
-import de.javagl.obj.ObjGroup;
 import net.sf.openrocket.util.MathUtil;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
@@ -25,6 +24,12 @@ public abstract class TriangulationHelper {
 		return de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
 	}
 
+	/**
+	 * Triangulates an OBJ object using constrained Delaunay triangulation.
+	 *
+	 * @param input The object to triangulate.
+	 * @return A new object with the triangulated faces.
+	 */
 	public static DefaultObj constrainedDelaunayTriangulate(DefaultObj input) {
 		// Create a new OBJ that will contain the triangulated faces, and copy all the vertices and MTL file names from the original OBJ
 		DefaultObj output = input.clone(false);
@@ -86,7 +91,7 @@ public abstract class TriangulationHelper {
 			int[] vertexIndices = new int[3];
 			for (int i = 0; i < 3; i++) {
 				Coordinate coord = tri.getCoordinate(i);
-				vertexIndices[i] = getNearbyValue(vertexIndexMap, coord);
+				vertexIndices[i] = getVertexIndexFromCoord(vertexIndexMap, coord);
 			}
 
 			// Calculate the normal of the triangle, and verify that it has the same orientation as the original face
@@ -226,26 +231,24 @@ public abstract class TriangulationHelper {
 	}
 
 	/**
-	 * Computes the cross product of two vectors.
+	 * Converts a FloatTuple vertex to a Coordinate object.
 	 *
-	 * @param v1 The first vector.
-	 * @param v2 The second vector.
-	 * @return The cross product.
+	 * @param vertex The vertex to convert.
+	 * @return The converted Coordinate object.
 	 */
-	private static Coordinate crossProduct(Coordinate v1, Coordinate v2) {
-		return new Coordinate(
-				v1.y * v2.z - v1.z * v2.y,
-				v1.z * v2.x - v1.x * v2.z,
-				v1.x * v2.y - v1.y * v2.x
-		);
-	}
-
 	private static Coordinate vertexToCoordinate(FloatTuple vertex) {
 		return new Coordinate(vertex.getX(), vertex.getY(), vertex.getZ());
 	}
 
 
-	private static int getNearbyValue(Map<Coordinate3D, Integer> vertexIndexMap, Coordinate coord) {
+	/**
+	 * Retrieves the vertex index from the given coordinate in the vertex index map.
+	 *
+	 * @param vertexIndexMap  The map containing the vertex coordinates and their corresponding indices.
+	 * @param coord           The coordinate to retrieve the vertex index for.
+	 * @return The vertex index if the coordinate is found in the map, or -1 if not found.
+	 */
+	private static int getVertexIndexFromCoord(Map<Coordinate3D, Integer> vertexIndexMap, Coordinate coord) {
 		for (Map.Entry<Coordinate3D, Integer> entry : vertexIndexMap.entrySet()) {
 			Coordinate key = entry.getKey().coordinate();
 			if (key.equals3D(coord)) {
@@ -255,8 +258,32 @@ public abstract class TriangulationHelper {
 		return -1;
 	}
 
+	/**
+	 * Determines whether two normals have different directions.
+	 *
+	 * @param normal1 The first normal.
+	 * @param normal2 The second normal.
+	 * @return true if the two normals have different directions, false otherwise.
+	 */
 	private static boolean normalsHaveDifferentDirection(Coordinate normal1, Coordinate normal2) {
 		return dotProduct(normal1, normal2) < 0;
+	}
+
+	public static Coordinate calculateNormal(Coordinate p1, Coordinate p2, Coordinate p3) {
+		Coordinate u = subtract(p2, p1);
+		Coordinate v = subtract(p3, p1);
+
+		return normalize(crossProduct(u, v));
+	}
+
+	// ==================================== Basic Vector Math ====================================
+
+	private static Coordinate crossProduct(Coordinate v1, Coordinate v2) {
+		return new Coordinate(
+				v1.y * v2.z - v1.z * v2.y,
+				v1.z * v2.x - v1.x * v2.z,
+				v1.x * v2.y - v1.y * v2.x
+		);
 	}
 
 
@@ -282,13 +309,9 @@ public abstract class TriangulationHelper {
 		return Math.sqrt(dotProduct(vector, vector));
 	}
 
-	public static Coordinate calculateNormal(Coordinate p1, Coordinate p2, Coordinate p3) {
-		Coordinate u = subtract(p2, p1);
-		Coordinate v = subtract(p3, p1);
+	// ==================================== Helper classes ====================================
 
-		return normalize(crossProduct(u, v));
-	}
-
+	// Helper class to wrap a Polygon and its original vertex indices
 	private record PolygonWithOriginalIndices(Polygon polygon, Map<Coordinate3D, Integer> vertexIndexMap) { }
 
 	// Helper class to wrap Coordinate and override equals and hashCode to account for all 3 dimensions
