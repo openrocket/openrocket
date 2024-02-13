@@ -80,6 +80,7 @@ public class AboutDialog extends JDialog {
 		"Darklaf (dark theme)" + href("https://github.com/weisJ/darklaf", true, true) + "<br>" +
         "jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
         "Obj" + href("https://github.com/javagl/Obj", true, true) + "<br>" +
+		"JTS" + href("https://github.com/locationtech/jts", true, true) + "<br>" +
         "<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
