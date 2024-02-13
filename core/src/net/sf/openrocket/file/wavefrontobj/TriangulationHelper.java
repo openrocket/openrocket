@@ -25,31 +25,6 @@ public abstract class TriangulationHelper {
 		return de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
 	}
 
-	public static DefaultObj constrainedDelaunayTriangulate(DefaultObj obj, DefaultObjFace face) {
-		// Create a new OBJ that will contain the triangulated faces, and copy all the vertices and MTL file names from the original OBJ
-		DefaultObj newObj = obj.clone(true);
-
-		// Generate the new triangulated faces
-		List<ObjFace> newFaces = generateCDTFaces(obj, face);
-
-		// Add the triangulated faces
-		for (ObjFace newFace : newFaces) {
-			newObj.addFace(newFace);
-		}
-
-		// Remove the old face
-		obj.removeFace(face);
-		for (ObjGroup group : obj.getGroups()) {
-			DefaultObjGroup g = (DefaultObjGroup) group;
-			if (g.containsFace(face)) {
-				g.removeFace(face);
-				g.addFaces(newFaces);
-			}
-		}
-
-		return newObj;
-	}
-
 	public static DefaultObj constrainedDelaunayTriangulate(DefaultObj input) {
 		// Create a new OBJ that will contain the triangulated faces, and copy all the vertices and MTL file names from the original OBJ
 		DefaultObj output = input.clone(false);
