@@ -341,6 +341,47 @@ public class ObjUtils {
     }
 
     /**
+     * Calculates the normal vector of a triangle defined by three vertices.
+     *
+     * @param v1 The first vertex of the triangle.
+     * @param v2 The second vertex of the triangle.
+     * @param v3 The third vertex of the triangle.
+     * @return The normal vector of the triangle.
+     */
+    public static FloatTuple calculateNormalVector(FloatTuple v1, FloatTuple v2, FloatTuple v3) {
+        FloatTuple u = subtractVectors(v2, v1);
+        FloatTuple v = subtractVectors(v3, v1);
+
+        return normalizeVector(crossProduct(u, v));
+    }
+
+    /**
+     * Subtracts two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return a new FloatTuple representing the subtraction of v2 from v1
+     */
+    public static FloatTuple subtractVectors(FloatTuple v1, FloatTuple v2) {
+        return new DefaultFloatTuple(v1.getX() - v2.getX(), v1.getY() - v2.getY(), v1.getZ() - v2.getZ());
+    }
+
+    /**
+     * Calculates the cross product of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return the cross product of the given vectors
+     */
+    public static FloatTuple crossProduct(FloatTuple v1, FloatTuple v2) {
+        return new DefaultFloatTuple(
+                v1.getY() * v2.getZ() - v1.getZ() * v2.getY(),
+                v1.getZ() * v2.getX() - v1.getX() * v2.getZ(),
+                v1.getX() * v2.getY() - v1.getY() * v2.getX()
+        );
+    }
+
+    /**
      * Calculate the average of a list of vertices.
      * @param vertices The list of vertices
      * @return The average of the vertices

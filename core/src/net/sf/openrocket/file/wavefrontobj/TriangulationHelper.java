@@ -9,6 +9,8 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.triangulate.polygon.ConstrainedDelaunayTriangulator;
 import org.locationtech.jts.triangulate.tri.Tri;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class TriangulationHelper {
+	private static final Logger log = LoggerFactory.getLogger(TriangulationHelper.class);
+
 	public static DefaultObj simpleTriangulate(DefaultObj obj) {
 		return de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
 	}
@@ -55,6 +59,9 @@ public abstract class TriangulationHelper {
 			if (face.getNumVertices() == 3) {
 				output.addFace(face);
 				continue;
+			} else if (face.getNumVertices() < 3) {
+				log.debug("Face has less than 3 vertices, skipping");
+				continue;
 			}
 
 			// Generate the new triangulated faces
@@ -69,23 +76,56 @@ public abstract class TriangulationHelper {
 		return output;
 	}
 
+	/**
+	 * Generates constrained Delaunay triangulation faces based on a given object and face.
+	 *
+	 * @param obj  The input object containing 3D polygon data.
+	 * @param face The specific face of the object to be triangulated.
+	 * @return A list of generated object faces representing the triangulated faces.
+	 */
 	public static List<ObjFace> generateCDTFaces(DefaultObj obj, DefaultObjFace face) {
-		PolygonWithOriginalIndices polygonWithIndices = createProjectedPolygon(obj, face);
+		// Calculate the face normal
+		Coordinate normal = vertexToCoordinate(ObjUtils.calculateNormalVector(
+				obj.getVertex(face.getVertexIndices()[0]),
+				obj.getVertex(face.getVertexIndices()[1]),
+				obj.getVertex(face.getVertexIndices()[2])));
+
+		// Project the 3D face to a 2D polygon with only X and Y coordinates.
+		// This is necessary because the JTS library only works with 2D polygons for triangulation.
+		PolygonWithOriginalIndices polygonWithIndices = createProjectedPolygon(obj, face, normal);
 		Polygon polygon = polygonWithIndices.polygon();
 		Map<Coordinate3D, Integer> vertexIndexMap = polygonWithIndices.vertexIndexMap();
 
+		// Triangulate the polygon
 		ConstrainedDelaunayTriangulator triangulator = new ConstrainedDelaunayTriangulator(polygon);
 		List<Tri> triangles = triangulator.getTriangles();
 
+		// Create the new faces to add to the OBJ
 		List<ObjFace> newFaces = new ArrayList<>();
 		for (Tri tri : triangles) {
+			// Map the 2D triangle vertices back to the original vertex indices
 			int[] vertexIndices = new int[3];
 			for (int i = 0; i < 3; i++) {
 				Coordinate coord = tri.getCoordinate(i);
 				vertexIndices[i] = getNearbyValue(vertexIndexMap, coord);
 			}
+
+			// Calculate the normal of the triangle, and verify that it has the same orientation as the original face
+			// If it does not, invert the vertex order to ensure the normal points in the same direction
+			// This is necessary for correct face culling.
+			Coordinate triangleNormal = calculateNormal(
+					vertexToCoordinate(obj.getVertex(vertexIndices[0])),
+					vertexToCoordinate(obj.getVertex(vertexIndices[1])),
+					vertexToCoordinate(obj.getVertex(vertexIndices[2])));
+			if (normalsHaveDifferentDirection(triangleNormal, normal)) {
+				int temp = vertexIndices[0];
+				vertexIndices[0] = vertexIndices[2];
+				vertexIndices[2] = temp;
+			}
+
+			// Add the new face to the list
 			if (vertexIndices[0] != -1 && vertexIndices[1] != -1 && vertexIndices[2] != -1) {
-				//DefaultObjFace newFace = ObjUtils.createFaceWithNewIndices(face, vertexIndices);
+				// TODO: Add support for texture coordinates and normals (create a new map to map vertex index and normal/texcoord index)
 				DefaultObjFace newFace = new DefaultObjFace(vertexIndices, null, null);
 				newFaces.add(newFace);
 			}
@@ -100,15 +140,10 @@ public abstract class TriangulationHelper {
 	 *
 	 * @param obj The input OBJ containing 3D polygon data.
 	 * @param face The specific face of the OBJ to be projected and triangulated.
+	 * @param normal the normal of the face to determine its orientation in 3D space
 	 * @return A polygon in 2D space suitable for use with JTS.
 	 */
-	private static PolygonWithOriginalIndices createProjectedPolygon(DefaultObj obj, DefaultObjFace face) {
-		// Calculate the normal of the polygon to determine its orientation in 3D space
-		Coordinate normal = calculateNormal(
-				vertexToCoordinate(obj.getVertex(face.getVertexIndices()[0])),
-				vertexToCoordinate(obj.getVertex(face.getVertexIndices()[1])),
-				vertexToCoordinate(obj.getVertex(face.getVertexIndices()[2])));
-
+	private static PolygonWithOriginalIndices createProjectedPolygon(DefaultObj obj, DefaultObjFace face, Coordinate normal) {
 		// Create a list for storing the projected 2D coordinates
 		List<Coordinate> projectedCoords = new ArrayList<>();
 		Map<Coordinate3D, Integer> vertexIndexMap = new HashMap<>();
@@ -129,6 +164,7 @@ public abstract class TriangulationHelper {
 			projectedCoords.add(projectedCoords.get(0));
 		}
 
+		// Create the polygon
 		GeometryFactory factory = new GeometryFactory();
 		Polygon polygon = factory.createPolygon(projectedCoords.toArray(new Coordinate[0]));
 
@@ -188,7 +224,11 @@ public abstract class TriangulationHelper {
 				return entry.getValue();
 			}
 		}
-		return -1;  // Or any default value.
+		return -1;
+	}
+
+	private static boolean normalsHaveDifferentDirection(Coordinate normal1, Coordinate normal2) {
+		return dotProduct(normal1, normal2) < 0;
 	}
 
 
@@ -204,7 +244,6 @@ public abstract class TriangulationHelper {
 	private static Coordinate normalize(Coordinate vector) {
 		double magnitude = magnitude(vector);
 		if (magnitude == 0) {
-			// Handle potential divide by zero if the vector is a zero vector
 			return new Coordinate(0, 0, 0);
 		}
 
