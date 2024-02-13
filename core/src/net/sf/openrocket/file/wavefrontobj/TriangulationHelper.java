@@ -84,6 +84,10 @@ public abstract class TriangulationHelper {
 	 * @return A list of generated object faces representing the triangulated faces.
 	 */
 	public static List<ObjFace> generateCDTFaces(DefaultObj obj, DefaultObjFace face) {
+		// Retrieve the vertex mapping to normal indices and texture coordinate indices
+		Map<Integer, Integer> vertexToNormalMap = mapVertexIndicesToNormalIndices(face);
+		Map<Integer, Integer> vertexToTexCoordMap = mapVertexIndicesToTexCoordIndices(face);
+
 		// Calculate the face normal
 		Coordinate normal = vertexToCoordinate(ObjUtils.calculateNormalVector(
 				obj.getVertex(face.getVertexIndices()[0]),
@@ -125,8 +129,16 @@ public abstract class TriangulationHelper {
 
 			// Add the new face to the list
 			if (vertexIndices[0] != -1 && vertexIndices[1] != -1 && vertexIndices[2] != -1) {
-				// TODO: Add support for texture coordinates and normals (create a new map to map vertex index and normal/texcoord index)
-				DefaultObjFace newFace = new DefaultObjFace(vertexIndices, null, null);
+				// Map the vertex indices to normal and texture coordinate indices
+				int[] normalIndices = vertexToNormalMap != null ?
+						new int[] {vertexToNormalMap.get(vertexIndices[0]), vertexToNormalMap.get(vertexIndices[1]), vertexToNormalMap.get(vertexIndices[2])}
+						: null;
+				int[] texCoordIndices = vertexToTexCoordMap != null ?
+						new int[] {vertexToTexCoordMap.get(vertexIndices[0]), vertexToTexCoordMap.get(vertexIndices[1]), vertexToTexCoordMap.get(vertexIndices[2])}
+						: null;
+
+				// Create and add the new face
+				DefaultObjFace newFace = new DefaultObjFace(vertexIndices, texCoordIndices, normalIndices);
 				newFaces.add(newFace);
 			}
 		}
@@ -195,6 +207,47 @@ public abstract class TriangulationHelper {
 		double y2D = dotProduct(vertex.coordinate(), w);
 
 		return new Coordinate(x2D, y2D);
+	}
+
+	/**
+	 * Maps the vertex indices of a face to the normal indices of the same face.
+	 *
+	 * @param face The face for which to map the vertex indices to normal indices.
+	 * @return A map that maps the vertex indices to the normal indices, or null if the face does not contain normal indices.
+	 */
+	private static Map<Integer, Integer> mapVertexIndicesToNormalIndices(DefaultObjFace face) {
+		int[] normalIndices = face.getNormalIndices();
+		if (normalIndices == null) {
+			return null;
+		}
+
+		Map<Integer, Integer> vertexToNormalMap = new HashMap<>();
+		int[] vertexIndices = face.getVertexIndices();
+		for (int i = 0; i < vertexIndices.length; i++) {
+			vertexToNormalMap.put(vertexIndices[i], normalIndices[i]);
+		}
+		return vertexToNormalMap;
+	}
+
+	/**
+	 * Maps vertex indices to texture coordinate indices.
+	 *
+	 * @param face The face object containing the vertex and texture coordinate indices.
+	 * @return A map that maps vertex indices to texture coordinate indices, or null if the face does
+	 * 			not contain texture coordinate indices.
+	 */
+	private static Map<Integer, Integer> mapVertexIndicesToTexCoordIndices(DefaultObjFace face) {
+		int[] texCoordIndices = face.getTexCoordIndices();
+		if (texCoordIndices == null) {
+			return null;
+		}
+
+		Map<Integer, Integer> vertexToTexCoordMap = new HashMap<>();
+		int[] vertexIndices = face.getVertexIndices();
+		for (int i = 0; i < vertexIndices.length; i++) {
+			vertexToTexCoordMap.put(vertexIndices[i], texCoordIndices[i]);
+		}
+		return vertexToTexCoordMap;
 	}
 
 	/**
