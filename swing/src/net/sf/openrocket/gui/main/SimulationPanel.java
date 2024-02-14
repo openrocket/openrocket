@@ -128,7 +128,6 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction selectedSimsExportAction;
 
 	private int[] previousSelection = null;
-	private JMenuItem exportSimTableToCSVMenuItem;
 
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
