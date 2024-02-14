@@ -239,12 +239,24 @@ public class SimulationPanel extends JPanel {
 				}
 
 				if (e.getButton() == MouseEvent.BUTTON1) {
-					// Edit the simulation or plot/export
-					if (e.getClickCount() == 2) {
+					if (e.getClickCount() == 1) {
+						if (column == 0) {
+							int selected = simulationTable.convertRowIndexToModel(selectedRow);
+							Simulation sim = document.getSimulations().get(selected);
+							Status status = sim.getStatus();
+
+							if (status == Status.NOT_SIMULATED || status == Status.OUTDATED) {
+								runSimulation();
+							}
+						}
+					} else if (e.getClickCount() == 2) {
 						int selected = simulationTable.convertRowIndexToModel(selectedRow);
+						// Show the warnings for the simulation
 						if (column == 0) {
 							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
-						} else {
+						}
+						// Edit the simulation or plot/export
+						else {
 							simulationTable.clearSelection();
 							simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
 

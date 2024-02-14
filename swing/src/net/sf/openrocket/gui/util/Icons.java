@@ -29,13 +29,17 @@ public class Icons {
 	 */
 	public static final Map<Simulation.Status, Icon> SIMULATION_STATUS_ICON_MAP;
 	static {
+		final String SIM_UPTODATE = "pix/icons/tick.png";
+		final String SIM_CANTRUN = "pix/icons/sim_cantrun.png";
+		final String SIM_OUTDATED = "pix/icons/refresh_sim.png";
+
 		HashMap<Simulation.Status, Icon> map = new HashMap<Simulation.Status, Icon>();
-		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon("pix/spheres/gray-16x16.png", "Not simulated"));
-		map.put(Simulation.Status.CANT_RUN, loadImageIcon("pix/spheres/yellow-16x16.png", "Can't run, no motors assigned."));
-		map.put(Simulation.Status.UPTODATE, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
-		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/blue-16x16.png", "Loaded from File"));
-		map.put(Simulation.Status.OUTDATED, loadImageIcon("pix/spheres/red-16x16.png", "Out-of-date"));
-		map.put(Simulation.Status.EXTERNAL, loadImageIcon("pix/spheres/blue-16x16.png", "Imported data"));
+		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon(SIM_OUTDATED, "Not simulated"));
+		map.put(Simulation.Status.CANT_RUN, loadImageIcon(SIM_CANTRUN, "Can't run, no motors assigned."));
+		map.put(Simulation.Status.UPTODATE, loadImageIcon(SIM_UPTODATE, "Up to date"));
+		map.put(Simulation.Status.LOADED, loadImageIcon(SIM_UPTODATE, "Loaded from File"));
+		map.put(Simulation.Status.OUTDATED, loadImageIcon(SIM_OUTDATED, "Out-of-date"));
+		map.put(Simulation.Status.EXTERNAL, loadImageIcon(SIM_UPTODATE, "Imported data"));
 		SIMULATION_STATUS_ICON_MAP = Collections.unmodifiableMap(map);
 	}
 	
@@ -137,6 +141,17 @@ public class Icons {
 			return null;
 		}
 		return new ImageIcon(url, name);
+	}
+
+	/**
+	 * Loads an ImageIcon with a new name.
+	 *
+	 * @param icon    the original ImageIcon to load.
+	 * @param newName the new name for the ImageIcon.
+	 * @return the loaded ImageIcon with the new name.
+	 */
+	public static ImageIcon loadImageIconWithNewName(ImageIcon icon, String newName) {
+		return new ImageIcon(icon.getImage(), newName);
 	}
 
 	/**
