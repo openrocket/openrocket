@@ -128,6 +128,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OBJ_EXPORT_AS_SEPARATE_FILES = "ExportAsSeparateFiles";
 	private static final String OBJ_REMOVE_OFFSET = "RemoveOffset";
 	private static final String OBJ_TRIANGULATE = "Triangulate";
+	private static final String OBJ_TRIANGULATION_METHOD = "TriangulationMethod";
 	private static final String OBJ_SRGB = "sRGB";
 	private static final String OBJ_LOD = "LOD";
 	private static final String OBJ_SCALING = "Scaling";
@@ -1051,6 +1052,7 @@ public abstract class Preferences implements ChangeSource {
 		objExportOptionsNode.putBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, options.isExportAsSeparateFiles());
 		objExportOptionsNode.putBoolean(OBJ_REMOVE_OFFSET, options.isRemoveOffset());
 		objExportOptionsNode.putBoolean(OBJ_TRIANGULATE, options.isTriangulate());
+		objExportOptionsNode.put(OBJ_TRIANGULATION_METHOD, options.getTriangulationMethod().getExportLabel());
 		objExportOptionsNode.putBoolean(OBJ_SRGB, options.isUseSRGB());
 
 		objExportOptionsNode.putFloat(OBJ_SCALING, options.getScaling());
@@ -1081,6 +1083,9 @@ public abstract class Preferences implements ChangeSource {
 		options.setExportAsSeparateFiles(objExportOptionsNode.getBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, false));
 		options.setRemoveOffset(objExportOptionsNode.getBoolean(OBJ_REMOVE_OFFSET, true));
 		options.setTriangulate(objExportOptionsNode.getBoolean(OBJ_TRIANGULATE, true));
+		options.setTriangulationMethod(ObjUtils.TriangulationMethod.fromExportLabel(
+				objExportOptionsNode.get(OBJ_TRIANGULATION_METHOD, ObjUtils.TriangulationMethod.DELAUNAY.getExportLabel())
+		));
 		options.setUseSRGB(objExportOptionsNode.getBoolean(OBJ_SRGB, false));
 
 		options.setScaling(objExportOptionsNode.getFloat(OBJ_SCALING, 1000));

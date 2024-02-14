@@ -34,6 +34,10 @@ public class OBJExportOptions {
      */
     private boolean triangulate;
     /**
+     * The method to use for triangulation.
+     */
+    private ObjUtils.TriangulationMethod triangulationMethod;
+    /**
      * If true, use sRGB colors instead of linear color space.
      */
     private boolean useSRGB;
@@ -92,6 +96,14 @@ public class OBJExportOptions {
 
     public void setTriangulate(boolean triangulate) {
         this.triangulate = triangulate;
+    }
+
+    public ObjUtils.TriangulationMethod getTriangulationMethod() {
+        return triangulationMethod;
+    }
+
+    public void setTriangulationMethod(ObjUtils.TriangulationMethod triangulationMethod) {
+        this.triangulationMethod = triangulationMethod;
     }
 
     public boolean isExportAppearance() {

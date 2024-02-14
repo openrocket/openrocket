@@ -76,6 +76,43 @@ public class ObjUtils {
         }
     }
 
+    public enum TriangulationMethod {
+        SIMPLE(trans.get("TriangulationMethod.SIMPLE"), trans.get("TriangulationMethod.SIMPLE.ttip"), "SIMPLE"),
+        DELAUNAY(trans.get("TriangulationMethod.DELAUNAY"), trans.get("TriangulationMethod.DELAUNAY.ttip"), "DELAUNAY");
+
+        private final String label;
+        private final String tooltip;
+        private final String exportLabel;
+
+        TriangulationMethod(String label, String tooltip, String exportLabel) {
+            this.label = label;
+            this.tooltip = tooltip;
+            this.exportLabel = exportLabel;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+
+        public String getTooltip() {
+            return tooltip;
+        }
+
+        public String getExportLabel() {
+            return exportLabel;
+        }
+
+        public static TriangulationMethod fromExportLabel(String exportLabel) {
+            for (TriangulationMethod tm : TriangulationMethod.values()) {
+                if (tm.getExportLabel().equals(exportLabel)) {
+                    return tm;
+                }
+            }
+            return TriangulationMethod.DELAUNAY;
+        }
+    }
+
 
     /**
      * Offset the indices by the given offset

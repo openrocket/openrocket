@@ -175,7 +175,14 @@ public class OBJExporterFactory {
 
             // Triangulate mesh
             if (this.options.isTriangulate()) {
-                obj = TriangulationHelper.constrainedDelaunayTriangulate(obj);
+                ObjUtils.TriangulationMethod triangulationMethod = this.options.getTriangulationMethod();
+                if (triangulationMethod == ObjUtils.TriangulationMethod.DELAUNAY) {
+                    obj = TriangulationHelper.constrainedDelaunayTriangulate(obj);
+                } else if (triangulationMethod == ObjUtils.TriangulationMethod.SIMPLE) {
+                    obj = TriangulationHelper.simpleTriangulate(obj);
+                } else {
+                    throw new IllegalArgumentException("Unsupported triangulation method: " + triangulationMethod);
+                }
             }
 
             // Remove position offset

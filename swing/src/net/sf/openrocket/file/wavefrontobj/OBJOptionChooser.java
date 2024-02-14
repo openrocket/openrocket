@@ -15,11 +15,13 @@ import net.sf.openrocket.unit.UnitGroup;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -29,6 +31,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,6 +56,7 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox exportAsSeparateFiles;
     private final JCheckBox removeOffset;
     private final JCheckBox triangulate;
+    private final JComboBox<ObjUtils.TriangulationMethod> triangulationMethod;
     private final JCheckBox sRGB;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
     private final DoubleModel scalingModel;
@@ -236,6 +240,17 @@ public class OBJOptionChooser extends JPanel {
             }
         });
 
+        //// Triangulation method
+        JLabel tmLabel = new JLabel(trans.get("OBJOptionChooser.lbl.triangulationMethod"));
+        tmLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.triangulationMethod.ttip"));
+        advancedOptionsPanel.add(tmLabel, "spanx, split 2");
+        this.triangulationMethod = new JComboBox<>(ObjUtils.TriangulationMethod.values());
+        this.triangulationMethod.setToolTipText(trans.get("OBJOptionChooser.lbl.triangulationMethod.ttip"));
+        this.triangulationMethod.setRenderer(new TriangulationMethodRenderer());
+        destroyTheMagic(triangulationMethod);
+        addOptimizationListener(triangulationMethod);
+        advancedOptionsPanel.add(triangulationMethod, "growx, wrap unrel");
+
         //// Level of detail
         JLabel LODLabel = new JLabel(trans.get("OBJOptionChooser.lbl.LevelOfDetail"));
         LODLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.LevelOfDetail.ttip"));
@@ -394,6 +409,7 @@ public class OBJOptionChooser extends JPanel {
         if (!opts.isTriangulate()) {
             this.exportAppearance.setSelected(opts.isExportAppearance());
         }
+        this.triangulationMethod.setSelectedItem(opts.getTriangulationMethod());
         this.sRGB.setSelected(opts.isUseSRGB());
 
         this.scalingModel.setValue(opts.getScaling());
@@ -422,6 +438,7 @@ public class OBJOptionChooser extends JPanel {
         opts.setExportAsSeparateFiles(exportAsSeparateFiles.isSelected());
         opts.setRemoveOffset(removeOffset.isSelected());
         opts.setTriangulate(triangulate.isSelected());
+        opts.setTriangulationMethod((ObjUtils.TriangulationMethod) triangulationMethod.getSelectedItem());
         opts.setUseSRGB(sRGB.isSelected());
         opts.setScaling((float) scalingModel.getValue());
         opts.setLOD((ObjUtils.LevelOfDetail) LOD.getSelectedItem());
@@ -441,6 +458,7 @@ public class OBJOptionChooser extends JPanel {
         options.setRemoveOffset(true);
         options.setScaling(1000);
         options.setTriangulate(true);
+        options.setTriangulationMethod(ObjUtils.TriangulationMethod.DELAUNAY);
         options.setLOD(ObjUtils.LevelOfDetail.HIGH_QUALITY);
 
         loadOptions(options);
@@ -453,6 +471,7 @@ public class OBJOptionChooser extends JPanel {
      */
     private boolean isOptimizedFor3DPrinting(OBJExportOptions options) {
         return !options.isExportMotors() && !options.isExportAppearance() && options.isTriangulate() &&
+                options.getTriangulationMethod() == ObjUtils.TriangulationMethod.DELAUNAY &&
                 options.getLOD() == ObjUtils.LevelOfDetail.HIGH_QUALITY && options.isRemoveOffset() && options.getScaling() == 1000;
     }
 
@@ -578,6 +597,22 @@ public class OBJOptionChooser extends JPanel {
             JOptionPane.showMessageDialog(parent, trans.get("OBJOptionChooser.easterEgg.msg4"),
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
             totallyNormalCounter = 0;
+        }
+    }
+
+    private static class TriangulationMethodRenderer extends DefaultListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value,
+                                                      int index, boolean isSelected, boolean cellHasFocus) {
+
+            JComponent comp = (JComponent) super.getListCellRendererComponent(list,
+                    value, index, isSelected, cellHasFocus);
+
+            if (index > -1 && value instanceof ObjUtils.TriangulationMethod) {
+                list.setToolTipText(((ObjUtils.TriangulationMethod) value).getTooltip());
+            }
+            return comp;
         }
     }
 

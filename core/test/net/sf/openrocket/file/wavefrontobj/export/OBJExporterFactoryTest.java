@@ -175,6 +175,7 @@ public class OBJExporterFactoryTest {
         bodyTube.setFilled(true);
 
         options.setTriangulate(true);
+        options.setTriangulationMethod(ObjUtils.TriangulationMethod.DELAUNAY);
         options.setRemoveOffset(false);
         options.setExportAppearance(true);
         options.setScaling(1000);
@@ -187,6 +188,14 @@ public class OBJExporterFactoryTest {
 
         // Test zero-thickness nose cone
         noseCone.setThickness(0);
+
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
+        exporterFactory.doExport();
+        //// Just hope for no exceptions :)
+        assertEquals(warnings.size(), 1);
+
+        // Test simple triangulation
+        options.setTriangulationMethod(ObjUtils.TriangulationMethod.SIMPLE);
 
         exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
