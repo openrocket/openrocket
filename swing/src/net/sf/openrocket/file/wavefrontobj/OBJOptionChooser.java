@@ -56,6 +56,7 @@ public class OBJOptionChooser extends JPanel {
     private final JCheckBox exportAsSeparateFiles;
     private final JCheckBox removeOffset;
     private final JCheckBox triangulate;
+    private final JLabel tmLabel;
     private final JComboBox<ObjUtils.TriangulationMethod> triangulationMethod;
     private final JCheckBox sRGB;
     private final JComboBox<ObjUtils.LevelOfDetail> LOD;
@@ -227,11 +228,15 @@ public class OBJOptionChooser extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
+                    tmLabel.setEnabled(true);
+                    triangulationMethod.setEnabled(true);
                     // Disable the export appearance, it is not supported in combination with triangulate
                     exportAppearance.setEnabled(false);
                     exportAppearance.setSelected(false);
                     exportAppearance.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAppearance.ttip.triangulate"));
                 } else {
+                    tmLabel.setEnabled(false);
+                    triangulationMethod.setEnabled(false);
                     // Re-enable
                     exportAppearance.setEnabled(true);
                     exportAppearance.setSelected(opts.isExportAppearance());
@@ -241,9 +246,9 @@ public class OBJOptionChooser extends JPanel {
         });
 
         //// Triangulation method
-        JLabel tmLabel = new JLabel(trans.get("OBJOptionChooser.lbl.triangulationMethod"));
-        tmLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.triangulationMethod.ttip"));
-        advancedOptionsPanel.add(tmLabel, "spanx, split 2");
+        this.tmLabel = new JLabel(trans.get("OBJOptionChooser.lbl.triangulationMethod"));
+        this.tmLabel.setToolTipText(trans.get("OBJOptionChooser.lbl.triangulationMethod.ttip"));
+        advancedOptionsPanel.add(this.tmLabel, "spanx, split 2");
         this.triangulationMethod = new JComboBox<>(ObjUtils.TriangulationMethod.values());
         this.triangulationMethod.setToolTipText(trans.get("OBJOptionChooser.lbl.triangulationMethod.ttip"));
         this.triangulationMethod.setRenderer(new TriangulationMethodRenderer());
