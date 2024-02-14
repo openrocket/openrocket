@@ -10,12 +10,7 @@ public abstract class Message implements Cloneable {
     /** The rocket component(s) that are the source of this message **/
     private RocketComponent[] sources = null;
 
-    /**
-     * @return a Message with the specific text.
-     */
-    public static Message fromString(String text) {
-        return new Warning.Other(text);
-    }
+    private MessagePriority priority = MessagePriority.NORMAL;
 
     /**
      * Returns the message text + message source objects.
@@ -75,6 +70,21 @@ public abstract class Message implements Cloneable {
         this.sources = sources;
     }
 
+    /**
+     * Return the priority of this message.
+     * @return the priority of this message.
+     */
+    public MessagePriority getPriority() {
+        return priority;
+    }
+
+    /**
+     * Set the priority of this message.
+     * @param priority the priority of this message.
+     */
+    public void setPriority(MessagePriority priority) {
+        this.priority = priority;
+    }
 
     /**
      * Two <code>Message</code>s are by default considered equal if they are of
@@ -84,7 +94,8 @@ public abstract class Message implements Cloneable {
      */
     @Override
     public boolean equals(Object o) {
-        return o != null && (o.getClass() == this.getClass() && sourcesEqual(((Message) o).sources, sources));
+        return o != null && (o.getClass() == this.getClass() && sourcesEqual(((Message) o).sources, sources))
+                && ((Message) o).priority == priority;
     }
 
     /**
@@ -109,6 +120,7 @@ public abstract class Message implements Cloneable {
     protected Object clone() throws CloneNotSupportedException {
         Message clone = (Message) super.clone();
         clone.sources = this.sources;
+        clone.priority = this.priority;
         return clone;
     }
 }
