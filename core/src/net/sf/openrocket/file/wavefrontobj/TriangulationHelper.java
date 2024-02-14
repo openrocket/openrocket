@@ -69,10 +69,7 @@ public abstract class TriangulationHelper {
 		Map<Integer, Integer> vertexToTexCoordMap = mapVertexIndicesToTexCoordIndices(face);
 
 		// Calculate the face normal
-		Coordinate normal = vertexToCoordinate(ObjUtils.calculateNormalVector(
-				obj.getVertex(face.getVertexIndices()[0]),
-				obj.getVertex(face.getVertexIndices()[1]),
-				obj.getVertex(face.getVertexIndices()[2])));
+		Coordinate normal = vertexToCoordinate(ObjUtils.calculateNormalVector(obj, face));
 
 		// Project the 3D face to a 2D polygon with only X and Y coordinates.
 		// This is necessary because the JTS library only works with 2D polygons for triangulation.

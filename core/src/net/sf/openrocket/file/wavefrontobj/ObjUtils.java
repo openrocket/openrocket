@@ -356,6 +356,39 @@ public class ObjUtils {
     }
 
     /**
+     * Calculates the normal vector for a given face of the object.
+     *
+     * @param obj  The object.
+     * @param face The face of the object for which to calculate the normal vector.
+     * @return The calculated normal vector.
+     */
+    public static FloatTuple calculateNormalVector(DefaultObj obj, DefaultObjFace face) {
+        FloatTuple[] vertices = getVertices(obj, face);
+        return calculateNormalNewell(vertices);
+    }
+
+    /**
+     * Calculates the normal of a polygon using the Newell's method.
+     *
+     * @param vertices a list of vertices representing the polygon
+     * @return the normalized normal vector of the polygon
+     */
+    private static FloatTuple calculateNormalNewell(FloatTuple[] vertices) {
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+        for (int i = 0; i < vertices.length; i++) {
+            FloatTuple current = vertices[i];
+            FloatTuple next = vertices[(i + 1) % vertices.length];
+
+            x += (current.getY() - next.getY()) * (current.getZ() + next.getZ());
+            y += (current.getZ() - next.getZ()) * (current.getX() + next.getX());
+            z += (current.getX() - next.getX()) * (current.getY() + next.getY());
+        }
+        return normalizeVector(new DefaultFloatTuple(x, y, z));
+    }
+
+    /**
      * Subtracts two vectors.
      *
      * @param v1 the first vector
