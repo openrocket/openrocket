@@ -99,6 +99,10 @@ public class Icons {
 	public static final Icon NOT_FAVORITE = loadImageIcon("pix/icons/star_silver.png", "Not favorite");
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
 
+	public static final Icon WARNING_LOW = loadImageIcon("pix/icons/warning_low.png", "Informative Warning");
+	public static final Icon WARNING_NORMAL = loadImageIcon("pix/icons/warning_normal.png", "Warning");
+	public static final Icon WARNING_HIGH = loadImageIcon("pix/icons/warning_high.png", "Critical Warning");
+
 	public static final Icon MASS_OVERRIDE_LIGHT = loadImageIcon("pix/icons/mass-override_light.png", "Mass Override");
 	public static final Icon MASS_OVERRIDE_DARK = loadImageIcon("pix/icons/mass-override_dark.png", "Mass Override");
 	public static final Icon MASS_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/mass-override-subcomponent_light.png", "Mass Override Subcomponent");
@@ -141,17 +145,6 @@ public class Icons {
 			return null;
 		}
 		return new ImageIcon(url, name);
-	}
-
-	/**
-	 * Loads an ImageIcon with a new name.
-	 *
-	 * @param icon    the original ImageIcon to load.
-	 * @param newName the new name for the ImageIcon.
-	 * @return the loaded ImageIcon with the new name.
-	 */
-	public static ImageIcon loadImageIconWithNewName(ImageIcon icon, String newName) {
-		return new ImageIcon(icon.getImage(), newName);
 	}
 
 	/**

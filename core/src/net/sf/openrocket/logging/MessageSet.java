@@ -116,6 +116,20 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
         return messages.size();
     }
 
+    /**
+     * Returns the number of messages with the specified priority.
+     * @param priority the priority
+     * @return the number of messages with the specified priority.
+     */
+    public int getNrOfMessagesWithPriority(MessagePriority priority) {
+        int count = 0;
+        for (E m : messages) {
+            if (m.getPriority() == priority) {
+                count++;
+            }
+        }
+        return count;
+    }
 
     public void immute() {
         mutable.immute();

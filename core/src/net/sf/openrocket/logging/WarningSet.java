@@ -27,6 +27,18 @@ public class WarningSet extends MessageSet<Warning> {
         return add(Warning.fromString(s));
     }
 
+    public int getNrOfCriticalWarnings() {
+        return getNrOfMessagesWithPriority(MessagePriority.HIGH);
+    }
+
+    public int getNrOfNormalWarnings() {
+        return getNrOfMessagesWithPriority(MessagePriority.NORMAL);
+    }
+
+    public int getNrOfInformativeWarnings() {
+        return getNrOfMessagesWithPriority(MessagePriority.LOW);
+    }
+
     @Override
     public WarningSet clone() {
         try {

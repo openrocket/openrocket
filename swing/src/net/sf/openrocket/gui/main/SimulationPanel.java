@@ -1,7 +1,7 @@
 package net.sf.openrocket.gui.main;
 
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -21,13 +21,14 @@ import java.io.Serial;
 import java.util.Comparator;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -92,13 +93,6 @@ import static net.sf.openrocket.gui.main.BasicFrame.SHORTCUT_KEY;
 public class SimulationPanel extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
-
-
-	private static final Color WARNING_COLOR = Color.RED;
-	private static final String WARNING_TEXT = "\uFF01"; // Fullwidth exclamation mark
-
-	private static final Color OK_COLOR = new Color(60, 150, 0);
-	private static final String OK_TEXT = "\u2714"; // Heavy check mark
 
 
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -195,6 +189,7 @@ public class SimulationPanel extends JPanel {
 		simulationTable.setRowSorter(simulationTableSorter);
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
+		simulationTable.setDefaultRenderer(WarningsBox.class, new WarningsBoxRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
 		simulationTable.setFillsViewportHeight(true);
 
@@ -239,6 +234,7 @@ public class SimulationPanel extends JPanel {
 
 				if (e.getButton() == MouseEvent.BUTTON1) {
 					if (e.getClickCount() == 1) {
+						// Rerun the simulation
 						if (column == 0) {
 							int selected = simulationTable.convertRowIndexToModel(selectedRow);
 							Simulation sim = document.getSimulations().get(selected);
@@ -248,14 +244,15 @@ public class SimulationPanel extends JPanel {
 								runSimulation();
 							}
 						}
-					} else if (e.getClickCount() == 2) {
-						int selected = simulationTable.convertRowIndexToModel(selectedRow);
 						// Show the warnings for the simulation
-						if (column == 0) {
+						else if (column == 1) {
+							int selected = simulationTable.convertRowIndexToModel(selectedRow);
 							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
 						}
+					} else if (e.getClickCount() == 2) {
+						int selected = simulationTable.convertRowIndexToModel(selectedRow);
 						// Edit the simulation or plot/export
-						else {
+						if (column > 1) {
 							simulationTable.clearSelection();
 							simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
 
@@ -756,67 +753,83 @@ public class SimulationPanel extends JPanel {
 		return simulationTable.getSelectionModel();
 	}
 
-	private String getSimulationToolTip(Simulation sim, boolean includeSimName) {
-		String tip;
+	private static String getSimulationStatusToolTip(Simulation sim, boolean includeSimName) {
+		StringBuilder tip;
 		FlightData data = sim.getSimulatedData();
 
-		tip = "<html>";
+		tip = new StringBuilder("<html>");
 		if (includeSimName) {
-			tip += "<b>" + sim.getName() + "</b><br>";
+			tip.append("<b>").append(sim.getName()).append("</b><br>");
 		}
 		switch (sim.getStatus()) {
 			case CANT_RUN:
-				tip += trans.get("simpanel.ttip.noData")+"<br>";
+				tip.append(trans.get("simpanel.ttip.noData")).append("<br>");
 				break;
 			case LOADED:
-				tip += trans.get("simpanel.ttip.loaded") + "<br>";
+				tip.append(trans.get("simpanel.ttip.loaded")).append("<br>");
 				break;
 			case UPTODATE:
-				tip += trans.get("simpanel.ttip.uptodate") + "<br>";
+				tip.append(trans.get("simpanel.ttip.uptodate")).append("<br>");
 				break;
 
 			case OUTDATED:
-				tip += trans.get("simpanel.ttip.outdated") + "<br>";
+				tip.append(trans.get("simpanel.ttip.outdated")).append("<br>");
 				break;
 
 			case EXTERNAL:
-				tip += trans.get("simpanel.ttip.external") + "<br>";
-				return tip;
+				tip.append(trans.get("simpanel.ttip.external")).append("<br>");
+				return tip.toString();
 
 			case NOT_SIMULATED:
-				tip += trans.get("simpanel.ttip.notSimulated");
-				return tip;
+				tip.append(trans.get("simpanel.ttip.notSimulated"));
+				return tip.toString();
 		}
 
 		if (data == null) {
-			tip += trans.get("simpanel.ttip.noData");
-			return tip;
+			tip.append(trans.get("simpanel.ttip.noData"));
+			return tip.toString();
 		}
 
 		for (int b = 0; b < data.getBranchCount(); b++) {
 			FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
-			if ( abortEvent != null) {
-				tip += "<font color=\"red\"><i><b>" + trans.get("simpanel.ttip.simAbort") + ":</b></i> " +
-					((SimulationAbort)(abortEvent.getData())).toString() + "</font><br />";
+			if (abortEvent != null) {
+				tip.append("<font color=\"red\"><i><b>").append(trans.get("simpanel.ttip.simAbort")).append(":</b></i> ").append((abortEvent.getData()).toString()).append("</font><br />");
 			}
 		}
-		
-		WarningSet warnings = data.getWarningSet();
-		if (warnings.isEmpty()) {
-			tip += trans.get("simpanel.ttip.noWarnings");
-			return tip;
-		}
 
-		tip += trans.get("simpanel.ttip.warnings");
-		for (Warning w : warnings) {
-			tip += "<br>" + w.toString();
-		}
-
-		return tip;
+		return tip.toString();
 	}
 
-	private String getSimulationToolTip(Simulation sim) {
-		return getSimulationToolTip(sim, true);
+	private static String getSimulationWarningsToolTip(Simulation sim, boolean includeSimName) {
+		StringBuilder tip;
+		FlightData data = sim.getSimulatedData();
+
+		tip = new StringBuilder("<html>");
+		if (includeSimName) {
+			tip.append("<b>").append(sim.getName()).append("</b><br>");
+		}
+
+		if (data == null) {
+			tip.append(trans.get("simpanel.ttip.noData"));
+			return tip.toString();
+		}
+
+		WarningSet warnings = data.getWarningSet();
+		if (warnings.isEmpty()) {
+			tip.append(trans.get("simpanel.ttip.noWarnings"));
+			return tip.toString();
+		}
+
+		tip.append(trans.get("simpanel.ttip.warnings"));
+		for (Warning w : warnings) {
+			tip.append("<br>").append(w.toString());
+		}
+
+		return tip.toString();
+	}
+
+	private String getSimulationStatusToolTip(Simulation sim) {
+		return getSimulationStatusToolTip(sim, true);
 	}
 
 	private void openDialog(boolean plotMode, boolean isNewSimulation, final Simulation... sims) {
@@ -1138,7 +1151,7 @@ public class SimulationPanel extends JPanel {
 					label.setBackground(table.getBackground());
 				label.setOpaque(true);
 
-				label.setToolTipText(getSimulationToolTip(document.getSimulation(row)));
+				label.setToolTipText(getSimulationStatusToolTip(document.getSimulation(row)));
 				return label;
 			}
 
@@ -1146,7 +1159,7 @@ public class SimulationPanel extends JPanel {
 					isSelected, hasFocus, row, column);
 
 			if (component instanceof JComponent) {
-				((JComponent) component).setToolTipText(getSimulationToolTip(
+				((JComponent) component).setToolTipText(getSimulationStatusToolTip(
 						document.getSimulation(row)));
 			}
 			return component;
@@ -1167,8 +1180,88 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public String toString() {
-			String text = getSimulationToolTip(simulation, false);
+			String text = getSimulationStatusToolTip(simulation, false);
 			return text.replace("<br>", "-").replaceAll("<[^>]*>","");
+		}
+	}
+
+	private static class WarningsBox extends Box {
+		private Simulation simulation;
+
+		public WarningsBox(Simulation simulation) {
+			super(BoxLayout.X_AXIS);		// Horizontal box
+			this.simulation = simulation;
+			updateContent();
+		}
+
+		public void replaceSimulation(Simulation simulation) {
+			this.simulation = simulation;
+			updateContent();
+		}
+
+		private void updateContent() {
+			removeAll(); // Clear existing content before update
+			setToolTipText("");
+
+			if (simulation == null) {
+				revalidate();
+				return;
+			}
+
+			// Update the tooltip text
+			String ttip = getSimulationWarningsToolTip(simulation, true);
+			setToolTipText(ttip);
+
+			WarningSet warnings = simulation.getSimulatedWarnings();
+
+			if (warnings == null || warnings.isEmpty()) {
+				revalidate();
+				return;
+			}
+
+			int nrOfCriticalWarnings = warnings.getNrOfCriticalWarnings();
+			int nrOfNormalWarnings = warnings.getNrOfNormalWarnings();
+			int nrOfInfoWarnings = warnings.getNrOfInformativeWarnings();
+
+			if (nrOfCriticalWarnings > 0) {
+				add(new JLabel(nrOfCriticalWarnings + " "));
+				add(new JLabel(Icons.WARNING_HIGH));
+			}
+
+			if (nrOfCriticalWarnings > 0 && nrOfNormalWarnings > 0) {
+				add(new JLabel(", "));
+			}
+
+			if (nrOfNormalWarnings > 0) {
+				add(new JLabel(nrOfNormalWarnings + " "));
+				add(new JLabel(Icons.WARNING_NORMAL));
+			}
+
+			if ((nrOfCriticalWarnings > 0 || nrOfNormalWarnings > 0) && nrOfInfoWarnings > 0) {
+				add(new JLabel(", "));
+			}
+
+			if (nrOfInfoWarnings > 0) {
+				add(new JLabel(nrOfInfoWarnings + " "));
+				add(new JLabel(Icons.WARNING_LOW));
+			}
+
+			revalidate(); // Notify layout manager of changes
+		}
+	}
+
+	public static class WarningsBoxRenderer extends DefaultTableCellRenderer {
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			if (value instanceof WarningsBox box) {
+				// Wrap the box in a panel with BorderLayout to allow alignment
+				JPanel panel = new JPanel(new BorderLayout());
+				panel.setToolTipText(box.getToolTipText());
+				panel.add(box, BorderLayout.EAST); 	// Align to the right within the panel
+
+				return panel;
+			}
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 	}
 
@@ -1177,7 +1270,7 @@ public class SimulationPanel extends JPanel {
 
 		public SimulationTableModel() {
 			super(
-					////  Status and warning column
+					////  Status column
 					new Column("") {
 						private StatusLabel label = null;
 
@@ -1201,36 +1294,49 @@ public class SimulationPanel extends JPanel {
 							Simulation.Status status = simulation.getStatus();
 							label.setIcon(Icons.SIMULATION_STATUS_ICON_MAP.get(status));
 
-
-							// Set warning marker
-							if (status == Simulation.Status.NOT_SIMULATED ||
-									status == Simulation.Status.EXTERNAL) {
-								label.setText("");
-							} else {
-
-								WarningSet w = document.getSimulation(row).getSimulatedWarnings();
-								if (w == null) {
-									label.setText("");
-								} else if (w.isEmpty()) {
-									label.setForeground(OK_COLOR);
-									label.setText(OK_TEXT);
-								} else {
-									label.setForeground(WARNING_COLOR);
-									label.setText(WARNING_TEXT);
-								}
-							}
-
 							return label;
 						}
 
 						@Override
 						public int getExactWidth() {
-							return 36;
+							return 26;
 						}
 
 						@Override
 						public Class<?> getColumnClass() {
 							return JLabel.class;
+						}
+					},
+
+					//// Warnings column
+					new Column(trans.get("simpanel.col.Warnings")) {
+						private WarningsBox box = null;
+
+						@Override
+						public Object getValueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount())
+								return null;
+
+							Simulation simulation = document.getSimulation(row);
+
+							// Initialize the box
+							if (box == null) {
+								box = new WarningsBox(simulation);
+							} else {
+								box.replaceSimulation(simulation);
+							}
+
+							return box;
+						}
+
+						@Override
+						public int getDefaultWidth() {
+							return 70;
+						}
+
+						@Override
+						public Class<?> getColumnClass() {
+							return WarningsBox.class;
 						}
 					},
 
