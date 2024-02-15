@@ -64,5 +64,8 @@ The following file format versions exist:
       Rename <position> to <axialoffset> (<position> remains for backward compatibility)
       Rename <rotation> to <angleoffset> (<rotation> remains for backward compatibility)
 
-1.9:  Introduced with OpenRocket 23.xx.
+1.9:  Introduced with OpenRocket 23.09.
       Added ID for each rocket component, to in turn add this ID as a source for flight events.
+
+1.10: Introduced with OpenRocket 24.XX.
+      Added a priority attribute to simulation warnings.
