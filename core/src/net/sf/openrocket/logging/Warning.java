@@ -2,7 +2,6 @@ package net.sf.openrocket.logging;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.UnitGroup;
@@ -73,10 +72,11 @@ public abstract class Warning extends Message {
 			return (o.aoa > this.aoa);
 		}
 
-		@Override
+		// Don't compare aoa, otherwise you have a million LargeAOA warnings with different values
+		/*@Override
 		public boolean equals(Object o) {
 			return super.equals(o) && Double.compare(((LargeAOA) o).aoa, aoa) == 0;
-		}
+		}*/
 
 		@Override
 		protected Object clone() throws CloneNotSupportedException {
@@ -117,10 +117,11 @@ public abstract class Warning extends Message {
 			return false;
 		}
 
-		@Override
+		// Don't compare recoverySpeed, otherwise you have a million HighSpeedDeployment warnings with different values
+		/*@Override
 		public boolean equals(Object o) {
 			return super.equals(o) && Double.compare(((HighSpeedDeployment) o).recoverySpeed, recoverySpeed) == 0;
-		}
+		}*/
 
 		@Override
 		protected Object clone() throws CloneNotSupportedException {
