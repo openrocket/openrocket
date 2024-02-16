@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.main;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
@@ -43,16 +45,18 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
+import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
+import net.sf.openrocket.logging.Message;
+import net.sf.openrocket.logging.MessagePriority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -122,6 +126,16 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction selectedSimsExportAction;
 
 	private int[] previousSelection = null;
+
+
+	private static Color dimTextColor;
+	private static Color warningColor;
+	private static Color errorColor;
+	private static Color informationColor;
+
+	static {
+		initColors();
+	}
 
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
@@ -244,15 +258,14 @@ public class SimulationPanel extends JPanel {
 								runSimulation();
 							}
 						}
-						// Show the warnings for the simulation
-						else if (column == 1) {
-							int selected = simulationTable.convertRowIndexToModel(selectedRow);
-							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
-						}
 					} else if (e.getClickCount() == 2) {
 						int selected = simulationTable.convertRowIndexToModel(selectedRow);
+						// Show the warnings for the simulation
+						if (column == 1) {
+							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
+						}
 						// Edit the simulation or plot/export
-						if (column > 1) {
+						else if (column > 1) {
 							simulationTable.clearSelection();
 							simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
 
@@ -314,6 +327,18 @@ public class SimulationPanel extends JPanel {
 		this.add(scrollpane, "spanx, grow, wrap rel");
 
 		updateActions();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(SimulationPanel::updateColors);
+	}
+
+	private static void updateColors() {
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		warningColor = GUIUtil.getUITheme().getWarningColor();
+		errorColor = GUIUtil.getUITheme().getErrorColor();
+		informationColor = GUIUtil.getUITheme().getInformationColor();
 	}
 
 	/**
@@ -806,24 +831,54 @@ public class SimulationPanel extends JPanel {
 
 		tip = new StringBuilder("<html>");
 		if (includeSimName) {
-			tip.append("<b>").append(sim.getName()).append("</b><br>");
+			tip.append("<b>").append(sim.getName()).append("</b>");
 		}
 
 		if (data == null) {
-			tip.append(trans.get("simpanel.ttip.noData"));
+			tip.append("<br>").append(trans.get("simpanel.ttip.noData"));
 			return tip.toString();
 		}
 
 		WarningSet warnings = data.getWarningSet();
 		if (warnings.isEmpty()) {
-			tip.append(trans.get("simpanel.ttip.noWarnings"));
+			tip.append("<br>").append(ColorConversion.formatHTMLColor(dimTextColor, trans.get("simpanel.ttip.noWarnings")));
 			return tip.toString();
 		}
 
-		tip.append(trans.get("simpanel.ttip.warnings"));
-		for (Warning w : warnings) {
-			tip.append("<br>").append(w.toString());
+		List<Message> criticalWarnings = warnings.getMessagesWithPriority(MessagePriority.HIGH);
+		List<Message> normalWarnings = warnings.getMessagesWithPriority(MessagePriority.NORMAL);
+		List<Message> informativeWarnings = warnings.getMessagesWithPriority(MessagePriority.LOW);
+
+		// Critical warnings
+		if (!criticalWarnings.isEmpty()) {
+			tip.append("<br><b>")
+					.append(ColorConversion.formatHTMLColor(errorColor, trans.get("simpanel.ttip.criticalWarnings")))
+					.append("</b>");
+			for (Message m : criticalWarnings) {
+				tip.append("<br>").append(m.toString());
+			}
 		}
+
+		// Warnings
+		if (!normalWarnings.isEmpty()) {
+			tip.append("<br><b>")
+					.append(ColorConversion.formatHTMLColor(warningColor, trans.get("simpanel.ttip.normalWarnings")))
+					.append("</b>");
+			for (Message m : normalWarnings) {
+				tip.append("<br>").append(m.toString());
+			}
+		}
+
+		// Informative warnings
+		if (!informativeWarnings.isEmpty()) {
+			tip.append("<br><b>")
+					.append(ColorConversion.formatHTMLColor(informationColor, trans.get("simpanel.ttip.informativeWarnings")))
+					.append("</b>");
+			for (Message m : informativeWarnings) {
+				tip.append("<br>").append(m.toString());
+			}
+		}
+
 
 		return tip.toString();
 	}
@@ -1190,6 +1245,7 @@ public class SimulationPanel extends JPanel {
 
 		public WarningsBox(Simulation simulation) {
 			super(BoxLayout.X_AXIS);		// Horizontal box
+			setOpaque(false);
 			this.simulation = simulation;
 			updateContent();
 		}
@@ -1258,10 +1314,28 @@ public class SimulationPanel extends JPanel {
 				JPanel panel = new JPanel(new BorderLayout());
 				panel.setToolTipText(box.getToolTipText());
 				panel.add(box, BorderLayout.EAST); 	// Align to the right within the panel
+				panel.setOpaque(true);
+				if (isSelected) {
+					panel.setBackground(table.getSelectionBackground());
+					updateBoxColors(box, table.getSelectionForeground());
+				} else {
+					panel.setBackground(table.getBackground());
+					updateBoxColors(box, table.getForeground());
+				}
 
 				return panel;
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
+
+		private void updateBoxColors(WarningsBox box, Color foreground) {
+			// Set the foreground for the box and its child components
+			box.setForeground(foreground); // Assuming this sets the box's own foreground
+			for (Component comp : box.getComponents()) {
+				if (comp instanceof JLabel) {
+					comp.setForeground(foreground);
+				}
+			}
 		}
 	}
 

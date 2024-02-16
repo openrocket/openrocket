@@ -8,6 +8,7 @@ import net.sf.openrocket.util.Mutable;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A set that contains multiple <code>Message</code>s.  When adding a
@@ -129,6 +130,22 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
             }
         }
         return count;
+    }
+
+    /**
+     * Returns a list of messages with the specified priority.
+     *
+     * @param priority the priority of the messages to retrieve
+     * @return a list of messages with the specified priority
+     */
+    public List<Message> getMessagesWithPriority(MessagePriority priority) {
+        List<Message> list = new ArrayList<>();
+        for (E m : messages) {
+            if (m.getPriority() == priority) {
+                list.add(m);
+            }
+        }
+        return list;
     }
 
     public void immute() {
