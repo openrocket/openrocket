@@ -5,11 +5,16 @@ import de.javagl.obj.FloatTuples;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjFace;
 import de.javagl.obj.ObjGroup;
+import de.javagl.obj.ReadableObj;
+import de.javagl.obj.WritableObj;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility methods for working with {@link Obj} objects.
@@ -68,6 +73,43 @@ public class ObjUtils {
         @Override
         public String toString() {
             return label;
+        }
+    }
+
+    public enum TriangulationMethod {
+        SIMPLE(trans.get("TriangulationMethod.SIMPLE"), trans.get("TriangulationMethod.SIMPLE.ttip"), "SIMPLE"),
+        DELAUNAY(trans.get("TriangulationMethod.DELAUNAY"), trans.get("TriangulationMethod.DELAUNAY.ttip"), "DELAUNAY");
+
+        private final String label;
+        private final String tooltip;
+        private final String exportLabel;
+
+        TriangulationMethod(String label, String tooltip, String exportLabel) {
+            this.label = label;
+            this.tooltip = tooltip;
+            this.exportLabel = exportLabel;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+
+        public String getTooltip() {
+            return tooltip;
+        }
+
+        public String getExportLabel() {
+            return exportLabel;
+        }
+
+        public static TriangulationMethod fromExportLabel(String exportLabel) {
+            for (TriangulationMethod tm : TriangulationMethod.values()) {
+                if (tm.getExportLabel().equals(exportLabel)) {
+                    return tm;
+                }
+            }
+            return TriangulationMethod.DELAUNAY;
         }
     }
 
@@ -336,6 +378,80 @@ public class ObjUtils {
     }
 
     /**
+     * Calculates the normal vector of a triangle defined by three vertices.
+     *
+     * @param v1 The first vertex of the triangle.
+     * @param v2 The second vertex of the triangle.
+     * @param v3 The third vertex of the triangle.
+     * @return The normal vector of the triangle.
+     */
+    public static FloatTuple calculateNormalVector(FloatTuple v1, FloatTuple v2, FloatTuple v3) {
+        FloatTuple u = subtractVectors(v2, v1);
+        FloatTuple v = subtractVectors(v3, v1);
+
+        return normalizeVector(crossProduct(u, v));
+    }
+
+    /**
+     * Calculates the normal vector for a given face of the object.
+     *
+     * @param obj  The object.
+     * @param face The face of the object for which to calculate the normal vector.
+     * @return The calculated normal vector.
+     */
+    public static FloatTuple calculateNormalVector(DefaultObj obj, DefaultObjFace face) {
+        FloatTuple[] vertices = getVertices(obj, face);
+        return calculateNormalNewell(vertices);
+    }
+
+    /**
+     * Calculates the normal of a polygon using the Newell's method.
+     *
+     * @param vertices a list of vertices representing the polygon
+     * @return the normalized normal vector of the polygon
+     */
+    private static FloatTuple calculateNormalNewell(FloatTuple[] vertices) {
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+        for (int i = 0; i < vertices.length; i++) {
+            FloatTuple current = vertices[i];
+            FloatTuple next = vertices[(i + 1) % vertices.length];
+
+            x += (current.getY() - next.getY()) * (current.getZ() + next.getZ());
+            y += (current.getZ() - next.getZ()) * (current.getX() + next.getX());
+            z += (current.getX() - next.getX()) * (current.getY() + next.getY());
+        }
+        return normalizeVector(new DefaultFloatTuple(x, y, z));
+    }
+
+    /**
+     * Subtracts two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return a new FloatTuple representing the subtraction of v2 from v1
+     */
+    public static FloatTuple subtractVectors(FloatTuple v1, FloatTuple v2) {
+        return new DefaultFloatTuple(v1.getX() - v2.getX(), v1.getY() - v2.getY(), v1.getZ() - v2.getZ());
+    }
+
+    /**
+     * Calculates the cross product of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return the cross product of the given vectors
+     */
+    public static FloatTuple crossProduct(FloatTuple v1, FloatTuple v2) {
+        return new DefaultFloatTuple(
+                v1.getY() * v2.getZ() - v1.getZ() * v2.getY(),
+                v1.getZ() * v2.getX() - v1.getX() * v2.getZ(),
+                v1.getX() * v2.getY() - v1.getY() * v2.getX()
+        );
+    }
+
+    /**
      * Calculate the average of a list of vertices.
      * @param vertices The list of vertices
      * @return The average of the vertices
@@ -498,5 +614,125 @@ public class ObjUtils {
             fb = b;
         }
         return FloatTuples.create(fr, fg, fb);
+    }
+
+    /**
+     * Returns an array of FloatTuples representing the vertices of the object
+     *
+     * @param obj The DefaultObj object from which to retrieve the vertices
+     * @param vertexIndices An array of vertex indices specifying which vertices to retrieve
+     * @return An array of FloatTuples representing the vertices
+     */
+    public static FloatTuple[] getVertices(DefaultObj obj, int[] vertexIndices) {
+        FloatTuple[] vertices = new FloatTuple[vertexIndices.length];
+        for (int i = 0; i < vertexIndices.length; i++) {
+            vertices[i] = obj.getVertex(vertexIndices[i]);
+        }
+        return vertices;
+    }
+
+    public static FloatTuple[] getVertices(DefaultObj obj, DefaultObjFace face) {
+        return getVertices(obj, face.getVertexIndices());
+    }
+
+    public static DefaultObjFace createFaceWithNewIndices(ObjFace face, int... n) {
+        int[] v = new int[n.length];
+        int[] vt = null;
+        int[] vn = null;
+
+        for (int i = 0; i < n.length; i++) {
+            v[i] = face.getVertexIndex(n[i]);
+        }
+
+        if (face.containsTexCoordIndices()) {
+            vt = new int[n.length];
+
+            for (int i = 0; i < n.length; i++) {
+                vt[i] = face.getTexCoordIndex(n[i]);
+            }
+        }
+
+        if (face.containsNormalIndices()) {
+            vn = new int[n.length];
+
+            for (int i = 0; i < n.length; i++) {
+                vn[i] = face.getNormalIndex(n[i]);
+            }
+        }
+
+        return new DefaultObjFace(v, vt, vn);
+    }
+
+    /**
+     * Copy all vertices, texture coordinates and normals from the input to the output
+     * @param input The input object
+     * @param output The output object
+     */
+    public static void copyAllVertices(ReadableObj input, WritableObj output) {
+        for (int i = 0; i < input.getNumVertices(); i++) {
+            output.addVertex(input.getVertex(i));
+        }
+
+        for (int i = 0; i < input.getNumTexCoords(); i++) {
+            output.addTexCoord(input.getTexCoord(i));
+        }
+
+        for (int i = 0; i < input.getNumNormals(); i++) {
+            output.addNormal(input.getNormal(i));
+        }
+    }
+
+    /**
+     * Copy all faces and groups from the input to the output
+     * @param source The source object
+     * @param target The target object
+     */
+    public static void copyAllFacesAndGroups(DefaultObj source, DefaultObj target) {
+        // Store the copied faces so we don't end up adding multiple copies of the same face
+        Map<DefaultObjFace, DefaultObjFace> srcToTarFaceMap = new HashMap<>();
+
+        // Copy the groups (and their faces)
+        for (int i = 0; i < source.getNumGroups(); i++) {
+            DefaultObjGroup srcGroup = (DefaultObjGroup) source.getGroup(i);
+            DefaultObjGroup tarGroup = new DefaultObjGroup(srcGroup.getName());
+            for (int j = 0; j < srcGroup.getNumFaces(); j++) {
+                DefaultObjFace srcFace = (DefaultObjFace) srcGroup.getFace(j);
+                DefaultObjFace storedFace = srcToTarFaceMap.get(srcFace);
+
+                DefaultObjFace tarFace = storedFace != null ? storedFace : new DefaultObjFace(srcFace);
+                tarGroup.addFace(tarFace);
+                srcToTarFaceMap.put(srcFace, tarFace);
+            }
+            target.addGroup(tarGroup);
+        }
+
+        // Copy the faces
+        for (int i = 0; i < source.getNumFaces(); i++) {
+            DefaultObjFace srcFace = (DefaultObjFace) source.getFace(i);
+            DefaultObjFace tarFace = srcToTarFaceMap.get(srcFace);
+            tarFace = tarFace != null ? tarFace : new DefaultObjFace(srcFace);
+            target.addFace(tarFace);
+        }
+    }
+
+    /**
+     * Activates the groups and materials specified by the given face in the input object,
+     * and sets the active groups and material in the output object accordingly.
+     *
+     * @param input The input object from which to activate the groups and materials
+     * @param face The face containing the groups and materials to activate
+     * @param output The output object in which to set the active groups and materials
+     */
+    public static void activateGroups(ReadableObj input, ObjFace face, WritableObj output) {
+        Set<String> activatedGroupNames = input.getActivatedGroupNames(face);
+        if (activatedGroupNames != null) {
+            output.setActiveGroupNames(activatedGroupNames);
+        }
+
+        String activatedMaterialGroupName = input.getActivatedMaterialGroupName(face);
+        if (activatedMaterialGroupName != null) {
+            output.setActiveMaterialGroupName(activatedMaterialGroupName);
+        }
+
     }
 }

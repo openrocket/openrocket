@@ -8,6 +8,7 @@ import net.sf.openrocket.file.wavefrontobj.DefaultMtl;
 import net.sf.openrocket.file.wavefrontobj.DefaultMtlWriter;
 import net.sf.openrocket.file.wavefrontobj.DefaultObj;
 import net.sf.openrocket.file.wavefrontobj.ObjUtils;
+import net.sf.openrocket.file.wavefrontobj.TriangulationHelper;
 import net.sf.openrocket.file.wavefrontobj.export.components.BodyTubeExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.FinSetExporter;
 import net.sf.openrocket.file.wavefrontobj.export.components.LaunchLugExporter;
@@ -174,7 +175,14 @@ public class OBJExporterFactory {
 
             // Triangulate mesh
             if (this.options.isTriangulate()) {
-                obj = de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
+                ObjUtils.TriangulationMethod triangulationMethod = this.options.getTriangulationMethod();
+                if (triangulationMethod == ObjUtils.TriangulationMethod.DELAUNAY) {
+                    obj = TriangulationHelper.constrainedDelaunayTriangulate(obj);
+                } else if (triangulationMethod == ObjUtils.TriangulationMethod.SIMPLE) {
+                    obj = TriangulationHelper.simpleTriangulate(obj);
+                } else {
+                    throw new IllegalArgumentException("Unsupported triangulation method: " + triangulationMethod);
+                }
             }
 
             // Remove position offset

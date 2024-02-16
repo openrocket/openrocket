@@ -218,6 +218,10 @@ public final class DefaultObj implements Obj {
         return faces.size();
     }
 
+    public List<ObjFace> getFaces() {
+        return faces;
+    }
+
     @Override
     public ObjFace getFace(int index) {
         return faces.get(index);
@@ -458,6 +462,14 @@ public final class DefaultObj implements Obj {
         addFace(v, null, null);
     }
 
+    public void removeFace(int index) {
+        faces.remove(index);
+    }
+
+    public void removeFace(ObjFace face) {
+        faces.remove(face);
+    }
+
     @Override
     public void addFaceWithTexCoords(int... v) {
         addFace(v, v, null);
@@ -602,6 +614,23 @@ public final class DefaultObj implements Obj {
                                 ", but must be smaller than " + max);
             }
         }
+    }
+
+    /**
+     * Creates a clone of this object.
+     *
+     * @param cloneFacesAndGroups Whether the faces should be cloned
+     * @return a new DefaultObj object with the same properties as this object
+     */
+    public DefaultObj clone(boolean cloneFacesAndGroups) {
+        DefaultObj newObj = new DefaultObj();
+        newObj.setMtlFileNames(getMtlFileNames());
+        ObjUtils.copyAllVertices(this, newObj);
+        if (cloneFacesAndGroups) {
+            ObjUtils.copyAllFacesAndGroups(this, newObj);
+        }
+
+        return newObj;
     }
 }
 
