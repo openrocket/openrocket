@@ -29,7 +29,7 @@ import java.awt.event.MouseEvent;
 @SuppressWarnings("serial")
 public abstract class ErrorWarningDialog {
     private static Border border;
-    private static Color darkWarningColor;
+    private static Color darkErrorColor;
     private static Color textSelectionForegroundColor;
 
     static {
@@ -43,7 +43,7 @@ public abstract class ErrorWarningDialog {
 
     private static void updateColors() {
         border = GUIUtil.getUITheme().getBorder();
-        darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+        darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
         textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
     }
 
@@ -51,7 +51,7 @@ public abstract class ErrorWarningDialog {
         JPanel content = new JPanel(new MigLayout("ins 0, fillx"));
 
         StyledLabel label = new StyledLabel("Errors");
-        label.setFontColor(darkWarningColor);
+        label.setFontColor(darkErrorColor);
         content.add(label, "wrap, gaptop 15lp");
 
         Error[] e = errors.toArray(new Error[0]);
@@ -110,7 +110,7 @@ public abstract class ErrorWarningDialog {
             if (isSelected) {
                 label.setForeground(textSelectionForegroundColor);
             } else {
-                label.setForeground(darkWarningColor);
+                label.setForeground(darkErrorColor);
             }
 
             return label;

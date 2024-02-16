@@ -49,7 +49,7 @@ public class BugReportDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
-	private static Color darkWarningColor;
+	private static Color darkErrorColor;
 
 	static {
 		initColors();
@@ -117,7 +117,7 @@ public class BugReportDialog extends JDialog {
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 	
 	/**
@@ -194,7 +194,7 @@ public class BugReportDialog extends JDialog {
 	private static void addBugReportInformation(StringBuilder sb) {
 		sb.append("<html>---------- Bug report ----------\n");
 		sb.append('\n');
-		Color color = darkWarningColor;
+		Color color = darkErrorColor;
 		sb.append(String.format("<b style='color:rgb(%d, %d, %d)'>Please include a description about what actions you were " +
 				"performing when the exception occurred:</b>\n", color.getRed(), color.getGreen(), color.getBlue()));
 		sb.append("<i>(You can edit text directly in this window)</i>\n");

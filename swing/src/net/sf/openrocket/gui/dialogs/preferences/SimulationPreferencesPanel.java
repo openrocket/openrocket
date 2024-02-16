@@ -28,7 +28,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
 public class SimulationPreferencesPanel extends PreferencesPanel {
 	private static final long serialVersionUID = 7983195730016979888L;
 
-	private static Color darkWarningColor;
+	private static Color darkErrorColor;
 
 	static {
 		initColors();
@@ -93,7 +93,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0, StyledLabel.Style.BOLD);
-		warning.setFontColor(darkWarningColor);
+		warning.setFontColor(darkErrorColor);
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		subsub.add(warning, "spanx, wrap para");
 
@@ -309,6 +309,6 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 }

@@ -126,7 +126,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 
 		//// You need to restart OpenRocket for the theme change to take effect.
 		final JLabel lblRestartORTheme = new JLabel();
-		lblRestartORTheme.setForeground(GUIUtil.getUITheme().getDarkWarningColor());
+		lblRestartORTheme.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
 		this.add(lblRestartORTheme, "spanx, wrap para*2, growx");
 
 		fontSizeSpinner.addChangeListener(new ChangeListener() {

@@ -99,7 +99,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 	private boolean allSameType;		// Checks whether all listener components are of the same type as <component>
 	private boolean allMassive;			// Checks whether all listener components, and this component, are massive
 
-	private static Color darkWarningColor;
+	private static Color darkErrorColor;
 	private static Color multiCompEditColor;
 	private static Border border;
 
@@ -205,7 +205,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
 		border = GUIUtil.getUITheme().getBorder();
 	}
@@ -539,7 +539,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			StyledLabel labelMassOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy"), component.getMassOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelMassOverriddenBy.setFontColor(darkWarningColor);
+			labelMassOverriddenBy.setFontColor(darkErrorColor);
 			labelMassOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.MassOverriddenBy.ttip"), component.getMassOverriddenBy().getName()));
 			checkboxes.add(labelMassOverriddenBy, "gapleft 25lp, wrap");
@@ -605,7 +605,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			StyledLabel labelCGOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy"), component.getCGOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCGOverriddenBy.setFontColor(darkWarningColor);
+			labelCGOverriddenBy.setFontColor(darkErrorColor);
 			labelCGOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CGOverriddenBy.ttip"), component.getCGOverriddenBy().getName()));
 			checkboxes.add(labelCGOverriddenBy, "gapleft 25lp, wrap");
@@ -702,7 +702,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			StyledLabel labelCDOverriddenBy = new StyledLabel(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()),
 					0, StyledLabel.Style.BOLD);
-			labelCDOverriddenBy.setFontColor(darkWarningColor);
+			labelCDOverriddenBy.setFontColor(darkErrorColor);
 			labelCDOverriddenBy.setToolTipText(
 					String.format(trans.get("RocketCompCfg.lbl.CDOverriddenBy"), component.getCDOverriddenBy().getName()));
 			checkboxes.add(labelCDOverriddenBy, "gapleft 25lp, wrap");
