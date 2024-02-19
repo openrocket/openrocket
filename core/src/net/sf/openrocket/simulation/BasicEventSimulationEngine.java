@@ -258,21 +258,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// Check for Tumbling
 				// Conditions for transition are:
-				//  apogee reached (if sustainer stage)
-				// and is not already tumbling
+				// is not already tumbling
 				// and not stable (cg > cp)
 				// and aoa > AOA_TUMBLE_CONDITION threshold
-				// and thrust < THRUST_TUMBLE_CONDITION threshold
 				
 				if (!currentStatus.isTumbling()) {
 					final double cp = currentStatus.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
 					final double cg = currentStatus.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightData().getLast(FlightDataType.TYPE_AOA);
 					
-					final boolean wantToTumble = (cg > cp && aoa > AOA_TUMBLE_CONDITION);
-					final boolean isSustainer = currentStatus.getConfiguration().isStageActive(0);
-					final boolean isApogee = currentStatus.isApogeeReached();
-					if (wantToTumble && (isApogee || !isSustainer)) {
+					if (cg > cp && aoa > AOA_TUMBLE_CONDITION) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
 					}					
 				}
