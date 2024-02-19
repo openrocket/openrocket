@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -51,6 +52,7 @@ import net.sf.openrocket.gui.widgets.SelectColorButton;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotPanel extends JPanel {
+	@Serial
 	private static final long serialVersionUID = -2227129713185477998L;
 
 	private static final Translator trans = Application.getTranslator();

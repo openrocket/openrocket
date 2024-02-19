@@ -45,6 +45,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
+import net.sf.openrocket.gui.simulation.SimulationConfigDialog;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -57,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -72,7 +72,6 @@ import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.ColumnTableRowSorter;
 import net.sf.openrocket.gui.adaptors.ValueColumn;
 import net.sf.openrocket.gui.components.StyledLabel;
-import net.sf.openrocket.gui.simulation.SimulationEditDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
@@ -888,9 +887,11 @@ public class SimulationPanel extends JPanel {
 	}
 
 	private void openDialog(boolean plotMode, boolean isNewSimulation, final Simulation... sims) {
-		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, isNewSimulation, sims);
+		SimulationConfigDialog d = new SimulationConfigDialog(SwingUtilities.getWindowAncestor(this), document, isNewSimulation, sims);
 		if (plotMode) {
-			d.setPlotMode();
+			d.switchToPlotTab();
+		} else {
+			d.switchToSettingsTab();
 		}
 		d.setVisible(true);
 		fireMaintainSelection();
