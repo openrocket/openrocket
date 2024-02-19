@@ -146,12 +146,12 @@ public class SimulationConfigDialog extends JDialog {
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case PLOT_IDX:
-						okButton.setText(trans.get("SimulationEditDialog.btn.plot"));
+						okButton.setText(trans.get("SimulationConfigDialog.btn.plot"));
 						cancelButton.setText(trans.get("dlg.but.close"));
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case EXPORT_IDX:
-						okButton.setText(trans.get("SimulationEditDialog.btn.export"));
+						okButton.setText(trans.get("SimulationConfigDialog.btn.export"));
 						cancelButton.setText(trans.get("dlg.but.close"));
 						SimulationConfigDialog.this.revalidate();
 						break;
@@ -301,7 +301,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Cancel button
 		this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
-		this.cancelButton.setToolTipText(trans.get("SimulationEditDialog.btn.Cancel.ttip"));
+		this.cancelButton.setToolTipText(trans.get("SimulationConfigDialog.btn.Cancel.ttip"));
 		this.cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -319,7 +319,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Ok button
 		this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
-		this.okButton.setToolTipText(trans.get("SimulationEditDialog.btn.OK.ttip"));
+		this.okButton.setToolTipText(trans.get("SimulationConfigDialog.btn.OK.ttip"));
 		this.okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -392,10 +392,10 @@ public class SimulationConfigDialog extends JDialog {
 
 	private JPanel createCancelOperationContent() {
 		JPanel panel = new JPanel(new MigLayout());
-		String msg = isNewSimulation ? trans.get("SimulationEditDialog.CancelOperation.msg.undoAdd") :
-				trans.get("SimulationEditDialog.CancelOperation.msg.discardChanges");
+		String msg = isNewSimulation ? trans.get("SimulationConfigDialog.CancelOperation.msg.undoAdd") :
+				trans.get("SimulationConfigDialog.CancelOperation.msg.discardChanges");
 		JLabel msgLabel = new JLabel(msg);
-		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationEditDialog.CancelOperation.checkbox.dontAskAgain"));
+		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationConfigDialog.CancelOperation.checkbox.dontAskAgain"));
 		dontAskAgain.setSelected(false);
 		dontAskAgain.addItemListener(new ItemListener() {
 			@Override
@@ -429,7 +429,7 @@ public class SimulationConfigDialog extends JDialog {
 		// Yes/No dialog: Are you sure you want to discard your changes?
 		JPanel msg = createCancelOperationContent();
 		int resultYesNo = JOptionPane.showConfirmDialog(SimulationConfigDialog.this, msg,
-				trans.get("SimulationEditDialog.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				trans.get("SimulationConfigDialog.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if (resultYesNo == JOptionPane.YES_OPTION) {
 			discardChanges();
 		}
