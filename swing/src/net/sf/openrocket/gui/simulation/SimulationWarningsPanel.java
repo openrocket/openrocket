@@ -37,9 +37,9 @@ public class SimulationWarningsPanel extends JPanel {
 		super(new MigLayout("fill"));
 
 		WarningSet warnings = simulation.getSimulatedWarnings();
-		List<Warning> criticalWarnings = warnings.getCriticalWarnings();
-		List<Warning> normalWarnings = warnings.getNormalWarnings();
-		List<Warning> informativeWarnings = warnings.getInformativeWarnings();
+		List<Warning> criticalWarnings = warnings == null ? null : warnings.getCriticalWarnings();
+		List<Warning> normalWarnings = warnings == null ? null : warnings.getNormalWarnings();
+		List<Warning> informativeWarnings = warnings == null ? null : warnings.getInformativeWarnings();
 
 		// Critical warnings
 		JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH, trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"), darkErrorColor);
@@ -74,11 +74,12 @@ public class SimulationWarningsPanel extends JPanel {
 
 		// Title
 		float size = 1.1f;
-		StyledLabel title = new StyledLabel(warnings.size() + " " + titleText, size, StyledLabel.Style.BOLD);
+		int nrOfWarnings = warnings == null ? 0 : warnings.size();
+		StyledLabel title = new StyledLabel(nrOfWarnings + " " + titleText, size, StyledLabel.Style.BOLD);
 		title.setFontColor(textColor);
 		panel.add(title, "wrap, spanx");
 
-		if (warnings.isEmpty()) {
+		if (nrOfWarnings == 0) {
 			return panel;
 		}
 

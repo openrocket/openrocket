@@ -118,19 +118,30 @@ public class SimulationConfigDialog extends JDialog {
 		}
 
 		//// Plot data
-		this.plotTab = new SimulationPlotPanel(simulationList[0]);
+		boolean hasData = simulationList[0].hasSimulationData();
+		if (hasData) {
+			this.plotTab = new SimulationPlotPanel(simulationList[0]);
+		} else {
+			this.plotTab = null;
+		}
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Plotdata"), plotTab);
-		if (isMultiCompEdit()) {
+		if (isMultiCompEdit() || !hasData) {
 			tabbedPane.setEnabledAt(PLOT_IDX, false);
-			tabbedPane.setToolTipTextAt(PLOT_IDX, trans.get("SimulationConfigDialog.tab.plotDis.ttip"));
+			String ttip = hasData ? trans.get("SimulationConfigDialog.tab.plotDis.ttip") : trans.get("SimulationConfigDialog.tab.plotNoData.ttip");
+			tabbedPane.setToolTipTextAt(PLOT_IDX, ttip);
 		}
 
 		//// Export data
-		this.exportTab = new SimulationExportPanel(simulationList[0]);
+		if (hasData) {
+			this.exportTab = new SimulationExportPanel(simulationList[0]);
+		} else {
+			this.exportTab = null;
+		}
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Exportdata"), exportTab);
-		if (isMultiCompEdit()) {
+		if (isMultiCompEdit() || !hasData) {
 			tabbedPane.setEnabledAt(EXPORT_IDX, false);
-			tabbedPane.setToolTipTextAt(EXPORT_IDX, trans.get("SimulationConfigDialog.tab.expDis.ttip"));
+			String ttip = hasData ? trans.get("SimulationConfigDialog.tab.expDis.ttip") : trans.get("SimulationConfigDialog.tab.expNoData.ttip");
+			tabbedPane.setToolTipTextAt(EXPORT_IDX, ttip);
 		}
 
 		contentPanel.add(tabbedPane, "grow, wrap");
@@ -354,6 +365,10 @@ public class SimulationConfigDialog extends JDialog {
 
 				int tabIdx = tabbedPane.getSelectedIndex();
 				if (tabIdx == PLOT_IDX) {
+					if (plotTab == null) {
+						closeDialog();
+						return;
+					}
 					JDialog plot = plotTab.doPlot(SimulationConfigDialog.this.parentWindow);
 					if (plot != null) {
 						plot.setVisible(true);
@@ -361,7 +376,7 @@ public class SimulationConfigDialog extends JDialog {
 					closeDialog();
 					return;
 				} else if (tabIdx == EXPORT_IDX) {
-					if (exportTab.doExport()) {
+					if (exportTab == null || exportTab.doExport()) {
 						closeDialog();
 					}
 					return;

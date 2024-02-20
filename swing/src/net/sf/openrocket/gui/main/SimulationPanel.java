@@ -790,6 +790,12 @@ public class SimulationPanel extends JPanel {
 		if (includeSimName) {
 			tip.append("<b>").append(sim.getName()).append("</b><br>");
 		}
+
+		if (data == null) {
+			tip.append(trans.get("simpanel.ttip.noData"));
+			return tip.toString();
+		}
+
 		switch (sim.getStatus()) {
 			case CANT_RUN:
 				tip.append(trans.get("simpanel.ttip.noData")).append("<br>");
@@ -812,11 +818,6 @@ public class SimulationPanel extends JPanel {
 			case NOT_SIMULATED:
 				tip.append(trans.get("simpanel.ttip.notSimulated"));
 				return tip.toString();
-		}
-
-		if (data == null) {
-			tip.append(trans.get("simpanel.ttip.noData"));
-			return tip.toString();
 		}
 
 		for (int b = 0; b < data.getBranchCount(); b++) {
