@@ -1632,7 +1632,7 @@ public class TestRockets {
 	}
 	
 	
-	public static OpenRocketDocument makeTestRocket_v107_withSimulationExtension(String script) {
+	public static OpenRocketDocument makeTestRocket_v110_withSimulationExtension(String script) {
 		Rocket rocket = makeEstesAlphaIII();
 		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		Simulation sim = new Simulation(rocket);

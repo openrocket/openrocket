@@ -133,7 +133,7 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withMotorMountIgnitionConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withRecoveryDeviceDeploymentConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withStageSeparationConfig());
-		rocketDocs.add(TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
+		rocketDocs.add(TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
         rocketDocs.add(TestRockets.makeTestRocket_v108_withBoosters());
 		rocketDocs.add(TestRockets.makeTestRocket_v108_withDisabledStage());
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
@@ -222,7 +222,7 @@ public class OpenRocketSaverTest {
 	
 	@Test
 	public void testUntrustedScriptDisabledOnLoad() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
 		StorageOptions options = new StorageOptions();
 		File file = saveRocket(rocketDoc, options);
 		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
@@ -236,7 +236,7 @@ public class OpenRocketSaverTest {
 	
 	@Test
 	public void testTrustedScriptEnabledOnLoad() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension("TESTING");
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension("TESTING");
 		injector.getInstance(ScriptingUtil.class).setTrustedScript("JavaScript", "TESTING", true);
 		StorageOptions options = new StorageOptions();
 		File file = saveRocket(rocketDoc, options);
@@ -326,13 +326,13 @@ public class OpenRocketSaverTest {
 	}
 	
 	////////////////////////////////
-	// Tests for File Version 1.7 // 
+	// Tests for File Version 1.10 //
 	////////////////////////////////
 	
 	@Test
-	public void testFileVersion109_withSimulationExtension() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(109, getCalculatedFileVersion(rocketDoc));
+	public void testFileVersion110_withSimulationExtension() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
+		assertEquals(110, getCalculatedFileVersion(rocketDoc));
 	}
 	
 
