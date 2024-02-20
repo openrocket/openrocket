@@ -57,7 +57,7 @@ public abstract class ErrorWarningDialog {
         Error[] e = errors.toArray(new Error[0]);
         final JList<Error> errorList = new JList<>(e);
         errorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        errorList.setCellRenderer(new ErrorListCellRenderer());
+        errorList.setCellRenderer(new BetterListCellRenderer(darkErrorColor));
         JScrollPane errorPane = new JScrollPane(errorList);
         errorList.setBorder(border);
         content.add(errorPane, "wrap, growx");
@@ -98,22 +98,5 @@ public abstract class ErrorWarningDialog {
         JOptionPane.showMessageDialog(parent, new Object[] { message, content },
                 title, JOptionPane.WARNING_MESSAGE);
 
-    }
-
-    private static class ErrorListCellRenderer extends BetterListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                      boolean isSelected, boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-            // Text color
-            if (isSelected) {
-                label.setForeground(textSelectionForegroundColor);
-            } else {
-                label.setForeground(darkErrorColor);
-            }
-
-            return label;
-        }
     }
 }

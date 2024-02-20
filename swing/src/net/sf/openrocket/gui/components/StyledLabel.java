@@ -1,8 +1,11 @@
 package net.sf.openrocket.gui.components;
 
+import net.sf.openrocket.gui.util.Icons;
+
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
@@ -56,6 +59,10 @@ public class StyledLabel extends JLabel {
 		super(text, horizontalAlignment);
 		resizeFont(size);
 		checkPreferredSize(size, Style.PLAIN);
+	}
+
+	public StyledLabel(Icon icon, float size) {
+		super(Icons.getScaledIcon(icon, size));
 	}
 	
 	

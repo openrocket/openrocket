@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -53,7 +54,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.gui.widgets.SaveFileChooser;
 import net.sf.openrocket.logging.Message;
-import net.sf.openrocket.logging.MessagePriority;
+import net.sf.openrocket.logging.Warning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,6 @@ import net.sf.openrocket.gui.adaptors.ColumnTableRowSorter;
 import net.sf.openrocket.gui.adaptors.ValueColumn;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
-import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.widgets.IconButton;
 import net.sf.openrocket.l10n.Translator;
@@ -101,6 +101,7 @@ public class SimulationPanel extends JPanel {
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 
+	private final Window parent;
 	private final OpenRocketDocument document;
 
 	private final ColumnTableModel simulationTableModel;
@@ -136,9 +137,10 @@ public class SimulationPanel extends JPanel {
 		initColors();
 	}
 
-	public SimulationPanel(OpenRocketDocument doc) {
+	public SimulationPanel(Window parent, OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
 
+		this.parent = parent;
 		this.document = doc;
 
 
@@ -261,7 +263,10 @@ public class SimulationPanel extends JPanel {
 						int selected = simulationTable.convertRowIndexToModel(selectedRow);
 						// Show the warnings for the simulation
 						if (column == 1) {
-							SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
+							SimulationConfigDialog dialog = new SimulationConfigDialog(parent, document, false,
+									document.getSimulations().get(selected));
+							dialog.switchToWarningsTab();
+							dialog.setVisible(true);
 						}
 						// Edit the simulation or plot/export
 						else if (column > 1) {
@@ -844,9 +849,9 @@ public class SimulationPanel extends JPanel {
 			return tip.toString();
 		}
 
-		List<Message> criticalWarnings = warnings.getMessagesWithPriority(MessagePriority.HIGH);
-		List<Message> normalWarnings = warnings.getMessagesWithPriority(MessagePriority.NORMAL);
-		List<Message> informativeWarnings = warnings.getMessagesWithPriority(MessagePriority.LOW);
+		List<Warning> criticalWarnings = warnings.getCriticalWarnings();
+		List<Warning> normalWarnings = warnings.getNormalWarnings();
+		List<Warning> informativeWarnings = warnings.getInformativeWarnings();
 
 		// Critical warnings
 		if (!criticalWarnings.isEmpty()) {

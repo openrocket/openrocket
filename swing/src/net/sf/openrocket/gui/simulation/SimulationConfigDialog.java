@@ -64,8 +64,9 @@ public class SimulationConfigDialog extends JDialog {
 	private final boolean isNewSimulation;		// Whether you are editing a new simulation, or an existing one
 
 	private static final int SETTINGS_IDX = 0;
-	private static final int PLOT_IDX = 1;
-	private static final int EXPORT_IDX = 2;
+	private static final int WARNINGS_IDX = 1;
+	private static final int PLOT_IDX = 2;
+	private static final int EXPORT_IDX = 3;
 
 	private final SimulationPlotPanel plotTab;
 	private final SimulationExportPanel exportTab;
@@ -106,11 +107,19 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Simulation Settings
 		final SimulationSettingsPanel settingsTab = new SimulationSettingsPanel(document, simulationList[0]);
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Settings"), settingsTab);
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Settings"), settingsTab);
+
+		//// Simulation Warnings
+		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsTab);
+		if (isMultiCompEdit()) {
+			tabbedPane.setEnabledAt(WARNINGS_IDX, false);
+			tabbedPane.setToolTipTextAt(WARNINGS_IDX, trans.get("SimulationConfigDialog.tab.warnDis.ttip"));
+		}
 
 		//// Plot data
 		this.plotTab = new SimulationPlotPanel(simulationList[0]);
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Plotdata"), plotTab);
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Plotdata"), plotTab);
 		if (isMultiCompEdit()) {
 			tabbedPane.setEnabledAt(PLOT_IDX, false);
 			tabbedPane.setToolTipTextAt(PLOT_IDX, trans.get("SimulationConfigDialog.tab.plotDis.ttip"));
@@ -118,7 +127,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Export data
 		this.exportTab = new SimulationExportPanel(simulationList[0]);
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Exportdata"), exportTab);
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Exportdata"), exportTab);
 		if (isMultiCompEdit()) {
 			tabbedPane.setEnabledAt(EXPORT_IDX, false);
 			tabbedPane.setToolTipTextAt(EXPORT_IDX, trans.get("SimulationConfigDialog.tab.expDis.ttip"));
@@ -143,16 +152,24 @@ public class SimulationConfigDialog extends JDialog {
 					case SETTINGS_IDX:
 						okButton.setText(trans.get("dlg.but.ok"));
 						cancelButton.setText(trans.get("dlg.but.cancel"));
+						cancelButton.setVisible(true);
+						SimulationConfigDialog.this.revalidate();
+						break;
+					case WARNINGS_IDX:
+						okButton.setText(trans.get("dlg.but.close"));
+						cancelButton.setVisible(false);
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case PLOT_IDX:
 						okButton.setText(trans.get("SimulationConfigDialog.btn.plot"));
 						cancelButton.setText(trans.get("dlg.but.close"));
+						cancelButton.setVisible(true);
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case EXPORT_IDX:
 						okButton.setText(trans.get("SimulationConfigDialog.btn.export"));
 						cancelButton.setText(trans.get("dlg.but.close"));
+						cancelButton.setVisible(true);
 						SimulationConfigDialog.this.revalidate();
 						break;
 				}
@@ -188,6 +205,10 @@ public class SimulationConfigDialog extends JDialog {
 
 	public void switchToSettingsTab() {
 		tabbedPane.setSelectedIndex(SETTINGS_IDX);
+	}
+
+	public void switchToWarningsTab() {
+		tabbedPane.setSelectedIndex(WARNINGS_IDX);
 	}
 
 	public void switchToPlotTab() {

@@ -230,7 +230,7 @@ public class UITheme {
 
             @Override
             public Color getWarningColor() {
-                return new Color(192, 135, 0);
+                return new Color(217, 152, 0);
             }
 
             @Override
