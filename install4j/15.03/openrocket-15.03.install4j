@@ -15,7 +15,7 @@
   <launchers>
     <launcher name="OpenRocket 15.03" id="59">
       <executable name="OpenRocket" executableDir="." executableMode="gui" />
-      <java mainClass="net.sf.openrocket.startup.OpenRocket">
+      <java mainClass="info.openrocket.swing.startup.OpenRocket">
         <classPath>
           <archive location="OpenRocket-15.03.jar" failOnError="false" />
         </classPath>

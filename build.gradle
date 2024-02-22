@@ -6,6 +6,10 @@ plugins {
     id 'checkstyle'
 }
 
+java {
+    modularity.inferModulePath = true
+}
+
 Properties props = new Properties()
 try {
     props.load(file('./core/src/main/resources/build.properties').newDataInputStream())
@@ -14,12 +18,13 @@ try {
 }
 
 allprojects {
-    group 'net.sf.openrocket'
+    group 'info.openrocket'
     version = props['build.version']
 
     repositories {
         mavenCentral()
         maven { url "https://jitpack.io" }
+        maven { url "https://jogamp.org/deployment/maven/" }
     }
 }
 
@@ -37,7 +42,7 @@ jar {
 
     manifest {
         attributes (
-            'Main-Class': 'net.sf.openrocket.startup.OpenRocket',
+            'Main-Class': 'info.openrocket.swing.startup.OpenRocket',
             'SplashScreen-Image': 'pix/splashscreen.png'
         )
     }

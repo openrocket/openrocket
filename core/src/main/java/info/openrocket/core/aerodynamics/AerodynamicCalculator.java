@@ -1,0 +1,82 @@
+package info.openrocket.core.aerodynamics;
+
+import java.util.Map;
+
+import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.Monitorable;
+
+/**
+ * An interface for performing aerodynamic calculations on rockets.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
+public interface AerodynamicCalculator extends Monitorable {
+
+	/**
+	 * Calculate the CP of the specified configuration.
+	 * 
+	 * @param configuration the rocket configuration
+	 * @param conditions    the flight conditions
+	 * @param warnings      the set in which to place warnings, or <code>null</code>
+	 * @return the CP position in absolute coordinates
+	 */
+	public Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions, WarningSet warnings);
+
+	/**
+	 * Calculate the aerodynamic forces acting upon the rocket.
+	 * 
+	 * @param configuration the rocket configuration.
+	 * @param conditions    the flight conditions.
+	 * @param warnings      the set in which to place warnings, or
+	 *                      <code>null</code>.
+	 * @return the aerodynamic forces acting upon the rocket.
+	 */
+	public AerodynamicForces getAerodynamicForces(FlightConfiguration configuration,
+			FlightConditions conditions, WarningSet warnings);
+
+	/**
+	 * Calculate the aerodynamic forces acting upon the rocket with a component
+	 * analysis.
+	 * 
+	 * @param configuration the rocket configuration.
+	 * @param conditions    the flight conditions.
+	 * @param warnings      the set in which to place warnings, or
+	 *                      <code>null</code>.
+	 * @return a map from the rocket components to the aerodynamic force portions
+	 *         that component
+	 *         exerts. The map contains an value for the base rocket, which is the
+	 *         total
+	 *         aerodynamic forces.
+	 */
+	public Map<RocketComponent, AerodynamicForces> getForceAnalysis(FlightConfiguration configuration,
+			FlightConditions conditions, WarningSet warnings);
+
+	/**
+	 * Calculate the worst CP occurring for any lateral wind angle. The worst CP is
+	 * returned and the theta angle
+	 * that produces the worst CP is stored in the flight conditions.
+	 * 
+	 * @param configuration the rocket configuration.
+	 * @param conditions    the flight conditions.
+	 * @param warnings      the set in which to place warnings, or
+	 *                      <code>null</code>.
+	 * @return the worst (foremost) CP position for any lateral wind angle.
+	 */
+	public Coordinate getWorstCP(FlightConfiguration configuration, FlightConditions conditions,
+			WarningSet warnings);
+
+	/**
+	 * Return a new instance of this aerodynamic calculator type.
+	 * 
+	 * @return a new, independent instance of this aerodynamic calculator type
+	 */
+	public AerodynamicCalculator newInstance();
+
+	/**
+	 * Check component assembly for geometric problems and post any needed warnings
+	 */
+	public void checkGeometry(FlightConfiguration configuration, final RocketComponent component, WarningSet warnings);
+}

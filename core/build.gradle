@@ -3,9 +3,14 @@ plugins {
     id 'java'
     id 'com.adarshr.test-logger' version '3.2.0'
     id 'checkstyle'
+    id 'org.gradlex.extra-java-module-info' version '1.8'
 }
 
-group 'net.sf.openrocket'
+java {
+    modularity.inferModulePath = true
+}
+
+group 'info.openrocket.core'
 
 Properties props = new Properties()
 try {
@@ -17,6 +22,7 @@ version = props['build.version']
 
 repositories {
     mavenCentral()
+    maven { url "https://repository.mulesoft.org/nexus/content/repositories/public/" }
 }
 
 checkstyle {
@@ -24,16 +30,23 @@ checkstyle {
     maxWarnings = 0
 }
 
+// Some older libraries are not modularized, so we need to add module-info.java files for them.
+extraJavaModuleInfo {
+    failOnMissingModuleInfo.set(false)
+    module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
+    module('annotation-detector-3.0.5.jar', 'eu.infomas.annotation.detector', '3.0.5')
+}
+
 dependencies {
     implementation group: 'org.commonmark', name: 'commonmark', version: '0.19.0' // 0.21.0
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30' // 2.0.6
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1' // 3.12.0
-    implementation group: 'com.google.inject', name: 'guice', version: '5.1.0' // 4.2.3, 5.1.0
+    implementation group: 'com.google.inject', name: 'guice', version: '5.1.0'
     implementation group: 'com.opencsv', name: 'opencsv', version: '5.7.1'
     implementation group: 'eu.infomas', name: 'annotation-detector', version: '3.0.5'
     implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '22.1.0.1' // 22.3.1
     implementation group: 'org.graalvm.js', name: 'js-scriptengine', version: '22.1.0.1' // 22.3.1
-//    implementation group: 'javax.script', name: 'script-api', version: '1.0-osgi'
+    //implementation group: 'javax.script', name: 'script-api', version: '1.0-osgi'
     implementation group: 'org.graalvm.truffle', name: 'truffle-api', version: '22.1.0.1' // 22.3.1
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.1' // 72.1
     implementation group: 'com.sun.istack', name: 'istack-commons-tools', version: '4.1.1' // TODO: Should be gotten rid of?
@@ -46,6 +59,7 @@ dependencies {
     implementation 'org.glassfish:javax.json:1.1.3' // 1.1.4
     implementation 'org.eclipse:yasson:1.0.2' // 2.0.1
     implementation group: 'javax.activation', name: 'javax.activation-api', version: '1.2.0'
+    implementation group: 'jakarta.activation', name: 'jakarta.activation-api', version: '2.1.2'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1' // 5.9.2
     testImplementation group: 'org.jmock', name: 'jmock', version: '2.9.0' // 2.12.0
@@ -85,7 +99,7 @@ tasks.register('serializeEnginesExecute', JavaExec) {
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
-    mainClass.set('net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors')
+    mainClass.set('info.openrocket.core.thrustcurve.SerializeThrustcurveMotors')
     args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPath
 
     doFirst {
@@ -104,7 +118,7 @@ tasks.register('serializeEnginesExecuteDist', JavaExec) {
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
-    mainClass.set('net.sf.openrocket.thrustcurve.SerializeThrustcurveMotors')
+    mainClass.set('info.openrocket.core.thrustcurve.SerializeThrustcurveMotors')
     args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist
 
     doFirst {

@@ -1,2 +1,2 @@
 # Default service implementation:
-net.sf.openrocket.optimization.services.DefaultSimulationModifierService
+info.openrocket.core.optimization.services.DefaultSimulationModifierService

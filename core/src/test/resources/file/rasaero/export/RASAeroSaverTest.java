@@ -1,4 +1,4 @@
-package net.sf.openrocket.file.rasaero.export;
+package info.openrocket.core.file.rasaero.export;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -6,26 +6,26 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.util.Modules;
-import net.sf.openrocket.ServicesForTesting;
-import net.sf.openrocket.database.ComponentPresetDao;
-import net.sf.openrocket.database.ComponentPresetDatabase;
-import net.sf.openrocket.database.motor.MotorDatabase;
-import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.document.OpenRocketDocumentFactory;
-import net.sf.openrocket.file.DatabaseMotorFinder;
-import net.sf.openrocket.file.DocumentLoadingContext;
-import net.sf.openrocket.file.GeneralRocketLoader;
-import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.rasaero.importt.RASAeroLoader;
-import net.sf.openrocket.l10n.DebugTranslator;
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.ErrorSet;
-import net.sf.openrocket.logging.WarningSet;
-import net.sf.openrocket.plugin.PluginModule;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
+import info.openrocket.core.ServicesForTesting;
+import info.openrocket.core.database.ComponentPresetDao;
+import info.openrocket.core.database.ComponentPresetDatabase;
+import info.openrocket.core.database.motor.MotorDatabase;
+import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.OpenRocketDocumentFactory;
+import info.openrocket.core.file.DatabaseMotorFinder;
+import info.openrocket.core.file.DocumentLoadingContext;
+import info.openrocket.core.file.GeneralRocketLoader;
+import info.openrocket.core.file.RocketLoadException;
+import info.openrocket.core.file.rasaero.importt.RASAeroLoader;
+import info.openrocket.core.l10n.DebugTranslator;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.ErrorSet;
+import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,14 +70,14 @@ public class RASAeroSaverTest {
             }
         };
 
-        Injector injector = Guice.createInjector(Modules.override(applicationModule).with(debugTranslator), pluginModule, dbOverrides);
+        Injector injector = Guice.createInjector(Modules.override(applicationModule).with(debugTranslator),
+                pluginModule, dbOverrides);
         Application.setInjector(injector);
     }
 
-
     @Test
     public void testSingleStage() {
-            OpenRocketDocument originalDocument = loadRocket("01.One-stage.ork");
+        OpenRocketDocument originalDocument = loadRocket("01.One-stage.ork");
         try {
             // Convert to RASAero XML
             WarningSet warnings = new WarningSet();

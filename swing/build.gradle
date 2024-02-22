@@ -3,9 +3,14 @@ plugins {
     id 'java'
     id 'com.adarshr.test-logger' version '3.2.0'
     id 'checkstyle'
+    id 'org.gradlex.extra-java-module-info' version '1.8'
 }
 
-group 'net.sf.openrocket'
+java {
+    modularity.inferModulePath = true
+}
+
+group 'info.openrocket.swing'
 
 Properties props = new Properties()
 try {
@@ -18,6 +23,7 @@ version = props['build.version']
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
+    maven { url "https://jogamp.org/deployment/maven/" }
 }
 
 checkstyle {
@@ -32,23 +38,55 @@ configurations {
     }
 }
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: '*.jar')
+// Some older libraries are not modularized, so we need to add module-info.java files for them.
+extraJavaModuleInfo {
+    failOnMissingModuleInfo.set(false)
+    module('slf4j-api-1.7.25.jar', 'org.slf4j.api', '1.7.25')
+    module('slf4j-api-1.7.32.jar', 'org.slf4j.api', '1.7.32')
+    module('versioncompare-1.5.0.jar', 'versioncompare', '1.5.0')
+    module('gluegen-rt-2.5.0.jar', 'org.jogamp.gluegen.rt', '2.5.0') {
+        requires('java.desktop')
+        exportAllPackages()
+    }
+    module('jogl-all-2.5.0.jar', 'org.jogamp.jogl.all', '2.5.0') {
+        requires('java.desktop')
+        requires('org.jogamp.gluegen.rt')
+        exportAllPackages()
+    }
+    module('jcommon-1.0.24.jar', 'jcommon', '1.0.24') {
+        requires('java.desktop')
+        exportAllPackages()
+    }
+    module('itextpdf-5.5.13.3.jar', 'itextpdf', '5.5.13.3') {
+        requires('java.desktop')
+        exportAllPackages()
+    }
 
+    module('annotation-detector-3.0.5.jar', 'eu.infomas.annotation.detector', '3.0.5')
+    module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
+}
+
+dependencies {
+    implementation project(':core')
+
+    implementation group: 'eu.infomas', name: 'annotation-detector', version: '3.0.5'
+    implementation 'de.javagl:obj:0.4.0'
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation group: 'org.commonmark', name: 'commonmark', version: '0.19.0' // 0.21.0
-    implementation group: 'com.google.inject', name: 'guice', version: '5.1.0' // 4.2.3
-    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13' // 5.5.13.2
+    implementation group: 'com.google.inject', name: 'guice', version: '5.1.0'
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.3'
     implementation group: 'org.jfree', name: 'jcommon', version: '1.0.24'
-    implementation group: 'org.jfree', name: 'jfreechart', version: '1.0.15' // 1.5.4
-    implementation group: 'com.miglayout', name: 'miglayout-swing', version: '5.2' // 5.3, 11.0
-    implementation group: 'com.fifesoft', name: 'rsyntaxtextarea', version: '2.6.1' // 3.3.2
+    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.4'
+    implementation group: 'com.miglayout', name: 'miglayout-core', version: '11.0'
+    implementation group: 'com.miglayout', name: 'miglayout-swing', version: '11.0'
+    implementation group: 'com.fifesoft', name: 'rsyntaxtextarea', version: '3.4.0'
 
     implementation 'com.github.weisj:darklaf-core:3.0.2'
 
+    implementation group: 'io.github.g00fy2', name: 'versioncompare', version: '1.5.0'
     implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.8'
-
-//    implementation 'io.github.g00fy2:versioncompare:1.4.1'
 
 //    implementation 'net.java.dev.jna:jna:5.13.0'
 //    implementation 'net.java.dev.jna:jna-platform:5.13.0'
@@ -57,16 +95,16 @@ dependencies {
 //    implementation 'com.github.oshi:oshi-core:6.4.4'
 
     implementation group: 'com.yuvimasory', name: 'orange-extensions', version: '1.3.0'
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.0'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
     implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
 
-    implementation project(':core')
+    implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt-main', version:'2.5.0'
+    implementation group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.5.0'
 
 // TODO: Including output from coreotherwise NoClassDefFound issue with BaseTestCase
 // The Cross Project Publications should work, but not seeming too.
     testImplementation project(':core').sourceSets.test.output
-// https://docs.gradle.org/7.4/userguide/cross_project_publications.html
     testImplementation project (path: ':core', configuration: 'testArtifacts')
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1' // 5.9.2
     testImplementation group: 'org.jmock', name: 'jmock', version: '2.9.0' // 2.12.0
