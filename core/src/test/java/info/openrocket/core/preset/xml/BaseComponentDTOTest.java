@@ -36,7 +36,7 @@ public class BaseComponentDTOTest {
         BodyTubeDTO dto = new BodyTubeDTO(preset);
 
         // Add an image to the DTO.
-        BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream("/pix/splashscreen.png"));
+        BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream("/test_image.png"));
         dto.setImage(image);
 
         JAXBContext binder = JAXBContext.newInstance(OpenRocketComponentDTO.class);
