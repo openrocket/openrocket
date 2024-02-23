@@ -126,60 +126,57 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 		// Store data
 		final FlightDataBranch data = status.getFlightData();
-		data.addPoint();
+
+		// Values looked up at start of time step
+		data.setValue(FlightDataType.TYPE_WIND_VELOCITY, windSpeed.length());
+		data.setValue(FlightDataType.TYPE_AIR_TEMPERATURE, atmosphere.getTemperature());
+		data.setValue(FlightDataType.TYPE_AIR_PRESSURE, atmosphere.getPressure());
+		data.setValue(FlightDataType.TYPE_SPEED_OF_SOUND, atmosphere.getMachSpeed());
+		data.setValue(FlightDataType.TYPE_MACH_NUMBER, mach);
 		
+		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
+			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
+		}
+		data.setValue(FlightDataType.TYPE_GRAVITY, gravity);
+		
+		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
+		data.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
+		
+		data.setValue(FlightDataType.TYPE_MASS, mass);
+		data.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass);
+		
+		data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
+					  MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+		data.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
+		data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
+
+		data.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
+
+		// Values calculated on this step
+		data.addPoint();
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 
-		airSpeed = status.getRocketVelocity().add(windSpeed);
-
 		data.setValue(FlightDataType.TYPE_POSITION_XY,
 					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
 		data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
 					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
+		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
+		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
 		
 		data.setValue(FlightDataType.TYPE_VELOCITY_XY,
 					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-		data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-					  MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+		data.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
+		data.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, airSpeed.length());
 		
-		data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
-		
-		double Re = airSpeed.length() *
+		airSpeed = status.getRocketVelocity().add(windSpeed);
+		final double Re = airSpeed.length() *
 			status.getConfiguration().getLengthAerodynamic() /
 			atmosphere.getKinematicViscosity();
 		data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		
-
-		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
-		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
-		data.setValue(FlightDataType.TYPE_GRAVITY, gravity);
-		
-		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
-			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
-		}
-		
-
-		data.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
-		data.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
-		
-		data.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, airSpeed.length());
-		data.setValue(FlightDataType.TYPE_MACH_NUMBER, mach);
-		
-		data.setValue(FlightDataType.TYPE_MASS, mass);
-		data.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass);
-		
-		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
-		data.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
-		
-		data.setValue(FlightDataType.TYPE_WIND_VELOCITY, windSpeed.length());
-		data.setValue(FlightDataType.TYPE_AIR_TEMPERATURE, atmosphere.getTemperature());
-		data.setValue(FlightDataType.TYPE_AIR_PRESSURE, atmosphere.getPressure());
-		data.setValue(FlightDataType.TYPE_SPEED_OF_SOUND, atmosphere.getMachSpeed());
-		
-		data.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
 		data.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
 				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
 		log.trace("time " + data.getLast(FlightDataType.TYPE_TIME) + ", altitude " + data.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + data.getLast(FlightDataType.TYPE_VELOCITY_Z));
