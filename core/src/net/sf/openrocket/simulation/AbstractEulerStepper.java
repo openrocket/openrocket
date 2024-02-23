@@ -38,21 +38,21 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
 		
 		// Get the atmospheric conditions
-		AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
+		final AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
 		
 		//// Local wind speed and direction
-		Coordinate windSpeed = modelWindVelocity(status);
+		final Coordinate windSpeed = modelWindVelocity(status);
 		Coordinate airSpeed = status.getRocketVelocity().add(windSpeed);
 		
 		// Compute drag force
-		double mach = airSpeed.length() / atmosphere.getMachSpeed();
-		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
-		double dragForce = getCD() * dynP * status.getConfiguration().getReferenceArea();
+		final double mach = airSpeed.length() / atmosphere.getMachSpeed();
+		final double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
+		final double dragForce = getCD() * dynP * status.getConfiguration().getReferenceArea();
 
-		double rocketMass = calculateStructureMass(status).getMass();
-		double motorMass = calculateMotorMass(status).getMass();
+		final double rocketMass = calculateStructureMass(status).getMass();
+		final double motorMass = calculateMotorMass(status).getMass();
 		
-		double mass = rocketMass + motorMass;
+		final double mass = rocketMass + motorMass;
 
 		if (mass < MathUtil.EPSILON) {
 			throw new SimulationException(trans.get("SimulationStepper.error.totalMassZero"));
@@ -67,12 +67,12 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		}
 		
 		// Add effect of gravity
-		double gravity = modelGravity(status);
+		final double gravity = modelGravity(status);
 		linearAcceleration = linearAcceleration.sub(0, 0, gravity);
 		
 
 		// Add coriolis acceleration
-		Coordinate coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
+		final Coordinate coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
 				status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(coriolisAcceleration);
 
@@ -125,7 +125,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		status.setRocketWorldPosition(w);
 
 		// Store data
-		FlightDataBranch data = status.getFlightData();
+		final FlightDataBranch data = status.getFlightData();
 		data.addPoint();
 		
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
