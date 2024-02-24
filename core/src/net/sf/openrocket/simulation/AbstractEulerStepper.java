@@ -127,7 +127,9 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		// Store data
 		final FlightDataBranch data = status.getFlightData();
 
-		// Values looked up at start of time step
+		// Values looked up or calculated at start of time step
+		data.setValue(FlightDataType.TYPE_REFERENCE_LENGTH, status.getConfiguration().getReferenceLength());
+		data.setValue(FlightDataType.TYPE_REFERENCE_AREA, status.getConfiguration().getReferenceArea());
 		data.setValue(FlightDataType.TYPE_WIND_VELOCITY, windSpeed.length());
 		data.setValue(FlightDataType.TYPE_AIR_TEMPERATURE, atmosphere.getTemperature());
 		data.setValue(FlightDataType.TYPE_AIR_PRESSURE, atmosphere.getPressure());
@@ -139,12 +141,18 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		}
 		data.setValue(FlightDataType.TYPE_GRAVITY, gravity);
 		
+		data.setValue(FlightDataType.TYPE_DRAG_COEFF, getCD());
+		data.setValue(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, getCD());
+		data.setValue(FlightDataType.TYPE_FRICTION_DRAG_COEFF, 0);
+		data.setValue(FlightDataType.TYPE_BASE_DRAG_COEFF, 0);
+		data.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, getCD());
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
 		data.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
 		
 		data.setValue(FlightDataType.TYPE_MASS, mass);
 		data.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass);
-		
+		data.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, 0);
+
 		data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
 					  MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
 		data.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
