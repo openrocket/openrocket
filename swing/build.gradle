@@ -104,8 +104,8 @@ dependencies {
 
 // TODO: Including output from coreotherwise NoClassDefFound issue with BaseTestCase
 // The Cross Project Publications should work, but not seeming too.
-    testImplementation project(':core').sourceSets.test.output
-    testImplementation project (path: ':core', configuration: 'testArtifacts')
+    //testImplementation project(':core').sourceSets.test.output
+    //testImplementation project (path: ':core', configuration: 'testArtifacts')
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1' // 5.9.2
     testImplementation group: 'org.jmock', name: 'jmock', version: '2.9.0' // 2.12.0
     testImplementation group: 'org.jmock', name: 'jmock-junit4', version: '2.9.0' // 2.12.0

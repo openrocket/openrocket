@@ -7,17 +7,21 @@ import java.util.Arrays;
 
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
 
-public class FinSetShapes extends RocketComponentShape {
+public class FinSetShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return FinSet.class;
+	}
 
 
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component,
-													    final Transformation transformation){
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component,
+												 final Transformation transformation){
 		final FinSet finset = (FinSet) component;
 		
         // this supplied transformation includes: 
@@ -44,21 +48,22 @@ public class FinSetShapes extends RocketComponentShape {
         rootPoints = compositeTransform.transform( rootPoints );
         
 		// Generate shapes
-		ArrayList<RocketComponentShape> shapeList = new ArrayList<>();
+		ArrayList<RocketComponentShapes> shapeList = new ArrayList<>();
 		
 		// Make fin polygon
-		shapeList.add(new RocketComponentShape(generatePath(finPoints), finset));
+		shapeList.add(new RocketComponentShapes(generatePath(finPoints), finset));
 
         // Make fin polygon
-        shapeList.add(new RocketComponentShape(generatePath(tabPoints), finset));
+        shapeList.add(new RocketComponentShapes(generatePath(tabPoints), finset));
 
         // Make fin polygon
-        shapeList.add(new RocketComponentShape(generatePath(rootPoints), finset));
+        shapeList.add(new RocketComponentShapes(generatePath(rootPoints), finset));
 
-		return shapeList.toArray(new RocketComponentShape[0]);
+		return shapeList.toArray(new RocketComponentShapes[0]);
 	}
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 
 		FinSet finset = (FinSet) component;
 		
@@ -71,7 +76,7 @@ public class FinSetShapes extends RocketComponentShape {
 		}
 
 
-		return RocketComponentShape.toArray(toReturn, finset);
+		return RocketComponentShapes.toArray(toReturn, finset);
 	}
 
 	private static Path2D.Float generatePath(final Coordinate[] points){

@@ -17,7 +17,11 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 
 
-public class RailButtonShapes extends RocketComponentShape {
+public class RailButtonShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return RailButton.class;
+	}
 
 	/**
 	 * The rail button's shape is basically 3 cylinders stacked on top of each other. To achieve this 3D shape in a 2D
@@ -28,7 +32,8 @@ public class RailButtonShapes extends RocketComponentShape {
 	 * @param transformation
 	 * @return
 	 */
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		final RailButton btn = (RailButton)component;
 
 		final double baseHeight = btn.getBaseHeight();
@@ -141,20 +146,21 @@ public class RailButtonShapes extends RocketComponentShape {
 		}
 
 		Shape[] temp = screwShape == null ? new Shape[]{ path } : new Shape[]{ path, screwShape };
-		RocketComponentShape[] shapes = RocketComponentShape.toArray(temp, component);
-		RocketComponentShape[] shapesInvis = RocketComponentShape.toArray(new Shape[]{ pathInvis }, component);
+		RocketComponentShapes[] shapes = RocketComponentShapes.toArray(temp, component);
+		RocketComponentShapes[] shapesInvis = RocketComponentShapes.toArray(new Shape[]{ pathInvis }, component);
 
-		for (RocketComponentShape s : shapesInvis) {
+		for (RocketComponentShapes s : shapesInvis) {
 			s.setColor(ORColor.INVISIBLE);
 		}
 
-		RocketComponentShape[] total = Arrays.copyOf(shapes, shapes.length + shapesInvis.length);
+		RocketComponentShapes[] total = Arrays.copyOf(shapes, shapes.length + shapesInvis.length);
 		System.arraycopy(shapesInvis, 0, total, shapes.length, shapesInvis.length);
 		return total;
 	}
-	
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		final RailButton btn = (RailButton)component;
 
 		final double baseHeight = btn.getBaseHeight();
@@ -213,7 +219,7 @@ public class RailButtonShapes extends RocketComponentShape {
 		}
 
 		Shape[] temp = screwShape == null ? new Shape[]{ path } : new Shape[]{ path, screwShape };
-		return RocketComponentShape.toArray(temp, component);
+		return RocketComponentShapes.toArray(temp, component);
 	}
 	
 	

@@ -10,13 +10,18 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 
 
-public class TransitionShapes extends RocketComponentShape {
+public class TransitionShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return Transition.class;
+	}
 
-    public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+    public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
     	return getShapesSide(component, transformation, 1.0);
     }
 
-    public static RocketComponentShape[] getShapesSide(
+    public static RocketComponentShapes[] getShapesSide(
     		 final RocketComponent component, 
     		 final Transformation transformation,
              final double scaleFactor) {
@@ -26,7 +31,7 @@ public class TransitionShapes extends RocketComponentShape {
 
         final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         
-		RocketComponentShape[] mainShapes;
+		RocketComponentShapes[] mainShapes;
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
 		if (transition.getShapeType() == Transition.Shape.CONICAL) {
@@ -43,7 +48,7 @@ public class TransitionShapes extends RocketComponentShape {
 			path.lineTo( (frontCenter.x) * scaleFactor, (frontCenter.y-r1) * scaleFactor);
 			path.closePath();
 			
-			mainShapes = new RocketComponentShape[] { new RocketComponentShape( path, component) };
+			mainShapes = new RocketComponentShapes[] { new RocketComponentShapes( path, component) };
 		} else {
 			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation, scaleFactor);
 		}
@@ -85,11 +90,12 @@ public class TransitionShapes extends RocketComponentShape {
 		if (aftShoulder != null) {
 			shapes[i] = aftShoulder;
 		}
-		return RocketComponentShape.toArray( shapes, component);
+		return RocketComponentShapes.toArray( shapes, component);
 	}
-	
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 
 		Transition transition = (Transition) component;
 		
@@ -101,7 +107,7 @@ public class TransitionShapes extends RocketComponentShape {
 		Shape[] s = new Shape[2];
 		s[0] = new Ellipse2D.Double((center.z-r1),(center.y-r1),2*r1,2*r1);
 		s[1] = new Ellipse2D.Double((center.z-r2),(center.y-r2),2*r2,2*r2);
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShapes.toArray(s, component);
 	}
 	
 	

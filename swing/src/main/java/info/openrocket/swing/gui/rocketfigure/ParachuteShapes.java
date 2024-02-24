@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.rocketfigure;
 
 import info.openrocket.core.rocketcomponent.MassObject;
+import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
@@ -12,9 +13,14 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-public class ParachuteShapes extends RocketComponentShape {
+public class ParachuteShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return Parachute.class;
+	}
 
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		final MassObject massObj = (MassObject)component;
 		
 		final double length = massObj.getLength();
@@ -31,11 +37,12 @@ public class ParachuteShapes extends RocketComponentShape {
 		
 		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x, renderPosition.y - radius, length, 2*radius, arc, arc)};
 		
-		return RocketComponentShape.toArray( addSymbol(s), component);
+		return RocketComponentShapes.toArray( addSymbol(s), component);
 	}
-	
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		final MassObject massObj = (MassObject)component;
 		
 		final double radius = massObj.getRadius(); // radius of the object, itself
@@ -50,7 +57,7 @@ public class ParachuteShapes extends RocketComponentShape {
 		
 		final Shape[] s = {new Ellipse2D.Double(renderPosition.z - radius, renderPosition.y - radius, diameter, diameter)};
 		
-		return RocketComponentShape.toArray( s, component);
+		return RocketComponentShapes.toArray( s, component);
 	}
 	
 	private static Shape[] addSymbol(Shape[] baseShape){

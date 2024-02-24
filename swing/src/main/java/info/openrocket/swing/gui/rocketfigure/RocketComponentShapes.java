@@ -13,55 +13,54 @@ import info.openrocket.core.util.Transformation;
 /**
  * A catch-all, no-operation drawing component.
  */
-public class RocketComponentShape {
+public class RocketComponentShapes implements RocketComponentShapeService {
 
 	final public boolean hasShape;
 	final public Shape shape;
 	public ORColor color;
 	final public LineStyle lineStyle;
 	final public RocketComponent component;
-	
-	//fillColor);
-	//borderColor);
 
-	protected RocketComponentShape(){
+	public RocketComponentShapes() {
 		this.hasShape = false;
 		this.shape = null;
 		this.color = null;
 		this.lineStyle = null;
-		this.component=null;
+		this.component = null;
 	}
 	
-	public RocketComponentShape( final Shape _shape, final RocketComponent _comp){
+	public RocketComponentShapes(final Shape _shape, final RocketComponent _comp){
 		this.shape = _shape;
 		this.color = _comp.getColor();
 		this.lineStyle = _comp.getLineStyle();
 		this.component = _comp;
-		
-		if( null == _shape ){
-			this.hasShape = false;
-		}else{
-			this.hasShape = true;
-		}
+
+		this.hasShape = _shape != null;
 	}
 	
 	public RocketComponent getComponent(){
 		return this.component;
 	}
 
-	
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return RocketComponent.class;
+	}
+
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		// no-op
 		Application.getExceptionHandler().handleErrorCondition("ERROR:  RocketComponent.getShapesSide called with "
 				+ component);
-		return new RocketComponentShape[0];
+		return new RocketComponentShapes[0];
 	}
-	
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		// no-op
 		Application.getExceptionHandler().handleErrorCondition("ERROR:  RocketComponent.getShapesBack called with "
 				+component);
-		return new RocketComponentShape[0];
+		return new RocketComponentShapes[0];
 	}
 
 	public ORColor getColor() {
@@ -72,11 +71,11 @@ public class RocketComponentShape {
 		this.color = color;
 	}
 
-	public static RocketComponentShape[] toArray(final Shape[] shapeArray, final RocketComponent rc){
-		RocketComponentShape[] toReturn = new RocketComponentShape[ shapeArray.length];
-		for ( int curShapeIndex=0;curShapeIndex<shapeArray.length; curShapeIndex++){
-			Shape curShape = shapeArray[curShapeIndex ];
-			toReturn[curShapeIndex] = new RocketComponentShape( curShape, rc);
+	public static RocketComponentShapes[] toArray(final Shape[] shapeArray, final RocketComponent rc) {
+		RocketComponentShapes[] toReturn = new RocketComponentShapes[ shapeArray.length];
+		for (int curShapeIndex = 0; curShapeIndex < shapeArray.length; curShapeIndex++) {
+			Shape curShape = shapeArray[curShapeIndex];
+			toReturn[curShapeIndex] = new RocketComponentShapes(curShape, rc);
 		}
 		return toReturn;
 	}

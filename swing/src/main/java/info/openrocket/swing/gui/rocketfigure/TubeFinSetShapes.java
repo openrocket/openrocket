@@ -16,7 +16,11 @@ import info.openrocket.core.util.Transformation;
  * and transformed to the correct locations for rendering the rocket in the
  * 2D view space.
  */
-public class TubeFinSetShapes extends RocketComponentShape {
+public class TubeFinSetShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return TubeFinSet.class;
+	}
 	
 	/**
 	 * Returns an array of RocketcomponentShapes that describe the shape of
@@ -27,7 +31,8 @@ public class TubeFinSetShapes extends RocketComponentShape {
 	 * @param transformation the transformation to apply to the shapes
 	 * @return an array of RocketComponentShapes that are used to draw the TubeFinSet from the side.
 	 */
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		final TubeFinSet finSet = (TubeFinSet) component;
 		final double outerRadius = finSet.getOuterRadius();
 		final double length = finSet.getLength();
@@ -37,7 +42,7 @@ public class TubeFinSetShapes extends RocketComponentShape {
 				new Rectangle2D.Double(location.x, (location.y-outerRadius), length, 2*outerRadius)
 			};
 		
-		return RocketComponentShape.toArray(shapes, component);
+		return RocketComponentShapes.toArray(shapes, component);
 	}
 
 	/**
@@ -50,7 +55,8 @@ public class TubeFinSetShapes extends RocketComponentShape {
 	 * @return an array of RocketComponentShapes that are used to draw the
 	 *         TubeFinSet from the back
 	 */
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		final TubeFinSet finSet = (TubeFinSet) component;
 		final double outerRadius = finSet.getOuterRadius();
 		final Coordinate location = transformation.transform(new Coordinate(0, outerRadius, 0));
@@ -59,6 +65,6 @@ public class TubeFinSetShapes extends RocketComponentShape {
 				new Ellipse2D.Double((location.z - outerRadius), (location.y - outerRadius), (2 * outerRadius), (2 * outerRadius))
 			};
 		
-		return RocketComponentShape.toArray(shapes, component);
+		return RocketComponentShapes.toArray(shapes, component);
 	}
 }

@@ -4,11 +4,16 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Tube;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 
 
-public class TubeShapes extends RocketComponentShape {
+public class TubeShapes extends RocketComponentShapes {
+	public Class<? extends RocketComponent> getShapeClass() {
+		return Tube.class;
+	}
 	
 
 	public static Shape getShapesSide( final Transformation transformation, final double length, final double radius ){

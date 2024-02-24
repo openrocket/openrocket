@@ -4,12 +4,22 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.JarUtil;
@@ -70,7 +80,7 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 			return name.matches(PATTERN);
 		}
 	};
-	
+
 	private static ExampleDesignFile[] getDirFileNames() {
 		
 		// Try to find directory as a system resource
@@ -78,12 +88,34 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 		URL url = ClassLoader.getSystemResource(DIRECTORY);
 		
 		logger.debug("Loading example from {} ", url);
+		if (url.getProtocol().equals("jar")) {
+			List<ExampleDesignFile> designFiles = new ArrayList<>();
+			try {
+				// Loaded from inside a JAR
+				String jarPath = url.getPath().substring(5, url.getPath().indexOf("!"));
+				JarFile jar = new JarFile(jarPath);
+				Enumeration<JarEntry> entries = jar.entries();
+				while (entries.hasMoreElements()) {
+					JarEntry entry = entries.nextElement();
+					String name = entry.getName();
+					if (name.startsWith(DIRECTORY) && name.endsWith(".ork")) {
+						URL entryUrl = new URL("jar:file:" + jarPath + "!/" + name);
+						designFiles.add(new ExampleDesignFile(entryUrl, name.substring(name.lastIndexOf('/') + 1, name.length() - 4)));
+					}
+				}
+				jar.close();
+				return designFiles.toArray(new ExampleDesignFile[0]);
+			} catch (IOException e) {
+				logger.error("IOException when processing jarFile", e);
+				return null;
+			}
+		}
+
 		try {
 			dir = JarUtil.urlToFile(url);
 		} catch (Exception e1) {
 			dir = new File(DIRECTORY);
 		}
-		
 		logger.debug("Directory to search is: {}", dir);
 		// Get the list of files
 		File[] files = dir.listFiles(FILTER);

@@ -11,9 +11,14 @@ import info.openrocket.core.util.Transformation;
 
 import java.awt.Shape;
 
-public class ComponentAssemblyShapes extends RocketComponentShape {
+public class ComponentAssemblyShapes extends RocketComponentShapes {
+    @Override
+    public Class<? extends RocketComponent> getShapeClass() {
+        return ComponentAssembly.class;
+    }
 
-    public static RocketComponentShape[] getShapesSide(final RocketComponent component, final Transformation transformation) {
+    @Override
+    public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
         // Ignore normal stages
         if (component instanceof AxialStage && !(component instanceof ParallelStage)) {
             return null;
@@ -37,14 +42,15 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
 
         double markerRadius = getDisplayRadius(component);
         Shape[] s = EmptyShapes.getShapesSideWithSelectionSquare(correctedTransform, markerRadius);
-        RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
+        RocketComponentShapes[] shapes = RocketComponentShapes.toArray(s, component);
 
         shapes[shapes.length - 1].setColor(ORColor.INVISIBLE);
 
         return shapes;
     }
 
-    public static RocketComponentShape[] getShapesBack(final RocketComponent component, final Transformation transformation) {
+    @Override
+    public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
         // Ignore normal stages
         if (component instanceof AxialStage && !(component instanceof ParallelStage)) {
             return null;
@@ -61,7 +67,7 @@ public class ComponentAssemblyShapes extends RocketComponentShape {
 
         double markerRadius = getDisplayRadius(component);
         Shape[] s = EmptyShapes.getShapesBackWithSelectionSquare(correctedTransform, markerRadius);
-        RocketComponentShape[] shapes = RocketComponentShape.toArray(s, component);
+        RocketComponentShapes[] shapes = RocketComponentShapes.toArray(s, component);
 
         shapes[shapes.length - 1].setColor(ORColor.INVISIBLE);
 

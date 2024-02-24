@@ -13,7 +13,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class EmptyShapes extends RocketComponentShape {
+public class EmptyShapes extends RocketComponentShapes {
     /**
      * Returns the empty shape in the side view.
      * @param radius radius of the center square

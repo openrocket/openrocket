@@ -1,10 +1,12 @@
 package info.openrocket.swing.startup;
 
+import com.google.inject.multibindings.Multibinder;
 import info.openrocket.core.database.ComponentPresetDao;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
+import info.openrocket.core.formatting.RocketSubstitutor;
 import info.openrocket.core.l10n.Translator;
 
 import info.openrocket.core.startup.Preferences;
@@ -51,6 +53,9 @@ public class GuiModule extends AbstractModule {
 		bind(Translator.class).toProvider(TranslatorProvider.class).in(Scopes.SINGLETON);
 		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class).in(Scopes.SINGLETON);
 		bind(WatchService.class).to(WatchServiceImpl.class).in(Scopes.SINGLETON);
+
+		// Setup for Set<RocketSubstitutor>
+		Multibinder.newSetBinder(binder(), RocketSubstitutor.class);
 		
 		BlockingComponentPresetDatabaseProvider componentDatabaseProvider = new BlockingComponentPresetDatabaseProvider(presetLoader);
 		bind(ComponentPresetDao.class).toProvider(componentDatabaseProvider).in(Scopes.SINGLETON);

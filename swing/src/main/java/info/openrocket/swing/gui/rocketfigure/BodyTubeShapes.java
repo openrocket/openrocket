@@ -6,11 +6,14 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Transformation;
 
-public class BodyTubeShapes extends RocketComponentShape {
-	
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+public class BodyTubeShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return BodyTube.class;
+	}
 
-	    
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		BodyTube tube = (BodyTube)component;
 		
 		double length = tube.getLength();
@@ -19,11 +22,11 @@ public class BodyTubeShapes extends RocketComponentShape {
 		Shape[] s = new Shape[1];
         s[0] = TubeShapes.getShapesSide( transformation, length, radius );
 
-        return RocketComponentShape.toArray(s, component);
+        return RocketComponentShapes.toArray(s, component);
 	}
-	
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
 
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 	    BodyTube tube = (BodyTube)component;
 	    
 	    double radius = tube.getOuterRadius();
@@ -31,7 +34,7 @@ public class BodyTubeShapes extends RocketComponentShape {
         Shape[] s = new Shape[1];
         s[0] = TubeShapes.getShapesBack( transformation, radius);
 		
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShapes.toArray(s, component);
 	}
 	
 	

@@ -1,10 +1,9 @@
 package info.openrocket.swing.gui.print;
 
 import info.openrocket.swing.gui.print.visitor.PageFitPrintStrategy;
-import info.openrocket.swing.gui.rocketfigure.RocketComponentShape;
+import info.openrocket.swing.gui.rocketfigure.RocketComponentShapes;
 import info.openrocket.swing.gui.rocketfigure.TransitionShapes;
 import info.openrocket.core.rocketcomponent.NoseCone;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 
 import java.awt.Graphics2D;
@@ -58,13 +57,13 @@ public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
      */
     @Override
     protected void draw(Graphics2D g2) {
-        RocketComponentShape[] compShapes = TransitionShapes.getShapesSide(target, Transformation.IDENTITY, PrintUnit.METERS.toPoints(1));
+        RocketComponentShapes[] compShapes = TransitionShapes.getShapesSide(target, Transformation.IDENTITY, PrintUnit.METERS.toPoints(1));
 
         if (compShapes != null && compShapes.length > 0) {
             Rectangle r = compShapes[0].shape.getBounds();
             g2.translate(r.getHeight() / 2, 0);
             g2.rotate(Math.PI / 2);
-            for (RocketComponentShape shape : compShapes) {
+            for (RocketComponentShapes shape : compShapes) {
                 g2.draw(shape.shape);
             }
             g2.rotate(-Math.PI / 2);

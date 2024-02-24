@@ -1,7 +1,5 @@
 package info.openrocket.swing.gui.rocketfigure;
 
-import info.openrocket.core.rocketcomponent.MassComponent;
-import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.ShockCord;
 import info.openrocket.core.util.Coordinate;
@@ -13,9 +11,14 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-public class ShockCordShapes extends RocketComponentShape {
+public class ShockCordShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return ShockCord.class;
+	}
 
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		final ShockCord massObj = (ShockCord)component;
 		
 		double length = massObj.getLength();
@@ -32,11 +35,12 @@ public class ShockCordShapes extends RocketComponentShape {
 		s[0] = new RoundRectangle2D.Double(renderPosition.x,(renderPosition.y-radius),
 					length,2*radius,arc,arc);
 		
-		return RocketComponentShape.toArray(addSymbol(s), component);
+		return RocketComponentShapes.toArray(addSymbol(s), component);
 	}
-	
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		final ShockCord massObj = (ShockCord)component;
 		
 		double or = massObj.getRadius();
@@ -58,7 +62,7 @@ public class ShockCordShapes extends RocketComponentShape {
 //		for (int i=0; i < start.length; i++) {
 //			s[i] = new Ellipse2D.Double((start[i].z-or),(start[i].y-or),2*or,2*or);
 //		}
-		return RocketComponentShape.toArray( s, component);
+		return RocketComponentShapes.toArray( s, component);
 	}
 	
 	private static Shape[] addSymbol(Shape[] baseShape){

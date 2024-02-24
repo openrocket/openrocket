@@ -16,9 +16,14 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
 
-public class MassComponentShapes extends RocketComponentShape {
-	
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+public class MassComponentShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return MassComponent.class;
+	}
+
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 		final MassComponent massObj = (MassComponent)component;
 		
 		final double length = massObj.getLength();
@@ -61,11 +66,12 @@ public class MassComponentShapes extends RocketComponentShape {
 		case MASSCOMPONENT:
 		}
 		
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShapes.toArray(s, component);
 	}
-	
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		final MassObject massObj = (MassObject)component;
 		
 		final double radius = massObj.getRadius(); // radius of the object, itself
@@ -80,7 +86,7 @@ public class MassComponentShapes extends RocketComponentShape {
 		
 		final Shape[] s = {new Ellipse2D.Double(renderPosition.z - radius, renderPosition.y - radius, diameter, diameter)};
 		
-		return RocketComponentShape.toArray(s, component);
+		return RocketComponentShapes.toArray(s, component);
 	}
 	
 	private static Shape[] addAltimeterSymbol(Shape[] baseShape){

@@ -1,5 +1,6 @@
 module openrocket.core {
 	uses javax.script.ScriptEngineFactory;
+	uses info.openrocket.core.optimization.services.OptimizableParameterService;
 	requires com.google.guice;
 	requires java.desktop;
 	requires java.scripting;
@@ -83,4 +84,6 @@ module openrocket.core {
 	exports info.openrocket.core.util;
 	exports info.openrocket.core.util.enums;
 	exports info.openrocket.core.utils;
+
+	opens info.openrocket.core.formatting to com.google.guice;
 }

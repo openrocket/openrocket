@@ -8,9 +8,14 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Transformation;
 
 
-public class RingComponentShapes extends RocketComponentShape {
+public class RingComponentShapes extends RocketComponentShapes {
+	@Override
+	public Class<? extends RocketComponent> getShapeClass() {
+		return RingComponent.class;
+	}
 
-	public static RocketComponentShape[] getShapesSide( final RocketComponent component, final Transformation transformation) {
+	@Override
+	public RocketComponentShapes[] getShapesSide(final RocketComponent component, final Transformation transformation) {
 
 
 		RingComponent tube = (RingComponent) component;
@@ -32,11 +37,12 @@ public class RingComponentShapes extends RocketComponentShape {
 			        TubeShapes.getShapesSide(transformation, length, outerRadius)
 		    };                  
 		}
-		return RocketComponentShape.toArray( s, component);
+		return RocketComponentShapes.toArray( s, component);
 	}
-	
 
-	public static RocketComponentShape[] getShapesBack( final RocketComponent component, final Transformation transformation) {
+
+	@Override
+	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		RingComponent tube = (RingComponent) component;
 		Shape[] s;
 		
@@ -54,7 +60,7 @@ public class RingComponentShapes extends RocketComponentShape {
             };
         }
 		
-		return RocketComponentShape.toArray( s, component);
+		return RocketComponentShapes.toArray( s, component);
 	}
 	
 }
