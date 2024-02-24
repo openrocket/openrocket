@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.SimulationAbort;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.InstanceMap;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -55,7 +56,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		final double mass = rocketMass + motorMass;
 
 		if (mass < MathUtil.EPSILON) {
-			throw new SimulationException(trans.get("SimulationStepper.error.totalMassZero"));
+			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
 		
 		// Compute drag acceleration
