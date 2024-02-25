@@ -91,11 +91,13 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		log.trace("timeStep is " + timeStep);
 		
 		// Perform Euler integration
+		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, timeStep);
+		/*
 		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
-			add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
+		add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));*/
 
 		// If I've hit the ground, recalculate time step and position
-		if (newPosition.z < 0) {
+		if (newVals.pos.z < 0) {
 
 			final double a = linearAcceleration.z;
 			final double v = status.getRocketVelocity().z;
@@ -105,19 +107,18 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// 1/2 at^2 + vt + z0 = 0
 			timeStep = (-v - Math.sqrt(v*v - 2*a*z0))/a;
 			log.trace("ground hit changes timeStep to " + timeStep);
-			
-			newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
-				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));
+
+			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, timeStep);
 
 			// avoid rounding error in new altitude
-			newPosition = newPosition.setZ(0);
+			newVals.pos = newVals.pos.setZ(0);
 		}
 
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
 		status.setPreviousTimeStep(timeStep);
 
-		status.setRocketPosition(newPosition);
-		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
+		status.setRocketPosition(newVals.pos);
+		status.setRocketVelocity(newVals.vel);
 		status.setRocketAcceleration(linearAcceleration);
 
 		// Update the world coordinate
@@ -190,5 +191,20 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
 		log.trace("time " + data.getLast(FlightDataType.TYPE_TIME) + ", altitude " + data.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + data.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
-	
+
+	private static class EulerValues {
+		/** linear velocity */
+		public Coordinate vel;
+		/** position */
+		public Coordinate pos;
+	}
+
+	private EulerValues eulerIntegrate (Coordinate pos, Coordinate v, Coordinate a, double timeStep) {
+		EulerValues result = new EulerValues();
+
+		result.vel = v.add(a.multiply(timeStep));
+		result.pos = pos.add(v.multiply(timeStep)).add(a.multiply(MathUtil.pow2(timeStep) / 2.0));
+
+		return result;
+	}
 }
