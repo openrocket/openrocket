@@ -1,7 +1,7 @@
 package info.openrocket.core.optimization.rocketoptimization.modifiers;
 
 import static info.openrocket.core.util.MathUtil.EPSILON;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.optimization.general.OptimizationException;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -11,7 +11,7 @@ import info.openrocket.core.util.BaseTestCase;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestGenericModifier extends BaseTestCase {
 

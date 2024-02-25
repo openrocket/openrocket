@@ -1,10 +1,10 @@
 package info.openrocket.core.aerodynamics;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import info.openrocket.core.logging.WarningSet;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,7 +28,7 @@ public class RailButtonCalcTest {
 
 	private static Injector injector;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() {
 		Module applicationModule = new ServicesForTesting();
 		Module pluginModule = new PluginModule();

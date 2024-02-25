@@ -6,7 +6,7 @@ package info.openrocket.core.file.rocksim.importt;
 import java.util.HashMap;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
@@ -31,7 +31,7 @@ public class RingHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
         Assert.assertEquals(PlainTextHandler.INSTANCE,
                 new RingHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
@@ -43,7 +43,7 @@ public class RingHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
@@ -233,7 +233,7 @@ public class RingHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testConstructor() throws Exception {
 
         try {
@@ -255,7 +255,7 @@ public class RingHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
         Assert.assertTrue(
                 new RingHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof CenteringRing);
@@ -266,7 +266,7 @@ public class RingHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
         Assert.assertEquals(Material.Type.BULK,
                 new RingHandler(null, new BodyTube(), new WarningSet()).getMaterialType());

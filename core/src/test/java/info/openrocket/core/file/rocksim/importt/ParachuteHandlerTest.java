@@ -26,7 +26,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
         Assert.assertEquals(PlainTextHandler.INSTANCE,
                 new ParachuteHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
@@ -38,7 +38,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
@@ -90,7 +90,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testConstructor() throws Exception {
 
         try {
@@ -111,7 +111,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testSetAxialMethod() throws Exception {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
@@ -125,7 +125,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
         Assert.assertTrue(
                 new ParachuteHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
@@ -136,7 +136,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
         Assert.assertEquals(Material.Type.SURFACE,
                 new ParachuteHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
@@ -147,7 +147,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testEndHandler() throws Exception {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());

@@ -3,16 +3,16 @@
  */
 package info.openrocket.core.file.rocksim.importt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -41,7 +41,7 @@ public class FinSetHandlerTest {
 
     final static double EPSILON = MathUtil.EPSILON;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         Module applicationModule = new ServicesForTesting();
 
@@ -140,7 +140,7 @@ public class FinSetHandlerTest {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testToCoordinates() throws Exception {
         FinSetHandler holder = new FinSetHandler(null, new BodyTube());
         Method method = FinSetHandler.class.getDeclaredMethod("toCoordinates", String.class, WarningSet.class);

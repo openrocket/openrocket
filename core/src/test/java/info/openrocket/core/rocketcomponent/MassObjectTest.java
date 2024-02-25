@@ -2,7 +2,7 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.Assert;
 
 public class MassObjectTest extends BaseTestCase {

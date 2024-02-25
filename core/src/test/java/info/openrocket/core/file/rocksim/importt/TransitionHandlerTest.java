@@ -25,7 +25,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testConstructor() throws Exception {
 
         try {
@@ -47,7 +47,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
         Assert.assertEquals(PlainTextHandler.INSTANCE,
                 new TransitionHandler(null, new AxialStage(), new WarningSet()).openElement(null, null, null));
@@ -59,7 +59,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testCloseElement() throws Exception {
 
         AxialStage stage = new AxialStage();
@@ -224,7 +224,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
         Assert.assertTrue(
                 new TransitionHandler(null, new AxialStage(), new WarningSet()).getComponent() instanceof Transition);
@@ -235,7 +235,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
         Assert.assertEquals(Material.Type.BULK,
                 new TransitionHandler(null, new AxialStage(), new WarningSet()).getMaterialType());

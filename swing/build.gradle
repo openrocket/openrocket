@@ -7,10 +7,11 @@ plugins {
 }
 
 java {
-    modularity.inferModulePath = true
+    // Must be disabled in order to use the gradle-modules-plugin
+    modularity.inferModulePath = false
 }
 
-group 'info.openrocket.swing'
+jar { from('resources') { include 'META-INF/services/*.*' } }
 
 Properties props = new Properties()
 try {
@@ -75,7 +76,7 @@ dependencies {
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation group: 'org.commonmark', name: 'commonmark', version: '0.19.0' // 0.21.0
-    implementation group: 'com.google.inject', name: 'guice', version: '5.1.0'
+    implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
     implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.3'
     implementation group: 'org.jfree', name: 'jcommon', version: '1.0.24'
     implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.4'
@@ -104,15 +105,9 @@ dependencies {
 
 // TODO: Including output from coreotherwise NoClassDefFound issue with BaseTestCase
 // The Cross Project Publications should work, but not seeming too.
-    //testImplementation project(':core').sourceSets.test.output
-    //testImplementation project (path: ':core', configuration: 'testArtifacts')
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1' // 5.9.2
-    testImplementation group: 'org.jmock', name: 'jmock', version: '2.9.0' // 2.12.0
-    testImplementation group: 'org.jmock', name: 'jmock-junit4', version: '2.9.0' // 2.12.0
+    testImplementation project(':core').sourceSets.test.output
+    testImplementation project (path: ':core', configuration: 'testArtifacts')
     testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-    testImplementation 'junit:junit:4.12' // 4.3.1 org.junit.jupiter
-//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
 
 def externalComponentsPath = './src/main/resources/datafiles/components'

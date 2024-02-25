@@ -1,6 +1,6 @@
 package info.openrocket.core.masscalc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.util.MathUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.simulation.MotorClusterState;

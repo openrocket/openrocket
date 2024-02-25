@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.print;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
 * PrintUnit Tester.

@@ -4,7 +4,7 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.util.BaseTestCase;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestExpressions extends BaseTestCase {
 

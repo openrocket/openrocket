@@ -15,17 +15,17 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.MockPreferences;
 import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.MathUtil;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimulationConditionsTest {
     private final static double EPSILON = MathUtil.EPSILON;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         Module applicationModule = new PreferencesModule();
         Module debugTranslator = new AbstractModule() {

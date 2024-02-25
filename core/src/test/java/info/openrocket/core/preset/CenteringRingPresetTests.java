@@ -1,10 +1,10 @@
 package info.openrocket.core.preset;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.motor.Manufacturer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test construction of CENTERING_RING type ComponentPresets based on

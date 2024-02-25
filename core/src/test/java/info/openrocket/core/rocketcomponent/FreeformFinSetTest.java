@@ -1,17 +1,15 @@
 package info.openrocket.core.rocketcomponent;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.awt.geom.Point2D;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
@@ -1290,8 +1288,8 @@ public class FreeformFinSetTest extends BaseTestCase {
 		// this *already* has detected the intersection, and aborted...
 		Coordinate p1 = fins.getFinPoints()[1];
 		// ... which makes a rather hard-to-test functionality...
-		assertThat("Fin Set failed to detect an intersection! ", p1.x, not(equalTo(initPoints[1].x)));
-		assertThat("Fin Set failed to detect an intersection! ", p1.y, not(equalTo(initPoints[1].y)));
+		assertNotEquals("Fin Set failed to detect an intersection! ", p1.x, initPoints[1].x);
+		assertNotEquals("Fin Set failed to detect an intersection! ", p1.y, initPoints[1].y);
 	}
 
 	@Test

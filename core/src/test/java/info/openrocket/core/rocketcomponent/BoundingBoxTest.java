@@ -3,13 +3,11 @@ package info.openrocket.core.rocketcomponent;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.util.BaseTestCase;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BoundingBoxTest extends BaseTestCase {
 	final double EPSILON = MathUtil.EPSILON;

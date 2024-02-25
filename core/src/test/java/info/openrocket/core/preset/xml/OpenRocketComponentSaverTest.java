@@ -2,7 +2,7 @@ package info.openrocket.core.preset.xml;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * OpenRocketComponentSaver Tester.

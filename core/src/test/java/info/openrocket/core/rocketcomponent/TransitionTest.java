@@ -1,10 +1,8 @@
 package info.openrocket.core.rocketcomponent;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
@@ -19,7 +17,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("nose cone length is wrong ", 0.06, nose.getLength(), EPSILON);
 		assertEquals("nose cone fore radius is wrong ", 0.00, nose.getForeRadius(), EPSILON);
 		assertEquals("nose cone aft radius is wrong ", 0.01, nose.getAftRadius(), EPSILON);
-		assertThat("nose cone shape type is wrong ", Transition.Shape.CONICAL, equalTo(nose.getShapeType()));
+		assertEquals("nose cone shape type is wrong ", Transition.Shape.CONICAL, nose.getShapeType());
 		assertEquals("nose cone shape parameter is wrong ", 0.0, nose.getShapeParameter(), EPSILON);
 
 		assertEquals("bad shape - conical forward ", 0.0, nose.getRadius(0.00), EPSILON);
@@ -41,7 +39,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("nose cone length is wrong ", 5.0, nose.getLength(), EPSILON);
 		assertEquals("nose cone fore radius is wrong ", 0.5, nose.getForeRadius(), EPSILON);
 		assertEquals("nose cone aft radius is wrong ", 1.0, nose.getAftRadius(), EPSILON);
-		assertThat("nose cone shape type is wrong ", Transition.Shape.CONICAL, equalTo(nose.getShapeType()));
+		assertEquals("nose cone shape type is wrong ", Transition.Shape.CONICAL, nose.getShapeType());
 		assertEquals("nose cone shape parameter is wrong ", 0.0, nose.getShapeParameter(), EPSILON);
 
 		assertEquals("bad shape - conical forward transition", 0.5, nose.getRadius(0.0), EPSILON);
@@ -64,7 +62,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("nose cone length is wrong ", 5.0, tail.getLength(), EPSILON);
 		assertEquals("nose cone fore radius is wrong ", 1.0, tail.getForeRadius(), EPSILON);
 		assertEquals("nose cone aft radius is wrong ", 0.5, tail.getAftRadius(), EPSILON);
-		assertThat("nose cone shape type is wrong ", Transition.Shape.CONICAL, equalTo(tail.getShapeType()));
+		assertEquals("nose cone shape type is wrong ", Transition.Shape.CONICAL, tail.getShapeType());
 		assertEquals("nose cone shape parameter is wrong ", 0.0, tail.getShapeParameter(), EPSILON);
 
 		assertEquals("bad shape - conical forward transition", 1.0, tail.getRadius(0.0), EPSILON);
@@ -86,7 +84,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("nose cone length is wrong ", 8.0, nose.getLength(), EPSILON);
 		assertEquals("nose cone fore radius is wrong ", 0.0, nose.getForeRadius(), EPSILON);
 		assertEquals("nose cone aft radius is wrong ", 1.0, nose.getAftRadius(), EPSILON);
-		assertThat("nose cone shape type is wrong ", Transition.Shape.OGIVE, equalTo(nose.getShapeType()));
+		assertEquals("nose cone shape type is wrong ", Transition.Shape.OGIVE, nose.getShapeType());
 		assertEquals("nose cone shape parameter is wrong ", 1.0, nose.getShapeParameter(), EPSILON);
 
 		assertEquals("bad shape - conical forward transition", 0.0, nose.getRadius(0.0), EPSILON);
@@ -111,7 +109,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("nose cone length is wrong ", 6.0, transition.getLength(), EPSILON);
 		assertEquals("nose cone fore radius is wrong ", 0.44135, transition.getForeRadius(), EPSILON);
 		assertEquals("nose cone aft radius is wrong ", 1.0, transition.getAftRadius(), EPSILON);
-		assertThat("nose cone shape type is wrong ", Transition.Shape.OGIVE, equalTo(transition.getShapeType()));
+		assertEquals("nose cone shape type is wrong ", Transition.Shape.OGIVE, transition.getShapeType());
 		assertEquals("nose cone shape parameter is wrong ", 1.0, transition.getShapeParameter(), EPSILON);
 
 		assertEquals("bad shape - conical forward transition", 0.44135250736, transition.getRadius(0.0), EPSILON);
@@ -134,7 +132,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("nose cone length is wrong ", 6.0, transition.getLength(), EPSILON);
 		assertEquals("nose cone fore radius is wrong ", 1.0, transition.getForeRadius(), EPSILON);
 		assertEquals("nose cone aft radius is wrong ", 0.44135, transition.getAftRadius(), EPSILON);
-		assertThat("nose cone shape type is wrong ", Transition.Shape.OGIVE, equalTo(transition.getShapeType()));
+		assertEquals("nose cone shape type is wrong ", Transition.Shape.OGIVE, transition.getShapeType());
 		assertEquals("nose cone shape parameter is wrong ", 1.0, transition.getShapeParameter(), EPSILON);
 
 		assertEquals("bad shape - conical forward transition", 1.0, transition.getRadius(0.0), EPSILON);
@@ -154,7 +152,7 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals("Alpha3 nose cone length is wrong ", 0.07, nose.getLength(), EPSILON);
 		assertEquals("Alpha3 nose cone fore radius is wrong ", 0.00, nose.getForeRadius(), EPSILON);
 		assertEquals("Alpha3 nose cone aft radius is wrong ", 0.012, nose.getAftRadius(), EPSILON);
-		assertThat("Alpha3 nose cone shape type is wrong ", Transition.Shape.OGIVE, equalTo(nose.getShapeType()));
+		assertEquals("Alpha3 nose cone shape type is wrong ", Transition.Shape.OGIVE, nose.getShapeType());
 		assertEquals("Alpha3 nose cone shape parameter is wrong ", 1.0, nose.getShapeParameter(), EPSILON);
 
 		assertEquals("Alpha3 nose cone aft shoulder length is wrong ", 0.02, nose.getAftShoulderLength(), EPSILON);

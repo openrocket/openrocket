@@ -2,7 +2,7 @@ package info.openrocket.core.plugin;
 
 import info.openrocket.core.ServicesForTesting;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

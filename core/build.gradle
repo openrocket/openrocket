@@ -7,10 +7,9 @@ plugins {
 }
 
 java {
-    modularity.inferModulePath = true
+    // Must be disabled in order to use the gradle-modules-plugin
+    modularity.inferModulePath = false
 }
-
-group 'info.openrocket.core'
 
 Properties props = new Properties()
 try {
@@ -43,13 +42,14 @@ dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
     //implementation group: 'org.slf4j', name: 'logback-classic', version: '2.0.12'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1' // 3.12.0
-    implementation group: 'com.google.inject', name: 'guice', version: '5.1.0'
+    implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
     implementation group: 'com.opencsv', name: 'opencsv', version: '5.7.1'
     implementation group: 'eu.infomas', name: 'annotation-detector', version: '3.0.5'
-    implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '22.1.0.1' // 22.3.1
-    implementation group: 'org.graalvm.js', name: 'js-scriptengine', version: '22.1.0.1' // 22.3.1
+    implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '23.0.3'
+    implementation group: 'org.graalvm.js', name: 'js-scriptengine', version: '23.0.3'
+    implementation group: 'org.graalvm.js', name: 'js', version: '23.0.3'
     //implementation group: 'javax.script', name: 'script-api', version: '1.0-osgi'
-    implementation group: 'org.graalvm.truffle', name: 'truffle-api', version: '22.1.0.1' // 22.3.1
+    implementation group: 'org.graalvm.truffle', name: 'truffle-api', version: '23.0.3'
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.1' // 72.1
     implementation group: 'com.sun.istack', name: 'istack-commons-tools', version: '4.1.1' // TODO: Should be gotten rid of?
     implementation group: 'com.sun.istack', name: 'istack-commons-runtime', version: '4.1.1' // TODO: Should be gotten rid of?
@@ -62,13 +62,6 @@ dependencies {
     implementation 'org.eclipse:yasson:1.0.2' // 2.0.1
     implementation group: 'javax.activation', name: 'javax.activation-api', version: '1.2.0'
     implementation group: 'jakarta.activation', name: 'jakarta.activation-api', version: '2.1.2'
-
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1' // 5.9.2
-    testImplementation group: 'org.jmock', name: 'jmock', version: '2.9.0' // 2.12.0
-    testImplementation group: 'org.jmock', name: 'jmock-junit4', version: '2.9.0' // 2.12.0
-    testImplementation 'junit:junit:4.12' // 4.3.1 org.junit.jupiter
-//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
 
 def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'

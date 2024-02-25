@@ -1,12 +1,12 @@
 package info.openrocket.core.preset;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.BaseTestCase;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test construction of NOSE_CONE type ComponentPresets based on

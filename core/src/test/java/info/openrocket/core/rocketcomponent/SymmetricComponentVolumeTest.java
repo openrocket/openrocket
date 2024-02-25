@@ -1,13 +1,13 @@
 package info.openrocket.core.rocketcomponent;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
 import static info.openrocket.core.util.MathUtil.pow2;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SymmetricComponentVolumeTest extends BaseTestCase {
 	final double EPSILON = MathUtil.EPSILON * 1000;

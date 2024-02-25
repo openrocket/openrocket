@@ -1,7 +1,7 @@
 package info.openrocket.core.util;
 
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.DoubleBuffer;
 

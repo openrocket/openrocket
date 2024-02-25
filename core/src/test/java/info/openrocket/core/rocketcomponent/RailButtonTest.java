@@ -2,10 +2,10 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import info.openrocket.core.util.BaseTestCase;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RailButtonTest extends BaseTestCase {
     protected final double EPSILON = MathUtil.EPSILON;

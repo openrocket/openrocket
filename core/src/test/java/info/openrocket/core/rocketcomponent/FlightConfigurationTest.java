@@ -1,14 +1,13 @@
 package info.openrocket.core.rocketcomponent;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import info.openrocket.core.util.BoundingBox;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
@@ -48,20 +47,18 @@ public class FlightConfigurationTest extends BaseTestCase {
 		config.setAllStages();
 
 		// preconditions
-		assertThat("active stage count doesn't match", config.getActiveStageCount(), equalTo(2));
+		assertEquals(config.getActiveStageCount(), 2, "active stage count doesn't match");
 
 		final double expectedLength = 0.335;
 		final double calculatedLength = config.getLengthAerodynamic();
-		assertEquals("source config length doesn't match: ", expectedLength, calculatedLength, EPSILON);
+		assertEquals(expectedLength, calculatedLength, EPSILON, "source config length doesn't match: ");
 
 		double expectedReferenceLength = 0.024;
-		assertEquals("source config reference length doesn't match: ", expectedReferenceLength,
-				config.getReferenceLength(), EPSILON);
+		assertEquals(expectedReferenceLength, config.getReferenceLength(), EPSILON, "source config reference length doesn't match: ");
 
 		double expectedReferenceArea = Math.pow(expectedReferenceLength / 2, 2) * Math.PI;
 		double actualReferenceArea = config.getReferenceArea();
-		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea,
-				EPSILON);
+		assertEquals(expectedReferenceArea, actualReferenceArea, EPSILON, "source config reference area doesn't match: ");
 	}
 
 	@Test
@@ -73,19 +70,17 @@ public class FlightConfigurationTest extends BaseTestCase {
 		config1.setAllStages();
 		int expectedStageCount = 2;
 		int actualStageCount = config1.getActiveStageCount();
-		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		assertEquals(actualStageCount, expectedStageCount, "active stage count doesn't match");
 		int expectedMotorCount = 2;
 		int actualMotorCount = config1.getActiveMotors().size();
-		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match");
 		double expectedLength = 0.335;
-		assertEquals("source config length doesn't match: ", expectedLength, config1.getLengthAerodynamic(), EPSILON);
+		assertEquals(expectedLength, config1.getLengthAerodynamic(), EPSILON, "source config length doesn't match: ");
 		double expectedReferenceLength = 0.024;
-		assertEquals("source config reference length doesn't match: ", expectedReferenceLength,
-				config1.getReferenceLength(), EPSILON);
+		assertEquals(expectedReferenceLength, config1.getReferenceLength(), EPSILON, "source config reference length doesn't match: ");
 		double expectedReferenceArea = Math.pow(expectedReferenceLength / 2, 2) * Math.PI;
 		double actualReferenceArea = config1.getReferenceArea();
-		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, actualReferenceArea,
-				EPSILON);
+		assertEquals(expectedReferenceArea, actualReferenceArea, EPSILON, "source config reference area doesn't match: ");
 
 		// vvvv test target vvvv
 		FlightConfiguration config2 = config1.clone();
@@ -94,15 +89,13 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// postconditions
 		expectedStageCount = 2;
 		actualStageCount = config2.getActiveStageCount();
-		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		assertEquals(actualStageCount, expectedStageCount, "active stage count doesn't match");
 		expectedMotorCount = 2;
 		actualMotorCount = config2.getActiveMotors().size();
-		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
-		assertEquals("source config length doesn't match: ", expectedLength, config2.getLengthAerodynamic(), EPSILON);
-		assertEquals("source config reference length doesn't match: ", expectedReferenceLength,
-				config2.getReferenceLength(), EPSILON);
-		assertEquals("source config reference area doesn't match: ", expectedReferenceArea, config2.getReferenceArea(),
-				EPSILON);
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match");
+		assertEquals(expectedLength, config2.getLengthAerodynamic(), EPSILON, "source config length doesn't match: ");
+		assertEquals(expectedReferenceLength, config2.getReferenceLength(), EPSILON, "source config reference length doesn't match: ");
+		assertEquals(expectedReferenceArea, config2.getReferenceArea(), EPSILON, "source config reference area doesn't match: ");
 
 	}
 
@@ -130,18 +123,18 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// postcondition: config #1
 		expectedStageCount = 0;
 		actualStageCount = config1.getActiveStageCount();
-		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		assertEquals(actualStageCount, expectedStageCount, "active stage count doesn't match");
 		expectedMotorCount = 0;
 		actualMotorCount = config1.getActiveMotors().size();
-		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match");
 
 		// postcondition: config #2
 		expectedStageCount = 2;
 		actualStageCount = config2.getActiveStageCount();
-		assertThat("active stage count doesn't match", actualStageCount, equalTo(expectedStageCount));
+		assertEquals(actualStageCount, expectedStageCount, "active stage count doesn't match");
 		expectedMotorCount = 2;
 		actualMotorCount = config2.getActiveMotors().size();
-		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match");
 	}
 
 	/**
@@ -159,11 +152,11 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// test that getStageCount() returns correct value
 		int expectedStageCount = 1;
 		int stageCount = config.getStageCount();
-		assertTrue("stage count doesn't match", stageCount == expectedStageCount);
+		assertTrue(stageCount == expectedStageCount, "stage count doesn't match");
 
 		expectedStageCount = 1;
 		stageCount = config.getActiveStageCount();
-		assertThat("active stage count doesn't match", stageCount, equalTo(expectedStageCount));
+		assertEquals(stageCount, expectedStageCount, "active stage count doesn't match");
 
 		// test explicitly setting all stages up to first stage active
 		config.setOnlyStage(0);
@@ -182,10 +175,8 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// don't change the configuration:
 		FlightConfiguration defaultConfig = r1.getSelectedConfiguration();
 
-		assertThat("Empty configuration has motors! it should be empty!",
-				r1.getEmptyConfiguration().getActiveMotors().size(), equalTo(0));
-		assertThat("Default configuration is not the empty configuration. It should be!",
-				defaultConfig.getActiveMotors().size(), equalTo(0));
+		assertEquals(r1.getEmptyConfiguration().getActiveMotors().size(), 0, "Empty configuration has motors! it should be empty!");
+		assertEquals(defaultConfig.getActiveMotors().size(), 0, "Default configuration is not the empty configuration. It should be!");
 	}
 
 	@Test
@@ -197,15 +188,13 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// test that all configurations correctly loaded:
 		int expectedConfigCount = 5;
 		int actualConfigCount = rkt.getConfigurationCount();
-		assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount,
-				equalTo(expectedConfigCount));
+		assertEquals(actualConfigCount, expectedConfigCount, "number of loaded configuration counts doesn't actually match.");
 
 		// create with
 		rkt.createFlightConfiguration(null);
 		expectedConfigCount = 6;
 		actualConfigCount = rkt.getConfigurationCount();
-		assertThat("createFlightConfiguration with null: doesn't actually work.", actualConfigCount,
-				equalTo(expectedConfigCount));
+		assertEquals(actualConfigCount, expectedConfigCount, "createFlightConfiguration with null: doesn't actually work.");
 	}
 
 	@Test
@@ -217,7 +206,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		int expectedMotorCount = 5;
 		int actualMotorCount = smmt.getMotorConfigurationSet().size();
-		assertThat("number of motor configurations doesn't match.", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "number of motor configurations doesn't match.");
 
 	}
 
@@ -228,12 +217,10 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// test that all configurations correctly loaded:
 		int expectedConfigCount = 5;
 		int actualConfigCount = rkt.getConfigurationCount();
-		assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount,
-				equalTo(expectedConfigCount));
+		assertEquals(actualConfigCount, expectedConfigCount, "number of loaded configuration counts doesn't actually match.");
 
 		actualConfigCount = rkt.getIds().size();
-		assertThat("number of configuration array ids doesn't actually match.",
-				actualConfigCount, equalTo(expectedConfigCount));
+		assertEquals(actualConfigCount, expectedConfigCount, "number of configuration array ids doesn't actually match.");
 
 		// upon success, these silently complete.
 		// upon failure, they'll throw exceptions:
@@ -241,19 +228,20 @@ public class FlightConfigurationTest extends BaseTestCase {
 		rkt.getFlightConfigurationByIndex(5, true);
 	}
 
-	@Test(expected = java.lang.IndexOutOfBoundsException.class)
+	@Test
 	public void testGetFlightConfigurationOutOfBounds() {
 		Rocket rkt = TestRockets.makeEstesAlphaIII();
 
 		// test that all configurations correctly loaded:
 		int expectedConfigCount = 5;
 		int actualConfigCount = rkt.getConfigurationCount();
-		assertThat("number of loaded configuration counts doesn't actually match.", actualConfigCount,
-				equalTo(expectedConfigCount));
+		assertEquals(actualConfigCount, expectedConfigCount, "number of loaded configuration counts doesn't actually match.");
 
 		// this SHOULD throw an exception --
 		// it's out of bounds on, and no configuration exists at index 5.
-		rkt.getFlightConfigurationByIndex(5);
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			rkt.getFlightConfigurationByIndex(5);
+		});
 	}
 
 	/**
@@ -271,73 +259,73 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		expectedStageCount = 2;
 		stageCount = config.getStageCount();
-		assertThat("stage count doesn't match", stageCount, equalTo(expectedStageCount));
+		assertEquals(stageCount, expectedStageCount, "stage count doesn't match");
 
 		config.clearAllStages();
-		assertThat(" clear all stages: check #0: ", config.isStageActive(0), equalTo(false));
-		assertThat(" clear all stages: check #1: ", config.isStageActive(1), equalTo(false));
+		assertFalse(config.isStageActive(0), " clear all stages: check #0: ");
+		assertFalse(config.isStageActive(1), " clear all stages: check #1: ");
 
 		// test explicitly setting only first stage active
 		config.setOnlyStage(0);
 
 		expectedStageCount = 1;
 		stageCount = config.getActiveStageCount();
-		assertThat("active stage count doesn't match", stageCount, equalTo(expectedStageCount));
+		assertEquals(stageCount, expectedStageCount, "active stage count doesn't match");
 
-		assertThat(" setting single stage active: ", config.isStageActive(0), equalTo(true));
+		assertTrue(config.isStageActive(0), " setting single stage active: ");
 
 		// test explicitly setting all stages up to second stage active
 		config.setOnlyStage(1);
-		assertThat("Setting single stage active: ", config.isStageActive(0), equalTo(false));
-		assertThat("Setting single stage active: ", config.isStageActive(1), equalTo(true));
+		assertFalse(config.isStageActive(0), "Setting single stage active: ");
+		assertTrue(config.isStageActive(1), "Setting single stage active: ");
 
 		config.clearStage(0);
-		assertThat(" deactivate stage #0: ", config.isStageActive(0), equalTo(false));
-		assertThat("     active stage #1: ", config.isStageActive(1), equalTo(true));
+		assertFalse(config.isStageActive(0), " deactivate stage #0: ");
+		assertTrue(config.isStageActive(1), "     active stage #1: ");
 
 		// test explicitly setting all two stages active
 		config.setAllStages();
-		assertThat(" activate all stages: check stage #0: ", config.isStageActive(0), equalTo(true));
-		assertThat(" activate all stages: check stage #1: ", config.isStageActive(1), equalTo(true));
+		assertTrue(config.isStageActive(0), " activate all stages: check stage #0: ");
+		assertTrue(config.isStageActive(1), " activate all stages: check stage #1: ");
 
 		// test toggling single stage
 		config.setAllStages();
 		config.toggleStage(0);
-		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(false));
+		assertFalse(config.isStageActive(0), " toggle stage #0: ");
 
 		config.toggleStage(0);
-		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(true));
+		assertTrue(config.isStageActive(0), " toggle stage #0: ");
 
 		config.toggleStage(0);
-		assertThat(" toggle stage #0: ", config.isStageActive(0), equalTo(false));
+		assertFalse(config.isStageActive(0), " toggle stage #0: ");
 
 		AxialStage sustainer = rkt.getTopmostStage(config);
 		AxialStage booster = rkt.getBottomCoreStage(config);
-		assertThat(" sustainer stage is stage #1: ", sustainer.getStageNumber(), equalTo(1));
-		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(1));
+		assertEquals(sustainer.getStageNumber(), 1, " sustainer stage is stage #1: ");
+		assertEquals(booster.getStageNumber(), 1, " booster stage is stage #1: ");
 
 		config.setAllStages();
 		config._setStageActive(1, false);
 		sustainer = rkt.getTopmostStage(config);
 		booster = rkt.getBottomCoreStage(config);
-		assertThat(" sustainer stage is stage #1: ", sustainer.getStageNumber(), equalTo(0));
-		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(0));
+		assertEquals(sustainer.getStageNumber(), 0, " sustainer stage is stage #1: ");
+		assertEquals(booster.getStageNumber(), 0, " booster stage is stage #1: ");
 
 		config.setAllStages();
 		sustainer = rkt.getTopmostStage(config);
 		booster = rkt.getBottomCoreStage(config);
-		assertThat(" sustainer stage is stage #0: ", sustainer.getStageNumber(), equalTo(0));
-		assertThat(" booster stage is stage #1: ", booster.getStageNumber(), equalTo(1));
+		assertEquals(sustainer.getStageNumber(), 0, " sustainer stage is stage #0: ");
+		assertEquals(booster.getStageNumber(), 1, " booster stage is stage #1: ");
 
 		config.clearAllStages();
 		config.activateStagesThrough(sustainer);
-		assertThat(" sustainer stage is active: ", config.isStageActive(sustainer.getStageNumber()), equalTo(true));
-		assertThat(" booster stage is inactive: ", config.isStageActive(booster.getStageNumber()), equalTo(false));
+		assertTrue(config.isStageActive(sustainer.getStageNumber()), " sustainer stage is active: ");
+		assertFalse(config.isStageActive(booster.getStageNumber()), " booster stage is inactive: ");
 
 		config.clearAllStages();
 		config.activateStagesThrough(booster);
-		assertThat(" sustainer stage is active: ", config.isStageActive(sustainer.getStageNumber()), equalTo(true));
-		assertThat(" booster stage is active: ", config.isStageActive(booster.getStageNumber()), equalTo(true));
+		assertTrue(config.isStageActive(sustainer.getStageNumber()), " sustainer stage is active: ");
+		assertTrue(config.isStageActive(booster.getStageNumber()), " booster stage is active: ");
 
 	}
 
@@ -354,22 +342,22 @@ public class FlightConfigurationTest extends BaseTestCase {
 		config.clearAllStages();
 		int expectedMotorCount = 0;
 		int actualMotorCount = config.getActiveMotors().size();
-		assertThat("active motor count doesn't match", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match");
 
 		config.setOnlyStage(0);
 		expectedMotorCount = 1;
 		actualMotorCount = config.getActiveMotors().size();
-		assertThat("active motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match: ");
 
 		config.setOnlyStage(1);
 		expectedMotorCount = 1;
 		actualMotorCount = config.getActiveMotors().size();
-		assertThat("active motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match: ");
 
 		config.setAllStages();
 		expectedMotorCount = 2;
 		actualMotorCount = config.getActiveMotors().size();
-		assertThat("active motor count doesn't match: ", actualMotorCount, equalTo(expectedMotorCount));
+		assertEquals(actualMotorCount, expectedMotorCount, "active motor count doesn't match: ");
 	}
 
 	@Test
@@ -389,9 +377,9 @@ public class FlightConfigurationTest extends BaseTestCase {
 		{ // Core Stage
 			final List<InstanceContext> coreStageContextList = instances.getInstanceContexts(coreStage);
 			final InstanceContext coreStageContext = coreStageContextList.get(0);
-			assertThat((Class<AxialStage>) coreStageContext.component.getClass(), equalTo(AxialStage.class));
-			assertThat(coreStageContext.component.getID(), equalTo(rocket.getChild(1).getID()));
-			assertThat(coreStageContext.component.getInstanceCount(), equalTo(1));
+			assertEquals(coreStageContext.component.getClass(), AxialStage.class);
+			assertEquals(coreStageContext.component.getID(), rocket.getChild(1).getID());
+			assertEquals(coreStageContext.component.getInstanceCount(), 1);
 
 			final Coordinate coreLocation = coreStageContext.getLocation();
 			assertEquals(coreLocation.x, 0.564, EPSILON);
@@ -406,9 +394,9 @@ public class FlightConfigurationTest extends BaseTestCase {
 			final ParallelStage boosterStage = (ParallelStage) coreStage.getChild(0).getChild(0);
 			final List<InstanceContext> boosterStageContextList = instances.getInstanceContexts(boosterStage);
 			final InstanceContext boosterStage0Context = boosterStageContextList.get(0);
-			assertThat((Class<ParallelStage>) boosterStage0Context.component.getClass(), equalTo(ParallelStage.class));
-			assertThat(boosterStage0Context.component.getID(), equalTo(boosterStage.getID()));
-			assertThat(boosterStage0Context.instanceNumber, equalTo(0));
+			assertEquals(boosterStage0Context.component.getClass(), ParallelStage.class);
+			assertEquals(boosterStage0Context.component.getID(), boosterStage.getID());
+			assertEquals(boosterStage0Context.instanceNumber, 0);
 			{
 				final Coordinate loc = boosterStage0Context.getLocation();
 				assertEquals(loc.x, 0.484, EPSILON);
@@ -417,9 +405,9 @@ public class FlightConfigurationTest extends BaseTestCase {
 			}
 
 			final InstanceContext boosterStage1Context = boosterStageContextList.get(1);
-			assertThat((Class<ParallelStage>) boosterStage1Context.component.getClass(), equalTo(ParallelStage.class));
-			assertThat(boosterStage1Context.component.getID(), equalTo(boosterStage.getID()));
-			assertThat(boosterStage1Context.instanceNumber, equalTo(1));
+			assertEquals(boosterStage1Context.component.getClass(), ParallelStage.class);
+			assertEquals(boosterStage1Context.component.getID(), boosterStage.getID());
+			assertEquals(boosterStage1Context.instanceNumber, 1);
 			{
 				final Coordinate loc = boosterStage1Context.getLocation();
 				assertEquals(loc.x, 0.484, EPSILON);
@@ -435,9 +423,9 @@ public class FlightConfigurationTest extends BaseTestCase {
 				final InstanceContext boosterBodyContext = boosterBodyContextList.get(1);
 
 				// this is the instance number per-parent
-				assertThat(boosterBodyContext.instanceNumber, equalTo(0));
+				assertEquals(boosterBodyContext.instanceNumber, 0);
 
-				assertThat((Class<BodyTube>) boosterBodyContext.component.getClass(), equalTo(BodyTube.class));
+				assertEquals(boosterBodyContext.component.getClass(), BodyTube.class);
 
 				final Coordinate bodyTubeLocation = boosterBodyContext.getLocation();
 				assertEquals(bodyTubeLocation.x, 0.564, EPSILON);
@@ -450,32 +438,32 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(8, mmtContextList.size());
 
 					final InstanceContext motorTubeContext0 = mmtContextList.get(4);
-					assertThat((Class<InnerTube>) motorTubeContext0.component.getClass(), equalTo(InnerTube.class));
-					assertThat(motorTubeContext0.instanceNumber, equalTo(0));
+					assertEquals(motorTubeContext0.component.getClass(), InnerTube.class);
+					assertEquals(motorTubeContext0.instanceNumber, 0);
 					final Coordinate motorTube0Location = motorTubeContext0.getLocation();
 					assertEquals(motorTube0Location.x, 1.214, EPSILON);
 					assertEquals(motorTube0Location.y, -0.062, EPSILON);
 					assertEquals(motorTube0Location.z, -0.015, EPSILON);
 
 					final InstanceContext motorTubeContext1 = mmtContextList.get(5);
-					assertThat((Class<InnerTube>) motorTubeContext1.component.getClass(), equalTo(InnerTube.class));
-					assertThat(motorTubeContext1.instanceNumber, equalTo(1));
+					assertEquals(motorTubeContext1.component.getClass(), InnerTube.class);
+					assertEquals(motorTubeContext1.instanceNumber, 1);
 					final Coordinate motorTube1Location = motorTubeContext1.getLocation();
 					assertEquals(motorTube1Location.x, 1.214, EPSILON);
 					assertEquals(motorTube1Location.y, -0.092, EPSILON);
 					assertEquals(motorTube1Location.z, -0.015, EPSILON);
 
 					final InstanceContext motorTubeContext2 = mmtContextList.get(6);
-					assertThat((Class<InnerTube>) motorTubeContext2.component.getClass(), equalTo(InnerTube.class));
-					assertThat(motorTubeContext2.instanceNumber, equalTo(2));
+					assertEquals(motorTubeContext2.component.getClass(), InnerTube.class);
+					assertEquals(motorTubeContext2.instanceNumber, 2);
 					final Coordinate motorTube2Location = motorTubeContext2.getLocation();
 					assertEquals(motorTube2Location.x, 1.214, EPSILON);
 					assertEquals(motorTube2Location.y, -0.092, EPSILON);
 					assertEquals(motorTube2Location.z, 0.015, EPSILON);
 
 					final InstanceContext motorTubeContext3 = mmtContextList.get(7);
-					assertThat((Class<InnerTube>) motorTubeContext3.component.getClass(), equalTo(InnerTube.class));
-					assertThat(motorTubeContext3.instanceNumber, equalTo(3));
+					assertEquals(motorTubeContext3.component.getClass(), InnerTube.class);
+					assertEquals(motorTubeContext3.instanceNumber, 3);
 					final Coordinate motorTube3Location = motorTubeContext3.getLocation();
 					assertEquals(motorTube3Location.x, 1.214, EPSILON);
 					assertEquals(motorTube3Location.y, -0.062, EPSILON);
@@ -488,27 +476,24 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(6, finContextList.size());
 
 					final InstanceContext boosterFinContext0 = finContextList.get(3);
-					assertThat((Class<TrapezoidFinSet>) boosterFinContext0.component.getClass(),
-							equalTo(TrapezoidFinSet.class));
-					assertThat(boosterFinContext0.instanceNumber, equalTo(0));
+					assertEquals(boosterFinContext0.component.getClass(), TrapezoidFinSet.class);
+					assertEquals(boosterFinContext0.instanceNumber, 0);
 					final Coordinate boosterFin0Location = boosterFinContext0.getLocation();
 					assertEquals(1.044, boosterFin0Location.x, EPSILON);
 					assertEquals(-0.1155, boosterFin0Location.y, EPSILON);
 					assertEquals(0.0, boosterFin0Location.z, EPSILON);
 
 					final InstanceContext boosterFinContext1 = finContextList.get(4);
-					assertThat((Class<TrapezoidFinSet>) boosterFinContext1.component.getClass(),
-							equalTo(TrapezoidFinSet.class));
-					assertThat(boosterFinContext1.instanceNumber, equalTo(1));
+					assertEquals(boosterFinContext1.component.getClass(), TrapezoidFinSet.class);
+					assertEquals(boosterFinContext1.instanceNumber, 1);
 					final Coordinate boosterFin1Location = boosterFinContext1.getLocation();
 					assertEquals(1.044, boosterFin1Location.x, EPSILON);
 					assertEquals(-0.05775, boosterFin1Location.y, EPSILON);
 					assertEquals(-0.033341978, boosterFin1Location.z, EPSILON);
 
 					final InstanceContext boosterFinContext2 = finContextList.get(5);
-					assertThat((Class<TrapezoidFinSet>) boosterFinContext2.component.getClass(),
-							equalTo(TrapezoidFinSet.class));
-					assertThat(boosterFinContext2.instanceNumber, equalTo(2));
+					assertEquals(boosterFinContext2.component.getClass(), TrapezoidFinSet.class);
+					assertEquals(boosterFinContext2.instanceNumber, 2);
 					final Coordinate boosterFin2Location = boosterFinContext2.getLocation();
 					assertEquals(1.044, boosterFin2Location.x, EPSILON);
 					assertEquals(-0.05775, boosterFin2Location.y, EPSILON);
@@ -531,32 +516,32 @@ public class FlightConfigurationTest extends BaseTestCase {
 		ArrayList<RocketComponent> components = selected.getCoreComponents();
 		// ^^^^ Test Target ^^^^
 
-		assertThat(components.size(), equalTo(10));
+		assertEquals(components.size(), 10);
 
 		final AxialStage payloadStage = (AxialStage) components.get(0);
-		assertThat(payloadStage.getName(), equalTo("Payload Fairing Stage"));
+		assertEquals(payloadStage.getName(), "Payload Fairing Stage");
 
 		final AxialStage coreStage = (AxialStage) components.get(1);
-		assertThat(coreStage.getName(), equalTo("Core Stage"));
+		assertEquals(coreStage.getName(), "Core Stage");
 
-		assertThat(components.get(2), instanceOf(NoseCone.class));
+		assertInstanceOf(NoseCone.class, components.get(2));
 
-		assertThat(components.get(3), instanceOf(BodyTube.class));
-		assertThat(components.get(3).getName(), equalTo("PL Fairing Body"));
+		assertInstanceOf(BodyTube.class, components.get(3));
+		assertEquals(components.get(3).getName(), "PL Fairing Body");
 
-		assertThat(components.get(4), instanceOf(Transition.class));
+		assertInstanceOf(Transition.class, components.get(4));
 
-		assertThat(components.get(5), instanceOf(BodyTube.class));
-		assertThat(components.get(5).getName(), equalTo("Upper Stage Body"));
+		assertInstanceOf(BodyTube.class, components.get(5));
+		assertEquals(components.get(5).getName(), "Upper Stage Body");
 
-		assertThat(components.get(6), instanceOf(BodyTube.class));
-		assertThat(components.get(6).getName(), equalTo("Interstage"));
+		assertInstanceOf(BodyTube.class, components.get(6));
+		assertEquals(components.get(6).getName(), "Interstage");
 
-		assertThat(components.get(7), instanceOf(BodyTube.class));
-		assertThat(components.get(7).getName(), equalTo("Core Stage Body"));
+		assertInstanceOf(BodyTube.class, components.get(7));
+		assertEquals(components.get(7).getName(), "Core Stage Body");
 
-		assertThat(components.get(8), instanceOf(Parachute.class));
-		assertThat(components.get(9), instanceOf(ShockCord.class));
+		assertInstanceOf(Parachute.class, components.get(8));
+		assertInstanceOf(ShockCord.class, components.get(9));
 	}
 
 	@Test
@@ -571,7 +556,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		ArrayList<RocketComponent> components = selected.getCoreComponents();
 		// ^^^^ Test Target ^^^^
 
-		assertThat(components.size(), equalTo(0));
+		assertEquals(components.size(), 0);
 
 		// =================================
 		selected.clearAllStages();
@@ -581,13 +566,13 @@ public class FlightConfigurationTest extends BaseTestCase {
 		components = selected.getCoreComponents();
 		// ^^^^ Test Target ^^^^
 
-		assertThat(components.size(), equalTo(2));
+		assertEquals(components.size(), 2);
 
 		final AxialStage coreStage = (AxialStage) components.get(0);
-		assertThat(coreStage.getName(), equalTo("Core Stage"));
+		assertEquals(coreStage.getName(), "Core Stage");
 
-		assertThat(components.get(1), instanceOf(BodyTube.class));
-		assertThat(components.get(1).getName(), equalTo("Core Stage Body"));
+		assertInstanceOf(BodyTube.class, components.get(1));
+		assertEquals(components.get(1).getName(), "Core Stage Body");
 
 	}
 

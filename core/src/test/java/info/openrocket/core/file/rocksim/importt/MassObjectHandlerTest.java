@@ -25,7 +25,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testConstructor() throws Exception {
 
         try {
@@ -48,7 +48,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
         Assert.assertEquals(PlainTextHandler.INSTANCE,
                 new MassObjectHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
@@ -61,7 +61,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
         HashMap<String, String> attributes = new HashMap<String, String>();
@@ -96,7 +96,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
         Assert.assertTrue(
                 new MassObjectHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof MassComponent);
@@ -107,7 +107,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
         Assert.assertEquals(Material.Type.LINE,
                 new MassObjectHandler(null, new BodyTube(), new WarningSet()).getMaterialType());

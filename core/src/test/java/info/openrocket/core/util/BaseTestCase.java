@@ -6,17 +6,16 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.startup.Application;
 
-import org.junit.BeforeClass;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import org.junit.jupiter.api.BeforeAll;
 
 public class BaseTestCase {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		Module applicationModule = new ServicesForTesting();
 		Module debugTranslator = new AbstractModule() {

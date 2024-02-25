@@ -3,13 +3,13 @@ package info.openrocket.core.rocketcomponent;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NoseConeTest extends BaseTestCase {
     private final double EPSILON = MathUtil.EPSILON * 1000;

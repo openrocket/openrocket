@@ -1,10 +1,10 @@
 package info.openrocket.core.arch;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /*
  * Note:  These tests have not been tested on Windows, they might fail there

@@ -1,10 +1,10 @@
 package info.openrocket.core.rocketcomponent;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import info.openrocket.core.material.Material;
 import info.openrocket.core.util.TestRockets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.rocketcomponent.position.*;
 import info.openrocket.core.util.Coordinate;

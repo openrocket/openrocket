@@ -1,31 +1,24 @@
 package info.openrocket.core.l10n;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.util.MissingResourceException;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.auto.Mock;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class TestClassBasedTranslator {
-	Mockery context = new JUnit4Mockery();
-
 	@Mock
 	Translator translator;
 
 	@Test
 	public void testClassName() {
-		// @formatter:off
-		context.checking(new Expectations() {{
-				oneOf(translator).get("TestClassBasedTranslator.fake.key1"); will(returnValue("foobar")); 
-		}});
-		// @formatter:on
+		// Mock setup
+		when(translator.get("TestClassBasedTranslator.fake.key1")).thenReturn("foobar");
 
 		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 		cbt.get("fake.key1");
@@ -39,11 +32,7 @@ public class TestClassBasedTranslator {
 	public void testGetWithClassName() {
 		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 
-		// @formatter:off
-		context.checking(new Expectations() {{
-				oneOf(translator).get("TestClassBasedTranslator.fake.key1"); will(returnValue("foobar")); 
-		}});
-		// @formatter:on
+		when(translator.get("TestClassBasedTranslator.fake.key1")).thenReturn("foobar");
 
 		assertEquals("foobar", cbt.get("fake.key1"));
 	}
@@ -53,11 +42,8 @@ public class TestClassBasedTranslator {
 		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 
 		// @formatter:off
-		context.checking(new Expectations() {{
-			oneOf(translator).get("TestClassBasedTranslator.fake.key2"); will(throwException(new MissingResourceException("a", "b", "c"))); 
-			oneOf(translator).get("fake.key2"); will(returnValue("barbaz")); 
-		}});
-		// @formatter:on
+		when(translator.get("TestClassBasedTranslator.fake.key2")).thenThrow(new MissingResourceException("a", "b", "c"));
+		when(translator.get("fake.key2")).thenReturn("barbaz");
 
 		assertEquals("barbaz", cbt.get("fake.key2"));
 	}
@@ -66,12 +52,8 @@ public class TestClassBasedTranslator {
 	public void testMissing() {
 		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 
-		// @formatter:off
-		context.checking(new Expectations() {{
-			oneOf(translator).get("TestClassBasedTranslator.fake.key3"); will(throwException(new MissingResourceException("a", "b", "c"))); 
-			oneOf(translator).get("fake.key3"); will(throwException(new MissingResourceException("a", "b", "c"))); 
-		}});
-		// @formatter:on
+		when(translator.get("TestClassBasedTranslator.fake.key3")).thenThrow(new MissingResourceException("a", "b", "c"));
+		when(translator.get("fake.key3")).thenThrow(new MissingResourceException("a", "b", "c"));
 
 		try {
 			fail("Returned: " + cbt.get("fake.key3"));
@@ -85,11 +67,7 @@ public class TestClassBasedTranslator {
 	public void testGetWithSubClass() {
 		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 
-		// @formatter:off
-		context.checking(new Expectations() {{
-				oneOf(translator).get("TestClassBasedTranslator.fake.key1"); will(returnValue("foobar")); 
-		}});
-		// @formatter:on
+		when(translator.get("TestClassBasedTranslator.fake.key1")).thenReturn("foobar");
 
 		assertEquals("foobar", new Subclass().get(cbt, "fake.key1"));
 		assertEquals("TestClassBasedTranslator", cbt.getClassName());

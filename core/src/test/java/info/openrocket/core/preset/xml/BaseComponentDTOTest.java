@@ -5,7 +5,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPresetFactory;
 import info.openrocket.core.preset.TypedPropertyMap;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBContext;

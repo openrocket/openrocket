@@ -1,9 +1,9 @@
 package info.openrocket.core.models.gravity;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.util.WorldCoordinate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WGSGravityModelTest {
 

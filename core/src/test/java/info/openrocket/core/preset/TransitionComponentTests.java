@@ -1,6 +1,6 @@
 package info.openrocket.core.preset;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.rocketcomponent.ExternalComponent.Finish;
@@ -9,7 +9,7 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.BaseTestCase;
 
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test application of ComponentPresets to Transition RocketComponents through

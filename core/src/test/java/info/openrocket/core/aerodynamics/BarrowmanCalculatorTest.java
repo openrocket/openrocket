@@ -1,12 +1,12 @@
 package info.openrocket.core.aerodynamics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.logging.WarningSet;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,7 +35,7 @@ public class BarrowmanCalculatorTest {
 
 	private static Injector injector;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() {
 		Module applicationModule = new ServicesForTesting();
 		Module pluginModule = new PluginModule();
@@ -65,10 +65,10 @@ public class BarrowmanCalculatorTest {
 
 		Coordinate cp_calc = calc.getCP(config, conditions, warnings);
 
-		assertEquals(" Empty rocket CNa value is incorrect:", 0.0, cp_calc.weight, 0.0);
-		assertEquals(" Empty rocket cp x value is incorrect:", 0.0, cp_calc.x, 0.0);
-		assertEquals(" Empty rocket cp y value is incorrect:", 0.0, cp_calc.y, 0.0);
-		assertEquals(" Empty rocket cp z value is incorrect:", 0.0, cp_calc.z, 0.0);
+		assertEquals(0.0, cp_calc.weight, 0.0, " Empty rocket CNa value is incorrect:");
+		assertEquals(0.0, cp_calc.x, 0.0, " Empty rocket cp x value is incorrect:");
+		assertEquals(0.0, cp_calc.y, 0.0, " Empty rocket cp y value is incorrect:");
+		assertEquals(0.0, cp_calc.z, 0.0, " Empty rocket cp z value is incorrect:");
 	}
 
 	@Test

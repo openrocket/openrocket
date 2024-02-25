@@ -3,7 +3,7 @@ pluginManagement {
         id("com.github.johnrengelman.shadow") version "7.1.2"
     }
 }
-rootProject.name = 'openrocket'
+rootProject.name = 'OpenRocket'
 
 include 'core'
 include 'swing'

@@ -2,7 +2,7 @@ package info.openrocket.core.preset;
 
 import info.openrocket.core.motor.Manufacturer;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test construction of PARACHUTE type ComponentPresets based on

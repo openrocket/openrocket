@@ -1,15 +1,16 @@
 package info.openrocket.core.optimization.rocketoptimization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.auto.Mock;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 
 import info.openrocket.core.document.Simulation;
@@ -21,10 +22,12 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.unit.Value;
 import info.openrocket.core.util.Pair;
 import info.openrocket.core.util.BaseTestCase;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class TestRocketOptimizationFunction extends BaseTestCase {
-	Mockery context = new JUnit4Mockery();
 
 	@Mock
 	OptimizableParameter parameter;
@@ -53,34 +56,15 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		final double gvalue = 8.81;
 		final Point point = new Point(p1, p2);
 
-		// @formatter:off
-		context.checking(new Expectations() {
-			{
-				oneOf(modifier1).modify(simulation, p1);
-				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation);
-				will(returnValue(new Pair<Double, Value>(ddist, dref)));
-				oneOf(parameter).computeValue(simulation);
-				will(returnValue(pvalue));
-				oneOf(parameter).getUnitGroup();
-				will(returnValue(UnitGroup.UNITS_NONE));
-				oneOf(goal).getMinimizationParameter(pvalue);
-				will(returnValue(gvalue));
-				oneOf(modifier1).getCurrentSIValue(simulation);
-				will(returnValue(0.2));
-				oneOf(modifier1).getUnitGroup();
-				will(returnValue(UnitGroup.UNITS_LENGTH));
-				oneOf(modifier2).getCurrentSIValue(simulation);
-				will(returnValue(0.3));
-				oneOf(modifier2).getUnitGroup();
-				will(returnValue(UnitGroup.UNITS_LENGTH));
-				oneOf(listener).evaluated(point, new Value[] {
-						new Value(0.2, UnitGroup.UNITS_LENGTH.getDefaultUnit()),
-						new Value(0.3, UnitGroup.UNITS_LENGTH.getDefaultUnit())
-				}, dref, pvalueValue, gvalue);
-			}
-		});
-		// @formatter:on
+		// Setup stubbing for methods that return values
+		when(domain.getDistanceToDomain(simulation)).thenReturn(new Pair<Double, Value>(ddist, dref));
+		when(parameter.computeValue(simulation)).thenReturn(pvalue);
+		when(parameter.getUnitGroup()).thenReturn(UnitGroup.UNITS_NONE);
+		when(goal.getMinimizationParameter(pvalue)).thenReturn(gvalue);
+		when(modifier1.getCurrentSIValue(simulation)).thenReturn(0.2);
+		when(modifier1.getUnitGroup()).thenReturn(UnitGroup.UNITS_LENGTH);
+		when(modifier2.getCurrentSIValue(simulation)).thenReturn(0.3);
+		when(modifier2.getUnitGroup()).thenReturn(UnitGroup.UNITS_LENGTH);
 
 		RocketOptimizationFunction function = new RocketOptimizationFunction(simulation,
 				parameter, goal, domain, modifier1, modifier2) {
@@ -93,6 +77,26 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 
 		double value = function.evaluate(point);
 		assertEquals(gvalue, value, 0);
+
+		// Verify the interactions
+		verify(modifier1, times(1)).modify(simulation, p1);
+		verify(modifier2, times(1)).modify(simulation, p2);
+		verify(domain, times(1)).getDistanceToDomain(simulation);
+		verify(parameter, times(1)).computeValue(simulation);
+		verify(parameter, times(1)).getUnitGroup();
+		verify(goal, times(1)).getMinimizationParameter(pvalue);
+		verify(modifier1, times(1)).getCurrentSIValue(simulation);
+		verify(modifier1, times(1)).getUnitGroup();
+		verify(modifier2, times(1)).getCurrentSIValue(simulation);
+		verify(modifier2, times(1)).getUnitGroup();
+		verify(listener, times(1)).evaluated(eq(point), argThat(new ArgumentMatcher<Value[]>() {
+			@Override
+			public boolean matches(Value[] argument) {
+				// Customize this as necessary to match the expected Value[] array
+				return argument[0].getValue() == 0.2 && argument[1].getValue() == 0.3;
+			}
+		}), eq(dref), eq(pvalueValue), eq(gvalue));
+
 	}
 
 	@Test
@@ -106,22 +110,11 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		final Value dref = new Value(0.33, Unit.NOUNIT);
 		final double pvalue = 9.81;
 
-		// @formatter:off
-		context.checking(new Expectations() {
-			{
-				oneOf(modifier1).modify(simulation, p1);
-				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation);
-				will(returnValue(new Pair<Double, Value>(ddist, dref)));
-				oneOf(parameter).computeValue(simulation);
-				will(returnValue(pvalue));
-				oneOf(parameter).getUnitGroup();
-				will(returnValue(UnitGroup.UNITS_NONE));
-				oneOf(goal).getMinimizationParameter(pvalue);
-				will(returnValue(Double.NaN));
-			}
-		});
-		// @formatter:on
+		// Setup stubbing for methods that return values
+		when(domain.getDistanceToDomain(simulation)).thenReturn(new Pair<>(ddist, dref));
+		when(parameter.computeValue(simulation)).thenReturn(pvalue);
+		when(parameter.getUnitGroup()).thenReturn(UnitGroup.UNITS_NONE);
+		when(goal.getMinimizationParameter(pvalue)).thenReturn(Double.NaN);
 
 		RocketOptimizationFunction function = new RocketOptimizationFunction(simulation,
 				parameter, goal, domain, modifier1, modifier2) {
@@ -133,6 +126,14 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 
 		double value = function.evaluate(new Point(p1, p2));
 		assertEquals(Double.MAX_VALUE, value, 0);
+
+		// Verify that the methods have been called with the specified parameters
+		verify(modifier1).modify(simulation, p1);
+		verify(modifier2).modify(simulation, p2);
+		verify(domain).getDistanceToDomain(simulation);
+		verify(parameter).computeValue(simulation);
+		verify(parameter).getUnitGroup();
+		verify(goal).getMinimizationParameter(pvalue);
 	}
 
 	@Test
@@ -146,28 +147,12 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		final Value dref = new Value(ddist, Unit.NOUNIT);
 		final Point point = new Point(p1, p2);
 
-		// @formatter:off
-		context.checking(new Expectations() {
-			{
-				oneOf(modifier1).modify(simulation, p1);
-				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation);
-				will(returnValue(new Pair<Double, Value>(ddist, dref)));
-				oneOf(modifier1).getCurrentSIValue(simulation);
-				will(returnValue(0.2));
-				oneOf(modifier1).getUnitGroup();
-				will(returnValue(UnitGroup.UNITS_LENGTH));
-				oneOf(modifier2).getCurrentSIValue(simulation);
-				will(returnValue(0.3));
-				oneOf(modifier2).getUnitGroup();
-				will(returnValue(UnitGroup.UNITS_LENGTH));
-				oneOf(listener).evaluated(point, new Value[] {
-						new Value(0.2, UnitGroup.UNITS_LENGTH.getDefaultUnit()),
-						new Value(0.3, UnitGroup.UNITS_LENGTH.getDefaultUnit())
-				}, dref, null, 1.98E200);
-			}
-		});
-		// @formatter:on
+		// Setup stubbing for methods that return values
+		when(domain.getDistanceToDomain(simulation)).thenReturn(new Pair<>(ddist, dref));
+		when(modifier1.getCurrentSIValue(simulation)).thenReturn(0.2);
+		when(modifier1.getUnitGroup()).thenReturn(UnitGroup.UNITS_LENGTH);
+		when(modifier2.getCurrentSIValue(simulation)).thenReturn(0.3);
+		when(modifier2.getUnitGroup()).thenReturn(UnitGroup.UNITS_LENGTH);
 
 		RocketOptimizationFunction function = new RocketOptimizationFunction(simulation,
 				parameter, goal, domain, modifier1, modifier2) {
@@ -180,6 +165,27 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 
 		double value = function.evaluate(new Point(p1, p2));
 		assertTrue(value > 1e100);
+
+		// Verify the interactions
+		verify(modifier1).modify(simulation, p1);
+		verify(modifier2).modify(simulation, p2);
+		verify(domain).getDistanceToDomain(simulation);
+		verify(modifier1).getCurrentSIValue(simulation);
+		verify(modifier1).getUnitGroup();
+		verify(modifier2).getCurrentSIValue(simulation);
+		verify(modifier2).getUnitGroup();
+
+		// For verifying the call to listener.evaluated with complex arguments
+		verify(listener).evaluated(eq(point), argThat(new ArgumentMatcher<Value[]>() {
+			@Override
+			public boolean matches(Value[] argument) {
+				// Adjust the logic here based on how specific you need to be about the values
+				return argument != null && argument.length == 2
+						&& argument[0].getValue() == 0.2 && argument[1].getValue() == 0.3
+						&& argument[0].getUnit() == UnitGroup.UNITS_LENGTH.getDefaultUnit()
+						&& argument[1].getUnit() == UnitGroup.UNITS_LENGTH.getDefaultUnit();
+			}
+		}), eq(dref), eq(null), eq(1.98E200));
 	}
 
 	@Test
@@ -192,16 +198,8 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		final double ddist = Double.NaN;
 		final Value dref = new Value(0.33, Unit.NOUNIT);
 
-		// @formatter:off
-		context.checking(new Expectations() {
-			{
-				oneOf(modifier1).modify(simulation, p1);
-				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation);
-				will(returnValue(new Pair<Double, Value>(ddist, dref)));
-			}
-		});
-		// @formatter:on
+		// Stubbing to return a specific value
+		when(domain.getDistanceToDomain(simulation)).thenReturn(new Pair<>(ddist, dref));
 
 		RocketOptimizationFunction function = new RocketOptimizationFunction(simulation,
 				parameter, goal, domain, modifier1, modifier2) {
@@ -213,6 +211,11 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 
 		double value = function.evaluate(new Point(p1, p2));
 		assertEquals(Double.MAX_VALUE, value, 0);
+
+		// Verify the interactions
+		verify(modifier1).modify(simulation, p1);
+		verify(modifier2).modify(simulation, p2);
+		verify(domain).getDistanceToDomain(simulation);
 	}
 
 	@Test

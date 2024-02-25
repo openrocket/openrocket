@@ -1,10 +1,10 @@
 package info.openrocket.swing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -13,12 +13,9 @@ import java.io.InputStream;
 
 import javax.swing.Action;
 
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -58,15 +55,14 @@ import info.openrocket.core.util.Coordinate;
 
 import info.openrocket.swing.gui.main.UndoRedoAction;
 import info.openrocket.swing.utils.CoreServicesModule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * This class contains various integration tests that simulate user actions that
  * might be performed.
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class IntegrationTest {
-	Mockery context = new JUnit4Mockery();
-	
 	private OpenRocketDocument document;
 	private Action undoAction, redoAction;
 	
@@ -75,7 +71,7 @@ public class IntegrationTest {
 	private FlightConditions conditions;
 	private String massComponentID = null;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		Module applicationModule = new CoreServicesModule();
 		

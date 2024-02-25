@@ -4,12 +4,19 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'java'
     id 'checkstyle'
+    id 'org.javamodularity.moduleplugin' version '1.8.14'
 }
 
 java {
-    modularity.inferModulePath = true
+    // Must be disabled in order to use the gradle-modules-plugin
+    modularity.inferModulePath = false
 }
 
+/*moduleOptions {
+    addModules = ['java.scripting']
+}*/
+
+// Fetch the build version from the build.properties file
 Properties props = new Properties()
 try {
     props.load(file('./core/src/main/resources/build.properties').newDataInputStream())
@@ -28,6 +35,43 @@ allprojects {
     }
 }
 
+subprojects {
+    apply plugin: 'java'
+    apply plugin: "org.javamodularity.moduleplugin"
+
+    // Configure the gradle-modules-plugin
+    modularity {
+        standardJavaRelease(17) // For targeting Java 17
+        modularity.patchModule("hamcrest", "hamcrest-2.2.jar")
+        modularity.patchModule("hamcrest.core", "hamcrest-core-2.2.jar")
+        modularity.patchModule("hamcrest.library", "hamcrest-library-2.2.jar")
+    }
+
+    test {
+        useJUnitPlatform()
+
+        testLogging {
+            events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
+            stackTraceFilters = []
+        }
+    }
+
+    dependencies {
+        // Common dependencies
+        testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+        testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: '2.2'
+        testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
+        //testImplementation group: 'org.hamcrest', name: 'hamcrest-internal', version: '2.2'
+        //testImplementation group: 'org.hamcrest', name: 'hamcrest-xml', version: '2.2'
+        testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.10.2'
+        testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.2'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
+        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
+    }
+}
+
 dependencies {
     implementation project(':core')
     implementation project(':swing')
@@ -38,7 +82,7 @@ dependencies {
 //}
 
 jar {
-    archiveBaseName.set('openrocket')
+    archiveBaseName.set('OpenRocket')
 
     manifest {
         attributes (
@@ -49,7 +93,7 @@ jar {
 }
 
 shadowJar {
-    archiveBaseName.set('openrocket')
+    archiveBaseName.set('OpenRocket')
     archiveClassifier.set(null)
 }
 

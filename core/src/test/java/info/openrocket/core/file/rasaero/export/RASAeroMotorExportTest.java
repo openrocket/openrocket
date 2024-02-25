@@ -1,6 +1,6 @@
 package info.openrocket.core.file.rasaero.export;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RASAeroMotorExportTest {
     // TODO: check correct name after export

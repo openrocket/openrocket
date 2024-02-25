@@ -1,14 +1,14 @@
 package info.openrocket.core.rocketcomponent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 
 import info.openrocket.core.util.BaseTestCase;
 
 import info.openrocket.core.util.TestRockets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SymmetricComponentTest extends BaseTestCase {
 

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.core.rocketcomponent.BodyTube;
@@ -19,7 +19,7 @@ public class FinSetConfigTest extends BaseTestCase {
 
     static Method method;
 
-    @BeforeClass
+    @BeforeAll
     public static void classSetup() throws Exception {
         method = FinSetConfig.class.getDeclaredMethod("computeFinTabLength", List.class, Double.class, Double.class, DoubleModel.class, RocketComponent.class);
         Assert.assertNotNull(method);

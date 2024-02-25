@@ -6,7 +6,7 @@ package info.openrocket.core.file.rocksim.importt;
 import java.util.HashMap;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;

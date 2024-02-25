@@ -26,7 +26,7 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testConstructor() throws Exception {
 
         try {
@@ -48,7 +48,7 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
         Assert.assertEquals(PlainTextHandler.INSTANCE,
                 new LaunchLugHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
@@ -61,7 +61,7 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
         LaunchLugHandler handler = new LaunchLugHandler(null, tube, new WarningSet());
@@ -118,7 +118,7 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
         Assert.assertTrue(
                 new LaunchLugHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof LaunchLug);
@@ -129,7 +129,7 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
         Assert.assertEquals(Material.Type.BULK,
                 new LaunchLugHandler(null, new BodyTube(), new WarningSet()).getMaterialType());

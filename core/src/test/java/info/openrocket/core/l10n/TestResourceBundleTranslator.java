@@ -1,13 +1,13 @@
 package info.openrocket.core.l10n;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestResourceBundleTranslator {
 

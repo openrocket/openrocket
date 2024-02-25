@@ -1,6 +1,6 @@
 package info.openrocket.core.motor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import info.openrocket.core.motor.MotorDigest.DataType;
 import info.openrocket.core.util.TextUtil;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MotorDigestTest {
 

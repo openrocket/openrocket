@@ -1,33 +1,42 @@
 package info.openrocket.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ArrayUtilsTest {
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testCopyOfRange_NullArg() {
-		ArrayUtils.copyOfRange((Byte[]) null, 0, 14);
+		assertThrows(NullPointerException.class, () -> {
+			ArrayUtils.copyOfRange((Integer[]) null, 0, 14);
+		});
 	}
 
-	@Test(expected = ArrayIndexOutOfBoundsException.class)
+	@Test
 	public void testCopyOfRange_StartTooBig() {
-		Integer[] original = new Integer[5];
-		ArrayUtils.copyOfRange(original, 8, 14);
+		assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+			Integer[] original = new Integer[5];
+			ArrayUtils.copyOfRange(original, 8, 14);
+		});
 	}
 
-	@Test(expected = ArrayIndexOutOfBoundsException.class)
+	@Test
 	public void testCopyOfRange_StartTooSmall() {
-		Integer[] original = new Integer[5];
-		ArrayUtils.copyOfRange(original, -1, 14);
+		assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+			Integer[] original = new Integer[5];
+			ArrayUtils.copyOfRange(original, -1, 14);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testCopyOfRange_IllegalRange() {
-		Integer[] original = new Integer[5];
-		ArrayUtils.copyOfRange(original, 5, 0);
+		assertThrows(IllegalArgumentException.class, () -> {
+			Integer[] original = new Integer[5];
+			ArrayUtils.copyOfRange(original, 3, 2);
+		});
 	}
 
 	@Test

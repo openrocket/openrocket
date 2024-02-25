@@ -2,6 +2,7 @@ package info.openrocket.core.scripting;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
 import java.util.*;
 
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
@@ -29,11 +30,18 @@ public class GraalJSScriptEngineFactory implements ScriptEngineFactory {
     public ScriptEngine getScriptEngine() {
         // https://github.com/oracle/graaljs/blob/master/docs/user/RunOnJDK.md
         // https://github.com/oracle/graaljs/blob/master/docs/user/ScriptEngine.md#setting-options-via-bindings
-        return GraalJSScriptEngine.create(null,
+        ScriptEngine engine = GraalJSScriptEngine.create(null,
                 Context.newBuilder("js")
                         .allowHostAccess(HostAccess.ALL)
                         .allowHostClassLookup(s -> true)
-                        .option("js.ecmascript-version", "2021"));
+                        .option("js.ecmascript-version", "2022"));
+        engine.put("javaObj", new Object());
+		try {
+			engine.eval("(javaObj instanceof Java.type('java.lang.Object'));");
+		} catch (ScriptException e) {
+			throw new RuntimeException(e);
+		}
+		return engine;
     }
 
     public String getEngineName() {

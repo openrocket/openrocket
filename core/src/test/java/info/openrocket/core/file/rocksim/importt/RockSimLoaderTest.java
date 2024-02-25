@@ -33,7 +33,7 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.LaunchLug;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.BaseTestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * RockSimLoader Tester.
@@ -46,7 +46,7 @@ public class RockSimLoaderTest extends BaseTestCase {
      * a Rocksim file using Rocksim. The bug is reproducible when manually modifying
      * the Rocksim file, which is what is tested here.
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testFinsOnInnerTube() throws Exception {
         RockSimLoader loader = new RockSimLoader();
         InputStream stream = this.getClass().getResourceAsStream("/file/rocksim/importt/PodFins.rkt");
@@ -164,7 +164,7 @@ public class RockSimLoaderTest extends BaseTestCase {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testLoadFromStream() throws Exception {
         RockSimLoader loader = new RockSimLoader();
         // Stupid single stage rocket
@@ -292,7 +292,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         Assert.assertEquals(0.5d, stage3.getOverrideCG().x, 0.001);
     }
 
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testBodyTubeChildrenRocket() throws IOException, RocketLoadException {
         RockSimLoader loader = new RockSimLoader();
         // Stupid single stage rocket

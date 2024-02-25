@@ -2,9 +2,9 @@ package info.openrocket.core.file.wavefrontobj;
 
 import de.javagl.obj.FloatTuple;
 import info.openrocket.core.util.BaseTestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OBJUtilsTest extends BaseTestCase {
     public static final float EPSILON = 0.0001f;

@@ -1,18 +1,30 @@
-module openrocket.core {
+open module openrocket.core {
 	uses javax.script.ScriptEngineFactory;
+	uses javax.script.ScriptEngine;
+	uses javax.script.Bindings;
+	uses javax.script.ScriptContext;
 	uses info.openrocket.core.optimization.services.OptimizableParameterService;
+	uses info.openrocket.core.optimization.services.SimulationModifierService;
+
+	// Libraries
 	requires com.google.guice;
 	requires java.desktop;
 	requires java.scripting;
 	requires org.graalvm.js.scriptengine;
+	requires org.graalvm.sdk;
+	requires org.graalvm.js;
+	requires org.graalvm.truffle;
 	requires transitive de.javagl.obj;
 	requires com.sun.istack.runtime;
 	requires jakarta.activation;
+	requires jakarta.inject;
 	requires java.prefs;
 	requires java.xml.bind;
 	requires transitive eu.infomas.annotation.detector;
 	requires java.json;
 	requires org.slf4j;
+	requires com.opencsv;
+	requires org.commonmark;
 
 	// TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;
@@ -85,5 +97,6 @@ module openrocket.core {
 	exports info.openrocket.core.util.enums;
 	exports info.openrocket.core.utils;
 
-	opens info.openrocket.core.formatting to com.google.guice;
+	//opens info.openrocket.core.formatting to com.google.guice;
+	//opens info.openrocket.core.startup to com.google.guice;
 }

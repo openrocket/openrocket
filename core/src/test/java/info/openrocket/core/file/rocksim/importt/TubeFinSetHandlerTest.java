@@ -19,7 +19,7 @@ public class TubeFinSetHandlerTest {
      *
      * @throws Exception thrown if something goes awry
      */
-    @org.junit.Test
+    @org.junit.jupiter.api.Test
     public void testAsOpenRocket() throws Exception {
 
         WarningSet warnings = new WarningSet();

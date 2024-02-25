@@ -2,12 +2,12 @@ package info.openrocket.core.util;
 
 import static java.lang.Double.NaN;
 import static java.lang.Math.PI;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MathUtilTest {
 
