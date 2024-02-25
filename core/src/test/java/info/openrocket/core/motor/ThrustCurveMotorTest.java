@@ -134,15 +134,15 @@ public class ThrustCurveMotorTest {
 			final double expThrust = testCase.getU();
 			final double actThrust = mtr.getThrust(motorTime);
 
-			assertEquals("Error in interpolating thrust: ", expThrust, actThrust, 0.001);
+			assertEquals(expThrust, actThrust, 0.001, "Error in interpolating thrust: ");
 		}
 	}
 
 	@Test
 	public void testMotorData() {
-		assertEquals("X6", motorX6.getDesignation());
-		assertEquals("X6-5", motorX6.getDesignation(5.0));
-		assertEquals("Description of X6", motorX6.getDescription());
+		assertEquals(motorX6.getDesignation(), "X6");
+		assertEquals(motorX6.getDesignation(5.0), "X6-5");
+		assertEquals(motorX6.getDescription(), "Description of X6");
 		assertEquals(Motor.Type.RELOAD, motorX6.getMotorType());
 	}
 
@@ -150,7 +150,7 @@ public class ThrustCurveMotorTest {
 	public void testTimeIndexingNegative() {
 		final ThrustCurveMotor mtr = motorX6;
 		// attempt to retrieve for a time before the motor ignites
-		assertTrue("Fault in negative time indexing: ", Double.isNaN(mtr.getTime(-1)));
+		assertTrue(Double.isNaN(mtr.getTime(-1)), "Fault in negative time indexing: ");
 	}
 
 	@Test
@@ -190,14 +190,14 @@ public class ThrustCurveMotorTest {
 
 	@Test
 	public void testSimplifyDesignation() {
-		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("J115"));
-		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation(" J115  "));
-		assertEquals("H115", ThrustCurveMotor.Builder.simplifyDesignation("241H115-KS"));
-		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("384  J115"));
-		assertEquals("J115", ThrustCurveMotor.Builder.simplifyDesignation("384-J115"));
-		assertEquals("A2", ThrustCurveMotor.Builder.simplifyDesignation("A2T"));
-		assertEquals("1/2A2T", ThrustCurveMotor.Builder.simplifyDesignation("1/2A2T"));
-		assertEquals("MicroMaxxII", ThrustCurveMotor.Builder.simplifyDesignation("Micro Maxx II"));
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("J115"), "J115");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation(" J115  "), "J115");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("241H115-KS"), "H115");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("384  J115"), "J115");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("384-J115"), "J115");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("A2T"), "A2");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("1/2A2T"), "1/2A2T");
+		assertEquals(ThrustCurveMotor.Builder.simplifyDesignation("Micro Maxx II"), "MicroMaxxII");
 	}
 
 }

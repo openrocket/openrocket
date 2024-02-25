@@ -5,22 +5,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Locale;
 import java.util.MissingResourceException;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class TestResourceBundleTranslator {
 
 	private Locale originalDefaultLocale;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// Default locale affects resource bundles, so set something non-English
 		this.originalDefaultLocale = Locale.getDefault();
 		Locale.setDefault(Locale.GERMAN);
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		Locale.setDefault(originalDefaultLocale);
 	}
@@ -28,18 +28,18 @@ public class TestResourceBundleTranslator {
 	@Test
 	public void testSuccessfulDefault() {
 		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages");
-		assertEquals("messages_de.properties", trans.get("debug.currentFile"));
+		assertEquals(Locale.FRENCH, trans.get("debug.currentFile"), "messages_de.properties");
 	}
 
 	@Test
 	public void testSuccessfulNonDefault() {
-		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages", Locale.FRENCH);
-		assertEquals("messages_fr.properties", trans.get("debug.currentFile"));
+		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages");
+		assertEquals(Locale.US, trans.get("debug.currentFile"), "messages_fr.properties");
 	}
 
 	@Test
 	public void testFailure() {
-		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages", Locale.US);
+		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages");
 		try {
 			fail("Returned: " + trans.get("missing"));
 		} catch (MissingResourceException e) {
@@ -50,15 +50,15 @@ public class TestResourceBundleTranslator {
 	@Test
 	public void testGetEnglish() {
 		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages", Locale.FRENCH);
-		assertEquals("Papier (bureau)", trans.get("material", "Paper (office)"));
-		assertEquals("Paper (toilet)", trans.get("material", "Paper (toilet)"));
+		assertEquals(trans.get("material", "Paper (office)"), "Papier (bureau)");
+		assertEquals(trans.get("material", "Paper (toilet)"), "Paper (toilet)");
 	}
 
 	@Test
 	public void testGetBase() {
 		ResourceBundleTranslator trans = new ResourceBundleTranslator("l10n.messages", Locale.FRENCH);
-		assertEquals("Paper (office)", trans.getBaseText("material", "Papier (bureau)"));
-		assertEquals("Papier (toilet)", trans.getBaseText("material", "Papier (toilet)"));
+		assertEquals(trans.getBaseText("material", "Papier (bureau)"), "Paper (office)");
+		assertEquals(trans.getBaseText("material", "Papier (toilet)"), "Papier (toilet)");
 	}
 
 }

@@ -68,9 +68,9 @@ public class ManufacturerTest {
 		assertEquals(m1.toString(), "Cesaroni Technology Inc.");
 		assertEquals(m1.getSimpleName(), "Cesaroni Technology");
 
-		assertTrue(m1 == m2);
-		assertTrue(m1 == m3);
-		assertTrue(m1 == m4);
+		assertSame(m1, m2);
+		assertSame(m1, m3);
+		assertSame(m1, m4);
 
 	}
 

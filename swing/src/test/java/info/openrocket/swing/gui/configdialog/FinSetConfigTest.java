@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @BeforeAll
     public static void classSetup() throws Exception {
         method = FinSetConfig.class.getDeclaredMethod("computeFinTabLength", List.class, Double.class, Double.class, DoubleModel.class, RocketComponent.class);
-        Assert.assertNotNull(method);
+        Assertions.assertNotNull(method);
         method.setAccessible(true);
     }
 
@@ -39,9 +39,9 @@ public class FinSetConfigTest extends BaseTestCase {
         RocketComponent parent = new BodyTube();
 
         Double result = (Double)method.invoke(null, rings, 10d, 11d, dm, parent);
-        Assert.assertEquals(0.0001, 11d, result.doubleValue());
+        Assertions.assertEquals(0.0001, 11d, result.doubleValue());
         result = (Double)method.invoke(null, null, 10d, 11d, dm, parent);
-        Assert.assertEquals(11d, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(11d, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -68,7 +68,7 @@ public class FinSetConfigTest extends BaseTestCase {
         parent.addChild(ring2);
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
-        Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.01, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -89,7 +89,7 @@ public class FinSetConfigTest extends BaseTestCase {
         parent.addChild(ring1);
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
-        Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.01, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -116,7 +116,7 @@ public class FinSetConfigTest extends BaseTestCase {
         parent.addChild(ring2);
 
         Double result = (Double)method.invoke(null, rings, 0.45d, 0.01, dm, parent);
-        Assert.assertEquals(0.01 - 0.004, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.01 - 0.004, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -141,7 +141,7 @@ public class FinSetConfigTest extends BaseTestCase {
         @SuppressWarnings("unused")
 		RocketComponent parent = new BodyTube();
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, ring1);
-        Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.01, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -166,7 +166,7 @@ public class FinSetConfigTest extends BaseTestCase {
         parent.addChild(ring1);
         parent.addChild(ring2);
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
-        Assert.assertEquals(0.0059, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.0059, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -192,7 +192,7 @@ public class FinSetConfigTest extends BaseTestCase {
         rings.add(ring2);
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
-        Assert.assertEquals(0.0009, result.doubleValue(), 0.0002);
+        Assertions.assertEquals(0.0009, result.doubleValue(), 0.0002);
     }
 
 
@@ -219,7 +219,7 @@ public class FinSetConfigTest extends BaseTestCase {
         parent.addChild(ring2);
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
-        Assert.assertEquals(0.0, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.0, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -252,7 +252,7 @@ public class FinSetConfigTest extends BaseTestCase {
         parent.addChild(ring3);
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
-        Assert.assertEquals(0.0028, result.doubleValue(), 0.0001);
+        Assertions.assertEquals(0.0028, result.doubleValue(), 0.0001);
     }
 
 }

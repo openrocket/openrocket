@@ -50,9 +50,9 @@ public class SymmetricComponentCalcTest {
 		nose.setShapeType(Transition.Shape.CONICAL);
 
 		// to illustrate the NoseCone properties to the reader:
-		assertEquals(" Estes Alpha III nose cone has incorrect length:", 0.07, nose.getLength(), EPSILON);
-		assertEquals(" Estes Alpha III nosecone has wrong (base) radius:", 0.012, nose.getAftRadius(), EPSILON);
-		assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.CONICAL, nose.getShapeType());
+		assertEquals(0.07, nose.getLength(), EPSILON, " Estes Alpha III nose cone has incorrect length:");
+		assertEquals(0.012, nose.getAftRadius(), EPSILON, " Estes Alpha III nosecone has wrong (base) radius:");
+		assertEquals(Transition.Shape.CONICAL, nose.getShapeType(), " Estes Alpha III nosecone has wrong type:");
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
@@ -69,10 +69,10 @@ public class SymmetricComponentCalcTest {
 		double cna_nose = 2;
 		double cpx_nose = 2.0 / 3.0 * nose.getLength();
 
-		assertEquals(" SymmetricComponentCalc produces bad CNa: ", cna_nose, forces.getCNa(), EPSILON);
-		assertEquals(" SymmetricComponentCalc produces bad C_p.x: ", cpx_nose, forces.getCP().x, EPSILON);
-		assertEquals(" SymmetricComponentCalc produces bad CN: ", 0.0, forces.getCN(), EPSILON);
-		assertEquals(" SymmetricComponentCalc produces bad C_m: ", 0.0, forces.getCm(), EPSILON);
+		assertEquals(cna_nose, forces.getCNa(), EPSILON, " SymmetricComponentCalc produces bad CNa: ");
+		assertEquals(cpx_nose, forces.getCP().x, EPSILON, " SymmetricComponentCalc produces bad C_p.x: ");
+		assertEquals(0.0, forces.getCN(), EPSILON, " SymmetricComponentCalc produces bad CN: ");
+		assertEquals(0.0, forces.getCm(), EPSILON, " SymmetricComponentCalc produces bad C_m: ");
 	}
 
 	@Test
@@ -81,9 +81,9 @@ public class SymmetricComponentCalcTest {
 		NoseCone nose = (NoseCone) rocket.getChild(0).getChild(0);
 
 		// to illustrate the NoseCone properties to the reader:
-		assertEquals(" Estes Alpha III nose cone has incorrect length:", 0.07, nose.getLength(), EPSILON);
-		assertEquals(" Estes Alpha III nosecone has wrong (base) radius:", 0.012, nose.getAftRadius(), EPSILON);
-		assertEquals(" Estes Alpha III nosecone has wrong type:", Transition.Shape.OGIVE, nose.getShapeType());
+		assertEquals(0.07, nose.getLength(), EPSILON, " Estes Alpha III nose cone has incorrect length:");
+		assertEquals(0.012, nose.getAftRadius(), EPSILON, " Estes Alpha III nosecone has wrong (base) radius:");
+		assertEquals(Transition.Shape.OGIVE, nose.getShapeType(), " Estes Alpha III nosecone has wrong type:");
 
 		FlightConfiguration config = rocket.getSelectedConfiguration();
 		FlightConditions conditions = new FlightConditions(config);
@@ -100,10 +100,10 @@ public class SymmetricComponentCalcTest {
 		double l_nose = nose.getLength();
 		double cna_nose = 2;
 		double cpx_nose = 0.46216 * l_nose;
-		assertEquals(" SymmetricComponentCalc produces bad CNa:  ", cna_nose, forces.getCNa(), EPSILON);
-		assertEquals(" SymmetricComponentCalc produces bad C_p.x:", cpx_nose, forces.getCP().x, EPSILON);
-		assertEquals(" SymmetricComponentCalc produces bad CN:   ", 0.0, forces.getCN(), EPSILON);
-		assertEquals(" SymmetricComponentCalc produces bad C_m:  ", 0.0, forces.getCm(), EPSILON);
+		assertEquals(cna_nose, forces.getCNa(), EPSILON, " SymmetricComponentCalc produces bad CNa:  ");
+		assertEquals(cpx_nose, forces.getCP().x, EPSILON, " SymmetricComponentCalc produces bad C_p.x:");
+		assertEquals(0.0, forces.getCN(), EPSILON, " SymmetricComponentCalc produces bad CN:   ");
+		assertEquals(0.0, forces.getCm(), EPSILON, " SymmetricComponentCalc produces bad C_m:  ");
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class SymmetricComponentCalcTest {
 			conditions.setMach(m);
 			double testcd = calcObj.calculatePressureCD(conditions, 0.0, 0.0, warnings) *
 					conditions.getRefArea() / frontalArea;
-			assertEquals(buf, cd[(int) Math.round(m * 20)], testcd, EPSILON);
+			assertEquals(cd[(int) Math.round(m * 20)], testcd, EPSILON, buf);
 		}
 	}
 

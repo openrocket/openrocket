@@ -69,64 +69,64 @@ public class FinSetTest extends BaseTestCase {
 	public void testAngleOffset() {
 		final FinSet fins = FinSetTest.createSimpleFin();
 
-		assertEquals("Angle Offset Doesn't match!", Math.PI / 2, fins.getAngleOffset(), EPSILON);
-		assertEquals("Angle Offset Doesn't match!", 90.0, Math.toDegrees(fins.getAngleOffset()), EPSILON);
+		assertEquals(Math.PI / 2, fins.getAngleOffset(), EPSILON, "Angle Offset Doesn't match!");
+		assertEquals(90.0, Math.toDegrees(fins.getAngleOffset()), EPSILON, "Angle Offset Doesn't match!");
 
-		assertEquals("Cant angle doesn't match!", Math.PI / 60, fins.getCantAngle(), EPSILON);
-		assertEquals("Cant angle doesn't match!", 3.0, Math.toDegrees(fins.getCantAngle()), EPSILON);
+		assertEquals(Math.PI / 60, fins.getCantAngle(), EPSILON, "Cant angle doesn't match!");
+		assertEquals(3.0, Math.toDegrees(fins.getCantAngle()), EPSILON, "Cant angle doesn't match!");
 	}
 
 	@Test
 	public void testTabLocation() {
 		final FinSet fins = FinSetTest.createSimpleFin();
-		assertEquals("incorrect fin length:", 0.06, fins.getLength(), EPSILON);
-		assertEquals("incorrect fin tab length:", 0.02, fins.getTabLength(), EPSILON);
+		assertEquals(0.06, fins.getLength(), EPSILON, "incorrect fin length:");
+		assertEquals(0.02, fins.getTabLength(), EPSILON, "incorrect fin tab length:");
 
 		final double expFront = 0.02;
 		final AxialMethod[] methods = AxialMethod.axialOffsetMethods;
 		final double[] expShift = { 0.02, 0.02, 0.0, -0.02 };
 		for (int caseIndex = 0; caseIndex < methods.length; ++caseIndex) {
 			double actFront = fins.getTabFrontEdge();
-			assertEquals(" Front edge doesn't match!", expFront, actFront, EPSILON);
+			assertEquals(expFront, actFront, EPSILON, " Front edge doesn't match!");
 
 			// update
 			fins.setTabOffsetMethod(methods[caseIndex]);
 
 			// query
 			final double actShift = fins.getTabOffset();
-			assertEquals(String.format("Offset doesn't match for: %s \n", methods[caseIndex].name()),
-					expShift[caseIndex], actShift, EPSILON);
+			assertEquals(expShift[caseIndex], actShift, EPSILON,
+					String.format("Offset doesn't match for: %s \n", methods[caseIndex].name()));
 		}
 	}
 
 	@Test
 	public void testTabGetAs() {
 		final FinSet fins = FinSetTest.createSimpleFin();
-		assertEquals("incorrect fin length:", 0.06, fins.getLength(), EPSILON);
-		assertEquals("incorrect fin tab length:", 0.02, fins.getTabLength(), EPSILON);
+		assertEquals(0.06, fins.getLength(), EPSILON, "incorrect fin length:");
+		assertEquals(0.02, fins.getTabLength(), EPSILON, "incorrect fin tab length:");
 
 		{ // TOP -> native(TOP)
 			fins.setTabOffsetMethod(AxialMethod.TOP);
 			fins.setTabOffset(0.0);
 
-			assertEquals("Setting by TOP method failed!", 0.0, fins.getTabFrontEdge(), EPSILON);
-			assertEquals("Setting by TOP method failed!", 0.0, fins.getTabOffset(), EPSILON);
-			assertEquals("Setting by TOP method failed!", 0.02, fins.getTabLength(), EPSILON);
+			assertEquals(0.0, fins.getTabFrontEdge(), EPSILON, "Setting by TOP method failed!");
+			assertEquals(0.0, fins.getTabOffset(), EPSILON, "Setting by TOP method failed!");
+			assertEquals(0.02, fins.getTabLength(), EPSILON, "Setting by TOP method failed!");
 		}
 		{ // MIDDLE -> native
 			fins.setTabOffsetMethod(AxialMethod.MIDDLE);
 			fins.setTabOffset(0.0);
-			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabFrontEdge(), EPSILON);
-			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
-			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabLength(), EPSILON);
+			assertEquals(0.02, fins.getTabFrontEdge(), EPSILON, "Setting by MIDDLE method failed!");
+			assertEquals(0.0, fins.getTabOffset(), EPSILON, "Setting by MIDDLE method failed!");
+			assertEquals(0.02, fins.getTabLength(), EPSILON, "Setting by MIDDLE method failed!");
 		}
 		{// BOTTOM -> native
 			fins.setTabOffsetMethod(AxialMethod.BOTTOM);
 			fins.setTabOffset(0.0);
 
-			assertEquals("Setting by BOTTOM method failed!", 0.04, fins.getTabFrontEdge(), EPSILON);
-			assertEquals("Setting by BOTTOM method failed!", 0.0, fins.getTabOffset(), EPSILON);
-			assertEquals("Setting by BOTTOM method failed!", 0.02, fins.getTabLength(), EPSILON);
+			assertEquals(0.04, fins.getTabFrontEdge(), EPSILON, "Setting by BOTTOM method failed!");
+			assertEquals(0.0, fins.getTabOffset(), EPSILON, "Setting by BOTTOM method failed!");
+			assertEquals(0.02, fins.getTabLength(), EPSILON, "Setting by BOTTOM method failed!");
 		}
 	}
 
@@ -135,49 +135,49 @@ public class FinSetTest extends BaseTestCase {
 		final Rocket rocket = TestRockets.makeEstesAlphaIII();
 
 		final BodyTube body = (BodyTube) rocket.getChild(0).getChild(1);
-		assertEquals("incorrect body tube length:", 0.20, body.getLength(), EPSILON);
+		assertEquals(0.20, body.getLength(), EPSILON, "incorrect body tube length:");
 
 		final FinSet fins = (FinSet) body.getChild(0);
 		fins.setTabHeight(0.01);
 		fins.setTabLength(0.02);
-		assertEquals("incorrect fin length:", 0.05, fins.getLength(), EPSILON);
-		assertEquals("incorrect fin tab height:", 0.01, fins.getTabHeight(), EPSILON);
-		assertEquals("incorrect fin tab length:", 0.02, fins.getTabLength(), EPSILON);
-		assertEquals("incorrect fin location", 0.015, fins.getTabFrontEdge(), EPSILON);
+		assertEquals(0.05, fins.getLength(), EPSILON, "incorrect fin length:");
+		assertEquals(0.01, fins.getTabHeight(), EPSILON, "incorrect fin tab height:");
+		assertEquals(0.02, fins.getTabLength(), EPSILON, "incorrect fin tab length:");
+		assertEquals(0.015, fins.getTabFrontEdge(), EPSILON, "incorrect fin location");
 
 		{ // MIDDLE -> native
 			fins.setTabOffsetMethod(AxialMethod.MIDDLE);
 			fins.setTabOffset(0.0);
 
-			assertEquals("Setting by MIDDLE method failed!", 0.015, fins.getTabFrontEdge(), EPSILON);
-			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
-			assertEquals("Setting by MIDDLE method failed!", 0.02, fins.getTabLength(), EPSILON);
+			assertEquals(0.015, fins.getTabFrontEdge(), EPSILON, "Setting by MIDDLE method failed!");
+			assertEquals(0.0, fins.getTabOffset(), EPSILON, "Setting by MIDDLE method failed!");
+			assertEquals(0.02, fins.getTabLength(), EPSILON, "Setting by MIDDLE method failed!");
 
 			fins.setTabLength(0.04);
 
-			assertEquals("Setting by MIDDLE method failed!", 0.005, fins.getTabFrontEdge(), EPSILON);
-			assertEquals("Setting by MIDDLE method failed!", 0.0, fins.getTabOffset(), EPSILON);
-			assertEquals("Setting by MIDDLE method failed!", 0.04, fins.getTabLength(), EPSILON);
+			assertEquals(0.005, fins.getTabFrontEdge(), EPSILON, "Setting by MIDDLE method failed!");
+			assertEquals(0.0, fins.getTabOffset(), EPSILON, "Setting by MIDDLE method failed!");
+			assertEquals(0.04, fins.getTabLength(), EPSILON, "Setting by MIDDLE method failed!");
 		}
 	}
 
 	@Test
 	public void testTabLocationUpdate() {
 		final FinSet fins = FinSetTest.createSimpleFin();
-		assertEquals("incorrect fin length:", 0.06, fins.getLength(), EPSILON);
-		assertEquals("incorrect fin tab length:", 0.02, fins.getTabLength(), EPSILON);
+		assertEquals(0.06, fins.getLength(), EPSILON, "incorrect fin length:");
+		assertEquals(0.02, fins.getTabLength(), EPSILON, "incorrect fin tab length:");
 
 		// TOP -> native(TOP)
 		fins.setTabOffsetMethod(AxialMethod.MIDDLE);
 		fins.setTabOffset(0.0);
 
-		assertEquals("Setting by TOP method failed!", 0.0, fins.getTabOffset(), EPSILON);
-		assertEquals("Setting by TOP method failed!", 0.02, fins.getTabFrontEdge(), EPSILON);
+		assertEquals(0.0, fins.getTabOffset(), EPSILON, "Setting by TOP method failed!");
+		assertEquals(0.02, fins.getTabFrontEdge(), EPSILON, "Setting by TOP method failed!");
 
 		((TrapezoidFinSet) fins).setRootChord(0.08);
 
-		assertEquals("Offset doesn't match after adjusting root chord....", 0.0, fins.getTabOffset(), EPSILON);
-		assertEquals("Front edge doesn't match after adjusting root chord...", 0.03, fins.getTabFrontEdge(), EPSILON);
+		assertEquals(0.0, fins.getTabOffset(), EPSILON, "Offset doesn't match after adjusting root chord....");
+		assertEquals(0.03, fins.getTabFrontEdge(), EPSILON, "Front edge doesn't match after adjusting root chord...");
 	}
 
 	@Test
@@ -197,9 +197,9 @@ public class FinSetTest extends BaseTestCase {
 
 		final double expArea = 0.06 * 0.06 * 0.5;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(" basic area doesn't match...", expArea, actCentroid.weight, EPSILON);
-		assertEquals(" basic centroid x doesn't match: ", 0.04, actCentroid.x, 1e-8);
-		assertEquals(" basic centroid y doesn't match: ", 0.02, actCentroid.y, 1e-8);
+		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
+		assertEquals(0.04, actCentroid.x, 1e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.y, 1e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -219,9 +219,9 @@ public class FinSetTest extends BaseTestCase {
 
 		final double expArea = 0.06 * 0.12 * 0.5;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(" basic area doesn't match...", expArea, actCentroid.weight, EPSILON);
-		assertEquals(" basic centroid x doesn't match: ", 0.06, actCentroid.x, 1e-8);
-		assertEquals(" basic centroid y doesn't match: ", 0.02, actCentroid.y, 1e-8);
+		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
+		assertEquals(0.06, actCentroid.x, 1e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.y, 1e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -241,9 +241,9 @@ public class FinSetTest extends BaseTestCase {
 		 */
 		final double expArea = 0.04 * 0.05;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(" basic area doesn't match...", expArea, actCentroid.weight, EPSILON);
-		assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid.x, 1e-8);
-		assertEquals(" basic centroid y doesn't match: ", 0.020833333, actCentroid.y, 1e-8);
+		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
+		assertEquals(0.03000, actCentroid.x, 1e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.020833333, actCentroid.y, 1e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test

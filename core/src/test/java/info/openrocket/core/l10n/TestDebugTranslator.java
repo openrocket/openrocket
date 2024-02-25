@@ -9,14 +9,14 @@ public class TestDebugTranslator {
 	@Test
 	public void testGetEnglish() {
 		DebugTranslator trans = new DebugTranslator(null);
-		assertEquals("[material:Paper (office)]", trans.get("material", "Paper (office)"));
+		assertEquals(trans.get("material", "Paper (office)"), "[material:Paper (office)]");
 	}
 
 	@Test
 	public void testGetBase() {
 		DebugTranslator trans = new DebugTranslator(null);
-		assertEquals("Paper (office)", trans.getBaseText("material", "[material:Paper (office)]"));
-		assertEquals("Papier (toilet)", trans.getBaseText("material", "Papier (toilet)"));
+		assertEquals(trans.getBaseText("material", "[material:Paper (office)]"), "Paper (office)");
+		assertEquals(trans.getBaseText("material", "Papier (toilet)"), "Papier (toilet)");
 	}
 
 }

@@ -26,7 +26,7 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -84,8 +84,8 @@ public class RASAeroSaverTest {
             ErrorSet errors = new ErrorSet();
             String result = new RASAeroSaver().marshalToRASAero(originalDocument, warnings, errors);
 
-            assertEquals(" incorrect amount of RASAero export warnings", 3, warnings.size());
-            assertEquals(" incorrect amount of RASAero export errors", 0, errors.size());
+            assertEquals(3, warnings.size(), " incorrect amount of RASAero export warnings");
+            assertEquals(0, errors.size(), " incorrect amount of RASAero export errors");
 
             // Write to .CDX1 file
             Path output = Files.createTempFile("01.One-stage", ".CDX1");
@@ -94,7 +94,7 @@ public class RASAeroSaverTest {
             // Read the file
             RASAeroLoader loader = new RASAeroLoader();
             InputStream stream = new FileInputStream(output.toFile());
-            Assert.assertNotNull("Could not open 01.One-stage.CDX1", stream);
+            Assertions.assertNotNull(stream, "Could not open 01.One-stage.CDX1");
             OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(importedDocument);
@@ -105,8 +105,7 @@ public class RASAeroSaverTest {
             // Test children counts
             List<RocketComponent> originalChildren = originalDocument.getRocket().getAllChildren();
             List<RocketComponent> importedChildren = importedRocket.getAllChildren();
-            assertEquals(" Number of total children doesn't match",
-                    originalChildren.size(), importedChildren.size());
+            assertEquals(originalChildren.size(), importedChildren.size(), " Number of total children doesn't match");
 
             // TODO: check all components
         } catch (IllegalStateException ise) {
@@ -125,8 +124,8 @@ public class RASAeroSaverTest {
             ErrorSet errors = new ErrorSet();
             String result = new RASAeroSaver().marshalToRASAero(originalDocument, warnings, errors);
 
-            assertEquals(" incorrect amount of RASAero export warnings", 2, warnings.size());
-            assertEquals(" incorrect amount of RASAero export errors", 0, errors.size());
+            assertEquals(2, warnings.size(), " incorrect amount of RASAero export warnings");
+            assertEquals(0, errors.size(), " incorrect amount of RASAero export errors");
 
             // Write to .CDX1 file
             Path output = Files.createTempFile("02.Two-stage", ".CDX1");
@@ -135,7 +134,7 @@ public class RASAeroSaverTest {
             // Read the file
             RASAeroLoader loader = new RASAeroLoader();
             InputStream stream = new FileInputStream(output.toFile());
-            Assert.assertNotNull("Could not open 02.Two-stage.CDX1", stream);
+            Assertions.assertNotNull(stream, "Could not open 02.Two-stage.CDX1");
             OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(importedDocument);
@@ -145,8 +144,7 @@ public class RASAeroSaverTest {
 
             // Test children counts
             List<RocketComponent> importedChildren = importedRocket.getAllChildren();
-            assertEquals(" Number of total children doesn't match",
-                    18, importedChildren.size());
+            assertEquals(18, importedChildren.size(), " Number of total children doesn't match");
         } catch (IllegalStateException ise) {
             fail(ise.getMessage());
         } catch (RocketLoadException | IOException e) {
@@ -163,8 +161,8 @@ public class RASAeroSaverTest {
             ErrorSet errors = new ErrorSet();
             String result = new RASAeroSaver().marshalToRASAero(originalDocument, warnings, errors);
 
-            assertEquals(" incorrect amount of RASAero export warnings", 2, warnings.size());
-            assertEquals(" incorrect amount of RASAero export errors", 0, errors.size());
+            assertEquals(2, warnings.size(), " incorrect amount of RASAero export warnings");
+            assertEquals(0, errors.size(), " incorrect amount of RASAero export errors");
 
             // Write to .CDX1 file
             Path output = Files.createTempFile("03.Three-stage", ".CDX1");
@@ -173,7 +171,7 @@ public class RASAeroSaverTest {
             // Read the file
             RASAeroLoader loader = new RASAeroLoader();
             InputStream stream = new FileInputStream(output.toFile());
-            Assert.assertNotNull("Could not open 03.Three-stage.CDX1", stream);
+            Assertions.assertNotNull(stream, "Could not open 03.Three-stage.CDX1");
             OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(importedDocument);
@@ -183,8 +181,7 @@ public class RASAeroSaverTest {
 
             // Test children counts
             List<RocketComponent> importedChildren = importedRocket.getAllChildren();
-            assertEquals(" Number of total children doesn't match",
-                    21, importedChildren.size());
+            assertEquals(21, importedChildren.size(), " Number of total children doesn't match");
         } catch (IllegalStateException ise) {
             fail(ise.getMessage());
         } catch (RocketLoadException | IOException e) {
@@ -196,7 +193,7 @@ public class RASAeroSaverTest {
         GeneralRocketLoader loader = new GeneralRocketLoader(new File(fileName));
         InputStream is = this.getClass().getResourceAsStream("/file/rasaero/export/" + fileName);
         String failMsg = String.format("Problem in unit test, cannot find %s", fileName);
-        assertNotNull(failMsg, is);
+        assertNotNull(is, failMsg);
 
         OpenRocketDocument rocketDoc = null;
         try {

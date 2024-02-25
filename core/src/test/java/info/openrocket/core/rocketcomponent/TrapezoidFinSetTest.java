@@ -105,12 +105,12 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 				new Coordinate(0.00, 0.0) };
 
 		for (int index = 0; index < actPoints.length; ++index) {
-			assertEquals(" generated fin point [" + index + "] doesn't match! ", expPoints[index].x, actPoints[index].x,
-					EPSILON);
-			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x,
-					EPSILON);
-			assertEquals(" generated fin point [" + index + "] doesn't match!", expPoints[index].x, actPoints[index].x,
-					EPSILON);
+			assertEquals(expPoints[index].x, actPoints[index].x, EPSILON,
+					" generated fin point [" + index + "] doesn't match! ");
+			assertEquals(expPoints[index].x, actPoints[index].x, EPSILON,
+					" generated fin point [" + index + "] doesn't match!");
+			assertEquals(expPoints[index].x, actPoints[index].x, EPSILON,
+					" generated fin point [" + index + "] doesn't match!");
 		}
 	}
 
@@ -165,17 +165,17 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 				new Coordinate(0.0600, -0.000301899, 0.0000)
 		};
 
-		assertEquals("Canted fin number of points doesn't match! ", expPoints.length, actPoints.length);
-		assertEquals("Canted root number of points doesn't match! ", expRootPoints.length, rootPoints.length);
+		assertEquals(expPoints.length, actPoints.length, "Canted fin number of points doesn't match! ");
+		assertEquals(expRootPoints.length, rootPoints.length, "Canted root number of points doesn't match! ");
 		for (int i = 0; i < expPoints.length; i++) {
-			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].x, actPoints[i].x, EPSILON);
-			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].y, actPoints[i].y, EPSILON);
-			assertEquals("Canted fin point [" + i + "] doesn't match! ", expPoints[i].z, actPoints[i].z, EPSILON);
+			assertEquals(expPoints[i].x, actPoints[i].x, EPSILON, "Canted fin point [" + i + "] doesn't match! ");
+			assertEquals(expPoints[i].y, actPoints[i].y, EPSILON, "Canted fin point [" + i + "] doesn't match! ");
+			assertEquals(expPoints[i].z, actPoints[i].z, EPSILON, "Canted fin point [" + i + "] doesn't match! ");
 		}
 		for (int i = 0; i < expRootPoints.length; i++) {
-			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].x, rootPoints[i].x, EPSILON);
-			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].y, rootPoints[i].y, EPSILON);
-			assertEquals("Canted root point [" + i + "] doesn't match! ", expRootPoints[i].z, rootPoints[i].z, EPSILON);
+			assertEquals(expRootPoints[i].x, rootPoints[i].x, EPSILON, "Canted root point [" + i + "] doesn't match! ");
+			assertEquals(expRootPoints[i].y, rootPoints[i].y, EPSILON, "Canted root point [" + i + "] doesn't match! ");
+			assertEquals(expRootPoints[i].z, rootPoints[i].z, EPSILON, "Canted root point [" + i + "] doesn't match! ");
 		}
 	}
 
@@ -188,13 +188,13 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		fins.setFinShape(0.1, 0.1, 0.0, 0.1, .005);
 
 		// should return a single-fin-planform area
-		assertEquals("area calculation doesn't match: ", 0.01, fins.getPlanformArea(), 0.00001);
+		assertEquals(0.01, fins.getPlanformArea(), 0.00001, "area calculation doesn't match: ");
 
 		final double expSingleMass = 0.00005;
 		final Coordinate singleCG = fins.getComponentCG();
-		assertEquals("Fin mass is wrong! ", expSingleMass, singleCG.weight, EPSILON);
-		assertEquals("Centroid x coordinate is wrong! ", 0.05, singleCG.x, EPSILON);
-		assertEquals("Centroid y coordinate is wrong! ", 0.15, singleCG.y, EPSILON);
+		assertEquals(expSingleMass, singleCG.weight, EPSILON, "Fin mass is wrong! ");
+		assertEquals(0.05, singleCG.x, EPSILON, "Centroid x coordinate is wrong! ");
+		assertEquals(0.15, singleCG.y, EPSILON, "Centroid y coordinate is wrong! ");
 
 		// should still return a single-fin-wetted area
 		assertEquals(0.00005, fins.getComponentVolume(), 0.0000001);
@@ -208,8 +208,8 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 
 			Coordinate doubleCG = fins.getComponentCG();
 			final double expDoubleMass = expSingleMass * 2;
-			assertEquals("Fin x2 mass does not change from single fin instance! ", expDoubleMass, doubleCG.weight,
-					EPSILON);
+			assertEquals(expDoubleMass, doubleCG.weight,
+					EPSILON, "Fin x2 mass does not change from single fin instance! ");
 			assertEquals(0.05, doubleCG.x, EPSILON);
 			assertEquals(0.0, doubleCG.y, EPSILON);
 		}
@@ -225,25 +225,25 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		fins.setTabOffsetMethod(AxialMethod.MIDDLE);
 		fins.setTabOffset(0.0);
 
-		assertEquals("Wetted Area does not match!", 0.0020, fins.getPlanformArea(), EPSILON);
+		assertEquals(0.0020, fins.getPlanformArea(), EPSILON, "Wetted Area does not match!");
 
 		final double expVol1 = 0.00001200;
 		final double actVol1 = fins.getComponentVolume();
-		assertEquals(" fin volume is incorrect", expVol1, actVol1, EPSILON);
+		assertEquals(expVol1, actVol1, EPSILON, " fin volume is incorrect");
 
 		Coordinate actCentroid1 = fins.getCG();
-		assertEquals(" basic centroid x doesn't match: ", 0.03000, actCentroid1.x, EPSILON);
-		assertEquals(" basic centroid y doesn't match: ", 0.11569444, actCentroid1.y, EPSILON);
+		assertEquals(0.03000, actCentroid1.x, EPSILON, " basic centroid x doesn't match: ");
+		assertEquals(0.11569444, actCentroid1.y, EPSILON, " basic centroid y doesn't match: ");
 
 		{
 			fins.setFinCount(2);
 			final double expVol2 = expVol1 * 2;
 			final double actVol2 = fins.getComponentVolume();
-			assertEquals(" fin volume is incorrect", expVol2, actVol2, EPSILON);
+			assertEquals(expVol2, actVol2, EPSILON, " fin volume is incorrect");
 
 			Coordinate actCentroid2 = fins.getCG();
 			// x coordinate will be the same....
-			assertEquals(" basic centroid y doesn't match: ", 0.0, actCentroid2.y, EPSILON);
+			assertEquals(0.0, actCentroid2.y, EPSILON, " basic centroid y doesn't match: ");
 		}
 	}
 
@@ -264,18 +264,18 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		// [0] +--------+ [3]
 		//
 		assertEquals(0.06, fins.getLength(), EPSILON);
-		assertEquals("Body radius doesn't match: ", 0.1, body.getOuterRadius(), EPSILON);
+		assertEquals(0.1, body.getOuterRadius(), EPSILON, "Body radius doesn't match: ");
 
 		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
 
-		assertEquals("Fin volume doesn't match: ", 5.973e-07, actVolume.weight, EPSILON);
-		assertEquals("Fin mass center.x doesn't match: ", 0.03, actVolume.x, EPSILON);
-		assertEquals("Fin mass center.y doesn't match: ", 0.101, actVolume.y, EPSILON);
+		assertEquals(5.973e-07, actVolume.weight, EPSILON, "Fin volume doesn't match: ");
+		assertEquals(0.03, actVolume.x, EPSILON, "Fin mass center.x doesn't match: ");
+		assertEquals(0.101, actVolume.y, EPSILON, "Fin mass center.y doesn't match: ");
 
 		{ // and then, check that the fillet volume feeds into a correct overall CG:
 			Coordinate actCentroid = fins.getCG();
-			assertEquals("Complete centroid x doesn't match: ", 0.03000, actCentroid.x, EPSILON);
-			assertEquals("Complete centroid y doesn't match: ", 0.11971548, actCentroid.y, EPSILON);
+			assertEquals(0.03000, actCentroid.x, EPSILON, "Complete centroid x doesn't match: ");
+			assertEquals(0.11971548, actCentroid.y, EPSILON, "Complete centroid y doesn't match: ");
 		}
 	}
 
@@ -296,14 +296,14 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		// [0] +--------+ [3]
 		//
 		assertEquals(0.05, fins.getLength(), EPSILON);
-		assertEquals("Transition fore radius doesn't match: ", 0.1, transition.getForeRadius(), EPSILON);
-		assertEquals("Transition aft radius doesn't match: ", 0.3, transition.getAftRadius(), EPSILON);
+		assertEquals(0.1, transition.getForeRadius(), EPSILON, "Transition fore radius doesn't match: ");
+		assertEquals(0.3, transition.getAftRadius(), EPSILON, "Transition aft radius doesn't match: ");
 
 		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
 
-		assertEquals("Fin volume doesn't match: ", 5.973e-07, actVolume.weight, EPSILON);
-		assertEquals("Fin mass center.x doesn't match: ", 0.024393025, actVolume.x, EPSILON);
-		assertEquals("Fin mass center.y doesn't match: ", 0.190479957, actVolume.y, EPSILON);
+		assertEquals(5.973e-07, actVolume.weight, EPSILON, "Fin volume doesn't match: ");
+		assertEquals(0.024393025, actVolume.x, EPSILON, "Fin mass center.x doesn't match: ");
+		assertEquals(0.190479957, actVolume.y, EPSILON, "Fin mass center.y doesn't match: ");
 	}
 
 	@Test

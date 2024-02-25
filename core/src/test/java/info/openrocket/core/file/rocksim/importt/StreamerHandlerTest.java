@@ -5,7 +5,7 @@ package info.openrocket.core.file.rocksim.importt;
 
 import java.util.HashMap;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.logging.WarningSet;
@@ -30,7 +30,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
      */
     @Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE,
+        Assertions.assertEquals(PlainTextHandler.INSTANCE,
                 new StreamerHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
@@ -50,35 +50,35 @@ public class StreamerHandlerTest extends RockSimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Width", attributes, "0", warnings);
-        Assert.assertEquals(0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
+        Assertions.assertEquals(0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
         handler.closeElement("Width", attributes, "10", warnings);
-        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(),
+        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(),
                 0.001);
         handler.closeElement("Width", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assert.assertEquals(0d, component.getStripLength(), 0.001);
+        Assertions.assertEquals(0d, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
+        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
                 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
+        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
                 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Name", attributes, "Test Name", warnings);
-        Assert.assertEquals("Test Name", component.getName());
+        Assertions.assertEquals(component.getName(), "Test Name");
 
         handler.closeElement("DragCoefficient", attributes, "0.94", warnings);
-        Assert.assertEquals(0.94d, component.getCD(), 0.001);
+        Assertions.assertEquals(0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "-0.94", warnings);
-        Assert.assertEquals(-0.94d, component.getCD(), 0.001);
+        Assertions.assertEquals(-0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
     }
@@ -93,7 +93,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
 
         try {
             new StreamerHandler(null, null, new WarningSet());
-            Assert.fail("Should have thrown IllegalArgumentException");
+            Assertions.fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
             // success
         }
@@ -115,7 +115,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
         StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
         handler.getComponent().setAxialMethod(AxialMethod.ABSOLUTE);
-        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
+        Assertions.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 
     /**
@@ -125,7 +125,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
      */
     @Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(
+        Assertions.assertTrue(
                 new StreamerHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof Streamer);
     }
 
@@ -136,7 +136,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
      */
     @Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.SURFACE,
+        Assertions.assertEquals(Material.Type.SURFACE,
                 new StreamerHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 
@@ -156,31 +156,31 @@ public class StreamerHandlerTest extends RockSimTestBase {
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
-        Assert.assertEquals(component.getAxialOffset(), -10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
+        Assertions.assertEquals(component.getAxialOffset(), -10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        Assert.assertEquals(AxialMethod.BOTTOM, component.getAxialMethod());
-        Assert.assertEquals(component.getAxialOffset(), 10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(AxialMethod.BOTTOM, component.getAxialMethod());
+        Assertions.assertEquals(component.getAxialOffset(), 10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
 
         handler.closeElement("Thickness", attributes, "0.02", warnings);
-        Assert.assertEquals(0.01848, handler.computeDensity(RockSimDensityType.ROCKSIM_BULK, 924d), 0.001);
+        Assertions.assertEquals(0.01848, handler.computeDensity(RockSimDensityType.ROCKSIM_BULK, 924d), 0.001);
 
         // Test Density Type 0 (Bulk)
         handler.closeElement("Density", attributes, "924.0", warnings);
         handler.closeElement("DensityType", attributes, "0", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        Assert.assertEquals(0.01848d, component.getMaterial().getDensity(), 0.001);
+        Assertions.assertEquals(0.01848d, component.getMaterial().getDensity(), 0.001);
 
         // Test Density Type 1 (Surface)
         handler.closeElement("Density", attributes, "0.006685", warnings);
         handler.closeElement("DensityType", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        Assert.assertTrue(Math.abs(0.06685d - component.getMaterial().getDensity()) < 0.00001);
+        Assertions.assertTrue(Math.abs(0.06685d - component.getMaterial().getDensity()) < 0.00001);
 
         // Test Density Type 2 (Line)
         handler.closeElement("Density", attributes, "0.223225", warnings);
@@ -189,7 +189,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
         handler.closeElement("Width", attributes, "203.2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
 
-        Assert.assertEquals(1.728190092, component.getMass(), 0.001);
+        Assertions.assertEquals(1.728190092, component.getMass(), 0.001);
 
     }
 

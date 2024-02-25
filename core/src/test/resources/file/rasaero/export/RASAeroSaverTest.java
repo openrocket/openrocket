@@ -26,7 +26,7 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -94,7 +94,7 @@ public class RASAeroSaverTest {
             // Read the file
             RASAeroLoader loader = new RASAeroLoader();
             InputStream stream = new FileInputStream(output.toFile());
-            Assert.assertNotNull("Could not open 01.One-stage.CDX1", stream);
+            Assertions.assertNotNull("Could not open 01.One-stage.CDX1", stream);
             OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(importedDocument);
@@ -135,7 +135,7 @@ public class RASAeroSaverTest {
             // Read the file
             RASAeroLoader loader = new RASAeroLoader();
             InputStream stream = new FileInputStream(output.toFile());
-            Assert.assertNotNull("Could not open 02.Two-stage.CDX1", stream);
+            Assertions.assertNotNull("Could not open 02.Two-stage.CDX1", stream);
             OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(importedDocument);
@@ -173,7 +173,7 @@ public class RASAeroSaverTest {
             // Read the file
             RASAeroLoader loader = new RASAeroLoader();
             InputStream stream = new FileInputStream(output.toFile());
-            Assert.assertNotNull("Could not open 03.Three-stage.CDX1", stream);
+            Assertions.assertNotNull("Could not open 03.Three-stage.CDX1", stream);
             OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
             context.setOpenRocketDocument(importedDocument);

@@ -132,7 +132,7 @@ public class MotorRowFilterTest {
 		excludedManufacturers.add(Manufacturer.getManufacturer("Estes"));
 		excludedManufacturers.add(Manufacturer.getManufacturer("Loki"));
 		filter.setExcludedManufacturers(excludedManufacturers);
-		assertEquals("[Estes, Loki Research]", filter.getExcludedManufacturers().toString());
+		assertEquals(filter.getExcludedManufacturers().toString(), "[Estes, Loki Research]");
 		assertTrue(filter.include(entry));
 
 		//////////////////////////////////

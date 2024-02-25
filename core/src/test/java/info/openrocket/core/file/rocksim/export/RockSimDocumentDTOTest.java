@@ -39,7 +39,7 @@ import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
@@ -83,7 +83,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		// TODO need checks here to validate that correct things were done
 		OpenRocketDocument ord = RockSimLoaderTest.loadRockSimRocket(new RockSimLoader(), "rocksimTestRocket3.rkt");
 
-		Assert.assertNotNull(ord);
+		Assertions.assertNotNull(ord);
 		String result = new RockSimSaver().marshalToRockSim(ord);
 
 		// System.err.println(result);
@@ -116,7 +116,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		// Read the file
 		RockSimLoader loader = new RockSimLoader();
 		InputStream stream = new FileInputStream(output.toFile());
-		Assert.assertNotNull("Could not open podsRocket.rkt", stream);
+		Assertions.assertNotNull(stream, "Could not open podsRocket.rkt");
 		OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setOpenRocketDocument(importedDocument);
@@ -127,24 +127,23 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		// Test children counts
 		List<RocketComponent> originalChildren = originalRocket.getAllChildren();
 		List<RocketComponent> importedChildren = importedRocket.getAllChildren();
-		assertEquals(" Number of total children doesn't match",
-				originalChildren.size(), importedChildren.size());
-		assertEquals(" Number of rocket children doesn't match", 1, importedRocket.getChildCount());
+		assertEquals(originalChildren.size(), importedChildren.size(), " Number of total children doesn't match");
+		assertEquals(1, importedRocket.getChildCount(), " Number of rocket children doesn't match");
 		AxialStage stage = (AxialStage) importedRocket.getChild(0);
-		assertEquals(" Number of stage children doesn't match", 2, stage.getChildCount());
+		assertEquals(2, stage.getChildCount(), " Number of stage children doesn't match");
 		BodyTube tube = (BodyTube) stage.getChild(1);
-		assertEquals(" Number of body tube children doesn't match", 3, tube.getChildCount());
+		assertEquals(3, tube.getChildCount(), " Number of body tube children doesn't match");
 		PodSet pod1 = (PodSet) tube.getChild(0);
-		assertEquals(" Number of pod 1 children doesn't match", 1, pod1.getChildCount());
+		assertEquals(1, pod1.getChildCount(), " Number of pod 1 children doesn't match");
 		PodSet pod2 = (PodSet) tube.getChild(1);
-		assertEquals(" Number of pod 2 children doesn't match", 2, pod2.getChildCount());
+		assertEquals(2, pod2.getChildCount(), " Number of pod 2 children doesn't match");
 		PodSet pod3 = (PodSet) tube.getChild(2);
-		assertEquals(" Number of pod 3 children doesn't match", 0, pod3.getChildCount());
+		assertEquals(0, pod3.getChildCount(), " Number of pod 3 children doesn't match");
 
 		// Test component names
 		for (int i = 1; i < originalChildren.size(); i++) {
-			assertEquals(" Child " + i + " does not match",
-					originalChildren.get(i).getName(), importedChildren.get(i).getName());
+			assertEquals(originalChildren.get(i).getName(), importedChildren.get(i).getName(),
+					" Child " + i + " does not match");
 		}
 
 		// Test pod parameters
@@ -185,7 +184,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		// Read the file
 		RockSimLoader loader = new RockSimLoader();
 		InputStream stream = new FileInputStream(output.toFile());
-		Assert.assertNotNull("Could not open tubeCouplerRocket.rkt", stream);
+		Assertions.assertNotNull(stream, "Could not open tubeCouplerRocket.rkt");
 		OpenRocketDocument importedDocument = OpenRocketDocumentFactory.createEmptyRocket();
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setOpenRocketDocument(importedDocument);
@@ -196,18 +195,17 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		// Test children counts
 		List<RocketComponent> originalChildren = originalRocket.getAllChildren();
 		List<RocketComponent> importedChildren = importedRocket.getAllChildren();
-		assertEquals(" Number of total children doesn't match",
-				originalChildren.size(), importedChildren.size());
-		assertEquals(" Number of rocket children doesn't match", 1, importedRocket.getChildCount());
+		assertEquals(originalChildren.size(), importedChildren.size(), " Number of total children doesn't match");
+		assertEquals(1, importedRocket.getChildCount(), " Number of rocket children doesn't match");
 		AxialStage stage = (AxialStage) importedRocket.getChild(0);
-		assertEquals(" Number of stage children doesn't match", 2, stage.getChildCount());
+		assertEquals(2, stage.getChildCount(), " Number of stage children doesn't match");
 		BodyTube tube = (BodyTube) stage.getChild(1);
-		assertEquals(" Number of body tube children doesn't match", 12, tube.getChildCount());
+		assertEquals(12, tube.getChildCount(), " Number of body tube children doesn't match");
 
 		// Test component names
 		for (int i = 1; i < originalChildren.size(); i++) {
-			assertEquals(" Child " + i + " does not match",
-					originalChildren.get(i).getName(), importedChildren.get(i).getName());
+			assertEquals(originalChildren.get(i).getName(), importedChildren.get(i).getName(),
+					" Child " + i + " does not match");
 		}
 
 		stream.close();

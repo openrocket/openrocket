@@ -269,7 +269,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
 	private void assertNull(Object o) {
 		try {
-			org.junit.Assert.assertNull(o);
+			org.junit.jupiter.api.Assertions.assertNull(o);
 		} catch (AssertionError e) {
 			failed = true;
 			throw e;
@@ -278,7 +278,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
 	private void assertNotNull(Object o) {
 		try {
-			org.junit.Assert.assertNotNull(o);
+			org.junit.jupiter.api.Assertions.assertNotNull(o);
 		} catch (AssertionError e) {
 			failed = true;
 			throw e;
@@ -287,7 +287,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
 	private void assertTrue(boolean o) {
 		try {
-			org.junit.Assert.assertTrue(o);
+			org.junit.jupiter.api.Assertions.assertTrue(o);
 		} catch (AssertionError e) {
 			failed = true;
 			throw e;
@@ -296,7 +296,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
 	private void assertFalse(boolean o) {
 		try {
-			org.junit.Assert.assertFalse(o);
+			org.junit.jupiter.api.Assertions.assertFalse(o);
 		} catch (AssertionError e) {
 			failed = true;
 			throw e;
@@ -305,7 +305,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
 	private void fail(String msg) {
 		failed = true;
-		org.junit.Assert.fail(msg);
+		org.junit.jupiter.api.Assertions.fail(msg);
 	}
 
 	@Override

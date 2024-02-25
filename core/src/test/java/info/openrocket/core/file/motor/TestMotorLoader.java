@@ -1,8 +1,8 @@
 package info.openrocket.core.file.motor;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +53,7 @@ public class TestMotorLoader {
 		List<ThrustCurveMotor.Builder> motors;
 
 		InputStream is = this.getClass().getResourceAsStream(file);
-		assertNotNull("File " + file + " not found", is);
+		assertNotNull(is, "File " + file + " not found");
 		motors = loader.load(is, file);
 		is.close();
 		assertEquals(digests.length, motors.size());
@@ -65,7 +65,7 @@ public class TestMotorLoader {
 
 		Arrays.sort(digests);
 		Arrays.sort(d);
-		assertTrue("d = " + Arrays.toString(d) + " digests = " + Arrays.toString(digests), Arrays.equals(d, digests));
+		assertArrayEquals(d, digests, "d = " + Arrays.toString(d) + " digests = " + Arrays.toString(digests));
 	}
 
 }

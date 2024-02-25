@@ -77,14 +77,14 @@ public class ParallelStageTest extends BaseTestCase {
 		AxialStage payloadStage = (AxialStage) rocket.getChild(0);
 		RocketComponent payloadNose = payloadStage.getChild(0);
 		RocketComponent payloadBody = payloadStage.getChild(1);
-		assertFalse(" createTestRocket failed: is payload stage an ancestor of the payload stage?  ", payloadStage.isAncestor(payloadStage));
-		assertTrue(" createTestRocket failed: is payload stage an ancestor of the payload nose? ", payloadStage.isAncestor(payloadNose));
-		assertTrue(" createTestRocket failed: is the rocket an ancestor of the sustainer Nose?  ", rocket.isAncestor(payloadNose));
-		assertFalse(" createTestRocket failed: is payload Body an ancestor of the payload Nose?  ", payloadBody.isAncestor(payloadNose));
+		assertFalse(payloadStage.isAncestor(payloadStage), " createTestRocket failed: is payload stage an ancestor of the payload stage?  ");
+		assertTrue(payloadStage.isAncestor(payloadNose), " createTestRocket failed: is payload stage an ancestor of the payload nose? ");
+		assertTrue(rocket.isAncestor(payloadNose), " createTestRocket failed: is the rocket an ancestor of the sustainer Nose?  ");
+		assertFalse(payloadBody.isAncestor(payloadNose), " createTestRocket failed: is payload Body an ancestor of the payload Nose?  ");
 
 		int relToExpected = -1;
 		int relToStage = payloadStage.getRelativeToStage();
-		assertEquals(" createTestRocket failed: sustainer relative position: ", relToStage, relToExpected);
+		assertEquals(relToStage, relToExpected, " createTestRocket failed: sustainer relative position: ");
 
 		double expectedPayloadLength = 0.564;
 		assertEquals(payloadStage.getLength(), expectedPayloadLength, EPSILON);
@@ -118,11 +118,11 @@ public class ParallelStageTest extends BaseTestCase {
 		// Core Stage
 		AxialStage coreStage = (AxialStage) rocket.getChild(1);
 		double expectedCoreLength = 0.8;
-		assertEquals(" createTestRocket failed: @ Core size: ", coreStage.getLength(), expectedCoreLength);
+		assertEquals(coreStage.getLength(), expectedCoreLength, " createTestRocket failed: @ Core size: ");
 
 		int relToExpected = 0;
 		int relToStage = coreStage.getRelativeToStage();
-		assertEquals(" createTestRocket failed! @ core relative position: ", relToStage, relToExpected);
+		assertEquals(relToStage, relToExpected, " createTestRocket failed! @ core relative position: ");
 
 		final double expectedCoreStageX = payloadLength;
 		assertEquals(expectedCoreStageX, 0.564, EPSILON);
@@ -144,13 +144,13 @@ public class ParallelStageTest extends BaseTestCase {
 		AxialStage booster = (AxialStage) coreStage.getChild(0).getChild(0);
 
 		AxialStage sustainerPrev = sustainer.getUpperStage();
-		assertNull("sustainer parent is not found correctly: ", sustainerPrev);
+		assertNull(sustainerPrev, "sustainer parent is not found correctly: ");
 
 		AxialStage corePrev = coreStage.getUpperStage();
-		assertEquals("core parent is not found correctly: ", corePrev, sustainer);
+		assertEquals(corePrev, sustainer, "core parent is not found correctly: ");
 
 		AxialStage boosterPrev = booster.getUpperStage();
-		assertEquals("booster parent is not found correctly: ", boosterPrev, coreStage);
+		assertEquals(boosterPrev, coreStage, "booster parent is not found correctly: ");
 	}
 
 	@Test
@@ -164,9 +164,9 @@ public class ParallelStageTest extends BaseTestCase {
 		// without making the rocket 'external' and the Stage should be restricted to
 		// AFTER positioning.
 		sustainer.setAxialMethod(AxialMethod.ABSOLUTE);
-		assertTrue("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.isAfter());
-		assertEquals("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.getAxialMethod(),
-				AxialMethod.AFTER);
+		assertTrue(sustainer.isAfter(), "Setting a centerline stage to anything other than AFTER is ignored.");
+		assertEquals(sustainer.getAxialMethod(),
+				AxialMethod.AFTER, "Setting a centerline stage to anything other than AFTER is ignored.");
 
 		// vv function under test
 		sustainer.setAxialOffset(targetPosition.x);
@@ -174,13 +174,13 @@ public class ParallelStageTest extends BaseTestCase {
 		String rocketTree = rocket.toDebugTree();
 
 		Coordinate resultantRelativePosition = sustainer.getPosition();
-		assertEquals(" 'setAxialPosition(double)' failed:\n" + rocketTree + " Relative position: ",
-				resultantRelativePosition.x, expectedPosition.x, EPSILON);
+		assertEquals(resultantRelativePosition.x, expectedPosition.x, EPSILON,
+				" 'setAxialPosition(double)' failed:\n" + rocketTree + " Relative position: ");
 		// for all stages, the absolute position should equal the relative, because the
 		// direct parent is the rocket component (i.e. the Rocket)
 		Coordinate resultantAbsolutePosition = sustainer.getComponentLocations()[0];
-		assertEquals(" 'setAxialPosition(double)' failed:\n" + rocketTree + " Absolute position: ",
-				resultantAbsolutePosition.x, expectedPosition.x, EPSILON);
+		assertEquals(resultantAbsolutePosition.x, expectedPosition.x, EPSILON,
+				" 'setAxialPosition(double)' failed:\n" + rocketTree + " Absolute position: ");
 
 	}
 
@@ -195,14 +195,14 @@ public class ParallelStageTest extends BaseTestCase {
 		parallelBoosterSet.setRadiusOffset(2.0);
 		// ^^ function under test
 
-		assertEquals(" 'setInstancecount(int)' failed: ", 2, parallelBoosterSet.getInstanceCount());
+		assertEquals(2, parallelBoosterSet.getInstanceCount(), " 'setInstancecount(int)' failed: ");
 
 		assertFalse(RadiusMethod.FREE.clampToZero());
-		assertEquals(" error while setting radius method: ", RadiusMethod.FREE, parallelBoosterSet.getRadiusMethod());
-		assertEquals(" error while setting radius offset: ", 2.0, parallelBoosterSet.getRadiusOffset(), EPSILON);
+		assertEquals(RadiusMethod.FREE, parallelBoosterSet.getRadiusMethod(), " error while setting radius method: ");
+		assertEquals(2.0, parallelBoosterSet.getRadiusOffset(), EPSILON, " error while setting radius offset: ");
 
-		assertEquals(" error while setting radius offset: ", 2.0, parallelBoosterSet.getInstanceLocations()[0].y,
-				EPSILON);
+		assertEquals(2.0, parallelBoosterSet.getInstanceLocations()[0].y,
+				EPSILON, " error while setting radius offset: ");
 	}
 
 	@Test
@@ -221,31 +221,31 @@ public class ParallelStageTest extends BaseTestCase {
 		parallelBoosterStage.setRadiusOffset(4.0);
 		// ^^^^ function under test
 
-		assertEquals(" 'setInstancecount(int)' failed: ", 2, parallelBoosterStage.getInstanceCount());
+		assertEquals(2, parallelBoosterStage.getInstanceCount(), " 'setInstancecount(int)' failed: ");
 
 		assertTrue(RadiusMethod.SURFACE.clampToZero());
-		assertEquals(" error while setting radius method: ", RadiusMethod.SURFACE,
-				parallelBoosterStage.getRadiusMethod());
-		assertEquals(" error while setting radius offset: ", 0.0, parallelBoosterStage.getRadiusOffset(), EPSILON);
+		assertEquals(RadiusMethod.SURFACE,
+				parallelBoosterStage.getRadiusMethod(), " error while setting radius method: ");
+		assertEquals(0.0, parallelBoosterStage.getRadiusOffset(), EPSILON, " error while setting radius offset: ");
 
 		final double expectedRadius = coreBody.getOuterRadius() + boosterBody.getOuterRadius();
 		{
 			final Coordinate[] actualInstanceOffsets = parallelBoosterStage.getInstanceOffsets();
 
-			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[0].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", expectedRadius, actualInstanceOffsets[0].y, EPSILON);
+			assertEquals(0, actualInstanceOffsets[0].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(expectedRadius, actualInstanceOffsets[0].y, EPSILON, " error while setting radius offset: ");
 
-			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[1].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", -expectedRadius, actualInstanceOffsets[1].y, EPSILON);
+			assertEquals(0, actualInstanceOffsets[1].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(-expectedRadius, actualInstanceOffsets[1].y, EPSILON, " error while setting radius offset: ");
 		}
 		{
 			final Coordinate[] actualLocations = parallelBoosterStage.getComponentLocations();
 
-			assertEquals(" error while setting radius offset: ", 0.484, actualLocations[0].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", expectedRadius, actualLocations[0].y, EPSILON);
+			assertEquals(0.484, actualLocations[0].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(expectedRadius, actualLocations[0].y, EPSILON, " error while setting radius offset: ");
 
-			assertEquals(" error while setting radius offset: ", 0.484, actualLocations[1].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", -expectedRadius, actualLocations[1].y, EPSILON);
+			assertEquals(0.484, actualLocations[1].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(-expectedRadius, actualLocations[1].y, EPSILON, " error while setting radius offset: ");
 		}
 	}
 
@@ -266,29 +266,29 @@ public class ParallelStageTest extends BaseTestCase {
 		// ^^ function under test
 
 		assertFalse(RadiusMethod.RELATIVE.clampToZero());
-		assertEquals(" error while setting radius method: ", RadiusMethod.RELATIVE,
-				parallelBoosterStage.getRadiusMethod());
-		assertEquals(" error while setting radius offset: ", targetRadiusOffset, parallelBoosterStage.getRadiusOffset(),
-				EPSILON);
+		assertEquals(RadiusMethod.RELATIVE,
+				parallelBoosterStage.getRadiusMethod(), " error while setting radius method: ");
+		assertEquals(targetRadiusOffset, parallelBoosterStage.getRadiusOffset(),
+				EPSILON, " error while setting radius offset: ");
 
 		final double expectedRadius = targetRadiusOffset + coreBody.getOuterRadius() + boosterBody.getOuterRadius();
 		{
 			final Coordinate[] actualInstanceOffsets = parallelBoosterStage.getInstanceOffsets();
 
-			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[0].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", expectedRadius, actualInstanceOffsets[0].y, EPSILON);
+			assertEquals(0, actualInstanceOffsets[0].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(expectedRadius, actualInstanceOffsets[0].y, EPSILON, " error while setting radius offset: ");
 
-			assertEquals(" error while setting radius offset: ", 0, actualInstanceOffsets[1].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", -expectedRadius, actualInstanceOffsets[1].y, EPSILON);
+			assertEquals(0, actualInstanceOffsets[1].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(-expectedRadius, actualInstanceOffsets[1].y, EPSILON, " error while setting radius offset: ");
 		}
 		{
 			final Coordinate[] actualLocations = parallelBoosterStage.getComponentLocations();
 
-			assertEquals(" error while setting radius offset: ", 0.484, actualLocations[0].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", expectedRadius, actualLocations[0].y, EPSILON);
+			assertEquals(0.484, actualLocations[0].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(expectedRadius, actualLocations[0].y, EPSILON, " error while setting radius offset: ");
 
-			assertEquals(" error while setting radius offset: ", 0.484, actualLocations[1].x, EPSILON);
-			assertEquals(" error while setting radius offset: ", -expectedRadius, actualLocations[1].y, EPSILON);
+			assertEquals(0.484, actualLocations[1].x, EPSILON, " error while setting radius offset: ");
+			assertEquals(-expectedRadius, actualLocations[1].y, EPSILON, " error while setting radius offset: ");
 		}
 	}
 
@@ -320,16 +320,15 @@ public class ParallelStageTest extends BaseTestCase {
 
 		for (int index = 0; index < targetInstanceCount; ++index) {
 			final Coordinate actualPosition = instanceAbsoluteCoords[index];
-			assertEquals(String.format("At index=%d, radius=%.6g, angle=%.6g", index, expectedRadiusOffset,
-					angleIncr * index), expectedX, actualPosition.x, EPSILON);
+			String txt = String.format("At index=%d, radius=%.6g, angle=%.6g", index, expectedRadiusOffset,
+					angleIncr * index);
+			assertEquals(expectedX, actualPosition.x, EPSILON, txt);
 
 			final double expectedY = expectedRadiusOffset * Math.cos(angleIncr * index);
-			assertEquals(String.format("At index=%d, radius=%.6g, angle=%.6g", index, expectedRadiusOffset,
-					angleIncr * index), expectedY, actualPosition.y, EPSILON);
+			assertEquals(expectedY, actualPosition.y, EPSILON, txt);
 
 			final double expectedZ = expectedRadiusOffset * Math.sin(angleIncr * index);
-			assertEquals(String.format("At index=%d, radius=%.6g, angle=%.6g", index, expectedRadiusOffset,
-					angleIncr * index), expectedZ, actualPosition.z, EPSILON);
+			assertEquals(expectedZ, actualPosition.z, EPSILON, txt);
 		}
 
 	}
@@ -353,17 +352,17 @@ public class ParallelStageTest extends BaseTestCase {
 		boosterStage.setAxialOffset(AxialMethod.ABSOLUTE, targetAbsoluteX);
 		// ^^ function under test
 
-		assertEquals("setAxialOffset( method, double) failed: ", AxialMethod.ABSOLUTE, boosterStage.getAxialMethod());
-		assertEquals("setAxialOffset( method, double) failed: ", targetAbsoluteX, boosterStage.getAxialOffset(),
-				EPSILON);
+		assertEquals(AxialMethod.ABSOLUTE, boosterStage.getAxialMethod(), "setAxialOffset( method, double) failed: ");
+		assertEquals(targetAbsoluteX, boosterStage.getAxialOffset(),
+				EPSILON, "setAxialOffset( method, double) failed: ");
 
 		double actualRelativeX = boosterStage.getAxialOffset(AxialMethod.TOP);
-		assertEquals(" 'setAxialPosition(double)' failed: Relative position: ", expectedRelativeX, actualRelativeX,
-				EPSILON);
+		assertEquals(expectedRelativeX, actualRelativeX,
+				EPSILON, " 'setAxialPosition(double)' failed: Relative position: ");
 
 		double actualAbsoluteX = boosterStage.getComponentLocations()[0].x;
-		assertEquals(" 'setAxialPosition(double)' failed: Absolute position: ", expectedAbsoluteX, actualAbsoluteX,
-				EPSILON);
+		assertEquals(expectedAbsoluteX, actualAbsoluteX,
+				EPSILON, " 'setAxialPosition(double)' failed: Absolute position: ");
 
 	}
 
@@ -374,22 +373,22 @@ public class ParallelStageTest extends BaseTestCase {
 
 		int expectedRelativeIndex = -1;
 		int resultantRelativeIndex = payloadStage.getRelativeToStage();
-		assertEquals(" 'setRelativeToStage(int)' failed. Relative stage index:", expectedRelativeIndex, resultantRelativeIndex);
+		assertEquals(expectedRelativeIndex, resultantRelativeIndex, " 'setRelativeToStage(int)' failed. Relative stage index:");
 
 		// vv function under test
 		// a centerline stage is not freely movable
 		payloadStage.setAxialOffset(AxialMethod.TOP, 4.0);
 		// ^^ function under test
 
-		assertEquals("setAxialPosition( Method, double) ", AxialMethod.AFTER, payloadStage.getAxialMethod());
-		assertEquals("setAxialPosition( Method, double) ", 0.0, payloadStage.getAxialOffset(), EPSILON);
+		assertEquals(AxialMethod.AFTER, payloadStage.getAxialMethod(), "setAxialPosition( Method, double) ");
+		assertEquals(0.0, payloadStage.getAxialOffset(), EPSILON, "setAxialPosition( Method, double) ");
 
-		assertEquals("setAxialPosition( Method, double) ", 0.0, payloadStage.getPosition().x, EPSILON);
+		assertEquals(0.0, payloadStage.getPosition().x, EPSILON, "setAxialPosition( Method, double) ");
 
-		assertEquals("setAxialPosition( Method, double) ", RadiusMethod.COAXIAL, payloadStage.getRadiusMethod());
-		assertEquals("setAxialPosition( Method, double) ", 0.0, payloadStage.getRadiusOffset(), EPSILON);
+		assertEquals(RadiusMethod.COAXIAL, payloadStage.getRadiusMethod(), "setAxialPosition( Method, double) ");
+		assertEquals(0.0, payloadStage.getRadiusOffset(), EPSILON, "setAxialPosition( Method, double) ");
 
-		assertEquals("setAxialPosition( Method, double) ", 0.0, payloadStage.getComponentLocations()[0].x, EPSILON);
+		assertEquals(0.0, payloadStage.getComponentLocations()[0].x, EPSILON, "setAxialPosition( Method, double) ");
 	}
 
 	@Test
@@ -409,23 +408,23 @@ public class ParallelStageTest extends BaseTestCase {
 		double expectedRelativeX = 0.2;
 		double expectedAbsoluteX = 0.764;
 		Coordinate resultantRelativePosition = boosterStage.getPosition();
-		assertEquals(" 'setAxialPosition(double)' failed: \n" + treeDump + "  Relative position: ",
-				resultantRelativePosition.x, expectedRelativeX, EPSILON);
+		assertEquals(resultantRelativePosition.x, expectedRelativeX, EPSILON,
+				" 'setAxialPosition(double)' failed: \n" + treeDump + "  Relative position: ");
 		// for all stages, the absolute position should equal the relative, because the
 		// direct parent is the rocket component (i.e. the Rocket)
 
 		Coordinate resultantAbsolutePosition = boosterStage.getComponentLocations()[0];
 
-		assertEquals(" 'setAxialPosition(double)' failed: \n" + treeDump + "  Absolute position: ",
-				resultantAbsolutePosition.x, expectedAbsoluteX, EPSILON);
+		assertEquals(resultantAbsolutePosition.x, expectedAbsoluteX, EPSILON,
+				" 'setAxialPosition(double)' failed: \n" + treeDump + "  Absolute position: ");
 
 		double resultantAxialOffset = boosterStage.getAxialOffset();
-		assertEquals(" 'getAxialPosition()' failed: \n" + treeDump + "  Axial Offset: ", resultantAxialOffset,
-				targetOffset, EPSILON);
+		assertEquals(resultantAxialOffset, targetOffset, EPSILON,
+				" 'getAxialPosition()' failed: \n" + treeDump + "  Axial Offset: ");
 
 		double resultantPositionValue = boosterStage.getAxialOffset();
-		assertEquals(" 'setPositionValue()' failed: \n" + treeDump + " Position Value: ", resultantPositionValue,
-				targetOffset, EPSILON);
+		assertEquals(resultantPositionValue, targetOffset, EPSILON,
+				" 'setPositionValue()' failed: \n" + treeDump + " Position Value: ");
 	}
 
 	@Test
@@ -594,23 +593,23 @@ public class ParallelStageTest extends BaseTestCase {
 		// children
 		double expectedRelativeX = 2.5;
 		double resultantOffset = boosterStage.getPosition().x;
-		assertEquals(" init order error: Booster: " + treeDumpBefore + " initial relative X: ", expectedRelativeX,
-				resultantOffset, EPSILON);
+		assertEquals(expectedRelativeX, resultantOffset, EPSILON,
+				" init order error: Booster: " + treeDumpBefore + " initial relative X: ");
 		double expectedAxialOffset = targetOffset;
 		resultantOffset = boosterStage.getAxialOffset();
-		assertEquals(" init order error: Booster: " + treeDumpBefore + " Initial axial offset: ", expectedAxialOffset,
-				resultantOffset, EPSILON);
+		assertEquals(expectedAxialOffset, resultantOffset, EPSILON,
+				" init order error: Booster: " + treeDumpBefore + " Initial axial offset: ");
 
 		String treeDumpAfter = rocket.toDebugTree();
 
 		expectedRelativeX = 2.5; // no change
 		resultantOffset = boosterStage.getPosition().x;
-		assertEquals(" init order error: Booster: " + treeDumpBefore + " =======> " + treeDumpAfter
-				+ " populated relative X: ", expectedRelativeX, resultantOffset, EPSILON);
+		assertEquals(expectedRelativeX, resultantOffset, EPSILON, " init order error: Booster: " + treeDumpBefore +
+				" =======> " + treeDumpAfter + " populated relative X: ");
 		expectedAxialOffset = targetOffset; // again, no change
 		resultantOffset = boosterStage.getAxialOffset();
-		assertEquals(" init order error: Booster: " + treeDumpBefore + " =======> " + treeDumpAfter
-				+ " populated axial offset: ", expectedAxialOffset, resultantOffset, EPSILON);
+		assertEquals(expectedAxialOffset, resultantOffset, EPSILON, " init order error: Booster: " + treeDumpBefore +
+				" =======> " + treeDumpAfter + " populated axial offset: ");
 	}
 
 	@Test
@@ -641,10 +640,10 @@ public class ParallelStageTest extends BaseTestCase {
 		double resultantOffsetA = boosterA.getPosition().x;
 		double resultantOffsetB = boosterB.getPosition().x;
 
-		assertEquals(" init order error: " + treeDump + " Booster A: resultant positions: ", expectedOffset,
-				resultantOffsetA, EPSILON);
-		assertEquals(" init order error: " + treeDump + " Booster B: resultant positions: ", expectedOffset,
-				resultantOffsetB, EPSILON);
+		assertEquals(expectedOffset, resultantOffsetA, EPSILON,
+				" init order error: " + treeDump + " Booster A: resultant positions: ");
+		assertEquals(expectedOffset, resultantOffsetB, EPSILON,
+				" init order error: " + treeDump + " Booster B: resultant positions: ");
 	}
 
 	@Test
@@ -669,23 +668,23 @@ public class ParallelStageTest extends BaseTestCase {
 
 		int expectedStageNumber = 0;
 		int actualStageNumber = payloadStage.getStageNumber();
-		assertEquals(" init order error: sustainer: resultant positions: ", expectedStageNumber, actualStageNumber);
+		assertEquals(expectedStageNumber, actualStageNumber, " init order error: sustainer: resultant positions: ");
 
 		expectedStageNumber = 1;
 		actualStageNumber = coreStage.getStageNumber();
-		assertEquals(" init order error: core: resultant positions: ", expectedStageNumber, actualStageNumber);
+		assertEquals(expectedStageNumber, actualStageNumber, " init order error: core: resultant positions: ");
 
 		expectedStageNumber = 2;
 		actualStageNumber = boosterA.getStageNumber();
-		assertEquals(" init order error: Booster A: resultant positions: ", expectedStageNumber, actualStageNumber);
+		assertEquals(expectedStageNumber, actualStageNumber, " init order error: Booster A: resultant positions: ");
 
 		expectedStageNumber = 3;
 		actualStageNumber = boosterB.getStageNumber();
-		assertEquals(" init order error: Booster B: resultant positions: ", expectedStageNumber, actualStageNumber);
+		assertEquals(expectedStageNumber, actualStageNumber, " init order error: Booster B: resultant positions: ");
 
 		expectedStageNumber = 4;
 		actualStageNumber = boosterC.getStageNumber();
-		assertEquals(" init order error: Booster C: resultant positions: ", expectedStageNumber, actualStageNumber);
+		assertEquals(expectedStageNumber, actualStageNumber, " init order error: Booster C: resultant positions: ");
 
 		// remove Booster B
 		coreBody.removeChild(1);
@@ -694,11 +693,11 @@ public class ParallelStageTest extends BaseTestCase {
 		int expectedStageCount = 4;
 		int actualStageCount = config.getStageCount();
 
-		assertEquals(" Stage tracking error:  removed booster A, but count not updated: " + treedump,
-				expectedStageCount, actualStageCount);
+		assertEquals(expectedStageCount, actualStageCount,
+				" Stage tracking error:  removed booster A, but count not updated: " + treedump);
 		actualStageCount = rocket.getSelectedConfiguration().getStageCount();
-		assertEquals(" Stage tracking error:  removed booster A, but configuration not updated: " + treedump,
-				expectedStageCount, actualStageCount);
+		assertEquals(expectedStageCount, actualStageCount,
+				" Stage tracking error:  removed booster A, but configuration not updated: " + treedump);
 
 		ParallelStage boosterD = createExtraBooster();
 		boosterD.setName("Booster D Stage");
@@ -707,7 +706,7 @@ public class ParallelStageTest extends BaseTestCase {
 
 		expectedStageNumber = 4;
 		actualStageNumber = boosterD.getStageNumber();
-		assertEquals(" init order error: Booster D: resultant positions: ", expectedStageNumber, actualStageNumber);
+		assertEquals(expectedStageNumber, actualStageNumber, " init order error: Booster D: resultant positions: ");
 
 		// rocket.getDefaultConfiguration().dumpConfig();
 	}
@@ -722,8 +721,8 @@ public class ParallelStageTest extends BaseTestCase {
 		Coordinate[] actual = coreStage.toAbsolute(input);
 
 		double expectedX = 3.564;
-		assertEquals(treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ", expectedX, actual[0].x,
-				EPSILON);
+		assertEquals(expectedX, actual[0].x, EPSILON,
+				treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ");
 	}
 
 	@Test
@@ -740,15 +739,15 @@ public class ParallelStageTest extends BaseTestCase {
 		Coordinate actual = payloadStage.toAbsolute(input)[0];
 
 		double expectedX = 1.0;
-		assertEquals(treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ", expectedX, actual.x,
-				EPSILON);
+		assertEquals(expectedX, actual.x, EPSILON,
+				treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ");
 
 		input = new Coordinate(1, 0, 0);
 		actual = payloadNose.toRelative(input, payloadBody)[0];
 
 		expectedX = 0.853999;
-		assertEquals(treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ", expectedX, actual.x,
-				EPSILON);
+		assertEquals(expectedX, actual.x, EPSILON,
+				treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ");
 
 	}
 

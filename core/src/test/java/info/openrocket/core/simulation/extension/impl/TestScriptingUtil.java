@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import info.openrocket.core.startup.MockPreferences;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class TestScriptingUtil {
@@ -14,7 +14,7 @@ public class TestScriptingUtil {
 
 	private ScriptingUtil util;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		util = new ScriptingUtil();
 		util.prefs = new MockPreferences();
@@ -29,10 +29,10 @@ public class TestScriptingUtil {
 		assertEquals(null, util.getLanguage(null));
 		assertEquals(null, util.getLanguage(""));
 		assertEquals(null, util.getLanguage("foobar"));
-		assertEquals("JavaScript", util.getLanguage("JavaScript"));
-		assertEquals("JavaScript", util.getLanguage("javascript"));
-		assertEquals("JavaScript", util.getLanguage("ECMAScript"));
-		assertEquals("JavaScript", util.getLanguage("js"));
+		assertEquals(util.getLanguage("JavaScript"), "JavaScript");
+		assertEquals(util.getLanguage("javascript"), "JavaScript");
+		assertEquals(util.getLanguage("ECMAScript"), "JavaScript");
+		assertEquals(util.getLanguage("js"), "JavaScript");
 	}
 
 	@Test
@@ -74,16 +74,14 @@ public class TestScriptingUtil {
 
 	@Test
 	public void testNormalize() {
-		assertEquals("foo", ScriptingUtil.normalize("foo"));
-		assertEquals("foo  bar", ScriptingUtil.normalize("  \n\r\t foo \r bar  \n\t\r "));
+		assertEquals(ScriptingUtil.normalize("foo"), "foo");
+		assertEquals(ScriptingUtil.normalize("  \n\r\t foo \r bar  \n\t\r "), "foo  bar");
 	}
 
 	@Test
 	public void testHash() {
-		assertEquals("SHA-256:12e6a78889b96a16d305b8e4af81119545f89eccba5fb37cc3a1ec2c53eab514",
-				ScriptingUtil.hash("JS", ""));
-		assertEquals("SHA-256:000753e5deb2d8fa80e602ca03bcdb8e12a6b14b2b4a4d0abecdc976ad26e3ef",
-				ScriptingUtil.hash("foo", "1165"));
+		assertEquals(ScriptingUtil.hash("JS", ""), "SHA-256:12e6a78889b96a16d305b8e4af81119545f89eccba5fb37cc3a1ec2c53eab514");
+		assertEquals(ScriptingUtil.hash("foo", "1165"), "SHA-256:000753e5deb2d8fa80e602ca03bcdb8e12a6b14b2b4a4d0abecdc976ad26e3ef");
 		assertEquals(HASH_JavaScript_foobar, ScriptingUtil.hash("JavaScript", "foobar"));
 	}
 }

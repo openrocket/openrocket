@@ -164,7 +164,7 @@ public class IntegrationTest {
 		
 		// Undo "Name change" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
-		assertEquals("Extra mass", massComponent().getName());
+		assertEquals(massComponent().getName(), "Extra mass");
 		checkUndoState("Modify mass", "Name change");
 		
 		// Check cg+cp
@@ -260,7 +260,7 @@ public class IntegrationTest {
 	private static ThrustCurveMotor readMotor() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 		InputStream is = IntegrationTest.class.getResourceAsStream("/Estes_A8.rse");
-		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
+		assertNotNull(is, "Problem in unit test, cannot find Estes_A8.rse");
 		try {
 			for (ThrustCurveMotor.Builder m : loader.load(is, "Estes_A8.rse")) {
 				return m.build();
@@ -308,17 +308,17 @@ public class IntegrationTest {
 	
 	private void checkUndoState(String undoDesc, String redoDesc) {
 		if (undoDesc == null) {
-			assertEquals("[UndoRedoAction.OpenRocketDocument.Undo]", undoAction.getValue(Action.NAME));
+			assertEquals(undoAction.getValue(Action.NAME), "[UndoRedoAction.OpenRocketDocument.Undo]");
 			assertFalse(undoAction.isEnabled());
 		} else {
-			assertEquals("[UndoRedoAction.OpenRocketDocument.Undo] (" + undoDesc + ")", undoAction.getValue(Action.NAME));
+			assertEquals(undoAction.getValue(Action.NAME), "[UndoRedoAction.OpenRocketDocument.Undo] (" + undoDesc + ")");
 			assertTrue(undoAction.isEnabled());
 		}
 		if (redoDesc == null) {
-			assertEquals("[UndoRedoAction.OpenRocketDocument.Redo]", redoAction.getValue(Action.NAME));
+			assertEquals(redoAction.getValue(Action.NAME), "[UndoRedoAction.OpenRocketDocument.Redo]");
 			assertFalse(redoAction.isEnabled());
 		} else {
-			assertEquals("[UndoRedoAction.OpenRocketDocument.Redo] (" + redoDesc + ")", redoAction.getValue(Action.NAME));
+			assertEquals(redoAction.getValue(Action.NAME), "[UndoRedoAction.OpenRocketDocument.Redo] (" + redoDesc + ")");
 			assertTrue(redoAction.isEnabled());
 		}
 	}
@@ -350,7 +350,7 @@ public class IntegrationTest {
 		GeneralRocketLoader loader = new GeneralRocketLoader(new File(fileName));
 		InputStream is = this.getClass().getResourceAsStream(fileName);
 		String failMsg = String.format("Problem in unit test, cannot find %s", fileName);
-		assertNotNull(failMsg, is);
+		assertNotNull(is, failMsg);
 		
 		OpenRocketDocument rocketDoc = null;
 		try {

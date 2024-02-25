@@ -45,7 +45,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 		// Test branch count
 		final int branchCount = sim.getSimulatedData().getBranchCount();
-		assertEquals(" Single stage simulation invalid branch count ", 1, branchCount);
+		assertEquals(1, branchCount, " Single stage simulation invalid branch count ");
 
 		final FlightEvent[] expectedEvents = new FlightEvent[] {
 				new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
@@ -82,7 +82,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 		// Test branch count
 		final int branchCount = sim.getSimulatedData().getBranchCount();
-		assertEquals(" Multi-stage simulation invalid branch count ", 3, branchCount);
+		assertEquals(3, branchCount, " Multi-stage simulation invalid branch count ");
 
 		final AxialStage coreStage = rocket.getStage(1);
 		final ParallelStage boosterStage = (ParallelStage) rocket.getStage(2);
@@ -149,17 +149,16 @@ public class FlightEventsTest extends BaseTestCase {
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
 
 		// Test event count
-		assertEquals("Branch " + branchNo + " invalid number of events ", expectedEvents.length, actualEvents.length);
+		assertEquals(expectedEvents.length, actualEvents.length, "Branch " + branchNo + " invalid number of events ");
 
 		// Test that all expected events are present, in the right order, at the right
 		// time, from the right sources
 		for (int i = 0; i < actualEvents.length; i++) {
 			final FlightEvent expected = expectedEvents[i];
 			final FlightEvent actual = actualEvents[i];
-			assertSame(
+			assertSame(expected.getType(), actual.getType(),
 					"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType()
-							+ " not found; FlightEvent " + actual.getType() + " found instead",
-					expected.getType(), actual.getType());
+							+ " not found; FlightEvent " + actual.getType() + " found instead");
 
 			if (1200 != expected.getTime()) {
 				// event times that are dependent on simulation step time shouldn't be held to
@@ -169,15 +168,13 @@ public class FlightEventsTest extends BaseTestCase {
 						(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
 						(actual.getType() == FlightEvent.Type.SIMULATION_END) ? sim.getOptions().getTimeStep()
 								: EPSILON;
-				assertEquals(
-						"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ",
-						expected.getTime(), actual.getTime(), epsilon);
+				assertEquals(expected.getTime(), actual.getTime(), epsilon,
+						"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ");
 			}
 
 			// Test that the event sources are correct
-			assertEquals(
-					"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong source ",
-					expected.getSource(), actual.getSource());
+			assertEquals(expected.getSource(), actual.getSource(),
+					"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong source ");
 		}
 	}
 }

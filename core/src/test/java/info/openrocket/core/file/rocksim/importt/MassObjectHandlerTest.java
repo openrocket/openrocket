@@ -10,7 +10,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.MassComponent;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
 
@@ -30,7 +30,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
 
         try {
             new MassObjectHandler(null, null, new WarningSet());
-            Assert.fail("Should have thrown IllegalArgumentException");
+            Assertions.fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
             // success
         }
@@ -39,7 +39,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
         MassObjectHandler handler = new MassObjectHandler(null, tube, new WarningSet());
         MassComponent mass = (MassComponent) getField(handler, "mass");
         MassComponent current = (MassComponent) getField(handler, "current");
-        Assert.assertEquals(mass, current);
+        Assertions.assertEquals(mass, current);
     }
 
     /**
@@ -50,7 +50,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      */
     @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE,
+        Assertions.assertEquals(PlainTextHandler.INSTANCE,
                 new MassObjectHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
@@ -71,22 +71,22 @@ public class MassObjectHandlerTest extends RockSimTestBase {
         MassComponent component = (MassComponent) getField(handler, "mass");
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assert.assertEquals(0d, component.getLength(), 0.001);
+        Assertions.assertEquals(0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(0.01, component.getLength(), 0.001);
+        Assertions.assertEquals(0.01, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(0.01, component.getLength(), 0.001);
+        Assertions.assertEquals(0.01, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("KnownMass", attributes, "-1", warnings);
-        Assert.assertEquals(0d, component.getComponentMass(), 0.001);
+        Assertions.assertEquals(0d, component.getComponentMass(), 0.001);
         handler.closeElement("KnownMass", attributes, "100", warnings);
-        Assert.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(),
+        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(),
                 0.001);
         handler.closeElement("KnownMass", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
     }
@@ -98,7 +98,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      */
     @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(
+        Assertions.assertTrue(
                 new MassObjectHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof MassComponent);
     }
 
@@ -109,7 +109,7 @@ public class MassObjectHandlerTest extends RockSimTestBase {
      */
     @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.LINE,
+        Assertions.assertEquals(Material.Type.LINE,
                 new MassObjectHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 }

@@ -9,8 +9,8 @@ import info.openrocket.core.unit.UnitGroup;
 
 import info.openrocket.core.util.BaseTestCase;
 
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class TestGenericModifier extends BaseTestCase {
@@ -19,7 +19,7 @@ public class TestGenericModifier extends BaseTestCase {
 	private GenericModifier<TestValue> gm;
 	private Simulation sim;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		value = new TestValue();
 		sim = new Simulation(new Rocket());
@@ -30,7 +30,7 @@ public class TestGenericModifier extends BaseTestCase {
 				UnitGroup.UNITS_NONE, 2.0, TestValue.class, "value") {
 			@Override
 			protected TestValue getModifiedObject(Simulation simulation) {
-				Assert.assertTrue(simulation == sim);
+				Assertions.assertTrue(simulation == sim);
 				return value;
 			}
 		};

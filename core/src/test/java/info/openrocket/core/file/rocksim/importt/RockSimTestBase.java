@@ -9,7 +9,7 @@ import java.util.List;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BaseTestCase;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A base class for the Rocksim tests. Includes code from the junitx.addons
@@ -18,7 +18,7 @@ import org.junit.Assert;
 public abstract class RockSimTestBase extends BaseTestCase {
 
 	public void assertContains(RocketComponent child, List<RocketComponent> components) {
-		Assert.assertTrue("Components did not contain child", components.contains(child));
+		assertTrue(components.contains(child), "Components did not contain child");
 	}
 
 	/**

@@ -2,6 +2,7 @@ package info.openrocket.core.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
@@ -41,18 +42,18 @@ public class TestConfig {
 		assertEquals(123, (int) config.getInt("foo", 123));
 		assertEquals(123L, (long) config.getLong("foo", 123L));
 		assertEquals(1.23, config.getDouble("foo", 1.23), 0);
-		assertEquals("bar", config.getString("foo", "bar"));
-		assertEquals(Arrays.asList("foo"), config.getList("foo", Arrays.asList("foo")));
+		assertEquals(config.getString("foo", "bar"), "bar");
+		assertEquals(Arrays.asList("foo"), config.getList("foo", List.of("foo")));
 	}
 
 	@Test
 	public void testNullDefaultValue() {
-		assertEquals(null, config.getBoolean("foo", null));
-		assertEquals(null, config.getInt("foo", null));
-		assertEquals(null, config.getLong("foo", null));
-		assertEquals(null, config.getDouble("foo", null));
-		assertEquals(null, config.getString("foo", null));
-		assertEquals(null, config.getList("foo", null));
+		assertNull(config.getBoolean("foo", null));
+		assertNull(config.getInt("foo", null));
+		assertNull(config.getLong("foo", null));
+		assertNull(config.getDouble("foo", null));
+		assertNull(config.getString("foo", null));
+		assertNull(config.getList("foo", null));
 	}
 
 	@Test
@@ -105,11 +106,11 @@ public class TestConfig {
 		ai.incrementAndGet();
 
 		assertFalse(copy.containsKey("extra"));
-		assertEquals("foo", copy.getString("string", null));
+		assertEquals(copy.getString("string", null), "foo");
 		assertEquals(123, (int) copy.getInt("int", null));
 		assertEquals(100, (int) copy.getInt("atomicinteger", null));
 		assertEquals(Math.PI, copy.getDouble("double", null), 0);
-		assertEquals(Arrays.asList("Foo"), copy.getList("list", null));
+		assertEquals(List.of("Foo"), copy.getList("list", null));
 	}
 
 	@Test

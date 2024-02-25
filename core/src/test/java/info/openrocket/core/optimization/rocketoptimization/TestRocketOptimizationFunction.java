@@ -230,9 +230,9 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 
 		Simulation sim = function.newSimulationInstance(simulation);
 		assertFalse(simulation == sim);
-		assertEquals("MySim", sim.getName());
+		assertEquals(sim.getName(), "MySim");
 		assertFalse(rocket == sim.getRocket());
-		assertEquals("Foobar", sim.getRocket().getName());
+		assertEquals(sim.getRocket().getName(), "Foobar");
 	}
 
 }

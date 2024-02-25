@@ -37,7 +37,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     public void testThreeStageRocket() {
         RASAeroLoader loader = new RASAeroLoader();
         InputStream stream = this.getClass().getResourceAsStream("/file/rasaero/importt/Three-stage rocket.CDX1");
-        assertNotNull("Could not open Three-stage rocket.CDX1", stream);
+        assertNotNull(stream, "Could not open Three-stage rocket.CDX1");
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
@@ -48,38 +48,38 @@ public class RASAeroLoaderTest extends BaseTestCase {
             assertNotNull(rocket);
 
             // Test number and type of components
-            assertEquals("Incorrect amount of stages", 3, rocket.getChildCount());
+            assertEquals(3, rocket.getChildCount(), "Incorrect amount of stages");
             AxialStage sustainer = rocket.getStage(0);
             AxialStage booster1 = rocket.getStage(1);
             AxialStage booster2 = rocket.getStage(2);
 
-            assertEquals("Incorrect amount of sustainer children", 2, sustainer.getChildCount());
-            assertEquals("Incorrect amount of booster 1 children", 1, booster1.getChildCount());
-            assertEquals("Incorrect amount of booster 2 children", 1, booster2.getChildCount());
+            assertEquals(2, sustainer.getChildCount(), "Incorrect amount of sustainer children");
+            assertEquals(1, booster1.getChildCount(), "Incorrect amount of booster 1 children");
+            assertEquals(1, booster2.getChildCount(), "Incorrect amount of booster 2 children");
 
             RocketComponent noseCone = sustainer.getChild(0);
-            assertTrue("First component should be nose cone", noseCone instanceof NoseCone);
+            assertTrue(noseCone instanceof NoseCone, "First component should be nose cone");
             assertEquals(0, noseCone.getChildCount());
             RocketComponent bodyTube = sustainer.getChild(1);
-            assertTrue("Second component should be body tube", bodyTube instanceof BodyTube);
+            assertTrue(bodyTube instanceof BodyTube, "Second component should be body tube");
             assertEquals(1, bodyTube.getChildCount());
             RocketComponent finSet = bodyTube.getChild(0);
-            assertTrue("Body tube child should be trapezoid fin set", finSet instanceof TrapezoidFinSet);
+            assertTrue(finSet instanceof TrapezoidFinSet, "Body tube child should be trapezoid fin set");
 
             RocketComponent booster1Tube = booster1.getChild(0);
-            assertTrue("Booster child should be nose cone", booster1Tube instanceof BodyTube);
+            assertTrue(booster1Tube instanceof BodyTube, "Booster child should be nose cone");
             assertEquals(1, booster1Tube.getChildCount());
             RocketComponent booster1FinSet = booster1Tube.getChild(0);
-            assertTrue("Booster 1 tube child should be trapezoid fin set", booster1FinSet instanceof TrapezoidFinSet);
+            assertTrue(booster1FinSet instanceof TrapezoidFinSet, "Booster 1 tube child should be trapezoid fin set");
 
             RocketComponent booster2Tube = booster2.getChild(0);
-            assertTrue("Booster child should be nose cone", booster2Tube instanceof BodyTube);
+            assertTrue(booster2Tube instanceof BodyTube, "Booster child should be nose cone");
             assertEquals(1, booster2Tube.getChildCount());
             RocketComponent booster2FinSet = booster2Tube.getChild(0);
-            assertTrue("Booster 1 tube child should be trapezoid fin set", booster2FinSet instanceof TrapezoidFinSet);
+            assertTrue(booster2FinSet instanceof TrapezoidFinSet, "Booster 1 tube child should be trapezoid fin set");
 
             // Test component parameters
-            assertEquals("Three-stage rocket", rocket.getName());
+            assertEquals(rocket.getName(), "Three-stage rocket");
 
             //// Sustainer
             NoseCone nose = (NoseCone) noseCone;
@@ -160,7 +160,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     public void testShowRocket() {
         RASAeroLoader loader = new RASAeroLoader();
         InputStream stream = this.getClass().getResourceAsStream("/file/rasaero/importt/Show-off.CDX1");
-        assertNotNull("Could not open Show-off.CDX1", stream);
+        assertNotNull(stream, "Could not open Show-off.CDX1");
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();
@@ -184,7 +184,7 @@ public class RASAeroLoaderTest extends BaseTestCase {
     public void testComplexTwoStageRocket() {
         RASAeroLoader loader = new RASAeroLoader();
         InputStream stream = this.getClass().getResourceAsStream("/file/rasaero/importt/Complex.Two-Stage.CDX1");
-        assertNotNull("Could not open Complex.Two-Stage.CDX1", stream);
+        assertNotNull(stream, "Could not open Complex.Two-Stage.CDX1");
         try {
             OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
             DocumentLoadingContext context = new DocumentLoadingContext();

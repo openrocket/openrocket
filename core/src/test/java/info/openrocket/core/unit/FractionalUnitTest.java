@@ -108,123 +108,123 @@ public class FractionalUnitTest {
 	public void testToStringDefaultPrecision() {
 
 		if (isPointDecimalSeparator()) {
-			assertEquals("-1.2", testUnit.toString(-1.2));
-			assertEquals("-1.3", testUnit.toString(-1.3));
+			assertEquals(testUnit.toString(-1.2), "-1.2");
+			assertEquals(testUnit.toString(-1.3), "-1.3");
 
-			assertEquals("-0.2", testUnit.toString(-.2));
-			assertEquals("-0.3", testUnit.toString(-.3));
+			assertEquals(testUnit.toString(-.2), "-0.2");
+			assertEquals(testUnit.toString(-.3), "-0.3");
 
-			assertEquals("-0.1", testUnit.toString(-.1));
-			assertEquals("0.1", testUnit.toString(.1));
+			assertEquals(testUnit.toString(-.1), "-0.1");
+			assertEquals(testUnit.toString(.1), "0.1");
 
-			assertEquals("0.2", testUnit.toString(.2));
-			assertEquals("0.3", testUnit.toString(.3));
+			assertEquals(testUnit.toString(.2), "0.2");
+			assertEquals(testUnit.toString(.3), "0.3");
 
-			assertEquals("1.2", testUnit.toString(1.2));
-			assertEquals("1.3", testUnit.toString(1.3));
+			assertEquals(testUnit.toString(1.2), "1.2");
+			assertEquals(testUnit.toString(1.3), "1.3");
 		} else {
-			assertEquals("-1,2", testUnit.toString(-1.2));
-			assertEquals("-1,3", testUnit.toString(-1.3));
+			assertEquals(testUnit.toString(-1.2), "-1,2");
+			assertEquals(testUnit.toString(-1.3), "-1,3");
 
-			assertEquals("-0,2", testUnit.toString(-.2));
-			assertEquals("-0,3", testUnit.toString(-.3));
+			assertEquals(testUnit.toString(-.2), "-0,2");
+			assertEquals(testUnit.toString(-.3), "-0,3");
 
-			assertEquals("-0,1", testUnit.toString(-.1));
-			assertEquals("0,1", testUnit.toString(.1));
+			assertEquals(testUnit.toString(-.1), "-0,1");
+			assertEquals(testUnit.toString(.1), "0,1");
 
-			assertEquals("0,2", testUnit.toString(.2));
-			assertEquals("0,3", testUnit.toString(.3));
+			assertEquals(testUnit.toString(.2), "0,2");
+			assertEquals(testUnit.toString(.3), "0,3");
 
-			assertEquals("1,2", testUnit.toString(1.2));
-			assertEquals("1,3", testUnit.toString(1.3));
+			assertEquals(testUnit.toString(1.2), "1,2");
+			assertEquals(testUnit.toString(1.3), "1,3");
 		}
 		// default epsilon is 0.025
 
-		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.225));
-		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.227));
-		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.25));
-		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.25));
-		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.275));
+		assertEquals(testUnit.toString(-1.225), "-1 \u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-1.227), "-1 \u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-1.25), "-1 \u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-1.25), "-1 \u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-1.275), "-1 \u00B9\u2044\u2084");
 
-		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.225));
-		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.25));
-		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.274));
-		// assertEquals("-1/4", testUnit.toString(-.275)); // this has round-off error
+		assertEquals(testUnit.toString(-.225), "-\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-.25), "-\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-.274), "-\u00B9\u2044\u2084");
+		// assertEquals(testUnit.toString(-.275), "-1/4"); // this has round-off error
 		// which pushes it over epsilon
 
-		assertEquals("0", testUnit.toString(-0.024));
-		assertEquals("0", testUnit.toString(0));
-		assertEquals("0", testUnit.toString(.024));
+		assertEquals(testUnit.toString(-0.024), "0");
+		assertEquals(testUnit.toString(0), "0");
+		assertEquals(testUnit.toString(.024), "0");
 
-		assertEquals("\u00B9\u2044\u2084", testUnit.toString(.225));
-		assertEquals("\u00B9\u2044\u2084", testUnit.toString(.25));
-		assertEquals("\u00B9\u2044\u2084", testUnit.toString(.274));
+		assertEquals(testUnit.toString(.225), "\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(.25), "\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(.274), "\u00B9\u2044\u2084");
 
-		assertEquals("1 \u00B9\u2044\u2084", testUnit.toString(1.225));
-		assertEquals("1 \u00B9\u2044\u2084", testUnit.toString(1.25));
-		assertEquals("1 \u00B9\u2044\u2084", testUnit.toString(1.275));
+		assertEquals(testUnit.toString(1.225), "1 \u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(1.25), "1 \u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(1.275), "1 \u00B9\u2044\u2084");
 	}
 
 	@Test
 	public void testToStringWithPrecision() {
 		if (isPointDecimalSeparator()) {
-			assertEquals("-1.225", testUnitApprox.toString(-1.225));
-			assertEquals("-1.275", testUnitApprox.toString(-1.275));
+			assertEquals(testUnitApprox.toString(-1.225), "-1.225");
+			assertEquals(testUnitApprox.toString(-1.275), "-1.275");
 
-			assertEquals("-0.225", testUnitApprox.toString(-.225));
-			assertEquals("-0.275", testUnitApprox.toString(-.275));
+			assertEquals(testUnitApprox.toString(-.225), "-0.225");
+			assertEquals(testUnitApprox.toString(-.275), "-0.275");
 
-			assertEquals("-0.1", testUnitApprox.toString(-.1));
+			assertEquals(testUnitApprox.toString(-.1), "-0.1");
 
-			assertEquals("-0.024", testUnitApprox.toString(-0.024));
-			assertEquals("0.024", testUnitApprox.toString(.024));
+			assertEquals(testUnitApprox.toString(-0.024), "-0.024");
+			assertEquals(testUnitApprox.toString(.024), "0.024");
 
-			assertEquals("0.1", testUnitApprox.toString(.1));
+			assertEquals(testUnitApprox.toString(.1), "0.1");
 
-			assertEquals("0.275", testUnitApprox.toString(.275));
-			assertEquals("0.225", testUnitApprox.toString(.225));
+			assertEquals(testUnitApprox.toString(.275), "0.275");
+			assertEquals(testUnitApprox.toString(.225), "0.225");
 
-			assertEquals("1.225", testUnitApprox.toString(1.225));
-			assertEquals("1.275", testUnitApprox.toString(1.275));
+			assertEquals(testUnitApprox.toString(1.225), "1.225");
+			assertEquals(testUnitApprox.toString(1.275), "1.275");
 		} else {
-			assertEquals("-1,225", testUnitApprox.toString(-1.225));
-			assertEquals("-1,275", testUnitApprox.toString(-1.275));
+			assertEquals(testUnitApprox.toString(-1.225), "-1,225");
+			assertEquals(testUnitApprox.toString(-1.275), "-1,275");
 
-			assertEquals("-0,225", testUnitApprox.toString(-.225));
-			assertEquals("-0,275", testUnitApprox.toString(-.275));
+			assertEquals(testUnitApprox.toString(-.225), "-0,225");
+			assertEquals(testUnitApprox.toString(-.275), "-0,275");
 
-			assertEquals("-0,1", testUnitApprox.toString(-.1));
+			assertEquals(testUnitApprox.toString(-.1), "-0,1");
 
-			assertEquals("-0,024", testUnitApprox.toString(-0.024));
-			assertEquals("0,024", testUnitApprox.toString(.024));
+			assertEquals(testUnitApprox.toString(-0.024), "-0,024");
+			assertEquals(testUnitApprox.toString(.024), "0,024");
 
-			assertEquals("0,1", testUnitApprox.toString(.1));
+			assertEquals(testUnitApprox.toString(.1), "0,1");
 
-			assertEquals("0,275", testUnitApprox.toString(.275));
-			assertEquals("0,225", testUnitApprox.toString(.225));
+			assertEquals(testUnitApprox.toString(.275), "0,275");
+			assertEquals(testUnitApprox.toString(.225), "0,225");
 
-			assertEquals("1,225", testUnitApprox.toString(1.225));
-			assertEquals("1,275", testUnitApprox.toString(1.275));
+			assertEquals(testUnitApprox.toString(1.225), "1,225");
+			assertEquals(testUnitApprox.toString(1.275), "1,275");
 		}
 		// epsilon is .02
 
-		assertEquals("-1 \u00B3\u2044\u2081\u2086", testUnitApprox.toString(-1.2));
-		assertEquals("-1 \u00B9\u2044\u2084", testUnitApprox.toString(-1.25));
-		assertEquals("-1 \u2075\u2044\u2081\u2086", testUnitApprox.toString(-1.3));
+		assertEquals(testUnitApprox.toString(-1.2), "-1 \u00B3\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(-1.25), "-1 \u00B9\u2044\u2084");
+		assertEquals(testUnitApprox.toString(-1.3), "-1 \u2075\u2044\u2081\u2086");
 
-		assertEquals("-\u00B3\u2044\u2081\u2086", testUnitApprox.toString(-.2));
-		assertEquals("-\u00B9\u2044\u2084", testUnitApprox.toString(-.25));
-		assertEquals("-\u2075\u2044\u2081\u2086", testUnitApprox.toString(-.3));
+		assertEquals(testUnitApprox.toString(-.2), "-\u00B3\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(-.25), "-\u00B9\u2044\u2084");
+		assertEquals(testUnitApprox.toString(-.3), "-\u2075\u2044\u2081\u2086");
 
-		assertEquals("0", testUnitApprox.toString(0));
+		assertEquals(testUnitApprox.toString(0), "0");
 
-		assertEquals("\u00B3\u2044\u2081\u2086", testUnitApprox.toString(.2));
-		assertEquals("\u00B9\u2044\u2084", testUnitApprox.toString(.25));
-		assertEquals("\u2075\u2044\u2081\u2086", testUnitApprox.toString(.3));
+		assertEquals(testUnitApprox.toString(.2), "\u00B3\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(.25), "\u00B9\u2044\u2084");
+		assertEquals(testUnitApprox.toString(.3), "\u2075\u2044\u2081\u2086");
 
-		assertEquals("1 \u00B3\u2044\u2081\u2086", testUnitApprox.toString(1.2));
-		assertEquals("1 \u00B9\u2044\u2084", testUnitApprox.toString(1.25));
-		assertEquals("1 \u2075\u2044\u2081\u2086", testUnitApprox.toString(1.3));
+		assertEquals(testUnitApprox.toString(1.2), "1 \u00B3\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(1.25), "1 \u00B9\u2044\u2084");
+		assertEquals(testUnitApprox.toString(1.3), "1 \u2075\u2044\u2081\u2086");
 	}
 
 	private boolean isPointDecimalSeparator() {
@@ -235,22 +235,22 @@ public class FractionalUnitTest {
 	public void testInchToString() {
 
 		// Just some random test points.
-		assertEquals("\u00B9\u2044\u2086\u2084", inchUnit.toString(1d / 64d * 0.0254));
+		assertEquals(inchUnit.toString(1d / 64d * 0.0254), "\u00B9\u2044\u2086\u2084");
 
-		assertEquals("-\u2075\u2044\u2086\u2084", inchUnit.toString(-5d / 64d * 0.0254));
+		assertEquals(inchUnit.toString(-5d / 64d * 0.0254), "-\u2075\u2044\u2086\u2084");
 
-		assertEquals("4 \u00B9\u2044\u2082", inchUnit.toString(9d / 2d * 0.0254));
+		assertEquals(inchUnit.toString(9d / 2d * 0.0254), "4 \u00B9\u2044\u2082");
 
 		if (isPointDecimalSeparator()) {
-			assertEquals("0.002", inchUnit.toString(0.002 * 0.0254));
+			assertEquals(inchUnit.toString(0.002 * 0.0254), "0.002");
 		} else {
-			assertEquals("0,002", inchUnit.toString(0.002 * 0.0254));
+			assertEquals(inchUnit.toString(0.002 * 0.0254), "0,002");
 		}
 
 		// default body tube length:
 		double length = 8d * 0.025;
 
-		assertEquals("7 \u2077\u2044\u2088", inchUnit.toString(length));
+		assertEquals(inchUnit.toString(length), "7 \u2077\u2044\u2088");
 
 		// had problems with round-off in decrement.
 

@@ -67,11 +67,11 @@ public class FinSetCalcTest {
 		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
 
 		// to make the fin properties explicit
-		assertEquals(" Estes Alpha III fins have wrong count:", 3, fins.getFinCount(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong root chord:", 0.05, fins.getRootChord(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong tip chord:", 0.03, fins.getTipChord(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong sweep: ", 0.02, fins.getSweep(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong height: ", 0.05, fins.getHeight(), EPSILON);
+		assertEquals(3, fins.getFinCount(), EPSILON, " Estes Alpha III fins have wrong count:");
+		assertEquals(0.05, fins.getRootChord(), EPSILON, " Estes Alpha III fins have wrong root chord:");
+		assertEquals(0.03, fins.getTipChord(), EPSILON, " Estes Alpha III fins have wrong tip chord:");
+		assertEquals(0.02, fins.getSweep(), EPSILON, " Estes Alpha III fins have wrong sweep: ");
+		assertEquals(0.05, fins.getHeight(), EPSILON, " Estes Alpha III fins have wrong height: ");
 
 		// get the forces for the three fins
 		AerodynamicForces forces = sumFins(fins, rocket);
@@ -79,10 +79,10 @@ public class FinSetCalcTest {
 		double exp_cna_fins = 24.146933;
 		double exp_cpx_fins = 0.0193484;
 
-		assertEquals(" FinSetCalc produces bad CNa: ", exp_cna_fins, forces.getCNa(), EPSILON);
-		assertEquals(" FinSetCalc produces bad C_p.x: ", exp_cpx_fins, forces.getCP().x, EPSILON);
-		assertEquals(" FinSetCalc produces bad CN: ", 0.0, forces.getCN(), EPSILON);
-		assertEquals(" FinSetCalc produces bad C_m: ", 0.0, forces.getCm(), EPSILON);
+		assertEquals(exp_cna_fins, forces.getCNa(), EPSILON, " FinSetCalc produces bad CNa: ");
+		assertEquals(exp_cpx_fins, forces.getCP().x, EPSILON, " FinSetCalc produces bad C_p.x: ");
+		assertEquals(0.0, forces.getCN(), EPSILON, " FinSetCalc produces bad CN: ");
+		assertEquals(0.0, forces.getCm(), EPSILON, " FinSetCalc produces bad C_m: ");
 	}
 
 	@Test
@@ -92,11 +92,11 @@ public class FinSetCalcTest {
 		fins.setFinCount(4);
 
 		// to make the fin properties explicit
-		assertEquals(" Estes Alpha III fins have wrong count:", 4, fins.getFinCount(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong root chord:", 0.05, fins.getRootChord(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong tip chord:", 0.03, fins.getTipChord(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong sweep: ", 0.02, fins.getSweep(), EPSILON);
-		assertEquals(" Estes Alpha III fins have wrong height: ", 0.05, fins.getHeight(), EPSILON);
+		assertEquals(4, fins.getFinCount(), EPSILON, " Estes Alpha III fins have wrong count:");
+		assertEquals(0.05, fins.getRootChord(), EPSILON, " Estes Alpha III fins have wrong root chord:");
+		assertEquals(0.03, fins.getTipChord(), EPSILON, " Estes Alpha III fins have wrong tip chord:");
+		assertEquals(0.02, fins.getSweep(), EPSILON, " Estes Alpha III fins have wrong sweep: ");
+		assertEquals(0.05, fins.getHeight(), EPSILON, " Estes Alpha III fins have wrong height: ");
 
 		// get the forces for the four fins
 		AerodynamicForces forces = sumFins(fins, rocket);
@@ -104,9 +104,9 @@ public class FinSetCalcTest {
 		double exp_cna_fins = 32.195911;
 		double exp_cpx_fins = 0.0193484;
 
-		assertEquals(" FinSetCalc produces bad CNa: ", exp_cna_fins, forces.getCNa(), EPSILON);
-		assertEquals(" FinSetCalc produces bad C_p.x: ", exp_cpx_fins, forces.getCP().x, EPSILON);
-		assertEquals(" FinSetCalc produces bad CN: ", 0.0, forces.getCN(), EPSILON);
-		assertEquals(" FinSetCalc produces bad C_m: ", 0.0, forces.getCm(), EPSILON);
+		assertEquals(exp_cna_fins, forces.getCNa(), EPSILON, " FinSetCalc produces bad CNa: ");
+		assertEquals(exp_cpx_fins, forces.getCP().x, EPSILON, " FinSetCalc produces bad C_p.x: ");
+		assertEquals(0.0, forces.getCN(), EPSILON, " FinSetCalc produces bad CN: ");
+		assertEquals(0.0, forces.getCm(), EPSILON, " FinSetCalc produces bad C_m: ");
 	}
 }

@@ -5,7 +5,7 @@ package info.openrocket.core.file.rocksim.importt;
 
 import java.util.HashMap;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
@@ -28,7 +28,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      */
     @org.junit.jupiter.api.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE,
+        Assertions.assertEquals(PlainTextHandler.INSTANCE,
                 new ParachuteHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
@@ -48,39 +48,39 @@ public class ParachuteHandlerTest extends RockSimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Name", attributes, "Test Name", warnings);
-        Assert.assertEquals("Test Name", component.getName());
+        Assertions.assertEquals(component.getName(), "Test Name");
 
         handler.closeElement("DragCoefficient", attributes, "0.94", warnings);
-        Assert.assertEquals(0.94d, component.getCD(), 0.001);
+        Assertions.assertEquals(0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "-0.94", warnings);
-        Assert.assertEquals(-0.94d, component.getCD(), 0.001);
+        Assertions.assertEquals(-0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Dia", attributes, "-1", warnings);
-        Assert.assertEquals(-1d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
+        Assertions.assertEquals(-1d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
         handler.closeElement("Dia", attributes, "10", warnings);
-        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
+        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
         handler.closeElement("Dia", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("ShroudLineCount", attributes, "-1", warnings);
-        Assert.assertEquals(0, component.getLineCount());
+        Assertions.assertEquals(0, component.getLineCount());
         handler.closeElement("ShroudLineCount", attributes, "10", warnings);
-        Assert.assertEquals(10, component.getLineCount());
+        Assertions.assertEquals(10, component.getLineCount());
         handler.closeElement("ShroudLineCount", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("ShroudLineLen", attributes, "-1", warnings);
-        Assert.assertEquals(0d, component.getLineLength(), 0.001);
+        Assertions.assertEquals(0d, component.getLineLength(), 0.001);
         handler.closeElement("ShroudLineLen", attributes, "10", warnings);
-        Assert.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLineLength(),
+        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLineLength(),
                 0.001);
         handler.closeElement("ShroudLineLen", attributes, "foo", warnings);
-        Assert.assertEquals(1, warnings.size());
+        Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
     }
@@ -95,7 +95,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
 
         try {
             new ParachuteHandler(null, null, new WarningSet());
-            Assert.fail("Should have thrown IllegalArgumentException");
+            Assertions.fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException iae) {
             // success
         }
@@ -117,7 +117,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
         ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         handler.getComponent().setAxialMethod(AxialMethod.ABSOLUTE);
-        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
+        Assertions.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
     }
 
     /**
@@ -127,7 +127,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      */
     @org.junit.jupiter.api.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(
+        Assertions.assertTrue(
                 new ParachuteHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
     }
 
@@ -138,7 +138,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
      */
     @org.junit.jupiter.api.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.SURFACE,
+        Assertions.assertEquals(Material.Type.SURFACE,
                 new ParachuteHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 
@@ -158,15 +158,15 @@ public class ParachuteHandlerTest extends RockSimTestBase {
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
-        Assert.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
-        Assert.assertEquals(component.getAxialOffset(), -10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
+        Assertions.assertEquals(component.getAxialOffset(), -10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
-        Assert.assertEquals(AxialMethod.BOTTOM, component.getAxialMethod());
-        Assert.assertEquals(component.getAxialOffset(), 10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(AxialMethod.BOTTOM, component.getAxialMethod());
+        Assertions.assertEquals(component.getAxialOffset(), 10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
     }
 }

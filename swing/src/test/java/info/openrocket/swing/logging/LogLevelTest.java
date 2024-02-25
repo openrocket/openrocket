@@ -58,7 +58,7 @@ public class LogLevelTest {
 	
 	@Test
 	public void testMaxLengthOfAnyLogLevelName() {
-		assertEquals("Max length of at least one log level name is different than expected.", 6, LogLevel.LENGTH);
+		assertEquals(6, LogLevel.LENGTH, "Max length of at least one log level name is different than expected.");
 	}
 	
 }

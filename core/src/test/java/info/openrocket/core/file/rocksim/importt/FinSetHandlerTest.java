@@ -4,6 +4,7 @@
 package info.openrocket.core.file.rocksim.importt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,7 +63,7 @@ public class FinSetHandlerTest {
         File tmpDir = new File("./tmp");
         if (!tmpDir.exists()) {
             boolean success = tmpDir.mkdirs();
-            assertTrue("Unable to create core/tmp dir needed for tests.", success);
+            assertTrue(success, "Unable to create core/tmp dir needed for tests.");
         }
 
     }
@@ -105,18 +106,18 @@ public class FinSetHandlerTest {
 
         String debugInfo = fins.toDebugDetail().toString();
 
-        assertEquals("The name", fins.getName());
-        assertTrue(fins instanceof TrapezoidFinSet);
-        assertEquals("imported fin count does not match.", 4, fins.getFinCount());
+        assertEquals(fins.getName(), "The name");
+		assertInstanceOf(TrapezoidFinSet.class, fins);
+        assertEquals(4, fins.getFinCount(), "imported fin count does not match.");
 
-        assertEquals("imported fin height does not match.", 0.012d, ((TrapezoidFinSet) fins).getHeight(), EPSILON);
-        assertEquals("imported fin span does not match.", 0.012d, fins.getSpan(), EPSILON);
+        assertEquals(0.012d, ((TrapezoidFinSet) fins).getHeight(), EPSILON, "imported fin height does not match.");
+        assertEquals(0.012d, fins.getSpan(), EPSILON, "imported fin span does not match.");
 
-        assertEquals("imported fin thickness does not match.", 0.2d, fins.getThickness(), EPSILON);
-        assertEquals("imported fin tab length does not match: " + debugInfo, 0.04d, fins.getTabLength(), EPSILON);
-        assertEquals("imported fin tab height does not match: " + debugInfo, 0.05d, fins.getTabHeight(), EPSILON);
-        assertEquals("imported fin shift does not match.", 0.03d, fins.getTabOffset(), EPSILON);
-        assertEquals("imported fin rotation does not match.", .123d, fins.getBaseRotation(), EPSILON);
+        assertEquals(0.2d, fins.getThickness(), EPSILON, "imported fin thickness does not match.");
+        assertEquals(0.04d, fins.getTabLength(), EPSILON, "imported fin tab length does not match: " + debugInfo);
+        assertEquals(0.05d, fins.getTabHeight(), EPSILON, "imported fin tab height does not match: " + debugInfo);
+        assertEquals(0.03d, fins.getTabOffset(), EPSILON, "imported fin shift does not match.");
+        assertEquals(.123d, fins.getBaseRotation(), EPSILON, "imported fin rotation does not match.");
 
         dto.closeElement("ShapeCode", attributes, "1", warnings);
 
@@ -124,15 +125,15 @@ public class FinSetHandlerTest {
         assertNotNull(fins);
         assertEquals(0, set.size());
 
-        assertEquals("The name", fins.getName());
-        assertTrue(fins instanceof EllipticalFinSet);
-        assertEquals("imported fin count does not match.", 4, fins.getFinCount());
+        assertEquals(fins.getName(), "The name");
+		assertInstanceOf(EllipticalFinSet.class, fins);
+        assertEquals(4, fins.getFinCount(), "imported fin count does not match.");
 
-        assertEquals("imported fin thickness does not match.", 0.2d, fins.getThickness(), EPSILON);
-        assertEquals("imported fin tab length does not match.", 0.04d, fins.getTabLength(), EPSILON);
-        assertEquals("imported fin tab height does not match.", 0.05d, fins.getTabHeight(), EPSILON);
-        assertEquals("imported fin tab shift does not match.", 0.03d, fins.getTabOffset(), EPSILON);
-        assertEquals("imported fin rotation does not match.", .123d, fins.getBaseRotation(), EPSILON);
+        assertEquals(0.2d, fins.getThickness(), EPSILON, "imported fin thickness does not match.");
+        assertEquals(0.04d, fins.getTabLength(), EPSILON, "imported fin tab length does not match.");
+        assertEquals(0.05d, fins.getTabHeight(), EPSILON, "imported fin tab height does not match.");
+        assertEquals(0.03d, fins.getTabOffset(), EPSILON, "imported fin tab shift does not match.");
+        assertEquals(.123d, fins.getBaseRotation(), EPSILON, "imported fin rotation does not match.");
     }
 
     /**
@@ -151,19 +152,19 @@ public class FinSetHandlerTest {
         String finlist = null;
         Coordinate[] result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(0 == result.length);
+		assertEquals(0, result.length);
 
         // Empty string finlist
         finlist = "";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(0 == result.length);
+		assertEquals(0, result.length);
 
         // Invalid finlist (only x coordinate)
         finlist = "10.0";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(0 == result.length);
+		assertEquals(0, result.length);
         assertEquals(1, warnings.size());
         warnings.clear();
 
@@ -171,7 +172,7 @@ public class FinSetHandlerTest {
         finlist = "10.0,asdf";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(0 == result.length);
+		assertEquals(0, result.length);
         assertEquals(1, warnings.size());
         warnings.clear();
 
@@ -179,7 +180,7 @@ public class FinSetHandlerTest {
         finlist = "||||||";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(0 == result.length);
+		assertEquals(0, result.length);
         assertEquals(0, warnings.size());
         warnings.clear();
 
@@ -189,7 +190,7 @@ public class FinSetHandlerTest {
         finlist = "10.0,5.0";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(1 == result.length);
+		assertEquals(1, result.length);
         assertEquals(0, warnings.size());
         warnings.clear();
 
@@ -199,7 +200,7 @@ public class FinSetHandlerTest {
         finlist = "10.0,5.0|3.3,4.4";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(2 == result.length);
+		assertEquals(2, result.length);
         assertEquals(0, warnings.size());
         warnings.clear();
 
@@ -207,7 +208,7 @@ public class FinSetHandlerTest {
         finlist = "518.16,0|517.494,37.2145|1.31261,6.77283|0,0|";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(4 == result.length);
+		assertEquals(4, result.length);
         assertEquals(new Coordinate(0, 0), result[0]);
         assertEquals(0, warnings.size());
         warnings.clear();
@@ -216,7 +217,7 @@ public class FinSetHandlerTest {
         finlist = "518.16 , 0 | 517.494 , 37.2145 | 1.31261,6.77283|0,0|";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(4 == result.length);
+		assertEquals(4, result.length);
         assertEquals(new Coordinate(0, 0), result[0]);
         assertEquals(new Coordinate(.51816, 0), result[3]);
         assertEquals(0, warnings.size());
@@ -226,7 +227,7 @@ public class FinSetHandlerTest {
         finlist = "0,0|1.31261,6.77283|517.494,37.2145|518.16,0|";
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
-        assertTrue(4 == result.length);
+		assertEquals(4, result.length);
         assertEquals(new Coordinate(0, 0), result[0]);
         assertEquals(new Coordinate(.51816, 0), result[3]);
         assertEquals(0, warnings.size());

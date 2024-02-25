@@ -33,26 +33,26 @@ public class MassCacheTest extends BaseTestCase {
 	//
 	// double expMass = 0.116287;
 	// double expCMx = 0.278070785749;
-	// assertEquals("Upper Stage Mass is incorrect: ", expMass,
-	// calcMass.getCM().weight, EPSILON);
-	// assertEquals("Upper Stage CM.x is incorrect: ", expCMx, calcMass.getCM().x,
-	// EPSILON);
-	// assertEquals("Upper Stage CM.y is incorrect: ", 0.0f, calcMass.getCM().y,
-	// EPSILON);
-	// assertEquals("Upper Stage CM.z is incorrect: ", 0.0f, calcMass.getCM().z,
-	// EPSILON);
+	// assertEquals(expMass,
+	// calcMass.getCM().weight, EPSILON, "Upper Stage Mass is incorrect: ");
+	// assertEquals(expCMx, calcMass.getCM().x,
+	// EPSILON, "Upper Stage CM.x is incorrect: ");
+	// assertEquals(0.0f, calcMass.getCM().y,
+	// EPSILON, "Upper Stage CM.y is incorrect: ");
+	// assertEquals(0.0f, calcMass.getCM().z,
+	// EPSILON, "Upper Stage CM.z is incorrect: ");
 	//
 	// MassData rocketLaunchMass = mc.getRocketLaunchMassData( config);
-	// assertEquals("Upper Stage Mass (cache) is incorrect: ", expMass,
-	// rocketLaunchMass.getCM().weight, EPSILON);
-	// assertEquals("Upper Stage CM.x (cache) is incorrect: ", expCMx,
-	// rocketLaunchMass.getCM().x, EPSILON);
+	// assertEquals(expMass,
+	// rocketLaunchMass.getCM().weight, EPSILON, "Upper Stage Mass (cache) is incorrect: ");
+	// assertEquals(expCMx,
+	// rocketLaunchMass.getCM().x, EPSILON, "Upper Stage CM.x (cache) is incorrect: ");
 	//
 	// MassData rocketSpentMass = mc.getRocketSpentMassData( config);
-	// assertEquals("Upper Stage Mass (cache) is incorrect: ", expMass,
-	// rocketSpentMass.getCM().weight, EPSILON);
-	// assertEquals("Upper Stage CM.x (cache) is incorrect: ", expCMx,
-	// rocketSpentMass.getCM().x, EPSILON);
+	// assertEquals(expMass,
+	// rocketSpentMass.getCM().weight, EPSILON, "Upper Stage Mass (cache) is incorrect: ");
+	// assertEquals(expCMx,
+	// rocketSpentMass.getCM().x, EPSILON, "Upper Stage CM.x (cache) is incorrect: ");
 	// }{
 	// ParallelStage boosters = (ParallelStage) rocket.getChild(1).getChild(1);
 	// int boostNum = boosters.getStageNumber();
@@ -62,26 +62,26 @@ public class MassCacheTest extends BaseTestCase {
 	//
 	// double expMass = BOOSTER_SET_NO_MOTORS_MASS;
 	// double expCMx = BOOSTER_SET_NO_MOTORS_CMX;
-	// assertEquals("Heavy Booster Mass is incorrect: ", expMass,
-	// boosterMass.getCM().weight, EPSILON);
-	// assertEquals("Heavy Booster CM.x is incorrect: ", expCMx,
-	// boosterMass.getCM().x, EPSILON);
-	// assertEquals("Heavy Booster CM.y is incorrect: ", 0.0f,
-	// boosterMass.getCM().y, EPSILON);
-	// assertEquals("Heavy Booster CM.z is incorrect: ", 0.0f,
-	// boosterMass.getCM().z, EPSILON);
+	// assertEquals(expMass,
+	// boosterMass.getCM().weight, EPSILON, "Heavy Booster Mass is incorrect: ");
+	// assertEquals(expCMx,
+	// boosterMass.getCM().x, EPSILON, "Heavy Booster CM.x is incorrect: ");
+	// assertEquals(0.0f,
+	// boosterMass.getCM().y, EPSILON, "Heavy Booster CM.y is incorrect: ");
+	// assertEquals(0.0f,
+	// boosterMass.getCM().z, EPSILON, "Heavy Booster CM.z is incorrect: ");
 	//
 	// MassData rocketLaunchMass = mc.getRocketLaunchMassData( config);
-	// assertEquals(" Booster Stage Mass (cache) is incorrect: ", expMass,
-	// rocketLaunchMass.getCM().weight, EPSILON);
-	// assertEquals(" Booster Stage CM.x (cache) is incorrect: ", expCMx,
-	// rocketLaunchMass.getCM().x, EPSILON);
+	// assertEquals(expMass,
+	// rocketLaunchMass.getCM().weight, EPSILON, " Booster Stage Mass (cache) is incorrect: ");
+	// assertEquals(expCMx,
+	// rocketLaunchMass.getCM().x, EPSILON, " Booster Stage CM.x (cache) is incorrect: ");
 	//
 	// MassData rocketSpentMass = mc.getRocketSpentMassData( config);
-	// assertEquals(" Booster Stage Mass (cache) is incorrect: ", expMass,
-	// rocketSpentMass.getCM().weight, EPSILON);
-	// assertEquals(" Booster Stage CM.x (cache) is incorrect: ", expCMx,
-	// rocketSpentMass.getCM().x, EPSILON);
+	// assertEquals(expMass,
+	// rocketSpentMass.getCM().weight, EPSILON, " Booster Stage Mass (cache) is incorrect: ");
+	// assertEquals(expCMx,
+	// rocketSpentMass.getCM().x, EPSILON, " Booster Stage CM.x (cache) is incorrect: ");
 	// }
 	// }
 	//

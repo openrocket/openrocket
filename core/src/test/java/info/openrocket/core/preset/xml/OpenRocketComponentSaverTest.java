@@ -1,7 +1,7 @@
 package info.openrocket.core.preset.xml;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
  */
 public class OpenRocketComponentSaverTest {
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
     }
 

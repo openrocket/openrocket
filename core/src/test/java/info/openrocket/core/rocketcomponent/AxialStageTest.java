@@ -23,82 +23,82 @@ public class AxialStageTest extends BaseTestCase {
 
         // Disable the payload stage
         config._setStageActive(0, false);
-        assertFalse(" Payload stage in selected configuration should be disabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertFalse(config.isStageActive(0), " Payload stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Booster stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Enable the payload stage
         config._setStageActive(0, true);
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Booster stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Toggle the payload stage to False
         config.toggleStage(0);
-        assertFalse(" Payload stage in selected configuration should be disabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertFalse(config.isStageActive(0), " Payload stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Booster stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Toggle the payload stage to True
         config.toggleStage(0);
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Booster stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Set only stage
         config.setOnlyStage(1);
-        assertFalse(" Payload stage in selected configuration should be disabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertFalse(config.isStageActive(0), " Payload stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Change stage activeness in other configuration
         config2.toggleStage(1);
-        assertFalse(" Payload stage in selected configuration should be disabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertFalse(" Core stage in other configuration should be disabled", config2.isStageActive(1));
-        assertFalse(" Booster stage in other configuration should be disabled", config2.isStageActive(2));
+        assertFalse(config.isStageActive(0), " Payload stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertFalse(config2.isStageActive(1), " Core stage in other configuration should be disabled");
+        assertFalse(config2.isStageActive(2), " Booster stage in other configuration should be disabled");
         config.setAllStages();
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertFalse(" Core stage in other configuration should be disabled", config2.isStageActive(1));
-        assertFalse(" Booster stage in other configuration should be disabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Booster stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertFalse(config2.isStageActive(1), " Core stage in other configuration should be disabled");
+        assertFalse(config2.isStageActive(2), " Booster stage in other configuration should be disabled");
 
         // Toggle stage with activateSubStages edited
         config.setAllStages();
         config2.setAllStages();
         config._setStageActive(1, false, true);
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertFalse(" Core stage in selected configuration should be disabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(1), " Core stage in selected configuration should be disabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
         config._setStageActive(1, true, false);
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
     }
 
     /**
@@ -126,30 +126,30 @@ public class AxialStageTest extends BaseTestCase {
             rocket.thaw(); // Unfreeze
         }
 
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(1));
-        assertFalse(" Payload stage in selected configuration should be disabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Booster stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(2), " Payload stage in selected configuration should be disabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Re-enable the payload stage
         config._setStageActive(payloadStage.getStageNumber(), true);
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Booster stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Payload stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Disable the core stage (and booster stage)
         config._setStageActive(0, false);
-        assertFalse(" Core stage in selected configuration should be disabled", config.isStageActive(0));
-        assertFalse(" Booster stage in selected configuration should be disabled ", config.isStageActive(1));
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertFalse(config.isStageActive(0), " Core stage in selected configuration should be disabled");
+        assertFalse(config.isStageActive(1), " Booster stage in selected configuration should be disabled ");
+        assertTrue(config.isStageActive(2), " Payload stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
 
         // Move the core stage to the back of the rocket
         AxialStage coreStage = rocket.getStage(0);
@@ -161,12 +161,12 @@ public class AxialStageTest extends BaseTestCase {
             rocket.thaw(); // Unfreeze
         }
 
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertFalse(" Core stage in selected configuration should be disabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled ", config.isStageActive(2));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(1), " Core stage in selected configuration should be disabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled ");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
     }
 
     /**
@@ -189,41 +189,41 @@ public class AxialStageTest extends BaseTestCase {
         AxialStage coreStageCopy = (AxialStage) coreStage.copy();
         rocket.addChild(coreStageCopy);
 
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertFalse(" Core stage in selected configuration should be disabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled", config.isStageActive(2));
-        assertTrue(" Core copy stage in selected configuration should be enabled", config.isStageActive(3));
-        assertTrue(" Booster copy stage in selected configuration should be enabled", config.isStageActive(4));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
-        assertTrue(" Core copy stage in selected configuration should be enabled", config2.isStageActive(3));
-        assertTrue(" Booster copy stage in selected configuration should be enabled", config2.isStageActive(4));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(1), " Core stage in selected configuration should be disabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(3), " Core copy stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(4), " Booster copy stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(3), " Core copy stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(4), " Booster copy stage in selected configuration should be enabled");
 
         // Disable the copied core stage (not the booster copy stage)
         config._setStageActive(3, false, false);
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertFalse(" Core stage in selected configuration should be disabled", config.isStageActive(1));
-        assertFalse(" Booster stage in selected configuration should be disabled", config.isStageActive(2));
-        assertFalse(" Core copy stage in selected configuration should be disabled", config.isStageActive(3));
-        assertTrue(" Booster copy stage in selected configuration should be enabled", config.isStageActive(4));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
-        assertTrue(" Core copy stage in selected configuration should be enabled", config2.isStageActive(3));
-        assertTrue(" Booster copy stage in selected configuration should be enabled", config2.isStageActive(4));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(1), " Core stage in selected configuration should be disabled");
+        assertFalse(config.isStageActive(2), " Booster stage in selected configuration should be disabled");
+        assertFalse(config.isStageActive(3), " Core copy stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(4), " Booster copy stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(3), " Core copy stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(4), " Booster copy stage in selected configuration should be enabled");
 
         // Toggle the original core stage back
         config.toggleStage(1);
-        assertTrue(" Payload stage in selected configuration should be enabled", config.isStageActive(0));
-        assertTrue(" Core stage in selected configuration should be enabled", config.isStageActive(1));
-        assertTrue(" Booster stage in selected configuration should be enabled", config.isStageActive(2));
-        assertFalse(" Core copy stage in selected configuration should be disabled", config.isStageActive(3));
-        assertTrue(" Booster copy stage in selected configuration should be enabled", config.isStageActive(4));
-        assertTrue(" Payload stage in other configuration should be enabled", config2.isStageActive(0));
-        assertTrue(" Core stage in other configuration should be enabled", config2.isStageActive(1));
-        assertTrue(" Booster stage in other configuration should be enabled", config2.isStageActive(2));
-        assertTrue(" Core copy stage in selected configuration should be enabled", config2.isStageActive(3));
-        assertTrue(" Booster copy stage in selected configuration should be enabled", config2.isStageActive(4));
+        assertTrue(config.isStageActive(0), " Payload stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(1), " Core stage in selected configuration should be enabled");
+        assertTrue(config.isStageActive(2), " Booster stage in selected configuration should be enabled");
+        assertFalse(config.isStageActive(3), " Core copy stage in selected configuration should be disabled");
+        assertTrue(config.isStageActive(4), " Booster copy stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(0), " Payload stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(1), " Core stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(2), " Booster stage in other configuration should be enabled");
+        assertTrue(config2.isStageActive(3), " Core copy stage in selected configuration should be enabled");
+        assertTrue(config2.isStageActive(4), " Booster copy stage in selected configuration should be enabled");
     }
 }

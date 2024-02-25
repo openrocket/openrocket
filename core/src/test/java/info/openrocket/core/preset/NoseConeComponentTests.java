@@ -9,7 +9,7 @@ import info.openrocket.core.rocketcomponent.Transition;
 
 import info.openrocket.core.util.BaseTestCase;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,7 +25,7 @@ public class NoseConeComponentTests extends BaseTestCase {
 
 	ComponentPreset preset;
 
-	@Before
+	@BeforeEach
 	public void createPreset() throws Exception {
 		TypedPropertyMap presetspec = new TypedPropertyMap();
 		presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.NOSE_CONE);

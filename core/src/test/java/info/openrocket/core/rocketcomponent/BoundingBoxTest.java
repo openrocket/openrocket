@@ -19,12 +19,12 @@ public class BoundingBoxTest extends BaseTestCase {
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 		final BoundingBox bounds = config.getBoundingBoxAerodynamic();
 
-		assertEquals("bounds max x", 0.000000000, bounds.min.x, EPSILON);
-		assertEquals("bounds max x", 0.270000000, bounds.max.x, EPSILON);
-		assertEquals("bounds min y", -0.032385640, bounds.min.y, EPSILON);
-		assertEquals("bounds max y", 0.062000000, bounds.max.y, EPSILON);
-		assertEquals("bounds min z", -0.054493575, bounds.min.z, EPSILON);
-		assertEquals("bounds max z", 0.052893575, bounds.max.z, EPSILON);
+		assertEquals(0.000000000, bounds.min.x, EPSILON, "bounds max x");
+		assertEquals(0.270000000, bounds.max.x, EPSILON, "bounds max x");
+		assertEquals(-0.032385640, bounds.min.y, EPSILON, "bounds min y");
+		assertEquals(0.062000000, bounds.max.y, EPSILON, "bounds max y");
+		assertEquals(-0.054493575, bounds.min.z, EPSILON, "bounds min z");
+		assertEquals(0.052893575, bounds.max.z, EPSILON, "bounds max z");
 	}
 
 	@Test
@@ -41,12 +41,12 @@ public class BoundingBoxTest extends BaseTestCase {
 
 			final BoundingBox bounds = config.getBoundingBoxAerodynamic();
 
-			assertEquals("bounds min x", 0.000000000, bounds.min.x, EPSILON);
-			assertEquals("bounds max x", 0.335000000, bounds.max.x, EPSILON);
-			assertEquals("bounds min y", -0.032385640, bounds.min.y, EPSILON);
-			assertEquals("bounds max y", 0.062000000, bounds.max.y, EPSILON);
-			assertEquals("bounds min z", -0.054493575, bounds.min.z, EPSILON);
-			assertEquals("bounds max z", 0.052893575, bounds.max.z, EPSILON);
+			assertEquals(0.000000000, bounds.min.x, EPSILON, "bounds min x");
+			assertEquals(0.335000000, bounds.max.x, EPSILON, "bounds max x");
+			assertEquals(-0.032385640, bounds.min.y, EPSILON, "bounds min y");
+			assertEquals(0.062000000, bounds.max.y, EPSILON, "bounds max y");
+			assertEquals(-0.054493575, bounds.min.z, EPSILON, "bounds min z");
+			assertEquals(0.052893575, bounds.max.z, EPSILON, "bounds max z");
 		}
 		{ // case B: Sustainer Only
 			config.setOnlyStage(0);
@@ -56,12 +56,12 @@ public class BoundingBoxTest extends BaseTestCase {
 
 			final BoundingBox bounds = config.getBoundingBoxAerodynamic();
 
-			assertEquals("bounds min x", 0.000000000, bounds.min.x, EPSILON);
-			assertEquals("bounds max x", 0.270000000, bounds.max.x, EPSILON);
-			assertEquals("bounds min y", -0.032385640, bounds.min.y, EPSILON);
-			assertEquals("bounds max y", 0.062000000, bounds.max.y, EPSILON);
-			assertEquals("bounds min z", -0.054493575, bounds.min.z, EPSILON);
-			assertEquals("bounds max z", 0.052893575, bounds.max.z, EPSILON);
+			assertEquals(0.000000000, bounds.min.x, EPSILON, "bounds min x");
+			assertEquals(0.270000000, bounds.max.x, EPSILON, "bounds max x");
+			assertEquals(-0.032385640, bounds.min.y, EPSILON, "bounds min y");
+			assertEquals(0.062000000, bounds.max.y, EPSILON, "bounds max y");
+			assertEquals(-0.054493575, bounds.min.z, EPSILON, "bounds min z");
+			assertEquals(0.052893575, bounds.max.z, EPSILON, "bounds max z");
 		}
 		{ // case C: Booster Only
 			config.setOnlyStage(1);
@@ -72,12 +72,12 @@ public class BoundingBoxTest extends BaseTestCase {
 
 			final BoundingBox bounds = config.getBoundingBoxAerodynamic();
 
-			assertEquals("bounds min x", 0.270000000, bounds.min.x, EPSILON);
-			assertEquals("bounds max x", 0.335000000, bounds.max.x, EPSILON);
-			assertEquals("bounds min y", -0.032385640, bounds.min.y, EPSILON);
-			assertEquals("bounds max y", 0.062000000, bounds.max.y, EPSILON);
-			assertEquals("bounds min z", -0.054493575, bounds.min.z, EPSILON);
-			assertEquals("bounds max z", 0.052893575, bounds.max.z, EPSILON);
+			assertEquals(0.270000000, bounds.min.x, EPSILON, "bounds min x");
+			assertEquals(0.335000000, bounds.max.x, EPSILON, "bounds max x");
+			assertEquals(-0.032385640, bounds.min.y, EPSILON, "bounds min y");
+			assertEquals(0.062000000, bounds.max.y, EPSILON, "bounds max y");
+			assertEquals(-0.054493575, bounds.min.z, EPSILON, "bounds min z");
+			assertEquals(0.052893575, bounds.max.z, EPSILON, "bounds max z");
 		}
 	}
 

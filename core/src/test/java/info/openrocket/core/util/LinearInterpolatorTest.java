@@ -22,8 +22,8 @@ public class LinearInterpolatorTest {
 		};
 
 		double x = 0;
-		for (int i = 0; i < answer.length; i++) {
-			assertEquals("Answer wrong for x = " + x, answer[i], interpolator.getValue(x), 0.01);
+		for (double v : answer) {
+			assertEquals(v, interpolator.getValue(x), 0.01, "Answer wrong for x = " + x);
 			x += 0.1;
 		}
 

@@ -31,7 +31,7 @@ public class TestExceptionSuppressingTranslator {
 
 		when(translator.get("fake.key4")).thenReturn("foobar");
 
-		assertEquals("foobar", est.get("fake.key4"));
+		assertEquals(est.get("fake.key4"), "foobar");
 	}
 
 	@Test
@@ -39,21 +39,21 @@ public class TestExceptionSuppressingTranslator {
 		Application.setExceptionHandler(exceptionHandler);
 		ExceptionSuppressingTranslator est = new ExceptionSuppressingTranslator(translator);
 
-		assertFalse("Prerequisite failed", ExceptionSuppressingTranslator.errorReported);
+		assertFalse(ExceptionSuppressingTranslator.errorReported, "Prerequisite failed");
 
 		when(translator.get("fake.key5")).thenThrow(new MissingResourceException("a", "b", "c"));
 		when(translator.get("fake.key6")).thenThrow(new MissingResourceException("a", "b", "c"));
 
 		// Test first failure
-		assertEquals("fake.key5", est.get("fake.key5"));
+		assertEquals(est.get("fake.key5"), "fake.key5");
 		assertTrue(ExceptionSuppressingTranslator.errorReported);
 
 		// Test second failure
-		assertEquals("fake.key5", est.get("fake.key5"));
+		assertEquals(est.get("fake.key5"), "fake.key5");
 		assertTrue(ExceptionSuppressingTranslator.errorReported);
 
 		// Test failure with other key
-		assertEquals("fake.key6", est.get("fake.key6"));
+		assertEquals(est.get("fake.key6"), "fake.key6");
 		assertTrue(ExceptionSuppressingTranslator.errorReported);
 
 		// Verify that handleErrorCondition is called with any string and any MissingResourceException

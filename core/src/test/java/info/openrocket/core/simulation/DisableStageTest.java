@@ -8,7 +8,7 @@ import info.openrocket.core.simulation.exception.MotorIgnitionException;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -40,7 +40,7 @@ public class DisableStageTest extends BaseTestCase {
             simDisabled.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation should have thrown a MotorIgnitionException");
+                Assertions.fail("Simulation should have thrown a MotorIgnitionException");
             }
         }
 
@@ -236,7 +236,7 @@ public class DisableStageTest extends BaseTestCase {
             simRemoved.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation failed: " + e);
+                Assertions.fail("Simulation failed: " + e);
             }
         }
 
@@ -244,7 +244,7 @@ public class DisableStageTest extends BaseTestCase {
             simDisabled.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation failed: " + e);
+                Assertions.fail("Simulation failed: " + e);
             }
         }
 
@@ -279,14 +279,14 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getActiveConfiguration().setOnlyStage(2);
 
         //// Test that the top stage is the booster stage
-        Assert.assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()),
+        Assertions.assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()),
                 rocketDisabled.getStage(2));
 
         try { // Just check that the simulation runs without exceptions
             simDisabled.simulate();
         } catch (SimulationException e) {
             if (!(e instanceof MotorIgnitionException)) {
-                Assert.fail("Simulation failed: " + e);
+                Assertions.fail("Simulation failed: " + e);
             }
         }
     }
@@ -330,17 +330,17 @@ public class DisableStageTest extends BaseTestCase {
             double launchRodVelocityDisabled = simActual.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityDisabled = simActual.getSimulatedData().getDeploymentVelocity();
 
-            Assert.assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, maxAltitudeOriginal * delta);
-            Assert.assertEquals(maxVelocityOriginal, maxVelocityDisabled, maxVelocityOriginal * delta);
-            Assert.assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, maxMachNumberOriginal * delta);
-            Assert.assertEquals(flightTimeOriginal, flightTimeDisabled, flightTimeOriginal * delta);
-            Assert.assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, timeToApogeeOriginal * delta);
-            Assert.assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled,
+            Assertions.assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, maxAltitudeOriginal * delta);
+            Assertions.assertEquals(maxVelocityOriginal, maxVelocityDisabled, maxVelocityOriginal * delta);
+            Assertions.assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, maxMachNumberOriginal * delta);
+            Assertions.assertEquals(flightTimeOriginal, flightTimeDisabled, flightTimeOriginal * delta);
+            Assertions.assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, timeToApogeeOriginal * delta);
+            Assertions.assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled,
                     launchRodVelocityOriginal * delta);
-            Assert.assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled,
+            Assertions.assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled,
                     deploymentVelocityOriginal * delta);
         } catch (SimulationException e) {
-            Assert.fail("Simulation failed: " + e);
+            Assertions.fail("Simulation failed: " + e);
         }
     }
 }

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.ExceptionHandler;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ public class TestMutex {
 
 	private static final Logger log = LoggerFactory.getLogger(TestMutex.class);
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		System.setProperty("openrocket.debug.safetycheck", "true");
 
@@ -80,12 +80,12 @@ public class TestMutex {
 		m.lock("here");
 
 		boolean unlocked = m.unlock("here");
-		assertTrue("First unlock failed but should have succeeded.", unlocked);
+		assertTrue(unlocked, "First unlock failed but should have succeeded.");
 
 		log.error(
 				"***** The following ConcurrencyException in testDoubleUnlocking() is expected, but this test can't prevent it from being logged. *****");
 		unlocked = m.unlock("here");
-		assertFalse("Second unlock succeeded but should have failed.", unlocked);
+		assertFalse(unlocked, "Second unlock succeeded but should have failed.");
 	}
 
 	private volatile int testState = 0;
@@ -161,14 +161,14 @@ public class TestMutex {
 		testState = 1;
 
 		waitFor(2);
-		assertNull("Thread error: " + failure, failure);
+		assertNull(failure, "Thread error: " + failure);
 
 		m.verify();
 		m.unlock("one");
 		testState = 3;
 
 		waitFor(4);
-		assertNull("Thread error: " + failure, failure);
+		assertNull(failure, "Thread error: " + failure);
 
 		try {
 			log.error(
@@ -195,7 +195,7 @@ public class TestMutex {
 
 		testState = 5;
 		waitFor(6);
-		assertNull("Thread error: " + failure, failure);
+		assertNull(failure, "Thread error: " + failure);
 	}
 
 	private void waitFor(int state) {

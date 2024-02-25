@@ -99,6 +99,6 @@ public class RailButtonCalcTest {
 		double testcd = calcObj.calculatePressureCD(conditions,
 				barrowmanObj.calculateStagnationCD(conditions.getMach()), 0, warnings);
 
-		assertEquals("Calculated rail button CD incorrect", calccd, testcd, EPSILON);
+		assertEquals(calccd, testcd, EPSILON, "Calculated rail button CD incorrect");
 	}
 }

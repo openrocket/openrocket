@@ -6,7 +6,7 @@ import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.rocketcomponent.EngineBlock;
 import info.openrocket.core.util.BaseTestCase;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -22,7 +22,7 @@ public class EngineBlockComponentTests extends BaseTestCase {
 
 	ComponentPreset preset;
 
-	@Before
+	@BeforeEach
 	public void createPreset() throws Exception {
 		TypedPropertyMap presetspec = new TypedPropertyMap();
 		presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.ENGINE_BLOCK);

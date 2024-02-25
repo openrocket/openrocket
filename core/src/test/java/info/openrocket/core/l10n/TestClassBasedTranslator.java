@@ -22,10 +22,10 @@ public class TestClassBasedTranslator {
 
 		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 		cbt.get("fake.key1");
-		assertEquals("TestClassBasedTranslator", cbt.getClassName());
+		assertEquals(cbt.getClassName(), "TestClassBasedTranslator");
 
 		cbt = new ClassBasedTranslator(translator, "foobar");
-		assertEquals("foobar", cbt.getClassName());
+		assertEquals(cbt.getClassName(), "foobar");
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class TestClassBasedTranslator {
 
 		when(translator.get("TestClassBasedTranslator.fake.key1")).thenReturn("foobar");
 
-		assertEquals("foobar", cbt.get("fake.key1"));
+		assertEquals(cbt.get("fake.key1"), "foobar");
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class TestClassBasedTranslator {
 		when(translator.get("TestClassBasedTranslator.fake.key2")).thenThrow(new MissingResourceException("a", "b", "c"));
 		when(translator.get("fake.key2")).thenReturn("barbaz");
 
-		assertEquals("barbaz", cbt.get("fake.key2"));
+		assertEquals(cbt.get("fake.key2"), "barbaz");
 	}
 
 	@Test
@@ -58,8 +58,7 @@ public class TestClassBasedTranslator {
 		try {
 			fail("Returned: " + cbt.get("fake.key3"));
 		} catch (MissingResourceException e) {
-			assertEquals("Neither key 'TestClassBasedTranslator.fake.key3' nor 'fake.key3' could be found",
-					e.getMessage());
+			assertEquals(e.getMessage(), "Neither key 'TestClassBasedTranslator.fake.key3' nor 'fake.key3' could be found");
 		}
 	}
 
@@ -69,8 +68,8 @@ public class TestClassBasedTranslator {
 
 		when(translator.get("TestClassBasedTranslator.fake.key1")).thenReturn("foobar");
 
-		assertEquals("foobar", new Subclass().get(cbt, "fake.key1"));
-		assertEquals("TestClassBasedTranslator", cbt.getClassName());
+		assertEquals(new Subclass().get(cbt, "fake.key1"), "foobar");
+		assertEquals(cbt.getClassName(), "TestClassBasedTranslator");
 	}
 
 	private class Subclass {

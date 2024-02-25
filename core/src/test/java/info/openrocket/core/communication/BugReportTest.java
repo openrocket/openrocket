@@ -26,7 +26,7 @@ public class BugReportTest {
 		assertTrue(connection.getConnectTimeout() > 0);
 		assertEquals(BuildProperties.getVersion(), connection.getRequestProperty("X-OpenRocket-Version"));
 		assertTrue(connection.getInstanceFollowRedirects());
-		assertEquals("POST", connection.getRequestMethod());
+		assertEquals(connection.getRequestMethod(), "POST");
 		assertFalse(connection.getUseCaches());
 	}
 

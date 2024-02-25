@@ -35,7 +35,7 @@ public class RigidBodyTest extends BaseTestCase {
 
 		Coordinate cm3_expected = r1.average(r2);
 
-		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM());
+		assertEquals(cm3_expected, asbly3.getCM(), " Center of Mass calculated incorrectly: ");
 
 		// these are a bit of a hack, and depend upon all the bodies being along the
 		// y=0, z=0 line.
@@ -56,11 +56,11 @@ public class RigidBodyTest extends BaseTestCase {
 		double expI3yy = I1t + I2t;
 		double expI3zz = I13zz + I23zz;
 
-		assertEquals("x-axis MOI don't match: ", asbly3.getIxx(), expI3xx, EPSILON * 10);
+		assertEquals(asbly3.getIxx(), expI3xx, EPSILON * 10, "x-axis MOI don't match: ");
 
-		assertEquals("y-axis MOI don't match: ", asbly3.getIyy(), expI3yy, EPSILON * 10);
+		assertEquals(asbly3.getIyy(), expI3yy, EPSILON * 10, "y-axis MOI don't match: ");
 
-		assertEquals("z-axis MOI don't match: ", asbly3.getIzz(), expI3zz, EPSILON * 10);
+		assertEquals(asbly3.getIzz(), expI3zz, EPSILON * 10, "z-axis MOI don't match: ");
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class RigidBodyTest extends BaseTestCase {
 		RigidBody asbly3 = body1.add(body2);
 
 		Coordinate cm3_expected = r1.average(r2);
-		assertEquals(" Center of Mass calculated incorrectly: ", cm3_expected, asbly3.getCM());
+		assertEquals(cm3_expected, asbly3.getCM(), " Center of Mass calculated incorrectly: ");
 
 		// these are a bit of a hack, and depend upon all the bodies being along the
 		// y=0, z=0 line.
@@ -104,13 +104,13 @@ public class RigidBodyTest extends BaseTestCase {
 		double I23zz = I2t + m2 * (x2 + y2);
 
 		double expI3xx = I13xx + I23xx;
-		assertEquals("x-axis MOI don't match: ", asbly3.getIxx(), expI3xx, EPSILON * 10);
+		assertEquals(asbly3.getIxx(), expI3xx, EPSILON * 10, "x-axis MOI don't match: ");
 
 		double expI3yy = I13yy + I23yy;
-		assertEquals("y-axis MOI don't match: ", asbly3.getIyy(), expI3yy, EPSILON * 10);
+		assertEquals(asbly3.getIyy(), expI3yy, EPSILON * 10, "y-axis MOI don't match: ");
 
 		double expI3zz = I13zz + I23zz;
-		assertEquals("z-axis MOI don't match: ", asbly3.getIzz(), expI3zz, EPSILON * 10);
+		assertEquals(asbly3.getIzz(), expI3zz, EPSILON * 10, "z-axis MOI don't match: ");
 	}
 
 	@Test
@@ -140,8 +140,8 @@ public class RigidBodyTest extends BaseTestCase {
 		RigidBody asbly4_indirect = asbly3.add(body5);
 		Coordinate cm4_expected = r1.average(r2).average(r5);
 
-		assertEquals(" Center of Mass calculated incorrectly: ", cm4_expected,
-				new Coordinate(0, 7.233644859813085, 0, m1 + m2 + m5));
+		assertEquals(cm4_expected,
+				new Coordinate(0, 7.233644859813085, 0, m1 + m2 + m5), " Center of Mass calculated incorrectly: ");
 
 		// these are a bit of a hack, and depend upon all the bodies being along the
 		// y=0, z=0 line.
@@ -159,9 +159,9 @@ public class RigidBodyTest extends BaseTestCase {
 		double I4zz = I14zz + I24zz + I54zz;
 		RigidBody asbly4_expected = new RigidBody(cm4_expected, I4xx, I4yy, I4zz);
 
-		assertEquals("x-axis MOI don't match: ", asbly4_indirect.getIxx(), asbly4_expected.getIxx(), EPSILON * 10);
-		assertEquals("y-axis MOI don't match: ", asbly4_indirect.getIyy(), asbly4_expected.getIyy(), EPSILON * 10);
-		assertEquals("z-axis MOI don't match: ", asbly4_indirect.getIzz(), asbly4_expected.getIzz(), EPSILON * 10);
+		assertEquals(asbly4_indirect.getIxx(), asbly4_expected.getIxx(), EPSILON * 10, "x-axis MOI don't match: ");
+		assertEquals(asbly4_indirect.getIyy(), asbly4_expected.getIyy(), EPSILON * 10, "y-axis MOI don't match: ");
+		assertEquals(asbly4_indirect.getIzz(), asbly4_expected.getIzz(), EPSILON * 10, "z-axis MOI don't match: ");
 	}
 
 }

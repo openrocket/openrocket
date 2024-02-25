@@ -259,15 +259,15 @@ public class UpdateInfoTest extends BaseTestCase {
 		String[] filters = { "beta", "gamma" };
 		List<String> results = UpdateInfoRetriever.UpdateInfoFetcher.filterReleaseTags(releases, filters);
 		System.out.println(results);
-		assertEquals(" filtered results have different size", expectedReleases.length, results.size());
+		assertEquals(expectedReleases.length, results.size(), " filtered results have different size");
 		for (String r : expectedReleases) {
-			assertTrue(String.format(" Filtered results does not contain %s", r), results.contains(r));
+			assertTrue(results.contains(r), String.format(" Filtered results does not contain %s", r));
 		}
 
 		results = UpdateInfoRetriever.UpdateInfoFetcher.filterReleaseTags(releases, null);
-		assertEquals(" filtered results have different size", releases.size(), results.size());
+		assertEquals(releases.size(), results.size(), " filtered results have different size");
 		for (String r : releases) {
-			assertTrue(String.format(" Filtered results does not contain %s", r), results.contains(r));
+			assertTrue(results.contains(r), String.format(" Filtered results does not contain %s", r));
 		}
 
 		assertNull(UpdateInfoRetriever.UpdateInfoFetcher.filterReleaseTags(null, null));
@@ -280,9 +280,9 @@ public class UpdateInfoTest extends BaseTestCase {
 		String[] expectedReleases = { "22.02", "22", "15.03", "0.1", "20.gamma.01" };
 
 		releases = UpdateInfoRetriever.UpdateInfoFetcher.filterOfficialRelease(releases);
-		assertEquals(" filtered results have different size", expectedReleases.length, releases.size());
+		assertEquals(expectedReleases.length, releases.size(), " filtered results have different size");
 		for (String r : expectedReleases) {
-			assertTrue(String.format(" Filtered results does not contain %s", r), releases.contains(r));
+			assertTrue(releases.contains(r), String.format(" Filtered results does not contain %s", r));
 		}
 
 		assertNull(UpdateInfoRetriever.UpdateInfoFetcher.filterOfficialRelease(null));
@@ -297,9 +297,9 @@ public class UpdateInfoTest extends BaseTestCase {
 		String[] expectedReleases = { "22.02", "0.1" };
 
 		List<String> results = UpdateInfoRetriever.UpdateInfoFetcher.filterReleasePreTag(releases, "android");
-		assertEquals(" filtered results have different size", expectedReleases.length, results.size());
+		assertEquals(expectedReleases.length, results.size(), " filtered results have different size");
 		for (String r : expectedReleases) {
-			assertTrue(String.format(" Filtered results does not contain %s", r), results.contains(r));
+			assertTrue(results.contains(r), String.format(" Filtered results does not contain %s", r));
 		}
 
 		assertNull(UpdateInfoRetriever.UpdateInfoFetcher.filterReleasePreTag(null, "android"));
@@ -308,9 +308,9 @@ public class UpdateInfoTest extends BaseTestCase {
 		expectedReleases = new String[] { "22.03", "22", "15.03", "0.2", "22.02.beta.01", "23.alpha.01", "20.gamma.01",
 				"15.03", "20.gamma.01" };
 		results = UpdateInfoRetriever.UpdateInfoFetcher.filterReleasePreTag(releases, null);
-		assertEquals(" filtered results have different size", expectedReleases.length, results.size());
+		assertEquals(expectedReleases.length, results.size(), " filtered results have different size");
 		for (String r : expectedReleases) {
-			assertTrue(String.format(" Filtered results does not contain %s", r), results.contains(r));
+			assertTrue(results.contains(r), String.format(" Filtered results does not contain %s", r));
 		}
 	}
 
@@ -342,13 +342,12 @@ public class UpdateInfoTest extends BaseTestCase {
 		String releaseNotes = release.getReleaseNotes();
 		String releaseUrl = release.getReleaseURL();
 		List<String> assetURLs = release.getAssetURLs();
-		assertEquals("22.02", latestName);
-		assertEquals("Release notes", releaseNotes);
-		assertEquals("localhost", releaseUrl);
+		assertEquals(latestName, "22.02");
+		assertEquals(releaseNotes, "Release notes");
+		assertEquals(releaseUrl, "localhost");
 		assertEquals(1, assetURLs.size());
-		assertEquals(
-				"https://github.com/openrocket/openrocket/releases/download/release-22.02/OpenRocket-22.02-macOS.dmg",
-				assetURLs.get(0));
+		assertEquals(assetURLs.get(0), 
+				"https://github.com/openrocket/openrocket/releases/download/release-22.02/OpenRocket-22.02-macOS.dmg");
 
 		// Test bogus releases
 		try {
@@ -413,19 +412,19 @@ public class UpdateInfoTest extends BaseTestCase {
 	 * }
 	 * 
 	 * private void check(HttpURLConnectionMock connection) {
-	 * assertEquals(Communicator.UPDATE_URL + "?version=" +
+	 * assertEquals(+
 	 * BuildProperties.getVersion(),
-	 * connection.getTrueUrl());
-	 * assertTrue(connection.getConnectTimeout() > 0);
-	 * assertEquals(BuildProperties.getVersion() + "+" +
+	 * connection.getTrueUrl()Communicator.UPDATE_URL + "?version=");
+	 * assertTrue(+
 	 * BuildProperties.getBuildSource(),
-	 * connection.getRequestProperty("X-OpenRocket-Version"));
+	 * connection.getRequestProperty("X-OpenRocket-Version")connection.getConnectTimeout() > 0);
+	 * assertEquals(BuildProperties.getVersion() + "+");
 	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-Country"));
 	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-ID"));
 	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-OS"));
 	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-Java"));
 	 * assertTrue(connection.getInstanceFollowRedirects());
-	 * assertEquals("GET", connection.getRequestMethod());
+	 * assertEquals(connection.getRequestMethod(), "GET");
 	 * assertFalse(connection.getUseCaches());
 	 * }
 	 * 
@@ -458,17 +457,17 @@ public class UpdateInfoTest extends BaseTestCase {
 	 * 
 	 * check(connection);
 	 * 
-	 * assertEquals("6.6.6pre A", info.getLatestVersion());
+	 * assertEquals(info.getLatestVersion(), "6.6.6pre A");
 	 * 
 	 * List<ComparablePair<Integer, String>> updates = info.getUpdates();
 	 * assertEquals(3, updates.size());
 	 * Collections.sort(updates);
 	 * assertEquals(1, (int) updates.get(0).getU());
-	 * assertEquals("one", updates.get(0).getV());
+	 * assertEquals(updates.get(0).getV(), "one");
 	 * assertEquals(50, (int) updates.get(1).getU());
-	 * assertEquals("m\u00e4", updates.get(1).getV());
+	 * assertEquals(updates.get(1).getV(), "m\u00e4");
 	 * assertEquals(100, (int) updates.get(2).getU());
-	 * assertEquals("hundred", updates.get(2).getV());
+	 * assertEquals(updates.get(2).getV(), "hundred");
 	 * }
 	 * 
 	 * 

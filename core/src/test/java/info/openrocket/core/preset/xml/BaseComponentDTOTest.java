@@ -4,7 +4,7 @@ import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPresetFactory;
 import info.openrocket.core.preset.TypedPropertyMap;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -53,17 +53,17 @@ public class BaseComponentDTOTest {
         BodyTubeDTO redone = (BodyTubeDTO) unmarshaller.unmarshal(new StringReader(xml));
 
         // Compare the image.
-        Assert.assertArrayEquals(((DataBufferByte) image.getData().getDataBuffer()).getData(),
+        Assertions.assertArrayEquals(((DataBufferByte) image.getData().getDataBuffer()).getData(),
                 ((DataBufferByte) redone.getImage().getData().getDataBuffer()).getData());
 
         // Assert the rest of the attributes.
-        Assert.assertEquals(dto.getInsideDiameter(), redone.getInsideDiameter(), 0.00001);
-        Assert.assertEquals(dto.getLength(), redone.getLength(), 0.00001);
-        Assert.assertEquals(dto.getOutsideDiameter(), redone.getOutsideDiameter(), 0.00001);
-        Assert.assertEquals(dto.getDescription(), redone.getDescription());
-        Assert.assertEquals(dto.getManufacturer(), redone.getManufacturer());
-        Assert.assertEquals(dto.getMass(), redone.getMass(), 0.00001);
-        Assert.assertEquals(dto.getPartNo(), redone.getPartNo());
+        Assertions.assertEquals(dto.getInsideDiameter(), redone.getInsideDiameter(), 0.00001);
+        Assertions.assertEquals(dto.getLength(), redone.getLength(), 0.00001);
+        Assertions.assertEquals(dto.getOutsideDiameter(), redone.getOutsideDiameter(), 0.00001);
+        Assertions.assertEquals(dto.getDescription(), redone.getDescription());
+        Assertions.assertEquals(dto.getManufacturer(), redone.getManufacturer());
+        Assertions.assertEquals(dto.getMass(), redone.getMass(), 0.00001);
+        Assertions.assertEquals(dto.getPartNo(), redone.getPartNo());
 
         // Uncomment if you want to write the image to a file to view it.
         // ImageIO.write(redone.getImage(), "png", new FileOutputStream("redone.png"));
