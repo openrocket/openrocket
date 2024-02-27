@@ -5,8 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.util.BaseTestCase;
-import org.junit.Ignore;
+import info.openrocket.swing.util.BaseTestCase;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 

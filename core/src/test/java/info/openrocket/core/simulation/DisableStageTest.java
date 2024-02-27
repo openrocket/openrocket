@@ -343,7 +343,7 @@ public class DisableStageTest extends BaseTestCase {
             Assertions.fail("Simulation failed: " + e);
         }
     }
-    
+
     private static double calculateDelta(double value, double delta) {
         return Double.isNaN(value) ? 0 : value * delta;
     }

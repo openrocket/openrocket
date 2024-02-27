@@ -11,5 +11,23 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
+    <bytecodeTargetLevel>
+      <module name="OpenRocket" target="17" />
+      <module name="OpenRocket.core" target="17" />
+      <module name="OpenRocket.core.main" target="17" />
+      <module name="OpenRocket.core.test" target="17" />
+      <module name="OpenRocket.info.openrocket.core" target="17" />
+      <module name="OpenRocket.info.openrocket.core.main" target="17" />
+      <module name="OpenRocket.info.openrocket.core.test" target="17" />
+      <module name="OpenRocket.info.openrocket.swing" target="17" />
+      <module name="OpenRocket.info.openrocket.swing.main" target="17" />
+      <module name="OpenRocket.info.openrocket.swing.test" target="17" />
+      <module name="OpenRocket.info.openrocket.swing.testFixtures" target="17" />
+      <module name="OpenRocket.main" target="17" />
+      <module name="OpenRocket.swing" target="17" />
+      <module name="OpenRocket.swing.main" target="17" />
+      <module name="OpenRocket.swing.test" target="17" />
+      <module name="OpenRocket.test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

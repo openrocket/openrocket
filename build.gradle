@@ -61,8 +61,6 @@ subprojects {
         testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
         testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: '2.2'
         testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
-        //testImplementation group: 'org.hamcrest', name: 'hamcrest-internal', version: '2.2'
-        //testImplementation group: 'org.hamcrest', name: 'hamcrest-xml', version: '2.2'
         testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.10.2'
         testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.2'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
@@ -70,11 +68,6 @@ subprojects {
         testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
         testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
     }
-}
-
-dependencies {
-    implementation project(':core')
-    implementation project(':swing')
 }
 
 //tasks.register('serializeEngines') {
@@ -92,6 +85,11 @@ jar {
     }
 }
 
+dependencies {
+    implementation(project(":core"))
+    implementation(project(":swing"))
+}
+
 shadowJar {
     archiveBaseName.set('OpenRocket')
     archiveClassifier.set(null)
@@ -101,7 +99,7 @@ shadowJar {
 
 // Packages the application for distribution.
 tasks.register('dist') {
-    group = 'openrocket'
+    group = 'info.openrocket'
     dependsOn 'shadowJar'
     doLast {
         println "Completed the deployable jar in './build/libs"

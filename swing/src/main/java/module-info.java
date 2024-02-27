@@ -1,5 +1,5 @@
-open module openrocket.swing {
-	requires transitive openrocket.core;
+open module info.openrocket.swing {
+	requires transitive info.openrocket.core;
 
 	uses javax.script.ScriptEngineFactory;
 	uses javax.script.ScriptEngine;

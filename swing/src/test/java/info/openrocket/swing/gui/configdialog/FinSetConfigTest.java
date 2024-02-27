@@ -13,7 +13,7 @@ import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
-import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.swing.util.BaseTestCase;
 
 public class FinSetConfigTest extends BaseTestCase {
 

@@ -1,4 +1,4 @@
-open module openrocket.core {
+open module info.openrocket.core {
 	uses javax.script.ScriptEngineFactory;
 	uses javax.script.ScriptEngine;
 	uses javax.script.Bindings;
