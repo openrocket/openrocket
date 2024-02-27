@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class DisableStageTest extends BaseTestCase {
-    private final double delta = 0.05; // 5 % error margin (simulations are not exact)
+    public static final double DELTA = 0.05; // 5 % error margin (simulations are not exact)
 
     /**
      * Tests that the simulation results are correct when a single stage is
@@ -54,7 +54,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages(); // Re-enable all stages.
 
-        compareSims(simOriginal, simDisabled, delta);
+        compareSims(simOriginal, simDisabled, DELTA);
     }
 
     /**
@@ -82,7 +82,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        compareSims(simRemoved, simDisabled, delta);
+        compareSims(simRemoved, simDisabled, DELTA);
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeBeta();
@@ -93,7 +93,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, delta);
+        compareSims(simOriginal, simDisabled, DELTA);
     }
 
     /**
@@ -185,7 +185,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        compareSims(simRemoved, simDisabled, delta);
+        compareSims(simRemoved, simDisabled, DELTA);
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
@@ -198,7 +198,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, delta);
+        compareSims(simOriginal, simDisabled, DELTA);
     }
 
     /**
@@ -259,7 +259,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, delta);
+        compareSims(simOriginal, simDisabled, DELTA);
     }
 
     /**
@@ -330,17 +330,21 @@ public class DisableStageTest extends BaseTestCase {
             double launchRodVelocityDisabled = simActual.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityDisabled = simActual.getSimulatedData().getDeploymentVelocity();
 
-            Assertions.assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, maxAltitudeOriginal * delta);
-            Assertions.assertEquals(maxVelocityOriginal, maxVelocityDisabled, maxVelocityOriginal * delta);
-            Assertions.assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, maxMachNumberOriginal * delta);
-            Assertions.assertEquals(flightTimeOriginal, flightTimeDisabled, flightTimeOriginal * delta);
-            Assertions.assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, timeToApogeeOriginal * delta);
+            Assertions.assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, calculateDelta(maxAltitudeOriginal, delta));
+            Assertions.assertEquals(maxVelocityOriginal, maxVelocityDisabled, calculateDelta(maxVelocityOriginal, delta));
+            Assertions.assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, calculateDelta(maxMachNumberOriginal, delta));
+            Assertions.assertEquals(flightTimeOriginal, flightTimeDisabled, calculateDelta(flightTimeOriginal, delta));
+            Assertions.assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, calculateDelta(timeToApogeeOriginal, delta));
             Assertions.assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled,
-                    launchRodVelocityOriginal * delta);
+                    calculateDelta(launchRodVelocityOriginal, delta));
             Assertions.assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled,
-                    deploymentVelocityOriginal * delta);
+                    calculateDelta(deploymentVelocityOriginal, delta));
         } catch (SimulationException e) {
             Assertions.fail("Simulation failed: " + e);
         }
+    }
+    
+    private static double calculateDelta(double value, double delta) {
+        return Double.isNaN(value) ? 0 : value * delta;
     }
 }

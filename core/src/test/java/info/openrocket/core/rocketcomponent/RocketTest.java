@@ -37,7 +37,7 @@ public class RocketTest extends BaseTestCase {
 
 		assertEquals(config1.getId().key, fcid4.key, "fcids should match: ");
 		assertEquals(config1.getName(), config4.getName(), "names should match: ");
-		assertEquals(config4.getName(), "name not right: ", "Test config 1");
+		assertEquals("Test config 1", config4.getName(), "name not right: ");
 		assertNotEquals(config1.configurationInstanceId, config4.configurationInstanceId,
 				"Configurations should be different: " + config1.toDebug() + "=?=" + config4.toDebug());
 
@@ -132,7 +132,7 @@ public class RocketTest extends BaseTestCase {
 				assertEquals(actLoc, expLoc, ring.getName() + " not positioned correctly: ");
 			}
 			{ // second instance
-				assertEquals(ring.getInstanceCount(), 1, ring.getName() + " not instanced correctly: ");
+				assertEquals(ring.getInstanceCount(), 2, ring.getName() + " not instanced correctly: ");
 				expLoc = new Coordinate(0.245, 0, 0);
 				actLoc = actLocs[1];
 				assertEquals(actLoc, expLoc, ring.getName() + " not positioned correctly: ");
@@ -325,7 +325,7 @@ public class RocketTest extends BaseTestCase {
 			BodyTube body = (BodyTube) boosterStage.getChild(0);
 			Coordinate[] bodyLocs = body.getComponentLocations();
 			expLoc = new Coordinate(0.27, 0, 0);
-			assertEquals(bodyLocs[0], 1, body.getName() + " not positioned correctly: ");
+			assertEquals(bodyLocs[0], expLoc, body.getName() + " not positioned correctly: ");
 
 			{
 				TubeCoupler coupler = (TubeCoupler) body.getChild(0);

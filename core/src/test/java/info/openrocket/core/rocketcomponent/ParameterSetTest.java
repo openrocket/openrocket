@@ -80,12 +80,12 @@ public class ParameterSetTest extends BaseTestCase {
 		FlightConfigurationId fcid2 = new FlightConfigurationId();
 		// i.e. requesting the value for a non-existent config id should return the
 		// default
-		assertEquals(testSet.get(fcid2), testSet.getDefault(), "set stores id-value pair correctly : ");
-		assertEquals(testSet.size(), 0, "set contains wrong number of overrides: ");
+		assertEquals(testSet.getDefault(), testSet.get(fcid2), "set stores id-value pair correctly : ");
+		assertEquals(0, testSet.size(), "set contains wrong number of overrides: ");
 
 		FlightConfigurationId fcid_def = FlightConfigurationId.DEFAULT_VALUE_FCID;
-		assertEquals(testSet.get(fcid_def), testSet.getDefault(), "retrieving the via the special default key should produce the default value: ");
-		assertEquals(testSet.size(), 1, "set should still contain zero overrides: ");
+		assertEquals(testSet.getDefault(), testSet.get(fcid_def), "retrieving the via the special default key should produce the default value: ");
+		assertEquals(0, testSet.size(), "set should still contain zero overrides: ");
 	}
 
 	@Test
