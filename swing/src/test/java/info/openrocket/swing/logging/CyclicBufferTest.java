@@ -151,7 +151,7 @@ public class CyclicBufferTest {
 		
 		// Test using list
 		List<Integer> list = buffer.asList();
-		assertEquals(+ list, values.length, list.size()"List: ");
+		assertEquals(values.length, list.size(), "List: " + list);
 		for (int i=0; i<values.length; i++) {
 			assertEquals(values[i], (int)list.get(i));
 		}
