@@ -63,14 +63,12 @@ extraJavaModuleInfo {
         exportAllPackages()
     }
 
-    module('annotation-detector-3.0.5.jar', 'eu.infomas.annotation.detector', '3.0.5')
     module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
 }
 
 dependencies {
     implementation project(':core')
 
-    implementation group: 'eu.infomas', name: 'annotation-detector', version: '3.0.5'
     implementation 'de.javagl:obj:0.4.0'
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'

@@ -20,7 +20,7 @@ open module openrocket.core {
 	requires jakarta.inject;
 	requires java.prefs;
 	requires java.xml.bind;
-	requires transitive eu.infomas.annotation.detector;
+	requires io.github.classgraph;
 	requires java.json;
 	requires org.slf4j;
 	requires com.opencsv;

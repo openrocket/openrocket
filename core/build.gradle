@@ -33,7 +33,6 @@ checkstyle {
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
     module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
-    module('annotation-detector-3.0.5.jar', 'eu.infomas.annotation.detector', '3.0.5')
 }
 
 dependencies {
@@ -44,7 +43,6 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1' // 3.12.0
     implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
     implementation group: 'com.opencsv', name: 'opencsv', version: '5.7.1'
-    implementation group: 'eu.infomas', name: 'annotation-detector', version: '3.0.5'
     implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '23.0.3'
     implementation group: 'org.graalvm.js', name: 'js-scriptengine', version: '23.0.3'
     implementation group: 'org.graalvm.js', name: 'js', version: '23.0.3'
@@ -53,6 +51,7 @@ dependencies {
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.1' // 72.1
     implementation group: 'com.sun.istack', name: 'istack-commons-tools', version: '4.1.1' // TODO: Should be gotten rid of?
     implementation group: 'com.sun.istack', name: 'istack-commons-runtime', version: '4.1.1' // TODO: Should be gotten rid of?
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.165'
 
     implementation 'de.javagl:obj:0.4.0'
 

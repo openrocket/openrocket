@@ -53,9 +53,6 @@ public class GuiModule extends AbstractModule {
 		bind(Translator.class).toProvider(TranslatorProvider.class).in(Scopes.SINGLETON);
 		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class).in(Scopes.SINGLETON);
 		bind(WatchService.class).to(WatchServiceImpl.class).in(Scopes.SINGLETON);
-
-		// Setup for Set<RocketSubstitutor>
-		Multibinder.newSetBinder(binder(), RocketSubstitutor.class);
 		
 		BlockingComponentPresetDatabaseProvider componentDatabaseProvider = new BlockingComponentPresetDatabaseProvider(presetLoader);
 		bind(ComponentPresetDao.class).toProvider(componentDatabaseProvider).in(Scopes.SINGLETON);

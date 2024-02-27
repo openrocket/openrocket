@@ -56,8 +56,8 @@ subprojects {
         }
     }
 
+    // Common dependencies
     dependencies {
-        // Common dependencies
         testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
         testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: '2.2'
         testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'

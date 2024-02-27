@@ -6,8 +6,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 
+import com.google.inject.multibindings.Multibinder;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
+import info.openrocket.core.formatting.RocketSubstitutor;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.ResourceBundleTranslator;
 import info.openrocket.core.l10n.Translator;

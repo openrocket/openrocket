@@ -17,15 +17,14 @@ import com.google.inject.multibindings.Multibinder;
  */
 public class PluginModule extends AbstractModule {
 
-	private final Map<Class<?>, Multibinder<?>> binders = new HashMap<Class<?>, Multibinder<?>>();
+	private final Map<Class<?>, Multibinder<?>> binders = new HashMap<>();
 	private final AnnotationFinder finder = new AnnotationFinderImpl();
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void configure() {
-
 		List<Class<?>> classes = finder.findAnnotatedTypes(Plugin.class);
-		List<Class<?>> interfaces = new ArrayList<Class<?>>();
+		List<Class<?>> interfaces = new ArrayList<>();
 		List<Class<?>> unusedInterfaces;
 
 		// Find plugin interfaces
@@ -34,7 +33,7 @@ public class PluginModule extends AbstractModule {
 				interfaces.add(c);
 			}
 		}
-		unusedInterfaces = new ArrayList<Class<?>>(interfaces);
+		unusedInterfaces = new ArrayList<>(interfaces);
 
 		// Find plugin implementations
 		for (Class<?> c : classes) {
