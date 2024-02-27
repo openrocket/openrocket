@@ -97,6 +97,12 @@ open module openrocket.core {
 	exports info.openrocket.core.util.enums;
 	exports info.openrocket.core.utils;
 
+	// Service providers
+	provides info.openrocket.core.optimization.services.OptimizableParameterService with
+			info.openrocket.core.optimization.services.DefaultOptimizableParameterService;
+	provides info.openrocket.core.optimization.services.SimulationModifierService with
+			info.openrocket.core.optimization.services.DefaultSimulationModifierService;
+
 	//opens info.openrocket.core.formatting to com.google.guice;
 	//opens info.openrocket.core.startup to com.google.guice;
 }
