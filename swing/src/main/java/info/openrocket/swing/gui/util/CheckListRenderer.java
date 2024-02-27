@@ -59,11 +59,13 @@ public class CheckListRenderer extends JCheckBox implements ListCellRenderer, Se
 	}
 	
 	private static Border getNoFocusBorder() {
-		if (System.getSecurityManager() != null) {
+		// TODO: System.getSecurityManager() is deprecated
+		/*if (System.getSecurityManager() != null) {
 			return SAFE_NO_FOCUS_BORDER;
 		} else {
 			return NO_FOCUS_BORDER;
-		}
+		}*/
+		return NO_FOCUS_BORDER;
 	}
 	
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
