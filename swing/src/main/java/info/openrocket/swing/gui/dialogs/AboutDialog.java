@@ -81,6 +81,7 @@ public class AboutDialog extends JDialog {
         "jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
         "Obj" + href("https://github.com/javagl/Obj", true, true) + "<br>" +
         "ClassGraph" + href("https://github.com/classgraph/classgraph", true, true) + "<br>" +
+		"Gradle Modules Plugin" + href("https://github.com/java9-modularity/gradle-modules-plugin", true, true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +
