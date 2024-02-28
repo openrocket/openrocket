@@ -102,6 +102,8 @@ open module info.openrocket.core {
 			info.openrocket.core.optimization.services.DefaultOptimizableParameterService;
 	provides info.openrocket.core.optimization.services.SimulationModifierService with
 			info.openrocket.core.optimization.services.DefaultSimulationModifierService;
+	/*provides javax.script.ScriptEngineFactory with
+			info.openrocket.core.scripting.GraalJSScriptEngineFactory;*/
 
 	//opens info.openrocket.core.formatting to com.google.guice;
 	//opens info.openrocket.core.startup to com.google.guice;

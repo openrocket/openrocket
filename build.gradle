@@ -1,4 +1,5 @@
 //// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
@@ -45,6 +46,7 @@ subprojects {
         modularity.patchModule("hamcrest", "hamcrest-2.2.jar")
         modularity.patchModule("hamcrest.core", "hamcrest-core-2.2.jar")
         modularity.patchModule("hamcrest.library", "hamcrest-library-2.2.jar")
+        modularity.patchModule("java.scripting", "script-api-1.0.jar")
     }
 
     test {
@@ -80,6 +82,7 @@ jar {
     manifest {
         attributes (
             'Main-Class': 'info.openrocket.swing.startup.OpenRocket',
+            'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
             'SplashScreen-Image': 'pix/splashscreen.png'
         )
     }
@@ -92,7 +95,8 @@ dependencies {
 
 shadowJar {
     archiveBaseName.set('OpenRocket')
-    archiveClassifier.set(null)
+    archiveClassifier.set('')
+    archiveVersion.set(props['build.version'])
 }
 
 //shadowJar.dependsOn([':core:serializeEngines'])

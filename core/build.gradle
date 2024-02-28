@@ -48,6 +48,7 @@ dependencies {
     implementation group: 'org.graalvm.js', name: 'js', version: '23.0.3'
     implementation group: 'org.graalvm.truffle', name: 'truffle-api', version: '23.0.3'
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.1' // 72.1
+    implementation files('libs/script-api-1.0.jar')
     //implementation group: 'com.sun.istack', name: 'istack-commons-tools', version: '4.1.1' // TODO: Should be gotten rid of?
     //implementation group: 'com.sun.istack', name: 'istack-commons-runtime', version: '4.1.1' // TODO: Should be gotten rid of?
     implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.165'
