@@ -30,6 +30,8 @@ open module info.openrocket.swing {
 	requires jakarta.inject;
 
 	// Service providers
+	// Also edit swing/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service
+	// copying, see https://github.com/java9-modularity/gradle-modules-plugin/issues/85)
 	provides info.openrocket.swing.gui.rocketfigure.RocketComponentShapeService with
 			info.openrocket.swing.gui.rocketfigure.BodyTubeShapes,
 			info.openrocket.swing.gui.rocketfigure.ComponentAssemblyShapes,
@@ -48,9 +50,4 @@ open module info.openrocket.swing {
 			info.openrocket.swing.gui.rocketfigure.TransitionShapes,
 			info.openrocket.swing.gui.rocketfigure.TubeFinSetShapes,
 			info.openrocket.swing.gui.rocketfigure.TubeShapes;
-
-	/*opens info.openrocket.swing.startup.providers to com.google.guice;
-	opens info.openrocket.swing.startup to com.google.guice;
-	opens info.openrocket.swing.gui.util to com.google.guice;
-	opens info.openrocket.swing.gui.watcher to com.google.guice;*/
 }

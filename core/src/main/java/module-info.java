@@ -98,13 +98,10 @@ open module info.openrocket.core {
 	exports info.openrocket.core.utils;
 
 	// Service providers
+	// Also edit core/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service
+	// copying, see https://github.com/java9-modularity/gradle-modules-plugin/issues/85)
 	provides info.openrocket.core.optimization.services.OptimizableParameterService with
 			info.openrocket.core.optimization.services.DefaultOptimizableParameterService;
 	provides info.openrocket.core.optimization.services.SimulationModifierService with
 			info.openrocket.core.optimization.services.DefaultSimulationModifierService;
-	/*provides javax.script.ScriptEngineFactory with
-			info.openrocket.core.scripting.GraalJSScriptEngineFactory;*/
-
-	//opens info.openrocket.core.formatting to com.google.guice;
-	//opens info.openrocket.core.startup to com.google.guice;
 }

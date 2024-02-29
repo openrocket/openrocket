@@ -83,7 +83,15 @@ jar {
         attributes (
             'Main-Class': 'info.openrocket.swing.startup.OpenRocket',
             'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
-            'SplashScreen-Image': 'pix/splashscreen.png'
+            'SplashScreen-Image': 'pix/splashscreen.png',
+
+            // Versioning
+            'Implementation-Version': props['build.version'],
+
+            // Vendor Details
+            'Implementation-Vendor': 'OpenRocket',
+            'Implementation-Vendor-Id': 'info.openrocket',
+            'Implementation-URL': 'https://openrocket.info/',
         )
     }
 }
