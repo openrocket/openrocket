@@ -1,11 +1,9 @@
-//// Top-level build file where you can add configuration options common to all sub-projects/modules.
-import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
-
 plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'java'
     id 'checkstyle'
     id 'org.javamodularity.moduleplugin' version '1.8.14'
+    id 'application'
 }
 
 java {
@@ -13,9 +11,10 @@ java {
     modularity.inferModulePath = false
 }
 
-/*moduleOptions {
-    addModules = ['java.scripting']
-}*/
+application {
+    mainModule = 'info.openrocket.swing'
+    mainClass = 'info.openrocket.swing.startup.OpenRocket'
+}
 
 // Fetch the build version from the build.properties file
 Properties props = new Properties()
@@ -81,7 +80,6 @@ jar {
 
     manifest {
         attributes (
-            'Main-Class': 'info.openrocket.swing.startup.OpenRocket',
             'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
             'SplashScreen-Image': 'pix/splashscreen.png',
 
