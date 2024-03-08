@@ -47,25 +47,19 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		
 		// Compute drag force
 		final double mach = airSpeed.length() / atmosphere.getMachSpeed();
-		final double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
-		final double dragForce = getCD() * dynP * status.getConfiguration().getReferenceArea();
+		final double CdA = getCD() * status.getConfiguration().getReferenceArea();
+		final double dragForce = 0.5 * CdA * atmosphere.getDensity() * airSpeed.length2();
 
 		final double rocketMass = calculateStructureMass(status).getMass();
 		final double motorMass = calculateMotorMass(status).getMass();
 		
 		final double mass = rocketMass + motorMass;
-
 		if (mass < MathUtil.EPSILON) {
 			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
 		
 		// Compute drag acceleration
-		Coordinate linearAcceleration;
-		if (airSpeed.length() > 0.001) {
-			linearAcceleration = airSpeed.normalize().multiply(-dragForce / mass);
-		} else {
-			linearAcceleration = Coordinate.NUL;
-		}
+		Coordinate linearAcceleration = airSpeed.normalize().multiply(-dragForce / mass);
 		
 		// Add effect of gravity
 		final double gravity = modelGravity(status);
@@ -80,11 +74,14 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		// Select tentative time step
 		double timeStep = RECOVERY_TIME_STEP;
 
-		// adjust based on change in acceleration (ie jerk)
-		final double jerk = Math.abs(linearAcceleration.sub(status.getRocketAcceleration()).multiply(1.0/status.getPreviousTimeStep()).length());
-		if (jerk > MathUtil.EPSILON) {
-			timeStep = Math.min(timeStep, 1.0/jerk);
+		// adjust based on acceleration
+		final double absAccel = linearAcceleration.length();
+		if (absAccel > MathUtil.EPSILON) {
+			timeStep = Math.min(timeStep, 1.0/absAccel);
 		}
+
+		// Honor max step size passed in
+		timeStep = Math.min(timeStep, maxTimeStep);
 
 		// but don't let it get *too* small
 		timeStep = Math.max(timeStep, MIN_TIME_STEP);
@@ -92,26 +89,65 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		
 		// Perform Euler integration
 		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, timeStep);
-		/*
-		Coordinate newPosition = status.getRocketPosition().add(status.getRocketVelocity().multiply(timeStep)).
-		add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2));*/
 
-		// If I've hit the ground, recalculate time step and position
+		// Check to see if z or either of its first two derivatives have changed sign and recalculate
+		// time step to point of change if so
+		// z   -- ground hit
+		// z'  -- apogee
+		// z'' -- possible oscillation building up in descent rate
+		// Note that it's virtually impossible for apogee to occur on the same
+		// step as either ground hit or descent rate inflection, and if we get a ground hit
+		// any descent rate inflection won't matter
+		final double a = linearAcceleration.z;
+		final double v = status.getRocketVelocity().z;
+		final double z = status.getRocketPosition().z;
+		double t = timeStep;
 		if (newVals.pos.z < 0) {
+			// If I've hit the ground, the new timestep is the solution of
+			// 1/2 at^2 + vt + z = 0
+			t = (-v - Math.sqrt(v*v - 2*a*z))/a;
+			log.trace("ground hit changes timeStep to " + t);
+		} else if (v * newVals.vel.z < 0) {
+			// If I've got apogee, the new timestep is the solution of
+			// v + at = 0
+			t = Math.abs(v / a);
+			log.trace("apogee changes timeStep to " + t);
+		} else {
+			// Use jerk to estimate accleration at end of time step.  Don't really need to redo all the atmospheric
+			// calculations to get it "right"; this will be close enough for our purposes.
+			// use chain rule to compute jerk
+			// dA/dT = dA/dV * dV/dT
+			final double dFdV = CdA * atmosphere.getDensity() * airSpeed.length();
+			final Coordinate dAdV = airSpeed.normalize().multiply(dFdV / mass);
+			final Coordinate jerk = linearAcceleration.multiply(dAdV);
+			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(timeStep));
 
-			final double a = linearAcceleration.z;
-			final double v = status.getRocketVelocity().z;
-			final double z0 = status.getRocketPosition().z;
+			// Only do this one if acceleration is appreciably different from 0
+			if (newAcceleration.z * linearAcceleration.z < -MathUtil.EPSILON) {
+				// If acceleration oscillation is building up, the new timestep is the solution of
+				// a + j*t = 0
+				t = Math.abs(a / jerk.z);
+				log.trace("oscillation prevention changes timeStep to " + t);
+			}
+		}
+		
+		// once again, make sure new timestep isn't *too* small
+		t = Math.max(t, MIN_TIME_STEP);
 
-			// The new timestep is the solution of
-			// 1/2 at^2 + vt + z0 = 0
-			timeStep = (-v - Math.sqrt(v*v - 2*a*z0))/a;
-			log.trace("ground hit changes timeStep to " + timeStep);
+		// recalculate Euler integration for position and velocity if necessary.
+		if (Math.abs(t - timeStep) > MathUtil.EPSILON) {
+			timeStep = t;
+			
+			if (maxTimeStep - timeStep < MIN_TIME_STEP) {
+				timeStep = maxTimeStep;
+			}
 
 			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, timeStep);
 
-			// avoid rounding error in new altitude
-			newVals.pos = newVals.pos.setZ(0);
+			// If we just landed chop off rounding error
+			if (Math.abs(newVals.pos.z) < MathUtil.EPSILON) {
+				newVals.pos = newVals.pos.setZ(0);
+			}
 		}
 
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
