@@ -80,8 +80,15 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			timeStep = Math.min(timeStep, 1.0/absAccel);
 		}
 
-		// Honor max step size passed in
-		timeStep = Math.min(timeStep, maxTimeStep);
+		// Honor max step size passed in.  If the time to next time step is greater than our minimum
+		// we'll set our next step to just before it in order to better capture discontinuities in things like chute opening
+		if (maxTimeStep < timeStep) {
+			if (maxTimeStep > MIN_TIME_STEP) {
+				timeStep = maxTimeStep - MIN_TIME_STEP;
+			} else {
+				timeStep = maxTimeStep;
+			}
+		}
 
 		// but don't let it get *too* small
 		timeStep = Math.max(timeStep, MIN_TIME_STEP);
