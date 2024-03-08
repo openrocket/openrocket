@@ -44,8 +44,6 @@ public class SimulationStatus implements Monitorable {
 	
 	private double time;
 	
-	private double previousTimeStep;
-	
 	private Coordinate position;
 	private WorldCoordinate worldPosition;
 	private Coordinate velocity;
@@ -105,7 +103,6 @@ public class SimulationStatus implements Monitorable {
 		this.configuration = configuration;
 		
 		this.time = 0;
-		this.previousTimeStep = this.simulationConditions.getTimeStep();
 		this.position = this.simulationConditions.getLaunchPosition();
 		this.velocity = this.simulationConditions.getLaunchVelocity();
 		this.worldPosition = this.simulationConditions.getLaunchSite();
@@ -178,7 +175,6 @@ public class SimulationStatus implements Monitorable {
 		// FlightData is not cloned.
 		this.flightData = orig.flightData;
 		this.time = orig.time;
-		this.previousTimeStep = orig.previousTimeStep;
 		this.position = orig.position;
 		this.acceleration = orig.acceleration;
 		this.worldPosition = orig.worldPosition;
@@ -266,17 +262,6 @@ public class SimulationStatus implements Monitorable {
 	public FlightDataBranch getFlightData() {
 		return flightData;
 	}
-	
-	public double getPreviousTimeStep() {
-		return previousTimeStep;
-	}
-	
-	
-	public void setPreviousTimeStep(double previousTimeStep) {
-		this.previousTimeStep = previousTimeStep;
-		this.modID++;
-	}
-	
 	
 	public void setRocketPosition(Coordinate position) {
 		this.position = position;

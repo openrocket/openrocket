@@ -127,7 +127,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 				// If acceleration oscillation is building up, the new timestep is the solution of
 				// a + j*t = 0
 				t = Math.abs(a / jerk.z);
-				log.trace("oscillation prevention changes timeStep to " + t);
+				log.trace("oscillation avoidance changes timeStep to " + t);
 			}
 		}
 		
@@ -151,7 +151,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		}
 
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
-		status.setPreviousTimeStep(timeStep);
 
 		status.setRocketPosition(newVals.pos);
 		status.setRocketVelocity(newVals.vel);
