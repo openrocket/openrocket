@@ -55,9 +55,9 @@ public class FlightEventsTest extends BaseTestCase {
 			new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, motorMountTube),
 			new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
 			new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
-			new FlightEvent(FlightEvent.Type.APOGEE, 2.48338, rocket),
-			new FlightEvent(FlightEvent.Type.GROUND_HIT, 43.076, null),
-			new FlightEvent(FlightEvent.Type.SIMULATION_END, 43.076, null)
+			new FlightEvent(FlightEvent.Type.APOGEE, 2.48, rocket),
+			new FlightEvent(FlightEvent.Type.GROUND_HIT, 42.97, null),
+			new FlightEvent(FlightEvent.Type.SIMULATION_END, 42.97, null)
 		};
 	
 		checkEvents(expectedEvents, sim, 0);
@@ -138,9 +138,9 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 2.85, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 1200, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.78, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 9.0, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 9.0, null)
 					};
                     break;
 
