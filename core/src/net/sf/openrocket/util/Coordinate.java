@@ -191,6 +191,16 @@ public final class Coordinate implements Cloneable, Serializable {
 	}
 	
 	/**
+	 * Multiply the <code>Coordinate</code> with another <Coordinate> component-by-component
+	 *
+	 * @param other the other Coordinate
+	 * @return   The product. 
+	 */
+	public Coordinate multiply(Coordinate other) {
+		return new Coordinate(this.x * other.x, this.y * other.y, this.z * other.z, this.weight * other.weight);
+	}
+	
+	/**
 	 * Dot product of two Coordinates, taken as vectors.  Equal to
 	 * x1*x2+y1*y2+z1*z2
 	 * @param other  Coordinate to take product with.

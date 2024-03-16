@@ -706,7 +706,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		double d = 0;
 		boolean b = false;
 		d += currentStatus.getSimulationTime();
-		d += currentStatus.getPreviousTimeStep();
 		b |= currentStatus.getRocketPosition().isNaN();
 		b |= currentStatus.getRocketVelocity().isNaN();
 		b |= currentStatus.getRocketOrientationQuaternion().isNaN();
@@ -716,7 +715,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		if (Double.isNaN(d) || b) {
 			log.error("Simulation resulted in NaN value:" +
 					" simulationTime=" + currentStatus.getSimulationTime() +
-					" previousTimeStep=" + currentStatus.getPreviousTimeStep() +
 					" rocketPosition=" + currentStatus.getRocketPosition() +
 					" rocketVelocity=" + currentStatus.getRocketVelocity() +
 					" rocketOrientationQuaternion=" + currentStatus.getRocketOrientationQuaternion() +
