@@ -49,13 +49,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.adaptors.Column;
 import info.openrocket.swing.gui.adaptors.ColumnTable;
 import info.openrocket.swing.gui.adaptors.ColumnTableModel;
@@ -99,12 +98,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final List<LongitudinalStabilityRow> stabData = new ArrayList<>();
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
 	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
-
-	private static Border border;
-
-	static {
-		initColors();
-	}
 
 
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
@@ -161,7 +154,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		warningList = new JList<>();
 		JScrollPane scrollPane = new JScrollPane(warningList);
-		warningList.setBorder(border);
 		////Warnings:
 		scrollPane.setBorder(BorderFactory.createTitledBorder(trans.get("componentanalysisdlg.TitledBorder.warnings")));
 		panel.add(scrollPane, "gap paragraph, spany 4, w 300lp, grow, height :100lp:, wrap");
@@ -510,16 +502,6 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		pack();
 
 		GUIUtil.setDisposableDialogOptions(this, null);
-	}
-
-
-	private static void initColors() {
-		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(ComponentAnalysisDialog::updateColors);
-	}
-
-	private static void updateColors() {
-		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	/**

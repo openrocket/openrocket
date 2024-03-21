@@ -82,7 +82,7 @@ import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.TextUtil;
 
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

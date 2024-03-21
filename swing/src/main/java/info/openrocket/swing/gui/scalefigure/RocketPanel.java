@@ -354,7 +354,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		};
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "cell 0 0");
-		final JComboBox viewSelector = new JComboBox(cm);
+		final JComboBox<RocketPanel.VIEW_TYPE> viewSelector = new JComboBox<>(cm);
 		viewSelector.setRenderer(new SeparatorComboBoxRenderer(viewSelector.getRenderer()));
 		ribbon.add(viewSelector, "cell 0 1");
 

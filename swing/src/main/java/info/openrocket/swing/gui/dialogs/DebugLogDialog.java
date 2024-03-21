@@ -32,14 +32,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import info.openrocket.swing.gui.util.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,12 +112,6 @@ public class DebugLogDialog extends JDialog {
 	private final SelectableLabel messageLabel;
 	private final JTextArea stackTraceLabel;
 
-	private static Border border;
-
-	static {
-		initColors();
-	}
-	
 	public DebugLogDialog(Window parent) {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));
@@ -353,7 +345,6 @@ public class DebugLogDialog extends JDialog {
 		bottomPanel.add(new JLabel(trans.get("debuglogdlg.lbl.Stacktrace")), "wrap rel");
 		stackTraceLabel = new JTextArea(8, 80);
 		stackTraceLabel.setEditable(false);
-		stackTraceLabel.setBorder(border);
 		GUIUtil.changeFontSize(stackTraceLabel, -2);
 		bottomPanel.add(new JScrollPane(stackTraceLabel), "grow, pushy 200, growprioy 200");
 		
@@ -394,15 +385,6 @@ public class DebugLogDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, close);
 		setLocationRelativeTo(parent);
 		followBox.requestFocus();
-	}
-
-	private static void initColors() {
-		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(DebugLogDialog::updateColors);
-	}
-
-	private static void updateColors() {
-		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	private void updateSelected(int row) {

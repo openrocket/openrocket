@@ -5,14 +5,19 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -20,7 +25,7 @@ import javax.swing.tree.TreePath;
 
 import info.openrocket.swing.gui.main.ComponentIcons;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.MassComponent;
@@ -35,11 +40,7 @@ import info.openrocket.core.util.TextUtil;
 public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 	private static final Translator trans = Application.getTranslator();
-	
-	private static Color textSelectionBackgroundColor;
-	private static Color textSelectionForegroundColor;
-	private static Color componentTreeBackgroundColor;
-	private static Color componentTreeForegroundColor;
+
 	private static Icon massOverrideSubcomponentIcon;
 	private static Icon massOverrideIcon;
 	private static Icon CGOverrideSubcomponentIcon;
@@ -53,101 +54,78 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
-			boolean sel, boolean expanded, boolean leaf, int row,
-			boolean hasFocus1) {
+												  boolean sel, boolean expanded, boolean leaf, int row,
+												  boolean hasFocus1) {
+		BorderLayout layout = new BorderLayout();
+		layout.setHgap(4);
+		JPanel panel = new JPanel(layout);
+		JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+		label.setIcon(null);
+		panel.add(label, BorderLayout.CENTER);
 
-		// Create a new JPanel
-		JPanel panel = new JPanel();
-		panel.setOpaque(false); // Set this to false if you want to keep the tree's default background intact
-		panel.setLayout(new BorderLayout());
+		// Set the background color based on the selection state
+		panel.setOpaque(false);
+		if (sel) {
+			label.setOpaque(true);
+			label.setBackground(new Color(UIManager.getColor("Tree.selectionBackground").getRGB()));
+			label.setForeground(new Color(UIManager.getColor("Tree.selectionForeground").getRGB()));
+		} else {
+			label.setOpaque(false);
+			label.setForeground(new Color(UIManager.getColor("Tree.textForeground").getRGB()));
+		}
 
-		// Create two JLabels, one for the icon and one for the text
-		JLabel iconLabel = new JLabel();
-		JLabel textLabel = new JLabel();
+		if (tree == null) {
+			return label;
+		}
 
-		// Retrieve the component from the super method
-		Component comp = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus1);
-		if (tree == null) return comp;
 		TreePath[] paths = tree.getSelectionPaths();
 		List<RocketComponent> components = null;
 		if (paths != null && paths.length > 0) {
 			components = new ArrayList<>(ComponentTreeModel.componentsFromPaths(paths));
 		}
-		if (comp instanceof JLabel) {
-			textLabel.setText(((JLabel) comp).getText());
 
-			// Set the font to the tree font
-			Font treeFont = UIManager.getFont("Tree.font");
-			textLabel.setFont(treeFont);
-		}
-
-		// Set the icon
+		// Set the tooltip text
 		RocketComponent c = (RocketComponent) value;
-		Border iconMarginBorder = BorderFactory.createEmptyBorder(0, 0, 0, 4); // 4-pixel gap to the right of the icon
-		if (c.getClass().isAssignableFrom(MassComponent.class)) {
-			MassComponentType t = ((MassComponent) c).getMassComponentType();
-			iconLabel.setIcon(ComponentIcons.getSmallMassTypeIcon(t));
-			iconLabel.setBorder(iconMarginBorder);
-		} else {
-			iconLabel.setIcon(ComponentIcons.getSmallIcon(value.getClass()));
-			iconLabel.setBorder(iconMarginBorder);
-		}
-
-		// Add the JLabels to the JPanel
-		panel.add(iconLabel, BorderLayout.WEST);
-		panel.add(textLabel, BorderLayout.CENTER);
-
-		// Set the background and foreground colors of the text JLabel
-		if (sel) {
-			textLabel.setOpaque(true);
-			textLabel.setBackground(textSelectionBackgroundColor);
-			textLabel.setForeground(textSelectionForegroundColor);
-		} else {
-			textLabel.setOpaque(true); // Set this to true to allow the background color to be visible
-			textLabel.setBackground(componentTreeBackgroundColor);
-			textLabel.setForeground(componentTreeForegroundColor);
-		}
-
 		applyToolTipText(components, c, panel);
 
-		comp = panel;
+		// Set the tree icon
+		final Icon treeIcon;
+		if (c.getClass().isAssignableFrom(MassComponent.class)) {
+			MassComponentType t = ((MassComponent) c).getMassComponentType();
+			treeIcon = ComponentIcons.getSmallMassTypeIcon(t);
+		} else {
+			treeIcon = ComponentIcons.getSmallIcon(value.getClass());
+		}
+
+		panel.add(new JLabel(treeIcon), BorderLayout.WEST);
 
 		// Add mass/CG/CD overridden icons
 		if (c.isMassOverridden() || c.getMassOverriddenBy() != null ||
 				c.isCGOverridden() || c.getCGOverriddenBy() != null ||
 				c.isCDOverridden() || c.getCDOverriddenBy() != null) {
-			JPanel p = new JPanel();
-			p.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 1));
-			p.setBackground(componentTreeBackgroundColor);
-			p.setForeground(componentTreeForegroundColor);
-			p.add(comp/* , BorderLayout.WEST */);
+			List<Icon> icons = new LinkedList<>();
 			if (c.getMassOverriddenBy() != null) {
-				p.add(new JLabel(massOverrideSubcomponentIcon));
+				icons.add(massOverrideSubcomponentIcon);
 			} else if (c.isMassOverridden()) {
-				p.add(new JLabel(massOverrideIcon));
+				icons.add(massOverrideIcon);
 			}
 			if (c.getCGOverriddenBy() != null) {
-				p.add(new JLabel(CGOverrideSubcomponentIcon));
+				icons.add(CGOverrideSubcomponentIcon);
 			} else if (c.isCGOverridden()) {
-				p.add(new JLabel(CGOverrideIcon));
+				icons.add(CGOverrideIcon);
 			}
 			if (c.getCDOverriddenBy() != null) {
-				p.add(new JLabel(CDOverrideSubcomponentIcon));
+				icons.add(CDOverrideSubcomponentIcon);
 			} else if (c.isCDOverridden()) {
-				p.add(new JLabel(CDOverrideIcon));
+				icons.add(CDOverrideIcon);
 			}
-			
-			// Make sure the tooltip also works on the override icons
-			applyToolTipText(components, c, p);
 
-			Font originalFont = tree.getFont();
-			p.setFont(originalFont);
-			comp = p;
+			Icon combinedIcon = combineIcons(3, icons.toArray(new Icon[0]));
+			JLabel overrideIconsLabel = new JLabel(combinedIcon);
+			panel.add(overrideIconsLabel, BorderLayout.EAST);
 		}
 
-		applyToolTipText(components, c, this);
-
-		return comp;
+		return panel;
 	}
 
 	private static void initColors() {
@@ -156,11 +134,6 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 	}
 	
 	private static void updateColors() {
-		textSelectionBackgroundColor = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
-		textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
-		componentTreeBackgroundColor = GUIUtil.getUITheme().getComponentTreeBackgroundColor();
-		componentTreeForegroundColor = GUIUtil.getUITheme().getComponentTreeForegroundColor();
-
 		massOverrideSubcomponentIcon = GUIUtil.getUITheme().getMassOverrideSubcomponentIcon();
 		massOverrideIcon = GUIUtil.getUITheme().getMassOverrideIcon();
 		CGOverrideSubcomponentIcon = GUIUtil.getUITheme().getCGOverrideSubcomponentIcon();
@@ -313,4 +286,50 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		return sb.toString();
 	}
 
+	private static Icon combineIcons(int iconSpacing, Icon... icons) {
+		if (icons == null || icons.length == 0) {
+			return null;
+		}
+
+		int width = 0;
+		int height = 0;
+
+		for (int i = 0; i < icons.length; i++) {
+			Icon icon = icons[i];
+			if (icon != null) {
+				int spacing = (i == icons.length-1) ? 0 : iconSpacing;
+				width += (icon.getIconWidth() + spacing);
+				height = Math.max(height, icon.getIconHeight());
+			}
+		}
+
+		final int finalWidth = width;
+		final int finalHeight = height;
+
+		return new Icon() {
+			@Override
+			public void paintIcon(Component c, Graphics g, int x, int y) {
+				int xPosition = x;
+
+				for (int i = 0; i < icons.length; i++) {
+					Icon icon = icons[i];
+					if (icon != null) {
+						int spacing = (i == icons.length-1) ? 0 : iconSpacing;
+						icon.paintIcon(c, g, xPosition, y);
+						xPosition += (icon.getIconWidth() + spacing);
+					}
+				}
+			}
+
+			@Override
+			public int getIconWidth() {
+				return finalWidth;
+			}
+
+			@Override
+			public int getIconHeight() {
+				return finalHeight;
+			}
+		};
+	}
 }

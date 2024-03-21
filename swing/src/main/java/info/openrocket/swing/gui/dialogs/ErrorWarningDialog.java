@@ -4,7 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.BetterListCellRenderer;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 
 import info.openrocket.core.logging.Error;
 import info.openrocket.core.logging.ErrorSet;
@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -29,7 +28,6 @@ import java.awt.event.MouseEvent;
  */
 @SuppressWarnings("serial")
 public abstract class ErrorWarningDialog {
-    private static Border border;
     private static Color darkWarningColor;
     private static Color textSelectionForegroundColor;
 
@@ -43,7 +41,6 @@ public abstract class ErrorWarningDialog {
     }
 
     private static void updateColors() {
-        border = GUIUtil.getUITheme().getBorder();
         darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
         textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
     }
@@ -60,7 +57,6 @@ public abstract class ErrorWarningDialog {
         errorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         errorList.setCellRenderer(new ErrorListCellRenderer());
         JScrollPane errorPane = new JScrollPane(errorList);
-        errorList.setBorder(border);
         content.add(errorPane, "wrap, growx");
 
         // Deselect items if clicked on blank region
@@ -82,7 +78,6 @@ public abstract class ErrorWarningDialog {
         final JList<Warning> warningList = new JList<>(w);
         warningList.setCellRenderer(new BetterListCellRenderer());
         JScrollPane warningPane = new JScrollPane(warningList);
-        warningList.setBorder(border);
         content.add(warningPane, "wrap, growx");
 
         // Deselect items if clicked on blank region

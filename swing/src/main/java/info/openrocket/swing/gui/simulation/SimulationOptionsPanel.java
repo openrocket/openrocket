@@ -22,7 +22,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -47,7 +46,7 @@ import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.simulation.extension.SwingSimulationExtensionConfigurator;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
@@ -68,7 +67,6 @@ class SimulationOptionsPanel extends JPanel {
 
 	private static Color textColor;
 	private static Color dimTextColor;
-	private static Border border;
 
 	static {
 		initColors();
@@ -218,7 +216,6 @@ class SimulationOptionsPanel extends JPanel {
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
-		currentExtensions.setBorder(border);
 		scroll.setForeground(textColor);
 		//  &#$%! scroll pane will not honor "growy"...
 		sub.add(scroll, "growx, growy, h 100%");
@@ -235,7 +232,6 @@ class SimulationOptionsPanel extends JPanel {
 	private static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		border = GUIUtil.getUITheme().getBorder();
 	}
 	
 	private JPopupMenu getExtensionMenu() {
@@ -378,7 +374,7 @@ class SimulationOptionsPanel extends JPanel {
 		public SimulationExtensionPanel(final SimulationExtension extension) {
 			super(new MigLayout("fillx, gapx 0"));
 			
-			this.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+			this.setBorder(BorderFactory.createLineBorder(dimTextColor));
 			this.add(new JLabel(extension.getName()), "spanx, growx, wrap");
 			
 			JButton button;

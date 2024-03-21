@@ -1,11 +1,7 @@
 package info.openrocket.swing.gui.components;
 
-import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
-
 import javax.swing.BoundedRangeModel;
 import javax.swing.JSlider;
-import javax.swing.plaf.basic.BasicSliderUI;
 
 /**
  * A simple slider that does not show the current value.  GTK l&f shows the value, and cannot 
@@ -22,7 +18,7 @@ public class BasicSlider extends JSlider {
 	}
 	
 	public BasicSlider(BoundedRangeModel brm, int orientation) {
-		this(brm,orientation,false);
+		this(brm, orientation, false);
 	}
 	
 	public BasicSlider(BoundedRangeModel brm, int orientation, boolean inverted) {
@@ -30,11 +26,8 @@ public class BasicSlider extends JSlider {
 		setOrientation(orientation);
 		setInverted(inverted);
 		setFocusable(false);
-		if (UITheme.isLightTheme(GUIUtil.getUITheme())) {
-			setUI(new BasicSliderUI(this));
-		} else {
-			setUI(new DarkBasicSliderUI(this));
-		}
+		setPaintLabels(false);
+		setPaintTrack(true);
 	}
 
 }

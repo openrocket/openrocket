@@ -21,7 +21,7 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.CommonStrings;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class RenameConfigDialog extends JDialog {

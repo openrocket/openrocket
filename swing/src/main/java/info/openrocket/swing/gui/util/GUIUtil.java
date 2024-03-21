@@ -13,13 +13,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,8 +66,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.IntelliJTheme;
+import com.formdev.flatlaf.FlatLightLaf;
 import info.openrocket.swing.gui.Resettable;
 
 import info.openrocket.core.arch.SystemInfo;
@@ -80,6 +77,7 @@ import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Invalidatable;
 import info.openrocket.core.util.MemoryManagement;
 
+import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,65 +295,6 @@ public class GUIUtil {
 	public static void applyLAF() {
 		UITheme.Theme theme = getUITheme();
 		theme.applyTheme();
-	}
-	
-	/**
-	 * Set the best available look-and-feel into use.
-	 */
-	public static void setBestLAF() {
-		/*
-		 * Set the look-and-feel.  On Linux, Motif/Metal is sometimes incorrectly used 
-		 * which is butt-ugly, so if the system l&f is Motif/Metal, we search for a few
-		 * other alternatives.
-		 */
-		try {
-			// Linux systems often default to a dark mode LAF, so explicitly use light mode
-			if (SystemInfo.getPlatform() == SystemInfo.Platform.UNIX) {
-				LafManager.install(new IntelliJTheme());
-			} else {
-				// Set system L&F
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			}
-			
-			// Check whether we have an ugly L&F
-			LookAndFeel laf = UIManager.getLookAndFeel();
-			if (laf == null ||
-					laf.getName().matches(".*[mM][oO][tT][iI][fF].*") ||
-					laf.getName().matches(".*[mM][eE][tT][aA][lL].*")) {
-				
-				// Search for better LAF
-				UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
-				String lafNames[] = {
-						".*[gG][tT][kK].*",
-						".*[wW][iI][nN].*",
-						".*[mM][aA][cC].*",
-						".*[aA][qQ][uU][aA].*",
-						".*[nN][iI][mM][bB].*"
-				};
-				
-				lf: for (String lafName : lafNames) {
-					for (UIManager.LookAndFeelInfo l : info) {
-						if (l.getName().matches(lafName)) {
-							UIManager.setLookAndFeel(l.getClassName());
-							break lf;
-						}
-					}
-				}
-			}
-			// Set the select foreground for buttons to not be black on a blue background
-			UIManager.put("Button.selectForeground", Color.WHITE);
-
-			// Fix some UI bugs on macOS
-			if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
-				// Set the foreground of active tabs to black; there was a bug where you had a white background and white foreground
-				UIManager.put("TabbedPane.foreground", Color.black);
-
-				// Set the select foreground for buttons to not be black on a blue background
-				UIManager.put("ToggleButton.selectForeground", Color.WHITE);
-			}
-		} catch (Exception e) {
-			log.warn("Error setting LAF: " + e);
-		}
 	}
 	
 	

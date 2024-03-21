@@ -18,7 +18,7 @@ import javax.swing.tree.TreePath;
 import info.openrocket.swing.gui.components.BasicTree;
 import info.openrocket.swing.gui.main.ComponentIcons;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.optimization.rocketoptimization.SimulationModifier;
 import info.openrocket.core.rocketcomponent.Rocket;

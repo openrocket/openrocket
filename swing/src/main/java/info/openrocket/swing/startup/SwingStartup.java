@@ -31,7 +31,7 @@ import info.openrocket.swing.gui.main.Splash;
 import info.openrocket.swing.gui.main.SwingExceptionHandler;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.logging.PrintStreamToSLF4J;
 import info.openrocket.core.plugin.PluginModule;

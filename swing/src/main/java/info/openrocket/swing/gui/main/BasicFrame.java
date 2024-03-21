@@ -297,6 +297,8 @@ public class BasicFrame extends JFrame {
 
 		GUIUtil.setWindowIcons(this);
 
+		GUIUtil.getUITheme().applyThemeToRootPane(getRootPane());
+
 		this.validate();
 		vertical.setDividerLocation(0.4);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

@@ -30,10 +30,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import info.openrocket.swing.gui.theme.ORScrollPaneBorder;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
@@ -48,7 +50,7 @@ import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.dialogs.preset.ComponentPresetChooserDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.IconToggleButton;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
@@ -102,7 +104,7 @@ public class RocketComponentConfig extends JPanel {
 
 	private static Color darkWarningColor;
 	private static Color multiCompEditColor;
-	private static Border border;
+	private static Border marginBorder;
 
 	static {
 		initColors();
@@ -206,7 +208,7 @@ public class RocketComponentConfig extends JPanel {
 	private static void updateColors() {
 		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
 		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
-		border = GUIUtil.getUITheme().getBorder();
+		marginBorder = GUIUtil.getUITheme().getMarginBorder();
 	}
 
 	/**
@@ -745,15 +747,17 @@ public class RocketComponentConfig extends JPanel {
 		
 		// TODO: LOW:  Changes in comment from other sources not reflected in component
 		commentTextArea = new JTextArea(component.getComment());
+		commentTextArea.setBorder(marginBorder);
 		commentTextArea.setLineWrap(true);
 		commentTextArea.setWrapStyleWord(true);
 		commentTextArea.setEditable(true);
-		commentTextArea.setBorder(border);
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
 		commentTextArea.addKeyListener(new TextComponentSelectionKeyListener(commentTextArea));
-		
-		panel.add(new JScrollPane(commentTextArea), "grow");
+
+		JScrollPane scrollPane = new JScrollPane(commentTextArea);
+		scrollPane.setBorder(new ORScrollPaneBorder());
+		panel.add(scrollPane, "grow");
 		order.add(commentTextArea);
 		
 		return panel;

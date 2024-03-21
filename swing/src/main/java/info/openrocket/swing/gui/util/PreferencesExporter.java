@@ -6,6 +6,7 @@ import info.openrocket.core.startup.Application;
 
 import info.openrocket.swing.gui.components.PreferencesOptionPanel;
 import info.openrocket.swing.gui.main.MRUDesignFile;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

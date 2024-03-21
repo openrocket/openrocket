@@ -4,7 +4,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.util.UITheme;
 import info.openrocket.swing.gui.util.URLUtil;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
@@ -22,7 +21,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.awt.Dimension;
@@ -36,12 +34,6 @@ import java.awt.event.ActionListener;
 public class WelcomeDialog extends JDialog {
     private static final Translator trans = Application.getTranslator();
     private static final Logger log = LoggerFactory.getLogger(WelcomeDialog.class);
-
-    private static Border border;
-
-    static {
-        initColors();
-    }
 
     /**
      * @param releaseNotes the release notes to display for the current version
@@ -90,7 +82,6 @@ public class WelcomeDialog extends JDialog {
         textPane.setCaretPosition(0);	// Scroll to the top
 
         JScrollPane scrollPane = new JScrollPane(textPane);
-        scrollPane.setBorder(border);
         panel.add(scrollPane, "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
 
         // Don't show this dialog again
@@ -121,14 +112,5 @@ public class WelcomeDialog extends JDialog {
         this.pack();
         this.setLocationRelativeTo(null);
         GUIUtil.setDisposableDialogOptions(this, closeBtn);
-    }
-
-    private static void initColors() {
-        updateColors();
-        UITheme.Theme.addUIThemeChangeListener(WelcomeDialog::updateColors);
-    }
-
-    private static void updateColors() {
-        border = GUIUtil.getUITheme().getBorder();
     }
 }

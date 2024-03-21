@@ -5,7 +5,7 @@ import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 
 import info.openrocket.core.file.wavefrontobj.DefaultCoordTransform;
 import info.openrocket.core.l10n.Translator;

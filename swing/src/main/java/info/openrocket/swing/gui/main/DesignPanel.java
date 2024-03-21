@@ -4,7 +4,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
 import info.openrocket.swing.gui.widgets.IconButton;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -26,7 +25,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -53,12 +51,6 @@ import static info.openrocket.swing.gui.main.BasicFrame.SHORTCUT_KEY;
 public class DesignPanel extends JSplitPane {
     private static final Translator trans = Application.getTranslator();
     private final Component tree;
-
-    private static Border border;
-
-    static {
-        initColors();
-    }
 
     public DesignPanel(final BasicFrame parent, final OpenRocketDocument document, final ComponentTree tree) {
         super(JSplitPane.HORIZONTAL_SPLIT, true);
@@ -183,7 +175,6 @@ public class DesignPanel extends JSplitPane {
 
         // Place tree inside scroll pane
         JScrollPane scroll = new JScrollPane(tree);
-        tree.setBorder(border);
         panel.add(scroll, "spany, wmin 140px, grow, wrap");
 
 
@@ -227,8 +218,6 @@ public class DesignPanel extends JSplitPane {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setViewportView(new ComponentAddButtons(document, tree.getSelectionModel(),
                 scroll.getViewport()));
-        scroll.setBorder(null);
-        scroll.setViewportBorder(null);
 
         TitledBorder border = BorderFactory.createTitledBorder(trans.get("BasicFrame.title.Addnewcomp"));
         GUIUtil.changeFontStyle(border, Font.BOLD);
@@ -237,15 +226,6 @@ public class DesignPanel extends JSplitPane {
         panel.add(scroll, "grow");
 
         this.setRightComponent(panel);
-    }
-
-    private static void initColors() {
-        updateColors();
-        UITheme.Theme.addUIThemeChangeListener(DesignPanel::updateColors);
-    }
-
-    private static void updateColors() {
-        border = GUIUtil.getUITheme().getBorder();
     }
 
     /**

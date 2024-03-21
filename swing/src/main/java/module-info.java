@@ -20,7 +20,6 @@ open module info.openrocket.swing {
 	requires java.xml.bind;
 	requires jcommon;
 	requires java.prefs;
-	requires darklaf.core;
 	requires com.jthemedetector;
 	requires versioncompare;
 	requires org.jfree.jfreechart;
@@ -28,6 +27,9 @@ open module info.openrocket.swing {
 	requires ch.qos.logback.core;
 	requires ch.qos.logback.classic;
 	requires jakarta.inject;
+	requires com.formdev.flatlaf;
+	requires com.formdev.flatlaf.extras;
+	requires com.formdev.flatlaf.intellijthemes;
 
 	// Service providers
 	// Also edit swing/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service

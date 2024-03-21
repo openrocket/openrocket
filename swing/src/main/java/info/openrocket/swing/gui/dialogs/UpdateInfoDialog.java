@@ -38,7 +38,7 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.URLUtil;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;

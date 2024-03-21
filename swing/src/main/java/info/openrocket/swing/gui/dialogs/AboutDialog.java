@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.DescriptionArea;
@@ -18,7 +17,7 @@ import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.URLLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
@@ -77,7 +76,7 @@ public class AboutDialog extends JDialog {
 		"Simple Logging Facade for Java" + href("http://www.slf4j.org", true, true) + "<br>" +
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
 		"RSyntaxTextArea" + href("http://bobbylight.github.io/RSyntaxTextArea", true, true) + "<br>" +
-		"Darklaf (dark theme)" + href("https://github.com/weisJ/darklaf", true, true) + "<br>" +
+		"FlatLaf" + href("https://github.com/JFormDesigner/FlatLaf", true, true) + "<br>" +
         "jSystemThemeDetector" + href("https://github.com/Dansoftowner/jSystemThemeDetector", true, true) + "<br>" +
         "Obj" + href("https://github.com/javagl/Obj", true, true) + "<br>" +
         "ClassGraph" + href("https://github.com/classgraph/classgraph", true, true) + "<br>" +
@@ -88,12 +87,6 @@ public class AboutDialog extends JDialog {
 		"Rocket Motor Data" + href("https://www.thrustcurve.org", true, true) + "<br>" +
 		"Enhanced components database for OpenRocket" + href("https://github.com/dbcook/openrocket-database", true, true) +
 		"</center></html>";
-
-	private static Border border;
-
-	static {
-		initColors();
-	}
 
 	private String href(String url, boolean delimiters, boolean leadingSpace) {
 		return (leadingSpace ? " " : "") + (delimiters ? "(" : "") + "<a href=\"" + url + "\">" + url + "</a>" + (delimiters ? ")" : "");
@@ -152,7 +145,6 @@ public class AboutDialog extends JDialog {
 		
 		
 		DescriptionArea info = new DescriptionArea(5);
-		info.setBorder(border);
 		info.setText(CREDITS);
 		info.setTextFont(UIManager.getFont("Label.font"));
 		panel.add(info, "newline, width 10px, height 250lp, pushy, grow, spanx, wrap para");
@@ -180,14 +172,5 @@ public class AboutDialog extends JDialog {
 		this.setLocationRelativeTo(parent);
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
-	}
-
-	private static void initColors() {
-		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(AboutDialog::updateColors);
-	}
-
-	private static void updateColors() {
-		border = GUIUtil.getUITheme().getBorder();
 	}
 }

@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

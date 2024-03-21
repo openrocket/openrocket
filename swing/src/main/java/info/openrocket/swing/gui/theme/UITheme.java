@@ -1,17 +1,26 @@
-package info.openrocket.swing.gui.util;
+package info.openrocket.swing.gui.theme;
 
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
-import com.github.weisj.darklaf.theme.OneDarkTheme;
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
+import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
+import com.formdev.flatlaf.ui.FlatBorder;
+import com.formdev.flatlaf.ui.FlatMarginBorder;
 import com.jthemedetecor.OsThemeDetector;
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.util.SwingPreferences;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.JRootPane;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -30,8 +39,12 @@ public class UITheme {
     private static final Translator trans = Application.getTranslator();
     private static final Logger log = LoggerFactory.getLogger(UITheme.class);
 
+
+    // TODO: replace a bunch of this with the FlatLaf properties files, see https://www.formdev.com/flatlaf/properties-files
+
     public interface Theme {
         void applyTheme();
+        void applyThemeToRootPane(JRootPane rootPane);
         String name(); // Provided by enum, gives the name of the enum constant
         String getDisplayName();
         Color getBackgroundColor();
@@ -86,6 +99,7 @@ public class UITheme {
         Icon getCDOverrideSubcomponentIcon();
 
         Border getBorder();
+        Border getMarginBorder();
         Border getUnitSelectorBorder();
         Border getUnitSelectorFocusBorder();
 
@@ -172,13 +186,25 @@ public class UITheme {
 
             @Override
             public void applyTheme() {
-                final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+                preApplyTheme();
 
-                GUIUtil.setBestLAF();
-                setGlobalFontSize(prefs.getUIFontSize());
 
-                // After applying the theme settings, notify listeners
-                Theme.notifyUIThemeChangeListeners();
+                try {
+                    if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+                        FlatMacLightLaf.setup();
+                    } else {
+                        FlatLightLaf.setup();
+                    }
+                } catch (Exception e) {
+                    log.warn("Unable to set system look and feel", e);
+                }
+
+                postApplyTheme(this);
+            }
+
+            @Override
+            public void applyThemeToRootPane(JRootPane rootPane) {
+                commonApplyThemeToRootPane(rootPane, getTextColor());
             }
 
             @Override
@@ -389,7 +415,12 @@ public class UITheme {
 
             @Override
             public Border getBorder() {
-                return null;
+                return new FlatBorder();
+            }
+
+            @Override
+            public Border getMarginBorder() {
+                return new FlatMarginBorder();
             }
 
             @Override
@@ -539,13 +570,17 @@ public class UITheme {
 
             @Override
             public void applyTheme() {
-                final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+                preApplyTheme();
 
-                LafManager.install(new DarculaTheme());
-                setGlobalFontSize(prefs.getUIFontSize());
+                // Set the actual theme
+                FlatDarculaLaf.setup();
 
-                // After applying the theme settings, notify listeners
-                Theme.notifyUIThemeChangeListeners();
+                postApplyTheme(this);
+            }
+
+            @Override
+            public void applyThemeToRootPane(JRootPane rootPane) {
+                commonApplyThemeToRootPane(rootPane, getTextColor());
             }
 
             @Override
@@ -565,7 +600,7 @@ public class UITheme {
 
             @Override
             public Color getTextColor() {
-                return UIManager.getColor("Label.foreground");
+                return new Color(173, 173, 173);
             }
 
             @Override
@@ -756,7 +791,12 @@ public class UITheme {
 
             @Override
             public Border getBorder() {
-                return BorderFactory.createLineBorder(getBorderColor());
+                return new FlatBorder();
+            }
+
+            @Override
+            public Border getMarginBorder() {
+                return new FlatMarginBorder();
             }
 
             @Override
@@ -905,10 +945,17 @@ public class UITheme {
 
             @Override
             public void applyTheme() {
-                final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+                preApplyTheme();
 
-                LafManager.install(new OneDarkTheme());
-                setGlobalFontSize(prefs.getUIFontSize());
+                // Set the actual theme
+                FlatOneDarkIJTheme.setup();
+
+                postApplyTheme(this);
+            }
+
+            @Override
+            public void applyThemeToRootPane(JRootPane rootPane) {
+                commonApplyThemeToRootPane(rootPane, getTextColor());
             }
 
             @Override
@@ -1120,7 +1167,12 @@ public class UITheme {
 
             @Override
             public Border getBorder() {
-                return BorderFactory.createLineBorder(getBorderColor());
+                return new FlatBorder();
+            }
+
+            @Override
+            public Border getMarginBorder() {
+                return new FlatMarginBorder();
             }
 
             @Override
@@ -1286,6 +1338,11 @@ public class UITheme {
             @Override
             public void applyTheme() {
                 getCurrentTheme().applyTheme();
+            }
+
+            @Override
+            public void applyThemeToRootPane(JRootPane rootPane) {
+                getCurrentTheme().applyThemeToRootPane(rootPane);
             }
 
             @Override
@@ -1509,6 +1566,11 @@ public class UITheme {
             }
 
             @Override
+            public Border getMarginBorder() {
+                return getCurrentTheme().getMarginBorder();
+            }
+
+            @Override
             public Border getUnitSelectorBorder() {
                 return getCurrentTheme().getUnitSelectorBorder();
             }
@@ -1638,13 +1700,56 @@ public class UITheme {
         }
     }
 
+    private static void preApplyTheme() {
+        FlatAnimatedLafChange.showSnapshot();
+
+        FlatLaf.registerCustomDefaultsSource("themes");
+    }
+
+    private static void postApplyTheme(Theme theme) {
+        final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+
+        // TODO: For some reason, FlatLaf does not take the correct values from the properties file
+        UIManager.put("OR.ScrollPane.borderColor", theme.getBorderColor());
+
+        // Clear custom default font when switching to non-FlatLaf LaF
+        if (!(UIManager.getLookAndFeel() instanceof FlatLaf)) {
+            UIManager.put("defaultFont", null);
+        }
+
+        setGlobalFontSize(prefs.getUIFontSize());
+
+        System.setProperty("flatlaf.uiScale.enabled", "true");
+        System.setProperty("flatlaf.uiScale", String.valueOf(prefs.getUIFontSize() / 12));
+
+        // After applying the theme settings, notify listeners
+        Theme.notifyUIThemeChangeListeners();
+
+        // Update all components
+        FlatLaf.updateUI();     // TODO: has no effect (UI doesn't change)
+        FlatAnimatedLafChange.hideSnapshotWithAnimation();
+    }
+
+    private static void commonApplyThemeToRootPane(JRootPane rootPane, Color TextColor) {
+        // Check out https://www.formdev.com/flatlaf/client-properties
+        rootPane.putClientProperty("JRootPane.titleBarBackground", rootPane.getBackground());
+        rootPane.putClientProperty("JRootPane.titleBarForeground", TextColor);
+        if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+            if (com.formdev.flatlaf.util.SystemInfo.isMacFullWindowContentSupported) {
+                // Remove the separator line from the title bar
+                rootPane.putClientProperty("apple.awt.transparentTitleBar", true);
+                rootPane.putClientProperty("apple.awt.fullscreenable", true);
+            }
+        }
+    }
+
     private static void setGlobalFontSize(int size) {
         // Some fonts have different sizes for different components, so we need to adjust them
         final Map<String, Float> fontOffsets = new HashMap<>();
         fontOffsets.put("MenuBar.font", 1f);
         fontOffsets.put("Tree.font", -1f);
         fontOffsets.put("Slider.font", -2f);
-        fontOffsets.put("TableHeader.font", -2f);
+        fontOffsets.put("TableHeader.font", -1f);
         fontOffsets.put("ColorChooser.font", -1f);
         fontOffsets.put("Menu.acceleratorFont", 1f);
         fontOffsets.put("InternalFrame.optionDialogTitleFont", 1f);
@@ -1668,9 +1773,8 @@ public class UITheme {
         for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements();) {
             Object key = keys.nextElement();
             Object value = UIManager.get(key);
-            if (value instanceof Font) {
-                Font newFont = (Font) value;
-                float offset = fontOffsets.getOrDefault(key.toString(), 0f);
+            if (value instanceof Font newFont) {
+				float offset = fontOffsets.getOrDefault(key.toString(), 0f);
                 newFont = newFont.deriveFont(Integer.valueOf(size).floatValue() + offset);
                 UIManager.put(key, newFont);
             }

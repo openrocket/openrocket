@@ -11,7 +11,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.simulation.extension.impl.JavaCode;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.Plugin;
 import info.openrocket.core.startup.Application;

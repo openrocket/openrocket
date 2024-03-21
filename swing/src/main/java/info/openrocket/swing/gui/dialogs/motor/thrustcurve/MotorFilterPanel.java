@@ -1,11 +1,9 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
@@ -17,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -34,7 +31,6 @@ import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.CheckList;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.util.UITheme;
 import info.openrocket.swing.gui.widgets.MultiSlider;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Manufacturer;
@@ -119,11 +115,6 @@ public abstract class MotorFilterPanel extends JPanel {
 	private final MultiSlider lengthSlider;
 	private final MultiSlider diameterSlider;
 
-	private static Border border;
-
-	static {
-		initColors();
-	}
 
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
 		super(new MigLayout("fill", "[grow]"));
@@ -153,9 +144,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		// Manufacturer selection
 		JPanel sub = new JPanel(new MigLayout("fill"));
-		Border templateBorder = border;
-		TitledBorder border = BorderFactory.createTitledBorder(templateBorder);
-		border.setTitle(trans.get("TCurveMotorCol.MANUFACTURER"));
+		TitledBorder border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.MANUFACTURER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
 
@@ -193,9 +182,6 @@ public abstract class MotorFilterPanel extends JPanel {
 		});
 
 		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
-		if (border != null) {
-			scrollPane.setBorder(border);
-		}
 		sub.add(scrollPane, "grow, pushy, wrap");
 
 		JButton clearMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkNone"));
@@ -225,8 +211,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		// Total Impulse selection
 		{
 			sub = new JPanel(new MigLayout("fill"));
-			border = BorderFactory.createTitledBorder(templateBorder);
-			border.setTitle(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
+			border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
 			GUIUtil.changeFontStyle(border, Font.BOLD);
 			sub.setBorder(border);
 
@@ -253,8 +238,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		// Motor Dimensions
 		sub = new JPanel(new MigLayout("fill"));
-		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(templateBorder);
-		diameterTitleBorder.setTitle(trans.get("TCMotorSelPan.MotorSize"));
+		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCMotorSelPan.MotorSize"));
 		GUIUtil.changeFontStyle(diameterTitleBorder, Font.BOLD);
 		sub.setBorder(diameterTitleBorder);
 
@@ -372,15 +356,6 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 		this.add(sub, "grow,wrap");
 
-	}
-
-	private static void initColors() {
-		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(MotorFilterPanel::updateColors);
-	}
-
-	private static void updateColors() {
-		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	public void setMotorMount( MotorMount mount ) {

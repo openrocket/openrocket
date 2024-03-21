@@ -19,7 +19,7 @@ import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.simulation.RK4SimulationStepper;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;

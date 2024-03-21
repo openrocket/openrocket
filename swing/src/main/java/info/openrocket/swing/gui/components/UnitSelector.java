@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.StateChangeListener;

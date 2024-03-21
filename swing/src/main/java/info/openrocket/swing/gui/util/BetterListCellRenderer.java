@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.util;
 
 
+import info.openrocket.swing.gui.theme.UITheme;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;

@@ -16,12 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +46,6 @@ public class CustomExpressionPanel extends JPanel {
 	private JPanel expressionSelectorPanel;
 	private OpenRocketDocument doc;
 
-	private static Border border;
-
-	static {
-		initColors();
-	}
-
 	public CustomExpressionPanel(final OpenRocketDocument doc, final JDialog parentDialog) {
 		super(new MigLayout("fill"));
 		this.doc = doc;
@@ -61,8 +54,7 @@ public class CustomExpressionPanel extends JPanel {
 		expressionSelectorPanel.setToolTipText(trans.get("customExpressionPanel.lbl.CalcNote"));
 		
 		JScrollPane scroll = new JScrollPane(expressionSelectorPanel);
-		expressionSelectorPanel.setBorder(border);
-		
+
 		//Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
 		//scroll.setBorder(bdr);
 		//expressionSelectorPanel.add(scroll);
@@ -140,15 +132,6 @@ public class CustomExpressionPanel extends JPanel {
 		this.add(closeButton, "width :100:200");
 		
 		updateExpressions();
-	}
-
-	private static void initColors() {
-		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(CustomExpressionPanel::updateColors);
-	}
-
-	private static void updateColors() {
-		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	/*

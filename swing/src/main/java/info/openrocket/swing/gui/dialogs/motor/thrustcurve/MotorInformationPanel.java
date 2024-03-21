@@ -15,9 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -51,7 +50,7 @@ class MotorInformationPanel extends JPanel {
 	private static Color dimTextColor;
 	private static Color backgroundColor;
 	private static Color gridColor;
-	private static Border border;
+	private static Color infoColor;
 
 	// Motors in set
 	private List<ThrustCurveMotor> selectedMotorSet;
@@ -171,7 +170,6 @@ class MotorInformationPanel extends JPanel {
 
 
 			comment = new JTextArea(5, 5);
-			comment.setBorder(border);
 			GUIUtil.changeFontSize(comment, -2);
 			withCommentFont = comment.getFont();
 			noCommentFont = withCommentFont.deriveFont(Font.ITALIC);
@@ -240,7 +238,7 @@ class MotorInformationPanel extends JPanel {
 
 			JLayeredPane layer = new CustomLayeredPane();
 
-			layer.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+			layer.setBorder(BorderFactory.createLineBorder(infoColor));
 
 			layer.add(chartPanel, (Integer) 0);
 
@@ -264,7 +262,7 @@ class MotorInformationPanel extends JPanel {
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		gridColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
-		border = GUIUtil.getUITheme().getBorder();
+		infoColor = GUIUtil.getUITheme().getCGColor();
 	}
 	
 	public void clearData() {

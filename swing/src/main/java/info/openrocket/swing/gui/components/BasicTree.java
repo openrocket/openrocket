@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.components;
 
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

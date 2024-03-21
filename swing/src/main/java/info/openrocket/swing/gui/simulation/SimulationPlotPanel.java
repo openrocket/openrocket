@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -43,7 +42,7 @@ import info.openrocket.swing.gui.plot.SimulationPlotDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
@@ -112,7 +111,6 @@ public class SimulationPlotPanel extends JPanel {
 	private DescriptionArea simPlotPanelDesc;
 
 	private static java.awt.Color darkWarningColor;
-	private static Border border;
 
 	static {
 		initColors();
@@ -229,7 +227,6 @@ public class SimulationPlotPanel extends JPanel {
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		scroll.setBorder(border);
 		this.add(scroll, "spany 3, height 10px, wmin 400lp, grow 100, gapright para");
 		
 		
@@ -395,7 +392,6 @@ public class SimulationPlotPanel extends JPanel {
 
 	private static void updateColors() {
 		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
-		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	private void updateStyleEventWidgets(JLabel styleEventMarker, JRadioButton radioVerticalMarker, JRadioButton radioIcon) {

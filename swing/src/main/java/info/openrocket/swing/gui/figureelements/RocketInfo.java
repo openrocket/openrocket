@@ -22,7 +22,7 @@ import java.awt.geom.Rectangle2D;
 
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 
 
 /**

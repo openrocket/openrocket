@@ -38,7 +38,7 @@ import info.openrocket.core.util.Transformation;
 
 import info.openrocket.swing.gui.rocketfigure.RocketComponentShapeProvider;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

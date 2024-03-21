@@ -8,7 +8,7 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.simulation.SimulationConditionsPanel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 
 public class LaunchPreferencesPanel extends PreferencesPanel {
 	private static Color darkWarningColor;

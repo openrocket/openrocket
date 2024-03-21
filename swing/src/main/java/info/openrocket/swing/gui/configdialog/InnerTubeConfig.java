@@ -57,7 +57,7 @@ import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 

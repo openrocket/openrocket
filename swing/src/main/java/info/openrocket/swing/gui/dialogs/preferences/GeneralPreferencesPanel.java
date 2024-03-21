@@ -53,7 +53,7 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
-import info.openrocket.swing.gui.util.UITheme;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
