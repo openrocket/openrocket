@@ -1,0 +1,61 @@
+Mfg.,Part No.,Desc.,Units,ID,OD,Length,Material,CG,Mass units,Mass,AutoSize
+BalsaMachining.com,CR23-F,.348x.250x.05thk fiber,in.,.25,.348,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR24-F,.420x.250x.05thk fiber,in.,.25,.420,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR25-F,.516x.250x.05thk fiber,in.,.25,.516,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR220-F,.708x.250x.05thk fiber,in.,.25,.708,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2+3-F,.348x.281x.05thk fiber,in.,.281,.348,.05,lite ply,0,g,0,0
+BalsaMachining.com,CR2+4-F,.420x.281x.05thk fiber,in.,.281,.420,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2+5-F,.518x.281x.05thk fiber,in.,.281,.518,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR34-F,.420x.376x.05thk fiber,in.,.376,.420,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR35-P,.516x.376x.25thk paper (mini eng thrust ring),in.,.376,.516,.25,Paper,0,g,0,0
+BalsaMachining.com,CR35-F,.516x.376x.05thk fiber,in.,.376,.516,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR320-F,.708x.376x.05thk fiber,in.,.376,.708,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR45-F,.516x.450x.05thk fiber,in.,.450,.516,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR420-F,.708x.450x.05thk fiber,in.,.450,.708,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR450-F,.95x.450x.05thk fiber,in.,.450,.95,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR520-P,.708x.542x.25thk paper,in.,.546,.708,.25,Paper,0,g,0,0
+BalsaMachining.com,CR520-F,.703x.546x.05thk fiber,in.,.546,.703,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR520-W,.703x.546x.125thk lite-ply,in.,.546,.703,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR0550-F,.946x.546x.05thk fiber,in.,.546,.946,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR0550-W,.946x.546x.125thk lite ply,in.,.546,.946,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR0555-F,1.283x.546x.05thk fiber,in.,.546,1.283,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR0560-F,1.595x.546x.05thk fiber,in.,.546,1.595,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2050-P,.946x.736x.25thk paper,in.,.736,.946,.25,Paper,0,g,0,0
+BalsaMachining.com,CR2050-F,.946x.736x.05thk fiber,in.,.736,.946,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2050-W,.946x.736x.125thk lite ply,in.,.736,.946,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR2050-TW,.946x.736x.250thk lite ply,in.,.736,.946,.250,lite ply,0,g,0,0
+BalsaMachining.com,CR2055-F,1.283x.736x.05thk fiber,in.,.736,1.283,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2055-W,1.283x.736x.125thk lite-ply,in.,.736,1.283,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR2060-F,1.593x.736x.05thk fiber,in.,.736,1.593,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2060-W,1.593x.736x.125thk lite ply,in.,.736,1.593,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR2070-F,2.178x.736x.05thk fiber,in.,.736,2.178,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR2080-F,2.558x.736x.05thk fiber,in.,.736,2.558,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR20204-F,2.042x.736x.05thk fiber,in.,.736,2.024,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR20101-F,3.896x.736x.05thk fiber,in.,.736,3.896,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5052H-P,1.137x.977x.25thk paper,in.,.977,1.137,.25,Paper,0,g,0,0
+BalsaMachining.com,CR5052H-P1,1.137x.977x.50thk paper,in.,.977,1.137,.5,Paper,0,g,0,0
+BalsaMachining.com,CR5052H-F,1.14x.980x.05thk fiber,in.,.98,1.14,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5055-F,1.283x.978x.05thk fiber,in.,.978,1.283,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5055-W,1.283x.978x.125thk lite-ply,in.,.978,1.283,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR50H55-W,1.283x.990x.125thk lite-ply,in.,.990,1.283,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR5060-F,1.593x.978x.05thk fiber,in.,.978,1.593,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5060-W,1.593x.978x.125thk lite-ply,in.,.978,1.593,.05,lite ply,0,g,0,0
+BalsaMachining.com,CR50H60-F,1.593x.990x.05thk fiber,in.,.990,1.593,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5070-F,2.178x.978x.05thk fiber,in.,.978,2.178,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5070-W,2.178x.978x.125thk lite-ply,in.,.978,2.178,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR50H70-W,2.178x.990x.125thk lite-ply,in.,.990,2.178,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR5080-F,2.556x.978x.05thk fiber,in.,.978,2.556,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR50101-F,3.896x.978x.05thk fiber,in.,.978,3.896,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5080-W,2.556x.978x.125thk lite-ply,in.,.978,2.556,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR52H55-F,1.283x1.215x.05thk fiber,in.,1.215,1.283,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR52H60-F,1.592x1.215x.05thk fiber,in.,1.215,1.592,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR52H80-W,2.558x1.215x.125thk lite-ply,in.,1.215,2.558,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR5560-F,1.592x1.283x.05thk fiber,in.,1.283,1.592,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5570-F,2.217x1.283x.05thk fiber,in.,1.283,2.217,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR5570-W,2.178x1.325x.125thk lite-ply,in.,1.325,2.178,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR5580-F,2.558x1.283x.05thk fiber,in.,1.283,2.558,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR55101-F,3.896x1.283x.05thk fiber,in.,1.283,3.896,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR6070-F,2.217x1.595x.05thk fiber,in.,1.595,2.217,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR6070-W,2.175x1.637x.125thk lite-ply,in.,1.635,2.178,.125,lite ply,0,g,0,0
+BalsaMachining.com,CR6080-F,2.558x1.595x.05thk fiber,in.,1.595,2.558,.05,Fiber,0,g,0,0
+BalsaMachining.com,CR60101-F,3.896x1.595x.05thk fiber,in.,1.595,3.896,.05,Fiber,0,g,0,0

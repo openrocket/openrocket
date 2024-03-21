@@ -1,17 +1,15 @@
 package info.openrocket.swing.startup;
 
-import com.google.inject.multibindings.Multibinder;
 import info.openrocket.core.database.ComponentPresetDao;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
-import info.openrocket.core.formatting.RocketSubstitutor;
 import info.openrocket.core.l10n.Translator;
 
 import info.openrocket.core.startup.Preferences;
-import info.openrocket.swing.database.ComponentPresetDatabaseLoader;
-import info.openrocket.swing.database.MotorDatabaseLoader;
+import info.openrocket.core.database.ComponentPresetDatabaseLoader;
+import info.openrocket.core.database.MotorDatabaseLoader;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.watcher.WatchService;
 import info.openrocket.swing.gui.watcher.WatchServiceImpl;

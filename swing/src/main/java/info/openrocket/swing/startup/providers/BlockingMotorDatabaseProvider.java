@@ -14,7 +14,7 @@ import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.l10n.Translator;
 
 import net.miginfocom.swing.MigLayout;
-import info.openrocket.swing.database.MotorDatabaseLoader;
+import info.openrocket.core.database.MotorDatabaseLoader;
 import info.openrocket.swing.gui.main.Splash;
 import info.openrocket.swing.gui.util.GUIUtil;
 

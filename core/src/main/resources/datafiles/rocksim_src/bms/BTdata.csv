@@ -1,0 +1,31 @@
+Mfg.,Part No.,Desc.,Units,ID,OD,Length,Material,Engine,Mass units,Mass
+BalsaMachining.com,T2-34,0.246x0.220x.013x34,in.,0.220,0.246,34,Paper,1,oz,0
+BalsaMachining.com,T2PLUS-34,0.281x0.255x.013x34 (fits over T2),in.,0.255,0.281,34,Paper,1,oz,0
+BalsaMachining.com,T14LL-34,0.316x0.280x.018x34  1/4 inch Launch lug stock,in.,0.280,0.316,34,Paper,1,oz,0
+BalsaMachining.com,T4-34,.448x.432x.013x34 Apogee micro,in.,.432,.448,34,Paper,,g,0
+BalsaMachining.com,T4+34,.478x.452x.013x34 slips over T4,in.,.452,.478,34,Paper,,g,0
+BalsaMachining.com,T5-34,.544x.518x.013x34 Estes mini A,in.,.518,.544,34,Paper,,g,0
+BalsaMachining.com,T5-9,.544x.518 x.013 x9  Plain Kraft,in.,.518,.544,9,Paper,,g,0
+BalsaMachining.com,T20Q-34,.787x.748x.039x34 MPC/Quest T20,in.,.748,.787,34,Paper,,g,0
+BalsaMachining.com,T20-34,.736x.710x.013x34 Estes 18mm,in.,.710,.736,34,Paper,18,g,0
+BalsaMachining.com,T908-34,.908x.865x.022x34 Centuri ST-8,in.,.865,.908,34,Paper,,g,0
+BalsaMachining.com,T50-34,.976x.950x.013x34  24mm,in.,.95,.976,34,Paper,24,g,0
+BalsaMachining.com,T50H-34,. 990 x.950 x.020 x34  Heavy Wall,in.,.95,.990,34,Paper,1,oz,0
+BalsaMachining.com,T50MF-34,1.000x0.950x.025x34 metal foil lined,in.,.95,1.0,34,Paper,1,oz,0
+BalsaMachining.com,T104-34,1.040x1.00x.020 x 34 Centuri ST-10,in.,1,1.04,34,Paper,1,oz,0
+BalsaMachining.com,T52H-34,1.210x1.140x.035x34  29mm Motor Mount size,in.,1.14,1.210,34,Paper,29,g,0
+BalsaMachining.com,T55-34,1.325x1.283x.021,in.,1.283,1.325,34,Paper,,g,0
+BalsaMachining.com,T38-34,1.635x1.525x.055x34 38mm Motor Mount size,in.,1.525,1.635,34,Paper,38,g,0
+BalsaMachining.com,T60-34,1.637x1.595x.021,in.,1.595,1.637,34,Paper,,g,0
+BalsaMachining.com,T188-34,1.880x1.800x.040x34inch long  (Aerotech size),in.,1.8,1.88,34,Paper,,g,0
+BalsaMachining.com,T204-34,2.024x2.0x.021x34 Centuri ST-20,in.,2.0,2.024,34,Paper,,g,0
+BalsaMachining.com,T70-34,2.217x2.175x.021x34,in.,2.175,2.217,34,Paper,,g,0
+BalsaMachining.com,T70H-34,2.245x2.175x.035x34in long (white Heavy wall),in.,2.175,2.245,34,Paper,,g,0
+BalsaMachining.com,T80-34,2.600x2.558x.021x34in long,in.,2.558,2.6,34,Paper,,g,0
+BalsaMachining.com,T80H-34,2.640x2.558x.041x34in long (white Heavy wall),in.,2.558,2.64,34,Paper,,g,0
+BalsaMachining.com,T20-EMT,.736x.710x.013x2.75 Motor Tube,in.,.71,.736,2.75,Paper,18,g,0
+BalsaMachining.com,T50-EMT,.976x.950x.013x2.75 Motor Tube,in.,.95,.976,2.75,Paper,24,g,0
+BalsaMachining.com,T50H-EMT,.990x.950x.020x2.75 Motor Tube,in.,.95,.99,2.75,Paper,24,g,0
+BalsaMachining.com,T50HE-MT,.990x.950x.020x3.75 Motor Tube (E motors),in.,.95,.99,3.75,Paper,24,g,0
+BalsaMachining.com,T50F-MT,1.000x.950x.025x2.75  Foil Motor Tube,in.,.95,1.00,2.75,Paper,24,g,0
+BalsaMachining.com,T50FE-MT,1.000x.950x.025x3.75 Foil  Tube (E motors),in.,.95,1.00,3.75,Paper,24,g,0

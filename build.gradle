@@ -42,9 +42,9 @@ subprojects {
     // Configure the gradle-modules-plugin
     modularity {
         standardJavaRelease(17) // For targeting Java 17
-        modularity.patchModule("hamcrest", "hamcrest-2.2.jar")
+        /*modularity.patchModule("hamcrest", "hamcrest-2.2.jar")
         modularity.patchModule("hamcrest.core", "hamcrest-core-2.2.jar")
-        modularity.patchModule("hamcrest.library", "hamcrest-library-2.2.jar")
+        modularity.patchModule("hamcrest.library", "hamcrest-library-2.2.jar")*/
         modularity.patchModule("java.scripting", "script-api-1.0.jar")
     }
 
@@ -105,6 +105,7 @@ shadowJar {
     archiveVersion.set(props['build.version'])
 }
 
+shadowJar.dependsOn(['jar'])
 //shadowJar.dependsOn([':core:serializeEngines'])
 
 // Packages the application for distribution.

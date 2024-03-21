@@ -1,0 +1,62 @@
+Material Name,Units,Density,Low,High,Class,Rocketry Use,Body Tubes,Fin Sets,Launch Lugs,Cords,Nose,Chute,Stream,Trans,Ring,Bulkhead,Engine Block,Sleeve,Tube Coupler,spare,spare,spare,spare,spare,spare,spare,spare,spare,spare
+Acrylic (Cast),lb/ft3,74,74,74,Plastic,y,n,y,n,n,y,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Aircraft plywood (Birch),lb/ft3,45.259999999999998,43.560000000000002,46.960000000000001,unknown,1,0,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0
+Ash,lb/ft3,42.5,40,45,unknown,0,0,1,0,0,1,0,0,1,1,1,0,0,0,n,n,n,n,n,n,n,n,n,n
+Balsa,lb/ft3,8,8,8,unknown,1,1,1,1,0,1,0,0,1,1,1,1,1,1,n,n,n,n,n,n,n,n,n,n
+Basswood,lb/ft3,26.5,25,28,unknown,1,1,1,1,0,1,0,0,1,1,1,1,1,1,n,n,n,n,n,n,n,n,n,n
+Beech,lb/ft3,45,45,45,Wood,n,y,y,y,n,y,y,y,y,y,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Birch,lb/ft3,42.5,40,45,Wood,n,y,y,y,n,y,y,y,y,y,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Brass,lb/ft3,534,534,534,Metal,y,y,y,y,n,y,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Cardboard,lb/ft3,43,43,43,unknown,1,1,1,1,0,1,0,0,1,1,1,1,1,1,n,n,n,n,n,n,n,n,n,n
+Chalk (Fine),lb/ft3,70,70,70,Mineral,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Copper (cast),lb/ft3,542,542,542,unknown,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Copper (rolled),lb/ft3,556.,556.,556.,unknown,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Cork (Solid),lb/ft3,15,15,15,Wood,y,n,n,n,n,y,n,n,n,n,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Cottonwood,lb/ft3,25,25,25,Wood,n,y,y,y,n,y,y,y,y,y,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Epoxy,lb/ft3,78.3,78.3,78.3,Plastic,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Fiberglass,kg/m3,128.147704,n,n,n,1,1,1,0,0,1,0,0,1,1,1,1,1,1,n,n,n,n,n,n,n,None,0,0
+Fir (Douglas),lb/ft3,35,35,35,Wood,y,n,y,n,n,y,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Fir (White),lb/ft3,25,25,25,Wood,y,n,y,n,n,y,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+G10 fiberglass,lb/ft3,118.94,118.27,118.61,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+G10 phenolic,lb/ft3,118.94,118.27,118.61,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Gold (24 kt.),lb/ft3,1204,1204,1204,Metal,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Iron (cast,lb/ft3,450,450,450,Metal,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Iron (wrought),lb/ft3,485,485,485,Metal,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Kraft phenolic,lb/ft3,59.85,59.85,59.85,Plastic,y,y,n,n,n,n,n,n,n,n,n,n,y,y,n,n,n,n,n,n,n,n,n,n
+Lead (cast),lb/ft3,708,708,708,Metal,n,n,n,n,n,n,n,n,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Lead (rolled),lb/ft3,711,711,711,Metal,n,n,n,n,n,n,n,n,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Leather,lb/ft3,59,59,59,Animal,n,n,n,n,n,n,n,n,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Lexan,g/cm3,1.218,1.218,1.218,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Maple (Hard),lb/ft3,39.5,35.,44.,unknown,1,0,1,0,0,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0
+Mylar,g/cm3,1.309,1.309,1.309,Plastic,y,n,n,n,n,n,y,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Nylon,g/cm3,1.14,1.14,1.14,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,y,n,n,n,n,n,n,n,n,n,n
+Oak (Brown),lb/ft3,45,45,45,Wood,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Oak (Red),lb/ft3,45,45,45,Wood,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Oak (White),lb/ft3,47,47,47,Wood,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Paper,lb/ft3,70.,70.,70.,unknown,1,1,1,1,0,1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0
+Pine (White Northern),lb/ft3,25,25,25,Wood,y,n,y,n,n,y,n,n,y,y,y,y,n,y,n,n,n,n,n,n,n,n,n,n
+Pine (White Western),lb/ft3,27,27,27,Wood,y,n,y,n,n,y,n,n,y,y,y,y,n,y,n,n,n,n,n,n,n,n,n,n
+Polycarbonate,lb/ft3,74.9,74.9,74.9,Plastic,y,y,y,y,n,y,n,n,y,y,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Polyethylene LDPE,lb/ft3,57.7,57.7,57.7,Plastic,y,n,n,n,n,n,y,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Polystyrene PS,lb/ft3,65.5,65.5,65.5,Plastic,y,y,y,y,n,y,n,n,y,y,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Poplar (Yellow),lb/ft3,30,30,30,Wood,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+PVC,lb/ft3,81.2,81.2,81.2,Plastic,y,y,y,n,n,y,n,n,y,y,y,y,y,y,n,n,n,n,n,n,n,n,n,n
+Rip stop nylon,g/cm2,0.006685,0.006685,0.006685,unknown,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Silver,lb/ft3,653,653,653,Metal,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+Spruce,lb/ft3,28,28,28,Wood,y,n,y,n,n,y,n,n,y,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Sycamore,lb/ft3,35,35,35,Wood,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+1/8 In. flat rubber,g/cm,0.0231,0.0231,0.0231,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+1/8 In. flat elastic,g/cm,0.0205,0.0205,0.0205,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+1/4 In. flat elastic,g/cm,0.0402,0.0402,0.0402,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+1/16 In. braided nylon,g/cm,0.0102,0.0102,0.0102,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+1/16 In. round elastic,g/cm,0.0183,0.0183,0.0183,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+5/64 In. round elastic,g/cm,0.0242,0.0242,0.0242,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+1/32 In. kevlar,g/cm,0.00659,0.00659,0.00659,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+70 Lb. kevlar,g/cm,0.0033,0.0033,0.0033,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+30 Lb. kevlar,g/cm,0.00178,0.00178,0.00178,Shock,y,n,n,n,y,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n
+"G10 (PML 0.062"")",oz/in2,0.0714,0.0714,0.0714,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+G10 (PML 0.093),oz/in2,0.1143,0.1143,0.1143,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+G10 (PML 0.125),oz/in2,0.1404,0.1404,0.1404,Plastic,y,n,y,n,n,n,n,n,n,y,y,y,n,n,n,n,n,n,n,n,n,n,n,n
+Urethane,lb/ft3,52.880000000000003,52.880000000000003,52.880000000000003,unknown,1,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+3/8 inch Flat Elastic,g/cm,0.038,0.038,0.038,unknown,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0
+Rocketwood,lb/ft3,33.030000000000001,33.030000000000001,33.030000000000001,unknown,1,1,1,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0

@@ -56,8 +56,6 @@ import info.openrocket.swing.communication.AssetHandler.UpdatePlatform;
 
 public class SwingPreferences extends info.openrocket.core.startup.Preferences implements SimulationOptionsInterface {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
-	
-	private static final String SPLIT_CHARACTER = "|";
 
 
 	public static final String NODE_WINDOWS = "windows";
@@ -445,23 +443,6 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 		putString(info.openrocket.core.startup.Preferences.DEFAULT_DIRECTORY, d);
 		storeVersion();
 	}
-	
-	public File getDefaultUserComponentDirectory() {
-		
-		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
-		
-		if (!compdir.isDirectory()) {
-			compdir.mkdirs();
-		}
-		
-		if (!compdir.isDirectory()) {
-			return null;
-		}
-		if (!compdir.canRead()) {
-			return null;
-		}
-		return compdir;
-	}
 
 	/**
 	 * Set the operating system that the software updater will use to redirect you to an installer download link.
@@ -481,85 +462,6 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 		String p = getString(UPDATE_PLATFORM, SystemInfo.getPlatform().name());
 		if (p == null) return null;
 		return UpdatePlatform.valueOf(p);
-	}
-
-	/**
-	 * Return a list of files/directories to be loaded as custom thrust curves.
-	 * <p>
-	 * If this property has not been set, the directory "ThrustCurves" in the user
-	 * application directory will be used.  The directory will be created if it does not
-	 * exist.
-	 * 
-	 * @return	a list of files to load as thrust curves.
-	 */
-	public List<File> getUserThrustCurveFiles() {
-		List<File> list = new ArrayList<File>();
-		
-		String files = getString(USER_THRUST_CURVES_KEY, null);
-		if (files == null) {
-			// Default to application directory
-			File tcdir = getDefaultUserThrustCurveFile();
-			if (!tcdir.isDirectory()) {
-				tcdir.mkdirs();
-			}
-			list.add(tcdir);
-		} else {
-			for (String file : files.split("\\" + SPLIT_CHARACTER)) {
-				file = file.trim();
-				if (file.length() > 0) {
-					list.add(new File(file));
-				}
-			}
-		}
-		
-		return list;
-	}
-
-	/**
-	 * Returns the files/directories to be loaded as custom thrust curves, formatting as a string. If there are multiple
-	 * locations, they are separated by a semicolon.
-	 *
-	 * @return a list of files to load as thrust curves, formatted as a semicolon separated string.
-	 */
-	public String getUserThrustCurveFilesAsString() {
-		List<File> files = getUserThrustCurveFiles();
-		StringBuilder sb = new StringBuilder();
-		for (File file : files) {
-			if (sb.length() > 0) {
-				sb.append(";");
-			}
-			sb.append(file.getAbsolutePath());
-		}
-		return sb.toString();
-	}
-	
-	public File getDefaultUserThrustCurveFile() {
-		File appdir = SystemInfo.getUserApplicationDirectory();
-		File tcdir = new File(appdir, "ThrustCurves");
-		return tcdir;
-	}
-	
-	
-	/**
-	 * Set the list of files/directories to be loaded as custom thrust curves.
-	 * 
-	 * @param files		the files to load, or <code>null</code> to reset to default value.
-	 */
-	public void setUserThrustCurveFiles(List<File> files) {
-		if (files == null) {
-			putString(USER_THRUST_CURVES_KEY, null);
-			return;
-		}
-		
-		String str = "";
-		
-		for (File file : files) {
-			if (str.length() > 0) {
-				str += SPLIT_CHARACTER;
-			}
-			str += file.getAbsolutePath();
-		}
-		putString(USER_THRUST_CURVES_KEY, str);
 	}
 	
 	public static int getMaxThreadCount() {

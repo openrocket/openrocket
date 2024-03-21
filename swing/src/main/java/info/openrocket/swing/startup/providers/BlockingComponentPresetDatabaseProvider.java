@@ -3,7 +3,7 @@ package info.openrocket.swing.startup.providers;
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.l10n.Translator;
 
-import info.openrocket.swing.database.ComponentPresetDatabaseLoader;
+import info.openrocket.core.database.ComponentPresetDatabaseLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

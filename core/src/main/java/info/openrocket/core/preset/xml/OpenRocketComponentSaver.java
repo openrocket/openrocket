@@ -173,8 +173,15 @@ public class OpenRocketComponentSaver {
         /**
          * The context is thread-safe, but unmarshallers are not. Create a local one.
          */
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (OpenRocketComponentDTO) unmarshaller.unmarshal(is); // new StreamSource(is));
+        try {
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            return (OpenRocketComponentDTO) unmarshaller.unmarshal(is); // new StreamSource(is));
+        } catch (Exception e) {
+            log.error("Unable to create unmarshaller for loading of *.orc files.", e);
+            return null;
+        }
+
+
     }
 
     /**

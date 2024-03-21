@@ -8,7 +8,6 @@ import java.awt.Color;
 public class ORScrollPaneBorder extends FlatScrollPaneBorder {
 	public ORScrollPaneBorder() {
 		Color borderColor = UIManager.getColor("OR.ScrollPane.borderColor");
-		System.out.println(borderColor);
 		if (borderColor == null) {
 			borderColor = UIManager.getColor("Component.borderColor");
 		}
