@@ -4,9 +4,9 @@ package info.openrocket.core.preset.xml;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.InvalidComponentPresetException;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**

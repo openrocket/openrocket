@@ -1,6 +1,6 @@
 package info.openrocket.core.file.rasaero;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class CustomBooleanAdapter extends XmlAdapter<String, Boolean> {
 

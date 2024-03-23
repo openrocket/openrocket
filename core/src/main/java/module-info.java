@@ -19,9 +19,9 @@ open module info.openrocket.core {
 	requires jakarta.activation;
 	requires jakarta.inject;
 	requires java.prefs;
-	requires java.xml.bind;
+	requires jakarta.xml.bind;
 	requires io.github.classgraph;
-	requires java.json;
+	requires org.glassfish.jakarta.json;
 	requires org.slf4j;
 	requires com.opencsv;
 	requires org.commonmark;

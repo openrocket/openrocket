@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.stream.JsonParsingException;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.stream.JsonParsingException;
 
 /**
  * Class that initiates fetching software update information.

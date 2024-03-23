@@ -6,6 +6,7 @@ plugins {
     id 'application'
 }
 
+// Java settings
 java {
     // Must be disabled in order to use the gradle-modules-plugin
     modularity.inferModulePath = false
@@ -17,17 +18,13 @@ application {
 }
 
 // Fetch the build version from the build.properties file
-Properties props = new Properties()
-try {
-    props.load(file('./core/src/main/resources/build.properties').newDataInputStream())
-} catch (Exception ex) {
-    throw new Exception("Missing build.properties. file: " + ex.getMessage())
-}
+def buildProperties = new Properties()
+file('core/src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
+group = 'info.openrocket'
+version = buildProperties['build.version']
 
+// Common project configuration
 allprojects {
-    group 'info.openrocket'
-    version = props['build.version']
-
     repositories {
         mavenCentral()
         maven { url "https://jitpack.io" }
@@ -42,9 +39,6 @@ subprojects {
     // Configure the gradle-modules-plugin
     modularity {
         standardJavaRelease(17) // For targeting Java 17
-        /*modularity.patchModule("hamcrest", "hamcrest-2.2.jar")
-        modularity.patchModule("hamcrest.core", "hamcrest-core-2.2.jar")
-        modularity.patchModule("hamcrest.library", "hamcrest-library-2.2.jar")*/
         modularity.patchModule("java.scripting", "script-api-1.0.jar")
     }
 
@@ -53,15 +47,16 @@ subprojects {
 
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
+            exceptionFormat = 'full'
+            showStackTraces = true
             stackTraceFilters = []
         }
     }
 
     // Common dependencies
     dependencies {
-        testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
-        testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: '2.2'
-        testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
+        implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '4.0.2'
+
         testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.10.2'
         testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.2'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
@@ -75,6 +70,7 @@ subprojects {
 //    dependsOn ':core:serializeEngines'
 //}
 
+// JAR config
 jar {
     archiveBaseName.set('OpenRocket')
 
@@ -84,7 +80,7 @@ jar {
             'SplashScreen-Image': 'pix/splashscreen.png',
 
             // Versioning
-            'Implementation-Version': props['build.version'],
+            'Implementation-Version': buildProperties['build.version'],
 
             // Vendor Details
             'Implementation-Vendor': 'OpenRocket',
@@ -94,6 +90,7 @@ jar {
     }
 }
 
+// Project dependencies
 dependencies {
     implementation(project(":core"))
     implementation(project(":swing"))
@@ -101,14 +98,13 @@ dependencies {
 
 shadowJar {
     archiveBaseName.set('OpenRocket')
+    archiveVersion.set(buildProperties['build.version'])
     archiveClassifier.set('')
-    archiveVersion.set(props['build.version'])
 }
 
-shadowJar.dependsOn(['jar'])
 //shadowJar.dependsOn([':core:serializeEngines'])
 
-// Packages the application for distribution.
+// Package the application for distribution.
 tasks.register('dist') {
     group = 'info.openrocket'
     dependsOn 'shadowJar'

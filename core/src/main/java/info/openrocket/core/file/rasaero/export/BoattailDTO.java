@@ -6,9 +6,9 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = RASAeroCommonConstants.BOATTAIL)
 @XmlAccessorType(XmlAccessType.FIELD)
