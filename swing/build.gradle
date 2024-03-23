@@ -11,13 +11,10 @@ java {
     modularity.inferModulePath = false
 }
 
-Properties props = new Properties()
-try {
-    props.load(file('../core/src/main/resources/build.properties').newDataInputStream())
-} catch (Exception ex) {
-    throw new Exception("Missing build.properties. file: " + ex.getMessage())
-}
-version = props['build.version']
+def buildProperties = new Properties()
+file('../core/src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
+group = 'info.openrocket'
+version = buildProperties['build.version']
 
 repositories {
     mavenCentral()
@@ -71,7 +68,7 @@ dependencies {
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation group: 'org.commonmark', name: 'commonmark', version: '0.19.0' // 0.21.0
+    implementation group: 'org.commonmark', name: 'commonmark', version: '0.21.0'
     implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
     implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.3'
     implementation group: 'org.jfree', name: 'jcommon', version: '1.0.24'
@@ -86,12 +83,6 @@ dependencies {
     implementation group: 'com.formdev', name: 'flatlaf', version: '3.4'
     implementation group: 'com.formdev', name: 'flatlaf-extras', version: '3.4'
     implementation group: 'com.formdev', name: 'flatlaf-intellij-themes', version: '3.4'
-
-//    implementation 'net.java.dev.jna:jna:5.13.0'
-//    implementation 'net.java.dev.jna:jna-platform:5.13.0'
-//    implementation 'de.jangassen:jfa:1.2.0'
-
-//    implementation 'com.github.oshi:oshi-core:6.4.4'
 
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'

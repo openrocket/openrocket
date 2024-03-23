@@ -11,13 +11,10 @@ java {
     modularity.inferModulePath = false
 }
 
-Properties props = new Properties()
-try {
-    props.load(file('./src/main/resources/build.properties').newDataInputStream())
-} catch (Exception ex) {
-    throw new Exception("Missing build.properties. file: " + ex.getMessage())
-}
-version = props['build.version']
+def buildProperties = new Properties()
+file('./src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
+group = 'info.openrocket'
+version = buildProperties['build.version']
 
 repositories {
     mavenCentral()
@@ -62,17 +59,14 @@ def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustc
 def serializedEnginesPathDist = './build/resources/main/datafiles/thrustcurves/thrustcurves.ser'
 // Executes the serialization of engines from ThrustCurve for a build.
 tasks.register('serializeEngines') {
-    group = 'info.openrocket'
     dependsOn serializeEnginesDelete
     dependsOn serializeEnginesExecute
 }
 tasks.register('serializeEnginesDist') {
-    group = 'info.openrocket'
     dependsOn serializeEnginesExecuteDist
 }
 // Deletes the serialize engine file if it exists.
 tasks.register('serializeEnginesDelete', Delete) {
-    group = 'info.openrocket'
     delete fileTree(serializedEnginesPath)
 
     doFirst {
@@ -84,7 +78,6 @@ tasks.register('serializeEnginesDelete', Delete) {
 }
 // Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
 tasks.register('serializeEnginesExecute', JavaExec) {
-    group = 'info.openrocket'
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
@@ -103,7 +96,6 @@ tasks.register('serializeEnginesExecute', JavaExec) {
 // TODO: Shouldn't need a seperate task, but the args are not changing when dynamically updating
 // the variable.
 tasks.register('serializeEnginesExecuteDist', JavaExec) {
-    group = 'info.openrocket'
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
@@ -119,7 +111,6 @@ tasks.register('serializeEnginesExecuteDist', JavaExec) {
 }
 // Validates that the serialize engines file exists.
 tasks.register('serializeEnginesValidate') {
-    group = 'info.openrocket'
     if (!project.file(serializedEnginesPath).exists()) {
         def message = "The serialized engine file does not exist at the following location:\n${project.file(serializedEnginesPath)}.\n" +
                 "You will need to run the following from the command line in order to generate the serialized engine file:\n"
@@ -147,7 +138,6 @@ def externalResourceComponents = './resources-src/datafiles/openrocket-database'
 
 // Initializes the submodules in Git.
 tasks.register('submoduleInit') {
-    group = 'info.openrocket'
     doLast {
         exec {
             workingDir "../"
@@ -159,7 +149,6 @@ tasks.register('submoduleInit') {
 }
 // Updates the initialized submodules in Git.
 tasks.register('subModuleUpdate') {
-    group = 'info.openrocket'
     dependsOn 'submoduleInit'
     doLast {
         exec {
@@ -173,7 +162,6 @@ tasks.register('subModuleUpdate') {
 
 // Copies the external components to the Core resource folder.
 tasks.register('externalComponentsCopy', Copy) {
-    group = 'info.openrocket'
     dependsOn 'externalComponentsValidate'
     from(externalResourceComponents + '/orc') {
         include '**/*'
@@ -187,13 +175,11 @@ tasks.register('externalComponentsCopy', Copy) {
 }
 // Deletes the external components resource folder.
 tasks.register('externalComponentsDelete', Delete) {
-    group = 'info.openrocket'
     delete fileTree(externalComponentsPath)
 }
 // Validates the external components resource folder.  If it is a Git project, then
 // calls the submodule updates to fetch the latest submodules.
 tasks.register('externalComponentsValidate') {
-    group = 'info.openrocket'
     File dir = project.file(externalResourceComponents + '/orc') as File
     println "Validating external components at ${dir}..."
     File gitDir = project.file('../.git') as File

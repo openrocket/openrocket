@@ -100,9 +100,8 @@ shadowJar {
     archiveBaseName.set('OpenRocket')
     archiveVersion.set(buildProperties['build.version'])
     archiveClassifier.set('')
+    dependsOn(distTar, distZip)
 }
-
-//shadowJar.dependsOn([':core:serializeEngines'])
 
 // Package the application for distribution.
 tasks.register('dist') {
