@@ -26,7 +26,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 
 	private static final Translator trans = Application.getTranslator();
 
-	private static Color darkWarningColor;
+	private static Color darkErrorColor;
 
 	static {
 		initColors();
@@ -42,7 +42,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 	
 	@Override
@@ -53,7 +53,7 @@ public class JavaCodeConfigurator extends AbstractSwingSimulationExtensionConfig
 		classNameField = new JTextField(extension.getClassName());
 		panel.add(classNameField, "growx, wrap");
 		this.errorMsg = new StyledLabel();
-		errorMsg.setFontColor(darkWarningColor);
+		errorMsg.setFontColor(darkErrorColor);
 		errorMsg.setVisible(false);
 		panel.add(errorMsg, "growx, wrap");
 

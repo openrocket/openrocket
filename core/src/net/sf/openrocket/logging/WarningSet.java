@@ -2,6 +2,9 @@ package net.sf.openrocket.logging;
 
 import net.sf.openrocket.util.BugException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A set that contains multiple <code>Warning</code>s.  When adding a
  * {@link Warning} to this set, the contents is checked for a warning of the
@@ -25,6 +28,41 @@ public class WarningSet extends MessageSet<Warning> {
     public boolean add(String s) {
         mutable.check();
         return add(Warning.fromString(s));
+    }
+
+    public int getNrOfCriticalWarnings() {
+        return getNrOfMessagesWithPriority(MessagePriority.HIGH);
+    }
+
+    public int getNrOfNormalWarnings() {
+        return getNrOfMessagesWithPriority(MessagePriority.NORMAL);
+    }
+
+    public int getNrOfInformativeWarnings() {
+        return getNrOfMessagesWithPriority(MessagePriority.LOW);
+    }
+
+    public List<Warning> getCriticalWarnings() {
+        List<Message> list = getMessagesWithPriority(MessagePriority.HIGH);
+        return convertMessageListToWarningList(list);
+    }
+
+    public List<Warning> getNormalWarnings() {
+        List<Message> list = getMessagesWithPriority(MessagePriority.NORMAL);
+        return convertMessageListToWarningList(list);
+    }
+
+    public List<Warning> getInformativeWarnings() {
+        List<Message> list = getMessagesWithPriority(MessagePriority.LOW);
+        return convertMessageListToWarningList(list);
+    }
+
+    private static List<Warning> convertMessageListToWarningList(List<Message> list) {
+        List<Warning> warnings = new ArrayList<>(list.size());
+        for (Message m : list) {
+            warnings.add((Warning) m);
+        }
+        return warnings;
     }
 
     @Override

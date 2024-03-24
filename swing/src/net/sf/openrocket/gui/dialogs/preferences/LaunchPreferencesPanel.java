@@ -11,7 +11,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.UITheme;
 
 public class LaunchPreferencesPanel extends PreferencesPanel {
-	private static Color darkWarningColor;
+	private static Color darkErrorColor;
 
 	static {
 		initColors();
@@ -29,7 +29,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		StyledLabel warning = new StyledLabel(String.format(
 				"<html>%s</html>", trans.get("pref.dlg.lbl.launchWarning")),
 				0.5f, StyledLabel.Style.BOLD);
-		warning.setFontColor(darkWarningColor);
+		warning.setFontColor(darkErrorColor);
 		warning.setToolTipText(trans.get("pref.dlg.lbl.launchWarning.ttip"));
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 
@@ -44,7 +44,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 
 }

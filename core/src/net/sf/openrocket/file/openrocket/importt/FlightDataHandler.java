@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.sf.openrocket.logging.MessagePriority;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
@@ -83,7 +84,9 @@ class FlightDataHandler extends AbstractElementHandler {
 				branches.add(branch);
 			}
 		} else if (element.equals("warning")) {
-			warningSet.add(Warning.fromString(content));
+			String priorityStr = attributes.get("priority");
+			MessagePriority priority = MessagePriority.fromExportLabel(priorityStr);
+			warningSet.add(Warning.fromString(content, priority));
 		}
 	}
 	

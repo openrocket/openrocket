@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.util;
 
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import java.awt.Color;
@@ -17,15 +18,40 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
     private static Color rowBackgroundLighterColor;
     private static Color textSelectionForegroundColor;
     private static Color textColor;
+    private final Color textColorOverride;
+    private final Icon icon;
 
     static {
         initColors();
+    }
+
+    public BetterListCellRenderer(Icon icon, Color textColor) {
+        this.icon = icon;
+        this.textColorOverride = textColor;
+    }
+
+    public BetterListCellRenderer(Icon icon) {
+        this(icon, null);
+    }
+
+    public BetterListCellRenderer(Color textColor) {
+        this(null, textColor);
+    }
+
+    public BetterListCellRenderer() {
+        this.icon = null;
+        this.textColorOverride = null;
     }
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
         JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+        if (icon != null) {
+            label.setIcon(icon);
+            label.setIconTextGap(10);
+        }
 
         // Alternating row colors
         if (!isSelected) {
@@ -39,7 +65,7 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
         if (isSelected) {
             label.setForeground(textSelectionForegroundColor);
         } else {
-            label.setForeground(textColor);
+            label.setForeground(textColorOverride != null ? textColorOverride : textColor);
         }
         return label;
     }

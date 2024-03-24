@@ -45,7 +45,7 @@ import org.jfree.chart.JFreeChart;
 public class SimulationPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 
-	private static Color darkWarningColor;
+	private static Color darkErrorColor;
 	private final JCheckBox checkErrors;
 
 	static {
@@ -82,7 +82,7 @@ public class SimulationPlotDialog extends JDialog {
 		// Add warning if X axis type is not time
 		if (config.getDomainAxisType() != FlightDataType.TYPE_TIME) {
 			JLabel msg = new StyledLabel(trans.get("PlotDialog.lbl.timeSeriesWarning"), -2);
-			msg.setForeground(darkWarningColor);
+			msg.setForeground(darkErrorColor);
 			panel.add(msg, "wrap");
 		}
 		
@@ -207,7 +207,7 @@ public class SimulationPlotDialog extends JDialog {
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 
 	private boolean doPNGExport(ChartPanel chartPanel, JFreeChart chart){

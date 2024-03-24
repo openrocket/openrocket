@@ -71,7 +71,7 @@ public class OBJOptionChooser extends JPanel {
 
     private int totallyNormalCounter = 0;
 
-    private static Color darkWarningColor;
+    private static Color darkErrorColor;
 
     static {
         initColors();
@@ -339,7 +339,7 @@ public class OBJOptionChooser extends JPanel {
     }
 
     private static void updateColors() {
-        darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+        darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
     }
 
     /**
@@ -348,7 +348,7 @@ public class OBJOptionChooser extends JPanel {
      * @param loserButton The button to un-highlight
      */
     private void highlightButton(JButton highlightButton, JButton loserButton) {
-        highlightButton.setBorder(BorderFactory.createLineBorder(darkWarningColor));
+        highlightButton.setBorder(BorderFactory.createLineBorder(darkErrorColor));
         loserButton.setBorder(UIManager.getBorder("Button.border"));
     }
 

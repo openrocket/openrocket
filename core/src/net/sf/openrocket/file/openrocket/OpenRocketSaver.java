@@ -216,23 +216,8 @@ public class OpenRocketSaver extends RocketSaver {
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
-		 * 
-		 * File version 1.9 is required for:
-		 *  - new-style positioning
-		 *  - external/parallel booster stages
-		 *  - external pods
-		 *  - Rail Buttons
-		 *  - Flight event source saving
-		 *  
-		 * Otherwise use version 1.9.
 		 */
-		
-		/////////////////
-		// Version 1.9 //
-		/////////////////
-		// for any new-style positioning:  'axialoffset', 'angleoffset', 'radiusoffset' tags
-		// these tags are used for any RocketComponent child classes positioning... so... ALL the classes.
-		return FILE_VERSION_DIVISOR + 9;
+		return FILE_VERSION_DIVISOR + 10;
 		
 	}
 	
@@ -409,7 +394,7 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			
 			for (Warning w : data.getWarningSet()) {
-				writeElement("warning", TextUtil.escapeXML(w.toString()));
+				writeElementWithAttribute("warning", "priority", w.getPriority().getExportLabel(), TextUtil.escapeXML(w.toString()));
 			}
 			
 			// Check whether to store data
@@ -605,6 +590,12 @@ public class OpenRocketSaver extends RocketSaver {
 		if (content == null)
 			content = "";
 		writeln("<" + element + ">" + TextUtil.escapeXML(content) + "</" + element + ">");
+	}
+
+	private void writeElementWithAttribute(String element, String attributeName, String attribute, Object content) throws IOException {
+		content = content == null ? "" : content;
+
+		writeln("<" + element + " " + attributeName + " = \"" + attribute + "\">" + TextUtil.escapeXML(content) + "</" + element + ">");
 	}
 	
 	

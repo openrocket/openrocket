@@ -196,7 +196,7 @@ public class BasicFrame extends JFrame {
 		log.debug("Constructing the BasicFrame UI");
 
 		////	Top segment, tabbed pane
-		simulationPanel = new SimulationPanel(document);
+		simulationPanel = new SimulationPanel(this, document);
 		{
 			//	Obtain the simulation selection model that will be used
 			simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
