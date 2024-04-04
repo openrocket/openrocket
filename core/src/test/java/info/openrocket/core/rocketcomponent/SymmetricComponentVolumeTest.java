@@ -43,7 +43,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 	// return Coordinate containing CG and volume of conical transition
 	private Coordinate calculateConicalTransitionCG(double length, double foreRadius, double aftRadius,
-			double thickness) {
+													double thickness) {
 		// get moment and volume of outer frustum
 		final Coordinate fullCG = calculateFrustumCG(length, foreRadius, aftRadius);
 
@@ -155,7 +155,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 	// conical frustum.
 	// axis is through CG of frustrum
 	private double calculateConicalTransitionLongitudinalMOI(double length, double foreRadius, double aftRadius,
-			double thickness, Coordinate cg, double cgShift) {
+															 double thickness, Coordinate cg, double cgShift) {
 
 		// get MOI of outer frustum, axis through base (aft end) of frustum
 		final double fullMOI = calculateFrustumLongMOI(length, foreRadius, aftRadius);
@@ -210,7 +210,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 	// calculate rotational moment of inertia of transition
 	private double calculateConicalTransitionRotationalMOI(double length, double foreRadius, double aftRadius,
-			double thickness) {
+														   double thickness) {
 		// get MOI of outer frustum
 		double fullMOI = calculateFrustumRotationalMOI(length, foreRadius, aftRadius);
 		final double height = getHeight(length, foreRadius, aftRadius, thickness);

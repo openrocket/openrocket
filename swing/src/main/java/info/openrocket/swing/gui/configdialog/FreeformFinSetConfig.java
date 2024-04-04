@@ -123,6 +123,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Numberoffins")));
 
 			final IntegerModel finCountModel = new IntegerModel(component, "FinCount", 1, 8);
+			register(finCountModel);
 
 			JSpinner spin = new JSpinner(finCountModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -137,6 +138,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(label);
 
 			final DoubleModel cantAngleModel = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE, -FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
+			register(cantAngleModel);
 
 			final JSpinner cantAngleSpinner = new JSpinner(cantAngleModel.getSpinnerModel());
 			cantAngleSpinner.setEditor(new SpinnerEditor(cantAngleSpinner));
@@ -150,7 +152,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		{ ////  Cross section
 			//// Fin cross section:
 			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")), "span, split");
-			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+			EnumModel<FinSet.CrossSection> em = new EnumModel<>(component, "CrossSection");
+			register(em);
+			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(em);
 			panel.add(sectionCombo, "growx, wrap unrel");
 			order.add(sectionCombo);
 
@@ -159,6 +163,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Thickness")));
 
 			final DoubleModel m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 
 			final JSpinner spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -176,7 +181,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 		{//// -------- Placement ------
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow");
 
 			{////  Fin rotation
@@ -185,6 +191,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				placementPanel.add(label, "newline");
 
 				DoubleModel m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
+				register(m);
 
 				JSpinner spin = new JSpinner(m.getSpinnerModel());
 				spin.setEditor(new SpinnerEditor(spin));
@@ -198,6 +205,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 		{ //// Material
 			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+			register(materialPanel);
 			panel.add(materialPanel, "span, grow, wrap");
 		}
 

@@ -1,9 +1,14 @@
 package info.openrocket.swing.gui.configdialog;
 
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.swing.gui.components.SVGOptionPanel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -14,6 +19,9 @@ import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.swing.util.BaseTestCase;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 public class FinSetConfigTest extends BaseTestCase {
 
@@ -168,7 +176,7 @@ public class FinSetConfigTest extends BaseTestCase {
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assertions.assertEquals(0.0059, result.doubleValue(), 0.0001);
     }
-
+    
     /**
      * Test both rings within the root chord.
      */
@@ -253,6 +261,38 @@ public class FinSetConfigTest extends BaseTestCase {
 
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assertions.assertEquals(0.0028, result.doubleValue(), 0.0001);
+    }
+
+    @Test
+    public void testExportToSVG() throws IOException, ParserConfigurationException, TransformerException {
+        BodyTube bodyTube = new BodyTube();
+        bodyTube.setOuterRadius(0.06);
+        bodyTube.setLength(0.2);
+
+        TrapezoidFinSet finSet = new TrapezoidFinSet();
+        finSet.setCantAngle(0);
+        finSet.setRootChord(0.06);
+        finSet.setRootChord(0.05);
+        finSet.setHeight(0.03);
+        finSet.setSweep(0.02);
+        finSet.setSweepAngle(Math.toRadians(20));
+        finSet.setThickness(0.002);
+        finSet.setTabLength(0.02);
+        finSet.setTabHeight(0.012);
+        finSet.setTabOffsetMethod(AxialMethod.MIDDLE);
+        finSet.setTabOffset(0);
+
+        bodyTube.addChild(finSet);
+
+        SVGOptionPanel options = new SVGOptionPanel();
+        options.setStrokeWidth(0.1);
+        options.setStrokeColor(Color.BLACK);
+
+        File destFile = File.createTempFile("test", ".svg");
+
+        FinSetConfig.writeSVGFile(finSet, destFile, options);
+
+        // TODO: load the file and check the contents
     }
 
 }

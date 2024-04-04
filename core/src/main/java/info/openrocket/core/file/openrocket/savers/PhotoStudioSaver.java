@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class takes in the photo settings map from the swing module and converts
- * it into the xml format
+ * This class takes in the photo settings map from the swing module and converts it into the xml format
  * needed to save it in the OpenRocketDocument.
  * (this cumbersome solution is done because of dependency reasons
- * between files of the core and swing module; trying to just use PhotoSettings
- * objects in the
+ * between files of the core and swing module; trying to just use PhotoSettings objects in the
  * core module would have caused circular dependencies)
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>

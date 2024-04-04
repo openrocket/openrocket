@@ -13,7 +13,7 @@ import info.openrocket.core.util.Coordinate;
 
 public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
     public BodyTubeExporter(DefaultObj obj, FlightConfiguration config, CoordTransform transformer, BodyTube component,
-            String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+                            String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
@@ -36,12 +36,11 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
         }
     }
 
-    private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled,
-            InstanceContext context) {
+    private void generateMesh(float outerRadius, float innerRadius, float length, boolean isFilled, InstanceContext context) {
         // Generate the mesh
         int startIdx = obj.getNumVertices();
         TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, isFilled ? 0 : innerRadius, length, LOD);
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx); // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
         Coordinate location = context.getLocation();

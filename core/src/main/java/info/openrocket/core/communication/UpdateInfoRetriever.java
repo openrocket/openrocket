@@ -40,13 +40,13 @@ public class UpdateInfoRetriever {
 			{ "RC", 3 }, // Release Candidate
 	}).collect(Collectors.toMap(c -> (String) c[0], c -> (Integer) c[1]));
 
-	/*
-	 * Enum for the current build version. Values:
-	 * OLDER: current build version is older than the latest official release
-	 * LATEST: current build is the latest official release
-	 * NEWER: current build is "newer" than the latest official release (in the case
-	 * of beta software)
-	 */
+	public static final String snapshotTag = "SNAPSHOT";
+
+	/* Enum for the current build version. Values:
+          OLDER: current build version is older than the latest official release
+          LATEST: current build is the latest official release
+          NEWER: current build is "newer" than the latest official release (in the case of beta software)
+     */
 	public enum ReleaseStatus {
 		OLDER,
 		LATEST,
@@ -55,7 +55,7 @@ public class UpdateInfoRetriever {
 
 	/**
 	 * Start an asynchronous task that will fetch information about the latest
-	 * OpenRocket version. This will overwrite any previous fetching operation.
+	 * OpenRocket version.  This will overwrite any previous fetching operation.
 	 * This call will return immediately.
 	 */
 	public void startFetchUpdateInfo() {
@@ -64,13 +64,13 @@ public class UpdateInfoRetriever {
 		this.fetcher.setDaemon(true);
 		this.fetcher.start();
 	}
-
+	
+	
 	/**
 	 * Check whether the update info fetching is still in progress.
 	 * 
-	 * @return <code>true</code> if the communication is still in progress.
-	 * @throws IllegalStateException if {@link #startFetchUpdateInfo()} has not been
-	 *                               called
+	 * @return	<code>true</code> if the communication is still in progress.
+	 * @throws	IllegalStateException if {@link #startFetchUpdateInfo()} has not been called
 	 */
 	public boolean isRunning() {
 		if (this.fetcher == null) {
@@ -80,23 +80,17 @@ public class UpdateInfoRetriever {
 	}
 
 	/**
-	 * Retrieve the result of the background update info fetcher. This method
-	 * returns
-	 * the result of the previous call to {@link #startFetchUpdateInfo()}. It must
-	 * be
+	 * Retrieve the result of the background update info fetcher.  This method returns 
+	 * the result of the previous call to {@link #startFetchUpdateInfo()}. It must be
 	 * called before calling this method.
 	 * <p>
-	 * This method will return <code>null</code> if the info fetcher is still
-	 * running or
-	 * if it encountered a problem in communicating with the server. The difference
-	 * can
+	 * This method will return <code>null</code> if the info fetcher is still running or
+	 * if it encountered a problem in communicating with the server.  The difference can
 	 * be checked using {@link #isRunning()}.
 	 * 
-	 * @return the update result, or <code>null</code> if the fetching is still in
-	 *         progress
-	 *         or an error occurred while communicating with the server.
-	 * @throws IllegalStateException if {@link #startFetchUpdateInfo()} has not been
-	 *                               called.
+	 * @return	the update result, or <code>null</code> if the fetching is still in progress
+	 * 			or an error occurred while communicating with the server.
+	 * @throws	IllegalStateException	if {@link #startFetchUpdateInfo()} has not been called.
 	 */
 	public UpdateInfo getUpdateInfo() {
 		if (this.fetcher == null) {
@@ -129,10 +123,8 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
-		 * Fetch the latest release name from the GitHub repository, compare it with the
-		 * current build version and change
+		 * Fetch the latest release name from the GitHub repository, compare it with the current build version and change
 		 * the UpdateInfo with the result.
-		 * 
 		 * @throws UpdateCheckerException if something went wrong in the process
 		 */
 		public void runUpdateFetcher() throws UpdateCheckerException {
@@ -164,13 +156,11 @@ public class UpdateInfoRetriever {
 		/**
 		 * Retrieve all the GitHub release JSON objects from OpenRocket's repository
 		 *
-		 * We need to both check the '/releases' and '/releases/latest' URL, because the
-		 * '/releases/latest' JSON object
+		 * We need to both check the '/releases' and '/releases/latest' URL, because the '/releases/latest' JSON object
 		 * is not included in the '/releases' page.
 		 *
 		 * @return JSON array containing all the GitHub release JSON objects
-		 * @throws UpdateCheckerException if an error occurred (e.g. no internet
-		 *                                connection)
+		 * @throws UpdateCheckerException if an error occurred (e.g. no internet connection)
 		 */
 		private JsonArray retrieveAllReleaseObjects() throws UpdateCheckerException {
 			// Extra parameters to add to the connection request
@@ -211,11 +201,9 @@ public class UpdateInfoRetriever {
 
 		/**
 		 * Retrieve the JSON array of GitHub release objects from the specified URL link
-		 * 
 		 * @param urlLink URL link from which to retrieve the JSON array
 		 * @return JSON array containing the GitHub release objects
-		 * @throws UpdateCheckerException if an error occurred (e.g. no internet
-		 *                                connection)
+		 * @throws UpdateCheckerException if an error occurred (e.g. no internet connection)
 		 */
 		private JsonArray retrieveReleaseJSONArr(String urlLink) throws UpdateCheckerException {
 			try {
@@ -240,16 +228,11 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
-		 * Sometimes release names start with a pre-tag, as is the case for e.g.
-		 * 'android-13.11', where 'android' is the pre-tag.
-		 * This function extracts all the release names that start with the specified
-		 * preTag.
-		 * If preTag is null, the default release names without a pre-tag, starting with
-		 * a number, are returned (e.g. '15.03').
-		 * 
-		 * @param names  list of release names to filter
-		 * @param preTag pre-tag to filter the names on. If null, return all tags that
-		 *               start with a number
+		 * Sometimes release names start with a pre-tag, as is the case for e.g. 'android-13.11', where 'android' is the pre-tag.
+		 * This function extracts all the release names that start with the specified preTag.
+		 * If preTag is null, the default release names without a pre-tag, starting with a number, are returned (e.g. '15.03').
+		 * @param names list of release names to filter
+		 * @param preTag pre-tag to filter the names on. If null, return all tags that start with a number
 		 * @return list of names starting with the preTag
 		 */
 		public static List<String> filterReleasePreTag(List<String> names, String preTag) {
@@ -279,13 +262,11 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
-		 * Filter out release names that contain certain tags. This could be useful if
-		 * you are for example running a
+		 * Filter out release names that contain certain tags. This could be useful if you are for example running a
 		 * beta release and only want releases containing the 'beta'-tag to show up.
 		 * If tag is null, the original list is returned.
-		 * 
 		 * @param names list of release names to filter
-		 * @param tags  filter tags
+		 * @param tags filter tags
 		 * @return list of release names containing the filter tag
 		 */
 		public static List<String> filterReleaseTags(List<String> names, String[] tags) {
@@ -298,11 +279,8 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
-		 * Filter a list of release names to only contain official releases, i.e.
-		 * releases without a devTag (e.g. 'beta').
-		 * This could be useful if you're running an official release and don't want to
-		 * get updates from beta releases.
-		 * 
+		 * Filter a list of release names to only contain official releases, i.e. releases without a devTag (e.g. 'beta').
+		 * This could be useful if you're running an official release and don't want to get updates from beta releases.
 		 * @param names list of release names to filter
 		 * @return list of release names that do not contain a devTag
 		 */
@@ -310,23 +288,17 @@ public class UpdateInfoRetriever {
 			if (names == null)
 				return null;
 			return names.stream().filter(c -> Arrays.stream(devTags.keySet().toArray(new String[0]))
-					.noneMatch(c::contains)).collect(Collectors.toList());
+					.noneMatch(c::contains) && !c.contains(snapshotTag)).collect(Collectors.toList());
 		}
 
 		/**
-		 * Return the latest JSON GitHub release object from a JSON array of release
-		 * objects.
-		 * E.g. from a JSON array where JSON objects have release tags {"14.01",
-		 * "15.03", "11.01"} return the JSON object
+		 * Return the latest JSON GitHub release object from a JSON array of release objects.
+		 * E.g. from a JSON array where JSON objects have release tags {"14.01", "15.03", "11.01"} return the JSON object
 		 * with release tag "15.03"?
-		 * 
-		 * @param jsonArr      JSON array containing JSON GitHub release objects
-		 * @param preTag       pre-tag to filter the names on. If null, no special
-		 *                     preTag filtering is applied
-		 * @param tags         tags to filter the names on. If null, no tag filtering is
-		 *                     applied
-		 * @param onlyOfficial bool to check whether to only include official (non-test)
-		 *                     releases
+		 * @param jsonArr JSON array containing JSON GitHub release objects
+		 * @param preTag pre-tag to filter the names on. If null, no special preTag filtering is applied
+		 * @param tags tags to filter the names on. If null, no tag filtering is applied
+		 * @param onlyOfficial bool to check whether to only include official (non-test) releases
 		 * @return latest JSON GitHub release object
 		 */
 		public static JsonObject getLatestReleaseJSON(JsonArray jsonArr, String preTag, String[] tags,
@@ -368,9 +340,7 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
-		 * Compares if the version of tag1 is OLDER, NEWER or equals (LATEST) than the
-		 * version of tag2
-		 * 
+		 * Compares if the version of tag1 is OLDER, NEWER or equals (LATEST) than the version of tag2
 		 * @param tag1 first tag to compare (e.g. "15.03")
 		 * @param tag2 second tag to compare (e.g. "14.11")
 		 * @return ReleaseStatus of tag1 compared to tag2 (e.g. 'ReleaseStatus.NEWER')
@@ -401,8 +371,8 @@ public class UpdateInfoRetriever {
 				// tag1 is e.g.
 				// '15.03' and tag2 '15.03.01', so tag is in that case the more recent version.
 				if (i >= tag1Split.length) {
-					// Tag 1 is e.g. '15.03' and tag2 '15.03.01', so tag2 is the more recent version
-					if (tag2Split[i].matches("\\d+")) {
+					// Tag 1 is e.g. '15.03' and tag2 '15.03.01' or '15.03.SNAPSHOT', so tag2 is the more recent version
+					if (tag2Split[i].matches("\\d+") || snapshotTag.equals(tag2Split[i])) {
 						return ReleaseStatus.OLDER;
 					}
 					// Tag 1 is e.g. '15.03' and tag2 '15.03.beta.01', so tag1 is the more recent
@@ -436,8 +406,31 @@ public class UpdateInfoRetriever {
 						continue;
 					}
 
-					// In case tag1 is e.g. '20.alpha.01', but tag2 is already an official release
-					// with a number instead of
+					// Handle snapshots
+					if (snapshotTag.equals(tag1Split[i]) || snapshotTag.equals(tag2Split[i])) {
+						// In case when e.g. tag1 is '23.09.SNAPSHOT.02' and tag2 '23.09.SNAPSHOT.01', go to the next loop to compare '01' and '02'
+						if (snapshotTag.equals(tag1Split[i]) && snapshotTag.equals(tag2Split[i])) {
+							continue;
+						}
+						// In case when e.g. tag1 is '23.09.SNAPSHOT' and tag2 '23.09', tag1 is newer
+						else if (snapshotTag.equals(tag1Split[i])) {
+							// E.g. tag1 is '23.09.SNAPSHOT', tag2 is '23.09.01'
+							if (tag2Split[i].matches("\\d+")) {
+								return ReleaseStatus.OLDER;
+							} else {
+								return ReleaseStatus.NEWER;
+							}
+						} else {
+							// E.g. tag1 is '23.09.01', tag2 is '23.09.SNAPSHOT'
+							if (tag1Split[i].matches("\\d+")) {
+								return ReleaseStatus.NEWER;
+							} else {
+								return ReleaseStatus.OLDER;
+							}
+						}
+					}
+
+					// In case tag1 is e.g. '20.alpha.01', but tag2 is already an official release with a number instead of
 					// a text, e.g. '20.01'
 					if (tag2Split[i].matches("\\d+")) {
 						return ReleaseStatus.OLDER;
@@ -451,12 +444,10 @@ public class UpdateInfoRetriever {
 				}
 			}
 
-			// If tag 1 is bigger than tag 2 and by this point, all the other elements of
-			// the tags were the same, tag 1
+			// If tag 1 is bigger than tag 2 and by this point, all the other elements of the tags were the same, tag 1
 			// must be newer (e.g. tag 1 = '15.03.01' and tag 2 = '15.03').
 			if (tag1Split.length > tag2Split.length) {
-				// If tag 1 is e.g. 22.02.beta.01, and tag 2 22.02, then tag 1 is older (tag 2
-				// is an official release of 22.02)
+				// If tag 1 is e.g. 22.02.beta.01, and tag 2 22.02, then tag 1 is older (tag 2 is an official release of 22.02)
 				if (devTags.containsKey(tag1Split[tag2Split.length])) {
 					return ReleaseStatus.OLDER;
 				}
@@ -467,10 +458,8 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
-		 * Checks whether the release tag is malformed (e.g. empty, or containing
-		 * invalid entries, such as negative numbers
+		 * Checks whether the release tag is malformed (e.g. empty, or containing invalid entries, such as negative numbers
 		 * or unknown tags)
-		 * 
 		 * @param tagSplit the tag split by '.' or '-'
 		 * @throws UpdateCheckerException if the tag is malformed
 		 */
@@ -496,7 +485,7 @@ public class UpdateInfoRetriever {
 						log.warn(message);
 						throw new UpdateCheckerException(message);
 					}
-					if (!devTags.containsKey(tagSplit[i])) {
+					if (!devTags.containsKey(tagSplit[i]) && !snapshotTag.equals(tagSplit[i])) {
 						String message = String.format("Malformed release tag: '%s'", String.join(".", tagSplit));
 						log.warn(message);
 						throw new UpdateCheckerException(message);

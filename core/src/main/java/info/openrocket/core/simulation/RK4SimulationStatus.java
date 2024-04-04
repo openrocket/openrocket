@@ -6,15 +6,15 @@ import info.openrocket.core.util.Coordinate;
 
 public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	private Coordinate launchRodDirection;
-
+	
 	private double previousAcceleration = 0;
 
 	// Used for determining when to store aerodynamic computation warnings:
 	private double maxZVelocity = 0;
 	private double startWarningTime = -1;
-
+	
 	public RK4SimulationStatus(FlightConfiguration configuration,
-			SimulationConditions simulationConditions) {
+			SimulationConditions simulationConditions ) {
 		super(configuration, simulationConditions);
 	}
 

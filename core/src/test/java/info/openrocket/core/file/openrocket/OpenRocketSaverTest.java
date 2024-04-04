@@ -56,19 +56,19 @@ import com.google.inject.Provider;
 import com.google.inject.util.Modules;
 
 public class OpenRocketSaverTest {
-
+	
 	private final OpenRocketSaver saver = new OpenRocketSaver();
 	private static final File TMP_DIR = new File("./tmp/");
-
+	
 	public static final String SIMULATION_EXTENSION_SCRIPT = "// Test <  &\n// >\n// <![CDATA[";
-
+	
 	private static Injector injector;
 
 	@BeforeAll
 	public static void setup() {
 		Module applicationModule = new ServicesForTesting();
 		Module pluginModule = new PluginModule();
-
+		
 		Module dbOverrides = new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -77,7 +77,7 @@ public class OpenRocketSaverTest {
 				bind(Translator.class).toInstance(new DebugTranslator(null));
 			}
 		};
-
+		
 		injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
 		Application.setInjector(injector);
 
@@ -92,7 +92,7 @@ public class OpenRocketSaverTest {
 	@AfterEach
 	public void deleteRocketFilesFromTemp() {
 		final String fileNameMatchStr = String.format("%s_.*\\.ork", this.getClass().getName());
-
+		
 		File[] toBeDeleted = TMP_DIR.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File theFile) {
@@ -102,22 +102,21 @@ public class OpenRocketSaverTest {
 				return false;
 			}
 		});
-
+		
 		for (File deletableFile : toBeDeleted) {
 			deletableFile.delete();
 		}
 	}
-
+	
 	/**
-	 * Test for creating, saving, and loading various rockets with different file
-	 * versions
+	 * Test for creating, saving, and loading various rockets with different file versions
 	 * 
 	 * TODO: add a deep equality check to ensure no changes after save/read
 	 */
-
+	
 	@Test
 	public void testCreateLoadSave() {
-
+		
 		// Create rockets
 		ArrayList<OpenRocketDocument> rocketDocs = new ArrayList<OpenRocketDocument>();
 		rocketDocs.add(TestRockets.makeTestRocket_v100());
@@ -134,14 +133,14 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withMotorMountIgnitionConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withRecoveryDeviceDeploymentConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withStageSeparationConfig());
-		rocketDocs.add(TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
-		rocketDocs.add(TestRockets.makeTestRocket_v108_withBoosters());
+		rocketDocs.add(TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
+        rocketDocs.add(TestRockets.makeTestRocket_v108_withBoosters());
 		rocketDocs.add(TestRockets.makeTestRocket_v108_withDisabledStage());
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
-
+		
 		StorageOptions options = new StorageOptions();
 		options.setSaveSimulationData(true);
-
+		
 		// Save rockets, load, validate
 		for (OpenRocketDocument rocketDoc : rocketDocs) {
 			File file = saveRocket(rocketDoc, options);
@@ -225,34 +224,33 @@ public class OpenRocketSaverTest {
 
 	@Test
 	public void testUntrustedScriptDisabledOnLoad() {
-		OpenRocketDocument rocketDoc = TestRockets
-				.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
 		StorageOptions options = new StorageOptions();
 		File file = saveRocket(rocketDoc, options);
 		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
 		assertEquals(1, rocketDocLoaded.getSimulations().size());
 		assertEquals(1, rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().size());
-		ScriptingExtension ext = (ScriptingExtension) rocketDocLoaded.getSimulations().get(0).getSimulationExtensions()
-				.get(0);
+		ScriptingExtension ext = (ScriptingExtension) rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().get(0);
 		assertEquals(false, ext.isEnabled());
 		assertEquals(SIMULATION_EXTENSION_SCRIPT, ext.getScript());
 	}
-
+	
+	
 	@Test
 	public void testTrustedScriptEnabledOnLoad() {
-		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension("TESTING");
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension("TESTING");
 		injector.getInstance(ScriptingUtil.class).setTrustedScript("JavaScript", "TESTING", true);
 		StorageOptions options = new StorageOptions();
 		File file = saveRocket(rocketDoc, options);
 		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
 		assertEquals(1, rocketDocLoaded.getSimulations().size());
 		assertEquals(1, rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().size());
-		ScriptingExtension ext = (ScriptingExtension) rocketDocLoaded.getSimulations().get(0).getSimulationExtensions()
-				.get(0);
+		ScriptingExtension ext = (ScriptingExtension) rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().get(0);
 		assertEquals(true, ext.isEnabled());
 		assertEquals(ext.getScript(), "TESTING");
 	}
-
+	
+	
 	/*
 	 * Test how accurate estimatedFileSize is.
 	 * 
@@ -262,12 +260,12 @@ public class OpenRocketSaverTest {
 	@Test
 	public void testEstimateFileSize() {
 		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v104_withSimulationData();
-
+		
 		StorageOptions options = new StorageOptions();
 		options.setSaveSimulationData(true);
-
+		
 		long estimatedSize = saver.estimateFileSize(rocketDoc, options);
-
+		
 		// TODO: fix estimateFileSize so that it's a lot more accurate
 	}
 
@@ -278,7 +276,7 @@ public class OpenRocketSaverTest {
 	public void TestSimStatus() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
 		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
-
+		
 		// Hook up some simulations.
 		// First sim will not have options set
 		Simulation sim1 = new Simulation(rocket);
@@ -322,34 +320,34 @@ public class OpenRocketSaverTest {
 
 		File file = saveRocket(rocketDoc, options);
 		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
-
+		
 		assertEquals(Simulation.Status.CANT_RUN, rocketDocLoaded.getSimulations().get(0).getStatus());
 		assertEquals(Simulation.Status.NOT_SIMULATED, rocketDocLoaded.getSimulations().get(1).getStatus());
 		assertEquals(Simulation.Status.LOADED, rocketDocLoaded.getSimulations().get(2).getStatus());
 		assertEquals(Simulation.Status.OUTDATED, rocketDocLoaded.getSimulations().get(3).getStatus());
 	}
-
+	
 	////////////////////////////////
-	// Tests for File Version 1.7 //
+	// Tests for File Version 1.10 //
 	////////////////////////////////
-
+	
 	@Test
-	public void testFileVersion109_withSimulationExtension() {
-		OpenRocketDocument rocketDoc = TestRockets
-				.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
-		assertEquals(109, getCalculatedFileVersion(rocketDoc));
+	public void testFileVersion110_withSimulationExtension() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v110_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
+		assertEquals(110, getCalculatedFileVersion(rocketDoc));
 	}
+	
 
 	////////////////////////////////
 	/*
 	 * Utility Functions
 	 */
-
+	
 	private int getCalculatedFileVersion(OpenRocketDocument rocketDoc) {
 		int fileVersion = this.saver.testAccessor_calculateNecessaryFileVersion(rocketDoc, null);
 		return fileVersion;
 	}
-
+	
 	private OpenRocketDocument loadRocket(String fileName) {
 		GeneralRocketLoader loader = new GeneralRocketLoader(new File(fileName));
 		OpenRocketDocument rocketDoc = null;
@@ -361,7 +359,7 @@ public class OpenRocketSaverTest {
 		}
 		return rocketDoc;
 	}
-
+	
 	private File saveRocket(OpenRocketDocument rocketDoc, StorageOptions options) {
 		File file = null;
 		OutputStream out = null;
@@ -382,10 +380,11 @@ public class OpenRocketSaverTest {
 				fail("Unable to close output stream for temp file in " + TMP_DIR.getName() + ": " + e.getMessage());
 			}
 		}
-
+		
 		return file;
 	}
-
+	
+	
 	private static ThrustCurveMotor readMotor() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 		InputStream is = OpenRocketSaverTest.class.getResourceAsStream("/Estes_A8.rse");
@@ -401,11 +400,11 @@ public class OpenRocketSaverTest {
 		}
 		throw new RuntimeException("Could not load motor");
 	}
-
+	
 	public static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
-
+		
 		final ComponentPresetDao db = new ComponentPresetDatabase();
-
+		
 		@Override
 		public ComponentPresetDao get() {
 			return db;
@@ -413,9 +412,9 @@ public class OpenRocketSaverTest {
 	}
 
 	public static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
-
+		
 		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
-
+		
 		public MotorDbProvider() {
 			db.addMotor(readMotor());
 			db.addMotor(new ThrustCurveMotor.Builder()
@@ -434,11 +433,12 @@ public class OpenRocketSaverTest {
 
 			assertEquals(2, db.getMotorSets().size());
 		}
-
+		
 		@Override
 		public ThrustCurveMotorSetDatabase get() {
 			return db;
 		}
 	}
-
+	
+	
 }

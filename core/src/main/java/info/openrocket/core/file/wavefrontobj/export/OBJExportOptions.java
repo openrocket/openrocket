@@ -25,29 +25,29 @@ public class OBJExportOptions {
      */
     private boolean exportAsSeparateFiles;
     /**
-     * If true, remove the offset of the object so it is centered at the origin (but
-     * the bottom of the object is at x=0).
+     * If true, remove the offset of the object so it is centered at the origin (but the bottom of the object is at x=0).
      * 'x' being the longitudinal axis (depends on the used {@link CoordTransform}).
      */
     private boolean removeOffset;
     /**
-     * If true, triangulate all faces (convert quads and higher-order polygons to
-     * triangles)
+     * If true, triangulate all faces (convert quads and higher-order polygons to triangles)
      */
     private boolean triangulate;
+    /**
+     * The method to use for triangulation.
+     */
+    private ObjUtils.TriangulationMethod triangulationMethod;
     /**
      * If true, use sRGB colors instead of linear color space.
      */
     private boolean useSRGB;
     /**
-     * The level of detail to use for the export (e.g. low-quality, normal
-     * quality...).
+     * The level of detail to use for the export (e.g. low-quality, normal quality...).
      */
     private ObjUtils.LevelOfDetail LOD;
     /**
      * The coordinate transformer to use for the export.
-     * This is used to convert the coordinates from the rocket's coordinate system
-     * to the OBJ coordinate system (which is arbitrary).
+     * This is used to convert the coordinates from the rocket's coordinate system to the OBJ coordinate system (which is arbitrary).
      */
     private CoordTransform transformer;
     /**
@@ -96,6 +96,14 @@ public class OBJExportOptions {
 
     public void setTriangulate(boolean triangulate) {
         this.triangulate = triangulate;
+    }
+
+    public ObjUtils.TriangulationMethod getTriangulationMethod() {
+        return triangulationMethod;
+    }
+
+    public void setTriangulationMethod(ObjUtils.TriangulationMethod triangulationMethod) {
+        this.triangulationMethod = triangulationMethod;
     }
 
     public boolean isExportAppearance() {

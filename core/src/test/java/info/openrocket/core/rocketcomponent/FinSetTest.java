@@ -1,5 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import info.openrocket.core.material.Material;
@@ -262,6 +263,44 @@ public class FinSetTest extends BaseTestCase {
 		assertEquals((1. / 6.) * Math.PI, instanceAngles[0], EPSILON);
 		assertEquals((5. / 6.) * Math.PI, instanceAngles[1], EPSILON);
 		assertEquals((9. / 6.) * Math.PI, instanceAngles[2], EPSILON);
+	}
+
+	@Test
+	public void testGenerateContinuousFinAndTabShape() {
+		BodyTube parent = new BodyTube();
+		final FinSet fins = FinSetTest.createSimpleFin();
+		fins.setCantAngle(0);
+		parent.addChild(fins);
+		Coordinate[] finShapeContinuous = fins.generateContinuousFinAndTabShape();
+		final Coordinate[] finShape = fins.getFinPointsWithRoot();
+
+		assertEquals(finShape.length, finShapeContinuous.length, "incorrect fin shape length");
+
+		assertArrayEquals(finShape, finShapeContinuous, "incorrect fin shape");
+
+		// Set the tab
+		fins.setTabHeight(0.02);
+
+		finShapeContinuous = fins.generateContinuousFinAndTabShape();
+
+		assertEquals(finShape.length + 3, finShapeContinuous.length, "incorrect fin shape length");
+
+		for (int i = 0; i < finShape.length-2; i++) {
+			assertEquals(finShape[i], finShapeContinuous[i], "incorrect fin shape point " + i);
+		}
+
+		int idx = finShape.length-2;
+		assertEquals(new Coordinate(0.04, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		idx++;
+		assertEquals(new Coordinate(0.04, -0.02), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		idx++;
+		assertEquals(new Coordinate(0.02, -0.02), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		idx++;
+		assertEquals(new Coordinate(0.02, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		idx++;
+		assertEquals(new Coordinate(0.0, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+
+		// TODO: test on transition parent...
 	}
 
 }

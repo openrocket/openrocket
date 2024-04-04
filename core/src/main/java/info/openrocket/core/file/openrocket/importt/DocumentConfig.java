@@ -50,21 +50,19 @@ import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.Reflection;
 
 class DocumentConfig {
-
+	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8",
-			"1.9" };
-
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "1.10" };
+	
 	/**
-	 * Divisor used in converting an integer version to the point-represented
-	 * version.
-	 * The integer version divided by this value is the major version and the
-	 * remainder is
-	 * the minor version. For example 101 corresponds to file version "1.1".
+	 * Divisor used in converting an integer version to the point-represented version.
+	 * The integer version divided by this value is the major version and the remainder is
+	 * the minor version.  For example 101 corresponds to file version "1.1".
 	 */
 	public static final int FILE_VERSION_DIVISOR = 100;
-
-	//////// Component constructors
+	
+	
+	////////  Component constructors
 	static final HashMap<String, Constructor<? extends RocketComponent>> constructors = new HashMap<String, Constructor<? extends RocketComponent>>();
 	static {
 		try {
@@ -78,35 +76,36 @@ class DocumentConfig {
 			constructors.put("tubefinset", TubeFinSet.class.getConstructor());
 			constructors.put("launchlug", LaunchLug.class.getConstructor());
 			constructors.put("railbutton", RailButton.class.getConstructor());
-
+			
 			// Internal components
 			constructors.put("engineblock", EngineBlock.class.getConstructor());
 			constructors.put("innertube", InnerTube.class.getConstructor());
 			constructors.put("tubecoupler", TubeCoupler.class.getConstructor());
 			constructors.put("bulkhead", Bulkhead.class.getConstructor());
 			constructors.put("centeringring", CenteringRing.class.getConstructor());
-
+			
 			constructors.put("masscomponent", MassComponent.class.getConstructor());
 			constructors.put("shockcord", ShockCord.class.getConstructor());
 			constructors.put("parachute", Parachute.class.getConstructor());
 			constructors.put("streamer", Streamer.class.getConstructor());
-
+			
 			// Other
 			constructors.put("stage", AxialStage.class.getConstructor());
 			constructors.put("boosterset", ParallelStage.class.getConstructor());
 			constructors.put("parallelstage", ParallelStage.class.getConstructor());
 			constructors.put("podset", PodSet.class.getConstructor());
-
+			
 		} catch (NoSuchMethodException e) {
 			throw new BugException(
 					"Error in constructing the 'constructors' HashMap.");
 		}
 	}
-
-	//////// Parameter setters
+	
+	
+	////////  Parameter setters
 	/*
 	 * The keys are of the form Class:param, where Class is the class name and param
-	 * the element name. Setters are searched for in descending class order.
+	 * the element name.  Setters are searched for in descending class order.
 	 * A setter of null means setting the parameter is not allowed.
 	 */
 	static final HashMap<String, Setter> setters = new HashMap<String, Setter>();
@@ -147,6 +146,7 @@ class DocumentConfig {
 				Reflection.findMethod(RocketComponent.class, "setComment", String.class)));
 		setters.put("RocketComponent:preset", new ComponentPresetSetter(
 				Reflection.findMethod(RocketComponent.class, "loadPreset", ComponentPreset.class)));
+		
 
 		// ExternalComponent
 		setters.put("ExternalComponent:finish", new EnumSetter<Finish>(
@@ -155,7 +155,7 @@ class DocumentConfig {
 		setters.put("ExternalComponent:material", new MaterialSetter(
 				Reflection.findMethod(ExternalComponent.class, "setMaterial", Material.class),
 				Material.Type.BULK));
-
+		
 		// BodyComponent
 		setters.put("BodyComponent:length", new DoubleSetter(
 				Reflection.findMethod(BodyComponent.class, "setLength", double.class)));
@@ -178,7 +178,7 @@ class DocumentConfig {
 				"filled",
 				Reflection.findMethod(SymmetricComponent.class, "setFilled", boolean.class),
 				false));
-
+		
 		// LaunchLug
 		setters.put("LaunchLug:instancecount", new IntSetter(
 				Reflection.findMethod(LaunchLug.class, "setInstanceCount", int.class)));
@@ -213,6 +213,7 @@ class DocumentConfig {
 		setters.put("RailButton:innerdiameter", new DoubleSetter(
 				Reflection.findMethod(RailButton.class, "setInnerDiameter", double.class)));
 
+			
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
 				Reflection.findMethod(Transition.class, "setShapeType", Transition.Shape.class),
@@ -221,7 +222,7 @@ class DocumentConfig {
 				Reflection.findMethod(Transition.class, "setClipped", boolean.class)));
 		setters.put("Transition:shapeparameter", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setShapeParameter", double.class)));
-
+		
 		setters.put("Transition:foreradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeRadius", double.class, boolean.class),
 				"auto", " ",
@@ -232,7 +233,7 @@ class DocumentConfig {
 				"auto", " ",
 				Reflection.findMethod(Transition.class, "setAftRadiusAutomatic", boolean.class),
 				false));
-
+		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class, boolean.class),
 				null, null, false));
@@ -242,7 +243,7 @@ class DocumentConfig {
 				Reflection.findMethod(Transition.class, "setForeShoulderThickness", double.class)));
 		setters.put("Transition:foreshouldercapped", new BooleanSetter(
 				Reflection.findMethod(Transition.class, "setForeShoulderCapped", boolean.class)));
-
+		
 		setters.put("Transition:aftshoulderradius", new DoubleSetter(
 				Reflection.findMethod(Transition.class, "setAftShoulderRadius", double.class, boolean.class),
 				null, null, false));
@@ -261,7 +262,7 @@ class DocumentConfig {
 		setters.put("NoseCone:foreshoulderlength", null);
 		setters.put("NoseCone:foreshoulderthickness", null);
 		setters.put("NoseCone:foreshouldercapped", null);
-
+		
 		// FinSet
 		setters.put("FinSet:fincount", new IntSetter(
 				Reflection.findMethod(FinSet.class, "setFinCount", int.class)));
@@ -288,7 +289,7 @@ class DocumentConfig {
 		setters.put("FinSet:filletmaterial", new MaterialSetter(
 				Reflection.findMethod(FinSet.class, "setFilletMaterial", Material.class),
 				Material.Type.BULK));
-
+		
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setRootChord", double.class)));
@@ -298,15 +299,15 @@ class DocumentConfig {
 				Reflection.findMethod(TrapezoidFinSet.class, "setSweep", double.class)));
 		setters.put("TrapezoidFinSet:height", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setHeight", double.class)));
-
+		
 		// EllipticalFinSet
 		setters.put("EllipticalFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(EllipticalFinSet.class, "setLength", double.class)));
 		setters.put("EllipticalFinSet:height", new DoubleSetter(
 				Reflection.findMethod(EllipticalFinSet.class, "setHeight", double.class)));
-
+		
 		// FreeformFinSet points handled as a special handler
-
+		
 		// TubeFinSet
 		setters.put("TubeFinSet:fincount", new IntSetter(
 				Reflection.findMethod(TubeFinSet.class, "setFinCount", int.class)));
@@ -326,12 +327,12 @@ class DocumentConfig {
 		setters.put("TubeFinSet:radiusoffset", new RadiusPositionSetter());
 
 		// InternalComponent - nothing
-
+		
 		// StructuralComponent
 		setters.put("StructuralComponent:material", new MaterialSetter(
 				Reflection.findMethod(StructuralComponent.class, "setMaterial", Material.class),
 				Material.Type.BULK));
-
+		
 		// RingComponent
 		setters.put("RingComponent:length", new DoubleSetter(
 				Reflection.findMethod(RingComponent.class, "setLength", double.class)));
@@ -345,19 +346,19 @@ class DocumentConfig {
 		// automatics
 		setters.put("ThicknessRingComponent:thickness", new DoubleSetter(
 				Reflection.findMethod(ThicknessRingComponent.class, "setThickness", double.class)));
-
+		
 		// EngineBlock
 		setters.put("EngineBlock:outerradius", new DoubleSetter(
 				Reflection.findMethod(EngineBlock.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(EngineBlock.class, "setOuterRadiusAutomatic", boolean.class)));
-
+		
 		// TubeCoupler
 		setters.put("TubeCoupler:outerradius", new DoubleSetter(
 				Reflection.findMethod(TubeCoupler.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(TubeCoupler.class, "setOuterRadiusAutomatic", boolean.class)));
-
+		
 		// InnerTube
 		setters.put("InnerTube:outerradius", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setOuterRadius", double.class)));
@@ -367,7 +368,7 @@ class DocumentConfig {
 		setters.put("InnerTube:clusterrotation", new DoubleSetter(
 				Reflection.findMethod(InnerTube.class, "setClusterRotation", double.class),
 				Math.PI / 180.0));
-
+		
 		// RadiusRingComponent
 		setters.put("RadiusRingComponent:instancecount", new IntSetter(
 				Reflection.findMethod(RadiusRingComponent.class, "setInstanceCount", int.class)));
@@ -381,7 +382,7 @@ class DocumentConfig {
 				Reflection.findMethod(Bulkhead.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(Bulkhead.class, "setOuterRadiusAutomatic", boolean.class)));
-
+		
 		// CenteringRing
 		setters.put("CenteringRing:innerradius", new DoubleSetter(
 				Reflection.findMethod(CenteringRing.class, "setInnerRadius", double.class),
@@ -391,7 +392,7 @@ class DocumentConfig {
 				Reflection.findMethod(CenteringRing.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethod(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
-
+		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
 				Reflection.findMethod(MassObject.class, "setLength", double.class)));
@@ -404,7 +405,7 @@ class DocumentConfig {
 		setters.put("MassObject:radialdirection", new DoubleSetter(
 				Reflection.findMethod(MassObject.class, "setRadialDirection", double.class),
 				Math.PI / 180.0));
-
+		
 		// MassComponent
 		setters.put("MassComponent:mass", new DoubleSetter(
 				Reflection.findMethod(MassComponent.class, "setComponentMass", double.class)));
@@ -430,7 +431,7 @@ class DocumentConfig {
 		setters.put("ShockCord:material", new MaterialSetter(
 				Reflection.findMethod(ShockCord.class, "setMaterial", Material.class),
 				Material.Type.LINE));
-
+		
 		// RecoveryDevice
 		setters.put("RecoveryDevice:cd", new DoubleSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setCD", double.class),
@@ -449,7 +450,7 @@ class DocumentConfig {
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
-
+		
 		// Parachute
 		setters.put("Parachute:diameter", new DoubleSetter(
 				Reflection.findMethod(Parachute.class, "setDiameter", double.class)));
@@ -460,6 +461,9 @@ class DocumentConfig {
 		setters.put("Parachute:linematerial", new MaterialSetter(
 				Reflection.findMethod(Parachute.class, "setLineMaterial", Material.class),
 				Material.Type.LINE));
+		setters.put("Parachute:preset", new ComponentPresetSetter(
+				Reflection.findMethod(Parachute.class, "loadPreset", ComponentPreset.class, Object[].class),
+				false));
 
 		// PodSet
 		setters.put("PodSet:instancecount", new IntSetter(
@@ -472,7 +476,7 @@ class DocumentConfig {
 				Reflection.findMethod(Streamer.class, "setStripLength", double.class)));
 		setters.put("Streamer:stripwidth", new DoubleSetter(
 				Reflection.findMethod(Streamer.class, "setStripWidth", double.class)));
-
+		
 		// Rocket
 		// <motorconfiguration> handled by separate handler
 		setters.put("Rocket:referencetype", new EnumSetter<ReferenceType>(
@@ -484,7 +488,7 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setDesigner", String.class)));
 		setters.put("Rocket:revision", new StringSetter(
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
-
+		
 		// Axial Stage
 		setters.put("AxialStage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
@@ -494,26 +498,25 @@ class DocumentConfig {
 		setters.put("AxialStage:separationdelay", new DoubleSetter(
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
-
+	
+		
 	}
-
+	
+	
 	/**
-	 * Search for a enum value that has the corresponding name as an XML value. The
-	 * current
-	 * conversion from enum name to XML value is to lowercase the name and strip out
-	 * all
-	 * underscore characters. This method returns a match to these criteria, or
-	 * <code>null</code>
+	 * Search for a enum value that has the corresponding name as an XML value.  The current
+	 * conversion from enum name to XML value is to lowercase the name and strip out all 
+	 * underscore characters.  This method returns a match to these criteria, or <code>null</code>
 	 * if no such enum exists.
 	 * 
-	 * @param <T>       then enum type.
-	 * @param name      the XML value, null ok.
-	 * @param enumClass the class of the enum.
-	 * @return the found enum value, or <code>null</code>.
+	 * @param <T>			then enum type.
+	 * @param name			the XML value, null ok.
+	 * @param enumClass		the class of the enum.
+	 * @return				the found enum value, or <code>null</code>.
 	 */
 	public static <T extends Enum<T>> Enum<T> findEnum(String name,
 			Class<? extends Enum<T>> enumClass) {
-
+		
 		if (name == null)
 			return null;
 		name = name.trim();
@@ -524,16 +527,16 @@ class DocumentConfig {
 		}
 		return null;
 	}
-
+	
+	
 	/**
-	 * Convert a string to a double including formatting specifications of the
-	 * OpenRocket
-	 * file format. This accepts all formatting that is valid for
+	 * Convert a string to a double including formatting specifications of the OpenRocket
+	 * file format.  This accepts all formatting that is valid for 
 	 * <code>Double.parseDouble(s)</code> and a few others as well ("Inf", "-Inf").
 	 * 
-	 * @param s the string to parse.
-	 * @return the numerical value.
-	 * @throws NumberFormatException the the string cannot be parsed.
+	 * @param s		the string to parse.
+	 * @return		the numerical value.
+	 * @throws NumberFormatException	the the string cannot be parsed.
 	 */
 	public static double stringToDouble(String s) throws NumberFormatException {
 		if (s == null)

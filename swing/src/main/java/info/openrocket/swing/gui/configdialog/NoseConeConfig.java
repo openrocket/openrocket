@@ -58,7 +58,9 @@ public class NoseConeConfig extends RocketComponentConfig {
 		{//// Nose cone shape:
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape")));
 
-			final JComboBox<Transition.Shape> typeBox = new JComboBox<>(new TransitionShapeModel(c));
+			TransitionShapeModel tm = new TransitionShapeModel(c);
+			register(tm);
+			final JComboBox<Transition.Shape> typeBox = new JComboBox<>(tm);
 			typeBox.setEditable(false);
 			typeBox.addActionListener(new ActionListener() {
 				@Override
@@ -78,6 +80,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(shapeLabel);
 
 			final DoubleModel parameterModel = new DoubleModel(component, "ShapeParameter", UnitGroup.UNITS_SHAPE_PARAMETER, 0, 1);
+			register(parameterModel);
 
 			this.shapeSpinner = new JSpinner(parameterModel.getSpinnerModel());
 			shapeSpinner.setEditor(new SpinnerEditor(shapeSpinner));
@@ -86,6 +89,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 
 			DoubleModel min = new DoubleModel(component, "ShapeParameterMin");
 			DoubleModel max = new DoubleModel(component, "ShapeParameterMax");
+			register(min);
+			register(max);
 			this.shapeSlider = new BasicSlider(parameterModel.getSliderModel(min, max));
 			panel.add(shapeSlider, "skip, w 100lp, wrap para");
 
@@ -96,6 +101,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconelength")));
 
 			final DoubleModel lengthModel = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+			register(lengthModel);
 			JSpinner spin = new JSpinner(lengthModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			panel.add(spin, "growx");
@@ -110,6 +116,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Basediam")));
 
 			final DoubleModel baseRadius = new DoubleModel(component, "BaseRadius", 2.0, UnitGroup.UNITS_LENGTH, 0); // Diameter = 2*Radius
+			register(baseRadius);
 			final JSpinner radiusSpinner = new JSpinner(baseRadius.getSpinnerModel());
 			radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner));
 			panel.add(radiusSpinner, "growx");
@@ -130,6 +137,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 			panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Wallthickness")));
 
 			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			register(thicknessModel);
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
 			panel.add(thicknessSpinner, "growx");
@@ -141,7 +149,9 @@ public class NoseConeConfig extends RocketComponentConfig {
 					"w 100lp, wrap 0px");
 
 
-			final JCheckBox filledCheckbox = new JCheckBox(new BooleanModel(component, "Filled"));
+			BooleanModel bm = new BooleanModel(component, "Filled");
+			register(bm);
+			final JCheckBox filledCheckbox = new JCheckBox(bm);
 			//// Filled
 			filledCheckbox.setText(trans.get("NoseConeCfg.checkbox.Filled"));
 			filledCheckbox.setToolTipText(trans.get("NoseConeCfg.checkbox.Filled.ttip"));
@@ -150,7 +160,9 @@ public class NoseConeConfig extends RocketComponentConfig {
 		}
 
 		{//// Flip to tail cone:
-			final JCheckBox flipCheckbox = new JCheckBox(new BooleanModel(component, "Flipped"));
+			BooleanModel bm = new BooleanModel(component, "Flipped");
+			register(bm);
+			final JCheckBox flipCheckbox = new JCheckBox(bm);
 			flipCheckbox.setText(trans.get("NoseConeCfg.checkbox.Flip"));
 			flipCheckbox.setToolTipText(trans.get("NoseConeCfg.checkbox.Flip.ttip"));
 			panel.add(flipCheckbox, "spanx, wrap");
@@ -176,6 +188,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		panel2.add(materialPanel, "span, wrap");
 		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
 		

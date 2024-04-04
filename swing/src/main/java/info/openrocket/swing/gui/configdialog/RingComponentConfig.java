@@ -46,6 +46,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			panel.add(new JLabel(length));
 
 			m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -65,6 +66,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			
 			//// OuterRadius
 			od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+			register(od);
 
 			spin = new JSpinner(od.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -91,6 +93,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			
 			//// InnerRadius
 			m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 			
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -121,6 +124,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			
 			//// Thickness
 			m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 			
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -138,10 +142,13 @@ public class RingComponentConfig extends RocketComponentConfig {
 		primary.add(rightSide, "cell 4 0, aligny 0, spany");
 
 		//// Position
-		rightSide.add(new PlacementPanel(component, order), "span, grow");
+		PlacementPanel pp = new PlacementPanel(component, order);
+		register(pp);
+		rightSide.add(pp, "span, grow");
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		rightSide.add(materialPanel, "span, grow, wrap");
 
 		return primary;

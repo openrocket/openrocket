@@ -52,7 +52,7 @@ public class TubeFinSetCalc extends TubeCalc {
 		if (!(component instanceof TubeFinSet)) {
 			throw new IllegalArgumentException("Illegal component type " + component);
 		}
-
+		
 		tubes = (TubeFinSet) component;
 
 		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
@@ -80,34 +80,32 @@ public class TubeFinSetCalc extends TubeCalc {
 		// aspect ratio.
 		ar = 2 * innerRadius / chord;
 
+
 		// Some trigonometry...
 		// We need a triangle with the following three sides:
 		// d is from the center of the body tube to a tangent point on the tube fin
-		// outerRadius is from the center of the tube fin to the tangent point. Note
-		// that
-		// d and outerRadius are at right angles
-		// bodyRadius + outerRadius is from the center of the body tube to the center of
-		// the tube fin.
-		// This is the hypotenuse of the right triangle.
+		// outerRadius is from the center of the tube fin to the tangent point.  Note that
+		//     d and outerRadius are at right angles
+		// bodyRadius + outerRadius is from the center of the body tube to the center of the tube fin.
+		//     This is the hypotenuse of the right triangle.
 
 		// Find length of d
 		final double d = Math.sqrt(MathUtil.pow2(bodyRadius + outerRadius) - MathUtil.pow2(outerRadius));
 
-		// Area of diamond formed by mirroring triangle on its hypotenuse (same area as
-		// rectangle
+		// Area of diamond formed by mirroring triangle on its hypotenuse (same area as rectangle
 		// formed by d and outerarea, but it *isn't* that rectangle)
 		double a = d * outerRadius;
 
 		// angle between outerRadius and bodyRadius+outerRadius
-		final double theta1 = Math.acos(outerRadius / (outerRadius + bodyRadius));
+		final double theta1 = Math.acos(outerRadius/(outerRadius + bodyRadius));
 
 		// area of arc from tube fin, doubled to get both halves of diamond
 		final double a1 = MathUtil.pow2(outerRadius) * theta1;
 
 		// angle between bodyRadius+outerRadius and d
-		final double theta2 = Math.PI / 2.0 - theta1;
+		final double theta2 = Math.PI/2.0 - theta1;
 
-		// area of arc from body tube. Doubled so we have area to remove from diamond
+		// area of arc from body tube.  Doubled so we have area to remove from diamond
 		final double a2 = MathUtil.pow2(bodyRadius) * theta2;
 
 		// area of interstice for one tube fin
@@ -116,31 +114,22 @@ public class TubeFinSetCalc extends TubeCalc {
 		// for comparison, what's the area of a tube fin?
 		double tubeArea = MathUtil.pow2(outerRadius) * Math.PI;
 
-		// wetted area for friction drag calculation. We don't consider the inner
-		// surface of the tube;
-		// that affects the pressure drop through the tube and so (indirecctly) affects
-		// the pressure drag.
+		// wetted area for friction drag calculation.  We don't consider the inner surface of the tube;
+		// that affects the pressure drop through the tube and so (indirecctly) affects the pressure drag.
 
-		// Area of the outer surface of a tube, not including portion masked by
-		// interstice
+		// Area of the outer surface of a tube, not including portion masked by interstice
 		final double outerArea = chord * 2.0 * (Math.PI - theta1) * outerRadius;
 
-		// Surface area of the portion of the body tube masked by the tube fin. We'll
-		// subtract it from
-		// the tube fin area rather than go in and change the body tube surface area
-		// calculation. If tube
-		// fin and body tube roughness aren't the same this will result in an
-		// inaccuracy.
+		// Surface area of the portion of the body tube masked by the tube fin.  We'll subtract it from
+		// the tube fin area rather than go in and change the body tube surface area calculation. If tube
+		// fin and body tube roughness aren't the same this will result in an inaccuracy.
 		final double maskedArea = chord * 2.0 * theta2 * bodyRadius;
-
+		
 		wettedArea = outerArea - maskedArea;
 
-		// Precompute most of CNa. Equation comes from Ribner, "The ring airfoil in
-		// nonaxial
-		// flow", Journal of the Aeronautical Sciences 14(9) pp 529-530 (1947) equation
-		// (5).
-		// As stated in techdoc.pdf, it's normalized by (1/2) rho v^2 (see section
-		// 3.1.1)
+		// Precompute most of CNa.  Equation comes from Ribner, "The ring airfoil in nonaxial
+		// flow", Journal of the Aeronautical Sciences 14(9) pp 529-530 (1947) equation (5).
+		// As stated in techdoc.pdf, it's normalized by (1/2) rho v^2 (see section 3.1.1)
 		final double arprime = 2 * ar / Math.PI;
 		cnaconst = 2 * (arprime / (1 + arprime)) * Math.PI * Math.PI * innerRadius * chord;
 		log.debug("ar " + ar + ", cnaconst " + cnaconst);
@@ -203,13 +192,13 @@ public class TubeFinSetCalc extends TubeCalc {
 		 * where the rocket flies at an ever-increasing angle of attack. This may
 		 * be due to incorrect computation of pitch/yaw damping moments.
 		 */
-		// if (fins == 1 || fins == 2) {
-		// forces.Cside = fins * cna1 * Math.cos(theta-angle) * Math.sin(theta-angle);
-		// forces.Cyaw = fins * forces.Cside * x / conditions.getRefLength();
-		// } else {
-		// forces.Cside = 0;
-		// forces.Cyaw = 0;
-		// }
+		//		if (fins == 1 || fins == 2) {
+		//			forces.Cside = fins * cna1 * Math.cos(theta-angle) * Math.sin(theta-angle);
+		//			forces.Cyaw = fins * forces.Cside * x / conditions.getRefLength();
+		//		} else {
+		//			forces.Cside = 0;
+		//			forces.Cyaw = 0;
+		//		}
 		forces.setCside(0);
 		forces.setCyaw(0);
 
@@ -285,13 +274,13 @@ public class TubeFinSetCalc extends TubeCalc {
 
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,
-			double stagnationCD, double baseCD, WarningSet warnings) {
-
-		warnings.addAll(geometryWarnings);
+					  double stagnationCD, double baseCD, WarningSet warnings) {
+		
+	    warnings.addAll(geometryWarnings);
 
 		final double cd = super.calculatePressureCD(conditions, stagnationCD, baseCD, warnings) +
-				(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
+					(stagnationCD + baseCD) * intersticeArea / conditions.getRefArea();
 
-		return cd;
+	    return cd;
 	}
 }

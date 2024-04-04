@@ -69,7 +69,7 @@ public class DebugLogDialog extends JDialog {
 	private static final int POLL_TIME = 250;
 	private static final String STACK_TRACE_MARK = "\uFF01";
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final EnumMap<LogLevel, Color> backgroundColors = new EnumMap<LogLevel, Color>(LogLevel.class);
 	static {
 		for (LogLevel l : LogLevel.values()) {
@@ -111,7 +111,7 @@ public class DebugLogDialog extends JDialog {
 	private final SelectableLabel locationLabel;
 	private final SelectableLabel messageLabel;
 	private final JTextArea stackTraceLabel;
-
+	
 	public DebugLogDialog(Window parent) {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));
@@ -386,7 +386,7 @@ public class DebugLogDialog extends JDialog {
 		setLocationRelativeTo(parent);
 		followBox.requestFocus();
 	}
-
+	
 	private void updateSelected(int row) {
 		if (row < 0) {
 			

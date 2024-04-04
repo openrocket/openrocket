@@ -24,8 +24,7 @@ import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.StringUtils;
 
 /**
- * A group of units (eg. length, mass etc.). Contains a list of different units
- * of a same
+ * A group of units (eg. length, mass etc.).  Contains a list of different units of a same
  * quantity.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
@@ -46,10 +45,8 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_SECONDARY_STABILITY;
 
 	/**
-	 * This unit group contains only the caliber unit that never scales the
-	 * originating "SI" value.
-	 * It can be used in cases where the originating value is already in calibers to
-	 * obtains the correct unit.
+	 * This unit group contains only the caliber unit that never scales the originating "SI" value.
+	 * It can be used in cases where the originating value is already in calibers to obtains the correct unit.
 	 */
 	public static final UnitGroup UNITS_STABILITY_CALIBERS;
 	public static final UnitGroup UNITS_VELOCITY;
@@ -90,6 +87,8 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_CURRENT;
 
 	public static final UnitGroup UNITS_SCALING;
+
+	public static final UnitGroup UNITS_STROKE_WIDTH;
 
 	public static final Map<String, UnitGroup> UNITS; // keys such as "LENGTH", "VELOCITY"
 	public static final Map<String, UnitGroup> SIUNITS; // keys such a "m", "m/s"
@@ -312,6 +311,12 @@ public class UnitGroup {
 		UNITS_SCALING = new UnitGroup();
 		UNITS_SCALING.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.1)); // zero-width space
 
+		UNITS_STROKE_WIDTH = new UnitGroup();
+		UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(1, "mm"));
+		UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(0.1, MICRO + "m"));
+		//UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(25.4, "in"));
+		UNITS_STROKE_WIDTH.addUnit(new GeneralUnit(0.0254, "mil"));
+
 		// This is not used by OpenRocket, and not extensively tested:
 		UNITS_FREQUENCY = new UnitGroup();
 		UNITS_FREQUENCY.addUnit(new FrequencyUnit(.001, "mHz"));
@@ -349,6 +354,7 @@ public class UnitGroup {
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
 		map.put("SCALING", UNITS_SCALING);
+		map.put("STROKE_WIDTH", UNITS_STROKE_WIDTH);
 		map.put("VOLTAGE", UNITS_VOLTAGE);
 		map.put("CURRENT", UNITS_CURRENT);
 		map.put("ENERGY", UNITS_ENERGY);
@@ -411,6 +417,7 @@ public class UnitGroup {
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit(MICRO + "m");
+		UNITS_STROKE_WIDTH.setDefaultUnit("mm");
 	}
 
 	public static void setDefaultImperialUnits() {
@@ -440,6 +447,7 @@ public class UnitGroup {
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit("mil");
+		UNITS_STROKE_WIDTH.setDefaultUnit("mil");
 	}
 
 	public static void resetDefaultUnits() {
@@ -480,6 +488,7 @@ public class UnitGroup {
 		UNITS_ROUGHNESS.setDefaultUnit(0);
 		UNITS_COEFFICIENT.setDefaultUnit(0);
 		UNITS_SCALING.setDefaultUnit(0);
+		UNITS_STROKE_WIDTH.setDefaultUnit(0);
 		UNITS_FREQUENCY.setDefaultUnit(1);
 	}
 
@@ -492,10 +501,11 @@ public class UnitGroup {
 		stabilityUnit.addUnit(new PercentageOfLengthUnit((Rocket) null));
 	}
 
+	
 	/**
 	 * Return a UnitGroup for stability units based on the rocket.
 	 *
-	 * @param rocket the rocket from which to calculate the caliber
+	 * @param rocket    the rocket from which to calculate the caliber
 	 * @return the unit group
 	 */
 	public static StabilityUnitGroup stabilityUnits(Rocket rocket) {
@@ -505,17 +515,18 @@ public class UnitGroup {
 	/**
 	 * Return a UnitGroup for secondary stability units based on the rocket.
 	 *
-	 * @param rocket the rocket from which to calculate the caliber
-	 * @return the unit group
+	 * @param rocket	the rocket from which to calculate the caliber
+	 * @return			the unit group
 	 */
 	public static StabilityUnitGroup secondaryStabilityUnits(Rocket rocket) {
 		return new StabilityUnitGroup(UnitGroup.UNITS_SECONDARY_STABILITY, rocket);
 	}
 
+
 	/**
 	 * Return a UnitGroup for stability units based on the rocket configuration.
 	 *
-	 * @param config the rocket configuration from which to calculate the caliber
+	 * @param config    the rocket configuration from which to calculate the caliber
 	 * @return the unit group
 	 */
 	public static StabilityUnitGroup stabilityUnits(FlightConfiguration config) {
@@ -525,8 +536,8 @@ public class UnitGroup {
 	/**
 	 * Return a UnitGroup for stability units based on the rocket configuration.
 	 *
-	 * @param config the rocket configuration from which to calculate the caliber
-	 * @return the unit group
+	 * @param config	the rocket configuration from which to calculate the caliber
+	 * @return			the unit group
 	 */
 	public static StabilityUnitGroup secondaryStabilityUnits(FlightConfiguration config) {
 		return new StabilityUnitGroup(UnitGroup.UNITS_SECONDARY_STABILITY, config);
@@ -535,7 +546,7 @@ public class UnitGroup {
 	/**
 	 * Return a UnitGroup for stability units based on a constant caliber.
 	 *
-	 * @param reference the constant reference length
+	 * @param reference    the constant reference length
 	 * @return the unit group
 	 */
 	public static UnitGroup stabilityUnits(double reference) {
@@ -545,15 +556,17 @@ public class UnitGroup {
 	/**
 	 * Return a UnitGroup for secondary stability units based on a constant caliber.
 	 *
-	 * @param reference the constant reference length
-	 * @return the unit group
+	 * @param reference	the constant reference length
+	 * @return			the unit group
 	 */
 	public static UnitGroup secondaryStabilityUnits(double reference) {
 		return new StabilityUnitGroup(UnitGroup.UNITS_SECONDARY_STABILITY, reference);
 	}
-
+	
+	
 	//////////////////////////////////////////////////////
-
+	
+	
 	protected ArrayList<Unit> units = new ArrayList<Unit>();
 	protected int defaultUnit = 0;
 
@@ -724,21 +737,17 @@ public class UnitGroup {
 	private static final Pattern STRING_PATTERN = Pattern.compile("^\\s*([0-9.,-]+)(.*?)$");
 
 	/**
-	 * Converts a string into an SI value. If the string has one of the units in
-	 * this
-	 * group appended to it, that unit will be used in conversion. Otherwise the
-	 * default
-	 * unit will be used. If an unknown unit is specified or the value does not
-	 * parse
-	 * with <code>Double.parseDouble</code> then a
-	 * <code>NumberFormatException</code>
+	 * Converts a string into an SI value.  If the string has one of the units in this
+	 * group appended to it, that unit will be used in conversion.  Otherwise the default
+	 * unit will be used.  If an unknown unit is specified or the value does not parse
+	 * with <code>Double.parseDouble</code> then a <code>NumberFormatException</code> 
 	 * is thrown.
 	 * <p>
 	 * This method is applicable only for simple units without e.g. powers.
-	 *
-	 * @param str the string to parse.
-	 * @return the SI value.
-	 * @throws NumberFormatException if the string cannot be parsed.
+	 * 
+	 * @param str   the string to parse.
+	 * @return		the SI value.
+	 * @throws NumberFormatException   if the string cannot be parsed.
 	 */
 	public double fromString(String str) {
 		Matcher matcher = STRING_PATTERN.matcher(str);
@@ -768,9 +777,11 @@ public class UnitGroup {
 
 		return value;
 	}
-
+	
+	
 	///////////////////////////
-
+	
+	
 	@Override
 	public int hashCode() {
 		int code = 0;
@@ -781,8 +792,7 @@ public class UnitGroup {
 	}
 
 	/**
-	 * A private class that switches the CaliberUnit to a rocket-specific
-	 * CaliberUnit.
+	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.
 	 */
 	public static class StabilityUnitGroup extends UnitGroup {
@@ -825,7 +835,6 @@ public class UnitGroup {
 
 		/**
 		 * Returns the percentage of length unit. (Stability in %)
-		 * 
 		 * @return the percentage of length unit.
 		 */
 		public Unit getPercentageOfLengthUnit() {

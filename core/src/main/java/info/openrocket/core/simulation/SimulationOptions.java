@@ -26,16 +26,14 @@ import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.WorldCoordinate;
 
 /**
- * A class holding simulation options in basic parameter form and which
- * functions
- * as a ChangeSource. A SimulationConditions instance is generated from this
- * class
+ * A class holding simulation options in basic parameter form and which functions
+ * as a ChangeSource.  A SimulationConditions instance is generated from this class
  * using {@link #toSimulationConditions()}.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationOptions implements ChangeSource, Cloneable, SimulationOptionsInterface {
-
+	
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
 
@@ -49,7 +47,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	protected final Preferences preferences = Application.getPreferences();
 
 	/*
-	 * NOTE: When adding/modifying parameters, they must also be added to the
+	 * NOTE:  When adding/modifying parameters, they must also be added to the
 	 * equals and copyFrom methods!!
 	 */
 
@@ -63,24 +61,22 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double windTurbulence = preferences.getDouble(Preferences.WIND_TURBULENCE, 0.1);
 
 	/*
-	 * SimulationOptions maintains the launch site parameters as separate double
-	 * values,
-	 * and converts them into a WorldCoordinate when converting to
-	 * SimulationConditions.
+	 * SimulationOptions maintains the launch site parameters as separate double values,
+	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
 	 */
-
+	
 	private double launchAltitude = preferences.getLaunchAltitude();
 	private double launchLatitude = preferences.getLaunchLatitude();
 	private double launchLongitude = preferences.getLaunchLongitude();
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
-
+	
 	private boolean useISA = preferences.isISAAtmosphere();
-	private double launchTemperature = preferences.getLaunchTemperature(); // In Kelvin
-	private double launchPressure = preferences.getLaunchPressure(); // In Pascal
-
+	private double launchTemperature = preferences.getLaunchTemperature();	// In Kelvin
+	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
+	
 	private double timeStep = preferences.getTimeStep();
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
-
+	
 	private int randomSeed = new Random().nextInt();
 
 	private List<EventListener> listeners = new ArrayList<EventListener>();

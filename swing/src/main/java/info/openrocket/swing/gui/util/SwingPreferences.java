@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import info.openrocket.core.database.Databases;
+import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -687,7 +689,10 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	
 	
 	////  Material storage
-	
+	public void loadDefaultComponentMaterials() {
+		setDefaultComponentMaterial(FinSet.class, Databases.findMaterial(Material.Type.BULK, "Balsa"));
+		setDefaultComponentMaterial(NoseCone.class, Databases.findMaterial(Material.Type.BULK, "Polystyrene"));
+	}
 	
 	/**
 	 * Add a user-defined material to the preferences.  The preferences are

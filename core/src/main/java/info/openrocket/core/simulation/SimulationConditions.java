@@ -19,31 +19,28 @@ import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.WorldCoordinate;
 
 /**
- * A holder class for the simulation conditions. These include conditions that
- * do not change
- * during the flight of a rocket, for example launch rod parameters, atmospheric
- * models,
+ * A holder class for the simulation conditions.  These include conditions that do not change
+ * during the flight of a rocket, for example launch rod parameters, atmospheric models,
  * aerodynamic calculators etc.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationConditions implements Monitorable, Cloneable {
-
-	private Simulation simulation; // The parent simulation
-
+	
+	private Simulation simulation; // The parent simulation 
+	
 	private double launchRodLength = 1;
-
+	
 	/** Launch rod angle >= 0, radians from vertical */
 	private double launchRodAngle = 0;
-
+	
 	/** Launch rod direction, 0 = north */
 	private double launchRodDirection = 0;
-
+	
 	// Launch site location (lat, lon, alt)
 	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
-
-	// Launch location in simulation coordinates (normally always 0, air-start would
-	// override this)
+	
+	// Launch location in simulation coordinates (normally always 0, air-start would override this)
 	private Coordinate launchPosition = Coordinate.NUL;
 
 	private Coordinate launchVelocity = Coordinate.NUL;
@@ -59,6 +56,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngleStep = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
+
 
 	private List<SimulationListener> simulationListeners = new ArrayList<SimulationListener>();
 
@@ -250,12 +248,9 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	@Override
 	public int getModID() {
-		// return (modID + modIDadd + rocket.getModID() + windModel.getModID() +
-		// atmosphericModel.getModID() +
-		// gravityModel.getModID() + aerodynamicCalculator.getModID() +
-		// massCalculator.getModID());
-		return (modID + modIDadd + simulation.getRocket().getModID() + windModel.getModID()
-				+ atmosphericModel.getModID() +
+		//return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
+		//		gravityModel.getModID() + aerodynamicCalculator.getModID() + massCalculator.getModID());
+		return (modID + modIDadd + simulation.getRocket().getModID() + windModel.getModID() + atmosphericModel.getModID() +
 				aerodynamicCalculator.getModID() + massCalculator.getModID());
 	}
 

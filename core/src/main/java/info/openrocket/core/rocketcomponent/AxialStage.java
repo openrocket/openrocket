@@ -6,14 +6,14 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 
 public class AxialStage extends ComponentAssembly implements FlightConfigurableComponent {
-
+	
 	private static final Translator trans = Application.getTranslator();
 
 	/** list of separations to be happening */
 	protected FlightConfigurableParameterSet<StageSeparationConfiguration> separations;
 	/** number of stages */
 	protected int stageNumber;
-
+	
 	/**
 	 * default constructor, builds a rocket with zero stages
 	 */
@@ -23,7 +23,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		this.axialMethod = AxialMethod.AFTER;
 		this.stageNumber = 0;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 * AxialStage will always accept children
@@ -32,29 +32,29 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public boolean allowsChildren() {
 		return true;
 	}
-
+	
 	@Override
 	public String getComponentName() {
 		//// Stage
 		return trans.get("Stage.Stage");
 	}
-
+	
 	/**
 	 * gets the separation configuration of the rocket
-	 * 
+	 *
 	 * @return the separation configuration of the rocket
 	 */
 	public FlightConfigurableParameterSet<StageSeparationConfiguration> getSeparationConfigurations() {
 		return separations;
 	}
-
+	
 	@Override
 	public void reset(final FlightConfigurationId fcid) {
 		separations.reset(fcid);
 	}
 
 	/**
-	 * Check whether the given type can be added to this component. A Stage allows
+	 * Check whether the given type can be added to this component.  A Stage allows
 	 * only BodyComponents to be added.
 	 *
 	 * @param type The RocketComponent class type to add.
@@ -69,7 +69,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	/**
 	 * Returns whether the current stage is active in the currently selected
 	 * configuration.
-	 * 
+	 *
 	 * @return true if the stage is active, false if not
 	 */
 	public boolean isStageActive() {
@@ -78,19 +78,18 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 
 	/**
 	 * Returns whether the current stage is active in the flight configuration.
-	 * 
 	 * @param fc the flight configuration to check
 	 * @return true if the stage is active, false if not
 	 */
 	public boolean isStageActive(FlightConfiguration fc) {
 		return fc.isStageActive(getStageNumber());
 	}
-
+	
 	@Override
 	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		separations.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
-
+	
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		AxialStage copy = (AxialStage) super.copyWithOriginalID();
@@ -119,7 +118,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public int getStageNumber() {
 		return this.stageNumber;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 * axialStage is always after
@@ -131,7 +130,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 
 	/**
 	 * returns if the object is a launch stage
-	 * 
+	 *
 	 * @param config the flight configuration which will check which stages are
 	 *               active
 	 * @return if the object is a launch stage
@@ -142,7 +141,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 
 	/**
 	 * sets the stage number
-	 * 
+	 *
 	 * @param newStageNumber
 	 */
 	public void setStageNumber(final int newStageNumber) {
@@ -166,7 +165,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 
 	/**
 	 * method used for debugging separation
-	 * 
+	 *
 	 * @return a string that represents the debug message of separation
 	 */
 	public String toDebugSeparation() {
@@ -178,7 +177,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	/**
 	 * gets the previous stage installed in the rockets
 	 * returns null if this is the first stage
-	 * 
+	 *
 	 * @return the previous stage in the rocket
 	 */
 	public AxialStage getUpperStage() {
@@ -194,31 +193,26 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		}
 		return null;
 	}
-
+	
 	@Override
 	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
-
+		
 		Coordinate[] relCoords = this.getInstanceOffsets();
 		Coordinate[] absCoords = this.getComponentLocations();
-		if (1 == getInstanceCount()) {
-			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;",
-					indent + this.getName() + " (# " + this.getStageNumber() + ")",
+		if( 1 == getInstanceCount()){
+			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;", indent+this.getName()+" (# "+this.getStageNumber()+")", 
 					this.getLength(), this.getPosition(), this.getComponentLocations()[0]));
-			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(),
-					this.getAxialOffset(), this.axialMethod.name()));
-		} else {
-			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n",
-					(indent + this.getName() + "(# " + this.getStageNumber() + ")"), this.getLength(),
-					this.getAxialOffset(), this.axialMethod.name()));
+			buffer.append(String.format("len: %6.4f )(offset: %4.1f  via: %s )\n", this.getLength(), this.getAxialOffset(), this.axialMethod.name() ));
+		}else{
+			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n", (indent+this.getName()+"(# "+this.getStageNumber()+")"), this.getLength(), this.getAxialOffset(), this.axialMethod.name() ));
 			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
 				Coordinate instanceRelativePosition = relCoords[instanceNumber];
 				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				final String prefix = String.format("%s    [%2d/%2d]", indent, instanceNumber + 1, getInstanceCount());
-				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", prefix, this.getLength(),
-						instanceRelativePosition, instanceAbsolutePosition));
+				final String prefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount()); 
+				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", prefix, this.getLength(), instanceRelativePosition, instanceAbsolutePosition));
 			}
 		}
-
+		
 	}
 
 	public StageSeparationConfiguration getSeparationConfiguration() {
@@ -259,7 +253,9 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public void clearConfigListeners() {
 		super.clearConfigListeners();
 		// StageSeparationConfiguration also has config listeners, so clear them as well
-		StageSeparationConfiguration thisConfig = getSeparationConfiguration();
-		thisConfig.clearConfigListeners();
+		if (getRoot() instanceof Rocket) {		// Root can be different from the rocket if this stage (or its parent) has been removed from the rocket
+			StageSeparationConfiguration thisConfig = getSeparationConfiguration();
+			thisConfig.clearConfigListeners();
+		}
 	}
 }

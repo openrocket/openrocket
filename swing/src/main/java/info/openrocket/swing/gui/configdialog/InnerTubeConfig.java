@@ -87,6 +87,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		////  Length
 		panel.add(new JLabel(trans.get("ThicknessRingCompCfg.tab.Length")));
 		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -102,6 +103,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		//// OuterRadius
 		od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(od);
 
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -123,6 +125,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		//// InnerRadius
 		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -145,6 +148,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 
 		//// Thickness
 		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -160,10 +164,13 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]"));
 
 		//// ---------------------------- Placement ----------------------------
-		panel.add(new PlacementPanel(component, order), "span, grow");
+		PlacementPanel pp = new PlacementPanel(component, order);
+		register(pp);
+		panel.add(pp, "span, grow");
 
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+		register(materialPanel);
 		panel.add(materialPanel, "span, grow, wrap");
 
 		mainPanel.add(panel, "aligny 0");
@@ -172,6 +179,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 				trans.get("ThicknessRingCompCfg.tab.Generalprop"), 0);
 
 		MotorConfig motorConfig = new MotorConfig((MotorMount)c, order);
+		register(motorConfig);
 
 		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Motor"), null, motorConfig,
 				trans.get("InnerTubeCfg.tab.ttip.Motor"), 1);
@@ -207,6 +215,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(l);
 
 		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -229,6 +238,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		panel.add(l);
 
 		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
+		register(m);
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -298,6 +308,10 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		final DoubleModel clusterScaleModelRel = new DoubleModel(component, "ClusterScale", 1, UnitGroup.UNITS_NONE, 0);
 		final DoubleModel clusterScaleModelAbs = new DoubleModel(component, "ClusterScaleAbsolute", 1, UnitGroup.UNITS_LENGTH);
 		final DoubleModel clusterScaleModel = useRelativeSeparation ? clusterScaleModelRel : clusterScaleModelAbs;
+
+		register(clusterScaleModelRel);
+		register(clusterScaleModelAbs);
+		register(clusterScaleModel);
 
 		final String clusterScaleTtipRel = trans.get("InnerTubeCfg.lbl.ttip.TubeSep");
 		final String clusterScaleTtipAbs = trans.get("InnerTubeCfg.lbl.ttip.TubeSepAbs");
@@ -372,6 +386,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 		subPanel.add(l);
 		DoubleModel dm = new DoubleModel(component, "ClusterRotation", 1, UnitGroup.UNITS_ANGLE,
 				-Math.PI, Math.PI);
+		register(dm);
 
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

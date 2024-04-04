@@ -28,11 +28,11 @@ public class SlideShowComponent extends JSplitPane {
 	
 	private final ImageDisplayComponent imageDisplay;
 	private final JEditorPane textPane;
-
+	
 	
 	public SlideShowComponent() {
 		super(VERTICAL_SPLIT);
-
+		
 		imageDisplay = new ImageDisplayComponent();
 		imageDisplay.setPreferredSize(new Dimension(WIDTH, HEIGHT_IMAGE));
 		this.setLeftComponent(imageDisplay);

@@ -8,11 +8,12 @@ import info.openrocket.core.util.Mutable;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.List;
 
 /**
- * A set that contains multiple <code>Message</code>s. When adding a
+ * A set that contains multiple <code>Message</code>s.  When adding a
  * {@link Message} to this set, the contents is checked for a message of the
- * same type. If one is found, then the message left in the set is determined
+ * same type.  If one is found, then the message left in the set is determined
  * by the method {@link Message#replaceBy(Message)}.
  * <p>
  * A MessageSet can be made immutable by calling {@link #immute()}.
@@ -27,11 +28,11 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     private int modID = 0;
 
     /**
-     * Add a <code>Message</code> to the set. If a message of the same type
+     * Add a <code>Message</code> to the set.  If a message of the same type
      * exists in the set, the message that is left in the set is defined by the
      * method {@link Message#replaceBy(Message)}.
      *
-     * @throws IllegalStateException if this message set has been made immutable.
+     * @throws IllegalStateException	if this message set has been made immutable.
      */
     @Override
     public boolean add(E m) {
@@ -56,18 +57,15 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     /**
      * Add a <code>Message</code> with the specified text to the set.
      *
-     * @param s the message text.
-     * @throws IllegalStateException if this message set has been made immutable.
+     * @param s		the message text.
+     * @throws IllegalStateException	if this message set has been made immutable.
      */
     public abstract boolean add(String s);
 
     /**
-     * Add a <code>Message</code> of the specified type with the specified message
-     * sources.
-     * 
-     * @param m       the message
-     * @param sources the sources of the message (rocket components that caused the
-     *                message)
+     * Add a <code>Message</code> of the specified type with the specified message sources.
+     * @param m the message
+     * @param sources the sources of the message (rocket components that caused the message)
      *
      */
     public boolean add(E m, RocketComponent... sources) {
@@ -82,10 +80,8 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     }
 
     /**
-     * Add a <code>Message</code> of the specified type with the specified
-     * discriminator to the
+     * Add a <code>Message</code> of the specified type with the specified discriminator to the
      * set.
-     * 
      * @param m the message
      * @param d the extra discriminator
      *
@@ -121,9 +117,41 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
         return messages.size();
     }
 
+    /**
+     * Returns the number of messages with the specified priority.
+     * @param priority the priority
+     * @return the number of messages with the specified priority.
+     */
+    public int getNrOfMessagesWithPriority(MessagePriority priority) {
+        int count = 0;
+        for (E m : messages) {
+            if (m.getPriority() == priority) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns a list of messages with the specified priority.
+     *
+     * @param priority the priority of the messages to retrieve
+     * @return a list of messages with the specified priority
+     */
+    public List<Message> getMessagesWithPriority(MessagePriority priority) {
+        List<Message> list = new ArrayList<>();
+        for (E m : messages) {
+            if (m.getPriority() == priority) {
+                list.add(m);
+            }
+        }
+        return list;
+    }
+
     public void immute() {
         mutable.immute();
     }
+
 
     @Override
     public String toString() {

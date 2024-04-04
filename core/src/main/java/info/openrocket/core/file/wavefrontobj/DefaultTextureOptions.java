@@ -288,20 +288,22 @@ public final class DefaultTextureOptions implements TextureOptions {
         }
         TextureOptions other = (TextureOptions) object;
 
-        return Objects.equals(isBlendu(), other.isBlendu()) &&
-                Objects.equals(isBlendv(), other.isBlendv()) &&
-                Objects.equals(isCc(), other.isCc()) &&
-                Objects.equals(getBm(), other.getBm()) &&
-                Objects.equals(getBoost(), other.getBoost()) &&
-                Objects.equals(isClamp(), other.isClamp()) &&
-                Objects.equals(getFileName(), other.getFileName()) &&
-                Objects.equals(getImfchan(), other.getImfchan()) &&
-                Objects.equals(getMm(), other.getMm()) &&
-                Objects.equals(getO(), other.getO()) &&
-                Objects.equals(getS(), other.getS()) &&
-                Objects.equals(getT(), other.getT()) &&
-                Objects.equals(getTexres(), other.getTexres()) &&
-                Objects.equals(getType(), other.getType());
+        return
+                Objects.equals(isBlendu(), other.isBlendu()) &&
+                        Objects.equals(isBlendv(), other.isBlendv()) &&
+                        Objects.equals(isCc(), other.isCc()) &&
+                        Objects.equals(getBm(), other.getBm()) &&
+                        Objects.equals(getBoost(), other.getBoost()) &&
+                        Objects.equals(isClamp(), other.isClamp()) &&
+                        Objects.equals(getFileName(), other.getFileName()) &&
+                        Objects.equals(getImfchan(), other.getImfchan()) &&
+                        Objects.equals(getMm(), other.getMm()) &&
+                        Objects.equals(getO(), other.getO()) &&
+                        Objects.equals(getS(), other.getS()) &&
+                        Objects.equals(getT(), other.getT()) &&
+                        Objects.equals(getTexres(), other.getTexres()) &&
+                        Objects.equals(getType(), other.getType());
     }
+
 
 }

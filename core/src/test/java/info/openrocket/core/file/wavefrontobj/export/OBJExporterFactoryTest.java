@@ -147,7 +147,9 @@ public class OBJExporterFactoryTest {
         InnerTube innerTube = new InnerTube();
         bodyTube.addChild(innerTube);
 
+
         // ------------------------------
+
 
         // Create a list of components to export
         List<RocketComponent> components = List.of(rocket);
@@ -161,11 +163,11 @@ public class OBJExporterFactoryTest {
         options.setExportChildren(true);
         options.setRemoveOffset(true);
         WarningSet warnings = new WarningSet();
-        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(),
-                tempFile.toFile(), options, warnings);
+        OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
         //// Just hope for no exceptions :)
         assertEquals(warnings.size(), 0);
+
 
         // Test with other parameters
         noseCone.setShoulderCapped(false);
@@ -173,13 +175,13 @@ public class OBJExporterFactoryTest {
         bodyTube.setFilled(true);
 
         options.setTriangulate(true);
+        options.setTriangulationMethod(ObjUtils.TriangulationMethod.DELAUNAY);
         options.setRemoveOffset(false);
         options.setExportAppearance(true);
         options.setScaling(1000);
         options.setLOD(ObjUtils.LevelOfDetail.LOW_QUALITY);
 
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(),
-                options, warnings);
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
         //// Just hope for no exceptions :)
         assertEquals(warnings.size(), 0);
@@ -187,8 +189,15 @@ public class OBJExporterFactoryTest {
         // Test zero-thickness nose cone
         noseCone.setThickness(0);
 
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(),
-                options, warnings);
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
+        exporterFactory.doExport();
+        //// Just hope for no exceptions :)
+        assertEquals(warnings.size(), 1);
+
+        // Test simple triangulation
+        options.setTriangulationMethod(ObjUtils.TriangulationMethod.SIMPLE);
+
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
         //// Just hope for no exceptions :)
         assertEquals(warnings.size(), 1);

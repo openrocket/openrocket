@@ -1,5 +1,6 @@
 package info.openrocket.core.startup;
 
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
@@ -130,6 +131,7 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OBJ_EXPORT_AS_SEPARATE_FILES = "ExportAsSeparateFiles";
 	private static final String OBJ_REMOVE_OFFSET = "RemoveOffset";
 	private static final String OBJ_TRIANGULATE = "Triangulate";
+	private static final String OBJ_TRIANGULATION_METHOD = "TriangulationMethod";
 	private static final String OBJ_SRGB = "sRGB";
 	private static final String OBJ_LOD = "LOD";
 	private static final String OBJ_SCALING = "Scaling";
@@ -142,45 +144,45 @@ public abstract class Preferences implements ChangeSource {
 	private static final String OBJ_ORIG_Y_OFFS = "OrigYOffs";
 	private static final String OBJ_ORIG_Z_OFFS = "OrigZOffs";
 
+	// SVG export options
+	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
+	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
+	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
-
+	
 	/*
-	 * *****************************************************************************
-	 * *************
+	 * ******************************************************************************************
 	 *
 	 * Abstract methods which must be implemented by any derived class.
 	 */
 	public abstract boolean getBoolean(String key, boolean defaultValue);
-
+	
 	public abstract void putBoolean(String key, boolean value);
-
+	
 	public abstract int getInt(String key, int defaultValue);
-
+	
 	public abstract void putInt(String key, int value);
-
+	
 	public abstract double getDouble(String key, double defaultValue);
-
+	
 	public abstract void putDouble(String key, double value);
-
+	
 	public abstract String getString(String key, String defaultValue);
-
+	
 	public abstract void putString(String key, String value);
-
+	
 	/**
-	 * Directory represents a way to collect multiple keys together. Implementors
-	 * may
-	 * choose to concatenate the directory with the key using some special
-	 * character.
-	 * 
+	 * Directory represents a way to collect multiple keys together.  Implementors may
+	 * choose to concatenate the directory with the key using some special character.
 	 * @param directory
 	 * @param key
 	 * @param defaultValue
 	 * @return
 	 */
 	public abstract String getString(String directory, String key, String defaultValue);
-
+	
 	public abstract void putString(String directory, String key, String value);
-
+	
 	public abstract java.util.prefs.Preferences getNode(String nodeName);
 
 	public abstract java.util.prefs.Preferences getPreferences();
@@ -190,21 +192,16 @@ public abstract class Preferences implements ChangeSource {
 	 */
 
 	/**
-	 * Sets to ignore opening the welcome dialog for the supplied OpenRocket build
-	 * version.
-	 * 
-	 * @param version build version to ignore opening the welcome dialog for (e.g.
-	 *                "22.02")
-	 * @param ignore  true to ignore, false to show the welcome dialog
+	 * Sets to ignore opening the welcome dialog for the supplied OpenRocket build version.
+	 * @param version build version to ignore opening the welcome dialog for (e.g. "22.02")
+	 * @param ignore true to ignore, false to show the welcome dialog
 	 */
 	public final void setIgnoreWelcome(String version, boolean ignore) {
 		this.putBoolean(IGNORE_WELCOME + "_" + version, ignore);
 	}
 
 	/**
-	 * Returns whether to ignore opening the welcome dialog for the supplied
-	 * OpenRocket build version.
-	 * 
+	 * Returns whether to ignore opening the welcome dialog for the supplied OpenRocket build version.
 	 * @param version build version (e.g. "22.02")
 	 * @return true if no welcome dialog should be opened for the supplied version
 	 */
@@ -218,7 +215,7 @@ public abstract class Preferences implements ChangeSource {
 	public final boolean getCheckUpdates() {
 		return this.getBoolean(CHECK_UPDATES, BuildProperties.getDefaultCheckUpdates());
 	}
-
+	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
 	}
@@ -239,15 +236,13 @@ public abstract class Preferences implements ChangeSource {
 		this.putBoolean(CHECK_BETA_UPDATES, check);
 	}
 
+
 	/*
-	 * *********************** Unit Preferences
-	 * *******************************************
+	 * *********************** Unit Preferences *******************************************
 	 */
 
 	/**
-	 * Return whether to display a secondary stability unit in the rocket design
-	 * view.
-	 * 
+	 * Return whether to display a secondary stability unit in the rocket design view.
 	 * @return true if the secondary unit should be displayed, false if not.
 	 */
 	public final boolean isDisplaySecondaryStability() {
@@ -256,38 +251,37 @@ public abstract class Preferences implements ChangeSource {
 
 	/**
 	 * Set whether to display a secondary stability unit in the rocket design view.
-	 * 
 	 * @param check if true, display the secondary unit, if false not.
 	 */
 	public final void setDisplaySecondaryStability(boolean check) {
 		this.putBoolean(DISPLAY_SECONDARY_STABILITY, check);
 	}
 
-	/*
-	 * *****************************************************************************
-	 * *************
-	 */
 
+	/*
+	 * ******************************************************************************************
+	 */
+	
 	public final boolean getConfirmSimDeletion() {
 		return this.getBoolean(CONFIRM_DELETE_SIMULATION, true);
 	}
-
+	
 	public final void setConfirmSimDeletion(boolean check) {
 		this.putBoolean(CONFIRM_DELETE_SIMULATION, check);
 	}
-
+	
 	public final boolean getAutoRunSimulations() {
 		return this.getBoolean(AUTO_RUN_SIMULATIONS, false);
 	}
-
+	
 	public final void setAutoRunSimulations(boolean check) {
 		this.putBoolean(AUTO_RUN_SIMULATIONS, check);
 	}
-
+	
 	public final boolean getLaunchIntoWind() {
 		return this.getBoolean(LAUNCH_INTO_WIND, false);
 	}
-
+	
 	public final void setLaunchIntoWind(boolean check) {
 		this.putBoolean(LAUNCH_INTO_WIND, check);
 	}
@@ -299,11 +293,11 @@ public abstract class Preferences implements ChangeSource {
 	public final void setShowRASAeroFormatWarning(boolean check) {
 		this.putBoolean(SHOW_RASAERO_FORMAT_WARNING, check);
 	}
-
+	
 	public final boolean getShowRockSimFormatWarning() {
 		return this.getBoolean(SHOW_ROCKSIM_FORMAT_WARNING, true);
 	}
-
+	
 	public final void setShowRockSimFormatWarning(boolean check) {
 		this.putBoolean(SHOW_ROCKSIM_FORMAT_WARNING, check);
 	}
@@ -327,44 +321,45 @@ public abstract class Preferences implements ChangeSource {
 	public final double getDefaultMach() {
 		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}
-
+	
 	public final void setDefaultMach(double dfn) {
 		double oldDFN = Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
-
+		
 		if (MathUtil.equals(oldDFN, dfn))
 			return;
 		this.putDouble(Preferences.DEFAULT_MACH_NUMBER, dfn);
 		fireChangeEvent();
 	}
-
+	
 	public final double getWindTurbulenceIntensity() {
 		return Application.getPreferences().getChoice(Preferences.WIND_TURBULENCE, 0.9, 0.1);
 	}
-
+	
 	public final void setWindTurbulenceIntensity(double wti) {
 		double oldWTI = Application.getPreferences().getChoice(Preferences.WIND_TURBULENCE, 0.9, 0.3);
-
+		
 		if (MathUtil.equals(oldWTI, wti))
 			return;
 		this.putDouble(Preferences.WIND_TURBULENCE, wti);
 		fireChangeEvent();
 	}
-
+	
 	public double getLaunchRodLength() {
 		return this.getDouble(LAUNCH_ROD_LENGTH, 1);
 	}
-
+	
 	public void setLaunchRodLength(double launchRodLength) {
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_LENGTH, 1), launchRodLength))
 			return;
 		this.putDouble(LAUNCH_ROD_LENGTH, launchRodLength);
 		fireChangeEvent();
 	}
-
+	
+	
 	public double getLaunchRodAngle() {
 		return this.getDouble(LAUNCH_ROD_ANGLE, 0);
 	}
-
+	
 	public void setLaunchRodAngle(double launchRodAngle) {
 		launchRodAngle = MathUtil.clamp(launchRodAngle, -Math.PI / 6.0, Math.PI / 6.0);
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_ANGLE, 0), launchRodAngle))
@@ -372,14 +367,15 @@ public abstract class Preferences implements ChangeSource {
 		this.putDouble(LAUNCH_ROD_ANGLE, launchRodAngle);
 		fireChangeEvent();
 	}
-
+	
+	
 	public double getLaunchRodDirection() {
 		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
 			this.setLaunchRodDirection(this.getDouble(WIND_DIRECTION, Math.PI / 2));
 		}
 		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
 	}
-
+	
 	public void setLaunchRodDirection(double launchRodDirection) {
 		launchRodDirection = MathUtil.reduce2Pi(launchRodDirection);
 		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_DIRECTION, Math.PI / 2.0), launchRodDirection))
@@ -387,22 +383,25 @@ public abstract class Preferences implements ChangeSource {
 		this.putDouble(LAUNCH_ROD_DIRECTION, launchRodDirection);
 		fireChangeEvent();
 	}
-
+	
+	
+	
 	public double getWindSpeedAverage() {
 		return this.getDouble(WIND_AVERAGE, 2);
 	}
-
+	
 	public void setWindSpeedAverage(double windAverage) {
 		if (MathUtil.equals(this.getDouble(WIND_AVERAGE, 2), windAverage))
 			return;
 		this.putDouble(WIND_AVERAGE, MathUtil.max(windAverage, 0));
 		fireChangeEvent();
 	}
-
+	
+	
 	public double getWindSpeedDeviation() {
 		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, .1);
 	}
-
+	
 	public void setWindSpeedDeviation(double windDeviation) {
 		double windAverage = this.getDouble(WIND_DIRECTION, 2);
 		if (windAverage < 0.1) {
@@ -410,7 +409,7 @@ public abstract class Preferences implements ChangeSource {
 		}
 		setWindTurbulenceIntensity(windDeviation / windAverage);
 	}
-
+	
 	public void setWindDirection(double direction) {
 		direction = MathUtil.reduce2Pi(direction);
 		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
@@ -420,18 +419,18 @@ public abstract class Preferences implements ChangeSource {
 			return;
 		this.putDouble(WIND_DIRECTION, direction);
 		fireChangeEvent();
-
+		
 	}
-
+	
 	public double getWindDirection() {
 		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
-
+		
 	}
-
+	
 	public double getLaunchAltitude() {
 		return this.getDouble(LAUNCH_ALTITUDE, 0);
 	}
-
+	
 	public void setLaunchAltitude(double altitude) {
 		if (MathUtil.equals(this.getDouble(LAUNCH_ALTITUDE, 0), altitude))
 			return;
@@ -445,11 +444,12 @@ public abstract class Preferences implements ChangeSource {
 
 		fireChangeEvent();
 	}
-
+	
+	
 	public double getLaunchLatitude() {
 		return this.getDouble(LAUNCH_LATITUDE, 28.61);
 	}
-
+	
 	public void setLaunchLatitude(double launchLatitude) {
 		launchLatitude = MathUtil.clamp(launchLatitude, -90, 90);
 		if (MathUtil.equals(this.getDouble(LAUNCH_LATITUDE, 28.61), launchLatitude))
@@ -457,11 +457,11 @@ public abstract class Preferences implements ChangeSource {
 		this.putDouble(LAUNCH_LATITUDE, launchLatitude);
 		fireChangeEvent();
 	}
-
+	
 	public double getLaunchLongitude() {
 		return this.getDouble(LAUNCH_LONGITUDE, -80.60);
 	}
-
+	
 	public void setLaunchLongitude(double launchLongitude) {
 		launchLongitude = MathUtil.clamp(launchLongitude, -180, 180);
 		if (MathUtil.equals(this.getDouble(LAUNCH_LONGITUDE, -80.60), launchLongitude))
@@ -469,63 +469,68 @@ public abstract class Preferences implements ChangeSource {
 		this.putDouble(LAUNCH_LONGITUDE, launchLongitude);
 		fireChangeEvent();
 	}
-
-	/*
-	 * public GeodeticComputationStrategy getGeodeticComputation() {
-	 * return geodeticComputation;
-	 * }
-	 * 
-	 * public void setGeodeticComputation(GeodeticComputationStrategy
-	 * geodeticComputation) {
-	 * if (this.geodeticComputation == geodeticComputation)
-	 * return;
-	 * if (geodeticComputation == null) {
-	 * throw new IllegalArgumentException("strategy cannot be null");
-	 * }
-	 * this.geodeticComputation = geodeticComputation;
-	 * fireChangeEvent();
-	 * }
-	 * 
-	 * 
-	 * public boolean isISAAtmosphere() {
-	 * return useISA;
-	 * }
-	 * 
-	 * public void setISAAtmosphere(boolean isa) {
-	 * if (isa == useISA)
-	 * return;
-	 * useISA = isa;
-	 * fireChangeEvent();
-	 * }
-	 */
-
+	
+	/*	
+		public GeodeticComputationStrategy getGeodeticComputation() {
+			return geodeticComputation;
+		}
+		
+		public void setGeodeticComputation(GeodeticComputationStrategy geodeticComputation) {
+			if (this.geodeticComputation == geodeticComputation)
+				return;
+			if (geodeticComputation == null) {
+				throw new IllegalArgumentException("strategy cannot be null");
+			}
+			this.geodeticComputation = geodeticComputation;
+			fireChangeEvent();
+		}
+		
+		
+		public boolean isISAAtmosphere() {
+			return useISA;
+		}
+		
+		public void setISAAtmosphere(boolean isa) {
+			if (isa == useISA)
+				return;
+			useISA = isa;
+			fireChangeEvent();
+		}
+		*/
+	
 	public double getLaunchTemperature() {
 		return this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
 	}
-
+	
+	
+	
 	public void setLaunchTemperature(double launchTemperature) {
-		if (MathUtil.equals(this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE),
-				launchTemperature))
+		if (MathUtil.equals(this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE), launchTemperature))
 			return;
 		this.putDouble(LAUNCH_TEMPERATURE, launchTemperature);
 		fireChangeEvent();
 	}
-
+	
+	
+	
 	public double getLaunchPressure() {
 		return this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
 	}
-
+	
+	
+	
 	public void setLaunchPressure(double launchPressure) {
 		if (MathUtil.equals(this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE), launchPressure))
 			return;
 		this.putDouble(LAUNCH_PRESSURE, launchPressure);
 		fireChangeEvent();
 	}
-
+	
+	
 	public boolean isISAAtmosphere() {
 		return this.getBoolean(LAUNCH_USE_ISA, true);
 	}
-
+	
 	public void setISAAtmosphere(boolean isa) {
 		if (this.getBoolean(LAUNCH_USE_ISA, true) == isa) {
 			return;
@@ -540,12 +545,12 @@ public abstract class Preferences implements ChangeSource {
 
 		fireChangeEvent();
 	}
-
+	
 	/**
-	 * Returns an atmospheric model corresponding to the launch conditions. The
+	 * Returns an atmospheric model corresponding to the launch conditions.  The
 	 * atmospheric models may be shared between different calls.
 	 * 
-	 * @return an AtmosphericModel object.
+	 * @return	an AtmosphericModel object.
 	 */
 	public AtmosphericModel getAtmosphericModel() {
 		if (this.getBoolean(LAUNCH_USE_ISA, true)) {
@@ -581,29 +586,25 @@ public abstract class Preferences implements ChangeSource {
 	public final void setAutoOpenLastDesignOnStartup(boolean enabled) {
 		this.putBoolean(AUTO_OPEN_LAST_DESIGN, enabled);
 	}
-
+	
 	/**
-	 * Answer if the auto-opening of the last edited design file on startup is
-	 * enabled.
+	 * Answer if the auto-opening of the last edited design file on startup is enabled.
 	 *
-	 * @return true if the application should automatically open the last edited
-	 *         design file on startup.
+	 * @return true if the application should automatically open the last edited design file on startup.
 	 */
 	public final boolean isAutoOpenLastDesignOnStartupEnabled() {
 		return this.getBoolean(AUTO_OPEN_LAST_DESIGN, false);
 	}
 
 	/**
-	 * Enable/Disable the opening the leftmost tab on the component design panel, or
-	 * using the tab that was opened last time.
+	 * Enable/Disable the opening the leftmost tab on the component design panel, or using the tab that was opened last time.
 	 */
 	public final void setAlwaysOpenLeftmostTab(boolean enabled) {
 		this.putBoolean(OPEN_LEFTMOST_DESIGN_TAB, enabled);
 	}
 
 	/**
-	 * Answer if a confirmation dialog should be shown when canceling a component
-	 * config operation.
+	 * Answer if a confirmation dialog should be shown when canceling a component config operation.
 	 *
 	 * @return true if the confirmation dialog should be shown.
 	 */
@@ -612,17 +613,14 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
-	 * Enable/Disable showing a confirmation warning when canceling a component
-	 * config operation.
+	 * Enable/Disable showing a confirmation warning when canceling a component config operation.
 	 */
 	public final void setShowDiscardConfirmation(boolean enabled) {
 		this.putBoolean(SHOW_DISCARD_CONFIRMATION, enabled);
 	}
 
 	/**
-	 * Returns whether a 'save rocket information' dialog should be shown after
-	 * saving a new design file.
-	 * 
+	 * Returns whether a 'save rocket information' dialog should be shown after saving a new design file.
 	 * @return true if the 'save rocket information' dialog should be shown.
 	 */
 	public final boolean isShowSaveRocketInfo() {
@@ -630,18 +628,14 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
-	 * Enable/Disable showing a 'save rocket information' dialog after saving a new
-	 * design file.
-	 * 
+	 * Enable/Disable showing a 'save rocket information' dialog after saving a new design file.
 	 * @return true if the 'save rocket information' dialog should be shown.
 	 */
 	public final void setShowSaveRocketInfo(boolean enabled) {
 		this.putBoolean(SHOW_SAVE_ROCKET_INFO, enabled);
 	}
-
 	/**
-	 * Answer if a confirmation dialog should be shown when canceling a simulation
-	 * config operation.
+	 * Answer if a confirmation dialog should be shown when canceling a simulation config operation.
 	 *
 	 * @return true if the confirmation dialog should be shown.
 	 */
@@ -650,16 +644,14 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
-	 * Enable/Disable showing a confirmation warning when canceling a simulation
-	 * config operation.
+	 * Enable/Disable showing a confirmation warning when canceling a simulation config operation.
 	 */
 	public final void setShowDiscardSimulationConfirmation(boolean enabled) {
 		this.putBoolean(SHOW_DISCARD_SIMULATION_CONFIRMATION, enabled);
 	}
 
 	/**
-	 * Answer if a confirmation dialog should be shown when canceling preferences
-	 * changes.
+	 * Answer if a confirmation dialog should be shown when canceling preferences changes.
 	 *
 	 * @return true if the confirmation dialog should be shown.
 	 */
@@ -668,8 +660,7 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
-	 * Enable/Disable showing a confirmation warning when canceling preferences
-	 * changes.
+	 * Enable/Disable showing a confirmation warning when canceling preferences changes.
 	 */
 	public final void setShowDiscardPreferencesConfirmation(boolean enabled) {
 		this.putBoolean(SHOW_DISCARD_PREFERENCES_CONFIRMATION, enabled);
@@ -678,85 +669,71 @@ public abstract class Preferences implements ChangeSource {
 	/**
 	 * Answer if the always open leftmost tab is enabled.
 	 *
-	 * @return true if the application should always open the leftmost tab in the
-	 *         component design panel.
+	 * @return true if the application should always open the leftmost tab in the component design panel.
 	 */
 	public final boolean isAlwaysOpenLeftmostTab() {
 		return this.getBoolean(OPEN_LEFTMOST_DESIGN_TAB, false);
 	}
 
 	/**
-	 * Set whether pod set/booster markers should only be displayed when the pod
-	 * set/booster is selected.
-	 * 
-	 * @param enabled true if pod set/booster markers should only be displayed when
-	 *                the pod set/booster is selected,
-	 *                false if they should be displayed permanently.
+	 * Set whether pod set/booster markers should only be displayed when the pod set/booster is selected.
+	 * @param enabled 	true if pod set/booster markers should only be displayed when the pod set/booster is selected,
+	 * 					false if they should be displayed permanently.
 	 */
 	public final void setShowMarkers(boolean enabled) {
 		this.putBoolean(SHOW_MARKERS, enabled);
 	}
 
 	/**
-	 * Answer if pod set/booster markers should only be displayed when the pod
-	 * set/booster is selected
+	 * Answer if pod set/booster markers should only be displayed when the pod set/booster is selected
 	 *
-	 * @return true if pod set/booster markers should only be displayed when the pod
-	 *         set/booster is selected,
-	 *         false if they should be displayed permanently.
+	 * @return 	true if pod set/booster markers should only be displayed when the pod set/booster is selected,
+	 * 			false if they should be displayed permanently.
 	 */
 	public final boolean isShowMarkers() {
 		return this.getBoolean(SHOW_MARKERS, false);
 	}
 
 	/**
-	 * Set whether the component preset chooser dialog should filter by fore
-	 * diameter when the window is opened.
-	 * 
-	 * @param enabled true if the fore diameter filter should be enabled,
-	 *                false if it should be disabled.
+	 * Set whether the component preset chooser dialog should filter by fore diameter when the window is opened.
+	 * @param enabled 	true if the fore diameter filter should be enabled,
+	 * 					false if it should be disabled.
 	 */
 	public final void setMatchForeDiameter(boolean enabled) {
 		this.putBoolean(MATCH_FORE_DIAMETER, enabled);
 	}
 
 	/**
-	 * Answer if the component preset chooser dialog should filter by fore diameter
-	 * when the window is opened.
+	 * Answer if the component preset chooser dialog should filter by fore diameter when the window is opened.
 	 *
-	 * @return true if the fore diameter filter should be enabled,
-	 *         false if it should be disabled.
+	 * @return 	true if the fore diameter filter should be enabled,
+	 * 			false if it should be disabled.
 	 */
 	public final boolean isMatchForeDiameter() {
 		return this.getBoolean(MATCH_FORE_DIAMETER, true);
 	}
 
 	/**
-	 * Set whether the component preset chooser dialog should filter by aft diameter
-	 * when the window is opened.
-	 * 
-	 * @param enabled true if the aft diameter filter should be enabled,
-	 *                false if it should be disabled.
+	 * Set whether the component preset chooser dialog should filter by aft diameter when the window is opened.
+	 * @param enabled 	true if the aft diameter filter should be enabled,
+	 * 					false if it should be disabled.
 	 */
 	public final void setMatchAftDiameter(boolean enabled) {
 		this.putBoolean(MATCH_AFT_DIAMETER, enabled);
 	}
 
 	/**
-	 * Answer if the component preset chooser dialog should filter by aft diameter
-	 * when the window is opened.
+	 * Answer if the component preset chooser dialog should filter by aft diameter when the window is opened.
 	 *
-	 * @return true if the aft diameter filter should be enabled,
-	 *         false if it should be disabled.
+	 * @return 	true if the aft diameter filter should be enabled,
+	 * 			false if it should be disabled.
 	 */
 	public final boolean isMatchAftDiameter() {
 		return this.getBoolean(MATCH_AFT_DIAMETER, true);
 	}
 
 	/**
-	 * Check whether to display the common name (false), or designation (true) in
-	 * the motor selection table "Name" column
-	 * 
+	 * Check whether to display the common name (false), or designation (true) in the motor selection table "Name" column
 	 * @return true to display designation, false to display common name
 	 */
 	public boolean getMotorNameColumn() {
@@ -764,9 +741,7 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	/**
-	 * Set whether to display the common name, or designation in the motor selection
-	 * table "Name" column
-	 * 
+	 * Set whether to display the common name, or designation in the motor selection table "Name" column
 	 * @param value if true, display designation, if false, display common name
 	 */
 	public void setMotorNameColumn(boolean value) {
@@ -776,7 +751,7 @@ public abstract class Preferences implements ChangeSource {
 	/**
 	 * Return the OpenRocket unique ID.
 	 *
-	 * @return a random ID string that stays constant between OpenRocket executions
+	 * @return	a random ID string that stays constant between OpenRocket executions
 	 */
 	public final String getUniqueID() {
 		String id = this.getString("id", null);
@@ -786,16 +761,16 @@ public abstract class Preferences implements ChangeSource {
 		}
 		return id;
 	}
-
+	
 	/**
-	 * Returns a limited-range integer value from the preferences. If the value
+	 * Returns a limited-range integer value from the preferences.  If the value
 	 * in the preferences is negative or greater than max, then the default value
 	 * is returned.
 	 *
-	 * @param key The preference to retrieve.
-	 * @param max Maximum allowed value for the choice.
-	 * @param def Default value.
-	 * @return The preference value.
+	 * @param key  The preference to retrieve.
+	 * @param max  Maximum allowed value for the choice.
+	 * @param def  Default value.
+	 * @return   The preference value.
 	 */
 	public final int getChoice(String key, int max, int def) {
 		int v = this.getInt(key, def);
@@ -803,16 +778,16 @@ public abstract class Preferences implements ChangeSource {
 			return def;
 		return v;
 	}
-
+	
 	/**
-	 * Returns a limited-range double value from the preferences. If the value
+	 * Returns a limited-range double value from the preferences.  If the value
 	 * in the preferences is negative or greater than max, then the default value
 	 * is returned.
 	 *
-	 * @param key The preference to retrieve.
-	 * @param max Maximum allowed value for the choice.
-	 * @param def Default value.
-	 * @return The preference value.
+	 * @param key  The preference to retrieve.
+	 * @param max  Maximum allowed value for the choice.
+	 * @param def  Default value.
+	 * @return   The preference value.
 	 */
 	public final double getChoice(String key, double max, double def) {
 		double v = this.getDouble(key, def);
@@ -820,47 +795,48 @@ public abstract class Preferences implements ChangeSource {
 			return def;
 		return v;
 	}
-
+	
+	
 	/**
 	 * Helper method that puts an integer choice value into the preferences.
 	 *
-	 * @param key   the preference key.
-	 * @param value the value to store.
+	 * @param key     the preference key.
+	 * @param value   the value to store.
 	 */
 	public final void putChoice(String key, int value) {
 		this.putInt(key, value);
 	}
-
+	
 	/**
 	 * Retrieve an enum value from the user preferences.
 	 *
-	 * @param <T> the enum type
-	 * @param key the key
-	 * @param def the default value, cannot be null
-	 * @return the value in the preferences, or the default value
+	 * @param <T>	the enum type
+	 * @param key	the key
+	 * @param def	the default value, cannot be null
+	 * @return		the value in the preferences, or the default value
 	 */
 	public final <T extends Enum<T>> T getEnum(String key, T def) {
 		if (def == null) {
 			throw new BugException("Default value cannot be null");
 		}
-
+		
 		String value = getString(key, null);
 		if (value == null) {
 			return def;
 		}
-
+		
 		try {
 			return Enum.valueOf(def.getDeclaringClass(), value);
 		} catch (IllegalArgumentException e) {
 			return def;
 		}
 	}
-
+	
 	/**
 	 * Store an enum value to the user preferences.
 	 *
-	 * @param key   the key
-	 * @param value the value to store, or null to remove the value
+	 * @param key		the key
+	 * @param value		the value to store, or null to remove the value
 	 */
 	public final void putEnum(String key, Enum<?> value) {
 		if (value == null) {
@@ -869,10 +845,11 @@ public abstract class Preferences implements ChangeSource {
 			putString(key, value.name());
 		}
 	}
+	
 
 	/**
 	 * Retrieve a Line style for the given component.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */
@@ -884,10 +861,10 @@ public abstract class Preferences implements ChangeSource {
 			return LineStyle.SOLID;
 		}
 	}
-
+	
 	/**
 	 * Set a default line style for the given component.
-	 * 
+	 *
 	 * @param c
 	 * @param style
 	 */
@@ -897,18 +874,18 @@ public abstract class Preferences implements ChangeSource {
 			return;
 		putString("componentStyle", c.getSimpleName(), style.name());
 	}
-
+	
 	/**
 	 * Get the default material type for the given component.
-	 * 
+	 *
 	 * @param componentClass
-	 * @param type           the Material.Type to return.
+	 * @param type the Material.Type to return.
 	 * @return
 	 */
 	public Material getDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass,
 			Material.Type type) {
-
+			
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
@@ -918,34 +895,33 @@ public abstract class Preferences implements ChangeSource {
 			} catch (IllegalArgumentException ignore) {
 			}
 		}
-
+		
 		switch (type) {
-			case LINE:
-				return StaticFieldHolder.DEFAULT_LINE_MATERIAL;
-			case SURFACE:
-				return StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
-			case BULK:
-				return StaticFieldHolder.DEFAULT_BULK_MATERIAL;
+		case LINE:
+			return StaticFieldHolder.DEFAULT_LINE_MATERIAL;
+		case SURFACE:
+			return StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
+		case BULK:
+			return StaticFieldHolder.DEFAULT_BULK_MATERIAL;
 		}
 		throw new IllegalArgumentException("Unknown material type: " + type);
 	}
-
+	
 	/**
 	 * Set the default material for a component type.
-	 * 
 	 * @param componentClass
 	 * @param material
 	 */
 	public void setDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass, Material material) {
-
+			
 		putString("componentMaterials", componentClass.getSimpleName(),
 				material == null ? null : material.toStorableString());
 	}
-
+	
 	/**
 	 * get a info.openrocket.core.util.ORColor object for the given key.
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return
@@ -957,21 +933,21 @@ public abstract class Preferences implements ChangeSource {
 		}
 		return c;
 	}
-
+	
 	/**
 	 * set a info.openrocket.core.util.ORColor preference value for the given key.
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
 	public final void putColor(String key, ORColor value) {
 		putString(key, stringifyColor(value));
 	}
-
+	
 	/**
 	 * Helper function to convert a string representation into a
 	 * info.openrocket.core.util.ORColor object.
-	 * 
+	 *
 	 * @param color
 	 * @return
 	 */
@@ -992,11 +968,11 @@ public abstract class Preferences implements ChangeSource {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Helper function to convert a info.openrocket.core.util.ORColor object into a
 	 * String before storing in a preference.
-	 * 
+	 *
 	 * @param color
 	 * @return
 	 */
@@ -1028,10 +1004,10 @@ public abstract class Preferences implements ChangeSource {
 				return value;
 			c = c.getSuperclass();
 		}
-
+		
 		if (defaultMap == null)
 			return null;
-
+			
 		// Search defaults
 		c = componentClass;
 		while (RocketComponent.class.isAssignableFrom(c)) {
@@ -1040,7 +1016,7 @@ public abstract class Preferences implements ChangeSource {
 				return value;
 			c = c.getSuperclass();
 		}
-
+		
 		return null;
 	}
 
@@ -1139,27 +1115,24 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	public abstract void addUserMaterial(Material m);
-
+	
 	public abstract Set<Material> getUserMaterials();
-
+	
 	public abstract void removeUserMaterial(Material m);
-
+	
 	public abstract void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite);
-
+	
 	public abstract Set<String> getComponentFavorites(ComponentPreset.Type type);
 
+
 	/*
-	 * NOTE: It is unusual for the UI Theme to be stored in the preferences instead
-	 * of SwingPreferences. In fact, this code
-	 * is not pretty. Sometimes I just really hate Java and circular dependencies...
-	 * But the reason why this is implemented is because it would otherwise be an
-	 * even bigger nightmare to fix unit tests
-	 * that use their own preferences... Also wasn't a fan of always casting the
-	 * preferences to SwingPreferences.
+	NOTE: It is unusual for the UI Theme to be stored in the preferences instead of SwingPreferences. In fact, this code
+	is not pretty. Sometimes I just really hate Java and circular dependencies...
+	But the reason why this is implemented is because it would otherwise be an even bigger nightmare to fix unit tests
+	that use their own preferences... Also wasn't a fan of always casting the preferences to SwingPreferences.
 	 */
 	/**
 	 * Get the current theme used for the UI.
-	 * 
 	 * @return the current theme
 	 */
 	public Object getUITheme() {
@@ -1168,15 +1141,13 @@ public abstract class Preferences implements ChangeSource {
 
 	/**
 	 * Set the theme used for the UI.
-	 * 
 	 * @param theme the theme to set
 	 */
-	public void setUITheme(Object theme) {
-	}
+	public void setUITheme(Object theme) {}
+
 
 	public void saveOBJExportOptions(OBJExportOptions options) {
-		// ! Don't forget to update the loadOBJExportOptions method and
-		// OBJOptionChooser.storeOptions if you add new options !
+		// ! Don't forget to update the loadOBJExportOptions method and OBJOptionChooser.storeOptions if you add new options !
 
 		java.util.prefs.Preferences preferences = getPreferences();
 		java.util.prefs.Preferences objExportOptionsNode = preferences.node(OBJ_EXPORT_OPTIONS_NODE);
@@ -1187,6 +1158,7 @@ public abstract class Preferences implements ChangeSource {
 		objExportOptionsNode.putBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, options.isExportAsSeparateFiles());
 		objExportOptionsNode.putBoolean(OBJ_REMOVE_OFFSET, options.isRemoveOffset());
 		objExportOptionsNode.putBoolean(OBJ_TRIANGULATE, options.isTriangulate());
+		objExportOptionsNode.put(OBJ_TRIANGULATION_METHOD, options.getTriangulationMethod().getExportLabel());
 		objExportOptionsNode.putBoolean(OBJ_SRGB, options.isUseSRGB());
 
 		objExportOptionsNode.putFloat(OBJ_SCALING, options.getScaling());
@@ -1217,6 +1189,9 @@ public abstract class Preferences implements ChangeSource {
 		options.setExportAsSeparateFiles(objExportOptionsNode.getBoolean(OBJ_EXPORT_AS_SEPARATE_FILES, false));
 		options.setRemoveOffset(objExportOptionsNode.getBoolean(OBJ_REMOVE_OFFSET, true));
 		options.setTriangulate(objExportOptionsNode.getBoolean(OBJ_TRIANGULATE, true));
+		options.setTriangulationMethod(ObjUtils.TriangulationMethod.fromExportLabel(
+				objExportOptionsNode.get(OBJ_TRIANGULATION_METHOD, ObjUtils.TriangulationMethod.DELAUNAY.getExportLabel())
+		));
 		options.setUseSRGB(objExportOptionsNode.getBoolean(OBJ_SRGB, false));
 
 		options.setScaling(objExportOptionsNode.getFloat(OBJ_SCALING, 1000));
@@ -1240,42 +1215,76 @@ public abstract class Preferences implements ChangeSource {
 		return options;
 	}
 
+	/**
+	 * Returns the stroke color used for the SVG.
+	 *
+	 * @return the stroke color for the SVG
+	 */
+	public Color getSVGStrokeColor() {
+		return getColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+	}
+
+	/**
+	 * Sets the stroke color used for the SVG.
+	 *
+	 * @param c the stroke color to set
+	 */
+	public void setSVGStrokeColor(Color c) {
+		putColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(c));
+	}
+
+	/**
+	 * Returns the stroke width used for the SVG in mm.
+	 *
+	 * @return the stroke width for the SVG
+	 */
+	public double getSVGStrokeWidth() {
+		return getDouble(SVG_STROKE_WIDTH, 0.1);
+	}
+
+	/**
+	 * Sets the stroke width used for the SVG in mm.
+	 *
+	 * @param width the stroke width to set
+	 */
+	public void setSVGStrokeWidth(double width) {
+		putDouble(SVG_STROKE_WIDTH, width);
+	}
+
 	/*
 	 * Within a holder class so they will load only when needed.
 	 */
 	private static class StaticFieldHolder {
-		private static final Material DEFAULT_LINE_MATERIAL = Databases.findMaterial(Material.Type.LINE,
-				"Elastic cord (round 2 mm, 1/16 in)");
-		private static final Material DEFAULT_SURFACE_MATERIAL = Databases.findMaterial(Material.Type.SURFACE,
-				"Ripstop nylon");
+		private static final Material DEFAULT_LINE_MATERIAL = Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2 mm, 1/16 in)");
+		private static final Material DEFAULT_SURFACE_MATERIAL = Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon");
 		private static final Material DEFAULT_BULK_MATERIAL = Databases.findMaterial(Material.Type.BULK, "Cardboard");
 		/*
 		 * Map of default line styles
 		 */
-
+		
 		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<Class<?>, String>();
-
+		
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
 		}
 	}
-
+	
 	private final List<EventListener> listeners = new ArrayList<EventListener>();
 	private final EventObject event = new EventObject(this);
-
+	
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(listener);
 	}
-
+	
 	@Override
 	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
 	}
-
+	
 	private void fireChangeEvent() {
-
+		
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listeners.toArray(new EventListener[0]);
 		for (EventListener l : list) {

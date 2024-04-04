@@ -11,17 +11,17 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 
 /**
- * A class that contains single instances of {@link Database} for specific
- * purposes.
+ * A class that contains single instances of {@link Database} for specific purposes.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Databases {
 	private static final Logger log = LoggerFactory.getLogger(Databases.class);
 	private static final Translator trans = Application.getTranslator();
-
+	
+	
 	/* Static implementations of specific databases: */
-
+	
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
@@ -34,9 +34,11 @@ public class Databases {
 	 * A database of linear material (with length densities).
 	 */
 	public static final Database<Material> LINE_MATERIAL = new Database<Material>();
-
+	
+	
+	
 	static {
-
+		
 		// Add default materials
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Acrylic", 1190));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Aluminum", 2700));
@@ -78,7 +80,7 @@ public class Databases {
 		SURFACE_MATERIAL.add(newMaterial(Material.Type.SURFACE, "Paper (office)", 0.080));
 		SURFACE_MATERIAL.add(newMaterial(Material.Type.SURFACE, "Cellophane", 0.018));
 		SURFACE_MATERIAL.add(newMaterial(Material.Type.SURFACE, "Cr\u00eape paper", 0.025));
-
+		
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Thread (heavy-duty)", 0.0003));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic cord (round 2 mm, 1/16 in)", 0.0018));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic cord (flat 6 mm, 1/4 in)", 0.0043));
@@ -121,70 +123,72 @@ public class Databases {
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (round 2.5 mm, 3/32 in)", 0.0038));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 10 mm, 3/8 in)", 0.00381));
 		LINE_MATERIAL.add(newMaterial(Material.Type.LINE, "Elastic braided cord (flat 13 mm, 1/2 in)", 0.00551172));
-
+		
+		
 		// Add user-defined materials
 		for (Material m : Application.getPreferences().getUserMaterials()) {
 			switch (m.getType()) {
-				case LINE:
-					LINE_MATERIAL.add(m);
-					break;
-
-				case SURFACE:
-					SURFACE_MATERIAL.add(m);
-					break;
-
-				case BULK:
-					BULK_MATERIAL.add(m);
-					break;
-
-				default:
-					log.warn("ERROR: Unknown material type " + m);
+			case LINE:
+				LINE_MATERIAL.add(m);
+				break;
+			
+			case SURFACE:
+				SURFACE_MATERIAL.add(m);
+				break;
+			
+			case BULK:
+				BULK_MATERIAL.add(m);
+				break;
+			
+			default:
+				log.warn("ERROR: Unknown material type " + m);
 			}
 		}
-
+		
 		// Add database storage listener
 		MaterialStorage listener = new MaterialStorage();
 		LINE_MATERIAL.addDatabaseListener(listener);
 		SURFACE_MATERIAL.addDatabaseListener(listener);
 		BULK_MATERIAL.addDatabaseListener(listener);
 	}
-
+	
 	/**
 	 * builds a new material based on the parameters given
-	 * 
-	 * @param type     The type of material
-	 * @param baseName the name of material
-	 * @param density  density
-	 * @return a new object with the material data
+	 * @param type		The type of material
+	 * @param baseName	the name of material
+	 * @param density	density
+	 * @return	a new object with the material data
 	 */
 	private static Material newMaterial(Type type, String baseName, double density) {
 		String name = trans.get("material", baseName);
 		return Material.newMaterial(type, name, density, false);
 	}
-
+	
+	
+	
+	
 	/*
 	 * Used just for ensuring initialization of the class.
 	 */
 	public static void fakeMethod() {
-
+		
 	}
-
+	
 	/**
-	 * Find a material from the database with the specified type and name. Returns
+	 * Find a material from the database with the specified type and name.  Returns
 	 * <code>null</code> if the specified material could not be found.
 	 * <p>
-	 * This method will attempt to localize the material name to the current locale,
-	 * or use
+	 * This method will attempt to localize the material name to the current locale, or use
 	 * the provided name if unable to do so.
 	 * 
-	 * @param type     the material type.
-	 * @param baseName the material base name in the database.
-	 * @return the material, or <code>null</code> if not found.
+	 * @param type		the material type.
+	 * @param baseName	the material base name in the database.
+	 * @return			the material, or <code>null</code> if not found.
 	 */
 	public static Material findMaterial(Material.Type type, String baseName) {
-		Database<Material> db = getDatabase(type);
+		Database<Material> db = getDatabase(type);		
 		String name = trans.get("material", baseName);
-
+		
 		for (Material m : db) {
 			if (m.getName().equalsIgnoreCase(name)) {
 				return m;
@@ -192,44 +196,42 @@ public class Databases {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * gets the specific database with the given type
-	 * 
-	 * @param type the desired type
-	 * @return the database of the type given
+	 * @param 	type	the desired type
+	 * @return	the database of the type given
 	 */
-	private static Database<Material> getDatabase(Material.Type type) {
+	private static Database<Material> getDatabase(Material.Type type){
 		switch (type) {
-			case BULK:
-				return BULK_MATERIAL;
-			case SURFACE:
-				return SURFACE_MATERIAL;
-			case LINE:
-				return LINE_MATERIAL;
-			default:
-				throw new IllegalArgumentException("Illegal material type: " + type);
+		case BULK:
+			return BULK_MATERIAL;
+		case SURFACE:
+			return SURFACE_MATERIAL;
+		case LINE:
+			return LINE_MATERIAL;
+		default:
+			throw new IllegalArgumentException("Illegal material type: " + type);
 		}
 	}
-
+	
+	
 	/**
-	 * Find a material from the database or return a new user defined material if
-	 * the specified
+	 * Find a material from the database or return a new user defined material if the specified
 	 * material with the specified density is not found.
 	 * <p>
-	 * This method will attempt to localize the material name to the current locale,
-	 * or use
+	 * This method will attempt to localize the material name to the current locale, or use
 	 * the provided name if unable to do so.
 	 * 
-	 * @param type     the material type.
-	 * @param baseName the base name of the material.
-	 * @param density  the density of the material.
-	 * @return the material object from the database or a new material.
+	 * @param type			the material type.
+	 * @param baseName		the base name of the material.
+	 * @param density		the density of the material.
+	 * @return				the material object from the database or a new material.
 	 */
 	public static Material findMaterial(Material.Type type, String baseName, double density) {
 		Database<Material> db = getDatabase(type);
 		String name = trans.get("material", baseName);
-
+		
 		for (Material m : db) {
 			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
 				return m;
@@ -237,5 +239,5 @@ public class Databases {
 		}
 		return Material.newMaterial(type, name, density, true);
 	}
-
+	
 }

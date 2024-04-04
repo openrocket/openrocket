@@ -122,15 +122,15 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 	private FreeformFinSet createFinOnTube(final BodyTube body) {
 		// This is a trapezoid:
-		// - Height: 1
-		// - Root Chord: 1
-		// - Tip Chord: 1/2
-		// - Sweep: 1/2
+		//   - Height: 1
+		//   - Root Chord: 1
+		//   - Tip Chord: 1/2
+		//   - Sweep: 1/2
 		// It can be decomposed into a triangle followed by a rectangle
-		// +--+
-		// /. |
-		// / . |
-		// +=====+
+		//     +--+
+		//    /.  |
+		//   / .  |
+		//  +=====+
 		FreeformFinSet fins = new FreeformFinSet();
 		fins.setName("TubeBodyFins");
 		fins.setFinCount(1);
@@ -148,11 +148,11 @@ public class FreeformFinSetTest extends BaseTestCase {
 	}
 
 	private FreeformFinSet createFinOnConicalTransition(final Transition body) {
-		// ----+ (1)
-		// (0) ----- |
-		// ---+ |
-		// ----- |
-		// ----+ (2)
+		//            ----+ (1)
+		//  (0)  -----    |
+		//  ---+          |
+		//       -----    |
+		//            ----+ (2)
 		FreeformFinSet fins = new FreeformFinSet();
 		fins.setName("test-freeform-finset");
 		fins.setFinCount(1);
@@ -464,18 +464,18 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 		}
 		{ // Assert fin shape
-			// [1] [2]
-			// +======+
-			// / \ [3]
-			// / ---+----
-			// / --------
-			// [0] / --------
+			//              [1]       [2]
+			//                 +======+
+			//               /          \   [3]
+			//            /            ---+----
+			//         /       --------
+			//  [0] /  --------
 			// ---+----
 			//
-			// [0] ( 0.0, 0.0)
-			// [1] ( 0.4, 1.0)
-			// [2] ( 0.6, 1.0)
-			// [3] ( 0.8, 0.7847)
+			//  [0]  ( 0.0, 0.0)
+			//  [1]  ( 0.4, 1.0)
+			//  [2]  ( 0.6, 1.0)
+			//  [3]  ( 0.8, 0.7847)
 
 			assertEquals(AxialMethod.TOP, fins.getAxialMethod());
 			assertEquals(0.02, fins.getAxialOffset(), EPSILON);
@@ -560,10 +560,10 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 		assertEquals(4, fin.getPointCount());
 
-		// +--+
-		// / |x
-		// / |
-		// +=====+
+		//     +--+
+		//    /   |x
+		//   /    |
+		//  +=====+
 		Point2D.Double toAdd = new Point2D.Double(1.01, 0.8);
 		try {
 			fin.addPoint(3, toAdd);
@@ -975,12 +975,12 @@ public class FreeformFinSetTest extends BaseTestCase {
 			assertEquals(0.0, phantomBody.getLength(), EPSILON);
 		}
 		{
-			// (1)---------(2)
-			// | Fin |
-			// | |
-			// (0)----+----(3)
-			// |
-			// (body)
+			//  (1)---------(2)
+			//   |    Fin    |
+			//   |           |
+			//  (0)----+----(3)
+			//         |
+			//       (body)
 			final FreeformFinSet fins = new FreeformFinSet();
 			fins.setName("SquareFin");
 			phantomBody.addChild(fins);
@@ -1154,12 +1154,12 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 	@Test
 	public void testComputeCM_mountlessFin() {
-		// This is a trapezoid. Height 1, root 1, tip 1/2 no sweep.
+		// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
 		// It can be decomposed into a rectangle followed by a triangle
-		// +---+
-		// | \
-		// | \
-		// +------+
+		//  +---+
+		//  |    \
+		//  |     \
+		//  +------+
 		FreeformFinSet fins = new FreeformFinSet();
 		fins.setFinCount(1);
 		Coordinate[] points = new Coordinate[] {
@@ -1186,10 +1186,10 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 		// Fin length = 1
 		// Body Length = 2
-		// +--+
-		// / |
-		// / |
-		// +---+-----+---+
+		//          +--+
+		//         /   |
+		//        /    |
+		//   +---+-----+---+
 		final Coordinate[] expectPoints = new Coordinate[] {
 				Coordinate.ZERO,
 				new Coordinate(0.5, 1),
@@ -1245,10 +1245,10 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 		// Fin length = 1
 		// Body Length = 2
-		// +--+
-		// / |
-		// / |
-		// +---+-----+---+
+		//          +--+
+		//         /   |
+		//        /    |
+		//   +---+-----+---+
 		final Coordinate[] finPoints = fins.getFinPoints();
 		assertEquals(4, finPoints.length);
 		assertEquals(finPoints[0], Coordinate.ZERO);
@@ -1266,13 +1266,13 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
 
 		// An obviously intersecting fin:
-		// [2] +-----+ [1]
-		// \ /
-		// \ /
-		// X
-		// / \
-		// [0] / \ [3]
-		// +---+-----+---+
+		//   [2] +-----+ [1]
+		//        \   /
+		//         \ /
+		//          X
+		//         / \
+		//    [0] /   \ [3]
+		//   +---+-----+---+
 		// = +x =>
 		Coordinate[] initPoints = new Coordinate[] {
 				new Coordinate(0, 0),
@@ -1297,11 +1297,11 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final FreeformFinSet fins = this.createFinOnConicalTransition(tailCone);
 
 		// An obviously intersecting fin:
-		// [2] +---+ [1]
-		// | /
-		// | /
-		// [0]|/ [3]
-		// +---+-----+---+
+		//   [2] +---+ [1]
+		//       |  /
+		//       | / 
+		//    [0]|/ [3]
+		//   +---+-----+---+
 		// = +x =>
 		Coordinate[] initPoints = new Coordinate[] {
 				new Coordinate(0, 0),
@@ -1337,12 +1337,12 @@ public class FreeformFinSetTest extends BaseTestCase {
 		// A user noticed that if the y values are similar but not equal,
 		// the computation of CP was incorrect because of numerical instability.
 		//
-		// +-----------------+
-		// \ \
-		// \ \
-		// + \ +x
-		// / \ <=+
-		// +---------------------+
+		//     +-----------------+
+		//      \                 \
+		//       \                 \
+		//        +                 \         +x
+		//       /                   \        <=+
+		//      +---------------------+
 		//
 		FreeformFinSet fins = new FreeformFinSet();
 		fins.setFinCount(1);
@@ -1603,23 +1603,22 @@ public class FreeformFinSetTest extends BaseTestCase {
 		final BodyTube body = (BodyTube) rkt.getChild(0).getChild(1);
 
 		// A user submitted an ork file which could not be simulated.
-		// This Fin set is constructed to have the same problem. It is a square and
-		// rectangle
+		// This Fin set is constructed to have the same problem.  It is a square and rectangle
 		// where the two trailing edge corners of the rectangle satisfy y_0 = -y_1
 		//
-		// +=> +x
-		// 0 1 2 3
-		// | | | |
-		//
-		// +---------+ - +1
-		// | | ^
-		// | | | +y
-		// ----+----+ | - 0 +
-		// | |
-		// | |
-		// +----+ - -1
-		// |
-		// |
+		//    +=> +x
+		//    0    1    2    3  
+		//    |    |    |    |
+		//     
+		//    +---------+      - +1
+		//    |         |             ^ 
+		//    |         |             | +y    
+		//----+----+    |      -  0   +  
+		//         |    |
+		//         |    |
+		//         +----+      - -1
+		//         |
+		//         |		
 		FreeformFinSet fins = new FreeformFinSet();
 		body.addChild(fins);
 		fins.setAxialOffset(AxialMethod.TOP, 1.0);

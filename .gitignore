@@ -18,8 +18,6 @@
 /core/build
 /core/tmp
 /core/misc
-/core/src/main/resources/ReleaseNotes.md
-/core/src/test/resources/ReleaseNotes.md
 
 # /core/doc/techdoc/
 /core/doc/techdoc/*.aux
@@ -35,7 +33,6 @@
 /swing/build
 /swing/tmp
 /core/src/main/resources/datafiles/components
-/core/resources-src/datafiles/components-dbcook
 
 # IntelliJ
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm

@@ -2,20 +2,23 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.position.AngleMethod;
+import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
+import info.openrocket.core.rocketcomponent.position.RadiusPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
 public class PodSet extends ComponentAssembly implements RingInstanceable {
-
+	
 	private static final Translator trans = Application.getTranslator();
-	// private static final Logger log = LoggerFactory.getLogger(PodSet.class);
-
+	//private static final Logger log = LoggerFactory.getLogger(PodSet.class);
+	
 	protected int instanceCount = 2;
 
+	
 	protected AngleMethod angleMethod = AngleMethod.RELATIVE;
 	// angle between each pod
 	protected double angleSeparation = Math.PI;
@@ -24,17 +27,17 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 
 	protected RadiusMethod radiusMethod = RadiusMethod.RELATIVE;
 	protected double radiusOffset_m = 0;
-
+	
 	public PodSet() {
 		this.instanceCount = 2;
 		this.axialMethod = AxialMethod.BOTTOM;
 	}
-
+	
 	@Override
 	public boolean allowsChildren() {
 		return true;
 	}
-
+	
 	@Override
 	public String getComponentName() {
 		//// Stage
@@ -42,7 +45,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 
 	/**
-	 * Check whether the given type can be added to this component. A Stage allows
+	 * Check whether the given type can be added to this component.  A Stage allows
 	 * only BodyComponents to be added.
 	 *
 	 * @param type The RocketComponent class type to add.
@@ -58,7 +61,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	public double getInstanceAngleIncrement() {
 		return angleSeparation;
 	}
-
+	
 	@Override
 	public double[] getInstanceAngles() {
 		// , angleMethod, angleOffset_rad
@@ -69,10 +72,10 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		for (int i = 0; i < getInstanceCount(); ++i) {
 			result[i] = baseAngle + incrAngle * i;
 		}
-
+		
 		return result;
 	}
-
+	
 	@Override
 	public Coordinate[] getInstanceOffsets() {
 		checkState();
@@ -86,18 +89,17 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 			final double curZ = radius * Math.sin(angles[instanceNumber]);
 			toReturn[instanceNumber] = new Coordinate(0, curY, curZ);
 		}
-
+		
 		return toReturn;
 	}
-
+	
 	@Override
 	public boolean isAfter() {
 		return false;
 	}
-
-	/**
-	 * Stages may be positioned relative to other stages. In that case, this will
-	 * set the stage number
+	
+	/** 
+	 * Stages may be positioned relative to other stages. In that case, this will set the stage number 
 	 * against which this stage is positioned.
 	 * 
 	 * @return the stage number which this stage is positioned relative to
@@ -108,10 +110,10 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		} else if (this.parent instanceof PodSet) {
 			return this.parent.parent.getChildPosition(this.parent);
 		}
-
+		
 		return -1;
 	}
-
+	
 	@Override
 	public void setAxialMethod(final AxialMethod newMethod) {
 		super.setAxialMethod(newMethod);
@@ -129,8 +131,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 
 		if (this.isAfter()) {
 			// remember the implicit (this instanceof Stage)
-			throw new BugException("found a pod positioned via: AFTER, but is not on the centerline?!: "
-					+ this.getName() + "  is " + this.getAxialMethod().name());
+			throw new BugException("found a pod positioned via: AFTER, but is not on the centerline?!: " + this.getName() + "  is " + this.getAxialMethod().name() );
 		} else {
 			returnValue = super.getAxialOffset(method);
 		}
@@ -151,12 +152,12 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	public String getPatternName() {
 		return (this.getInstanceCount() + "-ring");
 	}
-
+	
 	@Override
 	public double getRadiusOffset() {
 		return this.radiusOffset_m;
 	}
-
+	
 	@Override
 	public int getInstanceCount() {
 		return this.instanceCount;
@@ -165,9 +166,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	@Override
 	public void setInstanceCount(int newCount) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof PodSet) {
-				((PodSet) listener).setInstanceCount(newCount);
-			}
+			listener.setInstanceCount(newCount);
 		}
 
 		mutex.verify();
@@ -180,27 +179,26 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		this.angleSeparation = Math.PI * 2 / this.instanceCount;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
 	@Override
 	protected StringBuilder toDebugDetail() {
 		StringBuilder buf = super.toDebugDetail();
-		// if (-1 == this.getRelativeToStage()) {
-		// System.err.println(" >>refStageName: " + null + "\n");
-		// } else {
-		// Stage refStage = (Stage) this.parent;
-		// System.err.println(" >>refStageName: " + refStage.getName() + "\n");
-		// System.err.println(" ..refCenterX: " + refStage.position.x + "\n");
-		// System.err.println(" ..refLength: " + refStage.getLengthAerodynamic() +
-		// "\n");
-		// }
+		//		if (-1 == this.getRelativeToStage()) {
+		//			System.err.println("      >>refStageName: " + null + "\n");
+		//		} else {
+		//			Stage refStage = (Stage) this.parent;
+		//			System.err.println("      >>refStageName: " + refStage.getName() + "\n");
+		//			System.err.println("      ..refCenterX: " + refStage.position.x + "\n");
+		//			System.err.println("      ..refLength: " + refStage.getLengthAerodynamic() + "\n");
+		//		}
 		return buf;
 	}
 
 	@Override
 	public void setAngleOffset(double angle_rad) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof PodSet) {
-				((PodSet) listener).setAngleOffset(angle_rad);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleOffset(angle_rad);
 			}
 		}
 
@@ -222,8 +220,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	@Override
 	public void setRadiusOffset(double radius_m) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof PodSet) {
-				((PodSet) listener).setRadiusOffset(radius_m);
+			if (listener instanceof RadiusPositionable) {
+				((RadiusPositionable) listener).setRadiusOffset(radius_m);
 			}
 		}
 
@@ -248,8 +246,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	@Override
 	public void setRadiusMethod(RadiusMethod newMethod) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof PodSet) {
-				((PodSet) listener).setRadiusMethod(newMethod);
+			if (listener instanceof RadiusPositionable) {
+				((RadiusPositionable) listener).setRadiusMethod(newMethod);
 			}
 		}
 
@@ -265,8 +263,8 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	@Override
 	public void setRadius(RadiusMethod requestMethod, double requestRadius) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof PodSet) {
-				((PodSet) listener).setRadius(requestMethod, requestRadius);
+			if (listener instanceof RadiusPositionable) {
+				((RadiusPositionable) listener).setRadius(requestMethod, requestRadius);
 			}
 		}
 

@@ -39,7 +39,7 @@ public class FinSetShapes extends RocketComponentShapes {
         final Transformation compositeTransform = transformation.applyTransformation(cantRotation);
 		
 		Coordinate[] finPoints = finset.getFinPoints();
-        Coordinate[] tabPoints = finset.getTabPoints();
+        Coordinate[] tabPoints = finset.getTabPointsWithRoot();
         Coordinate[] rootPoints = finset.getRootPoints();
 
 		// Translate & rotate points into place
@@ -208,7 +208,7 @@ public class FinSetShapes extends RocketComponentShapes {
 		Coordinate[] backPoints;
 		int minIndex;
 
-		Coordinate[] points = finset.getTabPoints();
+		Coordinate[] points = finset.getTabPointsWithRoot();
 
 		// this loop finds the index @ min-y, as visible from the back
 		for (minIndex = points.length-1; minIndex > 0; minIndex--) {

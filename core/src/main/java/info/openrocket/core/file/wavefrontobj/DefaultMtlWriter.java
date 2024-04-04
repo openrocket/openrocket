@@ -53,7 +53,8 @@ public class DefaultMtlWriter {
     public static void write(
             Iterable<? extends Mtl> mtls, OutputStream outputStream)
             throws IOException {
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        OutputStreamWriter outputStreamWriter =
+                new OutputStreamWriter(outputStream);
         write(mtls, outputStreamWriter);
     }
 
@@ -80,7 +81,7 @@ public class DefaultMtlWriter {
      * @param writer The writer
      * @throws IOExcept
      *
-     *                  ion If an IO error occurs
+     * ion If an IO error occurs
      */
     public static void write(Mtl mtl, Writer writer)
             throws IOException {
@@ -254,5 +255,6 @@ public class DefaultMtlWriter {
     private DefaultMtlWriter() {
         // Private constructor to prevent instantiation
     }
+
 
 }

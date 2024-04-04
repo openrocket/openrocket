@@ -38,14 +38,12 @@ import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.customexpression.CustomExpressionSimulationListener;
 import info.openrocket.core.simulation.exception.SimulationCancelledException;
 import info.openrocket.core.simulation.exception.SimulationException;
-import info.openrocket.core.simulation.exception.SimulationLaunchException;
 import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
 import info.openrocket.core.simulation.listeners.SimulationListener;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.Coordinate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -426,15 +424,7 @@ public class SimulationRunDialog extends JDialog {
 			}
 
 			// Analyze the exception type
-			if (t instanceof SimulationLaunchException) {
-
-				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
-						new Object[] {
-								//// Unable to simulate:
-								trans.get("SimuRunDlg.msg.Unabletosim"), t.getMessage() },
-						null, simulation.getName(), JOptionPane.ERROR_MESSAGE);
-
-			} else if (t instanceof SimulationException) {
+			if (t instanceof SimulationException) {
 				String title = simulation.getName();
 				FlightDataBranch dataBranch = ((SimulationException) t).getFlightDataBranch();
 

@@ -85,6 +85,8 @@ public class RockSimCommonConstants {
     public static final String TUBE_FIN_SET = "TubeFinSet";
     public static final String RING_TAIL = "RingTail";
     public static final String EXTERNAL_POD = "ExternalPod";
+    public static final String DETACHABLE = "Detachable";
+    public static final String REMOVED = "Removed";     // Mark pod as ejected
     public static final String TEXTURE = "Texture";
     public static final String TUBE_COUNT = "TubeCount";
     public static final String MAX_TUBES_ALLOWED = "MaxTubesAllowed";

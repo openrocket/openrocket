@@ -32,15 +32,13 @@ public class MotorExporter {
      *
      * @param obj         The OBJ to export to
      * @param config      The flight configuration to use for the export
-     * @param transformer Coordinate system transformer to use to switch from the
-     *                    OpenRocket coordinate system to a custom OBJ coordinate
-     *                    system
+     * @param transformer Coordinate system transformer to use to switch from the OpenRocket coordinate system to a custom OBJ coordinate system
      * @param mount       The motor mount that holds the motor to export
      * @param groupName   The name of the group to export to
      * @param LOD         Level of detail to use for the export (e.g. '80')
      */
     public MotorExporter(DefaultObj obj, FlightConfiguration config, CoordTransform transformer, RocketComponent mount,
-            String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+                         String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         if (!(mount instanceof MotorMount)) {
             throw new IllegalArgumentException("Motor exporter can only be used for motor mounts");
         }
@@ -71,7 +69,7 @@ public class MotorExporter {
     private void generateMesh(Motor motor, InstanceContext context) {
         final double length = motor.getLength();
         final double radius = motor.getDiameter() / 2;
-        final float coneLength = (float) (0.05 * length); // Length of the indent cone at the aft end of the motor
+        final float coneLength = (float) (0.05 * length);           // Length of the indent cone at the aft end of the motor
         final int numSides = LOD.getNrOfSides(radius);
         final int startIdx = obj.getNumVertices();
 
@@ -105,8 +103,7 @@ public class MotorExporter {
         }
 
         // Close outer and inner aft ring
-        DiskExporter.closeDiskMesh(obj, transformer, null, aftRingVertices, aftInnerRingVertices, false, false, 0, 1,
-                0.125f, 0.1f);
+        DiskExporter.closeDiskMesh(obj, transformer, null, aftRingVertices, aftInnerRingVertices, false, false, 0, 1, 0.125f, 0.1f);
 
         // Add cone tip vertex
         obj.addVertex(transformer.convertLoc(length - coneLength, 0, 0));
@@ -126,7 +123,7 @@ public class MotorExporter {
             obj.addTexCoord(u, 0f);
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx); // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);
 
         // Create the cone faces
@@ -143,8 +140,8 @@ public class MotorExporter {
                     normalsStartIdx + i,
             };
             final int[] texCoordIndices = new int[] {
-                    numSides + 1 + i,
-                    i + 1,
+                    numSides+1 + i,
+                    i+1,
                     i,
             };
             ObjUtils.offsetIndex(texCoordIndices, texCoordsStartIdx);
@@ -153,10 +150,11 @@ public class MotorExporter {
             obj.addFace(face);
         }
 
+
         // Translate the mesh to the position in the rocket
         Coordinate location = context.getLocation();
         final double xOffs = mount.getLength() + ((MotorMount) mount).getMotorOverhang() - length;
-        location = location.add(xOffs, 0, 0); // Motor starts at the aft end of the mount
+        location = location.add(xOffs, 0, 0);      // Motor starts at the aft end of the mount
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 }

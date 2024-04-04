@@ -34,18 +34,16 @@ public class AppearanceExporter {
 
     /**
      * Export the appearance of a rocket component
-     * <b>NOTE: </b> you still have to call {@link #doExport()} to actually export
-     * the appearance.
-     * 
-     * @param obj          The obj file that will use the material
-     * @param appearance   The appearance to export
-     * @param file         The file that the OBJ is exported to
-     * @param options      The options to use for exporting the OBJ
+     * <b>NOTE: </b> you still have to call {@link #doExport()} to actually export the appearance.
+     * @param obj The obj file that will use the material
+     * @param appearance The appearance to export
+     * @param file The file that the OBJ is exported to
+     * @param options The options to use for exporting the OBJ
      * @param materialName The name of the material to generate
-     * @param materials    The list of materials to add the new material(s) to
+     * @param materials The list of materials to add the new material(s) to
      */
     public AppearanceExporter(DefaultObj obj, Appearance appearance, File file, OBJExportOptions options,
-            String materialName, List<DefaultMtl> materials) {
+                              String materialName, List<DefaultMtl> materials) {
         this.obj = obj;
         this.appearance = appearance;
         this.file = file;
@@ -55,8 +53,7 @@ public class AppearanceExporter {
     }
 
     /**
-     * Export the appearance of the component to the MTL file. Also sets the active
-     * material group in the OBJ file.
+     * Export the appearance of the component to the MTL file. Also sets the active material group in the OBJ file.
      */
     public void doExport() {
         // Set the active material group
@@ -80,8 +77,7 @@ public class AppearanceExporter {
 
         final DefaultTextureOptions textureOptions = new DefaultTextureOptions();
 
-        // The decal file is stored inside the .ork, so first export it to the export
-        // directory
+        // The decal file is stored inside the .ork, so first export it to the export directory
         final File decalFile;
         try {
             String exportDir = file.getParent();
@@ -91,8 +87,8 @@ public class AppearanceExporter {
 
             DecalImage decal = texture.getImage();
             String decalName = FileUtils.getFileNameFromPath(decal.getName());
-            decalFile = new File(decalDir.toString(), decalName); // TODO: should name be unique?
-            decalFile.createNewFile(); // TODO: check if you want to overwrite?
+            decalFile = new File(decalDir.toString(), decalName);       // TODO: should name be unique?
+            decalFile.createNewFile();                                  // TODO: check if you want to overwrite?
             decal.exportImage(decalFile);
             log.info("Exported decal image to {}", decalFile.getAbsolutePath());
         } catch (Exception e) {
@@ -111,8 +107,8 @@ public class AppearanceExporter {
         // Texture offset
         // Need an extra offset because the texture scale origin is different in OR
         final Coordinate origin = texture.getOffset();
-        float origX = (float) (scaleX * (-1 - origin.x) + 1);
-        float origY = (float) (scaleY * (-1 - origin.y) + 1);
+        float origX = (float) (scaleX*(-1 - origin.x) + 1);
+        float origY = (float) (scaleY*(-1 - origin.y) + 1);
 
         textureOptions.setO(origX, origY, 0f);
 
@@ -134,13 +130,12 @@ public class AppearanceExporter {
         final float r = convertColorToFloat(color.getRed(), options.isUseSRGB());
         final float g = convertColorToFloat(color.getGreen(), options.isUseSRGB());
         final float b = convertColorToFloat(color.getBlue(), options.isUseSRGB());
-        material.setKd(r, g, b); // Diffuse color
-        material.setKa(0f, 0f, 0f); // No emission
-        material.setKs(.25f, .25f, .25f); // Not too strong specular highlights
-        material.setD(color.getAlpha() / 255f); // Opacity
-        material.setNs((float) appearance.getShine() * 750); // Shine (max is 1000, but this too strong compared to
-                                                             // OpenRocket's max)
-        material.setIllum(2); // Use Phong reflection (specular highlights etc.)
+        material.setKd(r, g, b);                                // Diffuse color
+        material.setKa(0f, 0f, 0f);                             // No emission
+        material.setKs(.25f, .25f, .25f);                       // Not too strong specular highlights
+        material.setD(color.getAlpha()/255f);                   // Opacity
+        material.setNs((float) appearance.getShine() * 750);    // Shine (max is 1000, but this too strong compared to OpenRocket's max)
+        material.setIllum(2);                                   // Use Phong reflection (specular highlights etc.)
     }
 
     private static float convertColorToFloat(int color, boolean sRGB) {

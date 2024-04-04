@@ -22,21 +22,21 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		stg.addChild(body);
 		TrapezoidFinSet fins = new TrapezoidFinSet(1, 0.06, 0.02, 0.02, 0.05);
 		//
-		// sweep= 0.02 | tipChord = 0.02
-		// | | |
-		// | +------+ ----------
-		// | / \
-		// | / \ height = 0.05
-		// | / \
-		// / \
-		// __________/________________\_____ length == rootChord == 0.06
-		// | |
-		// | | tab height = 0.02
-		// | |
-		// +--------+ tab length = 0.02
-		// position = 0.0 via middle
+		//     sweep= 0.02 | tipChord = 0.02
+		//            |    |      |
+		//            |    +------+  ----------
+		//            |   /        \
+		//            |  /          \     height = 0.05
+		//            | /            \
+		//             /              \
+		//  __________/________________\_____   length == rootChord == 0.06
+		//                |        |
+		//                |        |      tab height = 0.02
+		//                |        |
+		//                +--------+      tab length = 0.02
+		//                    position = 0.0 via middle
 		//
-		// Fin Area = 0.05 * ( (0.2 + 0.06)/2) = 0.0
+		//         Fin Area = 0.05 * ( (0.2 + 0.06)/2) = 0.0
 		//
 		fins.setAxialOffset(AxialMethod.MIDDLE, 0.0);
 		fins.setMaterial(Material.newMaterial(Material.Type.BULK, "Fin-Test-Material", 1.0, true));
@@ -91,10 +91,10 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 
 		// Fin length = 0.05
 		// Tab Length = 0.01
-		// +--+
-		// / \
-		// / \
-		// +---+--------+---+
+		//          +--+
+		//         /    \
+		//        /      \
+		//   +---+--------+---+
 		//
 		Coordinate[] actPoints = fins.getFinPoints();
 
@@ -122,10 +122,10 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 
 		// Fin length = 0.05
 		// Tab Length = 0.01
-		// +--+
-		// / \
-		// / \
-		// +---+--------+---+
+		//          +--+
+		//         /    \
+		//        /      \
+		//   +---+--------+---+
 		//
 		Coordinate[] actPoints = fins.getFinPoints();
 		Coordinate[] rootPoints = fins.getRootPoints();
@@ -258,10 +258,10 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 
 		// used for fillet and edge calculations:
 		//
-		// [1] +--+ [2]
-		// / \
-		// / \
-		// [0] +--------+ [3]
+		//      [1] +--+ [2]
+		//         /    \
+		//        /      \
+		//   [0] +--------+ [3]
 		//
 		assertEquals(0.06, fins.getLength(), EPSILON);
 		assertEquals(0.1, body.getOuterRadius(), EPSILON, "Body radius doesn't match: ");
@@ -290,10 +290,10 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 
 		// used for fillet and edge calculations:
 		//
-		// [1] +--+ [2]
-		// / \
-		// / \
-		// [0] +--------+ [3]
+		//      [1] +--+ [2]
+		//         /    \
+		//        /      \
+		//   [0] +--------+ [3]
 		//
 		assertEquals(0.05, fins.getLength(), EPSILON);
 		assertEquals(0.1, transition.getForeRadius(), EPSILON, "Transition fore radius doesn't match: ");
@@ -320,12 +320,12 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			assertEquals(0.5, coords.y, 0.001);
 		}
 		{
-			// This is a trapezoid. Height 1, root 1, tip 1/2 no sweep.
+			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
 			// It can be decomposed into a rectangle followed by a triangle
-			// +---+
-			// | \
-			// | \
-			// +------+
+			//  +---+
+			//  |    \
+			//  |     \
+			//  +------+
 			TrapezoidFinSet fins = new TrapezoidFinSet();
 			fins.setFinCount(1);
 			fins.setFinShape(1.0, 0.5, 0.0, 1.0, .005);

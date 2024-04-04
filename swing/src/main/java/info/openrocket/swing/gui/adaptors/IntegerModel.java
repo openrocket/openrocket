@@ -2,7 +2,6 @@ package info.openrocket.swing.gui.adaptors;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
 
@@ -13,6 +12,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import info.openrocket.core.util.Invalidatable;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.util.BugException;
@@ -25,10 +25,12 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class IntegerModel implements StateChangeListener {
+public class IntegerModel implements StateChangeListener, Invalidatable {
 	private static final Logger log = LoggerFactory.getLogger(IntegerModel.class);
-	
-	
+
+	private final ModelInvalidator modelInvalidator;
+
+
 	//////////// JSpinner Model ////////////
 	
 	private class IntegerSpinnerModel extends SpinnerNumberModel {
@@ -140,8 +142,7 @@ public class IntegerModel implements StateChangeListener {
 	
 	private final Method getMethod;
 	private final Method setMethod;
-	
-	private final ArrayList<EventListener> listeners = new ArrayList<EventListener>();
+
 	
 	private final int minValue;
 	private final int maxValue;
@@ -167,6 +168,7 @@ public class IntegerModel implements StateChangeListener {
 	 * @param max Maximum value allowed (in SI units)
 	 */
 	public IntegerModel(ChangeSource source, String valueName, int min, int max) {
+		this.modelInvalidator = new ModelInvalidator(source, this);
 		this.source = source;
 		this.valueName = valueName;
 		
@@ -238,13 +240,7 @@ public class IntegerModel implements StateChangeListener {
 	 * @param l Listener to add.
 	 */
 	public void addChangeListener(EventListener l) {
-		if (listeners.isEmpty()) {
-			source.addChangeListener(this);
-			lastValue = getValue();
-		}
-		
-		listeners.add(l);
-		log.trace(this + " adding listener (total " + listeners.size() + "): " + l);
+		modelInvalidator.addChangeListener(l);
 	}
 	
 	/**
@@ -253,25 +249,19 @@ public class IntegerModel implements StateChangeListener {
 	 * @param l Listener to remove.
 	 */
 	public void removeChangeListener(ChangeListener l) {
-		listeners.remove(l);
-		if (listeners.isEmpty()) {
-			source.removeChangeListener(this);
-		}
-		log.trace(this + " removing listener (total " + listeners.size() + "): " + l);
+		modelInvalidator.removeChangeListener(l);
 	}
 	
 	
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		if (!listeners.isEmpty()) {
-			log.warn(this + " being garbage-collected while having listeners " + listeners);
-		}
+		modelInvalidator.finalize();
 	};
 	
 	
 	public void fireStateChanged() {
-		EventListener[] list = listeners.toArray(new EventListener[0] );
+		EventListener[] list = modelInvalidator.listeners.toArray(new EventListener[0] );
 		EventObject event = new EventObject(this);
 		ChangeEvent cevent = new ChangeEvent(this);
 		firing++;
@@ -291,6 +281,8 @@ public class IntegerModel implements StateChangeListener {
 	 */
 	@Override
 	public void stateChanged(EventObject e) {
+		modelInvalidator.checkState(true);
+
 		int v = getValue();
 		if (lastValue == v)
 			return;
@@ -308,5 +300,10 @@ public class IntegerModel implements StateChangeListener {
 		}
 		return toString;
 	}
-	
+
+	@Override
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
+	}
+
 }

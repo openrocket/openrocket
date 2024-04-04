@@ -46,38 +46,38 @@ import org.junit.jupiter.api.Test;
 /**
  */
 public class RockSimDocumentDTOTest extends RockSimTestBase {
-
+	
 	@Test
 	public void testDTO() throws Exception {
 		JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
 		Marshaller marshaller = binder.createMarshaller();
 		marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
-
+		
 		NoseConeDTO noseCone = new NoseConeDTO();
 		noseCone.setBaseDia(10d);
 		noseCone.setCalcCG(1.3d);
-
+		
 		StageDTO stage1 = new StageDTO();
 		stage1.addExternalPart(noseCone);
-
+		
 		RocketDesignDTO design2 = new RocketDesignDTO();
 		design2.setName("Test");
 		design2.setStage3(stage1);
-
+		
 		RockSimDesignDTO design = new RockSimDesignDTO();
 		design.setDesign(design2);
 		RockSimDocumentDTO message = new RockSimDocumentDTO();
 		message.setDesign(design);
-
+		
 		StringWriter stringWriter = new StringWriter();
 		marshaller.marshal(message, stringWriter);
-
+		
 		String response = stringWriter.toString();
-
+		
 		// TODO need checks here to validation that correct things were done
-		// System.err.println(response);
+		//System.err.println(response);
 	}
-
+	
 	@Test
 	public void testRoundTrip() throws Exception {
 		// TODO need checks here to validate that correct things were done
@@ -85,21 +85,20 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 
 		Assertions.assertNotNull(ord);
 		String result = new RockSimSaver().marshalToRockSim(ord);
-
-		// System.err.println(result);
-
+		
+		//  System.err.println(result);
+		
 		File output = new File("rt.rkt");
 		FileWriter fw = new FileWriter(output);
 		fw.write(result);
 		fw.flush();
 		fw.close();
-
+		
 		output.delete();
 	}
 
 	/**
-	 * Tests exporting a rocket with pods, and whether importing that same file
-	 * results in the same pod configuration.
+	 * Tests exporting a rocket with pods, and whether importing that same file results in the same pod configuration.
 	 */
 	@Test
 	public void testPodsExport() throws Exception {
@@ -127,24 +126,26 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		// Test children counts
 		List<RocketComponent> originalChildren = originalRocket.getAllChildren();
 		List<RocketComponent> importedChildren = importedRocket.getAllChildren();
-		assertEquals(originalChildren.size(), importedChildren.size(), " Number of total children doesn't match");
+		assertEquals(originalChildren.size() + 5, importedChildren.size(), " Number of total children doesn't match");		// More children because RockSim has individual podsets
 		assertEquals(1, importedRocket.getChildCount(), " Number of rocket children doesn't match");
 		AxialStage stage = (AxialStage) importedRocket.getChild(0);
 		assertEquals(2, stage.getChildCount(), " Number of stage children doesn't match");
 		BodyTube tube = (BodyTube) stage.getChild(1);
-		assertEquals(3, tube.getChildCount(), " Number of body tube children doesn't match");
+		assertEquals(6, tube.getChildCount(), " Number of body tube children doesn't match");
 		PodSet pod1 = (PodSet) tube.getChild(0);
 		assertEquals(1, pod1.getChildCount(), " Number of pod 1 children doesn't match");
 		PodSet pod2 = (PodSet) tube.getChild(1);
 		assertEquals(2, pod2.getChildCount(), " Number of pod 2 children doesn't match");
-		PodSet pod3 = (PodSet) tube.getChild(2);
+		PodSet pod3 = (PodSet) tube.getChild(3);
 		assertEquals(0, pod3.getChildCount(), " Number of pod 3 children doesn't match");
 
 		// Test component names
-		for (int i = 1; i < originalChildren.size(); i++) {
-			assertEquals(originalChildren.get(i).getName(), importedChildren.get(i).getName(),
-					" Child " + i + " does not match");
-		}
+		assertEquals("Pod 1", importedChildren.get(3).getName(), " Name does not match");
+		assertEquals("Pod 2 #1", importedChildren.get(5).getName(), " Name does not match");
+		assertEquals("Pod 2 #2", importedChildren.get(8).getName(), " Name does not match");
+		assertEquals("Pod 3 #1", importedChildren.get(11).getName(), " Name does not match");
+		assertEquals("Pod 3 #2", importedChildren.get(12).getName(), " Name does not match");
+		assertEquals("Pod 3 #3", importedChildren.get(13).getName(), " Name does not match");
 
 		// Test pod parameters
 		assertEquals(-0.14, pod1.getAxialOffset(), 0.0001);
@@ -153,7 +154,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		assertEquals(1, pod1.getInstanceCount());
 		assertEquals(0.02, pod2.getAxialOffset(), 0.0001);
 		assertEquals(0.025, pod2.getRadiusOffset(), 0.0001);
-		assertEquals(-Math.PI / 2, pod2.getAngleOffset(), 0.0001);
+		assertEquals(- Math.PI / 2, pod2.getAngleOffset(), 0.0001);
 		assertEquals(1, pod2.getInstanceCount());
 		assertEquals(0.23, pod3.getAxialOffset(), 0.0001);
 		assertEquals(0.06, pod3.getRadiusOffset(), 0.0001);
@@ -163,10 +164,8 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		stream.close();
 		Files.delete(output);
 	}
-
 	/**
-	 * Tests exporting a design where a tube coupler has children, which is not
-	 * supported by RockSim, so the children
+	 * Tests exporting a design where a tube coupler has children, which is not supported by RockSim, so the children
 	 * need to be moved outside the tube coupler.
 	 */
 	@Test
@@ -233,7 +232,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		pod2.setName("Pod 2");
 		tube.addChild(pod2);
 		PodSet pod3 = new PodSet();
-		pod2.setName("Pod 3");
+		pod3.setName("Pod 3");
 		tube.addChild(pod3);
 
 		// Pod 1 children
@@ -269,7 +268,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		pod3.setRadiusOffset(0.035);
 
 		pod1.setAngleOffset(Math.PI);
-		pod2.setAngleOffset(-Math.PI / 2);
+		pod2.setAngleOffset(- Math.PI / 2);
 		pod3.setAngleOffset(Math.PI / 3);
 
 		return document;

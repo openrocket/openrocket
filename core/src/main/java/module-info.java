@@ -25,6 +25,7 @@ open module info.openrocket.core {
 	requires org.slf4j;
 	requires com.opencsv;
 	requires org.commonmark;
+	requires org.locationtech.jts;
 
 	// TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;
@@ -54,6 +55,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.file.simplesax;
 	exports info.openrocket.core.file.wavefrontobj;
 	exports info.openrocket.core.file.wavefrontobj.export;
+	exports info.openrocket.core.file.svg.export;
 	exports info.openrocket.core.formatting;
 	exports info.openrocket.core.gui.util;
 	exports info.openrocket.core.l10n;

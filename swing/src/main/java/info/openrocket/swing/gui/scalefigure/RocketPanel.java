@@ -4,7 +4,6 @@ package info.openrocket.swing.gui.scalefigure;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -62,8 +61,8 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 
-import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
+import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.ConfigurationComboBox;

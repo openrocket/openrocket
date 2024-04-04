@@ -29,14 +29,14 @@ import info.openrocket.core.util.Coordinate;
  *
  */
 public class DefaultAppearance {
-
+	
 	/**
-	 * returns a simple appearance with the image in the path with
+	 * returns a simple appearance with the image in the path with 
 	 * default color
-	 * no shining
+	 * no shining	
 	 * no offset, origin center and scale 1
 	 * 
-	 * @param resource the path file to the resource
+	 * @param resource	the path file to the resource
 	 * @return
 	 */
 	private static Appearance simple(String resource) {
@@ -54,10 +54,10 @@ public class DefaultAppearance {
 	/**
 	 * returns the image with custom color and shine
 	 * 
-	 * @param base     base color for the image
-	 * @param shine    the custom shine property
-	 * @param resource the file path to the image
-	 * @return The appearance with custom color and shine.
+	 * @param base		base color for the image 
+	 * @param shine		the custom shine property
+	 * @param resource	the file path to the image
+	 * @return	The appearance with custom color and shine.
 	 */
 	private static Appearance simpleAlpha(ORColor base, float shine, String resource) {
 		return new Appearance(
@@ -78,28 +78,24 @@ public class DefaultAppearance {
 	private static final Appearance HARDBOARD = simple("/datafiles/textures/hardboard.jpg");
 	private static final Appearance WADDING = simple("/datafiles/textures/wadding.png");
 	private static final Appearance CHUTE = simple("/datafiles/textures/chute.jpg");
-
-	private static final Appearance ESTES_BT = simpleAlpha(new ORColor(212, 185, 145), .3f,
-			"/datafiles/textures/spiral-wound-alpha.png");
-	private static final Appearance ESTES_IT = simpleAlpha(new ORColor(168, 146, 116), .1f,
-			"/datafiles/textures/spiral-wound-alpha.png");
-	private static final Appearance WHITE_BT = simpleAlpha(new ORColor(240, 240, 240), .3f,
-			"/datafiles/textures/spiral-wound-alpha.png");
-
+	
+	
+	private static final Appearance ESTES_BT = simpleAlpha(new ORColor(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_IT = simpleAlpha(new ORColor(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance WHITE_BT = simpleAlpha(new ORColor(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	
 	private static final Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
 	private static final Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
 	private static final Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
-	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new ORColor(195, 60, 50), .6f,
-			"/datafiles/textures/motors/reusable.png");
+	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new ORColor(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 
 	private static final HashMap<ORColor, Appearance> plastics = new HashMap<ORColor, Appearance>();
-
+	
 	/**
 	 * gets the appearance correspondent to the plastic with the given color
 	 * also caches the plastics
-	 * 
-	 * @param c the color of the plastics
-	 * @return The plastic appearance with the given color
+	 * @param c		the color of the plastics
+	 * @return		The plastic appearance with the given color
 	 */
 	private static Appearance getPlastic(ORColor c) {
 		if (!plastics.containsKey(c)) {
@@ -107,12 +103,12 @@ public class DefaultAppearance {
 		}
 		return plastics.get(c);
 	}
-
+	
 	/**
 	 * gets the default based on the type of the rocket component
 	 * 
-	 * @param c the rocket component
-	 * @return the default appearance for that type of rocket component
+	 * @param c	the rocket component
+	 * @return	the default appearance for that type of rocket component
 	 */
 	public static Appearance getDefaultAppearance(RocketComponent c) {
 		if (c instanceof BodyTube)
@@ -133,17 +129,16 @@ public class DefaultAppearance {
 			return HARDBOARD;
 		if (c instanceof MassObject)
 			return WADDING;
-		if (c instanceof RailButton)
+		if ( c instanceof RailButton )
 			return getPlastic(new ORColor(255, 255, 220));
 		return Appearance.MISSING;
 	}
-
+	
 	/**
 	 * gets the default motor texture based on the manufacturer
 	 * returns reusable motor texture as default
-	 * 
-	 * @param m The motor object
-	 * @return The default appearance for the motor
+	 * @param m	The motor object
+	 * @return	The default appearance for the motor
 	 */
 	public static Appearance getDefaultAppearance(Motor m) {
 		if (m instanceof ThrustCurveMotor) {

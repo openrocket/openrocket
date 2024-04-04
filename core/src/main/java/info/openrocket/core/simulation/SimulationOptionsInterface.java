@@ -31,14 +31,14 @@ public interface SimulationOptionsInterface extends ChangeSource {
 	/**
 	 * Return the wind turbulence intensity (standard deviation / average).
 	 *
-	 * @return the turbulence intensity
+	 * @return  the turbulence intensity
 	 */
 	double getWindTurbulenceIntensity();
 
 	/**
 	 * Set the wind standard deviation to match the given turbulence intensity.
 	 *
-	 * @param intensity the turbulence intensity
+	 * @param intensity   the turbulence intensity
 	 */
 	void setWindTurbulenceIntensity(double intensity);
 

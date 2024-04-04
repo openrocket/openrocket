@@ -12,7 +12,7 @@ import info.openrocket.core.util.MathUtil;
  * <p>
  * A recovery device includes a surface material of which it is made of.
  * The mass of the component is calculated based on the material and the
- * area of the device from {@link #getArea()}. {@link #getComponentMass()}
+ * area of the device from {@link #getArea()}.  {@link #getComponentMass()}
  * may be overridden if additional mass needs to be included.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
@@ -27,29 +27,27 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	private Material.Surface material;
 
 	private FlightConfigurableParameterSet<DeploymentConfiguration> deploymentConfigurations;
-
+	
 	public RecoveryDevice() {
-		this.deploymentConfigurations = new FlightConfigurableParameterSet<>(new DeploymentConfiguration());
-		defaultMaterial = (Material.Surface) Application.getPreferences()
-				.getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE);
-		setMaterial(
-				Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
+		this.deploymentConfigurations = new FlightConfigurableParameterSet<>( new DeploymentConfiguration());
+		defaultMaterial = (Material.Surface) Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE);
+		setMaterial(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
 	}
-
+	
 	public abstract double getArea();
-
+	
 	public abstract double getComponentCD(double mach);
 
 	public double getCD() {
 		return getCD(0);
 	}
-
+	
 	public double getCD(double mach) {
 		if (cdAutomatic)
 			cd = getComponentCD(mach);
 		return cd;
 	}
-
+	
 	public void setCD(double cd) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RecoveryDevice) {
@@ -64,11 +62,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-
+	
+	
 	public boolean isCDAutomatic() {
 		return cdAutomatic;
 	}
-
+	
 	public void setCDAutomatic(boolean auto) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RecoveryDevice) {
@@ -81,11 +80,13 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		this.cdAutomatic = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-
+	
+	
+	
 	public final Material getMaterial() {
 		return material;
 	}
-
+	
 	public final void setMaterial(Material mat) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof RecoveryDevice) {
@@ -106,17 +107,17 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	public FlightConfigurableParameterSet<DeploymentConfiguration> getDeploymentConfigurations() {
 		return deploymentConfigurations;
 	}
-
+	
 	@Override
 	public void copyFlightConfiguration(FlightConfigurationId oldConfigId, FlightConfigurationId newConfigId) {
 		deploymentConfigurations.copyFlightConfiguration(oldConfigId, newConfigId);
 	}
-
+	
 	@Override
-	public void reset(final FlightConfigurationId fcid) {
+	public void reset( final FlightConfigurationId fcid){
 		deploymentConfigurations.reset(fcid);
 	}
-
+	
 	@Override
 	public double getComponentMass() {
 		return getArea() * getMaterial().getDensity();
@@ -124,12 +125,12 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		// // Set preset parachute line material
-		// NEED a better way to set preset if field is empty ----
+	//	//	Set preset parachute line material
+		//	NEED a better way to set preset if field is empty ----
 		if (preset.has(ComponentPreset.MATERIAL)) {
 			String surfaceMaterialEmpty = preset.get(ComponentPreset.MATERIAL).toString();
 			int count = surfaceMaterialEmpty.length();
-			if (count > 12) {
+			if (count > 12 ) {
 				Material m = preset.get(ComponentPreset.MATERIAL);
 				this.material = (Material.Surface) m;
 			} else {
@@ -154,8 +155,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		boolean success = super.addConfigListener(listener);
 		if (listener instanceof RecoveryDevice) {
 			DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
-			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations()
-					.getDefault();
+			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations().getDefault();
 			success = success && thisConfig.addConfigListener(listenerConfig);
 			return success;
 		}
@@ -167,8 +167,7 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		super.removeConfigListener(listener);
 		if (listener instanceof RecoveryDevice) {
 			DeploymentConfiguration thisConfig = getDeploymentConfigurations().getDefault();
-			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations()
-					.getDefault();
+			DeploymentConfiguration listenerConfig = ((RecoveryDevice) listener).getDeploymentConfigurations().getDefault();
 			thisConfig.removeConfigListener(listenerConfig);
 		}
 	}

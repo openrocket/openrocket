@@ -7,9 +7,9 @@ import info.openrocket.core.util.MathUtil;
 
 public class EllipticalFinSet extends FinSet {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final int POINTS = 31;
-
+	
 	// Static positioning for the fin points
 	private static final double[] POINT_X = new double[POINTS];
 	private static final double[] POINT_Y = new double[POINTS];
@@ -24,13 +24,15 @@ public class EllipticalFinSet extends FinSet {
 		POINT_X[POINTS - 1] = 1;
 		POINT_Y[POINTS - 1] = 0;
 	}
+	
 
 	private double height = 0.05;
-
+	
 	public EllipticalFinSet() {
 		this.length = 0.05;
 	}
-
+	
+	
 	@Override
 	public Coordinate[] getFinPoints() {
 		double len = MathUtil.max(length, 0.0001);
@@ -39,32 +41,31 @@ public class EllipticalFinSet extends FinSet {
 			finPoints[i] = new Coordinate(POINT_X[i] * len, POINT_Y[i] * height);
 		}
 
-		// Set the start and end fin points the same as the root points (necessary for
-		// canted fins)
+		// Set the start and end fin points the same as the root points (necessary for canted fins)
 		final Coordinate[] rootPoints = getRootPoints();
 		if (rootPoints.length > 1) {
 			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
-			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x)
-					.setY(rootPoints[rootPoints.length - 1].y);
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
 		}
 		return finPoints;
 	}
-
+	
 	@Override
 	public double getSpan() {
 		return height;
 	}
-
+	
 	@Override
 	public String getComponentName() {
 		//// Elliptical fin set
 		return trans.get("EllipticalFinSet.Ellipticalfinset");
 	}
-
+	
+	
 	public double getHeight() {
 		return height;
 	}
-
+	
 	public void setHeight(double height) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof EllipticalFinSet) {
@@ -77,7 +78,8 @@ public class EllipticalFinSet extends FinSet {
 		this.height = height;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
+	
 	public void setLength(double length) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof EllipticalFinSet) {
@@ -91,5 +93,6 @@ public class EllipticalFinSet extends FinSet {
 		validateFinTabLength();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
+	
 
 }

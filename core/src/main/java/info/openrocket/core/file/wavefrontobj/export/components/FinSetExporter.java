@@ -18,7 +18,7 @@ import java.util.List;
 
 public class FinSetExporter extends RocketComponentExporter<FinSet> {
     public FinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-            FinSet component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+                          FinSet component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
@@ -27,9 +27,8 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         obj.setActiveGroupNames(groupName);
 
         final Coordinate[] points = component.getFinPointsWithRoot();
-        final Coordinate[] tabPoints = component.getTabPoints();
-        final Coordinate[] tabPointsReversed = new Coordinate[tabPoints.length]; // We need clockwise points for the
-                                                                                 // PolygonExporter
+        final Coordinate[] tabPoints = component.getTabPointsWithRoot();
+        final Coordinate[] tabPointsReversed = new Coordinate[tabPoints.length];        // We need clockwise points for the PolygonExporter
         for (int i = 0; i < tabPoints.length; i++) {
             tabPointsReversed[i] = tabPoints[tabPoints.length - i - 1];
         }
@@ -49,7 +48,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
     }
 
     private void generateMesh(FloatPoints floatPoints, FloatPoints floatTabPoints, float thickness,
-            boolean hasTabs, InstanceContext context) {
+                              boolean hasTabs, InstanceContext context) {
         // Generate the mesh
         final int startIdx = obj.getNumVertices();
         final int normalsStartIdx = obj.getNumNormals();
@@ -64,16 +63,14 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
                     floatTabPoints.getXCoords(), floatTabPoints.getYCoords(), thickness);
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx); // Clamp in case no vertices were added
-        int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx); // Clamp in case no normals were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);                  // Clamp in case no vertices were added
+        int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);     // Clamp in case no normals were added
 
         // First rotate for the cant angle
         /*
-         * Note: I first thought you had to do the cant rotation with the fin center as
-         * origin, but you just have to
-         * rotate around the fin start. The offset due to the cant rotation around the
-         * fin start is already taken care of by
-         * the component location.
+        Note: I first thought you had to do the cant rotation with the fin center as origin, but you just have to
+        rotate around the fin start. The offset due to the cant rotation around the fin start is already taken care of by
+        the component location.
          */
         FloatTuple rot = transformer.convertRot(0, component.getCantAngle(), 0);
         FloatTuple orig = transformer.convertLoc(0, 0, 0);
@@ -96,15 +93,12 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
     }
 
     /**
-     * Converts the double fin points to float fin points and removes any duplicate
-     * points (OBJ can't handle this).
-     * 
+     * Converts the double fin points to float fin points and removes any duplicate points (OBJ can't handle this).
      * @param points The fin points
      * @return The fin points as floats
      */
     private FloatPoints getPointsAsFloat(Coordinate[] points) {
-        // We first want to remove duplicate points, so we'll keep track of indices that
-        // are correct
+        // We first want to remove duplicate points, so we'll keep track of indices that are correct
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < points.length; i++) {
             final int nextIdx = (i + 1) % points.length;

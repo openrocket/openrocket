@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -19,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -51,6 +53,7 @@ import info.openrocket.swing.gui.widgets.SelectColorButton;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotPanel extends JPanel {
+	@Serial
 	private static final long serialVersionUID = -2227129713185477998L;
 
 	private static final Translator trans = Application.getTranslator();
@@ -110,7 +113,7 @@ public class SimulationPlotPanel extends JPanel {
 
 	private DescriptionArea simPlotPanelDesc;
 
-	private static java.awt.Color darkWarningColor;
+	private static java.awt.Color darkErrorColor;
 
 	static {
 		initColors();
@@ -212,7 +215,7 @@ public class SimulationPlotPanel extends JPanel {
 		//// The data will be plotted in time order even if the X axis type is not time.
 		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
 		simPlotPanelDesc.setVisible(false);
-		simPlotPanelDesc.setForeground(darkWarningColor);
+		simPlotPanelDesc.setForeground(darkErrorColor);
 		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.add(simPlotPanelDesc, "width 1px, growx 1, wrap unrel");
 		
@@ -391,7 +394,7 @@ public class SimulationPlotPanel extends JPanel {
 	}
 
 	private static void updateColors() {
-		darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 
 	private void updateStyleEventWidgets(JLabel styleEventMarker, JRadioButton radioVerticalMarker, JRadioButton radioIcon) {

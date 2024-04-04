@@ -125,6 +125,8 @@ public class OBJUtilsTest extends BaseTestCase {
         assertEquals(1.3f, vertex.getZ(), EPSILON);
     }
 
+
+
     @Test
     public void testRotateWithNoChange() {
         final DefaultObj obj = new DefaultObj();
@@ -154,7 +156,7 @@ public class OBJUtilsTest extends BaseTestCase {
         obj.addNormal(1.0f, 0.0f, 0.0f);
 
         ObjUtils.rotateVertices(obj, 0, 0, 0, 0,
-                (float) Math.PI / 2, 0, 0, 0.0f, 0.0f, 0.0f);
+                (float) Math.PI/2, 0, 0, 0.0f, 0.0f, 0.0f);
 
         FloatTuple vertex = obj.getVertex(0);
         assertEquals(1.0f, vertex.getX(), EPSILON);
@@ -176,7 +178,7 @@ public class OBJUtilsTest extends BaseTestCase {
         obj.addNormal(1.0f, 0.0f, 0.0f);
 
         ObjUtils.rotateVertices(obj, verticesStartIdx, verticesStartIdx, normalsStartIdx, normalsStartIdx,
-                0.0f, (float) Math.PI / 2, 0.0f, 0.0f, 0.0f, 0.0f);
+                0.0f, (float) Math.PI/2, 0.0f, 0.0f, 0.0f, 0.0f);
 
         FloatTuple vertex = obj.getVertex(verticesStartIdx);
         assertEquals(1.0f, vertex.getX(), EPSILON);

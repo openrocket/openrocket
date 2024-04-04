@@ -14,7 +14,7 @@ import info.openrocket.core.util.Coordinate;
 
 public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
     public TubeFinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-            TubeFinSet component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+                              TubeFinSet component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
@@ -43,11 +43,10 @@ public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
         // Generate the instance mesh
         TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, innerRadius, length, LOD.getValue());
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx); // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);                  // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
-        // We will create an offset location that has the same effect as the axial
-        // rotation of the launch lug
+        //      We will create an offset location that has the same effect as the axial rotation of the launch lug
         final double rotX = context.transform.getXrotation();
         final Coordinate location = context.getLocation();
         Coordinate offsetLocation = getOffsetLocation(outerRadius, location, rotX);
@@ -55,8 +54,7 @@ public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
     }
 
     private static Coordinate getOffsetLocation(float outerRadius, Coordinate location, double rotX) {
-        // ! This is all still referenced to the OpenRocket coordinate system, not the
-        // OBJ one
+        // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
         final float dy = outerRadius * (float) Math.cos(rotX);
         final float dz = outerRadius * (float) Math.sin(rotX);
         final double x = location.x;

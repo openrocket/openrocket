@@ -41,6 +41,10 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 	private static final Translator trans = Application.getTranslator();
 
+	private static Color textSelectionBackgroundColor;
+	private static Color textSelectionForegroundColor;
+	private static Color componentTreeBackgroundColor;
+	private static Color componentTreeForegroundColor;
 	private static Icon massOverrideSubcomponentIcon;
 	private static Icon massOverrideIcon;
 	private static Icon CGOverrideSubcomponentIcon;
@@ -132,7 +136,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		updateColors();
 		UITheme.Theme.addUIThemeChangeListener(ComponentTreeRenderer::updateColors);
 	}
-	
+
 	private static void updateColors() {
 		massOverrideSubcomponentIcon = GUIUtil.getUITheme().getMassOverrideSubcomponentIcon();
 		massOverrideIcon = GUIUtil.getUITheme().getMassOverrideIcon();

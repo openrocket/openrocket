@@ -33,8 +33,15 @@ import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.startup.Application;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.file.GeneralRocketLoader;
+import info.openrocket.core.file.RocketLoadException;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.Markers;
+import info.openrocket.core.simulation.customexpression.CustomExpression;
+import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
@@ -42,10 +49,10 @@ public class CustomExpressionPanel extends JPanel {
 	
 	private static final Logger log = LoggerFactory.getLogger(CustomExpressionPanel.class);
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private JPanel expressionSelectorPanel;
 	private OpenRocketDocument doc;
-
+	
 	public CustomExpressionPanel(final OpenRocketDocument doc, final JDialog parentDialog) {
 		super(new MigLayout("fill"));
 		this.doc = doc;
@@ -54,7 +61,7 @@ public class CustomExpressionPanel extends JPanel {
 		expressionSelectorPanel.setToolTipText(trans.get("customExpressionPanel.lbl.CalcNote"));
 		
 		JScrollPane scroll = new JScrollPane(expressionSelectorPanel);
-
+		
 		//Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
 		//scroll.setBorder(bdr);
 		//expressionSelectorPanel.add(scroll);
@@ -133,7 +140,7 @@ public class CustomExpressionPanel extends JPanel {
 		
 		updateExpressions();
 	}
-
+	
 	/*
 	 * Update the expressionSelectorPanel
 	 */

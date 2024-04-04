@@ -22,9 +22,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	private double shapeParameter;
 	private boolean clipped; // Not to be read - use isClipped(), which may be overridden
 
-	protected double foreRadius, aftRadius; // Warning: avoid using these directly, use getForeRadius() and
-											// getAftRadius() instead (because the definition of the two can change for
-											// flipped nose cones)
+	protected double foreRadius, aftRadius;		// Warning: avoid using these directly, use getForeRadius() and getAftRadius() instead (because the definition of the two can change for flipped nose cones)
 	protected boolean autoForeRadius, autoAftRadius; // Whether the start radius is automatic
 
 	private double foreShoulderRadius;
@@ -96,7 +94,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	/**
 	 * Set the new fore radius, with option to clamp the thickness to the new radius
 	 * if it's too large.
-	 * 
+	 *
 	 * @param radius     new radius
 	 * @param doClamping whether to clamp the thickness
 	 */
@@ -191,7 +189,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	/**
 	 * Set the new aft radius, with option to clamp the thickness to the new radius
 	 * if it's too large.
-	 * 
+	 *
 	 * @param radius     new radius
 	 * @param doClamping whether to clamp the thickness
 	 */
@@ -288,7 +286,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	/**
 	 * Checks whether this component can use the automatic radius of the previous
 	 * symmetric component.
-	 * 
+	 *
 	 * @return false if there is no previous symmetric component, or if the previous
 	 *         component already has this component
 	 *         as its auto dimension reference
@@ -304,7 +302,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	/**
 	 * Checks whether this component can use the automatic radius of the next
 	 * symmetric component.
-	 * 
+	 *
 	 * @return false if there is no next symmetric component, or if the next
 	 *         component already has this component
 	 *         as its auto dimension reference
@@ -675,8 +673,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 		// only adjust properties if there is in fact at least one shoulder
 		if ((getForeShoulderLength() > MINFEATURE) || (getAftShoulderLength() > MINFEATURE)) {
 			// we'll work with volumes and not masses because density is uniform and it'll
-			// save some
-			// multiplications and divisions
+			// save some multiplications and divisions
 
 			// accumulate data for later calculation of properties with shoulders added
 			double transVolume = volume;
@@ -729,12 +726,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
 
 				aftShoulderCG = ringCG(getAftShoulderRadius(), ir, getLength(),
-						getLength() + getAftShoulderLength(),
-						getMaterial().getDensity());
+									   getLength() + getAftShoulderLength(),
+									   getMaterial().getDensity());
 
 				aftShoulderVolume = ringVolume(or, ir, getAftShoulderLength());
 
-				aftShoulderLongMOI = ringLongitudinalUnitInertia(or, ir, getAftShoulderLength()) * aftShoulderVolume;
+				aftShoulderLongMOI = ringLongitudinalUnitInertia(or, ir, getAftShoulderLength())*aftShoulderVolume;
 
 				aftShoulderRotMOI = ringRotationalUnitInertia(or, ir) * aftShoulderVolume;
 			}
@@ -747,12 +744,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
 
 				aftCapCG = ringCG(ir, 0,
-						getLength() + getAftShoulderLength() - getAftShoulderThickness(),
-						getLength() + getAftShoulderLength(), getMaterial().getDensity());
+								  getLength() + getAftShoulderLength() - getAftShoulderThickness(),
+								  getLength() + getAftShoulderLength(), getMaterial().getDensity());
 
-				aftCapVolume = ringVolume(ir, 0, getAftShoulderThickness());
+				aftCapVolume = ringVolume(ir, 0, getAftShoulderThickness() );
 
-				aftCapLongMOI = ringLongitudinalUnitInertia(ir, 0, getForeShoulderThickness()) * aftCapVolume;
+				aftCapLongMOI = ringLongitudinalUnitInertia(ir, 0, getForeShoulderThickness())*aftCapVolume;
 
 				aftCapRotMOI = ringRotationalUnitInertia(ir, 0.0) * aftCapVolume;
 			}
@@ -761,13 +758,12 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			volume = foreCapVolume + foreShoulderVolume + transVolume + aftShoulderVolume + aftCapVolume;
 
 			final double cgx = foreCapCG.x * foreCapCG.weight +
-					foreShoulderCG.x * foreShoulderCG.weight +
-					transCG.x * transCG.weight +
-					aftShoulderCG.x * aftShoulderCG.weight +
-					aftCapCG.x * aftCapCG.weight;
+				foreShoulderCG.x * foreShoulderCG.weight +
+				transCG.x * transCG.weight +
+				aftShoulderCG.x * aftShoulderCG.weight +
+				aftCapCG.x * aftCapCG.weight;
 
-			final double mass = foreCapCG.weight + foreShoulderCG.weight + transCG.weight + aftShoulderCG.weight
-					+ aftCapCG.weight;
+			final double mass = foreCapCG.weight + foreShoulderCG.weight + transCG.weight + aftShoulderCG.weight + aftCapCG.weight;
 
 			cg = new Coordinate(cgx / mass, 0, 0, mass);
 
@@ -778,14 +774,13 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			aftShoulderLongMOI += pow2(cg.x - aftShoulderCG.x) * aftShoulderVolume;
 			aftCapLongMOI += pow2(cg.x - aftCapCG.x) * aftCapVolume;
 
-			final double longMOI = foreCapLongMOI + foreShoulderLongMOI + transLongMOI + aftShoulderLongMOI
-					+ aftCapLongMOI;
-			longitudinalUnitInertia = longMOI / volume;
+			final double longMOI = foreCapLongMOI + foreShoulderLongMOI + transLongMOI + aftShoulderLongMOI + aftCapLongMOI;
+			longitudinalUnitInertia = longMOI/volume;
 
 			final double rotMOI = foreCapRotMOI + foreShoulderRotMOI + transRotMOI + aftShoulderRotMOI + aftCapRotMOI;
-			rotationalUnitInertia = rotMOI / volume;
+			rotationalUnitInertia = rotMOI/volume;
 		}
-	}
+ 	}
 
 	/**
 	 * Returns the name of the component ("Transition").

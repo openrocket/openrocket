@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import info.openrocket.core.logging.MessagePriority;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.DocumentLoadingContext;
@@ -15,27 +16,28 @@ import info.openrocket.core.simulation.FlightDataBranch;
 
 class FlightDataHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
-
+	
 	private FlightDataBranchHandler dataHandler;
 	private final WarningSet warningSet = new WarningSet();
 	private final List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
-
+	
 	private final SingleSimulationHandler simHandler;
 	private FlightData data;
-
+	
+	
 	public FlightDataHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
 		this.context = context;
 		this.simHandler = simHandler;
 	}
-
+	
 	public FlightData getFlightData() {
 		return data;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		if (element.equals("warning")) {
 			return PlainTextHandler.INSTANCE;
 		}
@@ -47,7 +49,7 @@ class FlightDataHandler extends AbstractElementHandler {
 			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
 					attributes.get("types"),
 					simHandler, context);
-
+			
 			if (attributes.get("optimumAltitude") != null) {
 				double optimumAltitude = Double.NaN;
 				try {
@@ -66,25 +68,29 @@ class FlightDataHandler extends AbstractElementHandler {
 			}
 			return dataHandler;
 		}
-
+		
 		warnings.add("Unknown element '" + element + "' encountered, ignoring.");
 		return null;
 	}
-
+	
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-
+		
 		if (element.equals("databranch")) {
 			FlightDataBranch branch = dataHandler.getBranch();
 			if (branch.getLength() > 0) {
 				branches.add(branch);
 			}
 		} else if (element.equals("warning")) {
-			warningSet.add(Warning.fromString(content));
+			String priorityStr = attributes.get("priority");
+			MessagePriority priority = MessagePriority.fromExportLabel(priorityStr);
+			warningSet.add(Warning.fromString(content, priority));
 		}
 	}
-
+	
+	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
@@ -147,9 +153,10 @@ class FlightDataHandler extends AbstractElementHandler {
 			data = new FlightData(maxAltitude, maxVelocity, maxAcceleration, maxMach,
 					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity, optimumDelay);
 		}
-
+		
 		data.getWarningSet().addAll(warningSet);
 		data.immute();
 	}
-
+	
+	
 }

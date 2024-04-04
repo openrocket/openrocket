@@ -13,9 +13,8 @@ import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.util.Coordinate;
 
 public class RingComponentExporter extends RocketComponentExporter<RingComponent> {
-    public RingComponentExporter(@NotNull DefaultObj obj, FlightConfiguration config,
-            @NotNull CoordTransform transformer,
-            RingComponent component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+    public RingComponentExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+                                 RingComponent component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
@@ -41,7 +40,7 @@ public class RingComponentExporter extends RocketComponentExporter<RingComponent
         // Generate the mesh
         int startIdx = obj.getNumVertices();
         TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, innerRadius, length, LOD);
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx); // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
         final Coordinate location = context.getLocation();

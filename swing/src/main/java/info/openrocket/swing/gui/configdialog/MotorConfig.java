@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.configdialog;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -28,13 +29,15 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.util.Invalidatable;
 
-public class MotorConfig extends JPanel {
+public class MotorConfig extends JPanel implements Invalidatable, InvalidatingWidget {
 	
 	private static final long serialVersionUID = -4974509134239867067L;
 	private final MotorMount mount;
 	private static final Translator trans = Application.getTranslator();
-	
+	private final List<Invalidatable> invalidatables = new ArrayList<>();
+
 	public MotorConfig(MotorMount motorMount, List<Component> order) {
 		super(new MigLayout("fillx"));
 		
@@ -43,6 +46,7 @@ public class MotorConfig extends JPanel {
 		BooleanModel model;
 		
 		model = new BooleanModel(motorMount, "MotorMount");
+		register(model);
 		JCheckBox check = new JCheckBox(model);
 		////This component is a motor mount
 		check.setText(trans.get("MotorCfg.checkbox.compmotormount"));
@@ -58,7 +62,8 @@ public class MotorConfig extends JPanel {
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Motoroverhang")));
 		
 		DoubleModel dm = new DoubleModel(motorMount, "MotorOverhang", UnitGroup.UNITS_LENGTH);
-		
+		register(dm);
+
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "span, split, width :65lp:");
@@ -75,6 +80,7 @@ public class MotorConfig extends JPanel {
 		MotorConfiguration motorInstance = mount.getDefaultMotorConfig();
 		
 		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(motorInstance, "IgnitionEvent", IgnitionEvent.values());
+		register(igEvModel);
 		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);
 		panel.add(eventBox , "wrap");
 		order.add(eventBox);
@@ -84,6 +90,7 @@ public class MotorConfig extends JPanel {
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
 		dm = new DoubleModel(motorInstance, "IgnitionDelay", 0);
+		register(dm);
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "gap rel rel");
@@ -136,5 +143,18 @@ public class MotorConfig extends JPanel {
 			}
 		}
 	}
-	
+
+	@Override
+	public void register(Invalidatable model) {
+		this.invalidatables.add(model);
+	}
+
+	@Override
+	public void invalidateMe() {
+		super.invalidate();
+		for (Invalidatable i : invalidatables) {
+			i.invalidateMe();
+		}
+	}
+
 }

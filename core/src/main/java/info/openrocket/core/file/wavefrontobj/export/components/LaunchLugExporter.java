@@ -14,7 +14,7 @@ import info.openrocket.core.util.Coordinate;
 
 public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
     public LaunchLugExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-            LaunchLug component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+                             LaunchLug component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, warnings);
     }
 
@@ -40,7 +40,7 @@ public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
         // Generate the mesh
         int startIdx = obj.getNumVertices();
         TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, innerRadius, length, LOD);
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx); // Clamp in case no vertices were added
+        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
         final Coordinate location = context.getLocation();

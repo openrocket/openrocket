@@ -29,7 +29,7 @@ import info.openrocket.core.util.TextUtil;
 
 public class RocketComponentSaver {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	protected RocketComponentSaver() {
 		// Prevent instantiation from outside the package
 	}
@@ -66,7 +66,7 @@ public class RocketComponentSaver {
 				elements.add("</insideappearance>");
 			}
 		}
-
+		
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
 			ORColor color = c.getColor();
@@ -81,18 +81,17 @@ public class RocketComponentSaver {
 
 		if (c instanceof Instanceable) {
 			int instanceCount = c.getInstanceCount();
-
+			
 			if (c instanceof Clusterable) {
-				// no-op. Instance counts are set via named cluster configurations
+				// no-op.  Instance counts are set via named cluster configurations
 			} else {
 				emitInteger(elements, "instancecount", c.getInstanceCount());
-				// TODO: delete this when no backward compatibility with OR 15.03 is needed
-				// anymore
+				// TODO: delete this when no backward compatibility with OR 15.03 is needed anymore
 				if (c instanceof FinSet || c instanceof TubeFinSet) {
 					emitInteger(elements, "fincount", c.getInstanceCount());
 				}
 			}
-
+			
 			if (c instanceof LineInstanceable) {
 				LineInstanceable line = (LineInstanceable) c;
 				emitDouble(elements, "instanceseparation", line.getInstanceSeparation());
@@ -121,7 +120,7 @@ public class RocketComponentSaver {
 				elements.add("<radialdirection>" + angleOffset + "</radialdirection>");
 			}
 		}
-
+		
 		// Save position unless "AFTER"
 		if (c.getAxialMethod() != AxialMethod.AFTER) {
 			// The type names are currently equivalent to the enum names except for case.
@@ -131,7 +130,7 @@ public class RocketComponentSaver {
 			// anymore
 			elements.add("<position type=\"" + axialMethod + "\">" + c.getAxialOffset() + "</position>");
 		}
-
+		
 		// Overrides
 		if (c.isMassOverridden()) {
 			elements.add("<overridemass>" + c.getOverrideMass() + "</overridemass>");
@@ -148,12 +147,13 @@ public class RocketComponentSaver {
 			elements.add("<overridesubcomponentscd>" + c.isSubcomponentsOverriddenCD()
 					+ "</overridesubcomponentscd>");
 		}
-
+		
+		
 		// Comment
 		if (c.getComment().length() > 0) {
 			elements.add("<comment>" + TextUtil.escapeXML(c.getComment()) + "</comment>");
 		}
-
+		
 	}
 
 	private void buildAppearanceElements(List<String> elements, Appearance a) {
@@ -165,8 +165,7 @@ public class RocketComponentSaver {
 			String name = decal.getImage().getName();
 			double rotation = decal.getRotation();
 			EdgeMode edgeMode = decal.getEdgeMode();
-			elements.add(OpenRocketSaver.INDENT + "<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\""
-					+ rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
+			elements.add(OpenRocketSaver.INDENT + "<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
 			Coordinate center = decal.getCenter();
 			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
 			Coordinate offset = decal.getOffset();
@@ -180,62 +179,61 @@ public class RocketComponentSaver {
 	protected final String materialParam(Material mat) {
 		return materialParam("material", mat);
 	}
-
+	
+	
 	protected final String materialParam(String tag, Material mat) {
 		String str = "<" + tag;
-
+		
 		switch (mat.getType()) {
-			case LINE:
-				str += " type=\"line\"";
-				break;
-			case SURFACE:
-				str += " type=\"surface\"";
-				break;
-			case BULK:
-				str += " type=\"bulk\"";
-				break;
-			default:
-				throw new BugException("Unknown material type: " + mat.getType());
+		case LINE:
+			str += " type=\"line\"";
+			break;
+		case SURFACE:
+			str += " type=\"surface\"";
+			break;
+		case BULK:
+			str += " type=\"bulk\"";
+			break;
+		default:
+			throw new BugException("Unknown material type: " + mat.getType());
 		}
-
+		
 		String baseName = trans.getBaseText("material", mat.getName());
-
+		
 		return str + " density=\"" + mat.getDensity() + "\">" + TextUtil.escapeXML(baseName) + "</" + tag + ">";
 	}
-
+	
+	
 	protected final List<String> motorMountParams(MotorMount mount) {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
-
+		
 		Rocket rkt = ((RocketComponent) mount).getRocket();
-		// FlightConfigurationID[] motorConfigIDs = ((RocketComponent)
-		// mount).getRocket().getFlightConfigurationIDs();
-		// ParameterSet<FlightConfiguration> configs = ((RocketComponent)
-		// mount).getRocket().getConfigurationSet();
-
+		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
+		//ParameterSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
+		
 		List<String> elements = new ArrayList<String>();
-
+		
 		MotorConfiguration defaultInstance = mount.getDefaultMotorConfig();
-
+		
 		elements.add("<motormount>");
-
-		// NOTE: Default config must be BEFORE overridden config for proper backward
-		// compatibility later on
+		
+		// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
 		elements.add("  <ignitionevent>"
 				+ defaultInstance.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</ignitionevent>");
 		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
-
-		for (FlightConfigurationId fcid : rkt.getIds()) {
-
+		
+		for( FlightConfigurationId fcid : rkt.getIds()){
+			
 			MotorConfiguration motorInstance = mount.getMotorConfig(fcid);
 			// Nothing is stored if no motor loaded
-			if (motorInstance.isEmpty()) {
+			if( motorInstance.isEmpty()){
 				continue;
 			}
 			Motor motor = motorInstance.getMotor();
-
+			
 			elements.add("  <motor configid=\"" + fcid.key + "\">");
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
@@ -249,37 +247,34 @@ public class RocketComponentSaver {
 			elements.add("    <designation>" + TextUtil.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");
 			elements.add("    <length>" + motor.getLength() + "</length>");
-
+			
 			// Motor delay
 			if (motorInstance.getEjectionDelay() == Motor.PLUGGED_DELAY) {
 				elements.add("    <delay>none</delay>");
 			} else {
 				elements.add("    <delay>" + motorInstance.getEjectionDelay() + "</delay>");
 			}
-
+			
 			elements.add("  </motor>");
-
+			
 			// i.e. if this has overridden parameters....
-			if (!motorInstance.equals(defaultInstance)) {
+			if( ! motorInstance.equals( defaultInstance)){
 				elements.add("  <ignitionconfiguration configid=\"" + fcid + "\">");
-				elements.add("    <ignitionevent>"
-						+ motorInstance.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
-						+ "</ignitionevent>");
+				elements.add("    <ignitionevent>" + motorInstance.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
 				elements.add("    <ignitiondelay>" + motorInstance.getIgnitionDelay() + "</ignitiondelay>");
 				elements.add("  </ignitionconfiguration>");
-
+				
 			}
 		}
-
+		
 		elements.add("</motormount>");
-
+		
 		return elements;
 	}
-
+	
 	private final static void emitColor(String elementName, List<String> elements, ORColor color, int indents) {
 		if (color != null) {
-			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\""
-					+ color.getRed() + "\" green=\"" + color.getGreen()
+			elements.add(OpenRocketSaver.INDENT.repeat(Math.max(0, indents)) + "<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
 					+ "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
 		}
 	}

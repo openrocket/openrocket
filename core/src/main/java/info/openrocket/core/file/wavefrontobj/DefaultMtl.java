@@ -260,6 +260,7 @@ public final class DefaultMtl implements Mtl {
         this.sharpness = sharpness;
     }
 
+
     @Override
     public FloatTuple getKa() {
         return ka;

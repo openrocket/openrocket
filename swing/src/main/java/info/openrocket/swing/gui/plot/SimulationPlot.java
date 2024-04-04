@@ -19,6 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
@@ -38,6 +40,7 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYImageAnnotation;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
@@ -51,6 +54,8 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.HorizontalAlignment;
+import org.jfree.chart.ui.VerticalAlignment;
 import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -69,8 +74,9 @@ import org.jfree.ui.TextAnchor;
  */
 @SuppressWarnings("serial")
 public class SimulationPlot {
-	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+	private static final Translator trans = Application.getTranslator();
 
+	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
 
@@ -85,12 +91,18 @@ public class SimulationPlot {
 
 	private final LegendItems legendItems;
 
+	private ErrorAnnotationSet errorAnnotations = null;
+
 	private int branchCount;
 
 	void setShowPoints(boolean showPoints) {
 		for (ModifiedXYItemRenderer r : renderers) {
 			r.setDefaultShapesVisible(showPoints);
 		}
+	}
+
+	void setShowErrors(boolean showErrors) {
+		errorAnnotations.setVisible(showErrors);
 	}
 
 	void setShowBranch(int branch) {
@@ -104,7 +116,10 @@ public class SimulationPlot {
 				r.setSeriesVisible(j, show);
 			}
 		}
+
 		drawDomainMarkers(branch);
+
+		errorAnnotations.setCurrent(branch);
 	}
 
 	SimulationPlot(Simulation simulation, PlotConfiguration config, boolean initialShowPoints) {
@@ -336,6 +351,7 @@ public class SimulationPlot {
 		// Create the event markers
 		drawDomainMarkers(-1);
 
+		errorAnnotations = new ErrorAnnotationSet(branchCount);
 	}
 
 	JFreeChart getJFreeChart() {
@@ -436,6 +452,7 @@ public class SimulationPlot {
 		String text = null;
 		Color color = null;
 		Image image = null;
+		int maxOrdinal = -1;
 		for (EventDisplayInfo info : eventList) {
 			if (branch >= 0 && branch != info.stage) {
 				continue;
@@ -443,12 +460,14 @@ public class SimulationPlot {
 
 			double t = info.time;
 			FlightEvent.Type type = info.event.getType();
-
 			if (Math.abs(t - prevTime) <= 0.05) {
 				if (!typeSet.contains(type)) {
 					text = text + ", " + type.toString();
-					color = EventGraphics.getEventColor(type);
-					image = EventGraphics.getEventImage(type);
+					if (type.ordinal() > maxOrdinal) {
+						color = EventGraphics.getEventColor(type);
+						image = EventGraphics.getEventImage(type);
+						maxOrdinal = type.ordinal();
+					}
 					typeSet.add(type);
 				}
 
@@ -465,6 +484,7 @@ public class SimulationPlot {
 				image = EventGraphics.getEventImage(type);
 				typeSet.clear();
 				typeSet.add(type);
+				maxOrdinal = type.ordinal();
 			}
 
 		}
@@ -788,5 +808,107 @@ public class SimulationPlot {
 		FlightEvent event;
 	}
 
+	/**
+	 * Is there really no way to set an annotation invisible?  This class provides a way
+	 * to select at most one from a set of annotations and make it visible.
+	 */
+	private class ErrorAnnotationSet {
+		private XYTitleAnnotation[] errorAnnotations;
+		private XYTitleAnnotation currentAnnotation;
+		private boolean visible = true;
+		private int branchCount;
+
+		protected ErrorAnnotationSet(int branches) {
+			branchCount = branches;
+			errorAnnotations = new XYTitleAnnotation[branchCount+1];
+
+			for (int b = -1; b < branchCount; b++) {
+				if (b < 0) {
+					errorAnnotations[branchCount] = createAnnotation(b);
+				} else {
+					errorAnnotations[b] = createAnnotation(b);
+				}
+			}
+			setCurrent(-1);
+		}
+
+		private XYTitleAnnotation createAnnotation(int branchNo) {
+
+			StringBuilder abortString = new StringBuilder();
+
+			for (int b = Math.max(0, branchNo);
+				 b < ((branchNo < 0) ?
+					  (simulation.getSimulatedData().getBranchCount()) :
+					  (branchNo + 1)); b++) {
+				FlightDataBranch branch = simulation.getSimulatedData().getBranch(b);
+				FlightEvent abortEvent = branch.getFirstEvent(FlightEvent.Type.SIM_ABORT);
+				if (abortEvent != null) {
+					if (abortString.isEmpty()) {
+						abortString = new StringBuilder(trans.get("simulationplot.abort.title"));
+					}
+					abortString.append("\n")
+							.append(trans.get("simulationplot.abort.stage")).append(": ").append(branch.getBranchName()).append("; ")
+							.append(trans.get("simulationplot.abort.time")).append(": ").append(abortEvent.getTime()).append(" s; ")
+							.append(trans.get("simulationplot.abort.cause")).append(": ").append(((SimulationAbort) abortEvent.getData()).getMessageDescription());
+				}
+			}
+
+			if (!abortString.toString().isEmpty()) {
+				TextTitle abortsTitle = new TextTitle(abortString.toString(),
+													  new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED,
+													  RectangleEdge.TOP,
+													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
+													  new RectangleInsets(5, 5, 5, 5));
+				abortsTitle.setBackgroundPaint(Color.WHITE);
+				BlockBorder abortsBorder = new BlockBorder(Color.RED);
+				abortsTitle.setFrame(abortsBorder);
+
+				return new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
+			} else {
+				return null;
+			}
+		}
+
+		protected void setCurrent(int branchNo) {
+			XYPlot plot = chart.getXYPlot();
+			// If we are currently displaying an annotation, and we want to
+			// change to a new branch, stop displaying the old annotation
+
+			XYTitleAnnotation newAnnotation = (branchNo < 0) ?
+				errorAnnotations[branchCount] :
+				errorAnnotations[branchNo];
+
+			// if we're currently displaying an annotation, and it's different
+			// from the new annotation, stop displaying it
+			if ((currentAnnotation != null) &&
+				(currentAnnotation != newAnnotation) &&
+				visible) {
+				plot.removeAnnotation(currentAnnotation);
+			}
+
+			// set our current annotation
+			currentAnnotation = newAnnotation;
+
+			// if visible, display it
+			if ((currentAnnotation != null) && visible) {
+				plot.addAnnotation(currentAnnotation);
+			}
+		}
+
+		protected void setVisible(boolean v) {
+			if (visible != v) {
+				visible = v;
+				if (currentAnnotation != null) {
+					XYPlot plot = chart.getXYPlot();
+
+					if (visible) {
+						plot.addAnnotation(currentAnnotation);
+					} else {
+						plot.removeAnnotation(currentAnnotation);
+					}
+				}
+			}
+		}
+	}
 }
 

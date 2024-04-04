@@ -214,6 +214,31 @@ public class UpdateInfoTest extends BaseTestCase {
 		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
 				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("22.02.RC.01", "22.02.02"));
 
+		// Test snapshots
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.LATEST,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "23.09"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("24.01", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "24.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("24.01.SNAPSHOT", "23.09"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT.01", "23.09.SNAPSHOT.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.LATEST,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT.02", "23.09.SNAPSHOT.02"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT.02", "23.09.SNAPSHOT.01"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.NEWER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.01", "23.09.SNAPSHOT"));
+		assertEquals(UpdateInfoRetriever.ReleaseStatus.OLDER,
+				UpdateInfoRetriever.UpdateInfoFetcher.compareLatest("23.09.SNAPSHOT", "23.09.01"));
+
+
 		// Test bogus releases
 		assertExceptionCompareLatest("22.02.gamma.01", "22.02");
 		assertExceptionCompareLatest(null, "22.02");
@@ -346,7 +371,7 @@ public class UpdateInfoTest extends BaseTestCase {
 		assertEquals(releaseNotes, "Release notes");
 		assertEquals(releaseUrl, "localhost");
 		assertEquals(1, assetURLs.size());
-		assertEquals(assetURLs.get(0), 
+		assertEquals(assetURLs.get(0),
 				"https://github.com/openrocket/openrocket/releases/download/release-22.02/OpenRocket-22.02-macOS.dmg");
 
 		// Test bogus releases
@@ -394,222 +419,215 @@ public class UpdateInfoTest extends BaseTestCase {
 
 	@Test
 	public void testFetchReleases() {
-		// TODO: fetch releases from GitHub (= test
-		// UpdateInfoRetriever.UpdateInfoFetcher.retrieveAllReleaseObjects)
+		// TODO: fetch releases from GitHub (= test UpdateInfoRetriever.UpdateInfoFetcher.retrieveAllReleaseObjects)
 	}
 
-	// TODO: these are the old unit tests; leaving them in to be used as reference
-	// for testFetchReleases()
-	/*
-	 * private HttpURLConnectionMock setup() {
-	 * HttpURLConnectionMock connection = new HttpURLConnectionMock();
-	 * Communicator.setConnectionSource(new ConnectionSourceStub(connection));
-	 * 
-	 * connection.setConnectionDelay(DELAY);
-	 * connection.setUseCaches(true);
-	 * connection.setContentType("text/plain");
-	 * return connection;
-	 * }
-	 * 
-	 * private void check(HttpURLConnectionMock connection) {
-	 * assertEquals(+
-	 * BuildProperties.getVersion(),
-	 * connection.getTrueUrl()Communicator.UPDATE_URL + "?version=");
-	 * assertTrue(+
-	 * BuildProperties.getBuildSource(),
-	 * connection.getRequestProperty("X-OpenRocket-Version")connection.getConnectTimeout() > 0);
-	 * assertEquals(BuildProperties.getVersion() + "+");
-	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-Country"));
-	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-ID"));
-	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-OS"));
-	 * assertNotNull(connection.getRequestProperty("X-OpenRocket-Java"));
-	 * assertTrue(connection.getInstanceFollowRedirects());
-	 * assertEquals(connection.getRequestMethod(), "GET");
-	 * assertFalse(connection.getUseCaches());
-	 * }
-	 * 
-	 * 
-	 * @Test
-	 * public void testUpdateAvailable() throws IOException {
-	 * HttpURLConnectionMock connection = setup();
-	 * connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
-	 * 
-	 * String content =
-	 * "Version: 6.6.6pre A \n" +
-	 * "Extra:  information\n" +
-	 * "100:hundred\n" +
-	 * "50:  m\u00e4 \n\n" +
-	 * "1:     one\n" +
-	 * "-2: none";
-	 * connection.setContent(content);
-	 * 
-	 * UpdateInfoRetriever retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * 
-	 * // Info is null while processing
-	 * assertNull(retriever.getUpdateInfo());
-	 * 
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * 
-	 * UpdateInfo info = retriever.getUpdateInfo();
-	 * assertNotNull(info);
-	 * 
-	 * check(connection);
-	 * 
-	 * assertEquals(info.getLatestVersion(), "6.6.6pre A");
-	 * 
-	 * List<ComparablePair<Integer, String>> updates = info.getUpdates();
-	 * assertEquals(3, updates.size());
-	 * Collections.sort(updates);
-	 * assertEquals(1, (int) updates.get(0).getU());
-	 * assertEquals(updates.get(0).getV(), "one");
-	 * assertEquals(50, (int) updates.get(1).getU());
-	 * assertEquals(updates.get(1).getV(), "m\u00e4");
-	 * assertEquals(100, (int) updates.get(2).getU());
-	 * assertEquals(updates.get(2).getV(), "hundred");
-	 * }
-	 * 
-	 * 
-	 * 
-	 * 
-	 * @Test
-	 * public void testUpdateNotAvailable() throws IOException {
-	 * HttpURLConnectionMock connection = setup();
-	 * connection.setResponseCode(Communicator.UPDATE_INFO_NO_UPDATE_CODE);
-	 * 
-	 * String content =
-	 * "Version: 6.6.6pre A \n" +
-	 * "Extra:  information\n" +
-	 * "100:hundred\n" +
-	 * "50:  m\u00e4 \n\n" +
-	 * "1:     one\n" +
-	 * "-2: none";
-	 * connection.setContent(content);
-	 * 
-	 * UpdateInfoRetriever retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * 
-	 * // Info is null while processing
-	 * assertNull(retriever.getUpdateInfo());
-	 * 
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * 
-	 * UpdateInfo info = retriever.getUpdateInfo();
-	 * assertNotNull(info);
-	 * 
-	 * check(connection);
-	 * 
-	 * assertEquals(BuildProperties.getVersion(), info.getLatestVersion());
-	 * assertEquals(0, info.getUpdates().size());
-	 * }
-	 * 
-	 * 
-	 * 
-	 * @Test
-	 * public void testInvalidResponses() {
-	 * HttpURLConnectionMock connection = setup();
-	 * connection.setResponseCode(404);
-	 * connection.setContent("Version: 1.2.3");
-	 * 
-	 * UpdateInfoRetriever retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * assertNull(retriever.getUpdateInfo());
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * assertNull(retriever.getUpdateInfo());
-	 * check(connection);
-	 * 
-	 * 
-	 * connection = setup();
-	 * connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
-	 * connection.setContentType("text/xml");
-	 * 
-	 * retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * assertNull(retriever.getUpdateInfo());
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * assertNull(retriever.getUpdateInfo());
-	 * check(connection);
-	 * 
-	 * 
-	 * 
-	 * connection = setup();
-	 * connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
-	 * String content =
-	 * "100:hundred\n" +
-	 * "50:  m\u00e4 \n\n" +
-	 * "1:     one\n";
-	 * connection.setContent(content);
-	 * 
-	 * retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * assertNull(retriever.getUpdateInfo());
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * assertNull(retriever.getUpdateInfo());
-	 * check(connection);
-	 * 
-	 * 
-	 * connection = setup();
-	 * connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
-	 * connection.setContent(new byte[0]);
-	 * 
-	 * retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * assertNull(retriever.getUpdateInfo());
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * assertNull(retriever.getUpdateInfo());
-	 * check(connection);
-	 * 
-	 * }
-	 * 
-	 * @Test
-	 * public void testRandomInputData() {
-	 * 
-	 * Random rnd = new Random();
-	 * for (int i = 0; i < 10; i++) {
-	 * int size = Math.abs((int) ((1 + 0.3 * rnd.nextGaussian()) * Math.pow(i, 6)));
-	 * byte[] buf = new byte[size];
-	 * rnd.nextBytes(buf);
-	 * 
-	 * HttpURLConnectionMock connection = setup();
-	 * connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
-	 * connection.setContent(buf);
-	 * 
-	 * UpdateInfoRetriever retriever = new UpdateInfoRetriever();
-	 * retriever.startFetchUpdateInfo();
-	 * assertNull(retriever.getUpdateInfo());
-	 * waitfor(retriever);
-	 * assertFalse(connection.hasFailed());
-	 * assertNull(retriever.getUpdateInfo());
-	 * check(connection);
-	 * }
-	 * 
-	 * }
-	 * 
-	 * 
-	 * 
-	 * private void waitfor(UpdateInfoRetriever retriever) {
-	 * long t = System.currentTimeMillis();
-	 * 
-	 * while (retriever.isRunning()) {
-	 * if (System.currentTimeMillis() >= t + ALLOWANCE) {
-	 * fail("retriever took too long to respond");
-	 * }
-	 * 
-	 * try {
-	 * Thread.sleep(10);
-	 * } catch (InterruptedException e) {
-	 * }
-	 * }
-	 * 
-	 * //System.out.println("Waiting took " + (System.currentTimeMillis()-t) +
-	 * " ms");
-	 * }
-	 */
+	// TODO: these are the old unit tests; leaving them in to be used as reference for testFetchReleases()
+	/*private HttpURLConnectionMock setup() {
+		HttpURLConnectionMock connection = new HttpURLConnectionMock();
+		Communicator.setConnectionSource(new ConnectionSourceStub(connection));
+
+		connection.setConnectionDelay(DELAY);
+		connection.setUseCaches(true);
+		connection.setContentType("text/plain");
+		return connection;
+	}
+
+	private void check(HttpURLConnectionMock connection) {
+		assertEquals(Communicator.UPDATE_URL + "?version=" + BuildProperties.getVersion(),
+				connection.getTrueUrl());
+		assertTrue(connection.getConnectTimeout() > 0);
+		assertEquals(BuildProperties.getVersion() + "+" + BuildProperties.getBuildSource(),
+				connection.getRequestProperty("X-OpenRocket-Version"));
+		assertNotNull(connection.getRequestProperty("X-OpenRocket-Country"));
+		assertNotNull(connection.getRequestProperty("X-OpenRocket-ID"));
+		assertNotNull(connection.getRequestProperty("X-OpenRocket-OS"));
+		assertNotNull(connection.getRequestProperty("X-OpenRocket-Java"));
+		assertTrue(connection.getInstanceFollowRedirects());
+		assertEquals("GET", connection.getRequestMethod());
+		assertFalse(connection.getUseCaches());
+	}
+
+
+	@Test
+	public void testUpdateAvailable() throws IOException {
+		HttpURLConnectionMock connection = setup();
+		connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
+
+		String content =
+				"Version: 6.6.6pre A \n" +
+						"Extra:  information\n" +
+						"100:hundred\n" +
+						"50:  m\u00e4 \n\n" +
+						"1:     one\n" +
+						"-2: none";
+		connection.setContent(content);
+
+		UpdateInfoRetriever retriever = new UpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+
+		// Info is null while processing
+		assertNull(retriever.getUpdateInfo());
+
+		waitfor(retriever);
+		assertFalse(connection.hasFailed());
+
+		UpdateInfo info = retriever.getUpdateInfo();
+		assertNotNull(info);
+
+		check(connection);
+
+		assertEquals("6.6.6pre A", info.getLatestVersion());
+
+		List<ComparablePair<Integer, String>> updates = info.getUpdates();
+		assertEquals(3, updates.size());
+		Collections.sort(updates);
+		assertEquals(1, (int) updates.get(0).getU());
+		assertEquals("one", updates.get(0).getV());
+		assertEquals(50, (int) updates.get(1).getU());
+		assertEquals("m\u00e4", updates.get(1).getV());
+		assertEquals(100, (int) updates.get(2).getU());
+		assertEquals("hundred", updates.get(2).getV());
+	}
+
+
+
+
+	@Test
+	public void testUpdateNotAvailable() throws IOException {
+		HttpURLConnectionMock connection = setup();
+		connection.setResponseCode(Communicator.UPDATE_INFO_NO_UPDATE_CODE);
+
+		String content =
+				"Version: 6.6.6pre A \n" +
+						"Extra:  information\n" +
+						"100:hundred\n" +
+						"50:  m\u00e4 \n\n" +
+						"1:     one\n" +
+						"-2: none";
+		connection.setContent(content);
+
+		UpdateInfoRetriever retriever = new UpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+
+		// Info is null while processing
+		assertNull(retriever.getUpdateInfo());
+
+		waitfor(retriever);
+		assertFalse(connection.hasFailed());
+
+		UpdateInfo info = retriever.getUpdateInfo();
+		assertNotNull(info);
+
+		check(connection);
+
+		assertEquals(BuildProperties.getVersion(), info.getLatestVersion());
+		assertEquals(0, info.getUpdates().size());
+	}
+
+
+
+	@Test
+	public void testInvalidResponses() {
+		HttpURLConnectionMock connection = setup();
+		connection.setResponseCode(404);
+		connection.setContent("Version: 1.2.3");
+
+		UpdateInfoRetriever retriever = new UpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+		assertNull(retriever.getUpdateInfo());
+		waitfor(retriever);
+		assertFalse(connection.hasFailed());
+		assertNull(retriever.getUpdateInfo());
+		check(connection);
+
+
+		connection = setup();
+		connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
+		connection.setContentType("text/xml");
+
+		retriever = new UpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+		assertNull(retriever.getUpdateInfo());
+		waitfor(retriever);
+		assertFalse(connection.hasFailed());
+		assertNull(retriever.getUpdateInfo());
+		check(connection);
+
+
+
+		connection = setup();
+		connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
+		String content =
+				"100:hundred\n" +
+						"50:  m\u00e4 \n\n" +
+						"1:     one\n";
+		connection.setContent(content);
+
+		retriever = new UpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+		assertNull(retriever.getUpdateInfo());
+		waitfor(retriever);
+		assertFalse(connection.hasFailed());
+		assertNull(retriever.getUpdateInfo());
+		check(connection);
+
+
+		connection = setup();
+		connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
+		connection.setContent(new byte[0]);
+
+		retriever = new UpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+		assertNull(retriever.getUpdateInfo());
+		waitfor(retriever);
+		assertFalse(connection.hasFailed());
+		assertNull(retriever.getUpdateInfo());
+		check(connection);
+
+	}
+
+	@Test
+	public void testRandomInputData() {
+
+		Random rnd = new Random();
+		for (int i = 0; i < 10; i++) {
+			int size = Math.abs((int) ((1 + 0.3 * rnd.nextGaussian()) * Math.pow(i, 6)));
+			byte[] buf = new byte[size];
+			rnd.nextBytes(buf);
+
+			HttpURLConnectionMock connection = setup();
+			connection.setResponseCode(Communicator.UPDATE_INFO_UPDATE_AVAILABLE);
+			connection.setContent(buf);
+
+			UpdateInfoRetriever retriever = new UpdateInfoRetriever();
+			retriever.startFetchUpdateInfo();
+			assertNull(retriever.getUpdateInfo());
+			waitfor(retriever);
+			assertFalse(connection.hasFailed());
+			assertNull(retriever.getUpdateInfo());
+			check(connection);
+		}
+
+	}
+
+
+
+	private void waitfor(UpdateInfoRetriever retriever) {
+		long t = System.currentTimeMillis();
+
+		while (retriever.isRunning()) {
+			if (System.currentTimeMillis() >= t + ALLOWANCE) {
+				fail("retriever took too long to respond");
+			}
+
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+			}
+		}
+
+		//System.out.println("Waiting took " + (System.currentTimeMillis()-t) + " ms");
+	}*/
 
 }

@@ -117,7 +117,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		rocket.setName("AlphaIII." + Thread.currentThread().getStackTrace()[1].getMethodName());
 
 		FlightConfiguration config = rocket.getEmptyConfiguration();
-
+		
 		config.setAllStages();
 
 		final RigidBody actualStructure = MassCalculator.calculateStructure(config);
@@ -128,7 +128,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON, " Alpha III Empty Mass is incorrect: ");
 
 		double expCMx = 0.19176843580003;
-		double expCMy = -0.00031704007993248; // Slight offset due to launch lug
+		double expCMy = -0.00031704007993248;		// Slight offset due to launch lug
 		Coordinate expCM = new Coordinate(expCMx, expCMy, 0, expRocketDryMass);
 		assertEquals(expCM.x, actualRocketDryCM.x, EPSILON, "Simple Rocket CM.x is incorrect: ");
 		assertEquals(expCM.y, actualRocketDryCM.y, EPSILON, "Simple Rocket CM.y is incorrect: ");
@@ -217,6 +217,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expCM, actualMotorData.cm, "Simple Rocket CM is incorrect: ");
 	}
 
+
 	@Test
 	public void testAlphaIIIMotorSimulationMass() {
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -228,15 +229,14 @@ public class MassCalculatorTest extends BaseTestCase {
 		Motor activeMotor = mmt.getMotorConfig(fcid).getMotor();
 		String desig = activeMotor.getDesignation();
 
-		// this is probably not enough for a full-up simulation, but it IS enough for a
-		// motor-mass calculation.
+		// this is probably not enough for a full-up simulation, but it IS enough for a motor-mass calculation.
 		SimulationStatus status = new SimulationStatus(config, new SimulationConditions());
-
+		
 		// Ignite motor at 1.0 seconds
 		MotorClusterState currentMotorState = ((List<MotorClusterState>) status.getMotors()).get(0);
 		final double ignitionTime = 1.0;
 		currentMotorState.ignite(ignitionTime);
-
+		
 		{
 			final double simTime = 1.03; // almost launch
 			status.setSimulationTime(simTime);
@@ -259,53 +259,53 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(expMass, actualMotorData.getMass(), EPSILON, " Motor Mass " + desig + " is incorrect: ");
 		}
 	}
-
+	
 	@Test
 	public void testStageCMxOverride() {
 		final Rocket rocket = TestRockets.makeSimple2Stage();
 		final AxialStage sustainerStage = (AxialStage) rocket.getChild(0);
 		final AxialStage boosterStage = (AxialStage) rocket.getChild(1);
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
-
+		
 		{ // [0] verify / document structure
 			final BodyTube sustainerBody = (BodyTube) sustainerStage.getChild(0);
 			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
-
+			
 			final BodyTube boosterBody = (BodyTube) boosterStage.getChild(0);
 			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 		}
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.10;
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
-
+		
 		boosterStage.setSubcomponentsOverriddenCG(true);
 		boosterStage.setCGOverridden(true);
 		boosterStage.setOverrideCGX(0.0);
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.075;
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
 	}
-
+	
 	@Test
 	public void testSingleStageMassOverride() {
 		final Rocket rocket = TestRockets.makeSimple2Stage();
@@ -313,34 +313,34 @@ public class MassCalculatorTest extends BaseTestCase {
 		final BodyTube sustainerBody = (BodyTube) sustainerStage.getChild(0);
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 		config.setOnlyStage(0);
-
+		
 		final double expSingleBodyMass = 0.0040589377;
 		{ // [0] verify / document structure
 			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getMass(), EPSILON);
 		}
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			assertEquals(expSingleBodyMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			assertEquals(0.05, actualRocketDryCM.x, EPSILON);
 		}
-
+		
 		sustainerStage.setSubcomponentsOverriddenMass(true);
 		sustainerStage.setMassOverridden(true);
 		sustainerStage.setOverrideMass(0.001); // something small, but not zero
 
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			final double expRocketDryMass = 0.001;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.05;
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
@@ -355,7 +355,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		final AxialStage boosterStage = (AxialStage) rocket.getChild(1);
 		final BodyTube boosterBody = (BodyTube) boosterStage.getChild(0);
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
-
+		
 		final double expSingleBodyMass = 0.0040589377;
 		{ // [0] verify / document structure
 			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
@@ -365,20 +365,20 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(0.1, boosterBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getMass(), EPSILON);
 		}
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			assertEquals(2 * expSingleBodyMass, actualStructure.cm.weight, EPSILON);
 			assertEquals(0.10, actualStructure.cm.x, EPSILON);
 		}
-
+		
 		boosterStage.setSubcomponentsOverriddenMass(true);
 		boosterStage.setMassOverridden(true);
 		boosterStage.setOverrideMass(0.001); // something small, but not zero
 
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			assertEquals(expSingleBodyMass + 0.001, actualRocketDryMass, EPSILON);
 
@@ -386,7 +386,7 @@ public class MassCalculatorTest extends BaseTestCase {
 			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
 		}
 	}
-
+	
 	@Test
 	public void testComponentCMxOverride() {
 		final Rocket rocket = TestRockets.makeSimple2Stage();
@@ -395,44 +395,44 @@ public class MassCalculatorTest extends BaseTestCase {
 		final AxialStage boosterStage = (AxialStage) rocket.getChild(1);
 		final BodyTube boosterBody = (BodyTube) boosterStage.getChild(0);
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
-
+		
 		{ // [0] verify / document structure
 			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
-
+			
 			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 		}
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.10;
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
-
+		
 		boosterBody.setSubcomponentsOverriddenCG(false);
 		boosterBody.setCGOverridden(true);
 		boosterBody.setOverrideCGX(0.0);
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.075;
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
 	}
-
+	
 	@Test
 	public void testComponentMassOverride() {
 		final Rocket rocket = TestRockets.makeSimple2Stage();
@@ -441,45 +441,45 @@ public class MassCalculatorTest extends BaseTestCase {
 		final AxialStage boosterStage = (AxialStage) rocket.getChild(1);
 		final BodyTube boosterBody = (BodyTube) boosterStage.getChild(0);
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
-
+		
 		final double expSingleBodyMass = 0.0040589377;
 		{ // [0] verify / document structure
 			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getMass(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getSectionMass(), EPSILON);
-
+			
 			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getMass(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getSectionMass(), EPSILON);
 		}
-
+		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.10;
 			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
 		}
-
+		
 		boosterBody.setSubcomponentsOverriddenMass(false);
 		boosterBody.setMassOverridden(true);
 		double newMass = 0.001;
 		boosterBody.setOverrideMass(newMass);
-
+		
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			assertEquals(expSingleBodyMass + newMass, actualRocketDryMass, EPSILON);
 			assertEquals(newMass, boosterBody.getMass(), EPSILON);
 			assertEquals(newMass, boosterBody.getSectionMass(), EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
 		}
@@ -490,17 +490,17 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-
+			
 			final double actualRocketDryMass = actualStructure.cm.weight;
 			assertEquals(expSingleBodyMass + newMass, actualRocketDryMass, EPSILON);
 			assertEquals(newMass, boosterBody.getMass(), EPSILON);
 			assertEquals(newMass, boosterBody.getSectionMass(), EPSILON);
-
+			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
 		}
 	}
-
+	
 	@Test
 	public void testFalcon9HComponentMasses() {
 		Rocket rkt = TestRockets.makeFalcon9Heavy();

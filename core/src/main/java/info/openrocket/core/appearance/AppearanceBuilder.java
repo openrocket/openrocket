@@ -21,16 +21,16 @@ import java.util.Map;
  * 
  */
 public class AppearanceBuilder extends AbstractChangeSource {
-
-	private ORColor paint; // current cached color
-	private double shine; // current cached shine
-	private double offsetU, offsetV;// current offset to be used
-	private double centerU, centerV;// current values for the center of the appearance
-	private double scaleU, scaleV; // current values for scaling
-	private double rotation; //
+	
+	private ORColor paint;		//current cached color
+	private double shine;		//current cached shine
+	private double offsetU, offsetV;//current offset to be used
+	private double centerU, centerV;//current values for the center of the appearance
+	private double scaleU, scaleV; 	//current values for scaling
+	private double rotation;	//
 	private DecalImage image;
 	private Decal.EdgeMode edgeMode;
-
+	
 	private boolean batch;
 
 	/**
@@ -40,28 +40,28 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	private final Map<RocketComponent, AppearanceBuilder> configListeners = new LinkedHashMap<>();
 	// If true, appearance change events will not be fired
 	private boolean bypassAppearanceChangeEvent = false;
-
+	
 	/**
-	 * Default constructor
-	 * Set the builder to make appearance of null values
-	 * 
-	 */
+	*	Default constructor
+	*	Set the builder to make appearance of null values
+	*	
+	*/
 	public AppearanceBuilder() {
 		resetToDefaults();
 	}
-
+	
 	/**
-	 * Constructor that initializes already with a
-	 *
-	 * @param a the appearance to be copied
-	 */
+	*	Constructor that initializes already with a 
+	*
+	*	@param a the appearance to be copied
+	*/
 	public AppearanceBuilder(Appearance a) {
 		setAppearance(a);
 	}
-
+	
 	/**
-	 * Clears the builder cache and set to build blank appearances
-	 */
+	*	Clears the builder cache and set to build blank appearances
+	*/
 	private void resetToDefaults() {
 		paint = new ORColor(187, 187, 187);
 		shine = 0.3;
@@ -75,13 +75,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
-	 * Sets the builder to create appearance equals to an existing appearance
-	 * Fires change only once, hence the call to batch
-	 * 
-	 * @param a the appearance to be used as the new template
-	 */
+	*	Sets the builder to create appearance equals to an existing appearance
+	*	Fires change only once, hence the call to batch
+	*	
+	*	@param a the appearance to be used as the new template
+	*/
 	public void setAppearance(final Appearance a) {
 		batch(new Runnable() {
 			@Override
@@ -95,14 +95,13 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			}
 		});
 	}
-
+	
 	/**
-	 * makes a full copy of a decal, including information of offsets, center and
-	 * scale
-	 * 
-	 * @param d The decal
-	 */
-	public void setDecal(Decal d) {
+	*	makes a full copy of a decal, including information of offsets, center and scale
+	*	
+	*	@param d The decal
+	*/
+	public void setDecal(Decal d){
 		for (AppearanceBuilder listener : configListeners.values()) {
 			listener.setDecal(d);
 		}
@@ -118,16 +117,15 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
-	 * Method creates another object of Appearance
-	 * 
-	 * @return the created appearance
-	 */
+	*	Method creates another object of Appearance
+	*	@return	the created appearance
+	*/
 	public Appearance getAppearance() {
-
+		
 		Decal t = null;
-
+		
 		if (image != null) {
 			t = new Decal( //
 					new Coordinate(offsetU, offsetV), //
@@ -137,19 +135,20 @@ public class AppearanceBuilder extends AbstractChangeSource {
 					image, //
 					edgeMode);
 		}
-
+		
 		return new Appearance(paint, shine, t);
 	}
-
+	
+	
 	/**
 	 * get current paint in template
-	 * 
+	 *
 	 * return the color used in the current paint
 	 */
 	public ORColor getPaint() {
 		return paint;
 	}
-
+	
 	/**
 	 * sets a new paint color to be used
 	 * fires change event
@@ -165,7 +164,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * gets the current shine
 	 *
@@ -174,7 +173,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public double getShine() {
 		return shine;
 	}
-
+	
 	/**
 	 * Sets a new shine for template
 	 * fires change event
@@ -194,7 +193,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	/**
 	 * Returns the opacity of the paint color, expressed in percentages, where 0 is
 	 * fully transparent and 1 is fully opaque
-	 * 
+	 *
 	 * @return opacity value of the pain color, expressed in a percentage
 	 */
 	public double getOpacity() {
@@ -227,7 +226,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		ORColor c = new ORColor(paint.getRed(), paint.getGreen(), paint.getBlue(), (int) (opacity * 255));
 		setPaint(c);
 	}
-
+	
 	/**
 	 * gets the current offset axis U used
 	 *
@@ -236,7 +235,8 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public double getOffsetU() {
 		return offsetU;
 	}
-
+	
+	
 	/**
 	 * sets a new offset in axis U for template
 	 * fires change event
@@ -252,7 +252,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * gets the current offset axis V used
 	 *
@@ -261,7 +261,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public double getOffsetV() {
 		return offsetV;
 	}
-
+	
 	/**
 	 * sets a new offset in axis V for template
 	 * fires change event
@@ -277,7 +277,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * sets a new offset to be used for template
 	 * fires change event
@@ -289,16 +289,16 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		setOffsetU(u);
 		setOffsetV(v);
 	}
-
+	
 	/**
 	 * gets the current center in axis U used in template
-	 * 
+	 *
 	 * @return the current value of U of cente in template
 	 */
 	public double getCenterU() {
 		return centerU;
 	}
-
+	
 	/**
 	 * set a new value for axis U for center in template
 	 * fires change event
@@ -314,16 +314,16 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * gets the current center in axis V used in template
-	 * 
+	 *
 	 * @return the current value of V of cente in template
 	 */
 	public double getCenterV() {
 		return centerV;
 	}
-
+	
 	/**
 	 * set a new value for axis V for center in template
 	 * fires change event
@@ -339,7 +339,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * sets a new center for template
 	 * fires chenge event
@@ -351,7 +351,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		setCenterU(u);
 		setCenterV(v);
 	}
-
+	
 	/**
 	 * gets the current scale value of axis u in template
 	 *
@@ -360,7 +360,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public double getScaleU() {
 		return scaleU;
 	}
-
+	
 	/**
 	 * sets a new value of axis U for scaling in the template
 	 * fires change event
@@ -376,7 +376,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * gets the current scale value of axis V in template
 	 *
@@ -385,7 +385,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public double getScaleV() {
 		return scaleV;
 	}
-
+	
 	/**
 	 * sets a new value of axis V for scaling in the template
 	 * fires change event
@@ -401,7 +401,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * sets a new value of both axis for scaling in the template
 	 * fires change event
@@ -413,16 +413,16 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		setScaleU(u);
 		setScaleV(v);
 	}
-
+	
 	/**
 	 * gets the current value of X axis for scalling in the template
-	 * 
+	 *
 	 * @return value of scalling in axis x
 	 */
 	public double getScaleX() {
 		return 1.0 / getScaleU();
 	}
-
+	
 	/**
 	 * sets a new value of axis X for scalling in template
 	 * fires change event
@@ -432,16 +432,16 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public void setScaleX(double scaleX) {
 		setScaleU(1.0 / scaleX);
 	}
-
+	
 	/**
 	 * gets the current value of Y axis for scalling in the template
-	 * 
+	 *
 	 * @return value of scalling in axis Y
 	 */
 	public double getScaleY() {
 		return 1.0 / getScaleV();
 	}
-
+	
 	/**
 	 * sets a new value of axis Y for scalling in template
 	 * fires change event
@@ -451,7 +451,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public void setScaleY(double scaleY) {
 		setScaleV(1.0 / scaleY);
 	}
-
+	
 	/**
 	 * gets the current value of rotation in template
 	 *
@@ -460,7 +460,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public double getRotation() {
 		return rotation;
 	}
-
+	
 	/**
 	 * sets a new value of rotation in template
 	 * fires chenge event
@@ -476,7 +476,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * gets the current image in template
 	 *
@@ -485,7 +485,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public DecalImage getImage() {
 		return image;
 	}
-
+	
 	/**
 	 * sets a new image in template
 	 * fires change event
@@ -501,7 +501,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * gets the current Edge mode in use
 	 *
@@ -510,7 +510,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public Decal.EdgeMode getEdgeMode() {
 		return edgeMode;
 	}
-
+	
 	/**
 	 * sets a new edge mode to be used in template
 	 * fires change event
@@ -526,7 +526,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			fireChangeEvent();
 		}
 	}
-
+	
 	/**
 	 * only applies change if there is no more changes coming
 	 */
@@ -535,7 +535,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		if (!batch)
 			super.fireChangeEvent();
 	}
-
+	
 	/**
 	 * function that guarantees that changes event only occurs after all changes are
 	 * made
@@ -557,7 +557,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	/**
 	 * Add a new config listener that will undergo the same configuration changes as
 	 * this AppearanceBuilder.
-	 * 
+	 *
 	 * @param component the component to add as a config listener
 	 * @param ab        new AppearanceBuilder config listener
 	 * @return true if listener was successfully added, false if not
@@ -590,5 +590,5 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public void setBypassChangeEvent(boolean newValue) {
 		this.bypassAppearanceChangeEvent = newValue;
 	}
-
+	
 }

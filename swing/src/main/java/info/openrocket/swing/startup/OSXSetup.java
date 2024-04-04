@@ -40,9 +40,8 @@ final class OSXSetup {
 	 * The handler for file associations
 	 */
 	public static final OpenFilesHandler OPEN_FILE_HANDLER = (e) -> {
-		File associateFile = e.getFiles().get(0);
-		log.info("Opening file from association: " + associateFile);
-		BasicFrame.open(associateFile, BasicFrame.lastFrameInstance);
+		log.info("Opening file from association: " + e.getFiles().get(0));
+		BasicFrame.open(e.getFiles().get(0), BasicFrame.lastFrameInstance);
 	};
 	
 	/**

@@ -71,8 +71,34 @@ public final class DefaultObjGroup implements ObjGroup {
         faces.add(face);
     }
 
+    public void addFaces(List<ObjFace> faces) {
+        this.faces.addAll(faces);
+    }
+
+    /**
+     * Remove the given face from this group
+     *
+     * @param face The face to remove
+     */
+    public void removeFace(ObjFace face) {
+        faces.remove(face);
+    }
+
+    /**
+     * Returns the faces in this group
+     * @return The faces in this group
+     */
     public List<ObjFace> getFaces() {
         return faces;
+    }
+
+    /**
+     * Returns whether this group contains the given face
+     * @param face
+     * @return
+     */
+    public boolean containsFace(ObjFace face) {
+        return faces.contains(face);
     }
 
     @Override
@@ -91,3 +117,4 @@ public final class DefaultObjGroup implements ObjGroup {
     }
 
 }
+

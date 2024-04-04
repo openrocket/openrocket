@@ -6,7 +6,8 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
 [![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
-[![openrocket](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
+
+[![snap release](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
 ![Chocolatey release](https://img.shields.io/chocolatey/v/openrocket)
 [![Join our Discord server!](https://img.shields.io/discord/1073297014814691328?logo=discord)](https://discord.gg/qD2G5v2FAw)
 
@@ -92,4 +93,5 @@ OpenRocket is proudly open-source under the [GNU GPL](https://www.gnu.org/licens
 ---
  
 ⭐ Please give us a star if you find OpenRocket useful, and spread the word! ⭐
+
 [![Star History Chart](https://api.star-history.com/svg?repos=openrocket/openrocket&type=Date)](https://star-history.com/#openrocket/openrocket&Date)

@@ -177,7 +177,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		TableUIPreferences.loadTableUIPreferences(componentSelectionTable, TABLE_ID + component.getComponentName(),
 				preferences.getTablePreferences());
 		showLegacyCheckBox.setSelected(legacySelected);		// Restore legacy state (may change during UI preference loading)
-		
+
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
 		panel.add(scrollpane, "grow, pushy, spanx, wrap rel");

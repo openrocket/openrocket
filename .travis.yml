@@ -3,10 +3,8 @@ dist: bionic
 sudo: false
 
 jdk:
-  - openjdk11
-  - openjdk13
-  - oraclejdk11
-  - oraclejdk13
+  - openjdk17
+  - oraclejdk17
  
 script:
   - gradlew clean check build dist

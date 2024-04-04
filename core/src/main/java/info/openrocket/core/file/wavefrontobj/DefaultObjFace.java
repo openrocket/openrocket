@@ -27,7 +27,10 @@ package info.openrocket.core.file.wavefrontobj;
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
 import de.javagl.obj.ObjFace;
+
+import java.util.Arrays;
 
 /**
  * Default implementation of an ObjFace
@@ -62,6 +65,13 @@ public final class DefaultObjFace implements ObjFace {
         this.normalIndices = normalIndices;
     }
 
+    public DefaultObjFace(DefaultObjFace face) {
+        this.vertexIndices = Arrays.copyOf(face.vertexIndices, face.vertexIndices.length);
+        this.texCoordIndices = face.texCoordIndices != null ? Arrays.copyOf(face.texCoordIndices, face.texCoordIndices.length) : null;
+        this.normalIndices = face.normalIndices != null ? Arrays.copyOf(face.normalIndices, face.normalIndices.length) : null;
+    }
+
+
     @Override
     public boolean containsTexCoordIndices() {
         return texCoordIndices != null;
@@ -70,6 +80,18 @@ public final class DefaultObjFace implements ObjFace {
     @Override
     public boolean containsNormalIndices() {
         return normalIndices != null;
+    }
+
+    public int[] getVertexIndices() {
+        return vertexIndices;
+    }
+
+    public int[] getTexCoordIndices() {
+        return texCoordIndices;
+    }
+
+    public int[] getNormalIndices() {
+        return normalIndices;
     }
 
     @Override
@@ -144,3 +166,4 @@ public final class DefaultObjFace implements ObjFace {
         return result.toString();
     }
 }
+

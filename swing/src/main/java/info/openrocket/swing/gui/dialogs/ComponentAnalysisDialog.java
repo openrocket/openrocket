@@ -504,6 +504,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		GUIUtil.setDisposableDialogOptions(this, null);
 	}
 
+
+
 	/**
 	 * Updates the data in the table and fires a table data change event.
 	 */
@@ -752,7 +754,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
 			String cdFormatted = df.format(cd);
-			return String.format(cdFormatted + "  (%.0f%%)", cd, 100 * cd / totalCD);
+			return String.format(cdFormatted + "  (%.0f%%)", 100 * cd / totalCD);
 		}
 	}
 

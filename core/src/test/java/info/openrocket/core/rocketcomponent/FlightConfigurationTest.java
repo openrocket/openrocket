@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,7 +36,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		FlightConfiguration configClone = config.clone();
 
-		assertTrue(config.getRocket() == configClone.getRocket());
+		assertSame(config.getRocket(), configClone.getRocket());
 	}
 
 	@Test
@@ -152,7 +153,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// test that getStageCount() returns correct value
 		int expectedStageCount = 1;
 		int stageCount = config.getStageCount();
-		assertTrue(stageCount == expectedStageCount, "stage count doesn't match");
+		assertEquals(stageCount, expectedStageCount, "stage count doesn't match");
 
 		expectedStageCount = 1;
 		stageCount = config.getActiveStageCount();
@@ -603,7 +604,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		selected.setName("[{motors}] - [{manufacturers}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), 
+		assertEquals(selected.getName(),
 				"[[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0] - [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech]");
 
 		selected.setOnlyStage(0);
@@ -620,7 +621,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		selected.setName("[{motors  manufacturers}] -- [{manufacturers}] - [{motors}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), 
+		assertEquals(selected.getName(),
 				"[[Rocket.motorCount.noStageMotors]; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech] - [[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0]");
 
 		selected.setOnlyStage(0);
@@ -631,7 +632,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(), 
+		assertEquals(selected.getName(),
 				"[; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [; AeroTech; 4\u00D7AeroTech] - [; M1350-0; 4\u00D7G77-0]");
 
 		// Test combination of manufacturers and motors
@@ -654,8 +655,14 @@ public class FlightConfigurationTest extends BaseTestCase {
 		selected.setName("[{motors manufacturers | cases}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), 
+		assertEquals(selected.getName(),
 				"[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]");
+
+		// Test combination of motors, manufacturers and cases
+		selected.setName("[{motors manufacturers | cases}]");
+
+		selected.setAllStages();
+		assertEquals(selected.getName(), "[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]");
 
 		// Test empty tags
 		selected.setName("{}");

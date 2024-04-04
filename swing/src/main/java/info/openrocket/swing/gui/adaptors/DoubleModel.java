@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractSpinnerModel;
@@ -52,7 +53,7 @@ import info.openrocket.core.util.StateChangeListener;
 
 public class DoubleModel implements StateChangeListener, ChangeSource, Invalidatable {
 	private static final Logger log = LoggerFactory.getLogger(DoubleModel.class);
-	
+	private final ModelInvalidator modelInvalidator;		// Composite pattern because f***ing Java doesn't allow multiple inheritance...
 	
 	public static final DoubleModel ZERO = new DoubleModel(0);
 	
@@ -157,8 +158,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		@Override
-		public void invalidate() {
-			DoubleModel.this.invalidate();
+		public void invalidateMe() {
+			DoubleModel.this.invalidateMe();
 		}
 	}
 	
@@ -436,8 +437,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		@Override
-		public void invalidate() {
-			DoubleModel.this.invalidate();
+		public void invalidateMe() {
+			DoubleModel.this.invalidateMe();
 		}
 		
 		@Override
@@ -579,8 +580,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		@Override
-		public void invalidate() {
-			DoubleModel.this.invalidate();
+		public void invalidateMe() {
+			DoubleModel.this.invalidateMe();
 		}
 	}
 	
@@ -613,8 +614,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	
 	private final Method getAutoMethod;
 	private final Method setAutoMethod;
-	
-	private final ArrayList<EventListener> listeners = new ArrayList<EventListener>();
+
 	
 	private UnitGroup units;
 	private Unit currentUnit;
@@ -631,9 +631,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	// Used to differentiate changes in valueName and other changes in the component:
 	private double lastValue = 0;
 	private boolean lastAutomatic = false;
-	
-	private Invalidator invalidator = new Invalidator(this);
-	
+
 	
 	/**
 	 * Generate a DoubleModel that contains an internal double value.
@@ -674,6 +672,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param max		maximum value.
 	 */
 	public DoubleModel(double value, UnitGroup unit, double min, double max) {
+		this.modelInvalidator = new ModelInvalidator(null, this);
 		this.lastValue = value;
 		this.minValue = min;
 		this.maxValue = max;
@@ -701,6 +700,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 */
 	public DoubleModel(Object source, String valueName, double multiplier, UnitGroup unit,
 			double min, double max) {
+		this.modelInvalidator = new ModelInvalidator(source, this);
 		this.source = source;
 		this.valueName = valueName;
 		this.multiplier = multiplier;
@@ -808,7 +808,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param v New value for parameter in SI units.
 	 */
 	public void setValue(double v) {
-		checkState(true);
+		modelInvalidator.checkState(true);
 
 		double clampedValue = MathUtil.clamp(v, minValue, maxValue);
 		if (clampedValue != v) {
@@ -871,7 +871,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * state change event if automatic setting is not available.
 	 */
 	public void setAutomatic(boolean auto) {
-		checkState(true);
+		modelInvalidator.checkState(true);
 		
 		if (setAutoMethod == null) {
 			log.debug("Setting automatic to " + auto + " for " + this + ", automatic not available");
@@ -906,7 +906,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param u  The unit to set active.
 	 */
 	public void setCurrentUnit(Unit u) {
-		checkState(true);
+		modelInvalidator.checkState(true);
 		if (currentUnit == u)
 			return;
 		log.debug("Setting unit for " + this + " to '" + u + "'");
@@ -930,7 +930,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	public UnitGroup getUnitGroup() {
 		return units;
 	}
-	
+
+	private List<EventListener> getListeners() {
+		return modelInvalidator.listeners;
+	}
 	
 	
 	/**
@@ -950,17 +953,16 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param l Listener to add.
 	 */
 	public void addChangeListener(EventListener l) {
-		checkState(true);
+		modelInvalidator.checkState(true);
 		
-		if (listeners.isEmpty()) {
+		if (getListeners().isEmpty()) {
 			if (source != null) {
 				lastValue = getValue();
 				lastAutomatic = isAutomatic();
 			}
 		}
-		
-		listeners.add(l);
-		log.trace(this + " adding listener (total " + listeners.size() + "): " + l);
+
+		modelInvalidator.addChangeListener(l);
 	}
 	
 	/**
@@ -979,10 +981,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param l Listener to remove.
 	 */
 	public void removeChangeListener(EventListener l) {
-		checkState(false);
-		
-		listeners.remove(l);
-		log.trace(this + " removing listener (total " + listeners.size() + "): " + l);
+		modelInvalidator.removeChangeListener(l);
 	}
 	
 	
@@ -992,29 +991,16 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * model and the value cannot be set.
 	 */
 	@Override
-	public void invalidate() {
-		log.trace("Invalidating " + this);
-		invalidator.invalidate();
-		
-		if (!listeners.isEmpty()) {
-			log.warn("Invalidating " + this + " while still having listeners " + listeners);
-		}
-		listeners.clear();
-		MemoryManagement.collectable(this);
+	public void invalidateMe() {
+		modelInvalidator.invalidateMe();
 	}
 	
-	
-	private void checkState(boolean error) {
-		invalidator.check(error);
-	}
-	
-	
+
+	// TODO MEDIUM: finalize is deprecated, replace with something better
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		if (!listeners.isEmpty()) {
-			log.warn(this + " being garbage-collected while having listeners " + listeners);
-		}
+		modelInvalidator.finalize();
 	};
 	
 	
@@ -1022,13 +1008,13 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * Fire a ChangeEvent to all listeners.
 	 */
 	protected void fireStateChanged() {
-		checkState(true);
+		modelInvalidator.checkState(true);
 		
 		EventObject event = new EventObject(this);
 		ChangeEvent cevent = new ChangeEvent(this);
 		firing++;
 		// Copy the list before iterating to prevent concurrent modification exceptions.
-		EventListener[] ls = listeners.toArray(new EventListener[0]);
+		EventListener[] ls = getListeners().toArray(new EventListener[0]);
 		for (EventListener l : ls) {
 			if (l instanceof StateChangeListener) {
 				((StateChangeListener) l).stateChanged(event);
@@ -1045,7 +1031,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 */
 	@Override
 	public void stateChanged(EventObject e) {
-		checkState(true);
+		modelInvalidator.checkState(true);
 		
 		double v = getValue();
 		boolean b = isAutomatic();

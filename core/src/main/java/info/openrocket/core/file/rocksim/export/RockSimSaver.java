@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
+import info.openrocket.core.util.MemoryManagement;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 
@@ -26,44 +27,41 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 
 /**
- * This class is responsible for converting an OpenRocket design to a Rocksim
- * design.
+ * This class is responsible for converting an OpenRocket design to a Rocksim design.
  */
 public class RockSimSaver extends RocketSaver {
-
+	
 	/**
 	 * The logger.
 	 */
 	private static final Logger log = LoggerFactory.getLogger(RockSimSaver.class);
-
+	
 	/**
-	 * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant
-	 * XML.
+	 * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant XML.
 	 *
 	 * @param doc the OR design
 	 * @return Rocksim-compliant XML
 	 */
 	public String marshalToRockSim(OpenRocketDocument doc) {
-
+		
 		try {
 			JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
 			Marshaller marshaller = binder.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			StringWriter sw = new StringWriter();
-
+			
 			marshaller.marshal(toRockSimDocumentDTO(doc), sw);
 			return sw.toString();
 		} catch (Exception e) {
 			log.error("Could not marshall a design to RockSim format. " + e.getMessage());
 		}
-
+		
 		return null;
 	}
-
+	
 	@Override
-	public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options, WarningSet warnings,
-			ErrorSet errors) throws IOException {
+	public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options, WarningSet warnings, ErrorSet errors) throws IOException {
 		log.info("Saving .rkt file");
 
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
@@ -97,13 +95,14 @@ public class RockSimSaver extends RocketSaver {
 	}
 
 	private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
+		rocket = rocket.copyWithOriginalID();		// Make sure we don't change the original design.
 		RocketDesignDTO result = new RocketDesignDTO();
 
 		final FlightConfiguration configuration = rocket.getEmptyConfiguration();
 		final RigidBody spentData = MassCalculator.calculateStructure(configuration);
 		final double cg = spentData.cm.x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
-		int stageCount = rocket.getStageCount();
+		int stageCount = rocket.getChildCount();
 		if (stageCount == 3) {
 			result.setStage321CG(cg);
 		} else if (stageCount == 2) {
@@ -126,6 +125,10 @@ public class RockSimSaver extends RocketSaver {
 		// Set the last serial number element and reset it.
 		result.setLastSerialNumber(BasePartDTO.getCurrentSerialNumber());
 		BasePartDTO.resetCurrentSerialNumber();
+
+		// Clean up
+		MemoryManagement.collectable(rocket);
+
 		return result;
 	}
 

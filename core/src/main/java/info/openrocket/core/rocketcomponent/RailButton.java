@@ -18,10 +18,8 @@ import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
-/**
- * WARNING: This class is only partially implemented. Recommend a bit of testing
- * before you attach it to the GUI.
- * 
+/** 
+ * WARNING:  This class is only partially implemented.  Recommend a bit of testing before you attach it to the GUI.
  * @author widget (Daniel Williams)
  *
  */
@@ -29,22 +27,21 @@ public class RailButton extends ExternalComponent
 		implements AnglePositionable, AxialPositionable, BoxBounded, LineInstanceable {
 
 	private static final Translator trans = Application.getTranslator();
-
+	
 	/*
 	 * Rail Button Dimensions (side view)
 	 * 
-	 * > outer dia <
-	 * | | v
-	 * ^ [[[[[[]]]]]] flangeHeight
-	 * total >||||||<= inner dia ^
-	 * height |||||| v
-	 * v [[[[[[]]]]]] baseHeight / standoff
-	 * ================== ^
-	 * (body)
-	 * 
+	 *        > outer dia  <
+	 *        |            |              v
+	 *   ^     [[[[[[]]]]]]              flangeHeight
+	 * total     >||||||<=  inner dia     ^
+	 * height     ||||||            v
+	 *   v     [[[[[[]]]]]]        baseHeight / standoff
+	 *      ==================      ^
+	 *          (body)
+	 *   
 	 */
-	// Note: the reference point for Rail Button Components is in the center bottom
-	// of the button.
+	// Note:  the reference point for Rail Button Components is in the center bottom of the button. 
 	protected double outerDiameter_m;
 	protected double innerDiameter_m;
 	protected double totalHeight_m;
@@ -67,16 +64,16 @@ public class RailButton extends ExternalComponent
 		this.setBaseHeight(0.002);
 		this.setInstanceSeparation(this.outerDiameter_m * 6);
 		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
-		super.displayOrder_side = 14; // Order for displaying the component in the 2D side view
-		super.displayOrder_back = 11; // Order for displaying the component in the 2D back view
+		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
 	}
 
 	public RailButton(final double od, final double ht) {
 		this();
 		this.setOuterDiameter(od);
 		this.setTotalHeight(ht);
-		super.displayOrder_side = 14; // Order for displaying the component in the 2D side view
-		super.displayOrder_back = 11; // Order for displaying the component in the 2D back view
+		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
 	}
 
 	public RailButton(final double od, final double id, final double ht, final double _flangeHeight,
@@ -89,30 +86,30 @@ public class RailButton extends ExternalComponent
 		this.setBaseHeight(_baseHeight);
 		this.setInstanceSeparation(od * 2);
 		this.setMaterial(Databases.findMaterial(Material.Type.BULK, "Delrin"));
-		super.displayOrder_side = 14; // Order for displaying the component in the 2D side view
-		super.displayOrder_back = 11; // Order for displaying the component in the 2D back view
+		super.displayOrder_side = 14;		// Order for displaying the component in the 2D side view
+		super.displayOrder_back = 11;		// Order for displaying the component in the 2D back view
 	}
 
 	public double getBaseHeight() {
 		return this.baseHeight_m;
 	}
-
+	
 	public double getOuterDiameter() {
 		return this.outerDiameter_m;
 	}
-
+	
 	public double getInnerDiameter() {
 		return this.innerDiameter_m;
 	}
-
+	
 	public double getInnerHeight() {
 		return (this.totalHeight_m - this.flangeHeight_m - this.baseHeight_m);
 	}
-
+	
 	public double getTotalHeight() {
 		return this.totalHeight_m;
 	}
-
+	
 	public double getFlangeHeight() {
 		return this.flangeHeight_m;
 	}
@@ -209,12 +206,12 @@ public class RailButton extends ExternalComponent
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
 	@Override
 	public double getAngleOffset() {
 		return angleOffsetRad;
 	}
-
+	
 	@Override
 	public AngleMethod getAngleMethod() {
 		return RailButton.angleMethod;
@@ -224,23 +221,25 @@ public class RailButton extends ExternalComponent
 	public void setAngleMethod(AngleMethod newMethod) {
 		// no-op
 	}
-
+	
+	
 	@Override
 	public void setAngleOffset(double angle_rad) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setAngleOffset(angle_rad);
+			if (listener instanceof AnglePositionable) {
+				((AnglePositionable) listener).setAngleOffset(angle_rad);
 			}
 		}
 
 		double clamped_rad = MathUtil.clamp(angle_rad, -Math.PI, Math.PI);
-
+		
 		if (MathUtil.equals(this.angleOffsetRad, clamped_rad))
 			return;
 		this.angleOffsetRad = clamped_rad;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-
+	
+	
 	@Override
 	public void setAxialMethod(AxialMethod position) {
 		super.setAxialMethod(position);
@@ -250,17 +249,17 @@ public class RailButton extends ExternalComponent
 	@Override
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox instanceBounds = new BoundingBox();
-
+		
 		instanceBounds.update(new Coordinate(0, this.totalHeight_m + this.screwHeight_m, 0));
 		instanceBounds.update(new Coordinate(0, -this.totalHeight_m - this.screwHeight_m, 0));
-
+		
 		final double r = this.getOuterDiameter() / 2;
 		instanceBounds.update(new Coordinate(r, 0, r));
 		instanceBounds.update(new Coordinate(-r, 0, -r));
-
+		
 		return instanceBounds;
 	}
-
+	
 	@Override
 	public Coordinate[] getInstanceOffsets() {
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
@@ -271,19 +270,19 @@ public class RailButton extends ExternalComponent
 		for (int index = 0; index < this.getInstanceCount(); index++) {
 			toReturn[index] = new Coordinate(index * this.instanceSeparation, yOffset, zOffset);
 		}
-
+		
 		return toReturn;
 	}
-
+	
 	@Override
 	public Type getPresetType() {
 		return ComponentPreset.Type.RAIL_BUTTON;
 	}
-
+	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		super.componentChanged(e);
-
+		
 		RocketComponent body;
 		double parentRadius = 0;
 
@@ -293,30 +292,31 @@ public class RailButton extends ExternalComponent
 				break;
 			}
 		}
-
+		
 		this.radialDistance_m = parentRadius;
 	}
-
+	
+	
 	@Override
 	public double getComponentVolume() {
-		final double volOuter = Math.PI * Math.pow(outerDiameter_m / 2, 2) * flangeHeight_m;
-		final double volInner = Math.PI * Math.pow(innerDiameter_m / 2, 2) * getInnerHeight();
-		final double volStandoff = Math.PI * Math.pow(outerDiameter_m / 2, 2) * baseHeight_m;
-		final double volScrew = 2f / 3 * Math.PI * MathUtil.pow2(outerDiameter_m / 2) * screwHeight_m;
+		final double volOuter = Math.PI*Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
+		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
+		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
+		final double volScrew = 2f/3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
 		final double volInstance = volOuter + volInner + volStandoff + volScrew;
 		return volInstance * getInstanceCount();
 	}
-
+	
 	@Override
-	public double getInstanceSeparation() {
+	public double getInstanceSeparation(){
 		return this.instanceSeparation;
 	}
-
+	
 	@Override
 	public void setInstanceSeparation(double _separation) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setInstanceSeparation(_separation);
+			if (listener instanceof LineInstanceable) {
+				((LineInstanceable) listener).setInstanceSeparation(_separation);
 			}
 		}
 
@@ -326,13 +326,11 @@ public class RailButton extends ExternalComponent
 		this.instanceSeparation = _separation;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-
+	
 	@Override
 	public void setInstanceCount(int newCount) {
 		for (RocketComponent listener : configListeners) {
-			if (listener instanceof RailButton) {
-				((RailButton) listener).setInstanceCount(newCount);
-			}
+			listener.setInstanceCount(newCount);
 		}
 
 		if (newCount == this.instanceCount || newCount <= 0) {
@@ -341,7 +339,7 @@ public class RailButton extends ExternalComponent
 		this.instanceCount = newCount;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
 	@Override
 	public int getInstanceCount() {
 		return this.instanceCount;
@@ -366,65 +364,58 @@ public class RailButton extends ExternalComponent
 		set.add(new Coordinate(-r, totalHeight_m, -r));
 		return set;
 	}
-
+	
 	@Override
 	public Coordinate getComponentCG() {
-		// Math.PI and density are assumed constant through calculation, and thus may be
-		// factored out.
+		// Math.PI and density are assumed constant through calculation, and thus may be factored out.
 		final double massBase = Math.pow(outerDiameter_m / 2, 2) * this.baseHeight_m;
-		final double massInner = Math.pow(innerDiameter_m / 2, 2) * getInnerHeight();
-		final double massFlange = Math.pow(outerDiameter_m / 2, 2) * this.flangeHeight_m;
-		final double massScrew = 2f / 3 * MathUtil.pow2(outerDiameter_m / 2) * screwHeight_m;
+		final double massInner = Math.pow(innerDiameter_m / 2, 2)* getInnerHeight();
+		final double massFlange = Math.pow(outerDiameter_m / 2, 2)* this.flangeHeight_m;
+		final double massScrew = 2f/3 * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
 		final double totalMass = massFlange + massInner + massBase + massScrew;
-		final double baseCM = this.baseHeight_m / 2;
-		final double innerCM = this.baseHeight_m + this.getInnerHeight() / 2;
-		final double flangeCM = this.totalHeight_m - getFlangeHeight() / 2;
+		final double baseCM = this.baseHeight_m /2;
+		final double innerCM = this.baseHeight_m + this.getInnerHeight()/2;
+		final double flangeCM = this.totalHeight_m - getFlangeHeight()/2;
 		final double screwCM = this.totalHeight_m + 4 * this.screwHeight_m / (3 * Math.PI);
-		final double heightCM = (massBase * baseCM + massInner * innerCM + massFlange * flangeCM + massScrew * screwCM)
-				/ totalMass;
-		final double parentRadius = parent instanceof SymmetricComponent
-				? ((SymmetricComponent) parent).getRadius(getAxialOffset())
-				: 0;
+		final double heightCM = (massBase*baseCM + massInner*innerCM + massFlange*flangeCM + massScrew*screwCM)/totalMass;
+		final double parentRadius = parent instanceof SymmetricComponent ?
+				((SymmetricComponent) parent).getRadius(getAxialOffset()) : 0;
 
 		if (heightCM > this.totalHeight_m + this.screwHeight_m) {
-			throw new BugException(" bug found while computing the CG of a RailButton: " + this.getName()
-					+ "\n height of CG: " + heightCM);
+			throw new BugException(" bug found while computing the CG of a RailButton: "+this.getName()+"\n height of CG: "+heightCM);
 		}
 
-		final double CMx = (instanceSeparation * (instanceCount - 1)) / 2;
+		final double CMx = (instanceSeparation * (instanceCount-1)) / 2;
 		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + heightCM);
 		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + heightCM);
-
-		return new Coordinate(CMx, CMy, CMz, getComponentMass());
+		
+		return new Coordinate( CMx, CMy, CMz, getComponentMass());
 	}
 
 	@Override
 	public String getComponentName() {
 		return trans.get("RailButton.RailButton");
 	}
-
+	
 	@Override
 	public double getLongitudinalUnitInertia() {
 		// 1/12 * (3 * (r2^2 + r1^2) + h^2)
-		// return (3 * (MathUtil.pow2(getOuterRadius()) +
-		// MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLengthAerodynamic())) /
-		// 12;
+//		return (3 * (MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLengthAerodynamic())) / 12;
 		return 0.0;
 	}
-
+	
 	@Override
 	public double getRotationalUnitInertia() {
 		// 1/2 * (r1^2 + r2^2)
-		// return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius())) /
-		// 2;
+//		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius())) / 2;
 		return 0.0;
 	}
-
+	
 	@Override
 	public boolean allowsChildren() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		// Allow nothing to be attached to a LaunchButton

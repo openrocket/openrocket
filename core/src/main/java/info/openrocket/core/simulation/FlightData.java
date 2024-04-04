@@ -37,13 +37,13 @@ public class FlightData {
 		data.immute();
 		NaN_DATA = data;
 	}
-
+	
 	private final Mutable mutable = new Mutable();
-
+	
 	private final ArrayList<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
-
+	
 	private final WarningSet warnings = new WarningSet();
-
+	
 	private double maxAltitude = Double.NaN;
 	private double maxVelocity = Double.NaN;
 	private double maxAcceleration = Double.NaN;
@@ -56,30 +56,31 @@ public class FlightData {
 	private double optimumDelay = Double.NaN;
 
 	/**
-	 * Create a FlightData object with no content. The resulting object is mutable.
+	 * Create a FlightData object with no content.  The resulting object is mutable.
 	 */
 	public FlightData() {
-
+		
 	}
-
+	
+	
 	/**
 	 * Construct a FlightData object with no data branches but the specified
-	 * summary information. The resulting object is mutable.
+	 * summary information.  The resulting object is mutable.
 	 * 
-	 * @param maxAltitude        maximum altitude.
-	 * @param maxVelocity        maximum velocity.
-	 * @param maxAcceleration    maximum acceleration.
-	 * @param maxMachNumber      maximum Mach number.
-	 * @param timeToApogee       time to apogee.
-	 * @param flightTime         total flight time.
-	 * @param groundHitVelocity  ground hit velocity.
-	 * @param launchRodVelocity  velocity at launch rod clearance
-	 * @param deploymentVelocity velocity at deployment
-	 * @param optimumDelay       optimum motor ejection delay time
+	 * @param maxAltitude			maximum altitude.
+	 * @param maxVelocity			maximum velocity.
+	 * @param maxAcceleration		maximum acceleration.
+	 * @param maxMachNumber			maximum Mach number.
+	 * @param timeToApogee			time to apogee.
+	 * @param flightTime			total flight time.
+	 * @param groundHitVelocity		ground hit velocity.
+	 * @param launchRodVelocity     velocity at launch rod clearance
+	 * @param deploymentVelocity    velocity at deployment
+	 * @param optimumDelay          optimum motor ejection delay time
 	 */
 	public FlightData(double maxAltitude, double maxVelocity, double maxAcceleration,
 			double maxMachNumber, double timeToApogee, double flightTime,
-			double groundHitVelocity, double launchRodVelocity, double deploymentVelocity, double optimumDelay) {
+					  double groundHitVelocity, double launchRodVelocity, double deploymentVelocity, double optimumDelay) {
 		this.maxAltitude = maxAltitude;
 		this.maxVelocity = maxVelocity;
 		this.maxAcceleration = maxAcceleration;
@@ -91,49 +92,52 @@ public class FlightData {
 		this.deploymentVelocity = deploymentVelocity;
 		this.optimumDelay = optimumDelay;
 	}
-
+	
+	
 	/**
-	 * Create a FlightData object with the specified branches. The resulting object
-	 * is mutable.
+	 * Create a FlightData object with the specified branches.  The resulting object is mutable.
 	 * 
-	 * @param branches the branches.
+	 * @param branches	the branches.
 	 */
 	public FlightData(FlightDataBranch... branches) {
 		this();
-
+		
 		for (FlightDataBranch b : branches)
 			this.addBranch(b);
-
+		
 		calculateInterestingValues();
 	}
+	
+	
+
 
 	/**
-	 * Returns the warning set associated with this object. This WarningSet cannot
-	 * be
+	 * Returns the warning set associated with this object.  This WarningSet cannot be
 	 * set, so simulations must use this warning set to store their warnings.
 	 * The returned WarningSet should not be modified otherwise.
 	 * 
-	 * @return the warnings generated during this simulation.
+	 * @return	the warnings generated during this simulation.
 	 */
 	public WarningSet getWarningSet() {
 		return warnings;
 	}
-
+	
+	
 	public void addBranch(FlightDataBranch branch) {
 		mutable.check();
-
+		
 		branch.immute();
 		branches.add(branch);
-
+		
 		if (branches.size() == 1) {
 			calculateInterestingValues();
 		}
 	}
-
+	
 	public int getBranchCount() {
 		return branches.size();
 	}
-
+	
 	public FlightDataBranch getBranch(int stageNr) {
 		return branches.get(stageNr);
 	}
@@ -145,41 +149,44 @@ public class FlightData {
 	public List<FlightDataBranch> getBranches() {
 		return branches;
 	}
+	
+	
 
 	public double getMaxAltitude() {
 		return maxAltitude;
 	}
-
+	
 	public double getMaxVelocity() {
 		return maxVelocity;
 	}
-
+	
 	/**
-	 * NOTE: This value only takes into account flight phase.
+	 * NOTE:  This value only takes into account flight phase.
 	 */
 	public double getMaxAcceleration() {
 		return maxAcceleration;
 	}
-
+	
 	public double getMaxMachNumber() {
 		return maxMachNumber;
 	}
-
+	
 	public double getTimeToApogee() {
 		return timeToApogee;
 	}
-
+	
 	public double getFlightTime() {
 		return flightTime;
 	}
-
+	
 	public double getGroundHitVelocity() {
 		return groundHitVelocity;
 	}
-
+	
 	public double getLaunchRodVelocity() {
 		return launchRodVelocity;
 	}
+	
 
 	public double getDeploymentVelocity() {
 		return deploymentVelocity;
@@ -189,25 +196,25 @@ public class FlightData {
 		return optimumDelay;
 	}
 
+
 	/**
-	 * Calculate the max. altitude/velocity/acceleration, time to apogee, flight
-	 * time
+	 * Calculate the max. altitude/velocity/acceleration, time to apogee, flight time
 	 * and ground hit velocity.
 	 */
 	private void calculateInterestingValues() {
 		if (branches.isEmpty())
 			return;
-
+		
 		FlightDataBranch branch = branches.get(0);
 		maxAltitude = branch.getMaximum(FlightDataType.TYPE_ALTITUDE);
 		maxVelocity = branch.getMaximum(FlightDataType.TYPE_VELOCITY_TOTAL);
 		maxMachNumber = branch.getMaximum(FlightDataType.TYPE_MACH_NUMBER);
 		flightTime = branch.getLast(FlightDataType.TYPE_TIME);
-
+		
 		// Time to apogee
 		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 		List<Double> altitude = branch.get(FlightDataType.TYPE_ALTITUDE);
-
+		
 		if (time == null || altitude == null) {
 			timeToApogee = Double.NaN;
 			maxAcceleration = Double.NaN;
@@ -219,7 +226,7 @@ public class FlightData {
 				if (MathUtil.equals(alt, maxAltitude))
 					break;
 			}
-
+			
 			index++;
 		}
 		if (index < time.size())
@@ -234,25 +241,25 @@ public class FlightData {
 			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
 				double t = event.getTime();
 				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
-				launchRodVelocity = MathUtil.interpolate(time, velocity, t);
-			} else if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
+				launchRodVelocity = MathUtil.interpolate( time, velocity, t);
+			} else if ( event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
 				double t = event.getTime();
 				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
-				deploymentVelocity = MathUtil.interpolate(time, velocity, t);
+				deploymentVelocity = MathUtil.interpolate( time, velocity, t);
 			} else if (event.getType() == FlightEvent.Type.GROUND_HIT) {
 				double t = event.getTime();
 				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
-				groundHitVelocity = MathUtil.interpolate(time, velocity, t);
+				groundHitVelocity = MathUtil.interpolate( time,  velocity, t);
 			}
 		}
-
+		
 		// Max. acceleration (must be after apogee time)
 		if (branch.get(FlightDataType.TYPE_ACCELERATION_TOTAL) != null) {
 			maxAcceleration = calculateMaxAcceleration();
 		} else {
 			maxAcceleration = Double.NaN;
 		}
-
+		
 		log.debug("Computed flight values:" +
 				" maxAltitude=" + maxAltitude +
 				" maxVelocity=" + maxVelocity +
@@ -264,7 +271,8 @@ public class FlightData {
 				" launchRodVelocity=" + launchRodVelocity +
 				" optimumDelay=" + optimumDelay);
 	}
-
+	
+	
 	public void immute() {
 		mutable.immute();
 		warnings.immute();
@@ -272,11 +280,12 @@ public class FlightData {
 			b.immute();
 		}
 	}
-
+	
+	
 	public boolean isMutable() {
 		return mutable.isMutable();
 	}
-
+	
 	public FlightData clone() {
 		FlightData clone = new FlightData();
 		clone.warnings.addAll(warnings);
@@ -299,10 +308,10 @@ public class FlightData {
 	 * Find the maximum acceleration before apogee.
 	 */
 	private double calculateMaxAcceleration() {
-
+		
 		// End check at first recovery device deployment
 		double endTime = Double.MAX_VALUE;
-
+		
 		FlightDataBranch branch = this.getBranch(0);
 		for (FlightEvent event : branch.getEvents()) {
 			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
@@ -311,16 +320,16 @@ public class FlightData {
 				}
 			}
 		}
-
+		
 		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 		List<Double> acceleration = branch.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
-
+		
 		if (time == null || acceleration == null) {
 			return Double.NaN;
 		}
-
+		
 		double max = 0;
-
+		
 		for (int i = 0; i < time.size(); i++) {
 			if (time.get(i) >= endTime) {
 				break;
@@ -329,7 +338,7 @@ public class FlightData {
 			if (a > max)
 				max = a;
 		}
-
+		
 		return max;
 	}
 }

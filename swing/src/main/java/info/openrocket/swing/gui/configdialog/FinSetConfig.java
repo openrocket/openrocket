@@ -1,8 +1,8 @@
 package info.openrocket.swing.gui.configdialog;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,14 +12,23 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import info.openrocket.core.startup.Preferences;
+import info.openrocket.swing.gui.components.SVGOptionPanel;
+import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.SwingPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.file.svg.export.SVGBuilder;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.material.Material;
@@ -53,7 +62,8 @@ import org.slf4j.LoggerFactory;
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final Logger log = LoggerFactory.getLogger(FinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
-	
+	private static final Preferences prefs = Application.getPreferences();
+
 	private JButton split = null;
 	
 	public FinSetConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
@@ -129,15 +139,53 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		});
 		split.setEnabled(((FinSet) component).getFinCount() > 1);
-		
+
+		//// Export to SVG
+		JButton exportSVGBtn = new SelectColorButton(trans.get("FinSetConfig.lbl.exportSVG"));
+		exportSVGBtn.setToolTipText(trans.get("FinSetConfig.lbl.exportSVG.ttip"));
+		exportSVGBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Export CSV free-form fin");
+
+				JFileChooser chooser = new JFileChooser();
+				chooser.setFileFilter(FileHelper.SVG_FILTER);
+				chooser.setAccessory(new SVGOptionPanel());
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+
+				if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(FinSetConfig.this)){
+					File selectedFile= chooser.getSelectedFile();
+					selectedFile = FileHelper.forceExtension(selectedFile, "svg");
+					if (!FileHelper.confirmWrite(selectedFile, buttonPanel)) {
+						return;
+					}
+
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+					SVGOptionPanel svgOptions = (SVGOptionPanel) chooser.getAccessory();
+					prefs.setSVGStrokeColor(svgOptions.getStrokeColor());
+					prefs.setSVGStrokeWidth(svgOptions.getStrokeWidth());
+
+					try {
+						FinSetConfig.writeSVGFile((FinSet) component, selectedFile, svgOptions);
+					} catch (Exception svgErr) {
+						JOptionPane.showMessageDialog(FinSetConfig.this,
+								String.format(trans.get("FinSetConfig.errorSVG.msg"), svgErr.getMessage()),
+								trans.get("FinSetConfig.errorSVG.title"), JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		});
+
 		if (convert == null) {
-			addButtons(split);
+			addButtons(split, exportSVGBtn);
 			order.add(split);
+			order.add(exportSVGBtn);
 		}
 		else {
-			addButtons(split, convert);
+			addButtons(split, convert, exportSVGBtn);
 			order.add(split);
 			order.add(convert);
+			order.add(exportSVGBtn);
 		}
 	}
 	
@@ -178,7 +226,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
-		
+		register(tabLength);
+
 		spin = new JSpinner(tabLength.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx 1");
@@ -196,6 +245,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
+		register(tabHeightModel);
 		component.addChangeListener( tabHeightModel );
 		spin = new JSpinner(tabHeightModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -213,6 +263,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(label);
 		
 		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
+		register(tabOffset);
 		component.addChangeListener( tabOffset);
 		spin = new JSpinner(tabOffset.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -228,7 +279,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 
 		final EnumModel<AxialMethod> tabOffsetMethod = new EnumModel<>(component, "TabOffsetMethod");
-		
+		register(tabOffsetMethod);
+
 		JComboBox<AxialMethod> enumCombo = new JComboBox<>(tabOffsetMethod);
 		
 		panel.add( enumCombo, "spanx 3, growx, wrap para");
@@ -542,7 +594,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	
 	protected JPanel filletMaterialPanel(){
 	    
-	    JPanel filletPanel=new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
+	    JPanel filletPanel = new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
 	    String tip = trans.get("FinsetConfig.ttip.Finfillets1") +
 		    	trans.get("FinsetConfig.ttip.Finfillets2") +
 		    	trans.get("FinsetConfig.ttip.Finfillets3");
@@ -552,15 +604,18 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    filletPanel.add(new JLabel(trans.get("FinSetConfig.lbl.Filletradius")));
 		
 	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
-		
+		register(m);
+
 	    JSpinner spin = new JSpinner(m.getSpinnerModel());
 	    spin.setEditor(new SpinnerEditor(spin));
 	    spin.setToolTipText(tip);
 	    filletPanel.add(spin, "growx, w 40");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-	    UnitSelector us = new UnitSelector(m); 
+
+	    UnitSelector us = new UnitSelector(m);
 	    filletPanel.add(us, "growx");
 	    us.setToolTipText(tip);
+
 	    BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1));
 	    filletPanel.add(bs, "w 100lp, wrap para");
 	    bs.setToolTipText(tip);
@@ -571,15 +626,42 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    //// The component material affects the weight of the component.
 	    label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
-		
-	    JComboBox<Material> materialCombo = new JComboBox<Material>(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
+
+		MaterialModel mm = new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial");
+		register(mm);
+	    JComboBox<Material> materialCombo = new JComboBox<>(mm);
 
 	    //// The component material affects the weight of the component.
 	    materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
-	    filletPanel.add( materialCombo, "spanx 4, growx");
+	    filletPanel.add(materialCombo, "spanx 4, growx");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
 
 	    return filletPanel;
+	}
+
+	/**
+	 * Writes the FinSet object to an SVG file.
+	 *
+	 * @param finSet      the FinSet object to write to the SVG file
+	 * @param file        the File object representing the SVG file to be written
+	 * @param svgOptions  the SVGOptionPanel object containing the options for writing the SVG file
+	 * @throws Exception if there is an error writing the SVG file
+	 */
+	public static void writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) throws ParserConfigurationException, TransformerException {
+		Coordinate[] points = finSet.generateContinuousFinAndTabShape();
+
+		SVGBuilder builder = new SVGBuilder();
+		builder.addPath(points, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+
+		// Export fin tab separately if it's beyond the fin
+		if (finSet.isTabBeyondFin()) {
+			Coordinate[] tabPoints = finSet.getTabPointsWithRoot();
+			Coordinate finFront = finSet.getFinFront();
+			// Need to offset to the fin front because the tab points are relative to the fin front
+			builder.addPath(tabPoints, finFront.x, finFront.y, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+		}
+
+		builder.writeToFile(file);
 	}
 }

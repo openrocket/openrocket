@@ -157,7 +157,7 @@ public class RailButtonShapes extends RocketComponentShapes {
 		System.arraycopy(shapesInvis, 0, total, shapes.length, shapesInvis.length);
 		return total;
 	}
-
+	
 
 	@Override
 	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {

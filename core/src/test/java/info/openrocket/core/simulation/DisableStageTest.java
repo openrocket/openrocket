@@ -1,19 +1,22 @@
 package info.openrocket.core.simulation;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.simulation.exception.MotorIgnitionException;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test class that tests the effect on the simulation results of
- * activating/deactivating stages.
+ * Test class that tests the effect on the simulation results of activating/deactivating stages.
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
@@ -21,8 +24,7 @@ public class DisableStageTest extends BaseTestCase {
     public static final double DELTA = 0.05; // 5 % error margin (simulations are not exact)
 
     /**
-     * Tests that the simulation results are correct when a single stage is
-     * deactivated and re-activated.
+     * Tests that the simulation results are correct when a single stage is deactivated and re-activated.
      */
     @Test
     public void testSingleStage() throws SimulationException {
@@ -35,14 +37,12 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        // Since there are no stages, the simulation should throw an exception.
-        try {
-            simDisabled.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assertions.fail("Simulation should have thrown a MotorIgnitionException");
-            }
-        }
+		simDisabled.simulate();
+
+        // Since there are no stages, the simulation should abort
+		FlightEvent abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		assertNotNull(abort, "Empty simulation failed to abort");
+		assertEquals(SimulationAbort.Cause.NO_ACTIVE_STAGES, ((SimulationAbort)(abort.getData())).getCause(), "Abort cause did not match");
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeEstesAlphaIII();
@@ -58,14 +58,13 @@ public class DisableStageTest extends BaseTestCase {
     }
 
     /**
-     * Tests that the simulation results are correct when the last stage of a
-     * multi-stage rocket is deactivated and re-activated.
+     * Tests that the simulation results are correct when the last stage of a multi-stage rocket is deactivated and re-activated.
      */
     @Test
     public void testMultiStageLastDisabled() {
         //// Test disabling the stage
-        Rocket rocketRemoved = TestRockets.makeBeta(); // Rocket with the last stage removed
-        Rocket rocketDisabled = TestRockets.makeBeta(); // Rocket with the last stage disabled
+        Rocket rocketRemoved = TestRockets.makeBeta();      // Rocket with the last stage removed
+        Rocket rocketDisabled = TestRockets.makeBeta();     // Rocket with the last stage disabled
 
         int stageNr = rocketRemoved.getChildCount() - 1;
         rocketRemoved.removeChild(stageNr);
@@ -90,18 +89,16 @@ public class DisableStageTest extends BaseTestCase {
         simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_1);
         simOriginal.getOptions().setISAAtmosphere(true);
         simOriginal.getOptions().setTimeStep(0.05);
-
+        
         simDisabled.getActiveConfiguration().setAllStages();
 
         compareSims(simOriginal, simDisabled, DELTA);
     }
 
     /**
-     * Tests that the simulation results are correct when the first stage of a
-     * multi-stage rocket is deactivated and re-activated.
+     * Tests that the simulation results are correct when the first stage of a multi-stage rocket is deactivated and re-activated.
      */
-    // Don't even know if this test was useful, but simulation results vary wildly
-    // because the first stage is disabled,
+    // Don't even know if this test was useful, but simulation results vary wildly because the first stage is disabled,
     // so I'm just gonna ignore this test.
     /*
      * @Test
@@ -111,53 +108,52 @@ public class DisableStageTest extends BaseTestCase {
      * removed
      * Rocket rocketDisabled = TestRockets.makeBeta(); // Rocket with the last stage
      * disabled
-     * 
+     *
      * // You need to disable the second stage body tube going into automatic radius
      * mode, otherwise the
      * // removed and disabled rocket will have different results (removed rocket
      * will have a different diameter)
      * BodyTube bodyTube = (BodyTube) rocketRemoved.getChild(1).getChild(0);
      * bodyTube.setOuterRadiusAutomatic(false);
-     * 
-     * 
+     *
+     *
      * int stageNr = 0;
      * rocketRemoved.removeChild(stageNr);
      * FlightConfiguration fc =
      * rocketDisabled.getFlightConfiguration(TestRockets.TEST_FCID_1);
      * fc._setStageActive(stageNr, false);
-     * 
+     *
      * Simulation simRemoved = new Simulation(rocketRemoved);
      * simRemoved.setFlightConfigurationId(TestRockets.TEST_FCID_1);
      * simRemoved.getOptions().setISAAtmosphere(true);
      * simRemoved.getOptions().setTimeStep(0.05);
-     * 
+     *
      * Simulation simDisabled = new Simulation(rocketDisabled);
      * simDisabled.setFlightConfigurationId(TestRockets.TEST_FCID_1);
      * simDisabled.getOptions().setISAAtmosphere(true);
      * simDisabled.getOptions().setTimeStep(0.05);
-     * 
+     *
      * SimulationListener simulationListener = new AbstractSimulationListener();
-     * 
+     *
      * double delta = 0.1; // 10 % error margin (simulations are very unstable and
      * not exact when the first stage is disabled...)
      * compareSims(simRemoved, simDisabled, simulationListener, delta);
-     * 
+     *
      * //// Test re-enableing the stage.
      * Rocket rocketOriginal = TestRockets.makeBeta();
      * Simulation simOriginal = new Simulation(rocketOriginal);
      * simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_1);
      * simOriginal.getOptions().setISAAtmosphere(true);
      * simOriginal.getOptions().setTimeStep(0.05);
-     * 
+     *
      * simDisabled.getActiveConfiguration().setAllStages();
-     * 
+     *
      * compareSims(simOriginal, simDisabled, simulationListener, delta);
      * }
      */
 
     /**
-     * Tests that the simulation results are correct when a booster stage is
-     * deactivated and re-activated.
+     * Tests that the simulation results are correct when a booster stage is deactivated and re-activated.
      */
     @Test
     public void testBooster1() {
@@ -202,8 +198,7 @@ public class DisableStageTest extends BaseTestCase {
     }
 
     /**
-     * Tests that the simulation results are correct when the parent stage of a
-     * booster stage is deactivated and re-activated.
+     * Tests that the simulation results are correct when the parent stage of a booster stage is deactivated and re-activated.
      */
     @Test
     public void testBooster2() {
@@ -225,28 +220,21 @@ public class DisableStageTest extends BaseTestCase {
         simRemoved.getOptions().setISAAtmosphere(true);
         simRemoved.getOptions().setTimeStep(0.05);
 
+		try {
+			simRemoved.simulate();
+		} catch(Exception e) {
+			fail("unexpected exception " + e);
+		}
+
+        // There should be no motors left at this point, so we should abort on no motors
+		FlightEvent abort = simRemoved.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		assertNotNull(abort, "Empty simulation failed to abort");
+		assertEquals(SimulationAbort.Cause.NO_MOTORS_DEFINED, ((SimulationAbort)(abort.getData())).getCause(), "Abort cause did not match");
+
         Simulation simDisabled = new Simulation(rocketDisabled);
         simDisabled.setFlightConfigurationId(fid);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
-
-        // There should be no motors left at this point, so a no motors exception should
-        // be thrown
-        try {
-            simRemoved.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assertions.fail("Simulation failed: " + e);
-            }
-        }
-
-        try {
-            simDisabled.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assertions.fail("Simulation failed: " + e);
-            }
-        }
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
@@ -269,7 +257,7 @@ public class DisableStageTest extends BaseTestCase {
     public void testBooster3() {
         Rocket rocketDisabled = TestRockets.makeFalcon9Heavy();
 
-        FlightConfigurationId fid = new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
+        FlightConfigurationId fid =  new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
         Simulation simDisabled = new Simulation(rocketDisabled);
         simDisabled.setFlightConfigurationId(fid);
         simDisabled.getOptions().setISAAtmosphere(true);
@@ -279,36 +267,35 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getActiveConfiguration().setOnlyStage(2);
 
         //// Test that the top stage is the booster stage
-        Assertions.assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()),
-                rocketDisabled.getStage(2));
+        assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()), rocketDisabled.getStage(2));
 
-        try { // Just check that the simulation runs without exceptions
+        try {
             simDisabled.simulate();
-        } catch (SimulationException e) {
-            if (!(e instanceof MotorIgnitionException)) {
-                Assertions.fail("Simulation failed: " + e);
-            }
+        } catch(Exception e) {
+            fail("unexpected exception " + e);
         }
+
+        // Sim will tumble under
+        FlightEvent abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+        assertNotNull(abort, "Unstable booster failed to abort");
+        assertEquals(SimulationAbort.Cause.TUMBLE_UNDER_THRUST, ((SimulationAbort)(abort.getData())).getCause(), "Abort cause did not match");
     }
 
     /**
-     * Compare simActual to simExpected and fail the unit test if there was an error
-     * during simulation or
+     * Compare simActual to simExpected and fail the unit test if there was an error during simulation or
      * the two don't match.
      * Tested parameters:
-     * - maxAcceleration
-     * - maxAltitude
-     * - maxVelocity
-     * - maxMachNumber
-     * - flightTime
-     * - launchRodVelocity
-     * - deploymentVelocity
-     * - groundHitVelocity
-     * 
+     *  - maxAcceleration
+     *  - maxAltitude
+     *  - maxVelocity
+     *  - maxMachNumber
+     *  - flightTime
+     *  - launchRodVelocity
+     *  - deploymentVelocity
+     *  - groundHitVelocity
      * @param simExpected the expected simulation results
-     * @param simActual   the actual simulation results
-     * @param delta       the error margin for the comparison (e.g. 0.05 = 5 % error
-     *                    margin)
+     * @param simActual the actual simulation results
+     * @param delta the error margin for the comparison (e.g. 0.05 = 5 % error margin)
      */
     private void compareSims(Simulation simExpected, Simulation simActual, double delta) {
         try {
@@ -330,17 +317,17 @@ public class DisableStageTest extends BaseTestCase {
             double launchRodVelocityDisabled = simActual.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityDisabled = simActual.getSimulatedData().getDeploymentVelocity();
 
-            Assertions.assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, calculateDelta(maxAltitudeOriginal, delta));
-            Assertions.assertEquals(maxVelocityOriginal, maxVelocityDisabled, calculateDelta(maxVelocityOriginal, delta));
-            Assertions.assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, calculateDelta(maxMachNumberOriginal, delta));
-            Assertions.assertEquals(flightTimeOriginal, flightTimeDisabled, calculateDelta(flightTimeOriginal, delta));
-            Assertions.assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, calculateDelta(timeToApogeeOriginal, delta));
-            Assertions.assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled,
+            assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, calculateDelta(maxAltitudeOriginal, delta));
+            assertEquals(maxVelocityOriginal, maxVelocityDisabled, calculateDelta(maxVelocityOriginal, delta));
+            assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, calculateDelta(maxMachNumberOriginal, delta));
+            assertEquals(flightTimeOriginal, flightTimeDisabled, calculateDelta(flightTimeOriginal, delta));
+            assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, calculateDelta(timeToApogeeOriginal, delta));
+            assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled,
                     calculateDelta(launchRodVelocityOriginal, delta));
-            Assertions.assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled,
+            assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled,
                     calculateDelta(deploymentVelocityOriginal, delta));
         } catch (SimulationException e) {
-            Assertions.fail("Simulation failed: " + e);
+            fail("Simulation failed: " + e);
         }
     }
 

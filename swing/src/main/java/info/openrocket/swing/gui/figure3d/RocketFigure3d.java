@@ -67,7 +67,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-
+	
 	static {
 		//this allows the GL canvas and things like the motor selection
 		//drop down to z-order themselves.
@@ -106,13 +106,13 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	static {
 		initColors();
 	}
-	
+
 	public RocketFigure3d(final OpenRocketDocument document) {
 		this.document = document;
 		this.rkt = document.getRocket();
 		this.setLayout(new BorderLayout());
-
-		// Only initialize GL if 3d is enabled.
+		
+		//Only initialize GL if 3d is enabled.
 		if (is3dEnabled()) {
 			//Fixes a linux / X bug: Splash must be closed before GL Init
 			SplashScreen splash = Splash.getSplashScreen();
@@ -131,7 +131,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static void updateColors() {
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 	}
-	
+
 	public void flushTextureCaches() {
 		((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
 			@Override

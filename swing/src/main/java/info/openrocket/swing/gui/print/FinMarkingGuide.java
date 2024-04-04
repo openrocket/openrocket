@@ -252,7 +252,7 @@ public class FinMarkingGuide extends JPanel {
 		
 		int width = (int) PrintUnit.INCHES.toPoints(DEFAULT_GUIDE_WIDTH);
 		int length;
-		
+
 		int column = 0;
 		
 		for (BodyTube next : markingGuideItems.keySet()) {
@@ -684,7 +684,7 @@ public class FinMarkingGuide extends JPanel {
 	void drawRightArrowLine(Graphics2D g2, int x1, int y1, int x2, int y2) {
 		drawArrowLine(g2, x1, y1, x2, y2, 0, false, true);
 	}
-
+	
 	/**
 	 * Draw a horizontal line with arrows on both endpoints.  Depicts a fin alignment.
 	 *

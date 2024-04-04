@@ -58,7 +58,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param w The w value
      */
     public DefaultFloatTuple(float x, float y, float z, float w) {
-        this(new float[] { x, y, z, w });
+        this(new float[]{x, y, z, w});
     }
 
     /**
@@ -69,7 +69,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param z The z value
      */
     public DefaultFloatTuple(float x, float y, float z) {
-        this(new float[] { x, y, z });
+        this(new float[]{x, y, z});
     }
 
     /**
@@ -79,7 +79,7 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param y The y value
      */
     public DefaultFloatTuple(float x, float y) {
-        this(new float[] { x, y });
+        this(new float[]{x, y});
     }
 
     /**
@@ -88,8 +88,9 @@ public final class DefaultFloatTuple implements FloatTuple {
      * @param x The x value
      */
     public DefaultFloatTuple(float x) {
-        this(new float[] { x });
+        this(new float[]{x});
     }
+
 
     /**
      * Copy constructor.
@@ -192,6 +193,7 @@ public final class DefaultFloatTuple implements FloatTuple {
         return values.length;
     }
 
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -239,3 +241,4 @@ public final class DefaultFloatTuple implements FloatTuple {
     }
 
 }
+

@@ -46,6 +46,7 @@ dependencies {
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.2'
     implementation files('libs/script-api-1.0.jar')
     implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.165'
+    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.19.0'
 
     implementation 'de.javagl:obj:0.4.0'
 

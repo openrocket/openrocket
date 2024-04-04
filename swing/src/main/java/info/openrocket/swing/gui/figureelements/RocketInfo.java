@@ -69,7 +69,7 @@ public class RocketInfo implements FigureElement {
 
 	private static Color textColor;
 	private static Color dimTextColor;
-	private static Color warningColor;
+	private static Color darkErrorColor;
 	private static Color flightDataTextActiveColor;
 	private static Color flightDataTextInactiveColor;
 
@@ -91,7 +91,7 @@ public class RocketInfo implements FigureElement {
 	private static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		warningColor = GUIUtil.getUITheme().getWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getErrorColor();
 		flightDataTextActiveColor = GUIUtil.getUITheme().getFlightDataTextActiveColor();
 		flightDataTextInactiveColor = GUIUtil.getUITheme().getFlightDataTextInactiveColor();
 	}
@@ -435,7 +435,7 @@ public class RocketInfo implements FigureElement {
 		
 
 		float y = y2 - line * (texts.length-1);
-		g2.setColor(warningColor);
+		g2.setColor(darkErrorColor);
 
 		for (GlyphVector v: texts) {
 			Rectangle2D rect = v.getVisualBounds();

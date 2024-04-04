@@ -8,6 +8,7 @@ import info.openrocket.core.file.wavefrontobj.DefaultMtl;
 import info.openrocket.core.file.wavefrontobj.DefaultMtlWriter;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
+import info.openrocket.core.file.wavefrontobj.TriangulationHelper;
 import info.openrocket.core.file.wavefrontobj.export.components.BodyTubeExporter;
 import info.openrocket.core.file.wavefrontobj.export.components.FinSetExporter;
 import info.openrocket.core.file.wavefrontobj.export.components.LaunchLugExporter;
@@ -53,20 +54,15 @@ import java.util.Set;
 
 /**
  * Exporter for rocket components to a Wavefront OBJ file.
- * <b>NOTE: </b> The coordinate system of the Wavefront OBJ file and OpenRocket
- * is different.
- * An OBJ file has the y-axis pointing up, the z-axis pointing towards the
- * viewer, and the x-axis pointing to the right (right-handed system).
- * OpenRocket uses a left-handed system with the y-axis pointing up, the z-axis
- * pointing away from the viewer, and the
- * x-axis pointing to the right (in the side view). Its origin is also at the
- * tip of the rocket, whereas for the OBJ it
+ * <b>NOTE: </b> The coordinate system of the Wavefront OBJ file and OpenRocket is different.
+ * An OBJ file has the y-axis pointing up, the z-axis pointing towards the viewer, and the x-axis pointing to the right (right-handed system).
+ * OpenRocket uses a left-handed system with the y-axis pointing up, the z-axis pointing away from the viewer, and the
+ * x-axis pointing to the right (in the side view). Its origin is also at the tip of the rocket, whereas for the OBJ it
  * would be the bottom of the rocket.
- * => the following transformation applies from OBJ coordinate system to
- * OpenRocket coordinate system:
- * x = y
- * y = rocketLength - x
- * z = -z
+ *      => the following transformation applies from OBJ coordinate system to OpenRocket coordinate system:
+ *              x = y
+ *              y = rocketLength - x
+ *              z = -z
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
@@ -88,20 +84,19 @@ public class OBJExporterFactory {
             FinSet.class, (ExporterFactory<FinSet>) FinSetExporter::new,
             RingComponent.class, (ExporterFactory<RingComponent>) RingComponentExporter::new,
             MassObject.class, (ExporterFactory<MassObject>) MassObjectExporter::new,
-            RailButton.class, (ExporterFactory<RailButton>) RailButtonExporter::new);
+            RailButton.class, (ExporterFactory<RailButton>) RailButtonExporter::new
+    );
 
     /**
      * Exports a list of rocket components to a Wavefront OBJ file.
-     * <b>NOTE: </b> you must call {@link #doExport()} to actually perform the
-     * export.
-     * 
-     * @param components    List of components to export
+     * <b>NOTE: </b> you must call {@link #doExport()} to actually perform the export.
+     * @param components List of components to export
      * @param configuration Flight configuration to use for the export
-     * @param options       Options to use for the export
-     * @param file          The file to export the OBJ to
+     * @param options Options to use for the export
+     * @param file The file to export the OBJ to
      */
     public OBJExporterFactory(List<RocketComponent> components, FlightConfiguration configuration, File file,
-            OBJExportOptions options, WarningSet warnings) {
+                              OBJExportOptions options, WarningSet warnings) {
         this.components = components;
         this.configuration = configuration;
         this.file = file;
@@ -133,8 +128,7 @@ public class OBJExporterFactory {
             }
         }
 
-        // Sort the components according to how they are ordered in the rocket
-        // (component tree)
+        // Sort the components according to how they are ordered in the rocket (component tree)
         Set<RocketComponent> sortedComponents = sortComponents(componentsToExport);
 
         int idx = 1;
@@ -181,13 +175,19 @@ public class OBJExporterFactory {
 
             // Triangulate mesh
             if (this.options.isTriangulate()) {
-                obj = de.javagl.obj.ObjUtils.triangulate(obj, new DefaultObj());
+                ObjUtils.TriangulationMethod triangulationMethod = this.options.getTriangulationMethod();
+                if (triangulationMethod == ObjUtils.TriangulationMethod.DELAUNAY) {
+                    obj = TriangulationHelper.constrainedDelaunayTriangulate(obj);
+                } else if (triangulationMethod == ObjUtils.TriangulationMethod.SIMPLE) {
+                    obj = TriangulationHelper.simpleTriangulate(obj);
+                } else {
+                    throw new IllegalArgumentException("Unsupported triangulation method: " + triangulationMethod);
+                }
             }
 
             // Remove position offset
             if (this.options.isRemoveOffset()) {
-                // Because of some rotation and translation operations when creating the meshes,
-                // the bounds can be inaccurate.
+                // Because of some rotation and translation operations when creating the meshes, the bounds can be inaccurate.
                 // Therefore, we will recalculate them to be sure.
                 // Is a bit computationally expensive, but it's the only way to be sure...
                 obj.recalculateAllVertexBounds();
@@ -235,16 +235,14 @@ public class OBJExporterFactory {
     }
 
     @SuppressWarnings("unchecked") // This is safe because of the structure we set up.
-    private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config,
-            CoordTransform transformer,
-            T component, String groupName, List<DefaultMtl> materials,
-            ObjUtils.LevelOfDetail LOD, OBJExportOptions options,
-            WarningSet warnings) {
+    private <T extends RocketComponent> void handleComponent(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
+                                                             T component, String groupName, List<DefaultMtl> materials,
+                                                             ObjUtils.LevelOfDetail LOD, OBJExportOptions options,
+                                                             WarningSet warnings) {
         ExporterFactory<T> factory = null;
         Class<?> currentClass = component.getClass();
 
-        // Need to iterate over superclasses to find the correct exporter (otherwise
-        // e.g. a NoseCone would not work for the TransitionExporter)
+        // Need to iterate over superclasses to find the correct exporter (otherwise e.g. a NoseCone would not work for the TransitionExporter)
         while (RocketComponent.class.isAssignableFrom(currentClass) && factory == null) {
             factory = (ExporterFactory<T>) EXPORTER_MAP.get(currentClass);
             currentClass = currentClass.getSuperclass();
@@ -264,14 +262,12 @@ public class OBJExporterFactory {
                 appearance = DefaultAppearance.getDefaultAppearance(component);
             }
 
-            AppearanceExporter appearanceExporter = new AppearanceExporter(obj, appearance, file, options, materialName,
-                    materials);
+            AppearanceExporter appearanceExporter = new AppearanceExporter(obj, appearance, file, options, materialName, materials);
             appearanceExporter.doExport();
         }
 
         // Export component
-        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD,
-                warnings);
+        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD, warnings);
         exporter.addToObj();
 
         // Export motor
@@ -284,22 +280,18 @@ public class OBJExporterFactory {
             if (options.isExportAppearance() && motor != null) {
                 String materialName = "mat_" + groupName + "_" + motor.getMotorName();
                 Appearance appearance = DefaultAppearance.getDefaultAppearance(motor);
-                AppearanceExporter appearanceExporter = new AppearanceExporter(obj, appearance, file, options,
-                        materialName, materials);
+                AppearanceExporter appearanceExporter = new AppearanceExporter(obj, appearance, file, options, materialName, materials);
                 appearanceExporter.doExport();
             }
 
             // Export the motor geometry
-            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD,
-                    warnings);
+            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD, warnings);
             motorExporter.addToObj();
         }
     }
 
     /**
-     * Sort a set of components according to how they are ordered in the rocket
-     * (component tree).
-     * 
+     * Sort a set of components according to how they are ordered in the rocket (component tree).
      * @param components components to sort
      * @return sorted components
      */
@@ -312,7 +304,6 @@ public class OBJExporterFactory {
 
     /**
      * Sanitize the group name by replacing illegal characters with underscores.
-     * 
      * @param groupName the group name to sanitize
      * @return the sanitized group name
      */
@@ -325,8 +316,7 @@ public class OBJExporterFactory {
         return groupName;
     }
 
-    private void addChildComponentToList(RocketComponent parent, Set<RocketComponent> components,
-            Set<RocketComponent> sortedComponents) {
+    private void addChildComponentToList(RocketComponent parent, Set<RocketComponent> components, Set<RocketComponent> sortedComponents) {
         for (RocketComponent child : parent.getChildren()) {
             if (components.contains(child)) {
                 sortedComponents.add(child);
@@ -337,6 +327,6 @@ public class OBJExporterFactory {
 
     interface ExporterFactory<T extends RocketComponent> {
         RocketComponentExporter<T> create(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
-                T component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings);
+                                          T component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings);
     }
 }

@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import javax.swing.JTextPane;
-import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.SimpleAttributeSet;

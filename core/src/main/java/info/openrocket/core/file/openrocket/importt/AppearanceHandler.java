@@ -21,12 +21,12 @@ class AppearanceHandler extends AbstractElementHandler {
 
 	protected final AppearanceBuilder builder = new AppearanceBuilder();
 	protected boolean isInDecal = false;
-
+	
 	public AppearanceHandler(RocketComponent component, DocumentLoadingContext context) {
 		this.context = context;
 		this.component = component;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
 			throws SAXException {
@@ -89,10 +89,10 @@ class AppearanceHandler extends AbstractElementHandler {
 			isInDecal = false;
 			return;
 		}
-
+		
 		super.closeElement(element, attributes, content, warnings);
 	}
-
+	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -107,5 +107,5 @@ class AppearanceHandler extends AbstractElementHandler {
 	protected void setAppearance() {
 		component.setAppearance(builder.getAppearance());
 	}
-
+	
 }

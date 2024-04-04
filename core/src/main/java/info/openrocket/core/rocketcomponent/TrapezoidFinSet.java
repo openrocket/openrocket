@@ -18,19 +18,19 @@ import info.openrocket.core.util.MathUtil;
 
 public class TrapezoidFinSet extends FinSet {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public static final double MAX_SWEEP_ANGLE = (89 * Math.PI / 180.0);
-
+	
 	/*
-	 * sweep tipChord
-	 * | |___________
-	 * | / |
-	 * | / |
-	 * | / | height
-	 * / |
+	 *           sweep   tipChord
+	 *           |    |___________
+	 *           |   /            |
+	 *           |  /             |
+	 *           | /              |  height
+	 *            /               |
 	 * __________/________________|_____________
-	 * length
-	 * == rootChord
+	 *                length
+	 *              == rootChord
 	 */
 
 	// rootChord == length
@@ -133,8 +133,7 @@ public class TrapezoidFinSet extends FinSet {
 	}
 
 	/**
-	 * Get the sweep angle. This is calculated from the true sweep and height, and
-	 * is not
+	 * Get the sweep angle.  This is calculated from the true sweep and height, and is not
 	 * stored separately.
 	 */
 	public double getSweepAngle() {
@@ -149,8 +148,7 @@ public class TrapezoidFinSet extends FinSet {
 	}
 
 	/**
-	 * Sets the sweep by the sweep angle. The sweep is calculated and set by this
-	 * method,
+	 * Sets the sweep by the sweep angle.  The sweep is calculated and set by this method,
 	 * and the angle itself is not stored.
 	 */
 	public void setSweepAngle(double r) {
@@ -186,7 +184,9 @@ public class TrapezoidFinSet extends FinSet {
 		height = Math.max(r, 0);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
+	
+	
 	/**
 	 * Returns the geometry of a trapezoidal fin.
 	 */
@@ -203,13 +203,11 @@ public class TrapezoidFinSet extends FinSet {
 
 		Coordinate[] finPoints = points.toArray(new Coordinate[0]);
 
-		// Set the start and end fin points the same as the root points (necessary for
-		// canted fins)
+		// Set the start and end fin points the same as the root points (necessary for canted fins)
 		final Coordinate[] rootPoints = getRootPoints();
 		if (rootPoints.length > 1) {
 			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
-			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x)
-					.setY(rootPoints[rootPoints.length - 1].y);
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
 		}
 
 		return finPoints;

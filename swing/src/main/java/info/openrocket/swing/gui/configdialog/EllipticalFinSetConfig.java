@@ -44,6 +44,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Nbroffins")));
 		
 		IntegerModel im = new IntegerModel(component, "FinCount", 1, 8);
+		register(im);
 		
 		spin = new JSpinner(im.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -58,6 +59,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		m = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE,
 				-FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -74,6 +76,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Rootchord")));
 		
 		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -88,6 +91,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Height")));
 		
 		m = new DoubleModel(component, "Height", UnitGroup.UNITS_LENGTH, 0);
+		register(m);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -100,8 +104,9 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		////  Cross section
 		{//// Fin cross section:
 			panel.add(new JLabel(trans.get("EllipticalFinSetCfg.FincrossSection")), "span, split");
-			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
-					new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
+			EnumModel<FinSet.CrossSection> em = new EnumModel<>(component, "CrossSection");
+			register(em);
+			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(em);
 			panel.add(sectionCombo, "growx, wrap unrel");
 			order.add(sectionCombo);
 		}
@@ -110,6 +115,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Thickness")));
 
 			m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			register(m);
 
 			spin = new JSpinner(m.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
@@ -127,7 +133,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 
 		{// ------ Placement ------
 			//// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow");
 
 			{////  Fin rotation
@@ -136,6 +143,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 				placementPanel.add(label, "newline");
 
 				m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
+				register(m);
 
 				spin = new JSpinner(m.getSpinnerModel());
 				spin.setEditor(new SpinnerEditor(spin));
@@ -149,6 +157,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 
 		{//// Material
 			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+			register(materialPanel);
 			panel.add(materialPanel, "span, grow, wrap");
 		}
 

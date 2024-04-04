@@ -4,12 +4,12 @@ package info.openrocket.core.file.wavefrontobj;
  * Representation of an axis in 3D space.
  */
 public enum Axis {
-    X("X"),
-    X_MIN("-X"),
-    Y("Y"),
-    Y_MIN("-Y"),
-    Z("Z"),
-    Z_MIN("-Z");
+    X ("X"),
+    X_MIN ("-X"),
+    Y ("Y"),
+    Y_MIN ("-Y"),
+    Z ("Z"),
+    Z_MIN ("-Z");
 
     private final String label;
 
@@ -61,7 +61,6 @@ public enum Axis {
 
     /**
      * Get the third axis given two axes, using a right-handed coordinate system.
-     * 
      * @param firstAxis The first axis.
      * @param thirdAxis The third axis.
      * @return The third axis.

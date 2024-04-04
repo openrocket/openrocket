@@ -48,6 +48,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(label);
 
 		final IntegerModel finCountModel = new IntegerModel(component, "FinCount", 1, 8);
+		register(finCountModel);
 
 		final JSpinner finCountSpinner = new JSpinner(finCountModel.getSpinnerModel());
 		finCountSpinner.setEditor(new SpinnerEditor(finCountSpinner));
@@ -63,6 +64,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(label);
 
 			final DoubleModel cantModel = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE, -FinSet.MAX_CANT_RADIANS, FinSet.MAX_CANT_RADIANS);
+			register(cantModel);
 
 			final JSpinner cantSpinner = new JSpinner(cantModel.getSpinnerModel());
 			cantSpinner.setEditor(new SpinnerEditor(cantSpinner));
@@ -78,6 +80,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Rootchord")));
 
 			final DoubleModel rootChordModel = new DoubleModel(component, "RootChord", UnitGroup.UNITS_LENGTH, 0);
+			register(rootChordModel);
 
 			final JSpinner rootChordSpinner = new JSpinner(rootChordModel.getSpinnerModel());
 			rootChordSpinner.setEditor(new SpinnerEditor(rootChordSpinner));
@@ -92,6 +95,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Tipchord")));
 
 			final DoubleModel tipChordModel = new DoubleModel(component, "TipChord", UnitGroup.UNITS_LENGTH, 0);
+			register(tipChordModel);
 
 			final JSpinner tipChordSpinner = new JSpinner(tipChordModel.getSpinnerModel());
 			tipChordSpinner.setEditor(new SpinnerEditor(tipChordSpinner));
@@ -106,6 +110,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Height")));
 
 			final DoubleModel heightModel = new DoubleModel(component, "Height", UnitGroup.UNITS_LENGTH, 0);
+			register(heightModel);
 
 			final JSpinner heightSpinner = new JSpinner(heightModel.getSpinnerModel());
 			heightSpinner.setEditor(new SpinnerEditor(heightSpinner));
@@ -120,6 +125,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Sweeplength")));
 
 			final DoubleModel sweepDistanceModel = new DoubleModel(component, "Sweep", UnitGroup.UNITS_LENGTH);
+			register(sweepDistanceModel);
 			component.addChangeListener(sweepDistanceModel);
 			final JSpinner sweepDistanceSpinner = new JSpinner(sweepDistanceModel.getSpinnerModel());
 			sweepDistanceSpinner.setEditor(new SpinnerEditor(sweepDistanceSpinner));
@@ -131,6 +137,8 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			// sweep slider from -1.1*TipChord to 1.1*RootChord
 			DoubleModel tc = new DoubleModel(component, "TipChord", -1.1, UnitGroup.UNITS_LENGTH);
 			DoubleModel rc = new DoubleModel(component, "RootChord", 1.1, UnitGroup.UNITS_LENGTH);
+			register(tc);
+			register(rc);
 			panel.add(new BasicSlider(sweepDistanceModel.getSliderModel(tc, rc)), "w 100lp, wrap");
 		}
 
@@ -139,6 +147,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 			final DoubleModel sweepAngleModel = new DoubleModel(component, "SweepAngle", UnitGroup.UNITS_ANGLE,
 					-TrapezoidFinSet.MAX_SWEEP_ANGLE, TrapezoidFinSet.MAX_SWEEP_ANGLE);
+			register(sweepAngleModel);
 			component.addChangeListener(sweepAngleModel);
 
 			final JSpinner sweepAngleSpinner = new JSpinner(sweepAngleModel.getSpinnerModel());
@@ -153,8 +162,9 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 		{////  Fin cross section:
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.FincrossSection")));
-			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<FinSet.CrossSection>(
-					new EnumModel<>(component, "CrossSection"));
+			EnumModel<FinSet.CrossSection> em = new EnumModel<>(component, "CrossSection");
+			register(em);
+			JComboBox<FinSet.CrossSection> sectionCombo = new JComboBox<>(em);
 			panel.add(sectionCombo, "span, growx, wrap");
 			order.add(sectionCombo);
 		}
@@ -163,6 +173,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Thickness")));
 
 			final DoubleModel thicknessModel = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
+			register(thicknessModel);
 
 			final JSpinner thicknessSpinner = new JSpinner(thicknessModel.getSpinnerModel());
 			thicknessSpinner.setEditor(new SpinnerEditor(thicknessSpinner));
@@ -180,7 +191,8 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 		{//// -------- Placement -------
 			// Position relative to:
-			JPanel placementPanel = new PlacementPanel(component, order);
+			PlacementPanel placementPanel = new PlacementPanel(component, order);
+			register(placementPanel);
 			panel.add(placementPanel, "span, grow");
 
 			{ ///  Fin rotation
@@ -190,6 +202,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 				final DoubleModel baseRotationModel = new DoubleModel(component, "BaseRotation",
 						UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+				register(baseRotationModel);
 
 				final JSpinner baseRotationSpinner = new JSpinner(baseRotationModel.getSpinnerModel());
 				baseRotationSpinner.setEditor(new SpinnerEditor(baseRotationSpinner));
@@ -203,6 +216,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 
 		{//// Material
 			MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
+			register(materialPanel);
 			panel.add(materialPanel, "span, grow, wrap");
 		}
 

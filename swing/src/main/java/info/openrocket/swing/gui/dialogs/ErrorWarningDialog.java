@@ -28,7 +28,7 @@ import java.awt.event.MouseEvent;
  */
 @SuppressWarnings("serial")
 public abstract class ErrorWarningDialog {
-    private static Color darkWarningColor;
+    private static Color darkErrorColor;
     private static Color textSelectionForegroundColor;
 
     static {
@@ -41,7 +41,7 @@ public abstract class ErrorWarningDialog {
     }
 
     private static void updateColors() {
-        darkWarningColor = GUIUtil.getUITheme().getDarkWarningColor();
+		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
         textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
     }
 
@@ -49,13 +49,13 @@ public abstract class ErrorWarningDialog {
         JPanel content = new JPanel(new MigLayout("ins 0, fillx"));
 
         StyledLabel label = new StyledLabel("Errors");
-        label.setFontColor(darkWarningColor);
+        label.setFontColor(darkErrorColor);
         content.add(label, "wrap, gaptop 15lp");
 
         Error[] e = errors.toArray(new Error[0]);
         final JList<Error> errorList = new JList<>(e);
         errorList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        errorList.setCellRenderer(new ErrorListCellRenderer());
+        errorList.setCellRenderer(new BetterListCellRenderer(darkErrorColor));
         JScrollPane errorPane = new JScrollPane(errorList);
         content.add(errorPane, "wrap, growx");
 
@@ -104,9 +104,9 @@ public abstract class ErrorWarningDialog {
 
             // Text color
             if (isSelected) {
-                label.setForeground(textSelectionForegroundColor);
+                label.setForeground(Color.WHITE);
             } else {
-                label.setForeground(darkWarningColor);
+                label.setForeground(info.openrocket.core.util.ORColor.DARK_RED.toAWTColor());
             }
 
             return label;

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationId;
@@ -15,12 +16,16 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.LaunchLug;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.MonitorableSet;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.WorldCoordinate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A holder class for the dynamic status during the rocket's flight.
@@ -30,13 +35,13 @@ import info.openrocket.core.util.WorldCoordinate;
 
 public class SimulationStatus implements Monitorable {
 
+	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
+
 	private SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
 	private FlightDataBranch flightData;
 
 	private double time;
-
-	private double previousTimeStep;
 
 	private Coordinate position;
 	private WorldCoordinate worldPosition;
@@ -95,7 +100,6 @@ public class SimulationStatus implements Monitorable {
 		this.configuration = configuration;
 
 		this.time = 0;
-		this.previousTimeStep = this.simulationConditions.getTimeStep();
 		this.position = this.simulationConditions.getLaunchPosition();
 		this.velocity = this.simulationConditions.getLaunchVelocity();
 		this.worldPosition = this.simulationConditions.getLaunchSite();
@@ -109,9 +113,8 @@ public class SimulationStatus implements Monitorable {
 
 		// Launch rod angle and direction
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
-		o = o.multiplyLeft(Quaternion
-				.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
-
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
+		
 		this.orientation = o;
 		this.rotationVelocity = Coordinate.NUL;
 
@@ -154,8 +157,7 @@ public class SimulationStatus implements Monitorable {
 
 	/**
 	 * Performs a deep copy of the on SimulationStatus object.
-	 * Most included object are deep-cloned, except for the flight data object
-	 * (which is shallow copied)
+	 * Most included object are deep-cloned, except for the flight data object (which is shallow copied)
 	 * and the WarningSet (which is initialized to a new WarningSet).
 	 * The intention of this constructor is to be used for conversion from one type
 	 * of SimulationStatus to another, or when simulating multiple stages.
@@ -170,7 +172,6 @@ public class SimulationStatus implements Monitorable {
 		// FlightData is not cloned.
 		this.flightData = orig.flightData;
 		this.time = orig.time;
-		this.previousTimeStep = orig.previousTimeStep;
 		this.position = orig.position;
 		this.acceleration = orig.acceleration;
 		this.worldPosition = orig.worldPosition;
@@ -255,15 +256,6 @@ public class SimulationStatus implements Monitorable {
 
 	public FlightDataBranch getFlightData() {
 		return flightData;
-	}
-
-	public double getPreviousTimeStep() {
-		return previousTimeStep;
-	}
-
-	public void setPreviousTimeStep(double previousTimeStep) {
-		this.previousTimeStep = previousTimeStep;
-		this.modID++;
 	}
 
 	public void setRocketPosition(Coordinate position) {
@@ -447,36 +439,32 @@ public class SimulationStatus implements Monitorable {
 	}
 
 	/**
-	 * Store extra data available for use by simulation listeners. The data can be
-	 * retrieved
+	 * Store extra data available for use by simulation listeners.  The data can be retrieved
 	 * using {@link #getExtraData(String)}.
 	 * 
-	 * @param key   the data key
-	 * @param value the value to store
+	 * @param key		the data key
+	 * @param value		the value to store
 	 */
 	public void putExtraData(String key, Object value) {
 		extraData.put(key, value);
 	}
 
 	/**
-	 * Retrieve extra data stored by simulation listeners. This data map is
-	 * initially empty.
+	 * Retrieve extra data stored by simulation listeners.  This data map is initially empty.
 	 * Data can be stored using {@link #putExtraData(String, Object)}.
 	 * 
-	 * @param key the data key to retrieve
-	 * @return the data, or <code>null</code> if nothing has been set for the key
+	 * @param key		the data key to retrieve
+	 * @return			the data, or <code>null</code> if nothing has been set for the key
 	 */
 	public Object getExtraData(String key) {
 		return extraData.get(key);
 	}
 
 	/**
-	 * Returns a copy of this object. The general purpose is that the conditions,
-	 * rocket configuration, flight data etc. point to the same objects. However,
-	 * subclasses are allowed to deep-clone specific objects, such as those
-	 * pertaining
-	 * to the current orientation of the rocket. The purpose is to allow creating
-	 * intermediate
+	 * Returns a copy of this object.  The general purpose is that the conditions,
+	 * rocket configuration, flight data etc. point to the same objects.  However,
+	 * subclasses are allowed to deep-clone specific objects, such as those pertaining
+	 * to the current orientation of the rocket.  The purpose is to allow creating intermediate
 	 * copies of this object used during step computation.
 	 * 
 	 */
@@ -526,6 +514,28 @@ public class SimulationStatus implements Monitorable {
 			MotorClusterState simMotor = new MotorClusterState(motorConfig);
 			this.motorStateList.add(simMotor);
 		}
+	}
+
+	/**
+	 * Add a flight event to the event queue unless a listener aborts adding it.
+	 *
+	 * @param event		the event to add to the queue.
+	 */
+	public void addEvent(FlightEvent event) throws SimulationException {
+		if (SimulationListenerHelper.fireAddFlightEvent(this, event)) {
+			if (event.getType() != FlightEvent.Type.ALTITUDE) {
+				log.trace("Adding event to queue:  " + event);
+			}
+			getEventQueue().add(event);
+		}
+	}
+
+	/**
+	 * Abort the current simulation branch
+	 */
+	public void abortSimulation(SimulationAbort.Cause cause) throws SimulationException {
+		FlightEvent abortEvent = new FlightEvent(FlightEvent.Type.SIM_ABORT, getSimulationTime(), null, new SimulationAbort(cause));
+		addEvent(abortEvent);
 	}
 
 }

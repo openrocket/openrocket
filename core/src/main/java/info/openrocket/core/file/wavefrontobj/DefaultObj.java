@@ -167,6 +167,7 @@ public final class DefaultObj implements Obj {
         getGroupInternal("default");
     }
 
+
     @Override
     public int getNumVertices() {
         return vertices.size();
@@ -211,9 +212,14 @@ public final class DefaultObj implements Obj {
         return normals.get(index);
     }
 
+
     @Override
     public int getNumFaces() {
         return faces.size();
+    }
+
+    public List<ObjFace> getFaces() {
+        return faces;
     }
 
     @Override
@@ -251,8 +257,7 @@ public final class DefaultObj implements Obj {
     }
 
     /**
-     * Returns the {@link DefaultObjGroup} with the given name. If no such group
-     * exists in this object,
+     * Returns the {@link DefaultObjGroup} with the given name. If no such group exists in this object,
      * create a new one, add it to this object, and return it.
      *
      * @param groupName The group name
@@ -287,14 +292,15 @@ public final class DefaultObj implements Obj {
         return materialGroupMap.get(name);
     }
 
+
     @Override
     public List<String> getMtlFileNames() {
         return mtlFileNames;
     }
 
+
     /**
-     * Adds a vertex to this object. You can specify whether the added vertex should
-     * affect the objects bounds.
+     * Adds a vertex to this object. You can specify whether the added vertex should affect the objects bounds.
      *
      * @param vertex       The vertex to add
      * @param updateBounds Whether the added vertex should affect the objects bounds
@@ -313,8 +319,7 @@ public final class DefaultObj implements Obj {
     }
 
     /**
-     * Adds a vertex to this object. You can specify whether the added vertex should
-     * affect the objects bounds.
+     * Adds a vertex to this object. You can specify whether the added vertex should affect the objects bounds.
      *
      * @param x            The x coordinate of the vertex
      * @param y            The y coordinate of the vertex
@@ -334,8 +339,7 @@ public final class DefaultObj implements Obj {
         Objects.requireNonNull(vertex, "The vertex is null");
         vertices.set(index, vertex);
         // !! It could be that you're replacing the vertex that is the min or max. !!
-        // So, make sure to add a vertex by properly specifying whether it should affect
-        // the bounds.
+        // So, make sure to add a vertex by properly specifying whether it should affect the bounds.
         vertexBounds.updateBounds(vertex);
     }
 
@@ -359,6 +363,7 @@ public final class DefaultObj implements Obj {
     public void addTexCoord(float x, float y, float z) {
         texCoords.add(new DefaultFloatTuple(x, y, z));
     }
+
 
     /**
      * Adds a normal to this object. The normal will be normalized.
@@ -399,12 +404,14 @@ public final class DefaultObj implements Obj {
         } else if (groupNames.contains(null)) {
             throw new NullPointerException("The groupNames contains null");
         }
-        nextActiveGroupNames = Collections.unmodifiableSet(new LinkedHashSet<String>(groupNames));
+        nextActiveGroupNames =
+                Collections.unmodifiableSet(new LinkedHashSet<String>(groupNames));
     }
 
     public void setActiveGroupNames(String... groupNames) {
         setActiveGroupNames(Arrays.asList(groupNames));
     }
+
 
     @Override
     public void setActiveMaterialGroupName(String materialGroupName) {
@@ -432,7 +439,8 @@ public final class DefaultObj implements Obj {
             nextActiveGroupNames = null;
         }
         if (nextActiveMaterialGroupName != null) {
-            activeMaterialGroup = getMaterialGroupInternal(nextActiveMaterialGroupName);
+            activeMaterialGroup =
+                    getMaterialGroupInternal(nextActiveMaterialGroupName);
             if (!nextActiveMaterialGroupName.equals(activeMaterialGroupName)) {
                 startedMaterialGroupNames.put(face, nextActiveMaterialGroupName);
             }
@@ -448,9 +456,18 @@ public final class DefaultObj implements Obj {
         }
     }
 
+
     @Override
     public void addFace(int... v) {
         addFace(v, null, null);
+    }
+
+    public void removeFace(int index) {
+        faces.remove(index);
+    }
+
+    public void removeFace(ObjFace face) {
+        faces.remove(face);
     }
 
     @Override
@@ -478,11 +495,13 @@ public final class DefaultObj implements Obj {
         addFace(face);
     }
 
+
     @Override
     public void setMtlFileNames(Collection<? extends String> mtlFileNames) {
         this.mtlFileNames = Collections.unmodifiableList(
                 new ArrayList<String>(mtlFileNames));
     }
+
 
     @Override
     public String toString() {
@@ -559,8 +578,7 @@ public final class DefaultObj implements Obj {
 
     /**
      * Recalculates the bounds of all the vertices of this Obj.
-     * This can be calculation intensive, so it is recommended to not call this too
-     * often.
+     * This can be calculation intensive, so it is recommended to not call this too often.
      */
     public void recalculateAllVertexBounds() {
         resetVertexBounds();
@@ -597,4 +615,22 @@ public final class DefaultObj implements Obj {
             }
         }
     }
+
+    /**
+     * Creates a clone of this object.
+     *
+     * @param cloneFacesAndGroups Whether the faces should be cloned
+     * @return a new DefaultObj object with the same properties as this object
+     */
+    public DefaultObj clone(boolean cloneFacesAndGroups) {
+        DefaultObj newObj = new DefaultObj();
+        newObj.setMtlFileNames(getMtlFileNames());
+        ObjUtils.copyAllVertices(this, newObj);
+        if (cloneFacesAndGroups) {
+            ObjUtils.copyAllFacesAndGroups(this, newObj);
+        }
+
+        return newObj;
+    }
 }
+

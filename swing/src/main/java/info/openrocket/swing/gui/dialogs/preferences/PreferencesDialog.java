@@ -97,7 +97,7 @@ public class PreferencesDialog extends JDialog {
 
 		//// Cancel button
 		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
-		cancelButton.setToolTipText(trans.get("SimulationEditDialog.btn.Cancel.ttip"));
+		cancelButton.setToolTipText(trans.get("SimulationConfigDialog.btn.Cancel.ttip"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -120,7 +120,7 @@ public class PreferencesDialog extends JDialog {
 
 		//// Ok button
 		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
-		okButton.setToolTipText(trans.get("SimulationEditDialog.btn.OK.ttip"));
+		okButton.setToolTipText(trans.get("SimulationConfigDialog.btn.OK.ttip"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -213,7 +213,7 @@ public class PreferencesDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout());
 		String msg = trans.get("PreferencesDialog.CancelOperation.msg.discardChanges");
 		JLabel msgLabel = new JLabel(msg);
-		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationEditDialog.CancelOperation.checkbox.dontAskAgain"));
+		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationConfigDialog.CancelOperation.checkbox.dontAskAgain"));
 		dontAskAgain.setSelected(false);
 		dontAskAgain.addItemListener(new ItemListener() {
 			@Override

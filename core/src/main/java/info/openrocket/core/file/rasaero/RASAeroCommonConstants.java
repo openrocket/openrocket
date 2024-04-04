@@ -21,8 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * List of constants used in RASAero files + helper functions to read parameters
- * from it.
+ * List of constants used in RASAero files + helper functions to read parameters from it.
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
@@ -167,15 +166,14 @@ public class RASAeroCommonConstants {
     public static final String SUSTAINER_CG = "SustainerCG";
     public static final String SUSTAINER_IGNITION_DELAY = "SustainerIgnitionDelay";
     public static final String BOOSTER1_ENGINE = "Booster1Engine";
-    public static final String BOOSTER1_SEPARATION_DELAY = "Booster1SeparationDelay"; // Delay after booster burnout to
-                                                                                      // separate
+    public static final String BOOSTER1_SEPARATION_DELAY = "Booster1SeparationDelay";       // Delay after booster burnout to separate
     public static final String BOOSTER1_IGNITION_DELAY = "Booster1IgnitionDelay";
     public static final String BOOSTER1_LAUNCH_WT = "Booster1LaunchWt";
     public static final String BOOSTER1_NOZZLE_DIAMETER = "Booster1NozzleDiameter";
     public static final String BOOSTER1_CG = "Booster1CG";
     public static final String INCLUDE_BOOSTER1 = "IncludeBooster1";
     public static final String BOOSTER2_ENGINE = "Booster2Engine";
-    public static final String BOOSTER2_SEPARATION_DELAY = "Booster2Delay"; // Delay after booster burnout to separate
+    public static final String BOOSTER2_SEPARATION_DELAY = "Booster2Delay";       // Delay after booster burnout to separate
     public static final String BOOSTER2_LAUNCH_WT = "Booster2LaunchWt";
     public static final String BOOSTER2_NOZZLE_DIAMETER = "Booster2NozzleDiameter";
     public static final String BOOSTER2_CG = "Booster2CG";
@@ -187,57 +185,48 @@ public class RASAeroCommonConstants {
     public static final String OPTIMUM_WT = "OptimumWt";
     public static final String OPTIMUM_MAX_ALT = "OptimumMaxAlt";
 
+
     /**
-     * Length conversion from OpenRocket units to RASAero units. RASAero is in
-     * inches, OpenRocket in meters.
+     * Length conversion from OpenRocket units to RASAero units.  RASAero is in inches, OpenRocket in meters.
      */
     public static final double OPENROCKET_TO_RASAERO_LENGTH = 39.37;
     /**
-     * Altitude conversion from OpenRocket units to RASAero units. RASAero is in
-     * feet, OpenRocket in meters.
+     * Altitude conversion from OpenRocket units to RASAero units.  RASAero is in feet, OpenRocket in meters.
      */
     public static final double OPENROCKET_TO_RASAERO_ALTITUDE = 3.28084;
     /**
-     * Speed conversion from OpenRocket units to RASAero units. RASAero is in mph,
-     * OpenRocket in m/s.
+     * Speed conversion from OpenRocket units to RASAero units.  RASAero is in mph, OpenRocket in m/s.
      */
     public static final double OPENROCKET_TO_RASAERO_SPEED = 2.23694;
     /**
-     * Pressure conversion from OpenRocket units to RASAero units. RASAero is in
-     * in-hg, OpenRocket in Pa.
+     * Pressure conversion from OpenRocket units to RASAero units.  RASAero is in in-hg, OpenRocket in Pa.
      */
     public static final double OPENROCKET_TO_RASAERO_PRESSURE = 0.000295301;
     /**
-     * Angle conversion from OpenRocket units to RASAero units. RASAero is in
-     * degrees, OpenRocket in rad.
+     * Angle conversion from OpenRocket units to RASAero units.  RASAero is in degrees, OpenRocket in rad.
      */
     public static final double OPENROCKET_TO_RASAERO_ANGLE = 180 / Math.PI;
     /**
-     * Weight conversion from OpenRocket units to RASAero units. RASAero is in
-     * pounds (lb), OpenRocket in kilograms (kg).
+     * Weight conversion from OpenRocket units to RASAero units.  RASAero is in pounds (lb), OpenRocket in kilograms (kg).
      */
     public static final double OPENROCKET_TO_RASAERO_WEIGHT = 2.20462262;
-
     /**
-     * Temperature conversion from OpenRocket units to RASAero units. RASAero is in
-     * Fahrenheit, OpenRocket in Kelvin.
+     * Temperature conversion from OpenRocket units to RASAero units.  RASAero is in Fahrenheit, OpenRocket in Kelvin.
      */
     public static final double RASAERO_TO_OPENROCKET_TEMPERATURE(Double input) {
         return (input + 459.67) * 5.0 / 9.0;
     }
-
     public static final double OPENROCKET_TO_RASAERO_TEMPERATURE(Double input) {
         return input * 9.0 / 5.0 - 459.67;
     }
 
     static {
         RASAeroNoseConeShapeMap.put(SHAPE_CONICAL, Transition.Shape.CONICAL);
-        RASAeroNoseConeShapeMap.put(SHAPE_TANGENT_OGIVE, Transition.Shape.OGIVE); // = Ogive with shape parameter = 1
-        RASAeroNoseConeShapeMap.put(SHAPE_VON_KARMAN_OGIVE, Transition.Shape.HAACK); // = Haack series with shape
-                                                                                     // parameter = 0
+        RASAeroNoseConeShapeMap.put(SHAPE_TANGENT_OGIVE, Transition.Shape.OGIVE);       // = Ogive with shape parameter = 1
+        RASAeroNoseConeShapeMap.put(SHAPE_VON_KARMAN_OGIVE, Transition.Shape.HAACK);    // = Haack series with shape parameter = 0
         RASAeroNoseConeShapeMap.put(SHAPE_POWER_LAW, Transition.Shape.POWER);
-        RASAeroNoseConeShapeMap.put(SHAPE_LVHAACK, Transition.Shape.HAACK); // = Haack series with shape parameter = 1/3
-        RASAeroNoseConeShapeMap.put(SHAPE_PARABOLIC, Transition.Shape.POWER); // = Power law with shape parameter = 1/2
+        RASAeroNoseConeShapeMap.put(SHAPE_LVHAACK, Transition.Shape.HAACK);            // = Haack series with shape parameter = 1/3
+        RASAeroNoseConeShapeMap.put(SHAPE_PARABOLIC, Transition.Shape.POWER);           // = Power law with shape parameter = 1/2
         RASAeroNoseConeShapeMap.put(SHAPE_ELLIPTICAL, Transition.Shape.ELLIPSOID);
     }
 
@@ -245,7 +234,6 @@ public class RASAeroCommonConstants {
 
     /**
      * Returns the OpenRocket nose cone shape from the RASAero shape string.
-     * 
      * @param shape The RASAero shape string.
      * @return The OpenRocket nose cone shape.
      */
@@ -255,7 +243,6 @@ public class RASAeroCommonConstants {
 
     /**
      * Returns the OpenRocket nose cone shape from the RASAero shape string.
-     * 
      * @param shape The RASAero shape string.
      * @return The OpenRocket nose cone shape object.
      */
@@ -280,48 +267,41 @@ public class RASAeroCommonConstants {
         // Special cases
         else if (shape.equals(Transition.Shape.OGIVE)) {
             throw new RASAeroExportException(
-                    String.format("RASAero only supports Ogive nose cones with shape parameter 1, not %.2f",
-                            shapeParameter));
+                    String.format("RASAero only supports Ogive nose cones with shape parameter 1, not %.2f", shapeParameter));
         } else if (shape.equals(Transition.Shape.HAACK)) {
             throw new RASAeroExportException(
-                    String.format("RASAero only supports Haack nose cones with shape parameter 0 or 0.33, not %.2f",
-                            shapeParameter));
+                    String.format("RASAero only supports Haack nose cones with shape parameter 0 or 0.33, not %.2f", shapeParameter));
         } else if (shape.equals(Transition.Shape.PARABOLIC)) {
             throw new RASAeroExportException("RASAero does not support Parabolic nose cones");
         }
 
         throw new RASAeroExportException(
-                String.format("Invalid shape and shape parameter combination: %s, %.2f", shape.getName(),
-                        shapeParameter));
+                String.format("Invalid shape and shape parameter combination: %s, %.2f", shape.getName(), shapeParameter));
     }
 
     /**
-     * RASAero has a slightly different way of specifying shapes compared to
-     * OpenRocket. For instance
-     * RASAero has an "LV-Haack" shape, which is the same as the OpenRocket "Haack"
-     * shape with a shape
+     * RASAero has a slightly different way of specifying shapes compared to OpenRocket. For instance
+     * RASAero has an "LV-Haack" shape, which is the same as the OpenRocket "Haack" shape with a shape
      * parameter of 1/3.
-     * This method returns the shape parameter for the RASAero shape to get the
-     * correct OpenRocket nose cone shape.
-     * 
+     * This method returns the shape parameter for the RASAero shape to get the correct OpenRocket nose cone shape.
      * @param shape The RASAero shape string.
      * @return The shape parameter for the OpenRocket nose cone.
      */
     public static double RASAERO_TO_OPENROCKET_SHAPE_PARAMETER(String shape) {
         if (SHAPE_CONICAL.equals(shape)) {
-            return 0.0; // Not really needed, but just to be explicit
+            return 0.0;     // Not really needed, but just to be explicit
         } else if (SHAPE_TANGENT_OGIVE.equals(shape)) {
             return 1.0;
         } else if (SHAPE_VON_KARMAN_OGIVE.equals(shape)) {
             return 0.0;
         } else if (SHAPE_POWER_LAW.equals(shape)) {
-            return 0.0; // Not really needed, but just to be explicit (will be overwritten later)
+            return 0.0;     // Not really needed, but just to be explicit (will be overwritten later)
         } else if (SHAPE_LVHAACK.equals(shape)) {
             return 0.33;
         } else if (SHAPE_PARABOLIC.equals(shape)) {
             return 0.5;
         } else if (SHAPE_ELLIPTICAL.equals(shape)) {
-            return 0.0; // Not really needed, but just to be explicit
+            return 0.0;     // Not really needed, but just to be explicit
         } else {
             return 0.0;
         }
@@ -358,8 +338,7 @@ public class RASAeroCommonConstants {
     }
 
     public static ExternalComponent.Finish RASAERO_TO_OPENROCKET_SURFACE(String surfaceFinish, WarningSet warnings) {
-        // NOTE: the RASAero surface finishes are not really the same as the OpenRocket
-        // surface finishes. There are some
+        // NOTE: the RASAero surface finishes are not really the same as the OpenRocket surface finishes. There are some
         // approximations here.
         if (FINISH_SMOOTH.equals(surfaceFinish)) {
             return ExternalComponent.Finish.MIRROR;
@@ -410,13 +389,12 @@ public class RASAeroCommonConstants {
 
     /**
      * Format an OpenRocket motor as a RASAero motor.
-     * 
      * @param RASAeroMotors list of available RASAero motors
-     * @param ORMotor       OpenRocket motor
+     * @param ORMotor OpenRocket motor
      * @return a RASAero String representation of a motor
      */
     public static String OPENROCKET_TO_RASAERO_MOTOR(List<ThrustCurveMotor> RASAeroMotors, Motor ORMotor,
-            WarningSet warnings) {
+                                                     WarningSet warnings) {
         if (!(ORMotor instanceof ThrustCurveMotor)) {
             log.debug("RASAero motor not found: not a thrust curve motor");
             return null;
@@ -425,8 +403,7 @@ public class RASAeroCommonConstants {
         for (ThrustCurveMotor RASAeroMotor : RASAeroMotors) {
             String RASAeroDesignation = AbstractMotorLoader.removeDelay(RASAeroMotor.getDesignation());
             if (ORMotor.getDesignation().equals(RASAeroDesignation) &&
-                    ((ThrustCurveMotor) ORMotor).getManufacturer()
-                            .matches(RASAeroMotor.getManufacturer().getDisplayName())) {
+                    ((ThrustCurveMotor) ORMotor).getManufacturer().matches(RASAeroMotor.getManufacturer().getDisplayName())) {
                 String motorName = RASAeroMotor.getDesignation();
                 log.debug(String.format("RASAero RASAeroMotor found: %s", motorName));
                 return motorName + "  (" + OPENROCKET_TO_RASAERO_MANUFACTURER(RASAeroMotor.getManufacturer()) + ")";
@@ -490,8 +467,7 @@ public class RASAeroCommonConstants {
         return manufacturer.getSimpleName();
     }
 
-    public static DeploymentConfiguration.DeployEvent RASAERO_TO_OPENROCKET_DEPLOY_EVENT(String deployEvent,
-            WarningSet warnings) {
+    public static DeploymentConfiguration.DeployEvent RASAERO_TO_OPENROCKET_DEPLOY_EVENT(String deployEvent, WarningSet warnings) {
         if (DEPLOYMENT_NONE.equals(deployEvent)) {
             return DeploymentConfiguration.DeployEvent.NEVER;
         } else if (DEPLOYMENT_APOGEE.equals(deployEvent)) {
@@ -506,10 +482,10 @@ public class RASAeroCommonConstants {
     public static String OPENROCKET_TO_RASAERO_COLOR(ORColor color) {
         if (color != null) {
             if (color.equals(ORColor.BLACK)) {
-                return "Black"; // Currently the only officially supported color by RASAero
+                return "Black";     // Currently the only officially supported color by RASAero
             }
         }
-        return "Blue"; // But we can also apply our own color hehe
+        return "Blue";          // But we can also apply our own color hehe
     }
 
     /**

@@ -16,8 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.border.Border;
 
+import info.openrocket.swing.gui.util.GUIUtil;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -26,19 +26,16 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 
-import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.theme.UITheme;
-
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private TextFieldListener textFieldListener;
 	
 	private JTextArea designerTextArea;
 	private JTextArea revisionTextArea;
 	
 	private final Rocket rocket;
-
+	
 	public RocketConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
 		super(d, c, parent);
 		

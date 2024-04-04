@@ -35,11 +35,11 @@ public class Parachute extends RecoveryDevice {
 		//// Parachute
 		return trans.get("Parachute.Parachute");
 	}
-
+	
 	public double getDiameter() {
 		return diameter;
 	}
-
+	
 	public void setDiameter(double d) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Parachute) {
@@ -117,7 +117,7 @@ public class Parachute extends RecoveryDevice {
 	public final Material getLineMaterial() {
 		return lineMaterial;
 	}
-
+	
 	public final void setLineMaterial(Material mat) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof Parachute) {
@@ -133,31 +133,42 @@ public class Parachute extends RecoveryDevice {
 		if (getLineCount() != 0) {
 			clearPreset();
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-		} else
+		}
+		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-
+	
 	@Override
 	public double getComponentMass() {
 		return super.getComponentMass() +
 				getLineCount() * getLineLength() * getLineMaterial().getDensity();
 	}
-
+	
 	@Override
 	public boolean allowsChildren() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
 
+	/**
+	 * Load the component from a preset.
+	 * @param preset	the preset to load from
+	 * @param params    extra parameters to be used in the preset loading
+	 *                  	params[0] = boolean allowAutoRadius: true = allow auto radius to be set during preset loading, false = do not allow auto radius
+	 */
 	@Override
-	protected void loadFromPreset(ComponentPreset preset) {
+	protected void loadFromPreset(ComponentPreset preset, Object...params) {
+		boolean allowAutoRadius = true;
+		if (params != null && params.length > 0) {
+			allowAutoRadius = (boolean) params[0];
+		}
 
 		// SUBSTITUTE preset parachute values for existing component values
-		// // Set preset parachute description
+		//	//	Set preset parachute description
 		if (preset.has(ComponentPreset.DESCRIPTION)) {
 			String temporaryName = preset.get(ComponentPreset.DESCRIPTION);
 			int size = temporaryName.length();
@@ -169,38 +180,38 @@ public class Parachute extends RecoveryDevice {
 		} else {
 			this.name = getComponentName();
 		}
-		// // Set preset parachute diameter
+		//	//	Set preset parachute diameter
 		if ((preset.has(ComponentPreset.DIAMETER)) && preset.get(ComponentPreset.DIAMETER) > 0) {
 			this.diameter = preset.get(ComponentPreset.DIAMETER);
 		} else {
 			this.diameter = DEFAULT_DIAMETER;
 		}
-		// // Set preset parachute drag coefficient
-		if ((preset.has(ComponentPreset.CD)) && preset.get(ComponentPreset.CD) > 0) {
+		//	//	Set preset parachute drag coefficient
+		if ((preset.has(ComponentPreset.CD)) && preset.get(ComponentPreset.CD) > 0){
 			cdAutomatic = false;
 			cd = preset.get(ComponentPreset.CD);
 		} else {
 			cdAutomatic = true;
 			cd = Parachute.DEFAULT_CD;
 		}
-		// // Set preset parachute line count
+		//	//	Set preset parachute line count
 		if ((preset.has(ComponentPreset.LINE_COUNT)) && preset.get(ComponentPreset.LINE_COUNT) > 0) {
 			this.lineCount = preset.get(ComponentPreset.LINE_COUNT);
 		} else {
 			this.lineCount = DEFAULT_LINE_COUNT;
 		}
-		// // Set preset parachute line length
+		//	//	Set preset parachute line length
 		if ((preset.has(ComponentPreset.LINE_LENGTH)) && preset.get(ComponentPreset.LINE_LENGTH) > 0) {
 			this.lineLength = preset.get(ComponentPreset.LINE_LENGTH);
 		} else {
 			this.lineLength = DEFAULT_LINE_LENGTH;
 		}
-		// // Set preset parachute line material
-		// NEED a better way to set preset if field is empty ----
+		//	//	Set preset parachute line material
+		//	NEED a better way to set preset if field is empty ----
 		if ((preset.has(ComponentPreset.LINE_MATERIAL))) {
 			String lineMaterialEmpty = preset.get(ComponentPreset.LINE_MATERIAL).toString();
 			int count = lineMaterialEmpty.length();
-			if (count > 12) {
+			if (count > 12 ) {
 				this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
 			} else {
 				this.lineMaterial = DEFAULT_LINE_MATERIAL;
@@ -209,22 +220,23 @@ public class Parachute extends RecoveryDevice {
 			this.lineMaterial = DEFAULT_LINE_MATERIAL;
 		}
 
-		// // Set preset parachute packed length
+		//	//	Set preset parachute packed length
 		if ((preset.has(ComponentPreset.PACKED_LENGTH)) && preset.get(ComponentPreset.PACKED_LENGTH) > 0) {
 			setLength(preset.get(ComponentPreset.PACKED_LENGTH));
 		}
-		// // Set preset parachute packed diameter
+		//	// Set preset parachute packed diameter
 		if ((preset.has(ComponentPreset.PACKED_DIAMETER)) && preset.get(ComponentPreset.PACKED_DIAMETER) > 0) {
 			setRadius(preset.get(ComponentPreset.PACKED_DIAMETER) / 2);
 		}
-		// // Size parachute packed diameter within parent inner diameter
+		//	// Size parachute packed diameter within parent inner diameter
 		if (preset.has(ComponentPreset.PACKED_LENGTH) && (getLength() > 0) &&
-				preset.has(ComponentPreset.PACKED_DIAMETER) && (getRadius() > 0)) {
+				preset.has(ComponentPreset.PACKED_DIAMETER) && (getRadius() > 0) &&
+				allowAutoRadius) {
 			setRadiusAutomatic(true);
 		}
 
 		// SUBSTITUTE / ACTIVATE Override Mass Preset
-		if ((preset.has(ComponentPreset.MASS)) && (preset.get(ComponentPreset.MASS)) > 0) {
+		if ((preset.has(ComponentPreset.MASS))&& (preset.get(ComponentPreset.MASS)) > 0){
 			this.overrideMass = (preset.get(ComponentPreset.MASS));
 			massOverridden = true;
 		} else {
@@ -232,7 +244,12 @@ public class Parachute extends RecoveryDevice {
 			massOverridden = false;
 		}
 
-		super.loadFromPreset(preset);
+		super.loadFromPreset(preset, params);
+	}
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		loadFromPreset(preset, true);
 	}
 
 	@Override

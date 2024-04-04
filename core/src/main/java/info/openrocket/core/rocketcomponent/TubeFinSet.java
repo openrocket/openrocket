@@ -204,7 +204,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 	/**
 	 * Return the number of fins in the set.
-	 * 
+	 *
 	 * @return The number of fins.
 	 */
 	public int getFinCount() {
@@ -218,7 +218,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 	/**
 	 * Sets the number of fins in the set.
-	 * 
+	 *
 	 * @param n The number of fins, greater of equal to one.
 	 */
 	public void setFinCount(int n) {
@@ -241,7 +241,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 	/**
 	 * Gets the base rotation amount of the first fin.
-	 * 
+	 *
 	 * @return The base rotation amount.
 	 */
 	public double getBaseRotation() {
@@ -254,7 +254,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 	/**
 	 * Sets the base rotation amount of the first fin.
-	 * 
+	 *
 	 * @param r The base rotation amount.
 	 */
 	public void setBaseRotation(double r) {
@@ -380,9 +380,8 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	/**
 	 * Return the radius of the BodyComponent the fin set is situated on. Currently
 	 * only supports SymmetricComponents and returns the radius at the starting
-	 * point of the
-	 * root chord.
-	 * 
+	 * point of the root chord.
+	 *
 	 * @return radius of the underlying BodyComponent or 0 if none exists.
 	 */
 	public double getBodyRadius() {

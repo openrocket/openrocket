@@ -12,7 +12,6 @@ import com.jthemedetecor.OsThemeDetector;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
-import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -54,8 +53,10 @@ public class UITheme {
         Color getDisabledTextColor();
         Color getTextSelectionForegroundColor();
         Color getTextSelectionBackgroundColor();
+        Color getInformationColor();
         Color getWarningColor();
-        Color getDarkWarningColor();
+        Color getErrorColor();
+        Color getDarkErrorColor();
         Color getRowBackgroundLighterColor();
         Color getRowBackgroundDarkerColor();
         Color getFlightDataTextActiveColor();
@@ -248,12 +249,22 @@ public class UITheme {
             }
 
             @Override
-            public Color getWarningColor() {
-            	return Color.RED;
+            public Color getInformationColor() {
+                return new Color(45, 45, 189);
             }
 
             @Override
-            public Color getDarkWarningColor() {
+            public Color getWarningColor() {
+                return new Color(217, 152, 0);
+            }
+
+            @Override
+            public Color getErrorColor() {
+                return Color.RED;
+            }
+
+            @Override
+            public Color getDarkErrorColor() {
             	return new Color(200,0,0);
             }
 
@@ -624,12 +635,22 @@ public class UITheme {
             }
 
             @Override
+            public Color getInformationColor() {
+                return new Color(208, 208, 255);
+            }
+
+            @Override
             public Color getWarningColor() {
+                return new Color(255, 224, 166);
+            }
+
+            @Override
+            public Color getErrorColor() {
                 return new Color(246, 143, 143);
             }
 
             @Override
-            public Color getDarkWarningColor() {
+            public Color getDarkErrorColor() {
             	return new Color(229, 103, 103);
             }
 
@@ -1000,12 +1021,22 @@ public class UITheme {
             }
 
             @Override
+            public Color getInformationColor() {
+                return new Color(197, 197, 252);
+            }
+
+            @Override
             public Color getWarningColor() {
+                return new Color(255, 233, 187);
+            }
+
+            @Override
+            public Color getErrorColor() {
                 return new Color(255, 173, 173);
             }
 
             @Override
-            public Color getDarkWarningColor() {
+            public Color getDarkErrorColor() {
                 return new Color(255, 178, 178);
             }
 
@@ -1386,13 +1417,23 @@ public class UITheme {
             }
 
             @Override
+            public Color getInformationColor() {
+                return getCurrentTheme().getInformationColor();
+            }
+
+            @Override
             public Color getWarningColor() {
                 return getCurrentTheme().getWarningColor();
             }
 
             @Override
-            public Color getDarkWarningColor() {
-                return getCurrentTheme().getDarkWarningColor();
+            public Color getErrorColor() {
+                return getCurrentTheme().getErrorColor();
+            }
+
+            @Override
+            public Color getDarkErrorColor() {
+                return getCurrentTheme().getDarkErrorColor();
             }
 
             @Override
