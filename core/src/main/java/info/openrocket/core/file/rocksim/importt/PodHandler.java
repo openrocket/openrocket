@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public class PodHandler extends PositionDependentHandler<ComponentAssembly> {
     /**
-     * The OpenRocket BodyTube.
+     * The OpenRocket Pod.
      */
     private final RocketComponent parent;
     private final PodSet podSet;
