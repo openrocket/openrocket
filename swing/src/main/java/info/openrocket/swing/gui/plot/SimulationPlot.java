@@ -548,24 +548,25 @@ public class SimulationPlot {
 				}
 
 				double ycoord = rangeInterpolator.getValue(t);
-
-				// Convert units
-				xcoord = config.getDomainAxisUnit().toUnit(xcoord);
-				ycoord = config.getUnit(index).toUnit(ycoord);
-
-				// Get the sample index of the flight event. Because this can be an interpolation between two samples,
-				// take the closest sample.
-				final int sampleIdx;
-				Optional<Double> closestSample = time.stream()
+				if (!Double.isNaN(ycoord)) {
+					// Convert units
+					xcoord = config.getDomainAxisUnit().toUnit(xcoord);
+					ycoord = config.getUnit(index).toUnit(ycoord);
+					
+					// Get the sample index of the flight event. Because this can be an interpolation between two samples,
+					// take the closest sample.
+					final int sampleIdx;
+					Optional<Double> closestSample = time.stream()
 						.min(Comparator.comparingDouble(sample -> Math.abs(sample - t)));
-				sampleIdx = closestSample.map(time::indexOf).orElse(-1);
-
-				String tooltipText = formatSampleTooltip(eventLabels.get(i), xcoord, config.getDomainAxisUnit().getUnit(), sampleIdx) ;
-
-				XYImageAnnotation annotation =
+					sampleIdx = closestSample.map(time::indexOf).orElse(-1);
+					
+					String tooltipText = formatSampleTooltip(eventLabels.get(i), xcoord, config.getDomainAxisUnit().getUnit(), sampleIdx) ;
+					
+					XYImageAnnotation annotation =
 						new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
-				annotation.setToolTipText(tooltipText);
-				plot.addAnnotation(annotation);
+					annotation.setToolTipText(tooltipText);
+					plot.addAnnotation(annotation);
+				}
 			}
 		}
 	}
