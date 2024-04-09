@@ -55,7 +55,7 @@ public class ScaleSelector {
 		// Zoom level selector
 		scaleSelectorCombo = new JComboBox<>(SCALE_LABELS);
 		scaleSelectorCombo.setEditable(true);
-		scaleSelectorCombo.setSelectedItem("Fit (100.0%)");	// Make sure the combobox can fit this text
+		scaleSelectorCombo.setSelectedItem(" Fit (100.0%) ");	// Make sure the combobox can fit this text
 		scaleSelectorCombo.setPreferredSize(scaleSelectorCombo.getPreferredSize());
 		setZoomText();
 		scaleSelectorCombo.addActionListener(new ActionListener() {
