@@ -1,0 +1,218 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+    id 'java'
+    id 'com.adarshr.test-logger' version '3.2.0'
+    id 'checkstyle'
+    id 'org.gradlex.extra-java-module-info' version '1.8'
+}
+
+java {
+    // Must be disabled in order to use the gradle-modules-plugin
+    modularity.inferModulePath = false
+}
+
+def buildProperties = new Properties()
+file('./src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
+group = 'info.openrocket'
+version = buildProperties['build.version']
+
+repositories {
+    mavenCentral()
+    maven { url "https://repository.mulesoft.org/nexus/content/repositories/public/" }
+}
+
+checkstyle {
+    ignoreFailures = false
+    maxWarnings = 0
+}
+
+// Some older libraries are not modularized, so we need to add module-info.java files for them.
+extraJavaModuleInfo {
+    failOnMissingModuleInfo.set(false)
+    module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
+}
+
+dependencies {
+    implementation group: 'org.commonmark', name: 'commonmark', version: '0.21.0'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '5.7.1'
+    implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '23.0.3'
+    implementation group: 'org.graalvm.js', name: 'js-scriptengine', version: '23.0.3'
+    implementation group: 'org.graalvm.js', name: 'js', version: '23.0.3'
+    implementation group: 'org.graalvm.truffle', name: 'truffle-api', version: '23.0.3'
+    implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.2'
+    implementation files('libs/script-api-1.0.jar')
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.165'
+    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.19.0'
+
+    implementation 'de.javagl:obj:0.4.0'
+
+    implementation group: 'jakarta.activation', name: 'jakarta.activation-api', version: '2.1.2'
+    implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '4.0.5'
+    implementation group: 'org.glassfish', name: 'jakarta.json', version: '2.0.1'
+    implementation group: 'org.eclipse', name: 'yasson', version: '2.0.1'
+}
+
+def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'
+def serializedEnginesPathDist = './build/resources/main/datafiles/thrustcurves/thrustcurves.ser'
+// Executes the serialization of engines from ThrustCurve for a build.
+tasks.register('serializeEngines') {
+    dependsOn serializeEnginesDelete
+    dependsOn serializeEnginesExecute
+}
+tasks.register('serializeEnginesDist') {
+    dependsOn serializeEnginesExecuteDist
+}
+// Deletes the serialize engine file if it exists.
+tasks.register('serializeEnginesDelete', Delete) {
+    delete fileTree(serializedEnginesPath)
+
+    doFirst {
+        println "Starting serializeEnginesDelete..."
+    }
+    doLast {
+        println "...serializeEnginesDelete Completed"
+    }
+}
+// Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
+tasks.register('serializeEnginesExecute', JavaExec) {
+    dependsOn serializeEnginesDelete
+    workingDir  new File(projectDir, 'build/tmp')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('info.openrocket.core.thrustcurve.SerializeThrustcurveMotors')
+    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPath
+
+    doFirst {
+        println "Starting serializeEnginesExecute..."
+//        println "${serializedEnginesPath}"
+    }
+    doLast {
+        println "...serializeEnginesExecute Completed"
+    }
+}
+// Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
+// TODO: Shouldn't need a seperate task, but the args are not changing when dynamically updating
+// the variable.
+tasks.register('serializeEnginesExecuteDist', JavaExec) {
+    dependsOn serializeEnginesDelete
+    workingDir  new File(projectDir, 'build/tmp')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass.set('info.openrocket.core.thrustcurve.SerializeThrustcurveMotors')
+    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist
+
+    doFirst {
+        println "Starting serializeEnginesExecuteDist..."
+    }
+    doLast {
+        println "...serializeEnginesExecuteDist Completed"
+    }
+}
+// Validates that the serialize engines file exists.
+tasks.register('serializeEnginesValidate') {
+    if (!project.file(serializedEnginesPath).exists()) {
+        def message = "The serialized engine file does not exist at the following location:\n${project.file(serializedEnginesPath)}.\n" +
+                "You will need to run the following from the command line in order to generate the serialized engine file:\n"
+                "% ./gradlew serializeEngines\n" +
+                "\n";
+            println message
+            throw new GradleException('Invalid serialized engine file.')
+    } else {
+        def message = "Serialized engine file found.\n\n";
+        println message
+    }
+}
+
+tasks.register('copyReadmeMain', Copy) {
+    doLast {
+        from('../') {
+            include 'ReleaseNotes.md'
+        }
+        into './src/main/resources'
+    }
+}
+
+def externalComponentsPath = './src/main/resources/datafiles/components'
+def externalResourceComponents = './resources-src/datafiles/openrocket-database'
+
+// Initializes the submodules in Git.
+tasks.register('submoduleInit') {
+    doLast {
+        exec {
+            workingDir "../"
+            executable 'git'
+            args 'submodule', 'init'
+        }
+        println "Executed submoduleInit!"
+    }
+}
+// Updates the initialized submodules in Git.
+tasks.register('subModuleUpdate') {
+    dependsOn 'submoduleInit'
+    doLast {
+        exec {
+            workingDir "../"
+            executable 'git'
+            args 'submodule', 'update', '--remote'
+        }
+        println "Executed subModuleUpdate!"
+    }
+}
+
+// Copies the external components to the Core resource folder.
+tasks.register('externalComponentsCopy', Copy) {
+    dependsOn 'externalComponentsValidate'
+    from(externalResourceComponents + '/orc') {
+        include '**/*'
+    }
+    into externalComponentsPath
+    exclude '**/*.bak'
+    includeEmptyDirs = false
+    eachFile { details ->
+        println "Copying $details.sourcePath to $details.path ..."
+    }
+}
+// Deletes the external components resource folder.
+tasks.register('externalComponentsDelete', Delete) {
+    delete fileTree(externalComponentsPath)
+}
+// Validates the external components resource folder.  If it is a Git project, then
+// calls the submodule updates to fetch the latest submodules.
+tasks.register('externalComponentsValidate') {
+    File dir = project.file(externalResourceComponents + '/orc') as File
+    println "Validating external components at ${dir}..."
+    File gitDir = project.file('../.git') as File
+    if (!dir.exists()) {
+        def message = "The component database is now a submodule, and must be included into " +
+                "this project to compile and run the app.\n" +
+                "\n";
+        if (gitDir.exists()) {
+            message +="If you retrieved this code by cloning the openrocket repository, " +
+                    "the Gradle build will initialize the submodule if missing.\n" +
+                    "\n" +
+                    "You can also manually initialize and update the submodule from the command line\n" +
+                    "% git submodule init\n" +
+                    "% git submodule update --remote\n" +
+                    "\n";
+            println message
+            dependsOn subModuleUpdate
+        } else {
+            message += "If you retrieved this code by downloading and uncompressing a zip file,\n" +
+                    "Download the code from https://github.com/openrocket/openrocket-database and uncompress it.\n" +
+                    "Copy the files and directories under openrocket-database-master into ''./core/${externalResourceComponents}''\n" +
+                    "\n";
+            println message
+            throw new GradleException('Invalid external component resources.')
+        }
+    } else {
+        println "Found external components"
+    }
+}
+
+clean.dependsOn([externalComponentsDelete])
+//compileJava.dependsOn([externalComponentsCopy])
+processResources.dependsOn([externalComponentsCopy])
+processResources.dependsOn([copyReadmeMain])
+//processResources.dependsOn([serializeEnginesValidate])

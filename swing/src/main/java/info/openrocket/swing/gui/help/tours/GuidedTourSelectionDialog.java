@@ -1,0 +1,200 @@
+package info.openrocket.swing.gui.help.tours;
+
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+
+import javax.swing.AbstractListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.StyleSheet;
+
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.Named;
+
+import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.components.StyledLabel.Style;
+import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.widgets.SelectColorButton;
+import org.fife.ui.rtextarea.IconGroup;
+
+public class GuidedTourSelectionDialog extends JDialog {
+	private static final long serialVersionUID = -3643116444821710259L;
+
+	private static final Translator trans = Application.getTranslator();
+	
+	private static GuidedTourSelectionDialog instance = null;
+	
+	
+	private final SlideSetManager slideSetManager;
+	private final List<String> tourNames;
+	
+	private SlideShowDialog slideShowDialog;
+	
+	private JList<Named<SlideSet>> tourList;
+	private JEditorPane tourDescription;
+	private JLabel tourLength;
+	
+	
+	public GuidedTourSelectionDialog(Window parent) {
+		super(parent, trans.get("title"), ModalityType.MODELESS);
+		
+		slideSetManager = SlideSetManager.getSlideSetManager();
+		tourNames = slideSetManager.getSlideSetNames();
+		
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		
+		panel.add(new StyledLabel(trans.get("lbl.selectTour"), Style.BOLD), "spanx, wrap rel");
+		
+		tourList = new JList<Named<SlideSet>>(new TourListModel());
+		tourList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tourList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				updateText();
+			}
+		});
+		tourList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					startTour();
+				}
+			}
+		});
+		panel.add(new JScrollPane(tourList), "grow, gapright unrel, w 200lp, h 250lp");
+		
+		
+		
+		//  Sub-panel containing description and start button
+		JPanel sub = new JPanel(new MigLayout("fill, ins 0"));
+		sub.add(new StyledLabel(trans.get("lbl.description"), -1), "wrap rel");
+		
+		tourDescription = new JEditorPane("text/html", "");
+		tourDescription.setEditable(false);
+		tourDescription.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
+		StyleSheet ss = slideSetManager.getSlideSet(tourNames.get(0)).getStyleSheet();
+		((HTMLDocument) tourDescription.getDocument()).getStyleSheet().addStyleSheet(ss);
+		sub.add(new JScrollPane(tourDescription), "grow, wrap rel");
+		
+		tourLength = new StyledLabel(-1);
+		sub.add(tourLength, "wrap unrel");
+		
+		JButton start = new SelectColorButton(trans.get("btn.start"));
+		start.setIcon(Icons.HELP_TOURS);
+		start.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				startTour();
+			}
+		});
+		sub.add(start, "growx");
+		
+		panel.add(sub, "grow, wrap para, w 350lp, h 250lp");
+		
+		
+		
+		JButton close = new SelectColorButton(trans.get("button.close"));
+		close.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GuidedTourSelectionDialog.this.dispose();
+			}
+		});
+		panel.add(close, "spanx, right");
+		
+		this.add(panel);
+		GUIUtil.setDisposableDialogOptions(this, close);
+		GUIUtil.rememberWindowPosition(this);
+		tourList.setSelectedIndex(0);
+	}
+	
+	
+	private void startTour() {
+		SlideSet ss = getSelectedSlideSet();
+		if (ss == null) {
+			return;
+		}
+		
+		if (slideShowDialog != null && !slideShowDialog.isVisible()) {
+			closeTour();
+		}
+		
+		if (slideShowDialog == null) {
+			slideShowDialog = new SlideShowDialog(this);
+		}
+		
+		slideShowDialog.setSlideSet(ss, 0);
+		slideShowDialog.setVisible(true);
+	}
+	
+	
+	private void closeTour() {
+		if (slideShowDialog != null) {
+			slideShowDialog.dispose();
+			slideShowDialog = null;
+		}
+	}
+	
+	
+	private void updateText() {
+		SlideSet ss = getSelectedSlideSet();
+		if (ss != null) {
+			tourDescription.setText(ss.getDescription());
+			tourLength.setText(trans.get("lbl.length") + " " + ss.getSlideCount());
+		} else {
+			tourDescription.setText("");
+			tourLength.setText(trans.get("lbl.length"));
+		}
+	}
+	
+	
+	private SlideSet getSelectedSlideSet() {
+		return tourList.getSelectedValue().get();
+	}
+	
+	private class TourListModel extends AbstractListModel<Named<SlideSet>> {
+		private static final long serialVersionUID = -4031709944507449410L;
+
+		@Override
+		public Named<SlideSet> getElementAt(int index) {
+			String name = tourNames.get(index);
+			SlideSet set = slideSetManager.getSlideSet(name);
+			return new Named<SlideSet>(set, set.getTitle());
+		}
+		
+		@Override
+		public int getSize() {
+			return tourNames.size();
+		}
+		
+	}
+	
+	
+	public static void showDialog(Window parent) {
+		if (instance != null && instance.isVisible()) {
+			instance.setVisible(true);
+			instance.toFront();
+		} else {
+			instance = new GuidedTourSelectionDialog(parent);
+			instance.setVisible(true);
+		}
+	}
+	
+}

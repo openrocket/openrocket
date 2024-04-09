@@ -1,50 +1,50 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="openrocket:jar">
-    <output-path>$PROJECT_DIR$/build/jar</output-path>
-    <root id="archive" name="OpenRocket.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/core/src/META-INF/MANIFEST.MF" />
+    <artifact type="jar" build-on-make="true" name="openrocket:jar">
+        <output-path>$PROJECT_DIR$/build/jar</output-path>
+        <root id="archive" name="OpenRocket.jar">
+            <element id="directory" name="META-INF">
+                <element id="file-copy" path="$PROJECT_DIR$/core/src/META-INF/MANIFEST.MF" />
       </element>
-      <element id="module-output" name="OpenRocket Swing" />
-      <element id="module-output" name="OpenRocket Core" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jcommon-1.0.18.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/miglayout-4.0-swing.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/iText-5.0.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/rsyntaxtextarea-3.2.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.inject.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jfreechart-1.0.15.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/aopalliance.jar" path-in-jar="/" />
-      <element id="library" level="module" name="resources" module-name="OpenRocket Core" />
-      <element id="library" level="module" name="resources" module-name="OpenRocket Swing" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib-extra/RXTXcomm.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-linux-amd64.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-linux-i586.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-macosx-universal.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-windows-amd64.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-windows-i586.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-linux-amd64.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-linux-i586.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-macosx-universal.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-windows-amd64.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-windows-i586.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/annotation-detector-3.0.5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guice-4.2.3-no_aop.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guava-26.0-jre.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/opencsv-4.3.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/slf4j-api-1.7.30.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/logback-classic-1.2.11.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/logback-core-1.2.11.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/istack-commons-runtime.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/istack-commons-tools.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.activation-api-2.3.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.json-1.1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.json-api-1.1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/jaxb-api.2.3.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/jaxb-runtime.2.3.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/script-api-1.0.jar" path-in-jar="/" />
-    </root>
-  </artifact>
+            <element id="module-output" name="OpenRocket Swing" />
+            <element id="module-output" name="OpenRocket Core" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jcommon-1.0.18.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/miglayout-4.0-swing.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/iText-5.0.2.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/rsyntaxtextarea-3.2.0.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.inject.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jfreechart-1.0.15.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/aopalliance.jar" path-in-jar="/" />
+            <element id="library" level="module" name="resources" module-name="OpenRocket Core" />
+            <element id="library" level="module" name="resources" module-name="OpenRocket Swing" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib-extra/RXTXcomm.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-linux-amd64.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-linux-i586.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-macosx-universal.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-windows-amd64.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen-rt-natives-windows-i586.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/gluegen.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-linux-amd64.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-linux-i586.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-macosx-universal.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-windows-amd64.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/swing/lib/jogl/jogl-all-natives-windows-i586.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/annotation-detector-3.0.5.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guice-4.2.3-no_aop.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/guava-26.0-jre.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/opencsv-4.3.2.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/slf4j-api-1.7.30.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/logback-classic-1.2.11.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/logback-core-1.2.11.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/istack-commons-runtime.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/istack-commons-tools.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.activation-api-2.3.1.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.json-1.1.3.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/javax.json-api-1.1.3.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/jaxb-api.2.3.1.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/jaxb-runtime.2.3.1.jar" path-in-jar="/" />
+            <element id="extracted-dir" path="$PROJECT_DIR$/core/lib/script-api-1.0.jar" path-in-jar="/" />
+        </root>
+    </artifact>
 </component>

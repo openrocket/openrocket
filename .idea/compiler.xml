@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="DEFAULT_COMPILER" value="Javac" />
-    <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
       <entry name="!?*.form" />
@@ -13,10 +11,23 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
-    <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
-        <processorPath useClasspath="true" />
-      </profile>
-    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="OpenRocket" target="17" />
+      <module name="OpenRocket.core" target="17" />
+      <module name="OpenRocket.core.main" target="17" />
+      <module name="OpenRocket.core.test" target="17" />
+      <module name="OpenRocket.info.openrocket.core" target="17" />
+      <module name="OpenRocket.info.openrocket.core.main" target="17" />
+      <module name="OpenRocket.info.openrocket.core.test" target="17" />
+      <module name="OpenRocket.info.openrocket.swing" target="17" />
+      <module name="OpenRocket.info.openrocket.swing.main" target="17" />
+      <module name="OpenRocket.info.openrocket.swing.test" target="17" />
+      <module name="OpenRocket.info.openrocket.swing.testFixtures" target="17" />
+      <module name="OpenRocket.main" target="17" />
+      <module name="OpenRocket.swing" target="17" />
+      <module name="OpenRocket.swing.main" target="17" />
+      <module name="OpenRocket.swing.test" target="17" />
+      <module name="OpenRocket.test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

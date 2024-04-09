@@ -1,0 +1,94 @@
+plugins {
+    id "com.github.johnrengelman.shadow"
+    id 'java'
+    id 'com.adarshr.test-logger' version '3.2.0'
+    id 'checkstyle'
+    id 'org.gradlex.extra-java-module-info' version '1.8'
+}
+
+java {
+    // Must be disabled in order to use the gradle-modules-plugin
+    modularity.inferModulePath = false
+}
+
+def buildProperties = new Properties()
+file('../core/src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
+group = 'info.openrocket'
+version = buildProperties['build.version']
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+    maven { url "https://jogamp.org/deployment/maven/" }
+}
+
+checkstyle {
+    ignoreFailures = false
+    maxWarnings = 0
+}
+
+configurations {
+    testArtifactsClasspath {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+// Some older libraries are not modularized, so we need to add module-info.java files for them.
+extraJavaModuleInfo {
+    failOnMissingModuleInfo.set(false)
+    module('slf4j-api-1.7.25.jar', 'org.slf4j.api', '1.7.25')
+    module('slf4j-api-1.7.32.jar', 'org.slf4j.api', '1.7.32')
+    module('versioncompare-1.5.0.jar', 'versioncompare', '1.5.0')
+    module('gluegen-rt-2.5.0.jar', 'org.jogamp.gluegen.rt', '2.5.0') {
+        requires('java.desktop')
+        exportAllPackages()
+    }
+    module('jogl-all-2.5.0.jar', 'org.jogamp.jogl.all', '2.5.0') {
+        requires('java.desktop')
+        requires('org.jogamp.gluegen.rt')
+        exportAllPackages()
+    }
+    module('jcommon-1.0.24.jar', 'jcommon', '1.0.24') {
+        requires('java.desktop')
+        exportAllPackages()
+    }
+    module('itextpdf-5.5.13.3.jar', 'itextpdf', '5.5.13.3') {
+        requires('java.desktop')
+        exportAllPackages()
+    }
+
+    module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
+}
+
+dependencies {
+    implementation project(':core')
+
+    implementation 'de.javagl:obj:0.4.0'
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation group: 'org.commonmark', name: 'commonmark', version: '0.21.0'
+    implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.3'
+    implementation group: 'org.jfree', name: 'jcommon', version: '1.0.24'
+    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.4'
+    implementation group: 'com.miglayout', name: 'miglayout-core', version: '11.0'
+    implementation group: 'com.miglayout', name: 'miglayout-swing', version: '11.0'
+    implementation group: 'com.fifesoft', name: 'rsyntaxtextarea', version: '3.4.0'
+
+    implementation group: 'io.github.g00fy2', name: 'versioncompare', version: '1.5.0'
+    implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.8'
+
+    implementation group: 'com.formdev', name: 'flatlaf', version: '3.4.1'
+    implementation group: 'com.formdev', name: 'flatlaf-extras', version: '3.4.1'
+    implementation group: 'com.formdev', name: 'flatlaf-intellij-themes', version: '3.4.1'
+
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.0'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
+
+    implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt-main', version:'2.5.0'
+    implementation group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.5.0'
+
+    testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
+}

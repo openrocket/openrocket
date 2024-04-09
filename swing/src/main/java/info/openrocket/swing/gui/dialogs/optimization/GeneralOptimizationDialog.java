@@ -1,0 +1,1529 @@
+package info.openrocket.swing.gui.dialogs.optimization;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JToggleButton;
+import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+
+import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.Simulation;
+import info.openrocket.core.formatting.RocketDescriptor;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.Markers;
+import info.openrocket.core.optimization.general.OptimizationException;
+import info.openrocket.core.optimization.general.Point;
+import info.openrocket.core.optimization.rocketoptimization.OptimizableParameter;
+import info.openrocket.core.optimization.rocketoptimization.OptimizationGoal;
+import info.openrocket.core.optimization.rocketoptimization.SimulationDomain;
+import info.openrocket.core.optimization.rocketoptimization.SimulationModifier;
+import info.openrocket.core.optimization.rocketoptimization.domains.IdentitySimulationDomain;
+import info.openrocket.core.optimization.rocketoptimization.domains.StabilityDomain;
+import info.openrocket.core.optimization.rocketoptimization.goals.MaximizationGoal;
+import info.openrocket.core.optimization.rocketoptimization.goals.MinimizationGoal;
+import info.openrocket.core.optimization.rocketoptimization.goals.ValueSeekGoal;
+import info.openrocket.core.optimization.services.OptimizationServiceHelper;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.CaliberUnit;
+import info.openrocket.core.unit.Unit;
+import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.unit.Value;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.Chars;
+import info.openrocket.core.util.Named;
+import info.openrocket.core.util.TextUtil;
+
+import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.widgets.SaveFileChooser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.itextpdf.text.Font;
+
+import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.SpinnerEditor;
+import info.openrocket.swing.gui.adaptors.DoubleModel;
+import info.openrocket.swing.gui.components.CsvOptionPanel;
+import info.openrocket.swing.gui.components.DescriptionArea;
+import info.openrocket.swing.gui.components.DoubleCellEditor;
+import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.components.StyledLabel.Style;
+import info.openrocket.swing.gui.components.UnitCellEditor;
+import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.scalefigure.RocketFigure;
+import info.openrocket.swing.gui.scalefigure.ScaleScrollPane;
+import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.widgets.SelectColorToggleButton;
+import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.SelectColorButton;
+
+/**
+ * General rocket optimization dialog. 
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
+public class GeneralOptimizationDialog extends JDialog {
+	private static final long serialVersionUID = -355058777898063291L;
+	private static final Logger log = LoggerFactory.getLogger(GeneralOptimizationDialog.class);
+	private static final Translator trans = Application.getTranslator();
+		
+	private static final String GOAL_MAXIMIZE = trans.get("goal.maximize");
+	private static final String GOAL_MINIMIZE = trans.get("goal.minimize");
+	private static final String GOAL_SEEK = trans.get("goal.seek");
+	
+	private static final String START_TEXT = trans.get("btn.start");
+	private static final String STOP_TEXT = trans.get("btn.stop");
+	
+	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	
+	
+	private final List<OptimizableParameter> optimizationParameters = new ArrayList<>();
+	private final Map<Object, List<SimulationModifier>> simulationModifiers = new HashMap<>();
+	
+	
+	private final OpenRocketDocument baseDocument;
+	private OpenRocketDocument documentCopy;
+	
+	private final JButton addButton;
+	private final JButton removeButton;
+	private final JButton removeAllButton;
+	
+	private final ParameterSelectionTableModel selectedModifierTableModel;
+	private final JTable selectedModifierTable;
+	private final DescriptionArea selectedModifierDescription;
+	private final SimulationModifierTree availableModifierTree;
+	
+	private final JComboBox<Named<Simulation>> simulationSelectionCombo;
+	private final JComboBox<Named<OptimizableParameter>> optimizationParameterCombo;
+	
+	private final JComboBox<?> optimizationGoalCombo;
+	private final JSpinner optimizationGoalSpinner;
+	private final UnitSelector optimizationGoalUnitSelector;
+	private final DoubleModel optimizationSeekValue;
+	
+	private final DoubleModel minimumStability;
+	private final DoubleModel maximumStability;
+	private final JCheckBox minimumStabilitySelected;
+	private final JSpinner minimumStabilitySpinner;
+	private final UnitSelector minimumStabilityUnitSelector;
+	private final JCheckBox maximumStabilitySelected;
+	private final JSpinner maximumStabilitySpinner;
+	private final UnitSelector maximumStabilityUnitSelector;
+	
+	private final JLabel bestValueLabel;
+	private final JLabel stepCountLabel;
+	private final JLabel evaluationCountLabel;
+	private final JLabel stepSizeLabel;
+	
+	private final RocketFigure figure;
+	private final JToggleButton startButton;
+	private final JButton plotButton;
+	private final JButton saveButton;
+	
+	private final List<SimulationModifier> selectedModifiers = new ArrayList<>();
+	
+	/** List of components to disable while optimization is running */
+	private final List<JComponent> disableComponents = new ArrayList<>();
+	
+	/** Whether optimization is currently running or not */
+	private boolean running = false;
+	/** The optimization worker that is running */
+	private OptimizationWorker worker = null;
+	
+	private double bestValue = Double.NaN;
+	private Unit bestValueUnit = Unit.NOUNIT;
+	private int stepCount = 0;
+	private int evaluationCount = 0;
+	private double stepSize = 0;
+	
+	private final Map<Point, FunctionEvaluationData> evaluationHistory = new LinkedHashMap<>();
+	private final List<Point> optimizationPath = new LinkedList<>();
+	
+	private boolean updating = false;
+	
+	/**
+	 * Sole constructor.
+	 * 
+	 * @param document  the document
+	 * @param parent    the parent window
+	 */
+	public GeneralOptimizationDialog(OpenRocketDocument document, Window parent) throws InterruptedException {
+		super(parent, trans.get("title"));
+		
+		this.baseDocument = document;
+		this.documentCopy = document.copy();
+
+		checkExistingSimulations();
+		loadOptimizationParameters();
+		loadSimulationModifiers();
+		
+		JPanel sub;
+		JLabel label;
+		JScrollPane scroll;
+		String tip;
+		
+		JPanel panel = new JPanel(new MigLayout("fill, w 1200"));
+		
+		ChangeListener clearHistoryChangeListener = e -> clearHistory();
+		ActionListener clearHistoryActionListener = e -> clearHistory();
+		
+		// // Selected modifiers table
+		selectedModifierTableModel = new ParameterSelectionTableModel();
+		selectedModifierTable = new JTable(selectedModifierTableModel);
+		selectedModifierTable.setDefaultRenderer(Double.class, new DoubleCellRenderer());
+		selectedModifierTable.setRowSelectionAllowed(true);
+		selectedModifierTable.setColumnSelectionAllowed(false);
+		selectedModifierTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		
+		// Make sure spinner editor fits into the cell height
+		selectedModifierTable.setRowHeight(new JSpinner().getPreferredSize().height - 4);
+		
+		selectedModifierTable.setDefaultEditor(Double.class, new DoubleCellEditor());
+		selectedModifierTable.setDefaultEditor(Unit.class, new UnitCellEditor() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2316208862654205128L;
+
+			@Override
+			protected UnitGroup getUnitGroup(Unit value, int row, int column) {
+				return selectedModifiers.get(row).getUnitGroup();
+			}
+		});
+		selectedModifierTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
+		disableComponents.add(selectedModifierTable);
+		
+		selectedModifierTable.getSelectionModel().addListSelectionListener(e -> updateComponents());
+		
+		// Set column widths
+		TableColumnModel columnModel = selectedModifierTable.getColumnModel();
+		columnModel.getColumn(0).setPreferredWidth(150);
+		columnModel.getColumn(1).setPreferredWidth(40);
+		columnModel.getColumn(2).setPreferredWidth(40);
+		columnModel.getColumn(3).setPreferredWidth(40);
+		
+		scroll = new JScrollPane(selectedModifierTable);
+		
+		label = new StyledLabel(trans.get("lbl.paramsToOptimize"), Style.BOLD);
+		disableComponents.add(label);
+		panel.add(label, "split 3, flowy");
+		panel.add(scroll, "wmin 300lp, height 150lp, grow");
+		selectedModifierDescription = new DescriptionArea(2, -3);
+		disableComponents.add(selectedModifierDescription);
+		panel.add(selectedModifierDescription, "hmin 20lp, growx");
+		
+		// // Add/remove buttons
+		sub = new JPanel(new MigLayout("fill"));
+		
+		addButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
+		addButton.setToolTipText(trans.get("btn.add.ttip"));
+		addButton.addActionListener(e -> {
+			List<SimulationModifier> mods = getSelectedAvailableModifiers();
+			if (mods.size() > 0) {
+				addModifiers(mods);
+				clearHistory();
+			} else {
+				log.error("Attempting to add simulation modifier when none is selected");
+			}
+			if (selectedModifierTable.isEditing()) {
+				selectedModifierTable.getCellEditor().stopCellEditing();
+			}
+		});
+		disableComponents.add(addButton);
+		sub.add(addButton, "wrap para, sg button");
+		
+		removeButton = new SelectColorButton("   " + trans.get("btn.delete") + " " + Chars.RIGHT_ARROW);
+		removeButton.setToolTipText(trans.get("btn.delete.ttip"));
+		removeButton.addActionListener(e -> {
+			List<SimulationModifier> mods = getSelectedModifiers();
+			if (mods.size() == 0) {
+				log.error("Attempting to remove simulation modifier when none is selected");
+				return;
+			}
+
+			if (selectedModifierTable.isEditing()) {
+				selectedModifierTable.getCellEditor().stopCellEditing();
+			}
+
+			removeModifiers(mods);
+			clearHistory();
+		});
+		disableComponents.add(removeButton);
+		sub.add(removeButton, "wrap para*2, sg button");
+		
+		removeAllButton = new SelectColorButton(trans.get("btn.deleteAll"));
+		removeAllButton.setToolTipText(trans.get("btn.deleteAll.ttip"));
+		removeAllButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Removing all selected modifiers");
+				selectedModifiers.clear();
+				selectedModifierTableModel.fireTableDataChanged();
+				availableModifierTree.repaint();
+				clearHistory();
+			}
+		});
+		disableComponents.add(removeAllButton);
+		sub.add(removeAllButton, "wrap para, sg button");
+		
+		panel.add(sub);
+		
+		// // Available modifier tree
+		availableModifierTree = new SimulationModifierTree(documentCopy.getRocket(), simulationModifiers, selectedModifiers);
+		availableModifierTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				updateComponents();
+			}
+		});
+		
+		// Handle double-click
+		availableModifierTree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					List<SimulationModifier> mods = getSelectedAvailableModifiers();
+					if (mods.size() == 1) {
+						addModifiers(mods);
+						clearHistory();
+					} else {
+						log.info(Markers.USER_MARKER, "Double-clicked non-available option");
+					}
+				}
+			}
+		});
+		
+		disableComponents.add(availableModifierTree);
+		scroll = new JScrollPane(availableModifierTree);
+		label = new StyledLabel(trans.get("lbl.availableParams"), Style.BOLD);
+		disableComponents.add(label);
+		panel.add(label, "split 2, flowy");
+		panel.add(scroll, "width 300lp, height 200lp, grow, wrap para*2");
+		
+		// // Optimization options sub-panel
+		
+		sub = new JPanel(new MigLayout("fill"));
+		TitledBorder border = BorderFactory.createTitledBorder(trans.get("lbl.optimizationOpts"));
+		GUIUtil.changeFontStyle(border, Font.BOLD);
+		sub.setBorder(border);
+		disableComponents.add(sub);
+		
+		// // Simulation to optimize
+		
+		label = new JLabel(trans.get("lbl.optimizeSim"));
+		tip = trans.get("lbl.optimizeSim.ttip");
+		label.setToolTipText(tip);
+		disableComponents.add(label);
+		sub.add(label, "");
+		
+		simulationSelectionCombo = new JComboBox<>();
+		simulationSelectionCombo.setToolTipText(tip);
+		populateSimulations();
+		simulationSelectionCombo.addActionListener(clearHistoryActionListener);
+		disableComponents.add(simulationSelectionCombo);
+		sub.add(simulationSelectionCombo, "growx, wrap unrel");
+		
+		// // Value to optimize
+		label = new JLabel(trans.get("lbl.optimizeValue"));
+		tip = trans.get("lbl.optimizeValue.ttip");
+		label.setToolTipText(tip);
+		disableComponents.add(label);
+		sub.add(label, "");
+		
+		optimizationParameterCombo = new JComboBox<>();
+		optimizationParameterCombo.setToolTipText(tip);
+		populateParameters();
+		optimizationParameterCombo.addActionListener(clearHistoryActionListener);
+		optimizationParameterCombo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateSeekValueUnits();
+			}
+		});
+		disableComponents.add(optimizationParameterCombo);
+		sub.add(optimizationParameterCombo, "growx, wrap unrel");
+		
+		// // Optimization goal
+		label = new JLabel(trans.get("lbl.optimizeGoal"));
+		tip = trans.get("lbl.optimizeGoal");
+		label.setToolTipText(tip);
+		disableComponents.add(label);
+		sub.add(label, "");
+		
+		optimizationGoalCombo = new JComboBox<>(new String[] { GOAL_MAXIMIZE, GOAL_MINIMIZE, GOAL_SEEK });
+		optimizationGoalCombo.setToolTipText(tip);
+		optimizationGoalCombo.setEditable(false);
+		optimizationGoalCombo.addActionListener(clearHistoryActionListener);
+		disableComponents.add(optimizationGoalCombo);
+		sub.add(optimizationGoalCombo, "growx");
+		
+		// // Optimization custom value
+		optimizationSeekValue = new DoubleModel(0, UnitGroup.UNITS_NONE);
+		optimizationSeekValue.addChangeListener(clearHistoryChangeListener);
+		
+		optimizationGoalSpinner = new JSpinner(optimizationSeekValue.getSpinnerModel());
+		tip = trans.get("lbl.optimizeGoalValue.ttip");
+		optimizationGoalSpinner.setToolTipText(tip);
+		optimizationGoalSpinner.setEditor(new SpinnerEditor(optimizationGoalSpinner, 4));
+		disableComponents.add(optimizationGoalSpinner);
+		sub.add(optimizationGoalSpinner, "width 30lp");
+		
+		optimizationGoalUnitSelector = new UnitSelector(optimizationSeekValue);
+		optimizationGoalUnitSelector.setToolTipText(tip);
+		disableComponents.add(optimizationGoalUnitSelector);
+		sub.add(optimizationGoalUnitSelector, "width 20lp, wrap unrel");
+		
+		panel.add(sub, "grow");
+		
+		// // Required stability sub-panel
+		
+		sub = new JPanel(new MigLayout("fill"));
+		border = BorderFactory.createTitledBorder(trans.get("lbl.requireStability"));
+		GUIUtil.changeFontStyle(border, Font.BOLD);
+		sub.setBorder(border);
+		disableComponents.add(sub);
+		
+		double ref = CaliberUnit.calculateCaliber(baseDocument.getRocket());
+		minimumStability = new DoubleModel(ref, UnitGroup.stabilityUnits(ref));
+		maximumStability = new DoubleModel(5 * ref, UnitGroup.stabilityUnits(ref));
+		minimumStability.addChangeListener(clearHistoryChangeListener);
+		maximumStability.addChangeListener(clearHistoryChangeListener);
+		
+		// // Minimum stability
+		tip = trans.get("lbl.requireMinStability.ttip");
+		minimumStabilitySelected = new JCheckBox(trans.get("lbl.requireMinStability"));
+		minimumStabilitySelected.setSelected(true);
+		minimumStabilitySelected.setToolTipText(tip);
+		minimumStabilitySelected.addActionListener(e -> updateComponents());
+		disableComponents.add(minimumStabilitySelected);
+		sub.add(minimumStabilitySelected);
+		
+		minimumStabilitySpinner = new JSpinner(minimumStability.getSpinnerModel());
+		minimumStabilitySpinner.setToolTipText(tip);
+		minimumStabilitySpinner.setEditor(new SpinnerEditor(minimumStabilitySpinner));
+		disableComponents.add(minimumStabilitySpinner);
+		sub.add(minimumStabilitySpinner, "growx");
+		
+		minimumStabilityUnitSelector = new UnitSelector(minimumStability);
+		minimumStabilityUnitSelector.setToolTipText(tip);
+		disableComponents.add(minimumStabilityUnitSelector);
+		sub.add(minimumStabilityUnitSelector, "growx, wrap unrel");
+		
+		// // Maximum stability
+		tip = trans.get("lbl.requireMaxStability.ttip");
+		maximumStabilitySelected = new JCheckBox(trans.get("lbl.requireMaxStability"));
+		maximumStabilitySelected.setToolTipText(tip);
+		maximumStabilitySelected.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateComponents();
+			}
+		});
+		disableComponents.add(maximumStabilitySelected);
+		sub.add(maximumStabilitySelected);
+		
+		maximumStabilitySpinner = new JSpinner(maximumStability.getSpinnerModel());
+		maximumStabilitySpinner.setToolTipText(tip);
+		maximumStabilitySpinner.setEditor(new SpinnerEditor(maximumStabilitySpinner));
+		disableComponents.add(maximumStabilitySpinner);
+		sub.add(maximumStabilitySpinner, "growx");
+		
+		maximumStabilityUnitSelector = new UnitSelector(maximumStability);
+		maximumStabilityUnitSelector.setToolTipText(tip);
+		disableComponents.add(maximumStabilityUnitSelector);
+		sub.add(maximumStabilityUnitSelector, "growx, wrap para");
+		
+		
+		
+		//		DescriptionArea desc = new DescriptionArea("Stability requirements are verified during each time step of the simulation.",
+		// 2, -2, false);
+		// desc.setViewportBorder(null);
+		// disableComponents.add(desc);
+		// sub.add(desc, "span, growx");
+		
+		panel.add(sub, "span 2, grow, wrap para*2");
+		
+		// // Rocket figure
+		figure = new RocketFigure( getSelectedSimulation().getRocket() );
+		ScaleScrollPane figureScrollPane = new ScaleScrollPane(figure);
+		figureScrollPane.setFitting(true);
+		panel.add(figureScrollPane, "span, split, height 200lp, grow");
+		
+		sub = new JPanel(new MigLayout("fill"));
+		
+		label = new JLabel(trans.get("status.bestValue"));
+		tip = trans.get("status.bestValue.ttip");
+		label.setToolTipText(tip);
+		sub.add(label, "gapright unrel");
+		
+		bestValueLabel = new JLabel();
+		bestValueLabel.setToolTipText(tip);
+		sub.add(bestValueLabel, "wmin 60lp, wrap rel");
+		
+		label = new JLabel(trans.get("status.stepCount"));
+		tip = trans.get("status.stepCount.ttip");
+		label.setToolTipText(tip);
+		sub.add(label, "gapright unrel");
+		
+		stepCountLabel = new JLabel();
+		stepCountLabel.setToolTipText(tip);
+		sub.add(stepCountLabel, "wrap rel");
+		
+		label = new JLabel(trans.get("status.evalCount"));
+		tip = trans.get("status.evalCount.ttip");
+		label.setToolTipText(tip);
+		sub.add(label, "gapright unrel");
+		
+		evaluationCountLabel = new JLabel();
+		evaluationCountLabel.setToolTipText(tip);
+		sub.add(evaluationCountLabel, "wrap rel");
+		
+		label = new JLabel(trans.get("status.stepSize"));
+		tip = trans.get("status.stepSize.ttip");
+		label.setToolTipText(tip);
+		sub.add(label, "gapright unrel");
+		
+		stepSizeLabel = new JLabel();
+		stepSizeLabel.setToolTipText(tip);
+		sub.add(stepSizeLabel, "wrap para");
+		
+		// // Start/Stop button
+		
+		startButton = new SelectColorToggleButton(START_TEXT);
+		startButton.addActionListener(e -> {
+			if (updating) {
+				log.debug("Updating, ignoring event");
+				return;
+			}
+			if (running) {
+				log.info(Markers.USER_MARKER, "Stopping optimization");
+				stopOptimization();
+			} else {
+				log.info(Markers.USER_MARKER, "Starting optimization");
+				startOptimization();
+			}
+		});
+		sub.add(startButton, "span, growx, wrap para*2");
+		
+		plotButton = new SelectColorButton(trans.get("btn.plotPath"));
+		plotButton.setToolTipText(trans.get("btn.plotPath.ttip"));
+		plotButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Plotting optimization path, dimensionality=" + selectedModifiers.size());
+			OptimizationPlotDialog dialog = new OptimizationPlotDialog(
+					Collections.unmodifiableList(optimizationPath),
+					Collections.unmodifiableMap(evaluationHistory),
+					Collections.unmodifiableList(selectedModifiers),
+					getSelectedParameter(),
+					optimizationGoalUnitSelector.getSelectedUnit(),
+					UnitGroup.stabilityUnits(getSelectedSimulation().getRocket()),
+					GeneralOptimizationDialog.this);
+			dialog.setVisible(true);
+		});
+		disableComponents.add(plotButton);
+		sub.add(plotButton, "span, growx, wrap");
+		
+		saveButton = new SelectColorButton(trans.get("btn.save"));
+		saveButton.setToolTipText(trans.get("btn.save.ttip"));
+		saveButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "User selected save path");
+			savePath();
+		});
+		disableComponents.add(saveButton);
+		sub.add(saveButton, "span, growx");
+		
+		panel.add(sub, "wrap para*2");
+		
+		// // Bottom buttons
+		final JButton applyButton = new SelectColorButton(trans.get("btn.apply"));
+		applyButton.setToolTipText(trans.get("btn.apply.ttip"));
+		applyButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Applying optimization changes");
+			applyDesign();
+		});
+		disableComponents.add(applyButton);
+		panel.add(applyButton, "span, split, gapright para, right");
+
+		final JButton resetButton = new SelectColorButton(trans.get("btn.reset"));
+		resetButton.setToolTipText(trans.get("btn.reset.ttip"));
+		resetButton.addActionListener(e -> {
+			log.info(Markers.USER_MARKER, "Resetting optimization design");
+			resetDesign();
+		});
+		disableComponents.add(resetButton);
+		panel.add(resetButton, "gapright para, right");
+
+		final JButton closeButton = new SelectColorButton(trans.get("btn.close"));
+		closeButton.setToolTipText(trans.get("btn.close.ttip"));
+		closeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Closing optimization dialog");
+				stopOptimization();
+				GeneralOptimizationDialog.this.dispose();
+			}
+		});
+		panel.add(closeButton, "right");
+		
+		this.add(new JScrollPane(panel));
+		clearHistory();
+		updateComponents();
+		updateSeekValueUnits();
+		GUIUtil.setDisposableDialogOptions(this, null);
+
+		int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+		this.setSize(new Dimension(this.getWidth(), Math.min(this.getHeight(), screenHeight - 150)));
+		this.pack();
+
+		this.setLocation((parent.getWidth() - 1200)/2, 100);
+	}
+	
+	private void startOptimization() {
+		if (running) {
+			log.info("Optimization already running");
+			return;
+		}
+		
+		if (selectedModifiers.isEmpty()) {
+			JOptionPane.showMessageDialog(this, trans.get("error.selectParams.text"),
+					trans.get("error.selectParams.title"), JOptionPane.ERROR_MESSAGE);
+			updating = true;
+			startButton.setSelected(false);
+			startButton.setText(START_TEXT);
+			updating = false;
+			return;
+		}
+		
+		running = true;
+		
+		// Update the button status
+		updating = true;
+		startButton.setSelected(true);
+		startButton.setText(STOP_TEXT);
+		updating = false;
+		
+		
+		// Create a copy of the simulation (we'll modify the copy here)
+		final Simulation simulation = getSelectedSimulation();
+		final OptimizableParameter parameter = getSelectedParameter();
+		OptimizationGoal goal;
+		String value = (String) optimizationGoalCombo.getSelectedItem();
+		if (GOAL_MAXIMIZE.equals(value)) {
+			goal = new MaximizationGoal();
+		} else if (GOAL_MINIMIZE.equals(value)) {
+			goal = new MinimizationGoal();
+		} else if (GOAL_SEEK.equals(value)) {
+			goal = new ValueSeekGoal(optimizationSeekValue.getValue());
+		} else {
+			throw new BugException("optimizationGoalCombo had invalid value: " + value);
+		}
+		
+		SimulationDomain domain;
+		if (minimumStabilitySelected.isSelected() || maximumStabilitySelected.isSelected()) {
+			double min, max;
+			boolean minAbsolute, maxAbsolute;
+			
+			/*
+			 * Make minAbsolute/maxAbsolute consistent with each other to produce reasonable
+			 * result in plot tool tips.  Yes, this is a bit ugly.
+			 */
+			
+			// Min stability
+			Unit unit = minimumStability.getCurrentUnit();
+			if (unit instanceof CaliberUnit) {
+				min = unit.toUnit(minimumStability.getValue());
+				minAbsolute = false;
+			} else {
+				min = minimumStability.getValue();
+				minAbsolute = true;
+			}
+			
+			// Max stability
+			unit = maximumStability.getCurrentUnit();
+			if (unit instanceof CaliberUnit) {
+				max = unit.toUnit(maximumStability.getValue());
+				maxAbsolute = false;
+			} else {
+				max = maximumStability.getValue();
+				maxAbsolute = true;
+			}
+			
+			if (!minimumStabilitySelected.isSelected()) {
+				min = Double.NaN;
+				minAbsolute = maxAbsolute;
+			}
+			if (!maximumStabilitySelected.isSelected()) {
+				max = Double.NaN;
+				maxAbsolute = minAbsolute;
+			}
+			
+			domain = new StabilityDomain(min, minAbsolute, max, maxAbsolute);
+		} else {
+			domain = new IdentitySimulationDomain();
+		}
+		
+		SimulationModifier[] modifiers = selectedModifiers.toArray(new SimulationModifier[0]);
+
+		for (SimulationModifier mod : modifiers) {
+			try {
+				mod.initialize(simulation);
+			} catch (OptimizationException ex) {
+				updating = true;
+				startButton.setSelected(false);
+				startButton.setText(START_TEXT);
+				updating = false;
+				throw new BugException(ex);
+			}
+			
+		}
+		
+		// Create and start the background worker
+		worker = new OptimizationWorker(simulation, parameter, goal, domain, modifiers) {
+			@Override
+			protected void done(OptimizationException exception) {
+				log.info("Optimization finished, exception=" + exception, exception);
+				
+				if (exception != null) {
+					JOptionPane.showMessageDialog(GeneralOptimizationDialog.this,
+							new Object[] {
+									trans.get("error.optimizationFailure.text"),
+									exception.getLocalizedMessage()
+							}, trans.get("error.optimizationFailure.title"), JOptionPane.ERROR_MESSAGE);
+				}
+				
+				worker = null;
+				stopOptimization();
+				
+				// Disable the start/stop button for a short while after ending the simulation
+				// to prevent accidentally starting a new optimization when trying to stop it
+				startButton.setEnabled(false);
+				Timer timer = new Timer(750, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						startButton.setEnabled(true);
+					}
+				});
+				timer.setRepeats(false);
+				timer.start();
+				updateComponents();
+			}
+			
+			@Override
+			protected void functionEvaluated(List<FunctionEvaluationData> data) {
+				for (FunctionEvaluationData d : data) {
+					evaluationHistory.put(d.getPoint(), d);
+					evaluationCount++;
+				}
+				updateCounters();
+			}
+			
+			@Override
+			protected void optimizationStepTaken(List<OptimizationStepData> data) {
+				
+				// Add starting point to the path
+				if (optimizationPath.isEmpty()) {
+					optimizationPath.add(data.get(0).getOldPoint());
+				}
+				
+				// Add other points to the path
+				for (OptimizationStepData d : data) {
+					optimizationPath.add(d.getNewPoint());
+				}
+				
+				// Get function value from the latest point
+				OptimizationStepData latest = data.get(data.size() - 1);
+				Point newPoint = latest.getNewPoint();
+				
+				FunctionEvaluationData pointValue = evaluationHistory.get(newPoint);
+				if (pointValue != null && pointValue.getParameterValue() != null) {
+					bestValue = pointValue.getParameterValue().getValue();
+				} else {
+					bestValue = Double.NaN;
+				}
+				
+				// Update the simulation
+				Simulation sim = getSelectedSimulation();
+				for (int i = 0; i < newPoint.dim(); i++) {
+					try {
+						selectedModifiers.get(i).modify(sim, newPoint.get(i));
+					} catch (OptimizationException e) {
+						throw new BugException( "Simulation modifier failed to modify the base simulation " +
+												"modifier=" + selectedModifiers.get(i), e);
+					}
+				}
+				figure.updateFigure();
+				
+				// Update other counter data
+				stepCount += data.size();
+				stepSize = latest.getStepSize();
+				updateCounters();
+			}
+		};
+		worker.start();
+		
+		clearHistory();
+		
+		updateComponents();
+	}
+	
+	private void stopOptimization() {
+		if (!running) {
+			log.info("Optimization not running");
+			return;
+		}
+		
+		if (worker != null && worker.isAlive()) {
+			log.info("Worker still running, interrupting it and setting to null");
+			worker.interrupt();
+			worker = null;
+			return;
+		}
+		
+		running = false;
+		
+		// Update the button status
+		updating = true;
+		startButton.setSelected(false);
+		startButton.setText(START_TEXT);
+		updating = false;
+		
+		updateComponents();
+	}
+	
+	/**
+	 * Reset the current optimization history and values.  This does not reset the design.
+	 */
+	private void clearHistory() {
+		evaluationHistory.clear();
+		optimizationPath.clear();
+		bestValue = Double.NaN;
+		bestValueUnit = optimizationGoalUnitSelector.getSelectedUnit();
+		stepCount = 0;
+		evaluationCount = 0;
+		stepSize = 0.5;
+		updateCounters();
+		updateComponents();
+	}
+
+	private void updateSeekValueUnits() {
+		if (optimizationSeekValue != null && optimizationGoalUnitSelector != null) {
+			optimizationSeekValue.setUnitGroup(getSelectedParameter().getUnitGroup());
+			optimizationSeekValue.setValue(0);
+			optimizationGoalUnitSelector.setModel(optimizationSeekValue);
+			optimizationGoalUnitSelector.revalidate();
+		}
+	}
+	
+	private void applyDesign() {
+		// TODO: MEDIUM: Apply also potential changes to simulations
+		Rocket src = getSelectedSimulation().getRocket().copyWithOriginalID();
+		Rocket dest = baseDocument.getRocket();
+		try {
+			baseDocument.startUndo(trans.get("undoText"));
+			dest.freeze();
+			
+			// Remove all children
+			while (dest.getChildCount() > 0) {
+				dest.removeChild(0);
+			}
+			
+			// Move all children to the destination rocket
+			while (src.getChildCount() > 0) {
+				RocketComponent c = src.getChild(0);
+				src.removeChild(0);
+				dest.addChild(c);
+			}
+
+			figure.repaint();
+			
+		} finally {
+			dest.thaw();
+			baseDocument.stopUndo();
+		}
+	}
+	
+	private void resetDesign() {
+		clearHistory();
+		
+		documentCopy = baseDocument.copy();
+		
+		loadOptimizationParameters();
+		loadSimulationModifiers();
+		
+		// Replace selected modifiers with corresponding new modifiers
+		List<SimulationModifier> newSelected = new ArrayList<>();
+		for (SimulationModifier original : selectedModifiers) {
+			List<SimulationModifier> newModifiers = simulationModifiers.get(original.getRelatedObject());
+			if (newModifiers != null) {
+				int index = newModifiers.indexOf(original);
+				if (index >= 0) {
+					SimulationModifier updated = newModifiers.get(index);
+					updated.setMinValue(original.getMinValue());
+					updated.setMaxValue(original.getMaxValue());
+					newSelected.add(updated);
+				}
+			}
+		}
+		selectedModifiers.clear();
+		selectedModifiers.addAll(newSelected);
+		selectedModifierTableModel.fireTableDataChanged();
+		
+		// Update the available modifier tree
+		availableModifierTree.populateTree(documentCopy.getRocket(), simulationModifiers);
+		availableModifierTree.expandComponents();
+		
+		// Update selectable simulations
+		populateSimulations();
+		
+		// Update selectable parameters
+		populateParameters();
+		
+	}
+
+	/**
+	 * Checks whether there are simulations present in the document. If not, a pop-up information
+	 * dialog launches stating that the optimizer cannot be launched.
+	 * @throws InterruptedException when no simulations present
+	 */
+	private void checkExistingSimulations() throws InterruptedException {
+		if (documentCopy.getSimulations().size() == 0) {
+			JOptionPane.showMessageDialog(null, trans.get("GeneralOptimizationDialog.info.noSims.message"),
+					trans.get("GeneralOptimizationDialog.info.noSims.title"), JOptionPane.INFORMATION_MESSAGE);
+			throw new InterruptedException("No simulations to optimize");
+		}
+	}
+	
+	private void populateSimulations() {
+		String current = null;
+		Object selection = simulationSelectionCombo.getSelectedItem();
+		if (selection != null) {
+			current = selection.toString();
+		}
+		
+		List<Named<Simulation>> simulations = new ArrayList<>();
+		for (Simulation s : documentCopy.getSimulations()){
+			final FlightConfiguration config = s.getActiveConfiguration();
+			final String optionName = createSimulationName(s.getName(), config.getName() );
+			simulations.add(new Named<>(s, optionName));
+		}
+		
+		simulationSelectionCombo.setModel(new DefaultComboBoxModel<>(new Vector<>(simulations)));
+		simulationSelectionCombo.setSelectedIndex(0);
+		if (current != null) {
+			for (int i = 0; i < simulations.size(); i++) {
+				if (simulations.get(i).toString().equals(current)) {
+					simulationSelectionCombo.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+	}
+	
+	private void populateParameters() {
+		String current = null;
+		Object selection = optimizationParameterCombo.getSelectedItem();
+		if (selection != null) {
+			current = selection.toString();
+		} else {
+			// Default to apogee altitude event if it is not the first one in the list
+			current = trans.get("MaximumAltitudeParameter.name");
+		}
+		
+		Vector<Named<OptimizableParameter>> parameters = new Vector<>();
+		for (OptimizableParameter p : optimizationParameters) {
+			parameters.add(new Named<>(p, p.getName()));
+		}
+		
+		optimizationParameterCombo.setModel(new DefaultComboBoxModel<>( parameters ));
+		
+		for (int i = 0; i < parameters.size(); i++) {
+			if (parameters.get(i).toString().equals(current)) {
+				optimizationParameterCombo.setSelectedIndex(i);
+				break;
+			}
+		}
+	}
+	
+	private void updateCounters() {
+		bestValueLabel.setText(bestValueUnit.toStringUnit(bestValue));
+		stepCountLabel.setText("" + stepCount);
+		evaluationCountLabel.setText("" + evaluationCount);
+		stepSizeLabel.setText(UnitGroup.UNITS_RELATIVE.toStringUnit(stepSize));
+	}
+	
+	private void loadOptimizationParameters() {
+		optimizationParameters.clear();
+		optimizationParameters.addAll(OptimizationServiceHelper.getOptimizableParameters(documentCopy));
+		
+		if (optimizationParameters.isEmpty()) {
+			throw new BugException("No rocket optimization parameters found, distribution built wrong.");
+		}
+
+		optimizationParameters.sort(Comparator.comparing(OptimizableParameter::getName));
+	}
+	
+	private void loadSimulationModifiers() {
+		simulationModifiers.clear();
+		
+		for (SimulationModifier m : OptimizationServiceHelper.getSimulationModifiers(documentCopy)) {
+			Object key = m.getRelatedObject();
+			List<SimulationModifier> list = simulationModifiers.get(key);
+			if (list == null) {
+				list = new ArrayList<>();
+				simulationModifiers.put(key, list);
+			}
+			list.add(m);
+		}
+		
+		for (Object key : simulationModifiers.keySet()) {
+			List<SimulationModifier> list = simulationModifiers.get(key);
+			list.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+		}
+		
+	}
+	
+	private void addModifiers(List<SimulationModifier> mods) {
+		if (mods == null || mods.size() == 0) {
+			return;
+		}
+		for (SimulationModifier mod : mods) {
+			if (selectedModifiers.contains(mod)) {
+				log.info(Markers.USER_MARKER, "Attempting to add an already existing simulation modifier " + mod);
+				continue;
+			}
+			log.info(Markers.USER_MARKER, "Adding simulation modifier " + mod);
+			selectedModifiers.add(mod);
+		}
+		selectedModifierTableModel.fireTableDataChanged();
+		availableModifierTree.repaint();
+	}
+	
+	private void removeModifiers(List<SimulationModifier> mods) {
+		if (mods == null || mods.size() == 0) {
+			return;
+		}
+		log.info(Markers.USER_MARKER, "Removing simulation modifiers " + mods);
+		for (SimulationModifier mod : mods) {
+			selectedModifiers.remove(mod);
+		}
+		selectedModifierTableModel.fireTableDataChanged();
+		availableModifierTree.repaint();
+	}
+	
+	/**
+	 * Update the enabled status of all components in the dialog.
+	 */
+	private void updateComponents() {
+		boolean state;
+		
+		if (updating) {
+			log.debug("Ignoring updateComponents");
+			return;
+		}
+		
+		log.debug("Running updateComponents()");
+		
+		updating = true;
+		
+		// First enable all components if optimization not running
+		if (!running) {
+			log.debug("Initially enabling all components");
+			for (JComponent c : disableComponents) {
+				c.setEnabled(true);
+			}
+		}
+		
+		// "Add" button
+		List<SimulationModifier> mods = getSelectedAvailableModifiers();
+		state = (mods.size() > 0 && !new HashSet<>(selectedModifiers).containsAll(mods));
+		log.debug("addButton enabled: " + state);
+		addButton.setEnabled(state);
+		
+		// "Remove" button
+		state = (selectedModifierTable.getSelectedRow() >= 0);
+		log.debug("removeButton enabled: " + state);
+		removeButton.setEnabled(state);
+		
+		// "Remove all" button
+		state = (!selectedModifiers.isEmpty());
+		log.debug("removeAllButton enabled: " + state);
+		removeAllButton.setEnabled(state);
+		
+		// Optimization goal
+		String selected = (String) optimizationGoalCombo.getSelectedItem();
+		state = GOAL_SEEK.equals(selected);
+		log.debug("optimizationGoalSpinner & UnitSelector enabled: " + state);
+		optimizationGoalSpinner.setVisible(state);
+		optimizationGoalUnitSelector.setVisible(state);
+		
+		// Minimum/maximum stability options
+		state = minimumStabilitySelected.isSelected();
+		log.debug("minimumStabilitySpinner & UnitSelector enabled: " + state);
+		minimumStabilitySpinner.setEnabled(state);
+		minimumStabilityUnitSelector.setEnabled(state);
+		
+		state = maximumStabilitySelected.isSelected();
+		log.debug("maximumStabilitySpimmer & UnitSelector enabled: " + state);
+		maximumStabilitySpinner.setEnabled(state);
+		maximumStabilityUnitSelector.setEnabled(state);
+		
+		// Plot button (enabled if path exists and dimensionality is 1 or 2)
+		state = (!optimizationPath.isEmpty() && (selectedModifiers.size() == 1 || selectedModifiers.size() == 2));
+		log.debug("plotButton enabled: " + state + " optimizationPath.isEmpty=" + optimizationPath.isEmpty() +
+				" selectedModifiers.size=" + selectedModifiers.size());
+		plotButton.setEnabled(state);
+		
+		// Save button (enabled if path exists)
+		state = (!evaluationHistory.isEmpty());
+		log.debug("saveButton enabled: " + state);
+		saveButton.setEnabled(state);
+		
+		// Last disable all components if optimization is running
+		if (running) {
+			log.debug("Disabling all components because optimization is running");
+			for (JComponent c : disableComponents) {
+				c.setEnabled(false);
+			}
+		}
+		
+		// Update description text
+		List<SimulationModifier> selectedMods = getSelectedModifiers();
+		if (selectedMods.size() == 1) {
+			selectedModifierDescription.setText(selectedMods.get(0).getDescription());
+		} else {
+			selectedModifierDescription.setText("");
+		}
+
+		updating = false;
+	}
+	
+	private void savePath() {
+		
+		if (evaluationHistory.isEmpty()) {
+			throw new BugException("evaluation history is empty");
+		}
+		
+		CsvOptionPanel csvOptions = new CsvOptionPanel(GeneralOptimizationDialog.class,
+				trans.get("export.header"), trans.get("export.header.ttip"));
+		
+		
+		JFileChooser chooser = new SaveFileChooser();
+		chooser.setFileFilter(FileHelper.CSV_FILTER);
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+		chooser.setAccessory(csvOptions);
+
+		// TODO: update this dynamically instead of hard-coded values
+		// The macOS file chooser has an issue where it does not update its size when the accessory is added.
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS && UITheme.isLightTheme(GUIUtil.getUITheme())) {
+			Dimension currentSize = chooser.getPreferredSize();
+			Dimension newSize = new Dimension((int) (1.5 * currentSize.width), (int) (1.3 * currentSize.height));
+			chooser.setPreferredSize(newSize);
+		}
+		
+		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+			return;
+		
+		File file = chooser.getSelectedFile();
+		if (file == null)
+			return;
+		
+		file = FileHelper.forceExtension(file, "csv");
+		if (!FileHelper.confirmWrite(file, this)) {
+			return;
+		}
+		
+		String fieldSeparator = csvOptions.getFieldSeparator();
+		String commentCharacter = csvOptions.getCommentCharacter();
+		boolean includeHeader = csvOptions.getSelectionOption(0);
+		csvOptions.storePreferences();
+		
+		log.info("Saving optimization path to " + file + ", fieldSeparator=" + fieldSeparator +
+				", commentCharacter=" + commentCharacter + ", includeHeader=" + includeHeader);
+		
+		try {
+			Writer writer = new BufferedWriter(new FileWriter(file));
+			
+			// Write header
+			if (includeHeader) {
+				FunctionEvaluationData data = evaluationHistory.values().iterator().next();
+				
+				writer.write(commentCharacter);
+				for (SimulationModifier mod : selectedModifiers) {
+					writer.write(mod.getRelatedObject().toString() + ": " + mod.getName() + " / " +
+							mod.getUnitGroup().getDefaultUnit().getUnit());
+					writer.write(fieldSeparator);
+				}
+				if (minimumStabilitySelected.isSelected() || maximumStabilitySelected.isSelected()) {
+					writer.write(trans.get("export.stability") + " / " + data.getDomainReference().getUnit().getUnit());
+					writer.write(fieldSeparator);
+				}
+				writer.write(getSelectedParameter().getName() + " / " +
+						optimizationGoalUnitSelector.getSelectedUnit().getUnit());
+				
+				writer.write("\n");
+			}
+			
+			for (FunctionEvaluationData data : evaluationHistory.values()) {
+				Value[] state = data.getState();
+
+				for (Value value : state) {
+					writer.write(TextUtil.doubleToString(value.getUnitValue()));
+					writer.write(fieldSeparator);
+				}
+				
+				if (minimumStabilitySelected.isSelected() || maximumStabilitySelected.isSelected()) {
+					writer.write(TextUtil.doubleToString(data.getDomainReference().getUnitValue()));
+					writer.write(fieldSeparator);
+				}
+				
+				if (data.getParameterValue() != null) {
+					writer.write(TextUtil.doubleToString(optimizationGoalUnitSelector.getSelectedUnit().toUnit(data.getParameterValue().getValue())));
+				} else {
+					writer.write("N/A");
+				}
+				writer.write("\n");
+			}
+			
+			writer.close();
+			log.info("File successfully saved");
+			
+		} catch (IOException e) {
+			FileHelper.errorWriting(e, this);
+		}
+		
+	}
+	
+	/**
+	 * Return the currently selected available simulation modifier from the modifier tree.
+	 */
+	private List<SimulationModifier> getSelectedAvailableModifiers() {
+		List<SimulationModifier> result = new ArrayList<>();
+		TreePath[] treepaths = availableModifierTree.getSelectionPaths();
+		if (treepaths != null) {
+			for (TreePath treepath : treepaths) {
+				Object obj = ((DefaultMutableTreeNode) treepath.getLastPathComponent()).getUserObject();
+				if (obj instanceof SimulationModifier) {
+					result.add((SimulationModifier) obj);
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Return the currently selected simulation.
+	 * @return the selected simulation.
+	 */
+	@SuppressWarnings("unchecked")
+	private Simulation getSelectedSimulation() {
+		Object item = simulationSelectionCombo.getSelectedItem();
+
+		/* This is to debug a NPE where the returned selected item is null. */
+		if (item == null) {
+			StringBuilder s = new StringBuilder("Selected simulation is null:");
+			s.append(" item count=").append(simulationSelectionCombo.getItemCount());
+			for (int i = 0; i < simulationSelectionCombo.getItemCount(); i++) {
+				s.append(" [").append(i).append("]=").append(simulationSelectionCombo.getItemAt(i));
+			}
+			throw new BugException(s.toString());
+		}
+
+		return ((Named<Simulation>) item).get();
+	}
+	
+	/**
+	 * Return the currently selected simulation modifiers from the table.
+	 * @return the selected modifier.
+	 */
+	private List<SimulationModifier> getSelectedModifiers() {
+		List<SimulationModifier> result = new ArrayList<>();
+		int[] rows = selectedModifierTable.getSelectedRows();
+		for (int row : rows) {
+			int idx = selectedModifierTable.convertRowIndexToModel(row);
+			result.add(selectedModifiers.get(idx));
+		}
+		return result;
+	}
+	
+	/**
+	 * Return the currently selected optimization parameter.
+	 * @return the selected optimization parameter.
+	 */
+	@SuppressWarnings("unchecked")
+	private OptimizableParameter getSelectedParameter() {
+		return ((Named<OptimizableParameter>) optimizationParameterCombo.getSelectedItem()).get();
+	}
+	
+	private Unit getModifierUnit(int index) {
+		return selectedModifiers.get(index).getUnitGroup().getDefaultUnit();
+	}
+	
+	private String createSimulationName(String simulationName, String motorConfiguration) {
+		String name;
+		boolean hasParenthesis = motorConfiguration.matches("^[\\[\\(].*[\\]\\)]$");
+		name = simulationName + " ";
+		if (!hasParenthesis) {
+			name += "(";
+		}
+		name += motorConfiguration;
+		if (!hasParenthesis) {
+			name += ")";
+		}
+		return name;
+	}
+	
+	/**
+	 * The table model for the parameter selection.
+	 * 
+	 * [Body tube: Length] [min] [max] [unit]
+	 */
+	private class ParameterSelectionTableModel extends AbstractTableModel {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8724716503904686656L;
+		private static final int PARAMETER = 0;
+		private static final int CURRENT = 1;
+		private static final int MIN = 2;
+		private static final int MAX = 3;
+		private static final int COUNT = 4;
+		
+		@Override
+		public int getColumnCount() {
+			return COUNT;
+		}
+		
+		@Override
+		public int getRowCount() {
+			return selectedModifiers.size();
+		}
+		
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case PARAMETER:
+				return trans.get("table.col.parameter");
+			case CURRENT:
+				return trans.get("table.col.current");
+			case MIN:
+				return trans.get("table.col.min");
+			case MAX:
+				return trans.get("table.col.max");
+			default:
+				throw new IndexOutOfBoundsException("column=" + column);
+			}
+			
+		}
+		
+		@Override
+		public Class<?> getColumnClass(int column) {
+			switch (column) {
+			case PARAMETER:
+				return String.class;
+			case CURRENT:
+				return Double.class;
+			case MIN:
+				return Double.class;
+			case MAX:
+				return Double.class;
+			default:
+				throw new IndexOutOfBoundsException("column=" + column);
+			}
+		}
+		
+		@Override
+		public Object getValueAt(int row, int column) {
+			
+			SimulationModifier modifier = selectedModifiers.get(row);
+			
+			switch (column) {
+			case PARAMETER:
+				return modifier.getRelatedObject().toString() + ": " + modifier.getName();
+			case CURRENT:
+				try {
+					return getModifierUnit(row).toUnit(modifier.getCurrentSIValue(getSelectedSimulation()));
+				} catch (OptimizationException e) {
+					throw new BugException("Could not read current SI value from modifier " + modifier, e);
+				}
+			case MIN:
+				return getModifierUnit(row).toUnit(modifier.getMinValue());
+			case MAX:
+				return getModifierUnit(row).toUnit(modifier.getMaxValue());
+			default:
+				throw new IndexOutOfBoundsException("column=" + column);
+			}
+			
+		}
+		
+		@Override
+		public void setValueAt(Object value, int row, int column) {
+			
+			if (row >= selectedModifiers.size()) {
+				throw new BugException("setValueAt with invalid row:  value=" + value + " row=" + row + " column=" + column +
+						" selectedModifiers.size=" + selectedModifiers.size() + " selectedModifiers=" + selectedModifiers +
+						" selectedModifierTable.getRowCount=" + selectedModifierTable.getRowCount());
+			}
+			
+			switch (column) {
+			case PARAMETER:
+				break;
+			
+			case MIN:
+				double min = (Double) value;
+				min = getModifierUnit(row).fromUnit(min);
+				selectedModifiers.get(row).setMinValue(min);
+				break;
+			
+			case CURRENT:
+				break;
+			
+			case MAX:
+				double max = (Double) value;
+				max = getModifierUnit(row).fromUnit(max);
+				selectedModifiers.get(row).setMaxValue(max);
+				break;
+			
+			default:
+				throw new IndexOutOfBoundsException("column=" + column);
+			}
+			this.fireTableRowsUpdated(row, row);
+			
+		}
+		
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			switch (column) {
+			case PARAMETER:
+				return false;
+			case CURRENT:
+				return false;
+			case MIN:
+				return true;
+			case MAX:
+				return true;
+			default:
+				throw new IndexOutOfBoundsException("column=" + column);
+			}
+		}
+		
+	}
+	
+	private class DoubleCellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 448529130732718803L;
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+				boolean hasFocus, int row, int column) {
+			
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			
+			double val = (Double) value;
+			Unit unit = getModifierUnit(row);
+			
+			val = unit.fromUnit(val);
+			this.setText(unit.toStringUnit(val));
+			
+			return this;
+		}
+	}
+	
+	
+//	private static class SimulationModifierComparator implements Comparator<SimulationModifier> {
+//		
+//		@Override
+//		public int compare(SimulationModifier mod1, SimulationModifier mod2) {
+//			Object rel1 = mod1.getRelatedObject();
+//			Object rel2 = mod2.getRelatedObject();
+//			
+//			/*
+//			 * Primarily order by related object:
+//			 * 
+//			 * - RocketComponents first
+//			 * - Two RocketComponents are ordered based on their position in the rocket
+//			 */
+//			if (!rel1.equals(rel2)) {
+//				
+//				if (rel1 instanceof RocketComponent) {
+//					if (rel2 instanceof RocketComponent) {
+//						
+//						RocketComponent root = ((RocketComponent) rel1).getRoot();
+//						for (RocketComponent c : root) {
+//							if (c.equals(rel1)) {
+//								return -1;
+//							}
+//							if (c.equals(rel2)) {
+//								return 1;
+//							}
+//						}
+//						
+//						throw new BugException("Error sorting modifiers, mod1=" + mod1 + " rel1=" + rel1 +
+//								" mod2=" + mod2 + " rel2=" + rel2);
+//						
+//					} else {
+//						return -1;
+//					}
+//				} else {
+//					if (rel2 instanceof RocketComponent) {
+//						return 1;
+//					}
+//				}
+//				
+//			}
+//			
+//			// Secondarily sort by name
+//			return collator.compare(mod1.getName(), mod2.getName());
+//		}
+//	}
+	
+}

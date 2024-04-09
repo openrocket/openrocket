@@ -1,0 +1,11 @@
+Mfg.,Part No.,Desc.,Units,n sides,OD,ID,Shroud Count,Shroud Len,Shroud Material,Chute Thickness,Chute Material,Mass Units,Mass,CG,Cd
+SEMROC Astronautics,CP-12,12 in. Plastic Chute,in,6,12,0,6,12,30 Lb. kevlar,0.001,Polyethylene LDPE,0,0,0,0.75
+SEMROC Astronautics,CP-16,16 in. Plastic Chute,in,8,16,0,8,16,30 Lb. kevlar,0.001,Polyethylene LDPE,0,0,0,0.75
+SEMROC Astronautics,CP-20,20 in. Plastic Chute,in,8,20,0,8,20,30 Lb. kevlar,0.001,Polyethylene LDPE,0,0,0,0.75
+SEMROC Astronautics,CP-24,24 in. Plastic Chute,in,8,24,0,8,24,30 Lb. kevlar,0.001,Polyethylene LDPE,0,0,0,0.75
+SEMROC Astronautics,CP-32,32 in. Plastic Chute,in,8,32,0,8,32,30 Lb. kevlar,0.001,Polyethylene LDPE,0,0,0,0.75
+SEMROC Astronautics,PN-14,14 in. Nylon Chute,in,6,14,0,6,16,1/16 In. braided nylon,0.004,Rip Stop Nylon,0,0,0,0.75
+SEMROC Astronautics,PN-18,18 In. Nylon Chute,in,8,18,0,8,20,1/16 In. braided nylon,0.004,Rip Stop Nylon,0,0,0,0.75
+SEMROC Astronautics,PN-24,24 In. Nylon Chute,in,0,24,0,10,24,1/16 In. braided nylon,0.004,Rip Stop Nylon,0,0,0,0.75
+SEMROC Astronautics,PN-30,30 In. Nylon Chute,in,0,30,0,10,30,1/16 In. braided nylon,0.004,Rip Stop Nylon,0,0,0,0.75
+SEMROC Astronautics,PN-36,36 In. Nylon Chute,in,0,36,0,10,36,1/16 In. braided nylon,0.004,Rip Stop Nylon,0,0,0,0.75

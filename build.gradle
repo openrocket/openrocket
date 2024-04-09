@@ -1,0 +1,113 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
+    id 'checkstyle'
+    id 'org.javamodularity.moduleplugin' version '1.8.14'
+    id 'application'
+}
+
+// Java settings
+java {
+    // Must be disabled in order to use the gradle-modules-plugin
+    modularity.inferModulePath = false
+}
+
+application {
+    mainModule = 'info.openrocket.swing'
+    mainClass = 'info.openrocket.swing.startup.OpenRocket'
+}
+
+// Fetch the build version from the build.properties file
+def buildProperties = new Properties()
+file('core/src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
+group = 'info.openrocket'
+version = buildProperties['build.version']
+
+// Common project configuration
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+        maven { url "https://jogamp.org/deployment/maven/" }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: "org.javamodularity.moduleplugin"
+
+    // Configure the gradle-modules-plugin
+    modularity {
+        standardJavaRelease(17) // For targeting Java 17
+        modularity.patchModule("java.scripting", "script-api-1.0.jar")
+    }
+
+    test {
+        useJUnitPlatform()
+
+        testLogging {
+            events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
+            exceptionFormat = 'full'
+            showStackTraces = true
+            stackTraceFilters = []
+        }
+    }
+
+    // Common dependencies
+    dependencies {
+        implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '4.0.2'
+
+        testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.10.2'
+        testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.2'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
+        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
+    }
+}
+
+//tasks.register('serializeEngines') {
+//    dependsOn ':core:serializeEngines'
+//}
+
+// JAR config
+jar {
+    archiveBaseName.set('OpenRocket')
+
+    manifest {
+        attributes (
+            'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
+            'SplashScreen-Image': 'pix/splashscreen.png',
+
+            // Versioning
+            'Implementation-Version': buildProperties['build.version'],
+
+            // Vendor Details
+            'Implementation-Vendor': 'OpenRocket',
+            'Implementation-Vendor-Id': 'info.openrocket',
+            'Implementation-URL': 'https://openrocket.info/',
+        )
+    }
+}
+
+// Project dependencies
+dependencies {
+    implementation(project(":core"))
+    implementation(project(":swing"))
+}
+
+shadowJar {
+    archiveBaseName.set('OpenRocket')
+    archiveVersion.set(buildProperties['build.version'])
+    archiveClassifier.set('')
+    dependsOn(distTar, distZip)
+}
+
+// Package the application for distribution.
+tasks.register('dist') {
+    group = 'info.openrocket'
+    dependsOn 'shadowJar'
+    doLast {
+        println "Completed the deployable jar in './build/libs"
+    }
+}

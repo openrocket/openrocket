@@ -13,14 +13,6 @@
 /tmp
 /loganalysis
 
-# /android/
-/android/bin
-
-# /android-libraries/achartengine/
-/android-libraries/achartengine/gen
-/android-libraries/achartengine/bin
-/android-libraries/achartengine/lint.xml
-
 # /core/
 /core/loganalysis
 /core/build
@@ -40,7 +32,7 @@
 
 /swing/build
 /swing/tmp
-/swing/resources/datafiles/components/
+/core/src/main/resources/datafiles/components
 
 # IntelliJ
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
@@ -48,40 +40,41 @@
 # https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
 
 # User-specific stuff:
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/shelf
-.idea/dictionaries
-.idea/vcs.xml
-.idea/jsLibraryMappings.xml
-.idea/codeStyles/
-.idea/runConfigurations.xml
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/dictionaries
+**/.idea/vcs.xml
+**/.idea/jsLibraryMappings.xml
+**/.idea/copilot
 
 # Sensitive or high-churn files:
-.idea/dataSources.ids
-.idea/dataSources.xml
-.idea/dataSources.local.xml
-.idea/sqlDataSources.xml
-.idea/dynamic.xml
-.idea/uiDesigner.xml
+**/.idea/dataSources.ids
+**/.idea/dataSources.xml
+**/.idea/dataSources.local.xml
+**/.idea/sqlDataSources.xml
+**/.idea/dynamic.xml
+**/.idea/uiDesigner.xml
+**/.idea/workspace.xml
 
 # Gradle:
-.idea/gradle.xml
-.idea/libraries
+**/.idea/gradle.xml
+**/.idea/libraries
 
 # Mongo Explorer plugin:
-.idea/mongoSettings.xml
+**/.idea/mongoSettings.xml
 
 ## File-based project format:
-*.iws
+**/*.iws
 
 ## Plugin-specific files:
 
 # IntelliJ
-/out/
+**/out/
+**/build/
+**/.gradle
 
 # mpeltonen/sbt-idea plugin
-.idea_modules/
+**/.idea_modules/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
@@ -95,9 +88,3 @@ fabric.properties
 openrocket.log
 
 *.snap
-prime/*
-swing/resources/datafiles/presets/system.ser
-swing/resources/datafiles/presets
-
-# Eclipse - because some of us are stubborn
-.project
