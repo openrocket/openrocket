@@ -14,6 +14,7 @@ import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.Variable;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.logging.Markers;
+import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.util.ArrayUtils;
@@ -66,9 +67,10 @@ public class RangeExpression extends CustomExpression {
 			return new Variable("Unknown");
 		}
 
+		FlightDataBranch dataBranch = status.getFlightDataBranch();
 		// Set the variables in the start and end calculators
-		for (FlightDataType type : status.getFlightData().getTypes()) {
-			double value = status.getFlightData().getLast(type);
+		for (FlightDataType type : dataBranch.getTypes()) {
+			double value = dataBranch.getLast(type);
 			startCalc.setVariable(new Variable(type.getSymbol(), value));
 			endCalc.setVariable(new Variable(type.getSymbol(), value));
 		}
@@ -80,8 +82,8 @@ public class RangeExpression extends CustomExpression {
 		// Otherwise there will be a type conflict when we get the new data.
 		FlightDataType type = FlightDataType.getType(null, getSymbol(), null);
 
-		List<Double> data = status.getFlightData().get(type);
-		List<Double> time = status.getFlightData().get(FlightDataType.TYPE_TIME);
+		List<Double> data = dataBranch.get(type);
+		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
 		LinearInterpolator interp = new LinearInterpolator(time, data);
 
 		// Evaluate the expression to get the start and end of the range

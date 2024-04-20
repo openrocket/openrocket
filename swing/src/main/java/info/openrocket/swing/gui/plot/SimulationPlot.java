@@ -216,13 +216,13 @@ public class SimulationPlot {
 				if (thisBranch.getLength() == 0) {
 					// Add an empty series to keep the series count consistent
 					XYSeries series = new XYSeries(seriesCount++, false, true);
-					series.setDescription(thisBranch.getBranchName() + ": " + name);
+					series.setDescription(thisBranch.getName() + ": " + name);
 					data[axis].addSeries(series);
 					continue;
 				}
 
 				XYSeries series = new XYSeries(seriesCount++, false, true);
-				series.setDescription(thisBranch.getBranchName() + ": " + name);
+				series.setDescription(thisBranch.getName() + ": " + name);
 
 				// Copy all the data from the secondary branch
 				List<Double> plotx = thisBranch.get(domainType);
@@ -848,7 +848,7 @@ public class SimulationPlot {
 						abortString = new StringBuilder(trans.get("simulationplot.abort.title"));
 					}
 					abortString.append("\n")
-							.append(trans.get("simulationplot.abort.stage")).append(": ").append(branch.getBranchName()).append("; ")
+							.append(trans.get("simulationplot.abort.stage")).append(": ").append(branch.getName()).append("; ")
 							.append(trans.get("simulationplot.abort.time")).append(": ").append(abortEvent.getTime()).append(" s; ")
 							.append(trans.get("simulationplot.abort.cause")).append(": ").append(((SimulationAbort) abortEvent.getData()).getMessageDescription());
 				}

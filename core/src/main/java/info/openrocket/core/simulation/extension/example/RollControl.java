@@ -198,7 +198,7 @@ public class RollControl extends AbstractSimulationExtension {
 
 			// Set the control fin cant and store the data
 			finset.setCantAngle(finPosition);
-			status.getFlightData().setValue(FIN_CANT_TYPE, finPosition);
+			status.getFlightDataBranch().setValue(FIN_CANT_TYPE, finPosition);
 		}
 
 		@Override

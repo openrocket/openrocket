@@ -61,8 +61,8 @@ public class DampingMoment extends AbstractSimulationExtension {
 		public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions)
 				throws SimulationException {
 
-			// status.getFlightData().setValue(cdm, aerodynamicPart + propulsivePart);
-			status.getFlightData().setValue(cdm, calculate(status, flightConditions));
+			// status.getFlightDataBranch().setValue(cdm, aerodynamicPart + propulsivePart);
+			status.getFlightDataBranch().setValue(cdm, calculate(status, flightConditions));
 
 			return flightConditions;
 		}
@@ -72,10 +72,10 @@ public class DampingMoment extends AbstractSimulationExtension {
 			// Work out the propulsive/jet damping part of the moment.
 
 			// dm/dt = (thrust - ma)/v
-			FlightDataBranch data = status.getFlightData();
+			FlightDataBranch dataBranch = status.getFlightDataBranch();
 
-			List<Double> mpAll = data.get(FlightDataType.TYPE_MOTOR_MASS);
-			List<Double> time = data.get(FlightDataType.TYPE_TIME);
+			List<Double> mpAll = dataBranch.get(FlightDataType.TYPE_MOTOR_MASS);
+			List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
 			if (mpAll == null || time == null) {
 				return Double.NaN;
 			}
@@ -98,7 +98,7 @@ public class DampingMoment extends AbstractSimulationExtension {
 				mdot = (mpAll.get(len - 1) - mpAll.get(len - 2)) / (time.get(len - 1) - time.get(len - 2));
 			}
 
-			double cg = data.getLast(FlightDataType.TYPE_CG_LOCATION);
+			double cg = dataBranch.getLast(FlightDataType.TYPE_CG_LOCATION);
 
 			// find the maximum distance from nose to nozzle.
 			double nozzleDistance = 0;

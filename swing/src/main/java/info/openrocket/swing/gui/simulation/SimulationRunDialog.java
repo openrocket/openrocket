@@ -430,7 +430,7 @@ public class SimulationRunDialog extends JDialog {
 
 				String message;
 				if (dataBranch != null) {
-					message = trans.get("SimuRunDlg.msg.branchErrorOccurred") + "\"" + dataBranch.getBranchName() + "\"";
+					message = trans.get("SimuRunDlg.msg.branchErrorOccurred") + "\"" + dataBranch.getName() + "\"";
 				} else {
 					message = trans.get("SimuRunDlg.msg.errorOccurred");
 				}
