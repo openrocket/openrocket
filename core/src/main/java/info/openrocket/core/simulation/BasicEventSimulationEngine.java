@@ -83,13 +83,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				branchName = trans.get("BasicEventSimulationEngine.nullBranchName");
 			}
 		FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
-
+		
 		// put a point on it so we can plot if we get an early abort event
 		initialBranch.addPoint();
 		initialBranch.setValue(FlightDataType.TYPE_TIME, 0.0);
 		initialBranch.setValue(FlightDataType.TYPE_ALTITUDE, 0.0);
-		currentStatus.setFlightDataBranch(initialBranch);
 
+		currentStatus.setFlightDataBranch(initialBranch);
 
 		// Sanity checks on design and configuration
 
@@ -121,10 +121,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			}
 			currentStatus = toSimulate.pop();
+			FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
+			flightData.addBranch(dataBranch);
 			log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 
-			FlightDataBranch dataBranch = simulateLoop();
-			flightData.addBranch(dataBranch);
+			simulateLoop();
+			dataBranch.immute();
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
 
 			log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
@@ -149,7 +151,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		return flightData;
 	}
 	
-	private FlightDataBranch simulateLoop() throws SimulationException {
+	private void simulateLoop() throws SimulationException {
 
 		// Initialize the simulation. We'll use the flight stepper unless we're already
 		// on the ground
@@ -282,12 +284,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 		} catch (SimulationException e) {
+			
 			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
 
 			// Add FlightEvent for exception.
 			currentStatus.getFlightDataBranch().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
 
-			flightData.addBranch(currentStatus.getFlightDataBranch());
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
 
 			e.setFlightData(flightData);
@@ -295,8 +297,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			throw e;
 		}
-		
-		return currentStatus.getFlightDataBranch();
 	}	
 	
 	/**

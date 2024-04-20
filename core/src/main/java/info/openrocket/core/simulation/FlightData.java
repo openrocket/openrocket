@@ -126,9 +126,7 @@ public class FlightData {
 	public void addBranch(FlightDataBranch branch) {
 		mutable.check();
 		
-		branch.immute();
 		branches.add(branch);
-		
 	}
 	
 	public int getBranchCount() {
