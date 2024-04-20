@@ -145,6 +145,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 		}
 
+		flightData.calculateInterestingValues();
 		return flightData;
 	}
 	
