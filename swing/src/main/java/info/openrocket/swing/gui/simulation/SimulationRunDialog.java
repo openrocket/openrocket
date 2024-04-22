@@ -36,6 +36,7 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.customexpression.CustomExpressionSimulationListener;
+import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.simulation.exception.SimulationCancelledException;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
@@ -426,14 +427,16 @@ public class SimulationRunDialog extends JDialog {
 			// Analyze the exception type
 			if (t instanceof SimulationException) {
 				String title = simulation.getName();
-				FlightDataBranch dataBranch = ((SimulationException) t).getFlightDataBranch();
-
+				FlightDataBranch dataBranch = null;
+				if (t instanceof SimulationCalculationException) {
+					dataBranch = ((SimulationCalculationException) t).getFlightDataBranch();
+				}
 				String message;
 				if (dataBranch != null) {
-					message = trans.get("SimuRunDlg.msg.branchErrorOccurred") + "\"" + dataBranch.getName() + "\"";
+					message = trans.get("SimuRunDlg.msg.branchErrorOccurred") + " \"" + dataBranch.getName() + "\"";
 				} else {
 					message = trans.get("SimuRunDlg.msg.errorOccurred");
-				}
+					}
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
 								//// A error occurred during the simulation:

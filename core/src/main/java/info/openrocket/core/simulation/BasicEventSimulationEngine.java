@@ -291,8 +291,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
 
-			e.setFlightData(flightData);
-			e.setFlightDataBranch(currentStatus.getFlightDataBranch());
+			//e.setFlightData(flightData);
+			//e.setFlightDataBranch(currentStatus.getFlightDataBranch());
 			
 			throw e;
 		}
@@ -731,7 +731,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					" rocketOrientationQuaternion=" + currentStatus.getRocketOrientationQuaternion() +
 					" rocketRotationVelocity=" + currentStatus.getRocketRotationVelocity() +
 					" effectiveLaunchRodLength=" + currentStatus.getEffectiveLaunchRodLength());
-			throw new SimulationCalculationException(trans.get("BasicEventSimulationEngine.error.NaNResult"));
+			throw new SimulationCalculationException(trans.get("BasicEventSimulationEngine.error.NaNResult"),
+													 currentStatus.getFlightDataBranch());
 		}
 	}
 	
