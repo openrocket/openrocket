@@ -62,7 +62,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	FlightData flightData;
 	
 	@Override
-	public FlightData simulate(SimulationConditions simulationConditions) throws SimulationException {
+	public void simulate(SimulationConditions simulationConditions) throws SimulationException {
 		
 		// Set up flight data
 		flightData = new FlightData();
@@ -148,7 +148,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 
 		flightData.calculateInterestingValues();
-		return flightData;
 	}
 	
 	private void simulateLoop() throws SimulationException {
@@ -740,15 +739,19 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
-			BasicEventSimulationEngine e = new BasicEventSimulationEngine();
+			BasicEventSimulationEngine coastEngine = new BasicEventSimulationEngine();
 		
-			FlightData d = e.simulate(conds);
-			return d;
+			coastEngine.simulate(conds);
+			return coastEngine.getFlightData();
 		} catch (SimulationException e) {
 			throw e;
 		} catch (Exception e) {
 			log.warn("Exception computing coast time: ", e);
 			return null;
 		}
+	}
+
+	public FlightData getFlightData() {
+		return flightData;
 	}
 }

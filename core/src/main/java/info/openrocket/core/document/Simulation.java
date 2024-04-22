@@ -399,13 +399,13 @@ public class Simulation implements ChangeSource, Cloneable {
 	public void simulate(SimulationListener... additionalListeners)
 			throws SimulationException {
 		mutex.lock("simulate");
+		SimulationEngine simulator = null;
+		simulatedData = null;
 		try {
 			
 			if (this.status == Status.EXTERNAL) {
 				throw new SimulationException("Cannot simulate imported simulation.");
 			}
-			
-			SimulationEngine simulator;
 			
 			try {
 				simulator = simulationEngineClass.getConstructor().newInstance();
@@ -430,18 +430,20 @@ public class Simulation implements ChangeSource, Cloneable {
 			long t1, t2;
 			log.debug("Simulation: calling simulator");
 			t1 = System.currentTimeMillis();
-			simulatedData = simulator.simulate(simulationConditions);
+			simulator.simulate(simulationConditions);
 			t2 = System.currentTimeMillis();
 			log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
 
 		} catch (SimulationException e) {
-			simulatedData = e.getFlightData();
 			throw e;
 		} finally {
 			// Set simulated info after simulation
 			simulatedConditions = options.clone();
 			simulatedConfigurationDescription = descriptor.format(this.rocket, getId());
 			simulatedConfigurationID = getActiveConfiguration().getModID();
+			if (simulator != null) {
+				simulatedData = simulator.getFlightData();
+			}
 			
 			status = Status.UPTODATE;
 			fireChangeEvent();
