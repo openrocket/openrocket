@@ -700,9 +700,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 
 		// test -- force an exception if we aren't the sustainer
-		if (currentStatus.getConfiguration().isStageActive(0)) {
-		    throw new SimulationCalculationException("test", currentStatus.getFlightDataBranch());
-		}
+		// if (currentStatus.getConfiguration().isStageActive(0)) {
+		//    throw new SimulationCalculationException("test", currentStatus.getFlightDataBranch());
+		// }
 
 		// Can't calculate stability.  If it's the sustainer we'll abort; if a booster
 		// we'll just transition to tumbling (if it's a booster and under thrust code elsewhere
