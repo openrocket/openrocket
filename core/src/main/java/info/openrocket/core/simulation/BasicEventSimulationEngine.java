@@ -63,91 +63,95 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	@Override
 	public void simulate(SimulationConditions simulationConditions) throws SimulationException {
-		
+
 		// Set up flight data
 		flightData = new FlightData();
-		
-		// Set up rocket configuration
-		this.fcid = simulationConditions.getFlightConfigurationID();
-		FlightConfiguration origConfig = simulationConditions.getRocket().getFlightConfiguration(this.fcid);
-		FlightConfiguration simulationConfig = origConfig.clone(simulationConditions.getRocket().copyWithOriginalID());
-		simulationConfig.copyStages(origConfig); // Clone the stage activation configuration
-
-		currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
-		// main simulation branch. Need to watch for pathological case with no stages defined
-		final AxialStage topStage = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration());
-		final String branchName;
+			
+		try {
+			// Set up rocket configuration
+			this.fcid = simulationConditions.getFlightConfigurationID();
+			FlightConfiguration origConfig = simulationConditions.getRocket().getFlightConfiguration(this.fcid);
+			FlightConfiguration simulationConfig = origConfig.clone(simulationConditions.getRocket().copyWithOriginalID());
+			simulationConfig.copyStages(origConfig); // Clone the stage activation configuration
+			
+			currentStatus = new SimulationStatus(simulationConfig, simulationConditions);
+			// main simulation branch. Need to watch for pathological case with no stages defined
+			final AxialStage topStage = simulationConfig.getRocket().getTopmostStage(currentStatus.getConfiguration());
+			final String branchName;
 			if (topStage != null) {
 				branchName = topStage.getName();
 			} else {
 				branchName = trans.get("BasicEventSimulationEngine.nullBranchName");
 			}
-		FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
-		
-		// put a point on it so we can plot if we get an early abort event
-		initialBranch.addPoint();
-		initialBranch.setValue(FlightDataType.TYPE_TIME, 0.0);
-		initialBranch.setValue(FlightDataType.TYPE_ALTITUDE, 0.0);
-
-		currentStatus.setFlightDataBranch(initialBranch);
-
-		// Sanity checks on design and configuration
-
-		// Problems that keep us from simulating at all
-
-		// No active stages
-		if (topStage == null) {
-			currentStatus.abortSimulation(SimulationAbort.Cause.NO_ACTIVE_STAGES);
-		}
-
-		// No motors in configuration
-		if (!simulationConfig.hasMotors() ) {
-			currentStatus.abortSimulation(SimulationAbort.Cause.NO_MOTORS_DEFINED);
-		}
-
-		// Problems that let us simulate, but result is likely bad
+			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
 			
-		// No recovery device
-		if (!simulationConfig.hasRecoveryDevice()) {
-			currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
-		}
-		
-		currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
-		toSimulate.push(currentStatus);
-		
-		SimulationListenerHelper.fireStartSimulation(currentStatus);
-		do {
-			if (toSimulate.peek() == null) {
-				break;
+			// put a point on it so we can plot if we get an early abort event
+			initialBranch.addPoint();
+			initialBranch.setValue(FlightDataType.TYPE_TIME, 0.0);
+			initialBranch.setValue(FlightDataType.TYPE_ALTITUDE, 0.0);
+			
+			currentStatus.setFlightDataBranch(initialBranch);
+			
+			// Sanity checks on design and configuration
+			
+			// Problems that keep us from simulating at all
+			
+			// No active stages
+			if (topStage == null) {
+				currentStatus.abortSimulation(SimulationAbort.Cause.NO_ACTIVE_STAGES);
 			}
-			currentStatus = toSimulate.pop();
-			FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
-			flightData.addBranch(dataBranch);
-			log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
-
-			simulateLoop();
-			dataBranch.immute();
-			flightData.getWarningSet().addAll(currentStatus.getWarnings());
-
-			log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
-					dataBranch.getName(),
-					currentStatus.getSimulationTime(),
-					dataBranch.getLast(FlightDataType.TYPE_TIME)));
-
-
-			// Did the branch generate any data?
-			if (dataBranch.getLength() == 0) {
-				flightData.getWarningSet().add(Warning.EMPTY_BRANCH, dataBranch.getName());
+			
+			// No motors in configuration
+			if (!simulationConfig.hasMotors() ) {
+				currentStatus.abortSimulation(SimulationAbort.Cause.NO_MOTORS_DEFINED);
 			}
-		} while (!toSimulate.isEmpty());
+			
+			// Problems that let us simulate, but result is likely bad
+			
+			// No recovery device
+			if (!simulationConfig.hasRecoveryDevice()) {
+				currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
+			}
+			
+			currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
+			toSimulate.push(currentStatus);
 		
-		SimulationListenerHelper.fireEndSimulation(currentStatus, null);
-		
-		if (!flightData.getWarningSet().isEmpty()) {
-			log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
+			SimulationListenerHelper.fireStartSimulation(currentStatus);
+			do {
+				if (toSimulate.peek() == null) {
+					break;
+				}
+				currentStatus = toSimulate.pop();
+				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
+				flightData.addBranch(dataBranch);
+				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
+				
+				simulateLoop();
+				dataBranch.immute();
+				flightData.getWarningSet().addAll(currentStatus.getWarnings());
+				
+				log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
+									   dataBranch.getName(),
+									   currentStatus.getSimulationTime(),
+									   dataBranch.getLast(FlightDataType.TYPE_TIME)));
+				
+				
+				// Did the branch generate any data?
+				if (dataBranch.getLength() == 0) {
+					flightData.getWarningSet().add(Warning.EMPTY_BRANCH, dataBranch.getName());
+				}
+			} while (!toSimulate.isEmpty());
+			
+			SimulationListenerHelper.fireEndSimulation(currentStatus, null);
+			
+			if (!flightData.getWarningSet().isEmpty()) {
+				log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
+			}
+		} catch (SimulationException e) {
+			throw e;
+		} finally {
+			flightData.calculateInterestingValues();
 		}
-
-		flightData.calculateInterestingValues();
 	}
 	
 	private void simulateLoop() throws SimulationException {
@@ -290,9 +294,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			currentStatus.getFlightDataBranch().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
 
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
-
-			//e.setFlightData(flightData);
-			//e.setFlightDataBranch(currentStatus.getFlightDataBranch());
 			
 			throw e;
 		}
@@ -697,7 +698,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
 			currentStatus.abortSimulation(SimulationAbort.Cause.ACTIVE_LENGTH_ZERO);
 		}
-		
+
+		// test -- force an exception if we aren't the sustainer
+		if (currentStatus.getConfiguration().isStageActive(0)) {
+		    throw new SimulationCalculationException("test", currentStatus.getFlightDataBranch());
+		}
+
 		// Can't calculate stability.  If it's the sustainer we'll abort; if a booster
 		// we'll just transition to tumbling (if it's a booster and under thrust code elsewhere
 		// will abort).
