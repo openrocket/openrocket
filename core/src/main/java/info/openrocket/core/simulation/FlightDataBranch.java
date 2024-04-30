@@ -31,7 +31,7 @@ import info.openrocket.core.util.Mutable;
 public class FlightDataBranch implements Monitorable {
 	
 	/** The name of this flight data branch. */
-	private final String branchName;
+	private final String name;
 	
 	private final Map<FlightDataType, ArrayList<Double>> values = new LinkedHashMap<>();
 
@@ -64,7 +64,7 @@ public class FlightDataBranch implements Monitorable {
 			throw new IllegalArgumentException("Must specify at least one data type.");
 		}
 		
-		this.branchName = name;
+		this.name = name;
 		
 		for (FlightDataType t : types) {
 			if (values.containsKey(t)) {
@@ -83,12 +83,12 @@ public class FlightDataBranch implements Monitorable {
 	 * when creating a new branch upon stage separation, so the data at separation is present
 	 * in both branches (and if the new branch has an immediate exception, it can be plotted)
 	 *
-	 * @param branchName		the name of the new branch.
+	 * @param name		the name of the new branch.
 	 * @param srcComponent		the component that is the source of the new branch.
 	 * @param parent			the parent branch to copy data from.
 	 */
-	public FlightDataBranch(String branchName, RocketComponent srcComponent, FlightDataBranch parent) {
-		this.branchName = branchName;
+	public FlightDataBranch(String name, RocketComponent srcComponent, FlightDataBranch parent) {
+		this.name = name;
 
 		// Copy all the values from the parent
 		copyValuesFromBranch(parent, srcComponent);
@@ -98,7 +98,7 @@ public class FlightDataBranch implements Monitorable {
 	 * Makes an 'empty' flight data branch which has no data but all built in data types are defined.
 	 */
 	public FlightDataBranch() {
-		branchName = "Empty branch";
+		name = "Empty branch";
 		for (FlightDataType type : FlightDataType.ALL_TYPES) {
 			this.setValue(type, Double.NaN);
 		}
@@ -230,8 +230,8 @@ public class FlightDataBranch implements Monitorable {
 	/**
 	 * Return the branch name.
 	 */
-	public String getBranchName() {
-		return branchName;
+	public String getName() {
+		return name;
 	}
 	
 	/**
@@ -447,7 +447,7 @@ public class FlightDataBranch implements Monitorable {
 
 	public FlightDataBranch clone() {
 		FlightDataType[] types = getTypes();
-		FlightDataBranch clone = new FlightDataBranch(branchName, types);
+		FlightDataBranch clone = new FlightDataBranch(name, types);
 		for (FlightDataType type : values.keySet()) {
 			clone.values.put(type, values.get(type).clone());
 		}

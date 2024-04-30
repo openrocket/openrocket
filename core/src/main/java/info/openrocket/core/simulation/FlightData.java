@@ -126,12 +126,7 @@ public class FlightData {
 	public void addBranch(FlightDataBranch branch) {
 		mutable.check();
 		
-		branch.immute();
 		branches.add(branch);
-		
-		if (branches.size() == 1) {
-			calculateInterestingValues();
-		}
 	}
 	
 	public int getBranchCount() {
@@ -201,7 +196,7 @@ public class FlightData {
 	 * Calculate the max. altitude/velocity/acceleration, time to apogee, flight time
 	 * and ground hit velocity.
 	 */
-	private void calculateInterestingValues() {
+	public void calculateInterestingValues() {
 		if (branches.isEmpty())
 			return;
 		

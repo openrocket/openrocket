@@ -63,122 +63,122 @@ public class CSVSave extends AbstractSimulationExtension {
 		THETA {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_ORIENTATION_THETA);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_ORIENTATION_THETA);
 			}
 		},
 		PHI {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_ORIENTATION_PHI);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_ORIENTATION_PHI);
 			}
 		},
 		AOA {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_AOA);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_AOA);
 			}
 		},
 		ROLLRATE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_ROLL_RATE);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_ROLL_RATE);
 			}
 		},
 		PITCHRATE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_PITCH_RATE);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_PITCH_RATE);
 			}
 		},
 
 		PITCHMOMENT {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_PITCH_MOMENT_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_PITCH_MOMENT_COEFF);
 			}
 		},
 		YAWMOMENT {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_YAW_MOMENT_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_YAW_MOMENT_COEFF);
 			}
 		},
 		ROLLMOMENT {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_ROLL_MOMENT_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_ROLL_MOMENT_COEFF);
 			}
 		},
 		NORMALFORCE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_NORMAL_FORCE_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_NORMAL_FORCE_COEFF);
 			}
 		},
 		SIDEFORCE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_SIDE_FORCE_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_SIDE_FORCE_COEFF);
 			}
 		},
 		AXIALFORCE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_DRAG_FORCE);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_DRAG_FORCE);
 			}
 		},
 		WINDSPEED {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_WIND_VELOCITY);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_WIND_VELOCITY);
 			}
 		},
 		PITCHDAMPING {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF);
 			}
 		},
 		CA {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_AXIAL_DRAG_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_AXIAL_DRAG_COEFF);
 			}
 		},
 		CD {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_DRAG_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_DRAG_COEFF);
 			}
 		},
 		CDpressure {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_PRESSURE_DRAG_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_PRESSURE_DRAG_COEFF);
 			}
 		},
 		CDfriction {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_FRICTION_DRAG_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_FRICTION_DRAG_COEFF);
 			}
 		},
 		CDbase {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_BASE_DRAG_COEFF);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_BASE_DRAG_COEFF);
 			}
 		},
 		MACH {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_MACH_NUMBER);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_MACH_NUMBER);
 			}
 		},
 		RE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_REYNOLDS_NUMBER);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_REYNOLDS_NUMBER);
 			}
 		},
 
@@ -204,7 +204,7 @@ public class CSVSave extends AbstractSimulationExtension {
 		MASS {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getFlightData().getLast(FlightDataType.TYPE_MASS);
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_MASS);
 			}
 		}
 

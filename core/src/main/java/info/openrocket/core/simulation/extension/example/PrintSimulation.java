@@ -37,17 +37,17 @@ public class PrintSimulation extends AbstractSimulationExtension {
 
 		@Override
 		public void postStep(SimulationStatus status) throws SimulationException {
-			FlightDataBranch data = status.getFlightData();
+			FlightDataBranch dataBranch = status.getFlightDataBranch();
 			System.out.printf("*** stepTaken *** time=%.3f position=" + status.getRocketPosition() +
 					" velocity=" + status.getRocketVelocity() + "=%.3f\n", status.getSimulationTime(),
 					status.getRocketVelocity().length());
 			System.out.printf("                  thrust=%.3fN drag==%.3fN mass=%.3fkg " +
 					"accZ=%.3fm/s2 acc=%.3fm/s2\n",
-					data.getLast(FlightDataType.TYPE_THRUST_FORCE),
-					data.getLast(FlightDataType.TYPE_DRAG_FORCE),
-					data.getLast(FlightDataType.TYPE_MASS),
-					data.getLast(FlightDataType.TYPE_ACCELERATION_Z),
-					data.getLast(FlightDataType.TYPE_ACCELERATION_TOTAL));
+					dataBranch.getLast(FlightDataType.TYPE_THRUST_FORCE),
+					dataBranch.getLast(FlightDataType.TYPE_DRAG_FORCE),
+					dataBranch.getLast(FlightDataType.TYPE_MASS),
+					dataBranch.getLast(FlightDataType.TYPE_ACCELERATION_Z),
+					dataBranch.getLast(FlightDataType.TYPE_ACCELERATION_TOTAL));
 		}
 	}
 

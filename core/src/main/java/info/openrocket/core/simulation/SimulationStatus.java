@@ -39,7 +39,7 @@ public class SimulationStatus implements Monitorable {
 
 	private SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
-	private FlightDataBranch flightData;
+	private FlightDataBranch flightDataBranch;
 
 	private double time;
 
@@ -169,8 +169,8 @@ public class SimulationStatus implements Monitorable {
 	public SimulationStatus(SimulationStatus orig) {
 		this.simulationConditions = orig.simulationConditions.clone();
 		this.configuration = orig.configuration.clone();
-		// FlightData is not cloned.
-		this.flightData = orig.flightData;
+		// FlightDataBranch is not cloned.
+		this.flightDataBranch = orig.flightDataBranch;
 		this.time = orig.time;
 		this.position = orig.position;
 		this.acceleration = orig.acceleration;
@@ -247,15 +247,15 @@ public class SimulationStatus implements Monitorable {
 		return configuration;
 	}
 
-	public void setFlightData(FlightDataBranch flightData) {
-		if (this.flightData != null)
-			this.modIDadd += this.flightData.getModID();
+	public void setFlightDataBranch(FlightDataBranch flightDataBranch) {
+		if (this.flightDataBranch != null)
+			this.modIDadd += this.flightDataBranch.getModID();
 		this.modID++;
-		this.flightData = flightData;
+		this.flightDataBranch = flightDataBranch;
 	}
 
-	public FlightDataBranch getFlightData() {
-		return flightData;
+	public FlightDataBranch getFlightDataBranch() {
+		return flightDataBranch;
 	}
 
 	public void setRocketPosition(Coordinate position) {
@@ -481,7 +481,7 @@ public class SimulationStatus implements Monitorable {
 	@Override
 	public int getModID() {
 		return (modID + modIDadd + simulationConditions.getModID() + configuration.getModID() +
-				flightData.getModID() + deployedRecoveryDevices.getModID() +
+				flightDataBranch.getModID() + deployedRecoveryDevices.getModID() +
 				eventQueue.getModID() + warnings.getModID());
 	}
 
