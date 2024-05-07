@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SwingStartup" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="info.openrocket.swing.startup.SwingStartup" />
+    <module name="info.openrocket.swing.main" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="info.openrocket.swing.startup.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
