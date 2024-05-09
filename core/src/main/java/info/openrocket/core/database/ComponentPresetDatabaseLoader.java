@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * Loader that gets all component preset from the database in directory datafiles/preset
+ * Loader that gets all component preset from the database in subdirectories of datafiles/components
  *
  */
 public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
@@ -84,7 +84,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 
 	/**
 	 * loads the default preset components into the database
-	 * uses the file directory from "datafiles/presets"
+	 * uses the file directory from "datafiles/components"
 	 */
 	private void loadPresetComponents() {
 		log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
