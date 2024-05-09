@@ -90,6 +90,9 @@ public class Manufacturer implements Serializable {
 		manufacturers.add(new Manufacturer("Kosdon by AeroTech", "Kosdon by AeroTech", Motor.Type.RELOAD,
 				"K", "KBA", "K-AT", "KOS", "KOSDON", "KOSDON/AT", "KOSDON/AEROTECH"));
 
+		manufacturers.add(new Manufacturer("LOC/Precision", "LOC/Precision", Motor.Type.UNKNOWN,
+										   "LOC"));
+
 		manufacturers.add(new Manufacturer("Loki Research", "Loki Research", Motor.Type.RELOAD,
 				"LOKI", "LR"));
 
