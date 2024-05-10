@@ -88,3 +88,6 @@ fabric.properties
 openrocket.log
 
 *.snap
+
+# Sphinx documentation
+docs/build
