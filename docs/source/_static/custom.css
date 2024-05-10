@@ -1,0 +1,41 @@
+.wy-nav-content {
+    max-width: 65% !important;
+}
+
+.or-figclass {
+    text-align: center;
+}
+
+.clear-both {
+    clear: both;
+}
+
+/* Custom cell classes */
+.or-table > thead > tr > th {
+    text-align: center;
+}
+.or-table > tbody > tr > td:has(.or-table-good) {
+    background-color: #7FFF7F !important;  /* Green */
+}
+
+.or-table > tbody > tr > td:has(.or-table-okay) {
+    background-color: #FFFF7F !important;  /* Yellow */
+}
+
+.or-table > tbody > tr > td:has(.or-table-poor) {
+    background-color: #ffac7f !important;  /* Orange */
+}
+.or-table-cell {
+    color: #2d2d2d;
+    margin: auto !important;
+    text-align: center; !important;
+}
+
+.or-table > tbody > tr > td:has(.or-table-bad) {
+    background-color: #FF7F7F !important;  /* Red */
+}
+
+/* Remove the bottom margin in line blocks in tables */
+.or-table-line-blocks .line-block {
+    margin-bottom: 0 !important;
+}
