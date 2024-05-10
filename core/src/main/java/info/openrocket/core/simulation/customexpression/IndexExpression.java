@@ -10,6 +10,7 @@ import de.congrace.exp4j.Variable;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
+import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.util.LinearInterpolator;
@@ -41,13 +42,14 @@ public class IndexExpression extends CustomExpression {
 		// Otherwise there will be a type conflict when we get the new data.
 		FlightDataType myType = FlightDataType.getType(null, getSymbol(), null);
 
-		List<Double> data = status.getFlightData().get(myType);
-		List<Double> time = status.getFlightData().get(FlightDataType.TYPE_TIME);
+		FlightDataBranch dataBranch = status.getFlightDataBranch();
+		List<Double> data = dataBranch.get(myType);
+		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
 		LinearInterpolator interp = new LinearInterpolator(time, data);
 
 		// Set the variables in the expression to evaluate
-		for (FlightDataType etype : status.getFlightData().getTypes()) {
-			double value = status.getFlightData().getLast(etype);
+		for (FlightDataType etype : dataBranch.getTypes()) {
+			double value = dataBranch.getLast(etype);
 			calc.setVariable(new Variable(etype.getSymbol(), value));
 		}
 

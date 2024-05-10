@@ -483,7 +483,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Build the <databranch> tag
 		StringBuilder sb = new StringBuilder();
 		sb.append("<databranch name=\"");
-		sb.append(TextUtil.escapeXML(branch.getBranchName()));
+		sb.append(TextUtil.escapeXML(branch.getName()));
 		sb.append("\" ");
 		
 		// Kevins version where typekeys are used

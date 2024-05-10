@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.logging.Markers;
+import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.unit.FixedUnitGroup;
@@ -431,8 +432,9 @@ public class CustomExpression implements Cloneable {
 		// Set all the built-in variables. Strictly we surely won't need all of them
 		// Going through and checking them to include only the ones used *might* give a
 		// speedup
-		for (FlightDataType type : status.getFlightData().getTypes()) {
-			double value = status.getFlightData().getLast(type);
+		FlightDataBranch dataBranch = status.getFlightDataBranch();
+		for (FlightDataType type : dataBranch.getTypes()) {
+			double value = dataBranch.getLast(type);
 			calc.setVariable(new Variable(type.getSymbol(), value));
 		}
 

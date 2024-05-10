@@ -26,12 +26,12 @@ public class CustomExpressionSimulationListener extends AbstractSimulationListen
 			return;
 		}
 		// Calculate values for custom expressions
-		FlightDataBranch data = status.getFlightData();
+		FlightDataBranch dataBranch = status.getFlightDataBranch();
 		for (CustomExpression expression : expressions) {
 			double value = expression.evaluateDouble(status);
 			// log.debug("Setting value of custom expression "+expression.toString()+" =
 			// "+value);
-			data.setValue(expression.getType(), value);
+			dataBranch.setValue(expression.getType(), value);
 		}
 	}
 

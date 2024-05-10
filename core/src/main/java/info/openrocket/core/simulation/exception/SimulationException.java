@@ -1,15 +1,9 @@
 package info.openrocket.core.simulation.exception;
 
-import info.openrocket.core.simulation.FlightData;
-import info.openrocket.core.simulation.FlightDataBranch;
-
 public class SimulationException extends Exception {
 
-	private FlightData flightData = null;
-	private FlightDataBranch flightDataBranch = null;
-
 	public SimulationException() {
-
+		super();
 	}
 
 	public SimulationException(String message) {
@@ -23,21 +17,4 @@ public class SimulationException extends Exception {
 	public SimulationException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
-	public void setFlightData(FlightData f) {
-		flightData = f;
-	}
-
-	public FlightData getFlightData() {
-		return flightData;
-	}
-
-	public void setFlightDataBranch(FlightDataBranch f) {
-		flightDataBranch = f;
-	}
-
-	public FlightDataBranch getFlightDataBranch() {
-		return flightDataBranch;
-	}
-
 }

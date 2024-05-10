@@ -28,7 +28,7 @@ public abstract class Util {
 		// on the stage name there is no guarantee they are unique.  In order to address this, we first assume
 		// all the names are unique, then go through them looking for duplicates.
 		for (int i = 0; i < simulation.getSimulatedData().getBranchCount(); i++) {
-			stages.add(simulation.getSimulatedData().getBranch(i).getBranchName());
+			stages.add(simulation.getSimulatedData().getBranch(i).getName());
 		}
 		// check for duplicates:
 		for( int i = 0; i< stages.size(); i++ ) {
