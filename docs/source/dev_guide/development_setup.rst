@@ -1,26 +1,34 @@
-==================================
-Setting Up Development Environment
-==================================
+=============================
+Development Environment Setup
+=============================
+
+This guide will walk you through setting up the development environment to build OpenRocket from the source code.
+
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+
+----
 
 Prerequisites
 -------------
 
-- `JDK 17 <https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html>`_. OpenRocket is developed using Java 17,
+- `JDK 17 <https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html>`__. OpenRocket is developed using Java 17,
   so you will need to install it to build and run OpenRocket. If you have multiple versions of Java installed, ensure that
-  Java 17 is the default version.
+  Java |java_vers| is the default version.
 
-- `Git <https://git-scm.com/downloads>`_. Git is a version control system that is used to manage the source code for OpenRocket.
+- `Git <https://git-scm.com/downloads>`__. Git is a version control system that is used to manage the source code for OpenRocket.
   You will need to install Git to clone the OpenRocket repository.
 
-- `GitHub Account <https://github.com>`_. GitHub is a platform for hosting Git repositories. You will need a GitHub account to
+- `GitHub Account <https://github.com>`__. GitHub is a platform for hosting Git repositories. You will need a GitHub account to
   fork the OpenRocket repository and submit pull requests.
 
-- `Gradle <https://gradle.org/install/>`_. OpenRocket uses Gradle as its build system. You will need to install Gradle to build OpenRocket.
+- `Gradle <https://gradle.org/install/>`__. OpenRocket uses Gradle as its build system. You will need to install Gradle to build OpenRocket.
 
 Obtaining the Source Code
 -------------------------
 
-The source code for OpenRocket is hosted on `GitHub <https://github.com/openrocket/openrocket>`_. However, you cannot change
+The source code for OpenRocket is hosted on `GitHub <https://github.com/openrocket/openrocket>`__. However, you cannot change
 this code directly. This is because the OpenRocket repository is the official repository for the project, and only the project
 maintainers can make changes to it. This is to ensure that the codebase remains stable and consistent.
 Instead, you must fork the OpenRocket repository, which creates a personal copy of the repository that you can make changes to.
@@ -32,14 +40,14 @@ Forking the Repository
 The first step is to fork the OpenRocket repository. As mentioned earlier, the OpenRocket repository is the official repository
 for the project, and only the project maintainers can make changes to it.
 
-Go to the OpenRocket repository on GitHub (`link <https://github.com/openrocket/openrocket>`_) and click the ``Fork`` button:
+Go to the OpenRocket repository on GitHub (`link <https://github.com/openrocket/openrocket>`__) and click the ``Fork`` button:
 
 .. figure:: /img/dev_guide/fork_repo.png
    :align: center
    :width: 90%
    :alt: Forking the official OpenRocket repository.
 
-   Forking the official OpenRocket repository on `github.com/openrocket/openrocket <https://github.com/openrocket/openrocket>`_.
+   Forking the official OpenRocket repository on `github.com/openrocket/openrocket <https://github.com/openrocket/openrocket>`__.
 
 You can leave the default settings and click ``Create fork``. This will create a copy of the OpenRocket repository in your GitHub account:
 
@@ -57,13 +65,27 @@ with your actual username).
 Cloning the Repository
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Now that you have forked the OpenRocket repository, you can clone it to your local machine. To do this, open a terminal and run the following command:
+Now that you have forked the OpenRocket repository, you can clone it to your local machine. To do this, open a terminal
+and run the following command (replace ``[YOUR USERNAME]`` with your GitHub username):
 
 .. code-block:: bash
 
-   git clone
+   # Use the following command if you have set up SSH keys with GitHub
+   git clone git@github.com:[YOUR USERNAME]/openrocket.git
+
+   # Otherwise, clone the repository using HTTPS
+   git clone https://github.com/[YOUR USERNAME]/openrocket.git
 
 This will clone the OpenRocket repository to your local machine. You can now make changes to the code and push them to your forked repository.
+
+One final step you need to do is to initialize the submodules. OpenRocket uses submodules for some of its dependencies.
+To initialize the submodules, run the following commands:
+
+.. code-block:: bash
+
+   git submodule init
+   git submodule update
+
 
 Keeping your Fork in Sync
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,9 +142,9 @@ This section will guide you through setting up the development environment to bu
 IntelliJ IDEA
 ~~~~~~~~~~~~~
 
-`IntelliJ IDEA <https://www.jetbrains.com/idea/>`_ is a popular Java IDE that is used by many developers. It has a lot of
+`IntelliJ IDEA <https://www.jetbrains.com/idea/>`__ is a popular Java IDE that is used by many developers. It has a lot of
 features that make it easier to develop Java applications. We **highly** recommend using IntelliJ IDEA for developing
-OpenRocket. You can download the Community Edition for free from the `JetBrains website <https://www.jetbrains.com/idea/download>`_
+OpenRocket. You can download the Community Edition for free from the `JetBrains website <https://www.jetbrains.com/idea/download>`__
 (scroll down to “IntelliJ IDEA Community Edition” and click the download button).
 
 Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocket project:
@@ -145,29 +167,29 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
 
 4. **Configure JDK for the Project**
    - Go to *File -> Project Structure -> (Project Settings ->) Project*.
-   - Set the Project SDK to JDK 17.
+   - Set the Project SDK to JDK |java_vers|.
 
      .. figure:: /img/dev_guide/project_sdk.png
         :align: center
         :width: 80%
         :alt: Set the project SDK.
 
-        Set the project SDK to JDK 17.
+        Set the project SDK to JDK |java_vers|.
 
-     If JDK 17 is not listed, you can download it from the Project Structure dialog by \
+     If JDK |java_vers| is not listed, you can download it from the Project Structure dialog by \
      going to *(Platform Settings ->) SDKs*, clicking the ``+`` button, and selecting ``Download JDK...``. Then select \
-     version 17 and any vendor (e.g. OpenJDK, Amazon Corretto, ...).
+     version |java_vers| and any vendor (e.g. OpenJDK, Amazon Corretto, ...).
 
-   - Confirm in the Project Structure dialog under *(Project Settings ->) Modules* that the SDK in each module is set to JDK 17. \
+   - Confirm in the Project Structure dialog under *(Project Settings ->) Modules* that the SDK in each module is set to JDK |java_vers|. \
      If not, you can change it by selecting the module and setting the SDK in the right pane. Ensure that the list view on the bottom-right \
-     does not show ``<No SDK>``. If it does, click the *Module SDK* dropdown and click (again) on the JDK 17 SDK.
+     does not show ``<No SDK>``. If it does, click the *Module SDK* dropdown and click (again) on the JDK |java_vers| SDK.
 
    .. figure:: /img/dev_guide/modules_sdk.png
       :align: center
       :width: 80%
       :alt: Set the module SDK.
 
-      Set the module SDK to JDK 17.
+      Set the module SDK to JDK |java_vers|.
 
 5. **Run the Application**
    By default, IntelliJ should be set up with 3 run configurations:
@@ -198,3 +220,24 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
          Running OpenRocket directly from IntelliJ IDEA.
 
 6. **That's it!** You can now start developing OpenRocket. 🚀
+
+Command Line Interface
+~~~~~~~~~~~~~~~~~~~~~~
+
+It is also possible to develop in a text editor and build OpenRocket from the command line using Gradle. Please refer to the :doc:`Building and Releasing </dev_guide/building_releasing>`
+section for all the possible Gradle tasks. To run OpenRocket, you can use:
+
+.. code-block:: bash
+
+   ./gradlew run
+
+Troubleshooting
+---------------
+
+1. **JDK Not Recognized**
+   Ensure that the JDK path is correctly configured in *File -> Project Structure -> SDKs*.
+
+2. **Gradle Sync Issues**
+   - If IntelliJ fails to import Gradle projects correctly, try refreshing the Gradle project by clicking on the "Reload All Gradle Projects" icon in the Gradle tool window.
+   - Ensure the `gradle-wrapper.properties` file points to the correct Gradle version which supports Java |java_vers|.
+

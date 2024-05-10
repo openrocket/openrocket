@@ -12,8 +12,8 @@ What is OpenRocket?
    The OpenRocket Logo
 
 Welcome! OpenRocket is an open-source model rocket simulation software application. It was originally developed by
-Sampo Niskanen in 2009 as part of his master thesis at what was then `Helsinki University of Technology <https://www.aalto.fi/en/aalto-university/history>`_.
-If you want to have a look at his thesis you can download it from `OpenRocket's technical documentation page <http://openrocket.info/documentation.html>`_.
+Sampo Niskanen in 2009 as part of his master thesis at what was then `Helsinki University of Technology <https://www.aalto.fi/en/aalto-university/history>`__.
+If you want to have a look at his thesis you can download it from `OpenRocket's technical documentation page <http://openrocket.info/documentation.html>`__.
 Written entirely in Java, OpenRocket is fully cross-platform. To install the software, please refer to the :doc:`Installation Instructions </setup/installation>`
 
 ..  rst-class::  clear-both
@@ -33,10 +33,10 @@ The program can be roughly divided into two sections:
 * **Flight simulation**: In this phase, you can run one or more simulations of your rocket's flight, choosing from one \
   or more **motor configurations**. Each simulation, calculated using the Runge-Kutta 4 simulator, returns a wide range \
   of data about the rocket's flight. Unfortunately, for the moment, a graphical visualization of the rocket's flight is \
-  not available (`help needed <https://openrocket.info/contribute.html>`_).
+  not available (`help needed <https://openrocket.info/contribute.html>`__).
 
 
-For more information about OpenRocket's features and a few screenshots you can have a look `here <https://openrocket.info/features.html>`_.
+For more information about OpenRocket's features and a few screenshots you can have a look `here <https://openrocket.info/features.html>`__.
 
 How this Documentation is Organized
 -----------------------------------

@@ -9,9 +9,9 @@ General
 
 * Fully cross-platform, written in Java
 
-* `Fully documented simulation methods <https://openrocket.info/documentation.html>`_
+* `Fully documented simulation methods <https://openrocket.info/documentation.html>`__
 
-* Open Source (see our `GitHub repository <https://github.com/openrocket/openrocket>`), source code available under the `GNU GPL <https://www.gnu.org/licenses/gpl-3.0.txt>`_
+* Open Source (see our `GitHub repository <https://github.com/openrocket/openrocket>`), source code available under the `GNU GPL <https://www.gnu.org/licenses/gpl-3.0.txt>`__
 
 * Export OpenRocket design file to other simulation programs (RockSim, RASAero II)
 
@@ -80,7 +80,7 @@ Below are a few major features that are under consideration:
 
 * Better support for transonic and supersonic simulations (:doc:`help needed! </introduction/contribute>`)
 
-* Monte Carlo simulation for uncertainty analysis
+* Monte Carlo simulation for dispersion analysis
 
 * Simulate fin flutter
 
@@ -96,7 +96,7 @@ Below are a few major features that are under consideration:
 
 * Import CD and CP data from other programs (e.g. RASAero)
 
-For a full overview of the planned features, please refer to the `GitHub issue tracker <https://github.com/openrocket/openrocket/issues>`_.
+For a full overview of the planned features, please refer to the `GitHub issue tracker <https://github.com/openrocket/openrocket/issues>`__.
 
 .. raw:: html
 
@@ -105,13 +105,13 @@ For a full overview of the planned features, please refer to the `GitHub issue t
 Comparison to RockSim
 -----------------------
 
-`RockSim <https://www.apogeerockets.com/Rocket_Software/RockSim>`_ is a very powerful, commercial rocket design and simulation program.
+`RockSim <https://www.apogeerockets.com/Rocket_Software/RockSim>`__ is a very powerful, commercial rocket design and simulation program.
 It is more advanced than OpenRocket in some regards, but its price tag of $124 makes it inaccessible to many hobbyists.
 OpenRocket is free, and the source code is available for modification by anyone.
 To help you decide which program is right for you, we have compiled a comparison of the features of OpenRocket 23.09 and RockSim 10 below.
 
 While hosted on the OpenRocket documentation, we have attempted to make this an objective comparison between the functionality
-of the two software products. If you think something is wrong or omitted, please `contact us <https://openrocket.info/contact.html>`_.
+of the two software products. If you think something is wrong or omitted, please `contact us <https://openrocket.info/contact.html>`__.
 
 General
 ~~~~~~~
@@ -167,7 +167,7 @@ General
 
      - .. cssclass:: or-table-cell, or-table-okay
 
-       | `PACE <http://www.paceap.com/>`_
+       | `PACE <http://www.paceap.com/>`__
 
 UI Features
 ~~~~~~~~~~~

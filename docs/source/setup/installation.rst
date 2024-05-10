@@ -14,7 +14,7 @@ OpenRocket is released in two forms: as a *packaged application* and as a *JAR f
 The packaged installers come with everything needed, including the correct version of Java;
 *you will not need to install, update or downgrade Java on your device to run them.*
 
-Download the latest version from `our downloads page <https://openrocket.info/downloads.html?vers=latest>`_.
+Download the latest version from `our downloads page <https://openrocket.info/downloads.html?vers=latest>`__.
 
 .. raw:: html
 
@@ -49,7 +49,7 @@ before installing the updated release. This is *not required*, but is suggested 
 Installing OpenRocket 🚀
 ------------------------
 
-**Download the latest version from `our downloads page** <https://openrocket.info/downloads.html?vers=latest>`_.
+**Download the latest version from `our downloads page** <https://openrocket.info/downloads.html?vers=latest>`__.
 Scroll down to download the correct installer for your platform (Windows, macOS, or Linux).
 
 Each platform has a different installation process. Click on the ``Show <your platform> installation instructions`` header under your
@@ -191,11 +191,11 @@ Troubleshooting
 ---------------
 
 When you have issues with your installation, ensure that you have **read the installation instructions** for your platform.
-When you download the installer from our `downloads page <https://openrocket.info/downloads.html?vers=latest>`_, you can
+When you download the installer from our `downloads page <https://openrocket.info/downloads.html?vers=latest>`__, you can
 click on the ``Show <your platform> installation instructions`` header under your platform's download button to see the
 installation instructions.
 
-If you have further issues, please `contact us <https://openrocket.info/contact.html>`_.
+If you have further issues, please `contact us <https://openrocket.info/contact.html>`__.
 
 Uninstalling
 ------------

@@ -65,3 +65,11 @@ html_context = {
 html_css_files = [
     'custom.css',
 ]
+
+# -- Substitutions -----------------------------------------------------------
+rst_prolog = """
+.. |java_vers| replace:: 17
+.. |br_no_pad| raw:: html
+
+  <div style="line-height: 0; padding: 0; margin: 0"></div>
+"""
