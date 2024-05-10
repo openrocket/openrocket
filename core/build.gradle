@@ -167,6 +167,10 @@ tasks.register('externalComponentsCopy', Copy) {
     from(externalResourceComponents + '/orc') {
         include '**/*'
     }
+    from(externalResourceComponents) {
+        include 'LICENSE'
+        include 'README.md'
+    }
     into externalComponentsPath
     exclude '**/*.bak'
     includeEmptyDirs = false
