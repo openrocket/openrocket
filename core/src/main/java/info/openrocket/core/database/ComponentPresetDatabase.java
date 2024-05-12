@@ -107,7 +107,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 	public List<ComponentPreset> find(String manufacturer, String partNo) {
 		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
 		for (ComponentPreset preset : list) {
-			if (preset.getManufacturer().getSimpleName().equals(manufacturer) && preset.getPartNo().equals(partNo)) {
+			if (preset.getManufacturer().matches(manufacturer) && preset.getPartNo().equals(partNo)) {
 				presets.add(preset);
 			}
 		}

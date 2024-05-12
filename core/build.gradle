@@ -134,7 +134,7 @@ tasks.register('copyReadmeMain', Copy) {
     }
 }
 
-def externalComponentsPath = './src/main/resources/datafiles/components'
+def externalComponentsPath = './src/main/resources/datafiles/components/database'
 def externalResourceComponents = './resources-src/datafiles/openrocket-database'
 
 // Initializes the submodules in Git.
@@ -166,6 +166,10 @@ tasks.register('externalComponentsCopy', Copy) {
     dependsOn 'externalComponentsValidate'
     from(externalResourceComponents + '/orc') {
         include '**/*'
+    }
+    from(externalResourceComponents) {
+        include 'LICENSE'
+        include 'README.md'
     }
     into externalComponentsPath
     exclude '**/*.bak'
