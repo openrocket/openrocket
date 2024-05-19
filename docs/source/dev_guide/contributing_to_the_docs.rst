@@ -4,8 +4,20 @@ Contributing to the Documentation
 
 This documentation is generated using `Sphinx <https://www.sphinx-doc.org/en/master/>`__. If you would like to contribute
 to the documentation, you can do so by editing the reStructuredText files in the ``docs/source`` directory of the OpenRocket repo.
-You can then build the documentation by first `installing Sphinx <https://www.sphinx-doc.org/en/master/usage/installation.html>`__
-and then running the following command from the ``docs`` directory:
+You can then build the documentation by first `installing Sphinx <https://www.sphinx-doc.org/en/master/usage/installation.html>`__:
+
+.. cpde-block:: bash
+
+    pip install sphinx
+
+You'll also need to install some additional sphinx dependencies:
+
+.. cpde-block:: bash
+
+   pip install sphinx-rtd-theme
+   pip install sphinx_new_tab_link
+
+To build the docs, run the following command from the ``docs`` directory:
 
 .. code-block:: bash
 
@@ -13,6 +25,13 @@ and then running the following command from the ``docs`` directory:
 
 This will generate the documentation in the ``docs/build/html`` directory. You can then view the documentation by opening the
 ``index.html`` file in your web browser.
+
+To clean your build (necessary when you change the theme or make other changes to the build configuration), run:
+
+.. code-block:: bash
+
+   make clean
+
 
 If you would like to contribute to the documentation, please submit a pull request with your changes. If you are not sure how to
 do this, please see the ``Obtaining the Source Code`` section in :doc:`Development Environment Setup </dev_guide/development_setup>`.
