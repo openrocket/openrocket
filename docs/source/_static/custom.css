@@ -6,6 +6,11 @@
     text-align: center;
 }
 
+.or-image-border img {
+    border: 1px solid #ccc;
+    padding: 3px;
+}
+
 .clear-both {
     clear: both;
 }

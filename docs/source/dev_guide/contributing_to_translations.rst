@@ -1,6 +1,6 @@
-============================
+****************************
 Contributing to Translations
-============================
+****************************
 
 OpenRocket is translated into multiple languages. If you want to help with translations, this document will guide you through the process.
 
@@ -17,7 +17,7 @@ OpenRocket is translated into multiple languages. If you want to help with trans
    TODO: add current state of translations?
 
 How Translations Work
----------------------
+=====================
 
 OpenRocket's GUI elements do not (*should not*) display hard-coded text. Instead, they use a `Translator <https://github.com/openrocket/openrocket/blob/unstable/core/src/main/java/info/openrocket/core/l10n/Translator.java>`__
 object with a certain key to look up the text to display. The Translator object is responsible for looking up the text
@@ -65,7 +65,7 @@ file and return the translated text. If the key is not found in the language fil
 This way, the GUI can be easily translated into different languages by simply adding a new language file with the translated text.
 
 Modifying an Existing Translation
----------------------------------
+=================================
 
 Open the l10n file for the language you want to modify in the ``core/src/main/resources/l10n`` directory. For example, to modify
 the French translation, open the ``messages_fr.properties`` file, since ``fr`` corresponds to the language code of French.
@@ -75,7 +75,7 @@ When you are done, create a pull request with your changes. The maintainers will
 appropriate.
 
 Creating a New Translation
---------------------------
+==========================
 
 If you want to create a new translation for a language that is not yet supported, you can create a new language file in the
 ``core/src/main/resources/l10n`` directory. The file should be named ``messages_xx.properties``, where ``xx`` is the language code

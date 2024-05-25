@@ -1,4 +1,4 @@
 ***********************
-FAQ and Troubleshooting
+Basic Flight Simulation
 ***********************
 

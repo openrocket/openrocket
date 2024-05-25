@@ -1,6 +1,6 @@
-=============================
+*****************************
 Development Environment Setup
-=============================
+*****************************
 
 This guide will walk you through setting up the development environment to build OpenRocket from the source code.
 
@@ -11,7 +11,7 @@ This guide will walk you through setting up the development environment to build
 ----
 
 Prerequisites
--------------
+=============
 
 - `JDK 17 <https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html>`__. OpenRocket is developed using Java 17,
   so you will need to install it to build and run OpenRocket. If you have multiple versions of Java installed, ensure that
@@ -26,7 +26,7 @@ Prerequisites
 - `Gradle <https://gradle.org/install/>`__. OpenRocket uses Gradle as its build system. You will need to install Gradle to build OpenRocket.
 
 Obtaining the Source Code
--------------------------
+=========================
 
 The source code for OpenRocket is hosted on `GitHub <https://github.com/openrocket/openrocket>`__. However, you cannot change
 this code directly. This is because the OpenRocket repository is the official repository for the project, and only the project
@@ -35,7 +35,7 @@ Instead, you must fork the OpenRocket repository, which creates a personal copy 
 You can then submit a pull request to the OpenRocket repository to propose your changes.
 
 Forking the Repository
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 The first step is to fork the OpenRocket repository. As mentioned earlier, the OpenRocket repository is the official repository
 for the project, and only the project maintainers can make changes to it.
@@ -63,7 +63,7 @@ You can always retrieve your forked repository under your GitHub account, under 
 with your actual username).
 
 Cloning the Repository
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 Now that you have forked the OpenRocket repository, you can clone it to your local machine. To do this, open a terminal
 and run the following command (replace ``[YOUR USERNAME]`` with your GitHub username):
@@ -88,7 +88,7 @@ To initialize the submodules, run the following commands:
 
 
 Keeping your Fork in Sync
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Once you have forked the OpenRocket repository, you will need to keep your fork in sync with the official repository. This is because
 the official repository may have changes that are not in your fork, and you will want to keep your fork up-to-date with the latest changes.
@@ -135,12 +135,12 @@ You can do this by running the following commands:
    git fetch && git pull
 
 Setting Up the Development Environment
---------------------------------------
+======================================
 
 This section will guide you through setting up the development environment to build OpenRocket from the source code.
 
 IntelliJ IDEA
-~~~~~~~~~~~~~
+-------------
 
 `IntelliJ IDEA <https://www.jetbrains.com/idea/>`__ is a popular Java IDE that is used by many developers. It has a lot of
 features that make it easier to develop Java applications. We **highly** recommend using IntelliJ IDEA for developing
@@ -222,7 +222,7 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
 6. **That's it!** You can now start developing OpenRocket. 🚀
 
 Command Line Interface
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 It is also possible to develop in a text editor and build OpenRocket from the command line using Gradle. Please refer to the :doc:`Building and Releasing </dev_guide/building_releasing>`
 section for all the possible Gradle tasks. To run OpenRocket, you can use:
@@ -232,7 +232,7 @@ section for all the possible Gradle tasks. To run OpenRocket, you can use:
    ./gradlew run
 
 Troubleshooting
----------------
+===============
 
 1. **JDK Not Recognized**
    Ensure that the JDK path is correctly configured in *File -> Project Structure -> SDKs*.

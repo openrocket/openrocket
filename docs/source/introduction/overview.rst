@@ -1,8 +1,9 @@
+********
 Overview
-========
+********
 
 What is OpenRocket?
--------------------
+===================
 
 .. figure:: /img/openrocket_logo_256.png
    :figclass: or-figclass
@@ -39,7 +40,7 @@ The program can be roughly divided into two sections:
 For more information about OpenRocket's features and a few screenshots you can have a look `here <https://openrocket.info/features.html>`__.
 
 How this Documentation is Organized
------------------------------------
+===================================
 
 .. warning::
     This documentation is still a work in progress, so **some sections may be incomplete**. If you want to help us improve it, please refer to the :doc:`Contribute section </introduction/contribute>`.

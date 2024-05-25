@@ -1,6 +1,6 @@
-=======================
+***********************
 OpenRocket Architecture
-=======================
+***********************
 
 This section describes the high-level architecture of OpenRocket, the important modules and their interactions, and the technology stack.
 It is intended for developers who want to understand the structure of the code and how it works.
@@ -12,7 +12,7 @@ It is intended for developers who want to understand the structure of the code a
 ----
 
 Introduction
-------------
+============
 
 OpenRocket is a Java application that runs on the desktop. It is built using the Swing GUI toolkit. The choice of Java
 was originally made because it is a platform-independent language, making it possible to run OpenRocket on Windows, macOS, and Linux.
@@ -26,7 +26,7 @@ released under the GNU GPL. This ensures that the code remains open and free for
 sell it as a proprietary product.
 
 Java Platform Module System (JPMS)
---------------------------------------
+==================================
 
 OpenRocket leverages the **Java Platform Module System** (**JPMS**) to enhance modularity, encapsulation, and maintainability.
 JPMS allows OpenRocket to be organized into two distinct modules, the ``core`` module and the ``swing`` module,
@@ -49,45 +49,62 @@ By embracing JPMS, OpenRocket gains several advantages:
 
 
 Core Module
------------
+===========
 
 The ``core`` module contains the core functionality of OpenRocket, such as the rocket simulation engine, the file format
 parsers and writers, and the rocket design classes. This module is intended to be reusable and can be used in other
 applications that need rocket simulation capabilities.
 
 Swing Module
-------------
+============
 
 The ``swing`` module contains the user interface of OpenRocket. It is built using the Swing GUI toolkit and provides a graphical
 interface for designing rockets, running simulations, and viewing the results. This module depends on the core module
 and uses its functionality to perform the simulations and display the results.
 
 Rocket Components
------------------
+=================
 
 
 
 Aerodynamic Calculators and Simulators
---------------------------------------
+======================================
 
 Simulation Listeners
---------------------
+====================
 
 
 Component Database
-------------------
+==================
 
 Thrust Curves
--------------
+=============
+
+OR uses Thrustcurves.org for its thrustcurves/motors.
 
 Scripts
--------
+=======
 
 Plugins
--------
+=======
 
-File Format
------------
+File Format (.ork)
+==================
+
+The OpenRocket native format uses the file extension \*.ork. It is an XML format file combined with any needed graphics
+files, contained in a ZIP archive. The extension \*.ork.gz is also accepted by OpenRocket, though plain .ork is recommended.
+In other to view the contents of the file, you can simply rename the file extension to .zip and extract the contents.
+
+
+The ``version`` attribute of the <openrocket> tag describes the file format version used, while the ``creator``
+attribute *may* describe the software and version used to write the document. The file format version is increased
+every time the format is changed. The minor number is increased when changes are made that are mostly backward-compatible,
+meaning that older software versions should be able to read the design sans the new features. The major number is
+increased when changes are made that render the design problematic or impossible to read for older software. For maximum
+compatibility software should save a file in the oldest file format version that supports all the necessary design features.
+
+For an overview of the changes between file format versions, see the `fileformat.txt <https://github.com/openrocket/openrocket/blob/unstable/fileformat.txt>`_
+file in the root directory of the repository.
 
 
 

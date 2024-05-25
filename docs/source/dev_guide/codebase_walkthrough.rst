@@ -1,17 +1,17 @@
-====================
+********************
 Codebase Walkthrough
-====================
+********************
 
 Important Modules and Packages
-------------------------------
+==============================
 
 Root Directory Structure
-------------------------
+========================
 
 
 
 Module Folder Structure
------------------------
+=======================
 
 OpenRocket uses the Gradle build system, where each modules (``info.openrocket.core`` and ``info.openrocket.swing``) adheres to the following folder structure:
 
@@ -31,7 +31,7 @@ OpenRocket uses the Gradle build system, where each modules (``info.openrocket.c
    ├── src-extra                 # Extra source code, not part of the main application (e.g. template code for an OpenRocket plugin)
 
 Core Module
-~~~~~~~~~~~
+-----------
 
 The following is an overview of the packages in the ``info.openrocket.core`` module (*openrocket/core/src/main/java/info/openrocket/core*):
 
@@ -116,7 +116,7 @@ The following is an overview of the packages in the ``info.openrocket.core`` mod
 
 
 Swing Module
-~~~~~~~~~~~~
+------------
 
 The following is an overview of the packages in the ``info.openrocket.swing`` module (*openrocket/swing/src/main/java/info/openrocket/swing*):
 
@@ -174,3 +174,22 @@ The following is an overview of the packages in the ``info.openrocket.swing`` mo
    │   └── providers
    └── utils
 
+Units used in OpenRocket
+========================
+
+OpenRocket always uses internally pure SI units. For example all rocket dimensions and flight distances are in meters, all
+masses are in kilograms, density is in kg/m³, temperature is in Kelvin etc. This convention is also used when storing the
+design in the OpenRocket format.
+
+The only exception to this rule is angles:
+
+- Angles are represented as radians internally, but in the file format they are converted to degrees. This is to make
+  the file format more human-readable and to avoid rounding errors.
+
+- Latitude and longitude of the launch site are represented in degrees both internally and externally.
+
+When displaying measures to the user, the values are converted into the preferred units of the user. This is performed
+using classes in the package ``info.openrocket.core.unit``. The ``Unit`` class represents a single unit and it includes methods for
+converting between that unit and SI units in addition to creating a string representation with a suitable amount of decimals.
+A ``UnitGroup`` describes a measurable quantity such as temperature and contains the units available for that quantity,
+such as Celsius, Fahrenheit and Kelvin.

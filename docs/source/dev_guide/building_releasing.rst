@@ -1,6 +1,6 @@
-======================
+**********************
 Building and Releasing
-======================
+**********************
 
 This guide explains the build system of OpenRocket (Gradle), and how to release a new version of OpenRocket.
 
@@ -11,7 +11,7 @@ This guide explains the build system of OpenRocket (Gradle), and how to release 
 ----
 
 Gradle
-------
+======
 
 `Gradle <http://www.gradle.org/>`__ is the build system for OpenRocket. It is used to compile the source code, run tests, and create the JAR file.
 Key features of Gradle are:
@@ -37,7 +37,7 @@ The root directory of the OpenRocket repository contains several Gradle files:
 The ``core`` and ``swing`` sub-projects contain their own ``build.gradle`` and ``gradle.properties`` files that define the tasks specific to those sub-projects.
 
 Gradle in IntelliJ
-~~~~~~~~~~~~~~~~~~
+------------------
 
 If you use IntelliJ IDEA, you can access the Gradle tasks within the IDE. First, open the Gradle tool window by going to
 *View -> Tool Windows -> Gradle* or by clicking on the Gradle icon in the right-hand side of the window:
@@ -82,7 +82,7 @@ Here's a breakdown of the Gradle tasks:
    - *Dependencies*: Lists the dependencies of the 'swing' module.
 
 Most Important Gradle Tasks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 Here are some of the most important Gradle tasks for OpenRocket:
 
@@ -138,14 +138,14 @@ following command in the root directory of the OpenRocket repository:
       gradlew.bat run
 
 install4j
----------
+=========
 
 `install4j <http://www.ej-technologies.com/products/install4j/overview.html>`__ is used to create the packaged installers for OpenRocket from the JAR file.
 install4j generously provides a free license for open source projects, including OpenRocket. Currently, only the OpenRocket administrators have access
 to the install4j license.
 
 Code Signing
-~~~~~~~~~~~~
+------------
 
 An important part of generating the installers is `code signing <https://en.wikipedia.org/wiki/Code_signing>`__.
 This is done to ensure that the installer is not tampered with between the time it is created and the time it is run by the user.
@@ -165,7 +165,7 @@ be notarized. Luckily, install4j takes care of this. More information on the cod
 Linux does not require code signing.
 
 Creating the Installers
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 First you need to build the project using Gradle (see above). This will create the JAR file that will be used to create the installers.
 
@@ -184,7 +184,7 @@ If you do not have access to the code signing certificates, you can create the i
 enabling the checkboxes ``Disable code signing`` and ``Disable notarization`` in the ``Build`` tab.
 
 Release Procedure
------------------
+=================
 
 The release procedure for OpenRocket is as follows:
 
@@ -192,7 +192,9 @@ The release procedure for OpenRocket is as follows:
    This includes new features, bug fixes, and other changes that are part of the release. Make sure to include the version number and the release date.
    Take a look at the previous release notes to see how it should be formatted.
 
-2. **Update the version number** in ``openrocket/core/src/main/resources/build.properties`` to the correct version number.
+2. Update the component database and thrustcurves by running the gradle tasks ``subModuleUpdate`` and ``serializeEnginesDist`` respectively.
+
+3. **Update the version number** in ``openrocket/core/src/main/resources/build.properties`` to the correct version number.
 
    For official releases, the version number should use the format ``YY.MM`` (*year.month*). For example, if the software is released in
    September 2023, the version number should be ``23.09``. If there are multiple releases in the same month, add an incremental number
@@ -211,11 +213,11 @@ The release procedure for OpenRocket is as follows:
    For instance, if the beta testing started in September 2023 with version number ``23.09.beta.01``, the final release should have version number ``23.09``,
    even if the final release is in November 2023. This is to ensure consistency in the version numbering and to link the beta release(s) to the final release.
 
-3. **Build the project JAR file** using Gradle (see above).
+4. **Build the project JAR file** using Gradle (see above).
 
-4. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under *Help -> About*.
+5. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under *Help -> About*.
 
-5. **Create the packaged installers** using install4j (see above).
+6. **Create the packaged installers** using install4j (see above).
 
    .. warning::
       Make sure to **enable code signing** for the installers.
@@ -223,9 +225,9 @@ The release procedure for OpenRocket is as follows:
       Make sure that `DS_Store <https://github.com/openrocket/openrocket/blob/unstable/install4j/23.09/macOS_resources/DS_Store>`__ for the macOS
       installer is updated. Instructions can be found `here <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
 
-6. **Test the installers** to ensure that they work correctly.
+7. **Test the installers** to ensure that they work correctly.
 
-7. **Prepare the website** *(for official releases only, not for alpha, beta, or release candidate releases)*.
+8. **Prepare the website** *(for official releases only, not for alpha, beta, or release candidate releases)*.
 
    The `source code for the website <https://github.com/openrocket/openrocket.github.io>`__ needs to be updated to point to the new release.
    Follow these steps:
@@ -242,7 +244,7 @@ The release procedure for OpenRocket is as follows:
       on the website. First update the ``development`` branch and test the changes on the website. In a later step, the
       changes will be merged to the ``master`` branch.
 
-8. **Publish the release on GitHub**.
+9. **Publish the release on GitHub**.
 
    Go to the `releases page <https://github.com/openrocket/openrocket/releases>`__. Click *Draft a new release*.
    Select *Choose a tag* and enter a new tag name, following the format ``release-<version number>``, e.g. ``release-23.09``.
@@ -259,13 +261,13 @@ The release procedure for OpenRocket is as follows:
 
    Click *Publish release*.
 
-9. **Push the changes to the website**
+10. **Push the changes to the website**
 
-   First, build the ``development`` branch locally to verify that the changes that you made in step 7 are correct.
+   First, build the ``development`` branch locally to verify that the changes that you made in step 8 are correct.
    If everything is working (test the download links, the release notes, and the What's new page), create a new PR
    that merges the changes from the ``development`` branch to the ``master`` branch.
 
-10. **Send out the release announcement**.
+11. **Send out the release announcement**.
 
     Send out the release announcement to the OpenRocket mailing list, the TRF forum, and the OpenRocket social media channels
     (Discord, Facebook...).
@@ -273,13 +275,13 @@ The release procedure for OpenRocket is as follows:
     The announcement should include the new features, bug fixes, and other changes that are part of the new release.
     Make sure to include the download links to the new release. Here is an `example announcement <https://www.rocketryforum.com/threads/announcement-openrocket-23-09-is-now-available-for-download.183186/>`__.
 
-11. **Merge the** ``unstable``` **branch to the** ``master``` **branch**.
+12. **Merge the** ``unstable``` **branch to the** ``master``` **branch**.
 
     After the release is published, merge the changes from the `unstable <https://github.com/openrocket/openrocket>`__ branch
     to the `master <https://github.com/openrocket/openrocket/tree/master>`__ branch.
 
-12. **Upload the new release to** `SourceForge <https://sourceforge.net/projects/openrocket/>`__.
+13. **Upload the new release to** `SourceForge <https://sourceforge.net/projects/openrocket/>`__.
 
    The downloads page on SourceForge is still very actively used, so be sure to upload the new release there as well.
 
-13. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.
+14. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.

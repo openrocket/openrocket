@@ -1,6 +1,6 @@
-======================
+**********************
 Development Guidelines
-======================
+**********************
 
 In order to maintain a high level of code quality and improve the efficiency for other developers to verify your code,
 we have established the following guidelines for contributing to the project.
@@ -12,7 +12,7 @@ we have established the following guidelines for contributing to the project.
 ----
 
 Coding Standards
-----------------
+================
 
 Where possible, write unit tests for your code (see :doc:`Testing and Debugging </dev_guide/testing_and_debugging>`).
 This will help to ensure that your code is correct, and will help to prevent regressions in the future.
@@ -30,4 +30,4 @@ issue #123, then format your commit message like this: "[#123] Fix bug". This ma
 associated with which issues.
 
 Pull Request Process
---------------------
+====================

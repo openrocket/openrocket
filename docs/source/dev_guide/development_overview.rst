@@ -1,6 +1,6 @@
-====================
+********************
 Development Overview
-====================
+********************
 
 Welcome to the OpenRocket Development Guide! This documentation is designed for developers interested in contributing to OpenRocket.
 
@@ -9,7 +9,7 @@ use the links below to navigate to different sections of this development guide.
 of OpenRocket, such as the aerodynamic calculations, refer to the `Technical documentation <https://openrocket.info/documentation.html>`__.
 
 Code structure
---------------
+==============
 
 OpenRocket is a Java application organized using the Java Platform Module System (JPMS) and built with `Gradle <https://gradle.org/>`__.
 The code is organized in the following two packages:
@@ -22,7 +22,8 @@ The code is organized in the following two packages:
   This package contains the classes that create the user interface. OpenRocket uses the Java Swing library for the GUI.
 
 Further Reading
----------------
+===============
+
 Explore the following sections to learn more about OpenRocket's development:
 
 - :doc:`Development Environment Setup </dev_guide/development_setup>`

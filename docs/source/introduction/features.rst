@@ -1,11 +1,12 @@
+********
 Features
-========
+********
 
 Current features (as of OpenRocket 23.09):
-------------------------------------------
+==========================================
 
 General
-~~~~~~~
+-------
 
 * Fully cross-platform, written in Java
 
@@ -20,7 +21,7 @@ General
 * Extensible with custom simulation listeners, expressions, and plugins
 
 User Interface
-~~~~~~~~~~~~~~
+--------------
 
 * **Intuitive user interface**
 
@@ -31,7 +32,7 @@ User Interface
 * Zoomable schematic view of rocket from the side or rear, with rotation around the center axis
 
 Design
-~~~~~~
+------
 
 * A multitude of available components to choose from
 
@@ -48,7 +49,7 @@ Design
 * Ability to **override mass, CG and CD** of components or stages separately
 
 Simulation and Analysis
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 * Full **six degree of freedom** simulation
 
@@ -71,7 +72,7 @@ Simulation and Analysis
    <hr />
 
 Planned Future Features
------------------------
+=======================
 
 .. note::
    OpenRocket is under constant work in the free time of the developers. If you want to **help improve it**, please refer to the :doc:`Contribute page </introduction/contribute>`.
@@ -103,7 +104,7 @@ For a full overview of the planned features, please refer to the `GitHub issue t
    <hr />
 
 Comparison to RockSim
------------------------
+=====================
 
 `RockSim <https://www.apogeerockets.com/Rocket_Software/RockSim>`__ is a very powerful, commercial rocket design and simulation program.
 It is more advanced than OpenRocket in some regards, but its price tag of $124 makes it inaccessible to many hobbyists.
@@ -114,7 +115,7 @@ While hosted on the OpenRocket documentation, we have attempted to make this an 
 of the two software products. If you think something is wrong or omitted, please `contact us <https://openrocket.info/contact.html>`__.
 
 General
-~~~~~~~
+-------
 
 .. list-table:: OpenRocket vs. RockSim: General
    :widths: 20 20 20
@@ -170,7 +171,7 @@ General
        | `PACE <http://www.paceap.com/>`__
 
 UI Features
-~~~~~~~~~~~
+-----------
 
 .. list-table:: OpenRocket vs. RockSim: UI Features
    :widths: 20 20 20
@@ -244,7 +245,7 @@ UI Features
        | No
 
 Design Features
-~~~~~~~~~~~~~~~
+---------------
 
 .. list-table:: OpenRocket vs. RockSim: Design Features
    :widths: 20 20 20
@@ -363,7 +364,7 @@ Design Features
        | Yes, 3 stages
 
 Simulation Features
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 .. list-table:: OpenRocket vs. RockSim: Simulation Features
    :widths: 20 20 20
@@ -437,7 +438,7 @@ Simulation Features
        | No
 
 Optimization and Analysis
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 .. list-table:: OpenRocket vs. RockSim: Optimization and Analysis
    :widths: 20 20 20
@@ -493,7 +494,7 @@ Optimization and Analysis
        | No
 
 Printing
-~~~~~~~~
+--------
 
 .. list-table:: OpenRocket vs. RockSim: Printing
    :widths: 20 20 20

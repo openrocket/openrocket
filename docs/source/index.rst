@@ -1,8 +1,3 @@
-.. OpenRocket documentation master file, created by
-   sphinx-quickstart on Tue Jan  2 22:06:21 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to OpenRocket's documentation!
 ======================================
 
@@ -33,6 +28,7 @@ Welcome to OpenRocket's documentation!
    :caption: User Guide
 
    user_guide/basic_rocket_design
+   user_guide/basic_flight_simulation
    user_guide/thrust_curves
 
 .. toctree::

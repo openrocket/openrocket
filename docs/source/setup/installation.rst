@@ -1,5 +1,6 @@
+*************************
 Installation Instructions
-=========================
+*************************
 
 .. contents:: Table of Contents
    :depth: 1
@@ -7,7 +8,7 @@ Installation Instructions
    :backlinks: none
 
 Introduction
-------------
+============
 
 OpenRocket is released in two forms: as a *packaged application* and as a *JAR file*.
 **The easiest way to get OpenRocket up and running is to download and install one of the packaged installers.**
@@ -21,12 +22,12 @@ Download the latest version from `our downloads page <https://openrocket.info/do
    <hr>
 
 Pre-Installation Procedures
----------------------------
+===========================
 
 Some users may experience problems with the OpenRocket installation if they don't follow the pre-installation procedures below.
 
 Close All Instances of OpenRocket
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 If you have OpenRocket running, close it before installing a new version. By default, new OpenRocket releases
 install to the same location on your device; these releases even share preferences. Because of this, if OpenRocket is
@@ -36,7 +37,7 @@ OpenRocket to function correctly.
 Before installing an update, you *MUST* close all open instances of OpenRocket.
 
 (Optional) Uninstall Prior OpenRocket Releases
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------
 
 As described above, by default, new releases of OpenRocket install to the same location on your device.
 Although **not expressly required**, it is suggested that all previously installed OpenRocket releases be uninstalled
@@ -47,7 +48,7 @@ before installing the updated release. This is *not required*, but is suggested 
    <hr>
 
 Installing OpenRocket 🚀
-------------------------
+========================
 
 **Download the latest version from `our downloads page** <https://openrocket.info/downloads.html?vers=latest>`__.
 Scroll down to download the correct installer for your platform (Windows, macOS, or Linux).
@@ -60,13 +61,13 @@ platform's download button to see the installation instructions.
    <hr>
 
 After-Installation Checks
--------------------------
+=========================
 
 After installing OpenRocket, you need to verify that the installation was successful and potentially modify some settings
 to ensure that OpenRocket functions correctly.
 
 Verify the Installed Release Number
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 First, verify that you actually installed the current release of OpenRocket. You can see this in the splash screen, which
 appears when you start OpenRocket. The splash screen will show the release number on the right:
@@ -87,14 +88,14 @@ and select ``About``. This will open a dialog box that shows the release number:
 
 .. figure:: /img/introduction/about_dialog.png
    :alt: OpenRocket About Dialog
-   :figclass: or-figclass
+   :figclass: or-figclass, or-image-border
    :figwidth: 40 %
    :align: center
 
    The OpenRocket About Dialog (``Help`` → ``About``) shows the release number.
 
 Check the Settings
-~~~~~~~~~~~~~~~~~~
+------------------
 
 For most users, OpenRocket's default settings will work fine. However, some users may need to change some settings.
 
@@ -107,7 +108,7 @@ what the problem looks like:
 
 .. figure:: /img/introduction/off_screen_rendering_wrong.png
    :alt: Wrong 3D View of Three-stage Rocket
-   :figclass: or-figclass
+   :figclass: or-figclass, or-image-border
    :figwidth: 75 %
    :align: center
 
@@ -120,7 +121,7 @@ of the page change the ``Use off-screen rendering`` setting:
 
 .. figure:: /img/introduction/off_screen_rendering_setting.png
    :alt: Off-screen Rendering Setting
-   :figclass: or-figclass
+   :figclass: or-figclass, or-image-border
    :figwidth: 50 %
    :align: center
 
@@ -130,7 +131,7 @@ Your 3D view should now look like this:
 
 .. figure:: /img/introduction/off_screen_rendering_right.png
    :alt: Correct 3D View of Three-stage Rocket
-   :figclass: or-figclass
+   :figclass: or-figclass, or-image-border
    :figwidth: 75 %
    :align: center
 
@@ -178,7 +179,7 @@ and change the ``User-defined thrust curves`` setting:
 
 .. figure:: /img/introduction/thrust_curves_setting.png
    :alt: Thrust Curves Setting
-   :figclass: or-figclass
+   :figclass: or-figclass, or-image-border
    :figwidth: 50 %
    :align: center
 
@@ -188,7 +189,7 @@ You can also add multiple thrust curve folders. To do this, click on the ``Add``
 You can also manually enter a new folder path. This path must be separated from other paths by a semicolon (``;``).
 
 Troubleshooting
----------------
+===============
 
 When you have issues with your installation, ensure that you have **read the installation instructions** for your platform.
 When you download the installer from our `downloads page <https://openrocket.info/downloads.html?vers=latest>`__, you can
@@ -198,6 +199,6 @@ installation instructions.
 If you have further issues, please `contact us <https://openrocket.info/contact.html>`__.
 
 Uninstalling
-------------
+============
 
 ``TODO``
