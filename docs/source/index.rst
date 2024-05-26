@@ -29,6 +29,7 @@ Welcome to OpenRocket's documentation!
 
    user_guide/basic_rocket_design
    user_guide/basic_flight_simulation
+   user_guide/advanced_rocket_design
    user_guide/thrust_curves
 
 .. toctree::

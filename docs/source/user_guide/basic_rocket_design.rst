@@ -603,5 +603,3 @@ And that’s all there is to it. You have just completed building your first roc
 use what you know to create more rockets, or you can proceed to the next section of the User Guide:
 :doc:`Basic Flight Simulation </user_guide/basic_flight_simulation>`. Have fun!
 
-
-
