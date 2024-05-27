@@ -40,9 +40,9 @@ Forking the Repository
 The first step is to fork the OpenRocket repository. As mentioned earlier, the OpenRocket repository is the official repository
 for the project, and only the project maintainers can make changes to it.
 
-Go to the OpenRocket repository on GitHub (`link <https://github.com/openrocket/openrocket>`__) and click the ``Fork`` button:
+Go to the OpenRocket repository on GitHub (`link <https://github.com/openrocket/openrocket>`__) and click the :guilabel:`Fork` button:
 
-.. figure:: /img/dev_guide/fork_repo.png
+.. figure:: /img/dev_guide/development_setup/fork_repo.png
    :align: center
    :width: 90%
    :alt: Forking the official OpenRocket repository.
@@ -51,7 +51,7 @@ Go to the OpenRocket repository on GitHub (`link <https://github.com/openrocket/
 
 You can leave the default settings and click ``Create fork``. This will create a copy of the OpenRocket repository in your GitHub account:
 
-.. figure:: /img/dev_guide/forked_repo.png
+.. figure:: /img/dev_guide/development_setup/forked_repo.png
    :align: center
    :width: 80%
    :alt: Your forked repo.
@@ -94,7 +94,7 @@ Once you have forked the OpenRocket repository, you will need to keep your fork 
 the official repository may have changes that are not in your fork, and you will want to keep your fork up-to-date with the latest changes.
 For example, in the following image you can see that your fork is 10 commits behind the official repository:
 
-.. figure:: /img/dev_guide/forked_repo_outdated.png
+.. figure:: /img/dev_guide/development_setup/forked_repo_outdated.png
    :align: center
    :width: 80%
    :alt: An outdated forked repo.
@@ -102,9 +102,9 @@ For example, in the following image you can see that your fork is 10 commits beh
    An outdated forked repo.
 
 Luckily, GitHub makes it easy to keep your fork in sync with the official repository. You can do this by clicking the
-``Sync fork`` button on your forked repository page and then clicking the ``Update branch`` button:
+``Sync fork`` button on your forked repository page and then clicking the :guilabel:`Update branch` button:
 
-.. figure:: /img/dev_guide/sync_fork.png
+.. figure:: /img/dev_guide/development_setup/sync_fork.png
    :align: center
    :width: 80%
    :alt: Syncing your forked repo on GitHub.
@@ -113,7 +113,7 @@ Luckily, GitHub makes it easy to keep your fork in sync with the official reposi
 
 If all went well, your fork should now be up-to-date with the official repository:
 
-.. figure:: /img/dev_guide/forked_repo_up_to_date.png
+.. figure:: /img/dev_guide/development_setup/forked_repo_up_to_date.png
    :align: center
    :width: 80%
    :alt: An up-to-date forked repo.
@@ -150,7 +150,7 @@ OpenRocket. You can download the Community Edition for free from the `JetBrains 
 Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocket project:
 
 1. **Open IntelliJ IDEA**
-   Start IntelliJ IDEA and select "Open" (Go to *File -> Open*).
+   Start IntelliJ IDEA and select "Open" (Go to :menuselection:`File --> Open`).
 
 2. **Select the OpenRocket project**
    Navigate to the directory where you cloned OpenRocket and select the project.
@@ -158,7 +158,7 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
 3. **Import Project as Gradle Project**
    IntelliJ should automatically detect that this is a Gradle project. If prompted, select ``Load Gradle Project``.
 
-   .. figure:: /img/dev_guide/load_gradle_project.png
+   .. figure:: /img/dev_guide/development_setup/load_gradle_project.png
       :align: center
       :width: 80%
       :alt: Load Gradle Project.
@@ -166,10 +166,10 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
       IntelliJ IDEA will automatically detect that this is a Gradle project and prompt you to load it. Click ``Load Gradle Project``.
 
 4. **Configure JDK for the Project**
-   - Go to *File -> Project Structure -> (Project Settings ->) Project*.
+   - Go to :menuselection:`File --> Project Structure --> (Project Settings -->) Project`.
    - Set the Project SDK to JDK |java_vers|.
 
-     .. figure:: /img/dev_guide/project_sdk.png
+     .. figure:: /img/dev_guide/development_setup/project_sdk.png
         :align: center
         :width: 80%
         :alt: Set the project SDK.
@@ -177,14 +177,14 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
         Set the project SDK to JDK |java_vers|.
 
      If JDK |java_vers| is not listed, you can download it from the Project Structure dialog by \
-     going to *(Platform Settings ->) SDKs*, clicking the ``+`` button, and selecting ``Download JDK...``. Then select \
+     going to :menuselection:`(Platform Settings -->) SDKs`, clicking the :guilabel:`+` button, and selecting ``Download JDK...``. Then select \
      version |java_vers| and any vendor (e.g. OpenJDK, Amazon Corretto, ...).
 
-   - Confirm in the Project Structure dialog under *(Project Settings ->) Modules* that the SDK in each module is set to JDK |java_vers|. \
+   - Confirm in the Project Structure dialog under :menuselection:`(Project Settings -->) Modules` that the SDK in each module is set to JDK |java_vers|. \
      If not, you can change it by selecting the module and setting the SDK in the right pane. Ensure that the list view on the bottom-right \
      does not show ``<No SDK>``. If it does, click the *Module SDK* dropdown and click (again) on the JDK |java_vers| SDK.
 
-   .. figure:: /img/dev_guide/modules_sdk.png
+   .. figure:: /img/dev_guide/development_setup/modules_sdk.png
       :align: center
       :width: 80%
       :alt: Set the module SDK.
@@ -201,7 +201,7 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
 
    - ``openrocket-test``: Only run the unit tests.
 
-   .. figure:: /img/dev_guide/run_configurations.png
+   .. figure:: /img/dev_guide/development_setup/run_configurations.png
       :align: center
       :width: 80%
       :alt: Default installed run configurations.
@@ -212,7 +212,7 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
    This will instantiate the OpenRocket application from within IntelliJ IDEA. If you want to stop the running application,
    click the red square button on the top-right in IntelliJ.
 
-   .. figure:: /img/dev_guide/swingstartup.png
+   .. figure:: /img/dev_guide/development_setup/swingstartup.png
          :align: center
          :width: 80%
          :alt: Running OpenRocket from IntelliJ IDEA.
@@ -235,7 +235,7 @@ Troubleshooting
 ===============
 
 1. **JDK Not Recognized**
-   Ensure that the JDK path is correctly configured in *File -> Project Structure -> SDKs*.
+   Ensure that the JDK path is correctly configured in :menuselection:`File --> Project Structure --> SDKs`.
 
 2. **Gradle Sync Issues**
    - If IntelliJ fails to import Gradle projects correctly, try refreshing the Gradle project by clicking on the "Reload All Gradle Projects" icon in the Gradle tool window.

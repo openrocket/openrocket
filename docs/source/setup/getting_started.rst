@@ -256,15 +256,15 @@ The Basics of Using OpenRocket
 Rocket Configuration
 --------------------
 
-To build your first rocket, start OpenRocket, then double click the ''Rocket'' label at the top of the component tree to
-open the ''Rocket configuration'' pop-up window. OpenRocket allows you to name your design, identify the designer, make
+To build your first rocket, start OpenRocket, then double click the **Rocket** label at the top of the component tree to
+open the **Rocket configuration** pop-up window. OpenRocket allows you to name your design, identify the designer, make
 comments, and create a revision history.
 
-The default design name is ''Rocket'', but that name can be changed, and a design name change also changes the name of
+The default design name is **Rocket**, but that name can be changed, and a design name change also changes the name of
 the rocket shown on the component tree. So, rename your design and enter the designer, comments, and revision history
 information you desire.
 
-Double-Click ''Rocket''
+Double-Click **Rocket**
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: /img/setup/getting_started/04.01.02.Rocket_Configuration.png
@@ -272,7 +272,7 @@ Double-Click ''Rocket''
    :align: center
    :figclass: or-image-border
 
-Rename ''Rocket''
+Rename **Rocket**
 ^^^^^^^^^^^^^^^^^
 
 .. figure:: /img/setup/getting_started/04.01.05.Rocket_Configuration.Rename.png
@@ -289,10 +289,10 @@ together a rocket design is from top to bottom, from nose to tail. So, we'll add
 Selecting a Nose Cone
 ^^^^^^^^^^^^^^^^^^^^^
 
-With the ''Stage'' selected, click on the ''Nose Cone'' button and the ''Nose Cone configuration'' window will pop up.
-Then, select ''From database...'' to open the Choose component present window. From here, you can select from the
-pre-loaded parts database. Select the nose cone shown below, and click the ''Close'' button, then close the
-''Nose Cone configuration'' window.
+With the ``Stage`` selected, click on the :guilabel:`Nose Cone` button and the **Nose Cone configuration** window will pop up.
+Then, select :guilabel:`From database...` to open the Choose component present window. From here, you can select from the
+pre-loaded parts database. Select the nose cone shown below, and click the :guilabel:`Close` button, then close the
+**Nose Cone configuration** window.
 
 .. figure:: /img/setup/getting_started/11.01.03.Rocket_Build.Nose_Cone.png
    :width: 95%
@@ -315,10 +315,10 @@ Adding a Payload Bay
 ^^^^^^^^^^^^^^^^^^^^
 
 So that a few "appearance" can be demonstrated later, a payload bay will be added after the nose cone. To do this,
-with either the ''Stage''or ''Nose Cone'' selected, click on the ''Body Tube'' button and the ''Body Tube configuration''
-window will pop up. Then, select ''From database...'' to open the Choose component present window. From here, you can
-select from the pre-loaded parts database. Select the body tube shown below, and click the ''Close'' button, then close
-the ''Body Tube configuration'' window.
+with either the **Stage** or **Nose Cone** selected, click on the :guilabel:`Body Tube` button and the **Body Tube configuration**
+window will pop up. Then, select :guilabel:`From database...` to open the Choose component present window. From here, you can
+select from the pre-loaded parts database. Select the body tube shown below, and click the :guilabel:`Close` button, then close
+the **Body Tube configuration** window.
 
 .. figure:: /img/setup/getting_started/11.02.01.Rocket_Build.Payload_Bay.png
    :width: 95%
@@ -341,10 +341,10 @@ Adding a Transition
 Transitions are most often used to connect body tubes with different diameters. But, a transition can also be used to
 connect two body tubes of the same diameter, as will be done here.
 
-To do this, with either the ''Stage'' or ''Payload Bay'' selected, click on the ''Transition'' button and the
-''Transition configuration'' window will pop up. The default ''Transition Configuration'' tab is the ''General'' tab.
-On this tab, change your entries in the circled areas below to match the entries shown. Then, click the ''Shoulder'' tab,
-and change your entries in the circled areas below to match the entries shown. Then, click the ''Close'' button.
+To do this, with either the **Stage** or **Payload Bay** selected, click on the :guilabel:`Transition` button and the
+**Transition configuration** window will pop up. The default **Transition Configuration** tab is the **General** tab.
+On this tab, change your entries in the circled areas below to match the entries shown. Then, click the **Shoulder** tab,
+and change your entries in the circled areas below to match the entries shown. Then, click the :guilabel:`Close` button.
 
 .. figure:: /img/setup/getting_started/11.03.01.Rocket_Build.Transition.png
    :width: 95%
@@ -364,7 +364,7 @@ and change your entries in the circled areas below to match the entries shown. T
 Adding a Body Tube
 ^^^^^^^^^^^^^^^^^^
 
-Now, do what you did to add the ''Payload Bay'', above, but select this body tube from the parts database:
+Now, do what you did to add the **Payload Bay**, above, but select this body tube from the parts database:
 
 .. figure:: /img/setup/getting_started/11.04.01.Rocket_Build.Body_Tube.png
    :width: 65%
@@ -379,12 +379,12 @@ Now, do what you did to add the ''Payload Bay'', above, but select this body tub
 Adding Fins
 ^^^^^^^^^^^
 
-The bottom component are the fins. OpenRocket offers four types of fins, ''Trapezoidal'', ''Elliptical'', ''Free Form'',
-and ''Tube Fins''. For this design, ''Trapezoidal'' fins will be used.
+The bottom component are the fins. OpenRocket offers four types of fins, **Trapezoidal**, **Elliptical**, **Free Form**,
+and **Tube Fins**. For this design, **Trapezoidal** fins will be used.
 
-With the ''Body Tube'' selected, click on the ''Trapezoidal'' fins button and the ''Trapezoidal Fin Set configuration''
-window will pop up. On your default ''General'' tab, change your entries match the entries shown. Then, click the
-''Close'' button.
+With the **Body Tube** selected, click on the :guilabel:`Trapezoidal` fins button and the **Trapezoidal Fin Set configuration**
+window will pop up. On your default **General** tab, change your entries match the entries shown. Then, click the
+:guilabel:`Close` button.
 
 .. figure:: /img/setup/getting_started/11.05.01.Rocket_Build.Fins.png
    :width: 95%
@@ -396,8 +396,8 @@ window will pop up. On your default ''General'' tab, change your entries match t
    :align: center
    :figclass: or-image-border
 
-Fins attach to another component, in this case the ''Body Tube''. As circled below, the fins are shown underneath the
-''Body Tube'' on the component tree.
+Fins attach to another component, in this case the **Body Tube**. As circled below, the fins are shown underneath the
+**Body Tube** on the component tree.
 
 .. figure:: /img/setup/getting_started/11.05.03.Rocket_Build.Fins.png
    :width: 95%
@@ -407,11 +407,11 @@ Fins attach to another component, in this case the ''Body Tube''. As circled bel
 Adding a Launch Guide
 ^^^^^^^^^^^^^^^^^^^^^
 
-OpenRocket includes two styles of launch guides, ''Rail Buttons'' and a ''Launch Lug''. Because of the diameter of the
-body tube, a ''Launch Lug'' will be used for this design. As with fins, launch guides attach to another component, in
+OpenRocket includes two styles of launch guides, **Rail Buttons** and a **Launch Lug**. Because of the diameter of the
+body tube, a **Launch Lug** will be used for this design. As with fins, launch guides attach to another component, in
 this case the body tube.
 
-You should now be able to open the ''Launch Lug configuration'' window without assistance. So, open your ''Launch Lug configuration''
+You should now be able to open the **Launch Lug configuration** window without assistance. So, open your **Launch Lug configuration**
 window, and change the specifications to match those shown below.
 
 .. figure:: /img/setup/getting_started/11.06.02.Rocket_Build.Launch_Lug.png
@@ -464,7 +464,7 @@ Viewing Your Design
 Basic Views
 -----------
 
-With the airframe complete, you can view your design in either 2D (as above) or three 3D views. The most commonly used of which are ''3D Unfinished'' and ''3D Finished''.
+With the airframe complete, you can view your design in either 2D (as above) or three 3D views. The most commonly used of which are **3D Unfinished** and **3D Finished**.
 
 .. figure:: /img/setup/getting_started/11.06.03.Rocket_Build.3D_Unfinished.png
    :width: 95%
@@ -479,7 +479,7 @@ With the airframe complete, you can view your design in either 2D (as above) or 
 Adding Appearance Settings
 --------------------------
 
-When changing ''Appearance'' settings, it is best to be in the ''3D Finished'' pane so that you can see the changes that you are making. So, let's start by changing the view to ''3D Finished''.
+When changing **Appearance** settings, it is best to be in the **3D Finished** pane so that you can see the changes that you are making. So, let's start by changing the view to **3D Finished**.
 
 .. figure:: /img/setup/getting_started/11.06.04.Rocket_Build.3D_Finished.png
    :width: 95%
@@ -489,9 +489,9 @@ When changing ''Appearance'' settings, it is best to be in the ''3D Finished'' p
 Changing Color
 --------------
 
-The first change that will be made is to select the color for and change the color of the nose cone. Double-click on the nose cone in the parts tree to open the ''Nose Cone configuration'' window, then select the ''Appearance tab''.
+The first change that will be made is to select the color for and change the color of the nose cone. Double-click on the nose cone in the parts tree to open the **Nose Cone configuration** window, then select the **Appearance tab**.
 
-Nose Cone ''Appearance''
+Nose Cone **Appearance**
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: /img/setup/getting_started/12.10.01.Rocket_Build_Appearance.Nose_Cone.png
@@ -499,7 +499,7 @@ Nose Cone ''Appearance''
    :align: center
    :figclass: or-image-border
 
-Now, uncheck the **Appearance** ''Use default'' box. Then, Click on the ''Color'' box to open the ''Choose color'' window. Select the color of your choice (purple will be used here). Click ''OK'' to use your selection, then ''Close'' the ''Nose Cone configuration'' window.
+Now, uncheck the **Appearance** **Use default** box. Then, Click on the **Color** box to open the **Choose color** window. Select the color of your choice (purple will be used here). Click **OK** to use your selection, then **Close** the **Nose Cone configuration** window.
 
 Change Nose Cone Color
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -517,14 +517,14 @@ Nose Cone Color Changed
    :align: center
    :figclass: or-image-border
 
-Repeat those steps for the ''Transition'', ''Body Tube'', ''Trapezoidal Fin Set'', and ''Launch Lug''; body tubes, launch lugs, and fins also have a **Texture** that will need to be set to ''none''.
+Repeat those steps for the **Transition**, **Body Tube**, **Trapezoidal Fin Set**, and **Launch Lug**; body tubes, launch lugs, and fins also have a **Texture** that will need to be set to **none**.
 
 .. figure:: /img/setup/getting_started/12.10.07.Rocket_Build_Appearance.Nose_Cone.png
    :width: 95%
    :align: center
    :figclass: or-image-border
 
-Now for a little magic. Open the ''Payload Bay'' appearance tab, uncheck the **Appearance** ''Use default'' box, and set the ''Texture'' to ''none''. Then, click on the ''Color'' box to open the ''Choose color'' window. Click on a light blue color (the box shown with the **X** below), then click ''OK''. Now, set the ''Opacity'' to 20% and close the Payload Bay configuration window, and you have a transparent payload bay.
+Now for a little magic. Open the **Payload Bay** appearance tab, uncheck the **Appearance** **Use default** box, and set the **Texture** to **none**. Then, click on the **Color** box to open the **Choose color** window. Click on a light blue color (the box shown with the **X** below), then click **OK**. Now, set the **Opacity** to 20% and close the Payload Bay configuration window, and you have a transparent payload bay.
 
 .. figure:: /img/setup/getting_started/12.10.11.Rocket_Build_Appearance.Nose_Cone.png
    :width: 95%
@@ -553,14 +553,14 @@ With the decal saved to your device, you're ready to start.
 Select Decal from File
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Open the Payload Bay configuration window and select the ''Appearance'' tab. Click on the ''Texture'' type to activate the selection drop-down, and select ''From file...''. Now, navigate to where you saved the decal, and select it.
+Open the Payload Bay configuration window and select the **Appearance** tab. Click on the **Texture** type to activate the selection drop-down, and select **From file...**. Now, navigate to where you saved the decal, and select it.
 
 .. figure:: /img/setup/getting_started/12.10.16.Rocket_Build_Appearance.Payload_Bay.Decal.png
    :width: 95%
    :align: center
    :figclass: or-image-border
 
-To size and position the decal, first change the ''Repeat'' type to ''Sticker'' (you only want one symbol on the Payload Bay), then change the "Scale'' and ''Offset'' "x" and "y" values to those shown below.
+To size and position the decal, first change the **Repeat** type to **Sticker** (you only want one symbol on the Payload Bay), then change the "Scale** and **Offset** "x" and "y" values to those shown below.
 
 Decal Type, Size and Position
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -594,9 +594,9 @@ Split the Fins
    :align: center
    :figclass: or-image-border
 
-After splitting the fins, **SAVE AND REOPEN THE DESIGN FILE**, then view in ''3D Finished''.
+After splitting the fins, **SAVE AND REOPEN THE DESIGN FILE**, then view in **3D Finished**.
 
-Change Appearance of ''Fin #2'' and ''Fin #3''
+Change Appearance of **Fin #2** and **Fin #3**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: /img/setup/getting_started/12.11.11.Rocket_Build_Appearance.Fins.png
@@ -609,7 +609,7 @@ Change Appearance of ''Fin #2'' and ''Fin #3''
    :align: center
    :figclass: or-image-border
 
-Viewing in ''Photo Studio''
+Viewing in **Photo Studio**
 ---------------------------
 
 So, what will this bird look like in Flight? To really find that out, you need to add a motor first.
@@ -619,7 +619,7 @@ Selecting a Motor
 
 **Motors & Configuration** tab
 
-Select the ''Motors & Configuration'' tab, then make sure that the correct motor tube is selected before clicking ''New Configuration''.
+Select the **Motors & Configuration** tab, then make sure that the correct motor tube is selected before clicking **New Configuration**.
 
 .. figure:: /img/setup/getting_started/12.12.02.Rocket_Build.Motor.png
    :width: 95%
@@ -628,30 +628,30 @@ Select the ''Motors & Configuration'' tab, then make sure that the correct motor
 
 **Select a Rocket Motor**
 
-When you select ''New Configuration'', the ''Select a rocket motor'' window opens. For this example, select the Estes D-12-7, then click ''OK''.
+When you select **New Configuration**, the **Select a rocket motor** window opens. For this example, select the Estes D-12-7, then click **OK**.
 
 .. figure:: /img/setup/getting_started/12.12.03.Rocket_Build.Motor.png
    :width: 80%
    :align: center
    :figclass: or-image-border
 
-Select ''Flight Configuration''
+Select **Flight Configuration**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Now, select the D-12-7 as the ''Flight Configuration'', and you're ready to go to the ''Photo Studio''.
+Now, select the D-12-7 as the **Flight Configuration**, and you're ready to go to the **Photo Studio**.
 
 .. figure:: /img/setup/getting_started/12.12.05.Rocket_Build.Motor.png
    :width: 95%
    :align: center
    :figclass: or-image-border
 
-Flying in ''Photo Studio''
+Flying in **Photo Studio**
 --------------------------
 
-Open ''Photo Studio''
+Open **Photo Studio**
 ^^^^^^^^^^^^^^^^^^^^^
 
-Are you ready to see your rocket fly? Then, open ''Photo Studio''.
+Are you ready to see your rocket fly? Then, open **Photo Studio**.
 
 .. figure:: /img/setup/getting_started/12.12.01.Rocket_Build.Photo_Studio.png
    :width: 95%

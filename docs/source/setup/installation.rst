@@ -50,7 +50,7 @@ before installing the updated release. This is *not required*, but is suggested 
 Installing OpenRocket 🚀
 ========================
 
-**Download the latest version from `our downloads page** <https://openrocket.info/downloads.html?vers=latest>`__.
+**Download the latest version from** `our downloads page <https://openrocket.info/downloads.html?vers=latest>`__.
 Scroll down to download the correct installer for your platform (Windows, macOS, or Linux).
 
 Each platform has a different installation process. Click on the ``Show <your platform> installation instructions`` header under your
@@ -72,7 +72,7 @@ Verify the Installed Release Number
 First, verify that you actually installed the current release of OpenRocket. You can see this in the splash screen, which
 appears when you start OpenRocket. The splash screen will show the release number on the right:
 
-.. figure:: /img/introduction/splash_screen.png
+.. figure:: /img/setup/installation/splash_screen.png
    :alt: OpenRocket Splash Screen
    :figclass: or-figclass
    :figwidth: 60 %
@@ -86,7 +86,7 @@ If the release number is not correct, you may have installed the wrong version o
 Another way to check the release number is to open the ``Help`` menu in the application ribbon
 and select ``About``. This will open a dialog box that shows the release number:
 
-.. figure:: /img/introduction/about_dialog.png
+.. figure:: /img/setup/installation/about_dialog.png
    :alt: OpenRocket About Dialog
    :figclass: or-figclass, or-image-border
    :figwidth: 40 %
@@ -106,7 +106,7 @@ Some users have reported that the rocket shown in the 3D design view is not full
 rendering setting is not correct for your device. Using the Three-stage rocket example packaged with OpenRocket, this is
 what the problem looks like:
 
-.. figure:: /img/introduction/off_screen_rendering_wrong.png
+.. figure:: /img/setup/installation/off_screen_rendering_wrong.png
    :alt: Wrong 3D View of Three-stage Rocket
    :figclass: or-figclass, or-image-border
    :figwidth: 75 %
@@ -119,7 +119,7 @@ ribbon and select ``Preferences``. This will open the Preferences dialog box. Th
 ``Design``, ``Simulation``, ... You need to go to the ``Graphics`` tab (just click on that tab header) and on the bottom
 of the page change the ``Use off-screen rendering`` setting:
 
-.. figure:: /img/introduction/off_screen_rendering_setting.png
+.. figure:: /img/setup/installation/off_screen_rendering_setting.png
    :alt: Off-screen Rendering Setting
    :figclass: or-figclass, or-image-border
    :figwidth: 50 %
@@ -129,7 +129,7 @@ of the page change the ``Use off-screen rendering`` setting:
 
 Your 3D view should now look like this:
 
-.. figure:: /img/introduction/off_screen_rendering_right.png
+.. figure:: /img/setup/installation/off_screen_rendering_right.png
    :alt: Correct 3D View of Three-stage Rocket
    :figclass: or-figclass, or-image-border
    :figwidth: 75 %
@@ -162,22 +162,22 @@ table below for the default application data directories for each operating syst
    * - Operating System
      - Default Thrust Curves Directory
    * - Windows
-     - | ``%APPDATA%\OpenRocket\ThrustCurves`` (if ``APPDATA`` is available)\*
-       | ``C:\Users\[YOUR USERNAME]\OpenRocket\ThrustCurves`` (fallback if ``APPDATA`` is not available)
+     - | :file:`%APPDATA%\OpenRocket\ThrustCurves` (if ``APPDATA`` is available)\*
+       | :file:`C:\Users\[YOUR USERNAME]\OpenRocket\ThrustCurves` (fallback if ``APPDATA`` is not available)
        |
-       | \* ``APPDATA`` is usually ``C:\Users\[YOUR USERNAME]\AppData\Roaming``
+       | \* ``APPDATA`` is usually :file:`C:\Users\[YOUR USERNAME]\AppData\Roaming`
    * - macOS
-     - ``/Users/[YOUR USERNAME]/Library/Application Support/OpenRocket/ThrustCurves/``
+     - :file:`/Users/[YOUR USERNAME]/Library/Application Support/OpenRocket/ThrustCurves/`
    * - Linux
-     - ``/home/[YOUR USERNAME]/.openrocket/ThrustCurves/`` (hidden directory)
+     - :file:`/home/[YOUR USERNAME]/.openrocket/ThrustCurves/` (hidden directory)
 
 ``[YOUR USERNAME]`` **is your user name on your device.**
 
-To view or modify the user-defined thrust curves folder(s), open the ``Edit`` menu in the application ribbon and select
-``Preferences``. This will open the Preferences dialog box. You need to go to the ``General`` tab (should be open by default)
-and change the ``User-defined thrust curves`` setting:
+To view or modify the user-defined thrust curves folder(s), open the :menuselection:`Edit` menu in the application ribbon and select
+:menuselection:`Preferences`. This will open the Preferences dialog box. You need to go to the :menuselection:`General` tab
+(should be open by default) and change the ``User-defined thrust curves`` setting:
 
-.. figure:: /img/introduction/thrust_curves_setting.png
+.. figure:: /img/setup/installation/thrust_curves_setting.png
    :alt: Thrust Curves Setting
    :figclass: or-figclass, or-image-border
    :figwidth: 50 %
@@ -185,7 +185,7 @@ and change the ``User-defined thrust curves`` setting:
 
    The setting to change the user-defined thrust curves folder.
 
-You can also add multiple thrust curve folders. To do this, click on the ``Add`` button and select the folder you want to add.
+You can also add multiple thrust curve folders. To do this, click on the :guilabel:`Add` button and select the folder you want to add.
 You can also manually enter a new folder path. This path must be separated from other paths by a semicolon (``;``).
 
 Troubleshooting

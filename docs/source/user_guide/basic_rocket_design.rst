@@ -6,7 +6,7 @@ In this section we'll look at how to design a basic rocket by examining the A si
 After reading this section you should have an understanding of how to start designing your own rockets.
 
 We will start with a brief discussion on the selection of **available components**, and then the components used in
-the ``A simple model rocket`` example design file (``File`` -> ``Open example`` -> ``A simple model rocket``).
+the ``A simple model rocket`` example design file (:menuselection:`File --> Open example --> A simple model rocket`).
 Then we'll build a rocket from scratch to see how it’s done.
 
 .. contents:: Table of Contents
@@ -20,8 +20,8 @@ Component Configuration Window
 There are several types of components available to you as a rocket designer, and you can either customize them to meet
 your needs, or simply load component presets from the parts library.
 
-To start, let's begin a new project: ``File`` -> ``New``. It doesn’t matter what we call it at the moment, but go ahead
-and save the design straight away: ``File`` -> ``Save``. At this point you should be presented with a blank rocket design window:
+To start, let's begin a new project: :menuselection:`File --> New`. It doesn’t matter what we call it at the moment, but go ahead
+and save the design straight away: :menuselection:`File --> Save`. At this point you should be presented with a blank rocket design window:
 
 .. figure:: /img/user_guide/basic_rocket_design/main_window.png
    :align: center
@@ -88,7 +88,7 @@ the inner diameter goes to zero, i.e., a filled (solid) tube. Note how the Compo
 
 On the right hand side of the window you will see the **Component material** and **Component finish** drop-down menus.
 If you click on these you will be presented with a list of various materials and finishes, each with their own weight and
-thickness. If you are using the same finish for the entire rocket you can click the **Set for all** button to make each
+thickness. If you are using the same finish for the entire rocket you can click the :guilabel:`Set for all` button to make each
 component use the same finish. The last notable feature in this window is in the bottom left. There you will see a live
 display of the **Component mass**. This will update automatically as you change parameter values. Experiment with the
 sliders to see how the component changes in the *design window*.
@@ -161,7 +161,7 @@ This section does not really need much explanation. If you want to write any com
 
    The *Comment tab* of the Configuration Window.
 
-Now that we have been through all of the tabs of the *Body Tube* component, click the Close button. You should now
+Now that we have been through all of the tabs of the *Body Tube* component, click the :guilabel:`Close` button. You should now
 notice that the rest of the components are now unlocked in the top right of the *Design window*. This is because all
 component types can be added to a body tube. However, a **Nose cone** should be selected **first** if you are making
 your own rocket.
@@ -316,7 +316,7 @@ Your screen should now look like this:
 
 Click on first example, our **A simple model rocket**. A *Rocket configuration* window should appear, with the *Design Name*
 (A simple model Rocket) and *Designer* (Sampo Niskanen) fields populated. The *Comments* and *Revision History* fields
-will be blank. Click **Close**. You should now have successfully loaded the rocket and be able to see a 2D schematic
+will be blank. Click :guilabel:`Close`. You should now have successfully loaded the rocket and be able to see a 2D schematic
 in the *Rocket Design* window.
 
 .. figure:: /img/user_guide/basic_rocket_design/After_complete_design.png
@@ -462,19 +462,19 @@ That’s all we need to do in this tab. Now move to the *Appearance* tab and cus
    Nose Cone, Body, and Fins
 
 6. The next component we need to add is the **Inner tube**. Once again highlight the body tube and then click on the
-*Inner tube* component button. There are a couple of attributes we should change here. First, increase the *Length* value
+:guilabel:`Inner tube` component button. There are a couple of attributes we should change here. First, increase the *Length* value
 to **7.5**. Also, increase the *Plus* value to **0.5**. Leave everything else the same.
 
 Now go to the *Motor* tab. There are a few things we need to add here. To start, check the *This component is a motor mount*
 checkbox. This will allow us to add motors. The next few steps may seem complicated but do not be daunted by them. First,
-we will deal with the easy part: Increase the *Motor overhang* to **0.3**. Now click *Close* button to close the
+we will deal with the easy part: Increase the *Motor overhang* to **0.3**. Now click the :guilabel:`Close` button to close the
 *Inner Tube configuration* window.
 
 .. _motorconfig:
 
 Now click on the **Motors & Configuration** tab towards the left upper corner of the main OpenRocket window, just under
 the menu bar. On the resulting page, note the *Motors* tab towards the left upper corner. Make sure the *Inner T...* box
-is checked, and then click on the *New Configuration* button in the top center portion of the upper panel. You should see
+is checked, and then click on the :guilabel:`New Configuration` button in the top center portion of the upper panel. You should see
 that a new configuration has been added to the list of configuration.
 
 .. figure:: /img/user_guide/basic_rocket_design/MotorConfigs.png
@@ -485,7 +485,7 @@ that a new configuration has been added to the list of configuration.
 
    Motors & Configurations window
 
-Left-click in the *Inner Tube* column, and then click the **Select motor** button just below the open panel on the right
+Left-click in the *Inner Tube* column, and then click the :guilabel:`Select motor` button just below the open panel on the right
 of the screen. The *Select a rocket motor* window now appears:
 
 .. figure:: /img/user_guide/basic_rocket_design/MotorSelection.png
@@ -505,7 +505,7 @@ To make sure your window looks the same as the one above, follow these steps:
 - Look for the **A8** motor in list on the left side of the window. Click on it.
 - In the *Ejection charge delay* field at the top left, enter the value **3**.
 
-Now click the *OK* button at the lower right corner of the window.
+Now click the :guilabel:`OK` button at the lower right corner of the window.
 
 If everything went to plan, you have successfully added the **Estes A8-3** motor to your rocket. Now repeat these steps
 for the following motors, using a *New Configuration* for each new motor you add:
@@ -537,7 +537,7 @@ Your rocket should now look like this:
    any changes. However, we will add the following line under the *Comment* tab: **The centering ring automatically takes
    the outer diameter of the body tube and the inner diameter of the inner tube.**
 
-Now click *Close*, select the body tube again and add another *Centering ring*. This time all we have to do is to change
+Now click :guilabel:`Close`, select the body tube again and add another *Centering ring*. This time all we have to do is to change
 *plus* to **-4.5**. Also, add the same comment as for the first ring.
 
 .. figure:: /img/user_guide/basic_rocket_design/CenteringRings.png
@@ -552,7 +552,7 @@ Now click *Close*, select the body tube again and add another *Centering ring*. 
 the shock cord component. After it has been added change the *Plus* value to **2**, *Packed length* to **5.2**, and
 *Packed diameter* to **1.2**. Again, we will add a comment to this component. Enter the following line to the *Comment*
 section: **The shock cord does not need to be attached to anything in particular, as it functions only as a mass component.**.
-Click the *Close* button to close the window, as the shock cord has now been completed.
+Click the :guilabel:`Close` button to close the window, as the shock cord has now been completed.
 
 .. figure:: /img/user_guide/basic_rocket_design/ShockCordComplete.png
    :width: 90%
@@ -564,7 +564,7 @@ Click the *Close* button to close the window, as the shock cord has now been com
 
 10. Now we need to add the **Parachute**. With the body tube highlighted, add a parachute component. Change *Plus* to
     **3.2**, *Packed length* to **4.2** and *Packed diameter* to **1.8**. That is everything we need to do to the parachute.
-    Click *Close* to close the window. You can see what your rocket should now look like below.
+    Click :guilabel:`Close` to close the window. You can see what your rocket should now look like below.
 
 .. figure:: /img/user_guide/basic_rocket_design/ParachuteAdded.png
    :width: 90%
@@ -577,7 +577,7 @@ Click the *Close* button to close the window, as the shock cord has now been com
 11. The second-to-last component to add is a **Mass Component**. Go ahead and add one to the body tube now. Adjust the
     *Mass* to **2** grams (g), the *Approximate density* to **0.16** g/cm^3, the *length* to **3.0**, the *diameter* to
     **2.3** and finally the *Plus* value to **8.0**. It may be easier to enter these manually. The last thing you have
-    to do is to rename it from ‘Unspecified’ to **Wadding**. Leave everything else as it is and click the *Close* button.
+    to do is to rename it from ‘Unspecified’ to **Wadding**. Leave everything else as it is and click the :guilabel:`Close` button.
 
 .. figure:: /img/user_guide/basic_rocket_design/AddedMass.png
    :width: 90%
@@ -589,7 +589,7 @@ Click the *Close* button to close the window, as the shock cord has now been com
 
 12. Almost done! One final component left to add: the **Launch lug**. Add this to the body tube now. Change the *Length*
     to **3.5**, the *Outer diameter* to **0.7**, and the *inner diameter* to **0.5**. Leave the *Thickness* as it is.
-    Also, change the *Radial position* to **19** degrees. Click *Close*.
+    Also, change the *Radial position* to **19** degrees. Click :guilabel:`Close`.
 
 .. figure:: /img/user_guide/basic_rocket_design/LaunchLugAdded.png
    :width: 90%

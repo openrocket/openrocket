@@ -23,7 +23,7 @@ OpenRocket's GUI elements do not (*should not*) display hard-coded text. Instead
 object with a certain key to look up the text to display. The Translator object is responsible for looking up the text
 in the appropriate language file and returning the translated text.
 
-The language files are located in the ``core/src/main/resources/l10n`` directory. The base file for all translations is
+The language files are located in the :file:`core/src/main/resources/l10n` directory. The base file for all translations is
 ``messages.properties``, which contains the English text. Each language has its own file, named ``messages_xx.properties``,
 where ``xx`` is the language code (e.g. ``messages_nl.properties`` for Dutch). The l10n files are a simple key-value pair
 where the key is the text to be translated and the value is the translated text. For example, this is a snippet from the
@@ -67,8 +67,8 @@ This way, the GUI can be easily translated into different languages by simply ad
 Modifying an Existing Translation
 =================================
 
-Open the l10n file for the language you want to modify in the ``core/src/main/resources/l10n`` directory. For example, to modify
-the French translation, open the ``messages_fr.properties`` file, since ``fr`` corresponds to the language code of French.
+Open the l10n file for the language you want to modify in the :file:`core/src/main/resources/l10n` directory. For example, to modify
+the French translation, open the :file:`messages_fr.properties` file, since ``fr`` corresponds to the language code of French.
 Find the key for the text you want to modify and change the value.
 
 When you are done, create a pull request with your changes. The maintainers will review your changes and merge them if they are
@@ -78,14 +78,14 @@ Creating a New Translation
 ==========================
 
 If you want to create a new translation for a language that is not yet supported, you can create a new language file in the
-``core/src/main/resources/l10n`` directory. The file should be named ``messages_xx.properties``, where ``xx`` is the language code
+:file:`core/src/main/resources/l10n` directory. The file should be named ``messages_xx.properties``, where ``xx`` is the language code
 of the language you want to translate to. For example, to create a translation for Finnish, you would create a file named
-``messages_fi.properties``.
+:file:`messages_fi.properties`.
 
-Copy the contents of the ``messages.properties`` file into the new file. Translate the English text into the new language and
+Copy the contents of the :file:`messages.properties` file into the new file. Translate the English text into the new language and
 save the file.
 
-Edit the ``swing/src/main/java/info/openrocket/swing/gui/util/SwingPreferences.java`` file and add the new language to the
+Edit the :file:`swing/src/main/java/info/openrocket/swing/gui/util/SwingPreferences.java` file and add the new language to the
 ``SUPPORTED_LOCALES`` array. For example, to add Finnish, you would change this line:
 
 .. code-block:: java
@@ -99,7 +99,7 @@ To this (notice the addition of ``"fi"`` at the end)
    for (String lang : new String[] { "en", "ar", "de", "es", "fr", "it", "nl", "ru", "cs", "pl", "ja", "pt", "tr", "fi" }) {
 
 Finally, add yourself to the list of translation contributors (you deserve some fame! 🙂). This is done in the
-``swing/src/main/java/info/openrocket/swing/gui/dialogs/AboutDialog.java`` file.
+:file:`swing/src/main/java/info/openrocket/swing/gui/dialogs/AboutDialog.java` file.
 In this file, edit the String 'CREDITS' and add your details to the list after the 'Translations by:'-tag.
 
 When you are done, create a pull request with your changes. The maintainers will review your changes and merge them if they are.

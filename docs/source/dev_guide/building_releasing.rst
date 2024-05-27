@@ -40,9 +40,9 @@ Gradle in IntelliJ
 ------------------
 
 If you use IntelliJ IDEA, you can access the Gradle tasks within the IDE. First, open the Gradle tool window by going to
-*View -> Tool Windows -> Gradle* or by clicking on the Gradle icon in the right-hand side of the window:
+:menuselection:`View --> Tool Windows --> Gradle` or by clicking on the Gradle icon in the right-hand side of the window:
 
-.. figure:: /img/dev_guide/gradle_in_intellij.png
+.. figure:: /img/dev_guide/building_releasing/gradle_in_intellij.png
    :align: center
    :width: 80%
    :alt: Opening the Gradle tool window in IntelliJ IDEA.
@@ -51,7 +51,7 @@ If you use IntelliJ IDEA, you can access the Gradle tasks within the IDE. First,
 
 This shows the following window:
 
-.. figure:: /img/dev_guide/intellij_gradle_window.png
+.. figure:: /img/dev_guide/building_releasing/intellij_gradle_window.png
    :align: center
    :width: 30%
    :alt: The Gradle tool window in IntelliJ IDEA.
@@ -112,7 +112,7 @@ Here are some of the most important Gradle tasks for OpenRocket:
 
    *  - root (*info.openrocket*)
       - ``dist``
-      - Creates a distributable JAR file of OpenRocket (a combination of the *core* and *swing* JAR) at ``openrocket/build/libs/OpenRocket-<build-version>.jar``.
+      - Creates a distributable JAR file of OpenRocket (a combination of the *core* and *swing* JAR) at :file:`openrocket/build/libs/OpenRocket-<build-version>.jar`.
 
    *  - core
       - ``serializeEngines``
@@ -120,7 +120,7 @@ Here are some of the most important Gradle tasks for OpenRocket:
 
    *  - core
       - ``serializeEnginesDist``
-      - Same as ``serializeEngines``, but loads the serialized file to the distribution directory (*openrocket/build*) so it can be used in the final build.
+      - Same as ``serializeEngines``, but loads the serialized file to the distribution directory (:file:`openrocket/build`) so it can be used in the final build.
 
    *  - core
       - ``submoduleUpdate``
@@ -170,10 +170,10 @@ Creating the Installers
 First you need to build the project using Gradle (see above). This will create the JAR file that will be used to create the installers.
 
 Then, open install4j (requires a license) and load the project file *openrocket/install4j/<build-version>/openrocket-<build-version>.install4j*
-from the repository. Go to the ``Build`` tab and click on the ``Start Build`` button. This will create the installers in
+from the repository. Go to the :menuselection:`Build` tab and click on the :guilabel:`Start Build` button. This will create the installers in
 the *openrocket/install4j/<build-version>/media/* directory.
 
-.. figure:: /img/dev_guide/install4j_build.png
+.. figure:: /img/dev_guide/building_releasing/install4j_build.png
    :align: center
    :width: 80%
    :alt: Building the installers in install4j.
@@ -215,7 +215,7 @@ The release procedure for OpenRocket is as follows:
 
 4. **Build the project JAR file** using Gradle (see above).
 
-5. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under *Help -> About*.
+5. **Test the JAR file** to ensure that it works correctly and that the new version number is applied to the splash screen and under :menuselection:`Help --> About`.
 
 6. **Create the packaged installers** using install4j (see above).
 

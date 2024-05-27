@@ -47,7 +47,7 @@ and it includes the list of simulations pictured.
 In the Flight Simulations window, you'll see the simulations listed, initially in Name order. Note that the second column
 is "Configuration" - the name of the configuration used in the sim, usually named for the rocket motor used in that
 configuration. The remaining values in the simulation's row are calculated by "running" the simulation. You can run
-one simulation by selecting a sim and clicking the **Run simulations** button:
+one simulation by selecting a sim and clicking the :guilabel:`Run simulations` button:
 
 .. figure:: /img/user_guide/basic_flight_simulation/RunOne.png
    :width: 95%
@@ -103,8 +103,8 @@ Motors & Configuration
 ======================
 
 To simulate a new motor (or motors) you'll start a **New Configuration**, by clicking the button with that name. Next to
-that button are buttons that let you **Rename Configuration**, **Remove Configuration** (i.e. *delete* it from your project),
-and **Copy Configuration**. They work about like you'd imagine, on the configuration you've selected.
+that button are buttons that let you :guilabel:`Rename Configuration`, :guilabel:`Remove Configuration` (i.e. *delete* it from your project),
+and :guilabel:`Copy Configuration`. They work about like you'd imagine, on the configuration you've selected.
 
 Below, you see the **Motors & Configuration** tab for *A Simple Model Rocket*, just after clicking **New Configuration**.
 

@@ -33,7 +33,7 @@ OpenRocket uses the Gradle build system, where each modules (``info.openrocket.c
 Core Module
 -----------
 
-The following is an overview of the packages in the ``info.openrocket.core`` module (*openrocket/core/src/main/java/info/openrocket/core*):
+The following is an overview of the packages in the ``info.openrocket.core`` module (:file:`openrocket/core/src/main/java/info/openrocket/core`):
 
 .. code-block:: none
 

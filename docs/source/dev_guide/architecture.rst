@@ -33,7 +33,7 @@ JPMS allows OpenRocket to be organized into two distinct modules, the ``core`` m
 each with its own well-defined boundaries and dependencies.
 
 Each module in OpenRocket is described by a `module-info.java` file located at the root of the module's source directory
-(*<module>/src/main/java.module-info.java*). This file declares:
+(:file:`<module>/src/main/java.module-info.java`). This file declares:
 
    * **Module Name:** A unique identifier for the module (e.g., `info.openrocket.core`, `info.openrocket.swing`).
    * **Dependencies:** The modules that this module depends on to function correctly. For example, the `info.openrocket.swing` module depends on the `info.openrocket.core` module.
