@@ -265,7 +265,7 @@ If you need to include a special character in your text that is normally interpr
 preceding it with a backslash. For example, to include a backslash in your text, you would write ``\\``. To include
 a colon, you would write ``\:``.
 
----
+----
 
 .. note::
 

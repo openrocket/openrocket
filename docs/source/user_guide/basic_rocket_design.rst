@@ -9,6 +9,11 @@ We will start with a brief discussion on the selection of **available components
 the ``A simple model rocket`` example design file (:menuselection:`File --> Open example --> A simple model rocket`).
 Then we'll build a rocket from scratch to see how it’s done.
 
+.. note::
+
+   This section assumes you have already :doc:`installed OpenRocket </setup/installation>` and are familiar with the
+   :doc:`basic layout of the program </setup/getting_started>`.
+
 .. contents:: Table of Contents
    :depth: 2
    :local:
@@ -25,7 +30,7 @@ and save the design straight away: :menuselection:`File --> Save`. At this point
 
 .. figure:: /img/user_guide/basic_rocket_design/main_window.png
    :align: center
-   :width: 70%
+   :width: 95%
    :figclass: or-image-border
    :alt: The OpenRocket rocket design window.
 
@@ -43,13 +48,13 @@ on the top-right of the rocket design window:
 * ``Mass Components``: These are components that are used to **add mass** to the rocket or serve as **recovery devices**.
 
 We would usually start building our rocket by selecting a nose cone but for the sake of this guide click the
-``Body tube`` icon in the ``Body Components and Fin Sets`` section. This will then open up a configuration window
+:guilabel:`Body Tube` icon in the **Body Components and Fin Sets** section. This will then open up a configuration window
 to edit the body tube parameters.
 
 The Body Tube Configuration Window
 ----------------------------------
 
-At this point you should see a new window titled ``Body tube configuration``.
+At this point you should see a new window titled **Body tube configuration**.
 
 .. figure:: /img/user_guide/basic_rocket_design/body_tube_config.png
    :align: center
@@ -61,47 +66,49 @@ At this point you should see a new window titled ``Body tube configuration``.
 
 This window allows you to either select a preset for the component type you are choosing, or make your own. Let’s start
 by examining how to customize it ourselves. If you have a look at the Body tube configuration window you will see that
-at the top there is a Component name field. Here we can change the name of the current component to anything we choose.
-(Note that this name will then appear in the design tree seen in the Rocket Design panel of the main program window.)
+at the top there is a :guilabel:`Component name` field. Here we can change the name of the current component to anything we choose.
+*(Note that this name will then appear in the design tree seen in the Rocket Design panel of the main program window.)*
 
 Just below Component name there are several tabs:
 
-- **General:** allows us to alter the basic attributes of the component.
-- **Motor:** allows us to make the body tube into a motor mount, and also edit the properties of the motor.
-- **Override:** allows us to manually set the mass or centre of gravity for the component.
-- **Appearance:** allows us to select colours, textures and other finishes.
-- **Comment:** allows us to enter any comments or notes about the component.
+- :guilabel:`General`: allows us to alter the basic attributes of the component.
+- :guilabel:`Motor`: allows us to make the body tube into a motor mount, and also edit the properties of the motor.
+- :guilabel:`Override`: allows us to manually set the mass or centre of gravity for the component.
+- :guilabel:`Appearance`: allows us to select colours, textures and other finishes.
+- :guilabel:`Comment`: allows us to enter any comments or notes about the component.
 
-It should be noted that these tabs are specific to the component being designed. For example, a *nose cone* will not have
-a *motor* tab, but will instead have a **shoulder** tab. It will also have a description panel to tell you a bit more
-about the component you are choosing. After you learn how to navigate around one component *configuration panel*,
-the others should be relatively self-explanatory.
+.. note::
+
+   These tabs are specific to the component being designed. For example, a *nose cone* will not have
+   a :guilabel:`Motor` tab, but will instead have a :guilabel:`Shoulder` tab.
+
+After you learn how to navigate around one component *configuration panel*, the others should be relatively self-explanatory.
 
 General Tab
 ^^^^^^^^^^^
 
 The rest of the *Body tube configuration* window lists the different parameters for the current component type. As you
-can see, the *General* tab provides options to manually enter numbers, or you can also use the spin boxes (coarse control)
-or sliders (fine control) provided to adjust the parameter values. The **Automatic** checkbox will adjust the dimensions
-of the component automatically. Here you will also see a **Filled** checkbox. If this is checked you will notice that
+can see, the :guilabel:`General` tab provides options to manually enter numbers, or you can also use the spin boxes (coarse control)
+or sliders (fine control) provided to adjust the parameter values. The :guilabel:`Automatic` checkbox will adjust the dimensions
+of the component automatically. Here you will also see a :guilabel:`Filled` checkbox. If this is checked you will notice that
 the inner diameter goes to zero, i.e., a filled (solid) tube. Note how the Component mass changes when this box is checked.
 
-On the right hand side of the window you will see the **Component material** and **Component finish** drop-down menus.
+On the right hand side of the window you will see the :guilabel:`Component material` and :guilabel:`Component finish` drop-down menus.
 If you click on these you will be presented with a list of various materials and finishes, each with their own weight and
 thickness. If you are using the same finish for the entire rocket you can click the :guilabel:`Set for all` button to make each
 component use the same finish. The last notable feature in this window is in the bottom left. There you will see a live
 display of the **Component mass**. This will update automatically as you change parameter values. Experiment with the
 sliders to see how the component changes in the *design window*.
 
-You may have noticed that, apart from the mass, there is no noticeable difference when either the *inner diameter* or
-*wall thickness* parameters are changed. To see those changes reflected in the model you will have to switch to a
-different *View Type*, by selecting the desired view from the drop-down list at the left of the main OpenRocket
+You may have noticed that, apart from the mass, there is no noticeable difference when either the :guilabel:`inner diameter` or
+:guilabel:`wall thickness` parameters are changed. To see those changes reflected in the model you will have to switch to a
+different :guilabel:`View Type`, by selecting the desired view from the drop-down list at the left of the main OpenRocket
 program window.
 
 Motor Tab
 ^^^^^^^^^
 
-Next to the General tab is the **Motor** tab. If you click on it you will see that most parameters are grayed-out, with
+Next to the General tab is the :guilabel:`Motor` tab. If you click on it you will see that most parameters are grayed-out, with
 the exception of one checkbox. As the label mentions, this is for when you want the body tube component to also be a
 **motor mount**.
 
@@ -301,7 +308,7 @@ Opening Example Designs
 We'll begin by looking at how to find and load the example rockets within OpenRocket. Recall that this was also covered
 in the *Getting Started* section of this guide, but as a refresher the steps for doing this are as follows:
 
-- In the main window, click on the **File** menu at the top left.
+- In the main window, click on the :menuselection:`File` menu at the top left.
 - Scroll down to **Open Examples...** open, and expand that menu. Here you will see a list of the available rocket design examples.
 
 Your screen should now look like this:
@@ -448,7 +455,7 @@ You should now have this:
    Nose Cone and Body
 
 5. Moving on, we next need to add a **Fin set**. Make sure you have clicked on the *Body tube* so that it’s highlighted
-then click on the **Trapezoidal** component type. The *Trapezoidal fin set configuration* window will have appeared.
+then click on the :guilabel:`Trapezoidal` component type. The *Trapezoidal fin set configuration* window will have appeared.
 Leave the left side of the window alone: the settings there are fine as-is. However, we will need to change some things
 on the right hand side. First, change the *Fin cross section* to **Rounded**. Also, reduce the *Thickness* to **0.2**.
 That’s all we need to do in this tab. Now move to the *Appearance* tab and customize to your preference.
@@ -472,7 +479,7 @@ we will deal with the easy part: Increase the *Motor overhang* to **0.3**. Now c
 
 .. _motorconfig:
 
-Now click on the **Motors & Configuration** tab towards the left upper corner of the main OpenRocket window, just under
+Now click on the :guilabel:`Motors & Configuration` tab towards the left upper corner of the main OpenRocket window, just under
 the menu bar. On the resulting page, note the *Motors* tab towards the left upper corner. Make sure the *Inner T...* box
 is checked, and then click on the :guilabel:`New Configuration` button in the top center portion of the upper panel. You should see
 that a new configuration has been added to the list of configuration.
@@ -499,7 +506,7 @@ of the screen. The *Select a rocket motor* window now appears:
 To make sure your window looks the same as the one above, follow these steps:
 
 - Make sure the *Filter Motors* tab is selected in the top right corner of the window.
-- Click "Clear All", then select only the **Estes** option in the *Manufacturer* list.
+- Click :guilabel:`Clear All`, then select only the **Estes** option in the *Manufacturer* list.
 - Make sure that the *Total Impulse* slider is positioned over **A** (all the way to the left).
 - Check both the "Limit motor diameter to mount diameter" and "Limit motor length to mount length" boxes.
 - Look for the **A8** motor in list on the left side of the window. Click on it.
@@ -515,7 +522,7 @@ for the following motors, using a *New Configuration* for each new motor you add
 - **Estes C6-5**
 - **Estes C6-7**
 
-After you have added the rest of the motors, click back on the *Rocket design* tab just under the main menu.
+After you have added the rest of the motors, click back on the :guilabel:`Rocket design` tab just under the main menu.
 
 7. The next component we will add is the **Engine Block**. This time make sure that the *Inner tube* is highlighted and
 then add an engine block component. Change the *Inner diameter* to **1.2** and the *Wall thickness* to **0.3**. Also,
@@ -533,8 +540,8 @@ Your rocket should now look like this:
    Added the Engine Block
 
 8. We will now add two **Centering Rings**. Make sure the *Body tube* is highlighted in the list of components under
-   *Rocket design*, then click on the *Centering ring* component type. The first one is fine as-is, so we will not make
-   any changes. However, we will add the following line under the *Comment* tab: **The centering ring automatically takes
+   *Rocket design*, then click on the :guilabel:`Centering ring` component type. The first one is fine as-is, so we will not make
+   any changes. However, we will add the following line under the :guilabel:`Comment` tab: **The centering ring automatically takes
    the outer diameter of the body tube and the inner diameter of the inner tube.**
 
 Now click :guilabel:`Close`, select the body tube again and add another *Centering ring*. This time all we have to do is to change
