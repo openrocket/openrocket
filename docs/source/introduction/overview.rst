@@ -42,7 +42,8 @@ For more information about OpenRocket's features and a few screenshots you can h
 How this Documentation is Organized
 ===================================
 
-.. warning::
+.. attention::
+
     This documentation is still a work in progress, so **some sections may be incomplete**. If you want to help us improve it, please refer to the :doc:`Contribute section </introduction/contribute>`.
 
 This documentation is organized in 4 main sections:

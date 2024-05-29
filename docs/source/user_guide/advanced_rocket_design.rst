@@ -3,18 +3,18 @@ Advanced Rocket Design
 **********************
 
 In this section, advanced design principles and concepts are discussed, with step-by-step instructions describing how to
-incorporate these techniques into designs created in *OpenRocket*. Implementing the techniques described in this section
+incorporate these techniques into designs created in OpenRocket. Implementing the techniques described in this section
 may require specialized materials and electronic devices intended for use only by experienced rocketeers.
 
 Advanced rocket design encompasses configurations for high power rockets generally, including:
 
-- recovery systems
-- through-the-wall fin construction
-- electronic and dual deployment
-- complex multi-staging (such as motor racking) and motor clustering
-- roll stabilization
+- Recovery systems
+- Through-the-wall fin construction
+- Electronic and dual deployment
+- Complex multi-staging (such as motor racking) and motor clustering
+- Roll stabilization
 
-Additionally, you may find that using mass and center of gravity (CG) overrides will improve *OpenRocket* flight and
+Additionally, you may find that using mass and center of gravity (CG) overrides will improve OpenRocket flight and
 recovery simulation accuracy.
 
 .. contents:: Table of Contents
@@ -34,12 +34,12 @@ Recovery systems are intended to return a rocket safely to the ground, without h
 other objects. Though recovery mechanisms vary greatly, recovery systems generally include elements of one or more of
 these techniques:
 
-- featherweight
-- break-apart
-- streamer
-- parachute
-- helicopter
-- gliding
+- Featherweight
+- Break-apart
+- Streamer
+- Parachute
+- Helicopter
+- Gliding
 
 Featherweight and Break-Apart Recovery
 --------------------------------------
@@ -64,7 +64,7 @@ Example Featherweight Design
 In earlier years, Estes sold a few rockets that featured *Featherweight Recovery*, meaning that a very light model could
 spit out its used motor casing, and land directly on the ground with no damage, rather like a badminton shuttlecock.
 
-Ejecting burned-out motor casings is not allowed in NAR contests unless a streamer or parachute is attached to the
+Ejecting burned-out motor casings is not allowed in :abbr:`NAR (National Association of Rocketry)` contests unless a streamer or parachute is attached to the
 ejected casing.
 
 .. figure:: /img/user_guide/advanced_rocket_design/Unicon.png
@@ -79,7 +79,7 @@ Example Break-Apart Design
 Another approach to bringing a lightweight rocket safely to earth is to break the airframe into several aerodynamically
 unstable pieces, and "flutter" them back to earth.
 
-One such design: the **[Unicon](https://archive.org/details/american-aircraft-modeler-02-1970/page/n41/mode/2up)**
+One such design: the `Unicon <https://archive.org/details/american-aircraft-modeler-02-1970/page/n41/mode/2up>`__
 (for *"Unified/Consolidated"* - a stretch, I know) appeared as a plan in American Aircraft Modeler in February, 1970.
 The body tube featured 3 pieces of launch lug, as did the nose cone. Into these lugs plugged one of 3 balsa sticks, each
 of which held a fin, and a piece of body tube attached to the fin root and the stick, to provide a stable anchor against
@@ -103,16 +103,16 @@ Example Streamer Design
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 A method of recovery favored on windier days is to attach a flame-retardant streamer to the shock cord, in place of a chute.
-Using *OpenRocket* you can simulate streamer recovery by equipping your rocket design with a streamer from the **Mass objects** section.
+Using OpenRocket you can simulate streamer recovery by equipping your rocket design with a streamer from the **Mass Objects** section.
 
 A streamer flaps in the wind as the rocket falls, losing altitude faster than an equivalent volume of packed parachute.
 Because it comes in faster, it won't drift as much in the wind. The rocket will also hit harder, potentially risking damage.
-*OpenRocket* can help you estimate how fast your model will land.
+OpenRocket can help you estimate how fast your model will land.
 
 By using "snap swivels" - small brass clips usually found in the fishing tackle aisle - you can prepare both a parachute
 and a streamer for a rocket, choose your method of recovery at the field, and clip it onto the shock cord before you launch.
 
-NAR requires 10 square cm of streamer area per gram of mass in contest models.
+:abbr:`NAR (National Association of Rocketry)` requires 10 cm :sup:`2` of streamer area per gram of mass in contest models.
 
 Example Parachute Design
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,8 +121,8 @@ Parachute recovery is probably the most familiar model rocket recovery mechanism
 parachutes, but even high-power, edge-of-space-kissing, multi-stage, electronic deployment rockets use parachutes to
 slow descent. They're basic to the hobby.
 
-*OpenRocket* gives you a number of simulation options for parachutes, including material, construction, size, number of
-shroud lines, packed size and more. With *OpenRocket*, you can set your parachute's deployment to work just like your
+OpenRocket gives you a number of simulation options for parachutes, including material, construction, size, number of
+shroud lines, packed size and more. With OpenRocket, you can set your parachute's deployment to work just like your
 real rocket's.
 
 One thing that you're not able to directly simulate here is the *type* of 'chute you have. Parachutes come in different
@@ -130,9 +130,9 @@ types, from the semi-ellipsoid proper Parachute - an efficient shape (by drag to
 flat, to the "parasheet" - a 'chute that can be formed from a flat piece of material (the typical model rocket kit
 contains a parasheet), to X-shaped parachutes, to 'chutes with spill-holes, to parafoils and Rogallo wings. You'll have
 to experiment with these chutes, and perhaps try and adjust the Drag coefficient to compensate for difference from
-*OpenRocket*'s ideal parachute.
+OpenRocket's ideal parachute.
 
-NAR requires 5 square cm of parachute area per gram of mass in contest models.
+:abbr:`NAR (National Association of Rocketry)` requires 5 cm :sup:`2` of parachute area per gram of mass in contest models.
 
 In 2022, Apogee released a "Gliding Parachute", which could be steered by remote control back to the launch pad (given
 enough altitude and favorable winds). OpenRocket cannot, at this writing, simulate the behavior of the Gliding Parachute.
@@ -265,7 +265,7 @@ for servicing or replacement.
 CO\ :sub:`2`\  Ejection Devices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Another approach to eject is pioneered by **[Tinder Rocketry](https://www.tinderrocketry.com/)**, who offer a CO\ :sub:`2`\
+Another approach to eject is pioneered by `Tinder Rocketry <https://www.tinderrocketry.com/>`__, who offer a CO\ :sub:`2`\
 ejection system. Because a minimal pyro device is used to trigger the CO\ :sub:`2`\  ejection, there's not a lot of hot
 material flying around inside the airframe, and no need for wadding or a Nomex blanket. The CO\ :sub:`2`\  is cold as it's released.
 
@@ -291,35 +291,34 @@ other flat fins. This type of rocket is easy enough to build, and OpenRocket hel
 
 Let's convert *A Simple Model Rocket* from 3 flat fins, to 4 tube fins, just because we can.
 
-1. From the **File** menu, choose **Open Example** and open **A simple model rocket**.
-2. Left-click on the **Trapezoidal fin set** in the upper-left panel, and delete it.
-3. Left-click on the **Body tube**.
-4. Note that **Tube fins** is now enabled in **Body components and fin sets**. Click it.
-5. The number of fins defaults to 6. These look a little long. Drag the **length** slider until the fins are about 7cm long.
-6. Drag the **plus** slider (under **Position relative to:**) to move the fins forward just a little.
-7. Leave the **Tube fin set configuration** window open, and click on the **View Type** menu on the main window.
-   Choose the **Back view**.
+1. From the :menuselection:`File` menu, choose :menuselection:`Open Example` and open **A simple model rocket**.
+2. Left-click on the :guilabel:`Trapezoidal fin set` in the upper-left panel, and delete it.
+3. Left-click on the :guilabel:`Body tube`.
+4. Note that :guilabel:`Tube fins` is now enabled in :guilabel:`Body components and fin sets`. Click it.
+5. The number of fins defaults to 6. These look a little long. Drag the :guilabel:`length` slider until the fins are about 7 cm long.
+6. Drag the :guilabel:`plus` slider (under :guilabel:`Position relative to:``) to move the fins forward just a little.
+7. Leave the **Tube fin set configuration** window open, and click on the :guilabel:`View Type` menu on the main window.
+   Choose the :guilabel:`Back view`.
 8. Notice that OpenRocket has defaulted to an exact solution for wrapping 6 tube fins around your rocket body tube.
-   In the **Tube fin set configuration** window, drag the **Fin rotation** slider until they line up with the launch lug.
+   In the **Tube fin set configuration** window, drag the :guilabel:`Fin rotation` slider until they line up with the launch lug.
    (*Passing the launch rod through one of the tube fins to reach the launch lug is simpler than arranging the tube fins
    for the rod to pass between the tubes*)
 9. Notice that you can adjust the Outer Diameter of the fins to create designs that are harder to build, or perhaps
    impossible to build due to overlaps between tube fins.
-10. Click the **Automatic** check box beneath **Outer diameter**. The tubes conform once more to the body tube and touch
+10. Click the :guilabel:`Automatic` check box beneath :guilabel:`Outer diameter`. The tubes conform once more to the body tube and touch
     each other. Because the contact surfaces are in the right place to adhere to each other, this is probably the easiest
     type of fin configuration to build.
-11. Reduce the **Number of fins** to 5, then to 4. As long as **Automatic** is checked and the solution makes sense,
+11. Reduce the :guilabel:`Number of fins` to 5, then to 4. As long as :guilabel:`Automatic` is checked and the solution makes sense,
     the fins will wrap the body tube. At 4 fins, the tubes would have to dwarf the body tube to wrap it, and OpenRocket
     gives up on wrapping.
-12. Re-adjust the **Fin rotation** slider to line the 4-fin set up with the launch lug, either within, or beside a tube fin.
+12. Re-adjust the :guilabel:`Fin rotation` slider to line the 4-fin set up with the launch lug, either within, or beside a tube fin.
 
 Our fin conversion is complete, but before we leave the **Tube fin set configuration** window, note a few other details:
 
-- You can select preset tube components from the **Select preset** menu in the upper-right. If you choose **From database...**
-  you can pick from a wide variety of components for your tube preset. *Note that these components represent what was
-  available at the time this version of the OpenRocket component database was released - some may no longer be available*.
-  Some details of the components will fill fields of the **Tube fin set configuration** window, but *Diameter* is not one
-  of them - at least in OpenRocket 15.03.
+- You can select preset tube components by clicking the :guilabel:`Parts Library` button in the upper-right.
+  *Note that these components represent what was available at the time this version of the OpenRocket component database was
+  released - some may no longer be available*. Some details of the components will fill fields of the **Tube fin set
+  configuration** window, but *Diameter* is not one of them - at least in OpenRocket 15.03.
 - It's not possible to use the **Tube fins** component to create tube fins sliced at an angle, or to create semi-circular
   fin sections (tubes cut in half, lengthwise).
 - Though you might imagine lots of cool tube fin scenarios, this Tube fin tool will require your tubes to be in side-to-side
@@ -348,14 +347,14 @@ But, as with the body tube approach, there’s a catch, inner tubes are aerodyna
 So, if you want that ring tail "look," let's step through adding a ring tail to **A simple model rocket** to demonstrate
 the body tube method.
 
-1. From the **File** menu, choose **Open example...** and choose **A simple model rocket**.
-2. Click the **Body tube** component to add a new body tube. *Note that it's added at the aft end of the main body tube,
+1. From the :menuselection:`File` menu, choose :menuselection:`Open example...` and choose **A simple model rocket**.
+2. Click the :guilabel:`Body tube` component to add a new body tube. *Note that it's added at the aft end of the main body tube,
    and is initially the same diameter as that tube*.
-3. Increase the tube's **Outer diameter** to 8.6cm, to let it just sit on the top fin. Yes, this will look strange for a moment or two.
+3. Increase the tube's :guilabel:`Outer diameter` to 8.6 cm, to let it just sit on the top fin. Yes, this will look strange for a moment or two.
 4. Reduce the **Body tube length** to 2.5cm, so the back of the ring tail just touches the back of the fin points.
-5. Set the appearance, if you'd like. Good choices for this model are White, and 50% **Shine**. *Note that since OpenRocket
+5. Set the appearance, if you'd like. Good choices for this model are White, and 50% :guilabel:`Shine`. *Note that since OpenRocket
    thinks this is a regular body tube, the inside of the ring tail won't receive your selected color.*
-6. Close the Body tube configuration window, and switch the **View Type:** menu to **Back view**. You should see the ring
+6. Close the Body tube configuration window, and switch the :guilabel:`View Type:` menu to :guilabel:`Back view`. You should see the ring
    tail surrounding and touching the fins.
 7. You can look at the rocket in a **3D** View, or in **Photo studio** to see how it will look in the real world.
 
@@ -381,7 +380,7 @@ There are three measurements necessary to create a fin tab: tab length, tab heig
   cut through the airframe, the distance between the inside edges of the outermost centering rings.
 - **Tab height** is the distance from outside of the airframe to the outside of the motor mount tube. This is calculated
   as follows: (BT OD - MMT OD) / 2, where BT is the airframe body tube and MMT is the motor mount tube diameters.
-- **Tab position** is the distance from the root chord reference point to the fin tab reference point. *OpenRocket* features
+- **Tab position** is the distance from the root chord reference point to the fin tab reference point. OpenRocket features
   three choices:
 
   Relative to:
@@ -390,20 +389,22 @@ There are three measurements necessary to create a fin tab: tab length, tab heig
   - **the chord root midpoint** – the tab position is the distance from the fin chord root midpoint to the fin tab midpoint.
   - **the chord root trailing edge** – the tab position is the distance from the fin chord root trailing edge to the fin tab trailing edge.
 
-*OpenRocket* will automatically calculate fin tab dimensions, within the following constraints:
+OpenRocket will automatically calculate fin tab dimensions, within the following constraints:
 
 - If there are no centering rings beneath a fin, the trailing edge of the fin tab is the fin chord trailing edge and the leading edge of the fin tab is the fin chord leading edge.
 - If only one centering ring is beneath a fin, the trailing edge of the fin tab is the fin chord trailing edge and the leading edge of the fin tab is the trailing edge of the centering ring.
 - If two centering rings are beneath a fin, the trailing edge of the fin tab is the leading edge of the trailing centering ring and the leading edge of the fin tab is the trailing edge of the leading centering ring.
-- If more than two centering rings are beneath a fin, referring to the centering rings in order from the trailing edge to the leading edge of the fin chord, the trailing edge of the fin tab is the leading edge of the first centering ring and the fin tab leading edge is the trailing edge of the second centering ring. *OpenRocket* supports only one fin tab on each fin.
+- If more than two centering rings are beneath a fin, referring to the centering rings in order from the trailing edge to the leading edge of the fin chord, the trailing edge of the fin tab is the leading edge of the first centering ring and the fin tab leading edge is the trailing edge of the second centering ring. OpenRocket supports only one fin tab on each fin.
 
 Converting a simple rocket to through-the-wall design:
 
-1. At the *OpenRocket* **main window**, left-click the **File** menu, then left-click **Open example design** in the drop-down menu.
-2. In the pop-up **Open example design** box, left-click the "*A simple model rocket*" selection, then left-click the **Open** button.
-3. In the **Rocket design** view, double left-click the **Trapezoidal fin set** component.
-4. Left-click the **Fin tabs** tab.
-5. Left-click the **Calculate automatically** button.
+1. At the OpenRocket **main window**, left-click the :menuselection:`File` menu, then left-click :menuselection:`Open example design`
+   in the drop-down menu.
+2. In the pop-up :menuselection:`Open example design` box, left-click the "*A simple model rocket*" selection, then left-click
+   the :guilabel:`Open` button.
+3. In the **Rocket design** view, double left-click the :guilabel:`Trapezoidal fin set` component.
+4. Left-click the :guilabel:`Fin tabs` tab.
+5. Left-click the :guilabel:`Calculate automatically` button.
 
 And, a through-the-wall fin tab is automatically created between the two motor mount centering rings.
 
@@ -412,34 +413,51 @@ And, a through-the-wall fin tab is automatically created between the two motor m
 Electronic and Dual Deployment
 ==============================
 
-<<INSERTION POINT>>
+.. todo::
+      Add info on electronic and dual deployment.
 
 ----
 
 Clustering and Multi-staging
 ============================
 
-Complex rockets fall into two basic categories, a rocket that is propelled by a cluster of motors intended to be simultaneously ignited or multi-staged (massively-staged), propelled by a series of motors that successively ignite the next in line when the prior motor burns out.
+Complex rockets fall into two basic categories, a rocket that is propelled by a cluster of motors intended to be
+simultaneously ignited or multi-staged (massively-staged), propelled by a series of motors that successively ignite the
+next in line when the prior motor burns out.
 
 .. figure:: /img/user_guide/advanced_rocket_design/xkcd_whatif_24_model_suborbital.png
    :width: 392 px
-   :align: left
+   :align: center
    :figclass: or-image-border
-   :alt: From [xkcd 'what if' #24](https://what-if.xkcd.com/24/): *How many model rocket engines would it take to launch a real rocket to space?*, a 65,000 motor staged-and-clustered rocket. Recommended reading for all rocketeers.
+
+   From `xkcd 'what if' #24 <https://what-if.xkcd.com/24/>`__: *How many model rocket engines would it take to launch a
+   real rocket to space?*, a 65,000 motor staged-and-clustered rocket. Recommended reading for all rocketeers.
 
 Motor Clustering
 ----------------
 
-Clustering refers to launching a rocket with more than one simultaneously-ignited rocket motor. Clustering is common in "real" aerospace programs. Familiar American examples include: the [Gemini Titan](https://en.wikipedia.org/wiki/Titan_II_GLV) - a two-motor cluster, the [Saturn V](https://en.wikipedia.org/wiki/Saturn_V#S-IC_first_stage) - a cluster of five Rocketdyne F-1 motors driving the first stage, and the [Falcon 9](https://en.wikipedia.org/wiki/Falcon_9#Launcher_versions) - a cluster of 9 Merlin motors driving the main stage.
+Clustering refers to launching a rocket with more than one simultaneously-ignited rocket motor. Clustering is common in
+"real" aerospace programs. Familiar American examples include: the `Gemini Titan <https://en.wikipedia.org/wiki/Titan_II_GLV>`__
+\- a two-motor cluster, the `Saturn V <https://en.wikipedia.org/wiki/Saturn_V#S-IC_first_stage>`__ - a cluster of five
+Rocketdyne F-1 motors driving the first stage, and the `Falcon 9 <https://en.wikipedia.org/wiki/Falcon_9#Launcher_versions>`__
+\- a cluster of 9 Merlin motors driving the main stage.
 
-In model and high-power rocketry, typical clusters seen are **2-motor**, always side-by-side, due to the geometry, **3-motor**, in a triangle or straight line, **4-motor**, in a square, and **5-motor**, typically arranged with one central motor surrounded by 4 in a square - though other arrangements are possible. There's nothing preventing much larger ones, but 2, 3, 4 and 5 are most-often seen.
+In model and high-power rocketry, typical clusters seen are **2-motor**, always side-by-side, due to the geometry,
+**3-motor**, in a triangle or straight line, **4-motor**, in a square, and **5-motor**, typically arranged with one
+central motor surrounded by 4 in a square - though other arrangements are possible. There's nothing preventing much
+larger ones, but 2, 3, 4 and 5 are most-often seen.
 
-In three- and five-motor clusters, it's not uncommon to see a larger or higher-power central motor, surrounded by smaller or weaker motors. This may be done for effect, or due to modeling constraints, or to more closely resemble its full-scale inspiration, or possibly for reasons of cost. Clustered motors may be "canted" - that is, pointed to the outside of the rocket fuselage's circumference, for effect, stability, or spin.
+In three- and five-motor clusters, it's not uncommon to see a larger or higher-power central motor, surrounded by
+smaller or weaker motors. This may be done for effect, or due to modeling constraints, or to more closely resemble its
+full-scale inspiration, or possibly for reasons of cost. Clustered motors may be "canted" - that is, pointed to the
+outside of the rocket fuselage's circumference, for effect, stability, or spin.
 
 Designing a Rocket with Clustered Motors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-OpenRocket makes it easy to design motor clusters. To begin with, add an **Inner Tube** to your aft-most **Body Tube**. On the **Motor** tab, check the "This component is a motor mount" box. Set its inner diameter to one of the standard motor sizes, unless you have a unique need: 13, 18, 24, 29, 38, 54, 75 or 98mm. Next, click on the **Cluster** tab.
+OpenRocket makes it easy to design motor clusters. To begin with, add an **Inner Tube** to your aft-most **Body Tube**.
+On the **Motor** tab, check the "This component is a motor mount" box. Set its inner diameter to one of the standard
+motor sizes, unless you have a unique need: 13, 18, 24, 29, 38, 54, 75 or 98mm. Next, click on the **Cluster** tab.
 
 .. figure:: /img/user_guide/advanced_rocket_design/ClusterTab.png
    :width: 800 px
@@ -447,11 +465,18 @@ OpenRocket makes it easy to design motor clusters. To begin with, add an **Inner
    :figclass: or-image-border
    :alt: OpenRocket's **Cluster** tab
 
-The **Cluster** tab lets you choose a common cluster configuration, and adjust it in your model. When you make an **Inner Tube** a cluster, you treat every tube in the cluster identically with each addition. If you add an **Engine block** or a **Mass component**, all of the tubes in the cluster will receive one.
+The **Cluster** tab lets you choose a common cluster configuration, and adjust it in your model. When you make an
+**Inner Tube** a cluster, you treat every tube in the cluster identically with each addition. If you add an
+**Engine block** or a **Mass component**, all of the tubes in the cluster will receive one.
 
-First, pick a cluster configuration from the image tiles on the left side of the tab. Realize that depending upon the sizes of your motor tube and body tube, not every cluster that you can make will fit.
+First, pick a cluster configuration from the image tiles on the left side of the tab. Realize that depending upon the
+sizes of your motor tube and body tube, not every cluster that you can make will fit.
 
-Next, adjust the **Tube separation**. This value controls how close the clustered motors are to each other. A value of 1 places the tubes in contact with each other. You can enter decimals like "1.25" in the separation field. In addition to potentially affecting your rocket's stability, the **Tube separation** you choose may influence the difficulty of wiring your clustered motors for ignition, and your ability to place adhesive and parts around tightly-packed tubes during construction.
+Next, adjust the **Tube separation**. This value controls how close the clustered motors are to each other. A value of
+1 places the tubes in contact with each other. You can enter decimals like "1.25" in the separation field. In addition
+to potentially affecting your rocket's stability, the **Tube separation** you choose may influence the difficulty of
+wiring your clustered motors for ignition, and your ability to place adhesive and parts around tightly-packed tubes
+during construction.
 
 .. figure:: /img/user_guide/advanced_rocket_design/ClusterAft.png
    :width: 800 px
@@ -459,89 +484,155 @@ Next, adjust the **Tube separation**. This value controls how close the clustere
    :figclass: or-image-border
    :alt: Clustered motor mounts, viewed from aft.
 
-The **Rotation** setting rotates your cluster around the major axis of your rocket (the Up <--> Down one). It's used to line up the motors with other decorative and structural components of your rocket. This alignment may be critical if you're creating a design that ducts eject gasses from one part of the rocket to another.
+The **Rotation** setting rotates your cluster around the major axis of your rocket (the Up <--> Down one). It's used to
+line up the motors with other decorative and structural components of your rocket. This alignment may be critical if
+you're creating a design that ducts eject gasses from one part of the rocket to another.
 
-The **Split cluster** button changes this component from a clustered motor component that can be handled as a unit, to individual motor tubes, which may be positioned and edited independently of each other. Once you split the cluster, items and settings you change for each tube will not automatically be added to the other tubes in the cluster. You may want this option if you have motor mount tubes of different lengths or diameters in the cluster. *Once split, a cluster cannot be recombined*. You must re-create the cluster as a unit if you'd like to revert to that approach.
+The **Split cluster** button changes this component from a clustered motor component that can be handled as a unit, to
+individual motor tubes, which may be positioned and edited independently of each other. Once you split the cluster,
+items and settings you change for each tube will not automatically be added to the other tubes in the cluster. You may
+want this option if you have motor mount tubes of different lengths or diameters in the cluster. *Once split, a cluster
+cannot be recombined*. You must re-create the cluster as a unit if you'd like to revert to that approach.
 
 Igniting a Cluster
 ^^^^^^^^^^^^^^^^^^
 
-Important to the stability of the rocket's flight is that all the motors ignite more or less simultaneously. The initial concerns here are that all the motors' igniters are wired to take a single application of voltage from the launch controller, and that the controller be able to provide adequate voltage and current to ignite all the motors.
+Important to the stability of the rocket's flight is that all the motors ignite more or less simultaneously. The initial
+concerns here are that all the motors' igniters are wired to take a single application of voltage from the launch
+controller, and that the controller be able to provide adequate voltage and current to ignite all the motors.
 
-Estes Rockets used to advise that igniter wires be twisted together in either [series or parallel configurations](https://en.wikipedia.org/wiki/Series_and_parallel_circuits). Each has its advantages: with a series connection, any burnt igniter will show an open circuit upon arming, while with a parallel connection, the launch controller can use the same voltage as always, but supply more current to ignite multiple motors at once. Today, most clusters are wired in parallel, and the rocketeer must ensure that ample current is available for launch.
+Estes Rockets used to advise that igniter wires be twisted together in either
+`series or parallel configurations <https://en.wikipedia.org/wiki/Series_and_parallel_circuits>`__. Each has its advantages:
+with a series connection, any burnt igniter will show an open circuit upon arming, while with a parallel connection, the
+launch controller can use the same voltage as always, but supply more current to ignite multiple motors at once. Today,
+most clusters are wired in parallel, and the rocketeer must ensure that ample current is available for launch.
 
-Some cluster igniter wiring schemes use a **buss bar** - a short length of regular conductive wire, typically non-insulated, for ease of connecting to it as needed - as a way of bridging what can be complex connections in a tight space, into an easier connection plan. For example, you can twist one end of each igniter together in a bundle, and the other end of each to the buss bar. The launch micro-clips then connect one to the bundle, and the other to the buss bar, for a parallel connection.
+Some cluster igniter wiring schemes use a **buss bar** - a short length of regular conductive wire, typically non-insulated,
+for ease of connecting to it as needed - as a way of bridging what can be complex connections in a tight space, into an
+easier connection plan. For example, you can twist one end of each igniter together in a bundle, and the other end of
+each to the buss bar. The launch micro-clips then connect one to the bundle, and the other to the buss bar, for a
+parallel connection.
 
-A convenient tool for igniting a cluster is a **cluster whip** - a set of wires and micro-clips that allows the single pair of clips at the launch pad to be easily broken into multiple sets of clips, to attach to multiple igniters, and providing a parallel connection. The cluster whip connects to the igniters, and the launch controller's micro-clips connect to conductors on the cluster whip.
+A convenient tool for igniting a cluster is a **cluster whip** - a set of wires and micro-clips that allows the single
+pair of clips at the launch pad to be easily broken into multiple sets of clips, to attach to multiple igniters, and
+providing a parallel connection. The cluster whip connects to the igniters, and the launch controller's micro-clips
+connect to conductors on the cluster whip.
 
 Igniting Clustered APCP motors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-APCP (*Ammonium Perchlorate Composite Propellant*) motors typical of Aerotech, Cesaroni, and Loki, are slower to ignite than Black Powder motors (typical Estes motors). They may unpredictably "chuff", sit quiet for a moment and then ignite, or even "spit" the igniter out. Because of this difference, and the unpredictability of APCP motor ignition, it's more than a little likely that clustered APCP motors won't ignite simultaneously, if at all. When designing for an APCP cluster (if you decide to roll these dice...), take into account what will happen to the rocket if not all motors ignite before it pulls away from the pad. The safety of observers, and of your airframe hang in the balance.
+APCP (*Ammonium Perchlorate Composite Propellant*) motors typical of Aerotech, Cesaroni, and Loki, are slower to ignite
+than Black Powder motors (typical Estes motors). They may unpredictably "chuff", sit quiet for a moment and then ignite,
+or even "spit" the igniter out. Because of this difference, and the unpredictability of APCP motor ignition, it's more
+than a little likely that clustered APCP motors won't ignite simultaneously, if at all. When designing for an APCP
+cluster (if you decide to roll these dice...), take into account what will happen to the rocket if not all motors
+ignite before it pulls away from the pad. The safety of observers, and of your airframe hang in the balance.
 
 Using Clustering for Body Tubes With, or Without Motors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It's possible to create imaginative designs, or mimic scale rockets of yesteryear by using OpenRocket's clustering capability. One limitation of doing so is that regular **Body tube** components have no Cluster tab. To add Clustered tubes (which are, by OpenRocket's definition always **Inner Tubes**) using OpenRocket's clustering features, you must first have a regular **Body tube**.
+It's possible to create imaginative designs, or mimic scale rockets of yesteryear by using OpenRocket's clustering
+capability. One limitation of doing so is that regular **Body tube** components have no Cluster tab. To add Clustered
+tubes (which are, by OpenRocket's definition always **Inner Tubes**) using OpenRocket's clustering features, you must
+first have a regular **Body tube**.
 
-You can use your regular **Body tube** as strapping around your clustered tubes, as a **Nose cone** mount, as an eject gas manifold, or even create a "Vestigial" body tube. To do this, add a regular **Body tube** then set its length to something like .0001 cm. The **Body tube** will be in the hierarchy and can have **Inner tubes**, but will barely be seen in the renderings.
+You can use your regular **Body tube** as strapping around your clustered tubes, as a **Nose cone** mount, as an eject
+gas manifold, or even create a "Vestigial" body tube. To do this, add a regular **Body tube** then set its length to
+something like .0001 cm. The **Body tube** will be in the hierarchy and can have **Inner tubes**, but will barely be
+seen in the renderings.
 
-There are some limitations, as **Inner tubes** are not meant to be used in this way. They can't take a **Nose cone** nor some other components. They won't affect aerodynamics, even if you're trying to make them into tube-fin-like things. And whether as a unit or as a **Split cluster**, you can't convert **Inner tubes** to **Body tubes**.
+There are some limitations, as **Inner tubes** are not meant to be used in this way. They can't take a **Nose cone**
+nor some other components. They won't affect aerodynamics, even if you're trying to make them into tube-fin-like things.
+And whether as a unit or as a **Split cluster**, you can't convert **Inner tubes** to **Body tubes**.
 
 Conventional Staging
 --------------------
 
-A "closed-hull" design with a separating airframe in which finned-stages holding motors are stacked up, and lower stages holding burned-out casings separate under pressure as upper stages ignite. Conventional staging is inherently limited to three stages because of the "Pisa Effect" which results in an increasing arcing trajectory with each stage.
+A "closed-hull" design with a separating airframe in which finned-stages holding motors are stacked up, and lower stages
+holding burned-out casings separate under pressure as upper stages ignite. Conventional staging is inherently limited to
+three stages because of the "Pisa Effect" which results in an increasing arcing trajectory with each stage.
 
-In designing multi-staged rockets, it's important to realize that the center of mass will tend to start well toward the rear of the rocket, based on the booster stage(s) weighted with the loaded motors. As booster motors are spent and the spent stage(s) ejected, the center of mass will tend to move forward. Careful design ensures that the center of mass remains forward of the center of pressure throughout the flight. Weighting and weight redistribution can move the center of mass forward, while larger fin area tends to move the center of pressure aft. Ensure at least 1.0 airframe caliber of separation between the (forward) center of mass and (aft) center of pressure. This is a rule of thumb, not a hard-and-fast stability solution.
+In designing multi-staged rockets, it's important to realize that the center of mass will tend to start well toward the
+rear of the rocket, based on the booster stage(s) weighted with the loaded motors. As booster motors are spent and the
+spent stage(s) ejected, the center of mass will tend to move forward. Careful design ensures that the center of mass
+remains forward of the center of pressure throughout the flight. Weighting and weight redistribution can move the
+center of mass forward, while larger fin area tends to move the center of pressure aft. Ensure at least 1.0 airframe
+caliber of separation between the (forward) center of mass and (aft) center of pressure. This is a rule of thumb, not a
+hard-and-fast stability solution.
 
 Rack Staging
 ------------
 
-An "open-hull" design with a non-separating airframe in which motors are staked up, end-to-end, in a frame, and only the burned-out casings are ejected under pressure as higher stages ignite, stage-after-stage. So long as high average impulse lower stage motors are used to ensure adequate initial velocities, rack staging is not inherently limited because this design overcomes the "Pisa Effect."
+An "open-hull" design with a non-separating airframe in which motors are staked up, end-to-end, in a frame, and only the
+burned-out casings are ejected under pressure as higher stages ignite, stage-after-stage. So long as high average impulse
+lower stage motors are used to ensure adequate initial velocities, rack staging is not inherently limited because this
+design overcomes the "Pisa Effect."
 
-Here's a **[2007 video demonstrating rack staging](https://sites.google.com/site/theskydartteam/projects/model-rocketry/rack-rocket-design)**.
+Here's a `2007 video demonstrating rack staging <https://sites.google.com/site/theskydartteam/projects/model-rocketry/rack-rocket-design>`__.
 
 The BPS Aerospace thrust-vectoring design uses this approach to move a new motor into position for a landing burn.
 
 Regulatory Concerns
 ====================
 
-Rocketry is subject to regulation by federal, state, and local governments, and most of the regulations that rocketeers must follow are promulgated by the National Fire Protection Association (NFPA) and the Federal Aviation Administration (FAA). The NFPA divides rockets into two major classifications, model rockets (NFPA § 1122) and high power rockets (NFPA § 1127), the difference primarily being weight and power, as follows:
+Rocketry is subject to regulation by federal, state, and local governments, and most of the regulations that rocketeers
+must follow are promulgated by the National Fire Protection Association (NFPA) and the Federal Aviation Administration (FAA).
+The NFPA divides rockets into two major classifications, model rockets (NFPA § 1122) and high power rockets (NFPA § 1127),
+the difference primarily being weight and power, as follows:
 
-- **Model Rocket**. A rocket vehicle that weighs no more than 1500 g (53 oz) with motors installed, is propelled by one or more model rocket motors having an installed total impulse of no more than 320 N-sec (71.9 lb-sec), and contains no more than a total of 125 g (4.4 oz) of propellant weight. (NFPA § 1122, subd. 3.3.7.2.)
-- **High Power Rocket**. A rocket vehicle that weighs more than 1500 g (53 oz) with motors installed and is either propelled by one or more high power rocket motors or by a combination of model rocket motors having an installed total impulse of more than 320 N-sec (71.9 lb-sec). (NFPA §1127, subd. 3.3.13.1.)
+- **Model Rocket**. A rocket vehicle that weighs no more than 1500 g (53 oz) with motors installed, is propelled by one
+  or more model rocket motors having an installed total impulse of no more than 320 N-sec (71.9 lb-sec), and contains no
+  more than a total of 125 g (4.4 oz) of propellant weight. (NFPA § 1122, subd. 3.3.7.2.)
+- **High Power Rocket**. A rocket vehicle that weighs more than 1500 g (53 oz) with motors installed and is either
+  propelled by one or more high power rocket motors or by a combination of model rocket motors having an installed total
+  impulse of more than 320 N-sec (71.9 lb-sec). (NFPA §1127, subd. 3.3.13.1.)
 
-Within the high power rocket classification, a subclassification for "complex" rockets is defined as a high power rocket that is multi-staged or propelled by a cluster of two or more rocket motors. (NFPA §1127, subd. 3.3.13.1.1.) And, a high power rocket launched with an installed total impulse greater than 2,560 N-sec (576 lb-sec) must have an electronically actuated recovery system. (NFPA §1127, subd. 4.10.2.)
+Within the high power rocket classification, a subclassification for "complex" rockets is defined as a high power rocket
+that is multi-staged or propelled by a cluster of two or more rocket motors. (NFPA §1127, subd. 3.3.13.1.1.) And, a
+high-power rocket launched with an installed total impulse greater than 2,560 N-sec (576 lb-sec) must have an electronically
+actuated recovery system. (NFPA §1127, subd. 4.10.2.)
 
 ----
 
 National Association of Rocketry
 ================================
 
-National Association of Rocketry pursuits the goal of safe, fun and educative sport rocketry. It is the oldest and largest sport rocketry organization in the world. Visit dedicated [Wiki page](http://en.wikipedia.org/wiki/National_Association_of_Rocketry) or [NAR official website](http://www.nar.org/) for more information.
+National Association of Rocketry pursuits the goal of safe, fun and educative sport rocketry. It is the oldest and largest
+sport rocketry organization in the world. Visit dedicated `Wiki page <http://en.wikipedia.org/wiki/National_Association_of_Rocketry>`__
+or `NAR official website <http://www.nar.org/>`__ for more information.
 
-The major work of the NAR includes, but not limited to:
+The major work of the :abbr:`NAR (National Association of Rocketry)` includes, but not limited to:
 
 - Certification of Rocketry-Related products and establishment of safety codes
 
-  The NAR is a recognized authority for safety certification of consumer rocket motors and user certification of high- power rocket fliers in the U.S. It plays a major role in establishment of safety codes for the hobby used and accepted by manufacturers and public safety officials nationwide.
+  The :abbr:`NAR (National Association of Rocketry)` is a recognized authority for safety certification of consumer
+  rocket motors and user certification of high- power rocket fliers in the U.S. It plays a major role in establishment
+  of safety codes for the hobby used and accepted by manufacturers and public safety officials nationwide.
 
 - Certification of experienced rocketeers
 
-  NAR issues three levels of High Power Rocketry (HPR) certificates, Level 1 (L1) through Level 3 (L3). Certificates are necessary to purchase powerful rocket motor components.
+  :abbr:`NAR (National Association of Rocketry)` issues three levels of High Power Rocketry (HPR) certificates,
+  Level 1 (L1) through Level 3 (L3). Certificates are necessary to purchase powerful rocket motor components.
 
 - Communication with public officials
 
-  The NAR helps in communication with local public safety officials, and government regulatory agencies such as the Department of Transportation, Federal Aviation Administration, Bureau of Alcohol Tobacco Firearms and Explosives, and Consumer Product Safety Commission.
+  The :abbr:`NAR (National Association of Rocketry)` helps in communication with local public safety officials, and
+  government regulatory agencies such as the Department of Transportation, Federal Aviation Administration, Bureau of
+  Alcohol Tobacco Firearms and Explosives, and Consumer Product Safety Commission.
 
 - Other work
 
-  The NAR publishes the bimonthly color magazine Sport Rocketry (sent to each member and selected libraries and newsstands around the nation). The NAR provides a wide range of other services to its members, including: education programs; national and local competitions; grants to teachers and scholarships for student members; flight performance record recognition; liability insurance; and publication of technical literature.
+  The :abbr:`NAR (National Association of Rocketry)` publishes the bimonthly color magazine Sport Rocketry (sent to
+  each member and selected libraries and newsstands around the nation). The :abbr:`NAR (National Association of Rocketry)`
+  provides a wide range of other services to its members, including: education programs; national and local competitions;
+  grants to teachers and scholarships for student members; flight performance record recognition; liability insurance; and
+  publication of technical literature.
 
 ----
 
 Tripoli Rocketry Association
 =============================
 
-<<INSERTION POINT>>
+.. todo::
+
+   Add information about Tripoli Rocketry Association.

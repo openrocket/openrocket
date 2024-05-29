@@ -47,65 +47,40 @@ Here you'll be able to quickly choose from a number of standard plots:
    :figclass: or-image-border
    :alt: Standard plots
 
-You'll also be able to assign to the X and Y axes any one of over 50 parameters:
+You'll also be able to assign to the X and Y axes any one of over 50 parameters. If you click on the plot variable
+dropdown, you'll see a search box and a list of variable categories. You can either scroll through the categories
+to find the parameter you want, or type in the search box to filter the list:
 
-- Time
-- Altitude
-- Vertical velocity
-- Vertical acceleration
-- Total velocity
-- Total acceleration
-- Lateral distance
-- Lateral direction
-- Lateral velocity
-- Lateral acceleration
-- Latitude
-- Longitude
-- Gravitational acceleration
-- Angle of attack
-- Roll rate
-- Pitch rate
-- Yaw rate
-- Mass
-- Propellant mass
-- Longitudinal moment of inertia
-- Rotational moment of inertia
-- CP location
-- CG location
-- Stability margin calibers
-- Mach number
-- Reynolds number
-- Thrust
-- Drag force
-- Drag coefficient
-- Axial drag coefficient
-- Friction drag coefficient
-- Pressure drag coefficient
-- Base drag coefficient
-- Normal force coefficient
-- Pitch moment coefficient
-- Yaw moment coefficient
-- Side force coefficient
-- Roll moment coefficient
-- Roll forcing coefficient
-- Roll damping coefficient
-- Pitch damping coefficient
-- Reference length
-- Reference area
-- Vertical orientation (zenith)
-- Lateral orientation (azimuth)
-- Wind velocity
-- Air temperature
-- Air pressure
-- Speed of sound
-- Simulation time step
-- Computation time
-- Position parallel to wind
-- Position upwind
+.. figure:: /img/user_guide/advanced_flight_simulation/ChoosePlotVariable.png
+   :width: 806 px
+   :align: center
+   :figclass: or-image-border
+   :alt: Select plot variable
+
+   Select a plot variable from the variable groups (left), or search for the desired variable (right).
+
+The parameters are categorized in the
+following groups:
+
+- **Time**: Variables related to time
+- **Position and Motion**: Variables related to the position and motion of the rocket (e.g. altitude, position, velocity, acceleration)
+- **Orientation**: Variables related to the orientation of the rocket (e.g. pitch, yaw, roll)
+- **Mass and Inertia**: Variables related to the mass and inertia
+- **Stability**: Variables related to the stability of the rocket (e.g. CG, CP, stability margin)
+- **Thrust and Drag**: Variables related to the thrust and drag (e.g. thrust, TWR, drag)
+- **Coefficients**: Variables related to the calculation coefficients (e.g. normal force coefficient, roll moment coefficient)
+- **Atmospheric Conditions**: Variables related to the atmospheric conditions (e.g. air pressure, wind velocity)
+- **Characteristic Numbers**: Variables related to the characteristic numbers (e.g. Mach number, Reynolds number)
+- **Reference Values**: Variables related to the reference values (e.g. reference area, reference length)
+- **Simulation Information**: Variables related to the simulation information (e.g. simulation time step)
+- **Custom**: *(User-defined parameters)*
+
+
+
 
 You can assign multiple parameters to the Y-axis, and choose whether their scales appear on the left, or the right side
-of the plot. You can add Y-axis parameters with the **New Y-axis plot type** button, or delete parameters from the plot
-with the **X** buttons. *(The X-axis takes only a single plotted parameter, typically **Time**).*
+of the plot. You can add Y-axis parameters with the :guilabel:`New Y-axis plot type` button, or delete parameters from the plot
+with the :guilabel:`X` buttons. (*The X-axis takes only a single plotted parameter, typically* **Time**).
 
 Additionally, you can choose from several flight events, any or all of which can be called out on your plot, in reference
 to the simulated time of occurrence.
@@ -173,7 +148,7 @@ far downrange your rocket will drift.
 
 In the screen shown below, you can set parameters (and units) for wind, and for your **Launch site**, you can set the
 **Latitude**, **Longitude** and **Altitude**, as well as **Atmospheric conditions**. Note that Atmospheric conditions
-affect your rocket's ascent velocity, as well as the local [Speed of Sound](https://en.wikipedia.org/wiki/Speed_of_sound).
+affect your rocket's ascent velocity, as well as the local `Speed of Sound <https://en.wikipedia.org/wiki/Speed_of_sound>`__.
 
 This is also the panel where you can set the length of your launch rod or rail. This length will affect whether your
 simulation *passes or fails*, when it's evaluated for minimum speed off the rod.
@@ -188,9 +163,9 @@ Simulation options
 ------------------
 
 In the **Simulation options** tab, the **Simulator options** let you choose the shape of the simulated Earth in your
-calculations (*doing so **does not** affect the Earth background in Photo Studio*), and you can choose the time-resolution
+calculations (*doing so* **does not** *affect the Earth background in Photo Studio*), and you can choose the time-resolution
 of the simulation. This is also the place where you add and set up **Simulation extensions**, which are beyond this
-guide's purpose (*and frankly, beyond this author's knowledge!*).
+guide's purpose.
 
 .. figure:: /img/user_guide/advanced_flight_simulation/EditSimulationSimOpts.png
    :width: 800 px
@@ -198,18 +173,20 @@ guide's purpose (*and frankly, beyond this author's knowledge!*).
    :figclass: or-image-border
    :alt: The Edit simulation window: Simulation options.
 
+   The Simulation options in the simulation configuration window
+
 ----
 
 Exporting Data
 ==============
 
-Located on the Plot / export panel, the Export Data tab (shown below) helps you set up a Comma-Separated Value (.csv)
+Located on the **Plot / export panel**, the **Export Data tab** (shown below) helps you set up a Comma-Separated Value (.csv)
 formatted file to export data from your simulations. You can export any or all of over 50 values (generally speaking,
 the list of parameters above, plus **Coriolis acceleration**). Optional **Comments** sections list any flight events
 (**Apogee**, for example) you selected for your simulation, as well as description and field descriptions.
 
 You can choose separators other than comma, if you prefer semicolon, space, or TAB-delimited data. Once you have your
-data choices set up, clicking the **Export** button brings up a file dialog to choose a filename and location for your
+data choices set up, clicking the :guilabel:`Export` button brings up a file dialog to choose a filename and location for your
 exported data.
 
 .. figure:: /img/user_guide/advanced_flight_simulation/ExportData.png
@@ -217,4 +194,6 @@ exported data.
    :align: center
    :figclass: or-image-border
    :alt: The Export data window.
+
+   The Export data window.
 

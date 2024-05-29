@@ -206,13 +206,31 @@ of the hyperlink. For example: `Hey, I'm a link! <https://www.youtube.com/watch?
    Always use a double underscore at the end. Don't use a single underscore, as this can cause issues when you have
    multiple hyperlinks with the same text.
 
-Notes and Warnings
-------------------
+Admonitions: Tip, Note, Warning, Attention, See also
+----------------------------------------------------
 
-As you saw just above, you can add notes and warnings to draw attention to important information. More information can
-be found `here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/notes_warnings.html>`__.
+As you saw just above, you can add notes and warnings to draw attention to important information. The following are
+all the possible admonition type: "**attention**", "**caution**", "**danger**", "**error**", "**hint**", "**important**",
+"**note**", "**tip**", "**warning**". More information can be found
+`here <https://docutils.sourceforge.io/docs/ref/rst/directives.html#specific-admonitions>`__.
 
-Create a note like this:
+The most uses admonitions in the OpenRocket docs are:
+
+Tip
+^^^
+
+.. code-block:: rst
+
+    .. tip::
+
+       This is a tip.
+
+.. tip::
+
+   This is what the tip looks like.
+
+Note
+^^^^
 
 .. code-block:: rst
 
@@ -220,13 +238,48 @@ Create a note like this:
 
        This is a note.
 
-Create a warning like this:
+.. note::
+
+   This is what the note looks like.
+
+Warning
+^^^^^^^
 
 .. code-block:: rst
 
     .. warning::
 
        This is a warning.
+
+.. warning::
+
+   This is what the warning looks like.
+
+Attention
+^^^^^^^^^
+
+.. code-block:: rst
+
+    .. attention::
+
+       This is an attention.
+
+.. attention::
+
+    This is what a point of attention looks like.
+
+See Also
+^^^^^^^^
+
+.. code-block:: rst
+
+    .. seealso::
+
+       This is a seealso.
+
+.. seealso::
+
+   See also the following page :doc:`Development Overview </dev_guide/development_overview>`
 
 Semantic Markup
 ---------------
@@ -333,3 +386,20 @@ of the list item. For example:
       lines. This is a list item that is broken up into multiple lines.
 
 If you do not have the right indentation, you will get a compile warning when you build the documentation.
+
+ToDo's
+------
+
+If you are working on a part of the documentation that is not yet finished, you can add a ToDo note to remind yourself to
+finish it later. You can do this by adding a ``todo`` directive to the text. For example:
+
+.. code-block:: rst
+
+   .. todo::
+
+      This section is not yet finished. Please come back later to complete it.
+
+You can view the ToDo's in the documentation if you set the ``todo_include_todos`` option to ``True`` in the
+:file:`docs/source/conf.py` file. After you've done this and rebuilt the docs, you should see a list of all the ToDo's here:
+
+.. todolist::

@@ -151,8 +151,8 @@ the component tree. For example, if you selected a fin set component in the comp
 will be greyed out, because you can not add a nose cone to a fin set. As components are added, you will
 see the component tree (on the left side of the window) grow with each component added.
 
-..
-   TODO: For a detailed description of each component, see :ref:`Component Details <component_details>`.
+.. todo::
+   For a detailed description of each component, see \:ref\:\`Component Details <component_details>\`.
 
 Motors & Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -176,7 +176,8 @@ With a specific configuration selected, you may:
 - :guilabel:`Select ignition`: Set the motor ignition timing for the current motor.
 - :guilabel:`Reset ignition`: Reset the motor ignition timing for the current motor to the default values.
 
-.. TODO: For more motors and configuration utilization details, see :ref:`Motors & Configuration Details <motors_configuration_details>`.
+.. todo::
+   For more motors and configuration utilization details, see \:ref\:\`Motors & Configuration Details <motors_configuration_details>\`.
 
 Flight Simulations
 ^^^^^^^^^^^^^^^^^^
@@ -190,8 +191,8 @@ The **Flight Simulations** tab is where you manage and run flight simulations an
 you can add new simulations, or edit, run, or delete existing simulations. Select a single simulation, and you can
 even plot and export the simulation results.
 
-..
-   TODO: For more details on how to use these functions, see :ref:`Flight Simulations Details <flight_simulations_details>`.
+.. todo::
+   For more details on how to use these functions, see \:ref\:\`Flight Simulations Details <flight_simulations_details>\`.
 
 Rocket Views
 ------------
@@ -266,6 +267,7 @@ Become Familiar with OpenRocket
 For new users of OpenRocket, before attempting to create your own custom rocket design, it is strongly recommended that
 you become familiar with the OpenRocket user interface and generally accepted rocket design principles by opening and
 looking at how an example is assembled, making changes to the example, and understanding how to simulate flights.
+
 The example designs are found here:
 
 .. figure:: /img/setup/getting_started/2023.01.Open_Example.png
@@ -274,6 +276,33 @@ The example designs are found here:
    :figclass: or-image-border
 
    Where to find the example design files.
+
+OpenRocket currently includes the following example designs:
+
+- "Standard" designs:
+   - **A simple model rocket**: A basic rocket design. This is a good starting point for new users. The design contains all
+     the elements of a standard rocket design, including recovery and experimentation with different motors.
+   - **Two-stage rocket**: A two-stage rocket design
+   - **Three-stage rocket**: A three-stage rocket design
+   - **TARC payload rocket**: Demonstrates payload and booster sections with individual recovery systems deployed by motor ejection.
+     TARC = Team America Rocketry Challenge
+   - **3D Printable Nose Cone and Fins**: A rocket design to test exporting the nose cone and fins to an OBJ file for 3D printing.
+- "Advanced" designs
+   - **Airstart timing**: Demonstrates the effect of different airstart timings on overall altitude.
+   - **Base drag hack (short-wide)**: Demonstrates the application of the "base drag" hack to adjust the center of pressure
+     for a short-wide rocket, one with a length to diameter ratio of less than 10:1.
+   - **Chute release**: A simple model rocket example adapted to use an electronic chute release.
+   - **Dual parachute deployment**: A standard fiberglass zipperless dual deploy rocket.
+   - **Clustered motors**: A rocket design with clustered motors.
+   - **Parallel booster staging**: Demonstrates parallel booster staging.
+   - **Pods--airframes and winglets**: Demonstrates two uses of pods, both for the traditional "wing pods", and also
+     using a phantom body tube to implement "fins on fins" for the horizontal stabilizer.
+   - **Pods--powered with recovery deployment**: Demonstrates the use of pods for powered recovery deployment.
+- Designs using advanced simulations, such as extensions and scripting
+  - **Simulation extensions**: Demonstrates active roll control and air-start using simulation extensions. The main fins are slightly misaligned, which causes roll to occur.
+  - **Simulation scripting**: Demonstrates active roll control and air-start using simulation extension written in JavaScript.
+
+----
 
 The Basics of Using OpenRocket
 ==============================
@@ -547,6 +576,8 @@ of which are **3D Unfinished** and **3D Finished**.
 
    3D Finished view (what your final build would look like).
 
+----
+
 Adding Appearance Settings
 ==========================
 
@@ -695,14 +726,16 @@ After splitting the fins, **SAVE AND REOPEN THE DESIGN FILE**, then view in **3D
    :align: center
    :figclass: or-image-border
 
-Viewing in **Photo Studio**
----------------------------
+----
+
+Viewing in Photo Studio
+=======================
 
 So, what will this bird look like in flight? For that, we can use the **Photo Studio** tool. However, to get a representative
 representation, you need to add a motor first.
 
 Selecting a Motor
-^^^^^^^^^^^^^^^^^
+-----------------
 
 In the :guilabel:`Task tabs` in the UI, select the :guilabel:`Motors & Configuration` tab. Then, make sure that the correct
 motor tube is selected on the left in the :guilabel:`Motor mounts` list before clicking :guilabel:`New Configuration`.
@@ -733,8 +766,8 @@ Now, select the D-12-7 as the **Flight Configuration**, and you're ready to go t
 
    Select the D-12-7 as the **Flight Configuration**.
 
-Flying in **Photo Studio**
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Flying in Photo Studio
+----------------------
 
 Are you ready to see your rocket fly? Then, open :guilabel:`Photo Studio` from the :menuselection:`Tools` menu.
 

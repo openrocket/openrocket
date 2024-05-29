@@ -80,7 +80,7 @@ Component Database
 Thrust Curves
 =============
 
-OR uses Thrustcurves.org for its thrustcurves/motors.
+:abbr:`OR (OpenRocket)` uses Thrustcurves.org for its thrustcurves/motors.
 
 Scripts
 =======

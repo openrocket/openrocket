@@ -203,4 +203,5 @@ If you have further issues, please `contact us <https://openrocket.info/contact.
 Uninstalling
 ============
 
-``TODO``
+.. todo::
+   Add uninstallation instructions.

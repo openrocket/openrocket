@@ -33,6 +33,7 @@ release = '23.09'
 # ones.
 extensions = [
     'sphinx.ext.duration',
+    'sphinx.ext.todo',
     'sphinx_new_tab_link',
     'sphinx_rtd_dark_mode',
 ]
@@ -44,6 +45,11 @@ exclude_patterns = []
 
 # user starts in light mode
 default_dark_mode = False
+
+# -- Options for todo extension ----------------------------------------------
+
+# Show TODOs in the output
+todo_include_todos = True
 
 # -- Options for ReadTheDocs -------------------------------------------------
 

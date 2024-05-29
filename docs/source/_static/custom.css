@@ -11,6 +11,47 @@
     max-width: 42% !important;
 }
 
+.seealso .admonition-title {
+    background: #85898c !important;
+}
+
+.seealso .admonition-title::before {
+    content: "\f064";
+    margin-right: 0.5em;
+}
+
+.seealso {
+    background: #eee !important;
+}
+
+.tip .admonition-title::before {
+    content: "\f0eb";
+    margin-right: 0.5em;
+}
+
+.note .admonition-title::before {
+    content: "\f05a";
+    margin-right: 0.5em;
+}
+
+.warning .admonition-title::before {
+    content: "\f071";
+    margin-right: 0.5em;
+}
+
+.attention .admonition-title {
+    background: #e87f7a !important;
+}
+
+.attention .admonition-title::before {
+    content: "\f0f3";
+    margin-right: 0.5em;
+}
+
+.attention {
+    background: #ffd6cc !important;
+}
+
 /* Custom OpenRocket CSS */
 
 .or-figclass {

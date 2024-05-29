@@ -2,13 +2,15 @@
 Rocket Analysis
 ***************
 
-.. warning::
+.. attention::
 
     This chapter is a work in progress.
 
-- *component analysis dialog*
-- *more details about the plottable variables? - pick up from previous chapter and cover the rest of the graphing/plottable variables in full.*
-- *instructions to export simulation data and use it elsewhere*
-- *print / pdf export*
+.. todo::
 
-*This chapter has some overlap with Advanced Flight Simulation, need to check the division.*
+   - *add a section on the component analysis dialog*
+   - *add a section on the plottable variables*
+   - *add a section on exporting simulation data*
+   - *add a section on print / pdf export*
+   - *check overlap with the Advanced Flight Simulation section*
+

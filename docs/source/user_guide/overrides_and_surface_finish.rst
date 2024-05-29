@@ -158,11 +158,11 @@ Background
 ----------
 
 The ‘’Stage’‘, ‘’Boosters’‘, and ‘’Pods’‘ assembly components feature mass and center of gravity override options that
-may be used to adjust the rocket’s margin of stability. Prior to the release of OpenRocket 22.02 Beta 5, the use of these
+may be used to adjust the rocket’s margin of stability. Prior to the release of OpenRocket 22.02, the use of these
 options overrode the mass and center of gravity of **all** of the assembly subcomponents, limiting the use of these
 options to matching the rocket’s finished mass and center of gravity.
 
-Beginning with the release of OpenRocket 22.02 Beta 5, when using these options, you may choose not to override the mass
+Beginning with the release of OpenRocket 22.02, when using these options, you may choose not to override the mass
 and center of gravity of the assembly subcomponents, choosing instead to add to or subtract from the values calculated
 by OpenRocket. So, why is this an important change?
 

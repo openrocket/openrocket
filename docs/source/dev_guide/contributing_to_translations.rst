@@ -10,11 +10,11 @@ OpenRocket is translated into multiple languages. If you want to help with trans
 
 ----
 
-..
-   TODO: reference a doc in user_guide for changing the language
+.. todo::
+   Reference a doc in user_guide for changing the language
 
-..
-   TODO: add current state of translations?
+.. todo::
+   Add current state of translations?
 
 How Translations Work
 =====================
