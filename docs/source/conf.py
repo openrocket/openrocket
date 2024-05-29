@@ -20,6 +20,7 @@
 project = 'OpenRocket'
 copyright = '2024, OpenRocket team'
 author = 'OpenRocket team'
+github_url = 'https://github.com/openrocket/openrocket'
 
 # The full version, including alpha/beta/rc tags
 release = '23.09'
@@ -44,6 +45,25 @@ exclude_patterns = []
 # user starts in light mode
 default_dark_mode = False
 
+# -- Options for ReadTheDocs -------------------------------------------------
+
+
+html_theme_options = {
+    #'analytics_id': 'G-XXXXXXXXXX',  #  Provided by Google in your dashboard
+    #'analytics_anonymize_ip': False,
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'both',
+    'style_external_links': True,
+    'vcs_pageview_mode': '',
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': False,
+    'navigation_depth': 3,
+    'includehidden': True,
+    'titles_only': False
+}
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -56,6 +76,8 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_logo = "_static/navbar-logo.png"
 
 # Configure Sphinx to update the sidebar whenever the navigation data changes.
 html_context = {

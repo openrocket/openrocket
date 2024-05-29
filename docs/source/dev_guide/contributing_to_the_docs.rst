@@ -10,6 +10,8 @@ for our documentation, how to edit and build the documentation, and the style gu
    :local:
    :backlinks: none
 
+----
+
 Why Sphinx?
 ===========
 

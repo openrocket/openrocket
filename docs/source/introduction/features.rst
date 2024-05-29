@@ -2,6 +2,15 @@
 Features
 ********
 
+This page lists the current features of OpenRocket and compares them to those of RockSim.
+
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+   :backlinks: none
+
+----
+
 Current features (as of OpenRocket 23.09):
 ==========================================
 

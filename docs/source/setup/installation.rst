@@ -7,6 +7,8 @@ Installation Instructions
    :local:
    :backlinks: none
 
+----
+
 Introduction
 ============
 

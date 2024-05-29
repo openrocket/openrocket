@@ -13,6 +13,8 @@ the next section.
    :local:
    :backlinks: none
 
+----
+
 .. _the_user_interface:
 
 The User interface

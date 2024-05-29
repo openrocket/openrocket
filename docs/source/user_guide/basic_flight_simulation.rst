@@ -9,6 +9,8 @@ In this section we'll take a quick look at running a basic **Flight Simulation**
    :local:
    :backlinks: none
 
+----
+
 Why simulate?
 =============
 
@@ -45,7 +47,7 @@ and it includes the list of simulations pictured.
    The *Flight Simulations* window.
 
 In the Flight Simulations window, you'll see the simulations listed, initially in Name order. Note that the second column
-is "Configuration" - the name of the configuration used in the sim, usually named for the rocket motor used in that
+is **Configuration** - the name of the configuration used in the sim, usually named for the rocket motor used in that
 configuration. The remaining values in the simulation's row are calculated by "running" the simulation. You can run
 one simulation by selecting a sim and clicking the :guilabel:`Run simulations` button:
 
@@ -90,10 +92,10 @@ the tube as the chute deploys while the rocket continues to move rapidly forward
 
 OpenRocket can detect several conditions which will mark a simulation as non-working. For example:
 
-- Too slow off launch rod - unstable launch
-- Too short a delay - early deploy of chute, zipper, damage or separation likely
-- Too long a delay - late deploy of chute, zipper, damage, separation or hard ground-hit likely
-- Ground-hit velocity too high - damage, and potential danger to ground personnel
+- **Too slow off launch rod** - unstable launch
+- **Too short a delay** - early deploy of chute, zipper, damage or separation likely
+- **Too long a delay** - late deploy of chute, zipper, damage, separation or hard ground-hit likely
+- **Ground-hit velocity too high** - damage, and potential danger to ground personnel
 
 These are common failure conditions, but are not intended to be an exhaustive list.
 
@@ -116,20 +118,20 @@ Below, you see the **Motors & Configuration** tab for *A Simple Model Rocket*, j
 
    Starting a new configuration.
 
-From here, you can choose to **Select motor**, **Remove motor**, **Select ignition**, or **Reset ignition**.
+From here, you can choose to :guilabel:`Select motor`, :guilabel:`Remove motor`, :guilabel:`Select ignition`, or :guilabel:`Reset ignition`.
 
 Notice that in the **Motor mounts** section of the **Motors & Configuration** panel, you can see that the **Inner Tube**
 is selected as the single motor mount tube.
 
 More complex models with more motor mount tubes offer you the chance to fly with multiple motors in *Clusters* and *Airstarts*.
-The example model rockets in the **File** menu illustrate these multiple motor configurations. To learn more about how
+The example model rockets in the :menuselection:`File` menu illustrate these multiple motor configurations. To learn more about how
 multiple motors are handled, we suggest you load one of these example models and inspect the simulation and motor mount
 tube settings.
 
 Select motor
 ------------
 
-Clicking **Select motor** brings up the **Motor Selection** panel, as shown below.
+Clicking :guilabel:`Select motor` brings up the **Motor Selection** panel, as shown below.
 
 .. figure:: /img/user_guide/basic_flight_simulation/SelectAnyMotor.png
    :width: 85%
@@ -142,25 +144,25 @@ Clicking **Select motor** brings up the **Motor Selection** panel, as shown belo
 From this panel, you can select from many different motors, from many different manufacturers. There are a BUNCH of
 motors listed, but don't worry: the gadgets on this panel can help make your selection much easier.
 
-Ignore **Ejection charge delay** for now. It is one of the most important settings on the page, but we'll come back to it.
+Ignore :guilabel:`Ejection charge delay` for now. It is one of the most important settings on the page, but we'll come back to it.
 
 On the left, we see a list of the motors available to OpenRocket, given the filter settings on this page. The list can be
 sorted by any column, by clicking the column headers.
 
-Below the list of motors is a **Search** box, which allows you to do a free-text search against the current list of motors.
+Below the list of motors is a :guilabel:`Search` box, which allows you to do a free-text search against the current list of motors.
 
-On the right, the **Hide motors already used in the mount** checkbox will help you avoid creating multiple simulations
+On the right, the :guilabel:`Hide motors already used in the mount` checkbox will help you avoid creating multiple simulations
 for the same motor. One is usually enough.
 
-In the **Manufacturer** section, you can filter to show only motors from particular manufacturers. This is especially
+In the :guilabel:`Manufacturer` section, you can filter to show only motors from particular manufacturers. This is especially
 important if you're using reloadable rocket motors: if you want to fly, for example, an AeroTech reloadable motor, only
 AeroTech reloads will be of use to you in this chart.
 
-The **Total Impulse** selector lets you limit the list to the range of motors you want to see. No point in listing
+The :guilabel:`Total Impulse` selector lets you limit the list to the range of motors you want to see. No point in listing
 E- through O-impulse motors for *A simple model rocket*: they won't fit (and most of them would tear the rocket to
 shreds if they did).
 
-The **Motor Dimensions** gadgets let you further filter the list to only motors that have the desired mechanical fit in
+The :guilabel:`Motor Dimensions` gadgets let you further filter the list to only motors that have the desired mechanical fit in
 your rocket. There's no point in trying to fit a motor that is larger diameter than your motor mount tube, though it's
 quite common to search for motors that are *smaller* than the maxim motor diameter for a given rocket, and use an adaptor
 to bring the motor up to size for the right mechanical fit.
@@ -172,11 +174,11 @@ select any of your configurations to see the effect on weight and stability.
 Ejection charge delay
 ---------------------
 
-Finally, to **Ejection charge delay**. One of the very common uses for OpenRocket simulations is to determine how long
+Finally, to :guilabel:`Ejection charge delay`. One of the very common uses for OpenRocket simulations is to determine how long
 a delay a motor must have for a successful flight. Too early or too late and the rocket could try to open the chute while
 it's moving quickly, causing damage. Way too late or not at all, and the rocket will crash.
 
-**Ejection charge delay** will have a list of available off-the-shelf ejection charge delays for the motors in the list,
+:guilabel:`Ejection charge delay` will have a list of available off-the-shelf ejection charge delays for the motors in the list,
 but it's also a free-text field, where you can enter a particular delay in seconds.
 
 .. figure:: /img/user_guide/basic_flight_simulation/OptimumDelay.png
@@ -202,7 +204,7 @@ the delay closest to what your simulation says you'll need for success.
 Show Details
 ------------
 
-The **Show Details** section gives you detailed information about the selected motor's thrust curve, its thrust and burn
+The :guilabel:`Show Details` section gives you detailed information about the selected motor's thrust curve, its thrust and burn
 parameters, and its certification.
 
 .. figure:: /img/user_guide/basic_flight_simulation/ShowDetails.png
@@ -246,9 +248,9 @@ A digital kitchen scale can be useful to weigh each part as you create a simulat
 You'll also need to measure thicknesses and lengths. You can obtain inexpensive digital calipers which are fine for this
 measuring purpose, from suppliers like `Harbor Freight <https://www.harborfreight.com/search?q=digital%20caliper>`_.
 
-Working in the **:ref:`Rocket design <rocket_design_window>`** window, measure and record the weight of each component as
+Working in the **Rocket design window**, measure and record the weight of each component as
 you model it. Try and choose the correct material to reflect the density and mass of the actual component. Often,
-creating a more-correct material (using the "Custom" option of the **Component Material** menu) is a better choice than
+creating a more-correct material (using the :guilabel:`Custom` option of the **Component Material** menu) is a better choice than
 using weight overrides, because the weight override may not reflect the correct center of mass of the overridden material.
 
 Include every component the actual rocket uses, except for the motor: motors are chosen in the

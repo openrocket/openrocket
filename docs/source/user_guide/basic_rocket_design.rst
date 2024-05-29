@@ -19,6 +19,8 @@ Then we'll build a rocket from scratch to see how it’s done.
    :local:
    :backlinks: none
 
+----
+
 Component Configuration Window
 ==============================
 

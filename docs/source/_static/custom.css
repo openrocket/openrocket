@@ -1,6 +1,17 @@
+/* Change the ReadTheDocs theme */
 .wy-nav-content {
     max-width: 65% !important;
 }
+
+.wy-side-nav-search, .wy-nav-top {
+    background: #1d8be1;
+}
+
+.wy-side-nav-search .logo {
+    max-width: 42% !important;
+}
+
+/* Custom OpenRocket CSS */
 
 .or-figclass {
     text-align: center;

@@ -2,6 +2,13 @@
 Codebase Walkthrough
 ********************
 
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+   :backlinks: none
+
+----
+
 Important Modules and Packages
 ==============================
 
