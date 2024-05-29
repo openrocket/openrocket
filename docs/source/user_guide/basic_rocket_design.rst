@@ -178,6 +178,8 @@ your own rocket.
 Let’s have a look at the full list of components. If you cannot click on the component type, try selecting the
 *Body tube* in the design window in the top left panel of OpenRocket.
 
+----
+
 Available Design Elements
 =========================
 
@@ -289,6 +291,8 @@ Within *Mass Components* we have 4 component types. They are:
    The *Mass Components* submenu.
 
 You have now had a brief run through the various components available for use in OpenRocket. The next section will deal with an example rocket.
+
+----
 
 *A Simple Model Rocket* Example
 ===============================
@@ -413,6 +417,8 @@ dashed rounded-rectangle in the same general area as the parachute. The other bl
 We have now looked through the components used within the simple model rocket example. If you would like to see other
 available components, see **Appendix A**. Now that we are familiar with what makes up the rocket we will go ahead and
 build one from scratch!
+
+----
 
 Building *A simple model rocket*
 ================================

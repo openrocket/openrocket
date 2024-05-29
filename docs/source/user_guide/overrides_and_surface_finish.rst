@@ -149,6 +149,8 @@ being calculated over the course of the flight.
 
 After applying these modifications, you will have a more accurate simulation for future flights with different motors.
 
+----
+
 How and Why to Use Mass and Center of Gravity Overrides
 =======================================================
 
@@ -258,6 +260,8 @@ From here, follow the `Simplified Approach`_ steps, above, which describes how t
 As stated before, before you head out to the range, **actually install the motor (without the igniter) and *verify the
 margin of stability***; again, it's always nice to put markers on the rocket, blue for the center of gravity and red for
 the center of pressure.
+
+----
 
 How and Why to Use Surface Finish Settings and Coefficient of Drag (C\ :sub:`D`) Overrides
 ==========================================================================================

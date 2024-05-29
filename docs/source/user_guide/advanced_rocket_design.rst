@@ -272,6 +272,8 @@ material flying around inside the airframe, and no need for wadding or a Nomex b
 The CO\ :sub:`2`\  ejection system is claimed to operate more reliably than black powder at extreme altitude
 (above 20,000 feet ASL), due to black powder's incomplete or non-existent burn at these altitudes.
 
+----
+
 Tube Fins and Ring Tails
 ========================
 
@@ -362,6 +364,8 @@ Your ring tail is complete.
 In addition to not being able to accurately simulate this model, it's important to note that *the body tube ring tail
 **will give you** a "Discontinuity in rocket body diameter" warning too*.
 
+----
+
 Through-the-Wall Fin Mounting
 =============================
 
@@ -403,10 +407,14 @@ Converting a simple rocket to through-the-wall design:
 
 And, a through-the-wall fin tab is automatically created between the two motor mount centering rings.
 
+----
+
 Electronic and Dual Deployment
 ==============================
 
 <<INSERTION POINT>>
+
+----
 
 Clustering and Multi-staging
 ============================
@@ -506,6 +514,8 @@ Rocketry is subject to regulation by federal, state, and local governments, and 
 
 Within the high power rocket classification, a subclassification for "complex" rockets is defined as a high power rocket that is multi-staged or propelled by a cluster of two or more rocket motors. (NFPA §1127, subd. 3.3.13.1.1.) And, a high power rocket launched with an installed total impulse greater than 2,560 N-sec (576 lb-sec) must have an electronically actuated recovery system. (NFPA §1127, subd. 4.10.2.)
 
+----
+
 National Association of Rocketry
 ================================
 
@@ -528,6 +538,8 @@ The major work of the NAR includes, but not limited to:
 - Other work
 
   The NAR publishes the bimonthly color magazine Sport Rocketry (sent to each member and selected libraries and newsstands around the nation). The NAR provides a wide range of other services to its members, including: education programs; national and local competitions; grants to teachers and scholarships for student members; flight performance record recognition; liability insurance; and publication of technical literature.
+
+----
 
 Tripoli Rocketry Association
 =============================

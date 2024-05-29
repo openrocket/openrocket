@@ -157,6 +157,8 @@ margin for error.
    :figclass: or-image-border
    :alt: A Plot of Sim #3 of the "High Power Airstart" example rocket.
 
+----
+
 Launch Conditions and Simulation Options
 ========================================
 
@@ -195,6 +197,8 @@ guide's purpose (*and frankly, beyond this author's knowledge!*).
    :align: center
    :figclass: or-image-border
    :alt: The Edit simulation window: Simulation options.
+
+----
 
 Exporting Data
 ==============

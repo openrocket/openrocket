@@ -30,6 +30,8 @@ window showing all your custom expressions.
 Initially, there will be no custom expressions, so you will need to add one using the *New expression* button in the
 lower right. This opens the expression builder window. You can also import expressions from another .ork file.
 
+----
+
 Building expressions
 ====================
 
@@ -62,6 +64,8 @@ from which you can choose a variable and insert it (at the current cursor positi
 particularly useful because you may not be able to type some of the symbols on your keyboard. The :guilabel:`Insert Operator`
 window is similar and shows all the available mathematical operators and functions.
 
+----
+
 Index expressions
 =================
 
@@ -89,6 +93,8 @@ of the time steps of the simulation.
 
 If you specify a time smaller than 0 or greater than t then it will be clipped to 0 or t respectively. You can't access
 data that has not been calculated yet.
+
+----
 
 Range expressions
 =================
@@ -130,6 +136,8 @@ This facilitates easy integration or optimization with functions such as *trapz(
 *tnear([:],x)* for finding the time value when a variable is nearest a specified value.
 
 For a complete list of all the operators available see the operator selection list when making a new expression.
+
+----
 
 Troubleshooting
 ===============

@@ -44,6 +44,8 @@ and for contributors to update it. It also supports versioning, so you can view 
 OpenRocket, and it has a search feature that allows you to quickly find what you are looking for. Additionally, you can also
 add translations to the documentation, which makes it accessible to a wider audience.
 
+----
+
 Editing and Building the Documentation
 ======================================
 
@@ -85,11 +87,15 @@ on how to submit a pull request. If you don't want to go through the hassle of s
 `submit an issue <https://github.com/openrocket/openrocket/issues/new/choose>`__ with your proposed changes and we will take care of the rest,
 or you can `contact us <https://openrocket.info/contact.html>`__.
 
+----
+
 Style Guide
 ===========
 
 This section provides a style guide for writing documentation for OpenRocket. It covers conventions that we use in the docs
 and useful tips for writing reStructuredText/Sphinx docs.
+
+.. _heading_levels:
 
 Heading levels
 --------------
@@ -130,6 +136,28 @@ For example:
 
     H5: This is a paragraph
     """""""""""""""""""""""
+
+Horizontal Rules
+----------------
+
+Horizontal rules are used to separate sections of the documentation. They are created using four or more hyphens (----).
+
+For example:
+
+.. code-block:: rst
+
+    This is a section
+    =================
+
+    ----
+
+    This is another section
+    =======================
+
+.. note::
+
+   As seen in the example, it is recommended to **always add a horizontal rule before starting a new section**
+   (H2, see :ref:`Heading levels <heading_levels>`).
 
 Adding Images
 -------------

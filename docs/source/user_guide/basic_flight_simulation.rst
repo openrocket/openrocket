@@ -29,6 +29,8 @@ direction into account, and a *lot* more.
 
 If you already know how to run basic simulations, you can jump to the :doc:`Advanced Rocket Design </user_guide/advanced_rocket_design>`.
 
+----
+
 Running a simple simulation
 ===========================
 
@@ -100,6 +102,8 @@ OpenRocket can detect several conditions which will mark a simulation as non-wor
 These are common failure conditions, but are not intended to be an exhaustive list.
 
 .. _motors-configuration:
+
+----
 
 Motors & Configuration
 ======================
@@ -214,6 +218,8 @@ parameters, and its certification.
    :figclass: or-image-border
 
    The **Show Details** section.
+
+----
 
 Getting a Good Simulation
 =========================

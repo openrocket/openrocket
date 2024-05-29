@@ -64,6 +64,8 @@ remove it from the simulation:
 
    Air-start extension pane.
 
+----
+
 Creating a New OpenRocket Extension
 ===================================
 
@@ -416,6 +418,8 @@ When the resulting configurator is displayed, it looks like this:
    Example configurator.
 
 The surrounding Dialog window and the **Close** button are provided by the system.
+
+----
 
 Example User Extensions Provided With OpenRocket
 ================================================
