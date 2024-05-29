@@ -303,3 +303,33 @@ a colon, you would write ``\:``.
    Please take the time to read the `documentation on reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`__
    and `Sphinx <https://www.sphinx-doc.org/en/master/usage/index.html>`__. If you find interesting features that you think would be
    useful for the OpenRocket documentation, please use them and document them here!
+
+
+Line Wrapping
+-------------
+
+Please try to keep your lines in the .rst files under ± 120 characters. This makes it easier to read the documentation in
+the source files and prevent horizontal scrolling for code blocks. You can break up normal text on a new line without issues,
+if there is no blank line between two lines of text, the two lines will be rendered as one paragraph in the output.
+
+Here is an example of correct and incorrect line wrapping inside the source code:
+
+.. figure:: /img/dev_guide/contributing_to_the_docs/Line-Wrapping.png
+   :width: 80%
+   :align: center
+   :alt: Correct and incorrect line wrapping.
+   :figclass: or-image-border
+
+   Correct and incorrect line wrapping of a .rst file.
+
+For breaking up list items, you must ensure that the next line is indented by the same amounts of spaces as the first line
+of the list item. For example:
+
+.. code-block:: rst
+
+    - This is a list item that is very long and needs to be broken up into multiple lines. This is a list item that is very long and needs to be broken up into multiple lines. This is a list item that is very long and needs to be broken up into multiple lines.
+
+    - This is a list item that is broken up into multiple lines. This is a list item that is broken up into multiple
+      lines. This is a list item that is broken up into multiple lines.
+
+If you do not have the right indentation, you will get a compile warning when you build the documentation.
