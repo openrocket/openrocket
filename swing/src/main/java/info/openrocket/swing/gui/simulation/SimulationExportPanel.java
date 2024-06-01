@@ -89,7 +89,6 @@ public class SimulationExportPanel extends JPanel {
 		branch = data.getBranch(0);
 		
 		types = branch.getTypes();
-		Arrays.sort(types);
 		
 		selected = new boolean[types.length];
 		units = new Unit[types.length];
