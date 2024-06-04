@@ -76,19 +76,6 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		this.add(spin, "wrap");
 
-		final JCheckBox autoOpenDesignFile = new JCheckBox(
-				trans.get("pref.dlg.but.openlast"));
-		autoOpenDesignFile.setSelected(preferences
-				.isAutoOpenLastDesignOnStartupEnabled());
-		autoOpenDesignFile.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setAutoOpenLastDesignOnStartup(autoOpenDesignFile
-						.isSelected());
-			}
-		});
-		this.add(autoOpenDesignFile, "wrap, growx, span 2");
-
 		// // Always open leftmost tab when opening a component edit dialog
 		final JCheckBox alwaysOpenLeftmostTab = new JCheckBox(
 				trans.get("pref.dlg.checkbox.AlwaysOpenLeftmost"));
