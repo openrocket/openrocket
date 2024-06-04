@@ -20,6 +20,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.MonitorableSet;
 import info.openrocket.core.util.Quaternion;
@@ -515,6 +516,39 @@ public class SimulationStatus implements Monitorable {
 			this.motorStateList.add(simMotor);
 		}
 	}
+
+	/**
+	 * Store data from current sim status
+	 */
+	public void storeData() {
+		flightDataBranch.setValue(FlightDataType.TYPE_TIME, getSimulationTime());
+		flightDataBranch.setValue(FlightDataType.TYPE_ALTITUDE, getRocketPosition().z);
+		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_X, getRocketPosition().x);
+		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_Y, getRocketPosition().y);
+		
+		flightDataBranch.setValue(FlightDataType.TYPE_LATITUDE, getRocketWorldPosition().getLatitudeRad());
+		flightDataBranch.setValue(FlightDataType.TYPE_LONGITUDE, getRocketWorldPosition().getLongitudeRad());
+		
+		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_XY,
+					  MathUtil.hypot(getRocketPosition().x, getRocketPosition().y));
+		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
+					  Math.atan2(getRocketPosition().y, getRocketPosition().x));
+
+		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
+					  MathUtil.hypot(getRocketVelocity().x, getRocketVelocity().y));
+		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, getRocketVelocity().z);
+		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, getRocketVelocity().length());
+		
+		Coordinate c = getRocketOrientationQuaternion().rotateZ();
+		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
+		double phi = Math.atan2(c.y, c.x);
+		if (phi < -(Math.PI - 0.0001))
+			phi = Math.PI;
+		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
+		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
+		flightDataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
+				(System.nanoTime() - getSimulationStartWallTime()) / 1000000000.0);
+	}		
 
 	/**
 	 * Add a flight event to the event queue unless a listener aborts adding it.
