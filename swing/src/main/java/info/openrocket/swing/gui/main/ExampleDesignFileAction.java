@@ -46,7 +46,6 @@ public final class ExampleDesignFileAction extends JMenu {
         "Pods--powered with recovery deployment",
         null,
         // Examples demonstrating customized functionality
-        "Presets",
         "Simulation extensions",
         "Simulation scripting"
     };
