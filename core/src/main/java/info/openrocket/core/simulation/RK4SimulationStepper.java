@@ -241,7 +241,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		// Store data
 		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
-		storeData(status, store);
+		status.getFlightDataBranch().addPoint();
+		status.storeData();
+		store.storeData(status);
 		
 		// Verify that values don't run out of range
 		if (status.getRocketVelocity().length2() > 1e18 ||
@@ -521,151 +523,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
 		
 	}
-	
-	
-
-	private void storeData(RK4SimulationStatus status, DataStore store) {
-		
-		FlightDataBranch dataBranch = status.getFlightDataBranch();
-
-		dataBranch.addPoint();
-		dataBranch.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
-		dataBranch.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
-		
-		dataBranch.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
-		dataBranch.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
-		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
-			dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, store.coriolisAcceleration.length());
-		}
-		
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_XY,
-					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
-
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-
-		if (store.linearAcceleration != null) {
-			dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-						  MathUtil.hypot(store.linearAcceleration.x, store.linearAcceleration.y));
-
-			dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, store.linearAcceleration.length());
-		}
-
-		if (store.flightConditions != null) {
-			double Re = (store.flightConditions.getVelocity() *
-						 status.getConfiguration().getLengthAerodynamic() /
-						 store.flightConditions.getAtmosphericConditions().getKinematicViscosity());
-			dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
-		}
-		
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
-		if (store.linearAcceleration != null) {
-			dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, store.linearAcceleration.z);
-		}
-		
-		if (store.flightConditions != null) {
-			dataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, status.getRocketVelocity().length());
-			dataBranch.setValue(FlightDataType.TYPE_MACH_NUMBER, store.flightConditions.getMach());
-		}
-		
-		if (store.rocketMass != null) {
-			dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, store.rocketMass.getCM().x);
-		}
-		if (status.isLaunchRodCleared()) {
-			// Don't include CP and stability with huge launch AOA
-			if (store.forces != null) {
-				dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, store.forces.getCP().x);
-			}
-			if (store.forces != null && store.flightConditions != null && store.rocketMass != null) {
-				dataBranch.setValue(FlightDataType.TYPE_STABILITY,
-						(store.forces.getCP().x - store.rocketMass.getCM().x) / store.flightConditions.getRefLength());
-			}
-		}
-
-		if (null != store.motorMass) {
-			dataBranch.setValue(FlightDataType.TYPE_MOTOR_MASS, store.motorMass.getMass());
-			//dataBranch.setValue(FlightDataType.TYPE_MOTOR_LONGITUDINAL_INERTIA, store.motorMassData.getLongitudinalInertia());
-			//dataBranch.setValue(FlightDataType.TYPE_MOTOR_ROTATIONAL_INERTIA, store.motorMassData.getRotationalInertia());
-		}
-		if (store.rocketMass != null) {
-			// N.B.: These refer to total mass
-			dataBranch.setValue(FlightDataType.TYPE_MASS, store.rocketMass.getMass());
-			dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, store.rocketMass.getLongitudinalInertia());
-			dataBranch.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, store.rocketMass.getRotationalInertia());
-		}
-		
-		dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, store.thrustForce);
-		double weight = store.rocketMass.getMass() * store.gravity;
-		dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, store.thrustForce / weight);
-		dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, store.dragForce);
-		dataBranch.setValue(FlightDataType.TYPE_GRAVITY, store.gravity);
-		
-		if (status.isLaunchRodCleared() && store.forces != null) {
-			if (store.rocketMass != null && store.flightConditions != null) {
-				dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
-						store.forces.getCm() - store.forces.getCN() * store.rocketMass.getCM().x / store.flightConditions.getRefLength());
-				dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
-						store.forces.getCyaw() - store.forces.getCside() * store.rocketMass.getCM().x / store.flightConditions.getRefLength());
-			}
-			dataBranch.setValue(FlightDataType.TYPE_NORMAL_FORCE_COEFF, store.forces.getCN());
-			dataBranch.setValue(FlightDataType.TYPE_SIDE_FORCE_COEFF, store.forces.getCside());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_MOMENT_COEFF, store.forces.getCroll());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_FORCING_COEFF, store.forces.getCrollForce());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_DAMPING_COEFF, store.forces.getCrollDamp());
-			dataBranch.setValue(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF,
-					store.forces.getPitchDampingMoment());
-		}
-		
-		if (store.forces != null) {
-			dataBranch.setValue(FlightDataType.TYPE_DRAG_COEFF, store.forces.getCD());
-			dataBranch.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, store.forces.getCDaxial());
-			dataBranch.setValue(FlightDataType.TYPE_FRICTION_DRAG_COEFF, store.forces.getFrictionCD());
-			dataBranch.setValue(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, store.forces.getPressureCD());
-			dataBranch.setValue(FlightDataType.TYPE_BASE_DRAG_COEFF, store.forces.getBaseCD());
-		}
-		
-		if (store.flightConditions != null) {
-			dataBranch.setValue(FlightDataType.TYPE_REFERENCE_LENGTH, store.flightConditions.getRefLength());
-			dataBranch.setValue(FlightDataType.TYPE_REFERENCE_AREA, store.flightConditions.getRefArea());
-			
-			dataBranch.setValue(FlightDataType.TYPE_PITCH_RATE, store.flightConditions.getPitchRate());
-			dataBranch.setValue(FlightDataType.TYPE_YAW_RATE, store.flightConditions.getYawRate());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_RATE, store.flightConditions.getRollRate());
-			
-			dataBranch.setValue(FlightDataType.TYPE_AOA, store.flightConditions.getAOA());
-		}
-		
-		Coordinate c = status.getRocketOrientationQuaternion().rotateZ();
-		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
-		double phi = Math.atan2(c.y, c.x);
-		if (phi < -(Math.PI - 0.0001))
-			phi = Math.PI;
-		dataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
-		dataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
-		
-		dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, store.windSpeed);
-		
-		if (store.flightConditions != null) {
-			dataBranch.setValue(FlightDataType.TYPE_AIR_TEMPERATURE,
-					store.flightConditions.getAtmosphericConditions().getTemperature());
-			dataBranch.setValue(FlightDataType.TYPE_AIR_PRESSURE,
-					store.flightConditions.getAtmosphericConditions().getPressure());
-			dataBranch.setValue(FlightDataType.TYPE_SPEED_OF_SOUND,
-					store.flightConditions.getAtmosphericConditions().getMachSpeed());
-		}
-		
-
-		dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, store.timestep);
-		dataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
-				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
-	}
-	
-	
-
 
 	private static class RK4Parameters {
 		/** Linear acceleration */
@@ -711,6 +568,90 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		public Rotation2D thetaRotation;
 		
+		void storeData(RK4SimulationStatus status) {
+		
+			FlightDataBranch dataBranch = status.getFlightDataBranch();
+
+			dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, thrustForce);
+			dataBranch.setValue(FlightDataType.TYPE_GRAVITY, gravity);
+			double weight = rocketMass.getMass() * gravity;
+			dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
+			dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
+		
+			dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, windSpeed);
+			dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, timestep);
+			
+			if (GeodeticComputationStrategy.FLAT != status.getSimulationConditions().getGeodeticComputation()) {
+				dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
+			}
+			
+			if (null != linearAcceleration) {
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
+									MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+				
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
+			}
+			
+			if (null != rocketMass) {
+				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().x);
+				dataBranch.setValue(FlightDataType.TYPE_MASS, rocketMass.getMass());
+				dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, rocketMass.getLongitudinalInertia());
+				dataBranch.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, rocketMass.getRotationalInertia());
+			}
+			
+			if (null != motorMass) {
+				dataBranch.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass.getMass());
+			}
+			
+			if (null != flightConditions) {
+				double Re = (flightConditions.getVelocity() *
+							 status.getConfiguration().getLengthAerodynamic() /
+							 flightConditions.getAtmosphericConditions().getKinematicViscosity());
+				dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
+				dataBranch.setValue(FlightDataType.TYPE_MACH_NUMBER, flightConditions.getMach());
+				dataBranch.setValue(FlightDataType.TYPE_REFERENCE_LENGTH, flightConditions.getRefLength());
+				dataBranch.setValue(FlightDataType.TYPE_REFERENCE_AREA, flightConditions.getRefArea());
+				
+				dataBranch.setValue(FlightDataType.TYPE_PITCH_RATE, flightConditions.getPitchRate());
+				dataBranch.setValue(FlightDataType.TYPE_YAW_RATE, flightConditions.getYawRate());
+				dataBranch.setValue(FlightDataType.TYPE_ROLL_RATE, flightConditions.getRollRate());
+				
+				dataBranch.setValue(FlightDataType.TYPE_AOA, flightConditions.getAOA());
+				dataBranch.setValue(FlightDataType.TYPE_AIR_TEMPERATURE,
+									flightConditions.getAtmosphericConditions().getTemperature());
+				dataBranch.setValue(FlightDataType.TYPE_AIR_PRESSURE,
+									flightConditions.getAtmosphericConditions().getPressure());
+				dataBranch.setValue(FlightDataType.TYPE_SPEED_OF_SOUND,
+									flightConditions.getAtmosphericConditions().getMachSpeed());
+			}
+			
+			if (null != forces) {
+				dataBranch.setValue(FlightDataType.TYPE_DRAG_COEFF, forces.getCD());
+				dataBranch.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, forces.getCDaxial());
+				dataBranch.setValue(FlightDataType.TYPE_FRICTION_DRAG_COEFF, forces.getFrictionCD());
+				dataBranch.setValue(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, forces.getPressureCD());
+				dataBranch.setValue(FlightDataType.TYPE_BASE_DRAG_COEFF, forces.getBaseCD());
+			}
+			
+			if (status.isLaunchRodCleared() && null != forces) {
+				dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, forces.getCP().x);
+				dataBranch.setValue(FlightDataType.TYPE_NORMAL_FORCE_COEFF, forces.getCN());
+				dataBranch.setValue(FlightDataType.TYPE_SIDE_FORCE_COEFF, forces.getCside());
+				dataBranch.setValue(FlightDataType.TYPE_ROLL_MOMENT_COEFF, forces.getCroll());
+				dataBranch.setValue(FlightDataType.TYPE_ROLL_FORCING_COEFF, forces.getCrollForce());
+				dataBranch.setValue(FlightDataType.TYPE_ROLL_DAMPING_COEFF, forces.getCrollDamp());
+				dataBranch.setValue(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF,	forces.getPitchDampingMoment());
+				
+				if (null != rocketMass && null != flightConditions) {
+					dataBranch.setValue(FlightDataType.TYPE_STABILITY,
+										(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+					dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
+										forces.getCm() - forces.getCN() * rocketMass.getCM().x / flightConditions.getRefLength());
+					dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
+										forces.getCyaw() - forces.getCside() * rocketMass.getCM().x / flightConditions.getRefLength());
+				}
+			}
+		}
 	}
-	
 }
