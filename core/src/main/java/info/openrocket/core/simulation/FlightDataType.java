@@ -392,14 +392,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			// if something has changed, then we need to remove the old one
 			// otherwise, just return what we found
 			if (!u.equals(type.getUnitGroup())) {
-				oldPriority = type.groupPriority;
+				oldPriority = type.priority;
 				EXISTING_TYPES.remove(type);
 				log.info("Unitgroup of type " + type.getName() +
 						", has changed from " + type.getUnitGroup().toString() +
 						" to " + u.toString() +
 						". Removing old version.");
 			} else if (!s.equals(type.getName())) {
-				oldPriority = type.groupPriority;
+				oldPriority = type.priority;
 				EXISTING_TYPES.remove(type);
 				log.info("Name of type " + type.getName() + ", has changed to " + s + ". Removing old version.");
 			} else {
@@ -459,7 +459,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	private final String symbol;
 	private final UnitGroup units;
 	private final FlightDataTypeGroup group;
-	private final int groupPriority;
+	private final int priority;
 	private final int hashCode;
 
 	private FlightDataType(String typeName, String symbol, UnitGroup units, FlightDataTypeGroup group, int priority) {
@@ -471,7 +471,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		this.symbol = symbol;
 		this.units = units;
 		this.group = group;
-		this.groupPriority = priority;
+		this.priority = priority;
 		this.hashCode = this.name.toLowerCase(Locale.ENGLISH).hashCode();
 	}
 
@@ -492,7 +492,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	}
 
 	public int getGroupPriority() {
-		return groupPriority;
+		return group.getPriority();
 	}
 
 	@Override
@@ -501,10 +501,10 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	}
 
 	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof FlightDataType))
+	public boolean equals(Object o) {
+		if (!(o instanceof FlightDataType))
 			return false;
-		return this.name.equalsIgnoreCase(((FlightDataType) other).name);
+		return this.compareTo((FlightDataType) o) == 0;
 	}
 
 	@Override
@@ -514,8 +514,11 @@ public class FlightDataType implements Comparable<FlightDataType> {
 
 	@Override
 	public int compareTo(FlightDataType o) {
-		if (this.groupPriority != o.groupPriority)
-			return this.groupPriority - o.groupPriority;
-		return this.name.compareToIgnoreCase(o.name);
+		final int groupCompare = this.getGroup().compareTo(o.getGroup());
+		if (groupCompare != 0) {
+			return groupCompare;
+		}
+		
+		return this.priority - o.priority;
 	}
 }

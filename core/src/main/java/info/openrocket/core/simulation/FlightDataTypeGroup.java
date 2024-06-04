@@ -3,7 +3,7 @@ package info.openrocket.core.simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 
-public class FlightDataTypeGroup {
+public class FlightDataTypeGroup implements Comparable<FlightDataTypeGroup> {
 	private static final Translator trans = Application.getTranslator();
 
 	public static final FlightDataTypeGroup TIME = new FlightDataTypeGroup(trans.get("FlightDataTypeGroup.GROUP_TIME"), 0);
@@ -55,5 +55,17 @@ public class FlightDataTypeGroup {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof FlightDataTypeGroup))
+			return false;
+		return this.compareTo((FlightDataTypeGroup) o) == 0;
+	}
+
+	@Override
+	public int compareTo(FlightDataTypeGroup o) {
+		return this.priority  - o.priority;
 	}
 }
