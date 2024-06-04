@@ -177,7 +177,7 @@ table below for the default application data directories for each operating syst
 
 To view or modify the user-defined thrust curves folder(s), open the :menuselection:`Edit` menu in the application ribbon and select
 :menuselection:`Preferences`. This will open the Preferences dialog box. You need to go to the :menuselection:`General` tab
-(should be open by default) and change the ``User-defined thrust curves`` setting:
+(should be open by default) and change the :guilabel:`User-defined thrust curves` setting:
 
 .. figure:: /img/setup/installation/thrust_curves_setting.png
    :alt: Thrust Curves Setting
@@ -195,7 +195,7 @@ Troubleshooting
 
 When you have issues with your installation, ensure that you have **read the installation instructions** for your platform.
 When you download the installer from our `downloads page <https://openrocket.info/downloads.html?vers=latest>`__, you can
-click on the ``Show <your platform> installation instructions`` header under your platform's download button to see the
+click on the :guilabel:`Show <your platform> installation instructions` header under your platform's download button to see the
 installation instructions.
 
 If you have further issues, please `contact us <https://openrocket.info/contact.html>`__.

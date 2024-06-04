@@ -64,6 +64,8 @@ When the GUI is displayed, the Translator object will look up the key ``RocketPa
 file and return the translated text. If the key is not found in the language file, the Translator object will return the English.
 This way, the GUI can be easily translated into different languages by simply adding a new language file with the translated text.
 
+----
+
 Modifying an Existing Translation
 =================================
 
@@ -73,6 +75,8 @@ Find the key for the text you want to modify and change the value.
 
 When you are done, create a pull request with your changes. The maintainers will review your changes and merge them if they are
 appropriate.
+
+----
 
 Creating a New Translation
 ==========================

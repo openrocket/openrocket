@@ -22,6 +22,7 @@ Welcome to OpenRocket's documentation!
 
    setup/installation
    setup/getting_started
+   setup/preferences
 
 .. toctree::
    :maxdepth: 1

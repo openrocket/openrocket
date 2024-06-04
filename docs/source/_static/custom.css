@@ -52,6 +52,18 @@
     background: #ffd6cc !important;
 }
 
+.admonition-todo {
+    background: #f4ccff !important;
+}
+
+.admonition-todo .admonition-title {
+    background: #ff33df !important;
+}
+
+.hlist {
+    table-layout: fixed;        /* Ensure equals spacing between columns */
+}
+
 /* Custom OpenRocket CSS */
 
 .or-figclass {
