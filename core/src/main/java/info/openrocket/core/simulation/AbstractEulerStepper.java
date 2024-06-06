@@ -172,8 +172,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		final FlightDataBranch dataBranch = status.getFlightDataBranch();
 
 		// Values looked up or calculated at start of time step
-		dataBranch.setValue(FlightDataType.TYPE_REFERENCE_LENGTH, status.getConfiguration().getReferenceLength());
-		dataBranch.setValue(FlightDataType.TYPE_REFERENCE_AREA, status.getConfiguration().getReferenceArea());
 		dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, windSpeed.length());
 		dataBranch.setValue(FlightDataType.TYPE_AIR_TEMPERATURE, atmosphere.getTemperature());
 		dataBranch.setValue(FlightDataType.TYPE_AIR_PRESSURE, atmosphere.getPressure());
@@ -206,22 +204,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 		// Values calculated on this step
 		dataBranch.addPoint();
-		dataBranch.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
-		dataBranch.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
-
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_XY,
-					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
-		dataBranch.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
-		dataBranch.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
-
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, airSpeed.length());
+		status.storeData();
 
 		airSpeed = status.getRocketVelocity().add(windSpeed);
 		final double Re = airSpeed.length() *
@@ -229,8 +212,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			atmosphere.getKinematicViscosity();
 		dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 
-		dataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
-				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
 		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 
