@@ -89,7 +89,7 @@ public class SimulationExportPanel extends JPanel {
 		branch = data.getBranch(0);
 		
 		types = branch.getTypes();
-				
+		
 		selected = new boolean[types.length];
 		units = new Unit[types.length];
 		for (int i = 0; i < types.length; i++) {
