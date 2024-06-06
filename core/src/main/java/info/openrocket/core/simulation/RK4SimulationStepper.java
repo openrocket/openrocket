@@ -63,18 +63,18 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	DataStore store = new DataStore();
 	
 	@Override
-	public RK4SimulationStatus initialize(SimulationStatus original) {
+	public SimulationStatus initialize(SimulationStatus original) {
 		
-		RK4SimulationStatus status = new RK4SimulationStatus(original);
+		SimulationStatus status = new SimulationStatus(original);
 		// Copy the existing warnings
 		status.setWarnings(original.getWarnings());
 		
 		SimulationConditions sim = original.getSimulationConditions();
-		
-		status.setLaunchRodDirection(new Coordinate(
-				Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
-				Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
-				Math.cos(sim.getLaunchRodAngle())));
+
+		store.launchRodDirection = new Coordinate(
+												  Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+												  Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+												  Math.cos(sim.getLaunchRodAngle()));
 
 		this.random = new Random(original.getSimulationConditions().getRandomSeed() ^ SEED_RANDOMIZATION);
 		
@@ -87,11 +87,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	@Override
 	public void step(SimulationStatus simulationStatus, double maxTimeStep) throws SimulationException {
 		
-		RK4SimulationStatus status = (RK4SimulationStatus) simulationStatus;
+		SimulationStatus status = simulationStatus;
 
 		////////  Perform RK4 integration:  ////////
 		
-		RK4SimulationStatus status2;
+		SimulationStatus status2;
 		RK4Parameters k1, k2, k3, k4;
 
 		/*
@@ -257,7 +257,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 
 
-	private RK4Parameters computeParameters(RK4SimulationStatus status, DataStore dataStore)
+	private RK4Parameters computeParameters(SimulationStatus status, DataStore dataStore)
 			throws SimulationException {
 		RK4Parameters params = new RK4Parameters();
 		
@@ -296,7 +296,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @param status   the status of the rocket.
 	 * @throws SimulationException 
 	 */
-	private AccelerationData calculateAcceleration(RK4SimulationStatus status, DataStore store) throws SimulationException {
+	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		
 		// Compute the forces affecting the rocket
 		calculateForces(status, store);
@@ -349,8 +349,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// set angular acceleration to zero.
 		if (!status.isLaunchRodCleared()) {
 			
-			store.linearAcceleration = status.getLaunchRodDirection().multiply(
-						store.linearAcceleration.dot(status.getLaunchRodDirection()));
+			store.linearAcceleration = store.launchRodDirection.multiply(store.linearAcceleration.dot(store.launchRodDirection));
 			store.angularAcceleration = Coordinate.NUL;
 			store.rollAcceleration = 0;
 			store.lateralPitchAcceleration = 0;
@@ -391,7 +390,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * Calculate the aerodynamic forces into the data store.  This method also handles
 	 * whether to include aerodynamic computation warnings or not.
 	 */
-	private void calculateForces(RK4SimulationStatus status, DataStore store) throws SimulationException {
+	private void calculateForces(SimulationStatus status, DataStore store) throws SimulationException {
 		
 		// Call pre-listeners
 		store.forces = SimulationListenerHelper.firePreAerodynamicCalculation(status);
@@ -408,19 +407,21 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * below 20% of the max. velocity.
 		 */
 		WarningSet warnings = status.getWarnings();
-		status.setMaxZVelocity(MathUtil.max(status.getMaxZVelocity(), status.getRocketVelocity().z));
+		store.maxZvelocity = MathUtil.max(store.maxZvelocity, status.getRocketVelocity().z);
 		
 		if (!status.isLaunchRodCleared()) {
 			warnings = null;
 		} else {
-			if (status.getRocketVelocity().z < 0.2 * status.getMaxZVelocity())
+			if (status.getRocketVelocity().z < 0.2 * store.maxZvelocity) {
 				warnings = null;
-			if (status.getStartWarningTime() < 0)
-				status.setStartWarningTime(status.getSimulationTime() + 0.25);
+			}
+			if (Double.isNaN(store.startWarningTime)) {
+				store.startWarningTime = status.getSimulationTime() + 0.25;
+			}
 		}
-		if (status.getSimulationTime() < status.getStartWarningTime())
+
+		if (!(status.getSimulationTime() > store.startWarningTime))
 			warnings = null;
-		
 
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
@@ -446,7 +447,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * Additionally the fields thetaRotation and lateralPitchRate are defined in
 	 * the data store, and can be used after calling this method.
 	 */
-	private void calculateFlightConditions(RK4SimulationStatus status, DataStore store)
+	private void calculateFlightConditions(SimulationStatus status, DataStore store)
 			throws SimulationException {
 		
 		// Call pre listeners, allow complete override
@@ -554,6 +555,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		public Coordinate linearAcceleration;
 		public Coordinate angularAcceleration;
+
+		public Coordinate launchRodDirection = null;
+		
+		public double maxZvelocity = Double.NaN;
+		public double startWarningTime = Double.NaN;
 		
 		// set by calculateFlightConditions and calculateAcceleration:
 		public AerodynamicForces forces;
@@ -567,8 +573,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		public double lateralPitchAcceleration = Double.NaN;
 		
 		public Rotation2D thetaRotation;
-		
-		void storeData(RK4SimulationStatus status) {
+
+		void storeData(SimulationStatus status) {
 		
 			FlightDataBranch dataBranch = status.getFlightDataBranch();
 

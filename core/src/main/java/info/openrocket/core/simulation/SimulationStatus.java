@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class SimulationStatus implements Monitorable {
+public class SimulationStatus implements Cloneable, Monitorable {
 
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 
