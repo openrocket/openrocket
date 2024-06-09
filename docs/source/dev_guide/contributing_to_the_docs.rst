@@ -51,18 +51,12 @@ Editing and Building the Documentation
 
 If you would like to contribute to the documentation, you can do so by editing the reStructuredText files in the
 :file:`docs/source` directory of the OpenRocket repo. You can then build the documentation by first
-`installing Sphinx <https://www.sphinx-doc.org/en/master/usage/installation.html>`__:
+`installing Sphinx <https://www.sphinx-doc.org/en/master/usage/installation.html>`__ and some extra dependencies.
+Open a new terminal window in the :file:`docs` directory and run the following command:
 
 .. code-block:: bash
 
-    pip install sphinx
-
-You'll also need to install some additional sphinx dependencies:
-
-.. code-block:: bash
-
-   pip install sphinx-rtd-theme
-   pip install sphinx_new_tab_link
+    pip install -r requirements.txt
 
 To build the docs, run the following command from the ``docs`` directory:
 

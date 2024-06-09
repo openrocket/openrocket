@@ -1,13 +1,8 @@
 ## Building the docs
-Install Sphinx using pip, Python's package manager. Open your command line interface and run:
+Install Sphinx and additional dependencies using pip, Python's package manager. Open your command line interface 
+inside the :file:`openrocket/docs` directory and run:
 ```bash
-pip install sphinx
-```
-
-You'll also need to install some additional sphinx dependencies. Run
-```bash
-pip install sphinx-rtd-theme
-pip install sphinx_new_tab_link
+pip install -r requirements.txt
 ```
 
 Build the docs by running in the `docs` directory:

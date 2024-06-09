@@ -1,0 +1,3 @@
+sphinx
+sphinx-rtd-theme
+sphinx_new_tab_link
