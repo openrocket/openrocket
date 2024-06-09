@@ -6,6 +6,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
 [![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
+[![Read the Docs](https://readthedocs.org/projects/openrocket/badge/?version=latest)](https://openrocket.readthedocs.io/en/latest/)
 
 [![snap release](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
 ![Chocolatey release](https://img.shields.io/chocolatey/v/openrocket)
@@ -36,15 +37,17 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 
 ... plus many more
 
-📖 Read more on [our website](https://openrocket.info/) or the [OpenRocket Wiki](http://wiki.openrocket.info).
+📖 Read more on [our website](https://openrocket.info/).
 
 ## 💾 Installers
 
 You can find the OpenRocket installers [here](https://openrocket.info/downloads.html).
 
-## 📝 Release Notes
-
 Release notes are available on each [release's page](https://github.com/openrocket/openrocket/releases) or on [our website](https://openrocket.info/release_notes.html).
+
+## 📖 Documentation
+
+You can find our documentation on [ReadTheDocs](https://openrocket.readthedocs.io/en/latest/).
 
 ## 🚀 Getting started
 
