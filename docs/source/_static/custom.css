@@ -1,0 +1,110 @@
+/* Change the ReadTheDocs theme */
+.wy-nav-content {
+    max-width: 65% !important;
+}
+
+.wy-side-nav-search, .wy-nav-top {
+    background: #1d8be1;
+}
+
+.wy-side-nav-search .logo {
+    max-width: 42% !important;
+}
+
+.seealso .admonition-title {
+    background: #85898c !important;
+}
+
+.seealso .admonition-title::before {
+    content: "\f064";
+    margin-right: 0.5em;
+}
+
+.seealso {
+    background: #eee !important;
+}
+
+.tip .admonition-title::before {
+    content: "\f0eb";
+    margin-right: 0.5em;
+}
+
+.note .admonition-title::before {
+    content: "\f05a";
+    margin-right: 0.5em;
+}
+
+.warning .admonition-title::before {
+    content: "\f071";
+    margin-right: 0.5em;
+}
+
+.attention .admonition-title {
+    background: #e87f7a !important;
+}
+
+.attention .admonition-title::before {
+    content: "\f0f3";
+    margin-right: 0.5em;
+}
+
+.attention {
+    background: #ffd6cc !important;
+}
+
+.admonition-todo {
+    background: #f4ccff !important;
+}
+
+.admonition-todo .admonition-title {
+    background: #ff33df !important;
+}
+
+.hlist {
+    table-layout: fixed;        /* Ensure equals spacing between columns */
+}
+
+/* Custom OpenRocket CSS */
+
+.or-figclass {
+    text-align: center;
+}
+
+.or-image-border img {
+    border: 1px solid #ccc;
+    padding: 3px;
+}
+
+.clear-both {
+    clear: both;
+}
+
+/* Custom cell classes */
+.or-table > thead > tr > th {
+    text-align: center;
+}
+.or-table > tbody > tr > td:has(.or-table-good) {
+    background-color: #7FFF7F !important;  /* Green */
+}
+
+.or-table > tbody > tr > td:has(.or-table-okay) {
+    background-color: #FFFF7F !important;  /* Yellow */
+}
+
+.or-table > tbody > tr > td:has(.or-table-poor) {
+    background-color: #ffac7f !important;  /* Orange */
+}
+.or-table-cell {
+    color: #2d2d2d;
+    margin: auto !important;
+    text-align: center; !important;
+}
+
+.or-table > tbody > tr > td:has(.or-table-bad) {
+    background-color: #FF7F7F !important;  /* Red */
+}
+
+/* Remove the bottom margin in line blocks in tables */
+.or-table-line-blocks .line-block {
+    margin-bottom: 0 !important;
+}
