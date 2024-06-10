@@ -1,0 +1,4 @@
+sphinx
+sphinx-rtd-theme
+sphinx-rtd-dark-mode
+sphinx_new_tab_link
