@@ -49,7 +49,7 @@ default_dark_mode = False
 # -- Options for todo extension ----------------------------------------------
 
 # Show TODOs in the output
-todo_include_todos = True
+todo_include_todos = False
 
 # -- Options for ReadTheDocs -------------------------------------------------
 
