@@ -139,6 +139,8 @@ Setting Up the Development Environment
 
 This section will guide you through setting up the development environment to build OpenRocket from the source code.
 
+.. _setup_intellij:
+
 IntelliJ IDEA
 -------------
 
@@ -149,13 +151,16 @@ OpenRocket. You can download the Community Edition for free from the `JetBrains 
 
 Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocket project:
 
-1. **Open IntelliJ IDEA**
-   Start IntelliJ IDEA and select "Open" (Go to :menuselection:`File --> Open`).
+1. **Start IntelliJ IDEA**
 
-2. **Select the OpenRocket project**
-   Navigate to the directory where you cloned OpenRocket and select the project.
+2. **Import the OpenRocket project**
+
+   In IntelliJ, select :menuselection:`File --> New --> Project from Existing Sources...`. This will open a file dialog.
+   Navigate to the directory where you cloned OpenRocket and select the :file:`build.gradle` file in the root :file:`openrocket`
+   directory and click :guilabel:`Open`.
 
 3. **Import Project as Gradle Project**
+
    IntelliJ should automatically detect that this is a Gradle project. If prompted, select ``Load Gradle Project``.
 
    .. figure:: /img/dev_guide/development_setup/load_gradle_project.png
@@ -165,7 +170,19 @@ Once you have downloaded and installed IntelliJ IDEA, you can open the OpenRocke
 
       IntelliJ IDEA will automatically detect that this is a Gradle project and prompt you to load it. Click ``Load Gradle Project``.
 
+   If you do not have this pop-up or if you have dismissed it, you can still import the project as a Gradle project.
+   Open the :file:`build.gradle` file in the root :file:`openrocket` directory in IntelliJ (double-click the file in
+   IntelliJ's project view). Then right-click anywhere in the file and select :menuselection:`Link Gradle Project`.
+
+   .. figure:: /img/dev_guide/development_setup/IntelliJ-GradleLink.png
+         :align: center
+         :width: 80%
+         :alt: Linking the Gradle project from the :file:`build.gradle` file.
+
+         Linking the Gradle project from the :file:`build.gradle` file.
+
 4. **Configure JDK for the Project**
+
    - Go to :menuselection:`File --> Project Structure --> (Project Settings -->) Project`.
    - Set the Project SDK to JDK |java_vers|.
 
@@ -235,9 +252,17 @@ Troubleshooting
 ===============
 
 1. **JDK Not Recognized**
+
    Ensure that the JDK path is correctly configured in :menuselection:`File --> Project Structure --> SDKs`.
 
 2. **Gradle Sync Issues**
+
    - If IntelliJ fails to import Gradle projects correctly, try refreshing the Gradle project by clicking on the "Reload All Gradle Projects" icon in the Gradle tool window.
    - Ensure the `gradle-wrapper.properties` file points to the correct Gradle version which supports Java |java_vers|.
 
+3. **Error: Could not find or load main class info.openrocket.swing.startup.SwingStartup
+   Caused by: java.lang.ClassNotFoundException: info.openrocket.swing.startup.SwingStartup** Error when running the SwingStartup
+   configuration in IntelliJ.
+
+   - Ensure that you have loaded the project from Gradle when you first opened the project in IntelliJ (step 3 in the
+     :ref:`IntelliJ setup <setup_intellij>`).
