@@ -84,13 +84,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				branchName = trans.get("BasicEventSimulationEngine.nullBranchName");
 			}
 			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
+			currentStatus.setFlightDataBranch(initialBranch);
 			
 			// put a point on it so we can plot if we get an early abort event
 			initialBranch.addPoint();
-			initialBranch.setValue(FlightDataType.TYPE_TIME, 0.0);
-			initialBranch.setValue(FlightDataType.TYPE_ALTITUDE, 0.0);
-			
-			currentStatus.setFlightDataBranch(initialBranch);
+			currentStatus.storeData();
 			
 			// Sanity checks on design and configuration
 			

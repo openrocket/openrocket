@@ -63,18 +63,18 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	DataStore store = new DataStore();
 	
 	@Override
-	public RK4SimulationStatus initialize(SimulationStatus original) {
+	public SimulationStatus initialize(SimulationStatus original) {
 		
-		RK4SimulationStatus status = new RK4SimulationStatus(original);
+		SimulationStatus status = new SimulationStatus(original);
 		// Copy the existing warnings
 		status.setWarnings(original.getWarnings());
 		
 		SimulationConditions sim = original.getSimulationConditions();
-		
-		status.setLaunchRodDirection(new Coordinate(
-				Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
-				Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
-				Math.cos(sim.getLaunchRodAngle())));
+
+		store.launchRodDirection = new Coordinate(
+												  Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+												  Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+												  Math.cos(sim.getLaunchRodAngle()));
 
 		this.random = new Random(original.getSimulationConditions().getRandomSeed() ^ SEED_RANDOMIZATION);
 		
@@ -87,11 +87,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	@Override
 	public void step(SimulationStatus simulationStatus, double maxTimeStep) throws SimulationException {
 		
-		RK4SimulationStatus status = (RK4SimulationStatus) simulationStatus;
+		SimulationStatus status = simulationStatus;
 
 		////////  Perform RK4 integration:  ////////
 		
-		RK4SimulationStatus status2;
+		SimulationStatus status2;
 		RK4Parameters k1, k2, k3, k4;
 
 		/*
@@ -107,6 +107,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//// First position, k1 = f(t, y)
 		
 		k1 = computeParameters(status, store);
+		store.storeData(status);
 		
 		/*
 		 * Select the actual time step to use.  It is the minimum of the following:
@@ -138,18 +139,18 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			dt[0] /= 5.0;
 			dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
 		}
-		dt[7] = 1.5 * store.timestep;
+		dt[7] = 1.5 * store.timeStep;
 		
-		store.timestep = Double.MAX_VALUE;
+		store.timeStep = Double.MAX_VALUE;
 		int limitingValue = -1;
 		for (int i = 0; i < dt.length; i++) {
-			if (dt[i] < store.timestep) {
-				store.timestep = dt[i];
+			if (dt[i] < store.timeStep) {
+				store.timeStep = dt[i];
 				limitingValue = i;
 			}
 		}
 
-		log.trace("Selected time step " + store.timestep + " (limiting factor " + limitingValue + ")");
+		log.trace("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
 
 		// If we have a scheduled event coming up before the end of our timestep, truncate step
 		// else if the time from the end of our timestep to the next scheduled event time is less than
@@ -158,36 +159,36 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		FlightEvent nextEvent = status.getEventQueue().peek();
 		if (nextEvent != null) {
 			double nextEventTime = nextEvent.getTime();
-			if (status.getSimulationTime() + store.timestep > nextEventTime) {
-				store.timestep = nextEventTime - status.getSimulationTime();
-				log.trace("scheduled event at " + nextEventTime + " truncates timestep to " + store.timestep);
-			} else if ((status.getSimulationTime() + store.timestep < nextEventTime) &&
-					   (status.getSimulationTime() + store.timestep + minTimeStep > nextEventTime)) {
-				store.timestep = nextEventTime - status.getSimulationTime();
-				log.trace("Scheduled event at " + nextEventTime + " stretches timestep to " + store.timestep);
+			if (status.getSimulationTime() + store.timeStep > nextEventTime) {
+				store.timeStep = nextEventTime - status.getSimulationTime();
+				log.trace("scheduled event at " + nextEventTime + " truncates timestep to " + store.timeStep);
+			} else if ((status.getSimulationTime() + store.timeStep < nextEventTime) &&
+					   (status.getSimulationTime() + store.timeStep + minTimeStep > nextEventTime)) {
+				store.timeStep = nextEventTime - status.getSimulationTime();
+				log.trace("Scheduled event at " + nextEventTime + " stretches timestep to " + store.timeStep);
 			}
 		}
 
 		// If we've wound up with a too-small timestep, increase it avoid numerical instability even at the
 		// cost of not being *quite* on an event
-		if (store.timestep < minTimeStep) {
-			log.trace("Too small time step " + store.timestep + " (limiting factor " + limitingValue + "), using " +
+		if (store.timeStep < minTimeStep) {
+			log.trace("Too small time step " + store.timeStep + " (limiting factor " + limitingValue + "), using " +
 					minTimeStep + " instead.");
-			store.timestep = minTimeStep;
+			store.timeStep = minTimeStep;
 		}
 
-		checkNaN(store.timestep);
+		checkNaN(store.timeStep);
 
 
 
 		//// Second position, k2 = f(t + h/2, y + k1*h/2)
 		
 		status2 = status.clone();
-		status2.setSimulationTime(status.getSimulationTime() + store.timestep / 2);
-		status2.setRocketPosition(status.getRocketPosition().add(k1.v.multiply(store.timestep / 2)));
-		status2.setRocketVelocity(status.getRocketVelocity().add(k1.a.multiply(store.timestep / 2)));
-		status2.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k1.rv.multiply(store.timestep / 2))));
-		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k1.ra.multiply(store.timestep / 2)));
+		status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 2);
+		status2.setRocketPosition(status.getRocketPosition().add(k1.v.multiply(store.timeStep / 2)));
+		status2.setRocketVelocity(status.getRocketVelocity().add(k1.a.multiply(store.timeStep / 2)));
+		status2.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k1.rv.multiply(store.timeStep / 2))));
+		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k1.ra.multiply(store.timeStep / 2)));
 		
 		k2 = computeParameters(status2, store);
 		
@@ -195,11 +196,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//// Third position, k3 = f(t + h/2, y + k2*h/2)
 		
 		status2 = status.clone();
-		status2.setSimulationTime(status.getSimulationTime() + store.timestep / 2);
-		status2.setRocketPosition(status.getRocketPosition().add(k2.v.multiply(store.timestep / 2)));
-		status2.setRocketVelocity(status.getRocketVelocity().add(k2.a.multiply(store.timestep / 2)));
-		status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k2.rv.multiply(store.timestep / 2))));
-		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k2.ra.multiply(store.timestep / 2)));
+		status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 2);
+		status2.setRocketPosition(status.getRocketPosition().add(k2.v.multiply(store.timeStep / 2)));
+		status2.setRocketVelocity(status.getRocketVelocity().add(k2.a.multiply(store.timeStep / 2)));
+		status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k2.rv.multiply(store.timeStep / 2))));
+		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k2.ra.multiply(store.timeStep / 2)));
 		
 		k3 = computeParameters(status2, store);
 		
@@ -207,21 +208,21 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//// Fourth position, k4 = f(t + h, y + k3*h)
 		
 		status2 = status.clone();
-		status2.setSimulationTime(status.getSimulationTime() + store.timestep);
-		status2.setRocketPosition(status.getRocketPosition().add(k3.v.multiply(store.timestep)));
-		status2.setRocketVelocity(status.getRocketVelocity().add(k3.a.multiply(store.timestep)));
-		status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k3.rv.multiply(store.timestep))));
-		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k3.ra.multiply(store.timestep)));
+		status2.setSimulationTime(status.getSimulationTime() + store.timeStep);
+		status2.setRocketPosition(status.getRocketPosition().add(k3.v.multiply(store.timeStep)));
+		status2.setRocketVelocity(status.getRocketVelocity().add(k3.a.multiply(store.timeStep)));
+		status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k3.rv.multiply(store.timeStep))));
+		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k3.ra.multiply(store.timeStep)));
 		
 		k4 = computeParameters(status2, store);
 		
 
 		//// Sum all together,  y(n+1) = y(n) + h*(k1 + 2*k2 + 2*k3 + k4)/6
 		Coordinate deltaV, deltaP, deltaR, deltaO;
-		deltaV = k2.a.add(k3.a).multiply(2).add(k1.a).add(k4.a).multiply(store.timestep / 6);
-		deltaP = k2.v.add(k3.v).multiply(2).add(k1.v).add(k4.v).multiply(store.timestep / 6);
-		deltaR = k2.ra.add(k3.ra).multiply(2).add(k1.ra).add(k4.ra).multiply(store.timestep / 6);
-		deltaO = k2.rv.add(k3.rv).multiply(2).add(k1.rv).add(k4.rv).multiply(store.timestep / 6);
+		deltaV = k2.a.add(k3.a).multiply(2).add(k1.a).add(k4.a).multiply(store.timeStep / 6);
+		deltaP = k2.v.add(k3.v).multiply(2).add(k1.v).add(k4.v).multiply(store.timeStep / 6);
+		deltaR = k2.ra.add(k3.ra).multiply(2).add(k1.ra).add(k4.ra).multiply(store.timeStep / 6);
+		deltaO = k2.rv.add(k3.rv).multiply(2).add(k1.rv).add(k4.rv).multiply(store.timeStep / 6);
 		
 
 		status.setRocketVelocity(status.getRocketVelocity().add(deltaV));
@@ -233,15 +234,17 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
 		
-		if (!(0 <= store.timestep)) {
+		if (!(0 <= store.timeStep)) {
 			// Also catches NaN
-			throw new IllegalArgumentException("Stepping backwards in time, timestep=" + store.timestep);
+			throw new IllegalArgumentException("Stepping backwards in time, timestep=" + store.timeStep);
 		}
-		status.setSimulationTime(status.getSimulationTime() + store.timestep);
+		status.setSimulationTime(status.getSimulationTime() + store.timeStep);
 		
 		// Store data
 		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
-		storeData(status, store);
+		status.getFlightDataBranch().addPoint();
+		status.storeData();
+		store.storeData(status);
 		
 		// Verify that values don't run out of range
 		if (status.getRocketVelocity().length2() > 1e18 ||
@@ -255,7 +258,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 
 
-	private RK4Parameters computeParameters(RK4SimulationStatus status, DataStore dataStore)
+	private RK4Parameters computeParameters(SimulationStatus status, DataStore dataStore)
 			throws SimulationException {
 		RK4Parameters params = new RK4Parameters();
 		
@@ -294,7 +297,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @param status   the status of the rocket.
 	 * @throws SimulationException 
 	 */
-	private AccelerationData calculateAcceleration(RK4SimulationStatus status, DataStore store) throws SimulationException {
+	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		
 		// Compute the forces affecting the rocket
 		calculateForces(status, store);
@@ -347,8 +350,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// set angular acceleration to zero.
 		if (!status.isLaunchRodCleared()) {
 			
-			store.linearAcceleration = status.getLaunchRodDirection().multiply(
-						store.linearAcceleration.dot(status.getLaunchRodDirection()));
+			store.linearAcceleration = store.launchRodDirection.multiply(store.linearAcceleration.dot(store.launchRodDirection));
 			store.angularAcceleration = Coordinate.NUL;
 			store.rollAcceleration = 0;
 			store.lateralPitchAcceleration = 0;
@@ -389,7 +391,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * Calculate the aerodynamic forces into the data store.  This method also handles
 	 * whether to include aerodynamic computation warnings or not.
 	 */
-	private void calculateForces(RK4SimulationStatus status, DataStore store) throws SimulationException {
+	private void calculateForces(SimulationStatus status, DataStore store) throws SimulationException {
 		
 		// Call pre-listeners
 		store.forces = SimulationListenerHelper.firePreAerodynamicCalculation(status);
@@ -406,19 +408,21 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * below 20% of the max. velocity.
 		 */
 		WarningSet warnings = status.getWarnings();
-		status.setMaxZVelocity(MathUtil.max(status.getMaxZVelocity(), status.getRocketVelocity().z));
+		store.maxZvelocity = MathUtil.max(store.maxZvelocity, status.getRocketVelocity().z);
 		
 		if (!status.isLaunchRodCleared()) {
 			warnings = null;
 		} else {
-			if (status.getRocketVelocity().z < 0.2 * status.getMaxZVelocity())
+			if (status.getRocketVelocity().z < 0.2 * store.maxZvelocity) {
 				warnings = null;
-			if (status.getStartWarningTime() < 0)
-				status.setStartWarningTime(status.getSimulationTime() + 0.25);
+			}
+			if (Double.isNaN(store.startWarningTime)) {
+				store.startWarningTime = status.getSimulationTime() + 0.25;
+			}
 		}
-		if (status.getSimulationTime() < status.getStartWarningTime())
+
+		if (!(status.getSimulationTime() > store.startWarningTime))
 			warnings = null;
-		
 
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
@@ -444,7 +448,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * Additionally the fields thetaRotation and lateralPitchRate are defined in
 	 * the data store, and can be used after calling this method.
 	 */
-	private void calculateFlightConditions(RK4SimulationStatus status, DataStore store)
+	private void calculateFlightConditions(SimulationStatus status, DataStore store)
 			throws SimulationException {
 		
 		// Call pre listeners, allow complete override
@@ -466,9 +470,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 
 		//// Local wind speed and direction
-		Coordinate windVelocity = modelWindVelocity(status);
-		store.windSpeed = windVelocity.length();
-		Coordinate airSpeed = status.getRocketVelocity().add(windVelocity);
+		store.windVelocity = modelWindVelocity(status);
+		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
 		
 
@@ -521,151 +524,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
 		
 	}
-	
-	
-
-	private void storeData(RK4SimulationStatus status, DataStore store) {
-		
-		FlightDataBranch dataBranch = status.getFlightDataBranch();
-
-		dataBranch.addPoint();
-		dataBranch.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
-		dataBranch.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
-		
-		dataBranch.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
-		dataBranch.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
-		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
-			dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, store.coriolisAcceleration.length());
-		}
-		
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_XY,
-					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
-
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-
-		if (store.linearAcceleration != null) {
-			dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-						  MathUtil.hypot(store.linearAcceleration.x, store.linearAcceleration.y));
-
-			dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, store.linearAcceleration.length());
-		}
-
-		if (store.flightConditions != null) {
-			double Re = (store.flightConditions.getVelocity() *
-						 status.getConfiguration().getLengthAerodynamic() /
-						 store.flightConditions.getAtmosphericConditions().getKinematicViscosity());
-			dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
-		}
-		
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
-		if (store.linearAcceleration != null) {
-			dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, store.linearAcceleration.z);
-		}
-		
-		if (store.flightConditions != null) {
-			dataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, status.getRocketVelocity().length());
-			dataBranch.setValue(FlightDataType.TYPE_MACH_NUMBER, store.flightConditions.getMach());
-		}
-		
-		if (store.rocketMass != null) {
-			dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, store.rocketMass.getCM().x);
-		}
-		if (status.isLaunchRodCleared()) {
-			// Don't include CP and stability with huge launch AOA
-			if (store.forces != null) {
-				dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, store.forces.getCP().x);
-			}
-			if (store.forces != null && store.flightConditions != null && store.rocketMass != null) {
-				dataBranch.setValue(FlightDataType.TYPE_STABILITY,
-						(store.forces.getCP().x - store.rocketMass.getCM().x) / store.flightConditions.getRefLength());
-			}
-		}
-
-		if (null != store.motorMass) {
-			dataBranch.setValue(FlightDataType.TYPE_MOTOR_MASS, store.motorMass.getMass());
-			//dataBranch.setValue(FlightDataType.TYPE_MOTOR_LONGITUDINAL_INERTIA, store.motorMassData.getLongitudinalInertia());
-			//dataBranch.setValue(FlightDataType.TYPE_MOTOR_ROTATIONAL_INERTIA, store.motorMassData.getRotationalInertia());
-		}
-		if (store.rocketMass != null) {
-			// N.B.: These refer to total mass
-			dataBranch.setValue(FlightDataType.TYPE_MASS, store.rocketMass.getMass());
-			dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, store.rocketMass.getLongitudinalInertia());
-			dataBranch.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, store.rocketMass.getRotationalInertia());
-		}
-		
-		dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, store.thrustForce);
-		double weight = store.rocketMass.getMass() * store.gravity;
-		dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, store.thrustForce / weight);
-		dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, store.dragForce);
-		dataBranch.setValue(FlightDataType.TYPE_GRAVITY, store.gravity);
-		
-		if (status.isLaunchRodCleared() && store.forces != null) {
-			if (store.rocketMass != null && store.flightConditions != null) {
-				dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
-						store.forces.getCm() - store.forces.getCN() * store.rocketMass.getCM().x / store.flightConditions.getRefLength());
-				dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
-						store.forces.getCyaw() - store.forces.getCside() * store.rocketMass.getCM().x / store.flightConditions.getRefLength());
-			}
-			dataBranch.setValue(FlightDataType.TYPE_NORMAL_FORCE_COEFF, store.forces.getCN());
-			dataBranch.setValue(FlightDataType.TYPE_SIDE_FORCE_COEFF, store.forces.getCside());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_MOMENT_COEFF, store.forces.getCroll());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_FORCING_COEFF, store.forces.getCrollForce());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_DAMPING_COEFF, store.forces.getCrollDamp());
-			dataBranch.setValue(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF,
-					store.forces.getPitchDampingMoment());
-		}
-		
-		if (store.forces != null) {
-			dataBranch.setValue(FlightDataType.TYPE_DRAG_COEFF, store.forces.getCD());
-			dataBranch.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, store.forces.getCDaxial());
-			dataBranch.setValue(FlightDataType.TYPE_FRICTION_DRAG_COEFF, store.forces.getFrictionCD());
-			dataBranch.setValue(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, store.forces.getPressureCD());
-			dataBranch.setValue(FlightDataType.TYPE_BASE_DRAG_COEFF, store.forces.getBaseCD());
-		}
-		
-		if (store.flightConditions != null) {
-			dataBranch.setValue(FlightDataType.TYPE_REFERENCE_LENGTH, store.flightConditions.getRefLength());
-			dataBranch.setValue(FlightDataType.TYPE_REFERENCE_AREA, store.flightConditions.getRefArea());
-			
-			dataBranch.setValue(FlightDataType.TYPE_PITCH_RATE, store.flightConditions.getPitchRate());
-			dataBranch.setValue(FlightDataType.TYPE_YAW_RATE, store.flightConditions.getYawRate());
-			dataBranch.setValue(FlightDataType.TYPE_ROLL_RATE, store.flightConditions.getRollRate());
-			
-			dataBranch.setValue(FlightDataType.TYPE_AOA, store.flightConditions.getAOA());
-		}
-		
-		Coordinate c = status.getRocketOrientationQuaternion().rotateZ();
-		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
-		double phi = Math.atan2(c.y, c.x);
-		if (phi < -(Math.PI - 0.0001))
-			phi = Math.PI;
-		dataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
-		dataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
-		
-		dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, store.windSpeed);
-		
-		if (store.flightConditions != null) {
-			dataBranch.setValue(FlightDataType.TYPE_AIR_TEMPERATURE,
-					store.flightConditions.getAtmosphericConditions().getTemperature());
-			dataBranch.setValue(FlightDataType.TYPE_AIR_PRESSURE,
-					store.flightConditions.getAtmosphericConditions().getPressure());
-			dataBranch.setValue(FlightDataType.TYPE_SPEED_OF_SOUND,
-					store.flightConditions.getAtmosphericConditions().getMachSpeed());
-		}
-		
-
-		dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, store.timestep);
-		dataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
-				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
-	}
-	
-	
-
 
 	private static class RK4Parameters {
 		/** Linear acceleration */
@@ -677,40 +535,4 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		/** Rotational velocity */
 		public Coordinate rv;
 	}
-	
-	private static class DataStore {
-		public double timestep = Double.NaN;
-		
-		public AccelerationData accelerationData;
-		
-		public AtmosphericConditions atmosphericConditions;
-		
-		public FlightConditions flightConditions;
-		
-		public double longitudinalAcceleration = Double.NaN;
-		
-		public RigidBody rocketMass;
-		
-		public RigidBody motorMass;
-		
-		public Coordinate coriolisAcceleration;
-		
-		public Coordinate linearAcceleration;
-		public Coordinate angularAcceleration;
-		
-		// set by calculateFlightConditions and calculateAcceleration:
-		public AerodynamicForces forces;
-		public double windSpeed = Double.NaN;
-		public double gravity = Double.NaN;
-		public double thrustForce = Double.NaN;
-		public double dragForce = Double.NaN;
-		public double lateralPitchRate = Double.NaN;
-		
-		public double rollAcceleration = Double.NaN;
-		public double lateralPitchAcceleration = Double.NaN;
-		
-		public Rotation2D thetaRotation;
-		
-	}
-	
 }

@@ -4,7 +4,9 @@ import info.openrocket.core.logging.SimulationAbort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.rocketcomponent.InstanceMap;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
@@ -21,16 +23,25 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 	private static final double RECOVERY_TIME_STEP = 0.5;
 
-	protected double cd;
+	DataStore store = new DataStore();
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) {
-		this.cd = computeCD(status);
-		return status;
-	}
+		store.thrustForce = 0;
+		
+		// note most of our forces don't end up getting set, so they're all NaN.
+		AerodynamicForces forces = new AerodynamicForces();
 
-	private double getCD() {
-		return cd;
+		double cd = computeCD(status);
+		forces.setCD(cd);
+		forces.setCDaxial(cd);
+		forces.setFrictionCD(0);
+		forces.setPressureCD(cd);
+		forces.setBaseCD(0);
+		
+		store.forces = forces;
+
+		return status;
 	}
 
 	protected abstract double computeCD(SimulationStatus status);
@@ -39,63 +50,62 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
 		
 		// Get the atmospheric conditions
-		final AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
+		store.atmosphericConditions = modelAtmosphericConditions(status);
 		
 		//// Local wind speed and direction
-		final Coordinate windSpeed = modelWindVelocity(status);
-		Coordinate airSpeed = status.getRocketVelocity().add(windSpeed);
+		store.windVelocity = modelWindVelocity(status);
+		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		
 		// Compute drag force
-		final double mach = airSpeed.length() / atmosphere.getMachSpeed();
-		final double CdA = getCD() * status.getConfiguration().getReferenceArea();
-		final double dragForce = 0.5 * CdA * atmosphere.getDensity() * airSpeed.length2();
+		final double mach = airSpeed.length() / store.atmosphericConditions.getMachSpeed();
+		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
+		store.dragForce = 0.5 * CdA * store.atmosphericConditions.getDensity() * airSpeed.length2();
 
-		final double rocketMass = calculateStructureMass(status).getMass();
-		final double motorMass = calculateMotorMass(status).getMass();
+		RigidBody structureMassData = calculateStructureMass(status);
+		store.motorMass = calculateMotorMass(status);
+		store.rocketMass = structureMassData.add( store.motorMass );
 
-		final double mass = rocketMass + motorMass;
-		if (mass < MathUtil.EPSILON) {
+		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
 			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
 
 		// Compute drag acceleration
-		Coordinate linearAcceleration = airSpeed.normalize().multiply(-dragForce / mass);
+		store.linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
 		
 		// Add effect of gravity
-		final double gravity = modelGravity(status);
-		linearAcceleration = linearAcceleration.sub(0, 0, gravity);
-		
+		store.gravity = modelGravity(status);
+		store.linearAcceleration = store.linearAcceleration.sub(0, 0, store.gravity);
 
 		// Add coriolis acceleration
-		final Coordinate coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
+		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
 				status.getRocketWorldPosition(), status.getRocketVelocity());
-		linearAcceleration = linearAcceleration.add(coriolisAcceleration);
+		store.linearAcceleration = store.linearAcceleration.add(store.coriolisAcceleration);
 
 		// Select tentative time step
-		double timeStep = RECOVERY_TIME_STEP;
+		store.timeStep = RECOVERY_TIME_STEP;
 
 		// adjust based on acceleration
-		final double absAccel = linearAcceleration.length();
+		final double absAccel = store.linearAcceleration.length();
 		if (absAccel > MathUtil.EPSILON) {
-			timeStep = Math.min(timeStep, 1.0/absAccel);
+			store.timeStep = Math.min(store.timeStep, 1.0/absAccel);
 		}
 
 		// Honor max step size passed in.  If the time to next time step is greater than our minimum
 		// we'll set our next step to just before it in order to better capture discontinuities in things like chute opening
-		if (maxTimeStep < timeStep) {
+		if (maxTimeStep < store.timeStep) {
 			if (maxTimeStep > MIN_TIME_STEP) {
-				timeStep = maxTimeStep - MIN_TIME_STEP;
+				store.timeStep = maxTimeStep - MIN_TIME_STEP;
 			} else {
-				timeStep = maxTimeStep;
+				store.timeStep = maxTimeStep;
 			}
 		}
 
 		// but don't let it get *too* small
-		timeStep = Math.max(timeStep, MIN_TIME_STEP);
-		log.trace("timeStep is " + timeStep);
+		store.timeStep = Math.max(store.timeStep, MIN_TIME_STEP);
+		log.trace("timeStep is " + store.timeStep);
 		
 		// Perform Euler integration
-		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, timeStep);
+		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), store.linearAcceleration, store.timeStep);
 
 		// Check to see if z or either of its first two derivatives have changed sign and recalculate
 		// time step to point of change if so
@@ -105,10 +115,10 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		// Note that it's virtually impossible for apogee to occur on the same
 		// step as either ground hit or descent rate inflection, and if we get a ground hit
 		// any descent rate inflection won't matter
-		final double a = linearAcceleration.z;
+		final double a = store.linearAcceleration.z;
 		final double v = status.getRocketVelocity().z;
 		final double z = status.getRocketPosition().z;
-		double t = timeStep;
+		double t = store.timeStep;
 		if (newVals.pos.z < 0) {
 			// If I've hit the ground, the new timestep is the solution of
 			// 1/2 at^2 + vt + z = 0
@@ -124,13 +134,13 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// calculations to get it "right"; this will be close enough for our purposes.
 			// use chain rule to compute jerk
 			// dA/dT = dA/dV * dV/dT
-			final double dFdV = CdA * atmosphere.getDensity() * airSpeed.length();
-			final Coordinate dAdV = airSpeed.normalize().multiply(dFdV / mass);
-			final Coordinate jerk = linearAcceleration.multiply(dAdV);
-			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(timeStep));
+			final double dFdV = CdA * store.atmosphericConditions.getDensity() * airSpeed.length();
+			final Coordinate dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
+			final Coordinate jerk = store.linearAcceleration.multiply(dAdV);
+			final Coordinate newAcceleration = store.linearAcceleration.add(jerk.multiply(store.timeStep));
 
 			// Only do this one if acceleration is appreciably different from 0
-			if (newAcceleration.z * linearAcceleration.z < -MathUtil.EPSILON) {
+			if (newAcceleration.z * store.linearAcceleration.z < -MathUtil.EPSILON) {
 				// If acceleration oscillation is building up, the new timestep is the solution of
 				// a + j*t = 0
 				t = Math.abs(a / jerk.z);
@@ -142,14 +152,14 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		t = Math.max(t, MIN_TIME_STEP);
 
 		// recalculate Euler integration for position and velocity if necessary.
-		if (Math.abs(t - timeStep) > MathUtil.EPSILON) {
-			timeStep = t;
+		if (Math.abs(t - store.timeStep) > MathUtil.EPSILON) {
+			store.timeStep = t;
 
-			if (maxTimeStep - timeStep < MIN_TIME_STEP) {
-				timeStep = maxTimeStep;
+			if (maxTimeStep - store.timeStep < MIN_TIME_STEP) {
+				store.timeStep = maxTimeStep;
 			}
 
-			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, timeStep);
+			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), store.linearAcceleration, store.timeStep);
 
 			// If we just landed chop off rounding error
 			if (Math.abs(newVals.pos.z) < MathUtil.EPSILON) {
@@ -157,11 +167,11 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			}
 		}
 
-		status.setSimulationTime(status.getSimulationTime() + timeStep);
+		status.setSimulationTime(status.getSimulationTime() + store.timeStep);
 
 		status.setRocketPosition(newVals.pos);
 		status.setRocketVelocity(newVals.vel);
-		status.setRocketAcceleration(linearAcceleration);
+		status.setRocketAcceleration(store.linearAcceleration);
 
 		// Update the world coordinate
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
@@ -172,65 +182,18 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		final FlightDataBranch dataBranch = status.getFlightDataBranch();
 
 		// Values looked up or calculated at start of time step
-		dataBranch.setValue(FlightDataType.TYPE_REFERENCE_LENGTH, status.getConfiguration().getReferenceLength());
-		dataBranch.setValue(FlightDataType.TYPE_REFERENCE_AREA, status.getConfiguration().getReferenceArea());
-		dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, windSpeed.length());
-		dataBranch.setValue(FlightDataType.TYPE_AIR_TEMPERATURE, atmosphere.getTemperature());
-		dataBranch.setValue(FlightDataType.TYPE_AIR_PRESSURE, atmosphere.getPressure());
-		dataBranch.setValue(FlightDataType.TYPE_SPEED_OF_SOUND, atmosphere.getMachSpeed());
-		dataBranch.setValue(FlightDataType.TYPE_MACH_NUMBER, mach);
-
-		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
-			dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
-		}
-		dataBranch.setValue(FlightDataType.TYPE_GRAVITY, gravity);
-
-		dataBranch.setValue(FlightDataType.TYPE_DRAG_COEFF, getCD());
-		dataBranch.setValue(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, getCD());
-		dataBranch.setValue(FlightDataType.TYPE_FRICTION_DRAG_COEFF, 0);
-		dataBranch.setValue(FlightDataType.TYPE_BASE_DRAG_COEFF, 0);
-		dataBranch.setValue(FlightDataType.TYPE_AXIAL_DRAG_COEFF, getCD());
-		dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
-		dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
-
-		dataBranch.setValue(FlightDataType.TYPE_MASS, mass);
-		dataBranch.setValue(FlightDataType.TYPE_MOTOR_MASS, motorMass);
-		dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, 0);
-
-		dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-					  MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
-		dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
-		dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
-
-		dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
-
+		store.storeData(status);
+		
 		// Values calculated on this step
 		dataBranch.addPoint();
-		dataBranch.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
-		dataBranch.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
+		status.storeData();
 
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_XY,
-					  MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
-		dataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					  Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
-		dataBranch.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
-		dataBranch.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
-
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
-					  MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
-		dataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, airSpeed.length());
-
-		airSpeed = status.getRocketVelocity().add(windSpeed);
+		airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		final double Re = airSpeed.length() *
 			status.getConfiguration().getLengthAerodynamic() /
-			atmosphere.getKinematicViscosity();
+			store.atmosphericConditions.getKinematicViscosity();
 		dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 
-		dataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
-				(System.nanoTime() - status.getSimulationStartWallTime()) / 1000000000.0);
 		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 
