@@ -504,7 +504,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public boolean equals(Object o) {
 		if (!(o instanceof FlightDataType))
 			return false;
-		return this.compareTo((FlightDataType) o) == 0;
+		return this.name.compareToIgnoreCase(((FlightDataType)o).name) == 0;
 	}
 
 	@Override
