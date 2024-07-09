@@ -80,15 +80,18 @@ we need to talk about the simulation status, flight data, and simulation listene
 Simulation Status
 ~~~~~~~~~~~~~~~~~
 
-As a simulation proceeds, it maintains its state in a `SimulationStatus`. The `SimulationStatus` object contains
-information about the rocket's current position, orientation, velocity, and simulation state. It also contains a
-reference to a copy of the rocket design and its configuration. Any simulation listener method may modify the state of
+As a simulation proceeds, it maintains its state in a
+`SimulationStatus` object. This object contains
+information about the rocket's current position, orientation,
+velocity, simulation state, and the simulation's event queue. It also contains a
+reference to a copy of the rocket design and its configuration. Any
+simulation listener method (see below) may modify the state of
 the rocket by changing the properties of the `SimulationStatus` object.
 
 You can obtain current information regarding the state of the simulation by calling `get*()` methods. For instance, the
 rocket's current position is returned by calling `getRocketPosition()`; the rocket's position can be changed by calling
-`setRocketPosition<Coordinate position>`. All of the `get*()` and `set*()` methods can be found in
-:file:`code/src/net/sf/openrocket/simulation/SimulationStatus.java`. Note that while some information can be obtained in
+`setRocketPosition(Coordinate position)`. All of the `get*()` and `set*()` methods can be found in
+:file:`core/src/main/java/info/openrocket/core/simulation/SimulationStatus.java`. Note that while some information can be obtained in
 this way, it is not as complete as that found in `FlightData` and `FlightDataBranch` objects.
 
 Flight Data
@@ -97,7 +100,7 @@ Flight Data
 OpenRocket refers to simulation variables as `FlightDataType`s, which are `List<Double>` objects with one list for each
 simulation variable and one element in the list for each time step. To obtain a `FlightDataType`, for example the current
 motor mass, from `flightData`, we call `flightData.get(FlightDataType.TYPE_MOTOR_MASS)`. The standard `FlightDataType`
-lists are all created in `core/src/net/sf/openrocket/simulation/FlightDataType.java`; the mechanism for creating a new
+lists are all created in `core/src/main/java/info/openrocket/core/simulation/FlightDataType.java`; the mechanism for creating a new
 `FlightDataType` if needed for your extension will be described later.
 
 Data from the current simulation step can be obtained with e.g. `flightData.getLast(FlightDataType.TYPE_MOTOR_MASS)`.
@@ -105,7 +108,7 @@ Data from the current simulation step can be obtained with e.g. `flightData.getL
 The simulation data for each stage of the rocket's flight is referred to as a `FlightDataBranch`. Every simulation has 
 at least one `FlightDataBranch` for its sustainer, and will have additional branches for its boosters.
 
-Finally, the collection of all of the `FlightDataBranch`es and some summary data for the simulation is stored in a 
+Finally, the collection of all of the `FlightDataBranch` es and some summary data for the simulation is stored in a 
 `FlightData` object.
 
 Flight Conditions
@@ -137,7 +140,7 @@ This method is called when the simulation is first started. It obtains the desir
 configuration, and inserts them into the simulation status to simulate an air-start.
 
 The full set of listener methods, with documentation regarding when they are called, can be found in 
-:file:`core/src/net/sf/openrocket/simulation/listeners/AbstractSimulationListener.java`.
+:file:`core/src/main/java/info/openrocket/core/simulation/listeners/AbstractSimulationListener.java`.
 
 The listener methods can have three return value types:
 
@@ -153,7 +156,8 @@ The listener methods can have three return value types:
 
 Every listener receives a ``SimulationStatus`` (see above) object as the first argument, and may also have additional arguments.
 
-Each listener method may also throw a ``SimulationException``. This is considered an error during simulation (not a bug), 
+Each listener method may also throw a ``SimulationException``. This is
+considered an error during simulation (not a program bug),
 and an error dialog is displayed to the user with the exception message. The simulation data produced thus far is not 
 stored in the simulation. Throwing a ``RuntimeException`` is considered a bug in the software and will result in a bug report dialog.
 
@@ -184,100 +188,104 @@ You can either create your extension outside the source tree and make sure it is
 classpath when OpenRocket is executed, or you can insert it in the source tree and compile it along with OpenRocket. 
 Since all of OpenRocket's code is freely available, and reading the code for the existing extensions will be very helpful 
 in writing your own, the easiest approach is to simply insert it in the source tree. If you select this option, a very 
-logical place to put your extension is in:
+logical place to put your extension is in :file:`core/src/main/java/info/openrocket/core/simulation/extension/`
 
-.. code-block:: java
+The extension examples provided with OpenRocket are located in a
+subdirectory of this named :file:`example/`.
 
-   core/src/net/sf/openrocket/simulation/extension/example/
+Your configurator, if any, will logically go in :file:`swing/src/main/java/info/openrocket/swing/simulation/extension/`
 
-This is where the extension examples provided with OpenRocket are located. Your configurator, if any, will logically go in:
-
-.. code-block:: java
-
-   swing/src/net/sf/openrocket/simulation/extension/example/
+Configurators for the example extensions are located in a subdirectory
+of this named :file:`example/`.
 
 Extension Example
 -----------------
 
 To make things concrete, we'll start by creating a simple example extension, to air-start a rocket from a hard-coded altitude. 
 Later, we'll add a configurator to the extension so we can set the launch altitude through a GUI at runtime. This is a 
-simplified version of the ``AirStart`` extension located in the OpenRocket source code tree; that class also sets a 
-start velocity.
+simplified version of the ``AirStart`` extension included in the extension
+``example`` directory in the OpenRocket source code tree (that extension also sets a 
+start velocity).
 
 .. code-block:: java
+   :linenos:
 
-   package net.sf.openrocket.simulation.extension.example;
-
-   import net.sf.openrocket.simulation.SimulationStatus;
-   import net.sf.openrocket.simulation.exception.SimulationException;
-   import net.sf.openrocket.simulation.extension.AbstractSimulationExtension;
-   import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
-   import net.sf.openrocket.util.Coordinate;
-
-   /**
-    * Simulation extension that launches a rocket from a specific altitude.
-    */
-   public class AirStartExample extends AbstractSimulationExtension {
-
-       public void initialize(SimulationConditions conditions) throws SimulationException {
-           conditions.getSimulationListenerList().add(new AirStartListener());
-       }
-
-       @Override
-       public String getName() {
-           return "Air-Start Example";
-       }
-
-       @Override
-       public String getDescription() {
-           return "Simple extension example for air-start";
-       }
-
-       private class AirStartListener extends AbstractSimulationListener {
-
-           @Override
-           public void startSimulation(SimulationStatus status) throws SimulationException {
-               status.setRocketPosition(new Coordinate(0, 0, 1000.0));
-           }
-       }
-   }
+    package info.openrocket.core.simulation.extension;
+    
+    import info.openrocket.core.simulation.SimulationConditions;
+    import info.openrocket.core.simulation.SimulationStatus;
+    import info.openrocket.core.simulation.exception.SimulationException;
+    import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
+    import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
+    import info.openrocket.core.util.Coordinate;
+    
+    /**
+     * Simulation extension that launches a rocket from a specific altitude.
+     */
+    public class AirStartExample extends AbstractSimulationExtension {
+    
+        public void initialize(SimulationConditions conditions) throws SimulationException {
+            conditions.getSimulationListenerList().add(new AirStartListener());
+        }
+    
+        @Override
+        public String getName() {
+            return "Air-Start Example";
+        }
+    
+        @Override
+        public String getDescription() {
+            return "Simple extension example for air-start";
+        }
+    
+        private class AirStartListener extends AbstractSimulationListener {
+    
+            @Override
+            public void startSimulation(SimulationStatus status) throws SimulationException {
+                status.setRocketPosition(new Coordinate(0, 0, 1000.0));
+            }
+        }
+    }
 
 There are several important features in this example:
 
-* The ``initialize()`` method in lines 14-16, which adds the listener to the simulation's ``List`` of listeners. This is the 
-  only method that is required to be defined in your extension.
-* The ``getName()`` method in lines 19-21, which provides the extension's name. A default ``getName()`` is provided by 
+* The ``initialize()`` method in lines 15-17, which adds the listener to the simulation. This is the 
+  only method that is actually required to be defined in your
+  extension, though any real extension (including this example) will
+  almost certainly have more.
+* The ``getName()`` method in lines 19-22, which provides the extension's name. A default ``getName()`` is provided by 
   ``AbstractSimulationExtension``, which simply uses the classname (so for this example, ``getName()`` would have returned 
   ``"AirStartExample"`` if this method hadn't overridden it).
-* The ``getDescription()`` method in lines 24-26, which provides a brief description of the purpose of the extension. 
+* The ``getDescription()`` method in lines 24-27, which provides a brief description of the purpose of the extension. 
   This is the method that provides the text for the :guilabel:`Info` button dialog shown in the first section of this page.
-* The listener itself in lines 28-34, which provides a single ``startSimulation()`` method. When the simulation starts 
+* The listener itself in lines 29-35, which provides a single ``startSimulation()`` method. When the simulation starts 
   executing, this listener is called, and the rocket is set to an altitude of 1000 meters.
 
 This will create the extension when it's compiled, but it won't put it in the simulation extension menu. To be able to 
 actually use it, we need a provider, like this:
 
 .. code-block:: java
+   :linenos:
 
-   package net.sf.openrocket.simulation.extension.example;
+    import info.openrocket.core.plugin.Plugin;
+    import info.openrocket.core.simulation.extension.AbstractSimulationExtensionProvider;
+    
+    @Plugin
+    public class AirStartExampleProvider extends AbstractSimulationExtensionProvider {
+        public AirStartExampleProvider() {
+            super(AirStartExample.class, "Launch conditions", "Air-start example");
+        }
+    }
 
-   import net.sf.openrocket.plugin.Plugin;
-   import net.sf.openrocket.simulation.extension.AbstractSimulationExtensionProvider;
-
-   @Plugin
-   public class AirStartExampleProvider extends AbstractSimulationExtensionProvider {
-       public AirStartExampleProvider() {
-           super(AirStartExample.class, "Launch conditions", "Air-start example");
-       }
-   }
-
-This class adds your extension to the extension menu. The first ``String`` (``"Launch Conditions"``) is the first menu level, 
+This class adds your extension to the extension menu with the
+``super`` call in line 7. The first parameter (``"Launch Conditions"``) is the first menu level, 
 while the second (``"Air-start example"``) is the actual menu entry. These strings can be anything you want; using a 
 first level entry that didn't previously exist will add it to the first level menu.
 
-Try it! Putting the extension in a file named :file:`core/src/net/sf/openrocket/simulation/extensions/example/AirStartExample.java` 
-and the provider in :file:`core/src/net/sf/openrocket/simulation/extensions/example/AirStartExampleProvider.java`, compiling, 
-and running will give you a new entry in the extensions menu; adding it to the simulation will cause your simulation to 
+Try it! Putting the extension in a file named :file:`core/src/main/java/info/openrocket/core/simulation/extension/AirStartExample.java`
+and the provider in
+:file:`core/src/main/java/info/openrocket/core/simulation/extension/AirStartExampleProvider.java`,
+and compiling, and running OpenRocket will give you a new entry in the extensions menu; adding it to the simulation will cause your simulation to 
 start at an altitude of 1000 meters.
 
 Adding a Configurator
@@ -287,33 +295,35 @@ To be able to configure the extension at runtime, we need to write a configurato
 communicate with the extension. First, we'll modify the extension as follows:
 
 .. code-block:: java
+   :linenos:
 
-   package net.sf.openrocket.simulation.extension.example;
-
-   import net.sf.openrocket.simulation.SimulationStatus;
-   import net.sf.openrocket.simulation.exception.SimulationException;
-   import net.sf.openrocket.simulation.extension.AbstractSimulationExtension;
-   import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
-   import net.sf.openrocket.util.Coordinate;
-
-   /**
-    * Simulation extension that launches a rocket from a specific altitude.
-    */
-   public class AirStartExample extends AbstractSimulationExtension {
-
-       public void initialize(SimulationConditions conditions) throws SimulationException {
-           conditions.getSimulationListenerList().add(new AirStartListener());
-       }
-
-       @Override
-       public String getName() {
-           return "Air-Start Example";
-       }
-
-       @Override
-       public String getDescription() {
-           return "Simple extension example for air-start";
-       }
+    package info.openrocket.core.simulation.extension;
+    
+    import info.openrocket.core.simulation.SimulationConditions;
+    import info.openrocket.core.simulation.SimulationStatus;
+    import info.openrocket.core.simulation.exception.SimulationException;
+    import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
+    import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
+    import info.openrocket.core.util.Coordinate;
+    
+    /**
+     * Simulation extension that launches a rocket from a specific altitude.
+     */
+    public class AirStartExample extends AbstractSimulationExtension {
+    
+        public void initialize(SimulationConditions conditions) throws SimulationException {
+            conditions.getSimulationListenerList().add(new AirStartListener());
+        }
+    
+        @Override
+        public String getName() {
+            return "Air-Start Example";
+        }
+    
+        @Override
+        public String getDescription() {
+            return "Simple extension example for air-start";
+        }
 
        public double getLaunchAltitude() {
            return config.getDouble("launchAltitude", 1000.0);
@@ -323,20 +333,20 @@ communicate with the extension. First, we'll modify the extension as follows:
            config.put("launchAltitude", launchAltitude);
            fireChangeEvent();
        }
-
-       private class AirStartListener extends AbstractSimulationListener {
-
-           @Override
-           public void startSimulation(SimulationStatus status) throws SimulationException {
-               status.setRocketPosition(new Coordinate(0, 0, getLaunchAltitude()));
-           }
-       }
-   }
+    
+        private class AirStartListener extends AbstractSimulationListener {
+    
+            @Override
+            public void startSimulation(SimulationStatus status) throws SimulationException {
+                status.setRocketPosition(new Coordinate(0, 0, getLaunchAltitude()));
+            }
+        }
+    }
 
 This adds two methods to the extension (``getLaunchAltitude()`` and ``setLaunchAltitude()``), and calls ``getLaunchAltitude()`` 
 from within the listener to obtain the configured launch altitude. ``config`` is a ``Config`` object, provided by 
 ``AbstractSimulationExtension`` (so it isn't necessary to call a constructor yourself). 
-:file:`core/src/net/sf/openrocket/util/Config.java` includes methods to interact with a configurator, allowing the 
+:file:`core/src/main/java/info/openrocket/core/util/Config.java` includes methods to interact with a configurator, allowing the 
 extension to obtain ``double``, ``string``, and other configuration values.
 
 In this case, we'll only be defining a single configuration field in our configurator, ``"launchAltitude"``.
@@ -352,32 +362,34 @@ assures that the changes we make to the air-start altitude are propagated throug
 The configurator itself looks like this:
 
 .. code-block:: java
+   :linenos:
 
-   package net.sf.openrocket.simulation.extension.example;
+   package info.openrocket.swing.simulation.extension;
 
    import javax.swing.JComponent;
    import javax.swing.JLabel;
    import javax.swing.JPanel;
    import javax.swing.JSpinner;
 
-   import net.sf.openrocket.document.Simulation;
-   import net.sf.openrocket.gui.SpinnerEditor;
-   import net.sf.openrocket.gui.adaptors.DoubleModel;
-   import net.sf.openrocket.gui.components.BasicSlider;
-   import net.sf.openrocket.gui.components.UnitSelector;
-   import net.sf.openrocket.plugin.Plugin;
-   import net.sf.openrocket.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
-   import net.sf.openrocket.unit.UnitGroup;
+   import info.openrocket.core.document.Simulation;
+   import info.openrocket.core.simulation.extension.AirStartExample;
+   import info.openrocket.swing.gui.SpinnerEditor;
+   import info.openrocket.swing.gui.adaptors.DoubleModel;
+   import info.openrocket.swing.gui.components.BasicSlider;
+   import info.openrocket.swing.gui.components.UnitSelector;
+   import info.openrocket.core.plugin.Plugin;
+   import info.openrocket.swing.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
+   import info.openrocket.core.unit.UnitGroup;
 
    @Plugin
-   public class AirStartConfigurator extends AbstractSwingSimulationExtensionConfigurator<AirStart> {
+   public class AirStartExampleConfigurator extends AbstractSwingSimulationExtensionConfigurator<AirStartExample> {
 
-       public AirStartConfigurator() {
-           super(AirStart.class);
+       public AirStartExampleConfigurator() {
+           super(AirStartExample.class);
        }
 
        @Override
-       protected JComponent getConfigurationComponent(AirStart extension, Simulation simulation, JPanel panel) {
+       protected JComponent getConfigurationComponent(AirStartExample extension, Simulation simulation, JPanel panel) {
            panel.add(new JLabel("Launch altitude:"));
 
            DoubleModel m = new DoubleModel(extension, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0);
@@ -396,15 +408,16 @@ The configurator itself looks like this:
        }
    }
 
-After some boilerplate, this class creates a new ``DoubleModel`` to manage the air-start altitude. The most important things 
+After some boilerplate, this class creates a new ``DoubleModel`` to
+manage the air-start altitude (line 29). The most important things 
 to notice about the ``DoubleModel`` constructor are the parameters ``"LaunchAltitude"`` and ``UnitGroup.UNITS_DISTANCE``.
 
 * ``"LaunchAltitude"`` is used by the system to synthesize calls to the ``getLaunchAltitude()`` and ``setLaunchAltitude()`` 
-  methods mentioned earlier. The name of the ``DoubleModel``, ``"LaunchAltitude"``, **MUST** match the names of the corresponding 
+  methods defined in ``AirStartExample`` above. The name of the ``DoubleModel``, ``"LaunchAltitude"``, **MUST** match the names of the corresponding 
   ``set`` and ``get`` methods exactly. If they don't, there will be an exception at runtime when the user attempts to change the value.
 * ``UnitGroup.UNITS_DISTANCE`` specifies the unit group to be used by this ``DoubleModel``. OpenRocket uses SI (MKS) units internally,
   but allows users to select the units they wish to use for their interface. Specifying a ``UnitGroup`` provides the conversions
-  and unit displays for the interface. The available ``UnitGroup`` options are defined in :file:`core/src/net/sf/openrocket/unit/UnitGroup.java`.
+  and unit displays for the interface. The available ``UnitGroup`` options are defined in :file:`core/src/main/java/info/openrocket/core/unit/UnitGroup.java`
 
 The remaining code in this method creates a ``JSpinner``, a ``UnitSelector``, and a ``BasicSlider`` all referring to this ``DoubleModel``. 
 When the resulting configurator is displayed, it looks like this:
@@ -425,8 +438,8 @@ Example User Extensions Provided With OpenRocket
 ================================================
 
 Several examples of user extensions are provided in the OpenRocket source tree. As mentioned previously, the extensions
-are all located in :file:`core/src/net/sf/openrocket/simulation/extension/example` and their configurators are all located
-in :file:`swing/src/net/sf/openrocket/simulation/extension/example`. Also recall that every extension has a corresponding
+are all located in :file:`core/src/main/java/info/openrocket/core/simulation/extension/example/` and their configurators are all located
+in :file:`swing/src/main/java/info/openrocket/swing/simulation/extension/example/`. Also recall that every extension has a corresponding
 provider.
 
 .. list-table::
@@ -453,7 +466,3 @@ provider.
    * - Stop simulation at specified time or number of steps
      - `StopSimulation`
      - `StopSimulationConfigurator`
-
-.. note::
-   Documentation for adding user-created simulation listeners, without making use of the full extension mechanism, is also
-   available at ``Simulation Listeners``.
