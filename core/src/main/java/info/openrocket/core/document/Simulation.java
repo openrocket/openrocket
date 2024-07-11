@@ -419,12 +419,13 @@ public class Simulation implements ChangeSource, Cloneable {
 
 			SimulationConditions simulationConditions = options.toSimulationConditions();
 			simulationConditions.setSimulation(this);
-			for (SimulationListener l : additionalListeners) {
-				simulationConditions.getSimulationListenerList().add(l);
-			}
 			
 			for (SimulationExtension extension : simulationExtensions) {
 				extension.initialize(simulationConditions);
+			}
+			
+			for (SimulationListener l : additionalListeners) {
+				simulationConditions.getSimulationListenerList().add(l);
 			}
 			
 			long t1, t2;
