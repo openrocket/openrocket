@@ -619,6 +619,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// If no component is clicked, do nothing
 		if (clicked.length == 0) {
 			selectionModel.setSelectionPath(null);
+			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
@@ -655,13 +656,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
+			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
 		// Check for double-click.
 		// If the shift/meta key is not pressed and the component was not already selected, ignore the double click and treat it as a single click
 		if (clickCount == 2) {
-			if (event.isShiftDown() || event.isMetaDown()) {
+			if (!selectedComponents.isEmpty() && (event.isShiftDown() || event.isMetaDown())) {
 				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
 				RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
 				component.clearConfigListeners();
@@ -673,7 +675,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 						paths.add(path);
 						selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
 						selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
-								.map(c1 -> (RocketComponent) c1.getLastPathComponent()).collect(Collectors.toList());
+								.map(c1 -> (RocketComponent) c1.getLastPathComponent()).toList();
 						component = c;
 						break;
 					}
@@ -703,27 +705,34 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		}
 
-		// If the shift-button is held, add a newly clicked component to the selection path
-		if (clickCount == 1 && (event.isShiftDown() || event.isMetaDown())) {
-			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-			for (int i = 0; i < clicked.length; i++) {
-				if (!selectedComponents.contains(clicked[i])) {
-					TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
-					paths.add(path);
-					break;
+
+		if (clickCount == 1) {
+			// If the shift-button is held, add a newly clicked component to the selection path
+			if (event.isShiftDown() || event.isMetaDown()) {
+				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
+				for (int i = 0; i < clicked.length; i++) {
+					if (!selectedComponents.contains(clicked[i])) {
+						TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
+						paths.add(path);
+						break;
+					}
+					// If all the clicked components are already in the selection, then deselect an object
+					if (i == clicked.length - 1) {
+						paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
+					}
 				}
-				// If all the clicked components are already in the selection, then deselect an object
-				if (i == clicked.length - 1) {
-					paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
+				try {
+					selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
+				} catch (Exception e) {
+					System.out.println(e);
 				}
 			}
-			selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
-		}
-		// Single click, so set the selection to the first clicked component
-		else {
-			if (!selectedComponents.contains(clicked[0])) {
-				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
-				selectionModel.setSelectionPath(path);
+			// Single click, so set the selection to the first clicked component
+			else {
+				if (!selectedComponents.contains(clicked[0])) {
+					TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+					selectionModel.setSelectionPath(path);
+				}
 			}
 		}
 	}
@@ -1102,9 +1111,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
 		TreePath[] paths = selectionModel.getSelectionPaths();
-		if (paths == null) {
+		if (paths == null || paths.length == 0) {
 			figure.setSelection(null);
 			figure3d.setSelection(null);
+			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
