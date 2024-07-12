@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.print;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import org.slf4j.Logger;
@@ -19,16 +20,18 @@ public enum PaperSize {
 	A5("A5", PageSize.A5),
 	ANSI_D("ANSI D", new Rectangle(22 * 72, 34 * 72)),
 	ANSI_C("ANSI C", new Rectangle(17 * 72, 22 * 72)),
-	TABLOID("Tabloid (ANSI B)", PageSize.TABLOID),
+	TABLOID("Tabloid (ANSI B)", PageSize.TABLOID, "Tabloid", "ANSI B"),
 	LEGAL("Legal", PageSize.LEGAL),
-	LETTER("Letter (ANSI A)", PageSize.LETTER);
+	LETTER("Letter (ANSI A)", PageSize.LETTER, "Letter", "ANSI A");
 	
 	private final String name;
+	private final List<String> alternativeNames;
 	private final Rectangle size;
-	
-	private PaperSize(String name, Rectangle size) {
+
+	PaperSize(String name, Rectangle size, String... alternativeNames) {
 		this.name = name;
 		this.size = size;
+		this.alternativeNames = List.of(alternativeNames);
 	}
 	
 	public Rectangle getSize() {
@@ -162,6 +165,11 @@ public enum PaperSize {
 		for (PaperSize p : PaperSize.values()) {
 			if (p.name.equalsIgnoreCase(size)) {
 				return p;
+			}
+			for (String alt : p.alternativeNames) {
+				if (alt.equalsIgnoreCase(size)) {
+					return p;
+				}
 			}
 		}
 		return null;
