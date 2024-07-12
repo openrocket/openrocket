@@ -12,11 +12,16 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 
 public enum PaperSize {
+	A1("A1", PageSize.A1),
+	A2("A2", PageSize.A2),
 	A3("A3", PageSize.A3),
 	A4("A4", PageSize.A4),
 	A5("A5", PageSize.A5),
-	LETTER("Letter", PageSize.LETTER),
-	LEGAL("Legal", PageSize.LEGAL);
+	ANSI_D("ANSI D", new Rectangle(22 * 72, 34 * 72)),
+	ANSI_C("ANSI C", new Rectangle(17 * 72, 22 * 72)),
+	TABLOID("Tabloid (ANSI B)", PageSize.TABLOID),
+	LEGAL("Legal", PageSize.LEGAL),
+	LETTER("Letter (ANSI A)", PageSize.LETTER);
 	
 	private final String name;
 	private final Rectangle size;
