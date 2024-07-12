@@ -163,14 +163,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 *  
 	 * @param status					the current simulation status.
 	 * @param timestep					the time step of the current iteration.
-	 * @param acceleration				the current (approximate) acceleration
-	 * @param atmosphericConditions		the current atmospheric conditions
+	 * @param store                     the simulation calculation DataStore (contains acceleration, atmosphere)
 	 * @param stepMotors				whether to step the motors forward or work on a clone object
 	 * @return							the average thrust during the time step.
 	 */
-	protected double calculateThrust(SimulationStatus status,
-			double acceleration, AtmosphericConditions atmosphericConditions,
-			boolean stepMotors) throws SimulationException {
+	protected double calculateThrust(SimulationStatus status, DataStore store,
+									 boolean stepMotors) throws SimulationException {
 		double thrust;
 
 		// Pre-listeners
@@ -239,8 +237,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		public AtmosphericConditions atmosphericConditions;
 		
 		public FlightConditions flightConditions;
-		
-		public double longitudinalAcceleration = Double.NaN;
 		
 		public RigidBody rocketMass;
 		

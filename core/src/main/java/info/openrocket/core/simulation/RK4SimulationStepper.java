@@ -325,7 +325,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		double fN = store.forces.getCN() * dynP * refArea;
 		double fSide = store.forces.getCside() * dynP * refArea;
 
-		store.thrustForce = calculateThrust(status, store.longitudinalAcceleration, store.flightConditions.getAtmosphericConditions(), false);
+		store.thrustForce = calculateThrust(status, store, false);
 		double forceZ =  store.thrustForce - store.dragForce;
 		
 		store.linearAcceleration = new Coordinate(-fN / store.rocketMass.getMass(),
