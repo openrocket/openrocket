@@ -18,8 +18,8 @@ public enum PaperSize {
 	A3("A3", PageSize.A3),
 	A4("A4", PageSize.A4),
 	A5("A5", PageSize.A5),
-	ANSI_D("ANSI D", new Rectangle(22 * 72, 34 * 72)),
-	ANSI_C("ANSI C", new Rectangle(17 * 72, 22 * 72)),
+	ANSI_D("ANSI D", new Rectangle(22 * PrintUnit.POINTS_PER_INCH, 34 * PrintUnit.POINTS_PER_INCH)),
+	ANSI_C("ANSI C", new Rectangle(17 * PrintUnit.POINTS_PER_INCH, 22 * PrintUnit.POINTS_PER_INCH)),
 	TABLOID("Tabloid (ANSI B)", PageSize.TABLOID, "Tabloid", "ANSI B"),
 	LEGAL("Legal", PageSize.LEGAL),
 	LETTER("Letter (ANSI A)", PageSize.LETTER, "Letter", "ANSI A");
