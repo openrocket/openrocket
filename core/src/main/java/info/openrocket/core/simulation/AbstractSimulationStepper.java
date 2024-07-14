@@ -319,6 +319,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 									flightConditions.getAtmosphericConditions().getTemperature());
 				dataBranch.setValue(FlightDataType.TYPE_AIR_PRESSURE,
 									flightConditions.getAtmosphericConditions().getPressure());
+				dataBranch.setValue(FlightDataType.TYPE_AIR_DENSITY,
+						flightConditions.getAtmosphericConditions().getDensity());
 				dataBranch.setValue(FlightDataType.TYPE_SPEED_OF_SOUND,
 									flightConditions.getAtmosphericConditions().getMachSpeed());
 			}

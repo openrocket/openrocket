@@ -275,10 +275,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public static final FlightDataType TYPE_AIR_PRESSURE = newType(trans.get("FlightDataType.TYPE_AIR_PRESSURE"), "P",
 			UnitGroup.UNITS_PRESSURE,
 			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 2);
+	//// Air density
+	public static final FlightDataType TYPE_AIR_DENSITY = newType(trans.get("FlightDataType.TYPE_AIR_DENSITY"), "\u03C1",
+			UnitGroup.UNITS_DENSITY_BULK,
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 3);
 	//// Speed of sound
 	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType(trans.get("FlightDataType.TYPE_SPEED_OF_SOUND"),
 			"Vs", UnitGroup.UNITS_VELOCITY,
-			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 3);
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 4);
 
 	// Simulation information
 	//// Simulation time step
@@ -345,6 +349,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			TYPE_WIND_VELOCITY,
 			TYPE_AIR_TEMPERATURE,
 			TYPE_AIR_PRESSURE,
+			TYPE_AIR_DENSITY,
 			TYPE_SPEED_OF_SOUND,
 			TYPE_TIME_STEP,
 			TYPE_COMPUTATION_TIME
