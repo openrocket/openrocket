@@ -243,9 +243,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		public RigidBody motorMass;
 		
 		public Coordinate coriolisAcceleration;
-		
-		public Coordinate linearAcceleration;
-		public Coordinate angularAcceleration;
 
 		public Coordinate launchRodDirection = null;
 		
@@ -282,12 +279,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
 			}
 			
-			if (null != linearAcceleration) {
+			if (null != accelerationData) {
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-									MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+									MathUtil.hypot(accelerationData.getLinearAccelerationWC().x, accelerationData.getLinearAccelerationWC().y));
 				
-				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
-				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, accelerationData.getLinearAccelerationWC().length());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().z);
 			}
 			
 			if (null != rocketMass) {
