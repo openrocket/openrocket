@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.print;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import org.slf4j.Logger;
@@ -12,18 +13,25 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 
 public enum PaperSize {
+	A1("A1", PageSize.A1),
+	A2("A2", PageSize.A2),
 	A3("A3", PageSize.A3),
 	A4("A4", PageSize.A4),
 	A5("A5", PageSize.A5),
-	LETTER("Letter", PageSize.LETTER),
-	LEGAL("Legal", PageSize.LEGAL);
+	ANSI_D("ANSI D", new Rectangle(22 * PrintUnit.POINTS_PER_INCH, 34 * PrintUnit.POINTS_PER_INCH)),
+	ANSI_C("ANSI C", new Rectangle(17 * PrintUnit.POINTS_PER_INCH, 22 * PrintUnit.POINTS_PER_INCH)),
+	TABLOID("Tabloid (ANSI B)", PageSize.TABLOID, "Tabloid", "ANSI B"),
+	LEGAL("Legal", PageSize.LEGAL),
+	LETTER("Letter (ANSI A)", PageSize.LETTER, "Letter", "ANSI A");
 	
 	private final String name;
+	private final List<String> alternativeNames;
 	private final Rectangle size;
-	
-	private PaperSize(String name, Rectangle size) {
+
+	PaperSize(String name, Rectangle size, String... alternativeNames) {
 		this.name = name;
 		this.size = size;
+		this.alternativeNames = List.of(alternativeNames);
 	}
 	
 	public Rectangle getSize() {
@@ -157,6 +165,11 @@ public enum PaperSize {
 		for (PaperSize p : PaperSize.values()) {
 			if (p.name.equalsIgnoreCase(size)) {
 				return p;
+			}
+			for (String alt : p.alternativeNames) {
+				if (alt.equalsIgnoreCase(size)) {
+					return p;
+				}
 			}
 		}
 		return null;
