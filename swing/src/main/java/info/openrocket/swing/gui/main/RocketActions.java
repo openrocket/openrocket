@@ -54,8 +54,6 @@ public class RocketActions {
 	public static final KeyStroke EDIT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_E,
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke DELETE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
-	public static final KeyStroke VISIBILITY_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_COMMA,
-			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
@@ -1267,8 +1265,6 @@ public class RocketActions {
 			this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Hide"));
 			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Hide"));
 			this.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityHiddenIcon());
-			this.putValue(MNEMONIC_KEY, KeyEvent.VK_COMMA);
-			this.putValue(ACCELERATOR_KEY, VISIBILITY_KEY_STROKE);
 			clipboardChanged();
 		}
 

@@ -608,7 +608,6 @@ public class BasicFrame extends JFrame {
 		editMenu.add(item);
 
 		item = new JMenuItem(actions.getToggleVisibilityAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, SHORTCUT_KEY));
 		editMenu.add(item);
 
 
