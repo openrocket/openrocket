@@ -5,11 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -18,8 +14,11 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.dialogs.ScaleDialog;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 
 import org.slf4j.Logger;
@@ -31,12 +30,6 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
-import info.openrocket.core.rocketcomponent.ComponentChangeListener;
-import info.openrocket.core.rocketcomponent.ParallelStage;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Pair;
@@ -61,6 +54,8 @@ public class RocketActions {
 	public static final KeyStroke EDIT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_E,
 			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	public static final KeyStroke DELETE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+	public static final KeyStroke VISIBILITY_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_COMMA,
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
@@ -81,6 +76,7 @@ public class RocketActions {
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private final RocketAction exportOBJAction;
+	private final RocketAction toggleVisibilityAction;
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
 
@@ -106,6 +102,7 @@ public class RocketActions {
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
 		this.exportOBJAction = new ExportOBJAction();
+		this.toggleVisibilityAction = new ToggleVisibilityAction();
 
 		OpenRocketClipboard.addClipboardListener(new ClipboardListener() {
 			@Override
@@ -154,6 +151,7 @@ public class RocketActions {
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
 		exportOBJAction.clipboardChanged();
+		toggleVisibilityAction.clipboardChanged();
 	}
 	
 
@@ -205,6 +203,10 @@ public class RocketActions {
 
 	public Action getExportOBJAction() {
 		return exportOBJAction;
+	}
+
+	public Action getToggleVisibilityAction() {
+		return toggleVisibilityAction;
 	}
 
 	/**
@@ -1257,4 +1259,83 @@ public class RocketActions {
 		}
 	}
 
+	/**
+	 * Action to toggle the visibility of the selected components.
+	 */
+	private class ToggleVisibilityAction extends RocketAction {
+		public ToggleVisibilityAction() {
+			this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Hide"));
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Hide"));
+			this.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityHiddenIcon());
+			this.putValue(MNEMONIC_KEY, KeyEvent.VK_COMMA);
+			this.putValue(ACCELERATOR_KEY, VISIBILITY_KEY_STROKE);
+			clipboardChanged();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			var components = new ArrayList<>(selectionModel.getSelectedComponents());
+			super.setEnabled(!components.isEmpty());
+
+			if (!components.isEmpty()) {
+				var firstComponent = components.get(0);
+
+				if (components.size() > 1 || isRocketOrStage(firstComponent)) {
+					if (!firstComponent.isVisible()) {
+						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.ShowAll"));
+						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
+					} else {
+						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.HideAll"));
+						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.HideAll"));
+					}
+				} else {
+					if (!firstComponent.isVisible()) {
+						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Show"));
+						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Show"));
+					} else {
+						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Hide"));
+						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Hide"));
+					}
+				}
+			}
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			var components = new ArrayList<>(selectionModel.getSelectedComponents());
+
+			if (!components.isEmpty()) {
+				var visibility = !components.get(0).isVisible();
+
+				for (var component : components) {
+					if (isRocketOrStage(component)) {
+						getAllDescendants(components).forEach(c -> c.setVisible(visibility));
+						continue;
+					}
+					component.setVisible(visibility);
+				}
+			}
+		}
+
+		private boolean isRocketOrStage(RocketComponent component) {
+			return component instanceof AxialStage || component instanceof Rocket;
+		}
+
+		private Set<RocketComponent> getAllDescendants(List<RocketComponent> components) {
+			var result = new LinkedHashSet<RocketComponent>();
+			var queue = new ArrayDeque<>(components);
+
+			while (!queue.isEmpty()) {
+				var node = queue.pop();
+				result.add(node);
+
+				for (var child : node.getChildren()) {
+					if (!result.contains(child)) {
+						queue.add(child);
+					}
+				}
+			}
+			return result;
+		}
+	}
 }

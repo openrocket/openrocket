@@ -265,6 +265,10 @@ public class RocketFigure extends AbstractScaleFigure {
 		while (!figureShapesCopy.isEmpty()) {
 			RocketComponentShapes rcs = figureShapesCopy.poll();
 			RocketComponent c = rcs.getComponent();
+
+			if (!c.isVisible()) {
+				continue;
+			}
 			boolean selected = false;
 			
 			// Check if component is in the selection

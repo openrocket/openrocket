@@ -146,6 +146,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 	// If true, component change events will not be fired
 	private boolean bypassComponentChangeEvent = false;
+
+	/**
+	 * Controls the visibility of the component. If false, the component will not be rendered.
+	 * Visibility does not affect component simulation.
+	 */
+	private boolean isVisible = true;
 	
 	
 	/**
@@ -2706,7 +2712,23 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Returns true if this component is visible.
+	 * @return True if this component is visible.
+	 */
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	/**
+	 * Sets the component's visibility to the specified value.
+	 * @param value Visibility value
+	 */
+	public void setVisible(boolean value) {
+		this.isVisible = value;
+		fireComponentChangeEvent(ComponentChangeEvent.GRAPHIC_CHANGE);
+	}
 	
 	///////////  Iterators  //////////	
 	

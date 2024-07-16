@@ -52,8 +52,6 @@ import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.file.wavefrontobj.export.OBJExporterFactory;
-import info.openrocket.core.file.wavefrontobj.CoordTransform;
-import info.openrocket.core.file.wavefrontobj.DefaultCoordTransform;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.appearance.DecalImage;
@@ -257,6 +255,7 @@ public class BasicFrame extends JFrame {
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
+			popupMenu.add(actions.getToggleVisibilityAction());
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getExportOBJAction());
@@ -606,6 +605,10 @@ public class BasicFrame extends JFrame {
 		editMenu.addSeparator();
 
 		item = new JMenuItem(actions.getScaleAction());
+		editMenu.add(item);
+
+		item = new JMenuItem(actions.getToggleVisibilityAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, SHORTCUT_KEY));
 		editMenu.add(item);
 
 
