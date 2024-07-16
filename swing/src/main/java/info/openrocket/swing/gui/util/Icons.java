@@ -117,6 +117,10 @@ public class Icons {
 	public static final Icon CD_OVERRIDE_SUBCOMPONENT_LIGHT = loadImageIcon("pix/icons/cd-override-subcomponent_light.png", "CD Override Subcomponent");
 	public static final Icon CD_OVERRIDE_SUBCOMPONENT_DARK = loadImageIcon("pix/icons/cd-override-subcomponent_dark.png", "CD Override Subcomponent");
 
+	public static final Icon COMPONENT_HIDDEN = loadImageIcon("pix/icons/component-hidden.png", "Component Hidden");
+	public static final Icon COMPONENT_HIDDEN_DARK = loadImageIcon("pix/icons/component-hidden_dark.png", "Component Hidden");
+	public static final Icon COMPONENT_HIDDEN_LIGHT = loadImageIcon("pix/icons/component-hidden_light.png", "Component Hidden");
+
 	// MANUFACTURERS ICONS
 	public static final Icon RASAERO = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
 	public static final Icon ROCKSIM = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
