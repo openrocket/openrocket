@@ -148,7 +148,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		CGOverrideIcon = GUIUtil.getUITheme().getCGOverrideIcon();
 		CDOverrideSubcomponentIcon = GUIUtil.getUITheme().getCDOverrideSubcomponentIcon();
 		CDOverrideIcon = GUIUtil.getUITheme().getCDOverrideIcon();
-		visibilityHiddenForegroundColor = GUIUtil.getUITheme().getvisibilityHiddenForegroundColor();
+		visibilityHiddenForegroundColor = GUIUtil.getUITheme().getVisibilityHiddenForegroundColor();
 	}
 
 	private void applyToolTipText(List<RocketComponent> components, RocketComponent c, JComponent comp) {

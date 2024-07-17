@@ -85,7 +85,7 @@ public class UITheme {
 
         Color getComponentTreeBackgroundColor();
         Color getComponentTreeForegroundColor();
-        Color getvisibilityHiddenForegroundColor();
+        Color getVisibilityHiddenForegroundColor();
 
         Color getFinPointGridMajorLineColor();
         Color getFinPointGridMinorLineColor();
@@ -373,7 +373,7 @@ public class UITheme {
             }
 
             @Override
-            public Color getvisibilityHiddenForegroundColor() {
+            public Color getVisibilityHiddenForegroundColor() {
                 return UIManager.getColor("Tree.textForeground.hidden.light");
             }
 
@@ -769,7 +769,7 @@ public class UITheme {
             }
 
             @Override
-            public Color getvisibilityHiddenForegroundColor() {
+            public Color getVisibilityHiddenForegroundColor() {
                 return UIManager.getColor("Tree.textForeground.hidden.dark");
             }
 
@@ -1165,7 +1165,7 @@ public class UITheme {
             }
 
             @Override
-            public Color getvisibilityHiddenForegroundColor() {
+            public Color getVisibilityHiddenForegroundColor() {
                 return UIManager.getColor("Tree.textForeground.hidden.dark");
             }
 
@@ -1580,8 +1580,8 @@ public class UITheme {
             }
 
             @Override
-            public Color getvisibilityHiddenForegroundColor() {
-                return getCurrentTheme().getvisibilityHiddenForegroundColor();
+            public Color getVisibilityHiddenForegroundColor() {
+                return getCurrentTheme().getVisibilityHiddenForegroundColor();
             }
 
             @Override
