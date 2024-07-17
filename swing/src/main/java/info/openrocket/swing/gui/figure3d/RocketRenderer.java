@@ -214,7 +214,10 @@ public abstract class RocketRenderer {
 			if( null == motor ){
 				throw new NullPointerException(" null motor from configuration.getActiveMotors...  this is a bug.");
 			}
-			
+
+			if (!((RocketComponent) mount).isVisible()) {
+				continue;
+			}
 			double length = motor.getLength();
 		
 			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
