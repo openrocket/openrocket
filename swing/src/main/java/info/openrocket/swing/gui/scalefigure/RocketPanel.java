@@ -217,11 +217,26 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		scrollPane = new ScaleScrollPane(figure) {
 			private static final long serialVersionUID = 1L;
 			final CustomClickCountListener clickCountListener = new CustomClickCountListener();
+			private Point mousePressedLoc = null;
+			private double originalFigureRotation = 0;
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				clickCountListener.click();
 				handleMouseClick(event, clickCountListener.getClickCount());
+			}
+
+			public void mousePressed(MouseEvent e) {
+				if (is3d) {
+					return;
+				}
+				mousePressedLoc = e.getPoint();
+				originalFigureRotation = figure.getRotation();
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				handleMouseDragged(e, mousePressedLoc, originalFigureRotation);
 			}
 		};
 		scrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
@@ -413,6 +428,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Create slider and scroll pane
 		rotationModel = new DoubleModel(figure, "Rotation", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
+		figure.addChangeListener(rotationModel);
 		UnitSelector us = new UnitSelector(rotationModel, true);
 		us.setHorizontalAlignment(JLabel.CENTER);
 		add(us, "alignx 50%, growx");
@@ -422,12 +438,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(figureHolder, "grow, spany 2, wmin 300lp, hmin 100lp, wrap");
 
 		// Add rotation slider
-		// Dummy label to find the minimum size to fit "360deg"
-		JLabel l = new JLabel("360" + Chars.DEGREE);
+		// Dummy label to find the minimum size to fit "360.0deg"
+		JLabel l = new JLabel("360.0" + Chars.DEGREE);
 		Dimension d = l.getPreferredSize();
 
-		add(rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
-				"ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
+		us.setMinimumSize(new Dimension(d.width, us.getPreferredSize().height));
+		rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true);
+		add(rotationSlider, "ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
 		rotationSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -735,6 +752,20 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				}
 			}
 		}
+	}
+
+	private void handleMouseDragged(MouseEvent event, Point originalDragLocation, double originalRotation) {
+		if (originalDragLocation == null || is3d) {
+			return;
+		}
+
+		int dy = event.getY() - originalDragLocation.y;
+
+		double rotationOffset = ((double) dy / scrollPane.getHeight()) * Math.PI;
+		double newRotation = originalRotation - rotationOffset;
+		// Ensure the rotation is within the range [0, 2*PI]
+		newRotation = (newRotation + 2 * Math.PI) % (2 * Math.PI);
+		figure.setRotation(newRotation);
 	}
 
 	/**
