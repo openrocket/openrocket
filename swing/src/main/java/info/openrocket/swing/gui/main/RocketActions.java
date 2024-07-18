@@ -1259,40 +1259,40 @@ public class RocketActions {
 
 	/**
 	 * Action to toggle the visibility of the selected components.
+	 * @see RocketComponent#isVisible()
 	 */
 	private class ToggleVisibilityAction extends RocketAction {
 		public ToggleVisibilityAction() {
-			this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Hide"));
-			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Hide"));
-			this.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityHiddenIcon());
+			super.putValue(NAME, trans.get("RocketActions.VisibilityAct.HideSelected"));
+			super.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.HideSelected"));
+			super.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityHiddenIcon());
 			clipboardChanged();
 		}
 
 		@Override
 		public void clipboardChanged() {
 			var components = new ArrayList<>(selectionModel.getSelectedComponents());
-			super.setEnabled(!components.isEmpty());
 
-			if (!components.isEmpty()) {
-				var firstComponent = components.get(0);
+			if (components.isEmpty()) {
+				return;
+			}
+			super.setEnabled(true);
 
-				if (components.size() > 1 || isRocketOrStage(firstComponent)) {
-					if (!firstComponent.isVisible()) {
-						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.ShowAll"));
-						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
-					} else {
-						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.HideAll"));
-						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.HideAll"));
-					}
-				} else {
-					if (!firstComponent.isVisible()) {
-						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Show"));
-						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Show"));
-					} else {
-						this.putValue(NAME, trans.get("RocketActions.VisibilityAct.Hide"));
-						this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.Hide"));
-					}
-				}
+			if (isRocketSelected(components)) {
+				super.putValue(NAME, rocket.isVisible() ?
+						trans.get("RocketActions.VisibilityAct.HideAll") :
+						trans.get("RocketActions.VisibilityAct.ShowAll"));
+				super.putValue(SHORT_DESCRIPTION, rocket.isVisible() ?
+						trans.get("RocketActions.VisibilityAct.ttip.HideAll") :
+						trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
+			} else {
+				var visibility = components.stream().anyMatch(RocketComponent::isVisible);
+				super.putValue(NAME, visibility ?
+						trans.get("RocketActions.VisibilityAct.HideSelected") :
+						trans.get("RocketActions.VisibilityAct.ShowSelected"));
+				super.putValue(SHORT_DESCRIPTION, visibility ?
+						trans.get("RocketActions.VisibilityAct.ttip.HideSelected") :
+						trans.get("RocketActions.VisibilityAct.ttip.ShowSelected"));
 			}
 		}
 
@@ -1300,36 +1300,67 @@ public class RocketActions {
 		public void actionPerformed(ActionEvent e) {
 			var components = new ArrayList<>(selectionModel.getSelectedComponents());
 
-			if (!components.isEmpty()) {
-				var visibility = !components.get(0).isVisible();
-
-				for (var component : components) {
-					if (isRocketOrStage(component)) {
-						getAllDescendants(components).forEach(c -> c.setVisible(visibility));
-						continue;
-					}
-					component.setVisible(visibility);
-				}
+			if (components.isEmpty()) {
+				return;
 			}
+
+			// Toggle the visibility of the rocket and its descendants
+			if (isRocketSelected(components)) {
+				var rocketVisibility = !rocket.isVisible();
+				rocket.setVisible(rocketVisibility);
+				getDescendants(rocket).forEach(descendant -> descendant.setVisible(rocketVisibility));
+				return;
+			}
+			var visibility = components.stream().noneMatch(RocketComponent::isVisible);
+
+			// Toggle the visibility of all non-stage and non-rocket components
+			components.stream().filter(c -> !(c instanceof AxialStage || c instanceof Rocket)).forEach(component -> {
+				component.setVisible(visibility);
+
+				// Update the visibility of this component's stage
+				var stage = component.getStage();
+				stage.setVisible(getDescendants(stage).stream().anyMatch(RocketComponent::isVisible));
+
+				// Update the visibility of the rocket
+				rocket.setVisible(getDescendants(rocket).stream().anyMatch(RocketComponent::isVisible));
+			});
+
+			// Toggle the visibility of all stage components and their descendants
+			components.stream().filter(AxialStage.class::isInstance).forEach(stage -> {
+				stage.setVisible(visibility);
+				getDescendants(stage).forEach(descendant -> descendant.setVisible(visibility));
+			});
 		}
 
-		private boolean isRocketOrStage(RocketComponent component) {
-			return component instanceof AxialStage || component instanceof Rocket;
+		/**
+		 * Returns true if the rocket or all descendant are in the specified list.
+		 *
+		 * @param components Components to query
+		 * @return True if all components are selected
+		 */
+		private boolean isRocketSelected(List<RocketComponent> components) {
+			var rocketSelected = components.stream().anyMatch(Rocket.class::isInstance);
+			var allComponentsSelected = getDescendants(rocket).size() == components.size();
+			return rocketSelected || allComponentsSelected;
 		}
 
-		private Set<RocketComponent> getAllDescendants(List<RocketComponent> components) {
+		/**
+		 * Returns all descendants of the specified component.
+		 *
+		 * @param component Component to query
+		 * @return All descendants
+		 * @apiNote Returns an empty set if the component does not have children.
+		 */
+		private Set<RocketComponent> getDescendants(RocketComponent component) {
+			Objects.requireNonNull(component);
+
 			var result = new LinkedHashSet<RocketComponent>();
-			var queue = new ArrayDeque<>(components);
+			var queue = new ArrayDeque<>(component.getChildren());
 
 			while (!queue.isEmpty()) {
 				var node = queue.pop();
 				result.add(node);
-
-				for (var child : node.getChildren()) {
-					if (!result.contains(child)) {
-						queue.add(child);
-					}
-				}
+				node.getChildren().stream().filter(c -> !result.contains(c)).forEach(queue::add);
 			}
 			return result;
 		}

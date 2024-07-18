@@ -2716,6 +2716,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Returns true if this component is visible.
 	 * @return True if this component is visible.
+	 * @apiNote The component is rendered if true is returned.
 	 */
 	public boolean isVisible() {
 		return isVisible;
@@ -2724,6 +2725,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Sets the component's visibility to the specified value.
 	 * @param value Visibility value
+	 * @apiNote The component is rendered if the specified value is set to true.
 	 */
 	public void setVisible(boolean value) {
 		this.isVisible = value;
