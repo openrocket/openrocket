@@ -257,9 +257,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		public double dragForce = Double.NaN;
 		public double lateralPitchRate = Double.NaN;
 		
-		public double rollAcceleration = Double.NaN;
-		public double lateralPitchAcceleration = Double.NaN;
-		
 		public Rotation2D thetaRotation;
 
 		void storeData(SimulationStatus status) {

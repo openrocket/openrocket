@@ -57,7 +57,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	//	private static final double MAX_ROLL_STEP_ANGLE = 8.32 * Math.PI/180;
 	
 	private static final double MAX_ROLL_RATE_CHANGE = 2 * Math.PI / 180;
-	private static final double MAX_PITCH_CHANGE = 4 * Math.PI / 180;
+	private static final double MAX_PITCH_YAW_CHANGE = 4 * Math.PI / 180;
 	
 	private Random random;
 	DataStore store = new DataStore();
@@ -133,8 +133,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		dt[1] = maxTimeStep;
 		dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
 		dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
-		dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.rollAcceleration);
-		dt[5] = Math.abs(MAX_PITCH_CHANGE / store.lateralPitchAcceleration);
+		dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.accelerationData.getRotationalAccelerationRC().z);
+		dt[5] = Math.abs(MAX_PITCH_YAW_CHANGE /
+						 MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().x),
+									  Math.abs(store.accelerationData.getRotationalAccelerationRC().y)));
 		if (!status.isLaunchRodCleared()) {
 			dt[0] /= 5.0;
 			dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
@@ -354,8 +356,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			
 			linearAcceleration = store.launchRodDirection.multiply(linearAcceleration.dot(store.launchRodDirection));
 			angularAcceleration = Coordinate.NUL;
-			store.rollAcceleration = 0;
-			store.lateralPitchAcceleration = 0;
 			
 		} else {
 			
@@ -368,21 +368,15 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			double momY = Cm * dynP * refArea * refLength;
 			double momZ = store.forces.getCroll() * dynP * refArea * refLength;
 			
-			// Compute acceleration in rocket coordinates
+			// Compute angular acceleration in rocket coordinates
 			angularAcceleration = new Coordinate(momX / store.rocketMass.getLongitudinalInertia(),
 						momY / store.rocketMass.getLongitudinalInertia(),
 						momZ / store.rocketMass.getRotationalInertia());
-			
-			store.rollAcceleration = angularAcceleration.z;
-			// TODO: LOW: This should be hypot, but does it matter?
-			store.lateralPitchAcceleration = MathUtil.max(Math.abs(angularAcceleration.x),
-						Math.abs(angularAcceleration.y));
 			
 			angularAcceleration = store.thetaRotation.rotateZ(angularAcceleration);
 			
 			// Convert to world coordinates
 			angularAcceleration = status.getRocketOrientationQuaternion().rotate(angularAcceleration);
-			
 		}
 
 		return new AccelerationData(null, null, linearAcceleration, angularAcceleration, status.getRocketOrientationQuaternion());
