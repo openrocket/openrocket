@@ -265,6 +265,10 @@ public class RocketFigure extends AbstractScaleFigure {
 		while (!figureShapesCopy.isEmpty()) {
 			RocketComponentShapes rcs = figureShapesCopy.poll();
 			RocketComponent c = rcs.getComponent();
+
+			if (!c.isVisible()) {
+				continue;
+			}
 			boolean selected = false;
 			
 			// Check if component is in the selection
@@ -321,6 +325,10 @@ public class RocketFigure extends AbstractScaleFigure {
 			double motorLength = motor.getLength();
 			double motorRadius = motor.getDiameter() / 2;
 			RocketComponent mountComponent = ((RocketComponent) mount);
+
+			if (!mountComponent.isVisible()) {
+				continue;
+			}
 
 			// <component>.getLocation() will return all the parent instances of this owning component,  AND all of it's own instances as well.
 			// so, just draw a motor once for each Coordinate returned... 

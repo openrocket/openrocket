@@ -85,6 +85,7 @@ public class UITheme {
 
         Color getComponentTreeBackgroundColor();
         Color getComponentTreeForegroundColor();
+        Color getVisibilityHiddenForegroundColor();
 
         Color getFinPointGridMajorLineColor();
         Color getFinPointGridMinorLineColor();
@@ -98,6 +99,9 @@ public class UITheme {
         Icon getCGOverrideSubcomponentIcon();
         Icon getCDOverrideIcon();
         Icon getCDOverrideSubcomponentIcon();
+
+        Icon getVisibilityHiddenIcon();
+        Icon getVisibilityShowingIcon();
 
         Border getBorder();
         Border getMarginBorder();
@@ -370,6 +374,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getVisibilityHiddenForegroundColor() {
+                return UIManager.getColor("Tree.textForeground.hidden.light");
+            }
+
+            @Override
             public Color getFinPointGridMajorLineColor() {
                 return new Color( 0, 0, 255, 80);
             }
@@ -422,6 +431,16 @@ public class UITheme {
             @Override
             public Icon getCDOverrideSubcomponentIcon() {
                 return Icons.CD_OVERRIDE_SUBCOMPONENT_LIGHT;
+            }
+
+            @Override
+            public Icon getVisibilityHiddenIcon() {
+                return Icons.COMPONENT_HIDDEN_LIGHT;
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
+                return Icons.COMPONENT_SHOWING_LIGHT;
             }
 
             @Override
@@ -756,6 +775,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getVisibilityHiddenForegroundColor() {
+                return UIManager.getColor("Tree.textForeground.hidden.dark");
+            }
+
+            @Override
             public Color getFinPointGridMajorLineColor() {
                 return new Color(135, 135, 199, 197);
             }
@@ -808,6 +832,16 @@ public class UITheme {
             @Override
             public Icon getCDOverrideSubcomponentIcon() {
                 return Icons.CD_OVERRIDE_SUBCOMPONENT_DARK;
+            }
+
+            @Override
+            public Icon getVisibilityHiddenIcon() {
+                return Icons.COMPONENT_HIDDEN_DARK;
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
+                return Icons.COMPONENT_SHOWING_DARK;
             }
 
             @Override
@@ -1142,6 +1176,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getVisibilityHiddenForegroundColor() {
+                return UIManager.getColor("Tree.textForeground.hidden.dark");
+            }
+
+            @Override
             public Color getFinPointGridMajorLineColor() {
                 return new Color(164, 164, 224, 197);
             }
@@ -1194,6 +1233,16 @@ public class UITheme {
             @Override
             public Icon getCDOverrideSubcomponentIcon() {
                 return Icons.CD_OVERRIDE_SUBCOMPONENT_DARK;
+            }
+
+            @Override
+            public Icon getVisibilityHiddenIcon() {
+                return Icons.COMPONENT_HIDDEN_DARK;
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
+                return Icons.COMPONENT_SHOWING_DARK;
             }
 
             @Override
@@ -1547,6 +1596,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getVisibilityHiddenForegroundColor() {
+                return getCurrentTheme().getVisibilityHiddenForegroundColor();
+            }
+
+            @Override
             public Color getFinPointGridMajorLineColor() {
                 return getCurrentTheme().getFinPointGridMajorLineColor();
             }
@@ -1599,6 +1653,16 @@ public class UITheme {
             @Override
             public Icon getCDOverrideSubcomponentIcon() {
                 return getCurrentTheme().getCDOverrideSubcomponentIcon();
+            }
+
+            @Override
+            public Icon getVisibilityHiddenIcon() {
+                return getCurrentTheme().getVisibilityHiddenIcon();
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
+                return getCurrentTheme().getVisibilityHiddenIcon();
             }
 
             @Override
