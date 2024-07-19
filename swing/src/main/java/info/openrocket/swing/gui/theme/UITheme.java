@@ -101,6 +101,7 @@ public class UITheme {
         Icon getCDOverrideSubcomponentIcon();
 
         Icon getVisibilityHiddenIcon();
+        Icon getVisibilityShowingIcon();
 
         Border getBorder();
         Border getMarginBorder();
@@ -435,6 +436,11 @@ public class UITheme {
             @Override
             public Icon getVisibilityHiddenIcon() {
                 return Icons.COMPONENT_HIDDEN_LIGHT;
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
+                return Icons.COMPONENT_SHOWING_LIGHT;
             }
 
             @Override
@@ -834,6 +840,11 @@ public class UITheme {
             }
 
             @Override
+            public Icon getVisibilityShowingIcon() {
+                return Icons.COMPONENT_SHOWING_DARK;
+            }
+
+            @Override
             public Border getBorder() {
                 return new FlatBorder();
             }
@@ -1227,6 +1238,11 @@ public class UITheme {
             @Override
             public Icon getVisibilityHiddenIcon() {
                 return Icons.COMPONENT_HIDDEN_DARK;
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
+                return Icons.COMPONENT_SHOWING_DARK;
             }
 
             @Override
@@ -1641,6 +1657,11 @@ public class UITheme {
 
             @Override
             public Icon getVisibilityHiddenIcon() {
+                return getCurrentTheme().getVisibilityHiddenIcon();
+            }
+
+            @Override
+            public Icon getVisibilityShowingIcon() {
                 return getCurrentTheme().getVisibilityHiddenIcon();
             }
 

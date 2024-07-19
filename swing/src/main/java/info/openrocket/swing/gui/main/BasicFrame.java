@@ -607,9 +607,15 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(actions.getScaleAction());
 		editMenu.add(item);
 
+		////	Visibility
+		JMenu visibilitySubMenu = new JMenu(trans.get("RocketActions.Visibility"));
+		editMenu.add(visibilitySubMenu);
 		item = new JMenuItem(actions.getToggleVisibilityAction());
-		editMenu.add(item);
+		visibilitySubMenu.add(item);
+		item = new JMenuItem(actions.getShowAllComponentsAction());
+		visibilitySubMenu.add(item);
 
+		editMenu.addSeparator();
 
 		////	Preferences
 		item = new JMenuItem(trans.get("main.menu.edit.preferences"));

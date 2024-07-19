@@ -75,6 +75,7 @@ public class RocketActions {
 	private final RocketAction moveDownAction;
 	private final RocketAction exportOBJAction;
 	private final RocketAction toggleVisibilityAction;
+	private final RocketAction showAllComponentsAction;
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
 
@@ -101,6 +102,7 @@ public class RocketActions {
 		this.moveDownAction = new MoveDownAction();
 		this.exportOBJAction = new ExportOBJAction();
 		this.toggleVisibilityAction = new ToggleVisibilityAction();
+		this.showAllComponentsAction = new ShowAllComponentsAction();
 
 		OpenRocketClipboard.addClipboardListener(new ClipboardListener() {
 			@Override
@@ -150,6 +152,7 @@ public class RocketActions {
 		moveDownAction.clipboardChanged();
 		exportOBJAction.clipboardChanged();
 		toggleVisibilityAction.clipboardChanged();
+		showAllComponentsAction.clipboardChanged();
 	}
 	
 
@@ -205,6 +208,10 @@ public class RocketActions {
 
 	public Action getToggleVisibilityAction() {
 		return toggleVisibilityAction;
+	}
+
+	public Action getShowAllComponentsAction() {
+		return showAllComponentsAction;
 	}
 
 	/**
@@ -482,7 +489,26 @@ public class RocketActions {
 		return result;
 	}
 
-	
+	/**
+	 * Returns all descendants of the specified component.
+	 *
+	 * @param component Component to query
+	 * @return All descendants
+	 * @apiNote Returns an empty set if the component does not have children.
+	 */
+	private Set<RocketComponent> getDescendants(RocketComponent component) {
+		Objects.requireNonNull(component);
+
+		var result = new LinkedHashSet<RocketComponent>();
+		var queue = new ArrayDeque<>(component.getChildren());
+
+		while (!queue.isEmpty()) {
+			var node = queue.pop();
+			result.add(node);
+			node.getChildren().stream().filter(c -> !result.contains(c)).forEach(queue::add);
+		}
+		return result;
+	}
 	
 
 	///////  Action classes
@@ -1343,26 +1369,24 @@ public class RocketActions {
 			var allComponentsSelected = getDescendants(rocket).size() == components.size();
 			return rocketSelected || allComponentsSelected;
 		}
+	}
 
-		/**
-		 * Returns all descendants of the specified component.
-		 *
-		 * @param component Component to query
-		 * @return All descendants
-		 * @apiNote Returns an empty set if the component does not have children.
-		 */
-		private Set<RocketComponent> getDescendants(RocketComponent component) {
-			Objects.requireNonNull(component);
+	private class ShowAllComponentsAction extends RocketAction {
+		public ShowAllComponentsAction() {
+			super.putValue(NAME, trans.get("RocketActions.VisibilityAct.ShowAll"));
+			super.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
+			super.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityShowingIcon());
+			clipboardChanged();
+		}
 
-			var result = new LinkedHashSet<RocketComponent>();
-			var queue = new ArrayDeque<>(component.getChildren());
+		@Override
+		public void clipboardChanged() {
+			super.setEnabled(getDescendants(rocket).stream().anyMatch(c -> !c.isVisible()));
+		}
 
-			while (!queue.isEmpty()) {
-				var node = queue.pop();
-				result.add(node);
-				node.getChildren().stream().filter(c -> !result.contains(c)).forEach(queue::add);
-			}
-			return result;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			getDescendants(rocket).forEach(descendant -> descendant.setVisible(true));
 		}
 	}
 }

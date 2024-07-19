@@ -120,6 +120,8 @@ public class Icons {
 	public static final Icon COMPONENT_HIDDEN = loadImageIcon("pix/icons/component-hidden.png", "Component Hidden");
 	public static final Icon COMPONENT_HIDDEN_DARK = loadImageIcon("pix/icons/component-hidden_dark.png", "Component Hidden");
 	public static final Icon COMPONENT_HIDDEN_LIGHT = loadImageIcon("pix/icons/component-hidden_light.png", "Component Hidden");
+	public static final Icon COMPONENT_SHOWING_DARK = loadImageIcon("pix/icons/component-showing_dark.png", "Component Showing");
+	public static final Icon COMPONENT_SHOWING_LIGHT = loadImageIcon("pix/icons/component-showing_light.png", "Component Showing");
 
 	// MANUFACTURERS ICONS
 	public static final Icon RASAERO = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
