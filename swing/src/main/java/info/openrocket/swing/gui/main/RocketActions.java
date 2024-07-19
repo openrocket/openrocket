@@ -1377,6 +1377,10 @@ public class RocketActions {
 		}
 	}
 
+	/**
+	 * Action to show all hidden components.
+	 * @see RocketComponent#isVisible()
+	 */
 	private class ShowAllComponentsAction extends RocketAction {
 		public ShowAllComponentsAction() {
 			super.putValue(NAME, trans.get("RocketActions.VisibilityAct.ShowAll"));
