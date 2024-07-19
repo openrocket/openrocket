@@ -1311,6 +1311,9 @@ public class RocketActions {
 				super.putValue(SHORT_DESCRIPTION, rocket.isVisible() ?
 						trans.get("RocketActions.VisibilityAct.ttip.HideAll") :
 						trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
+				super.putValue(SMALL_ICON, rocket.isVisible() ?
+						GUIUtil.getUITheme().getVisibilityHiddenIcon() :
+						GUIUtil.getUITheme().getVisibilityShowingIcon());
 			} else {
 				var visibility = components.stream().anyMatch(RocketComponent::isVisible);
 				super.putValue(NAME, visibility ?
@@ -1319,6 +1322,9 @@ public class RocketActions {
 				super.putValue(SHORT_DESCRIPTION, visibility ?
 						trans.get("RocketActions.VisibilityAct.ttip.HideSelected") :
 						trans.get("RocketActions.VisibilityAct.ttip.ShowSelected"));
+				super.putValue(SMALL_ICON, visibility ?
+						GUIUtil.getUITheme().getVisibilityHiddenIcon() :
+						GUIUtil.getUITheme().getVisibilityShowingIcon());
 			}
 		}
 
