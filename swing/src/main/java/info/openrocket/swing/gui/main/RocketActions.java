@@ -1298,11 +1298,11 @@ public class RocketActions {
 		@Override
 		public void clipboardChanged() {
 			var components = new ArrayList<>(selectionModel.getSelectedComponents());
+			super.setEnabled(!components.isEmpty());
 
 			if (components.isEmpty()) {
 				return;
 			}
-			super.setEnabled(true);
 
 			if (isRocketSelected(components)) {
 				super.putValue(NAME, rocket.isVisible() ?
