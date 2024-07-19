@@ -57,7 +57,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	//	private static final double MAX_ROLL_STEP_ANGLE = 8.32 * Math.PI/180;
 	
 	private static final double MAX_ROLL_RATE_CHANGE = 2 * Math.PI / 180;
-	private static final double MAX_PITCH_CHANGE = 4 * Math.PI / 180;
+	private static final double MAX_PITCH_YAW_CHANGE = 4 * Math.PI / 180;
 	
 	private Random random;
 	DataStore store = new DataStore();
@@ -133,8 +133,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		dt[1] = maxTimeStep;
 		dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
 		dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
-		dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.rollAcceleration);
-		dt[5] = Math.abs(MAX_PITCH_CHANGE / store.lateralPitchAcceleration);
+		dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.accelerationData.getRotationalAccelerationRC().z);
+		dt[5] = Math.abs(MAX_PITCH_YAW_CHANGE /
+						 MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().x),
+									  Math.abs(store.accelerationData.getRotationalAccelerationRC().y)));
 		if (!status.isLaunchRodCleared()) {
 			dt[0] /= 5.0;
 			dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
@@ -273,8 +275,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// Call post-listeners
 		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
 
-		params.a = dataStore.linearAcceleration;
-		params.ra = dataStore.angularAcceleration;
+		params.a = dataStore.accelerationData.getLinearAccelerationWC();
+		params.ra = dataStore.accelerationData.getRotationalAccelerationWC();
 		params.v = status.getRocketVelocity();
 		params.rv = status.getRocketRotationVelocity();
 		
@@ -298,7 +300,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @throws SimulationException 
 	 */
 	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
-		
+		Coordinate linearAcceleration;
+		Coordinate angularAcceleration;
+			
 		// Compute the forces affecting the rocket
 		calculateForces(status, store);
 		
@@ -325,35 +329,33 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		double fN = store.forces.getCN() * dynP * refArea;
 		double fSide = store.forces.getCside() * dynP * refArea;
 
-		store.thrustForce = calculateThrust(status, store.longitudinalAcceleration, store.flightConditions.getAtmosphericConditions(), false);
+		store.thrustForce = calculateThrust(status, store, false);
 		double forceZ =  store.thrustForce - store.dragForce;
 		
-		store.linearAcceleration = new Coordinate(-fN / store.rocketMass.getMass(),
+		linearAcceleration = new Coordinate(-fN / store.rocketMass.getMass(),
 					-fSide / store.rocketMass.getMass(),
 					forceZ / store.rocketMass.getMass());
 		
-		store.linearAcceleration = store.thetaRotation.rotateZ(store.linearAcceleration);
+		linearAcceleration = store.thetaRotation.rotateZ(linearAcceleration);
 		
 		// Convert into rocket world coordinates
-		store.linearAcceleration = status.getRocketOrientationQuaternion().rotate(store.linearAcceleration);
+		linearAcceleration = status.getRocketOrientationQuaternion().rotate(linearAcceleration);
 		
 		// add effect of gravity
 		store.gravity = modelGravity(status);
-		store.linearAcceleration = store.linearAcceleration.sub(0, 0, store.gravity);
+		linearAcceleration = linearAcceleration.sub(0, 0, store.gravity);
 		
 		// add effect of Coriolis acceleration
 		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation()
 				.getCoriolisAcceleration(status.getRocketWorldPosition(), status.getRocketVelocity());
-		store.linearAcceleration = store.linearAcceleration.add(store.coriolisAcceleration);
+		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
 		
 		// If still on the launch rod, project acceleration onto launch rod direction and
 		// set angular acceleration to zero.
 		if (!status.isLaunchRodCleared()) {
 			
-			store.linearAcceleration = store.launchRodDirection.multiply(store.linearAcceleration.dot(store.launchRodDirection));
-			store.angularAcceleration = Coordinate.NUL;
-			store.rollAcceleration = 0;
-			store.lateralPitchAcceleration = 0;
+			linearAcceleration = store.launchRodDirection.multiply(linearAcceleration.dot(store.launchRodDirection));
+			angularAcceleration = Coordinate.NUL;
 			
 		} else {
 			
@@ -366,24 +368,18 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			double momY = Cm * dynP * refArea * refLength;
 			double momZ = store.forces.getCroll() * dynP * refArea * refLength;
 			
-			// Compute acceleration in rocket coordinates
-			store.angularAcceleration = new Coordinate(momX / store.rocketMass.getLongitudinalInertia(),
+			// Compute angular acceleration in rocket coordinates
+			angularAcceleration = new Coordinate(momX / store.rocketMass.getLongitudinalInertia(),
 						momY / store.rocketMass.getLongitudinalInertia(),
 						momZ / store.rocketMass.getRotationalInertia());
 			
-			store.rollAcceleration = store.angularAcceleration.z;
-			// TODO: LOW: This should be hypot, but does it matter?
-			store.lateralPitchAcceleration = MathUtil.max(Math.abs(store.angularAcceleration.x),
-						Math.abs(store.angularAcceleration.y));
-			
-			store.angularAcceleration = store.thetaRotation.rotateZ(store.angularAcceleration);
+			angularAcceleration = store.thetaRotation.rotateZ(angularAcceleration);
 			
 			// Convert to world coordinates
-			store.angularAcceleration = status.getRocketOrientationQuaternion().rotate(store.angularAcceleration);
-			
+			angularAcceleration = status.getRocketOrientationQuaternion().rotate(angularAcceleration);
 		}
 
-		return new AccelerationData(null, null, store.linearAcceleration, store.angularAcceleration, status.getRocketOrientationQuaternion());
+		return new AccelerationData(null, null, linearAcceleration, angularAcceleration, status.getRocketOrientationQuaternion());
 	}
 	
 	

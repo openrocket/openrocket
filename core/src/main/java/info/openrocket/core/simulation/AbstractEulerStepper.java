@@ -70,22 +70,24 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		}
 
 		// Compute drag acceleration
-		store.linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
+		Coordinate linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
 		
 		// Add effect of gravity
 		store.gravity = modelGravity(status);
-		store.linearAcceleration = store.linearAcceleration.sub(0, 0, store.gravity);
+		linearAcceleration = linearAcceleration.sub(0, 0, store.gravity);
 
 		// Add coriolis acceleration
 		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
 				status.getRocketWorldPosition(), status.getRocketVelocity());
-		store.linearAcceleration = store.linearAcceleration.add(store.coriolisAcceleration);
+		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
+
+		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
 
 		// Select tentative time step
 		store.timeStep = RECOVERY_TIME_STEP;
 
 		// adjust based on acceleration
-		final double absAccel = store.linearAcceleration.length();
+		final double absAccel = linearAcceleration.length();
 		if (absAccel > MathUtil.EPSILON) {
 			store.timeStep = Math.min(store.timeStep, 1.0/absAccel);
 		}
@@ -105,7 +107,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		log.trace("timeStep is " + store.timeStep);
 		
 		// Perform Euler integration
-		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), store.linearAcceleration, store.timeStep);
+		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, store.timeStep);
 
 		// Check to see if z or either of its first two derivatives have changed sign and recalculate
 		// time step to point of change if so
@@ -115,7 +117,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		// Note that it's virtually impossible for apogee to occur on the same
 		// step as either ground hit or descent rate inflection, and if we get a ground hit
 		// any descent rate inflection won't matter
-		final double a = store.linearAcceleration.z;
+		final double a = linearAcceleration.z;
 		final double v = status.getRocketVelocity().z;
 		final double z = status.getRocketPosition().z;
 		double t = store.timeStep;
@@ -136,11 +138,11 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// dA/dT = dA/dV * dV/dT
 			final double dFdV = CdA * store.atmosphericConditions.getDensity() * airSpeed.length();
 			final Coordinate dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
-			final Coordinate jerk = store.linearAcceleration.multiply(dAdV);
-			final Coordinate newAcceleration = store.linearAcceleration.add(jerk.multiply(store.timeStep));
+			final Coordinate jerk = linearAcceleration.multiply(dAdV);
+			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(store.timeStep));
 
 			// Only do this one if acceleration is appreciably different from 0
-			if (newAcceleration.z * store.linearAcceleration.z < -MathUtil.EPSILON) {
+			if (newAcceleration.z * linearAcceleration.z < -MathUtil.EPSILON) {
 				// If acceleration oscillation is building up, the new timestep is the solution of
 				// a + j*t = 0
 				t = Math.abs(a / jerk.z);
@@ -159,7 +161,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 				store.timeStep = maxTimeStep;
 			}
 
-			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), store.linearAcceleration, store.timeStep);
+			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, store.timeStep);
 
 			// If we just landed chop off rounding error
 			if (Math.abs(newVals.pos.z) < MathUtil.EPSILON) {
@@ -171,7 +173,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 		status.setRocketPosition(newVals.pos);
 		status.setRocketVelocity(newVals.vel);
-		status.setRocketAcceleration(store.linearAcceleration);
 
 		// Update the world coordinate
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();

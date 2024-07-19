@@ -163,14 +163,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 *  
 	 * @param status					the current simulation status.
 	 * @param timestep					the time step of the current iteration.
-	 * @param acceleration				the current (approximate) acceleration
-	 * @param atmosphericConditions		the current atmospheric conditions
+	 * @param store                     the simulation calculation DataStore (contains acceleration, atmosphere)
 	 * @param stepMotors				whether to step the motors forward or work on a clone object
 	 * @return							the average thrust during the time step.
 	 */
-	protected double calculateThrust(SimulationStatus status,
-			double acceleration, AtmosphericConditions atmosphericConditions,
-			boolean stepMotors) throws SimulationException {
+	protected double calculateThrust(SimulationStatus status, DataStore store,
+									 boolean stepMotors) throws SimulationException {
 		double thrust;
 
 		// Pre-listeners
@@ -240,16 +238,11 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		public FlightConditions flightConditions;
 		
-		public double longitudinalAcceleration = Double.NaN;
-		
 		public RigidBody rocketMass;
 		
 		public RigidBody motorMass;
 		
 		public Coordinate coriolisAcceleration;
-		
-		public Coordinate linearAcceleration;
-		public Coordinate angularAcceleration;
 
 		public Coordinate launchRodDirection = null;
 		
@@ -263,9 +256,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		public double thrustForce = Double.NaN;
 		public double dragForce = Double.NaN;
 		public double lateralPitchRate = Double.NaN;
-		
-		public double rollAcceleration = Double.NaN;
-		public double lateralPitchAcceleration = Double.NaN;
 		
 		public Rotation2D thetaRotation;
 
@@ -286,12 +276,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
 			}
 			
-			if (null != linearAcceleration) {
+			if (null != accelerationData) {
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-									MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+									MathUtil.hypot(accelerationData.getLinearAccelerationWC().x, accelerationData.getLinearAccelerationWC().y));
 				
-				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
-				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, accelerationData.getLinearAccelerationWC().length());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().z);
 			}
 			
 			if (null != rocketMass) {
