@@ -1392,6 +1392,7 @@ public class RocketActions {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			rocket.setVisible(true);
 			getDescendants(rocket).forEach(descendant -> descendant.setVisible(true));
 		}
 	}
