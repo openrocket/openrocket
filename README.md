@@ -88,6 +88,7 @@ You can view the full list of contributors [here](https://github.com/openrocket/
 - Polish Rocketry Society / Łukasz & Alex Kazanski
 - Sibo Van Gool
 - Mohamed Amin Elkebsi
+- Oleksandr Hladin
 
 ## 📜 License
 
