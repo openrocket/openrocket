@@ -11,6 +11,7 @@ import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +108,9 @@ public class OpenRocketSaver extends RocketSaver {
 
 		// Save PhotoSettings
 		savePhotoSettings(document.getPhotoSettings());
+
+		// Save document preferences
+		saveDocumentPreferences(document.getDocumentPreferences());
 		
 		indent--;
 		writeln("</openrocket>");
@@ -428,6 +432,21 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("</photostudio>");
 	}
 
+	private void saveDocumentPreferences(DocumentPreferences docPrefs) throws IOException {
+		log.debug("Saving Document Preferences");
+
+		writeln("<docprefs>");
+		indent++;
+
+		Map<String, DocumentPreferences.DocumentPreference> prefs = docPrefs.getPreferencesMap();
+		for (Map.Entry<String, DocumentPreferences.DocumentPreference> entry : prefs.entrySet()) {
+			DocumentPreferences.DocumentPreference pref = entry.getValue();
+			writeEntry("pref", entry.getKey(), pref.getValue(), true);
+		}
+
+		indent--;
+		writeln("</docprefs>");
+	}
 
 	/**
 	 * Write an entry element, which has a key and type attribute, and a value, to the output.
