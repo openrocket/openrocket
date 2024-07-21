@@ -57,6 +57,7 @@ public class AboutDialog extends JDialog {
 		"Vladimir Beran (Czech)<br>" +
 		"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
 		"Sibo Van Gool (Dutch)<br>" +
+		"Oleksandr Hladin (Ukrainian)" +
 		"Mohamed Amin Elkebsi (Arabic)<br>" +
 		"<br>" +
 		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
