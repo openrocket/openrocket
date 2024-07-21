@@ -1,6 +1,6 @@
 package info.openrocket.core.preferences;
 
-public interface Preferences {
+public interface ORPreferences {
 	boolean getBoolean(String key, boolean defaultValue);
 
 	void putBoolean(String key, boolean value);

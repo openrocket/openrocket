@@ -35,7 +35,7 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.UniqueID;
 
-public abstract class ApplicationPreferences implements ChangeSource, Preferences {
+public abstract class ApplicationPreferences implements ChangeSource, ORPreferences {
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
