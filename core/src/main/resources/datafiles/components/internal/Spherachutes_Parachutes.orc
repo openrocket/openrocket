@@ -150,7 +150,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-018-HD</PartNumber>		
 			<Description>Heavy Duty 18" Hemispherical Spherachute [Cd .75 (.9 oz)  in^3]</Description>		
-			<Diameter Unit="in">11.46</Diameter>		
+			<Diameter Unit="in">18.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -166,7 +166,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-018-UL</PartNumber>		
 			<Description>UltraLight 18" Hemispherical Spherachute [Cd .75 (.2 oz)  2.25 in^3]</Description>		
-			<Diameter Unit="in">11.46</Diameter>		
+			<Diameter Unit="in">18.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -182,7 +182,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-024-CL</PartNumber>		
 			<Description>Classic 24" Hemispherical Spherachute [Cd .75 (1.1 oz)  9.375 in^3]</Description>		
-			<Diameter Unit="in">15.28</Diameter>		
+			<Diameter Unit="in">24.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -198,7 +198,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-024-HD</PartNumber>		
 			<Description>Heavy Duty 24" Hemispherical Spherachute [Cd .75 (1.3 oz)  in^3]</Description>		
-			<Diameter Unit="in">15.28</Diameter>		
+			<Diameter Unit="in">24.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -214,7 +214,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-024-UL</PartNumber>		
 			<Description>UltraLight 24" Hemispherical Spherachute [Cd .75 (.4 oz)  2.25 in^3]</Description>		
-			<Diameter Unit="in">15.28</Diameter>		
+			<Diameter Unit="in">24.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -230,7 +230,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-030-CL</PartNumber>		
 			<Description>Classic 30" Hemispherical Spherachute [Cd .75 (1.2 oz)  9 in^3]</Description>		
-			<Diameter Unit="in">19.10</Diameter>		
+			<Diameter Unit="in">30.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -246,7 +246,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-030-HD</PartNumber>		
 			<Description>Heavy Duty 30" Hemispherical Spherachute [Cd .75 (1.8 oz)  18.375 in^3]</Description>		
-			<Diameter Unit="in">19.10</Diameter>		
+			<Diameter Unit="in">30.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -262,7 +262,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-030-UL</PartNumber>		
 			<Description>UltraLight 30" Hemispherical Spherachute [Cd .75 (.6 oz)  4.386 in^3]</Description>		
-			<Diameter Unit="in">19.10</Diameter>		
+			<Diameter Unit="in">30.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -278,7 +278,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-036-CL</PartNumber>		
 			<Description>Classic 36" Hemispherical Spherachute [Cd .75 (1.8 oz)  13.5 in^3]</Description>		
-			<Diameter Unit="in">22.92</Diameter>		
+			<Diameter Unit="in">36.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -294,7 +294,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-036-HD</PartNumber>		
 			<Description>Heavy Duty 36" Hemispherical Spherachute [Cd .75 (2.3 oz)  24.5 in^3]</Description>		
-			<Diameter Unit="in">22.92</Diameter>		
+			<Diameter Unit="in">36.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -310,7 +310,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-036-UL</PartNumber>		
 			<Description>UltraLight 36" Hemispherical Spherachute [Cd .75 (.8 oz)  7 in^3]</Description>		
-			<Diameter Unit="in">22.92</Diameter>		
+			<Diameter Unit="in">36.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>6</Sides>		
 			<LineCount>6</LineCount>		
@@ -326,7 +326,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-042-CL</PartNumber>		
 			<Description>Classic 42" Hemispherical Spherachute [Cd .75 (2.7 oz)  18 in^3]</Description>		
-			<Diameter Unit="in">26.74</Diameter>		
+			<Diameter Unit="in">42.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -342,7 +342,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-042-HD</PartNumber>		
 			<Description>Heavy Duty 42" Hemispherical Spherachute [Cd .75 (3.2 oz)  37.5 in^3]</Description>		
-			<Diameter Unit="in">26.74</Diameter>		
+			<Diameter Unit="in">42.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -358,7 +358,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-042-UL</PartNumber>		
 			<Description>UltraLight 42" Hemispherical Spherachute [Cd .75 (3.2 oz)  10.94 in^3]</Description>		
-			<Diameter Unit="in">26.74</Diameter>		
+			<Diameter Unit="in">42.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -374,7 +374,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-048-CL</PartNumber>		
 			<Description>Classic 48" Hemispherical Spherachute [Cd .75 (3.1 oz)  22.5 in^3]</Description>		
-			<Diameter Unit="in">30.56</Diameter>		
+			<Diameter Unit="in">48.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -390,7 +390,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-048-HD</PartNumber>		
 			<Description>Heavy Duty 48" Hemispherical Spherachute [Cd .75 (3.7 oz)  40 in^3]</Description>		
-			<Diameter Unit="in">30.56</Diameter>		
+			<Diameter Unit="in">48.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -406,7 +406,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-048-UL</PartNumber>		
 			<Description>UltraLight 48" Hemispherical Spherachute [Cd .75 (1.5 oz)  13.13 in^3]</Description>		
-			<Diameter Unit="in">30.56</Diameter>		
+			<Diameter Unit="in">48.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -422,7 +422,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-054-CL</PartNumber>		
 			<Description>Classic 54" Hemispherical Spherachute [Cd .75 (3.8 oz)  36.75 in^3]</Description>		
-			<Diameter Unit="in">34.38</Diameter>		
+			<Diameter Unit="in">54.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -438,7 +438,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-054-HD</PartNumber>		
 			<Description>Heavy Duty 54" Hemispherical Spherachute [Cd .75 (3.8 oz)  56.25 in^3]</Description>		
-			<Diameter Unit="in">34.38</Diameter>		
+			<Diameter Unit="in">54.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -455,7 +455,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-054-UL</PartNumber>		
 			<Description>UltraLight 54" Hemispherical Spherachute [Cd .75 (1.7 oz)  18 in^3]</Description>		
-			<Diameter Unit="in">34.38</Diameter>		
+			<Diameter Unit="in">54.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -471,7 +471,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-060-CL</PartNumber>		
 			<Description>Classic 60" Hemispherical Spherachute [Cd .75 (5 oz)  31.5 in^3]</Description>		
-			<Diameter Unit="in">38.20</Diameter>		
+			<Diameter Unit="in">60.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -487,7 +487,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-060-HD</PartNumber>		
 			<Description>Heavy Duty 60" Hemispherical Spherachute [Cd .75 (5.6 oz)  59 in^3]</Description>		
-			<Diameter Unit="in">38.20</Diameter>		
+			<Diameter Unit="in">60.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -503,7 +503,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-060-UL</PartNumber>		
 			<Description>UltraLight 60" Hemispherical Spherachute [Cd .75 (1.5 oz)  18 in^3]</Description>		
-			<Diameter Unit="in">38.20</Diameter>		
+			<Diameter Unit="in">60.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -519,7 +519,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-066-CL</PartNumber>		
 			<Description>Classic 66" Hemispherical Spherachute [Cd .75 (5.2 oz)  35 in^3</Description>		
-			<Diameter Unit="in">42.02</Diameter>		
+			<Diameter Unit="in">66.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -535,7 +535,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-066-HD</PartNumber>		
 			<Description>Heavy Duty 66" Hemispherical Spherachute [Cd .75 (3.7 oz)  50 in^3]</Description>		
-			<Diameter Unit="in">42.02</Diameter>		
+			<Diameter Unit="in">66.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -551,7 +551,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-066-UL</PartNumber>		
 			<Description>UltraLight 66" Hemispherical Spherachute [Cd .75 (2.6 oz)  19.69 in^3]</Description>		
-			<Diameter Unit="in">42.02</Diameter>		
+			<Diameter Unit="in">66.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -567,7 +567,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-072-CL</PartNumber>		
 			<Description>Classic 72" Hemispherical Spherachute [Cd .75 (5.9 oz)  50 in^3]</Description>		
-			<Diameter Unit="in">45.84</Diameter>		
+			<Diameter Unit="in">72.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -583,7 +583,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-072-HD</PartNumber>		
 			<Description>Heavy Duty 72" Hemispherical Spherachute [Cd .75 (7.1 oz)  59.06 in^3]</Description>		
-			<Diameter Unit="in">45.84</Diameter>		
+			<Diameter Unit="in">72.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -599,7 +599,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-072-UL</PartNumber>		
 			<Description>UltraLight 72" Hemispherical Spherachute [Cd .75 (2.9 oz)  22.31 in^3]</Description>		
-			<Diameter Unit="in">45.84</Diameter>		
+			<Diameter Unit="in">72.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>8</Sides>		
 			<LineCount>8</LineCount>		
@@ -615,7 +615,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-084-CL</PartNumber>		
 			<Description>Classic 84" Hemispherical Spherachute [Cd .75 (7.2 oz)  72 in^3]</Description>		
-			<Diameter Unit="in">53.48</Diameter>		
+			<Diameter Unit="in">84.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -631,7 +631,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-084-UL</PartNumber>		
 			<Description>UltraLight 84" Hemispherical Spherachute [Cd .75 (4.6 oz)  45 in^3]</Description>		
-			<Diameter Unit="in">53.48</Diameter>		
+			<Diameter Unit="in">84.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -647,7 +647,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-096-CL</PartNumber>		
 			<Description>Classic 96" Hemispherical Spherachute [Cd .75 (13 oz)  90 in^3]</Description>		
-			<Diameter Unit="in">61.12</Diameter>		
+			<Diameter Unit="in">96.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -663,7 +663,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-096-UL</PartNumber>		
 			<Description>UltraLight 96" Hemispherical Spherachute [Cd .75 (5.3 oz)  48 in^3]</Description>		
-			<Diameter Unit="in">61.12</Diameter>		
+			<Diameter Unit="in">96.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -679,7 +679,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-108-CL</PartNumber>		
 			<Description>Classic 108" Hemispherical Spherachute [Cd .75 (16 oz)  108 in^3]</Description>		
-			<Diameter Unit="in">68.76</Diameter>		
+			<Diameter Unit="in">108.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -695,7 +695,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-108-UL</PartNumber>		
 			<Description>UltraLight 108" Hemispherical Spherachute [Cd .75 (6.5 oz)  68 in^3]</Description>		
-			<Diameter Unit="in">68.76</Diameter>		
+			<Diameter Unit="in">108.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -711,7 +711,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-120-CL</PartNumber>		
 			<Description>Classic 120" Hemispherical Spherachute [Cd .75 (19 oz)  108 in^3]</Description>		
-			<Diameter Unit="in">76.40</Diameter>		
+			<Diameter Unit="in">120.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -727,7 +727,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-120-UL</PartNumber>		
 			<Description>UltraLight 120" Hemispherical Spherachute [Cd .75 (7.7 oz)  87.75 in^3]</Description>		
-			<Diameter Unit="in">76.40</Diameter>		
+			<Diameter Unit="in">120.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -743,7 +743,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-144-CL</PartNumber>		
 			<Description>Classic 144" Hemispherical Spherachute [Cd .75 (7.2 oz)  198 in^3]</Description>		
-			<Diameter Unit="in">91.68</Diameter>		
+			<Diameter Unit="in">144.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -759,7 +759,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-144-UL</PartNumber>		
 			<Description>UltraLight 144" Hemispherical Spherachute [Cd .75 (11.7 oz)  106.25 in^3]</Description>		
-			<Diameter Unit="in">91.68</Diameter>		
+			<Diameter Unit="in">144.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, ultra-lightweight 66 oz 1 mil</Material>		
 			<Sides>12</Sides>		
 			<LineCount>12</LineCount>		
@@ -775,7 +775,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-168-CL</PartNumber>		
 			<Description>Classic 168" Hemispherical Spherachute [Cd .75 (39 oz)  252 in^3]</Description>		
-			<Diameter Unit="in">106.96</Diameter>		
+			<Diameter Unit="in">168.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>18</Sides>		
 			<LineCount>18</LineCount>		
@@ -791,7 +791,7 @@
 			<Manufacturer>Spherachutes</Manufacturer>		
 			<PartNumber>HS-192-CL</PartNumber>		
 			<Description>Classic 192" Hemispherical Spherachute [Cd .75 (53 oz)  445.5 in^3]</Description>		
-			<Diameter Unit="in">122.23</Diameter>		
+			<Diameter Unit="in">192.0</Diameter>		
 			<Material Type="SURFACE">Ripstop Nylon, 1.9 oz 5 mil</Material>		
 			<Sides>18</Sides>		
 			<LineCount>18</LineCount>		
