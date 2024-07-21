@@ -25,10 +25,6 @@ public class MaterialModel extends AbstractListModel<Material> implements
 		ComboBoxModel<Material>, ComponentChangeListener, DatabaseListener<Material>, Invalidatable {
 	private static final long serialVersionUID = 4552478532933113655L;
 	private final ModelInvalidator modelInvalidator;
-
-
-	private final Material custom;
-
 	
 	private final Component parentUIComponent;
 	
@@ -53,23 +49,22 @@ public class MaterialModel extends AbstractListModel<Material> implements
 		this.parentUIComponent = parent;
 		this.rocketComponent = component;
 		this.type = type;
-		this.custom = Material.newMaterial( Material.Type.CUSTOM, trans.get ("Material.CUSTOM"), 1.0, true );
-		
+
 		switch (type) {
-		case LINE:
-			this.database = Databases.LINE_MATERIAL;
-			break;
-			
-		case BULK:
-			this.database = Databases.BULK_MATERIAL;
-			break;
-			
-		case SURFACE:
-			this.database = Databases.SURFACE_MATERIAL;
-			break;
-			
-		default:
-			throw new IllegalArgumentException("Unknown material type:"+type);
+			case LINE:
+				this.database = Databases.LINE_MATERIAL;
+				break;
+
+			case BULK:
+				this.database = Databases.BULK_MATERIAL;
+				break;
+
+			case SURFACE:
+				this.database = Databases.SURFACE_MATERIAL;
+				break;
+
+			default:
+				throw new IllegalArgumentException("Unknown material type:"+type);
 		}
 		
 		try {
@@ -97,55 +92,53 @@ public class MaterialModel extends AbstractListModel<Material> implements
 			return;
 		}
 
-		if (item == custom) {
-			
-			// Open custom material dialog in the future, after combo box has closed
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					CustomMaterialDialog dialog = new CustomMaterialDialog(
-							SwingUtilities.getWindowAncestor(parentUIComponent), 
-							(Material) getSelectedItem(), true,
-							//// Define custom material
-							trans.get("MaterialModel.title.Defcustmat"));
-
-					dialog.setVisible(true);
-					
-					if (!dialog.getOkClicked())
-						return;
-					
-					Material material = dialog.getMaterial();
-					setMethod.invoke(rocketComponent, material);
-					
-					if (dialog.isAddSelected()) {
-						database.add(material);
-					}
-				}
-			});
-			
-		} else if (item instanceof Material) {
-			
+		if (item instanceof Material) {
 			setMethod.invoke(rocketComponent, item);
-			
 		} else {
 			throw new IllegalArgumentException("Illegal item class " + item.getClass() + 
 					" item=" + item);
 		}
 	}
 
+	public void addCustomMaterial() {
+		CustomMaterialDialog dialog = new CustomMaterialDialog(
+				SwingUtilities.getWindowAncestor(parentUIComponent),
+				(Material) getSelectedItem(), true,
+				trans.get("MaterialModel.title.Defcustmat"));
+
+		dialog.setVisible(true);
+
+		if (!dialog.getOkClicked())
+			return;
+
+		Material material = dialog.getMaterial();
+		setMethod.invoke(rocketComponent, material);
+
+		// TODO: add to permanent database if addSelected, add to document database otherwise
+		if (dialog.isAddSelected()) {
+			database.add(material);
+		}
+	}
+
 	@Override
 	public Material getElementAt(int index) {
-		if (index == database.size()) {
-			return custom;
-		} else if (index >= database.size()+1) {
+		if (index >= database.size()) {
 			return null;
 		}
 		return database.get(index);
 	}
 
+	public Material[] getAllMaterials() {
+		Material[] materials = new Material[database.size()];
+		for (int i = 0; i < database.size(); i++) {
+			materials[i] = database.get(i);
+		}
+		return materials;
+	}
+
 	@Override
 	public int getSize() {
-		return database.size() + 1;
+		return database.size();
 	}
 
 	public Material.Type getType() {
@@ -156,7 +149,7 @@ public class MaterialModel extends AbstractListModel<Material> implements
 
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		if (((ComponentChangeEvent)e).isMassChange()) {
+		if (e.isMassChange()) {
 			this.fireContentsChanged(this, 0, 0);
 		}
 	}

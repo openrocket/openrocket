@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.configdialog;
 
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.util.Invalidatable;
+import info.openrocket.swing.gui.widgets.SearchableAndCategorizableComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -19,12 +21,17 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Panel for configuring a component's material and finish properties.
@@ -32,6 +39,7 @@ import java.util.List;
 public class MaterialPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
     private final List<Invalidatable> invalidatables = new ArrayList<>();
+    private SearchableAndCategorizableComboBox<MaterialGroup, Material> materialCombo = null;
 
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
                          Material.Type type, String materialString, String finishString,
@@ -39,24 +47,43 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         super(new MigLayout());
         this.setBorder(BorderFactory.createTitledBorder(trans.get("MaterialPanel.title.Material")));
 
+        //// Component material
         JLabel label = new JLabel(materialString);
-        //// The component material affects the weight of the component.
         label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
         this.add(label, "spanx 4, wrap rel");
 
         MaterialModel mm = new MaterialModel(this, component, type, partName);
         register(mm);
-        JComboBox<Material> materialCombo = new JComboBox<>(mm);
-        //// The component material affects the weight of the component.
-        materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
-        this.add(materialCombo, "spanx 4, growx, wrap paragraph");
-        order.add(materialCombo);
 
+        // Set custom material button
+        JButton customMaterialButton = new JButton(trans.get("MaterialPanel.but.AddCustomMaterial"));
+        customMaterialButton.addActionListener(e -> {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    mm.addCustomMaterial();
+                    if (MaterialPanel.this.materialCombo != null) {
+                        MaterialComboBox.updateComboBoxItems(MaterialPanel.this.materialCombo, MaterialGroup.ALL_GROUPS, mm.getAllMaterials());
+                        MaterialPanel.this.materialCombo.setSelectedItem(mm.getSelectedItem());
+                    }
+                }
+            });
+        });
+
+        // Material selection combo box
+        this.materialCombo = MaterialComboBox.createComboBox(MaterialGroup.ALL_GROUPS, mm.getAllMaterials(), customMaterialButton);
+        this.materialCombo.setSelectedItem(mm.getSelectedItem());
+        this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
+        this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
+        order.add(this.materialCombo);
+
+        // No surface finish for internal components
         if (!(component instanceof ExternalComponent)) {
             return;
         }
+
+        //// Surface finish
         label = new JLabel(finishString);
-        ////<html>The component finish affects the aerodynamic drag of the component.<br>
         String tip = trans.get("MaterialPanel.lbl.ComponentFinish.ttip.longA1")
                 //// The value indicated is the average roughness height of the surface.
                 + trans.get("MaterialPanel.lbl.ComponentFinish.ttip.longA2");
@@ -120,6 +147,65 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         super.invalidate();
         for (Invalidatable i : invalidatables) {
             i.invalidateMe();
+        }
+    }
+
+    public static class MaterialComboBox extends JComboBox<Material> {
+        private static final Translator trans = Application.getTranslator();
+
+        public static SearchableAndCategorizableComboBox<MaterialGroup, Material> createComboBox(
+                MaterialGroup[] allGroups, Material[] materials, Component... extraCategoryWidgets) {
+            final Map<MaterialGroup, Material[]> materialGroupMap = createMaterialGroupMap(allGroups, materials);
+            return new SearchableAndCategorizableComboBox<>(materialGroupMap, trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets);
+        }
+
+        public static void updateComboBoxItems(SearchableAndCategorizableComboBox<MaterialGroup, Material> comboBox,
+                                               MaterialGroup[] allGroups, Material[] materials) {
+            final Map<MaterialGroup, Material[]> materialGroupMap = createMaterialGroupMap(allGroups, materials);
+            comboBox.updateItems(materialGroupMap);
+            comboBox.invalidate();
+            comboBox.repaint();
+        }
+
+        /**
+         * Create a map of material group and corresponding material.
+         * @param groups the groups
+         * @param materials the materials
+         * @return the map linking the materials to their groups
+         */
+        private static Map<MaterialGroup, Material[]> createMaterialGroupMap(
+                MaterialGroup[] groups, Material[] materials) {
+            // Sort the groups based on priority (lower number = higher priority)
+            MaterialGroup[] sortedGroups = groups.clone();
+            Arrays.sort(sortedGroups, Comparator.comparingInt(MaterialGroup::getPriority));
+
+            Map<MaterialGroup, Material[]> map = new LinkedHashMap<>();
+            MaterialGroup materialGroup;
+            for (MaterialGroup group : sortedGroups) {
+                List<Material> itemsForGroup = new ArrayList<>();
+                for (Material material : materials) {
+                    materialGroup = material.getGroup();
+                    if (materialGroup == null) {
+                        if (material.isUserDefined()) {
+                            materialGroup = MaterialGroup.CUSTOM;
+                        } else {
+                            materialGroup = MaterialGroup.OTHER;
+                        }
+                    }
+                    if (materialGroup.equals(group)) {
+                        itemsForGroup.add(material);
+                    }
+                }
+                // Sort the types within each group based on priority
+                itemsForGroup.sort(Comparator.comparingInt(Material::getGroupPriority));
+
+                map.put(group, itemsForGroup.toArray(new Material[0]));
+            }
+
+            // Remove empty groups
+            map.entrySet().removeIf(entry -> entry.getValue().length == 0);
+
+            return map;
         }
     }
 }

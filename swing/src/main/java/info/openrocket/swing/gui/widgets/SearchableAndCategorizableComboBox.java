@@ -22,6 +22,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Point;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -43,17 +45,21 @@ import java.util.TreeSet;
  * If no text is entered, the combobox items are displayed in a categorized popup menu, grouped according to their groups.
  * @param <E> The type of the group
  * @param <T> The type of the items
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
-	private final JPopupMenu categoryPopup;
-	private final JPopupMenu searchPopup;
-	private final PlaceholderTextField searchFieldCategory;
-	private final PlaceholderTextField searchFieldSearch;
-	private final JList<T> filteredList;
+	private final String placeHolderText;
+	private JPopupMenu categoryPopup;
+	private JPopupMenu searchPopup;
+	private PlaceholderTextField searchFieldCategory;
+	private PlaceholderTextField searchFieldSearch;
+	private final Component[] extraCategoryWidgets;
+	private JList<T> filteredList;
 
-	private final T[] allItems;
-	private final Map<E, T[]> itemGroupMap;
+	private T[] allItems;
+	private Map<E, T[]> itemGroupMap;
 
 	private int highlightedListIdx = -1;
 
@@ -67,29 +73,17 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 	 * Create a searchable and categorizable combo box.
 	 * @param itemGroupMap the map of items and their corresponding groups
 	 * @param placeHolderText the placeholder text for the search field (when no text is entered)
+	 * @param extraCategoryWidgets extra widgets to add to the category popup. Each widget will be added as a separate menu item.
 	 */
-	public SearchableAndCategorizableComboBox(Map<E, T[]> itemGroupMap, String placeHolderText) {
+	public SearchableAndCategorizableComboBox(Map<E, T[]> itemGroupMap, String placeHolderText, Component... extraCategoryWidgets) {
 		super();
 		setEditable(false);
 
-		this.itemGroupMap = itemGroupMap;
-		this.allItems = extractItemsFromMap(itemGroupMap);
-		setModel(new DefaultComboBoxModel<>(allItems));
-
 		initColors();
 
-		// Create the search field widget
-		searchFieldCategory = new PlaceholderTextField();
-		searchFieldCategory.setPlaceholder(placeHolderText);
-		searchFieldSearch = new PlaceholderTextField();
-
-		// Create the filtered list
-		filteredList = createFilteredList();
-
-		// Create the different popups
-		categoryPopup = createCategoryPopup();
-		searchPopup = createSearchPopup();
-		searchPopup.setPreferredSize(categoryPopup.getPreferredSize());
+		this.extraCategoryWidgets = extraCategoryWidgets;
+		this.placeHolderText = placeHolderText;
+		updateItems(itemGroupMap);
 
 		// Add key listener for the search fields
 		searchFieldCategory.addKeyListener(new KeyAdapter() {
@@ -98,6 +92,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 				overrideActionKeys(e);
 			}
 
+			@Override
 			public void keyTyped(KeyEvent e) {
 				EventQueue.invokeLater(() -> {
 					String text = searchFieldCategory.getText();
@@ -131,6 +126,16 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 				});
 			}
 		});
+		// Fix a bug where the first character would get selected when the search field gets focus (thus deleting it on
+		// the next key press)
+		searchFieldSearch.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				SwingUtilities.invokeLater(() -> {
+					searchFieldSearch.setCaretPosition(searchFieldSearch.getText().length());
+				});
+			}
+		});
 
 		// Override the mouse listeners to use our custom popup
 		for (MouseListener mouseListener : getMouseListeners()) {
@@ -147,6 +152,25 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 	private static void updateColors() {
 		textSelectionBackground = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
+	}
+
+	public void updateItems(Map<E, T[]> itemGroupMap) {
+		this.itemGroupMap = itemGroupMap;
+		this.allItems = extractItemsFromMap(itemGroupMap);
+		setModel(new DefaultComboBoxModel<>(this.allItems));
+
+		// Create the search field widget
+		this.searchFieldCategory = new PlaceholderTextField();
+		this.searchFieldCategory.setPlaceholder(this.placeHolderText);
+		this.searchFieldSearch = new PlaceholderTextField();
+
+		// Create the filtered list
+		this.filteredList = createFilteredList();
+
+		// Create the different popups
+		this.categoryPopup = createCategoryPopup();
+		this.searchPopup = createSearchPopup();
+		this.searchPopup.setPreferredSize(this.categoryPopup.getPreferredSize());
 	}
 
 	private T[] extractItemsFromMap(Map<E, T[]> itemGroupMap) {
@@ -181,6 +205,13 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 			}
 
 			menu.add(groupList);
+		}
+
+		// Extra widgets
+		if (extraCategoryWidgets != null) {
+			for (Component widget : extraCategoryWidgets) {
+				menu.add(widget);
+			}
 		}
 
 		return menu;

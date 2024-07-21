@@ -5,6 +5,8 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.MathUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class for different material types.  Each material has a name and density.
@@ -17,8 +19,8 @@ import info.openrocket.core.util.MathUtil;
  */
 
 public abstract class Material implements Comparable<Material> {
-	
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(Material.class);
 
 	public enum Type {
 		BULK("Databases.materials.types.Bulk", UnitGroup.UNITS_DENSITY_BULK),
@@ -48,6 +50,10 @@ public abstract class Material implements Comparable<Material> {
 	/////  Definitions of different material types  /////
 	
 	public static class Line extends Material {
+		Line(String name, double density, MaterialGroup group, boolean userDefined) {
+			super(name, density, group, userDefined);
+		}
+
 		Line(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
 		}
@@ -59,7 +65,11 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Surface extends Material {
-		
+
+		Surface(String name, double density, MaterialGroup group, boolean userDefined) {
+			super(name, density, group, userDefined);
+		}
+
 		Surface(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
 		}
@@ -76,6 +86,10 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Bulk extends Material {
+		Bulk(String name, double density, MaterialGroup group, boolean userDefined) {
+			super(name, density, group, userDefined);
+		}
+
 		Bulk(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
 		}
@@ -88,6 +102,10 @@ public abstract class Material implements Comparable<Material> {
 	
 
 	public static class Custom extends Material {
+		Custom(String name, double density, MaterialGroup group, boolean userDefined) {
+			super(name, density, group, userDefined);
+		}
+
 		Custom(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
 		}
@@ -103,20 +121,26 @@ public abstract class Material implements Comparable<Material> {
 	private final String name;
 	private final double density;
 	private final boolean userDefined;
+	private final MaterialGroup group;
 	
 	
 	/**
 	 * Constructor for materials.
 	 * 
 	 * @param name ignored when defining system materials.
-	 * @param key ignored when defining user materials.
-	 * @param density
+	 * @param density: the density of the material.
+	 * @param group the material group.
 	 * @param userDefined true if this is a user defined material, false if it is a system material.
 	 */
-	private Material(String name, double density, boolean userDefined) {
+	private Material(String name, double density, MaterialGroup group, boolean userDefined) {
 		this.name = name;
-		this.userDefined = userDefined;
 		this.density = density;
+		this.group = group;
+		this.userDefined = userDefined;
+	}
+
+	private Material(String name, double density, boolean userDefined) {
+		this(name, density, null, userDefined);
 	}
 	
 	public double getDensity() {
@@ -136,6 +160,17 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public abstract Type getType();
+
+	public MaterialGroup getGroup() {
+		return group;
+	}
+
+	public int getGroupPriority() {
+		if (group == null) {
+			return Integer.MAX_VALUE;
+		}
+		return group.getPriority();
+	}
 	
 	@Override
 	public String toString() {
@@ -154,7 +189,14 @@ public abstract class Material implements Comparable<Material> {
 		if (this.getClass() != o.getClass())
 			return false;
 		Material m = (Material) o;
-		return ((m.name.equals(this.name)) && MathUtil.equals(m.density, this.density));
+		return ((m.name.equals(this.name)) && MathUtil.equals(m.density, this.density)) && groupsEqual(m);
+	}
+
+	private boolean groupsEqual(Material m) {
+		if (group == null) {
+			return m.group == null;
+		}
+		return group.equals(m.group);
 	}
 	
 	
@@ -187,37 +229,37 @@ public abstract class Material implements Comparable<Material> {
 	 * @param type			the material type
 	 * @param name			the material name
 	 * @param density		the material density
+	 * @param group			the material group
 	 * @param userDefined	whether the material is user-defined or not
 	 * @return				the new material
 	 */
+	public static Material newMaterial(Type type, String name, double density, MaterialGroup group, boolean userDefined) {
+		return switch (type) {
+			case LINE -> new Line(name, density, group, userDefined);
+			case SURFACE -> new Surface(name, density, group, userDefined);
+			case BULK -> new Bulk(name, density, group, userDefined);
+			case CUSTOM -> new Custom(name, density, group, userDefined);
+			default -> throw new IllegalArgumentException("Unknown material type: " + type);
+		};
+	}
+
 	public static Material newMaterial(Type type, String name, double density, boolean userDefined) {
-		switch (type) {
-		case LINE:
-			return new Material.Line(name, density, userDefined);
-			
-		case SURFACE:
-			return new Material.Surface(name, density, userDefined);
-			
-		case BULK:
-			return new Material.Bulk(name, density, userDefined);
-		
-		case CUSTOM:
-			return new Material.Custom(name, density, userDefined);
-			
-		default:
-			throw new IllegalArgumentException("Unknown material type: " + type);
-		}
+		return newMaterial(type, name, density, null, userDefined);
 	}
 	
 	public String toStorableString() {
-		return getType().name() + "|" + name.replace('|', ' ') + '|' + density;
+		if (group != null) {
+			return getType().name() + "|" + name.replace('|', ' ') + '|' + density + '|' + group.getDatabaseString();
+		} else {
+			return getType().name() + "|" + name.replace('|', ' ') + '|' + density;
+		}
 	}
 	
 	
 	/**
 	 * Return a material defined by the provided string.
 	 * 
-	 * @param str			the material storage string, formatted as "{type}|{name}|{density}".
+	 * @param str			the material storage string, formatted as "{type}|{name}|{density}|{group}".
 	 * @param userDefined	whether the created material is user-defined.
 	 * @return				a new <code>Material</code> object.
 	 * @throws IllegalArgumentException		if <code>str</code> is invalid or null.
@@ -226,13 +268,14 @@ public abstract class Material implements Comparable<Material> {
 		if (str == null)
 			throw new IllegalArgumentException("Material string is null");
 		
-		String[] split = str.split("\\|", 3);
+		String[] split = str.split("\\|", 4);
 		if (split.length < 3)
 			throw new IllegalArgumentException("Illegal material string: " + str);
 		
-		Type type = null;
+		Type type;
 		String name;
 		double density;
+		MaterialGroup group = null;
 		
 		try {
 			type = Type.valueOf(split[0]);
@@ -247,20 +290,21 @@ public abstract class Material implements Comparable<Material> {
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("Illegal material string: " + str, e);
 		}
-		
-		switch (type) {
-		case BULK:
-			return new Material.Bulk(name, density, userDefined);
-			
-		case SURFACE:
-			return new Material.Surface(name, density, userDefined);
-			
-		case LINE:
-			return new Material.Line(name, density, userDefined);
-			
-		default:
-			throw new IllegalArgumentException("Illegal material string: " + str);
+
+		if (split.length == 4) {
+			try {
+				group = MaterialGroup.loadFromDatabaseString(split[3]);
+			} catch (IllegalArgumentException e) {
+				log.debug(e.toString());
+			}
 		}
+
+		return switch (type) {
+			case BULK -> new Bulk(name, density, group, userDefined);
+			case SURFACE -> new Surface(name, density, group, userDefined);
+			case LINE -> new Line(name, density, group, userDefined);
+			default -> throw new IllegalArgumentException("Illegal material string: " + str);
+		};
 	}
 	
 }
