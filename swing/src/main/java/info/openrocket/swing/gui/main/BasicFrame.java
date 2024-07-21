@@ -49,7 +49,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
@@ -126,7 +126,7 @@ public class BasicFrame extends JFrame {
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 
 	private static final Translator trans = Application.getTranslator();
-	private static final ORPreferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 

@@ -6,7 +6,7 @@ import info.openrocket.core.file.wavefrontobj.ObjUtils;
 import info.openrocket.core.rocketcomponent.Rocket;
 
 public class OBJExportOptions {
-    // ! Update ORPreferences when adding new options !
+    // ! Update ApplicationPreferences when adding new options !
 
     /**
      * If true, export all children of the components as well

@@ -31,7 +31,7 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightDataTypeGroup;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 
@@ -283,7 +283,7 @@ public class SimulationPlotPanel extends JPanel {
 		bg.add(radioVerticalMarker);
 		bg.add(radioIcon);
 
-		boolean useIcon = preferences.getBoolean(ORPreferences.MARKER_STYLE_ICON, false);
+		boolean useIcon = preferences.getBoolean(ApplicationPreferences.MARKER_STYLE_ICON, false);
 		if (useIcon) {
 			radioIcon.setSelected(true);
 		} else {
@@ -295,7 +295,7 @@ public class SimulationPlotPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (modifying > 0)
 					return;
-				preferences.putBoolean(ORPreferences.MARKER_STYLE_ICON, radioIcon.isSelected());
+				preferences.putBoolean(ApplicationPreferences.MARKER_STYLE_ICON, radioIcon.isSelected());
 			}
 		});
 

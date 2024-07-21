@@ -2,9 +2,9 @@ package info.openrocket.swing.gui.util;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 
-import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.swing.gui.components.PreferencesOptionPanel;
 import info.openrocket.swing.gui.main.MRUDesignFile;
 import info.openrocket.swing.gui.theme.UITheme;
@@ -41,11 +41,11 @@ import java.util.prefs.Preferences;
 public abstract class PreferencesExporter {
     private static final Translator trans = Application.getTranslator();
     private static final Logger log = LoggerFactory.getLogger(PreferencesExporter.class);
-    private static final ORPreferences prefs = Application.getPreferences();
+    private static final ApplicationPreferences prefs = Application.getPreferences();
 
     private static final List<String> keysToIgnore = new ArrayList<>();         // Preference keys to ignore when exporting user directories (= keys that export user directories)
     private static final List<String> prefixKeysToIgnore = new ArrayList<>();   // Preference keys to ignore when exporting user directories (= keys that start with these prefixes), e.g.
-    private static final List<String> nodesToIgnore = new ArrayList<>();        // ORPreferences nodes that should not be exported
+    private static final List<String> nodesToIgnore = new ArrayList<>();        // ApplicationPreferences nodes that should not be exported
 
     public static boolean exportPreferences(Window parent, Preferences preferences) {
         JFileChooser chooser = new SaveFileChooser();
@@ -97,7 +97,7 @@ public abstract class PreferencesExporter {
                 // Export all preferences except user directories
                 exportFilteredPreferences(preferences, fos);
             }
-            log.info("ORPreferences exported successfully.");
+            log.info("ApplicationPreferences exported successfully.");
         } catch (IOException | BackingStoreException e) {
             log.warn("Error while importing preferences: " + e.getMessage());
         }
@@ -111,8 +111,8 @@ public abstract class PreferencesExporter {
         nodesToIgnore.clear();
 
         if (ignoreUserDirectories) {
-            keysToIgnore.add(ORPreferences.USER_THRUST_CURVES_KEY);
-            keysToIgnore.add(ORPreferences.DEFAULT_DIRECTORY);
+            keysToIgnore.add(ApplicationPreferences.USER_THRUST_CURVES_KEY);
+            keysToIgnore.add(ApplicationPreferences.DEFAULT_DIRECTORY);
             prefixKeysToIgnore.add(MRUDesignFile.MRU_FILE_LIST_PROPERTY);
         }
 

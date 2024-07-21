@@ -35,7 +35,7 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.UniqueID;
 
-public abstract class ORPreferences implements ChangeSource, Preferences {
+public abstract class ApplicationPreferences implements ChangeSource, Preferences {
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
@@ -320,28 +320,28 @@ public abstract class ORPreferences implements ChangeSource, Preferences {
 	}
 
 	public final double getDefaultMach() {
-		return Application.getPreferences().getChoice(ORPreferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+		return Application.getPreferences().getChoice(ApplicationPreferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}
 	
 	public final void setDefaultMach(double dfn) {
-		double oldDFN = Application.getPreferences().getChoice(ORPreferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+		double oldDFN = Application.getPreferences().getChoice(ApplicationPreferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 		
 		if (MathUtil.equals(oldDFN, dfn))
 			return;
-		this.putDouble(ORPreferences.DEFAULT_MACH_NUMBER, dfn);
+		this.putDouble(ApplicationPreferences.DEFAULT_MACH_NUMBER, dfn);
 		fireChangeEvent();
 	}
 	
 	public final double getWindTurbulenceIntensity() {
-		return Application.getPreferences().getChoice(ORPreferences.WIND_TURBULENCE, 0.9, 0.1);
+		return Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.1);
 	}
 	
 	public final void setWindTurbulenceIntensity(double wti) {
-		double oldWTI = Application.getPreferences().getChoice(ORPreferences.WIND_TURBULENCE, 0.9, 0.3);
+		double oldWTI = Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.3);
 		
 		if (MathUtil.equals(oldWTI, wti))
 			return;
-		this.putDouble(ORPreferences.WIND_TURBULENCE, wti);
+		this.putDouble(ApplicationPreferences.WIND_TURBULENCE, wti);
 		fireChangeEvent();
 	}
 	
@@ -571,7 +571,7 @@ public abstract class ORPreferences implements ChangeSource, Preferences {
 	}
 
 	public double getTimeStep() {
-		return this.getDouble(ORPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+		return this.getDouble(ApplicationPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	}
 
 	public void setTimeStep(double timeStep) {
@@ -738,7 +738,7 @@ public abstract class ORPreferences implements ChangeSource, Preferences {
 	 * @return true to display designation, false to display common name
 	 */
 	public boolean getMotorNameColumn() {
-		return getBoolean(ORPreferences.MOTOR_NAME_COLUMN, true);
+		return getBoolean(ApplicationPreferences.MOTOR_NAME_COLUMN, true);
 	}
 
 	/**
@@ -746,7 +746,7 @@ public abstract class ORPreferences implements ChangeSource, Preferences {
 	 * @param value if true, display designation, if false, display common name
 	 */
 	public void setMotorNameColumn(boolean value) {
-		putBoolean(ORPreferences.MOTOR_NAME_COLUMN, value);
+		putBoolean(ApplicationPreferences.MOTOR_NAME_COLUMN, value);
 	}
 
 	/**

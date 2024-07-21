@@ -1,13 +1,13 @@
 package info.openrocket.core.simulation;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 
 import com.google.inject.Inject;
 
 public class DefaultSimulationOptionFactory {
 
 	@Inject
-	private final ORPreferences prefs;
+	private final ApplicationPreferences prefs;
 
 	public static final String SIMCONDITION_WIND_SPEED = "SimConditionWindSpeed";
 	public static final String SIMCONDITION_WIND_STDDEV = "SimConditionWindStdDev";
@@ -23,7 +23,7 @@ public class DefaultSimulationOptionFactory {
 	public static final String SIMCONDITION_ROD_ANGLE = "SimConditionsRodAngle";
 	public static final String SIMCONDITION_ROD_DIRECTION = "SimConditionsRodDirection";
 
-	public DefaultSimulationOptionFactory(ORPreferences prefs) {
+	public DefaultSimulationOptionFactory(ApplicationPreferences prefs) {
 		this.prefs = prefs;
 	}
 

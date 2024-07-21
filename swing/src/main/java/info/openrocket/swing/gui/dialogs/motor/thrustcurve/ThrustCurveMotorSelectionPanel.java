@@ -44,7 +44,7 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.jfree.chart.ChartColor;
@@ -218,11 +218,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		{
 			hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
 			GUIUtil.changeFontSize(hideSimilarBox, -1);
-			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(ORPreferences.MOTOR_HIDE_SIMILAR, true));
+			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.MOTOR_HIDE_SIMILAR, true));
 			hideSimilarBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Application.getPreferences().putBoolean(ORPreferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+					Application.getPreferences().putBoolean(ApplicationPreferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
 					updateData();
 				}
 			});
@@ -233,11 +233,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		{
 			hideUnavailableBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUnavailable"));
 			GUIUtil.changeFontSize(hideUnavailableBox, -1);
-			hideUnavailableBox.setSelected(Application.getPreferences().getBoolean(ORPreferences.MOTOR_HIDE_UNAVAILABLE, true));
+			hideUnavailableBox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.MOTOR_HIDE_UNAVAILABLE, true));
 			hideUnavailableBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Application.getPreferences().putBoolean(ORPreferences.MOTOR_HIDE_UNAVAILABLE, hideUnavailableBox.isSelected());
+					Application.getPreferences().putBoolean(ApplicationPreferences.MOTOR_HIDE_UNAVAILABLE, hideUnavailableBox.isSelected());
 					motorFilterPanel.setHideUnavailable(hideUnavailableBox.isSelected());
 				}
 			});
@@ -486,7 +486,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		// Store selected motor in preferences node, set all others to false
-		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ORPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : set.getMotors()) {
 			String digest = m.getDigest();
 			prefs.putBoolean(digest, m == motor);
@@ -657,7 +657,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Find which motor has been used the most recently
 		List<ThrustCurveMotor> list = set.getMotors();
-		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ORPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : list) {
 			String digest = m.getDigest();
 			if (prefs.getBoolean(digest, false)) {

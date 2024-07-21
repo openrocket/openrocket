@@ -25,7 +25,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -551,7 +551,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
-			int pos = Application.getPreferences().getChoice(ORPreferences.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
+			int pos = Application.getPreferences().getChoice(ApplicationPreferences.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
 			if (pos == 0) {
 				if (parent.getChildPosition(c) == parent.getChildCount() - 1)
 					pos = 2; // Selected component is the last component
@@ -623,7 +623,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			if (check.isSelected()) {
 				// Save the preference
-				Application.getPreferences().putInt(ORPreferences.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
+				Application.getPreferences().putInt(ApplicationPreferences.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}
@@ -675,7 +675,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
-			int pos = Application.getPreferences().getChoice(ORPreferences.STAGE_INSERT_POSITION_KEY, 2, 0);
+			int pos = Application.getPreferences().getChoice(ApplicationPreferences.STAGE_INSERT_POSITION_KEY, 2, 0);
 			if (pos == 0) {
 				if (document.getRocket().getChildPosition(parentStage) == document.getRocket().getChildCount() - 1)
 					pos = 2; // Selected component is the last component
@@ -747,7 +747,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 
 			if (check.isSelected()) {
 				// Save the preference
-				Application.getPreferences().putInt(ORPreferences.STAGE_INSERT_POSITION_KEY, sel);
+				Application.getPreferences().putInt(ApplicationPreferences.STAGE_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}

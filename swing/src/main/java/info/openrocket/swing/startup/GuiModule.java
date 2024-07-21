@@ -7,7 +7,7 @@ import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
 import info.openrocket.core.l10n.Translator;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.database.ComponentPresetDatabaseLoader;
 import info.openrocket.core.database.MotorDatabaseLoader;
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -47,7 +47,7 @@ public class GuiModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		
-		bind(ORPreferences.class).to(SwingPreferences.class).in(Scopes.SINGLETON);
+		bind(ApplicationPreferences.class).to(SwingPreferences.class).in(Scopes.SINGLETON);
 		bind(Translator.class).toProvider(TranslatorProvider.class).in(Scopes.SINGLETON);
 		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class).in(Scopes.SINGLETON);
 		bind(WatchService.class).to(WatchServiceImpl.class).in(Scopes.SINGLETON);

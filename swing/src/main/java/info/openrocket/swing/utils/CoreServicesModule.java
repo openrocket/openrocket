@@ -2,7 +2,7 @@ package info.openrocket.swing.utils;
 
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.swing.startup.providers.TranslatorProvider;
@@ -13,7 +13,7 @@ public class CoreServicesModule extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		bind(ORPreferences.class).to(SwingPreferences.class);
+		bind(ApplicationPreferences.class).to(SwingPreferences.class);
 		bind(Translator.class).toProvider(TranslatorProvider.class);
 		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class);
 	}

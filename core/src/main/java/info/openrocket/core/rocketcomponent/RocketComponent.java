@@ -17,7 +17,7 @@ import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -770,7 +770,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final double getOverrideCD() {
 		mutex.verify();
 		if (!isCDOverridden()) {
-			ORPreferences preferences = Application.getPreferences();
+			ApplicationPreferences preferences = Application.getPreferences();
 			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 		return overrideCD;
@@ -840,7 +840,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 
 		if (!cdOverridden) {
-			ORPreferences preferences = Application.getPreferences();
+			ApplicationPreferences preferences = Application.getPreferences();
 			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 

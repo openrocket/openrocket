@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.*;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.*;
-import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ import info.openrocket.core.util.ArrayList;
  */
 public class OpenRocketDocument implements ComponentChangeListener, StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
-	private static final ORPreferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 	private final List<String> file_extensions = Arrays.asList("ork", "ork.gz", "rkt", "rkt.gz");	// Possible extensions of an OpenRocket document
 	/**
 	 * The minimum number of undo levels that are stored.

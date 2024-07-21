@@ -1,6 +1,6 @@
 package info.openrocket.swing.gui.configdialog;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -25,7 +25,7 @@ import java.awt.event.ActionListener;
  */
 public class SaveDesignInfoPanel extends RocketConfig {
     private static final Translator trans = Application.getTranslator();
-    private static final ORPreferences preferences = Application.getPreferences();
+    private static final ApplicationPreferences preferences = Application.getPreferences();
 
     public SaveDesignInfoPanel(OpenRocketDocument d, RocketComponent c, JDialog parent) {
         super(d, c, parent);

@@ -5,13 +5,13 @@ import java.util.prefs.BackingStoreException;
 
 import com.google.inject.Singleton;
 import info.openrocket.core.material.Material;
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.util.BugException;
 
 @Singleton
-public class MockPreferences extends ORPreferences {
+public class MockPreferences extends ApplicationPreferences {
 
 	private final String NODENAME = "OpenRocket-test-mock";
 	private final java.util.prefs.Preferences NODE;

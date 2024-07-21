@@ -11,9 +11,9 @@ import info.openrocket.core.formatting.RocketDescriptorImpl;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.MockPreferences;
-import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ public class SimulationConditionsTest {
     private static class PreferencesModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(ORPreferences.class).to(MockPreferences.class);
+            bind(ApplicationPreferences.class).to(MockPreferences.class);
             bind(Translator.class).toProvider(ServicesForTesting.TranslatorProviderForTesting.class);
             bind(RocketDescriptor.class).to(RocketDescriptorImpl.class);
         }

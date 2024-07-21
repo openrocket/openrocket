@@ -10,9 +10,9 @@ import java.util.prefs.BackingStoreException;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.scripting.ScriptEngineManagerRedux;
 import info.openrocket.core.scripting.GraalJSScriptEngineFactory;
-import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 
@@ -37,7 +37,7 @@ public class ScriptingUtil {
 	private static ScriptEngineManagerRedux manager;
 
 	@Inject
-	ORPreferences prefs;
+	ApplicationPreferences prefs;
 
 	public ScriptingUtil() {
 		if (manager == null) {

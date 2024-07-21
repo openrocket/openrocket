@@ -1,6 +1,6 @@
 package info.openrocket.swing.gui.simulation;
 
-import info.openrocket.core.preferences.ORPreferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -54,7 +54,7 @@ public class SimulationConfigDialog extends JDialog {
 	private JButton okButton;
 	private JButton cancelButton;
 	private static final Translator trans = Application.getTranslator();
-	private static final ORPreferences preferences = Application.getPreferences();
+	private static final ApplicationPreferences preferences = Application.getPreferences();
 
 
 	private final WindowListener applyChangesToSimsListener;
