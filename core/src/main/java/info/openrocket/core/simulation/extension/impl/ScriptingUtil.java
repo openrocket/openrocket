@@ -12,7 +12,7 @@ import javax.script.ScriptEngineFactory;
 
 import info.openrocket.core.scripting.ScriptEngineManagerRedux;
 import info.openrocket.core.scripting.GraalJSScriptEngineFactory;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 

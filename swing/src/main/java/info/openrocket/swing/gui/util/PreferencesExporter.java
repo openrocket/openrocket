@@ -4,7 +4,7 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.swing.gui.components.PreferencesOptionPanel;
 import info.openrocket.swing.gui.main.MRUDesignFile;
 import info.openrocket.swing.gui.theme.UITheme;

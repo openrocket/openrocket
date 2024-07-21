@@ -9,7 +9,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;

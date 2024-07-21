@@ -22,7 +22,7 @@ import java.util.prefs.Preferences;
 
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.rocketcomponent.NoseCone;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

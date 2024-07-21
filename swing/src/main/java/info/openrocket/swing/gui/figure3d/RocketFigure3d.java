@@ -34,7 +34,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;

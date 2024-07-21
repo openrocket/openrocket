@@ -1,6 +1,6 @@
 package info.openrocket.swing.gui.components;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;

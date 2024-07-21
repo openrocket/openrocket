@@ -2,7 +2,7 @@ package info.openrocket.swing.utils;
 
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.swing.startup.providers.TranslatorProvider;

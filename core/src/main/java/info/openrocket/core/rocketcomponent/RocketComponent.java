@@ -17,7 +17,7 @@ import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

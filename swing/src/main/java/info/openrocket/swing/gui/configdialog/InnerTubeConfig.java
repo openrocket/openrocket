@@ -43,7 +43,7 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;

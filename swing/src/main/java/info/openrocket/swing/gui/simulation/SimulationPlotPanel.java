@@ -31,7 +31,7 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightDataTypeGroup;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 

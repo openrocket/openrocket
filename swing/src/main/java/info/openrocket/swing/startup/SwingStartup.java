@@ -15,7 +15,7 @@ import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import net.miginfocom.layout.LayoutUtil;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.arch.SystemInfo.Platform;

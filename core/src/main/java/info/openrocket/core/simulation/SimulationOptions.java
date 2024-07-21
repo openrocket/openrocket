@@ -6,7 +6,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

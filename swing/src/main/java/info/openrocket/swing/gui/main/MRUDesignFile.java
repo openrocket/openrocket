@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.main;
 
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 
 import javax.swing.event.EventListenerList;
 import java.beans.PropertyChangeEvent;

@@ -22,7 +22,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;

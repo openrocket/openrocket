@@ -49,7 +49,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;

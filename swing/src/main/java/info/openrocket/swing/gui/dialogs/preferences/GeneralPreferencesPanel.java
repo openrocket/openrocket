@@ -38,7 +38,7 @@ import info.openrocket.core.communication.UpdateInfoRetriever.ReleaseStatus;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;

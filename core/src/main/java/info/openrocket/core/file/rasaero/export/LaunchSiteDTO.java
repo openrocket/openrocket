@@ -8,7 +8,7 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

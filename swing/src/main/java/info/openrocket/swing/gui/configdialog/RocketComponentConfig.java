@@ -60,7 +60,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Invalidatable;
 

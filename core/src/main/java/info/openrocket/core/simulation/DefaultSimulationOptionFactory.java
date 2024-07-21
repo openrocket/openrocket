@@ -1,6 +1,6 @@
 package info.openrocket.core.simulation;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 
 import com.google.inject.Inject;
 

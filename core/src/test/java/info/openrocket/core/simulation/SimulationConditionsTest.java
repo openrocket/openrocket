@@ -13,7 +13,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.MockPreferences;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

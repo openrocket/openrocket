@@ -6,7 +6,7 @@ package info.openrocket.swing.gui.dialogs.preferences;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 
 /**

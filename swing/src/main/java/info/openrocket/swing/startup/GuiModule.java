@@ -7,7 +7,7 @@ import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
 import info.openrocket.core.l10n.Translator;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.database.ComponentPresetDatabaseLoader;
 import info.openrocket.core.database.MotorDatabaseLoader;
 import info.openrocket.swing.gui.util.SwingPreferences;

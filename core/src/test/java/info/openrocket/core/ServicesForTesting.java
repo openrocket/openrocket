@@ -14,7 +14,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;

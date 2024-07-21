@@ -63,7 +63,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
 

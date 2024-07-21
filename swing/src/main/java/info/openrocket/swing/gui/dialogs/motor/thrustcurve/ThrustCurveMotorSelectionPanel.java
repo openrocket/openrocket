@@ -44,7 +44,7 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.jfree.chart.ChartColor;

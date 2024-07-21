@@ -5,7 +5,7 @@ import java.util.*;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.rocketcomponent.*;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

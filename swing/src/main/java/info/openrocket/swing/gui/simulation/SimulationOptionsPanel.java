@@ -31,7 +31,7 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.extension.SimulationExtensionProvider;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.ORPreferences;
+import info.openrocket.core.preferences.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 

@@ -9,6 +9,7 @@ import info.openrocket.core.l10n.ExceptionSuppressingTranslator;
 import info.openrocket.core.l10n.Translator;
 
 import com.google.inject.Injector;
+import info.openrocket.core.preferences.ORPreferences;
 
 /**
  * A class that provides singleton instances / beans for other classes to

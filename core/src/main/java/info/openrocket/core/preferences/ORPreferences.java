@@ -1,4 +1,4 @@
-package info.openrocket.core.startup;
+package info.openrocket.core.preferences;
 
 import java.awt.Color;
 import java.io.File;
@@ -24,6 +24,7 @@ import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.ChangeSource;
