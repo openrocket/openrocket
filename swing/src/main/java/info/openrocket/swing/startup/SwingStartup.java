@@ -15,7 +15,7 @@ import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import net.miginfocom.layout.LayoutUtil;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.arch.SystemInfo.Platform;
@@ -206,7 +206,7 @@ public class SwingStartup {
 		String cmdLAF = System.getProperty("openrocket.laf");
 		if (cmdLAF != null) {
 			log.info("Setting cmd line LAF '{}'", cmdLAF);
-			Preferences prefs = Application.getPreferences();
+			ORPreferences prefs = Application.getPreferences();
 			prefs.setUITheme(UITheme.Themes.valueOf(cmdLAF));
 		}
 		GUIUtil.applyLAF();

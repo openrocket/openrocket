@@ -22,6 +22,7 @@ import java.util.prefs.Preferences;
 
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ import info.openrocket.core.util.BuildProperties;
 import info.openrocket.swing.communication.AssetHandler.UpdatePlatform;
 
 
-public class SwingPreferences extends info.openrocket.core.startup.Preferences implements SimulationOptionsInterface {
+public class SwingPreferences extends ORPreferences implements SimulationOptionsInterface {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
 
 
@@ -358,7 +359,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	}
 
 	private UITheme.Theme getUIThemeAsTheme() {
-		String themeName = getString(info.openrocket.core.startup.Preferences.UI_THEME, UITheme.Themes.LIGHT.name());
+		String themeName = getString(ORPreferences.UI_THEME, UITheme.Themes.LIGHT.name());
 		if (themeName == null) return UITheme.Themes.LIGHT;		// Default theme
 		try {
 			return UITheme.Themes.valueOf(themeName);
@@ -374,7 +375,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	@Override
 	public void setUITheme(Object theme) {
 		if (!(theme instanceof UITheme.Theme)) return;
-		putString(info.openrocket.core.startup.Preferences.UI_THEME, ((UITheme.Theme) theme).name());
+		putString(ORPreferences.UI_THEME, ((UITheme.Theme) theme).name());
 		storeVersion();
 	}
 
@@ -387,7 +388,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	}
 
 	public final float getRocketInfoFontSize() {
-		return (float) ((getUIFontSize() - 2) + 3 * Application.getPreferences().getChoice(info.openrocket.core.startup.Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+		return (float) ((getUIFontSize() - 2) + 3 * Application.getPreferences().getChoice(ORPreferences.ROCKET_INFO_FONT_SIZE, 2, 0));
 	}
 
 	private static int getDefaultFontSize() {
@@ -429,7 +430,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	}
 	
 	public File getDefaultDirectory() {
-		String file = getString(info.openrocket.core.startup.Preferences.DEFAULT_DIRECTORY, null);
+		String file = getString(ORPreferences.DEFAULT_DIRECTORY, null);
 		if (file == null)
 			return null;
 		return new File(file);
@@ -442,7 +443,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 		} else {
 			d = dir.getAbsolutePath();
 		}
-		putString(info.openrocket.core.startup.Preferences.DEFAULT_DIRECTORY, d);
+		putString(ORPreferences.DEFAULT_DIRECTORY, d);
 		storeVersion();
 	}
 

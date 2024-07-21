@@ -58,8 +58,8 @@ public final class Application {
 	/**
 	 * @return the preferences
 	 */
-	public static Preferences getPreferences() {
-		return injector.getInstance(Preferences.class);
+	public static ORPreferences getPreferences() {
+		return injector.getInstance(ORPreferences.class);
 	}
 	
 	

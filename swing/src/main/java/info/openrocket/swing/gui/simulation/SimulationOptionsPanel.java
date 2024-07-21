@@ -31,7 +31,7 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.extension.SimulationExtensionProvider;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
@@ -180,12 +180,12 @@ class SimulationOptionsPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Preferences preferences = Application.getPreferences();
+				ORPreferences preferences = Application.getPreferences();
 				conditions.setTimeStep(preferences.getDouble(
-						Preferences.SIMULATION_TIME_STEP,
+						ORPreferences.SIMULATION_TIME_STEP,
 						RK4SimulationStepper.RECOMMENDED_TIME_STEP));
 				conditions.setGeodeticComputation(preferences.getEnum(
-						Preferences.GEODETIC_COMPUTATION,
+						ORPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));
 			}
 		});

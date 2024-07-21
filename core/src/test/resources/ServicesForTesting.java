@@ -6,17 +6,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 
-import com.google.inject.multibindings.Multibinder;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
-import info.openrocket.core.formatting.RocketSubstitutor;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.ResourceBundleTranslator;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
@@ -25,7 +23,7 @@ public class ServicesForTesting extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(Preferences.class).to(PreferencesForTesting.class);
+		bind(ORPreferences.class).to(PreferencesForTesting.class);
 		bind(Translator.class).toProvider(TranslatorProviderForTesting.class);
 		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class);
 	}
@@ -62,7 +60,7 @@ public class ServicesForTesting extends AbstractModule {
 
 	}
 
-	public static class PreferencesForTesting extends Preferences {
+	public static class PreferencesForTesting extends ORPreferences {
 
 		private static java.util.prefs.Preferences root = null;
 

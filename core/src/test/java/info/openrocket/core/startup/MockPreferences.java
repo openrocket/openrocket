@@ -10,7 +10,7 @@ import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.util.BugException;
 
 @Singleton
-public class MockPreferences extends Preferences {
+public class MockPreferences extends ORPreferences {
 
 	private final String NODENAME = "OpenRocket-test-mock";
 	private final java.util.prefs.Preferences NODE;

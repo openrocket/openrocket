@@ -30,7 +30,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -61,7 +60,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Invalidatable;
 
@@ -69,7 +68,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 	private static final long serialVersionUID = -2925484062132243982L;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences preferences = Application.getPreferences();
+	private static final ORPreferences preferences = Application.getPreferences();
 	
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;

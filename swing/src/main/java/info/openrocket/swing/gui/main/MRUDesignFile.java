@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.main;
 
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 
 import javax.swing.event.EventListenerList;
 import java.beans.PropertyChangeEvent;
@@ -115,7 +115,7 @@ public class MRUDesignFile {
      * Clear all existing MRU references in the preferences backing store.
      */
     private void clear() {
-        Preferences prefs = getPreferences();
+        ORPreferences prefs = getPreferences();
 
         for (int i = 0; i < MAX_SIZE; i++) {
             prefs.putString(MRU_FILE_LIST_PROPERTY + i, null);
@@ -126,7 +126,7 @@ public class MRUDesignFile {
      * Store the MRU list into the preferences backing store.
      */
     protected void store() {
-        Preferences prefs = getPreferences();
+        ORPreferences prefs = getPreferences();
 
         // clear the backing store
         clear();
@@ -142,7 +142,7 @@ public class MRUDesignFile {
      */
     protected void retrieve() {
         mruFileList.clear();
-        Preferences prefs = getPreferences();
+        ORPreferences prefs = getPreferences();
 
         for (int i = 0; i < MAX_SIZE; i++) {
             String str = prefs.getString(MRU_FILE_LIST_PROPERTY + i, null);
@@ -183,11 +183,11 @@ public class MRUDesignFile {
     }
 
     /**
-     * Return the Preferences
+     * Return the ORPreferences
      *
-     * @return Preferences
+     * @return ORPreferences
      */
-    protected final Preferences getPreferences() {
+    protected final ORPreferences getPreferences() {
         return Application.getPreferences();
     }
 }

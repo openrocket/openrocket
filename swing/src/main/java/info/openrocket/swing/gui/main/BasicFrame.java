@@ -48,12 +48,12 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import info.openrocket.core.startup.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.file.wavefrontobj.export.OBJExporterFactory;
-import info.openrocket.core.file.wavefrontobj.CoordTransform;
-import info.openrocket.core.file.wavefrontobj.DefaultCoordTransform;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.appearance.DecalImage;
@@ -74,7 +74,6 @@ import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.core.util.MemoryManagement;
@@ -127,7 +126,7 @@ public class BasicFrame extends JFrame {
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ORPreferences prefs = Application.getPreferences();
 
 	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 

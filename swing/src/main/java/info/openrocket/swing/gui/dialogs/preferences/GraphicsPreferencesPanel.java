@@ -22,12 +22,12 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import info.openrocket.core.startup.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 
 import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -165,34 +165,34 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 						trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
 						"spanx, wrap");
 				
-				BooleanModel enableGLModel = new BooleanModel(preferences.getBoolean(Preferences.OPENGL_ENABLED, true));
+				BooleanModel enableGLModel = new BooleanModel(preferences.getBoolean(ORPreferences.OPENGL_ENABLED, true));
 				final JCheckBox enableGL = new JCheckBox(enableGLModel);
 				enableGL.setText(trans.get("pref.dlg.opengl.but.enableGL"));
 				enableGL.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						preferences.putBoolean(Preferences.OPENGL_ENABLED, enableGL.isSelected());
+						preferences.putBoolean(ORPreferences.OPENGL_ENABLED, enableGL.isSelected());
 					}
 				});
 				add(enableGL, "wrap");
 				
 				final JCheckBox enableAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableAA"));
-				enableAA.setSelected(preferences.getBoolean(Preferences.OPENGL_ENABLE_AA, true));
+				enableAA.setSelected(preferences.getBoolean(ORPreferences.OPENGL_ENABLE_AA, true));
 				enableAA.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						preferences.putBoolean(Preferences.OPENGL_ENABLE_AA, enableAA.isSelected());
+						preferences.putBoolean(ORPreferences.OPENGL_ENABLE_AA, enableAA.isSelected());
 					}
 				});
 				enableGLModel.addEnableComponent(enableAA);
 				add(enableAA, "wrap");
 				
 				final JCheckBox useFBO = new JCheckBox(trans.get("pref.dlg.opengl.lbl.useFBO"));
-				useFBO.setSelected(preferences.getBoolean(Preferences.OPENGL_USE_FBO, false));
+				useFBO.setSelected(preferences.getBoolean(ORPreferences.OPENGL_USE_FBO, false));
 				useFBO.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						preferences.putBoolean(Preferences.OPENGL_USE_FBO, useFBO.isSelected());
+						preferences.putBoolean(ORPreferences.OPENGL_USE_FBO, useFBO.isSelected());
 					}
 				});
 				enableGLModel.addEnableComponent(useFBO);

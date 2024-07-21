@@ -63,7 +63,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
 
@@ -743,7 +743,7 @@ public class SimulationPanel extends JPanel {
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
 	public void activating(){
-		if( ((Preferences) Application.getPreferences()).getAutoRunSimulations()){
+		if( ((ORPreferences) Application.getPreferences()).getAutoRunSimulations()){
 			int nSims = simulationTable.getRowCount();
 			int outdated = 0;
 			if (nSims == 0) {

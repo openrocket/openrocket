@@ -1,9 +1,9 @@
 package info.openrocket.swing.gui.components;
 
+import info.openrocket.core.startup.ORPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -16,7 +16,7 @@ import java.awt.event.ItemListener;
  */
 public class PreferencesOptionPanel extends JPanel {
     private static final Translator trans = Application.getTranslator();
-    private static final Preferences prefs = Application.getPreferences();
+    private static final ORPreferences prefs = Application.getPreferences();
 
     private final JCheckBox exportUserDirectories;
     private final JCheckBox exportWindowInfo;

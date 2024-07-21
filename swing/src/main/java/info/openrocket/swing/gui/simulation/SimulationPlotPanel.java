@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -32,7 +31,7 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightDataTypeGroup;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 
@@ -284,7 +283,7 @@ public class SimulationPlotPanel extends JPanel {
 		bg.add(radioVerticalMarker);
 		bg.add(radioIcon);
 
-		boolean useIcon = preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false);
+		boolean useIcon = preferences.getBoolean(ORPreferences.MARKER_STYLE_ICON, false);
 		if (useIcon) {
 			radioIcon.setSelected(true);
 		} else {
@@ -296,7 +295,7 @@ public class SimulationPlotPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (modifying > 0)
 					return;
-				preferences.putBoolean(Preferences.MARKER_STYLE_ICON, radioIcon.isSelected());
+				preferences.putBoolean(ORPreferences.MARKER_STYLE_ICON, radioIcon.isSelected());
 			}
 		});
 

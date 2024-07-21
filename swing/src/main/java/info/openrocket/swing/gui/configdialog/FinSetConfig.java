@@ -21,7 +21,7 @@ import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.swing.gui.components.SVGOptionPanel;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final Logger log = LoggerFactory.getLogger(FinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ORPreferences prefs = Application.getPreferences();
 
 	private JButton split = null;
 	

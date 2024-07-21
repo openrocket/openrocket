@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,13 +44,11 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.LookAndFeel;
 import javax.swing.RootPaneContainer;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
@@ -67,13 +64,11 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.formdev.flatlaf.FlatLightLaf;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.swing.gui.Resettable;
 
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Invalidatable;
 import info.openrocket.core.util.MemoryManagement;
@@ -285,7 +280,7 @@ public class GUIUtil {
 	 * @return the current theme
 	 */
 	public static UITheme.Theme getUITheme() {
-		Preferences prefs = Application.getPreferences();
+		ORPreferences prefs = Application.getPreferences();
 		Object theme = prefs.getUITheme();
 		if (theme instanceof UITheme.Theme) {
 			return (UITheme.Theme) theme;

@@ -12,7 +12,7 @@ import javax.script.ScriptEngineFactory;
 
 import info.openrocket.core.scripting.ScriptEngineManagerRedux;
 import info.openrocket.core.scripting.GraalJSScriptEngineFactory;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.startup.ORPreferences;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 
@@ -37,7 +37,7 @@ public class ScriptingUtil {
 	private static ScriptEngineManagerRedux manager;
 
 	@Inject
-	Preferences prefs;
+	ORPreferences prefs;
 
 	public ScriptingUtil() {
 		if (manager == null) {
