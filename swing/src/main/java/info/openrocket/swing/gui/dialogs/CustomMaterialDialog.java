@@ -44,23 +44,27 @@ public class CustomMaterialDialog extends JDialog {
 	private JSpinner densitySpinner;
 	private UnitSelector densityUnit;
 	private JCheckBox addBox;
-	
+
+	public CustomMaterialDialog(Window parent, Material material, boolean saveOption, boolean addToApplicationDatabase,
+								String title) {
+		this(parent, material, saveOption, addToApplicationDatabase, title, null);
+	}
+
 	public CustomMaterialDialog(Window parent, Material material, boolean saveOption,
 			String title) {
-		this(parent, material, saveOption, title, null);
+		this(parent, material, saveOption, material != null && !material.isDocumentMaterial(), title);
 	}
-	
-	
-	public CustomMaterialDialog(Window parent, Material material, boolean saveOption,
-			String title, String note) {
+
+	public CustomMaterialDialog(Window parent, Material material, boolean saveOption, boolean addToApplicationDatabase,
+								String title, String note) {
 		//// Custom material
 		super(parent, trans.get("custmatdlg.title.Custommaterial"), Dialog.ModalityType.APPLICATION_MODAL);
-		
+
 		this.originalMaterial = material;
-		
+
 		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel"));
-		
-		
+
+
 		// Add title and note
 		if (title != null) {
 			panel.add(new JLabel("<html><b>" + title + ":"),
@@ -69,8 +73,8 @@ public class CustomMaterialDialog extends JDialog {
 		if (note != null) {
 			panel.add(new StyledLabel(note, -1), "span, wrap para");
 		}
-		
-		
+
+
 		//// Material name
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialname")));
 		nameField = new JTextField(15);
@@ -78,8 +82,8 @@ public class CustomMaterialDialog extends JDialog {
 			nameField.setText(material.getName());
 		}
 		panel.add(nameField, "span, growx, wrap");
-		
-		
+
+
 		// Material type (if not known)
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialtype")));
 		if (material == null) {
@@ -102,8 +106,8 @@ public class CustomMaterialDialog extends JDialog {
 		} else {
 			panel.add(new JLabel(material.getType().toString()), "span, growx, wrap");
 		}
-		
-		
+
+
 		// Material density:
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialdensity")));
 		densitySpinner = new JSpinner();
@@ -112,18 +116,19 @@ public class CustomMaterialDialog extends JDialog {
 		panel.add(densityUnit, "w 30lp");
 		panel.add(new JPanel(), "growx, wrap");
 		updateDensityModel();
-		
-		
+
+
 		// Save option
 		if (saveOption) {
-			//// Add material to database
+			//// Add material to application database
 			addBox = new JCheckBox(trans.get("custmatdlg.checkbox.Addmaterial"));
+			addBox.setSelected(addToApplicationDatabase);
 			panel.add(addBox, "span, wrap");
 		}
-		
+
 		//// OK button
 		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
-		
+
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -132,7 +137,7 @@ public class CustomMaterialDialog extends JDialog {
 			}
 		});
 		panel.add(okButton, "span, split, tag ok");
-		
+
 		////  Cancel
 		JButton closeButton = new SelectColorButton(trans.get("dlg.but.cancel"));
 		closeButton.addActionListener(new ActionListener() {
@@ -143,11 +148,16 @@ public class CustomMaterialDialog extends JDialog {
 			}
 		});
 		panel.add(closeButton, "tag cancel");
-		
+
 		this.setContentPane(panel);
 		this.pack();
 		this.setLocationByPlatform(true);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
+	}
+	
+	public CustomMaterialDialog(Window parent, Material material, boolean saveOption,
+			String title, String note) {
+		this(parent, material, saveOption, material != null && !material.isDocumentMaterial(), title, note);
 	}
 	
 	

@@ -50,6 +50,10 @@ public abstract class Material implements Comparable<Material> {
 	/////  Definitions of different material types  /////
 	
 	public static class Line extends Material {
+		Line(String name, double density, MaterialGroup group, boolean userDefined, boolean documentMaterial) {
+			super(name, density, group, userDefined, documentMaterial);
+		}
+
 		Line(String name, double density, MaterialGroup group, boolean userDefined) {
 			super(name, density, group, userDefined);
 		}
@@ -65,6 +69,9 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Surface extends Material {
+		Surface(String name, double density, MaterialGroup group, boolean userDefined, boolean documentMaterial) {
+			super(name, density, group, userDefined, documentMaterial);
+		}
 
 		Surface(String name, double density, MaterialGroup group, boolean userDefined) {
 			super(name, density, group, userDefined);
@@ -86,6 +93,10 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Bulk extends Material {
+		Bulk(String name, double density, MaterialGroup group, boolean userDefined, boolean documentMaterial) {
+			super(name, density, group, userDefined, documentMaterial);
+		}
+
 		Bulk(String name, double density, MaterialGroup group, boolean userDefined) {
 			super(name, density, group, userDefined);
 		}
@@ -102,6 +113,10 @@ public abstract class Material implements Comparable<Material> {
 	
 
 	public static class Custom extends Material {
+		Custom(String name, double density, MaterialGroup group, boolean userDefined, boolean documentMaterial) {
+			super(name, density, group, userDefined, documentMaterial);
+		}
+
 		Custom(String name, double density, MaterialGroup group, boolean userDefined) {
 			super(name, density, group, userDefined);
 		}
@@ -121,6 +136,7 @@ public abstract class Material implements Comparable<Material> {
 	private final String name;
 	private final double density;
 	private final boolean userDefined;
+	private boolean documentMaterial;
 	private final MaterialGroup group;
 	
 	
@@ -131,12 +147,18 @@ public abstract class Material implements Comparable<Material> {
 	 * @param density: the density of the material.
 	 * @param group the material group.
 	 * @param userDefined true if this is a user defined material, false if it is a system material.
+	 * @param documentMaterial true if this material is stored in the document preferences.
 	 */
-	private Material(String name, double density, MaterialGroup group, boolean userDefined) {
+	private Material(String name, double density, MaterialGroup group, boolean userDefined, boolean documentMaterial) {
 		this.name = name;
 		this.density = density;
 		this.group = group;
 		this.userDefined = userDefined;
+		this.documentMaterial = documentMaterial;
+	}
+
+	private Material(String name, double density, MaterialGroup group, boolean userDefined) {
+		this(name, density, group, userDefined, false);
 	}
 
 	private Material(String name, double density, boolean userDefined) {
@@ -158,11 +180,34 @@ public abstract class Material implements Comparable<Material> {
 	public boolean isUserDefined() {
 		return userDefined;
 	}
-	
+
+	public boolean isDocumentMaterial() {
+		return documentMaterial;
+	}
+
+	public void setDocumentMaterial(boolean documentMaterial) {
+		this.documentMaterial = documentMaterial;
+	}
+
 	public abstract Type getType();
 
 	public MaterialGroup getGroup() {
 		return group;
+	}
+
+	/**
+	 * Some materials have a null group. This method returns the equivalent group, i.e. CUSTOM for user-defined materials,
+	 * and OTHER for materials with a null group.
+	 * @return the equivalent group
+	 */
+	public MaterialGroup getEquivalentGroup() {
+		if (group != null) {
+			return group;
+		}
+		if (userDefined) {
+			return MaterialGroup.CUSTOM;
+		}
+		return MaterialGroup.OTHER;
 	}
 
 	public int getGroupPriority() {
@@ -231,16 +276,21 @@ public abstract class Material implements Comparable<Material> {
 	 * @param density		the material density
 	 * @param group			the material group
 	 * @param userDefined	whether the material is user-defined or not
+	 * @param documentMaterial	whether the material is stored in the document preferences
 	 * @return				the new material
 	 */
-	public static Material newMaterial(Type type, String name, double density, MaterialGroup group, boolean userDefined) {
+	public static Material newMaterial(Type type, String name, double density, MaterialGroup group, boolean userDefined,
+									   boolean documentMaterial) {
 		return switch (type) {
-			case LINE -> new Line(name, density, group, userDefined);
-			case SURFACE -> new Surface(name, density, group, userDefined);
-			case BULK -> new Bulk(name, density, group, userDefined);
-			case CUSTOM -> new Custom(name, density, group, userDefined);
-			default -> throw new IllegalArgumentException("Unknown material type: " + type);
+			case LINE -> new Line(name, density, group, userDefined, documentMaterial);
+			case SURFACE -> new Surface(name, density, group, userDefined, documentMaterial);
+			case BULK -> new Bulk(name, density, group, userDefined, documentMaterial);
+			case CUSTOM -> new Custom(name, density, group, userDefined, documentMaterial);
 		};
+	}
+
+	public static Material newMaterial(Type type, String name, double density, MaterialGroup group, boolean userDefined) {
+		return newMaterial(type, name, density, group, userDefined, false);
 	}
 
 	public static Material newMaterial(Type type, String name, double density, boolean userDefined) {

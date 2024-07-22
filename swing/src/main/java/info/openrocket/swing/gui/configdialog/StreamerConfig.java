@@ -109,7 +109,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Material:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
 
-		MaterialModel mm = new MaterialModel(panel, component, Material.Type.SURFACE);
+		MaterialModel mm = new MaterialModel(panel, document, component, Material.Type.SURFACE);
 		register(mm);
 		JComboBox<Material> streamerMaterialCombo = new JComboBox<>(mm);
 		//// The component material affects the weight of the component.

@@ -48,7 +48,7 @@ public class PreferencesDialog extends JDialog {
 	private boolean storePreferences = true;
 	private File initPrefsFile = null;
 
-	private PreferencesDialog(BasicFrame parent) {
+	private PreferencesDialog(BasicFrame parent, int selectedTab) {
 		// // Preferences
 		super(parent, trans.get("pref.dlg.title.Preferences"),
 				Dialog.ModalityType.APPLICATION_MODAL);
@@ -84,7 +84,7 @@ public class PreferencesDialog extends JDialog {
 				trans.get("pref.dlg.tab.Defaultunits"));
 		// Materials and Custom materials
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Materials"), null,
-				new MaterialEditPanel(),
+				new MaterialEditPanel(parent.getRocketPanel().getDocument()),
 				trans.get("pref.dlg.tab.Custommaterials"));
 		// Decal Editor selection
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Graphics"),
@@ -93,6 +93,8 @@ public class PreferencesDialog extends JDialog {
 		// Default Colors Preferences
 		// tabbedPane.addTab(trans.get("pref.dlg.tab.Colors"),
 		// new DisplayPreferencesPanel());
+
+		tabbedPane.setSelectedIndex(selectedTab);
 
 
 		//// Cancel button
@@ -168,6 +170,10 @@ public class PreferencesDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, okButton);
 	}
 
+	private PreferencesDialog(BasicFrame parent) {
+		this(parent, 0);
+	}
+
 	public BasicFrame getParentFrame() {
 		return parentFrame;
 	}
@@ -235,12 +241,17 @@ public class PreferencesDialog extends JDialog {
 
 	private static PreferencesDialog dialog = null;
 
-	public static void showPreferences(BasicFrame parent) {
+	public static void showPreferences(BasicFrame parent, int selectedTab) {
 		if (dialog != null) {
 			dialog.dispose();
 		}
-		dialog = new PreferencesDialog(parent);
+		dialog = new PreferencesDialog(parent, selectedTab);
 		dialog.setVisible(true);
+
+	}
+
+	public static void showPreferences(BasicFrame parent) {
+		showPreferences(parent, 0);
 	}
 
 }

@@ -627,7 +627,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
 
-		MaterialModel mm = new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial");
+		MaterialModel mm = new MaterialModel(filletPanel, document, component, Material.Type.BULK, "FilletMaterial");
 		register(mm);
 	    JComboBox<Material> materialCombo = new JComboBox<>(mm);
 

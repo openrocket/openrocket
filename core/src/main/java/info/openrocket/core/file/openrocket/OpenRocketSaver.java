@@ -11,6 +11,7 @@ import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.material.Material;
 import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,10 +439,22 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<docprefs>");
 		indent++;
 
+		// Normal preferences
 		Map<String, DocumentPreferences.DocumentPreference> prefs = docPrefs.getPreferencesMap();
 		for (Map.Entry<String, DocumentPreferences.DocumentPreference> entry : prefs.entrySet()) {
 			DocumentPreferences.DocumentPreference pref = entry.getValue();
 			writeEntry("pref", entry.getKey(), pref.getValue(), true);
+		}
+
+		// Document materials
+		if (docPrefs.getTotalMaterialCount() > 0) {
+			writeln("<docmaterials>");
+			indent++;
+			for (Material m : docPrefs.getAllMaterials()) {
+				writeln("<mat>" + m.toStorableString() + "</mat>");
+			}
+			indent--;
+			writeln("</docmaterials>");
 		}
 
 		indent--;

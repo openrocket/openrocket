@@ -2,6 +2,8 @@ package info.openrocket.swing.gui.configdialog;
 
 import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.util.Invalidatable;
+import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
+import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.widgets.SearchableAndCategorizableComboBox;
 import net.miginfocom.swing.MigLayout;
 
@@ -43,7 +45,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
 
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
                          Material.Type type, String materialString, String finishString,
-                         String partName,  List<Component> order) {
+                         String partName, List<Component> order) {
         super(new MigLayout());
         this.setBorder(BorderFactory.createTitledBorder(trans.get("MaterialPanel.title.Material")));
 
@@ -52,7 +54,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
         this.add(label, "spanx 4, wrap rel");
 
-        MaterialModel mm = new MaterialModel(this, component, type, partName);
+        MaterialModel mm = new MaterialModel(this, document, component, type, partName);
         register(mm);
 
         // Set custom material button
@@ -70,8 +72,25 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
             });
         });
 
+        // Edit materials button
+        JButton editMaterialsButton = new JButton(trans.get("MaterialPanel.but.EditMaterials"));
+        editMaterialsButton.addActionListener(e -> {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    for (BasicFrame frame : BasicFrame.getAllFrames()) {
+                        if (frame.getRocketPanel().getDocument() == document) {
+                            PreferencesDialog.showPreferences(frame, 5);
+                            return;
+                        }
+                    }
+                }
+            });
+        });
+
         // Material selection combo box
-        this.materialCombo = MaterialComboBox.createComboBox(MaterialGroup.ALL_GROUPS, mm.getAllMaterials(), customMaterialButton);
+        this.materialCombo = MaterialComboBox.createComboBox(MaterialGroup.ALL_GROUPS, mm.getAllMaterials(),
+                customMaterialButton, editMaterialsButton);
         this.materialCombo.setSelectedItem(mm.getSelectedItem());
         this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
         this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
@@ -184,14 +203,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
             for (MaterialGroup group : sortedGroups) {
                 List<Material> itemsForGroup = new ArrayList<>();
                 for (Material material : materials) {
-                    materialGroup = material.getGroup();
-                    if (materialGroup == null) {
-                        if (material.isUserDefined()) {
-                            materialGroup = MaterialGroup.CUSTOM;
-                        } else {
-                            materialGroup = MaterialGroup.OTHER;
-                        }
-                    }
+                    materialGroup = material.getEquivalentGroup();
                     if (materialGroup.equals(group)) {
                         itemsForGroup.add(material);
                     }

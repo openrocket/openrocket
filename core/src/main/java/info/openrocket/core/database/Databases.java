@@ -178,6 +178,30 @@ public class Databases {
 	public static void fakeMethod() {
 		
 	}
+
+	/**
+	 * Find a material from the database or return a new user defined material if the specified
+	 * material with the specified density is not found.
+	 * <p>
+	 * This method will attempt to localize the material name to the current locale, or use
+	 * the provided name if unable to do so.
+	 *
+	 * @param type			the material type.
+	 * @param baseName		the base name of the material.
+	 * @param density		the density of the material.
+	 * @return				the material object from the database or a new material.
+	 */
+	public static Material findMaterial(Material.Type type, String baseName, double density) {
+		Database<Material> db = getDatabase(type);
+		String name = trans.get("material", baseName);
+
+		for (Material m : db) {
+			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
+				return m;
+			}
+		}
+		return Material.newMaterial(type, name, density, true);
+	}
 	
 	/**
 	 * Find a material from the database with the specified type and name.  Returns
@@ -207,42 +231,13 @@ public class Databases {
 	 * @param 	type	the desired type
 	 * @return	the database of the type given
 	 */
-	private static Database<Material> getDatabase(Material.Type type){
-		switch (type) {
-		case BULK:
-			return BULK_MATERIAL;
-		case SURFACE:
-			return SURFACE_MATERIAL;
-		case LINE:
-			return LINE_MATERIAL;
-		default:
-			throw new IllegalArgumentException("Illegal material type: " + type);
-		}
-	}
-	
-	
-	/**
-	 * Find a material from the database or return a new user defined material if the specified
-	 * material with the specified density is not found.
-	 * <p>
-	 * This method will attempt to localize the material name to the current locale, or use
-	 * the provided name if unable to do so.
-	 * 
-	 * @param type			the material type.
-	 * @param baseName		the base name of the material.
-	 * @param density		the density of the material.
-	 * @return				the material object from the database or a new material.
-	 */
-	public static Material findMaterial(Material.Type type, String baseName, double density) {
-		Database<Material> db = getDatabase(type);
-		String name = trans.get("material", baseName);
-		
-		for (Material m : db) {
-			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
-				return m;
-			}
-		}
-		return Material.newMaterial(type, name, density, true);
+	public static Database<Material> getDatabase(Material.Type type){
+		return switch (type) {
+			case BULK -> BULK_MATERIAL;
+			case SURFACE -> SURFACE_MATERIAL;
+			case LINE -> LINE_MATERIAL;
+			default -> throw new IllegalArgumentException("Illegal material type: " + type);
+		};
 	}
 	
 }

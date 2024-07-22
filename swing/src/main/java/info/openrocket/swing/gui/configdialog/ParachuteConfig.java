@@ -87,7 +87,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Material:
 		canopyPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "wrap rel");
 
-		MaterialModel mm = new MaterialModel(canopyPanel, component, Material.Type.SURFACE);
+		MaterialModel mm = new MaterialModel(canopyPanel, document, component, Material.Type.SURFACE);
 		register(mm);
 		JComboBox<Material> surfaceMaterialCombo = new JComboBox<>(mm);
 		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
@@ -158,7 +158,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Material:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "spanx, wrap rel");
 
-		mm = new MaterialModel(shroudPanel, component, Material.Type.LINE, "LineMaterial");
+		mm = new MaterialModel(shroudPanel, document, component, Material.Type.LINE, "LineMaterial");
 		register(mm);
 		JComboBox<Material> shroudMaterialCombo = new JComboBox<>(mm);
 		shroudPanel.add(shroudMaterialCombo, "spanx, growx");

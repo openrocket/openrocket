@@ -21,6 +21,8 @@ public class DocumentPreferencesHandler extends EntryHandler {
 		if (element.equals("pref") && "list".equals(attributes.get("type"))) {
 			listHandler = new ConfigHandler();
 			return listHandler;
+		} else if (element.equals("docmaterials")) {
+			return new DocumentMaterialHandler(document);
 		} else {
 			return PlainTextHandler.INSTANCE;
 		}
