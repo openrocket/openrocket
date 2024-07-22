@@ -2,6 +2,7 @@ package info.openrocket.core.simulation;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.SimulationAbort;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -80,6 +81,11 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		 * The rocket begins to tumble.
 		 */
 		TUMBLE(trans.get("FlightEvent.Type.TUMBLE")),
+
+		/**
+		 * A warning was raised during the execution of the simulation
+		 */
+		 SIM_WARN(trans.get("FlightEvent.Type.SIM_WARN")),
 
 		/**
 		 * It is impossible for the simulation proceed due to characteristics
@@ -239,6 +245,11 @@ public class FlightEvent implements Comparable<FlightEvent> {
 					throw new IllegalStateException(type.name()+" events should have "
 							+MotorClusterState.class.getSimpleName()+" type data payloads");
 				}
+			}
+			break;
+		case SIM_WARN:
+			if (( null == this.data ) || ( ! ( this.data instanceof Warning ))) {
+				throw new IllegalStateException(type.name()+" events require Warning objects");
 			}
 			break;
 		case SIM_ABORT:
