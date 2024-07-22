@@ -636,7 +636,7 @@ public class SimulationListenerHelper {
 	private static void warn(SimulationStatus status, SimulationListener listener) {
 		if (!listener.isSystemListener()) {
 			log.info("Non-system listener " + listener + " affected the simulation");
-			status.getWarnings().add(Warning.LISTENERS_AFFECTED);
+			status.addWarning(Warning.LISTENERS_AFFECTED);
 		}
 	}
 }

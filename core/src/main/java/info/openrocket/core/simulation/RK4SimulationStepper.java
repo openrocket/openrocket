@@ -403,7 +403,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * launch rod or 0.25 seconds after departure, and when the velocity has dropped
 		 * below 20% of the max. velocity.
 		 */
-		WarningSet warnings = status.getWarnings();
+		WarningSet warnings = new WarningSet();
 		store.maxZvelocity = MathUtil.max(store.maxZvelocity, status.getRocketVelocity().z);
 		
 		if (!status.isLaunchRodCleared()) {
@@ -423,7 +423,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
 				.getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
-		
+		if (null != warnings) {
+			status.addWarnings(warnings);
+		}
 
 		// Add very small randomization to yaw & pitch moments to prevent over-perfect flight
 		// TODO: HIGH: This should rather be performed as a listener
