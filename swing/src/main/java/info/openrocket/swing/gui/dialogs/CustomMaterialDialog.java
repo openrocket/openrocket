@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.startup.Application;
 
 import net.miginfocom.swing.MigLayout;
@@ -39,10 +40,11 @@ public class CustomMaterialDialog extends JDialog {
 	
 	private boolean okClicked = false;
 	private JComboBox<Material.Type> typeBox;
-	private JTextField nameField;
+	private final JTextField nameField;
 	private DoubleModel density;
-	private JSpinner densitySpinner;
-	private UnitSelector densityUnit;
+	private final JSpinner densitySpinner;
+	private final UnitSelector densityUnit;
+	private JComboBox<MaterialGroup> groupBox;
 	private JCheckBox addBox;
 
 	public CustomMaterialDialog(Window parent, Material material, boolean saveOption, boolean addToApplicationDatabase,
@@ -118,6 +120,17 @@ public class CustomMaterialDialog extends JDialog {
 		updateDensityModel();
 
 
+		// Material group
+		panel.add(new JLabel(trans.get("custmatdlg.lbl.MaterialGroup")));
+		groupBox = new JComboBox<>(MaterialGroup.ALL_GROUPS);
+		if (material != null && !material.isUserDefined()) {
+			groupBox.setSelectedItem(material.getEquivalentGroup());
+		} else {
+			groupBox.setSelectedItem(MaterialGroup.CUSTOM);
+		}
+		panel.add(groupBox, "span, growx, wrap");
+
+
 		// Save option
 		if (saveOption) {
 			//// Add material to application database
@@ -175,6 +188,7 @@ public class CustomMaterialDialog extends JDialog {
 		Material.Type type;
 		String name;
 		double materialDensity;
+		MaterialGroup group;
 		
 		if (typeBox != null) {
 			type = (Material.Type) typeBox.getSelectedItem();
@@ -183,10 +197,10 @@ public class CustomMaterialDialog extends JDialog {
 		}
 		
 		name = nameField.getText().trim();
-		
 		materialDensity = this.density.getValue();
+		group = (MaterialGroup) groupBox.getSelectedItem();
 		
-		return Databases.findMaterial(type, name, materialDensity);
+		return Databases.findMaterial(type, name, materialDensity, group);
 	}
 	
 	

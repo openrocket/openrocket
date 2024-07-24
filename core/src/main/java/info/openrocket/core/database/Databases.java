@@ -189,18 +189,35 @@ public class Databases {
 	 * @param type			the material type.
 	 * @param baseName		the base name of the material.
 	 * @param density		the density of the material.
+	 * @param group			the material group.
 	 * @return				the material object from the database or a new material.
 	 */
-	public static Material findMaterial(Material.Type type, String baseName, double density) {
+	public static Material findMaterial(Material.Type type, String baseName, double density, MaterialGroup group) {
 		Database<Material> db = getDatabase(type);
 		String name = trans.get("material", baseName);
 
 		for (Material m : db) {
-			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
+			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density) && m.getGroup() == group) {
 				return m;
 			}
 		}
-		return Material.newMaterial(type, name, density, true);
+		return Material.newMaterial(type, name, density, group, true);
+	}
+
+	/**
+	 * Find a material from the database or return a new user defined material if the specified
+	 * material with the specified density is not found.
+	 * <p>
+	 * This method will attempt to localize the material name to the current locale, or use
+	 * the provided name if unable to do so.
+	 *
+	 * @param type			the material type.
+	 * @param baseName		the base name of the material.
+	 * @param density		the density of the material.
+	 * @return				the material object from the database or a new material.
+	 */
+	public static Material findMaterial(Material.Type type, String baseName, double density) {
+		return findMaterial(type, baseName, density, null);
 	}
 	
 	/**
