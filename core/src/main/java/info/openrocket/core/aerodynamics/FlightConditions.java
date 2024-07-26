@@ -13,7 +13,7 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
+import info.openrocket.core.util.ModID;
 
 /**
  * A class defining the momentary flight conditions of a rocket, including
@@ -69,8 +69,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 
 	private AtmosphericConditions atmosphericConditions = new AtmosphericConditions();
 
-	private int modID;
-	private int modIDadd = 0;
+	private ModID modID;
 
 	/**
 	 * Sole constructor. The reference length is initialized to the reference length
@@ -83,7 +82,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public FlightConditions(FlightConfiguration config) {
 		if (config != null)
 			setRefLength(config.getReferenceLength());
-		this.modID = UniqueID.next();
+		this.modID = new ModID();
 	}
 
 	/**
@@ -370,21 +369,19 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public void setAtmosphericConditions(AtmosphericConditions cond) {
 		if (atmosphericConditions.equals(cond))
 			return;
-		modIDadd += atmosphericConditions.getModID();
+		modID = new ModID();
 		atmosphericConditions = cond;
 		fireChangeEvent();
 	}
 
 	/**
-	 * Retrieve the modification count of this object. Each time it is modified
-	 * the modification count is increased by one.
+	 * Retrieve the modification count of this object.
 	 * 
-	 * @return the number of times this object has been modified since
-	 *         instantiation.
+	 * @return modification ID
 	 */
 	@Override
-	public int getModID() {
-		return modID + modIDadd + this.atmosphericConditions.getModID();
+	public ModID getModID() {
+		return modID;
 	}
 
 	@Override
@@ -459,7 +456,6 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * wake up call to listeners
 	 */
 	protected void fireChangeEvent() {
-		modID = UniqueID.next();
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
 		for (EventListener l : listeners) {

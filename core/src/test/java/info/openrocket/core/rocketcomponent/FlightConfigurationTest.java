@@ -22,6 +22,7 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.ModID;
 
 public class FlightConfigurationTest extends BaseTestCase {
 	private final static double EPSILON = MathUtil.EPSILON * 1E3;
@@ -767,14 +768,14 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// Test boundModID
 		Field boundsModIDField = FlightConfiguration.class.getDeclaredField("boundsModID");
 		boundsModIDField.setAccessible(true);
-		int boundsModIDCopy = (int) boundsModIDField.get(copy);
-		assertEquals(-1, boundsModIDCopy);
+		ModID boundsModIDCopy = (ModID) boundsModIDField.get(copy);
+		assertEquals(ModID.INVALID, boundsModIDCopy);
 
 		// Test refLengthModID
 		Field refLengthModIDField = FlightConfiguration.class.getDeclaredField("refLengthModID");
 		refLengthModIDField.setAccessible(true);
-		int refLengthModIDCopy = (int) refLengthModIDField.get(copy);
-		assertEquals(-1, refLengthModIDCopy);
+		ModID refLengthModIDCopy = (ModID) refLengthModIDField.get(copy);
+		assertEquals(ModID.INVALID, refLengthModIDCopy);
 
 		// Test stageActiveness copy
 		for (int i = 0; i < original.getStageCount(); i++) {
@@ -833,14 +834,14 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// Test boundModID
 		Field boundsModIDField = FlightConfiguration.class.getDeclaredField("boundsModID");
 		boundsModIDField.setAccessible(true);
-		int boundsModIDClone = (int) boundsModIDField.get(clone);
-		assertEquals(-1, boundsModIDClone);
+		ModID boundsModIDClone = (ModID) boundsModIDField.get(clone);
+		assertEquals(ModID.INVALID, boundsModIDClone);
 
 		// Test refLengthModID
 		Field refLengthModIDField = FlightConfiguration.class.getDeclaredField("refLengthModID");
 		refLengthModIDField.setAccessible(true);
-		int refLengthModIDClone = (int) refLengthModIDField.get(clone);
-		assertEquals(-1, refLengthModIDClone);
+		ModID refLengthModIDClone = (ModID) refLengthModIDField.get(clone);
+		assertEquals(ModID.INVALID, refLengthModIDClone);
 
 		// Test stageActiveness copy
 		for (int i = 0; i < original.getStageCount(); i++) {

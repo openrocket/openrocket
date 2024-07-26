@@ -28,6 +28,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PolyInterpolator;
 import info.openrocket.core.util.Reflection;
 
@@ -1030,9 +1031,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		// Only cached data is stored, return constant mod ID
-		return 0;
+		return ModID.ZERO;
 	}
 	
 }

@@ -3,10 +3,6 @@ package info.openrocket.core.document;
 import java.io.File;
 import java.util.*;
 
-import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
-import info.openrocket.core.rocketcomponent.*;
-import info.openrocket.core.startup.Preferences;
-import info.openrocket.core.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +12,23 @@ import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.core.document.events.DocumentChangeListener;
 import info.openrocket.core.document.events.SimulationChangeEvent;
+import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.logging.Markers;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.ComponentChangeListener;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.ArrayList;
+import info.openrocket.core.util.ModID;
+import info.openrocket.core.util.StateChangeListener;
 
 /**
  * Class describing an entire OpenRocket document, including a rocket and
@@ -90,8 +97,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
 	
 	private File file = null;
-	private int modID = -1;
-	private int savedID = -1;
+	private ModID modID = ModID.INVALID;
+	private ModID savedID = ModID.INVALID;
 	
 	private final StorageOptions storageOptions = new StorageOptions();
 	private final OBJExportOptions objOptions;
@@ -232,7 +239,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @return	if the current rocket is saved
 	 */
 	public boolean isSaved() {
-		return rocket.getModID() + modID == savedID;
+		return modID == savedID;
 	}
 	
 	/**
@@ -241,9 +248,9 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public void setSaved(boolean saved) {
 		if (!saved)
-			this.savedID = -1;
+			this.savedID = ModID.INVALID;
 		else
-			this.savedID = rocket.getModID() + modID;
+			this.savedID = modID;
 	}
 	
 	/**
@@ -645,7 +652,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 
 	@Override
 	public void stateChanged(EventObject e) {
-		modID++;
+		modID = new ModID();
 		fireDocumentChangeEvent(new DocumentChangeEvent(e.getSource()));
 	}
 
