@@ -82,7 +82,6 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public FlightConditions(FlightConfiguration config) {
 		if (config != null)
 			setRefLength(config.getReferenceLength());
-		this.modID = new ModID();
 	}
 
 	/**
@@ -99,9 +98,12 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * fires change event
 	 */
 	public void setRefLength(double length) {
+		if (refLength == length)
+			return;
+		
 		refLength = length;
-
 		refArea = Math.PI * MathUtil.pow2(length / 2);
+
 		fireChangeEvent();
 	}
 
@@ -117,8 +119,12 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * fires change event
 	 */
 	public void setRefArea(double area) {
+		if (refArea == area)
+			return;
+		
 		refArea = area;
 		refLength = MathUtil.safeSqrt(area / Math.PI) * 2;
+
 		fireChangeEvent();
 	}
 
@@ -149,6 +155,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			this.sinAOA = Math.sin(aoa);
 			this.sincAOA = sinAOA / aoa;
 		}
+
 		fireChangeEvent();
 	}
 
@@ -178,6 +185,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		} else {
 			this.sincAOA = sinAOA / aoa;
 		}
+
 		fireChangeEvent();
 	}
 
@@ -212,6 +220,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		if (MathUtil.equals(this.theta, theta))
 			return;
 		this.theta = theta;
+
 		fireChangeEvent();
 	}
 
@@ -238,6 +247,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			this.beta = MathUtil.safeSqrt(1 - mach * mach);
 		else
 			this.beta = MathUtil.safeSqrt(mach * mach - 1);
+
 		fireChangeEvent();
 	}
 
@@ -294,6 +304,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			return;
 
 		this.rollRate = rate;
+		
 		fireChangeEvent();
 	}
 
@@ -369,7 +380,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public void setAtmosphericConditions(AtmosphericConditions cond) {
 		if (atmosphericConditions.equals(cond))
 			return;
-		modID = new ModID();
+
 		atmosphericConditions = cond;
 		fireChangeEvent();
 	}
@@ -456,6 +467,8 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * wake up call to listeners
 	 */
 	protected void fireChangeEvent() {
+		modID = new ModID();
+		
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
 		for (EventListener l : listeners) {

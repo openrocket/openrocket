@@ -77,7 +77,11 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setAxisymmetric(final boolean isSym) {
+		if (this.axisymmetric == isSym)
+			return;
+		
 		this.axisymmetric = isSym;
+		modID = new ModID();
 	}
 
 	/**
@@ -87,6 +91,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	 * @param component The rocket component
 	 */
 	public void setComponent(RocketComponent component) {
+		if (this.component == component)
+			return;
+		
 		this.component = component;
 		modID = new ModID();
 	}
@@ -100,6 +107,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCP(Coordinate cp) {
+		if ((this.cp != null) && this.cp.equals(cp))
+			return;
+		
 		this.cp = cp;
 		modID = new ModID();
 	}
@@ -109,6 +119,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCNa(double cNa) {
+		if (CNa == cNa)
+			return;
+		
 		CNa = cNa;
 		modID = new ModID();
 	}
@@ -118,6 +131,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCN(double cN) {
+		if (CN == cN)
+			return;
+		
 		CN = cN;
 		modID = new ModID();
 	}
@@ -127,6 +143,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCm(double cm) {
+		if (Cm == cm)
+			return;
+		
 		Cm = cm;
 		modID = new ModID();
 	}
@@ -136,6 +155,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCside(double cside) {
+		if (Cside == cside)
+			return;
+		
 		Cside = cside;
 		modID = new ModID();
 	}
@@ -145,6 +167,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCyaw(double cyaw) {
+		if (Cyaw == cyaw)
+			return;
+		
 		Cyaw = cyaw;
 		modID = new ModID();
 	}
@@ -154,6 +179,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCroll(double croll) {
+		if (Croll == croll)
+			return;
+		
 		Croll = croll;
 		modID = new ModID();
 	}
@@ -163,6 +191,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCrollDamp(double crollDamp) {
+		if (CrollDamp == crollDamp)
+			return;
+		
 		CrollDamp = crollDamp;
 		modID = new ModID();
 	}
@@ -172,6 +203,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCrollForce(double crollForce) {
+		if (CrollForce == crollForce)
+			return;
+		
 		CrollForce = crollForce;
 		modID = new ModID();
 	}
@@ -181,6 +215,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCDaxial(double cdaxial) {
+		if (CDaxial == cdaxial)
+			return;
+		
 		CDaxial = cdaxial;
 		modID= new ModID();
 	}
@@ -190,6 +227,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setCD(double cD) {
+		if (CD == cD)
+			return;
+		
 		CD = cD;
 		modID = new ModID();
 	}
@@ -206,6 +246,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setPressureCD(double pressureCD) {
+		if (this.pressureCD == pressureCD)
+			return;
+		
 		this.pressureCD = pressureCD;
 		modID = new ModID();
 	}
@@ -221,6 +264,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setBaseCD(double baseCD) {
+		if (this.baseCD == baseCD)
+			return;
+		
 		this.baseCD = baseCD;
 		modID = new ModID();
 	}
@@ -236,6 +282,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setFrictionCD(double frictionCD) {
+		if (this.frictionCD == frictionCD)
+			return;
+		
 		this.frictionCD = frictionCD;
 		modID = new ModID();
 	}
@@ -251,6 +300,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setOverrideCD(double overrideCD) {
+		if (this.overrideCD == overrideCD)
+			return;
+		
 		this.overrideCD = overrideCD;
 		modID = new ModID();
 	}
@@ -266,6 +318,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setPitchDampingMoment(double pitchDampingMoment) {
+		if (this.pitchDampingMoment == pitchDampingMoment)
+			return;
+		
 		this.pitchDampingMoment = pitchDampingMoment;
 		modID = new ModID();
 	}
@@ -275,6 +330,9 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public void setYawDampingMoment(double yawDampingMoment) {
+		if (this.yawDampingMoment == yawDampingMoment)
+			return;
+		   
 		this.yawDampingMoment = yawDampingMoment;
 		modID = new ModID();
 	}
