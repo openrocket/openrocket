@@ -163,7 +163,7 @@ public class PinkNoiseWindModel implements WindModel {
 
 	@Override
 	public ModID getModID() {
-		return ModID.ZERO; // I'll bet this is wrong...
+		return ModID.ZERO;
 	}
 
 }
