@@ -286,7 +286,6 @@ public class SimulationPlot {
 						}
 						XYSeries ser = collection.getSeries(series);
 						String name = ser.getDescription();
-
 						// Extract the unit from the last part of the series description, between parenthesis
 						Matcher m = Pattern.compile(".*\\((.*?)\\)").matcher(name);
 						String unitY = "";
@@ -409,7 +408,6 @@ public class SimulationPlot {
 	private void drawDomainMarkers(int branch) {
 		XYPlot plot = chart.getXYPlot();
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(Math.max(branch, 0));
-
 		// Clear existing domain markers and annotations
 		plot.clearDomainMarkers();
 		plot.clearAnnotations();
@@ -453,6 +451,7 @@ public class SimulationPlot {
 		Color color = null;
 		Image image = null;
 		int maxOrdinal = -1;
+
 		for (EventDisplayInfo info : eventList) {
 			if (branch >= 0 && branch != info.stage) {
 				continue;
@@ -465,7 +464,7 @@ public class SimulationPlot {
 					text = text + ", " + type.toString();
 					if (type.ordinal() > maxOrdinal) {
 						color = EventGraphics.getEventColor(type);
-						image = EventGraphics.getEventImage(type);
+						image = EventGraphics.getEventImage(info.event);
 						maxOrdinal = type.ordinal();
 					}
 					typeSet.add(type);
@@ -481,7 +480,7 @@ public class SimulationPlot {
 				prevTime = t;
 				text = type.toString();
 				color = EventGraphics.getEventColor(type);
-				image = EventGraphics.getEventImage(type);
+				image = EventGraphics.getEventImage(info.event);
 				typeSet.clear();
 				typeSet.add(type);
 				maxOrdinal = type.ordinal();

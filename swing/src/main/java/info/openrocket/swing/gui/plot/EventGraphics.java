@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import info.openrocket.core.logging.MessagePriority;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.simulation.FlightEvent;
 
 public class EventGraphics {
@@ -20,9 +22,14 @@ public class EventGraphics {
 		return DEFAULT_EVENT_COLOR;
 	}
 
-	static Image getEventImage(FlightEvent.Type type ) {
-		Image i = EVENT_IMAGES.get(type);
-		return i;
+	static Image getEventImage(FlightEvent event) {
+
+		FlightEvent.Type type = event.getType();
+		if (type == FlightEvent.Type.SIM_WARN) {
+			return MESSAGE_IMAGES.get(((Warning) event.getData()).getPriority());
+		} else {
+			return EVENT_IMAGES.get(type);
+		}
 	}
 	
 	private static final Color DEFAULT_EVENT_COLOR = new Color(0, 0, 0);
@@ -46,24 +53,32 @@ public class EventGraphics {
 
 	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES = new HashMap<FlightEvent.Type, Image>();
 	static {
-		loadImage(FlightEvent.Type.LAUNCH, "pix/eventicons/event-launch.png");
-		loadImage(FlightEvent.Type.LIFTOFF, "pix/eventicons/event-liftoff.png");
-		loadImage(FlightEvent.Type.LAUNCHROD, "pix/eventicons/event-launchrod.png");
-		loadImage(FlightEvent.Type.IGNITION, "pix/eventicons/event-ignition.png");
-		loadImage(FlightEvent.Type.BURNOUT, "pix/eventicons/event-burnout.png");
-		loadImage(FlightEvent.Type.EJECTION_CHARGE, "pix/eventicons/event-ejection-charge.png");
-		loadImage(FlightEvent.Type.STAGE_SEPARATION,
+		loadImage(EVENT_IMAGES, FlightEvent.Type.LAUNCH, "pix/eventicons/event-launch.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.LIFTOFF, "pix/eventicons/event-liftoff.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.LAUNCHROD, "pix/eventicons/event-launchrod.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.IGNITION, "pix/eventicons/event-ignition.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.BURNOUT, "pix/eventicons/event-burnout.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.EJECTION_CHARGE, "pix/eventicons/event-ejection-charge.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.STAGE_SEPARATION,
 				"pix/eventicons/event-stage-separation.png");
-		loadImage(FlightEvent.Type.APOGEE, "pix/eventicons/event-apogee.png");
-		loadImage(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
+		loadImage(EVENT_IMAGES, FlightEvent.Type.APOGEE, "pix/eventicons/event-apogee.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
 				"pix/eventicons/event-recovery-device-deployment.png");
-		loadImage(FlightEvent.Type.GROUND_HIT, "pix/eventicons/event-ground-hit.png");
-		loadImage(FlightEvent.Type.SIMULATION_END, "pix/eventicons/event-simulation-end.png");
-		loadImage(FlightEvent.Type.EXCEPTION, "pix/eventicons/event-exception.png");
-		loadImage(FlightEvent.Type.SIM_ABORT, "pix/eventicons/event-exception.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.GROUND_HIT, "pix/eventicons/event-ground-hit.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.SIMULATION_END, "pix/eventicons/event-simulation-end.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.EXCEPTION, "pix/eventicons/event-exception.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.SIM_ABORT, "pix/eventicons/event-exception.png");
+	}
+	
+	// Messages can happen at several priority levels, requiring different icons
+	private static final Map<MessagePriority, Image> MESSAGE_IMAGES = new HashMap<MessagePriority, Image>();
+	static {
+		loadImage(MESSAGE_IMAGES, MessagePriority.LOW, "pix/icons/warning_low.png");
+		loadImage(MESSAGE_IMAGES, MessagePriority.NORMAL, "pix/icons/warning_normal.png");
+		loadImage(MESSAGE_IMAGES, MessagePriority.HIGH, "pix/icons/warning_high.png");
 	}
 
-	private static void loadImage(FlightEvent.Type type, String file) {
+	private static <KeyType> void loadImage(Map<KeyType, Image> imageMap, KeyType type, String file) {
 		InputStream is;
 
 		is = ClassLoader.getSystemResourceAsStream(file);
@@ -74,10 +89,9 @@ public class EventGraphics {
 
 		try {
 			Image image = ImageIO.read(is);
-			EVENT_IMAGES.put(type, image);
+			imageMap.put(type, image);
 		} catch (IOException ignore) {
 			ignore.printStackTrace();
 		}
 	}
-
 }
