@@ -89,18 +89,6 @@ public class DeploymentSelectionDialog extends JDialog {
 		}
 		panel.add( deployEvent, "spanx 3, growx, wrap");
 		
-		// ... and delay
-		//// plus
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
-		
-		final DoubleModel delay = new DoubleModel(newConfiguration, "DeployDelay", UnitGroup.UNITS_SHORT_TIME, 0);
-		final JSpinner delaySpinner = new JSpinner(delay.getSpinnerModel());
-		delaySpinner.setEditor(new SpinnerEditor(delaySpinner, 3));
-		panel.add(delaySpinner, "spanx, split");
-		
-		//// seconds
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
-		
 		// Altitude:
 		altText = new JLabel(trans.get("ParachuteCfg.lbl.Altitude"));
 		panel.add(altText);
@@ -114,6 +102,18 @@ public class DeploymentSelectionDialog extends JDialog {
 		panel.add(altUnit, "growx");
 		altSlider = new BasicSlider(alt.getSliderModel(100, 1000));
 		panel.add(altSlider, "w 100lp, wrap");
+		
+		// ... and delay
+		//// plus
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
+		
+		final DoubleModel delay = new DoubleModel(newConfiguration, "DeployDelay", UnitGroup.UNITS_SHORT_TIME, 0);
+		final JSpinner delaySpinner = new JSpinner(delay.getSpinnerModel());
+		delaySpinner.setEditor(new SpinnerEditor(delaySpinner, 3));
+		panel.add(delaySpinner, "spanx, split");
+		
+		//// seconds
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
 		
 		deployEvent.addActionListener(new ActionListener() {
 			@Override
