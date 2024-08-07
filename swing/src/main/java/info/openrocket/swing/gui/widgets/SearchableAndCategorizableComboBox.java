@@ -216,7 +216,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 						public void paintComponent(Graphics g) {
 							super.paintComponent(g);
 							// If the item is currently selected, draw a checkmark before it
-							if (item.equals(SearchableAndCategorizableComboBox.this.getSelectedItem())) {
+							if (item == SearchableAndCategorizableComboBox.this.getSelectedItem()) {
 								g.drawString("\u2713 ", 5, getHeight() - 5);
 							}
 						}
@@ -269,7 +269,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 				String itemName = getDisplayString(item);
 
 				// If the item is currently selected, draw a checkmark before it
-				if (item.equals(getSelectedItem())) {
+				if (item == getSelectedItem()) {
 					itemName = "\u2713 " + itemName;
 				}
 
