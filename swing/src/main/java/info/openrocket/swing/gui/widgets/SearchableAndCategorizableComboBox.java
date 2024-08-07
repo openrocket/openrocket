@@ -181,7 +181,9 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		} else {
 			// If the model is not mutable, we need to set a new model
 			// This should be a rare case, as DefaultComboBoxModel is mutable
-			setModel(new DefaultComboBoxModel<>(new Vector<>(allItems)));
+			model = new DefaultComboBoxModel<>(new Vector<>(allItems));
+			setupModelListener(model);
+			setModel(model);
 		}
 
 		// Recreate the search fields only if they don't exist
@@ -246,6 +248,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 					};
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
+						fireActionEvent();
 					});
 					groupMenu.add(itemMenu);
 				}
@@ -304,6 +307,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				T selectedItem = filteredList.getSelectedValue();
 				if (selectedItem != null) {
 					SearchableAndCategorizableComboBox.this.setSelectedItem(selectedItem);
+					fireActionEvent();
 					// Hide the popups after selection
 					hidePopups();
 				}
@@ -425,22 +429,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		if (model == null) {
 			return;
 		}
-		model.addListDataListener(new ListDataListener() {
-			@Override
-			public void intervalAdded(ListDataEvent e) {
-				updateItemsFromModel();
-			}
-
-			@Override
-			public void intervalRemoved(ListDataEvent e) {
-				updateItemsFromModel();
-			}
-
-			@Override
-			public void contentsChanged(ListDataEvent e) {
-				updateItemsFromModel();
-			}
-		});
+		model.addListDataListener(this);
 		addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
