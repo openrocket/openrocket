@@ -17,9 +17,8 @@ import java.util.Map;
 public class FlightDataComboBox extends JComboBox<FlightDataType> {
 	private static final Translator trans = Application.getTranslator();
 
-	public static SearchableAndCategorizableComboBox<FlightDataTypeGroup, FlightDataType> createComboBox(FlightDataTypeGroup[] allGroups, FlightDataType[] types) {
-		final Map<FlightDataTypeGroup, List<FlightDataType>> typeGroupMap = createFlightDataGroupMap(allGroups, types);
-		return new SearchableAndCategorizableComboBox<>(typeGroupMap, trans.get("FlightDataComboBox.placeholder"));
+	public static SearchableAndCategorizableComboBox<FlightDataTypeGroup, FlightDataType> createComboBox(List<FlightDataType> types) {
+		return new SearchableAndCategorizableComboBox<>(types, trans.get("FlightDataComboBox.placeholder"));
 	}
 
 	/**

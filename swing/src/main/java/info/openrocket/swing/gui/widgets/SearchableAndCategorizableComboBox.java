@@ -28,6 +28,8 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -45,8 +47,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -63,12 +67,12 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	private static final int CHECKMARK_X_OFFSET = 5;
 	private static final int CHECKMARK_Y_OFFSET = 5;
 
-	private final String placeHolderText;
+	private String placeHolderText;
 	private JPopupMenu categoryPopup;
 	private JPopupMenu searchPopup;
 	private PlaceholderTextField searchFieldCategory;
 	private PlaceholderTextField searchFieldSearch;
-	private final Component[] extraCategoryWidgets;
+	private Component[] extraCategoryWidgets;
 	private JList<T> filteredList;
 
 	private Map<G, List<T>> itemGroupMap;
@@ -84,29 +88,40 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 	/**
 	 * Create a searchable and categorizable combo box.
-	 * @param itemGroupMap the map of items and their corresponding groups
 	 * @param placeHolderText the placeholder text for the search field (when no text is entered)
 	 * @param extraCategoryWidgets extra widgets to add to the category popup. Each widget will be added as a separate menu item.
 	 */
-	public SearchableAndCategorizableComboBox(ComboBoxModel<T> model, Map<G, List<T>> itemGroupMap, String placeHolderText,
+	public SearchableAndCategorizableComboBox(ComboBoxModel<T> model, String placeHolderText,
 											  Component... extraCategoryWidgets) {
 		super(model != null ? model : new DefaultComboBoxModel<>());
+		List<T> items = new ArrayList<>();
+		for (int i = 0; i < Objects.requireNonNull(model).getSize(); i++) {
+			items.add(model.getElementAt(i));
+		}
+
+		init(model, constructItemGroupMapFromList(items), placeHolderText, extraCategoryWidgets);
+	}
+
+	public SearchableAndCategorizableComboBox(List<T> allItems, String placeHolderText, Component... extraCategoryWidgets) {
+		super();
+
+		init(null, constructItemGroupMapFromList(allItems), placeHolderText, extraCategoryWidgets);
+	}
+
+	private void init(ComboBoxModel<T> model, Map<G, List<T>> itemGroupMap, String placeHolderText, Component... extraCategoryWidgets) {
 		setEditable(false);
 
 		initColors();
 
 		this.extraCategoryWidgets = extraCategoryWidgets;
 		this.placeHolderText = placeHolderText;
+		this.itemGroupMap = itemGroupMap;
 		updateItems(itemGroupMap);
 		setupMainRenderer();
 
 		setupModelListener(model);
 		setupSearchFieldListeners();
 		addMouseListeners();
-	}
-
-	public SearchableAndCategorizableComboBox(Map<G, List<T>> itemGroupMap, String placeHolderText, Component... extraCategoryWidgets) {
-		this(null, itemGroupMap, placeHolderText, extraCategoryWidgets);
 	}
 
 	private static void initColors() {
@@ -116,6 +131,21 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 	private static void updateColors() {
 		textSelectionBackground = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
+	}
+
+	private Map<G, List<T>> constructItemGroupMapFromList(List<T> items) {
+		Map<G, List<T>> itemGroupMap = new TreeMap<>(new Comparator<G>() {
+			@Override
+			public int compare(G g1, G g2) {
+				return Integer.compare(g1.getPriority(), g2.getPriority());
+			}
+		});
+
+		for (T item : items) {
+			G group = item.getGroup();
+			itemGroupMap.computeIfAbsent(group, k -> new ArrayList<>()).add(item);
+		}
+		return itemGroupMap;
 	}
 
 	public void setupMainRenderer() {
@@ -171,20 +201,6 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 		revalidate();
 		repaint();
-	}
-
-	private void updateItemsFromModel() {
-		ComboBoxModel<T> model = getModel();
-		Map<G, List<T>> newGroupMap = new HashMap<>();
-
-		for (int i = 0; i < model.getSize(); i++) {
-			T item = model.getElementAt(i);
-			G group = item.getGroup();
-			newGroupMap.computeIfAbsent(group, k -> new ArrayList<>()).add(item);
-		}
-
-		Map<G, List<T>> newItemGroupMap = new HashMap<>(newGroupMap);
-		updateItems(newItemGroupMap);
 	}
 
 	private List<T> extractItemsFromMap(Map<G, List<T>> itemGroupMap) {
@@ -423,6 +439,12 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 			@Override
 			public void contentsChanged(ListDataEvent e) {
 				updateItemsFromModel();
+			}
+		});
+		addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				model.setSelectedItem(SearchableAndCategorizableComboBox.this.getSelectedItem());
 			}
 		});
 	}

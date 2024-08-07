@@ -28,11 +28,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Panel for configuring a component's material and finish properties.
@@ -63,11 +59,6 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
                 @Override
                 public void run() {
                     mm.addCustomMaterial();
-                    if (MaterialPanel.this.materialCombo != null) {
-                        MaterialComboBox.updateComboBoxItems(MaterialPanel.this.materialCombo, MaterialGroup.ALL_GROUPS,
-                                mm.getAllMaterials());
-                        MaterialPanel.this.materialCombo.setSelectedItem(mm.getSelectedItem());
-                    }
                 }
             });
         });
@@ -89,8 +80,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         });
 
         // Material selection combo box
-        this.materialCombo = MaterialComboBox.createComboBox(mm, MaterialGroup.ALL_GROUPS, mm.getAllMaterials(),
-                customMaterialButton, editMaterialsButton);
+        this.materialCombo = MaterialComboBox.createComboBox(mm, customMaterialButton, editMaterialsButton);
         this.materialCombo.setSelectedItem(mm.getSelectedItem());
         this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
         this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
@@ -171,10 +161,8 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         private static final Translator trans = Application.getTranslator();
 
         public static SearchableAndCategorizableComboBox<MaterialGroup, Material> createComboBox(
-                MaterialModel mm, MaterialGroup[] allGroups, Material[] materials, Component... extraCategoryWidgets) {
-            final Map<MaterialGroup, List<Material>> materialGroupMap =
-                    createMaterialGroupMap(allGroups, materials);
-            return new SearchableAndCategorizableComboBox<>(mm, materialGroupMap,
+                MaterialModel mm, Component... extraCategoryWidgets) {
+            return new SearchableAndCategorizableComboBox<>(mm,
                     trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets) {
                 @Override
                 public String getDisplayString(Material item) {
@@ -185,48 +173,6 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
                     return baseText;
                 }
             };
-        }
-
-        public static void updateComboBoxItems(SearchableAndCategorizableComboBox<MaterialGroup, Material> comboBox,
-                                               MaterialGroup[] allGroups, Material[] materials) {
-            final Map<MaterialGroup, List<Material>> materialGroupMap = createMaterialGroupMap(allGroups, materials);
-            comboBox.updateItems(materialGroupMap);
-            comboBox.invalidate();
-            comboBox.repaint();
-        }
-
-        /**
-         * Create a map of material group and corresponding material.
-         * @param groups the groups
-         * @param materials the materials
-         * @return the map linking the materials to their groups
-         */
-        private static Map<MaterialGroup, List<Material>> createMaterialGroupMap(
-                MaterialGroup[] groups, Material[] materials) {
-            // Sort the groups based on priority (lower number = higher priority)
-            MaterialGroup[] sortedGroups = groups.clone();
-            Arrays.sort(sortedGroups, Comparator.comparingInt(MaterialGroup::getPriority));
-
-            Map<MaterialGroup, List<Material>> map = new LinkedHashMap<>();
-            MaterialGroup materialGroup;
-            for (MaterialGroup group : sortedGroups) {
-                List<Material> itemsForGroup = new ArrayList<>();
-                for (Material material : materials) {
-                    materialGroup = material.getGroup();
-                    if (materialGroup.equals(group)) {
-                        itemsForGroup.add(material);
-                    }
-                }
-                // Sort the types within each group based on priority
-                itemsForGroup.sort(Comparator.comparingInt(Material::getGroupPriority));
-
-                map.put(group, itemsForGroup);
-            }
-
-            // Remove empty groups
-            map.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-
-            return map;
         }
     }
 }
