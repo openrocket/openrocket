@@ -94,7 +94,7 @@ public class MaterialModel extends AbstractListModel<Material> implements
 	public void addCustomMaterial() {
 		CustomMaterialDialog dialog = new CustomMaterialDialog(
 				SwingUtilities.getWindowAncestor(parentUIComponent),
-				(Material) getSelectedItem(), true, false,
+				(Material) getSelectedItem(), true, false, true,
 				trans.get("MaterialModel.title.Defcustmat"));
 
 		dialog.setVisible(true);

@@ -37,6 +37,7 @@ public class CustomMaterialDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final Material originalMaterial;
+	private final boolean onlyCopyTypeFromMaterial;
 	
 	private boolean okClicked = false;
 	private JComboBox<Material.Type> typeBox;
@@ -52,6 +53,11 @@ public class CustomMaterialDialog extends JDialog {
 		this(parent, material, saveOption, addToApplicationDatabase, title, null);
 	}
 
+	public CustomMaterialDialog(Window parent, Material material, boolean saveOption, boolean addToApplicationDatabase,
+								boolean onlyCopyTypeFromMaterial, String title) {
+		this(parent, material, saveOption, addToApplicationDatabase, onlyCopyTypeFromMaterial, title, null);
+	}
+
 	public CustomMaterialDialog(Window parent, Material material, boolean saveOption,
 			String title) {
 		this(parent, material, saveOption, material != null && !material.isDocumentMaterial(), title);
@@ -59,10 +65,16 @@ public class CustomMaterialDialog extends JDialog {
 
 	public CustomMaterialDialog(Window parent, Material material, boolean saveOption, boolean addToApplicationDatabase,
 								String title, String note) {
+		this(parent, material, saveOption, addToApplicationDatabase, false, title, note);
+	}
+
+	public CustomMaterialDialog(Window parent, Material material, boolean saveOption, boolean addToApplicationDatabase,
+								boolean onlyCopyTypeFromMaterial, String title, String note) {
 		//// Custom material
 		super(parent, trans.get("custmatdlg.title.Custommaterial"), Dialog.ModalityType.APPLICATION_MODAL);
 
 		this.originalMaterial = material;
+		this.onlyCopyTypeFromMaterial = onlyCopyTypeFromMaterial;
 
 		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel"));
 
@@ -80,7 +92,7 @@ public class CustomMaterialDialog extends JDialog {
 		//// Material name
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialname")));
 		nameField = new JTextField(15);
-		if (material != null) {
+		if (!onlyCopyTypeFromMaterial && material != null) {
 			nameField.setText(material.getName());
 		}
 		panel.add(nameField, "span, growx, wrap");
@@ -123,7 +135,7 @@ public class CustomMaterialDialog extends JDialog {
 		// Material group
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.MaterialGroup")));
 		groupBox = new JComboBox<>(MaterialGroup.ALL_GROUPS);
-		if (material != null && !material.isUserDefined()) {
+		if (!onlyCopyTypeFromMaterial && material != null && !material.isUserDefined()) {
 			groupBox.setSelectedItem(material.getGroup());
 		} else {
 			groupBox.setSelectedItem(MaterialGroup.CUSTOM);
@@ -207,7 +219,8 @@ public class CustomMaterialDialog extends JDialog {
 	private void updateDensityModel() {
 		if (originalMaterial != null) {
 			if (density == null) {
-				density = new DoubleModel(originalMaterial.getDensity(),
+				double densityValue = onlyCopyTypeFromMaterial ? 0 : originalMaterial.getDensity();
+				density = new DoubleModel(densityValue,
 						originalMaterial.getType().getUnitGroup(), 0);
 				densitySpinner.setModel(density.getSpinnerModel());
 				densitySpinner.setEditor(new SpinnerEditor(densitySpinner));
