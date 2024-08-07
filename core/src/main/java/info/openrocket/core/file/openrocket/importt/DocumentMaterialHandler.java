@@ -19,7 +19,7 @@ public class DocumentMaterialHandler extends AbstractElementHandler {
 
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-		if (element.equals("mat")) {
+		if (element.equals("material")) {
 			return PlainTextHandler.INSTANCE;
 		}
 		return null;
@@ -27,10 +27,10 @@ public class DocumentMaterialHandler extends AbstractElementHandler {
 
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
-		if ("mat".equals(element)) {
+		if ("material".equals(element)) {
 			Material mat = Material.fromStorableString(content, true);
 			mat.setDocumentMaterial(true);
-			document.getDocumentPreferences().getDatabase(mat.getType()).add(mat);
+			document.getDocumentPreferences().addMaterial(mat);
 		}
 	}
 }
