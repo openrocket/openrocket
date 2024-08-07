@@ -172,7 +172,17 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         public static SearchableAndCategorizableComboBox<MaterialGroup, Material> createComboBox(
                 MaterialGroup[] allGroups, Material[] materials, Component... extraCategoryWidgets) {
             final Map<MaterialGroup, Material[]> materialGroupMap = createMaterialGroupMap(allGroups, materials);
-            return new SearchableAndCategorizableComboBox<>(materialGroupMap, trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets);
+            return new SearchableAndCategorizableComboBox<>(materialGroupMap,
+                    trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets) {
+                @Override
+                public String getDisplayString(Material item) {
+                    String baseText = item.toString();
+                    if (item.isUserDefined()) {
+                        baseText = "(ud) " + baseText;
+                    }
+                    return baseText;
+                }
+            };
         }
 
         public static void updateComboBoxItems(SearchableAndCategorizableComboBox<MaterialGroup, Material> comboBox,

@@ -85,6 +85,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		this.extraCategoryWidgets = extraCategoryWidgets;
 		this.placeHolderText = placeHolderText;
 		updateItems(itemGroupMap);
+		setupMainRenderer();
 
 		// Add key listener for the search fields
 		searchFieldCategory.addKeyListener(new KeyAdapter() {
@@ -155,6 +156,19 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		textSelectionBackground = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
 	}
 
+	public void setupMainRenderer() {
+		setRenderer(new DefaultListCellRenderer() {
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				if (value != null) {
+					label.setText(getDisplayString((T) value));
+				}
+				return label;
+			}
+		});
+	}
+
 	public void updateItems(Map<E, T[]> itemGroupMap) {
 		this.itemGroupMap = itemGroupMap;
 		this.allItems = extractItemsFromMap(itemGroupMap);
@@ -197,7 +211,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 			if (itemsForGroup != null) {
 				for (T item : itemsForGroup) {
-					JMenuItem itemMenu = new JMenuItem(item.toString()) {
+					JMenuItem itemMenu = new JMenuItem(getDisplayString(item)) {
 						@Override
 						public void paintComponent(Graphics g) {
 							super.paintComponent(g);
@@ -240,6 +254,10 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		return menu;
 	}
 
+	public String getDisplayString(T item) {
+		return item.toString();
+	}
+
 	private JList<T> createFilteredList() {
 		JList<T> list = new JList<>();		// Don't fill the list with the items yet, this will be done during filtering
 
@@ -248,7 +266,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				T item = (T) value;
-				String itemName = item.toString();
+				String itemName = getDisplayString(item);
 
 				// If the item is currently selected, draw a checkmark before it
 				if (item.equals(getSelectedItem())) {
@@ -337,7 +355,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		SortedListModel<T> filteredModel = new SortedListModel<>();
 
 		for (T item : this.allItems) {
-			if (item.toString().toLowerCase().contains(searchText)) {
+			if (getDisplayString(item).toLowerCase().contains(searchText)) {
 				filteredModel.add(item);
 			}
 		}
