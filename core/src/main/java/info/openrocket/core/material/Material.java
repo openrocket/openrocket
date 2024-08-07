@@ -298,11 +298,7 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public String toStorableString() {
-		if (group != null) {
-			return getType().name() + "|" + name.replace('|', ' ') + '|' + density + '|' + group.getDatabaseString();
-		} else {
-			return getType().name() + "|" + name.replace('|', ' ') + '|' + density;
-		}
+		return getType().name() + "|" + name.replace('|', ' ') + '|' + density + '|' + getEquivalentGroup().getDatabaseString();
 	}
 	
 	
