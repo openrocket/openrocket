@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -60,6 +59,10 @@ import java.util.Vector;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class SearchableAndCategorizableComboBox<G extends Group, T extends Groupable<G>> extends JComboBox<T> {
+	private static final String CHECKMARK = "\u2713";
+	private static final int CHECKMARK_X_OFFSET = 5;
+	private static final int CHECKMARK_Y_OFFSET = 5;
+
 	private final String placeHolderText;
 	private JPopupMenu categoryPopup;
 	private JPopupMenu searchPopup;
@@ -74,8 +77,6 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	private int highlightedListIdx = -1;
 
 	private static Color textSelectionBackground;
-
-	private static final String CHECKMARK = "\u2713";
 
 	static {
 		initColors();
@@ -99,82 +100,8 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		updateItems(itemGroupMap);
 		setupMainRenderer();
 
-		if (model != null) {
-			model.addListDataListener(new ListDataListener() {
-				@Override
-				public void intervalAdded(ListDataEvent e) {
-					updateItemsFromModel();
-				}
-
-				@Override
-				public void intervalRemoved(ListDataEvent e) {
-					updateItemsFromModel();
-				}
-
-				@Override
-				public void contentsChanged(ListDataEvent e) {
-					updateItemsFromModel();
-				}
-			});
-		}
-
-		// Add key listener for the search fields
-		searchFieldCategory.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				overrideActionKeys(e);
-			}
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-				EventQueue.invokeLater(() -> {
-					String text = searchFieldCategory.getText();
-					highlightedListIdx = 0;		// Start with the first item selected
-					searchFieldSearch.setText(text);
-					if (!text.isEmpty() && !searchPopup.isVisible()) {
-						hideCategoryPopup();
-						showSearchPopup();
-						filter(text);
-					}
-				});
-			}
-		});
-		searchFieldSearch.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				overrideActionKeys(e);
-			}
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-				EventQueue.invokeLater(() -> {
-					String text = searchFieldSearch.getText();
-					highlightedListIdx = 0;		// Start with the first item selected
-					searchFieldCategory.setText(text);
-					if (text.isEmpty() && !categoryPopup.isVisible()) {
-						hideSearchPopup();
-						showCategoryPopup();
-					}
-					filter(text);
-				});
-			}
-		});
-		// Fix a bug where the first character would get selected when the search field gets focus (thus deleting it on
-		// the next key press)
-		searchFieldSearch.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				SwingUtilities.invokeLater(() -> {
-					searchFieldSearch.setCaretPosition(searchFieldSearch.getText().length());
-				});
-			}
-		});
-
-		// Override the mouse listeners to use our custom popup
-		for (MouseListener mouseListener : getMouseListeners()) {
-			removeMouseListener(mouseListener);
-		}
-
+		setupModelListener(model);
+		setupSearchFieldListeners();
 		addMouseListeners();
 	}
 
@@ -283,7 +210,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 					super.paintComponent(g);
 					// If the group contains the selected item, draw a checkbox
 					if (containsSelectedItem(group, (T) SearchableAndCategorizableComboBox.this.getSelectedItem())) {
-						g.drawString(CHECKMARK, 5, getHeight() - 5); // Unicode for checked checkbox
+						g.drawString(CHECKMARK, CHECKMARK_X_OFFSET, getHeight() - CHECKMARK_Y_OFFSET); // Unicode for checked checkbox
 					}
 				}
 			};
@@ -297,7 +224,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 							super.paintComponent(g);
 							// If the item is currently selected, draw a checkmark before it
 							if (item == SearchableAndCategorizableComboBox.this.getSelectedItem()) {
-								g.drawString(CHECKMARK + " ", 5, getHeight() - 5);
+								g.drawString(CHECKMARK + " ", CHECKMARK_X_OFFSET, getHeight() - CHECKMARK_Y_OFFSET);
 							}
 						}
 					};
@@ -339,61 +266,19 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	}
 
 	private JList<T> createFilteredList() {
-		JList<T> list = new JList<>();		// Don't fill the list with the items yet, this will be done during filtering
+		JList<T> list = new JList<>();
 
-		list.setCellRenderer(new DefaultListCellRenderer() {
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				T item = (T) value;
-				String itemName = getDisplayString(item);
-
-				// If the item is currently selected, draw a checkmark before it
-				if (item == getSelectedItem()) {
-					itemName = CHECKMARK + " " + itemName;
-				}
-
-				if (itemName.toLowerCase().contains(searchFieldSearch.getText().toLowerCase())) {
-					// Use HTML to underline matching text
-					itemName = itemName.replaceAll("(?i)(" + searchFieldSearch.getText() + ")", "<u>$1</u>");
-					label.setText("<html>" + itemName + "</html>");
-				}
-
-				// Set the hover color
-				if (highlightedListIdx == index || isSelected) {
-					label.setBackground(textSelectionBackground);
-					label.setOpaque(true);
-				} else {
-					label.setOpaque(false);
-				}
-
-				return label;
-			}
-		});
-
-		list.addMouseMotionListener(new MouseAdapter() {
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				Point p = new Point(e.getX(),e.getY());
-				int index = list.locationToIndex(p);
-				if (index != highlightedListIdx) {
-					highlightedListIdx = index;
-					list.repaint();
-				}
-			}
-		});
-
-		list.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				// Check if the event is in the final phase of change
-				if (!e.getValueIsAdjusting()) {
-					selectComboBoxItemFromFilteredList();
-				}
-			}
-		});
+		list.setCellRenderer(new FilteredListCellRenderer());
+		list.addMouseMotionListener(new FilteredListMouseMotionAdapter());
+		list.addListSelectionListener(this::onFilteredListSelectionChanged);
 
 		return list;
+	}
+
+	private void onFilteredListSelectionChanged(ListSelectionEvent e) {
+		if (!e.getValueIsAdjusting()) {
+			selectComboBoxItemFromFilteredList();
+		}
 	}
 
 	private void selectComboBoxItemFromFilteredList() {
@@ -404,11 +289,15 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				if (selectedItem != null) {
 					SearchableAndCategorizableComboBox.this.setSelectedItem(selectedItem);
 					// Hide the popups after selection
-					hideCategoryPopup();
-					hideSearchPopup();
+					hidePopups();
 				}
 			}
 		});
+	}
+
+	private void hidePopups() {
+		hideCategoryPopup();
+		hideSearchPopup();
 	}
 
 	private void showCategoryPopup() {
@@ -469,20 +358,17 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		return categoryPopup.isVisible() || searchPopup.isVisible();
 	}
 
+
 	/**
 	 * Override the default action keys (escape, enter, arrow keys) to do our own actions.
 	 * @param e the key event
 	 */
 	private void overrideActionKeys(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			hideCategoryPopup();
-			hideSearchPopup();
-		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			selectHighlightedItemInFilteredList();
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			highlightNextItemInFilteredList();
-		} else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_LEFT) {
-			highlightPreviousItemInFilteredList();
+		switch (e.getKeyCode()) {
+			case KeyEvent.VK_ESCAPE -> hidePopups();
+			case KeyEvent.VK_ENTER -> selectHighlightedItemInFilteredList();
+			case KeyEvent.VK_DOWN, KeyEvent.VK_RIGHT -> highlightNextItemInFilteredList();
+			case KeyEvent.VK_UP, KeyEvent.VK_LEFT -> highlightPreviousItemInFilteredList();
 		}
 	}
 
@@ -490,11 +376,10 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	 * Select the highlighted item in the filtered list and hide the popups.
 	 */
 	private void selectHighlightedItemInFilteredList() {
-		if (highlightedListIdx >= filteredList.getModel().getSize() || highlightedListIdx < 0 || !searchPopup.isVisible()) {
-			return;
+		if (highlightedListIdx >= 0 && highlightedListIdx < filteredList.getModel().getSize() && searchPopup.isVisible()) {
+			filteredList.setSelectedIndex(highlightedListIdx);
+			selectComboBoxItemFromFilteredList();
 		}
-		filteredList.setSelectedIndex(highlightedListIdx);
-		selectComboBoxItemFromFilteredList();
 	}
 
 	/**
@@ -502,11 +387,10 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	 */
 	private void highlightNextItemInFilteredList() {
 		if (highlightedListIdx + 1 >= filteredList.getModel().getSize() || !searchPopup.isVisible()) {
-			return;
+			highlightedListIdx++;
+			filteredList.ensureIndexIsVisible(highlightedListIdx);
+			filteredList.repaint();
 		}
-		highlightedListIdx++;
-		filteredList.ensureIndexIsVisible(highlightedListIdx);
-		filteredList.repaint();
 	}
 
 	/**
@@ -521,12 +405,53 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		filteredList.repaint();
 	}
 
+	private void setupModelListener(ComboBoxModel<T> model) {
+		if (model == null) {
+			return;
+		}
+		model.addListDataListener(new ListDataListener() {
+			@Override
+			public void intervalAdded(ListDataEvent e) {
+				updateItemsFromModel();
+			}
 
+			@Override
+			public void intervalRemoved(ListDataEvent e) {
+				updateItemsFromModel();
+			}
+
+			@Override
+			public void contentsChanged(ListDataEvent e) {
+				updateItemsFromModel();
+			}
+		});
+	}
+
+	private void setupSearchFieldListeners() {
+		searchFieldCategory.addKeyListener(new SearchFieldKeyAdapter(searchFieldCategory, searchFieldSearch, true));
+		searchFieldSearch.addKeyListener(new SearchFieldKeyAdapter(searchFieldSearch, searchFieldCategory, false));
+
+		// Fix a bug where the first character would get selected when the search field gets focus (thus deleting it on
+		// the next key press)
+		searchFieldSearch.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				SwingUtilities.invokeLater(() -> {
+					searchFieldSearch.setCaretPosition(searchFieldSearch.getText().length());
+				});
+			}
+		});
+	}
 
 	/**
 	 * Add mouse listener to widgets of the combobox to open our custom popup menu.
 	 */
 	private void addMouseListeners() {
+		// Override the mouse listeners to use our custom popup
+		for (MouseListener mouseListener : getMouseListeners()) {
+			removeMouseListener(mouseListener);
+		}
+
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -559,6 +484,91 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 					});
 				}
 			});
+		}
+	}
+
+	private class SearchFieldKeyAdapter extends KeyAdapter {
+		private final PlaceholderTextField primaryField;
+		private final PlaceholderTextField secondaryField;
+		private final boolean isCategory;
+
+		SearchFieldKeyAdapter(PlaceholderTextField primary, PlaceholderTextField secondary, boolean isCategory) {
+			this.primaryField = primary;
+			this.secondaryField = secondary;
+			this.isCategory = isCategory;
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			overrideActionKeys(e);
+		}
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			EventQueue.invokeLater(() -> {
+				String text = primaryField.getText();
+				highlightedListIdx = 0;
+				secondaryField.setText(text);
+				if (isCategory) {
+					handleCategorySearch(text);
+				} else {
+					handleGeneralSearch(text);
+				}
+				filter(text);
+			});
+		}
+
+		private void handleCategorySearch(String text) {
+			if (!text.isEmpty() && !searchPopup.isVisible()) {
+				hideCategoryPopup();
+				showSearchPopup();
+			}
+		}
+
+		private void handleGeneralSearch(String text) {
+			if (text.isEmpty() && !categoryPopup.isVisible()) {
+				hideSearchPopup();
+				showCategoryPopup();
+			}
+		}
+	}
+
+	private class FilteredListCellRenderer extends DefaultListCellRenderer {
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			T item = (T) value;
+			String itemName = getDisplayString(item);
+
+			if (item == getSelectedItem()) {
+				itemName = CHECKMARK + " " + itemName;
+			}
+
+			if (itemName.toLowerCase().contains(searchFieldSearch.getText().toLowerCase())) {
+				itemName = itemName.replaceAll("(?i)(" + searchFieldSearch.getText() + ")", "<u>$1</u>");
+				label.setText("<html>" + itemName + "</html>");
+			}
+
+			if (highlightedListIdx == index || isSelected) {
+				label.setBackground(textSelectionBackground);
+				label.setOpaque(true);
+			} else {
+				label.setOpaque(false);
+			}
+
+			return label;
+		}
+	}
+
+	private class FilteredListMouseMotionAdapter extends MouseAdapter {
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			Point p = new Point(e.getX(), e.getY());
+			int index = filteredList.locationToIndex(p);
+			if (index != highlightedListIdx) {
+				highlightedListIdx = index;
+				filteredList.repaint();
+			}
 		}
 	}
 
