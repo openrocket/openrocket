@@ -64,7 +64,8 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
                 public void run() {
                     mm.addCustomMaterial();
                     if (MaterialPanel.this.materialCombo != null) {
-                        MaterialComboBox.updateComboBoxItems(MaterialPanel.this.materialCombo, MaterialGroup.ALL_GROUPS, mm.getAllMaterials());
+                        MaterialComboBox.updateComboBoxItems(MaterialPanel.this.materialCombo, MaterialGroup.ALL_GROUPS,
+                                mm.getAllMaterials());
                         MaterialPanel.this.materialCombo.setSelectedItem(mm.getSelectedItem());
                     }
                 }
@@ -91,6 +92,10 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         this.materialCombo = MaterialComboBox.createComboBox(MaterialGroup.ALL_GROUPS, mm.getAllMaterials(),
                 customMaterialButton, editMaterialsButton);
         this.materialCombo.setSelectedItem(mm.getSelectedItem());
+        this.materialCombo.addActionListener(e -> {
+            Material selectedMaterial = (Material) materialCombo.getSelectedItem();
+            mm.setSelectedItem(selectedMaterial);
+        });
         this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
         this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
         order.add(this.materialCombo);
