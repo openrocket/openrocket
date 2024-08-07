@@ -124,7 +124,7 @@ public class CustomMaterialDialog extends JDialog {
 		panel.add(new JLabel(trans.get("custmatdlg.lbl.MaterialGroup")));
 		groupBox = new JComboBox<>(MaterialGroup.ALL_GROUPS);
 		if (material != null && !material.isUserDefined()) {
-			groupBox.setSelectedItem(material.getEquivalentGroup());
+			groupBox.setSelectedItem(material.getGroup());
 		} else {
 			groupBox.setSelectedItem(MaterialGroup.CUSTOM);
 		}

@@ -210,7 +210,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
             for (MaterialGroup group : sortedGroups) {
                 List<Material> itemsForGroup = new ArrayList<>();
                 for (Material material : materials) {
-                    materialGroup = material.getEquivalentGroup();
+                    materialGroup = material.getGroup();
                     if (materialGroup.equals(group)) {
                         itemsForGroup.add(material);
                     }

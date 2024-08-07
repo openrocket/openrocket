@@ -105,7 +105,7 @@ public class MaterialEditPanel extends JPanel {
 				new Column(trans.get("matedtpan.col.Group")) {
 					@Override
 					public Object getValueAt(int row) {
-						return getMaterial(row).getEquivalentGroup().getName();
+						return getMaterial(row).getGroup().getName();
 					}
 
 					@Override

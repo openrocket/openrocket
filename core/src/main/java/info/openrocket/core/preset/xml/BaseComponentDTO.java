@@ -218,7 +218,7 @@ public abstract class BaseComponentDTO {
 		AnnotatedMaterialDTO(Material theMaterial) {
 			type = theMaterial.getType().name();
 			material = theMaterial.getName();
-			materialGroup = theMaterial.getEquivalentGroup().getDatabaseString();
+			materialGroup = theMaterial.getGroup().getDatabaseString();
 		}
 
 		public Material.Type getORMaterialType() {

@@ -152,9 +152,9 @@ public abstract class Material implements Comparable<Material> {
 	private Material(String name, double density, MaterialGroup group, boolean userDefined, boolean documentMaterial) {
 		this.name = name;
 		this.density = density;
-		this.group = group;
 		this.userDefined = userDefined;
 		this.documentMaterial = documentMaterial;
+		this.group = getEquivalentGroup(group, userDefined);
 	}
 
 	private Material(String name, double density, MaterialGroup group, boolean userDefined) {
@@ -198,9 +198,13 @@ public abstract class Material implements Comparable<Material> {
 	/**
 	 * Some materials have a null group. This method returns the equivalent group, i.e. CUSTOM for user-defined materials,
 	 * and OTHER for materials with a null group.
+	 *
+	 * @param group: the group of the material
+	 * @param userDefined: whether the material is user-defined or not
+	 *
 	 * @return the equivalent group
 	 */
-	public MaterialGroup getEquivalentGroup() {
+	private static MaterialGroup getEquivalentGroup(MaterialGroup group, boolean userDefined) {
 		if (group != null) {
 			return group;
 		}
@@ -298,7 +302,7 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public String toStorableString() {
-		return getType().name() + "|" + name.replace('|', ' ') + '|' + density + '|' + getEquivalentGroup().getDatabaseString();
+		return getType().name() + "|" + name.replace('|', ' ') + '|' + density + '|' + group.getDatabaseString();
 	}
 	
 	

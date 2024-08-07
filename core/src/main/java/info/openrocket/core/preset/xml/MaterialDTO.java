@@ -40,7 +40,7 @@ public class MaterialDTO {
 	public MaterialDTO(final Material theMaterial) {
 		this(theMaterial.getName(), theMaterial.getDensity(), MaterialTypeDTO.asDTO(theMaterial.getType()),
 				theMaterial.getType().getUnitGroup().getDefaultUnit().toString(),
-				MaterialGroupDTO.asDTO(theMaterial.getEquivalentGroup()));
+				MaterialGroupDTO.asDTO(theMaterial.getGroup()));
 	}
 
 	public MaterialDTO(final String theName, final double theDensity, final MaterialTypeDTO theType,
