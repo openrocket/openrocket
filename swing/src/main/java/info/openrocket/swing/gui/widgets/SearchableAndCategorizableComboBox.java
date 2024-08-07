@@ -16,10 +16,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.MutableComboBoxModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.BorderLayout;
@@ -41,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -166,24 +163,10 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		this.allItems = extractItemsFromMap(itemGroupMap);
 
 		// Update the existing model instead of creating a new one
-		ComboBoxModel<T> model = getModel();
-		if (model instanceof MutableComboBoxModel<T> mutableModel) {
-
-			// Remove all existing elements
-			while (mutableModel.getSize() > 0) {
-				mutableModel.removeElementAt(0);
-			}
-
-			// Add new elements
-			for (T item : allItems) {
-				mutableModel.addElement(item);
-			}
-		} else {
-			// If the model is not mutable, we need to set a new model
-			// This should be a rare case, as DefaultComboBoxModel is mutable
-			model = new DefaultComboBoxModel<>(new Vector<>(allItems));
-			setupModelListener(model);
+		if (getModel() instanceof DefaultComboBoxModel<T>) {
+			ComboBoxModel<T> model = new DefaultComboBoxModel<>(new Vector<>(allItems));
 			setModel(model);
+			setupModelListener(model);
 		}
 
 		// Recreate the search fields only if they don't exist
@@ -203,6 +186,21 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 		revalidate();
 		repaint();
+	}
+
+	public void updateItemsFromModel() {
+		ComboBoxModel<T> model = getModel();
+		if (model == null) {
+			return;
+		}
+		List<T> items = new ArrayList<>();
+		for (int i = 0; i < model.getSize(); i++) {
+			T item = model.getElementAt(i);
+			if (item != null) {
+				items.add(item);
+			}
+		}
+		updateItems(constructItemGroupMapFromList(items));
 	}
 
 	private List<T> extractItemsFromMap(Map<G, List<T>> itemGroupMap) {
@@ -496,6 +494,24 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				}
 			});
 		}
+	}
+
+	@Override
+	public void intervalAdded(ListDataEvent e) {
+		super.intervalAdded(e);
+		updateItemsFromModel();
+	}
+
+	@Override
+	public void intervalRemoved(ListDataEvent e) {
+		super.intervalRemoved(e);
+		updateItemsFromModel();
+	}
+
+	@Override
+	public void contentsChanged(ListDataEvent e) {
+		super.contentsChanged(e);
+		updateItemsFromModel();
 	}
 
 	private class SearchFieldKeyAdapter extends KeyAdapter {

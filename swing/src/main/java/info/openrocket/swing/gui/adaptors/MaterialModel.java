@@ -103,21 +103,21 @@ public class MaterialModel extends AbstractListModel<Material> implements
 			return;
 
 		Material material = dialog.getMaterial();
-		this.setMethod.invoke(this.rocketComponent, material);
-
 		if (dialog.isAddSelected()) {
 			this.applicationDatabase.add(material);
 		} else {
 			material.setDocumentMaterial(true);
 			this.documentDatabase.add(material);
 		}
+
+		this.setMethod.invoke(this.rocketComponent, material);
 	}
 
 	@Override
 	public Material getElementAt(int index) {
 		if (index < applicationDatabase.size()) {
 			return applicationDatabase.get(index);
-		} else if (index < applicationDatabase.size() + documentDatabase.size() - 1) {
+		} else if (index < applicationDatabase.size() + documentDatabase.size()) {
 			return documentDatabase.get(index - applicationDatabase.size());
 		}
 		return null;
