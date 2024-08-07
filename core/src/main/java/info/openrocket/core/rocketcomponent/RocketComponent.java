@@ -15,6 +15,7 @@ import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -1079,6 +1080,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				overriddenBy = c.cdOverridden && c.overrideSubcomponentsCD ? c : null;
 			}
 		}
+	}
+
+	/**
+	 * Returns all materials present in this component, or null if it does not have a material.
+	 * @return a list of materials
+	 */
+	public List<Material> getAllMaterials() {
+		return null;
 	}
 
 	/**

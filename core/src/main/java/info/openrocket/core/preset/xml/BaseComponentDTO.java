@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+
+import info.openrocket.core.material.MaterialGroup;
 import jakarta.xml.bind.DatatypeConverter;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -186,8 +188,7 @@ public abstract class BaseComponentDTO {
 		if (dto == null) {
 			return null;
 		}
-		for (int i = 0; i < materialList.size(); i++) {
-			MaterialDTO materialDTO = materialList.get(i);
+		for (MaterialDTO materialDTO : materialList) {
 			if (materialDTO.getType().name().equals(dto.type) && materialDTO.getName().equals(dto.material)) {
 				return materialDTO.asMaterial();
 			}
@@ -199,7 +200,7 @@ public abstract class BaseComponentDTO {
 			return m;
 		}
 
-		return Databases.findMaterial(dto.getORMaterialType(), dto.material, 0.0);
+		return Databases.findMaterial(dto.getORMaterialType(), dto.material, 0.0, MaterialGroup.loadFromDatabaseString(dto.materialGroup));
 
 	}
 
@@ -208,6 +209,8 @@ public abstract class BaseComponentDTO {
 		private String type;
 		@XmlValue
 		private String material;
+		@XmlAttribute(name = "Group")
+		private String materialGroup;
 
 		AnnotatedMaterialDTO() {
 		}
@@ -215,6 +218,7 @@ public abstract class BaseComponentDTO {
 		AnnotatedMaterialDTO(Material theMaterial) {
 			type = theMaterial.getType().name();
 			material = theMaterial.getName();
+			materialGroup = theMaterial.getEquivalentGroup().getDatabaseString();
 		}
 
 		public Material.Type getORMaterialType() {

@@ -201,7 +201,7 @@ public class Databases {
 				return m;
 			}
 		}
-		return Material.newMaterial(type, name, density, group, true);
+		return Material.newMaterial(type, name, density, group, true, true);
 	}
 
 	/**
@@ -248,7 +248,7 @@ public class Databases {
 	 * @param 	type	the desired type
 	 * @return	the database of the type given
 	 */
-	public static Database<Material> getDatabase(Material.Type type){
+	public static Database<Material> getDatabase(Material.Type type) {
 		return switch (type) {
 			case BULK -> BULK_MATERIAL;
 			case SURFACE -> SURFACE_MATERIAL;

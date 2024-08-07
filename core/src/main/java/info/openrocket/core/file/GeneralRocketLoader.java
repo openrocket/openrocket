@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -18,6 +19,8 @@ import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.file.openrocket.importt.OpenRocketLoader;
 import info.openrocket.core.file.rasaero.importt.RASAeroLoader;
 import info.openrocket.core.file.rocksim.importt.RockSimLoader;
+import info.openrocket.core.material.Material;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayUtils;
 import info.openrocket.core.util.TextUtil;
 
@@ -243,6 +246,23 @@ public class GeneralRocketLoader {
 		}
 	}
 
+	/**
+	 * Load all materials that are user-defined and document materials to the document material database.
+	 */
+	private void loadMaterialsToDocument() {
+		for (RocketComponent c : doc.getRocket()) {
+			List<Material> materials = c.getAllMaterials();
+			if (materials == null) {
+				continue;
+			}
+			for (Material m : materials) {
+				if (m.isUserDefined() && m.isDocumentMaterial()) {
+					doc.getDocumentPreferences().addMaterial(m);
+				}
+			}
+		}
+	}
+
 	private void loadUsing(RocketLoader loader, InputStream source, String fileName) throws RocketLoadException {
 		warnings.clear();
 		DocumentLoadingContext context = new DocumentLoadingContext();
@@ -251,5 +271,8 @@ public class GeneralRocketLoader {
 		context.setAttachmentFactory(attachmentFactory);
 		loader.load(context, source, fileName);
 		warnings.addAll(loader.getWarnings());
+
+		// Check for custom materials that need to be added to the document material database
+		loadMaterialsToDocument();
 	}
 }

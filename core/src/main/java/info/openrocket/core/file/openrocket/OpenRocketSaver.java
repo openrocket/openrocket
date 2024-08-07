@@ -451,7 +451,7 @@ public class OpenRocketSaver extends RocketSaver {
 			writeln("<docmaterials>");
 			indent++;
 			for (Material m : docPrefs.getAllMaterials()) {
-				writeln("<mat>" + m.toStorableString() + "</mat>");
+				writeln("<material>" + m.toStorableString() + "</material>");
 			}
 			indent--;
 			writeln("</docmaterials>");

@@ -9,6 +9,7 @@ import info.openrocket.core.startup.Application;
 public class MaterialGroup implements Comparable<MaterialGroup> {
 	private static final Translator trans = Application.getTranslator();
 
+	// When modifying this list, also update the MaterialGroupDTO class in the preset.xml package! (and the ALL_GROUPS array)
 	public static final MaterialGroup METALS = new MaterialGroup(trans.get("MaterialGroup.Metals"), "Metals", 0, false);
 	public static final MaterialGroup WOODS = new MaterialGroup(trans.get("MaterialGroup.Woods"), "Woods", 10, false);
 	public static final MaterialGroup PLASTICS = new MaterialGroup(trans.get("MaterialGroup.Plastics"), "Plastics", 20, false);
@@ -72,6 +73,9 @@ public class MaterialGroup implements Comparable<MaterialGroup> {
 	}
 
 	public static MaterialGroup loadFromDatabaseString(String name) {
+		if (name == null) {
+			return MaterialGroup.OTHER;
+		}
 		for (MaterialGroup group : ALL_GROUPS) {
 			if (group.getDatabaseString().equals(name)) {
 				return group;

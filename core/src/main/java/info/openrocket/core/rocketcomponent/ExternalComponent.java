@@ -1,5 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import info.openrocket.core.l10n.Translator;
@@ -153,6 +154,14 @@ public abstract class ExternalComponent extends RocketComponent {
 		material = mat;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(material);
+		return materials;
 	}
 
 	public Finish getFinish() {

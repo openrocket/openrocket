@@ -7,6 +7,9 @@ import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
 	private final double DEFAULT_DIAMETER = 0.3;
@@ -137,7 +140,15 @@ public class Parachute extends RecoveryDevice {
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(lineMaterial);
+		return materials;
+	}
+
 	@Override
 	public double getComponentMass() {
 		return super.getComponentMass() +

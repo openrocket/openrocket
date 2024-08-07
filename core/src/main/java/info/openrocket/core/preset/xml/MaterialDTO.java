@@ -28,6 +28,8 @@ public class MaterialDTO {
 	private MaterialTypeDTO type;
 	@XmlAttribute(name = "UnitsOfMeasure")
 	private String uom;
+	@XmlElement(name = "Group")
+	private MaterialGroupDTO group;
 
 	/**
 	 * Default constructor.
@@ -37,15 +39,20 @@ public class MaterialDTO {
 
 	public MaterialDTO(final Material theMaterial) {
 		this(theMaterial.getName(), theMaterial.getDensity(), MaterialTypeDTO.asDTO(theMaterial.getType()),
-				theMaterial.getType().getUnitGroup().getDefaultUnit().toString());
+				theMaterial.getType().getUnitGroup().getDefaultUnit().toString(),
+				MaterialGroupDTO.asDTO(theMaterial.getEquivalentGroup()));
 	}
 
 	public MaterialDTO(final String theName, final double theDensity, final MaterialTypeDTO theType,
-			final String theUom) {
+			final String theUom, final MaterialGroupDTO theGroup) {
 		name = theName;
 		density = theDensity;
 		type = theType;
 		uom = theUom;
+		group = theGroup;
+		if (group == null) {
+			group = MaterialGroupDTO.OTHER;
+		}
 	}
 
 	public String getName() {
@@ -80,8 +87,19 @@ public class MaterialDTO {
 		uom = theUom;
 	}
 
+	public MaterialGroupDTO getGroup() {
+		return group;
+	}
+
+	public void setGroup(MaterialGroupDTO group) {
+		this.group = group;
+	}
+
 	Material asMaterial() {
-		return Databases.findMaterial(type.getORMaterialType(), name, density);
+		if (group == null) {
+			group = MaterialGroupDTO.OTHER;
+		}
+		return Databases.findMaterial(type.getORMaterialType(), name, density, group.getORMaterialGroup());
 	}
 
 	/**
