@@ -246,23 +246,6 @@ public class GeneralRocketLoader {
 		}
 	}
 
-	/**
-	 * Load all materials that are user-defined and document materials to the document material database.
-	 */
-	private void loadMaterialsToDocument() {
-		for (RocketComponent c : doc.getRocket()) {
-			List<Material> materials = c.getAllMaterials();
-			if (materials == null) {
-				continue;
-			}
-			for (Material m : materials) {
-				if (m.isUserDefined() && m.isDocumentMaterial()) {
-					doc.getDocumentPreferences().addMaterial(m);
-				}
-			}
-		}
-	}
-
 	private void loadUsing(RocketLoader loader, InputStream source, String fileName) throws RocketLoadException {
 		warnings.clear();
 		DocumentLoadingContext context = new DocumentLoadingContext();
@@ -273,6 +256,6 @@ public class GeneralRocketLoader {
 		warnings.addAll(loader.getWarnings());
 
 		// Check for custom materials that need to be added to the document material database
-		loadMaterialsToDocument();
+		doc.reloadDocumentMaterials();
 	}
 }
