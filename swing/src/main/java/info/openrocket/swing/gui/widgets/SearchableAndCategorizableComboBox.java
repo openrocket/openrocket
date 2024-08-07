@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -196,7 +197,16 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 			if (itemsForGroup != null) {
 				for (T item : itemsForGroup) {
-					JMenuItem itemMenu = new JMenuItem(item.toString());
+					JMenuItem itemMenu = new JMenuItem(item.toString()) {
+						@Override
+						public void paintComponent(Graphics g) {
+							super.paintComponent(g);
+							// If the item is currently selected, draw a checkmark before it
+							if (item.equals(SearchableAndCategorizableComboBox.this.getSelectedItem())) {
+								g.drawString("\u2713 ", 5, getHeight() - 5);
+							}
+						}
+					};
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
 					});
@@ -239,6 +249,11 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				T item = (T) value;
 				String itemName = item.toString();
+
+				// If the item is currently selected, draw a checkmark before it
+				if (item.equals(getSelectedItem())) {
+					itemName = "\u2713 " + itemName;
+				}
 
 				if (itemName.toLowerCase().contains(searchFieldSearch.getText().toLowerCase())) {
 					// Use HTML to underline matching text
