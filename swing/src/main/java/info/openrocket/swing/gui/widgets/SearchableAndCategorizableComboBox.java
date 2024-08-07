@@ -206,7 +206,16 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 		// Fill the menu with the groups
 		for (E group : itemGroupMap.keySet()) {
-			JMenu groupList = new JMenu(group.toString());
+			JMenu groupMenu = new JMenu(group.toString()) {
+				@Override
+				public void paintComponent(Graphics g) {
+					super.paintComponent(g);
+					// If the group contains the selected item, draw a checkbox
+					if (containsSelectedItem(group, (T) SearchableAndCategorizableComboBox.this.getSelectedItem())) {
+						g.drawString("\u2713", 5, getHeight() - 5); // Unicode for checked checkbox
+					}
+				}
+			};
 			T[] itemsForGroup = itemGroupMap.get(group);
 
 			if (itemsForGroup != null) {
@@ -224,11 +233,11 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
 					});
-					groupList.add(itemMenu);
+					groupMenu.add(itemMenu);
 				}
 			}
 
-			menu.add(groupList);
+			menu.add(groupMenu);
 		}
 
 		// Extra widgets
@@ -347,6 +356,18 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 	private void hideSearchPopup() {
 		searchPopup.setVisible(false);
+	}
+
+	private boolean containsSelectedItem(E group, T targetItem) {
+		T[] itemsInGroup = itemGroupMap.get(group);
+		if (itemsInGroup != null) {
+			for (T item : itemsInGroup) {
+				if (item == targetItem) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private void filter(String text) {
