@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,13 +127,11 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
                     document.startUndo("Set rocket finish");
 
                     // Do changes
-                    Iterator<RocketComponent> iter = component.getRoot().iterator();
-                    while (iter.hasNext()) {
-                        RocketComponent c = iter.next();
-                        if (c instanceof ExternalComponent) {
-                            ((ExternalComponent) c).setFinish(f);
-                        }
-                    }
+					for (RocketComponent c : component.getRocket()) {
+						if (c instanceof ExternalComponent) {
+							((ExternalComponent) c).setFinish(f);
+						}
+					}
                 } finally {
                     document.stopUndo();
                 }
