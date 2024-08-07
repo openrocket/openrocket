@@ -200,7 +200,8 @@ public class RocketComponentSaver {
 		
 		String baseName = trans.getBaseText("material", mat.getName());
 		
-		return str + " density=\"" + mat.getDensity() + "\">" + TextUtil.escapeXML(baseName) + "</" + tag + ">";
+		return str + " density=\"" + mat.getDensity() + "\" group=\"" + mat.getGroup().getDatabaseString() + "\">" +
+				TextUtil.escapeXML(baseName) + "</" + tag + ">";
 	}
 	
 	
