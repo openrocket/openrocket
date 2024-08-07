@@ -2,11 +2,12 @@ package info.openrocket.core.material;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.Group;
 
 /**
  * A class for categorizing materials.
  */
-public class MaterialGroup implements Comparable<MaterialGroup> {
+public class MaterialGroup implements Comparable<MaterialGroup>, Group {
 	private static final Translator trans = Application.getTranslator();
 
 	// When modifying this list, also update the MaterialGroupDTO class in the preset.xml package! (and the ALL_GROUPS array)

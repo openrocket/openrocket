@@ -2,8 +2,9 @@ package info.openrocket.core.simulation;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.Group;
 
-public class FlightDataTypeGroup implements Comparable<FlightDataTypeGroup> {
+public class FlightDataTypeGroup implements Comparable<FlightDataTypeGroup>, Group {
 	private static final Translator trans = Application.getTranslator();
 
 	public static final FlightDataTypeGroup TIME = new FlightDataTypeGroup(trans.get("FlightDataTypeGroup.GROUP_TIME"), 0);

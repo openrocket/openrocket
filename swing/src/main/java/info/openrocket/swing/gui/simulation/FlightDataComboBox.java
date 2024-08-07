@@ -18,7 +18,7 @@ public class FlightDataComboBox extends JComboBox<FlightDataType> {
 	private static final Translator trans = Application.getTranslator();
 
 	public static SearchableAndCategorizableComboBox<FlightDataTypeGroup, FlightDataType> createComboBox(FlightDataTypeGroup[] allGroups, FlightDataType[] types) {
-		final Map<FlightDataTypeGroup, FlightDataType[]> typeGroupMap = createFlightDataGroupMap(allGroups, types);
+		final Map<FlightDataTypeGroup, List<FlightDataType>> typeGroupMap = createFlightDataGroupMap(allGroups, types);
 		return new SearchableAndCategorizableComboBox<>(typeGroupMap, trans.get("FlightDataComboBox.placeholder"));
 	}
 
@@ -28,13 +28,13 @@ public class FlightDataComboBox extends JComboBox<FlightDataType> {
 	 * @param types the types
 	 * @return the map linking the types to their groups
 	 */
-	private static Map<FlightDataTypeGroup, FlightDataType[]> createFlightDataGroupMap(
+	private static Map<FlightDataTypeGroup, List<FlightDataType>> createFlightDataGroupMap(
 			FlightDataTypeGroup[] groups, FlightDataType[] types) {
 		// Sort the groups based on priority (lower number = higher priority)
 		FlightDataTypeGroup[] sortedGroups = groups.clone();
 		Arrays.sort(sortedGroups, Comparator.comparingInt(FlightDataTypeGroup::getPriority));
 
-		Map<FlightDataTypeGroup, FlightDataType[]> map = new LinkedHashMap<>();
+		Map<FlightDataTypeGroup, List<FlightDataType>> map = new LinkedHashMap<>();
 		for (FlightDataTypeGroup group : sortedGroups) {
 			List<FlightDataType> itemsForGroup = new ArrayList<>();
 			for (FlightDataType type : types) {
@@ -45,7 +45,7 @@ public class FlightDataComboBox extends JComboBox<FlightDataType> {
 			// Sort the types within each group based on priority
 			itemsForGroup.sort(Comparator.comparingInt(FlightDataType::getGroupPriority));
 
-			map.put(group, itemsForGroup.toArray(new FlightDataType[0]));
+			map.put(group, itemsForGroup);
 		}
 
 		return map;

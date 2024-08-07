@@ -1,9 +1,12 @@
 package info.openrocket.swing.gui.widgets;
 
+import info.openrocket.core.util.Group;
+import info.openrocket.core.util.Groupable;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
 import javax.swing.AbstractListModel;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
@@ -13,7 +16,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.MutableComboBoxModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -34,23 +40,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Vector;
 
 /**
  * A combo box that has a search box for searching the items in the combobox.
  * If no text is entered, the combobox items are displayed in a categorized popup menu, grouped according to their groups.
- * @param <E> The type of the group
- * @param <T> The type of the items
+ * @param <G> The type of the group
+ * @param <T> The type of the groupable items
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
-
+public class SearchableAndCategorizableComboBox<G extends Group, T extends Groupable<G>> extends JComboBox<T> {
 	private final String placeHolderText;
 	private JPopupMenu categoryPopup;
 	private JPopupMenu searchPopup;
@@ -59,12 +68,14 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 	private final Component[] extraCategoryWidgets;
 	private JList<T> filteredList;
 
-	private T[] allItems;
-	private Map<E, T[]> itemGroupMap;
+	private Map<G, List<T>> itemGroupMap;
+	private List<T> allItems;
 
 	private int highlightedListIdx = -1;
 
 	private static Color textSelectionBackground;
+
+	private static final String CHECKMARK = "\u2713";
 
 	static {
 		initColors();
@@ -76,8 +87,9 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 	 * @param placeHolderText the placeholder text for the search field (when no text is entered)
 	 * @param extraCategoryWidgets extra widgets to add to the category popup. Each widget will be added as a separate menu item.
 	 */
-	public SearchableAndCategorizableComboBox(Map<E, T[]> itemGroupMap, String placeHolderText, Component... extraCategoryWidgets) {
-		super();
+	public SearchableAndCategorizableComboBox(ComboBoxModel<T> model, Map<G, List<T>> itemGroupMap, String placeHolderText,
+											  Component... extraCategoryWidgets) {
+		super(model != null ? model : new DefaultComboBoxModel<>());
 		setEditable(false);
 
 		initColors();
@@ -86,6 +98,25 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		this.placeHolderText = placeHolderText;
 		updateItems(itemGroupMap);
 		setupMainRenderer();
+
+		if (model != null) {
+			model.addListDataListener(new ListDataListener() {
+				@Override
+				public void intervalAdded(ListDataEvent e) {
+					updateItemsFromModel();
+				}
+
+				@Override
+				public void intervalRemoved(ListDataEvent e) {
+					updateItemsFromModel();
+				}
+
+				@Override
+				public void contentsChanged(ListDataEvent e) {
+					updateItemsFromModel();
+				}
+			});
+		}
 
 		// Add key listener for the search fields
 		searchFieldCategory.addKeyListener(new KeyAdapter() {
@@ -147,6 +178,10 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		addMouseListeners();
 	}
 
+	public SearchableAndCategorizableComboBox(Map<G, List<T>> itemGroupMap, String placeHolderText, Component... extraCategoryWidgets) {
+		this(null, itemGroupMap, placeHolderText, extraCategoryWidgets);
+	}
+
 	private static void initColors() {
 		updateColors();
 		UITheme.Theme.addUIThemeChangeListener(SearchableAndCategorizableComboBox::updateColors);
@@ -169,32 +204,68 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		});
 	}
 
-	public void updateItems(Map<E, T[]> itemGroupMap) {
-		this.itemGroupMap = itemGroupMap;
+	public void updateItems(Map<G, List<T>> itemGroupMap) {
+		this.itemGroupMap = new LinkedHashMap<>(itemGroupMap);  // Create a copy to avoid external modifications
 		this.allItems = extractItemsFromMap(itemGroupMap);
-		setModel(new DefaultComboBoxModel<>(this.allItems));
 
-		// Create the search field widget
-		this.searchFieldCategory = new PlaceholderTextField();
-		this.searchFieldCategory.setPlaceholder(this.placeHolderText);
-		this.searchFieldSearch = new PlaceholderTextField();
+		// Update the existing model instead of creating a new one
+		ComboBoxModel<T> model = getModel();
+		if (model instanceof MutableComboBoxModel<T> mutableModel) {
 
-		// Create the filtered list
+			// Remove all existing elements
+			while (mutableModel.getSize() > 0) {
+				mutableModel.removeElementAt(0);
+			}
+
+			// Add new elements
+			for (T item : allItems) {
+				mutableModel.addElement(item);
+			}
+		} else {
+			// If the model is not mutable, we need to set a new model
+			// This should be a rare case, as DefaultComboBoxModel is mutable
+			setModel(new DefaultComboBoxModel<>(new Vector<>(allItems)));
+		}
+
+		// Recreate the search fields only if they don't exist
+		if (this.searchFieldCategory == null) {
+			this.searchFieldCategory = new PlaceholderTextField();
+			this.searchFieldCategory.setPlaceholder(this.placeHolderText);
+		}
+		if (this.searchFieldSearch == null) {
+			this.searchFieldSearch = new PlaceholderTextField();
+		}
+
+		// Recreate the filtered list and popups
 		this.filteredList = createFilteredList();
-
-		// Create the different popups
 		this.categoryPopup = createCategoryPopup();
 		this.searchPopup = createSearchPopup();
 		this.searchPopup.setPreferredSize(this.categoryPopup.getPreferredSize());
+
+		revalidate();
+		repaint();
 	}
 
-	private T[] extractItemsFromMap(Map<E, T[]> itemGroupMap) {
-		Set<T> uniqueItems = new HashSet<>(); // Use a Set to ensure uniqueness
-		for (E group : itemGroupMap.keySet()) {
-			uniqueItems.addAll(Arrays.asList(itemGroupMap.get(group)));
+	private void updateItemsFromModel() {
+		ComboBoxModel<T> model = getModel();
+		Map<G, List<T>> newGroupMap = new HashMap<>();
+
+		for (int i = 0; i < model.getSize(); i++) {
+			T item = model.getElementAt(i);
+			G group = item.getGroup();
+			newGroupMap.computeIfAbsent(group, k -> new ArrayList<>()).add(item);
 		}
-		ArrayList<T> items = new ArrayList<>(uniqueItems);
-		return items.toArray((T[]) new Object[0]);
+
+		Map<G, List<T>> newItemGroupMap = new HashMap<>(newGroupMap);
+		updateItems(newItemGroupMap);
+	}
+
+	private List<T> extractItemsFromMap(Map<G, List<T>> itemGroupMap) {
+		Set<T> uniqueItems = new HashSet<>(); // Use a Set to ensure uniqueness
+		for (G group : itemGroupMap.keySet()) {
+			uniqueItems.addAll(itemGroupMap.get(group));
+		}
+		return new ArrayList<>(uniqueItems);
 	}
 
 	private JPopupMenu createCategoryPopup() {
@@ -205,18 +276,18 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		menu.addSeparator(); // Separator between search field and menu items
 
 		// Fill the menu with the groups
-		for (E group : itemGroupMap.keySet()) {
+		for (G group : itemGroupMap.keySet()) {
 			JMenu groupMenu = new JMenu(group.toString()) {
 				@Override
 				public void paintComponent(Graphics g) {
 					super.paintComponent(g);
 					// If the group contains the selected item, draw a checkbox
 					if (containsSelectedItem(group, (T) SearchableAndCategorizableComboBox.this.getSelectedItem())) {
-						g.drawString("\u2713", 5, getHeight() - 5); // Unicode for checked checkbox
+						g.drawString(CHECKMARK, 5, getHeight() - 5); // Unicode for checked checkbox
 					}
 				}
 			};
-			T[] itemsForGroup = itemGroupMap.get(group);
+			List<T> itemsForGroup = itemGroupMap.get(group);
 
 			if (itemsForGroup != null) {
 				for (T item : itemsForGroup) {
@@ -226,7 +297,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 							super.paintComponent(g);
 							// If the item is currently selected, draw a checkmark before it
 							if (item == SearchableAndCategorizableComboBox.this.getSelectedItem()) {
-								g.drawString("\u2713 ", 5, getHeight() - 5);
+								g.drawString(CHECKMARK + " ", 5, getHeight() - 5);
 							}
 						}
 					};
@@ -279,7 +350,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 				// If the item is currently selected, draw a checkmark before it
 				if (item == getSelectedItem()) {
-					itemName = "\u2713 " + itemName;
+					itemName = CHECKMARK + " " + itemName;
 				}
 
 				if (itemName.toLowerCase().contains(searchFieldSearch.getText().toLowerCase())) {
@@ -358,16 +429,8 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		searchPopup.setVisible(false);
 	}
 
-	private boolean containsSelectedItem(E group, T targetItem) {
-		T[] itemsInGroup = itemGroupMap.get(group);
-		if (itemsInGroup != null) {
-			for (T item : itemsInGroup) {
-				if (item == targetItem) {
-					return true;
-				}
-			}
-		}
-		return false;
+	private boolean containsSelectedItem(G group, T targetItem) {
+		return targetItem != null && targetItem.getGroup().equals(group);
 	}
 
 	private void filter(String text) {

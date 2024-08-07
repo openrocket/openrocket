@@ -89,13 +89,9 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         });
 
         // Material selection combo box
-        this.materialCombo = MaterialComboBox.createComboBox(MaterialGroup.ALL_GROUPS, mm.getAllMaterials(),
+        this.materialCombo = MaterialComboBox.createComboBox(mm, MaterialGroup.ALL_GROUPS, mm.getAllMaterials(),
                 customMaterialButton, editMaterialsButton);
         this.materialCombo.setSelectedItem(mm.getSelectedItem());
-        this.materialCombo.addActionListener(e -> {
-            Material selectedMaterial = (Material) materialCombo.getSelectedItem();
-            mm.setSelectedItem(selectedMaterial);
-        });
         this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
         this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
         order.add(this.materialCombo);
@@ -175,9 +171,10 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         private static final Translator trans = Application.getTranslator();
 
         public static SearchableAndCategorizableComboBox<MaterialGroup, Material> createComboBox(
-                MaterialGroup[] allGroups, Material[] materials, Component... extraCategoryWidgets) {
-            final Map<MaterialGroup, Material[]> materialGroupMap = createMaterialGroupMap(allGroups, materials);
-            return new SearchableAndCategorizableComboBox<>(materialGroupMap,
+                MaterialModel mm, MaterialGroup[] allGroups, Material[] materials, Component... extraCategoryWidgets) {
+            final Map<MaterialGroup, List<Material>> materialGroupMap =
+                    createMaterialGroupMap(allGroups, materials);
+            return new SearchableAndCategorizableComboBox<>(mm, materialGroupMap,
                     trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets) {
                 @Override
                 public String getDisplayString(Material item) {
@@ -192,7 +189,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
 
         public static void updateComboBoxItems(SearchableAndCategorizableComboBox<MaterialGroup, Material> comboBox,
                                                MaterialGroup[] allGroups, Material[] materials) {
-            final Map<MaterialGroup, Material[]> materialGroupMap = createMaterialGroupMap(allGroups, materials);
+            final Map<MaterialGroup, List<Material>> materialGroupMap = createMaterialGroupMap(allGroups, materials);
             comboBox.updateItems(materialGroupMap);
             comboBox.invalidate();
             comboBox.repaint();
@@ -204,13 +201,13 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
          * @param materials the materials
          * @return the map linking the materials to their groups
          */
-        private static Map<MaterialGroup, Material[]> createMaterialGroupMap(
+        private static Map<MaterialGroup, List<Material>> createMaterialGroupMap(
                 MaterialGroup[] groups, Material[] materials) {
             // Sort the groups based on priority (lower number = higher priority)
             MaterialGroup[] sortedGroups = groups.clone();
             Arrays.sort(sortedGroups, Comparator.comparingInt(MaterialGroup::getPriority));
 
-            Map<MaterialGroup, Material[]> map = new LinkedHashMap<>();
+            Map<MaterialGroup, List<Material>> map = new LinkedHashMap<>();
             MaterialGroup materialGroup;
             for (MaterialGroup group : sortedGroups) {
                 List<Material> itemsForGroup = new ArrayList<>();
@@ -223,11 +220,11 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
                 // Sort the types within each group based on priority
                 itemsForGroup.sort(Comparator.comparingInt(Material::getGroupPriority));
 
-                map.put(group, itemsForGroup.toArray(new Material[0]));
+                map.put(group, itemsForGroup);
             }
 
             // Remove empty groups
-            map.entrySet().removeIf(entry -> entry.getValue().length == 0);
+            map.entrySet().removeIf(entry -> entry.getValue().isEmpty());
 
             return map;
         }
