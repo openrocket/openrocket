@@ -227,6 +227,7 @@ public class MaterialEditPanel extends JPanel {
 					// If the application material was already in use, add the old application material as a document material
 					Map<OpenRocketDocument, List<RocketComponent>> components = getComponentsThatUseMaterial(m);
 					if (!components.isEmpty()) {
+						m.setDocumentMaterial(true);
 						for (OpenRocketDocument doc: components.keySet()) {
 							doc.getDocumentPreferences().addMaterial(m);
 						}
