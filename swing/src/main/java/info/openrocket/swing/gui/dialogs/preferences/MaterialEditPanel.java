@@ -157,12 +157,8 @@ public class MaterialEditPanel extends JPanel {
 					return;
 				}
 				Material mat = dialog.getMaterial();
-				if (dialog.isAddSelected()) {
-					Databases.getDatabase(mat.getType()).add(mat);
-				} else {
-					mat.setDocumentMaterial(true);
-					document.getDocumentPreferences().addMaterial(mat);
-				}
+				mat.setDocumentMaterial(!dialog.isAddSelected());
+				addMaterial(mat);
 				model.fireTableDataChanged();
 				setButtonStates();
 			}
@@ -203,20 +199,14 @@ public class MaterialEditPanel extends JPanel {
 				if (!dialog.getOkClicked()) {
 					return;
 				}
-				if (m.isUserDefined()) {
-					if (isDocumentMaterialPrior) {
-						document.getDocumentPreferences().removeMaterial(m);
-					} else {
-						Databases.getDatabase(m.getType()).remove(m);
-					}
-				}
+				// Remove the original material
+				removeMaterial(m);
+
+				// Add the edited material
 				Material mat = dialog.getMaterial();
-				if (dialog.isAddSelected()) {
-					Databases.getDatabase(mat.getType()).add(mat);
-				} else {
-					mat.setDocumentMaterial(true);
-					document.getDocumentPreferences().addMaterial(mat);
-				}
+				mat.setDocumentMaterial(!dialog.isAddSelected());
+				addMaterial(mat);
+
 				model.fireTableDataChanged();
 				setButtonStates();
 			}
@@ -237,11 +227,7 @@ public class MaterialEditPanel extends JPanel {
 				Material m = getMaterial(sel);
 				if (!m.isUserDefined())
 					return;
-				if (m.isDocumentMaterial()) {
-					document.getDocumentPreferences().removeMaterial(m);
-				} else {
-					Databases.getDatabase(m.getType()).remove(m);
-				}
+				removeMaterial(m);
 				model.fireTableDataChanged();
 				setButtonStates();
 			}
@@ -328,6 +314,23 @@ public class MaterialEditPanel extends JPanel {
 		this.add(new StyledLabel(trans.get("matedtpan.lbl.edtmaterials"), -2, Style.ITALIC), "span");
 		
 
+	}
+
+	private void addMaterial(Material m) {
+		if (m.isDocumentMaterial()) {
+			document.getDocumentPreferences().addMaterial(m);
+		} else {
+			Databases.addMaterial(m);
+		}
+	}
+
+	private void removeMaterial(Material m) {
+		// TODO: what if a component is currently using the material?
+		if (m.isDocumentMaterial()) {
+			document.getDocumentPreferences().removeMaterial(m);
+		} else {
+			Databases.removeMaterial(m);
+		}
 	}
 	
 	

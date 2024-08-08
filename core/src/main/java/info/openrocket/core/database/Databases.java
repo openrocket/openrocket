@@ -256,5 +256,15 @@ public class Databases {
 			default -> throw new IllegalArgumentException("Illegal material type: " + type);
 		};
 	}
+
+	public static void addMaterial(Material material) {
+		Database<Material> db = getDatabase(material.getType());
+		db.add(material);
+	}
+
+	public static void removeMaterial(Material material) {
+		Database<Material> db = getDatabase(material.getType());
+		db.remove(material);
+	}
 	
 }
