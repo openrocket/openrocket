@@ -110,6 +110,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
+		rocket.setDocument(this);
 		this.objOptions = prefs.loadOBJExportOptions(rocket);
 		rocket.enableEvents();
 		init();
