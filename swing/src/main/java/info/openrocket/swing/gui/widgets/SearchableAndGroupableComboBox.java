@@ -53,23 +53,23 @@ import java.util.Vector;
 
 /**
  * A combo box that has a search box for searching the items in the combobox.
- * If no text is entered, the combobox items are displayed in a categorized popup menu, grouped according to their groups.
+ * If no text is entered, the combobox items are displayed in a grouped popup menu, grouped according to their groups.
  * @param <G> The type of the group
  * @param <T> The type of the groupable items
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class SearchableAndCategorizableComboBox<G extends Group, T extends Groupable<G>> extends JComboBox<T> {
+public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable<G>> extends JComboBox<T> {
 	private static final String CHECKMARK = "\u2713";
 	private static final int CHECKMARK_X_OFFSET = 5;
 	private static final int CHECKMARK_Y_OFFSET = 5;
 
 	private String placeHolderText;
-	private JPopupMenu categoryPopup;
+	private JPopupMenu groupsPopup;
 	private JPopupMenu searchPopup;
-	private PlaceholderTextField searchFieldCategory;
+	private PlaceholderTextField searchFieldGroups;
 	private PlaceholderTextField searchFieldSearch;
-	private Component[] extraCategoryWidgets;
+	private Component[] extraGroupPopupWidgets;
 	private JList<T> filteredList;
 
 	private Map<G, List<T>> itemGroupMap;
@@ -84,33 +84,33 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	}
 
 	/**
-	 * Create a searchable and categorizable combo box.
+	 * Create a searchable and groupable combo box.
 	 * @param placeHolderText the placeholder text for the search field (when no text is entered)
-	 * @param extraCategoryWidgets extra widgets to add to the category popup. Each widget will be added as a separate menu item.
+	 * @param extraGroupPopupWidgets extra widgets to add to the groups popup. Each widget will be added as a separate menu item.
 	 */
-	public SearchableAndCategorizableComboBox(ComboBoxModel<T> model, String placeHolderText,
-											  Component... extraCategoryWidgets) {
+	public SearchableAndGroupableComboBox(ComboBoxModel<T> model, String placeHolderText,
+										  Component... extraGroupPopupWidgets) {
 		super(model != null ? model : new DefaultComboBoxModel<>());
 		List<T> items = new ArrayList<>();
 		for (int i = 0; i < Objects.requireNonNull(model).getSize(); i++) {
 			items.add(model.getElementAt(i));
 		}
 
-		init(model, constructItemGroupMapFromList(items), placeHolderText, extraCategoryWidgets);
+		init(model, constructItemGroupMapFromList(items), placeHolderText, extraGroupPopupWidgets);
 	}
 
-	public SearchableAndCategorizableComboBox(List<T> allItems, String placeHolderText, Component... extraCategoryWidgets) {
+	public SearchableAndGroupableComboBox(List<T> allItems, String placeHolderText, Component... extraGroupPopupWidgets) {
 		super();
 
-		init(null, constructItemGroupMapFromList(allItems), placeHolderText, extraCategoryWidgets);
+		init(null, constructItemGroupMapFromList(allItems), placeHolderText, extraGroupPopupWidgets);
 	}
 
-	private void init(ComboBoxModel<T> model, Map<G, List<T>> itemGroupMap, String placeHolderText, Component... extraCategoryWidgets) {
+	private void init(ComboBoxModel<T> model, Map<G, List<T>> itemGroupMap, String placeHolderText, Component... extraGroupsPopupWidgets) {
 		setEditable(false);
 
 		initColors();
 
-		this.extraCategoryWidgets = extraCategoryWidgets;
+		this.extraGroupPopupWidgets = extraGroupsPopupWidgets;
 		this.placeHolderText = placeHolderText;
 		this.itemGroupMap = itemGroupMap;
 		updateItems(itemGroupMap);
@@ -123,7 +123,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 	private static void initColors() {
 		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(SearchableAndCategorizableComboBox::updateColors);
+		UITheme.Theme.addUIThemeChangeListener(SearchableAndGroupableComboBox::updateColors);
 	}
 
 	private static void updateColors() {
@@ -170,9 +170,9 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		}
 
 		// Recreate the search fields only if they don't exist
-		if (this.searchFieldCategory == null) {
-			this.searchFieldCategory = new PlaceholderTextField();
-			this.searchFieldCategory.setPlaceholder(this.placeHolderText);
+		if (this.searchFieldGroups == null) {
+			this.searchFieldGroups = new PlaceholderTextField();
+			this.searchFieldGroups.setPlaceholder(this.placeHolderText);
 		}
 		if (this.searchFieldSearch == null) {
 			this.searchFieldSearch = new PlaceholderTextField();
@@ -180,9 +180,9 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 		// Recreate the filtered list and popups
 		this.filteredList = createFilteredList();
-		this.categoryPopup = createCategoryPopup();
+		this.groupsPopup = createGroupsPopup();
 		this.searchPopup = createSearchPopup();
-		this.searchPopup.setPreferredSize(this.categoryPopup.getPreferredSize());
+		this.searchPopup.setPreferredSize(this.groupsPopup.getPreferredSize());
 
 		revalidate();
 		repaint();
@@ -211,11 +211,11 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		return new ArrayList<>(uniqueItems);
 	}
 
-	private JPopupMenu createCategoryPopup() {
+	private JPopupMenu createGroupsPopup() {
 		final JPopupMenu menu = new JPopupMenu();
 
 		// Add the search field at the top
-		menu.add(searchFieldCategory);
+		menu.add(searchFieldGroups);
 		menu.addSeparator(); // Separator between search field and menu items
 
 		// Fill the menu with the groups
@@ -225,7 +225,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				public void paintComponent(Graphics g) {
 					super.paintComponent(g);
 					// If the group contains the selected item, draw a checkbox
-					if (containsSelectedItem(group, (T) SearchableAndCategorizableComboBox.this.getSelectedItem())) {
+					if (containsSelectedItem(group, (T) SearchableAndGroupableComboBox.this.getSelectedItem())) {
 						g.drawString(CHECKMARK, CHECKMARK_X_OFFSET, getHeight() - CHECKMARK_Y_OFFSET); // Unicode for checked checkbox
 					}
 				}
@@ -239,7 +239,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 						public void paintComponent(Graphics g) {
 							super.paintComponent(g);
 							// If the item is currently selected, draw a checkmark before it
-							if (item == SearchableAndCategorizableComboBox.this.getSelectedItem()) {
+							if (item == SearchableAndGroupableComboBox.this.getSelectedItem()) {
 								g.drawString(CHECKMARK + " ", CHECKMARK_X_OFFSET, getHeight() - CHECKMARK_Y_OFFSET);
 							}
 						}
@@ -256,8 +256,8 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		}
 
 		// Extra widgets
-		if (extraCategoryWidgets != null) {
-			for (Component widget : extraCategoryWidgets) {
+		if (extraGroupPopupWidgets != null) {
+			for (Component widget : extraGroupPopupWidgets) {
 				menu.add(widget);
 			}
 		}
@@ -304,25 +304,25 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 			public void run() {
 				T selectedItem = filteredList.getSelectedValue();
 				if (selectedItem != null) {
-					SearchableAndCategorizableComboBox.this.setSelectedItem(selectedItem);
+					SearchableAndGroupableComboBox.this.setSelectedItem(selectedItem);
 				}
 			}
 		});
 	}
 
 	private void hidePopups() {
-		hideCategoryPopup();
+		hideGroupsPopup();
 		hideSearchPopup();
 	}
 
-	private void showCategoryPopup() {
-		categoryPopup.show(this, 0, getHeight());
+	private void showGroupsPopup() {
+		groupsPopup.show(this, 0, getHeight());
 		searchFieldSearch.setText("");
-		searchFieldCategory.setText("");
+		searchFieldGroups.setText("");
 	}
 
-	private void hideCategoryPopup() {
-		categoryPopup.setVisible(false);
+	private void hideGroupsPopup() {
+		groupsPopup.setVisible(false);
 	}
 
 	private void showSearchPopup() {
@@ -377,7 +377,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 	@Override
 	public boolean isPopupVisible() {
-		return categoryPopup.isVisible() || searchPopup.isVisible();
+		return groupsPopup.isVisible() || searchPopup.isVisible();
 	}
 
 	/**
@@ -422,14 +422,14 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.setSelectedItem(SearchableAndCategorizableComboBox.this.getSelectedItem());
+				model.setSelectedItem(SearchableAndGroupableComboBox.this.getSelectedItem());
 			}
 		});
 	}
 
 	private void setupSearchFieldListeners() {
-		searchFieldCategory.addKeyListener(new SearchFieldKeyAdapter(searchFieldCategory, searchFieldSearch, true));
-		searchFieldSearch.addKeyListener(new SearchFieldKeyAdapter(searchFieldSearch, searchFieldCategory, false));
+		searchFieldGroups.addKeyListener(new SearchFieldKeyAdapter(searchFieldGroups, searchFieldSearch, true));
+		searchFieldSearch.addKeyListener(new SearchFieldKeyAdapter(searchFieldSearch, searchFieldGroups, false));
 
 		// Fix a bug where the first character would get selected when the search field gets focus (thus deleting it on
 		// the next key press)
@@ -459,7 +459,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 					@Override
 					public void run() {
 						if (!isPopupVisible()) {
-							showCategoryPopup();
+							showGroupsPopup();
 						}
 					}
 				});
@@ -478,7 +478,7 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 						@Override
 						public void run() {
 							if (!isPopupVisible()) {
-								showCategoryPopup();
+								showGroupsPopup();
 							}
 						}
 					});
@@ -508,12 +508,12 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	private class SearchFieldKeyAdapter extends KeyAdapter {
 		private final PlaceholderTextField primaryField;
 		private final PlaceholderTextField secondaryField;
-		private final boolean isCategory;
+		private final boolean isGroupsPopup;
 
-		SearchFieldKeyAdapter(PlaceholderTextField primary, PlaceholderTextField secondary, boolean isCategory) {
+		SearchFieldKeyAdapter(PlaceholderTextField primary, PlaceholderTextField secondary, boolean isGroupsPopup) {
 			this.primaryField = primary;
 			this.secondaryField = secondary;
-			this.isCategory = isCategory;
+			this.isGroupsPopup = isGroupsPopup;
 		}
 
 		@Override
@@ -527,26 +527,26 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				String text = primaryField.getText();
 				highlightedListIdx = 0;
 				secondaryField.setText(text);
-				if (isCategory) {
-					handleCategorySearch(text);
+				if (isGroupsPopup) {
+					handleGroupsPopupSearch(text);
 				} else {
-					handleGeneralSearch(text);
+					handleSearchPopupSearch(text);
 				}
 				filter(text);
 			});
 		}
 
-		private void handleCategorySearch(String text) {
+		private void handleGroupsPopupSearch(String text) {
 			if (!text.isEmpty() && !searchPopup.isVisible()) {
-				hideCategoryPopup();
+				hideGroupsPopup();
 				showSearchPopup();
 			}
 		}
 
-		private void handleGeneralSearch(String text) {
-			if (text.isEmpty() && !categoryPopup.isVisible()) {
+		private void handleSearchPopupSearch(String text) {
+			if (text.isEmpty() && !groupsPopup.isVisible()) {
 				hideSearchPopup();
-				showCategoryPopup();
+				showGroupsPopup();
 			}
 		}
 
