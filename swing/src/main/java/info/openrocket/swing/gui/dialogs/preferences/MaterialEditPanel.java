@@ -161,7 +161,7 @@ public class MaterialEditPanel extends JPanel {
 					Databases.getDatabase(mat.getType()).add(mat);
 				} else {
 					mat.setDocumentMaterial(true);
-					document.getDocumentPreferences().getDatabase(mat.getType()).add(mat);
+					document.getDocumentPreferences().addMaterial(mat);
 				}
 				model.fireTableDataChanged();
 				setButtonStates();
@@ -205,7 +205,7 @@ public class MaterialEditPanel extends JPanel {
 				}
 				if (m.isUserDefined()) {
 					if (isDocumentMaterialPrior) {
-						document.getDocumentPreferences().getDatabase(m.getType()).remove(m);
+						document.getDocumentPreferences().removeMaterial(m);
 					} else {
 						Databases.getDatabase(m.getType()).remove(m);
 					}
@@ -215,7 +215,7 @@ public class MaterialEditPanel extends JPanel {
 					Databases.getDatabase(mat.getType()).add(mat);
 				} else {
 					mat.setDocumentMaterial(true);
-					document.getDocumentPreferences().getDatabase(mat.getType()).add(mat);
+					document.getDocumentPreferences().addMaterial(mat);
 				}
 				model.fireTableDataChanged();
 				setButtonStates();
@@ -238,7 +238,7 @@ public class MaterialEditPanel extends JPanel {
 				if (!m.isUserDefined())
 					return;
 				if (m.isDocumentMaterial()) {
-					document.getDocumentPreferences().getDatabase(m.getType()).remove(m);
+					document.getDocumentPreferences().removeMaterial(m);
 				} else {
 					Databases.getDatabase(m.getType()).remove(m);
 				}

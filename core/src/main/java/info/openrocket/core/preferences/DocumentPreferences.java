@@ -136,6 +136,10 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 		getDatabase(material.getType()).add(material);
 	}
 
+	public void removeMaterial(Material material) {
+		getDatabase(material.getType()).remove(material);
+	}
+
 	public int getMaterialCount(Material.Type type) {
 		return getDatabase(type).size();
 	}
