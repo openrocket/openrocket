@@ -184,8 +184,7 @@ public class MaterialEditPanel extends JPanel {
 					return;
 				sel = table.convertRowIndexToModel(sel);
 				Material m = getMaterial(sel);
-				boolean isDocumentMaterialPrior = m.isDocumentMaterial();
-				
+
 				CustomMaterialDialog dialog;
 				if (m.isUserDefined()) {
 					dialog = new CustomMaterialDialog(
@@ -206,13 +205,36 @@ public class MaterialEditPanel extends JPanel {
 				if (!dialog.getOkClicked()) {
 					return;
 				}
-				// Remove the original material
+				// Remove the original material from the database
 				removeMaterial(m, false);
 
-				// Add the edited material
+				// Get the edited material
 				Material mat = dialog.getMaterial();
 				mat.setDocumentMaterial(!dialog.isAddSelected());
-				addMaterial(mat);
+
+				// Document materials can be edited no strings attached
+				if (m.isDocumentMaterial()) {
+					// Load the old material with the new values, so that we don't mess up the references in the components
+					// that used the old component.
+					m.loadFrom(mat);
+
+					// Add the "new" material to the database (this could be another database type as before, so we had to
+					// first remove the old one and then re-add it)
+					addMaterial(m);
+				}
+				// Editing application materials will not affect existing rocket designs
+				else {
+					// If the application material was already in use, add the old application material as a document material
+					Map<OpenRocketDocument, List<RocketComponent>> components = getComponentsThatUseMaterial(m);
+					if (!components.isEmpty()) {
+						for (OpenRocketDocument doc: components.keySet()) {
+							doc.getDocumentPreferences().addMaterial(m);
+						}
+					}
+
+					// Add the new material to the database
+					addMaterial(mat);
+				}
 
 				model.fireTableDataChanged();
 				setButtonStates();

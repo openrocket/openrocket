@@ -134,11 +134,11 @@ public abstract class Material implements Comparable<Material>, Groupable<Materi
 	
 	
 	
-	private final String name;
-	private final double density;
-	private final boolean userDefined;
+	private String name;
+	private double density;
+	private boolean userDefined;
 	private boolean documentMaterial;
-	private final MaterialGroup group;
+	private MaterialGroup group;
 	
 	
 	/**
@@ -306,11 +306,23 @@ public abstract class Material implements Comparable<Material>, Groupable<Materi
 	public static Material newMaterial(Type type, String name, double density, boolean userDefined) {
 		return newMaterial(type, name, density, null, userDefined);
 	}
+
+	public void loadFrom(Material m) {
+		if (m == null)
+			throw new IllegalArgumentException("Material is null");
+		if (this.getClass() != m.getClass())
+			throw new IllegalArgumentException("Material type mismatch");
+		name = m.name;
+		density = m.density;
+		group = m.group;
+		userDefined = m.userDefined;
+		documentMaterial = m.documentMaterial;
+	}
 	
 	public String toStorableString() {
 		return getType().name() + "|" + name.replace('|', ' ') + '|' + density + '|' + group.getDatabaseString();
 	}
-	
+
 	
 	/**
 	 * Return a material defined by the provided string.
