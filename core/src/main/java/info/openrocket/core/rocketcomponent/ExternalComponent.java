@@ -152,6 +152,9 @@ public abstract class ExternalComponent extends RocketComponent {
 		if (material.equals(mat))
 			return;
 		material = mat;
+		if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+		}
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -193,7 +196,7 @@ public abstract class ExternalComponent extends RocketComponent {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if (mat != null) {
 				material = mat;
-				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+				if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
 					rocket.getDocument().getDocumentPreferences().addMaterial(mat);
 				}
 			} /*

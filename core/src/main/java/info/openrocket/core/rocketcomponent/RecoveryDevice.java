@@ -103,6 +103,9 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		if (mat.equals(material))
 			return;
 		this.material = (Material.Surface) mat;
+		if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(this.material);
+		}
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -144,8 +147,8 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 			if (count > 12 ) {
 				Material m = preset.get(ComponentPreset.MATERIAL);
 				this.material = (Material.Surface) m;
-				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
-					rocket.getDocument().getDocumentPreferences().addMaterial(m);
+				if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(this.material);
 				}
 			} else {
 				this.material = defaultMaterial;

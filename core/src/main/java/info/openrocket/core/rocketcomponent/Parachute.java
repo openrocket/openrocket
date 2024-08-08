@@ -133,6 +133,9 @@ public class Parachute extends RecoveryDevice {
 		if (mat.equals(lineMaterial))
 			return;
 		this.lineMaterial = mat;
+		if (lineMaterial.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(this.lineMaterial);
+		}
 		if (getLineCount() != 0) {
 			clearPreset();
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
@@ -224,7 +227,7 @@ public class Parachute extends RecoveryDevice {
 			int count = lineMaterialEmpty.length();
 			if (count > 12 ) {
 				this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
-				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+				if (lineMaterial.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
 					rocket.getDocument().getDocumentPreferences().addMaterial(this.lineMaterial);
 				}
 			} else {
