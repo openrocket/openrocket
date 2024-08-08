@@ -18,7 +18,7 @@ public class MaterialGroup implements Comparable<MaterialGroup>, Group {
 	public static final MaterialGroup PAPER = new MaterialGroup(trans.get("MaterialGroup.PaperProducts"), "PaperProducts", 40, false);
 	public static final MaterialGroup FOAMS = new MaterialGroup(trans.get("MaterialGroup.Foams"), "Foams", 50, false);
 	public static final MaterialGroup COMPOSITES = new MaterialGroup(trans.get("MaterialGroup.Composites"), "Composites", 60, false);
-	public static final MaterialGroup FIBERS = new MaterialGroup(trans.get("MaterialGroup.Fibers"), "Fibres", 70, false);
+	public static final MaterialGroup FIBERS = new MaterialGroup(trans.get("MaterialGroup.Fibers"), "Fibers", 70, false);
 	public static final MaterialGroup THREADS_LINES = new MaterialGroup(trans.get("MaterialGroup.ThreadsLines"), "ThreadsLines", 80, false);
 	public static final MaterialGroup OTHER = new MaterialGroup(trans.get("MaterialGroup.Other"), "Other", 90, false);
 

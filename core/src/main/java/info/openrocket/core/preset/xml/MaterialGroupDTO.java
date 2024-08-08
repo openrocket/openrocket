@@ -24,7 +24,7 @@ public enum MaterialGroupDTO {
 	FOAMS(MaterialGroup.FOAMS),
 	@XmlEnumValue("Composites")
 	COMPOSITES(MaterialGroup.COMPOSITES),
-	@XmlEnumValue("Fibres")
+	@XmlEnumValue("Fibers")
 	FIBERS(MaterialGroup.FIBERS),
 	@XmlEnumValue("ThreadsLines")
 	THREADS_LINES(MaterialGroup.THREADS_LINES),
