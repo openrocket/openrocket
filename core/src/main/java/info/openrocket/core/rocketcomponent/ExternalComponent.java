@@ -193,6 +193,9 @@ public abstract class ExternalComponent extends RocketComponent {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if (mat != null) {
 				material = mat;
+				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+				}
 			} /*
 				 * TODO -
 				 * else if (c.isMassOverridden()) {

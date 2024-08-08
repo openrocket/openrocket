@@ -144,6 +144,9 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 			if (count > 12 ) {
 				Material m = preset.get(ComponentPreset.MATERIAL);
 				this.material = (Material.Surface) m;
+				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(m);
+				}
 			} else {
 				this.material = defaultMaterial;
 			}

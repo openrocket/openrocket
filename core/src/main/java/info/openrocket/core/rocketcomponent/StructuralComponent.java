@@ -23,6 +23,9 @@ public abstract class StructuralComponent extends InternalComponent {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if (mat != null) {
 				this.material = mat;
+				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+				}
 			} /*
 				 * TODO -
 				 * else if (c.isMassOverridden()) {

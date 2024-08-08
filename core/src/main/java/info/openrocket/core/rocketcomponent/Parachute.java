@@ -224,6 +224,9 @@ public class Parachute extends RecoveryDevice {
 			int count = lineMaterialEmpty.length();
 			if (count > 12 ) {
 				this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
+				if (getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(this.lineMaterial);
+				}
 			} else {
 				this.lineMaterial = DEFAULT_LINE_MATERIAL;
 			}
