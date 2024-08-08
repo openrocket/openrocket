@@ -298,6 +298,11 @@ public abstract class Material implements Comparable<Material>, Groupable<Materi
 		return newMaterial(type, name, density, group, userDefined, false);
 	}
 
+	public static Material newMaterial(Type type, String name, double density, boolean userDefined,
+									   boolean documentMaterial) {
+		return newMaterial(type, name, density, null, userDefined, documentMaterial);
+	}
+
 	public static Material newMaterial(Type type, String name, double density, boolean userDefined) {
 		return newMaterial(type, name, density, null, userDefined);
 	}
