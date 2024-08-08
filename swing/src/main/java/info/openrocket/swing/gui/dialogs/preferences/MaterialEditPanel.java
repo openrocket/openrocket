@@ -6,7 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -20,6 +25,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.swing.gui.main.BasicFrame;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.database.Databases;
@@ -200,7 +207,7 @@ public class MaterialEditPanel extends JPanel {
 					return;
 				}
 				// Remove the original material
-				removeMaterial(m);
+				removeMaterial(m, false);
 
 				// Add the edited material
 				Material mat = dialog.getMaterial();
@@ -227,7 +234,7 @@ public class MaterialEditPanel extends JPanel {
 				Material m = getMaterial(sel);
 				if (!m.isUserDefined())
 					return;
-				removeMaterial(m);
+				removeMaterial(m, true);
 				model.fireTableDataChanged();
 				setButtonStates();
 			}
@@ -324,13 +331,81 @@ public class MaterialEditPanel extends JPanel {
 		}
 	}
 
-	private void removeMaterial(Material m) {
-		// TODO: what if a component is currently using the material?
+	private void removeMaterial(Material m, boolean checkForComponentsInUse) {
+		Map<OpenRocketDocument, List<RocketComponent>> components = getComponentsThatUseMaterial(m);
+
 		if (m.isDocumentMaterial()) {
+			if (checkForComponentsInUse && !components.isEmpty()) {
+				String componentsTxt = formatDocumentComponentsMap(components);
+				JOptionPane.showMessageDialog(MaterialEditPanel.this,
+						String.format(trans.get("matedtpan.dlg.RemoveUsedMaterial.Document.msg"), componentsTxt),
+						trans.get("matedtpan.dlg.RemoveUsedMaterial.Document.title"), JOptionPane.WARNING_MESSAGE);
+				return;
+			}
 			document.getDocumentPreferences().removeMaterial(m);
 		} else {
+			if (checkForComponentsInUse && !components.isEmpty()) {
+				String componentsTxt = formatDocumentComponentsMap(components);
+				JOptionPane.showMessageDialog(MaterialEditPanel.this,
+						String.format(trans.get("matedtpan.dlg.RemoveUsedMaterial.Application.msg"), componentsTxt),
+						trans.get("matedtpan.dlg.RemoveUsedMaterial.Application.title"), JOptionPane.WARNING_MESSAGE);
+				Databases.removeMaterial(m);
+				m.setDocumentMaterial(true);
+				document.getDocumentPreferences().addMaterial(m);
+				return;
+			}
 			Databases.removeMaterial(m);
 		}
+	}
+
+	private String formatDocumentComponentsMap(Map<OpenRocketDocument, List<RocketComponent>> components) {
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<OpenRocketDocument, List<RocketComponent>> entry: components.entrySet()) {
+			OpenRocketDocument doc = entry.getKey();
+			List<RocketComponent> comps = entry.getValue();
+			File file = doc.getFile();
+			String fileName = file == null ? "&lt;" + "Unsaved" + "&gt;" : file.getName();
+			sb.append(fileName);
+			sb.append(": ");
+			for (RocketComponent comp: comps) {
+				sb.append(comp.getName());
+				sb.append(", ");
+			}
+			sb.delete(sb.length() - 2, sb.length());
+			sb.append("<br>");
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Parse all open documents and return a map of documents and components that use the material.
+	 * @param m The material to search for
+	 * @return A map of documents and components that use the material.
+	 */
+	private Map<OpenRocketDocument, List<RocketComponent>> getComponentsThatUseMaterial(Material m) {
+		Map<OpenRocketDocument, List<RocketComponent>> result = new HashMap<>();
+		for (BasicFrame frame: BasicFrame.getAllFrames()) {
+			OpenRocketDocument doc = frame.getRocketPanel().getDocument();
+			List<RocketComponent> components = new ArrayList<>();
+			for (RocketComponent component: doc.getRocket()) {
+				// Parse the materials of the component
+				List<Material> materials = component.getAllMaterials();
+				if (materials == null) {
+					continue;
+				}
+				for (Material componentMaterial: materials) {
+					if (m.equals(componentMaterial)) {
+						components.add(component);
+						break;
+					}
+				}
+			}
+
+			if (!components.isEmpty()) {
+				result.put(doc, components);
+			}
+		}
+		return result;
 	}
 	
 	
