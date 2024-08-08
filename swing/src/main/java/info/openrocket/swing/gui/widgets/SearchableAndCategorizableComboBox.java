@@ -305,9 +305,6 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				T selectedItem = filteredList.getSelectedValue();
 				if (selectedItem != null) {
 					SearchableAndCategorizableComboBox.this.setSelectedItem(selectedItem);
-					fireActionEvent();
-					// Hide the popups after selection
-					hidePopups();
 				}
 			}
 		});
@@ -338,6 +335,13 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 
 	private boolean containsSelectedItem(G group, T targetItem) {
 		return targetItem != null && targetItem.getGroup().equals(group);
+	}
+
+	@Override
+	public void setSelectedItem(Object anObject) {
+		// Hide the popups after selection
+		hidePopups();
+		super.setSelectedItem(anObject);
 	}
 
 	private void filter(String text) {
@@ -376,20 +380,6 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 		return categoryPopup.isVisible() || searchPopup.isVisible();
 	}
 
-
-	/**
-	 * Override the default action keys (escape, enter, arrow keys) to do our own actions.
-	 * @param e the key event
-	 */
-	private void overrideActionKeys(KeyEvent e) {
-		switch (e.getKeyCode()) {
-			case KeyEvent.VK_ESCAPE -> hidePopups();
-			case KeyEvent.VK_ENTER -> selectHighlightedItemInFilteredList();
-			case KeyEvent.VK_DOWN, KeyEvent.VK_RIGHT -> highlightNextItemInFilteredList();
-			case KeyEvent.VK_UP, KeyEvent.VK_LEFT -> highlightPreviousItemInFilteredList();
-		}
-	}
-
 	/**
 	 * Select the highlighted item in the filtered list and hide the popups.
 	 */
@@ -405,10 +395,11 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 	 */
 	private void highlightNextItemInFilteredList() {
 		if (highlightedListIdx + 1 >= filteredList.getModel().getSize() || !searchPopup.isVisible()) {
-			highlightedListIdx++;
-			filteredList.ensureIndexIsVisible(highlightedListIdx);
-			filteredList.repaint();
+			return;
 		}
+		highlightedListIdx++;
+		filteredList.ensureIndexIsVisible(highlightedListIdx);
+		filteredList.repaint();
 	}
 
 	/**
@@ -557,6 +548,23 @@ public class SearchableAndCategorizableComboBox<G extends Group, T extends Group
 				hideSearchPopup();
 				showCategoryPopup();
 			}
+		}
+
+		/**
+		 * Override the default action keys (escape, enter, arrow keys) to do our own actions.
+		 * @param e the key event
+		 */
+		private void overrideActionKeys(KeyEvent e) {
+			switch (e.getKeyCode()) {
+				case KeyEvent.VK_ESCAPE -> hidePopups();
+				case KeyEvent.VK_ENTER -> selectHighlightedItemInFilteredList();
+				case KeyEvent.VK_DOWN -> highlightNextItemInFilteredList();
+				case KeyEvent.VK_UP -> highlightPreviousItemInFilteredList();
+				default -> {
+					return;
+				}
+			}
+			e.consume();
 		}
 	}
 
