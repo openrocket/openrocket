@@ -104,6 +104,7 @@ public class MaterialModel extends AbstractListModel<Material> implements
 
 		Material material = dialog.getMaterial();
 		if (dialog.isAddSelected()) {
+			material.setDocumentMaterial(false);
 			this.applicationDatabase.add(material);
 		} else {
 			material.setDocumentMaterial(true);
