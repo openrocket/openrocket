@@ -28,9 +28,9 @@ public class SystemInfo {
 	public static Platform getPlatform() {
 		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
 
-		if (os.indexOf("win") >= 0) {
+		if (os.contains("win")) {
 			return Platform.WINDOWS;
-		} else if (os.indexOf("mac") >= 0) {
+		} else if (os.contains("mac")) {
 			return Platform.MAC_OS;
 		} else {
 			/*
