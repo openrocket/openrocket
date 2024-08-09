@@ -3,7 +3,7 @@ package info.openrocket.core.models.atmosphere;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
-import info.openrocket.core.util.UniqueID;
+import info.openrocket.core.util.ModID;
 
 public class AtmosphericConditions implements Cloneable, Monitorable {
 
@@ -25,7 +25,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	/** Air temperature, in Kelvins. */
 	private double temperature;
 
-	private int modID;
+	private ModID modID;
 
 	/**
 	 * Construct standard atmospheric conditions.
@@ -43,7 +43,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	public AtmosphericConditions(double temperature, double pressure) {
 		this.setTemperature(temperature);
 		this.setPressure(pressure);
-		this.modID = UniqueID.next();
+		this.modID = new ModID();
 	}
 
 	public double getPressure() {
@@ -52,7 +52,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 
 	public void setPressure(double pressure) {
 		this.pressure = pressure;
-		this.modID = UniqueID.next();
+		this.modID = new ModID();
 	}
 
 	public double getTemperature() {
@@ -61,7 +61,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
-		this.modID = UniqueID.next();
+		this.modID = new ModID();
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	}
 
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 

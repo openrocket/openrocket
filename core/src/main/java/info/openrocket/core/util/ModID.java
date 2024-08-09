@@ -1,12 +1,11 @@
 package info.openrocket.core.util;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class UniqueID {
+public class ModID implements Comparable {
 
 	private static final AtomicInteger nextId = new AtomicInteger(1);
-
+	private final int id;
 	/**
 	 * Return a positive integer ID unique during this program execution.
 	 * <p>
@@ -21,17 +20,26 @@ public class UniqueID {
 	 * 
 	 * @return a positive integer ID unique in this program execution.
 	 */
-	public static int next() {
-		return nextId.getAndIncrement();
+	public ModID() {
+		id = nextId.getAndIncrement();
 	}
 
-	/**
-	 * Return a new universally unique ID string.
-	 * 
-	 * @return a unique identifier string.
-	 */
-	public static String uuid() {
-		return UUID.randomUUID().toString();
+	// There are a few places in the code that want a constant or invalid ModID value; see Barrowman.java
+	private ModID(int val) {
+		id = val;
+	}
+	public static ModID ZERO = new ModID(0);
+	public static ModID INVALID = new ModID(-1);
+
+	public int toInt() {
+		return id;
+	}
+	
+	public String toString() {
+		return String.valueOf(id);
 	}
 
+	public int compareTo(Object o) {
+		return id - ((ModID) o).id;
+	}
 }

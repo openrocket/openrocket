@@ -1,5 +1,7 @@
 package info.openrocket.core.optimization.rocketoptimization.modifiers;
 
+import java.util.UUID;
+
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.optimization.general.OptimizationException;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -15,7 +17,7 @@ import info.openrocket.core.unit.UnitGroup;
 public class GenericComponentModifier extends GenericModifier<RocketComponent> {
 
 	private final Class<? extends RocketComponent> componentClass;
-	private final String componentId;
+	private final UUID componentId;
 
 	/**
 	 * Sole constructor.
@@ -39,7 +41,7 @@ public class GenericComponentModifier extends GenericModifier<RocketComponent> {
 	 */
 	public GenericComponentModifier(String modifierName, String modifierDescription, Object relatedObject,
 			UnitGroup unitGroup,
-			double multiplier, Class<? extends RocketComponent> componentClass, String componentId, String methodName) {
+			double multiplier, Class<? extends RocketComponent> componentClass, UUID componentId, String methodName) {
 		super(modifierName, modifierDescription, relatedObject, unitGroup, multiplier, componentClass, methodName);
 
 		this.componentClass = componentClass;

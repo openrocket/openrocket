@@ -1,6 +1,7 @@
 package info.openrocket.core.file.openrocket.importt;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.SimulationAbort.Cause;
@@ -153,7 +154,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			Rocket rocket = context.getOpenRocketDocument().getRocket();
 			sourceID = attributes.get("source");
 			if (sourceID != null) {
-				source = rocket.findComponent(sourceID);
+				source = rocket.findComponent(UUID.fromString(sourceID));
 			}
 
 			// For aborts, get the cause

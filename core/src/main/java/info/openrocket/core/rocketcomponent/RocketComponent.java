@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
@@ -18,6 +19,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,6 @@ import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.SafetyMutex;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
 
 /**
  * 	Master class that defines components of rockets
@@ -133,7 +134,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private String comment = "";
 	
 	// Unique ID of the component
-	private String id = null;
+	private UUID id = null;
 	
 	// Preset component this component is based upon
 	private ComponentPreset presetComponent = null;
@@ -1296,12 +1297,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @return	the ID of the component.
 	 */
-	public final String getID() {
+	public final UUID getID() {
 		return id;
 	}
 	
 	public final String getDebugName() {
-		return (name + "/" + id.substring(0,8));
+		return (name + "/" + id.toString().substring(0,8));
 	}
 	
 	/**
@@ -1309,7 +1310,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private final void newID() {
 		mutex.verify();
-		this.id = UniqueID.uuid();
+		this.id = UUID.randomUUID();
 	}
 
 	/**
@@ -1317,12 +1318,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Generally not recommended to directly set the ID, this is done automatically. Only use this in case you have to.
 	 * @param newID new ID
 	 */
-	public void setID(String newID) {
+	public void setID(UUID newID) {
 		mutex.verify();
 		this.id = newID;
 	}
 	
-	
+	public void setID(String newID) {
+		setID(UUID.fromString(newID));
+	}
 	/**
 	 * Get the characteristic length of the component, for example the length of a body tube
 	 * of the length of the root chord of a fin.  This is used in positioning the component
@@ -2392,7 +2395,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param idToFind  ID to search for.
 	 * @return    The component with the ID, or null if not found.
 	 */
-	public final RocketComponent findComponent(String idToFind) {
+	public final RocketComponent findComponent(UUID idToFind) {
 		checkState();
 		mutex.lock("findComponent");
 		Iterator<RocketComponent> iter = this.iterator(true);
@@ -2960,7 +2963,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		private final Deque<Iterator<RocketComponent>> iteratorStack = new ArrayDeque<Iterator<RocketComponent>>();
 		
 		private final Rocket root;
-		private final int treeModID;
+		private final ModID treeModID;
 		
 		private final RocketComponent original;
 		private boolean returnSelf = false;
@@ -2974,7 +2977,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				treeModID = root.getTreeModID();
 			} else {
 				root = null;
-				treeModID = -1;
+				treeModID = ModID.INVALID;
 			}
 			
 			Iterator<RocketComponent> i = c.children.iterator();
@@ -3041,7 +3044,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 	/// debug functions
 	public String toDebugName() {
-		return this.getName() + "<" + this.getClass().getSimpleName() + ">(" + this.getID().substring(0, 8) + ")";
+		return this.getName() + "<" + this.getClass().getSimpleName() + ">(" + this.getID().toString().substring(0, 8) + ")";
 	}
 	
 	// multi-line output

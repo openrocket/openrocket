@@ -13,7 +13,7 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
+import info.openrocket.core.util.ModID;
 
 /**
  * A class defining the momentary flight conditions of a rocket, including
@@ -69,8 +69,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 
 	private AtmosphericConditions atmosphericConditions = new AtmosphericConditions();
 
-	private int modID;
-	private int modIDadd = 0;
+	private ModID modID;
 
 	/**
 	 * Sole constructor. The reference length is initialized to the reference length
@@ -83,7 +82,6 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public FlightConditions(FlightConfiguration config) {
 		if (config != null)
 			setRefLength(config.getReferenceLength());
-		this.modID = UniqueID.next();
 	}
 
 	/**
@@ -100,9 +98,12 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * fires change event
 	 */
 	public void setRefLength(double length) {
+		if (refLength == length)
+			return;
+		
 		refLength = length;
-
 		refArea = Math.PI * MathUtil.pow2(length / 2);
+
 		fireChangeEvent();
 	}
 
@@ -118,8 +119,12 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * fires change event
 	 */
 	public void setRefArea(double area) {
+		if (refArea == area)
+			return;
+		
 		refArea = area;
 		refLength = MathUtil.safeSqrt(area / Math.PI) * 2;
+
 		fireChangeEvent();
 	}
 
@@ -150,6 +155,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			this.sinAOA = Math.sin(aoa);
 			this.sincAOA = sinAOA / aoa;
 		}
+
 		fireChangeEvent();
 	}
 
@@ -179,6 +185,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		} else {
 			this.sincAOA = sinAOA / aoa;
 		}
+
 		fireChangeEvent();
 	}
 
@@ -213,6 +220,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		if (MathUtil.equals(this.theta, theta))
 			return;
 		this.theta = theta;
+
 		fireChangeEvent();
 	}
 
@@ -239,6 +247,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			this.beta = MathUtil.safeSqrt(1 - mach * mach);
 		else
 			this.beta = MathUtil.safeSqrt(mach * mach - 1);
+
 		fireChangeEvent();
 	}
 
@@ -295,6 +304,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			return;
 
 		this.rollRate = rate;
+		
 		fireChangeEvent();
 	}
 
@@ -370,21 +380,19 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public void setAtmosphericConditions(AtmosphericConditions cond) {
 		if (atmosphericConditions.equals(cond))
 			return;
-		modIDadd += atmosphericConditions.getModID();
+
 		atmosphericConditions = cond;
 		fireChangeEvent();
 	}
 
 	/**
-	 * Retrieve the modification count of this object. Each time it is modified
-	 * the modification count is increased by one.
+	 * Retrieve the modification count of this object.
 	 * 
-	 * @return the number of times this object has been modified since
-	 *         instantiation.
+	 * @return modification ID
 	 */
 	@Override
-	public int getModID() {
-		return modID + modIDadd + this.atmosphericConditions.getModID();
+	public ModID getModID() {
+		return modID;
 	}
 
 	@Override
@@ -459,7 +467,8 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * wake up call to listeners
 	 */
 	protected void fireChangeEvent() {
-		modID = UniqueID.next();
+		modID = new ModID();
+		
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
 		for (EventListener l : listeners) {
