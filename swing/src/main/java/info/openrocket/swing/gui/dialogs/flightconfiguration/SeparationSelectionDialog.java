@@ -78,7 +78,7 @@ public class SeparationSelectionDialog extends JDialog {
 			overrideButton.setSelected(true);
 		}
 		
-		final JComboBox<SeparationEvent> event = new JComboBox<>(new EnumModel<>(newConfiguration, "SeparationEvent"));
+		final JComboBox<SeparationEvent> event = new JComboBox<>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
 		event.setSelectedItem(newConfiguration.getSeparationEvent());
 		panel.add(event, "wrap rel");
 		
