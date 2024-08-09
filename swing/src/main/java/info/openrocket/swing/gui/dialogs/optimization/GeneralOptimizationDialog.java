@@ -1026,7 +1026,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		for (List<SimulationModifier> list : simulationModifiers.values()) {
-			list.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+			list.sort(Comparator.comparing(SimulationModifier::getName));
 		}
 		
 	}
