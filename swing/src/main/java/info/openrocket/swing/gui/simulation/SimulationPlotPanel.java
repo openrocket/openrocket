@@ -604,30 +604,20 @@ public class SimulationPlotPanel extends JPanel {
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case 0:
-				return Boolean.class;
-				
-			case 1:
-				return String.class;
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case 0 -> Boolean.class;
+				case 1 -> String.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
 		public Object getValueAt(int row, int column) {
-			switch (column) {
-			case 0:
-				return Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
-				
-			case 1:
-				return eventTypes[row].toString();
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case 0 -> Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
+				case 1 -> eventTypes[row].toString();
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override

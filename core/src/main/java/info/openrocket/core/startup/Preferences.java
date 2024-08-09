@@ -880,16 +880,13 @@ public abstract class Preferences implements ChangeSource {
 			} catch (IllegalArgumentException ignore) {
 			}
 		}
-		
-		switch (type) {
-		case LINE:
-			return StaticFieldHolder.DEFAULT_LINE_MATERIAL;
-		case SURFACE:
-			return StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
-		case BULK:
-			return StaticFieldHolder.DEFAULT_BULK_MATERIAL;
-		}
-		throw new IllegalArgumentException("Unknown material type: " + type);
+
+		return switch (type) {
+			case LINE -> StaticFieldHolder.DEFAULT_LINE_MATERIAL;
+			case SURFACE -> StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
+			case BULK -> StaticFieldHolder.DEFAULT_BULK_MATERIAL;
+			default -> throw new IllegalArgumentException("Unknown material type: " + type);
+		};
 	}
 	
 	/**

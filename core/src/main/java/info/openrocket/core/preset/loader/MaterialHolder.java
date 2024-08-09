@@ -46,16 +46,12 @@ public class MaterialHolder {
 	}
 
 	public Material getMaterial(Material material) {
-		switch (material.getType()) {
-			case BULK:
-				return getBulkMaterial((Material.Bulk) material);
-			case SURFACE:
-				return getSurfaceMaterial((Material.Surface) material, null);
-			case LINE:
-				return getLineMaterial((Material.Line) material);
-			default:
-				return null;
-		}
+		return switch (material.getType()) {
+			case BULK -> getBulkMaterial((Material.Bulk) material);
+			case SURFACE -> getSurfaceMaterial((Material.Surface) material, null);
+			case LINE -> getLineMaterial((Material.Line) material);
+			default -> null;
+		};
 	}
 
 	public Material.Bulk getBulkMaterial(Material.Bulk material) {

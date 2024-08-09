@@ -477,19 +477,11 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 		
 		// Get the shapes
-		RocketComponentShapes[] returnValue;
-		switch (viewType) {
-		case SideView:
-		case TopView:
-			returnValue = RocketComponentShapeProvider.getShapesSide(component, transformation);
-			break;
-		case BackView:
-			returnValue = RocketComponentShapeProvider.getShapesBack(component, transformation);
-			break;
-		
-		default:
-			throw new BugException("Unknown figure type = " + viewType);
-		}
+		RocketComponentShapes[] returnValue = switch (viewType) {
+			case SideView, TopView -> RocketComponentShapeProvider.getShapesSide(component, transformation);
+			case BackView -> RocketComponentShapeProvider.getShapesBack(component, transformation);
+			default -> throw new BugException("Unknown figure type = " + viewType);
+		};
 
 		if (color != null) {
 			for (RocketComponentShapes rcs : returnValue) {

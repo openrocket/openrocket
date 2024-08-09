@@ -203,16 +203,12 @@ public class Databases {
 	 * @return	the database of the type given
 	 */
 	private static Database<Material> getDatabase(Material.Type type){
-		switch (type) {
-		case BULK:
-			return BULK_MATERIAL;
-		case SURFACE:
-			return SURFACE_MATERIAL;
-		case LINE:
-			return LINE_MATERIAL;
-		default:
-			throw new IllegalArgumentException("Illegal material type: " + type);
-		}
+		return switch (type) {
+			case BULK -> BULK_MATERIAL;
+			case SURFACE -> SURFACE_MATERIAL;
+			case LINE -> LINE_MATERIAL;
+			default -> throw new IllegalArgumentException("Illegal material type: " + type);
+		};
 	}
 	
 	

@@ -130,20 +130,14 @@ public class FigureRenderer extends RocketRenderer {
 	
 	private static int getShine(RocketComponent c) {
 		if (c instanceof ExternalComponent) {
-			switch (((ExternalComponent) c).getFinish()) {
-			case ROUGH:
-				return 10;
-			case UNFINISHED:
-				return 30;
-			case NORMAL:
-				return 40;
-			case SMOOTH:
-				return 80;
-			case POLISHED:
-				return 128;
-			default:
-				return 100;
-			}
+			return switch (((ExternalComponent) c).getFinish()) {
+				case ROUGH -> 10;
+				case UNFINISHED -> 30;
+				case NORMAL -> 40;
+				case SMOOTH -> 80;
+				case POLISHED -> 128;
+				default -> 100;
+			};
 		}
 		return 20;
 	}

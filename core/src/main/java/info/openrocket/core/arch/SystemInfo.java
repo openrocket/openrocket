@@ -51,12 +51,10 @@ public class SystemInfo {
 	 *         otherwise
 	 */
 	public static boolean isConfined() {
-		switch (getPlatform()) {
-			case UNIX:
-				return (System.getenv("SNAP_VERSION") != null);
-			default:
-				return false;
-		}
+		return switch (getPlatform()) {
+			case UNIX -> (System.getenv("SNAP_VERSION") != null);
+			default -> false;
+		};
 	}
 
 	/**

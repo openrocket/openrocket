@@ -705,19 +705,12 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		// the renderer accordingly.  There is certainly a better way to do this.
 		
 		
-		final RocketRenderer newRR;
-		
-		switch (t) {
-		case TYPE_FINISHED:
-			newRR = new RealisticRenderer(document);
-			break;
-		case TYPE_UNFINISHED:
-			newRR = new UnfinishedRenderer(document);
-			break;
-		default:
-			newRR = new FigureRenderer();
-		}
-		
+		final RocketRenderer newRR = switch (t) {
+			case TYPE_FINISHED -> new RealisticRenderer(document);
+			case TYPE_UNFINISHED -> new UnfinishedRenderer(document);
+			default -> new FigureRenderer();
+		};
+
 		if (canvas instanceof GLCanvas && !((GLCanvas) canvas).isRealized()) {
 			rr = newRR;
 		} else if (canvas instanceof GLJPanel && !((GLJPanel) canvas).isRealized()) {

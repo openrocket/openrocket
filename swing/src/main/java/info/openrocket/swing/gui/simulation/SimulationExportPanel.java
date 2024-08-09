@@ -361,51 +361,38 @@ public class SimulationExportPanel extends JPanel {
 		
 		@Override
 		public String getColumnName(int column) {
-			switch (column) {
-			case SELECTED:
-				return "";
-			case NAME:
-				//// Variable
-				return trans.get("SimExpPan.Col.Variable");
-			case UNIT:
-				//// Unit
-				return trans.get("SimExpPan.Col.Unit");
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case SELECTED -> "";
+				case NAME ->
+					//// Variable
+						trans.get("SimExpPan.Col.Variable");
+				case UNIT ->
+					//// Unit
+						trans.get("SimExpPan.Col.Unit");
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 			
 		}
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case SELECTED:
-				return Boolean.class;
-			case NAME:
-				return FlightDataType.class;
-			case UNIT:
-				return Unit.class;
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case SELECTED -> Boolean.class;
+				case NAME -> FlightDataType.class;
+				case UNIT -> Unit.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
 		public Object getValueAt(int row, int column) {
-			
-			switch (column) {
-			case SELECTED:
-				return selected[row];
-				
-			case NAME:
-				return types[row];
-				
-			case UNIT:
-				return units[row];
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+
+			return switch (column) {
+				case SELECTED -> selected[row];
+				case NAME -> types[row];
+				case UNIT -> units[row];
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 			
 		}
 		
@@ -434,19 +421,12 @@ public class SimulationExportPanel extends JPanel {
 		
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			switch (column) {
-			case SELECTED:
-				return true;
-				
-			case NAME:
-				return false;
-				
-			case UNIT:
-				return types[row].getUnitGroup().getUnitCount() > 1;
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case SELECTED -> true;
+				case NAME -> false;
+				case UNIT -> types[row].getUnitGroup().getUnitCount() > 1;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		public void selectAll() {

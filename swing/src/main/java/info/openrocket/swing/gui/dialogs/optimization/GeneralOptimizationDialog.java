@@ -1346,35 +1346,25 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		@Override
 		public String getColumnName(int column) {
-			switch (column) {
-			case PARAMETER:
-				return trans.get("table.col.parameter");
-			case CURRENT:
-				return trans.get("table.col.current");
-			case MIN:
-				return trans.get("table.col.min");
-			case MAX:
-				return trans.get("table.col.max");
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case PARAMETER -> trans.get("table.col.parameter");
+				case CURRENT -> trans.get("table.col.current");
+				case MIN -> trans.get("table.col.min");
+				case MAX -> trans.get("table.col.max");
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 			
 		}
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case PARAMETER:
-				return String.class;
-			case CURRENT:
-				return Double.class;
-			case MIN:
-				return Double.class;
-			case MAX:
-				return Double.class;
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case PARAMETER -> String.class;
+				case CURRENT -> Double.class;
+				case MIN -> Double.class;
+				case MAX -> Double.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
@@ -1438,18 +1428,13 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			switch (column) {
-			case PARAMETER:
-				return false;
-			case CURRENT:
-				return false;
-			case MIN:
-				return true;
-			case MAX:
-				return true;
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case PARAMETER -> false;
+				case CURRENT -> false;
+				case MIN -> true;
+				case MAX -> true;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 	}

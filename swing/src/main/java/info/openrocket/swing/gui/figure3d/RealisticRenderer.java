@@ -221,18 +221,13 @@ public class RealisticRenderer extends RocketRenderer {
 	}
 	
 	private int toEdgeMode(Decal.EdgeMode m) {
-		switch (m) {
-		case REPEAT:
-			return GL.GL_REPEAT;
-		case MIRROR:
-			return GL.GL_MIRRORED_REPEAT;
-		case CLAMP:
-			return GL.GL_CLAMP_TO_EDGE;
-		case STICKER:
-			return GL2.GL_CLAMP_TO_BORDER;
-		default:
-			return GL.GL_CLAMP_TO_EDGE;
-		}
+		return switch (m) {
+			case REPEAT -> GL.GL_REPEAT;
+			case MIRROR -> GL.GL_MIRRORED_REPEAT;
+			case CLAMP -> GL.GL_CLAMP_TO_EDGE;
+			case STICKER -> GL2.GL_CLAMP_TO_BORDER;
+			default -> GL.GL_CLAMP_TO_EDGE;
+		};
 	}
 	
 	protected static void convertColor(ORColor color, float[] out) {

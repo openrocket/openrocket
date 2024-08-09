@@ -555,21 +555,22 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				else
 					pos = askPosition();
 			}
-			
-			switch (pos) {
-			case 0:
-				// Cancel
-				return null;
-			case 1:
-				// Insert after current position
-				return new Pair<>(parent, parent.getChildPosition(c) + 1);
-			case 2:
-				// Insert at the end of the parent
-				return new Pair<>(parent, null);
-			default:
-				Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
-				return null;
-			}
+
+			return switch (pos) {
+				case 0 ->
+					// Cancel
+						null;
+				case 1 ->
+					// Insert after current position
+						new Pair<>(parent, parent.getChildPosition(c) + 1);
+				case 2 ->
+					// Insert at the end of the parent
+						new Pair<>(parent, null);
+				default -> {
+					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
+					yield null;
+				}
+			};
 		}
 		
 		private int askPosition() {
@@ -680,20 +681,21 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 					pos = askPosition();
 			}
 
-			switch (pos) {
-				case 0:
+			return switch (pos) {
+				case 0 ->
 					// Cancel
-					return null;
-				case 1:
+						null;
+				case 1 ->
 					// Insert after current stage
-					return new Pair<>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
-				case 2:
+						new Pair<>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
+				case 2 ->
 					// Insert at the end
-					return new Pair<>(document.getRocket(), null);
-				default:
+						new Pair<>(document.getRocket(), null);
+				default -> {
 					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
-					return null;
-			}
+					yield null;
+				}
+			};
 		}
 
 		private int askPosition() {

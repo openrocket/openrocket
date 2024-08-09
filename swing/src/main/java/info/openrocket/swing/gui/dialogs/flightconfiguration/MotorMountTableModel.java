@@ -60,30 +60,20 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 	
 	@Override
 	public Class<?> getColumnClass(int column) {
-		switch (column) {
-		case 0:
-			return Boolean.class;
-			
-		case 1:
-			return String.class;
-			
-		default:
-			throw new IndexOutOfBoundsException("column=" + column);
-		}
+		return switch (column) {
+			case 0 -> Boolean.class;
+			case 1 -> String.class;
+			default -> throw new IndexOutOfBoundsException("column=" + column);
+		};
 	}
 	
 	@Override
 	public Object getValueAt(int row, int column) {
-		switch (column) {
-		case 0:
-			return Boolean.valueOf(potentialMounts.get(row).isMotorMount());
-			
-		case 1:
-			return potentialMounts.get(row).toString();
-			
-		default:
-			throw new IndexOutOfBoundsException("column=" + column);
-		}
+		return switch (column) {
+			case 0 -> Boolean.valueOf(potentialMounts.get(row).isMotorMount());
+			case 1 -> potentialMounts.get(row).toString();
+			default -> throw new IndexOutOfBoundsException("column=" + column);
+		};
 	}
 	
 	@Override

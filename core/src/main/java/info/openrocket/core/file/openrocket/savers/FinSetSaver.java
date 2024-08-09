@@ -33,17 +33,12 @@ public class FinSetSaver extends ExternalComponentSaver {
 			// anymore
 			String offset = "center";
 			double offsetVal = fins.getTabOffset();
-			switch (fins.getTabOffsetMethod()) {
-				case TOP:
-					offset = "front";
-					break;
-				case BOTTOM:
-					offset = "end";
-					break;
-				case MIDDLE:
-					offset = "center";
-					break;
-			}
+			offset = switch (fins.getTabOffsetMethod()) {
+				case TOP -> "front";
+				case BOTTOM -> "end";
+				case MIDDLE -> "center";
+				default -> offset;
+			};
 			elements.add("<tabposition relativeto=\"" + offset + "\">" +
 					offsetVal + "</tabposition>");
 			elements.add("<tabposition relativeto=\"" +

@@ -80,19 +80,12 @@ public class MaterialEditPanel extends JPanel {
 					public Object getValueAt(int row) {
 						Material m = getMaterial(row);
 						double d = m.getDensity();
-						switch (m.getType()) {
-						case LINE:
-							return UnitGroup.UNITS_DENSITY_LINE.toValue(d);
-							
-						case SURFACE:
-							return UnitGroup.UNITS_DENSITY_SURFACE.toValue(d);
-							
-						case BULK:
-							return UnitGroup.UNITS_DENSITY_BULK.toValue(d);
-							
-						default:
-							throw new IllegalStateException("Material type " + m.getType());
-						}
+						return switch (m.getType()) {
+							case LINE -> UnitGroup.UNITS_DENSITY_LINE.toValue(d);
+							case SURFACE -> UnitGroup.UNITS_DENSITY_SURFACE.toValue(d);
+							case BULK -> UnitGroup.UNITS_DENSITY_BULK.toValue(d);
+							default -> throw new IllegalStateException("Material type " + m.getType());
+						};
 					}
 					
 					@Override
@@ -274,19 +267,12 @@ public class MaterialEditPanel extends JPanel {
 	
 	
 	private Database<Material> getDatabase(Material m) {
-		switch (m.getType()) {
-		case BULK:
-			return Databases.BULK_MATERIAL;
-			
-		case SURFACE:
-			return Databases.SURFACE_MATERIAL;
-			
-		case LINE:
-			return Databases.LINE_MATERIAL;
-			
-		default:
-			throw new IllegalArgumentException("Material type invalid, m=" + m);
-		}
+		return switch (m.getType()) {
+			case BULK -> Databases.BULK_MATERIAL;
+			case SURFACE -> Databases.SURFACE_MATERIAL;
+			case LINE -> Databases.LINE_MATERIAL;
+			default -> throw new IllegalArgumentException("Material type invalid, m=" + m);
+		};
 	}
 	
 	

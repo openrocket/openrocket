@@ -174,16 +174,11 @@ public abstract class PreferencesPanel extends JPanel {
 		
 		@Override
 		public Object getElementAt(int index) {
-			switch (index) {
-			case 0:
-				return def ? trueDesc : falseDesc;
-				
-			case 1:
-				return def ? falseDesc : trueDesc;
-				
-			default:
-				throw new IndexOutOfBoundsException("Boolean asked for index=" + index);
-			}
+			return switch (index) {
+				case 0 -> def ? trueDesc : falseDesc;
+				case 1 -> def ? falseDesc : trueDesc;
+				default -> throw new IndexOutOfBoundsException("Boolean asked for index=" + index);
+			};
 		}
 		
 		@Override

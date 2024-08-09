@@ -218,31 +218,19 @@ public class OpenRocketComponentSaver {
      *         for the preset type
      */
     private static BaseComponentDTO toComponentDTO(ComponentPreset thePreset) {
-        switch (thePreset.getType()) {
-            case BODY_TUBE:
-                return new BodyTubeDTO(thePreset);
-            case TUBE_COUPLER:
-                return new TubeCouplerDTO(thePreset);
-            case NOSE_CONE:
-                return new NoseConeDTO(thePreset);
-            case TRANSITION:
-                return new TransitionDTO(thePreset);
-            case BULK_HEAD:
-                return new BulkHeadDTO(thePreset);
-            case CENTERING_RING:
-                return new CenteringRingDTO(thePreset);
-            case ENGINE_BLOCK:
-                return new EngineBlockDTO(thePreset);
-            case LAUNCH_LUG:
-                return new LaunchLugDTO(thePreset);
-            case RAIL_BUTTON:
-                return new RailButtonDTO(thePreset);
-            case STREAMER:
-                return new StreamerDTO(thePreset);
-            case PARACHUTE:
-                return new ParachuteDTO(thePreset);
-        }
+		return switch (thePreset.getType()) {
+			case BODY_TUBE -> new BodyTubeDTO(thePreset);
+			case TUBE_COUPLER -> new TubeCouplerDTO(thePreset);
+			case NOSE_CONE -> new NoseConeDTO(thePreset);
+			case TRANSITION -> new TransitionDTO(thePreset);
+			case BULK_HEAD -> new BulkHeadDTO(thePreset);
+			case CENTERING_RING -> new CenteringRingDTO(thePreset);
+			case ENGINE_BLOCK -> new EngineBlockDTO(thePreset);
+			case LAUNCH_LUG -> new LaunchLugDTO(thePreset);
+			case RAIL_BUTTON -> new RailButtonDTO(thePreset);
+			case STREAMER -> new StreamerDTO(thePreset);
+			case PARACHUTE -> new ParachuteDTO(thePreset);
+		};
 
-        return null;
-    }
+	}
 }

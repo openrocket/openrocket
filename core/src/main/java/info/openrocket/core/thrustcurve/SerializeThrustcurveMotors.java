@@ -96,21 +96,12 @@ public class SerializeThrustcurveMotors {
 					continue;
 				}
 
-				final Motor.Type type;
-				switch (mi.getType()) {
-					case "SU":
-						type = Motor.Type.SINGLE;
-						break;
-					case "reload":
-						type = Motor.Type.RELOAD;
-						break;
-					case "hybrid":
-						type = Motor.Type.HYBRID;
-						break;
-					default:
-						type = Motor.Type.UNKNOWN;
-						break;
-				}
+				final Motor.Type type = switch (mi.getType()) {
+					case "SU" -> Motor.Type.SINGLE;
+					case "reload" -> Motor.Type.RELOAD;
+					case "hybrid" -> Motor.Type.HYBRID;
+					default -> Motor.Type.UNKNOWN;
+				};
 
 				System.out.println(message);
 
