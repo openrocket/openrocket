@@ -42,7 +42,7 @@ public class CoordinateTest {
 		assertEquals(1 + 2 + 3, Coordinate.dot(x, y), EPS);
 		assertEquals(x.dot(x), x.length2(), EPS);
 		assertEquals(y.dot(y), y.length2(), EPS);
-		assertEquals(Math.sqrt(1 + 4 + 9), y.length(), EPS);
+		assertEquals(3.7416573867739413, y.length(), EPS);
 		assertEquals(1, y.normalize().length(), EPS);
 
 		assertCoordinateEquals(new Coordinate(1.75, 1.75, 1.75, 4),

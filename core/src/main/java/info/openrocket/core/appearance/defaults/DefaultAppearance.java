@@ -80,14 +80,14 @@ public class DefaultAppearance {
 	private static final Appearance CHUTE = simple("/datafiles/textures/chute.jpg");
 	
 	
-	private static final Appearance ESTES_BT = simpleAlpha(new ORColor(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
-	private static final Appearance ESTES_IT = simpleAlpha(new ORColor(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
-	private static final Appearance WHITE_BT = simpleAlpha(new ORColor(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_BT = simpleAlpha(new ORColor(212, 185, 145), 0.3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_IT = simpleAlpha(new ORColor(168, 146, 116), 0.1f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance WHITE_BT = simpleAlpha(new ORColor(240, 240, 240), 0.3f, "/datafiles/textures/spiral-wound-alpha.png");
 	
 	private static final Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
 	private static final Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
 	private static final Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
-	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new ORColor(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
+	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new ORColor(195, 60, 50), 0.6f, "/datafiles/textures/motors/reusable.png");
 
 	private static final HashMap<ORColor, Appearance> plastics = new HashMap<>();
 	
@@ -99,7 +99,7 @@ public class DefaultAppearance {
 	 */
 	private static Appearance getPlastic(ORColor c) {
 		if (!plastics.containsKey(c)) {
-			plastics.put(c, new Appearance(c, .3));
+			plastics.put(c, new Appearance(c, 0.3));
 		}
 		return plastics.get(c);
 	}

@@ -167,7 +167,7 @@ public final class FlameRenderer {
 	}
 
 	public static void drawExhaust(GL2 gl, FlameSettings fs, Motor motor) {
-		final float s = (float) Math.max(.5, Math.sqrt(motor.getAverageThrustEstimate()) / 4.0)
+		final float s = (float) Math.max(0.5, Math.sqrt(motor.getAverageThrustEstimate()) / 4.0)
 				* (float) fs.getExhaustScale();
 		gl.glScalef(s, s, s);
 
@@ -187,7 +187,7 @@ public final class FlameRenderer {
 
 		if (fs.isSmoke()) {
 			final float LEN = 10;
-			final float MAX_R = .15f;
+			final float MAX_R = 0.15f;
 			final int P = 5;
 
 			final Func radius = new Func() {
@@ -218,7 +218,7 @@ public final class FlameRenderer {
 			setUniform1i(gl, shaderprogram, "uNormal", 1);
 
 			trail(gl, radius, dZ, //
-					new Const(0.025f * (fs.getSmokeColor().getAlpha() / 255f)), //
+					new Const(0.025f * (fs.getSmokeColor().getAlpha() / 255.0f)), //
 					LEN, P, fs.getSmokeColor(), s);
 
 			gl.glUseProgram(0);
@@ -241,7 +241,7 @@ public final class FlameRenderer {
 				public float f(double z) {
 					z = z / FLEN;
 					z = 1 - z;
-					return (float) (z * z - z * z * z) * .06f;
+					return (float) (z * z - z * z * z) * 0.06f;
 				}
 			};
 
@@ -276,9 +276,9 @@ public final class FlameRenderer {
 			out[1] = 1;
 			out[2] = 0;
 		} else {
-			out[0] = (float) color.getRed() / 255f;
-			out[1] = (float) color.getGreen() / 255f;
-			out[2] = (float) color.getBlue() / 255f;
+			out[0] = (float) color.getRed() / 255.0f;
+			out[1] = (float) color.getGreen() / 255.0f;
+			out[2] = (float) color.getBlue() / 255.0f;
 		}
 	}
 
@@ -446,7 +446,7 @@ public final class FlameRenderer {
 				gl.glLoadMatrixd(mvmatrix, 0);
 
 				// Add a random rotation to prevent artifacts from texture.
-				gl.glRotatef(r.nextFloat() * 45f, 0, 0, 1);
+				gl.glRotatef(r.nextFloat() * 45.0f, 0, 0, 1);
 
 				gl.glBegin(GL.GL_TRIANGLE_FAN);
 				float d = radius.f(z) * scale * 2;
@@ -493,7 +493,7 @@ public final class FlameRenderer {
 		float[] c2 = new float[4];
 		convertColor(fs.getFlameColor(), c);
 		for (int i = 0; i < 3; i++) {
-			c[i] = c2[i] = c[i] * .2f + .8f;
+			c[i] = c2[i] = c[i] * 0.2f + 0.8f;
 		}
 		c[3] = 1;
 		c2[3] = 1;

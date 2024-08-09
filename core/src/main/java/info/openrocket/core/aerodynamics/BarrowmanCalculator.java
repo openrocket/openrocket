@@ -571,7 +571,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (configuration.getRocket().isPerfectFinish()) {
 
 			// Assume partial laminar layer. Roughness-limitation is checked later.
-			if (Re < 1e4) {
+			if (Re < 1.0e4) {
 				// Too low, constant
 				Cf = 1.33e-2;
 			} else if (Re < 5.39e5) {
@@ -586,18 +586,18 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			if (mach < 1.1) {
 				// Below Re=1e6 no correction
-				if (Re > 1e6) {
-					if (Re < 3e6) {
-						c1 = 1 - 0.1 * pow2(mach) * (Re - 1e6) / 2e6; // transition to turbulent
+				if (Re > 1.0e6) {
+					if (Re < 3.0e6) {
+						c1 = 1 - 0.1 * pow2(mach) * (Re - 1.0e6) / 2.0e6; // transition to turbulent
 					} else {
 						c1 = 1 - 0.1 * pow2(mach);
 					}
 				}
 			}
 			if (mach > 0.9) {
-				if (Re > 1e6) {
-					if (Re < 3e6) {
-						c2 = 1 + (1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25) - 1) * (Re - 1e6) / 2e6;
+				if (Re > 1.0e6) {
+					if (Re < 3.0e6) {
+						c2 = 1 + (1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25) - 1) * (Re - 1.0e6) / 2.0e6;
 					} else {
 						c2 = 1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25);
 					}
@@ -617,7 +617,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		} else {
 
 			// Assume fully turbulent. Roughness-limitation is checked later.
-			if (Re < 1e4) {
+			if (Re < 1.0e4) {
 				// Too low, constant
 				Cf = 1.48e-2;
 			} else {

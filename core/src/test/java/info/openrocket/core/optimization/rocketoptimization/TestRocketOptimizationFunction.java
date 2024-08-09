@@ -163,7 +163,7 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		function.addRocketOptimizationListener(listener);
 
 		double value = function.evaluate(new Point(p1, p2));
-		assertTrue(value > 1e100);
+		assertTrue(value > 1.0e100);
 
 		// Verify the interactions
 		verify(modifier1).modify(simulation, p1);

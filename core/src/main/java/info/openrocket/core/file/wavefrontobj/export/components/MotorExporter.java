@@ -120,7 +120,7 @@ public class MotorExporter {
         //// Cone tip
         for (int i = 0; i <= numSides; i++) {
             final float u = ((float) i) / numSides;
-            obj.addTexCoord(u, 0f);
+            obj.addTexCoord(u, 0.0f);
         }
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added

@@ -81,34 +81,34 @@ public class TransitionHandlerTest extends RockSimTestBase {
         warnings.clear();
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("FrontDia", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getForeRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getForeRadius(), 0.001);
         handler.closeElement("FrontDia", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getForeRadius(),
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getForeRadius(),
                 0.001);
         handler.closeElement("FrontDia", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("RearDia", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getAftRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftRadius(), 0.001);
         handler.closeElement("RearDia", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getAftRadius(),
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getAftRadius(),
                 0.001);
         handler.closeElement("RearDia", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
-        final double aft = 100d;
+        final double aft = 100.0d;
         component.setAftRadius(aft);
 
         handler.closeElement("ConstructionType", attributes, "0", warnings);
@@ -132,9 +132,9 @@ public class TransitionHandlerTest extends RockSimTestBase {
         component.setForeShoulderRadius(1.1d);
         handler.closeElement("WallThickness", attributes, "-1", warnings);
         handler.endHandler("Transition", attributes, null, warnings);
-        Assertions.assertEquals(0d, component.getThickness(), 0.001);
-        Assertions.assertEquals(0d, component.getAftShoulderThickness(), 0.001);
-        Assertions.assertEquals(0d, component.getForeShoulderThickness(), 0.001);
+        Assertions.assertEquals(0.0d, component.getThickness(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftShoulderThickness(), 0.001);
+        Assertions.assertEquals(0.0d, component.getForeShoulderThickness(), 0.001);
         handler.closeElement("WallThickness", attributes, "1.1", warnings);
         handler.endHandler("Transition", attributes, null, warnings);
         Assertions.assertEquals(1.1d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getThickness(),
@@ -145,42 +145,42 @@ public class TransitionHandlerTest extends RockSimTestBase {
                 component.getForeShoulderThickness(), 0.001);
 
         handler.closeElement("FrontShoulderLen", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getForeShoulderLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getForeShoulderLength(), 0.001);
         handler.closeElement("FrontShoulderLen", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 component.getForeShoulderLength(), 0.001);
         handler.closeElement("FrontShoulderLen", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 component.getForeShoulderLength(), 0.001);
         handler.closeElement("FrontShoulderLen", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("RearShoulderLen", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getAftShoulderLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftShoulderLength(), 0.001);
         handler.closeElement("RearShoulderLen", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
                 0.001);
         handler.closeElement("RearShoulderLen", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
                 0.001);
         handler.closeElement("RearShoulderLen", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("FrontShoulderDia", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getForeShoulderRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getForeShoulderRadius(), 0.001);
         handler.closeElement("FrontShoulderDia", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
                 component.getForeShoulderRadius(), 0.001);
         handler.closeElement("FrontShoulderDia", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("RearShoulderDia", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getAftShoulderRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftShoulderRadius(), 0.001);
         handler.closeElement("RearShoulderDia", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
                 component.getAftShoulderRadius(), 0.001);
         handler.closeElement("RearShoulderDia", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
@@ -188,7 +188,7 @@ public class TransitionHandlerTest extends RockSimTestBase {
 
         component.setShapeType(Transition.Shape.HAACK);
         handler.closeElement("ShapeParameter", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getShapeParameter(), 0.001);
+        Assertions.assertEquals(0.0d, component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
         Assertions.assertEquals(Transition.Shape.HAACK.maxParameter(), component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "foo", warnings);
@@ -198,9 +198,9 @@ public class TransitionHandlerTest extends RockSimTestBase {
         warnings.clear();
 
         component.setShapeType(Transition.Shape.CONICAL);
-        component.setShapeParameter(0d);
+        component.setShapeParameter(0.0d);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
-        Assertions.assertEquals(0d, component.getShapeParameter(), 0.001);
+        Assertions.assertEquals(0.0d, component.getShapeParameter(), 0.001);
 
         handler.closeElement("FinishCode", attributes, "-1", warnings);
         Assertions.assertEquals(ExternalComponent.Finish.NORMAL, component.getFinish());

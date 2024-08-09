@@ -150,7 +150,7 @@ public class DampingMoment extends AbstractSimulationExtension {
 			double rho = flightConditions.getAtmosphericConditions().getDensity();
 			double ar = flightConditions.getRefArea();
 
-			aerodynamicPart = aerodynamicPart * .5 * rho * v * ar;
+			aerodynamicPart = aerodynamicPart * 0.5 * rho * v * ar;
 
 			return aerodynamicPart + propulsivePart;
 		}

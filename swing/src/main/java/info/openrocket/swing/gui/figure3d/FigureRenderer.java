@@ -148,9 +148,9 @@ public class FigureRenderer extends RocketRenderer {
 			out[1] = 1;
 			out[2] = 0;
 		} else {
-			out[0] = Math.max(0.2f, (float) color.getRed() / 255f) * 2;
-			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f) * 2;
-			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f) * 2;
+			out[0] = Math.max(0.2f, (float) color.getRed() / 255.0f) * 2;
+			out[1] = Math.max(0.2f, (float) color.getGreen() / 255.0f) * 2;
+			out[2] = Math.max(0.2f, (float) color.getBlue() / 255.0f) * 2;
 		}
 	}
 	

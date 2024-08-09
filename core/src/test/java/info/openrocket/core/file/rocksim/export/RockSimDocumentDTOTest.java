@@ -54,7 +54,7 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 		
 		NoseConeDTO noseCone = new NoseConeDTO();
-		noseCone.setBaseDia(10d);
+		noseCone.setBaseDia(10.0d);
 		noseCone.setCalcCG(1.3d);
 		
 		StageDTO stage1 = new StageDTO();

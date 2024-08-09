@@ -288,7 +288,7 @@ public class PartsDetailVisitorStrategy {
             ShockCord ring = (ShockCord) component;
             PdfPCell cell = ITextHelper.createCell();
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            cell.setPaddingBottom(12f);
+            cell.setPaddingBottom(12.0f);
             grid.addCell(iconToImage(component));
             grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(ring.getMaterial()));
@@ -300,7 +300,7 @@ public class PartsDetailVisitorStrategy {
             Parachute chute = (Parachute) component;
             PdfPCell cell = ITextHelper.createCell();
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            cell.setPaddingBottom(12f);
+            cell.setPaddingBottom(12.0f);
             grid.addCell(iconToImage(component));
             grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(chute.getMaterial()));
@@ -324,7 +324,7 @@ public class PartsDetailVisitorStrategy {
             Streamer ring = (Streamer) component;
             PdfPCell cell = ITextHelper.createCell();
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            cell.setPaddingBottom(12f);
+            cell.setPaddingBottom(12.0f);
             grid.addCell(iconToImage(component));
             grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(ring.getMaterial()));
@@ -336,7 +336,7 @@ public class PartsDetailVisitorStrategy {
             RecoveryDevice device = (RecoveryDevice) component;
             PdfPCell cell = ITextHelper.createCell();
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            cell.setPaddingBottom(12f);
+            cell.setPaddingBottom(12.0f);
             grid.addCell(iconToImage(component));
             grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(device.getMaterial()));
@@ -347,12 +347,12 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof MassObject) {
             PdfPCell cell = ITextHelper.createCell();
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            cell.setPaddingBottom(12f);
+            cell.setPaddingBottom(12.0f);
 
             grid.addCell(iconToImage(component));
             final PdfPCell nameCell = createNameCell(component.getName(), true, component.getPresetComponent());
             nameCell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-            nameCell.setPaddingBottom(12f);
+            nameCell.setPaddingBottom(12.0f);
             grid.addCell(nameCell);
             grid.addCell(cell);
             grid.addCell(createDiaCell(((MassObject) component).getRadius() * 2));
@@ -386,7 +386,7 @@ public class PartsDetailVisitorStrategy {
     private PdfPCell createDiaCell (final double diameter) {
         PdfPCell result = new PdfPCell();
         Phrase p = new Phrase();
-        p.setLeading(12f);
+        p.setLeading(12.0f);
         result.setVerticalAlignment(Element.ALIGN_TOP);
         result.setBorder(Rectangle.BOTTOM);
         Chunk c = new Chunk();
@@ -416,7 +416,7 @@ public class PartsDetailVisitorStrategy {
     private PdfPCell createStrip (final Streamer component) {
         PdfPCell result = new PdfPCell();
         Phrase p = new Phrase();
-        p.setLeading(12f);
+        p.setLeading(12.0f);
         result.setVerticalAlignment(Element.ALIGN_TOP);
         result.setBorder(Rectangle.BOTTOM);
         Chunk c = new Chunk();
@@ -431,7 +431,7 @@ public class PartsDetailVisitorStrategy {
         result.addElement(p);
 
         Phrase pw = new Phrase();
-        pw.setLeading(14f);
+        pw.setLeading(14.0f);
         c = new Chunk();
         c.setFont(PrintUtilities.NORMAL);
         c.append(WIDTH);
@@ -482,7 +482,7 @@ public class PartsDetailVisitorStrategy {
 
         PdfPCell result = new PdfPCell();
         Phrase p = new Phrase();
-        p.setLeading(12f);
+        p.setLeading(12.0f);
         result.setVerticalAlignment(Element.ALIGN_TOP);
         result.setBorder(Rectangle.BOTTOM);
         Chunk c = new Chunk();
@@ -513,7 +513,7 @@ public class PartsDetailVisitorStrategy {
      */
     private void createInnerDiaCell (final double innerRadius, PdfPCell cell, final String innerLabel) {
         Phrase p = new Phrase();
-        p.setLeading(14f);
+        p.setLeading(14.0f);
         Chunk c = new Chunk();
         c.setFont(PrintUtilities.NORMAL);
         c.append(DIAMETER);
@@ -622,7 +622,7 @@ public class PartsDetailVisitorStrategy {
         result.setColspan(2);
         result.setBorder(Rectangle.BOTTOM);
         Paragraph para = new Paragraph();
-        para.setLeading(12f, 0);
+        para.setLeading(12.0f, 0);
         Chunk c = new Chunk();
         c.setFont(PrintUtilities.NORMAL);
         Chunk tab1 =
@@ -660,7 +660,7 @@ public class PartsDetailVisitorStrategy {
      */
     protected PdfPCell createMaterialCell (Material material) {
         PdfPCell cell = ITextHelper.createCell();
-        cell.setLeading(13f, 0);
+        cell.setLeading(13.0f, 0);
 
         Chunk c = new Chunk();
         c.setFont(PrintUtilities.NORMAL);

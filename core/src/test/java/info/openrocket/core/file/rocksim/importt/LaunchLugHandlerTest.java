@@ -70,33 +70,33 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getOuterRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getOuterRadius(), 0.001);
         handler.closeElement("OD", attributes, "0", warnings);
-        Assertions.assertEquals(0d, component.getOuterRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getOuterRadius(), 0.001);
         handler.closeElement("OD", attributes, "75", warnings);
-        Assertions.assertEquals(75d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getOuterRadius(),
+        Assertions.assertEquals(75.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getOuterRadius(),
                 0.001);
         handler.closeElement("OD", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("ID", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getInnerRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getInnerRadius(), 0.001);
         handler.closeElement("ID", attributes, "0", warnings);
-        Assertions.assertEquals(0d, component.getInnerRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getInnerRadius(), 0.001);
         handler.closeElement("ID", attributes, "75", warnings);
-        Assertions.assertEquals(75d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(),
+        Assertions.assertEquals(75.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(),
                 0.001);
         handler.closeElement("ID", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();

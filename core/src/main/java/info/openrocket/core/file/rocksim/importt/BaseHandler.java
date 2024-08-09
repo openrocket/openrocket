@@ -36,15 +36,15 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	/**
 	 * The overridden mass.
 	 */
-	private Double mass = 0d;
+	private Double mass = 0.0d;
 	/**
 	 * The overridden Cg.
 	 */
-	private Double cg = 0d;
+	private Double cg = 0.0d;
 	/**
 	 * The density of the material in the component.
 	 */
-	private Double density = 0d;
+	private Double density = 0.0d;
 	/**
 	 * The internal Rocksim density type.
 	 */
@@ -83,13 +83,13 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 				component.setName(content);
 			}
 			if (RockSimCommonConstants.KNOWN_MASS.equals(element)) {
-				mass = Math.max(0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+				mass = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}
 			if (RockSimCommonConstants.DENSITY.equals(element)) {
-				density = Math.max(0d, Double.parseDouble(content));
+				density = Math.max(0.0d, Double.parseDouble(content));
 			}
 			if (RockSimCommonConstants.KNOWN_CG.equals(element)) {
-				cg = Math.max(0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+				cg = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if (RockSimCommonConstants.USE_KNOWN_CG.equals(element)) { // Rocksim sets UseKnownCG to true to control the
 																		// override of both cg and mass

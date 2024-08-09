@@ -184,9 +184,9 @@ public class OptimizationPlotDialog extends JDialog {
 		}
 		
 		// Add lines to show optimization limits
-		XYLineAnnotation line = new XYLineAnnotation(x1, -1e19, x1, 1e19);
+		XYLineAnnotation line = new XYLineAnnotation(x1, -1.0e19, x1, 1.0e19);
 		chart.getXYPlot().addAnnotation(line);
-		line = new XYLineAnnotation(x2, -1e19, x2, 1e19);
+		line = new XYLineAnnotation(x2, -1.0e19, x2, 1.0e19);
 		chart.getXYPlot().addAnnotation(line);
 		
 		// Mark the optimum point

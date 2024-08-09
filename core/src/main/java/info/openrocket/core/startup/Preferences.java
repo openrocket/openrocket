@@ -398,7 +398,7 @@ public abstract class Preferences implements ChangeSource {
 	
 	
 	public double getWindSpeedDeviation() {
-		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, .1);
+		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, 0.1);
 	}
 	
 	public void setWindSpeedDeviation(double windDeviation) {

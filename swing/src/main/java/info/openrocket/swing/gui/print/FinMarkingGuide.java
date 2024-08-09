@@ -63,7 +63,7 @@ public class FinMarkingGuide extends JPanel {
 	/**
 	 * The default guide width in inches.
 	 */
-	public final static double DEFAULT_GUIDE_WIDTH = 3d;
+	public final static double DEFAULT_GUIDE_WIDTH = 3.0d;
 	
 	/**
 	 * 2 PI radians (represents a circle).

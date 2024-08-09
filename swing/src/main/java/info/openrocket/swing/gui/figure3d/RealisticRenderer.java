@@ -237,10 +237,10 @@ public class RealisticRenderer extends RocketRenderer {
 			out[2] = 0;
 			out[3] = 1;
 		} else {
-			out[0] = (float) color.getRed() / 255f;
-			out[1] = (float) color.getGreen() / 255f;
-			out[2] = (float) color.getBlue() / 255f;
-			out[3] = (float) color.getAlpha() / 255f;
+			out[0] = (float) color.getRed() / 255.0f;
+			out[1] = (float) color.getGreen() / 255.0f;
+			out[2] = (float) color.getBlue() / 255.0f;
+			out[3] = (float) color.getAlpha() / 255.0f;
 		}
 	}
 }

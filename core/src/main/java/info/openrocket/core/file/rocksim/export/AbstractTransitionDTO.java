@@ -37,9 +37,9 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
     @XmlElement(name = RockSimCommonConstants.CONSTRUCTION_TYPE)
     private int constructionType = 1;
     @XmlElement(name = RockSimCommonConstants.WALL_THICKNESS)
-    private double wallThickness = 0d;
+    private double wallThickness = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHAPE_PARAMETER)
-    private double shapeParameter = 0d;
+    private double shapeParameter = 0.0d;
 
     @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
     @XmlElementRefs({

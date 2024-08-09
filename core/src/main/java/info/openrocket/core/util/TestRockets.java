@@ -135,8 +135,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 9, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.0164), new Coordinate(.035, 0, 0, 0.0145),
-						new Coordinate(.035, 0, 0, 0.0131) })
+						new Coordinate(0.035, 0, 0, 0.0164), new Coordinate(0.035, 0, 0, 0.0145),
+						new Coordinate(0.035, 0, 0, 0.0131) })
 				.setDigest("digest A8 test")
 				.build();
 	}
@@ -194,8 +194,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 11.4, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.0195), new Coordinate(.035, 0, 0, 0.0155),
-						new Coordinate(.035, 0, 0, 0.013) })
+						new Coordinate(0.035, 0, 0, 0.0195), new Coordinate(0.035, 0, 0, 0.0155),
+						new Coordinate(0.035, 0, 0, 0.013) })
 				.setDigest("digest B4 test")
 				.build();
 	}
@@ -215,8 +215,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 6, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.0227), new Coordinate(.035, 0, 0, 0.0165),
-						new Coordinate(.035, 0, 0, 0.012) })
+						new Coordinate(0.035, 0, 0, 0.0227), new Coordinate(0.035, 0, 0, 0.0165),
+						new Coordinate(0.035, 0, 0, 0.012) })
 				.setDigest("digest C6 test")
 				.build();
 	}
@@ -236,8 +236,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 32, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(.035, 0, 0, 0.025), new Coordinate(.035, 0, 0, .020),
-						new Coordinate(.035, 0, 0, 0.0154) })
+						new Coordinate(0.035, 0, 0, 0.025), new Coordinate(0.035, 0, 0, 0.020),
+						new Coordinate(0.035, 0, 0, 0.0154) })
 				.setDigest("digest D21 test")
 				.build();
 	}
@@ -257,8 +257,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 1357, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(.311, 0, 0, 4.808), new Coordinate(.311, 0, 0, 3.389),
-						new Coordinate(.311, 0, 0, 1.970) })
+						new Coordinate(0.311, 0, 0, 4.808), new Coordinate(0.311, 0, 0, 3.389),
+						new Coordinate(0.311, 0, 0, 1.970) })
 				.setDigest("digest M1350 test")
 				.build();
 	}
@@ -278,8 +278,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 20, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(.062, 0, 0, 0.123), new Coordinate(.062, 0, 0, .0935),
-						new Coordinate(.062, 0, 0, 0.064) })
+						new Coordinate(0.062, 0, 0, 0.123), new Coordinate(0.062, 0, 0, 0.0935),
+						new Coordinate(0.062, 0, 0, 0.064) })
 				.setDigest("digest G77 test")
 				.build();
 	}
@@ -483,8 +483,8 @@ public class TestRockets {
 		TrapezoidFinSet finset;
 		{
 			int finCount = 3;
-			double finRootChord = .05;
-			double finTipChord = .03;
+			double finRootChord = 0.05;
+			double finTipChord = 0.03;
 			double finSweep = 0.02;
 			double finHeight = 0.05;
 			finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
@@ -648,15 +648,15 @@ public class TestRockets {
 				boosterBody.addChild(coupler);
 
 				int finCount = 3;
-				double finRootChord = .05;
-				double finTipChord = .03;
+				double finRootChord = 0.05;
+				double finTipChord = 0.03;
 				double finSweep = 0.02;
 				double finHeight = 0.05;
 				FinSet finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 				finset.setName("Booster Fins");
 				finset.setThickness(0.0032);
 				finset.setAxialMethod(AxialMethod.BOTTOM);
-				finset.setAxialOffset(0.);
+				finset.setAxialOffset(0.0);
 				boosterBody.addChild(finset);
 
 				// Motor mount
@@ -1474,7 +1474,7 @@ public class TestRockets {
 		// make fins with fin tabs and add to body tube
 		TrapezoidFinSet fins = new TrapezoidFinSet();
 		fins.setFinCount(3);
-		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 		fins.setTabHeight(0.25);
 		fins.setTabLength(0.25);
 		bodyTube.addChild(fins);
@@ -1862,7 +1862,7 @@ public class TestRockets {
 
 		TrapezoidFinSet fins1 = new TrapezoidFinSet();
 		fins1.setFinCount(3);
-		fins1.setFinShape(1.5, 1.5, 0.0, 1.5, .005);
+		fins1.setFinShape(1.5, 1.5, 0.0, 1.5, 0.005);
 		bodyTube1.addChild(fins1);
 
 		// make 1st stage recovery device with deployment config in default
@@ -1889,7 +1889,7 @@ public class TestRockets {
 		// make 2nd stage fins
 		TrapezoidFinSet fins2 = new TrapezoidFinSet();
 		fins2.setFinCount(3);
-		fins2.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins2.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 		bodyTube2.addChild(fins2);
 
 		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);

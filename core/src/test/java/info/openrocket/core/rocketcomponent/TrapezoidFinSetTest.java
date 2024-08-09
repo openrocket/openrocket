@@ -12,7 +12,7 @@ import info.openrocket.core.util.BaseTestCase;
 
 public class TrapezoidFinSetTest extends BaseTestCase {
 
-	private static final double EPSILON = 1E-8;
+	private static final double EPSILON = 1.0E-8;
 
 	private Rocket createSimpleTrapezoidalFin() {
 		final Rocket rkt = new Rocket();
@@ -185,7 +185,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		final TrapezoidFinSet fins = (TrapezoidFinSet) rkt.getChild(0).getChild(0).getChild(0);
 
 		// This is a simple square fin with sides of 0.1.
-		fins.setFinShape(0.1, 0.1, 0.0, 0.1, .005);
+		fins.setFinShape(0.1, 0.1, 0.0, 0.1, 0.005);
 
 		// should return a single-fin-planform area
 		assertEquals(0.01, fins.getPlanformArea(), 0.00001, "area calculation doesn't match: ");
@@ -312,7 +312,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			// This is a simple square fin with sides of 1.0.
 			TrapezoidFinSet fins = new TrapezoidFinSet();
 			fins.setFinCount(1);
-			fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+			fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 
 			Coordinate coords = fins.getCG();
 			assertEquals(1.0, fins.getPlanformArea(), 0.001);
@@ -328,7 +328,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			//  +------+
 			TrapezoidFinSet fins = new TrapezoidFinSet();
 			fins.setFinCount(1);
-			fins.setFinShape(1.0, 0.5, 0.0, 1.0, .005);
+			fins.setFinShape(1.0, 0.5, 0.0, 1.0, 0.005);
 
 			Coordinate coords = fins.getCG();
 			assertEquals(0.75, fins.getPlanformArea(), 0.001);
@@ -413,7 +413,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		// This is a simple square fin with sides of 1.0.
 		TrapezoidFinSet fins = new TrapezoidFinSet();
 		fins.setFinCount(4);
-		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 		fins.setBaseRotation(Math.PI / 2);
 
 		BodyTube body = new BodyTube(1.0, 0.05);
@@ -435,7 +435,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		// This is a simple square fin with sides of 1.0.
 		TrapezoidFinSet fins = new TrapezoidFinSet();
 		fins.setFinCount(4);
-		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 		fins.setBaseRotation(Math.PI / 4);
 
 		BodyTube body = new BodyTube(1.0, 0.05);
@@ -457,7 +457,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		// This is a simple square fin with sides of 1.0.
 		TrapezoidFinSet fins = new TrapezoidFinSet();
 		fins.setFinCount(4);
-		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 		fins.setBaseRotation(0.0);
 
 		double[] angles = fins.getInstanceAngles();
@@ -473,7 +473,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		// This is a simple square fin with sides of 1.0.
 		TrapezoidFinSet fins = new TrapezoidFinSet();
 		fins.setFinCount(4);
-		fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 		fins.setBaseRotation(Math.PI / 2);
 
 		double[] angles = fins.getInstanceAngles();

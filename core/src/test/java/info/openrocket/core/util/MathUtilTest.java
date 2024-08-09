@@ -62,7 +62,7 @@ public class MathUtilTest {
 
 		for (int i = 0; i < 10000; i++) {
 			double x = Math.random() * 100 - 50;
-			double y = Math.random() * i - i / 2;
+			double y = Math.random() * i - (double) i / 2;
 			double z = Math.hypot(x, y);
 			assertEquals(z, MathUtil.hypot(x, y), EPS);
 		}
@@ -170,7 +170,7 @@ public class MathUtilTest {
 
 		}
 
-		for (double value : new double[] { PI * 1e20, -PI * 1e20 }) {
+		for (double value : new double[] { PI * 1.0e20, -PI * 1.0e20}) {
 			assertTrue(MathUtil.equals(value, value + 1), "value=" + value);
 			assertTrue(MathUtil.equals(value, Math.nextUp(value)), "value=" + value);
 			assertTrue(MathUtil.equals(value, value * (1 + MathUtil.EPSILON)), "value=" + value);

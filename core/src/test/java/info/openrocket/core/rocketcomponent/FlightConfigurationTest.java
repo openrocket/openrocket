@@ -25,7 +25,7 @@ import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.ModID;
 
 public class FlightConfigurationTest extends BaseTestCase {
-	private final static double EPSILON = MathUtil.EPSILON * 1E3;
+	private final static double EPSILON = MathUtil.EPSILON * 1.0E3;
 
 	/**
 	 * Empty rocket (no components) specific configuration tests

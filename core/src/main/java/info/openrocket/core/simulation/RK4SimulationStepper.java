@@ -247,9 +247,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.storeData(status);
 		
 		// Verify that values don't run out of range
-		if (status.getRocketVelocity().length2() > 1e18 ||
-				status.getRocketPosition().length2() > 1e18 ||
-				status.getRocketRotationVelocity().length2() > 1e18) {
+		if (status.getRocketVelocity().length2() > 1.0e18 ||
+				status.getRocketPosition().length2() > 1.0e18 ||
+				status.getRocketRotationVelocity().length2() > 1.0e18) {
 			throw new SimulationCalculationException(trans.get("error.valuesTooLarge"), status.getFlightDataBranch());
 		}
 	}

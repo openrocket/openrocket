@@ -340,7 +340,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Number of motors
 		{
-			nrOfMotorsLabel = new StyledLabel(-2f, StyledLabel.Style.ITALIC);
+			nrOfMotorsLabel = new StyledLabel(-2.0f, StyledLabel.Style.ITALIC);
 			nrOfMotorsLabel.setToolTipText(trans.get("TCMotorSelPan.lbl.ttip.nrOfMotors"));
 			updateNrOfMotors();
 			nrOfMotorsLabel.setForeground(dimTextColor);

@@ -106,27 +106,27 @@ public class UnitGroup {
 
 		UNITS_ENERGY = new UnitGroup();
 		UNITS_ENERGY.addUnit(new GeneralUnit(1, "J"));
-		UNITS_ENERGY.addUnit(new GeneralUnit(1e-7, "erg"));
+		UNITS_ENERGY.addUnit(new GeneralUnit(1.0e-7, "erg"));
 		UNITS_ENERGY.addUnit(new GeneralUnit(1.055, "BTU"));
 		UNITS_ENERGY.addUnit(new GeneralUnit(4.184, "cal"));
 		UNITS_ENERGY.addUnit(new GeneralUnit(1.3558179483314, "ft" + DOT + "lbf"));
 
 		UNITS_POWER = new UnitGroup();
-		UNITS_POWER.addUnit(new GeneralUnit(1e-3, "mW"));
+		UNITS_POWER.addUnit(new GeneralUnit(1.0e-3, "mW"));
 		UNITS_POWER.addUnit(new GeneralUnit(1, "W"));
-		UNITS_POWER.addUnit(new GeneralUnit(1e3, "kW"));
-		UNITS_POWER.addUnit(new GeneralUnit(1e-7, "ergs"));
+		UNITS_POWER.addUnit(new GeneralUnit(1.0e3, "kW"));
+		UNITS_POWER.addUnit(new GeneralUnit(1.0e-7, "ergs"));
 		UNITS_POWER.addUnit(new GeneralUnit(745.699872, "hp"));
 
 		UNITS_MOMENTUM = new UnitGroup();
 		UNITS_MOMENTUM.addUnit(new GeneralUnit(1, "kg" + DOT + "m/s"));
 
 		UNITS_VOLTAGE = new UnitGroup();
-		UNITS_VOLTAGE.addUnit(new GeneralUnit(1e-3, "mV"));
+		UNITS_VOLTAGE.addUnit(new GeneralUnit(1.0e-3, "mV"));
 		UNITS_VOLTAGE.addUnit(new GeneralUnit(1, "V"));
 
 		UNITS_CURRENT = new UnitGroup();
-		UNITS_CURRENT.addUnit(new GeneralUnit(1e-3, "mA"));
+		UNITS_CURRENT.addUnit(new GeneralUnit(1.0e-3, "mA"));
 		UNITS_CURRENT.addUnit(new GeneralUnit(1, "A"));
 
 		UNITS_LENGTH = new UnitGroup();
@@ -134,7 +134,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
 		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in", 1));
-		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
+		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1.0d / 16.0d, 0.5d / 64.0d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 
 		UNITS_MOTOR_DIMENSIONS = new UnitGroup();
@@ -157,7 +157,7 @@ public class UnitGroup {
 		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1, "m"));
 		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1000, "km"));
 		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.0254, "in"));
-		UNITS_ALL_LENGTHS.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
+		UNITS_ALL_LENGTHS.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1.0d / 16.0d, 0.5d / 64.0d));
 		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.3048, "ft"));
 		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.9144, "yd"));
 		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1609.344, "mi"));
@@ -318,7 +318,7 @@ public class UnitGroup {
 
 		// This is not used by OpenRocket, and not extensively tested:
 		UNITS_FREQUENCY = new UnitGroup();
-		UNITS_FREQUENCY.addUnit(new FrequencyUnit(.001, "mHz"));
+		UNITS_FREQUENCY.addUnit(new FrequencyUnit(0.001, "mHz"));
 		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1, "Hz"));
 		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
 

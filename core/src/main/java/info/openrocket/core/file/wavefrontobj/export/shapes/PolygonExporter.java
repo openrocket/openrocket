@@ -44,9 +44,9 @@ public class PolygonExporter {
 
             // Compute texture coordinates based on normalized position
             float u = (pointLocationsX[i] - boundaries.getMinX()) / (boundaries.getMaxX() - boundaries.getMinX());
-            u = 1f - u;
+            u = 1.0f - u;
             float v = (pointLocationsY[i] - boundaries.getMinY()) / (boundaries.getMaxY() - boundaries.getMinY());
-            v = 1f - v;
+            v = 1.0f - v;
             obj.addTexCoord(u, v);
         }
 
@@ -56,9 +56,9 @@ public class PolygonExporter {
 
             // Compute texture coordinates based on normalized position
             float u = (pointLocationsX[i] - boundaries.getMinX()) / (boundaries.getMaxX() - boundaries.getMinX());
-            u = 1f - u;
+            u = 1.0f - u;
             float v = (pointLocationsY[i] - boundaries.getMinY()) / (boundaries.getMaxY() - boundaries.getMinY());
-            v = 1f - v;
+            v = 1.0f - v;
             obj.addTexCoord(u, v);
         }
 

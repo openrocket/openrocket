@@ -232,7 +232,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		g2d.setBackground(new Color(0, 0, 0, 0));
 		g2d.clearRect(0, 0, CARET_SIZE, CARET_SIZE);
 		
-		new CGCaret(CARET_SIZE / 2, CARET_SIZE / 2).paint(g2d, 1.0);
+		new CGCaret((double) CARET_SIZE / 2, (double) CARET_SIZE / 2).paint(g2d, 1.0);
 		
 		g2d.dispose();
 		
@@ -244,7 +244,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		g2d.setBackground(new Color(0, 0, 0, 0));
 		g2d.clearRect(0, 0, CARET_SIZE, CARET_SIZE);
 		
-		new CPCaret(CARET_SIZE / 2, CARET_SIZE / 2).paint(g2d, 1.0);
+		new CPCaret((double) CARET_SIZE / 2, (double) CARET_SIZE / 2).paint(g2d, 1.0);
 		
 		g2d.dispose();
 		
@@ -307,8 +307,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
 
-		gl.glClearColor(backgroundColor.getRed()/255f, backgroundColor.getGreen()/255f,
-				backgroundColor.getBlue()/255f, backgroundColor.getAlpha()/255f);
+		gl.glClearColor(backgroundColor.getRed()/ 255.0f, backgroundColor.getGreen()/ 255.0f,
+				backgroundColor.getBlue()/ 255.0f, backgroundColor.getAlpha()/ 255.0f);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
 		setupView(gl, glu);
@@ -336,8 +336,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			}
 			pickPoint = null;
 
-			gl.glClearColor(backgroundColor.getRed()/255f, backgroundColor.getGreen()/255f,
-					backgroundColor.getBlue()/255f, backgroundColor.getAlpha()/255f);
+			gl.glClearColor(backgroundColor.getRed()/ 255.0f, backgroundColor.getGreen()/ 255.0f,
+					backgroundColor.getBlue()/ 255.0f, backgroundColor.getAlpha()/ 255.0f);
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 			gl.glEnable(GL.GL_MULTISAMPLE);
@@ -505,7 +505,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glViewport(0, 0, w, h);
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(fovY, ratio, 0.1f, 50f);
+		glu.gluPerspective(fovY, ratio, 0.1f, 50.0f);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		
 		redrawExtras = true;

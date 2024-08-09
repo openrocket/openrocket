@@ -37,15 +37,15 @@ import java.util.List;
 public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 
     @XmlElement(name = RockSimCommonConstants.OD)
-    private double od = 0d;
+    private double od = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ID)
-    private double id = 0d;
+    private double id = 0.0d;
     @XmlElement(name = RockSimCommonConstants.IS_MOTOR_MOUNT)
     private int isMotorMount = 0;
     @XmlElement(name = RockSimCommonConstants.MOTOR_DIA)
-    private double motorDia = 0d;
+    private double motorDia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ENGINE_OVERHANG)
-    private double engineOverhang = 0d;
+    private double engineOverhang = 0.0d;
     @XmlElement(name = RockSimCommonConstants.IS_INSIDE_TUBE)
     private int isInsideTube = 0;
     @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)

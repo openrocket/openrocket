@@ -73,7 +73,7 @@ public class ConfigHandler extends AbstractElementHandler {
 				}
 			} else {
 				BigDecimal value = new BigDecimal(str);
-				if (value.equals(BigDecimal.valueOf(value.doubleValue()))) {
+				if (value.compareTo(BigDecimal.valueOf(value.doubleValue())) == 0) {
 					return value.doubleValue();
 				} else {
 					return value;

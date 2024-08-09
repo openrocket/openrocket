@@ -21,8 +21,8 @@ public class FreeformFinSet extends FinSet {
 	// this class uses certain features of 'ArrayList' which are not implemented in other 'List' implementations.
 	private ArrayList<Coordinate> points = new ArrayList<>();
 	
-	private static final double SNAP_SMALLER_THAN = 5e-3;
-	private static final double IGNORE_SMALLER_THAN = 1e-12;
+	private static final double SNAP_SMALLER_THAN = 5.0e-3;
+	private static final double IGNORE_SMALLER_THAN = 1.0e-12;
 
 	// attempts to set a fin value any larger than this will be snapped to this max value
 	public static final double SNAP_LARGER_THAN = 2.5; // in meters

@@ -104,12 +104,12 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		Unit no_unit = new GeneralUnit(1, "", 2) {
 			@Override
 			public double getNextValue(double value) {
-				return value + .1;
+				return value + 0.1;
 			}
 
 			@Override
 			public double getPreviousValue(double value) {
-				return value - .1;
+				return value - 0.1;
 			}
 
 		};

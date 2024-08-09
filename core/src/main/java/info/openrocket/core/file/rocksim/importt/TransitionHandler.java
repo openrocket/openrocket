@@ -30,7 +30,7 @@ class TransitionHandler extends BaseHandler<Transition> {
 	/**
 	 * The wall thickness. Used for hollow nose cones.
 	 */
-	private double thickness = 0d;
+	private double thickness = 0.0d;
 
 	/**
 	 * Constructor.
@@ -80,23 +80,23 @@ class TransitionHandler extends BaseHandler<Transition> {
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
 			}
 			if ("WallThickness".equals(element)) {
-				thickness = Math.max(0d,
+				thickness = Math.max(0.0d,
 						Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 			}
 			if ("FrontShoulderDia".equals(element)) {
-				transition.setForeShoulderRadius(Math.max(0d, Double.parseDouble(
+				transition.setForeShoulderRadius(Math.max(0.0d, Double.parseDouble(
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
 			}
 			if ("RearShoulderDia".equals(element)) {
-				transition.setAftShoulderRadius(Math.max(0d, Double.parseDouble(
+				transition.setAftShoulderRadius(Math.max(0.0d, Double.parseDouble(
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
 			}
 			if ("FrontShoulderLen".equals(element)) {
-				transition.setForeShoulderLength(Math.max(0d, Double.parseDouble(
+				transition.setForeShoulderLength(Math.max(0.0d, Double.parseDouble(
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if ("RearShoulderLen".equals(element)) {
-				transition.setAftShoulderLength(Math.max(0d, Double.parseDouble(
+				transition.setAftShoulderLength(Math.max(0.0d, Double.parseDouble(
 						content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
 			}
 			if ("ShapeParameter".equals(element)) {

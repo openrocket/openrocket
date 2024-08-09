@@ -239,7 +239,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		double newRadius = requestedRadius;
 
 		if (requestedMethod.clampToZero()) {
-			newRadius = 0.;
+			newRadius = 0.0;
 		}
 
 		this.radiusMethod = requestedMethod;

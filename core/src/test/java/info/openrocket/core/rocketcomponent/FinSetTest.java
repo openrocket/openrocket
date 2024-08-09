@@ -14,7 +14,7 @@ import info.openrocket.core.util.BaseTestCase;
 
 public class FinSetTest extends BaseTestCase {
 
-	private static final double EPSILON = 1E-8;
+	private static final double EPSILON = 1.0E-8;
 
 	@Test
 	public void testMultiplicity() {
@@ -200,8 +200,8 @@ public class FinSetTest extends BaseTestCase {
 		final double expArea = 0.06 * 0.06 * 0.5;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
 		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.04, actCentroid.x, 1e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.02, actCentroid.y, 1e-8, " basic centroid y doesn't match: ");
+		assertEquals(0.04, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -222,8 +222,8 @@ public class FinSetTest extends BaseTestCase {
 		final double expArea = 0.06 * 0.12 * 0.5;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
 		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.06, actCentroid.x, 1e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.02, actCentroid.y, 1e-8, " basic centroid y doesn't match: ");
+		assertEquals(0.06, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -244,8 +244,8 @@ public class FinSetTest extends BaseTestCase {
 		final double expArea = 0.04 * 0.05;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
 		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.03000, actCentroid.x, 1e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.020833333, actCentroid.y, 1e-8, " basic centroid y doesn't match: ");
+		assertEquals(0.03000, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.020833333, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -258,12 +258,12 @@ public class FinSetTest extends BaseTestCase {
 									// => [ .523, 2.61, 4.71 ]
 
 		final double[] instanceAngles = fins.getInstanceAngles();
-		assertEquals((1. / 6.) * Math.PI, fins.getBaseRotation(), EPSILON);
-		assertEquals((1. / 6.) * Math.PI, fins.getAngleOffset(), EPSILON);
+		assertEquals((1.0 / 6.0) * Math.PI, fins.getBaseRotation(), EPSILON);
+		assertEquals((1.0 / 6.0) * Math.PI, fins.getAngleOffset(), EPSILON);
 
-		assertEquals((1. / 6.) * Math.PI, instanceAngles[0], EPSILON);
-		assertEquals((5. / 6.) * Math.PI, instanceAngles[1], EPSILON);
-		assertEquals((9. / 6.) * Math.PI, instanceAngles[2], EPSILON);
+		assertEquals((1.0 / 6.0) * Math.PI, instanceAngles[0], EPSILON);
+		assertEquals((5.0 / 6.0) * Math.PI, instanceAngles[1], EPSILON);
+		assertEquals((9.0 / 6.0) * Math.PI, instanceAngles[2], EPSILON);
 	}
 
 	@Test

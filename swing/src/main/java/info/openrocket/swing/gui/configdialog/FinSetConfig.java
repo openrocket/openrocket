@@ -405,7 +405,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			rings.sort(new Comparator<>() {
 				@Override
 				public int compare(CenteringRing centeringRing, CenteringRing centeringRing1) {
-					return (int) (1000d * (centeringRing.getAxialOffset(AxialMethod.TOP) -
+					return (int) (1000.0d * (centeringRing.getAxialOffset(AxialMethod.TOP) -
 							centeringRing1.getAxialOffset(AxialMethod.TOP)));
 				}
 			});
@@ -431,7 +431,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				} else if (top.bottomSidePositionFromTop() <= finPositionFromTop) {
 					if (bottom == null) {
 						//If the current ring is in the upper half of the root chord, make it the top ring
-						if (sortableRing.bottomSidePositionFromTop() < finPositionFromTop + finLength / 2d) {
+						if (sortableRing.bottomSidePositionFromTop() < finPositionFromTop + finLength / 2.0d) {
 							top = sortableRing;
 						} else {
 							bottom = sortableRing;
@@ -451,7 +451,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		}
 
-        double resultFinTabLength = 0d;
+        double resultFinTabLength = 0.0d;
 
 		// Edge case where there are no centering rings or for some odd reason top and bottom are identical.
 		if (top == null || top == bottom) {
@@ -504,7 +504,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
             }
         }
         if (resultFinTabLength < 0) {
-            resultFinTabLength = 0d;
+            resultFinTabLength = 0.0d;
         }
         return resultFinTabLength;
 	}

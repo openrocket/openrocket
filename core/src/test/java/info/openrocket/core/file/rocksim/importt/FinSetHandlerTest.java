@@ -117,7 +117,7 @@ public class FinSetHandlerTest {
         assertEquals(0.04d, fins.getTabLength(), EPSILON, "imported fin tab length does not match: " + debugInfo);
         assertEquals(0.05d, fins.getTabHeight(), EPSILON, "imported fin tab height does not match: " + debugInfo);
         assertEquals(0.03d, fins.getTabOffset(), EPSILON, "imported fin shift does not match.");
-        assertEquals(.123d, fins.getBaseRotation(), EPSILON, "imported fin rotation does not match.");
+        assertEquals(0.123d, fins.getBaseRotation(), EPSILON, "imported fin rotation does not match.");
 
         dto.closeElement("ShapeCode", attributes, "1", warnings);
 
@@ -133,7 +133,7 @@ public class FinSetHandlerTest {
         assertEquals(0.04d, fins.getTabLength(), EPSILON, "imported fin tab length does not match.");
         assertEquals(0.05d, fins.getTabHeight(), EPSILON, "imported fin tab height does not match.");
         assertEquals(0.03d, fins.getTabOffset(), EPSILON, "imported fin tab shift does not match.");
-        assertEquals(.123d, fins.getBaseRotation(), EPSILON, "imported fin rotation does not match.");
+        assertEquals(0.123d, fins.getBaseRotation(), EPSILON, "imported fin rotation does not match.");
     }
 
     /**
@@ -219,7 +219,7 @@ public class FinSetHandlerTest {
         assertNotNull(result);
 		assertEquals(4, result.length);
         assertEquals(new Coordinate(0, 0), result[0]);
-        assertEquals(new Coordinate(.51816, 0), result[3]);
+        assertEquals(new Coordinate(0.51816, 0), result[3]);
         assertEquals(0, warnings.size());
         warnings.clear();
 
@@ -229,7 +229,7 @@ public class FinSetHandlerTest {
         assertNotNull(result);
 		assertEquals(4, result.length);
         assertEquals(new Coordinate(0, 0), result[0]);
-        assertEquals(new Coordinate(.51816, 0), result[3]);
+        assertEquals(new Coordinate(0.51816, 0), result[3]);
         assertEquals(0, warnings.size());
         warnings.clear();
 

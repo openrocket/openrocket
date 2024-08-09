@@ -128,15 +128,15 @@ class FinSetHandler extends AbstractElementHandler {
 	/**
 	 * The overridden mass.
 	 */
-	private Double mass = 0d;
+	private Double mass = 0.0d;
 	/**
 	 * The overridden Cg.
 	 */
-	private Double cg = 0d;
+	private Double cg = 0.0d;
 	/**
 	 * The density of the material in the component.
 	 */
-	private Double density = 0d;
+	private Double density = 0.0d;
 	/**
 	 * The material name.
 	 */
@@ -144,11 +144,11 @@ class FinSetHandler extends AbstractElementHandler {
 	/**
 	 * The Rocksim calculated mass.
 	 */
-	private Double calcMass = 0d;
+	private Double calcMass = 0.0d;
 	/**
 	 * The Rocksim calculated cg.
 	 */
-	private Double calcCg = 0d;
+	private Double calcCg = 0.0d;
 
 	private final RockSimAppearanceBuilder appearanceBuilder;
 
@@ -257,14 +257,14 @@ class FinSetHandler extends AbstractElementHandler {
 				pointList = content;
 			}
 			if (RockSimCommonConstants.KNOWN_MASS.equals(element)) {
-				mass = Math.max(0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+				mass = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}
 			if (RockSimCommonConstants.DENSITY.equals(element)) {
-				density = Math.max(0d,
+				density = Math.max(0.0d,
 						Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
 			}
 			if (RockSimCommonConstants.KNOWN_CG.equals(element)) {
-				cg = Math.max(0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+				cg = Math.max(0.0d, Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}
 			if (RockSimCommonConstants.USE_KNOWN_CG.equals(element)) {
 				override = "1".equals(content);
@@ -359,10 +359,10 @@ class FinSetHandler extends AbstractElementHandler {
 		Double radiusFront = result.getParentFrontRadius(component);
 		Double radiusTrailing = result.getParentTrailingRadius(component);
 		if (radiusFront == null) {
-			radiusFront = 0d;
+			radiusFront = 0.0d;
 		}
 		if (radiusTrailing == null) {
-			radiusTrailing = 0d;
+			radiusTrailing = 0.0d;
 		}
 		double tabDepthOffset = Math.max(radiusFront - radiusTrailing, 0);
 		result.setTabHeight(tabDepth - tabDepthOffset);

@@ -212,7 +212,7 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
 		//// The data will be plotted in time order even if the X axis type is not time.
-		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
+		simPlotPanelDesc = new DescriptionArea("", 2, -2.0f, false);
 		simPlotPanelDesc.setVisible(false);
 		simPlotPanelDesc.setForeground(darkErrorColor);
 		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());

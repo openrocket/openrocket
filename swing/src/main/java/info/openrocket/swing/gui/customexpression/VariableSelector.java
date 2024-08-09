@@ -63,9 +63,9 @@ public class VariableSelector extends JDialog {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		int width = table.getColumnModel().getTotalColumnWidth();
-		table.getColumnModel().getColumn(0).setPreferredWidth( (int) (.7 * width));
-		table.getColumnModel().getColumn(1).setPreferredWidth( (int) (.15 * width));
-		table.getColumnModel().getColumn(2).setPreferredWidth( (int) (.15 * width));
+		table.getColumnModel().getColumn(0).setPreferredWidth( (int) (0.7 * width));
+		table.getColumnModel().getColumn(1).setPreferredWidth( (int) (0.15 * width));
+		table.getColumnModel().getColumn(2).setPreferredWidth( (int) (0.15 * width));
 		table.setAutoCreateRowSorter(true);
 
 		table.addMouseListener(new MouseListener(){

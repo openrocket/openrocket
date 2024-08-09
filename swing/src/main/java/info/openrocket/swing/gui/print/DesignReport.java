@@ -115,7 +115,7 @@ public class DesignReport {
 	/**
 	 * The figure rotation.
 	 */
-	private double rotation = 0d;
+	private double rotation = 0.0d;
 	
 	/**
 	 * Determines whether or not to run out of date simulations.
@@ -490,7 +490,7 @@ public class DesignReport {
 		
 		PdfPCell c = new PdfPCell(motorTable);
 		c.setBorder(PdfPCell.LEFT);
-		c.setBorderWidthTop(0f);
+		c.setBorderWidthTop(0.0f);
 		parent.addCell(c);
 	}
 	
@@ -522,13 +522,13 @@ public class DesignReport {
 				final Paragraph chunk = ITextHelper.createParagraph(stripBrackets(
 						descriptor.format(theRocket, motorId)), PrintUtilities.BOLD);
 				chunk.setLeading(leading);
-				chunk.setSpacingAfter(3f);
+				chunk.setSpacingAfter(3.0f);
 				
 				document.add(chunk);
 				
 				final PdfPCell cell = ITextHelper.createCell(ALTITUDE, 2, 2);
 				cell.setUseBorderPadding(false);
-				cell.setBorderWidthTop(0f);
+				cell.setBorderWidthTop(0.0f);
 				labelTable.addCell(cell);
 				labelTable.addCell(ITextHelper.createCell(distanceUnit.toStringUnit(flight.getMaxAltitude()), 2, 2));
 				

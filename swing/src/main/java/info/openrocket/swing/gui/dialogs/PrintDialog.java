@@ -71,7 +71,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private JButton saveAsPDF;
 	private JButton cancel;
 
-    private double rotation = 0d;
+    private double rotation = 0.0d;
     
     private boolean updateSimulations = true;
 	

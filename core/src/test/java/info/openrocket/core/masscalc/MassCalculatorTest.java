@@ -1011,7 +1011,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		final Motor boosterMotor = mnt.getMotorConfig(config.getFlightConfigurationID()).getMotor();
 
 		final double expBoosterPropMassEach = boosterMotor.getLaunchMass();
-		final double boosterSetMotorCount = 8.; /// use a double merely to prevent type-casting issues
+		final double boosterSetMotorCount = 8.0; /// use a double merely to prevent type-casting issues
 		final double expBoosterPropMass = expBoosterPropMassEach * boosterSetMotorCount;
 
 		final Coordinate expCM = new Coordinate(1.31434, 0, 0, expBoosterPropMass);

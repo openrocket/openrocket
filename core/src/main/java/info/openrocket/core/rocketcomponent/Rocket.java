@@ -294,7 +294,7 @@ public class Rocket extends ComponentAssembly {
 
 	@Override
 	public void setAxialOffset(final double requestOffset) {
-		this.axialOffset = 0.;
+		this.axialOffset = 0.0;
 		this.position = Coordinate.ZERO;
     }
 
