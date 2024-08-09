@@ -145,13 +145,7 @@ public final class MemoryManagement {
 	 */
 	private static void purgeCollectables() {
 		int origCount = objects.size();
-		Iterator<MemoryData> iterator = objects.iterator();
-		while (iterator.hasNext()) {
-			MemoryData data = iterator.next();
-			if (data.getReference().get() == null) {
-				iterator.remove();
-			}
-		}
+		objects.removeIf(data -> data.getReference().get() == null);
 		log.debug(objects.size() + " of " + origCount + " objects remaining in discarded objects list after purge.");
 	}
 
@@ -160,13 +154,7 @@ public final class MemoryManagement {
 	 */
 	private static void purgeListeners() {
 		int origCount = listenerLists.size();
-		Iterator<WeakReference<ListenerList<?>>> iterator = listenerLists.iterator();
-		while (iterator.hasNext()) {
-			WeakReference<ListenerList<?>> ref = iterator.next();
-			if (ref.get() == null) {
-				iterator.remove();
-			}
-		}
+		listenerLists.removeIf(ref -> ref.get() == null);
 		log.debug(listenerLists.size() + " of " + origCount + " listener lists remaining after purge.");
 	}
 
