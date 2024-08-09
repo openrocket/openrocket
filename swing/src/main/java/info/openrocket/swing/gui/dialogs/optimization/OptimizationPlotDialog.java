@@ -144,8 +144,8 @@ public class OptimizationPlotDialog extends JDialog {
 		// Create the optimization path (with autosort)
 		XYSeries series = new XYSeries(trans.get("plot1d.series"), true, true);
 		List<String> tooltips = new ArrayList<String>();
-		for (Point p : evaluations.keySet()) {
-			FunctionEvaluationData data = evaluations.get(p);
+		for (Map.Entry<Point, FunctionEvaluationData> entry : evaluations.entrySet()) {
+			FunctionEvaluationData data = entry.getValue();
 			if (data != null) {
 				if (data.getParameterValue() != null) {
 					Value[] state = data.getState();
@@ -153,7 +153,7 @@ public class OptimizationPlotDialog extends JDialog {
 					tooltips.add(getTooltip(data, parameter));
 				}
 			} else {
-				log.error("Could not find evaluation data for point " + p);
+				log.error("Could not find evaluation data for point " + entry.getKey());
 			}
 		}
 		

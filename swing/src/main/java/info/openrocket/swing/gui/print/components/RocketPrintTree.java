@@ -185,7 +185,7 @@ public class RocketPrintTree extends JTree {
 											INITIAL_CHECKBOX_SELECTED));
 			}
 		}
-		return nodes.toArray(new CheckBoxNode[nodes.size()]);
+		return nodes.toArray(new CheckBoxNode[0]);
 	}
 	
 	/**

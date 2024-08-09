@@ -668,7 +668,7 @@ public class DesignReport {
 	protected void runSimulations(List<Simulation> simulations) {
 		if (window != null) {
 			log.debug("Updating " + simulations.size() + "simulations using SimulationRunDialog");
-			Simulation[] runMe = simulations.toArray(new Simulation[simulations.size()]);
+			Simulation[] runMe = simulations.toArray(new Simulation[0]);
 			new SimulationRunDialog(window, rocketDocument, runMe).setVisible(true);
 		} else {
 			/* This code is left for compatibility with any developers who are

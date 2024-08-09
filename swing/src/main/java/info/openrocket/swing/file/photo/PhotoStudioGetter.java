@@ -36,8 +36,8 @@ public class PhotoStudioGetter {
 
     public PhotoSettings getPhotoSettings() {
         if (parameters != null) {
-            for (String element : parameters.keySet()) {
-                processElement(element, parameters.get(element));
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                processElement(entry.getKey(), entry.getValue());
             }
         }
         return p;
@@ -166,7 +166,7 @@ public class PhotoStudioGetter {
         }
 
         if ("sky".equals(element)) {
-            if (content.equals("")) {     // Case where sky is null
+            if (content.isEmpty()) {     // Case where sky is null
                 p.setSky(null);
                 return;
             }

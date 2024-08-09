@@ -134,7 +134,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
                     toBeRemoved.add(selectionPath);
                 }
             }
-            super.removeSelectionPaths(toBeRemoved.toArray(new TreePath[toBeRemoved.size()]));
+            super.removeSelectionPaths(toBeRemoved.toArray(new TreePath[0]));
         }
 
         // if all siblings are selected then deselect them and select parent recursively 

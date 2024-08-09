@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -600,8 +601,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void setSelection(final RocketComponent[] selection) {
 		this.selection.clear();
 		if (selection != null) {
-			for (RocketComponent c : selection)
-				this.selection.add(c);
+			this.selection.addAll(Arrays.asList(selection));
 		}
 		internalRepaint();
 	}

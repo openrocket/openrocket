@@ -127,9 +127,7 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
 		float[] convertedColor = this.convertColor(a, alpha);
-		for (int i=0; i < convertedColor.length; i++) {
-			color[i] = convertedColor[i];
-		}
+		System.arraycopy(convertedColor, 0, color, 0, convertedColor.length);
 		
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);

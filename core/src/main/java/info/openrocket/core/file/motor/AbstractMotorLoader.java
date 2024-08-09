@@ -134,7 +134,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	 */
 	protected static String[] split(String str, String delim) {
 		String[] pieces = str.split(delim);
-		if (pieces.length == 0 || !pieces[0].equals(""))
+		if (pieces.length == 0 || !pieces[0].isEmpty())
 			return pieces;
 		return ArrayUtils.copyOfRange(pieces, 1, pieces.length);
 	}

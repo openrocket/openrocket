@@ -48,7 +48,7 @@ public class ExpressionBuilder {
 			for (String name : variables.getVariableNames()) {
 				function.append(name).append(',');
 			}
-			expression = function.deleteCharAt(function.length() - 1).toString() + ")=" + expression;
+			expression = function.deleteCharAt(function.length() - 1) + ")=" + expression;
 		}
 		// create the PostfixExpression and return it as a Calculable
 		PostfixExpression delegate = PostfixExpression.fromInfix(expression, customFunctions);

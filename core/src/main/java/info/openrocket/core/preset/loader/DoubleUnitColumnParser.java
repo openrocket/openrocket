@@ -29,7 +29,7 @@ public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 
 				Unit unit = rocksimUnits.get(unitName);
 				if (unit == null) {
-					if (unitName == null || "".equals(unitName) || "?".equals(unitName)) {
+					if (unitName == null || unitName.isEmpty() || "?".equals(unitName)) {
 						// Hmm no data... Lets assume SI
 						if (propKey.getUnitGroup() == UnitGroup.UNITS_LENGTH) {
 							unit = UnitGroup.UNITS_LENGTH.getUnit("in");

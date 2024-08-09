@@ -246,14 +246,14 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			// If I don't have a motor designation (will be the case if I read the
 			// thrustcurve from a file)
 			// use the motor code
-			if (motor.designation.equals("")) {
+			if (motor.designation.isEmpty()) {
 				motor.designation = motor.code;
 			}
 
 			// If I don't have a motor common name (will be the case if I read the
 			// thrustcurve from a flle)
 			// apply the motor code simplification heuristics to generate a common name
-			if (motor.commonName.equals("")) {
+			if (motor.commonName.isEmpty()) {
 				motor.commonName = simplifyDesignation(motor.designation);
 			}
 

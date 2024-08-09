@@ -1222,7 +1222,7 @@ public class FreeformFinSetTest extends BaseTestCase {
 
 			final Coordinate[] actualPoints = fin.getFinPoints();
 
-			final String rawPointDescr = "\n" + fin.toDebugDetail().toString() + "\n>> axial offset: " + x_delta;
+			final String rawPointDescr = "\n" + fin.toDebugDetail() + "\n>> axial offset: " + x_delta;
 
 			Coordinate[] displayPoints = FinSet.translatePoints(actualPoints, x_delta, 0);
 			for (int index = 0; index < displayPoints.length; ++index) {

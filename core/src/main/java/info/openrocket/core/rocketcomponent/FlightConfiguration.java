@@ -313,8 +313,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (preloadStageActiveness == null) {
 			return;
 		}
-		for (int stageNumber : preloadStageActiveness.keySet()) {
-			_setStageActive(stageNumber, preloadStageActiveness.get(stageNumber), false);
+		for (Map.Entry<Integer, Boolean> entry : preloadStageActiveness.entrySet()) {
+			_setStageActive(entry.getKey(), entry.getValue(), false);
 		}
 		preloadStageActiveness.clear();
 		preloadStageActiveness = null;

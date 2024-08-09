@@ -3,6 +3,7 @@ package info.openrocket.core.rocketcomponent;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import info.openrocket.core.util.ArrayList;
@@ -38,9 +39,9 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @param configSet the FlightConfigurableParameterSet to copy
 	 */
 	public FlightConfigurableParameterSet(FlightConfigurableParameterSet<E> configSet) {
-		for (FlightConfigurationId key : configSet.map.keySet()) {
-			E cloneConfig = configSet.map.get(key).clone();
-			this.map.put(key, cloneConfig);
+		for (Entry<FlightConfigurationId, E> entry : configSet.map.entrySet()) {
+			E cloneConfig = entry.getValue().clone();
+			this.map.put(entry.getKey(), cloneConfig);
 		}
 	}
 

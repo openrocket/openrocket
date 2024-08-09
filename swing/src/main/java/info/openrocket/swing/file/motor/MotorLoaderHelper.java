@@ -99,9 +99,7 @@ public final class MotorLoaderHelper {
 			log.debug("Loading motors from file " + input.getU());
 			try {
 				List<ThrustCurveMotor.Builder> motors = load(input.getV(), input.getU().getName());
-				for (ThrustCurveMotor.Builder m : motors) {
-					list.add(m);
-				}
+				list.addAll(motors);
 			} finally {
 				try {
 					input.getV().close();

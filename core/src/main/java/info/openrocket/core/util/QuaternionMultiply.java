@@ -50,7 +50,7 @@ public class QuaternionMultiply {
 		for (int i = 0; i < arg.length; i++) {
 			Value value = new Value();
 
-			if (arg[i].equals("")) {
+			if (arg[i].isEmpty()) {
 				value.sign = 0;
 			} else {
 				if (arg[i].startsWith("-")) {

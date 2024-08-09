@@ -114,9 +114,9 @@ public class FlightDataBranch implements Monitorable {
 	public void addPoint() {
 		mutable.check();
 		
-		for (FlightDataType type : values.keySet()) {
-			sanityCheckValues(type, Double.NaN);
-			values.get(type).add(Double.NaN);
+		for (Map.Entry<FlightDataType, ArrayList<Double>> entry : values.entrySet()) {
+			sanityCheckValues(entry.getKey(), Double.NaN);
+			entry.getValue().add(Double.NaN);
 		}
 		modID = new ModID();
 	}
@@ -249,8 +249,8 @@ public class FlightDataBranch implements Monitorable {
 	 * Return the number of data points in this branch.
 	 */
 	public int getLength() {
-		for (FlightDataType t : values.keySet()) {
-			return values.get(t).size();
+		for (ArrayList<Double> doubles : values.values()) {
+			return doubles.size();
 		}
 		return 0;
 	}
@@ -449,8 +449,8 @@ public class FlightDataBranch implements Monitorable {
 	public FlightDataBranch clone() {
 		FlightDataType[] types = getTypes();
 		FlightDataBranch clone = new FlightDataBranch(name, types);
-		for (FlightDataType type : values.keySet()) {
-			clone.values.put(type, values.get(type).clone());
+		for (Map.Entry<FlightDataType, ArrayList<Double>> entry : values.entrySet()) {
+			clone.values.put(entry.getKey(), entry.getValue().clone());
 		}
 		clone.minValues.putAll(minValues);
 		clone.maxValues.putAll(maxValues);

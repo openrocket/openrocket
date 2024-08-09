@@ -2192,10 +2192,10 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			if (!pcLineCount.getText().equals("")) {
+			if (!pcLineCount.getText().isEmpty()) {
 				props.put(ComponentPreset.LINE_COUNT, Integer.parseInt(pcLineCount.getText()));
 			}
-			if (!pcSides.getText().equals("")) {
+			if (!pcSides.getText().isEmpty()) {
 				props.put(ComponentPreset.SIDES, Integer.parseInt(pcSides.getText()));
 			}
 			props.put(ComponentPreset.LINE_LENGTH, pcLineLength.getValue());

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -677,12 +678,12 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	public void storeDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		
-		for (String key : UnitGroup.UNITS.keySet()) {
-			UnitGroup group = UnitGroup.UNITS.get(key);
+		for (Map.Entry<String, UnitGroup> entry : UnitGroup.UNITS.entrySet()) {
+			UnitGroup group = entry.getValue();
 			if (group == null || group.getUnitCount() < 2)
 				continue;
 			
-			prefs.put(key, group.getDefaultUnit().getUnit());
+			prefs.put(entry.getKey(), group.getDefaultUnit().getUnit());
 		}
 	}
 	

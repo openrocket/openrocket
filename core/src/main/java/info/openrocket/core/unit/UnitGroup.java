@@ -758,7 +758,7 @@ public class UnitGroup {
 		double value = StringUtils.convertToDouble(matcher.group(1));
 		String unit = matcher.group(2).trim();
 
-		if (unit.equals("")) {
+		if (unit.isEmpty()) {
 			value = this.getDefaultUnit().fromUnit(value);
 		} else {
 			int i;

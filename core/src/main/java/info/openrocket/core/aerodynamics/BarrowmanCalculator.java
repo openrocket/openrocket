@@ -534,9 +534,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		// Correct body data in map
 		if (forceMap != null) {
-			for (RocketComponent c : forceMap.keySet()) {
-				if (c instanceof SymmetricComponent) {
-					forceMap.get(c).setFrictionCD(forceMap.get(c).getFrictionCD() * correction);
+			for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
+				if (entry.getKey() instanceof SymmetricComponent) {
+					entry.getValue().setFrictionCD(entry.getValue().getFrictionCD() * correction);
 				}
 			}
 		}

@@ -218,6 +218,6 @@ class Tokenizer {
 			}
 			tokens.add(lastToken);
 		}
-		return tokens.toArray(new Token[tokens.size()]);
+		return tokens.toArray(new Token[0]);
 	}
 }

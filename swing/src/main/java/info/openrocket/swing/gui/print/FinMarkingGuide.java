@@ -255,10 +255,10 @@ public class FinMarkingGuide extends JPanel {
 
 		int column = 0;
 		
-		for (BodyTube next : markingGuideItems.keySet()) {
-			double circumferenceInPoints = PrintUnit.METERS.toPoints((next.getOuterRadius() + PAPER_THICKNESS_IN_METERS) *
+		for (Map.Entry<BodyTube, List<ExternalComponent>> entry : markingGuideItems.entrySet()) {
+			double circumferenceInPoints = PrintUnit.METERS.toPoints((entry.getKey().getOuterRadius() + PAPER_THICKNESS_IN_METERS) *
 					TWO_PI);
-			List<ExternalComponent> componentList = markingGuideItems.get(next);
+			List<ExternalComponent> componentList = entry.getValue();
 			//Don't draw the lug if there are no fins.
 			if (hasFins(componentList)) {
 				length = (int) Math.ceil(circumferenceInPoints);
