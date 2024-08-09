@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import info.openrocket.core.database.DatabaseListener;
-
 /**
  * A database set. This class functions as a <code>Set</code> that contains
  * items

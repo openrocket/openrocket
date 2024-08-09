@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import info.openrocket.core.util.ModID;
-
 /**
  * A Set that additionally implements the Monitorable interface.
  * 

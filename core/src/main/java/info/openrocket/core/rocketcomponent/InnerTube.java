@@ -13,7 +13,6 @@ import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationSet;
 import info.openrocket.core.preset.ComponentPreset;
-import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.position.AxialPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
