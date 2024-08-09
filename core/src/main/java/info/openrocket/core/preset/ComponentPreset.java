@@ -406,11 +406,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	 * Package scope so the factory can call it.
 	 */
 	void computeDigest() {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			DataOutputStream os = new DataOutputStream(bos);
-
+		try (DataOutputStream os = new DataOutputStream(bos)) {
 			List<TypedKey<?>> keys = new ArrayList<>(properties.keySet());
 
 			keys.sort(new Comparator<>() {

@@ -52,7 +52,6 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	public List<ThrustCurveMotor.Builder> load(Reader reader, String filename, boolean removeDelayFromDesignation)
 			throws IOException {
 		List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
-		BufferedReader in = new BufferedReader(reader);
 
 		String manufacturer = "";
 		String designation = "";
@@ -68,7 +67,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		double propW = 0;
 		double totalW = 0;
 
-		try {
+		try (BufferedReader in = new BufferedReader(reader)) {
 			String line;
 			String[] pieces, buf;
 
