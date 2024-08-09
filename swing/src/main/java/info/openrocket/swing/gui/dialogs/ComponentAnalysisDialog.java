@@ -11,7 +11,11 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.CMAnalysisEntry;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.motor.MotorConfiguration;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -96,8 +100,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 	private final List<LongitudinalStabilityRow> stabData = new ArrayList<>();
-	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
-	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
+	private final List<AerodynamicForces> dragData = new ArrayList<>();
+	private final List<AerodynamicForces> rollData = new ArrayList<>();
 
 
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
@@ -613,7 +617,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			warningList.setListData(new String[] {trans.get("componentanalysisdlg.noWarnings")
 			});
 		} else {
-			warningList.setListData(new Vector<Warning>(set));
+			warningList.setListData(new Vector<>(set));
 		}
 
 		longitudeStabilityTableModel.fireTableDataChanged();

@@ -36,7 +36,7 @@ public final class FlightConfigurationId implements Comparable<FlightConfigurati
 	 */
 	public FlightConfigurationId(final String _str) {
 		UUID candidate;
-		if (_str == null || "".equals(_str)) {
+		if (_str == null || _str.isEmpty()) {
 			candidate = UUID.randomUUID();
 		} else {
 			try {

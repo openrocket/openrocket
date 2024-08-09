@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.adaptors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventObject;
 
 import javax.swing.AbstractListModel;
@@ -23,7 +24,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 	private final T[] values;
 	private T currentValue = null;
 	
-	ArrayList<T> displayedValues = new ArrayList<T>();
+	ArrayList<T> displayedValues = new ArrayList<>();
 	
 	private final Reflection.Method getMethod;
 	private final Reflection.Method setMethod;
@@ -65,10 +66,8 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 			this.values = values;
 		else 
 			this.values = (T[]) enumClass.getEnumConstants();
-		
-		for (T e : this.values){
-			this.displayedValues.add( e );
-		}
+
+		this.displayedValues.addAll(Arrays.asList(this.values));
 		this.nullText = nullText;
 		
 		stateChanged(null);  // Update current value

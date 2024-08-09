@@ -69,7 +69,7 @@ public class SimpleSAX {
 		private XMLReaderCache(int maxSize) {
 			parserFactory = SAXParserFactory.newInstance();
 			parserFactory.setNamespaceAware(true);
-			queue = new LinkedBlockingQueue<XMLReader>(maxSize);
+			queue = new LinkedBlockingQueue<>(maxSize);
 		}
 
 		private XMLReader createXMLReader() throws SAXException {

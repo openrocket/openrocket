@@ -16,9 +16,9 @@ import info.openrocket.core.rocketcomponent.LaunchLug;
 public class LaunchLugDTO extends BasePartDTO {
 
     @XmlElement(name = RockSimCommonConstants.OD)
-    private double od = 0d;
+    private double od = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ID)
-    private double id = 0d;
+    private double id = 0.0d;
 
     /**
      * Default constructor.

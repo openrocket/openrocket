@@ -8,7 +8,7 @@ public class TrapezoidFinSetSaver extends FinSetSaver {
 	private static final TrapezoidFinSetSaver instance = new TrapezoidFinSetSaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		list.add("<trapezoidfinset>");
 		instance.addParams(c, list);

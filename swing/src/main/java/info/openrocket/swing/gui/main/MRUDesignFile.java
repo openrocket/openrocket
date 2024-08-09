@@ -42,7 +42,7 @@ public class MRUDesignFile {
      * Constructor.
      */
     protected MRUDesignFile() {
-        mruFileList = new ArrayList<String>(MAX_SIZE);
+        mruFileList = new ArrayList<>(MAX_SIZE);
         listenerList = new EventListenerList();
         retrieve();
     }

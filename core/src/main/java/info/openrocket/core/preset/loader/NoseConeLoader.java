@@ -33,7 +33,7 @@ public class NoseConeLoader extends BaseComponentLoader {
 
 		if (props.containsKey(ComponentPreset.THICKNESS)) {
 			double thickness = props.get(ComponentPreset.THICKNESS);
-			if (thickness == 0d) {
+			if (thickness == 0.0d) {
 				props.remove(ComponentPreset.THICKNESS);
 				props.put(ComponentPreset.FILLED, true);
 			}

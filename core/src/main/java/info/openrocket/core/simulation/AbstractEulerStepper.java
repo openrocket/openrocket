@@ -7,13 +7,9 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
-import info.openrocket.core.models.atmosphere.AtmosphericConditions;
-import info.openrocket.core.rocketcomponent.InstanceMap;
-import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.WorldCoordinate;
 

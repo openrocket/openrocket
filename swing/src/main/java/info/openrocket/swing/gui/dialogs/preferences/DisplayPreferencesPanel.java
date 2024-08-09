@@ -22,7 +22,7 @@ public class DisplayPreferencesPanel extends PreferencesPanel {
 				"gapright para");
 
 		this.add(
-				new JComboBox<Object>(new PrefChoiceSelector(
+				new JComboBox<>(new PrefChoiceSelector(
 						ApplicationPreferences.ROCKET_INFO_FONT_SIZE,
 						// // Small
 						// // Medium

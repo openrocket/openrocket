@@ -37,15 +37,15 @@ import java.util.List;
 public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 
     @XmlElement(name = RockSimCommonConstants.OD)
-    private double od = 0d;
+    private double od = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ID)
-    private double id = 0d;
+    private double id = 0.0d;
     @XmlElement(name = RockSimCommonConstants.IS_MOTOR_MOUNT)
     private int isMotorMount = 0;
     @XmlElement(name = RockSimCommonConstants.MOTOR_DIA)
-    private double motorDia = 0d;
+    private double motorDia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ENGINE_OVERHANG)
-    private double engineOverhang = 0d;
+    private double engineOverhang = 0.0d;
     @XmlElement(name = RockSimCommonConstants.IS_INSIDE_TUBE)
     private int isInsideTube = 0;
     @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
@@ -62,7 +62,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
             @XmlElementRef(name = RockSimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.EXTERNAL_POD, type = PodSetDTO.class) })
-    List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
+    List<BasePartDTO> attachedParts = new ArrayList<>();
 
     /**
      * Constructor.
@@ -94,51 +94,50 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
         setMotorMount(theORBodyTube.isMotorMount());
 
         List<RocketComponent> children = theORBodyTube.getChildren();
-        for (int i = 0; i < children.size(); i++) {
-            RocketComponent rocketComponent = children.get(i);
-            if (rocketComponent instanceof InnerTube) {
-                final InnerTube innerTube = (InnerTube) rocketComponent;
-                final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
-                //Only add the inner tube if it is NOT a cluster.
-                if (innerTube.getInstanceCount() == 1) {
-                    addAttachedPart(innerBodyTubeDTO);
-                }
-            } else if (rocketComponent instanceof BodyTube) {
-                addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponent));
-            } else if (rocketComponent instanceof Transition) {
-                addAttachedPart(new TransitionDTO((Transition) rocketComponent));
-            } else if (rocketComponent instanceof EngineBlock) {
-                addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponent));
-            } else if (rocketComponent instanceof TubeCoupler) {
-                addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponent, this));
-            } else if (rocketComponent instanceof CenteringRing) {
-                addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponent));
-            } else if (rocketComponent instanceof Bulkhead) {
-                addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponent));
-            } else if (rocketComponent instanceof LaunchLug) {
-                addAttachedPart(new LaunchLugDTO((LaunchLug) rocketComponent));
-            } else if (rocketComponent instanceof Streamer) {
-                addAttachedPart(new StreamerDTO((Streamer) rocketComponent));
-            } else if (rocketComponent instanceof Parachute) {
-                addAttachedPart(new ParachuteDTO((Parachute) rocketComponent));
-            } else if (rocketComponent instanceof MassObject) {
-                addAttachedPart(new MassObjectDTO((MassObject) rocketComponent));
-            } else if (rocketComponent instanceof FreeformFinSet) {
-                addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponent));
-            } else if (rocketComponent instanceof FinSet) {
-                addAttachedPart(new FinSetDTO((FinSet) rocketComponent));
-            } else if (rocketComponent instanceof TubeFinSet) {
-                addAttachedPart(new TubeFinSetDTO((TubeFinSet) rocketComponent));
-            } else if (rocketComponent instanceof PodSet) {
-                for (PodSetDTO podSetDTO : PodSetDTO.generatePodSetDTOs((PodSet) rocketComponent)) {
-                    addAttachedPart(podSetDTO);
-                }
-            } else if (rocketComponent instanceof ParallelStage) {
-                for (ParallelStageDTO parallelStageDTO : ParallelStageDTO.generateParallelStageDTOs((ParallelStage) rocketComponent)) {
-                    addAttachedPart(parallelStageDTO);
-                }
-            }
-        }
+		for (RocketComponent rocketComponent : children) {
+			if (rocketComponent instanceof InnerTube) {
+				final InnerTube innerTube = (InnerTube) rocketComponent;
+				final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
+				//Only add the inner tube if it is NOT a cluster.
+				if (innerTube.getInstanceCount() == 1) {
+					addAttachedPart(innerBodyTubeDTO);
+				}
+			} else if (rocketComponent instanceof BodyTube) {
+				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponent));
+			} else if (rocketComponent instanceof Transition) {
+				addAttachedPart(new TransitionDTO((Transition) rocketComponent));
+			} else if (rocketComponent instanceof EngineBlock) {
+				addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponent));
+			} else if (rocketComponent instanceof TubeCoupler) {
+				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponent, this));
+			} else if (rocketComponent instanceof CenteringRing) {
+				addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponent));
+			} else if (rocketComponent instanceof Bulkhead) {
+				addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponent));
+			} else if (rocketComponent instanceof LaunchLug) {
+				addAttachedPart(new LaunchLugDTO((LaunchLug) rocketComponent));
+			} else if (rocketComponent instanceof Streamer) {
+				addAttachedPart(new StreamerDTO((Streamer) rocketComponent));
+			} else if (rocketComponent instanceof Parachute) {
+				addAttachedPart(new ParachuteDTO((Parachute) rocketComponent));
+			} else if (rocketComponent instanceof MassObject) {
+				addAttachedPart(new MassObjectDTO((MassObject) rocketComponent));
+			} else if (rocketComponent instanceof FreeformFinSet) {
+				addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponent));
+			} else if (rocketComponent instanceof FinSet) {
+				addAttachedPart(new FinSetDTO((FinSet) rocketComponent));
+			} else if (rocketComponent instanceof TubeFinSet) {
+				addAttachedPart(new TubeFinSetDTO((TubeFinSet) rocketComponent));
+			} else if (rocketComponent instanceof PodSet) {
+				for (PodSetDTO podSetDTO : PodSetDTO.generatePodSetDTOs((PodSet) rocketComponent)) {
+					addAttachedPart(podSetDTO);
+				}
+			} else if (rocketComponent instanceof ParallelStage) {
+				for (ParallelStageDTO parallelStageDTO : ParallelStageDTO.generateParallelStageDTOs((ParallelStage) rocketComponent)) {
+					addAttachedPart(parallelStageDTO);
+				}
+			}
+		}
     }
 
     public double getOD() {

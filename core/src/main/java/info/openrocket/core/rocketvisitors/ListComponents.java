@@ -8,7 +8,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 public class ListComponents<T extends RocketComponent> extends DepthFirstRecursiveVisitor<List<T>> {
 
 	private final Class<T> componentClazz;
-	protected List<T> components = new ArrayList<T>();
+	protected List<T> components = new ArrayList<>();
 
 	public ListComponents(Class<T> componentClazz) {
 		super();

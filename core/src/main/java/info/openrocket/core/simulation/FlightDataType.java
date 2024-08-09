@@ -42,7 +42,7 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 
 	/** List of existing types. MUST BE DEFINED BEFORE ANY TYPES!! */
 	/** NOTE: The String key here is now the symbol */
-	private static final Map<String, FlightDataType> EXISTING_TYPES = new HashMap<String, FlightDataType>();
+	private static final Map<String, FlightDataType> EXISTING_TYPES = new HashMap<>();
 
 	//// Time
 	public static final FlightDataType TYPE_TIME = newType(trans.get("FlightDataType.TYPE_TIME"), "t",

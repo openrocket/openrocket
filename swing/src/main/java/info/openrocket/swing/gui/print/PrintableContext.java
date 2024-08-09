@@ -28,7 +28,7 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
 	/**
 	 * Sort of a reverse map that tracks each type of printable item and the stages for which that item is to be printed.
 	 */
-	private final Map<OpenRocketPrintable, Set<Integer>> previous = new TreeMap<OpenRocketPrintable, Set<Integer>>();
+	private final Map<OpenRocketPrintable, Set<Integer>> previous = new TreeMap<>();
 	
 	/**
 	 * Constructor.
@@ -60,11 +60,7 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
 	 * @param thePrintable    the printable to associate with the stage
 	 */
 	public void add(final Integer theStageNumber, final OpenRocketPrintable thePrintable) {
-		Set<Integer> stages = previous.get(thePrintable);
-		if (stages == null) {
-			stages = new TreeSet<Integer>();
-			previous.put(thePrintable, stages);
-		}
+		Set<Integer> stages = previous.computeIfAbsent(thePrintable, k -> new TreeSet<>());
 		if (theStageNumber != null) {
 			stages.add(theStageNumber);
 		}
@@ -73,21 +69,21 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
 	/** PrintableContext iterator. */
 	@Override
 	public Iterator<PrintableContext> iterator() {
-		return new Iterator<PrintableContext>() {
-			
+		return new Iterator<>() {
+
 			Iterator<OpenRocketPrintable> keyIter = previous.keySet().iterator();
-			
+
 			@Override
 			public boolean hasNext() {
 				return keyIter.hasNext();
 			}
-			
+
 			@Override
 			public PrintableContext next() {
 				final OpenRocketPrintable key = keyIter.next();
 				return new PrintableContext(previous.get(key), key);
 			}
-			
+
 			@Override
 			public void remove() {
 			}

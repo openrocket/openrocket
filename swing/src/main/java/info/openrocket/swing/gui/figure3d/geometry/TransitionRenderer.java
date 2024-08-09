@@ -155,8 +155,8 @@ final class TransitionRenderer {
 			gl.glBegin(GL2.GL_QUAD_STRIP);
 			for (i = 0; i <= slices; i++) {
 				if (i == slices) {
-					x = Math.sin(0.0f);
-					y = Math.cos(0.0f);
+					x = 0.0;
+					y = 1.0;
 				} else {
 					x = Math.sin((i * da));
 					y = Math.cos((i * da));

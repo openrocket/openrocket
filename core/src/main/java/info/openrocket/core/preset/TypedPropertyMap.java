@@ -11,7 +11,7 @@ public class TypedPropertyMap implements Cloneable {
 	private final Map<TypedKey<?>, Object> delegate;
 
 	public TypedPropertyMap() {
-		delegate = new LinkedHashMap<TypedKey<?>, Object>();
+		delegate = new LinkedHashMap<>();
 	}
 
 	public int size() {

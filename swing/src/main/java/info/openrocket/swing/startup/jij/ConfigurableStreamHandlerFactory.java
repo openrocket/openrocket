@@ -15,7 +15,7 @@ public class ConfigurableStreamHandlerFactory implements URLStreamHandlerFactory
 	private final Map<String, URLStreamHandler> protocolHandlers;
 	
 	public ConfigurableStreamHandlerFactory() {
-		protocolHandlers = new HashMap<String, URLStreamHandler>();
+		protocolHandlers = new HashMap<>();
 	}
 	
 	public void addHandler(String protocol, URLStreamHandler urlHandler) {

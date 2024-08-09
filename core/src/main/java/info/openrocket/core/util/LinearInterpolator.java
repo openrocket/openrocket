@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 public class LinearInterpolator implements Cloneable {
 
-	private TreeMap<Double, Double> sortMap = new TreeMap<Double, Double>();
+	private TreeMap<Double, Double> sortMap = new TreeMap<>();
 
 	/**
 	 * Construct a <code>LinearInterpolator</code> with no points. Some points must

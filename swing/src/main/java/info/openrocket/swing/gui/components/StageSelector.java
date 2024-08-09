@@ -29,7 +29,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 	private final Rocket rocket;
 	
-	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();
+	private List<JToggleButton> buttons = new ArrayList<>();
 	
 	public StageSelector(Rocket _rkt) {
 		super(new MigLayout("gap rel!, insets 0"));

@@ -276,20 +276,20 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		int w;
 		
 		Dimension d = viewport.getExtentSize();
-		
-		for (int row = 0; row < buttons.length; row++) {
+
+		for (ComponentButton[] button : buttons) {
 			w = 0;
-			for (int col = 0; col < buttons[row].length; col++) {
+			for (int col = 0; col < button.length; col++) {
 				w += GAP + width;
 				String param = BUTTONPARAM + ",width " + width + "!,height " + height + "!";
-				
+
 				if (w + EXTRASPACE > d.width) {
 					param = param + ",newline";
 					w = GAP + width;
 				}
-				if (col == buttons[row].length - 1)
+				if (col == button.length - 1)
 					param = param + ",wrap";
-				layout.setComponentConstraints(buttons[row][col], param);
+				layout.setComponentConstraints(button[col], param);
 			}
 		}
 		revalidate();
@@ -389,7 +389,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * @return   The position to add the new component to, or null if should not add.
 		 */
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
-			return new Pair<RocketComponent, Integer>(c, null);
+			return new Pair<>(c, null);
 		}
 		
 		/**
@@ -408,8 +408,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
 			Component[] c = getComponents();
-			for (int i = 0; i < c.length; i++)
-				c[i].setEnabled(enabled);
+			for (Component component : c) component.setEnabled(enabled);
 		}
 		
 		
@@ -461,9 +460,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			RocketComponent component;
 			try {
 				component = (RocketComponent) constructor.newInstance();
-			} catch (InstantiationException e) {
-				throw new BugException("Could not construct new instance of class " + constructor, e);
-			} catch (IllegalAccessException e) {
+			} catch (InstantiationException | IllegalAccessException e) {
 				throw new BugException("Could not construct new instance of class " + constructor, e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
@@ -537,7 +534,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			if (c == null || c instanceof Rocket) {
 				// Add as last body component of the last stage
 				Rocket rocket = document.getRocket();
-				return new Pair<RocketComponent, Integer>(rocket.getChild(rocket.getStageCount() - 1),
+				return new Pair<>(rocket.getChild(rocket.getStageCount() - 1),
 						null);
 			}
 			
@@ -558,21 +555,22 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				else
 					pos = askPosition();
 			}
-			
-			switch (pos) {
-			case 0:
-				// Cancel
-				return null;
-			case 1:
-				// Insert after current position
-				return new Pair<RocketComponent, Integer>(parent, parent.getChildPosition(c) + 1);
-			case 2:
-				// Insert at the end of the parent
-				return new Pair<RocketComponent, Integer>(parent, null);
-			default:
-				Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
-				return null;
-			}
+
+			return switch (pos) {
+				case 0 ->
+					// Cancel
+						null;
+				case 1 ->
+					// Insert after current position
+						new Pair<>(parent, parent.getChildPosition(c) + 1);
+				case 2 ->
+					// Insert at the end of the parent
+						new Pair<>(parent, null);
+				default -> {
+					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
+					yield null;
+				}
+			};
 		}
 		
 		private int askPosition() {
@@ -660,7 +658,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
 			if (c == null || c instanceof Rocket) {
 				// Add to the end
-				return new Pair<RocketComponent, Integer>(document.getRocket(), null);
+				return new Pair<>(document.getRocket(), null);
 			}
 
 			RocketComponent parentStage = null;
@@ -683,20 +681,21 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 					pos = askPosition();
 			}
 
-			switch (pos) {
-				case 0:
+			return switch (pos) {
+				case 0 ->
 					// Cancel
-					return null;
-				case 1:
+						null;
+				case 1 ->
 					// Insert after current stage
-					return new Pair<RocketComponent, Integer>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
-				case 2:
+						new Pair<>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
+				case 2 ->
 					// Insert at the end
-					return new Pair<RocketComponent, Integer>(document.getRocket(), null);
-				default:
+						new Pair<>(document.getRocket(), null);
+				default -> {
 					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
-					return null;
-			}
+					yield null;
+				}
+			};
 		}
 
 		private int askPosition() {

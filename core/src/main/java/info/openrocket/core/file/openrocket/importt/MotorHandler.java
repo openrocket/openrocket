@@ -1,7 +1,5 @@
 package info.openrocket.core.file.openrocket.importt;
 
-import java.lang.Double;
-
 import java.util.HashMap;
 import java.util.Locale;
 

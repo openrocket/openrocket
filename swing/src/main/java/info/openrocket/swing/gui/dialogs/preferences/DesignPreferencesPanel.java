@@ -26,7 +26,7 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		this.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")),
 				"gapright para");
 		this.add(
-				new JComboBox<Object>(new PrefChoiceSelector(
+				new JComboBox<>(new PrefChoiceSelector(
 						ApplicationPreferences.BODY_COMPONENT_INSERT_POSITION_KEY,
 						// // Always ask
 						// // Insert in middle
@@ -40,7 +40,7 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		this.add(new JLabel(trans.get("pref.dlg.lbl.PositiontoinsertStages")),
 				"gapright para");
 		this.add(
-				new JComboBox<Object>(new PrefChoiceSelector(
+				new JComboBox<>(new PrefChoiceSelector(
 						ApplicationPreferences.STAGE_INSERT_POSITION_KEY,
 						// // Always ask
 						// // Insert in middle
@@ -55,7 +55,7 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 				"gapright para");
 
 		this.add(
-				new JComboBox<Object>(new PrefChoiceSelector(
+				new JComboBox<>(new PrefChoiceSelector(
 						ApplicationPreferences.ROCKET_INFO_FONT_SIZE,
 						// // Small
 						// // Medium

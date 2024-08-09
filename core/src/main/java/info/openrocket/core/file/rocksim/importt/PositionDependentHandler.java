@@ -27,7 +27,7 @@ import org.xml.sax.SAXException;
 public abstract class PositionDependentHandler<C extends RocketComponent> extends BaseHandler<C> {
 
 	/** Temporary axialMethod value. */
-	private Double positionValue = 0d;
+	private Double positionValue = 0.0d;
 
 	/** Temporary axialMethod. */
 	private AxialMethod axialMethod = AxialMethod.TOP;
@@ -82,7 +82,7 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
 		}
 		getComponent().setAxialMethod(axialMethod);
 		if (axialMethod.equals(AxialMethod.BOTTOM)) {
-			getComponent().setAxialOffset(-1d * positionValue);
+			getComponent().setAxialOffset(-1.0d * positionValue);
 		} else {
 			getComponent().setAxialOffset(positionValue);
 		}

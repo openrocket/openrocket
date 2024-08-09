@@ -21,7 +21,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotor.class);
 
-	public static final double MAX_THRUST = 10e6;
+	public static final double MAX_THRUST = 10.0e6;
 
 	// Comparators:
 	private static final Collator COLLATOR = Collator.getInstance(Locale.US);
@@ -246,14 +246,14 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			// If I don't have a motor designation (will be the case if I read the
 			// thrustcurve from a file)
 			// use the motor code
-			if (motor.designation.equals("")) {
+			if (motor.designation.isEmpty()) {
 				motor.designation = motor.code;
 			}
 
 			// If I don't have a motor common name (will be the case if I read the
 			// thrustcurve from a flle)
 			// apply the motor code simplification heuristics to generate a common name
-			if (motor.commonName.equals("")) {
+			if (motor.commonName.isEmpty()) {
 				motor.commonName = simplifyDesignation(motor.designation);
 			}
 
@@ -323,7 +323,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 
 		// we are already at the end of the time array.
 		if (upperBoundIndex == time.length) {
-			return 0.;
+			return 0.0;
 		}
 
 		final double lowerBoundTime = time[lowerBoundIndex];
@@ -333,10 +333,10 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 
 		if (SNAP_DISTANCE > indexFraction) {
 			// round down to previous index
-			return 0.;
+			return 0.0;
 		} else if ((1 - SNAP_DISTANCE) < indexFraction) {
 			// round up to next index
-			return 1.;
+			return 1.0;
 		} else {
 			// general case
 			return indexFraction;

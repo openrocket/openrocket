@@ -13,7 +13,6 @@ import info.openrocket.core.formatting.RocketDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationId;
 import info.openrocket.core.startup.Application;
@@ -66,9 +65,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/* Cached data */
 	final protected Map<Integer, StageFlags> stages = new HashMap<>(); // Map of stage number to StageFlags of the
 																		// corresponding stage
-	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
+	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<>();
 	private Map<Integer, Boolean> preloadStageActiveness = null;
-	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
+	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	final private InstanceMap extraRenderInstances = new InstanceMap(); // Extra instances to be rendered, besides the
 																		// active instances
@@ -314,15 +313,15 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (preloadStageActiveness == null) {
 			return;
 		}
-		for (int stageNumber : preloadStageActiveness.keySet()) {
-			_setStageActive(stageNumber, preloadStageActiveness.get(stageNumber), false);
+		for (Map.Entry<Integer, Boolean> entry : preloadStageActiveness.entrySet()) {
+			_setStageActive(entry.getKey(), entry.getValue(), false);
 		}
 		preloadStageActiveness.clear();
 		preloadStageActiveness = null;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
-		List<RocketComponent> traversalOrder = new ArrayList<RocketComponent>();
+		List<RocketComponent> traversalOrder = new ArrayList<>();
 		recurseAllComponentsDepthFirst(this.rocket, traversalOrder);
 		return traversalOrder;
 	}
@@ -340,7 +339,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * NOTE: components, NOT instances
 	 */
 	public ArrayList<RocketComponent> getCoreComponents() {
-		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>();
+		Queue<RocketComponent> toProcess = new ArrayDeque<>();
 		toProcess.offer(this.rocket);
 
 		ArrayList<RocketComponent> toReturn = new ArrayList<>();
@@ -378,7 +377,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// recommend migrating to either: `getAllComponents` or `getActiveInstances`
 	@Deprecated
 	public Collection<RocketComponent> getActiveComponents() {
-		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.getActiveStages());
+		Queue<RocketComponent> toProcess = new ArrayDeque<>(this.getActiveStages());
 		ArrayList<RocketComponent> toReturn = new ArrayList<>();
 
 		while (!toProcess.isEmpty()) {

@@ -203,7 +203,7 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
+		List<Coordinate> bounds = new ArrayList<>();
 		addBound(bounds, 0, getOuterRadius());
 		addBound(bounds, length, getOuterRadius());
 		return bounds;

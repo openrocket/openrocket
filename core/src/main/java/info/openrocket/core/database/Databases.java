@@ -26,15 +26,15 @@ public class Databases {
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
-	public static final Database<Material> BULK_MATERIAL = new Database<Material>();
+	public static final Database<Material> BULK_MATERIAL = new Database<>();
 	/**
 	 * A database of surface materials (with surface densities).
 	 */
-	public static final Database<Material> SURFACE_MATERIAL = new Database<Material>();
+	public static final Database<Material> SURFACE_MATERIAL = new Database<>();
 	/**
 	 * A database of linear material (with length densities).
 	 */
-	public static final Database<Material> LINE_MATERIAL = new Database<Material>();
+	public static final Database<Material> LINE_MATERIAL = new Database<>();
 	
 	
 	
@@ -219,20 +219,20 @@ public class Databases {
 	public static Material findMaterial(Material.Type type, String baseName, double density) {
 		return findMaterial(type, baseName, density, null);
 	}
-	
+
 	/**
 	 * Find a material from the database with the specified type and name.  Returns
 	 * <code>null</code> if the specified material could not be found.
 	 * <p>
 	 * This method will attempt to localize the material name to the current locale, or use
 	 * the provided name if unable to do so.
-	 * 
+	 *
 	 * @param type		the material type.
 	 * @param baseName	the material base name in the database.
 	 * @return			the material, or <code>null</code> if not found.
 	 */
 	public static Material findMaterial(Material.Type type, String baseName) {
-		Database<Material> db = getDatabase(type);		
+		Database<Material> db = getDatabase(type);
 		String name = trans.get("material", baseName);
 		
 		for (Material m : db) {
@@ -242,7 +242,7 @@ public class Databases {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * gets the specific database with the given type
 	 * @param 	type	the desired type

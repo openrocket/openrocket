@@ -94,7 +94,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	@Override
 	protected JTable initializeTable() {
 		//// Separation selection 
-		separationTableModel = new FlightConfigurableTableModel<AxialStage>(AxialStage.class, rocket) {
+		separationTableModel = new FlightConfigurableTableModel<>(AxialStage.class, rocket) {
 			private static final long serialVersionUID = 7979648984099308970L;
 
 			@Override

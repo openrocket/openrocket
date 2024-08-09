@@ -36,9 +36,9 @@ public class Example {
 		    	}
 		    	
 		    	double subtotal = 0;
-		    	for (int i = 0; i < vals.length; i++ ){
-		    		subtotal += vals[i];
-		    	}
+				for (double val : vals) {
+					subtotal += val;
+				}
 		    	
 		    	subtotal = scale * subtotal / vals.length;
 		        return new Variable("double MEAN result, ", subtotal);

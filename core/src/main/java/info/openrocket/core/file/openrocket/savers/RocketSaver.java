@@ -16,7 +16,7 @@ public class RocketSaver extends RocketComponentSaver {
 	private static final RocketSaver instance = new RocketSaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		list.add("<rocket>");
 		instance.addParams(c, list);

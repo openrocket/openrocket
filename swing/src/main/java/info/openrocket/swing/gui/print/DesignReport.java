@@ -3,7 +3,6 @@
  */
 package info.openrocket.swing.gui.print;
 
-import java.awt.Graphics2D;
 import java.awt.Window;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -116,7 +115,7 @@ public class DesignReport {
 	/**
 	 * The figure rotation.
 	 */
-	private double rotation = 0d;
+	private double rotation = 0.0d;
 	
 	/**
 	 * Determines whether or not to run out of date simulations.
@@ -491,7 +490,7 @@ public class DesignReport {
 		
 		PdfPCell c = new PdfPCell(motorTable);
 		c.setBorder(PdfPCell.LEFT);
-		c.setBorderWidthTop(0f);
+		c.setBorderWidthTop(0.0f);
 		parent.addCell(c);
 	}
 	
@@ -523,13 +522,13 @@ public class DesignReport {
 				final Paragraph chunk = ITextHelper.createParagraph(stripBrackets(
 						descriptor.format(theRocket, motorId)), PrintUtilities.BOLD);
 				chunk.setLeading(leading);
-				chunk.setSpacingAfter(3f);
+				chunk.setSpacingAfter(3.0f);
 				
 				document.add(chunk);
 				
 				final PdfPCell cell = ITextHelper.createCell(ALTITUDE, 2, 2);
 				cell.setUseBorderPadding(false);
-				cell.setBorderWidthTop(0f);
+				cell.setBorderWidthTop(0.0f);
 				labelTable.addCell(cell);
 				labelTable.addCell(ITextHelper.createCell(distanceUnit.toStringUnit(flight.getMaxAltitude()), 2, 2));
 				
@@ -578,8 +577,7 @@ public class DesignReport {
 	private FlightData findSimulation(final FlightConfigurationId motorId, List<Simulation> simulations) {
 		// Perform flight simulation
 		FlightData flight = null;
-		for (int i = 0; i < simulations.size(); i++) {
-			Simulation simulation = simulations.get(i);
+		for (Simulation simulation : simulations) {
 			if (Utils.equals(simulation.getId(), motorId)) {
 				flight = simulation.getSimulatedData();
 				break;
@@ -607,8 +605,8 @@ public class DesignReport {
 			return simulations;
 		}
 		
-		ArrayList<Simulation> simulationsToRun = new ArrayList<Simulation>();
-		ArrayList<Simulation> upToDateSimulations = new ArrayList<Simulation>();
+		ArrayList<Simulation> simulationsToRun = new ArrayList<>();
+		ArrayList<Simulation> upToDateSimulations = new ArrayList<>();
 		for (Simulation simulation : simulations) {
 			boolean simulate = false;
 			boolean copy = !this.updateExistingSimulations;
@@ -669,7 +667,7 @@ public class DesignReport {
 	protected void runSimulations(List<Simulation> simulations) {
 		if (window != null) {
 			log.debug("Updating " + simulations.size() + "simulations using SimulationRunDialog");
-			Simulation[] runMe = simulations.toArray(new Simulation[simulations.size()]);
+			Simulation[] runMe = simulations.toArray(new Simulation[0]);
 			new SimulationRunDialog(window, rocketDocument, runMe).setVisible(true);
 		} else {
 			/* This code is left for compatibility with any developers who are
@@ -680,7 +678,7 @@ public class DesignReport {
 			log.debug("Updating simulations using thread pool");
 			int cores = Runtime.getRuntime().availableProcessors();
 			ThreadPoolExecutor executor = new ThreadPoolExecutor(cores, cores, 0L, TimeUnit.MILLISECONDS,
-			                                                     new LinkedBlockingQueue<Runnable>(),
+					new LinkedBlockingQueue<>(),
 			                                                     new SimulationRunnerThreadFactory());
 			for (Simulation simulation : simulations) {
 				executor.execute(new RunSimulationTask(simulation));

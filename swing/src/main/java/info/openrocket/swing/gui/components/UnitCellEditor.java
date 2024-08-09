@@ -27,7 +27,7 @@ public abstract class UnitCellEditor extends AbstractCellEditor
 	private final JComboBox<Unit> editor;
 	
 	public UnitCellEditor() {
-		editor = new JComboBox<Unit>();
+		editor = new JComboBox<>();
 		editor.setEditable(false);
 		editor.addActionListener(this);
 	}

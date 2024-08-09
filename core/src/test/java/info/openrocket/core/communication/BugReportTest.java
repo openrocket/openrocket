@@ -44,8 +44,8 @@ public class BugReportTest {
 		check(connection);
 
 		String msg = connection.getOutputStreamString();
-		assertTrue(msg.indexOf("version=" + BuildProperties.getVersion()) >= 0);
-		assertTrue(msg.indexOf(Communicator.encode(message)) >= 0);
+		assertTrue(msg.contains("version=" + BuildProperties.getVersion()));
+		assertTrue(msg.contains(Communicator.encode(message)));
 	}
 
 	@Test

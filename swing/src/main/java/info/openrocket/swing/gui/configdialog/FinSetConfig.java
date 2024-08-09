@@ -399,7 +399,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	 */
 	private static double computeFinTabLength(List<CenteringRing> rings, Double finPositionFromTop, Double finLength, DoubleModel mts,
                                               final RocketComponent relativeTo) {
-		List<SortableRing> positionsFromTop = new ArrayList<SortableRing>();
+		List<SortableRing> positionsFromTop = new ArrayList<>();
 		
 		//Fin tabs will be computed between the last two rings that meet the criteria, represented by top and bottom here.
 		SortableRing top = null;
@@ -407,29 +407,27 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 		if (rings != null) {
 			//Sort rings from top of parent to bottom
-			Collections.sort(rings, new Comparator<CenteringRing>() {
+			rings.sort(new Comparator<>() {
 				@Override
 				public int compare(CenteringRing centeringRing, CenteringRing centeringRing1) {
-					return (int) (1000d * (centeringRing.getAxialOffset(AxialMethod.TOP) -
+					return (int) (1000.0d * (centeringRing.getAxialOffset(AxialMethod.TOP) -
 							centeringRing1.getAxialOffset(AxialMethod.TOP)));
-						}
+				}
 			});
-			
-			for (int i = 0; i < rings.size(); i++) {
-				CenteringRing centeringRing = rings.get(i);
+
+			for (CenteringRing centeringRing : rings) {
 				//Handle centering rings that overlap or are adjacent by synthetically merging them into one virtual ring.
 				if (!positionsFromTop.isEmpty() &&
 						positionsFromTop.get(positionsFromTop.size() - 1).bottomSidePositionFromTop() >=
-                                centeringRing.getAxialOffset(AxialMethod.TOP)) {
+								centeringRing.getAxialOffset(AxialMethod.TOP)) {
 					SortableRing adjacent = positionsFromTop.get(positionsFromTop.size() - 1);
 					adjacent.merge(centeringRing, relativeTo);
 				} else {
 					positionsFromTop.add(new SortableRing(centeringRing, relativeTo));
 				}
 			}
-			
-			for (int i = 0; i < positionsFromTop.size(); i++) {
-				SortableRing sortableRing = positionsFromTop.get(i);
+
+			for (SortableRing sortableRing : positionsFromTop) {
 				if (top == null) {
 					top = sortableRing;
 				} else if (sortableRing.bottomSidePositionFromTop() <= finPositionFromTop) {
@@ -438,7 +436,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				} else if (top.bottomSidePositionFromTop() <= finPositionFromTop) {
 					if (bottom == null) {
 						//If the current ring is in the upper half of the root chord, make it the top ring
-						if (sortableRing.bottomSidePositionFromTop() < finPositionFromTop + finLength / 2d) {
+						if (sortableRing.bottomSidePositionFromTop() < finPositionFromTop + finLength / 2.0d) {
 							top = sortableRing;
 						} else {
 							bottom = sortableRing;
@@ -458,7 +456,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		}
 
-        double resultFinTabLength = 0d;
+        double resultFinTabLength = 0.0d;
 
 		// Edge case where there are no centering rings or for some odd reason top and bottom are identical.
 		if (top == null || top == bottom) {
@@ -511,7 +509,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
             }
         }
         if (resultFinTabLength < 0) {
-            resultFinTabLength = 0d;
+            resultFinTabLength = 0.0d;
         }
         return resultFinTabLength;
 	}

@@ -16,17 +16,17 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 public class TransitionDTO extends AbstractTransitionDTO {
 
     @XmlElement(name = RockSimCommonConstants.FRONT_SHOULDER_LEN)
-    private double frontShoulderLen = 0d;
+    private double frontShoulderLen = 0.0d;
     @XmlElement(name = RockSimCommonConstants.REAR_SHOULDER_LEN)
-    private double rearShoulderLen = 0d;
+    private double rearShoulderLen = 0.0d;
     @XmlElement(name = RockSimCommonConstants.FRONT_SHOULDER_DIA)
-    private double frontShoulderDia = 0d;
+    private double frontShoulderDia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.REAR_SHOULDER_DIA)
-    private double rearShoulderDia = 0d;
+    private double rearShoulderDia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.FRONT_DIA)
-    private double frontDia = 0d;
+    private double frontDia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.REAR_DIA)
-    private double rearDia = 0d;
+    private double rearDia = 0.0d;
 
     /**
      * Default constructor.

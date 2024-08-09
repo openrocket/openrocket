@@ -24,14 +24,6 @@ import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.file.GeneralRocketLoader;
-import info.openrocket.core.file.RocketLoadException;
-import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.logging.Markers;
-import info.openrocket.core.simulation.customexpression.CustomExpression;
-import info.openrocket.core.startup.Application;
-
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.file.GeneralRocketLoader;

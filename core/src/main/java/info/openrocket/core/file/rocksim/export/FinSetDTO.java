@@ -23,29 +23,29 @@ public class FinSetDTO extends BasePartDTO {
     @XmlElement(name = RockSimCommonConstants.FIN_COUNT)
     private int finCount = 0;
     @XmlElement(name = RockSimCommonConstants.ROOT_CHORD)
-    private double rootChord = 0d;
+    private double rootChord = 0.0d;
     @XmlElement(name = RockSimCommonConstants.TIP_CHORD)
-    private double tipChord = 0d;
+    private double tipChord = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SEMI_SPAN)
-    private double semiSpan = 0d;
+    private double semiSpan = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SWEEP_DISTANCE)
-    private double sweepDistance = 0d;
+    private double sweepDistance = 0.0d;
     @XmlElement(name = RockSimCommonConstants.THICKNESS)
-    private double thickness = 0d;
+    private double thickness = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHAPE_CODE)
     private int shapeCode = 0;
     @XmlElement(name = RockSimCommonConstants.TIP_SHAPE_CODE)
     private int tipShapeCode = 0;
     @XmlElement(name = RockSimCommonConstants.TAB_LENGTH)
-    private double tabLength = 0d;
+    private double tabLength = 0.0d;
     @XmlElement(name = RockSimCommonConstants.TAB_DEPTH)
-    private double tabDepth = 0d;
+    private double tabDepth = 0.0d;
     @XmlElement(name = RockSimCommonConstants.TAB_OFFSET)
-    private double tabOffset = 0d;
+    private double tabOffset = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SWEEP_MODE)
     private int sweepMode = 1;
     @XmlElement(name = RockSimCommonConstants.CANT_ANGLE)
-    private double cantAngle = 0d;
+    private double cantAngle = 0.0d;
 
     /**
      * Constructor.

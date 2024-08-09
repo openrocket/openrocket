@@ -17,7 +17,7 @@ public class SlideSet {
 	
 	private String title = "";
 	private String description = "";
-	private final List<Slide> slides = new ArrayList<Slide>();
+	private final List<Slide> slides = new ArrayList<>();
 	private StyleSheet styleSheet = new StyleSheet();
 	
 	

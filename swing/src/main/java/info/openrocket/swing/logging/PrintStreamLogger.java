@@ -11,7 +11,7 @@ import java.util.EnumMap;
  */
 public class PrintStreamLogger extends LogHelper {
 	
-	private final EnumMap<LogLevel, PrintStream> output = new EnumMap<LogLevel, PrintStream>(LogLevel.class);
+	private final EnumMap<LogLevel, PrintStream> output = new EnumMap<>(LogLevel.class);
 	
 	
 	@Override

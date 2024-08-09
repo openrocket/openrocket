@@ -15,13 +15,13 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	
 	private double viewAlt = -0.23;
 	private double viewAz = 2.08;
-	private double viewDistance = .44;
+	private double viewDistance = 0.44;
 	private double fov = 1.4;
 	
-	private double lightAlt = .35;
+	private double lightAlt = 0.35;
 	private double lightAz = -1;
 	private ORColor sunlight = new ORColor(255, 255, 255);
-	private double ambiance = .3f;
+	private double ambiance = 0.3f;
 	
 	private ORColor skyColor = new ORColor(55, 95, 155);
 	private double skyColorOpacity = 1.0;
@@ -187,7 +187,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	
 	public void setSkyColor(ORColor skyColor) {
 		this.skyColor = skyColor;
-		this.skyColorOpacity = skyColor.getAlpha() / 255f;
+		this.skyColorOpacity = skyColor.getAlpha() / 255.0f;
 		fireChangeEvent();
 	}
 
@@ -226,7 +226,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 
 	public double getSmokeOpacity() {
-		return smokeColor.getAlpha() / 255f;
+		return smokeColor.getAlpha() / 255.0f;
 	}
 
 	public void setSmokeOpacity(double smokeOpacity) {

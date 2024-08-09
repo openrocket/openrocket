@@ -17,7 +17,7 @@ public class DelegatorLogger extends LogHelper {
 	 * List of loggers.  This list must not be modified, instead it should be
 	 * replaced every time the list is changed.
 	 */
-	private volatile ArrayList<LogHelper> loggers = new ArrayList<LogHelper>();
+	private volatile ArrayList<LogHelper> loggers = new ArrayList<>();
 	
 	@Override
 	public void log(LogLine line) {

@@ -15,8 +15,8 @@ public class CyclicBufferTest {
 
 	@Test
 	public void testBasic() {
-		CyclicBuffer<Integer> buffer = new CyclicBuffer<Integer>(5);
-		LinkedList<Integer> correct = new LinkedList<Integer>();
+		CyclicBuffer<Integer> buffer = new CyclicBuffer<>(5);
+		LinkedList<Integer> correct = new LinkedList<>();
 		
 		Random rnd = new Random();
 		for (int i=0; i<50; i++) {
@@ -31,7 +31,7 @@ public class CyclicBufferTest {
 	
 	@Test
 	public void testComplex() {
-		CyclicBuffer<Integer> buffer = new CyclicBuffer<Integer>(5);
+		CyclicBuffer<Integer> buffer = new CyclicBuffer<>(5);
 		
 		testContents(buffer);
 		assertEquals(0, buffer.getOverwriteCount());
@@ -109,8 +109,8 @@ public class CyclicBufferTest {
 
 	@Test
 	public void testRandom() {
-		CyclicBuffer<Integer> buffer = new CyclicBuffer<Integer>(4);
-		LinkedList<Integer> correct = new LinkedList<Integer>();
+		CyclicBuffer<Integer> buffer = new CyclicBuffer<>(4);
+		LinkedList<Integer> correct = new LinkedList<>();
 		
 		Random rnd = new Random();
 		for (int i=0; i<500; i++) {

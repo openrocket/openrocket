@@ -126,18 +126,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// Trigger a selection of the motor/recovery/configuration item
-				FlightConfigurablePanel<?> panel = null;
-				switch (tabs.getSelectedIndex()) {
-					case MOTOR_TAB_INDEX:
-						panel = motorConfigurationPanel;
-						break;
-					case RECOVERY_TAB_INDEX:
-						panel = recoveryConfigurationPanel;
-						break;
-					case SEPARATION_TAB_INDEX:
-						panel = separationConfigurationPanel;
-						break;
-				}
+				FlightConfigurablePanel<?> panel = switch (tabs.getSelectedIndex()) {
+					case MOTOR_TAB_INDEX -> motorConfigurationPanel;
+					case RECOVERY_TAB_INDEX -> recoveryConfigurationPanel;
+					case SEPARATION_TAB_INDEX -> separationConfigurationPanel;
+					default -> null;
+				};
 
 				// Update the panel selection, focus, and button state
 				if (panel == null) return;
@@ -360,16 +354,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 
 	private List<FlightConfigurationId> getSelectedConfigurationIds() {
-		switch (tabs.getSelectedIndex()) {
-			case MOTOR_TAB_INDEX:
-				return this.motorConfigurationPanel.getSelectedConfigurationIds();
-			case RECOVERY_TAB_INDEX:
-				return this.recoveryConfigurationPanel.getSelectedConfigurationIds();
-			case SEPARATION_TAB_INDEX:
-				return this.separationConfigurationPanel.getSelectedConfigurationIds();
-			default:
-				return null;
-		}
+		return switch (tabs.getSelectedIndex()) {
+			case MOTOR_TAB_INDEX -> this.motorConfigurationPanel.getSelectedConfigurationIds();
+			case RECOVERY_TAB_INDEX -> this.recoveryConfigurationPanel.getSelectedConfigurationIds();
+			case SEPARATION_TAB_INDEX -> this.separationConfigurationPanel.getSelectedConfigurationIds();
+			default -> null;
+		};
 	}
 	
 	public void setSelectedComponent(RocketComponent component) {

@@ -31,7 +31,7 @@ import info.openrocket.core.util.Statistics;
 public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Statistics {
 	private static final Logger log = LoggerFactory.getLogger(MultidirectionalSearchOptimizer.class);
 
-	private final List<Point> simplex = new ArrayList<Point>();
+	private final List<Point> simplex = new ArrayList<>();
 
 	private ParallelFunctionCache functionExecutor;
 
@@ -72,9 +72,9 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 			}
 
 			// Normal iterations
-			List<Point> reflection = new ArrayList<Point>(simplex.size());
-			List<Point> expansion = new ArrayList<Point>(simplex.size());
-			List<Point> coordinateSearch = new ArrayList<Point>(simplex.size());
+			List<Point> reflection = new ArrayList<>(simplex.size());
+			List<Point> expansion = new ArrayList<>(simplex.size());
+			List<Point> coordinateSearch = new ArrayList<>(simplex.size());
 			Point current;
 			double currentValue;
 			boolean continueOptimization = true;
@@ -88,7 +88,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					// TODO: Could something be computed in parallel?
 					functionExecutor.compute(simplex);
 					functionExecutor.waitFor(simplex);
-					Collections.sort(simplex, comparator);
+					simplex.sort(comparator);
 					simplexComputed = true;
 				}
 
@@ -126,7 +126,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					simplex.clear();
 					simplex.add(current);
 					simplex.addAll(reflection);
-					Collections.sort(simplex, comparator);
+					simplex.sort(comparator);
 
 					if (useExpansion) {
 
@@ -147,7 +147,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 							simplex.add(current);
 							simplex.addAll(expansion);
 							step *= 2;
-							Collections.sort(simplex, comparator);
+							simplex.sort(comparator);
 							expansionAcceptance++;
 						} else {
 							log.debug("Expansion failed");
@@ -177,7 +177,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 						if (accept(coordinateSearch, currentValue)) {
 
 							log.debug("Coordinate search successful, resetting simplex");
-							List<Point> toAbort = new LinkedList<Point>(simplex);
+							List<Point> toAbort = new LinkedList<>(simplex);
 							simplex.clear();
 							simplex.add(current);
 							for (Point p : pattern) {

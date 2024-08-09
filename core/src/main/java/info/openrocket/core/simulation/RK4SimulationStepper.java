@@ -7,7 +7,6 @@ import info.openrocket.core.logging.SimulationAbort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
@@ -18,7 +17,6 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
@@ -249,9 +247,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.storeData(status);
 		
 		// Verify that values don't run out of range
-		if (status.getRocketVelocity().length2() > 1e18 ||
-				status.getRocketPosition().length2() > 1e18 ||
-				status.getRocketRotationVelocity().length2() > 1e18) {
+		if (status.getRocketVelocity().length2() > 1.0e18 ||
+				status.getRocketPosition().length2() > 1.0e18 ||
+				status.getRocketRotationVelocity().length2() > 1.0e18) {
 			throw new SimulationCalculationException(trans.get("error.valuesTooLarge"), status.getFlightDataBranch());
 		}
 	}

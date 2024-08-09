@@ -39,20 +39,14 @@ public class LogbackBufferLoggerAdaptor extends AppenderBase<ILoggingEvent> {
 	}
 	
 	private LogLevel toORLevel(Level l) {
-		switch (l.toInt()) {
-		case Level.TRACE_INT:
-			return LogLevel.VBOSE;
-		case Level.DEBUG_INT:
-			return LogLevel.DEBUG;
-		case Level.INFO_INT:
-			return LogLevel.INFO;
-		case Level.WARN_INT:
-			return LogLevel.WARN;
-		case Level.ERROR_INT:
-			return LogLevel.ERROR;
-		default:
-			return LogLevel.ERROR;
-		}
+		return switch (l.toInt()) {
+			case Level.TRACE_INT -> LogLevel.VBOSE;
+			case Level.DEBUG_INT -> LogLevel.DEBUG;
+			case Level.INFO_INT -> LogLevel.INFO;
+			case Level.WARN_INT -> LogLevel.WARN;
+			case Level.ERROR_INT -> LogLevel.ERROR;
+			default -> LogLevel.ERROR;
+		};
 	}
 	
 	private LogLine toLogLine(ILoggingEvent e) {

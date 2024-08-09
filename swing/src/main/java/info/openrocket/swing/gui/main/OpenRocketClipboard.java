@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.main;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public final class OpenRocketClipboard {
 	private static final List<RocketComponent> clipboardComponents = new LinkedList<>();
 	private static Simulation[] clipboardSimulations = null;
 	
-	private static final List<ClipboardListener> listeners = new ArrayList<ClipboardListener>();
+	private static final List<ClipboardListener> listeners = new ArrayList<>();
 	
 	private OpenRocketClipboard() {
 		// Disallow instantiation

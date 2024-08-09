@@ -1,6 +1,14 @@
 package info.openrocket.core.rocketcomponent;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.EventListener;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -13,7 +21,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.ModID;
 
@@ -305,7 +312,7 @@ public class Rocket extends ComponentAssembly {
 
 	@Override
 	public void setAxialOffset(final double requestOffset) {
-		this.axialOffset = 0.;
+		this.axialOffset = 0.0;
 		this.position = Coordinate.ZERO;
     }
 
@@ -396,7 +403,7 @@ public class Rocket extends ComponentAssembly {
 
 		// Rocket copy is cloned, so non-trivial members must be cloned as well:
 		copyRocket.stageMap = new ConcurrentHashMap<>();
-		for( Map.Entry<Integer,AxialStage> entry : this.stageMap.entrySet()){
+		for (Map.Entry<Integer,AxialStage> entry : this.stageMap.entrySet()){
 			final AxialStage stage = (AxialStage)copyRocket.findComponent(entry.getValue().getID());
 			if (stage == null) {
 				throw new IllegalStateException("Stage not found in copy");
@@ -497,7 +504,7 @@ public class Rocket extends ComponentAssembly {
 	 */
 	public void resetListeners() {
 		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
-		listenerList = new HashSet<EventListener>();
+		listenerList = new HashSet<>();
 	}
 	
 	

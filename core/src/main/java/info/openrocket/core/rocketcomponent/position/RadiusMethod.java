@@ -14,7 +14,7 @@ public enum RadiusMethod implements DistanceMethod {
 		@Override
 		public double getRadius(final RocketComponent parentComponent, final RocketComponent thisComponent,
 				final double requestedOffset) {
-			return 0.;
+			return 0.0;
 		}
 
 		@Override
@@ -85,7 +85,7 @@ public enum RadiusMethod implements DistanceMethod {
 		@Override
 		public double getRadius(final RocketComponent parentComponent, final RocketComponent thisComponent,
 				final double requestedOffset) {
-			double radius = 0.;
+			double radius = 0.0;
 			if (parentComponent instanceof BodyTube) {
 				radius += ((BodyTube) parentComponent).getOuterRadius();
 			}

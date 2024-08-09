@@ -42,9 +42,7 @@ class ComponentHandler extends AbstractElementHandler {
 		RocketComponent c;
 		try {
 			c = constructor.newInstance();
-		} catch (InstantiationException e) {
-			throw new BugException("Error constructing component.", e);
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			throw new BugException("Error constructing component.", e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);

@@ -1,12 +1,14 @@
 package info.openrocket.swing.startup;
 
-import java.awt.*;
+import java.awt.Desktop;
+import java.awt.Image;
+import java.awt.Taskbar;
+import java.awt.Toolkit;
 import java.awt.desktop.AboutHandler;
 import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
 import java.awt.desktop.AppReopenedListener;
-import java.io.File;
 
 import info.openrocket.core.communication.UpdateInfoRetriever;
 import info.openrocket.core.arch.SystemInfo;

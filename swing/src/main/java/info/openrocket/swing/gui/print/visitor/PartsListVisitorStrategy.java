@@ -5,7 +5,18 @@ package info.openrocket.swing.gui.print.visitor;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.Coaxial;
+import info.openrocket.core.rocketcomponent.EllipticalFinSet;
+import info.openrocket.core.rocketcomponent.FreeformFinSet;
+import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.LaunchLug;
+import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.RadiusRingComponent;
+import info.openrocket.core.rocketcomponent.RingComponent;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +31,7 @@ public class PartsListVisitorStrategy {
     /**
      * Accumulator for parts data.
      */
-    private Map<PartsAccumulator, PartsAccumulator> crap = new HashMap<PartsAccumulator, PartsAccumulator>();
+    private Map<PartsAccumulator, PartsAccumulator> crap = new HashMap<>();
 
     /**
      * The iText document.

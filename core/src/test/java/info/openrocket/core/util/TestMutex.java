@@ -207,6 +207,7 @@ public class TestMutex {
 		}
 	}
 
+	@Test
 	public void testBogusMutex() {
 		SafetyMutex m = new SafetyMutex.BogusSafetyMutex();
 		m.lock("foo");

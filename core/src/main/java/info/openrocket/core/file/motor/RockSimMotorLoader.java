@@ -160,7 +160,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			designation = removeDelay(str);
 
 			// Delays
-			ArrayList<Double> delayList = new ArrayList<Double>();
+			ArrayList<Double> delayList = new ArrayList<>();
 			str = attributes.get("delays");
 			if (str != null) {
 				String[] split = str.split(",");
@@ -397,10 +397,10 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	 */
 	private static class RSEMotorDataHandler extends AbstractElementHandler {
 
-		private final List<Double> time = new ArrayList<Double>();
-		private final List<Double> force = new ArrayList<Double>();
-		private final List<Double> mass = new ArrayList<Double>();
-		private final List<Double> cg = new ArrayList<Double>();
+		private final List<Double> time = new ArrayList<>();
+		private final List<Double> force = new ArrayList<>();
+		private final List<Double> mass = new ArrayList<>();
+		private final List<Double> cg = new ArrayList<>();
 
 		public List<Double> getTime() {
 			return time;

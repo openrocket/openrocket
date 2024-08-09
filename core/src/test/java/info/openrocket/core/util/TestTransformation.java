@@ -27,25 +27,25 @@ public class TestTransformation {
 		Transformation t = Transformation.IDENTITY;
 		DoubleBuffer buf = t.getGLMatrix();
 
-		assertEquals(1.0, buf.get(0), 1e-6);
-		assertEquals(0.0, buf.get(1), 1e-6);
-		assertEquals(0.0, buf.get(2), 1e-6);
-		assertEquals(0.0, buf.get(3), 1e-6);
+		assertEquals(1.0, buf.get(0), 1.0e-6);
+		assertEquals(0.0, buf.get(1), 1.0e-6);
+		assertEquals(0.0, buf.get(2), 1.0e-6);
+		assertEquals(0.0, buf.get(3), 1.0e-6);
 
-		assertEquals(0.0, buf.get(4), 1e-6);
-		assertEquals(1.0, buf.get(5), 1e-6);
-		assertEquals(0.0, buf.get(6), 1e-6);
-		assertEquals(0.0, buf.get(7), 1e-6);
+		assertEquals(0.0, buf.get(4), 1.0e-6);
+		assertEquals(1.0, buf.get(5), 1.0e-6);
+		assertEquals(0.0, buf.get(6), 1.0e-6);
+		assertEquals(0.0, buf.get(7), 1.0e-6);
 
-		assertEquals(0.0, buf.get(8), 1e-6);
-		assertEquals(0.0, buf.get(9), 1e-6);
-		assertEquals(1.0, buf.get(10), 1e-6);
-		assertEquals(0.0, buf.get(11), 1e-6);
+		assertEquals(0.0, buf.get(8), 1.0e-6);
+		assertEquals(0.0, buf.get(9), 1.0e-6);
+		assertEquals(1.0, buf.get(10), 1.0e-6);
+		assertEquals(0.0, buf.get(11), 1.0e-6);
 
-		assertEquals(0.0, buf.get(12), 1e-6);
-		assertEquals(0.0, buf.get(13), 1e-6);
-		assertEquals(0.0, buf.get(14), 1e-6);
-		assertEquals(1.0, buf.get(15), 1e-6);
+		assertEquals(0.0, buf.get(12), 1.0e-6);
+		assertEquals(0.0, buf.get(13), 1.0e-6);
+		assertEquals(0.0, buf.get(14), 1.0e-6);
+		assertEquals(1.0, buf.get(15), 1.0e-6);
 	}
 
 	@Test
@@ -53,25 +53,25 @@ public class TestTransformation {
 		Transformation translate = new Transformation(1, 2, 3);
 		DoubleBuffer buf = translate.getGLMatrix();
 
-		assertEquals(1.0, buf.get(0), 1e-6);
-		assertEquals(0.0, buf.get(1), 1e-6);
-		assertEquals(0.0, buf.get(2), 1e-6);
-		assertEquals(0.0, buf.get(3), 1e-6);
+		assertEquals(1.0, buf.get(0), 1.0e-6);
+		assertEquals(0.0, buf.get(1), 1.0e-6);
+		assertEquals(0.0, buf.get(2), 1.0e-6);
+		assertEquals(0.0, buf.get(3), 1.0e-6);
 
-		assertEquals(0.0, buf.get(4), 1e-6);
-		assertEquals(1.0, buf.get(5), 1e-6);
-		assertEquals(0.0, buf.get(6), 1e-6);
-		assertEquals(0.0, buf.get(7), 1e-6);
+		assertEquals(0.0, buf.get(4), 1.0e-6);
+		assertEquals(1.0, buf.get(5), 1.0e-6);
+		assertEquals(0.0, buf.get(6), 1.0e-6);
+		assertEquals(0.0, buf.get(7), 1.0e-6);
 
-		assertEquals(0.0, buf.get(8), 1e-6);
-		assertEquals(0.0, buf.get(9), 1e-6);
-		assertEquals(1.0, buf.get(10), 1e-6);
-		assertEquals(0.0, buf.get(11), 1e-6);
+		assertEquals(0.0, buf.get(8), 1.0e-6);
+		assertEquals(0.0, buf.get(9), 1.0e-6);
+		assertEquals(1.0, buf.get(10), 1.0e-6);
+		assertEquals(0.0, buf.get(11), 1.0e-6);
 
-		assertEquals(1.0, buf.get(12), 1e-6);
-		assertEquals(2.0, buf.get(13), 1e-6);
-		assertEquals(3.0, buf.get(14), 1e-6);
-		assertEquals(1.0, buf.get(15), 1e-6);
+		assertEquals(1.0, buf.get(12), 1.0e-6);
+		assertEquals(2.0, buf.get(13), 1.0e-6);
+		assertEquals(3.0, buf.get(14), 1.0e-6);
+		assertEquals(1.0, buf.get(15), 1.0e-6);
 	}
 
 	@Test
@@ -79,25 +79,25 @@ public class TestTransformation {
 		Transformation translate = Transformation.getAxialRotation(M_PI_2);
 		DoubleBuffer buf = translate.getGLMatrix();
 
-		assertEquals(1.0, buf.get(0), 1e-6);
-		assertEquals(0.0, buf.get(1), 1e-6);
-		assertEquals(0.0, buf.get(2), 1e-6);
-		assertEquals(0.0, buf.get(3), 1e-6);
+		assertEquals(1.0, buf.get(0), 1.0e-6);
+		assertEquals(0.0, buf.get(1), 1.0e-6);
+		assertEquals(0.0, buf.get(2), 1.0e-6);
+		assertEquals(0.0, buf.get(3), 1.0e-6);
 
-		assertEquals(0.0, buf.get(4), 1e-6);
-		assertEquals(0.0, buf.get(5), 1e-6);
-		assertEquals(1.0, buf.get(6), 1e-6);
-		assertEquals(0.0, buf.get(7), 1e-6);
+		assertEquals(0.0, buf.get(4), 1.0e-6);
+		assertEquals(0.0, buf.get(5), 1.0e-6);
+		assertEquals(1.0, buf.get(6), 1.0e-6);
+		assertEquals(0.0, buf.get(7), 1.0e-6);
 
-		assertEquals(0.0, buf.get(8), 1e-6);
-		assertEquals(-1.0, buf.get(9), 1e-6);
-		assertEquals(0.0, buf.get(10), 1e-6);
-		assertEquals(0.0, buf.get(11), 1e-6);
+		assertEquals(0.0, buf.get(8), 1.0e-6);
+		assertEquals(-1.0, buf.get(9), 1.0e-6);
+		assertEquals(0.0, buf.get(10), 1.0e-6);
+		assertEquals(0.0, buf.get(11), 1.0e-6);
 
-		assertEquals(0.0, buf.get(12), 1e-6);
-		assertEquals(0.0, buf.get(13), 1e-6);
-		assertEquals(0.0, buf.get(14), 1e-6);
-		assertEquals(1.0, buf.get(15), 1e-6);
+		assertEquals(0.0, buf.get(12), 1.0e-6);
+		assertEquals(0.0, buf.get(13), 1.0e-6);
+		assertEquals(0.0, buf.get(14), 1.0e-6);
+		assertEquals(1.0, buf.get(15), 1.0e-6);
 	}
 
 	@Test
@@ -133,17 +133,17 @@ public class TestTransformation {
 
 		Coordinate v1 = t.transform(x_unit);
 		// we need to test individual coordinates due to error.
-		assertEquals(1, v1.x, .001);
-		assertEquals(0, v1.y, .001);
-		assertEquals(-.01, v1.z, .001);
+		assertEquals(1, v1.x, 0.001);
+		assertEquals(0, v1.y, 0.001);
+		assertEquals(-0.01, v1.z, 0.001);
 
 		assertEquals(y_unit, t.transform(y_unit));
 
 		Coordinate v2 = t.transform(z_unit);
 		// we need to test individual coordinates due to error.
-		assertEquals(.01, v2.x, .001);
-		assertEquals(0, v2.y, .001);
-		assertEquals(1, v2.z, .001);
+		assertEquals(0.01, v2.x, 0.001);
+		assertEquals(0, v2.y, 0.001);
+		assertEquals(1, v2.z, 0.001);
 	}
 
 	@Test

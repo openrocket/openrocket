@@ -15,7 +15,7 @@ public class ConfigHandler extends EntryHandler {
 
 	private ConfigHandler listHandler;
 	private final Config config = new Config();
-	private final List<Object> list = new ArrayList<Object>();
+	private final List<Object> list = new ArrayList<>();
 
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)

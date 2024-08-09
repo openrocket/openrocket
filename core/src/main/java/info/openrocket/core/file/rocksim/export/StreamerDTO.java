@@ -16,7 +16,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 public class StreamerDTO extends BasePartDTO {
 
     @XmlElement(name = RockSimCommonConstants.WIDTH)
-    private double width = 0d;
+    private double width = 0.0d;
     @XmlElement(name = RockSimCommonConstants.DRAG_COEFFICIENT)
     private double dragCoefficient = 0.75d;
 

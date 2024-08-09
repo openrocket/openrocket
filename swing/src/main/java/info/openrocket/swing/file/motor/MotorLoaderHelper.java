@@ -92,16 +92,14 @@ public final class MotorLoaderHelper {
 	 * @return			a list of all motors loaded.
 	 */
 	public static List<ThrustCurveMotor.Builder> load(FileIterator iterator) {
-		List<ThrustCurveMotor.Builder> list = new ArrayList<ThrustCurveMotor.Builder>();
+		List<ThrustCurveMotor.Builder> list = new ArrayList<>();
 
 		while (iterator.hasNext()) {
 			final Pair<File, InputStream> input = iterator.next();
 			log.debug("Loading motors from file " + input.getU());
 			try {
 				List<ThrustCurveMotor.Builder> motors = load(input.getV(), input.getU().getName());
-				for (ThrustCurveMotor.Builder m : motors) {
-					list.add(m);
-				}
+				list.addAll(motors);
 			} finally {
 				try {
 					input.getV().close();

@@ -78,13 +78,13 @@ public class PrintSettingsDialog extends JDialog {
 		
 
 
-		final JComboBox<PaperSize> sizeCombo = new JComboBox<PaperSize>(new EnumModel<PaperSize>(settings, "PaperSize"));
+		final JComboBox<PaperSize> sizeCombo = new JComboBox<>(new EnumModel<PaperSize>(settings, "PaperSize"));
 		////Paper size:
 		panel.add(new JLabel(trans.get("lbl.Papersize")));
 		panel.add( sizeCombo, "growx, wrap para");
 		
 
-		final JComboBox<PaperOrientation> orientCombo = new JComboBox<PaperOrientation>(new EnumModel<PaperOrientation>(settings, "PaperOrientation"));
+		final JComboBox<PaperOrientation> orientCombo = new JComboBox<>(new EnumModel<PaperOrientation>(settings, "PaperOrientation"));
 		//// Paper orientation:
 		panel.add(new JLabel(trans.get("lbl.Paperorientation")));
 		panel.add( orientCombo, "growx, wrap para*2");

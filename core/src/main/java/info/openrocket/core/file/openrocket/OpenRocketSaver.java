@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -529,9 +533,9 @@ public class OpenRocketSaver extends RocketSaver {
 			return;
 		
 		// Retrieve the data from the branch
-		List<List<Double>> data = new ArrayList<List<Double>>(types.length);
-		for (int i = 0; i < types.length; i++) {
-			data.add(branch.get(types[i]));
+		List<List<Double>> data = new ArrayList<>(types.length);
+		for (FlightDataType type : types) {
+			data.add(branch.get(type));
 		}
 		
 		// Build the <databranch> tag

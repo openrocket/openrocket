@@ -1365,7 +1365,7 @@ public class SimulationPanel extends JPanel {
 
 							// Initialize the label
 							if (label == null) {
-								label = new StatusLabel(simulation, 2f);
+								label = new StatusLabel(simulation, 2.0f);
 								label.setIconTextGap(1);
 								//							label.setFont(label.getFont().deriveFont(Font.BOLD));
 							} else {

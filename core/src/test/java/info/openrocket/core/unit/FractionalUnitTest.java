@@ -12,54 +12,54 @@ public class FractionalUnitTest {
 	private final static Unit testUnit = new FractionalUnit(1, "unit", "unit", 4, 0.5);
 	private final static Unit testUnitApprox = new FractionalUnit(1, "unit", "unit", 16, 0.5, 0.02);
 
-	private final static Unit inchUnit = new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d);
+	private final static Unit inchUnit = new FractionalUnit(0.0254, "in/64", "in", 64, 1.0d / 16.0d);
 
 	@Test
 	public void testRound() {
 
-		assertEquals(-1d, testUnit.round(-1.125), 0.0); // rounds to -1 since mod is even
-		assertEquals(-1d, testUnit.round(-1.0), 0.0);
-		assertEquals(-1d, testUnit.round(-.875), 0.0); // rounds to -1 since mod is even
+		assertEquals(-1.0d, testUnit.round(-1.125), 0.0); // rounds to -1 since mod is even
+		assertEquals(-1.0d, testUnit.round(-1.0), 0.0);
+		assertEquals(-1.0d, testUnit.round(-0.875), 0.0); // rounds to -1 since mod is even
 
-		assertEquals(-0.75d, testUnit.round(-.874), 0.0);
-		assertEquals(-0.75d, testUnit.round(-.75), 0.0);
-		assertEquals(-0.75d, testUnit.round(-.626), 0.0);
+		assertEquals(-0.75d, testUnit.round(-0.874), 0.0);
+		assertEquals(-0.75d, testUnit.round(-0.75), 0.0);
+		assertEquals(-0.75d, testUnit.round(-0.626), 0.0);
 
-		assertEquals(-0.5d, testUnit.round(-.625), 0.0); // rounds to -.5 since mod is even
-		assertEquals(-0.5d, testUnit.round(-.5), 0.0);
-		assertEquals(-0.5d, testUnit.round(-.375), 0.0); // rounds to -.5 since mod is even
+		assertEquals(-0.5d, testUnit.round(-0.625), 0.0); // rounds to -.5 since mod is even
+		assertEquals(-0.5d, testUnit.round(-0.5), 0.0);
+		assertEquals(-0.5d, testUnit.round(-0.375), 0.0); // rounds to -.5 since mod is even
 
-		assertEquals(-0.25d, testUnit.round(-.374), 0.0);
-		assertEquals(-0.25d, testUnit.round(-.25), 0.0);
-		assertEquals(-0.25d, testUnit.round(-.126), 0.0);
+		assertEquals(-0.25d, testUnit.round(-0.374), 0.0);
+		assertEquals(-0.25d, testUnit.round(-0.25), 0.0);
+		assertEquals(-0.25d, testUnit.round(-0.126), 0.0);
 
-		assertEquals(0d, testUnit.round(-.125), 0.0);
-		assertEquals(0d, testUnit.round(0), 0.0);
-		assertEquals(0d, testUnit.round(.125), 0.0);
+		assertEquals(0.0d, testUnit.round(-0.125), 0.0);
+		assertEquals(0.0d, testUnit.round(0), 0.0);
+		assertEquals(0.0d, testUnit.round(0.125), 0.0);
 
-		assertEquals(0.25d, testUnit.round(.126), 0.0);
-		assertEquals(0.25d, testUnit.round(.25), 0.0);
-		assertEquals(0.25d, testUnit.round(.374), 0.0);
+		assertEquals(0.25d, testUnit.round(0.126), 0.0);
+		assertEquals(0.25d, testUnit.round(0.25), 0.0);
+		assertEquals(0.25d, testUnit.round(0.374), 0.0);
 
-		assertEquals(0.5d, testUnit.round(.375), 0.0); // rounds to .5 since mod is even
-		assertEquals(0.5d, testUnit.round(.5), 0.0);
-		assertEquals(0.5d, testUnit.round(.625), 0.0); // rounds to .5 since mod is even
+		assertEquals(0.5d, testUnit.round(0.375), 0.0); // rounds to .5 since mod is even
+		assertEquals(0.5d, testUnit.round(0.5), 0.0);
+		assertEquals(0.5d, testUnit.round(0.625), 0.0); // rounds to .5 since mod is even
 
-		assertEquals(0.75d, testUnit.round(.626), 0.0);
-		assertEquals(0.75d, testUnit.round(.75), 0.0);
-		assertEquals(0.75d, testUnit.round(.874), 0.0);
+		assertEquals(0.75d, testUnit.round(0.626), 0.0);
+		assertEquals(0.75d, testUnit.round(0.75), 0.0);
+		assertEquals(0.75d, testUnit.round(0.874), 0.0);
 
-		assertEquals(1d, testUnit.round(.875), 0.0); // rounds to 1 since mod is even
-		assertEquals(1d, testUnit.round(1.0), 0.0);
-		assertEquals(1d, testUnit.round(1.125), 0.0); // rounds to 1 since mod is even
+		assertEquals(1.0d, testUnit.round(0.875), 0.0); // rounds to 1 since mod is even
+		assertEquals(1.0d, testUnit.round(1.0), 0.0);
+		assertEquals(1.0d, testUnit.round(1.125), 0.0); // rounds to 1 since mod is even
 
 	}
 
 	@Test
 	public void testIncrement() {
 
-		assertEquals(-1d, testUnit.getNextValue(-1.2), 0.0);
-		assertEquals(-1d, testUnit.getNextValue(-1.4), 0.0);
+		assertEquals(-1.0d, testUnit.getNextValue(-1.2), 0.0);
+		assertEquals(-1.0d, testUnit.getNextValue(-1.4), 0.0);
 
 		assertEquals(-0.5d, testUnit.getNextValue(-0.7), 0.0);
 		assertEquals(-0.5d, testUnit.getNextValue(-0.9), 0.0);
@@ -75,8 +75,8 @@ public class FractionalUnitTest {
 		assertEquals(0.5d, testUnit.getNextValue(0.062), 0.0);
 		assertEquals(0.5d, testUnit.getNextValue(0.0625), 0.0);
 
-		assertEquals(1d, testUnit.getNextValue(0.51), 0.0);
-		assertEquals(1d, testUnit.getNextValue(0.7), 0.0);
+		assertEquals(1.0d, testUnit.getNextValue(0.51), 0.0);
+		assertEquals(1.0d, testUnit.getNextValue(0.7), 0.0);
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class FractionalUnitTest {
 		assertEquals(-1.5d, testUnit.getPreviousValue(-1.4), 0.0);
 		assertEquals(-1.5d, testUnit.getPreviousValue(-1.0), 0.0);
 
-		assertEquals(-1d, testUnit.getPreviousValue(-0.7), 0.0);
-		assertEquals(-1d, testUnit.getPreviousValue(-0.9), 0.0);
+		assertEquals(-1.0d, testUnit.getPreviousValue(-0.7), 0.0);
+		assertEquals(-1.0d, testUnit.getPreviousValue(-0.9), 0.0);
 
 		assertEquals(-0.5d, testUnit.getPreviousValue(-0.01), 0.0);
 		assertEquals(-0.5d, testUnit.getPreviousValue(-0.05), 0.0);
@@ -111,14 +111,14 @@ public class FractionalUnitTest {
 			assertEquals(testUnit.toString(-1.2), "-1.2");
 			assertEquals(testUnit.toString(-1.3), "-1.3");
 
-			assertEquals(testUnit.toString(-.2), "-0.2");
-			assertEquals(testUnit.toString(-.3), "-0.3");
+			assertEquals(testUnit.toString(-0.2), "-0.2");
+			assertEquals(testUnit.toString(-0.3), "-0.3");
 
-			assertEquals(testUnit.toString(-.1), "-0.1");
-			assertEquals(testUnit.toString(.1), "0.1");
+			assertEquals(testUnit.toString(-0.1), "-0.1");
+			assertEquals(testUnit.toString(0.1), "0.1");
 
-			assertEquals(testUnit.toString(.2), "0.2");
-			assertEquals(testUnit.toString(.3), "0.3");
+			assertEquals(testUnit.toString(0.2), "0.2");
+			assertEquals(testUnit.toString(0.3), "0.3");
 
 			assertEquals(testUnit.toString(1.2), "1.2");
 			assertEquals(testUnit.toString(1.3), "1.3");
@@ -126,14 +126,14 @@ public class FractionalUnitTest {
 			assertEquals(testUnit.toString(-1.2), "-1,2");
 			assertEquals(testUnit.toString(-1.3), "-1,3");
 
-			assertEquals(testUnit.toString(-.2), "-0,2");
-			assertEquals(testUnit.toString(-.3), "-0,3");
+			assertEquals(testUnit.toString(-0.2), "-0,2");
+			assertEquals(testUnit.toString(-0.3), "-0,3");
 
-			assertEquals(testUnit.toString(-.1), "-0,1");
-			assertEquals(testUnit.toString(.1), "0,1");
+			assertEquals(testUnit.toString(-0.1), "-0,1");
+			assertEquals(testUnit.toString(0.1), "0,1");
 
-			assertEquals(testUnit.toString(.2), "0,2");
-			assertEquals(testUnit.toString(.3), "0,3");
+			assertEquals(testUnit.toString(0.2), "0,2");
+			assertEquals(testUnit.toString(0.3), "0,3");
 
 			assertEquals(testUnit.toString(1.2), "1,2");
 			assertEquals(testUnit.toString(1.3), "1,3");
@@ -146,19 +146,19 @@ public class FractionalUnitTest {
 		assertEquals(testUnit.toString(-1.25), "-1 \u00B9\u2044\u2084");
 		assertEquals(testUnit.toString(-1.275), "-1 \u00B9\u2044\u2084");
 
-		assertEquals(testUnit.toString(-.225), "-\u00B9\u2044\u2084");
-		assertEquals(testUnit.toString(-.25), "-\u00B9\u2044\u2084");
-		assertEquals(testUnit.toString(-.274), "-\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-0.225), "-\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-0.25), "-\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(-0.274), "-\u00B9\u2044\u2084");
 		// assertEquals(testUnit.toString(-.275), "-1/4"); // this has round-off error
 		// which pushes it over epsilon
 
 		assertEquals(testUnit.toString(-0.024), "0");
 		assertEquals(testUnit.toString(0), "0");
-		assertEquals(testUnit.toString(.024), "0");
+		assertEquals(testUnit.toString(0.024), "0");
 
-		assertEquals(testUnit.toString(.225), "\u00B9\u2044\u2084");
-		assertEquals(testUnit.toString(.25), "\u00B9\u2044\u2084");
-		assertEquals(testUnit.toString(.274), "\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(0.225), "\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(0.25), "\u00B9\u2044\u2084");
+		assertEquals(testUnit.toString(0.274), "\u00B9\u2044\u2084");
 
 		assertEquals(testUnit.toString(1.225), "1 \u00B9\u2044\u2084");
 		assertEquals(testUnit.toString(1.25), "1 \u00B9\u2044\u2084");
@@ -171,18 +171,18 @@ public class FractionalUnitTest {
 			assertEquals(testUnitApprox.toString(-1.225), "-1.225");
 			assertEquals(testUnitApprox.toString(-1.275), "-1.275");
 
-			assertEquals(testUnitApprox.toString(-.225), "-0.225");
-			assertEquals(testUnitApprox.toString(-.275), "-0.275");
+			assertEquals(testUnitApprox.toString(-0.225), "-0.225");
+			assertEquals(testUnitApprox.toString(-0.275), "-0.275");
 
-			assertEquals(testUnitApprox.toString(-.1), "-0.1");
+			assertEquals(testUnitApprox.toString(-0.1), "-0.1");
 
 			assertEquals(testUnitApprox.toString(-0.024), "-0.024");
-			assertEquals(testUnitApprox.toString(.024), "0.024");
+			assertEquals(testUnitApprox.toString(0.024), "0.024");
 
-			assertEquals(testUnitApprox.toString(.1), "0.1");
+			assertEquals(testUnitApprox.toString(0.1), "0.1");
 
-			assertEquals(testUnitApprox.toString(.275), "0.275");
-			assertEquals(testUnitApprox.toString(.225), "0.225");
+			assertEquals(testUnitApprox.toString(0.275), "0.275");
+			assertEquals(testUnitApprox.toString(0.225), "0.225");
 
 			assertEquals(testUnitApprox.toString(1.225), "1.225");
 			assertEquals(testUnitApprox.toString(1.275), "1.275");
@@ -190,18 +190,18 @@ public class FractionalUnitTest {
 			assertEquals(testUnitApprox.toString(-1.225), "-1,225");
 			assertEquals(testUnitApprox.toString(-1.275), "-1,275");
 
-			assertEquals(testUnitApprox.toString(-.225), "-0,225");
-			assertEquals(testUnitApprox.toString(-.275), "-0,275");
+			assertEquals(testUnitApprox.toString(-0.225), "-0,225");
+			assertEquals(testUnitApprox.toString(-0.275), "-0,275");
 
-			assertEquals(testUnitApprox.toString(-.1), "-0,1");
+			assertEquals(testUnitApprox.toString(-0.1), "-0,1");
 
 			assertEquals(testUnitApprox.toString(-0.024), "-0,024");
-			assertEquals(testUnitApprox.toString(.024), "0,024");
+			assertEquals(testUnitApprox.toString(0.024), "0,024");
 
-			assertEquals(testUnitApprox.toString(.1), "0,1");
+			assertEquals(testUnitApprox.toString(0.1), "0,1");
 
-			assertEquals(testUnitApprox.toString(.275), "0,275");
-			assertEquals(testUnitApprox.toString(.225), "0,225");
+			assertEquals(testUnitApprox.toString(0.275), "0,275");
+			assertEquals(testUnitApprox.toString(0.225), "0,225");
 
 			assertEquals(testUnitApprox.toString(1.225), "1,225");
 			assertEquals(testUnitApprox.toString(1.275), "1,275");
@@ -212,15 +212,15 @@ public class FractionalUnitTest {
 		assertEquals(testUnitApprox.toString(-1.25), "-1 \u00B9\u2044\u2084");
 		assertEquals(testUnitApprox.toString(-1.3), "-1 \u2075\u2044\u2081\u2086");
 
-		assertEquals(testUnitApprox.toString(-.2), "-\u00B3\u2044\u2081\u2086");
-		assertEquals(testUnitApprox.toString(-.25), "-\u00B9\u2044\u2084");
-		assertEquals(testUnitApprox.toString(-.3), "-\u2075\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(-0.2), "-\u00B3\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(-0.25), "-\u00B9\u2044\u2084");
+		assertEquals(testUnitApprox.toString(-0.3), "-\u2075\u2044\u2081\u2086");
 
 		assertEquals(testUnitApprox.toString(0), "0");
 
-		assertEquals(testUnitApprox.toString(.2), "\u00B3\u2044\u2081\u2086");
-		assertEquals(testUnitApprox.toString(.25), "\u00B9\u2044\u2084");
-		assertEquals(testUnitApprox.toString(.3), "\u2075\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(0.2), "\u00B3\u2044\u2081\u2086");
+		assertEquals(testUnitApprox.toString(0.25), "\u00B9\u2044\u2084");
+		assertEquals(testUnitApprox.toString(0.3), "\u2075\u2044\u2081\u2086");
 
 		assertEquals(testUnitApprox.toString(1.2), "1 \u00B3\u2044\u2081\u2086");
 		assertEquals(testUnitApprox.toString(1.25), "1 \u00B9\u2044\u2084");
@@ -235,11 +235,11 @@ public class FractionalUnitTest {
 	public void testInchToString() {
 
 		// Just some random test points.
-		assertEquals(inchUnit.toString(1d / 64d * 0.0254), "\u00B9\u2044\u2086\u2084");
+		assertEquals(inchUnit.toString(1.0d / 64.0d * 0.0254), "\u00B9\u2044\u2086\u2084");
 
-		assertEquals(inchUnit.toString(-5d / 64d * 0.0254), "-\u2075\u2044\u2086\u2084");
+		assertEquals(inchUnit.toString(-5.0d / 64.0d * 0.0254), "-\u2075\u2044\u2086\u2084");
 
-		assertEquals(inchUnit.toString(9d / 2d * 0.0254), "4 \u00B9\u2044\u2082");
+		assertEquals(inchUnit.toString(9.0d / 2.0d * 0.0254), "4 \u00B9\u2044\u2082");
 
 		if (isPointDecimalSeparator()) {
 			assertEquals(inchUnit.toString(0.002 * 0.0254), "0.002");
@@ -248,7 +248,7 @@ public class FractionalUnitTest {
 		}
 
 		// default body tube length:
-		double length = 8d * 0.025;
+		double length = 8.0d * 0.025;
 
 		assertEquals(inchUnit.toString(length), "7 \u2077\u2044\u2088");
 

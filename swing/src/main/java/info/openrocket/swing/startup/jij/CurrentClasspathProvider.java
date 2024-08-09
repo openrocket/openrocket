@@ -10,7 +10,7 @@ public class CurrentClasspathProvider implements ClasspathProvider {
 	
 	@Override
 	public List<URL> getUrls() {
-		List<URL> urls = new ArrayList<URL>();
+		List<URL> urls = new ArrayList<>();
 		
 		String classpath = System.getProperty("java.class.path");
 		String[] cps = classpath.split(File.pathSeparator);

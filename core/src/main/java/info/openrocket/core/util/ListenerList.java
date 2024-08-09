@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	private static final Logger log = LoggerFactory.getLogger(ListenerList.class);
 	
-	private final ArrayList<ListenerData<T>> listeners = new ArrayList<ListenerData<T>>();
+	private final ArrayList<ListenerData<T>> listeners = new ArrayList<>();
 	private final Throwable instantiationLocation;
 	
 	private Throwable invalidated = null;
@@ -45,7 +45,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	public boolean addListener(T listener) {
 		checkState(true);
 		
-		ListenerData<T> data = new ListenerData<T>(listener);
+		ListenerData<T> data = new ListenerData<>(listener);
 		if (listeners.contains(data)) {
 			log.warn("Attempting to add duplicate listener " + listener);
 			return false;

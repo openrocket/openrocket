@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class PhotoStudioSaver {
     public static List<String> getElements(Map<String, String> photoSettings) {
-        List<String> elements = new ArrayList<String>();
+        List<String> elements = new ArrayList<>();
 
         if (photoSettings == null || photoSettings.size() == 0)
             return elements;

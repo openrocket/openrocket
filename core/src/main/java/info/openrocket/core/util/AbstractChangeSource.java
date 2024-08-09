@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class AbstractChangeSource implements ChangeSource {
 	private static final Logger log = LoggerFactory.getLogger(AbstractChangeSource.class);
 
-	private final List<EventListener> listeners = new ArrayList<EventListener>();
+	private final List<EventListener> listeners = new ArrayList<>();
 
 	@Override
 	public final void addChangeListener(StateChangeListener listener) {

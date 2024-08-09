@@ -26,7 +26,7 @@ public class EventGraphics {
 	}
 	
 	private static final Color DEFAULT_EVENT_COLOR = new Color(0, 0, 0);
-	private static final Map<FlightEvent.Type, Color> EVENT_COLORS = new HashMap<FlightEvent.Type, Color>();
+	private static final Map<FlightEvent.Type, Color> EVENT_COLORS = new HashMap<>();
 	static {
 		EVENT_COLORS.put(FlightEvent.Type.LAUNCH, new Color(255, 0, 0));
 		EVENT_COLORS.put(FlightEvent.Type.LIFTOFF, new Color(0, 80, 196));
@@ -44,7 +44,7 @@ public class EventGraphics {
 		EVENT_COLORS.put(FlightEvent.Type.SIM_ABORT, new Color(255, 0, 0));
 	}
 
-	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES = new HashMap<FlightEvent.Type, Image>();
+	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES = new HashMap<>();
 	static {
 		loadImage(FlightEvent.Type.LAUNCH, "pix/eventicons/event-launch.png");
 		loadImage(FlightEvent.Type.LIFTOFF, "pix/eventicons/event-liftoff.png");

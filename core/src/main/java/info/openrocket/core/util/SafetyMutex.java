@@ -113,7 +113,7 @@ public abstract class SafetyMutex {
 		// true
 		Throwable lockingLocation = null;
 		// Stack of places that have locked this mutex
-		final LinkedList<String> locations = new LinkedList<String>();
+		final LinkedList<String> locations = new LinkedList<>();
 
 		@Override
 		public synchronized void verify() {

@@ -26,7 +26,6 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.StateChangeListener;
 
 import net.miginfocom.swing.MigLayout;

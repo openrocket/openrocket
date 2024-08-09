@@ -126,9 +126,9 @@ class SimulationOptionsPanel extends JPanel {
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.GeodeticMethodTip"));
 		subsub.add(label, "gapright para");
 		
-		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
+		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<>(
 				conditions, "GeodeticComputation");
-		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<GeodeticComputationStrategy>(gcsModel);
+		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<>(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -235,7 +235,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	private JPopupMenu getExtensionMenu() {
-		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<Set<SimulationExtensionProvider>>() {
+		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<>() {
 		});
 		
 		JPopupMenu basemenu = new JPopupMenu();
@@ -445,7 +445,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	private SwingSimulationExtensionConfigurator findConfigurator(SimulationExtension extension) {
-		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<Set<SwingSimulationExtensionConfigurator>>() {
+		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<>() {
 		});
 		for (SwingSimulationExtensionConfigurator c : configurators) {
 			if (c.support(extension)) {

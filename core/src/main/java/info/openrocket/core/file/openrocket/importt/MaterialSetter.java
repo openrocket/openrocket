@@ -30,7 +30,7 @@ class MaterialSetter implements Setter {
 
 		// Check name != ""
 		name = name.trim();
-		if (name.equals("")) {
+		if (name.isEmpty()) {
 			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
 			return;
 		}

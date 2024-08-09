@@ -12,9 +12,9 @@ public class MaterialLoader extends RockSimComponentFileLoader {
 
 	private final MaterialHolder materialMap = new MaterialHolder();
 
-	private final static TypedKey<String> MATERIALNAME = new TypedKey<String>("MaterialName", String.class);
-	private final static TypedKey<String> UNITS = new TypedKey<String>("Units", String.class);
-	private final static TypedKey<Double> DENSITY = new TypedKey<Double>("Density", Double.class);
+	private final static TypedKey<String> MATERIALNAME = new TypedKey<>("MaterialName", String.class);
+	private final static TypedKey<String> UNITS = new TypedKey<>("Units", String.class);
+	private final static TypedKey<Double> DENSITY = new TypedKey<>("Density", Double.class);
 
 	public MaterialLoader(File theBasePathToLoadFrom) {
 		super(theBasePathToLoadFrom);

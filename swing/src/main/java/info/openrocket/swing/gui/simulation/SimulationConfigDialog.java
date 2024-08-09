@@ -254,7 +254,7 @@ public class SimulationConfigDialog extends JDialog {
 
 			private void setText() {
 				String name = field.getText();
-				if (name == null || name.equals(""))
+				if (name == null || name.isEmpty())
 					return;
 				simulationList[0].setName(name);
 

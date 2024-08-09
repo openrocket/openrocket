@@ -16,8 +16,6 @@ import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.swing.gui.figure3d.geometry.Geometry.Surface;
 
-import java.util.Collections;
-
 public class FinRenderer {
 	private GLUtessellator tess = GLU.gluNewTess();
 	

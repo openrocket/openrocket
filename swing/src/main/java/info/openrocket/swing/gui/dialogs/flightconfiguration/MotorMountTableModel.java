@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.jfree.util.Log;
-
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.MotorMount;
@@ -19,7 +17,7 @@ import info.openrocket.core.util.ArrayList;
 class MotorMountTableModel extends AbstractTableModel implements ComponentChangeListener {
 	private static final long serialVersionUID = 1956400848559941228L;
 
-    private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
+    private final List<MotorMount> potentialMounts = new ArrayList<>();
 	
 	private final Rocket rocket;
 	
@@ -62,30 +60,20 @@ class MotorMountTableModel extends AbstractTableModel implements ComponentChange
 	
 	@Override
 	public Class<?> getColumnClass(int column) {
-		switch (column) {
-		case 0:
-			return Boolean.class;
-			
-		case 1:
-			return String.class;
-			
-		default:
-			throw new IndexOutOfBoundsException("column=" + column);
-		}
+		return switch (column) {
+			case 0 -> Boolean.class;
+			case 1 -> String.class;
+			default -> throw new IndexOutOfBoundsException("column=" + column);
+		};
 	}
 	
 	@Override
 	public Object getValueAt(int row, int column) {
-		switch (column) {
-		case 0:
-			return Boolean.valueOf(potentialMounts.get(row).isMotorMount());
-			
-		case 1:
-			return potentialMounts.get(row).toString();
-			
-		default:
-			throw new IndexOutOfBoundsException("column=" + column);
-		}
+		return switch (column) {
+			case 0 -> Boolean.valueOf(potentialMounts.get(row).isMotorMount());
+			case 1 -> potentialMounts.get(row).toString();
+			default -> throw new IndexOutOfBoundsException("column=" + column);
+		};
 	}
 	
 	@Override

@@ -16,17 +16,17 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 public class ParachuteDTO extends BasePartDTO {
 
     @XmlElement(name = RockSimCommonConstants.DIAMETER)
-    private double dia = 0d;
+    private double dia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_COUNT)
     private int ShroudLineCount = 0;
     @XmlElement(name = RockSimCommonConstants.THICKNESS)
-    private double thickness = 0d;
+    private double thickness = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_LEN)
-    private double shroudLineLen = 0d;
+    private double shroudLineLen = 0.0d;
     @XmlElement(name = RockSimCommonConstants.CHUTE_COUNT)
     private int chuteCount = 1;
     @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_MASS_PER_MM)
-    private double shroudLineMassPerMM = 0d;
+    private double shroudLineMassPerMM = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHROUD_LINE_MATERIAL)
     private String shroudLineMaterial = "";
     @XmlElement(name = RockSimCommonConstants.DRAG_COEFFICIENT)

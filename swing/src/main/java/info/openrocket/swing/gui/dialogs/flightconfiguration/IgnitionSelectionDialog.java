@@ -83,8 +83,8 @@ public class IgnitionSelectionDialog extends JDialog {
 		
 		// Select ignition event
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
-		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(curMotorInstance, "IgnitionEvent", IgnitionEvent.values());
-		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);
+		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<>(curMotorInstance, "IgnitionEvent", IgnitionEvent.values());
+		final JComboBox<IgnitionEvent> eventBox = new JComboBox<>(igEvModel);
 		panel.add(eventBox, "growx, wrap");
 		
 		// ... and delay 

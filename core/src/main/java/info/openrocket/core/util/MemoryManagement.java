@@ -37,10 +37,10 @@ public final class MemoryManagement {
 	 * weak references)
 	 * to
 	 */
-	private static final List<MemoryData> objects = new LinkedList<MemoryData>();
+	private static final List<MemoryData> objects = new LinkedList<>();
 	private static int collectableCallCount = 0;
 
-	private static final List<WeakReference<ListenerList<?>>> listenerLists = new LinkedList<WeakReference<ListenerList<?>>>();
+	private static final List<WeakReference<ListenerList<?>>> listenerLists = new LinkedList<>();
 	private static int listenerCallCount = 0;
 
 	private MemoryManagement() {
@@ -88,7 +88,7 @@ public final class MemoryManagement {
 			}
 		}
 		purgeCollectables();
-		return new ArrayList<MemoryData>(objects);
+		return new ArrayList<>(objects);
 	}
 
 	/**
@@ -101,7 +101,7 @@ public final class MemoryManagement {
 	 * @param list the listener list to register
 	 */
 	public static synchronized void registerListenerList(ListenerList<?> list) {
-		listenerLists.add(new WeakReference<ListenerList<?>>(list));
+		listenerLists.add(new WeakReference<>(list));
 		listenerCallCount++;
 		if (listenerCallCount % PURGE_CALL_COUNT == 0) {
 			purgeListeners();
@@ -130,7 +130,7 @@ public final class MemoryManagement {
 			}
 		}
 		purgeListeners();
-		List<ListenerList<?>> list = new ArrayList<ListenerList<?>>();
+		List<ListenerList<?>> list = new ArrayList<>();
 		for (WeakReference<ListenerList<?>> ref : listenerLists) {
 			ListenerList<?> l = ref.get();
 			if (l != null) {
@@ -145,13 +145,7 @@ public final class MemoryManagement {
 	 */
 	private static void purgeCollectables() {
 		int origCount = objects.size();
-		Iterator<MemoryData> iterator = objects.iterator();
-		while (iterator.hasNext()) {
-			MemoryData data = iterator.next();
-			if (data.getReference().get() == null) {
-				iterator.remove();
-			}
-		}
+		objects.removeIf(data -> data.getReference().get() == null);
 		log.debug(objects.size() + " of " + origCount + " objects remaining in discarded objects list after purge.");
 	}
 
@@ -160,13 +154,7 @@ public final class MemoryManagement {
 	 */
 	private static void purgeListeners() {
 		int origCount = listenerLists.size();
-		Iterator<WeakReference<ListenerList<?>>> iterator = listenerLists.iterator();
-		while (iterator.hasNext()) {
-			WeakReference<ListenerList<?>> ref = iterator.next();
-			if (ref.get() == null) {
-				iterator.remove();
-			}
-		}
+		listenerLists.removeIf(ref -> ref.get() == null);
 		log.debug(listenerLists.size() + " of " + origCount + " listener lists remaining after purge.");
 	}
 
@@ -178,7 +166,7 @@ public final class MemoryManagement {
 		private final long registrationTime;
 
 		private MemoryData(Object object) {
-			this.reference = new WeakReference<Object>(object);
+			this.reference = new WeakReference<>(object);
 			this.registrationTime = System.currentTimeMillis();
 		}
 
