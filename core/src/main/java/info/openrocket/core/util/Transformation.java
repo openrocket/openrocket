@@ -340,7 +340,7 @@ public class Transformation implements java.io.Serializable {
 			}
 		}
 		bits ^= translate.hashCode();
-		return (int) (bits ^ (bits >>> 32));
+		return Long.hashCode(bits);
 	}
 
 	/**
