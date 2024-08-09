@@ -166,12 +166,9 @@ public class DecalRegistry {
 				if (!exportedFile.exists()) {
 					throw new DecalNotFoundException(exportedFile.getAbsolutePath(), this);
 				}
-				InputStream rawIs = new FileInputStream(exportedFile);
-				try {
+				try (InputStream rawIs = new FileInputStream(exportedFile)) {
 					byte[] bytes = FileUtils.readBytes(rawIs);
 					return new ByteArrayInputStream(bytes);
-				} finally {
-					rawIs.close();
 				}
 
 			}

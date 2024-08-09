@@ -211,9 +211,9 @@ public class GeneralRocketSaver {
 
 		// Open a zip stream to write to.
 		ZipOutputStream zos = new ZipOutputStream(output);
-		zos.setLevel(9);
 		// big try block to close the zos.
-		try {
+		try (zos) {
+			zos.setLevel(9);
 
 			ZipEntry mainFile = new ZipEntry("rocket.ork");
 			zos.putNextEntry(mainFile);
@@ -241,8 +241,6 @@ public class GeneralRocketSaver {
 			}
 
 			zos.flush();
-		} finally {
-			zos.close();
 		}
 
 	}

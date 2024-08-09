@@ -50,17 +50,13 @@ public class ResourceDecalImage implements DecalImage {
 	@Override
 	public void exportImage(File file) throws IOException {
 		InputStream is = getBytes();
-		OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 
 		if (is == null) {
 			return;
 		}
 
-		try {
+		try (is; OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
 			FileUtils.copy(is, os);
-		} finally {
-			is.close();
-			os.close();
 		}
 	}
 		

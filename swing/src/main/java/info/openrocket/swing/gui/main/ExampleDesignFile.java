@@ -153,10 +153,8 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 		}
 		
 		// Iterate over JAR entries searching for designs
-		JarFile jarFile = null;
-		try {
-			jarFile = new JarFile(file);
-			
+		try (JarFile jarFile = new JarFile(file)) {
+
 			// Loop through JAR entries searching for files to load
 			Enumeration<JarEntry> entries = jarFile.entries();
 			while (entries.hasMoreElements()) {
@@ -169,18 +167,11 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 							name.substring(dirLength, name.length() - 4)));
 				}
 			}
-			
+
 		} catch (IOException e) {
 			logger.error("IOException when processing jarFile", e);
 			// Could be normal condition if not package in JAR
 			return null;
-		} finally {
-			if (jarFile != null) {
-				try {
-					jarFile.close();
-				} catch (IOException e) {
-				}
-			}
 		}
 		
 		return list.toArray(new ExampleDesignFile[0]);
