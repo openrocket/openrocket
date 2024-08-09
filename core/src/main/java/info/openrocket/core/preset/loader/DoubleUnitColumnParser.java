@@ -47,7 +47,6 @@ public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 			}
 
 			props.put(propKey, value);
-		} catch (NumberFormatException nex) {
 		} catch (IllegalArgumentException iae) {
 		}
 	}

@@ -305,8 +305,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 			if (method != null) {
 				method.invoke(component, material);
 			}
-		} catch (IllegalAccessException ignored) {
-		} catch (InvocationTargetException ignored) {
+		} catch (IllegalAccessException | InvocationTargetException ignored) {
 		}
 	}
 
