@@ -2,7 +2,6 @@ package info.openrocket.core.logging;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Motor;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.unit.UnitGroup;

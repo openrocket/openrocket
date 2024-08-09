@@ -23,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.core.document.events.SimulationChangeEvent;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;

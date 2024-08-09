@@ -3,7 +3,6 @@
  */
 package info.openrocket.swing.gui.print.visitor;
 
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;

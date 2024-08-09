@@ -13,7 +13,6 @@ import info.openrocket.core.formatting.RocketDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationId;
 import info.openrocket.core.startup.Application;

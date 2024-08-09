@@ -19,7 +19,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.ModID;
 
 /**
  * This class defines an inner tube that can be used as a motor mount. The

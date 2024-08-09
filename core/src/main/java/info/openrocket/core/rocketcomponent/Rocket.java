@@ -12,7 +12,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.ModID;
 

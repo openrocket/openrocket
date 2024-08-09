@@ -2,11 +2,9 @@ package info.openrocket.swing.gui.dialogs;
 
 import java.awt.Component;
 
-import javax.swing.BorderFactory;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.border.Border;
 
 import info.openrocket.swing.gui.util.BetterListCellRenderer;
 

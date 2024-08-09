@@ -3,7 +3,6 @@
  */
 package info.openrocket.swing.gui.print;
 
-import java.awt.Graphics2D;
 import java.awt.Window;
 import java.text.DecimalFormat;
 import java.util.ArrayList;

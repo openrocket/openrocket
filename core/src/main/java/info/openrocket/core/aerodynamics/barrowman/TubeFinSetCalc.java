@@ -6,7 +6,6 @@ import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
-import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.Coordinate;

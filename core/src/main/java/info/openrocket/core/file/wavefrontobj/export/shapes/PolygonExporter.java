@@ -3,7 +3,6 @@ package info.openrocket.core.file.wavefrontobj.export.shapes;
 import com.sun.istack.NotNull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
-import info.openrocket.core.file.wavefrontobj.DefaultObjEdge;
 import info.openrocket.core.file.wavefrontobj.DefaultObjFace;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
 

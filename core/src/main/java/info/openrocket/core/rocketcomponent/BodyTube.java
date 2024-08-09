@@ -12,7 +12,6 @@ import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.ModID;
 
 /**
  * Rocket body tube component. Has only two parameters, a radius and length.

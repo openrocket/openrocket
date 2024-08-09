@@ -23,8 +23,6 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Invalidatable;
-import info.openrocket.core.util.Invalidator;
-import info.openrocket.core.util.MemoryManagement;
 import info.openrocket.core.util.Reflection;
 import info.openrocket.core.util.StateChangeListener;
 

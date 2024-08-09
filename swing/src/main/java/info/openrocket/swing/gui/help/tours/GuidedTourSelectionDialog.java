@@ -32,7 +32,6 @@ import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.SelectColorButton;
-import org.fife.ui.rtextarea.IconGroup;
 
 public class GuidedTourSelectionDialog extends JDialog {
 	private static final long serialVersionUID = -3643116444821710259L;

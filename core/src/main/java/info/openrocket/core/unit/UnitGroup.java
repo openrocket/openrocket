@@ -20,7 +20,6 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.StringUtils;
 
 /**

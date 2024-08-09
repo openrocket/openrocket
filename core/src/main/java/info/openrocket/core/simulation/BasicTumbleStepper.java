@@ -1,7 +1,6 @@
 package info.openrocket.core.simulation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 import info.openrocket.core.rocketcomponent.FinSet;

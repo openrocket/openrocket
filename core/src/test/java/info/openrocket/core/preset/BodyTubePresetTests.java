@@ -1,7 +1,6 @@
 package info.openrocket.core.preset;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import info.openrocket.core.material.Material;
 import info.openrocket.core.motor.Manufacturer;
 
 import org.junit.jupiter.api.Test;

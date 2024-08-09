@@ -29,7 +29,6 @@ import info.openrocket.core.rocketcomponent.InstanceMap;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.Transformation;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.optimization.general.OptimizationException;

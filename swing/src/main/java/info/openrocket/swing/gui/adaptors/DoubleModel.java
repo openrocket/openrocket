@@ -30,9 +30,7 @@ import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.ExpressionParser;
 import info.openrocket.core.util.InvalidExpressionException;
 import info.openrocket.core.util.Invalidatable;
-import info.openrocket.core.util.Invalidator;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.MemoryManagement;
 import info.openrocket.core.util.Reflection;
 import info.openrocket.core.util.StateChangeListener;
 

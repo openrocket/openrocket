@@ -6,7 +6,6 @@ import java.awt.desktop.OpenFilesHandler;
 import java.awt.desktop.PreferencesHandler;
 import java.awt.desktop.QuitHandler;
 import java.awt.desktop.AppReopenedListener;
-import java.io.File;
 
 import info.openrocket.core.communication.UpdateInfoRetriever;
 import info.openrocket.core.arch.SystemInfo;

@@ -2,11 +2,8 @@ package info.openrocket.core.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventObject;
 import java.util.List;
 
-import info.openrocket.core.appearance.Appearance;
-import info.openrocket.core.appearance.Decal;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;

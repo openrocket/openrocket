@@ -10,7 +10,6 @@ import info.openrocket.core.database.Databases;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.Simulation;
-import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.openrocket.OpenRocketSaver;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
