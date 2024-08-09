@@ -39,7 +39,7 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 
 				// unlike the description, digest must be present in search criteria to get a
 				// match
-				if (digest == null || digest != m.getDigest())
+				if (digest == null || !digest.equals(m.getDigest()))
 					matchDigest = false;
 
 				// match description
