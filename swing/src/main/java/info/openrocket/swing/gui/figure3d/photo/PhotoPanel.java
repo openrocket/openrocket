@@ -564,10 +564,10 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					.toAbsolute(new Coordinate(((RocketComponent) mount)
 							.getLength() + mount.getMotorOverhang() - length));
 
-			for (int i = 0; i < position.length; i++) {
+			for (Coordinate coordinate : position) {
 				gl.glPushMatrix();
-				gl.glTranslated(position[i].x + motor.getLength(),
-						position[i].y, position[i].z);
+				gl.glTranslated(coordinate.x + motor.getLength(),
+						coordinate.y, coordinate.z);
 				FlameRenderer.drawExhaust(gl, p, motor);
 				gl.glPopMatrix();
 			}

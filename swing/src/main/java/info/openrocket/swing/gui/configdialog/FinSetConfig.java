@@ -409,22 +409,20 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 							centeringRing1.getAxialOffset(AxialMethod.TOP)));
 				}
 			});
-			
-			for (int i = 0; i < rings.size(); i++) {
-				CenteringRing centeringRing = rings.get(i);
+
+			for (CenteringRing centeringRing : rings) {
 				//Handle centering rings that overlap or are adjacent by synthetically merging them into one virtual ring.
 				if (!positionsFromTop.isEmpty() &&
 						positionsFromTop.get(positionsFromTop.size() - 1).bottomSidePositionFromTop() >=
-                                centeringRing.getAxialOffset(AxialMethod.TOP)) {
+								centeringRing.getAxialOffset(AxialMethod.TOP)) {
 					SortableRing adjacent = positionsFromTop.get(positionsFromTop.size() - 1);
 					adjacent.merge(centeringRing, relativeTo);
 				} else {
 					positionsFromTop.add(new SortableRing(centeringRing, relativeTo));
 				}
 			}
-			
-			for (int i = 0; i < positionsFromTop.size(); i++) {
-				SortableRing sortableRing = positionsFromTop.get(i);
+
+			for (SortableRing sortableRing : positionsFromTop) {
 				if (top == null) {
 					top = sortableRing;
 				} else if (sortableRing.bottomSidePositionFromTop() <= finPositionFromTop) {

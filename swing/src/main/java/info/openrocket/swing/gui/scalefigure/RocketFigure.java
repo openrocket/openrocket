@@ -277,8 +277,8 @@ public class RocketFigure extends AbstractScaleFigure {
 			boolean selected = false;
 			
 			// Check if component is in the selection
-			for (int j = 0; j < selection.length; j++) {
-				if (c == selection[j]) {
+			for (RocketComponent rocketComponent : selection) {
+				if (c == rocketComponent) {
 					selected = true;
 					break;
 				}

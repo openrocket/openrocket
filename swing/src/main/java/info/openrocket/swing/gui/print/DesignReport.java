@@ -577,8 +577,7 @@ public class DesignReport {
 	private FlightData findSimulation(final FlightConfigurationId motorId, List<Simulation> simulations) {
 		// Perform flight simulation
 		FlightData flight = null;
-		for (int i = 0; i < simulations.size(); i++) {
-			Simulation simulation = simulations.get(i);
+		for (Simulation simulation : simulations) {
 			if (Utils.equals(simulation.getId(), motorId)) {
 				flight = simulation.getSimulatedData();
 				break;

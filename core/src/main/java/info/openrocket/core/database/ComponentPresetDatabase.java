@@ -87,8 +87,9 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 
 		for (ComponentPreset preset : list) {
 			ComponentPreset.Type presetType = preset.get(ComponentPreset.TYPE);
-			typeLoop: for (int i = 0; i < type.length; i++) {
-				if (presetType.equals(type[i])) {
+			typeLoop:
+			for (ComponentPreset.Type value : type) {
+				if (presetType.equals(value)) {
 					result.add(preset);
 					break typeLoop; // from inner loop.
 				}

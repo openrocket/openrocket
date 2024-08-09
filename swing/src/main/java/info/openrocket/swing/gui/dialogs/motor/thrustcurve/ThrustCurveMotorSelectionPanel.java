@@ -566,8 +566,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
 		if (hideSimilarBox.isSelected()  && selectedMotor != null) {
 			List<ThrustCurveMotor> filtered = new ArrayList<>(motors.size());
-			for (int i = 0; i < motors.size(); i++) {
-				ThrustCurveMotor m = motors.get(i);
+			for (ThrustCurveMotor m : motors) {
 				if (m.equals(selectedMotor)) {
 					filtered.add(m);
 					continue;

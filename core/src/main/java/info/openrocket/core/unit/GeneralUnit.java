@@ -208,15 +208,15 @@ public class GeneralUnit extends Unit {
 	private static void printTicks(double start, double end, double minor, double major) {
 		Tick[] ticks = Unit.NOUNIT.getTicks(start, end, minor, major);
 		String str = "Ticks for ("+start+","+end+","+minor+","+major+"):";
-		for (int i=0; i<ticks.length; i++) {
-			str += " "+ticks[i].value;
-			if (ticks[i].major) {
-				if (ticks[i].notable)
+		for (Tick tick : ticks) {
+			str += " " + tick.value;
+			if (tick.major) {
+				if (tick.notable)
 					str += "*";
 				else
 					str += "o";
 			} else {
-				if (ticks[i].notable)
+				if (tick.notable)
 					str += "_";
 				else
 					str += " ";

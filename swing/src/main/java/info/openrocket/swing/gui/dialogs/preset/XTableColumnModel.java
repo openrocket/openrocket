@@ -41,11 +41,11 @@ public class XTableColumnModel extends DefaultTableColumnModel {
 			int noVisibleColumns = tableColumns.size();
 			int noInvisibleColumns = allTableColumns.size();
 			int visibleIndex = 0;
-			
-			for (int invisibleIndex = 0; invisibleIndex < noInvisibleColumns; ++invisibleIndex) {
+
+			for (TableColumn allTableColumn : allTableColumns) {
 				TableColumn visibleColumn = (visibleIndex < noVisibleColumns ? (TableColumn) tableColumns.get(visibleIndex) : null);
-				TableColumn testColumn = allTableColumns.get(invisibleIndex);
-				
+				TableColumn testColumn = allTableColumn;
+
 				if (testColumn == column) {
 					if (visibleColumn != column) {
 						super.addColumn(column);
@@ -90,8 +90,7 @@ public class XTableColumnModel extends DefaultTableColumnModel {
 	 * @return table column object or null if no such column in this column model
 	 */
 	public TableColumn getColumnByModelIndex(int modelColumnIndex) {
-		for (int columnIndex = 0; columnIndex < allTableColumns.size(); ++columnIndex) {
-			TableColumn column = allTableColumns.get(columnIndex);
+		for (TableColumn column : allTableColumns) {
 			if (column.getModelIndex() == modelColumnIndex) {
 				return column;
 			}

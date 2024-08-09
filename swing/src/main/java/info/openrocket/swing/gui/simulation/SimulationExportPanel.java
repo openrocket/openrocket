@@ -286,9 +286,9 @@ public class SimulationExportPanel extends JPanel {
 		int total = selected.length;
 		int n = 0;
 		String str;
-		
-		for (int i = 0; i < selected.length; i++) {
-			if (selected[i])
+
+		for (boolean b : selected) {
+			if (b)
 				n++;
 		}
 		

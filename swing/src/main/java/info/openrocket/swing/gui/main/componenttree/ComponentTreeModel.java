@@ -114,8 +114,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		// Send structure change event
 		TreeModelEvent e = new TreeModelEvent(this, path);
 		Object[] l = listeners.toArray();
-		for (int i = 0; i < l.length; i++)
-			((TreeModelListener) l[i]).treeStructureChanged(e);
+		for (Object o : l) ((TreeModelListener) o).treeStructureChanged(e);
 		
 		// Re-expand the paths
 		for (UUID id : expanded) {

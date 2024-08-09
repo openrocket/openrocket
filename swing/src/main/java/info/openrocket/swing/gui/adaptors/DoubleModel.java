@@ -567,8 +567,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 					oldValue, newValue);
 			oldValue = newValue;
 			Object[] l = propertyChangeListeners.toArray();
-			for (int i = 0; i < l.length; i++) {
-				((PropertyChangeListener) l[i]).propertyChange(event);
+			for (Object o : l) {
+				((PropertyChangeListener) o).propertyChange(event);
 			}
 		}
 		

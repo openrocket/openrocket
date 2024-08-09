@@ -58,8 +58,7 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 		setRadialLoc(bt.getRadialPosition() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
 		List<RocketComponent> children = bt.getChildren();
-		for (int i = 0; i < children.size(); i++) {
-			RocketComponent rocketComponents = children.get(i);
+		for (RocketComponent rocketComponents : children) {
 			if (rocketComponents instanceof InnerTube) {
 				final InnerTube innerTube = (InnerTube) rocketComponents;
 				// Only if the inner tube is NOT a cluster, then create the corresponding

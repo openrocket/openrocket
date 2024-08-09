@@ -78,10 +78,10 @@ public class RocketPrintTree extends JTree {
 		}
 
         List<OpenRocketPrintable> unstaged = OpenRocketPrintable.getUnstaged();
-        for (int i = 0; i < unstaged.size(); i++) {
-		    toAddTo.add(new CheckBoxNode(unstaged.get(i).getDescription(),
-										INITIAL_CHECKBOX_SELECTED));
-        }
+		for (OpenRocketPrintable openRocketPrintable : unstaged) {
+			toAddTo.add(new CheckBoxNode(openRocketPrintable.getDescription(),
+					INITIAL_CHECKBOX_SELECTED));
+		}
 
 		RocketPrintTree tree = new RocketPrintTree(root);
 		
@@ -247,8 +247,8 @@ class NamedVector extends Vector<CheckBoxNode> {
 	
 	public NamedVector(String theName, CheckBoxNode elements[]) {
 		name = theName;
-		for (int i = 0, n = elements.length; i < n; i++) {
-			add(elements[i]);
+		for (CheckBoxNode element : elements) {
+			add(element);
 		}
 	}
 	

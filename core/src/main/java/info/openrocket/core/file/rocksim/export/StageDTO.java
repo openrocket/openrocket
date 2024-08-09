@@ -76,16 +76,15 @@ public class StageDTO {
         }
 
         List<RocketComponent> children = theORStage.getChildren();
-        for (int i = 0; i < children.size(); i++) {
-            RocketComponent rocketComponents = children.get(i);
-            if (rocketComponents instanceof NoseCone) {
-                addExternalPart(toNoseConeDTO((NoseCone) rocketComponents));
-            } else if (rocketComponents instanceof BodyTube) {
-                addExternalPart(toBodyTubeDTO((BodyTube) rocketComponents));
-            } else if (rocketComponents instanceof Transition) {
-                addExternalPart(toTransitionDTO((Transition) rocketComponents));
-            }
-        }
+		for (RocketComponent rocketComponents : children) {
+			if (rocketComponents instanceof NoseCone) {
+				addExternalPart(toNoseConeDTO((NoseCone) rocketComponents));
+			} else if (rocketComponents instanceof BodyTube) {
+				addExternalPart(toBodyTubeDTO((BodyTube) rocketComponents));
+			} else if (rocketComponents instanceof Transition) {
+				addExternalPart(toTransitionDTO((Transition) rocketComponents));
+			}
+		}
     }
 
     public List<BasePartDTO> getExternalPart() {

@@ -229,8 +229,8 @@ public class TubeFinSetCalc extends TubeCalc {
 		double x = 1.0;
 		double val = 0;
 
-		for (int i = 0; i < poly.length; i++) {
-			val += poly[i] * x;
+		for (double v : poly) {
+			val += v * x;
 			x *= m;
 		}
 		// log.debug("val = {}", val);

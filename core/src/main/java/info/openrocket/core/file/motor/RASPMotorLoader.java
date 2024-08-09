@@ -114,13 +114,13 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 
 				} else {
 					buf = split(pieces[3], "[-,]+");
-					for (int i = 0; i < buf.length; i++) {
-						if (buf[i].equalsIgnoreCase("P") ||
-								buf[i].equalsIgnoreCase("plugged")) {
+					for (String s : buf) {
+						if (s.equalsIgnoreCase("P") ||
+								s.equalsIgnoreCase("plugged")) {
 							delays.add(Motor.PLUGGED_DELAY);
-						} else if (buf[i].matches("[0-9]+")) {
+						} else if (s.matches("[0-9]+")) {
 							// Many RASP files have "100" as an only delay
-							double d = Double.parseDouble(buf[i]);
+							double d = Double.parseDouble(s);
 							if (d < 99)
 								delays.add(d);
 						}
