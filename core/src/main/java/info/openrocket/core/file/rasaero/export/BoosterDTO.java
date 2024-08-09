@@ -44,19 +44,19 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     private Double insideDiameter;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double launchLugDiameter = 0d;
+    private Double launchLugDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double launchLugLength = 0d;
+    private Double launchLugLength = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double railGuideDiameter = 0d;
+    private Double railGuideDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_HEIGHT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double railGuideHeight = 0d;
+    private Double railGuideHeight = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_SHOE_AREA)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double launchShoeArea = 0d; // Currently not available in OR
+    private Double launchShoeArea = 0.0d; // Currently not available in OR
     @XmlElement(name = RASAeroCommonConstants.LOCATION)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double location;
@@ -67,7 +67,7 @@ public class BoosterDTO implements BodyTubeDTOAdapter {
     private Double shoulderLength;
     @XmlElement(name = RASAeroCommonConstants.NOZZLE_EXIT_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double nozzleExitDiameter = 0d;
+    private Double nozzleExitDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double boattailLength;

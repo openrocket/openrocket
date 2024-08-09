@@ -14,7 +14,7 @@ public class IdentitySimulationDomain implements SimulationDomain {
 
 	@Override
 	public Pair<Double, Value> getDistanceToDomain(Simulation simulation) {
-		return new Pair<Double, Value>(-1.0, null);
+		return new Pair<>(-1.0, null);
 	}
 
 }

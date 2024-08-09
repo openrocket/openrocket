@@ -25,15 +25,15 @@ public class Databases {
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
-	public static final Database<Material> BULK_MATERIAL = new Database<Material>();
+	public static final Database<Material> BULK_MATERIAL = new Database<>();
 	/**
 	 * A database of surface materials (with surface densities).
 	 */
-	public static final Database<Material> SURFACE_MATERIAL = new Database<Material>();
+	public static final Database<Material> SURFACE_MATERIAL = new Database<>();
 	/**
 	 * A database of linear material (with length densities).
 	 */
-	public static final Database<Material> LINE_MATERIAL = new Database<Material>();
+	public static final Database<Material> LINE_MATERIAL = new Database<>();
 	
 	
 	
@@ -203,16 +203,12 @@ public class Databases {
 	 * @return	the database of the type given
 	 */
 	private static Database<Material> getDatabase(Material.Type type){
-		switch (type) {
-		case BULK:
-			return BULK_MATERIAL;
-		case SURFACE:
-			return SURFACE_MATERIAL;
-		case LINE:
-			return LINE_MATERIAL;
-		default:
-			throw new IllegalArgumentException("Illegal material type: " + type);
-		}
+		return switch (type) {
+			case BULK -> BULK_MATERIAL;
+			case SURFACE -> SURFACE_MATERIAL;
+			case LINE -> LINE_MATERIAL;
+			default -> throw new IllegalArgumentException("Illegal material type: " + type);
+		};
 	}
 	
 	

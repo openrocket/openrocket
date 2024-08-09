@@ -167,8 +167,8 @@ public class BarrowmanCalculatorTest {
 			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
 			assertEquals(7.6981823141, cp_1fin.weight, EPSILON, " Falcon 9 Heavy CNa value is incorrect:");
 			assertEquals(0.8095779106, cp_1fin.x, EPSILON, " Falcon 9 Heavy CP x value is incorrect:");
-			assertEquals(0f, cp_1fin.y, EPSILON, " Falcon 9 Heavy CP y value is incorrect:");
-			assertEquals(0f, cp_1fin.z, EPSILON, " Falcon 9 Heavy CP z value is incorrect:");
+			assertEquals(0.0f, cp_1fin.y, EPSILON, " Falcon 9 Heavy CP y value is incorrect:");
+			assertEquals(0.0f, cp_1fin.z, EPSILON, " Falcon 9 Heavy CP z value is incorrect:");
 		}
 	}
 

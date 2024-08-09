@@ -16,7 +16,7 @@ public class JarInJarStarter {
 	 * @param providers		the classpath sources.
 	 */
 	public static void runMain(String mainClass, String[] args, ClasspathProvider... providers) {
-		List<URL> urls = new ArrayList<URL>();
+		List<URL> urls = new ArrayList<>();
 		
 		for (ClasspathProvider p : providers) {
 			urls.addAll(p.getUrls());

@@ -18,7 +18,7 @@ import java.util.List;
 public class LogLevelBufferLogger extends LogHelper {
 	
 	private final EnumMap<LogLevel, BufferLogger> loggers =
-			new EnumMap<LogLevel, BufferLogger>(LogLevel.class);
+			new EnumMap<>(LogLevel.class);
 	
 	
 	/**
@@ -45,7 +45,7 @@ public class LogLevelBufferLogger extends LogHelper {
 	 * @return	a list of log lines in order.
 	 */
 	public List<LogLine> getLogs() {
-		List<LogLine> result = new ArrayList<LogLine>();
+		List<LogLine> result = new ArrayList<>();
 		
 		for (LogLevel level : LogLevel.values()) {
 			BufferLogger logger = loggers.get(level);

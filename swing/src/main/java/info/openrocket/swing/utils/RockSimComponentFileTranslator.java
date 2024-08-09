@@ -45,13 +45,13 @@ public class RockSimComponentFileTranslator {
             throw new IllegalArgumentException("Invalid Command Line Params");
         }
 
-        List<ComponentPreset> allPresets = new ArrayList<ComponentPreset>();
+        List<ComponentPreset> allPresets = new ArrayList<>();
 
         LOGGER.println("Loading csv files from directory " + args[0]);
 
         MaterialHolder materialMap = loadAll(allPresets, new File(args[0]));
         LOGGER.println("\tMarshalling to XML");
-        String xml = new OpenRocketComponentSaver().marshalToOpenRocketComponent(new ArrayList<Material>(materialMap.values()), allPresets, true);
+        String xml = new OpenRocketComponentSaver().marshalToOpenRocketComponent(new ArrayList<>(materialMap.values()), allPresets, true);
 
         // Try parsing the file
         LOGGER.println("\tValidating XML");

@@ -19,14 +19,14 @@ import info.openrocket.core.motor.ThrustCurveMotor;
 public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorSetDatabase.class);
 
-	private final List<ThrustCurveMotorSet> motorSets = new ArrayList<ThrustCurveMotorSet>();
+	private final List<ThrustCurveMotorSet> motorSets = new ArrayList<>();
 
 	@Override
 	public List<ThrustCurveMotor> findMotors(String digest, Motor.Type type, String manufacturer, String designation,
 			double diameter, double length) {
-		ArrayList<ThrustCurveMotor> fullMatches = new ArrayList<ThrustCurveMotor>();
-		ArrayList<ThrustCurveMotor> digestMatches = new ArrayList<ThrustCurveMotor>();
-		ArrayList<ThrustCurveMotor> descriptionMatches = new ArrayList<ThrustCurveMotor>();
+		ArrayList<ThrustCurveMotor> fullMatches = new ArrayList<>();
+		ArrayList<ThrustCurveMotor> digestMatches = new ArrayList<>();
+		ArrayList<ThrustCurveMotor> descriptionMatches = new ArrayList<>();
 
 		// Apply filters to see if we can find any motors that match the given criteria.
 		// We'll return
@@ -39,7 +39,7 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 
 				// unlike the description, digest must be present in search criteria to get a
 				// match
-				if (digest == null || digest != m.getDigest())
+				if (digest == null || !digest.equals(m.getDigest()))
 					matchDigest = false;
 
 				// match description

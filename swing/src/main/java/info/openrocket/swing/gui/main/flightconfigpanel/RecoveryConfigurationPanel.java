@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -24,8 +23,14 @@ import javax.swing.event.ListSelectionListener;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import info.openrocket.core.rocketcomponent.FlightConfigurableComponent;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.RecoveryDevice;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 
@@ -90,7 +95,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	@Override
 	protected JTable initializeTable() {
 		//// Recovery selection 
-		recoveryTableModel = new FlightConfigurableTableModel<RecoveryDevice>(RecoveryDevice.class, rocket);
+		recoveryTableModel = new FlightConfigurableTableModel<>(RecoveryDevice.class, rocket);
 		JTable recoveryTable = new JTable(recoveryTableModel);
 		recoveryTable.getTableHeader().setReorderingAllowed(false);
 		recoveryTable.setCellSelectionEnabled(true);

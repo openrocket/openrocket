@@ -30,7 +30,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	private double minValue = 0.0;
 	private double maxValue = 1.0;
 
-	private final List<EventListener> listeners = new ArrayList<EventListener>();
+	private final List<EventListener> listeners = new ArrayList<>();
 
 	/**
 	 * Sole constructor.

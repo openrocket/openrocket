@@ -112,7 +112,7 @@ public final class SimulationExtensionConfiguration extends HashMap<String, Obje
 	}
 
 	private Object cloneList(List<?> original) {
-		ArrayList<Object> list = new ArrayList<Object>();
+		ArrayList<Object> list = new ArrayList<>();
 		for (Object value : original) {
 			if (value instanceof SimulationExtensionConfiguration) {
 				list.add(((SimulationExtensionConfiguration) value).clone());

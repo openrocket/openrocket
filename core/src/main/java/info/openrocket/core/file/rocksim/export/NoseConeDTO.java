@@ -16,11 +16,11 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 public class NoseConeDTO extends AbstractTransitionDTO {
 
     @XmlElement(name = RockSimCommonConstants.BASE_DIA)
-    private double baseDia = 0d;
+    private double baseDia = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHOULDER_LEN)
-    private double shoulderLen = 0d;
+    private double shoulderLen = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHOULDER_OD)
-    private double shoulderOD = 0d;
+    private double shoulderOD = 0.0d;
 
     /**
      * Default constructor.

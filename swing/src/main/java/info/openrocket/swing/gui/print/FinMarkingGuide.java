@@ -63,7 +63,7 @@ public class FinMarkingGuide extends JPanel {
 	/**
 	 * The default guide width in inches.
 	 */
-	public final static double DEFAULT_GUIDE_WIDTH = 3d;
+	public final static double DEFAULT_GUIDE_WIDTH = 3.0d;
 	
 	/**
 	 * 2 PI radians (represents a circle).
@@ -115,7 +115,7 @@ public class FinMarkingGuide extends JPanel {
 	 */
 	private Map<BodyTube, java.util.List<ExternalComponent>> init(Rocket component) {
 		Iterator<RocketComponent> iter = component.iterator(false);
-		Map<BodyTube, java.util.List<ExternalComponent>> results = new LinkedHashMap<BodyTube, List<ExternalComponent>>();
+		Map<BodyTube, java.util.List<ExternalComponent>> results = new LinkedHashMap<>();
 		BodyTube current = null;
 		int totalHeight = 0;
 		int iterationHeight = 0;
@@ -131,7 +131,7 @@ public class FinMarkingGuide extends JPanel {
 			else if (next instanceof FinSet || next instanceof TubeFinSet || next instanceof LaunchLug || next instanceof RailButton) {
 				java.util.List<ExternalComponent> list = results.get(current);
 				if (list == null && current != null) {
-					list = new ArrayList<ExternalComponent>();
+					list = new ArrayList<>();
 					results.put(current, list);
 					
 					double radius = current.getOuterRadius();
@@ -255,10 +255,10 @@ public class FinMarkingGuide extends JPanel {
 
 		int column = 0;
 		
-		for (BodyTube next : markingGuideItems.keySet()) {
-			double circumferenceInPoints = PrintUnit.METERS.toPoints((next.getOuterRadius() + PAPER_THICKNESS_IN_METERS) *
+		for (Map.Entry<BodyTube, List<ExternalComponent>> entry : markingGuideItems.entrySet()) {
+			double circumferenceInPoints = PrintUnit.METERS.toPoints((entry.getKey().getOuterRadius() + PAPER_THICKNESS_IN_METERS) *
 					TWO_PI);
-			List<ExternalComponent> componentList = markingGuideItems.get(next);
+			List<ExternalComponent> componentList = entry.getValue();
 			//Don't draw the lug if there are no fins.
 			if (hasFins(componentList)) {
 				length = (int) Math.ceil(circumferenceInPoints);
@@ -495,7 +495,7 @@ public class FinMarkingGuide extends JPanel {
 	 */
 	private double findRadialOrigin(List<ExternalComponent> components) {
 		
-		ArrayList<Double> positions = new ArrayList<Double>(3 * components.size());
+		ArrayList<Double> positions = new ArrayList<>(3 * components.size());
 		
 		for (ExternalComponent component : components) {
 

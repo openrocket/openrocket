@@ -102,7 +102,7 @@ public class AppearanceExporter {
         final Coordinate scale = texture.getScale();
         float scaleX = (float) scale.x;
         float scaleY = (float) scale.y;
-        textureOptions.setS(scaleX, scaleY, 1f);
+        textureOptions.setS(scaleX, scaleY, 1.0f);
 
         // Texture offset
         // Need an extra offset because the texture scale origin is different in OR
@@ -110,7 +110,7 @@ public class AppearanceExporter {
         float origX = (float) (scaleX*(-1 - origin.x) + 1);
         float origY = (float) (scaleY*(-1 - origin.y) + 1);
 
-        textureOptions.setO(origX, origY, 0f);
+        textureOptions.setO(origX, origY, 0.0f);
 
         // Texture rotation is not possible in MTL...
 
@@ -131,15 +131,15 @@ public class AppearanceExporter {
         final float g = convertColorToFloat(color.getGreen(), options.isUseSRGB());
         final float b = convertColorToFloat(color.getBlue(), options.isUseSRGB());
         material.setKd(r, g, b);                                // Diffuse color
-        material.setKa(0f, 0f, 0f);                             // No emission
-        material.setKs(.25f, .25f, .25f);                       // Not too strong specular highlights
-        material.setD(color.getAlpha()/255f);                   // Opacity
+        material.setKa(0.0f, 0.0f, 0.0f);                             // No emission
+        material.setKs(0.25f, 0.25f, 0.25f);                       // Not too strong specular highlights
+        material.setD(color.getAlpha()/ 255.0f);                   // Opacity
         material.setNs((float) appearance.getShine() * 750);    // Shine (max is 1000, but this too strong compared to OpenRocket's max)
         material.setIllum(2);                                   // Use Phong reflection (specular highlights etc.)
     }
 
     private static float convertColorToFloat(int color, boolean sRGB) {
-        float convertedColor = color / 255f;
+        float convertedColor = color / 255.0f;
         if (sRGB) {
             convertedColor = linearTosRGB(convertedColor);
         }

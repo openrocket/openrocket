@@ -42,32 +42,32 @@ import info.openrocket.core.util.MathUtil;
 public class BodyTubeDTO extends BasePartDTO implements BodyTubeDTOAdapter {
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double launchLugDiameter = 0d;
+    private Double launchLugDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_LUG_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double launchLugLength = 0d;
+    private Double launchLugLength = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double railGuideDiameter = 0d;
+    private Double railGuideDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RAIL_GUIDE_HEIGHT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double railGuideHeight = 0d;
+    private Double railGuideHeight = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_SHOE_AREA)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double launchShoeArea = 0d; // Currently not available in OR
+    private Double launchShoeArea = 0.0d; // Currently not available in OR
 
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double boattailLength = 0d;
+    private Double boattailLength = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_REAR_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double boattailRearDiameter = 0d;
+    private Double boattailRearDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOATTAIL_OFFSET)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double boattailOffset = 0d;
+    private Double boattailOffset = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.OVERHANG)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double overhang = 0d;
+    private Double overhang = 0.0d;
 
     @XmlElementRef(name = RASAeroCommonConstants.FIN, type = FinDTO.class)
     private FinDTO fin;

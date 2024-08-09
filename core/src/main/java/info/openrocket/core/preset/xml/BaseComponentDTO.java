@@ -186,8 +186,7 @@ public abstract class BaseComponentDTO {
 		if (dto == null) {
 			return null;
 		}
-		for (int i = 0; i < materialList.size(); i++) {
-			MaterialDTO materialDTO = materialList.get(i);
+		for (MaterialDTO materialDTO : materialList) {
 			if (materialDTO.getType().name().equals(dto.type) && materialDTO.getName().equals(dto.material)) {
 				return materialDTO.asMaterial();
 			}

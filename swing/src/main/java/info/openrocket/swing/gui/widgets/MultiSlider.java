@@ -228,9 +228,7 @@ public class MultiSlider extends JSlider {
 			values[0] = getMinimum();
 			values[num_of_values - 1] = getMaximum();
 			int[] def = createDefaultValues(getMinimum(), getMaximum(), num_of_values - 2, false);
-			for (int i = 0; i < def.length; i++) {
-				values[i + 1] = def[i];
-			}
+			System.arraycopy(def, 0, values, 1, def.length);
 		}
 		return values;
 	}

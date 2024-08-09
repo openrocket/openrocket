@@ -105,9 +105,7 @@ public class Value implements Comparable<Value> {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(value);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + Double.hashCode(value);
 		return result;
 	}
 

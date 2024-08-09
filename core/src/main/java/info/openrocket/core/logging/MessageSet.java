@@ -94,23 +94,23 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     @Override
     public Iterator<E> iterator() {
         final Iterator<E> iterator = messages.iterator();
-        return new Iterator<E>() {
-            @Override
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
+        return new Iterator<>() {
+			@Override
+			public boolean hasNext() {
+				return iterator.hasNext();
+			}
 
-            @Override
-            public E next() {
-                return iterator.next();
-            }
+			@Override
+			public E next() {
+				return iterator.next();
+			}
 
-            @Override
-            public void remove() {
-                mutable.check();
-                iterator.remove();
-            }
-        };
+			@Override
+			public void remove() {
+				mutable.check();
+				iterator.remove();
+			}
+		};
     }
 
     @Override

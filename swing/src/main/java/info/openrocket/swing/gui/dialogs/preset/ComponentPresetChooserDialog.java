@@ -376,7 +376,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	}
 	
 	private void updateFilters() {
-		List<RowFilter<TableModel, Object>> filters = new ArrayList<RowFilter<TableModel, Object>>(2);
+		List<RowFilter<TableModel, Object>> filters = new ArrayList<>(2);
 		String filterTextRegex = filterText.getText();
 		if (filterTextRegex != null) {
 			try {

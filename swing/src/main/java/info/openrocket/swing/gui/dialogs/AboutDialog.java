@@ -17,7 +17,6 @@ import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.URLLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;

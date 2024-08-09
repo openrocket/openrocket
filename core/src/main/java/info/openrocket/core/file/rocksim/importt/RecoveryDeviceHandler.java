@@ -29,12 +29,12 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
 	 * The thickness. Not used by every component, and some component handlers may
 	 * parse it for their own purposes.
 	 */
-	private double thickness = 0d;
+	private double thickness = 0.0d;
 	/**
 	 * The Rocksim calculated mass. Used only when not overridden and when Rocksim
 	 * says density == 0 (Rocksim bug).
 	 */
-	private Double calcMass = 0d;
+	private Double calcMass = 0.0d;
 
 	public RecoveryDeviceHandler(DocumentLoadingContext context) {
 		super(context);
@@ -53,7 +53,7 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
 				thickness = Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 			}
 			if (RockSimCommonConstants.CALC_MASS.equals(element)) {
-				calcMass = Math.max(0d,
+				calcMass = Math.max(0.0d,
 						Double.parseDouble(content) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 			}
 		} catch (NumberFormatException nfe) {
@@ -76,7 +76,7 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
 
 		double result;
 
-		if (rawDensity > 0d) {
+		if (rawDensity > 0.0d) {
 			// ROCKSIM_SURFACE is a square area density; compute normally
 			// ROCKSIM_LINE is a single length dimension (kg/m) but Rocksim ignores
 			// thickness for this type and treats

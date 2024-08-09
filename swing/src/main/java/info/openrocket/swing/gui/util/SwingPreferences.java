@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -67,7 +68,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
-		List<Locale> list = new ArrayList<Locale>();
+		List<Locale> list = new ArrayList<>();
 		for (String lang : new String[] { "en", "ar", "de", "es", "fr", "it", "nl", "ru", "cs", "pl", "ja", "pt", "tr" }) {
 			list.add(new Locale(lang));
 		}
@@ -677,12 +678,12 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	public void storeDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		
-		for (String key : UnitGroup.UNITS.keySet()) {
-			UnitGroup group = UnitGroup.UNITS.get(key);
+		for (Map.Entry<String, UnitGroup> entry : UnitGroup.UNITS.entrySet()) {
+			UnitGroup group = entry.getValue();
 			if (group == null || group.getUnitCount() < 2)
 				continue;
 			
-			prefs.put(key, group.getDefaultUnit().getUnit());
+			prefs.put(entry.getKey(), group.getDefaultUnit().getUnit());
 		}
 	}
 	
@@ -766,7 +767,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	public Set<Material> getUserMaterials() {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
-		HashSet<Material> materials = new HashSet<Material>();
+		HashSet<Material> materials = new HashSet<>();
 		try {
 			
 			for (String key : prefs.keys()) {
@@ -804,7 +805,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	@Override
 	public Set<String> getComponentFavorites(ComponentPreset.Type type) {
 		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
-		Set<String> collection = new HashSet<String>();
+		Set<String> collection = new HashSet<>();
 		try {
 			collection.addAll(Arrays.asList(prefs.keys()));
 		} catch (BackingStoreException bex) {
@@ -847,7 +848,7 @@ public class SwingPreferences extends info.openrocket.core.startup.Preferences i
 	
 	public List<Manufacturer> getExcludedMotorManufacturers() {
 		Preferences prefs = PREFNODE.node("excludedMotorManufacturers");
-		List<Manufacturer> collection = new ArrayList<Manufacturer>();
+		List<Manufacturer> collection = new ArrayList<>();
 		try {
 			String[] manuShortNames = prefs.keys();
 			for (String s : manuShortNames) {

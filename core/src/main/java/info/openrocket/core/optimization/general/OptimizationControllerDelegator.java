@@ -1,6 +1,7 @@
 package info.openrocket.core.optimization.general;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class OptimizationControllerDelegator implements OptimizationController {
 
-	private final List<OptimizationController> controllers = new ArrayList<OptimizationController>();
+	private final List<OptimizationController> controllers = new ArrayList<>();
 
 	/**
 	 * Construct the controlled based on an array of controllers.
@@ -21,9 +22,7 @@ public class OptimizationControllerDelegator implements OptimizationController {
 	 * @param controllers the controllers to use.
 	 */
 	public OptimizationControllerDelegator(OptimizationController... controllers) {
-		for (OptimizationController c : controllers) {
-			this.controllers.add(c);
-		}
+		this.controllers.addAll(Arrays.asList(controllers));
 	}
 
 	/**

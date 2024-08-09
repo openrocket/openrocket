@@ -12,7 +12,7 @@ public class TransitionSaver extends SymmetricComponentSaver {
 	private static final TransitionSaver instance = new TransitionSaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		list.add("<transition>");
 		instance.addParams(c, list);

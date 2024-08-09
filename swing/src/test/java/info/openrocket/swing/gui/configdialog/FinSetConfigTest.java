@@ -41,15 +41,15 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testComputeFinTabLength() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         RocketComponent parent = new BodyTube();
 
-        Double result = (Double)method.invoke(null, rings, 10d, 11d, dm, parent);
-        Assertions.assertEquals(0.0001, 11d, result.doubleValue());
-        result = (Double)method.invoke(null, null, 10d, 11d, dm, parent);
-        Assertions.assertEquals(11d, result.doubleValue(), 0.0001);
+        Double result = (Double)method.invoke(null, rings, 10.0d, 11.0d, dm, parent);
+        Assertions.assertEquals(0.0001, 11.0d, result.doubleValue());
+        result = (Double)method.invoke(null, null, 10.0d, 11.0d, dm, parent);
+        Assertions.assertEquals(11.0d, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -57,8 +57,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testCompute2LeadingRings() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         RocketComponent parent = new BodyTube();
 
@@ -84,8 +84,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testCompute1Ring() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setLength(0.004);
@@ -105,8 +105,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testComputeOneLeadingOneRingWithinRoot() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -119,7 +119,7 @@ public class FinSetConfigTest extends BaseTestCase {
         rings.add(ring1);
         rings.add(ring2);
 
-        RocketComponent parent = new BodyTube(1d, 0.01);
+        RocketComponent parent = new BodyTube(1.0d, 0.01);
         parent.addChild(ring1);
         parent.addChild(ring2);
 
@@ -132,8 +132,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testComputeOneLeadingOneTrailingRing() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -157,8 +157,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testComputeOneWithinRootOneTrailingRing() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -182,8 +182,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testBothRingsWithinRootChord() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         RocketComponent parent = new BodyTube(1.0000d, 0.1d);
         CenteringRing ring1 = new CenteringRing();
@@ -209,8 +209,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void testBothRingsBeyondRootChord() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -235,8 +235,8 @@ public class FinSetConfigTest extends BaseTestCase {
      */
     @Test
     public void test3RingsWithinRootChord() throws Exception {
-        DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        DoubleModel dm = new DoubleModel(1.0d);
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.ABSOLUTE);

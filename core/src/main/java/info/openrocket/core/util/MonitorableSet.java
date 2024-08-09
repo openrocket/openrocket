@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import info.openrocket.core.util.ModID;
-
 /**
  * A Set that additionally implements the Monitorable interface.
  * 
@@ -35,7 +33,7 @@ public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 
 	@Override
 	public Iterator<E> iterator() {
-		return new MonitorableIterator<E>(super.iterator());
+		return new MonitorableIterator<>(super.iterator());
 	}
 
 	@Override

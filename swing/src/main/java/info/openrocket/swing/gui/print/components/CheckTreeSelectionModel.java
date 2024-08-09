@@ -128,13 +128,13 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
             if (selectionPaths == null) {
                 break;
             }
-            ArrayList<TreePath> toBeRemoved = new ArrayList<TreePath>();
+            ArrayList<TreePath> toBeRemoved = new ArrayList<>();
             for (TreePath selectionPath : selectionPaths) {
                 if (isDescendant(selectionPath, path)) {
                     toBeRemoved.add(selectionPath);
                 }
             }
-            super.removeSelectionPaths(toBeRemoved.toArray(new TreePath[toBeRemoved.size()]));
+            super.removeSelectionPaths(toBeRemoved.toArray(new TreePath[0]));
         }
 
         // if all siblings are selected then deselect them and select parent recursively 
@@ -217,7 +217,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
      * @param path the tree path node
      */
     private void toggleRemoveSelection (TreePath path) {
-        Stack<TreePath> stack = new Stack<TreePath>();
+        Stack<TreePath> stack = new Stack<>();
         TreePath parent = path.getParentPath();
         while (parent != null && !isPathSelected(parent)) {
             stack.push(parent);

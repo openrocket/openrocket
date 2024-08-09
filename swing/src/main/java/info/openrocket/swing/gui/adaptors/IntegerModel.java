@@ -201,9 +201,7 @@ public class IntegerModel implements StateChangeListener, Invalidatable {
 	public int getValue() {
 		try {
 			return (Integer) getMethod.invoke(source);
-		} catch (IllegalArgumentException e) {
-			throw new BugException(e);
-		} catch (IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new BugException(e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
@@ -224,9 +222,7 @@ public class IntegerModel implements StateChangeListener, Invalidatable {
 		try {
 			setMethod.invoke(source, v);
 			fireStateChanged();
-		} catch (IllegalArgumentException e) {
-			throw new BugException(e);
-		} catch (IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new BugException(e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);

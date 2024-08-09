@@ -411,9 +411,9 @@ public class ObjUtils {
      * @return the normalized normal vector of the polygon
      */
     private static FloatTuple calculateNormalNewell(FloatTuple[] vertices) {
-        float x = 0f;
-        float y = 0f;
-        float z = 0f;
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
         for (int i = 0; i < vertices.length; i++) {
             FloatTuple current = vertices[i];
             FloatTuple next = vertices[(i + 1) % vertices.length];

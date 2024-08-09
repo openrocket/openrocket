@@ -39,7 +39,7 @@ public class FinDTO {
     private Double thickness;
     @XmlElement(name = RASAeroCommonConstants.FIN_LE_RADIUS)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double LERadius = 0d; // Leading edge radius
+    private Double LERadius = 0.0d; // Leading edge radius
     @XmlElement(name = RASAeroCommonConstants.LOCATION)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double location;
@@ -47,10 +47,10 @@ public class FinDTO {
     private String airfoilSection;
     @XmlElement(name = RASAeroCommonConstants.FIN_FX1)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double FX1 = 0d;
+    private Double FX1 = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.FIN_FX3)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double FX3 = 0d;
+    private Double FX3 = 0.0d;
 
     @XmlTransient
     private static final Translator trans = Application.getTranslator();

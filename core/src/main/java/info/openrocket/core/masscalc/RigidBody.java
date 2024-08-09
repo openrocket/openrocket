@@ -13,7 +13,7 @@ public class RigidBody {
 	public final double Iyy;
 	public final double Izz;
 
-	public static final RigidBody EMPTY = new RigidBody(Coordinate.ZERO, 0., 0., 0.);
+	public static final RigidBody EMPTY = new RigidBody(Coordinate.ZERO, 0.0, 0.0, 0.0);
 
 	public RigidBody(Coordinate _cm, double I_axial, double I_long) {
 		this(_cm, I_axial, I_long, I_long);
@@ -107,7 +107,7 @@ public class RigidBody {
 	 * @return RigidBody with rebased moment of inertia
 	 */
 	public RigidBody rebase(final Coordinate newLocation) {
-		final Coordinate delta = this.cm.sub(newLocation).setWeight(0.);
+		final Coordinate delta = this.cm.sub(newLocation).setWeight(0.0);
 		double x2 = pow2(delta.x);
 		double y2 = pow2(delta.y);
 		double z2 = pow2(delta.z);

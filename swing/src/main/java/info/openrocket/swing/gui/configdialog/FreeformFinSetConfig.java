@@ -366,7 +366,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				bufferHeader.append(table.getColumnName(j));
 				bufferHeader.append(", ");
 			}
-			writer.write(bufferHeader.toString() + "\r\n");
+			writer.write(bufferHeader + "\r\n");
 
 			//write row information
 			for (int i = 0; i < nRow; i++) {
@@ -375,7 +375,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 					buffer.append(table.getValueAt(i, j));
 					buffer.append(", ");
 				}
-				writer.write(buffer.toString() + "\r\n");
+				writer.write(buffer + "\r\n");
 			}
 			writer.close();
 

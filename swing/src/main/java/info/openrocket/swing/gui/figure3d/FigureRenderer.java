@@ -70,7 +70,7 @@ public class FigureRenderer extends RocketRenderer {
 		return false;
 	}
 	
-	private static final HashMap<Class<?>, ORColor> defaultColorCache = new HashMap<Class<?>, ORColor>();
+	private static final HashMap<Class<?>, ORColor> defaultColorCache = new HashMap<>();
 	
 	@Override
 	public void renderComponent(GL2 gl, Geometry geom, float alpha) {
@@ -130,20 +130,14 @@ public class FigureRenderer extends RocketRenderer {
 	
 	private static int getShine(RocketComponent c) {
 		if (c instanceof ExternalComponent) {
-			switch (((ExternalComponent) c).getFinish()) {
-			case ROUGH:
-				return 10;
-			case UNFINISHED:
-				return 30;
-			case NORMAL:
-				return 40;
-			case SMOOTH:
-				return 80;
-			case POLISHED:
-				return 128;
-			default:
-				return 100;
-			}
+			return switch (((ExternalComponent) c).getFinish()) {
+				case ROUGH -> 10;
+				case UNFINISHED -> 30;
+				case NORMAL -> 40;
+				case SMOOTH -> 80;
+				case POLISHED -> 128;
+				default -> 100;
+			};
 		}
 		return 20;
 	}
@@ -154,9 +148,9 @@ public class FigureRenderer extends RocketRenderer {
 			out[1] = 1;
 			out[2] = 0;
 		} else {
-			out[0] = Math.max(0.2f, (float) color.getRed() / 255f) * 2;
-			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f) * 2;
-			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f) * 2;
+			out[0] = Math.max(0.2f, (float) color.getRed() / 255.0f) * 2;
+			out[1] = Math.max(0.2f, (float) color.getGreen() / 255.0f) * 2;
+			out[2] = Math.max(0.2f, (float) color.getBlue() / 255.0f) * 2;
 		}
 	}
 	

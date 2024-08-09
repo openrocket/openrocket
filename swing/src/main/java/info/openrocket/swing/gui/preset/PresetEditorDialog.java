@@ -214,7 +214,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	
 	private final PresetResultListener resultListener;
 	
-	private static final Map<String, String> componentMap = new HashMap<String, String>();
+	private static final Map<String, String> componentMap = new HashMap<>();
 	
 	private static final String NOSE_CONE_KEY = "NoseCone.NoseCone";
 	private static final String BODY_TUBE_KEY = "BodyTube.BodyTube";
@@ -282,9 +282,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		contentPanel.add(componentOverlayPanel, "cell 1 3 5 2,grow");
 		componentOverlayPanel.setLayout(new CardLayout(0, 0));
 		
-		typeCombo = new DeselectableComboBox<String>();
+		typeCombo = new DeselectableComboBox<>();
 		typeCombo.addItemListener(this);
-		typeCombo.setModel(new DefaultComboBoxModel<String>());
+		typeCombo.setModel(new DefaultComboBoxModel<>());
 		setItems(typeCombo, toEdit);
 		contentPanel.add(typeCombo, "cell 3 1,growx");
 		
@@ -331,9 +331,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JLabel ncShapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape"));
 			ncPanel.add(ncShapeLabel, "cell 0 2,alignx left");
 			
-			ncShapeCB = new JComboBox<String>();
-			ncShapeCB.setModel(new DefaultComboBoxModel<String>(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
-					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName() }));
+			ncShapeCB = new JComboBox<>();
+			ncShapeCB.setModel(new DefaultComboBoxModel<>(new String[]{Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
+					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName()}));
 			ncPanel.add(ncShapeCB, "cell 1 2,growx");
 			
 			JLabel ncLengthLabel = new JLabel(trans.get("NoseConeCfg.lbl.Noseconelength"));
@@ -431,9 +431,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JLabel trShapeLabel = new JLabel("Shape:");
 			trPanel.add(trShapeLabel, "cell 0 2,alignx left");
 			
-			trShapeCB = new JComboBox<String>();
-			trShapeCB.setModel(new DefaultComboBoxModel<String>(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
-					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName() }));
+			trShapeCB = new JComboBox<>();
+			trShapeCB.setModel(new DefaultComboBoxModel<>(new String[]{Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
+					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName()}));
 			trPanel.add(trShapeCB, "cell 1 2,growx");
 			
 			JLabel trLengthLabel = new JLabel("Length:");
@@ -2192,10 +2192,10 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			if (!pcLineCount.getText().equals("")) {
+			if (!pcLineCount.getText().isEmpty()) {
 				props.put(ComponentPreset.LINE_COUNT, Integer.parseInt(pcLineCount.getText()));
 			}
-			if (!pcSides.getText().equals("")) {
+			if (!pcSides.getText().isEmpty()) {
 				props.put(ComponentPreset.SIDES, Integer.parseInt(pcSides.getText()));
 			}
 			props.put(ComponentPreset.LINE_LENGTH, pcLineLength.getValue());
@@ -2293,8 +2293,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		StringBuilder stringBuilder = new StringBuilder();
 		List<String> invalids = e.getErrors();
 		stringBuilder.append(baseMsg).append("\n");
-		for (int i = 0; i < invalids.size(); i++) {
-			String s = invalids.get(i);
+		for (String s : invalids) {
 			stringBuilder.append(s).append("\n");
 		}
 		

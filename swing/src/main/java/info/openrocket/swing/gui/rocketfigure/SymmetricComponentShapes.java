@@ -38,7 +38,7 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		final double delta = 0.0000001;
 		double x;
 		
-		ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> points = new ArrayList<>();
 		x = delta;
 		points.add(new Coordinate(x, c.getRadius(x), 0));
 		for (i = 1; i < MINPOINTS - 1; i++) {

@@ -5,6 +5,8 @@ import info.openrocket.core.rocketcomponent.FlightConfigurableParameterSet;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 
+import java.util.Map;
+
 /**
  * FlightConfigurationSet for motors.
  * This is used for motors, where the default value is always no motor.
@@ -49,8 +51,9 @@ public class MotorConfigurationSet extends FlightConfigurableParameterSet<MotorC
 		buffer.append(String.format(" ====== Dumping MotorConfigurationSet: %d motors in %s ======\n",
 				this.size(), mnt.getDebugName()));
 
-		for (FlightConfigurationId loopFCID : this.map.keySet()) {
-			MotorConfiguration curConfig = this.map.get(loopFCID);
+		for (Map.Entry<FlightConfigurationId, MotorConfiguration> entry : this.map.entrySet()) {
+			FlightConfigurationId loopFCID = entry.getKey();
+			MotorConfiguration curConfig = entry.getValue();
 			if (this.isDefault(loopFCID)) {
 				buffer.append("  [DEF]");
 			} else {

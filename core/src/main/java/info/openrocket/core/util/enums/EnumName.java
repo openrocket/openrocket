@@ -25,8 +25,8 @@ public class EnumName<E extends Enum<E>> {
 
 	public EnumName(Class<E> type, EnumConversion conversion) {
 		this.type = type;
-		map = new EnumMap<E, String>(type);
-		reverse = new HashMap<String, E>();
+		map = new EnumMap<>(type);
+		reverse = new HashMap<>();
 
 		E[] keys = type.getEnumConstants();
 		if (keys == null) {

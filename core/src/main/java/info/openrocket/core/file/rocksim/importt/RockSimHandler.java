@@ -176,27 +176,27 @@ class RocketDesignHandler extends AbstractElementHandler {
 	/**
 	 * The overridden stage 1 mass.
 	 */
-	private double stage1Mass = 0d;
+	private double stage1Mass = 0.0d;
 	/**
 	 * The overridden stage 2 mass.
 	 */
-	private double stage2Mass = 0d;
+	private double stage2Mass = 0.0d;
 	/**
 	 * The overridden stage 3 mass.
 	 */
-	private double stage3Mass = 0d;
+	private double stage3Mass = 0.0d;
 	/**
 	 * The overridden stage 1 Cg.
 	 */
-	private double stage1CG = 0d;
+	private double stage1CG = 0.0d;
 	/**
 	 * The overridden stage 2 Cg.
 	 */
-	private double stage2CG = 0d;
+	private double stage2CG = 0.0d;
 	/**
 	 * The overridden stage 3 Cg.
 	 */
-	private double stage3CG = 0d;
+	private double stage3CG = 0.0d;
 
 	/**
 	 * Constructor.

@@ -24,6 +24,7 @@ public class ManufacturerTest {
 
 	}
 
+	@Test
 	public void testContrail() {
 		Manufacturer c1, c2;
 

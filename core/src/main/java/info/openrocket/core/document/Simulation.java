@@ -84,7 +84,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	// TODO: HIGH: Change to use actual conditions class??
 	private SimulationOptions options = new SimulationOptions();
 	
-	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<SimulationExtension>();
+	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<>();
 	
 	
 	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
@@ -94,7 +94,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private final Class<? extends MassCalculator> massCalculatorClass = MassCalculator.class;
 	
 	/** Listeners for this object */
-	private List<EventListener> listeners = new ArrayList<EventListener>();
+	private List<EventListener> listeners = new ArrayList<>();
 	
 	
 	/** The conditions actually used in the previous simulation, or null */
@@ -547,11 +547,11 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
 			copy.options = this.options.clone();
-			copy.simulationExtensions = new ArrayList<SimulationExtension>();
+			copy.simulationExtensions = new ArrayList<>();
 			for (SimulationExtension c : this.simulationExtensions) {
 				copy.simulationExtensions.add(c.clone());
 			}
-			copy.listeners = new ArrayList<EventListener>();
+			copy.listeners = new ArrayList<>();
 			copy.simulatedConditions = null;
 			copy.simulatedConfigurationDescription = null;
 			copy.simulatedData = null;

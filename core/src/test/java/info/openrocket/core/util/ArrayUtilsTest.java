@@ -91,7 +91,7 @@ public class ArrayUtilsTest {
 
 	@Test
 	public void testRante0() {
-		double[] ary = ArrayUtils.range(0., 0., 1.0);
+		double[] ary = ArrayUtils.range(0.0, 0.0, 1.0);
 		assertEquals(1, ary.length);
 		assertEquals(0.0, ary[0], 0.0);
 	}

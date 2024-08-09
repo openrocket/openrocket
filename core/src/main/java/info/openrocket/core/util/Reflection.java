@@ -32,10 +32,7 @@ public class Reflection {
 		public Object invoke(Object obj, Object... args) {
 			try {
 				return method.invoke(obj, args);
-			} catch (IllegalArgumentException e) {
-				throw new BugException("Error while invoking method '" + method + "'. " +
-						"Please report this as a bug.", e);
-			} catch (IllegalAccessException e) {
+			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new BugException("Error while invoking method '" + method + "'. " +
 						"Please report this as a bug.", e);
 			} catch (InvocationTargetException e) {
@@ -132,8 +129,7 @@ public class Reflection {
 				Class<?> c = Class.forName(name);
 				java.lang.reflect.Method m = c.getMethod(method, params);
 				return new Reflection.Method(m);
-			} catch (ClassNotFoundException ignore) {
-			} catch (NoSuchMethodException ignore) {
+			} catch (ClassNotFoundException | NoSuchMethodException ignore) {
 			}
 
 			currentclass = currentclass.getSuperclass();
@@ -174,11 +170,7 @@ public class Reflection {
 					return constructor.newInstance(params);
 				}
 			} catch (ClassNotFoundException ignore) {
-			} catch (IllegalArgumentException e) {
-				throw new BugException("Construction of " + name + " failed", e);
-			} catch (InstantiationException e) {
-				throw new BugException("Construction of " + name + " failed", e);
-			} catch (IllegalAccessException e) {
+			} catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
 				throw new BugException("Construction of " + name + " failed", e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);

@@ -35,7 +35,7 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
     /**
      * A set of the inner 'holes'.  At least one, but will have many if clustered.
      */
-    private Set<Dimension> innerCenterPoints = new HashSet<Dimension>();
+    private Set<Dimension> innerCenterPoints = new HashSet<>();
 
     /**
      * Construct a simple, non-clustered, printable centering ring, or if the motor mount represents a clustered
@@ -55,7 +55,7 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         }
         else {
             List<Coordinate> coords = theMotorMount.getClusterPoints();
-            List<Coordinate> points = new ArrayList<Coordinate>();
+            List<Coordinate> points = new ArrayList<>();
             for (Coordinate coordinate : coords) {
                 points.add(coordinate.setX(theMotorMount.getOuterRadius()));
             }
@@ -72,7 +72,7 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
      */
     private PrintableCenteringRing(CenteringRing theRing, List<InnerTube> theMotorMounts) {
         super(theRing);
-        List<Coordinate> points = new ArrayList<Coordinate>();
+        List<Coordinate> points = new ArrayList<>();
         //Transform the radial positions of the tubes.
         for (InnerTube it : theMotorMounts) {
             if (it.getInstanceCount() > 1) {

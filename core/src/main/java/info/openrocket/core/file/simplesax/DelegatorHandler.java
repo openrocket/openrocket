@@ -18,9 +18,9 @@ import info.openrocket.core.logging.WarningSet;
 class DelegatorHandler extends DefaultHandler {
 	private final WarningSet warnings;
 
-	private final Deque<ElementHandler> handlerStack = new ArrayDeque<ElementHandler>();
-	private final Deque<StringBuilder> elementData = new ArrayDeque<StringBuilder>();
-	private final Deque<HashMap<String, String>> elementAttributes = new ArrayDeque<HashMap<String, String>>();
+	private final Deque<ElementHandler> handlerStack = new ArrayDeque<>();
+	private final Deque<StringBuilder> elementData = new ArrayDeque<>();
+	private final Deque<HashMap<String, String>> elementAttributes = new ArrayDeque<>();
 
 	// Ignore all elements as long as ignore > 0
 	private int ignore = 0;
@@ -98,7 +98,7 @@ class DelegatorHandler extends DefaultHandler {
 	}
 
 	private static HashMap<String, String> copyAttributes(Attributes atts) {
-		HashMap<String, String> ret = new HashMap<String, String>();
+		HashMap<String, String> ret = new HashMap<>();
 		for (int i = 0; i < atts.getLength(); i++) {
 			ret.put(atts.getLocalName(i), atts.getValue(i));
 		}

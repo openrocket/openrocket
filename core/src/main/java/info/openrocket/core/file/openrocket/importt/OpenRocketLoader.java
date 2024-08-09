@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.xml.sax.SAXException;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
-import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.document.StorageOptions.FileType;
 import info.openrocket.core.file.AbstractRocketLoader;
 import info.openrocket.core.file.DocumentLoadingContext;

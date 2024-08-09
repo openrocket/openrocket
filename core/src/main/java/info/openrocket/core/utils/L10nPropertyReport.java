@@ -17,7 +17,7 @@ public class L10nPropertyReport {
 
 		Properties english;
 
-		Map<String, Properties> langs = new HashMap<String, Properties>();
+		Map<String, Properties> langs = new HashMap<>();
 
 		System.out.println("Loading All Resource files");
 
@@ -51,7 +51,7 @@ public class L10nPropertyReport {
 
 		for (String key : sortedKeys) {
 
-			List<String> missing = new ArrayList<String>(10);
+			List<String> missing = new ArrayList<>(10);
 
 			for (Map.Entry<String, Properties> en : langs.entrySet()) {
 				if (en.getValue().getProperty(key) != null) {
@@ -80,7 +80,7 @@ public class L10nPropertyReport {
 	}
 
 	private static List<String> getSortedKeys(Properties p) {
-		List<String> sortedKeys = new ArrayList<String>(p.keySet().size());
+		List<String> sortedKeys = new ArrayList<>(p.keySet().size());
 		for (Object obj : p.keySet()) {
 			sortedKeys.add((String) obj);
 		}

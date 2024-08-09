@@ -57,8 +57,8 @@ public class PolyInterpolator {
 	 */
 	public PolyInterpolator(double[]... points) {
 		int myCount = 0;
-		for (int i = 0; i < points.length; i++) {
-			myCount += points[i].length;
+		for (double[] point : points) {
+			myCount += point.length;
 		}
 		if (myCount == 0) {
 			throw new IllegalArgumentException("No interpolation points defined.");

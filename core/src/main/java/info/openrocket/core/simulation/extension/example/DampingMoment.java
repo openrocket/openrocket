@@ -31,7 +31,7 @@ public class DampingMoment extends AbstractSimulationExtension {
 	// Save it as a FlightDataType
 	private static final FlightDataType cdm = FlightDataType.getType("Damping moment coefficient", "Cdm",
 			UnitGroup.UNITS_COEFFICIENT);
-	private static final ArrayList<FlightDataType> types = new ArrayList<FlightDataType>();
+	private static final ArrayList<FlightDataType> types = new ArrayList<>();
 
 	DampingMoment() {
 		types.add(cdm);
@@ -150,7 +150,7 @@ public class DampingMoment extends AbstractSimulationExtension {
 			double rho = flightConditions.getAtmosphericConditions().getDensity();
 			double ar = flightConditions.getRefArea();
 
-			aerodynamicPart = aerodynamicPart * .5 * rho * v * ar;
+			aerodynamicPart = aerodynamicPart * 0.5 * rho * v * ar;
 
 			return aerodynamicPart + propulsivePart;
 		}

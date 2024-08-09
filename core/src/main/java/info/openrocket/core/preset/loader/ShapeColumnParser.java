@@ -49,7 +49,7 @@ public class ShapeColumnParser extends BaseColumnParser {
 		if ("0".equals(lc)) {
 			shape = Shape.CONICAL;
 		}
-		if ("".equals(lc)) {
+		if (lc.isEmpty()) {
 			shape = Shape.CONICAL;
 		}
 		if ("3".equals(lc)) {

@@ -3,7 +3,6 @@ package info.openrocket.core.file.wavefrontobj.export.shapes;
 import com.sun.istack.NotNull;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
-import info.openrocket.core.file.wavefrontobj.DefaultObjEdge;
 import info.openrocket.core.file.wavefrontobj.DefaultObjFace;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
 
@@ -45,9 +44,9 @@ public class PolygonExporter {
 
             // Compute texture coordinates based on normalized position
             float u = (pointLocationsX[i] - boundaries.getMinX()) / (boundaries.getMaxX() - boundaries.getMinX());
-            u = 1f - u;
+            u = 1.0f - u;
             float v = (pointLocationsY[i] - boundaries.getMinY()) / (boundaries.getMaxY() - boundaries.getMinY());
-            v = 1f - v;
+            v = 1.0f - v;
             obj.addTexCoord(u, v);
         }
 
@@ -57,9 +56,9 @@ public class PolygonExporter {
 
             // Compute texture coordinates based on normalized position
             float u = (pointLocationsX[i] - boundaries.getMinX()) / (boundaries.getMaxX() - boundaries.getMinX());
-            u = 1f - u;
+            u = 1.0f - u;
             float v = (pointLocationsY[i] - boundaries.getMinY()) / (boundaries.getMaxY() - boundaries.getMinY());
-            v = 1f - v;
+            v = 1.0f - v;
             obj.addTexCoord(u, v);
         }
 

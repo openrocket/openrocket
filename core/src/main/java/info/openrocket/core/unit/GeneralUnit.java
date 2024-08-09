@@ -67,7 +67,7 @@ public class GeneralUnit extends Unit {
 	// start, end and scale in this units
 //	@Override
 	public ArrayList<Tick> getTicks(double start, double end, double scale) {
-		ArrayList<Tick> ticks = new ArrayList<Tick>();
+		ArrayList<Tick> ticks = new ArrayList<>();
 		@SuppressWarnings("unused")
 		double delta;
 		@SuppressWarnings("unused")
@@ -121,7 +121,7 @@ public class GeneralUnit extends Unit {
 			throw new IllegalArgumentException("getTicks called with minor="+minor+" major="+major);
 		}
 		
-		ArrayList<Tick> ticks = new ArrayList<Tick>();
+		ArrayList<Tick> ticks = new ArrayList<>();
 		
 		int mod2,mod3,mod4;  // Moduli for minor-notable, major-nonnotable, major-notable
 		double minstep;
@@ -208,15 +208,15 @@ public class GeneralUnit extends Unit {
 	private static void printTicks(double start, double end, double minor, double major) {
 		Tick[] ticks = Unit.NOUNIT.getTicks(start, end, minor, major);
 		String str = "Ticks for ("+start+","+end+","+minor+","+major+"):";
-		for (int i=0; i<ticks.length; i++) {
-			str += " "+ticks[i].value;
-			if (ticks[i].major) {
-				if (ticks[i].notable)
+		for (Tick tick : ticks) {
+			str += " " + tick.value;
+			if (tick.major) {
+				if (tick.notable)
 					str += "*";
 				else
 					str += "o";
 			} else {
-				if (ticks[i].notable)
+				if (tick.notable)
 					str += "_";
 				else
 					str += " ";

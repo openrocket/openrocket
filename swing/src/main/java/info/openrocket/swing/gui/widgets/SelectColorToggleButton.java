@@ -3,9 +3,6 @@ package info.openrocket.swing.gui.widgets;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
-import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.theme.UITheme;
-
 import javax.swing.JToggleButton;
 import javax.swing.Action;
 import javax.swing.Icon;

@@ -3,7 +3,6 @@ package info.openrocket.swing.gui.util;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.ListIterator;
 
 import javax.imageio.ImageIO;
@@ -25,7 +24,7 @@ public class CustomFinImporter {
 	
 	
 	public ArrayList<Coordinate> getPoints(File file) throws IOException {
-		ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> points = new ArrayList<>();
 		
 		BufferedImage pic = ImageIO.read(file);
 		

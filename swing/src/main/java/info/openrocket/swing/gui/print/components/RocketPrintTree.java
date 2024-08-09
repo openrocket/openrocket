@@ -8,7 +8,7 @@ import info.openrocket.swing.gui.print.PrintableContext;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.AxialStage;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -78,10 +78,10 @@ public class RocketPrintTree extends JTree {
 		}
 
         List<OpenRocketPrintable> unstaged = OpenRocketPrintable.getUnstaged();
-        for (int i = 0; i < unstaged.size(); i++) {
-		    toAddTo.add(new CheckBoxNode(unstaged.get(i).getDescription(),
-										INITIAL_CHECKBOX_SELECTED));
-        }
+		for (OpenRocketPrintable openRocketPrintable : unstaged) {
+			toAddTo.add(new CheckBoxNode(openRocketPrintable.getDescription(),
+					INITIAL_CHECKBOX_SELECTED));
+		}
 
 		RocketPrintTree tree = new RocketPrintTree(root);
 		
@@ -177,7 +177,7 @@ public class RocketPrintTree extends JTree {
 	 * @return an array of CheckBoxNode
 	 */
 	private static CheckBoxNode[] createPrintTreeNode(boolean onlyStageSpecific) {
-		List<CheckBoxNode> nodes = new ArrayList<CheckBoxNode>();
+		List<CheckBoxNode> nodes = new ArrayList<>();
 		OpenRocketPrintable[] printables = OpenRocketPrintable.values();
 		for (OpenRocketPrintable openRocketPrintable : printables) {
 			if (!onlyStageSpecific || openRocketPrintable.isStageSpecific()) {
@@ -185,7 +185,7 @@ public class RocketPrintTree extends JTree {
 											INITIAL_CHECKBOX_SELECTED));
 			}
 		}
-		return nodes.toArray(new CheckBoxNode[nodes.size()]);
+		return nodes.toArray(new CheckBoxNode[0]);
 	}
 	
 	/**
@@ -247,8 +247,8 @@ class NamedVector extends Vector<CheckBoxNode> {
 	
 	public NamedVector(String theName, CheckBoxNode elements[]) {
 		name = theName;
-		for (int i = 0, n = elements.length; i < n; i++) {
-			add(elements[i]);
+		for (CheckBoxNode element : elements) {
+			add(element);
 		}
 	}
 	

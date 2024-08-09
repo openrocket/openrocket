@@ -25,7 +25,7 @@ public class Functions {
 	private static final Logger log = LoggerFactory.getLogger(Functions.class);
 	private static final Translator trans = Application.getTranslator();
 
-	private final List<CustomFunction> allFunctions = new ArrayList<CustomFunction>();
+	private final List<CustomFunction> allFunctions = new ArrayList<>();
 
 	public static Functions getInstance() {
 		if (instance == null) {
@@ -44,7 +44,7 @@ public class Functions {
 
 	// A map of available operator strings (keys) and description of function
 	// (value)
-	public static final SortedMap<String, String> AVAILABLE_OPERATORS = new TreeMap<String, String>() {
+	public static final SortedMap<String, String> AVAILABLE_OPERATORS = new TreeMap<>() {
 		{
 			put("+", trans.get("Operator.plus"));
 			put("-", trans.get("Operator.minus"));

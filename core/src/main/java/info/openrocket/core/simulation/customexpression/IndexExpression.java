@@ -9,7 +9,6 @@ import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.Variable;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationStatus;

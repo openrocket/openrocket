@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 public class WorldCoordinateTest {
 
-	private static final double EPS = 1e-10;
+	private static final double EPS = 1.0e-10;
 
 	@Test
 	public void testConstructor() {

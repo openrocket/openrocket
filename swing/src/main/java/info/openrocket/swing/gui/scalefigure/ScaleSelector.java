@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.scalefigure;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;

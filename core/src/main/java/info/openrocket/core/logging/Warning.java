@@ -2,7 +2,6 @@ package info.openrocket.core.logging;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Motor;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.unit.UnitGroup;
@@ -277,17 +276,13 @@ public abstract class Warning extends Message {
 		public int hashCode() {
 			final int prime = 31;
 			int result = super.hashCode();
-			long temp;
-			temp = Double.doubleToLongBits(delay);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result + Double.hashCode(delay);
 			result = prime * result
 					+ ((designation == null) ? 0 : designation.hashCode());
-			temp = Double.doubleToLongBits(diameter);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result + Double.hashCode(diameter);
 			result = prime * result
 					+ ((digest == null) ? 0 : digest.hashCode());
-			temp = Double.doubleToLongBits(length);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result + Double.hashCode(length);
 			result = prime * result
 					+ ((manufacturer == null) ? 0 : manufacturer.hashCode());
 			result = prime * result + ((type == null) ? 0 : type.hashCode());

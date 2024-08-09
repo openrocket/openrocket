@@ -32,9 +32,9 @@ public class ArrayUtils {
 	 */
 	public static double mean(double[] vals) {
 		double subtotal = 0;
-		for (int i = 0; i < vals.length; i++) {
-			if (!Double.isNaN(vals[i])) {
-				subtotal += vals[i];
+		for (double val : vals) {
+			if (!Double.isNaN(val)) {
+				subtotal += val;
 			}
 		}
 		subtotal = subtotal / vals.length;
@@ -70,9 +70,9 @@ public class ArrayUtils {
 		double mu = mean(vals);
 		double sumsq = 0.0;
 		double temp = 0;
-		for (int i = 0; i < vals.length; i++) {
-			if (!Double.isNaN(vals[i])) {
-				temp = (mu - vals[i]);
+		for (double val : vals) {
+			if (!Double.isNaN(val)) {
+				temp = (mu - val);
 				sumsq += temp * temp;
 			}
 		}

@@ -33,8 +33,8 @@ public class MassObjectDTO extends BasePartDTO {
         super(mo);
         setRadialAngle(mo.getRadialDirection());
         setRadialLoc(mo.getRadialPosition() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setCalcMass(0d);
-        setCalcCG(0d);
+        setCalcMass(0.0d);
+        setCalcCG(0.0d);
         setKnownCG(getXb());
         setUseKnownCG(1);
     }

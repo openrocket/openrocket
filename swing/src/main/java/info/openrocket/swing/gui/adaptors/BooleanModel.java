@@ -23,8 +23,6 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Invalidatable;
-import info.openrocket.core.util.Invalidator;
-import info.openrocket.core.util.MemoryManagement;
 import info.openrocket.core.util.Reflection;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -61,8 +59,8 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 	private boolean value;
 	
 
-	private final List<Component> components = new ArrayList<Component>();
-	private final List<Boolean> componentEnableState = new ArrayList<Boolean>();
+	private final List<Component> components = new ArrayList<>();
+	private final List<Boolean> componentEnableState = new ArrayList<>();
 	
 	private String toString = null;
 	

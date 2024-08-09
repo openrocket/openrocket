@@ -162,7 +162,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	@Override
 	protected JTable initializeTable() {
 		//// Motor selection table.
-		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket) {
+		configurationTableModel = new FlightConfigurableTableModel<>(MotorMount.class, rocket) {
 			@Override
 			protected boolean includeComponent(MotorMount component) {
 				return component.isMotorMount();

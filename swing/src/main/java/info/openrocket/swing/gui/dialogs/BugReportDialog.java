@@ -234,7 +234,7 @@ public class BugReportDialog extends JDialog {
 		sbTemp.append("System properties:\n");
 
 		// Sort the keys
-		SortedSet<String> keys = new TreeSet<String>();
+		SortedSet<String> keys = new TreeSet<>();
 		for (Object key : System.getProperties().keySet()) {
 			keys.add((String) key);
 		}

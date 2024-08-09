@@ -67,8 +67,8 @@ public class PolyInterpolatorTest {
 					/* x=1.10 */ 1.5999999999999837
 			};
 			double x = 0.6;
-			for (int i = 0; i < answer0.length; i++) {
-				assertEquals(PolyInterpolator.eval(x, r0), answer0[i], 0.00001, "r0 different at x=" + x);
+			for (double v : answer0) {
+				assertEquals(PolyInterpolator.eval(x, r0), v, 0.00001, "r0 different at x=" + x);
 				x += 0.01;
 			}
 		}
@@ -133,8 +133,8 @@ public class PolyInterpolatorTest {
 					/* x=1.10 */ 1.5999999999999686
 			};
 			double x = 0.6;
-			for (int i = 0; i < answer1.length; i++) {
-				assertEquals(PolyInterpolator.eval(x, r1), answer1[i], 0.00001, "r1 different at x=" + x);
+			for (double v : answer1) {
+				assertEquals(PolyInterpolator.eval(x, r1), v, 0.00001, "r1 different at x=" + x);
 				x += 0.01;
 			}
 		}
@@ -199,8 +199,8 @@ public class PolyInterpolatorTest {
 			};
 
 			double x = 0.6;
-			for (int i = 0; i < answer2.length; i++) {
-				assertEquals(PolyInterpolator.eval(x, r2), answer2[i], 0.00001, "r2 different at x=" + x);
+			for (double v : answer2) {
+				assertEquals(PolyInterpolator.eval(x, r2), v, 0.00001, "r2 different at x=" + x);
 				x += 0.01;
 			}
 

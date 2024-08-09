@@ -19,7 +19,7 @@ public class SearchPattern {
 	 * @param dimensionality the dimensionality
 	 */
 	public static List<Point> square(int dimensionality) {
-		List<Point> pattern = new ArrayList<Point>(dimensionality);
+		List<Point> pattern = new ArrayList<>(dimensionality);
 
 		for (int i = 0; i < dimensionality; i++) {
 			double[] p = new double[dimensionality];
@@ -39,7 +39,7 @@ public class SearchPattern {
 			throw new IllegalArgumentException("Illegal dimensionality " + dimensionality);
 		}
 
-		List<Point> pattern = new ArrayList<Point>(dimensionality);
+		List<Point> pattern = new ArrayList<>(dimensionality);
 
 		double[] coordinates = new double[dimensionality];
 		double dot = -1.0 / dimensionality;

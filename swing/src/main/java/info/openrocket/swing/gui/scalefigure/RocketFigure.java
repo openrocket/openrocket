@@ -14,8 +14,13 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.ParallelStage;
@@ -94,8 +99,8 @@ public class RocketFigure extends AbstractScaleFigure {
 			Comparator.comparingInt(o -> -o.component.getDisplayOrder_back()));
 	
 	
-	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
-	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<FigureElement>();
+	private final ArrayList<FigureElement> relativeExtra = new ArrayList<>();
+	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<>();
 
 	private static Color motorFillColor;
 	private static Color motorBorderColor;
@@ -272,8 +277,8 @@ public class RocketFigure extends AbstractScaleFigure {
 			boolean selected = false;
 			
 			// Check if component is in the selection
-			for (int j = 0; j < selection.length; j++) {
-				if (c == selection[j]) {
+			for (RocketComponent rocketComponent : selection) {
+				if (c == rocketComponent) {
 					selected = true;
 					break;
 				}
@@ -390,7 +395,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			return new RocketComponent[0];
 		}
 		
-		LinkedHashSet<RocketComponent> l = new LinkedHashSet<RocketComponent>();
+		LinkedHashSet<RocketComponent> l = new LinkedHashSet<>();
 
 		PriorityQueue<RocketComponentShapes> figureShapes;
 		if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView)
@@ -472,19 +477,11 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 		
 		// Get the shapes
-		RocketComponentShapes[] returnValue;
-		switch (viewType) {
-		case SideView:
-		case TopView:
-			returnValue = RocketComponentShapeProvider.getShapesSide(component, transformation);
-			break;
-		case BackView:
-			returnValue = RocketComponentShapeProvider.getShapesBack(component, transformation);
-			break;
-		
-		default:
-			throw new BugException("Unknown figure type = " + viewType);
-		}
+		RocketComponentShapes[] returnValue = switch (viewType) {
+			case SideView, TopView -> RocketComponentShapeProvider.getShapesSide(component, transformation);
+			case BackView -> RocketComponentShapeProvider.getShapesBack(component, transformation);
+			default -> throw new BugException("Unknown figure type = " + viewType);
+		};
 
 		if (color != null) {
 			for (RocketComponentShapes rcs : returnValue) {

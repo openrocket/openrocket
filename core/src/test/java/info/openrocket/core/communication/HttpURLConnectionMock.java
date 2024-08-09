@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -37,7 +36,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	private volatile int responseCode;
 
 	private volatile String requestMethod = "";
-	private final Map<String, String> requestProperties = new HashMap<String, String>();
+	private final Map<String, String> requestProperties = new HashMap<>();
 	private volatile int connectTimeout = -1;
 	private volatile String contentEncoding = "";
 
