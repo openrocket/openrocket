@@ -9,6 +9,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -216,7 +217,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 
 		// Add the search field at the top
 		menu.add(searchFieldGroups);
-		menu.addSeparator(); // Separator between search field and menu items
+		menu.addSeparator();
 
 		// Fill the menu with the groups
 		for (G group : itemGroupMap.keySet()) {
@@ -234,16 +235,8 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 
 			if (itemsForGroup != null) {
 				for (T item : itemsForGroup) {
-					JMenuItem itemMenu = new JMenuItem(getDisplayString(item)) {
-						@Override
-						public void paintComponent(Graphics g) {
-							super.paintComponent(g);
-							// If the item is currently selected, draw a checkmark before it
-							if (item == SearchableAndGroupableComboBox.this.getSelectedItem()) {
-								g.drawString(CHECKMARK + " ", CHECKMARK_X_OFFSET, getHeight() - CHECKMARK_Y_OFFSET);
-							}
-						}
-					};
+					JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
+					itemMenu.setSelected(item == SearchableAndGroupableComboBox.this.getSelectedItem());
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
 						fireActionEvent();
