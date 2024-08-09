@@ -95,6 +95,9 @@ public class ComponentRenderer {
 		if (glu == null)
 			throw new IllegalStateException(this + " Not Initialized");
 
+		if (!c.isVisible()) {
+			return;
+		}
 		glu.gluQuadricNormals(q, GLU.GLU_SMOOTH);
 
 		if (c instanceof BodyTube) {

@@ -5,11 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -18,8 +14,11 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.dialogs.ScaleDialog;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 
 import org.slf4j.Logger;
@@ -31,12 +30,6 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
-import info.openrocket.core.rocketcomponent.ComponentChangeListener;
-import info.openrocket.core.rocketcomponent.ParallelStage;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Pair;
@@ -81,6 +74,8 @@ public class RocketActions {
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
 	private final RocketAction exportOBJAction;
+	private final RocketAction toggleVisibilityAction;
+	private final RocketAction showAllComponentsAction;
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
 
@@ -106,6 +101,8 @@ public class RocketActions {
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
 		this.exportOBJAction = new ExportOBJAction();
+		this.toggleVisibilityAction = new ToggleVisibilityAction();
+		this.showAllComponentsAction = new ShowAllComponentsAction();
 
 		OpenRocketClipboard.addClipboardListener(new ClipboardListener() {
 			@Override
@@ -154,6 +151,8 @@ public class RocketActions {
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
 		exportOBJAction.clipboardChanged();
+		toggleVisibilityAction.clipboardChanged();
+		showAllComponentsAction.clipboardChanged();
 	}
 	
 
@@ -205,6 +204,14 @@ public class RocketActions {
 
 	public Action getExportOBJAction() {
 		return exportOBJAction;
+	}
+
+	public Action getToggleVisibilityAction() {
+		return toggleVisibilityAction;
+	}
+
+	public Action getShowAllComponentsAction() {
+		return showAllComponentsAction;
 	}
 
 	/**
@@ -482,7 +489,26 @@ public class RocketActions {
 		return result;
 	}
 
-	
+	/**
+	 * Returns all descendants of the specified component.
+	 *
+	 * @param component Component to query
+	 * @return All descendants
+	 * @apiNote Returns an empty set if the component does not have children.
+	 */
+	private Set<RocketComponent> getDescendants(RocketComponent component) {
+		Objects.requireNonNull(component);
+
+		var result = new LinkedHashSet<RocketComponent>();
+		var queue = new ArrayDeque<>(component.getChildren());
+
+		while (!queue.isEmpty()) {
+			var node = queue.pop();
+			result.add(node);
+			node.getChildren().stream().filter(c -> !result.contains(c)).forEach(queue::add);
+		}
+		return result;
+	}
 	
 
 	///////  Action classes
@@ -1257,4 +1283,121 @@ public class RocketActions {
 		}
 	}
 
+	/**
+	 * Action to toggle the visibility of the selected components.
+	 * @see RocketComponent#isVisible()
+	 */
+	private class ToggleVisibilityAction extends RocketAction {
+		public ToggleVisibilityAction() {
+			super.putValue(NAME, trans.get("RocketActions.VisibilityAct.HideSelected"));
+			super.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.HideSelected"));
+			super.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityHiddenIcon());
+			clipboardChanged();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			var components = new ArrayList<>(selectionModel.getSelectedComponents());
+			super.setEnabled(!components.isEmpty());
+
+			if (components.isEmpty()) {
+				return;
+			}
+
+			if (isRocketSelected(components)) {
+				super.putValue(NAME, rocket.isVisible() ?
+						trans.get("RocketActions.VisibilityAct.HideAll") :
+						trans.get("RocketActions.VisibilityAct.ShowAll"));
+				super.putValue(SHORT_DESCRIPTION, rocket.isVisible() ?
+						trans.get("RocketActions.VisibilityAct.ttip.HideAll") :
+						trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
+				super.putValue(SMALL_ICON, rocket.isVisible() ?
+						GUIUtil.getUITheme().getVisibilityHiddenIcon() :
+						GUIUtil.getUITheme().getVisibilityShowingIcon());
+			} else {
+				var visibility = components.stream().anyMatch(RocketComponent::isVisible);
+				super.putValue(NAME, visibility ?
+						trans.get("RocketActions.VisibilityAct.HideSelected") :
+						trans.get("RocketActions.VisibilityAct.ShowSelected"));
+				super.putValue(SHORT_DESCRIPTION, visibility ?
+						trans.get("RocketActions.VisibilityAct.ttip.HideSelected") :
+						trans.get("RocketActions.VisibilityAct.ttip.ShowSelected"));
+				super.putValue(SMALL_ICON, visibility ?
+						GUIUtil.getUITheme().getVisibilityHiddenIcon() :
+						GUIUtil.getUITheme().getVisibilityShowingIcon());
+			}
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			var components = new ArrayList<>(selectionModel.getSelectedComponents());
+
+			if (components.isEmpty()) {
+				return;
+			}
+
+			// Toggle the visibility of the rocket and its descendants
+			if (isRocketSelected(components)) {
+				var rocketVisibility = !rocket.isVisible();
+				rocket.setVisible(rocketVisibility);
+				getDescendants(rocket).forEach(descendant -> descendant.setVisible(rocketVisibility));
+				return;
+			}
+			var visibility = components.stream().noneMatch(RocketComponent::isVisible);
+
+			// Toggle the visibility of all non-stage and non-rocket components
+			components.stream().filter(c -> !(c instanceof AxialStage || c instanceof Rocket)).forEach(component -> {
+				component.setVisible(visibility);
+
+				// Update the visibility of this component's stage
+				var stage = component.getStage();
+				stage.setVisible(getDescendants(stage).stream().anyMatch(RocketComponent::isVisible));
+
+				// Update the visibility of the rocket
+				rocket.setVisible(getDescendants(rocket).stream().anyMatch(RocketComponent::isVisible));
+			});
+
+			// Toggle the visibility of all stage components and their descendants
+			components.stream().filter(AxialStage.class::isInstance).forEach(stage -> {
+				stage.setVisible(visibility);
+				getDescendants(stage).forEach(descendant -> descendant.setVisible(visibility));
+			});
+		}
+
+		/**
+		 * Returns true if the rocket or all descendant are in the specified list.
+		 *
+		 * @param components Components to query
+		 * @return True if all components are selected
+		 */
+		private boolean isRocketSelected(List<RocketComponent> components) {
+			var rocketSelected = components.stream().anyMatch(Rocket.class::isInstance);
+			var allComponentsSelected = getDescendants(rocket).size() == components.size();
+			return rocketSelected || allComponentsSelected;
+		}
+	}
+
+	/**
+	 * Action to show all hidden components.
+	 * @see RocketComponent#isVisible()
+	 */
+	private class ShowAllComponentsAction extends RocketAction {
+		public ShowAllComponentsAction() {
+			super.putValue(NAME, trans.get("RocketActions.VisibilityAct.ShowAll"));
+			super.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.VisibilityAct.ttip.ShowAll"));
+			super.putValue(SMALL_ICON, GUIUtil.getUITheme().getVisibilityShowingIcon());
+			clipboardChanged();
+		}
+
+		@Override
+		public void clipboardChanged() {
+			super.setEnabled(getDescendants(rocket).stream().anyMatch(c -> !c.isVisible()));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			rocket.setVisible(true);
+			getDescendants(rocket).forEach(descendant -> descendant.setVisible(true));
+		}
+	}
 }

@@ -13,8 +13,9 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
+import info.openrocket.core.util.ModID;
 
 /**
  * Base for all rocket components.  This is the "starting point" for all rocket trees.
@@ -44,11 +45,11 @@ public class Rocket extends ComponentAssembly {
 	private List<ComponentChangeEvent> freezeList = null;
 	
 	
-	private int modID;
-	private int massModID;
-	private int aeroModID;
-	private int treeModID;
-	private int functionalModID;
+	private ModID modID;
+	private ModID massModID;
+	private ModID aeroModID;
+	private ModID treeModID;
+	private ModID functionalModID;
 
 	private boolean eventsEnabled = false;
 
@@ -74,7 +75,7 @@ public class Rocket extends ComponentAssembly {
 	
 	public Rocket() {
 		super(AxialMethod.ABSOLUTE);
-		modID = UniqueID.next();
+		modID = new ModID();
 		massModID = modID;
 		aeroModID = modID;
 		treeModID = modID;
@@ -150,37 +151,37 @@ public class Rocket extends ComponentAssembly {
 	 *
 	 * @return   a unique ID number for this modification state.
 	 */
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 	
 	/**
-	 * Return the non-negative mass modification ID of this rocket.  See
+	 * Return the mass modification ID of this rocket.  See
 	 * {@link #getModID()} for details.
 	 *
 	 * @return   a unique ID number for this mass-modification state.
 	 */
-	public int getMassModID() {
+	public ModID getMassModID() {
 		return massModID;
 	}
 	
 	/**
-	 * Return the non-negative aerodynamic modification ID of this rocket.  See
+	 * Return the aerodynamic modification ID of this rocket.  See
 	 * {@link #getModID()} for details.
 	 *
 	 * @return   a unique ID number for this aerodynamic-modification state.
 	 */
-	public int getAerodynamicModID() {
+	public ModID getAerodynamicModID() {
 		return aeroModID;
 	}
 	
 	/**
-	 * Return the non-negative tree modification ID of this rocket.  See
+	 * Return the tree modification ID of this rocket.  See
 	 * {@link #getModID()} for details.
 	 *
 	 * @return   a unique ID number for this tree-modification state.
 	 */
-	public int getTreeModID() {
+	public ModID getTreeModID() {
 		return treeModID;
 	}
 	
@@ -190,7 +191,7 @@ public class Rocket extends ComponentAssembly {
 	 *
 	 * @return	a unique ID number for this functional modification state.
 	 */
-	public int getFunctionalModID() {
+	public ModID getFunctionalModID() {
 		return functionalModID;
 	}
 
@@ -218,7 +219,7 @@ public class Rocket extends ComponentAssembly {
 		return this.stageMap.get(stageNumber);
 	}
 
-	public AxialStage getStage(final String stageId) {
+	public AxialStage getStage(final UUID stageId) {
 		for (AxialStage stage : getStageList()) {
 			if (stage.getID().equals(stageId)) {
 				return stage;
@@ -565,7 +566,7 @@ public class Rocket extends ComponentAssembly {
 
 			// Update modification ID's only for normal (not undo/redo) events
 			if (!cce.isUndoChange()) {
-				modID = UniqueID.next();
+				modID = new ModID();
 				if (cce.isMassChange())
 					massModID = modID;
 				if (cce.isAerodynamicChange())

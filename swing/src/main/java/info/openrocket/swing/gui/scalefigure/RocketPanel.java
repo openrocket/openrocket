@@ -59,6 +59,7 @@ import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -159,7 +160,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private double cpRoll = Double.NaN;
 
 	// The functional ID of the rocket that was simulated
-	private int flightDataFunctionalID = -1;
+	private ModID flightDataFunctionalID = ModID.INVALID;
     private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;

@@ -8,6 +8,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 
 public class CaliberUnit extends GeneralUnit {
 
@@ -16,8 +17,8 @@ public class CaliberUnit extends GeneralUnit {
 	private final FlightConfiguration configuration;
 	private final Rocket rocket;
 
-	private int rocketModId = -1;
-	private int configurationModId = -1;
+	private ModID rocketModId = ModID.INVALID;
+	private ModID configurationModId = ModID.INVALID;
 
 	private double caliber = -1;
 

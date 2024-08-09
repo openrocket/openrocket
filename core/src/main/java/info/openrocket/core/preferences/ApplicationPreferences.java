@@ -33,7 +33,6 @@ import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences {
 	private static final String SPLIT_CHARACTER = "|";
@@ -747,20 +746,6 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 */
 	public void setMotorNameColumn(boolean value) {
 		putBoolean(ApplicationPreferences.MOTOR_NAME_COLUMN, value);
-	}
-
-	/**
-	 * Return the OpenRocket unique ID.
-	 *
-	 * @return	a random ID string that stays constant between OpenRocket executions
-	 */
-	public final String getUniqueID() {
-		String id = this.getString("id", null);
-		if (id == null) {
-			id = UniqueID.uuid();
-			this.putString("id", id);
-		}
-		return id;
 	}
 	
 	/**

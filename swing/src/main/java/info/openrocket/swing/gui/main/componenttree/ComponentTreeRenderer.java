@@ -3,23 +3,16 @@ package info.openrocket.swing.gui.main.componenttree;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
@@ -35,6 +28,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.TextUtil;
+import info.openrocket.swing.gui.util.Icons;
 
 @SuppressWarnings("serial")
 public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
@@ -45,6 +39,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 	private static Color textSelectionForegroundColor;
 	private static Color componentTreeBackgroundColor;
 	private static Color componentTreeForegroundColor;
+	private static Color visibilityHiddenForegroundColor;
 	private static Icon massOverrideSubcomponentIcon;
 	private static Icon massOverrideIcon;
 	private static Icon CGOverrideSubcomponentIcon;
@@ -92,6 +87,11 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		RocketComponent c = (RocketComponent) value;
 		applyToolTipText(components, c, panel);
 
+		// Set the cell text color if component is hidden
+		if (!c.isVisible() && !sel) {
+			label.setForeground(visibilityHiddenForegroundColor);
+		}
+
 		// Set the tree icon
 		final Icon treeIcon;
 		if (c.getClass().isAssignableFrom(MassComponent.class)) {
@@ -103,10 +103,11 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 		panel.add(new JLabel(treeIcon), BorderLayout.WEST);
 
-		// Add mass/CG/CD overridden icons
+		// Add mass/CG/CD overridden and component hidden icons
 		if (c.isMassOverridden() || c.getMassOverriddenBy() != null ||
 				c.isCGOverridden() || c.getCGOverriddenBy() != null ||
-				c.isCDOverridden() || c.getCDOverriddenBy() != null) {
+				c.isCDOverridden() || c.getCDOverriddenBy() != null ||
+				!c.isVisible()) {
 			List<Icon> icons = new LinkedList<>();
 			if (c.getMassOverriddenBy() != null) {
 				icons.add(massOverrideSubcomponentIcon);
@@ -122,6 +123,9 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 				icons.add(CDOverrideSubcomponentIcon);
 			} else if (c.isCDOverridden()) {
 				icons.add(CDOverrideIcon);
+			}
+			if (!c.isVisible()) {
+				icons.add(Icons.COMPONENT_HIDDEN);
 			}
 
 			Icon combinedIcon = combineIcons(3, icons.toArray(new Icon[0]));
@@ -144,6 +148,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		CGOverrideIcon = GUIUtil.getUITheme().getCGOverrideIcon();
 		CDOverrideSubcomponentIcon = GUIUtil.getUITheme().getCDOverrideSubcomponentIcon();
 		CDOverrideIcon = GUIUtil.getUITheme().getCDOverrideIcon();
+		visibilityHiddenForegroundColor = GUIUtil.getUITheme().getVisibilityHiddenForegroundColor();
 	}
 
 	private void applyToolTipText(List<RocketComponent> components, RocketComponent c, JComponent comp) {

@@ -32,6 +32,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.SafetyMutex;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -100,7 +101,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SimulationOptions simulatedConditions = null;
 	private String simulatedConfigurationDescription = null;
 	private FlightData simulatedData = null;
-	private int simulatedConfigurationID = -1;
+	private ModID simulatedConfigurationModID = ModID.INVALID;
 
 	/**
 	 * Create a new simulation for the rocket. Parent document should also be provided.
@@ -158,7 +159,7 @@ public class Simulation implements ChangeSource, Cloneable {
 
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 		this.setFlightConfigurationId(config.getFlightConfigurationID());
-		this.simulatedConfigurationID = config.getModID();
+		this.simulatedConfigurationModID = config.getModID();
 
 		this.simulationExtensions.addAll(extensions);
 	}
@@ -330,7 +331,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		final FlightConfiguration config = rocket.getFlightConfiguration(this.getId()).clone();
 
 		if (isStatusUpToDate(status)) {
-			if (config.getModID() != simulatedConfigurationID || !options.equals(simulatedConditions)) {
+			if (config.getModID() != simulatedConfigurationModID || !options.equals(simulatedConditions)) {
 				status = Status.OUTDATED;
 			}
 		}
@@ -385,7 +386,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * Syncs the modID with its flight configuration.
 	 */
 	public void syncModID() {
-		this.simulatedConfigurationID = getActiveConfiguration().getModID();
+		this.simulatedConfigurationModID = getActiveConfiguration().getModID();
 		fireChangeEvent();
 	}
 	
@@ -441,7 +442,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			// Set simulated info after simulation
 			simulatedConditions = options.clone();
 			simulatedConfigurationDescription = descriptor.format(this.rocket, getId());
-			simulatedConfigurationID = getActiveConfiguration().getModID();
+			simulatedConfigurationModID = getActiveConfiguration().getModID();
 			if (simulator != null) {
 				simulatedData = simulator.getFlightData();
 			}
@@ -554,7 +555,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.simulatedConditions = null;
 			copy.simulatedConfigurationDescription = null;
 			copy.simulatedData = null;
-			copy.simulatedConfigurationID = -1;
+			copy.simulatedConfigurationModID = ModID.INVALID;
 			
 			return copy;
 			
@@ -574,7 +575,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			clone.name = this.name;
 			clone.configId = this.configId;
 			clone.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
-			clone.simulatedConfigurationID = this.simulatedConfigurationID;
+			clone.simulatedConfigurationModID = this.simulatedConfigurationModID;
 			clone.options = this.options.clone();
 			clone.listeners = new ArrayList<>();
 			if (this.simulatedConditions != null) {
@@ -609,7 +610,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			this.name = simulation.name;
 			this.configId = simulation.configId;
 			this.simulatedConfigurationDescription = simulation.simulatedConfigurationDescription;
-			this.simulatedConfigurationID = simulation.simulatedConfigurationID;
+			this.simulatedConfigurationModID = simulation.simulatedConfigurationModID;
 			this.options.copyConditionsFrom(simulation.options);
 			if (simulation.simulatedConditions == null) {
 				this.simulatedConditions = null;
