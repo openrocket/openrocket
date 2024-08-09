@@ -12,11 +12,7 @@ public class DownloadResponse {
 	private String error = null;
 
 	public void add(MotorBurnFile mbd) {
-		List<MotorBurnFile> currentData = data.get(mbd.getMotorId());
-		if (currentData == null) {
-			currentData = new ArrayList<>();
-			data.put(mbd.getMotorId(), currentData);
-		}
+		List<MotorBurnFile> currentData = data.computeIfAbsent(mbd.getMotorId(), k -> new ArrayList<>());
 		currentData.add(mbd);
 	}
 

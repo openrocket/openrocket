@@ -60,11 +60,7 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
 	 * @param thePrintable    the printable to associate with the stage
 	 */
 	public void add(final Integer theStageNumber, final OpenRocketPrintable thePrintable) {
-		Set<Integer> stages = previous.get(thePrintable);
-		if (stages == null) {
-			stages = new TreeSet<>();
-			previous.put(thePrintable, stages);
-		}
+		Set<Integer> stages = previous.computeIfAbsent(thePrintable, k -> new TreeSet<>());
 		if (theStageNumber != null) {
 			stages.add(theStageNumber);
 		}

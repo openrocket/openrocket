@@ -205,11 +205,7 @@ public class ScaleDialog extends JDialog {
 	
 	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName,
 								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler) {
-		List<Scaler> list = scaler.get(componentClass);
-		if (list == null) {
-			list = new ArrayList<>();
-			scaler.put(componentClass, list);
-		}
+		List<Scaler> list = scaler.computeIfAbsent(componentClass, k -> new ArrayList<>());
 		list.add(new GeneralScaler(componentClass, methodName, autoMethodName));
 	}
 	

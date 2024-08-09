@@ -107,13 +107,9 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			Class<? extends RocketComponent> componentClass, String methodName, String autoMethod) {
 		
 		String modifierDescriptionKey = modifierNameKey + ".desc";
-		
-		List<ModifierDefinition> list = definitions.get(componentClass);
-		if (list == null) {
-			list = new ArrayList<>();
-			definitions.put(componentClass, list);
-		}
-		
+
+		List<ModifierDefinition> list = definitions.computeIfAbsent(componentClass, k -> new ArrayList<>());
+
 		ModifierDefinition definition = new ModifierDefinition(modifierNameKey, modifierDescriptionKey, unitGroup,
 				multiplier, componentClass, methodName, autoMethod);
 		list.add(definition);
