@@ -14,7 +14,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -60,7 +59,7 @@ import java.util.Vector;
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable<G>> extends JComboBox<T> {
+public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable<G>> extends JComboBox<T> {
 	private static final String CHECKMARK = "\u2713";
 	private static final int CHECKMARK_X_OFFSET = 5;
 	private static final int CHECKMARK_Y_OFFSET = 5;
@@ -89,7 +88,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 	 * @param placeHolderText the placeholder text for the search field (when no text is entered)
 	 * @param extraGroupPopupWidgets extra widgets to add to the groups popup. Each widget will be added as a separate menu item.
 	 */
-	public SearchableAndGroupableComboBox(ComboBoxModel<T> model, String placeHolderText,
+	public GroupableAndSearchableComboBox(ComboBoxModel<T> model, String placeHolderText,
 										  Component... extraGroupPopupWidgets) {
 		super(model != null ? model : new DefaultComboBoxModel<>());
 		List<T> items = new ArrayList<>();
@@ -100,7 +99,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 		init(model, constructItemGroupMapFromList(items), placeHolderText, extraGroupPopupWidgets);
 	}
 
-	public SearchableAndGroupableComboBox(List<T> allItems, String placeHolderText, Component... extraGroupPopupWidgets) {
+	public GroupableAndSearchableComboBox(List<T> allItems, String placeHolderText, Component... extraGroupPopupWidgets) {
 		super();
 
 		init(null, constructItemGroupMapFromList(allItems), placeHolderText, extraGroupPopupWidgets);
@@ -124,7 +123,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 
 	private static void initColors() {
 		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(SearchableAndGroupableComboBox::updateColors);
+		UITheme.Theme.addUIThemeChangeListener(GroupableAndSearchableComboBox::updateColors);
 	}
 
 	private static void updateColors() {
@@ -226,7 +225,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 				public void paintComponent(Graphics g) {
 					super.paintComponent(g);
 					// If the group contains the selected item, draw a checkbox
-					if (containsSelectedItem(group, (T) SearchableAndGroupableComboBox.this.getSelectedItem())) {
+					if (containsSelectedItem(group, (T) GroupableAndSearchableComboBox.this.getSelectedItem())) {
 						g.drawString(CHECKMARK, CHECKMARK_X_OFFSET, getHeight() - CHECKMARK_Y_OFFSET);
 					}
 				}
@@ -236,7 +235,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 			if (itemsForGroup != null) {
 				for (T item : itemsForGroup) {
 					JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
-					itemMenu.setSelected(item == SearchableAndGroupableComboBox.this.getSelectedItem());
+					itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
 						fireActionEvent();
@@ -297,7 +296,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 			public void run() {
 				T selectedItem = filteredList.getSelectedValue();
 				if (selectedItem != null) {
-					SearchableAndGroupableComboBox.this.setSelectedItem(selectedItem);
+					GroupableAndSearchableComboBox.this.setSelectedItem(selectedItem);
 				}
 			}
 		});
@@ -415,7 +414,7 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 		addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.setSelectedItem(SearchableAndGroupableComboBox.this.getSelectedItem());
+				model.setSelectedItem(GroupableAndSearchableComboBox.this.getSelectedItem());
 			}
 		});
 	}

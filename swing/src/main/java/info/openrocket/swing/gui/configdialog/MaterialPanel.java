@@ -4,7 +4,7 @@ import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.util.Invalidatable;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.main.BasicFrame;
-import info.openrocket.swing.gui.widgets.SearchableAndGroupableComboBox;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -36,7 +36,7 @@ import java.util.List;
 public class MaterialPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
     private final List<Invalidatable> invalidatables = new ArrayList<>();
-    private SearchableAndGroupableComboBox<MaterialGroup, Material> materialCombo = null;
+    private GroupableAndSearchableComboBox<MaterialGroup, Material> materialCombo = null;
 
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
                          Material.Type type, String materialString, String finishString,
@@ -160,9 +160,9 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
     public static class MaterialComboBox extends JComboBox<Material> {
         private static final Translator trans = Application.getTranslator();
 
-        public static SearchableAndGroupableComboBox<MaterialGroup, Material> createComboBox(
+        public static GroupableAndSearchableComboBox<MaterialGroup, Material> createComboBox(
                 MaterialModel mm, Component... extraCategoryWidgets) {
-            return new SearchableAndGroupableComboBox<>(mm,
+            return new GroupableAndSearchableComboBox<>(mm,
                     trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets) {
                 @Override
                 public String getDisplayString(Material item) {
