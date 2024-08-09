@@ -213,7 +213,6 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 
 	private JPopupMenu createGroupsPopup() {
 		final JPopupMenu menu = new JPopupMenu();
-		MenuItemMouseListener menuItemListener = new MenuItemMouseListener();
 
 		// Add the search field at the top
 		menu.add(searchFieldGroups);
@@ -231,7 +230,6 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 					}
 				}
 			};
-			groupMenu.addMouseListener(menuItemListener);
 			List<T> itemsForGroup = itemGroupMap.get(group);
 
 			if (itemsForGroup != null) {
@@ -265,30 +263,6 @@ public class SearchableAndGroupableComboBox<G extends Group, T extends Groupable
 		}
 
 		return menu;
-	}
-
-	private class MenuItemMouseListener extends MouseAdapter {
-		private JMenu currentMenu;
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			if (e.getSource() instanceof JMenu) {
-				currentMenu = (JMenu) e.getSource();
-				currentMenu.setPopupMenuVisible(true);
-			}
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			if (currentMenu != null && !isMouseOverMenu(currentMenu, e.getPoint())) {
-				currentMenu.setPopupMenuVisible(false);
-				currentMenu = null;
-			}
-		}
-
-		private boolean isMouseOverMenu(JMenu menu, Point point) {
-			return menu.getBounds().contains(SwingUtilities.convertPoint(menu.getParent(), point, menu));
-		}
 	}
 
 	private JPopupMenu createSearchPopup() {
