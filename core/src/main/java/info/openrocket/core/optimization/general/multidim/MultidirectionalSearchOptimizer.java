@@ -31,7 +31,7 @@ import info.openrocket.core.util.Statistics;
 public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Statistics {
 	private static final Logger log = LoggerFactory.getLogger(MultidirectionalSearchOptimizer.class);
 
-	private final List<Point> simplex = new ArrayList<Point>();
+	private final List<Point> simplex = new ArrayList<>();
 
 	private ParallelFunctionCache functionExecutor;
 
@@ -72,9 +72,9 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 			}
 
 			// Normal iterations
-			List<Point> reflection = new ArrayList<Point>(simplex.size());
-			List<Point> expansion = new ArrayList<Point>(simplex.size());
-			List<Point> coordinateSearch = new ArrayList<Point>(simplex.size());
+			List<Point> reflection = new ArrayList<>(simplex.size());
+			List<Point> expansion = new ArrayList<>(simplex.size());
+			List<Point> coordinateSearch = new ArrayList<>(simplex.size());
 			Point current;
 			double currentValue;
 			boolean continueOptimization = true;
@@ -177,7 +177,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 						if (accept(coordinateSearch, currentValue)) {
 
 							log.debug("Coordinate search successful, resetting simplex");
-							List<Point> toAbort = new LinkedList<Point>(simplex);
+							List<Point> toAbort = new LinkedList<>(simplex);
 							simplex.clear();
 							simplex.add(current);
 							for (Point p : pattern) {

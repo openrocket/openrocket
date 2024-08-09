@@ -144,7 +144,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param set Collection of coordinates to transform.
 	 */
 	public void transform(Collection<Coordinate> set) {
-		ArrayList<Coordinate> temp = new ArrayList<Coordinate>(set.size());
+		ArrayList<Coordinate> temp = new ArrayList<>(set.size());
 		Iterator<Coordinate> iter = set.iterator();
 		while (iter.hasNext())
 			temp.add(this.transform(iter.next()));

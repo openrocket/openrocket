@@ -28,7 +28,7 @@ public class VariableTableModel extends AbstractTableModel {
 	 */
 	public VariableTableModel(OpenRocketDocument doc){
 		
-		types = new ArrayList<FlightDataType>( doc.getFlightDataTypes() );
+		types = new ArrayList<>(doc.getFlightDataTypes());
 		
 		//Collections.addAll(types, FlightDataType.ALL_TYPES);
 		//for (CustomExpression expression : doc.getCustomExpressions()){

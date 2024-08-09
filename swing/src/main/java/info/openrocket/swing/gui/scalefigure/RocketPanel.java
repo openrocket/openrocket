@@ -178,7 +178,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
-	private List<EventListener> listeners = new ArrayList<EventListener>();
+	private List<EventListener> listeners = new ArrayList<>();
 
 	// Store the basic frame to know which tab is selected (Rocket design, Motors & Configuration, Flight simulations)
 	private final BasicFrame basicFrame;

@@ -226,7 +226,7 @@ public class RocketComponentSaver {
 		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
 		//ParameterSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
 		
-		List<String> elements = new ArrayList<String>();
+		List<String> elements = new ArrayList<>();
 		
 		MotorConfiguration defaultInstance = mount.getDefaultMotorConfig();
 		

@@ -479,7 +479,7 @@ public class OpenRocketSaver extends RocketSaver {
 			return;
 		
 		// Retrieve the data from the branch
-		List<List<Double>> data = new ArrayList<List<Double>>(types.length);
+		List<List<Double>> data = new ArrayList<>(types.length);
 		for (int i = 0; i < types.length; i++) {
 			data.add(branch.get(types[i]));
 		}

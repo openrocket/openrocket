@@ -38,7 +38,7 @@ public class CustomExpression implements Cloneable {
 
 	protected String expression;
 	private ExpressionBuilder builder;
-	private final List<CustomExpression> subExpressions = new ArrayList<CustomExpression>();
+	private final List<CustomExpression> subExpressions = new ArrayList<>();
 
 	public CustomExpression(OpenRocketDocument doc) {
 		this.doc = doc;
@@ -185,7 +185,7 @@ public class CustomExpression implements Cloneable {
 
 	// get a list of all the names of all the available variables
 	protected ArrayList<String> getAllNames() {
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<String> names = new ArrayList<>();
 		/*
 		 * for (FlightDataType type : FlightDataType.ALL_TYPES)
 		 * names.add(type.getName());
@@ -212,7 +212,7 @@ public class CustomExpression implements Cloneable {
 
 	// get a list of all the symbols of the available variables ignoring this one
 	protected ArrayList<String> getAllSymbols() {
-		ArrayList<String> symbols = new ArrayList<String>();
+		ArrayList<String> symbols = new ArrayList<>();
 		/*
 		 * for (FlightDataType type : FlightDataType.ALL_TYPES)
 		 * symbols.add(type.getSymbol());

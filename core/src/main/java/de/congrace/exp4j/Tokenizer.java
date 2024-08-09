@@ -31,7 +31,7 @@ import de.congrace.exp4j.FunctionToken.Function;
  */
 class Tokenizer {
 	private String[] variableNames;
-	private final Set<String> functionNames = new HashSet<String>();
+	private final Set<String> functionNames = new HashSet<>();
 	private final Set<CustomFunction> customFunctions;
 
 	{
@@ -160,7 +160,7 @@ class Tokenizer {
 	 *             when an unknown function name has been used.
 	 */
 	Token[] tokenize(String infix) throws UnparsableExpressionException, UnknownFunctionException {
-		final List<Token> tokens = new ArrayList<Token>();
+		final List<Token> tokens = new ArrayList<>();
 		final char[] chars = infix.toCharArray();
 		// iterate over the chars and fork on different types of input
 		Token lastToken;

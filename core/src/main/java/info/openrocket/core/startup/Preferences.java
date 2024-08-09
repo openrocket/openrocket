@@ -1031,7 +1031,7 @@ public abstract class Preferences implements ChangeSource {
 	 * @return	a list of files to load as thrust curves.
 	 */
 	public List<File> getUserThrustCurveFiles() {
-		List<File> list = new ArrayList<File>();
+		List<File> list = new ArrayList<>();
 
 		String files = getString(USER_THRUST_CURVES_KEY, null);
 		if (files == null) {
@@ -1247,7 +1247,7 @@ public abstract class Preferences implements ChangeSource {
 		 * Map of default line styles
 		 */
 		
-		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<Class<?>, String>();
+		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<>();
 		
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
@@ -1255,7 +1255,7 @@ public abstract class Preferences implements ChangeSource {
 		}
 	}
 	
-	private final List<EventListener> listeners = new ArrayList<EventListener>();
+	private final List<EventListener> listeners = new ArrayList<>();
 	private final EventObject event = new EventObject(this);
 	
 	@Override

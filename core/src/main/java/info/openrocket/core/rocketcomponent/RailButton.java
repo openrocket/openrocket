@@ -353,7 +353,7 @@ public class RailButton extends ExternalComponent
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		final double r = outerDiameter_m / 2.0;
-		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> set = new ArrayList<>();
 		set.add(new Coordinate(r, totalHeight_m, r));
 		set.add(new Coordinate(r, totalHeight_m, -r));
 		set.add(new Coordinate(r, 0, r));

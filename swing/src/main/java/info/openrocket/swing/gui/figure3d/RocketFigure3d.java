@@ -89,8 +89,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private volatile boolean redrawExtras = true;
 	private boolean drawCarets = true;
 	
-	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
-	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<FigureElement>();
+	private final ArrayList<FigureElement> relativeExtra = new ArrayList<>();
+	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<>();
 	
 	private double roll = 0;
 	private double yaw = 0;
@@ -596,7 +596,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		internalRepaint();
 	}
 	
-	private Set<RocketComponent> selection = new HashSet<RocketComponent>();
+	private Set<RocketComponent> selection = new HashSet<>();
 	
 	public void setSelection(final RocketComponent[] selection) {
 		this.selection.clear();

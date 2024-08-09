@@ -23,7 +23,7 @@ import info.openrocket.core.unit.UnitGroup;
 public abstract class PreferencesPanel extends JPanel {
 	protected static final Logger log = LoggerFactory.getLogger(PreferencesDialog.class);
 	
-	protected final List<DefaultUnitSelector> unitSelectors = new ArrayList<DefaultUnitSelector>();
+	protected final List<DefaultUnitSelector> unitSelectors = new ArrayList<>();
 	
 	protected File defaultDirectory = null;
 	protected static final Translator trans = Application.getTranslator();

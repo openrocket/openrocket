@@ -31,7 +31,7 @@ public class PartsListVisitorStrategy {
     /**
      * Accumulator for parts data.
      */
-    private Map<PartsAccumulator, PartsAccumulator> crap = new HashMap<PartsAccumulator, PartsAccumulator>();
+    private Map<PartsAccumulator, PartsAccumulator> crap = new HashMap<>();
 
     /**
      * The iText document.

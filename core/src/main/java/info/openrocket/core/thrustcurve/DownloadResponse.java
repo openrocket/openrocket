@@ -7,14 +7,14 @@ import java.util.Map;
 
 public class DownloadResponse {
 
-	private final Map<Integer, List<MotorBurnFile>> data = new HashMap<Integer, List<MotorBurnFile>>();
+	private final Map<Integer, List<MotorBurnFile>> data = new HashMap<>();
 
 	private String error = null;
 
 	public void add(MotorBurnFile mbd) {
 		List<MotorBurnFile> currentData = data.get(mbd.getMotorId());
 		if (currentData == null) {
-			currentData = new ArrayList<MotorBurnFile>();
+			currentData = new ArrayList<>();
 			data.put(mbd.getMotorId(), currentData);
 		}
 		currentData.add(mbd);

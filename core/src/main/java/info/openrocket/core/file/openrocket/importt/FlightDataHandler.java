@@ -19,7 +19,7 @@ class FlightDataHandler extends AbstractElementHandler {
 	
 	private FlightDataBranchHandler dataHandler;
 	private final WarningSet warningSet = new WarningSet();
-	private final List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
+	private final List<FlightDataBranch> branches = new ArrayList<>();
 	
 	private final SingleSimulationHandler simHandler;
 	private FlightData data;

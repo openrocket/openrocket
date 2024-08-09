@@ -95,7 +95,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	@Override
 	protected JTable initializeTable() {
 		//// Recovery selection 
-		recoveryTableModel = new FlightConfigurableTableModel<RecoveryDevice>(RecoveryDevice.class, rocket);
+		recoveryTableModel = new FlightConfigurableTableModel<>(RecoveryDevice.class, rocket);
 		JTable recoveryTable = new JTable(recoveryTableModel);
 		recoveryTable.getTableHeader().setReorderingAllowed(false);
 		recoveryTable.setCellSelectionEnabled(true);

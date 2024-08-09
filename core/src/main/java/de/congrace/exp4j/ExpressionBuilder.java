@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class ExpressionBuilder {
 	private VariableSet variables = new VariableSet();
-	private final Set<CustomFunction> customFunctions = new HashSet<CustomFunction>();
+	private final Set<CustomFunction> customFunctions = new HashSet<>();
 
 	private String expression;
 

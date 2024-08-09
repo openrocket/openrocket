@@ -98,7 +98,7 @@ public class SlideSetLoader {
 		}
 		
 
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add(base + "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant() + ext);
 		list.add(base + "_" + locale.getLanguage() + "_" + locale.getCountry() + ext);
 		list.add(base + "_" + locale.getLanguage() + ext);

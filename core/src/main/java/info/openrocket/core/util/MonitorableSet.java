@@ -33,7 +33,7 @@ public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 
 	@Override
 	public Iterator<E> iterator() {
-		return new MonitorableIterator<E>(super.iterator());
+		return new MonitorableIterator<>(super.iterator());
 	}
 
 	@Override

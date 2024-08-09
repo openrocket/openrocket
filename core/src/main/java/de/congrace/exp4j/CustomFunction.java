@@ -70,7 +70,7 @@ public abstract class CustomFunction extends CalculationToken {
 
     @Override
 	void mutateStackForCalculation(Stack<Variable> stack, VariableSet variables) {
-	    List<Variable> args = new ArrayList<Variable>(argc);
+	    List<Variable> args = new ArrayList<>(argc);
 	    for (int i=0; i < argc; i++) {
 	    	args.add(i, stack.pop() );
 	    }

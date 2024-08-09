@@ -17,7 +17,7 @@ import info.openrocket.core.util.ArrayList;
 class MotorMountTableModel extends AbstractTableModel implements ComponentChangeListener {
 	private static final long serialVersionUID = 1956400848559941228L;
 
-    private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
+    private final List<MotorMount> potentialMounts = new ArrayList<>();
 	
 	private final Rocket rocket;
 	

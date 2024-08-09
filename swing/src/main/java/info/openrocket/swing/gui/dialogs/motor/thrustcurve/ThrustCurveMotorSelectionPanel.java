@@ -137,7 +137,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		//// MotorFilter
 		{
 			// Find all the manufacturers:
-			Set<Manufacturer> allManufacturers = new HashSet<Manufacturer>();
+			Set<Manufacturer> allManufacturers = new HashSet<>();
 			for (ThrustCurveMotorSet s : database) {
 				allManufacturers.add(s.getManufacturer());
 			}
@@ -162,8 +162,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Selectthrustcurve"));
 			panel.add(curveSelectionLabel);
 
-			curveSelectionModel = new DefaultComboBoxModel<MotorHolder>();
-			curveSelectionBox = new JComboBox<MotorHolder>(curveSelectionModel);
+			curveSelectionModel = new DefaultComboBoxModel<>();
+			curveSelectionBox = new JComboBox<>(curveSelectionModel);
 			@SuppressWarnings("unchecked")
 			ListCellRenderer<MotorHolder> lcr = (ListCellRenderer<MotorHolder>) curveSelectionBox.getRenderer(); 
 			curveSelectionBox.setRenderer(new CurveSelectionRenderer(lcr));
@@ -184,7 +184,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			ejectionChargeDelayLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay"));
 			panel.add(ejectionChargeDelayLabel);
 
-			delayBox = new JComboBox<String>();
+			delayBox = new JComboBox<>();
 			delayBox.setEditable(true);
 			delayBox.addActionListener(new ActionListener() {
 				@Override
@@ -295,7 +295,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 			// Set comparators and widths
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			sorter = new TableRowSorter<TableModel>(model);
+			sorter = new TableRowSorter<>(model);
 			for (int i = 0; i < ThrustCurveMotorColumns.values().length; i++) {
 				ThrustCurveMotorColumns column = ThrustCurveMotorColumns.values()[i];
 				sorter.setComparator(i, column.getComparator());
@@ -439,7 +439,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			ThrustCurveMotorSet motorSetToSelect = null;
 			motorSetToSelect = findMotorSet(motorToSelect);
 			if (motorSetToSelect == null) {
-				database = new ArrayList<ThrustCurveMotorSet>(database);
+				database = new ArrayList<>(database);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
 				extra.addMotor(motorToSelect);
 				database.add(extra);
@@ -565,7 +565,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	List<ThrustCurveMotor> getFilteredCurves() {
 		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
 		if (hideSimilarBox.isSelected()  && selectedMotor != null) {
-			List<ThrustCurveMotor> filtered = new ArrayList<ThrustCurveMotor>(motors.size());
+			List<ThrustCurveMotor> filtered = new ArrayList<>(motors.size());
 			for (int i = 0; i < motors.size(); i++) {
 				ThrustCurveMotor m = motors.get(i);
 				if (m.equals(selectedMotor)) {
@@ -711,7 +711,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			if (!containsPlugged) {
 				delayStrings[delayStrings.length - 1] = trans.get("TCMotorSelPan.delayBox.Plugged");
 			}
-			delayBox.setModel(new DefaultComboBoxModel<String>(delayStrings));
+			delayBox.setModel(new DefaultComboBoxModel<>(delayStrings));
 
 			if (reset) {
 				// Find and set the closest value

@@ -48,7 +48,7 @@ public class FlightDataBranch implements Monitorable {
 	 */
 	private double optimumAltitude = Double.NaN;
 	
-	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
+	private final ArrayList<FlightEvent> events = new ArrayList<>();
 	
 	private final Mutable mutable = new Mutable();
 	
@@ -73,7 +73,7 @@ public class FlightDataBranch implements Monitorable {
 						"times in constructor.");
 			}
 			
-			values.put(t, new ArrayList<Double>());
+			values.put(t, new ArrayList<>());
 			minValues.put(t, Double.NaN);
 			maxValues.put(t, Double.NaN);
 		}

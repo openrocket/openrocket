@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 class DownloadRequest {
 
-	private final ArrayList<Integer> motorIds = new ArrayList<Integer>();
+	private final ArrayList<Integer> motorIds = new ArrayList<>();
 
 	private String format = null;
 

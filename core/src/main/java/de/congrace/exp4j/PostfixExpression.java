@@ -103,7 +103,7 @@ public final class PostfixExpression extends AbstractExpression implements Calcu
 	@Override
 	public Variable calculate() throws IllegalArgumentException {
 
-		final Stack<Variable> stack = new Stack<Variable>();
+		final Stack<Variable> stack = new Stack<>();
 		for (final Token t : getTokens()) {
 			((CalculationToken) t).mutateStackForCalculation(stack, variables);
 		}

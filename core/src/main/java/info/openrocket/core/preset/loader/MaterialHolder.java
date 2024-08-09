@@ -13,11 +13,11 @@ import info.openrocket.core.unit.UnitGroup;
 
 public class MaterialHolder {
 
-	private final Map<String, Material.Bulk> bulkMaterials = new HashMap<String, Material.Bulk>();
+	private final Map<String, Material.Bulk> bulkMaterials = new HashMap<>();
 
-	private final Map<String, Material.Surface> surfaceMaterials = new HashMap<String, Material.Surface>();
+	private final Map<String, Material.Surface> surfaceMaterials = new HashMap<>();
 
-	private final Map<String, Material.Line> lineMaterials = new HashMap<String, Material.Line>();
+	private final Map<String, Material.Line> lineMaterials = new HashMap<>();
 
 	public MaterialHolder() {
 	}
@@ -108,7 +108,7 @@ public class MaterialHolder {
 
 	public Collection<Material> values() {
 
-		HashSet<Material> allMats = new HashSet<Material>();
+		HashSet<Material> allMats = new HashSet<>();
 		allMats.addAll(bulkMaterials.values());
 		allMats.addAll(surfaceMaterials.values());
 		allMats.addAll(lineMaterials.values());
@@ -118,7 +118,7 @@ public class MaterialHolder {
 	}
 
 	public Database<Material> asDatabase(Material.Type theType) {
-		Database<Material> result = new Database<Material>();
+		Database<Material> result = new Database<>();
 		switch (theType) {
 			case LINE:
 				result.addAll(lineMaterials.values());

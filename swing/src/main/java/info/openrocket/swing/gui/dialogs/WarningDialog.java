@@ -17,7 +17,7 @@ public abstract class WarningDialog {
 	public static void showWarnings(Component parent, Object message, String title, WarningSet warnings) {
 		
 		Warning[] w = warnings.toArray(new Warning[0]);
-		final JList<Warning> list = new JList<Warning>(w);
+		final JList<Warning> list = new JList<>(w);
 		list.setCellRenderer(new BetterListCellRenderer());
 		JScrollPane pane = new JScrollPane(list);
 		

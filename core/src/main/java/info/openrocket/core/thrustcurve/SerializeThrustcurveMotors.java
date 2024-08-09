@@ -56,7 +56,7 @@ public class SerializeThrustcurveMotors {
 		String inputDir = args[0];
 		String outputFile = args[1];
 
-		final List<Motor> allMotors = new ArrayList<Motor>();
+		final List<Motor> allMotors = new ArrayList<>();
 
 		loadFromLocalMotorFiles(allMotors, inputDir);
 

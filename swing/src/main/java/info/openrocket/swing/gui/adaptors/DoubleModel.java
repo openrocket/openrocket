@@ -542,7 +542,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		
 		// Implement a wrapper to the ChangeListeners
 		ArrayList<PropertyChangeListener> propertyChangeListeners =
-				new ArrayList<PropertyChangeListener>();
+				new ArrayList<>();
 		
 		@Override
 		public void addPropertyChangeListener(PropertyChangeListener listener) {

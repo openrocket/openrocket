@@ -78,7 +78,7 @@ public class FinSetHandlerTest {
 
         FinSetHandler dto = new FinSetHandler(null, new BodyTube());
 
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         dto.closeElement("Name", attributes, "The name", warnings);

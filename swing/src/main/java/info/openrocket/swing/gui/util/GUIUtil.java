@@ -248,9 +248,9 @@ public class GUIUtil {
 	 * @param c		the component to modify
 	 */
 	public static void setTabToFocusing(Component c) {
-		Set<KeyStroke> strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("pressed TAB")));
+		Set<KeyStroke> strokes = new HashSet<>(Arrays.asList(KeyStroke.getKeyStroke("pressed TAB")));
 		c.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, strokes);
-		strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("shift pressed TAB")));
+		strokes = new HashSet<>(Arrays.asList(KeyStroke.getKeyStroke("shift pressed TAB")));
 		c.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, strokes);
 	}
 	
@@ -555,7 +555,7 @@ public class GUIUtil {
 				combo.removeActionListener(l);
 			}
 			ComboBoxModel<?> model = combo.getModel();
-			combo.setModel(new DefaultComboBoxModel<Object>());
+			combo.setModel(new DefaultComboBoxModel<>());
 			if (model instanceof Invalidatable) {
 				((Invalidatable) model).invalidateMe();
 			}

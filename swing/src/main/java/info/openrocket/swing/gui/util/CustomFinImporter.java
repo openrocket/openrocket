@@ -24,7 +24,7 @@ public class CustomFinImporter {
 	
 	
 	public ArrayList<Coordinate> getPoints(File file) throws IOException {
-		ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> points = new ArrayList<>();
 		
 		BufferedImage pic = ImageIO.read(file);
 		

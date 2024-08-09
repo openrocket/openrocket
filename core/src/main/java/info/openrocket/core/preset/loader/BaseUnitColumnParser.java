@@ -16,7 +16,7 @@ public abstract class BaseUnitColumnParser extends BaseColumnParser {
 	protected static Map<String, Unit> rocksimUnits;
 
 	static {
-		rocksimUnits = new HashMap<String, Unit>();
+		rocksimUnits = new HashMap<>();
 		rocksimUnits.put("0", UnitGroup.UNITS_LENGTH.getUnit("in"));
 		rocksimUnits.put("1", UnitGroup.UNITS_LENGTH.getUnit("mm"));
 	}

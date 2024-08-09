@@ -36,7 +36,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	private volatile int responseCode;
 
 	private volatile String requestMethod = "";
-	private final Map<String, String> requestProperties = new HashMap<String, String>();
+	private final Map<String, String> requestProperties = new HashMap<>();
 	private volatile int connectTimeout = -1;
 	private volatile String contentEncoding = "";
 

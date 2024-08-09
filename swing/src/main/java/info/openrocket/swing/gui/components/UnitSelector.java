@@ -49,7 +49,7 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 	private static Border withinBorder;
 
 
-	private final List<ItemListener> itemListeners = new ArrayList<ItemListener>();
+	private final List<ItemListener> itemListeners = new ArrayList<>();
 
 
 	static {

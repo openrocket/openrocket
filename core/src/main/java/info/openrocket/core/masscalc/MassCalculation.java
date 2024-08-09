@@ -185,7 +185,7 @@ public class MassCalculation {
 	RigidBody inertia = RigidBody.EMPTY;
 	
 	// center-of-mass AND moment-of-inertia data.
-	final ArrayList<RigidBody> bodies = new ArrayList<RigidBody>();
+	final ArrayList<RigidBody> bodies = new ArrayList<>();
 
 	String prefix = "";
 

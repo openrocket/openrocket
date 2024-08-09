@@ -360,7 +360,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
+		List<Coordinate> bounds = new ArrayList<>();
 		double r = getBodyRadius();
 
 		addBound(bounds, 0, 2 * getBoundingRadius());

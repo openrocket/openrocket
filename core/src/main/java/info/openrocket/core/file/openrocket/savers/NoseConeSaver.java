@@ -10,7 +10,7 @@ public class NoseConeSaver extends TransitionSaver {
 	private static final NoseConeSaver instance = new NoseConeSaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		list.add("<nosecone>");
 		instance.addParams(c, list);

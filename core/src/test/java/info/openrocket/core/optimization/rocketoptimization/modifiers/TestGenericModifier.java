@@ -26,7 +26,7 @@ public class TestGenericModifier extends BaseTestCase {
 
 		Object related = new Object();
 
-		gm = new GenericModifier<TestGenericModifier.TestValue>("Test modifier", "Description", related,
+		gm = new GenericModifier<>("Test modifier", "Description", related,
 				UnitGroup.UNITS_NONE, 2.0, TestValue.class, "value") {
 			@Override
 			protected TestValue getModifiedObject(Simulation simulation) {

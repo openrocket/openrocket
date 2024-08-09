@@ -389,7 +389,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * @return   The position to add the new component to, or null if should not add.
 		 */
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
-			return new Pair<RocketComponent, Integer>(c, null);
+			return new Pair<>(c, null);
 		}
 		
 		/**
@@ -537,7 +537,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			if (c == null || c instanceof Rocket) {
 				// Add as last body component of the last stage
 				Rocket rocket = document.getRocket();
-				return new Pair<RocketComponent, Integer>(rocket.getChild(rocket.getStageCount() - 1),
+				return new Pair<>(rocket.getChild(rocket.getStageCount() - 1),
 						null);
 			}
 			
@@ -565,10 +565,10 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				return null;
 			case 1:
 				// Insert after current position
-				return new Pair<RocketComponent, Integer>(parent, parent.getChildPosition(c) + 1);
+				return new Pair<>(parent, parent.getChildPosition(c) + 1);
 			case 2:
 				// Insert at the end of the parent
-				return new Pair<RocketComponent, Integer>(parent, null);
+				return new Pair<>(parent, null);
 			default:
 				Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
 				return null;
@@ -660,7 +660,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
 			if (c == null || c instanceof Rocket) {
 				// Add to the end
-				return new Pair<RocketComponent, Integer>(document.getRocket(), null);
+				return new Pair<>(document.getRocket(), null);
 			}
 
 			RocketComponent parentStage = null;
@@ -689,10 +689,10 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 					return null;
 				case 1:
 					// Insert after current stage
-					return new Pair<RocketComponent, Integer>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
+					return new Pair<>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
 				case 2:
 					// Insert at the end
-					return new Pair<RocketComponent, Integer>(document.getRocket(), null);
+					return new Pair<>(document.getRocket(), null);
 				default:
 					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
 					return null;

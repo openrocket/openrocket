@@ -24,7 +24,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel<T>
 	private final T[] values;
 	private T currentValue = null;
 	
-	ArrayList<T> displayedValues = new ArrayList<T>();
+	ArrayList<T> displayedValues = new ArrayList<>();
 	
 	private final Reflection.Method getMethod;
 	private final Reflection.Method setMethod;

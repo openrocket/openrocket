@@ -67,7 +67,7 @@ public class InnerBodyTubeHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         InnerBodyTubeHandler handler = new InnerBodyTubeHandler(null, tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "-1", warnings);

@@ -77,7 +77,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	private double ratio;
 	private boolean needUpdate = false;
 
-	private List<ImageCallback> imageCallbacks = new java.util.Vector<PhotoPanel.ImageCallback>();
+	private List<ImageCallback> imageCallbacks = new java.util.Vector<>();
 
 	private RocketRenderer rr;
 	private PhotoSettings p;
@@ -295,7 +295,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 						.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
 								drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
 			}
-			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
+			final Vector<ImageCallback> cbs = new Vector<>(
 					imageCallbacks);
 			imageCallbacks.clear();
 			for (ImageCallback ia : cbs) {
@@ -531,7 +531,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					new float[] { 0, 0, 0, 1 }, 0);
 		}
 
-		rr.render(drawable, configuration, new HashSet<RocketComponent>());
+		rr.render(drawable, configuration, new HashSet<>());
 
 		//Figure out the lowest stage shown
 

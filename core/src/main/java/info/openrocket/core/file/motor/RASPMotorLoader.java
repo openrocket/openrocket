@@ -62,8 +62,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		double diameter = 0;
 		ArrayList<Double> delays = null;
 
-		List<Double> time = new ArrayList<Double>();
-		List<Double> thrust = new ArrayList<Double>();
+		List<Double> time = new ArrayList<>();
+		List<Double> thrust = new ArrayList<>();
 
 		double propW = 0;
 		double totalW = 0;
@@ -80,7 +80,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 				comment = "";
 				length = 0;
 				diameter = 0;
-				delays = new ArrayList<Double>();
+				delays = new ArrayList<>();
 				propW = 0;
 				totalW = 0;
 				time.clear();

@@ -11,7 +11,7 @@ public class XTableColumnModel extends DefaultTableColumnModel {
 	/** Array of TableColumn objects in this model.
 	 *  Holds all column objects, regardless of their visibility
 	 */
-	protected Vector<TableColumn> allTableColumns = new Vector<TableColumn>();
+	protected Vector<TableColumn> allTableColumns = new Vector<>();
 	
 	/**
 	 * Creates an extended table column model.

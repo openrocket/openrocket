@@ -14,8 +14,8 @@ import java.util.List;
 public class BufferLogger extends LogHelper {
 
 	private final CyclicBuffer<LogLine> buffer;
-	private final EnumMap<LogLevel, Boolean> storeLevels = 
-		new EnumMap<LogLevel, Boolean>(LogLevel.class);
+	private final EnumMap<LogLevel, Boolean> storeLevels =
+			new EnumMap<>(LogLevel.class);
 	
 	
 	/**
@@ -28,7 +28,7 @@ public class BufferLogger extends LogHelper {
 		for (LogLevel l: LogLevel.values()) {
 			storeLevels.put(l, true);
 		}
-		buffer = new CyclicBuffer<LogLine>(length);
+		buffer = new CyclicBuffer<>(length);
 	}
 	
 	

@@ -25,15 +25,15 @@ public class Databases {
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
-	public static final Database<Material> BULK_MATERIAL = new Database<Material>();
+	public static final Database<Material> BULK_MATERIAL = new Database<>();
 	/**
 	 * A database of surface materials (with surface densities).
 	 */
-	public static final Database<Material> SURFACE_MATERIAL = new Database<Material>();
+	public static final Database<Material> SURFACE_MATERIAL = new Database<>();
 	/**
 	 * A database of linear material (with length densities).
 	 */
-	public static final Database<Material> LINE_MATERIAL = new Database<Material>();
+	public static final Database<Material> LINE_MATERIAL = new Database<>();
 	
 	
 	

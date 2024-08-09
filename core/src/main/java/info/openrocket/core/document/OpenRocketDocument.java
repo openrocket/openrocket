@@ -72,8 +72,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	
 	private final Rocket rocket;
 	
-	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
-	private final ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
+	private final ArrayList<Simulation> simulations = new ArrayList<>();
+	private final ArrayList<CustomExpression> customExpressions = new ArrayList<>();
 
 	// The Photo Settings will be saved in the core module as a map of key values with corresponding content
 	private Map<String, String> photoSettings = new HashMap<>();
@@ -86,8 +86,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * The undo history of the rocket.   Whenever a new undo position is created while the
 	 * rocket is in "dirty" state, the rocket is copied here.
 	 */
-	private final LinkedList<Rocket> undoHistory = new LinkedList<Rocket>();
-	private final LinkedList<String> undoDescription = new LinkedList<String>();
+	private final LinkedList<Rocket> undoHistory = new LinkedList<>();
+	private final LinkedList<String> undoDescription = new LinkedList<>();
 	
 	/**
 	 * The position in the undoHistory we are currently at.  If modifications have been
@@ -103,7 +103,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	private String storedDescription = null;
 	
 	
-	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
+	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<>(2);
 	
 	private File file = null;
 	private ModID modID = ModID.INVALID;
@@ -114,7 +114,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 
 	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
-	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
+	private final List<DocumentChangeListener> listeners = new ArrayList<>();
 	
 	/**
 	 * main constructor, enable events in the rocket 
@@ -169,7 +169,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @returns a set of all the flight data types defined or available in any way in the rocket document
 	 */
 	public Set<FlightDataType> getFlightDataTypes() {
-		Set<FlightDataType> allTypes = new LinkedHashSet<FlightDataType>();
+		Set<FlightDataType> allTypes = new LinkedHashSet<>();
 		
 		// built in
 		Collections.addAll(allTypes, FlightDataType.ALL_TYPES);

@@ -69,7 +69,7 @@ public class NoseConeHandlerTest extends RockSimTestBase {
     public void testCloseElement() throws Exception {
 
         AxialStage stage = new AxialStage();
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         NoseConeHandler handler = new NoseConeHandler(null, stage, warnings);

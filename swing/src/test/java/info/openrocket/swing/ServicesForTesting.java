@@ -29,7 +29,7 @@ public class ServicesForTesting extends AbstractModule {
 
 	public static class TranslatorProviderForTesting implements Provider<Translator> {
 
-		private final AtomicReference<Translator> translator = new AtomicReference<Translator>();
+		private final AtomicReference<Translator> translator = new AtomicReference<>();
 
 		@Override
 		public Translator get() {

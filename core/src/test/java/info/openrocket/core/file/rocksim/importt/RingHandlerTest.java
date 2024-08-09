@@ -49,7 +49,7 @@ public class RingHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
         CenteringRing component = (CenteringRing) getField(handler, "ring");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "0", warnings);
@@ -97,7 +97,7 @@ public class RingHandlerTest extends RockSimTestBase {
         @SuppressWarnings("unused")
         CenteringRing component = (CenteringRing) getField(handler, "ring");
 
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "75", warnings);
@@ -132,7 +132,7 @@ public class RingHandlerTest extends RockSimTestBase {
     public void testTubeCoupler() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "75", warnings);
@@ -166,7 +166,7 @@ public class RingHandlerTest extends RockSimTestBase {
     public void testEngineBlock() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "75", warnings);
@@ -203,7 +203,7 @@ public class RingHandlerTest extends RockSimTestBase {
     public void testRing() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(null, tube, new WarningSet());
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "75", warnings);

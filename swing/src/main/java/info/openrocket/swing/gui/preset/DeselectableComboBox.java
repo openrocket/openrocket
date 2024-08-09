@@ -20,7 +20,7 @@ public class DeselectableComboBox<T> extends JComboBox<T> {
         super.setRenderer(new DeselectedItemsRenderer());
     }
 
-    private Set<Integer> disabled_items = new HashSet<Integer>();
+    private Set<Integer> disabled_items = new HashSet<>();
 
     public void addItem(T anObject, boolean disabled) {
         super.addItem(anObject);
@@ -32,7 +32,7 @@ public class DeselectableComboBox<T> extends JComboBox<T> {
     @Override
     public void removeAllItems() {
         super.removeAllItems();
-        disabled_items = new HashSet<Integer>();
+        disabled_items = new HashSet<>();
     }
 
     @Override

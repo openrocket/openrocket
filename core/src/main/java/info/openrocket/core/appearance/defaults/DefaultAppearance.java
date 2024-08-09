@@ -89,7 +89,7 @@ public class DefaultAppearance {
 	private static final Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
 	private static final Appearance REUSABLE_MOTOR = simpleAlpha(new ORColor(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 
-	private static final HashMap<ORColor, Appearance> plastics = new HashMap<ORColor, Appearance>();
+	private static final HashMap<ORColor, Appearance> plastics = new HashMap<>();
 	
 	/**
 	 * gets the appearance correspondent to the plastic with the given color

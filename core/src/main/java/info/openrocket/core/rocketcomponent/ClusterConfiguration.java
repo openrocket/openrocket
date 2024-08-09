@@ -71,7 +71,7 @@ public class ClusterConfiguration {
 			throw new IllegalArgumentException("Illegal number of points specified: " +
 					points.length);
 		}
-		List<Double> l = new ArrayList<Double>(points.length);
+		List<Double> l = new ArrayList<>(points.length);
 		for (double d : points)
 			l.add(d);
 
@@ -108,7 +108,7 @@ public class ClusterConfiguration {
 	public List<Double> getPoints(double rotation) {
 		double cos = Math.cos(rotation);
 		double sin = Math.sin(rotation);
-		List<Double> ret = new ArrayList<Double>(points.size());
+		List<Double> ret = new ArrayList<>(points.size());
 		for (int i = 0; i < points.size() / 2; i++) {
 			double x = points.get(2 * i);
 			double y = points.get(2 * i + 1);

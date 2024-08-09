@@ -324,7 +324,7 @@ public class UnitGroup {
 
 		resetDefaultUnits();
 
-		HashMap<String, UnitGroup> map = new HashMap<String, UnitGroup>();
+		HashMap<String, UnitGroup> map = new HashMap<>();
 		map.put("NONE", UNITS_NONE);
 		map.put("LENGTH", UNITS_LENGTH);
 		map.put("ALL_LENGTHS", UNITS_ALL_LENGTHS);
@@ -366,7 +366,7 @@ public class UnitGroup {
 
 		UNITS = Collections.unmodifiableMap(map);
 
-		HashMap<String, UnitGroup> simap = new HashMap<String, UnitGroup>();
+		HashMap<String, UnitGroup> simap = new HashMap<>();
 		simap.put("m", UNITS_ALL_LENGTHS);
 		simap.put("m^2", UNITS_AREA);
 		simap.put("m/s", UNITS_VELOCITY);
@@ -566,7 +566,7 @@ public class UnitGroup {
 	//////////////////////////////////////////////////////
 	
 	
-	protected ArrayList<Unit> units = new ArrayList<Unit>();
+	protected ArrayList<Unit> units = new ArrayList<>();
 	protected int defaultUnit = 0;
 
 	public int getUnitCount() {

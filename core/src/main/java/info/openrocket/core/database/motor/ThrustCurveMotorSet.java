@@ -28,10 +28,10 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	private static final ThrustCurveMotorComparator comparator = new ThrustCurveMotorComparator();
 
-	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
-	private final Map<ThrustCurveMotor, String> digestMap = new IdentityHashMap<ThrustCurveMotor, String>();
+	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<>();
+	private final Map<ThrustCurveMotor, String> digestMap = new IdentityHashMap<>();
 
-	private final List<Double> delays = new ArrayList<Double>();
+	private final List<Double> delays = new ArrayList<>();
 
 	private Manufacturer manufacturer = null;
 	private String commonName = null;

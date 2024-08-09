@@ -35,7 +35,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 			return Collections.emptyList();
 		}
 
-		List<ComponentPreset> result = new ArrayList<ComponentPreset>(list.size() / 6);
+		List<ComponentPreset> result = new ArrayList<>(list.size() / 6);
 
 		for (ComponentPreset preset : list) {
 			if (preset.get(ComponentPreset.TYPE).equals(type)) {
@@ -61,7 +61,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 			return listForType(type);
 		}
 
-		List<ComponentPreset> result = new ArrayList<ComponentPreset>(list.size() / 6);
+		List<ComponentPreset> result = new ArrayList<>(list.size() / 6);
 
 		Set<String> favorites = Application.getPreferences().getComponentFavorites(type);
 
@@ -83,7 +83,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 			return listForType(type[0]);
 		}
 
-		List<ComponentPreset> result = new ArrayList<ComponentPreset>(list.size() / 6);
+		List<ComponentPreset> result = new ArrayList<>(list.size() / 6);
 
 		for (ComponentPreset preset : list) {
 			ComponentPreset.Type presetType = preset.get(ComponentPreset.TYPE);
@@ -105,7 +105,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 
 	@Override
 	public List<ComponentPreset> find(String manufacturer, String partNo) {
-		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
+		List<ComponentPreset> presets = new ArrayList<>();
 		for (ComponentPreset preset : list) {
 			if (preset.getManufacturer().matches(manufacturer) && preset.getPartNo().equals(partNo)) {
 				presets.add(preset);

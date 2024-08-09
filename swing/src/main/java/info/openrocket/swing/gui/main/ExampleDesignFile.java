@@ -133,7 +133,7 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 	
 	private static ExampleDesignFile[] getJarFileNames() {
 		
-		ArrayList<ExampleDesignFile> list = new ArrayList<ExampleDesignFile>();
+		ArrayList<ExampleDesignFile> list = new ArrayList<>();
 		int dirLength = DIRECTORY.length();
 		
 		// Find and open the jar file this class is contained in

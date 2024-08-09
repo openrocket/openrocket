@@ -46,7 +46,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Width", attributes, "0", warnings);
@@ -150,7 +150,7 @@ public class StreamerHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Xb", attributes, "-10", warnings);

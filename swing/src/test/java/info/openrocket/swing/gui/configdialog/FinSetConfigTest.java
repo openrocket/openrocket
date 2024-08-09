@@ -42,7 +42,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testComputeFinTabLength() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         RocketComponent parent = new BodyTube();
 
@@ -58,7 +58,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testCompute2LeadingRings() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         RocketComponent parent = new BodyTube();
 
@@ -85,7 +85,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testCompute1Ring() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setLength(0.004);
@@ -106,7 +106,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testComputeOneLeadingOneRingWithinRoot() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -133,7 +133,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testComputeOneLeadingOneTrailingRing() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -158,7 +158,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testComputeOneWithinRootOneTrailingRing() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -183,7 +183,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testBothRingsWithinRootChord() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         RocketComponent parent = new BodyTube(1.0000d, 0.1d);
         CenteringRing ring1 = new CenteringRing();
@@ -210,7 +210,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void testBothRingsBeyondRootChord() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.TOP);
@@ -236,7 +236,7 @@ public class FinSetConfigTest extends BaseTestCase {
     @Test
     public void test3RingsWithinRootChord() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
-        List<CenteringRing> rings = new ArrayList<CenteringRing>();
+        List<CenteringRing> rings = new ArrayList<>();
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setAxialMethod(AxialMethod.ABSOLUTE);

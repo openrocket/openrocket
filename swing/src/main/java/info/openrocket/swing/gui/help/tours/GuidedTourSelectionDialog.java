@@ -61,7 +61,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		panel.add(new StyledLabel(trans.get("lbl.selectTour"), Style.BOLD), "spanx, wrap rel");
 		
-		tourList = new JList<Named<SlideSet>>(new TourListModel());
+		tourList = new JList<>(new TourListModel());
 		tourList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tourList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -175,7 +175,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		public Named<SlideSet> getElementAt(int index) {
 			String name = tourNames.get(index);
 			SlideSet set = slideSetManager.getSlideSet(name);
-			return new Named<SlideSet>(set, set.getTitle());
+			return new Named<>(set, set.getTitle());
 		}
 		
 		@Override

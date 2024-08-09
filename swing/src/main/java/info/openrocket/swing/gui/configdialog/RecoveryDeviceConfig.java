@@ -16,7 +16,7 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 	
 	private static final long serialVersionUID = 7263235700953855062L;
 	
-	protected final List<JComponent> altitudeComponents = new ArrayList<JComponent>();
+	protected final List<JComponent> altitudeComponents = new ArrayList<>();
 	
 	public RecoveryDeviceConfig(OpenRocketDocument d, RocketComponent component, JDialog parent) {
 		super(d, component, parent);

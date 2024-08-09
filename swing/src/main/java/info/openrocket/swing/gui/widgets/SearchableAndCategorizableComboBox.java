@@ -418,7 +418,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		private final SortedSet<T> model;
 
 		public SortedListModel() {
-			Comparator<T> alphabeticalComparator = new Comparator<T>() {
+			Comparator<T> alphabeticalComparator = new Comparator<>() {
 				@Override
 				public int compare(T o1, T o2) {
 					return o1.toString().compareToIgnoreCase(o2.toString());

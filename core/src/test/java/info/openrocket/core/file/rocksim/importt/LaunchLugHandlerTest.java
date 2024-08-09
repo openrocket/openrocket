@@ -66,7 +66,7 @@ public class LaunchLugHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         LaunchLugHandler handler = new LaunchLugHandler(null, tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "-1", warnings);

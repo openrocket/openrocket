@@ -115,7 +115,7 @@ public class FinMarkingGuide extends JPanel {
 	 */
 	private Map<BodyTube, java.util.List<ExternalComponent>> init(Rocket component) {
 		Iterator<RocketComponent> iter = component.iterator(false);
-		Map<BodyTube, java.util.List<ExternalComponent>> results = new LinkedHashMap<BodyTube, List<ExternalComponent>>();
+		Map<BodyTube, java.util.List<ExternalComponent>> results = new LinkedHashMap<>();
 		BodyTube current = null;
 		int totalHeight = 0;
 		int iterationHeight = 0;
@@ -131,7 +131,7 @@ public class FinMarkingGuide extends JPanel {
 			else if (next instanceof FinSet || next instanceof TubeFinSet || next instanceof LaunchLug || next instanceof RailButton) {
 				java.util.List<ExternalComponent> list = results.get(current);
 				if (list == null && current != null) {
-					list = new ArrayList<ExternalComponent>();
+					list = new ArrayList<>();
 					results.put(current, list);
 					
 					double radius = current.getOuterRadius();
@@ -495,7 +495,7 @@ public class FinMarkingGuide extends JPanel {
 	 */
 	private double findRadialOrigin(List<ExternalComponent> components) {
 		
-		ArrayList<Double> positions = new ArrayList<Double>(3 * components.size());
+		ArrayList<Double> positions = new ArrayList<>(3 * components.size());
 		
 		for (ExternalComponent component : components) {
 

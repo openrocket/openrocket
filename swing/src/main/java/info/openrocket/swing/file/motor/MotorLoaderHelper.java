@@ -92,7 +92,7 @@ public final class MotorLoaderHelper {
 	 * @return			a list of all motors loaded.
 	 */
 	public static List<ThrustCurveMotor.Builder> load(FileIterator iterator) {
-		List<ThrustCurveMotor.Builder> list = new ArrayList<ThrustCurveMotor.Builder>();
+		List<ThrustCurveMotor.Builder> list = new ArrayList<>();
 
 		while (iterator.hasNext()) {
 			final Pair<File, InputStream> input = iterator.next();

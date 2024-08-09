@@ -46,7 +46,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	private static final double DEFAULT_RANGE_MULTIPLIER = 2.0;
 	
 	
-	private static final Map<Class<?>, List<ModifierDefinition>> definitions = new HashMap<Class<?>, List<ModifierDefinition>>();
+	private static final Map<Class<?>, List<ModifierDefinition>> definitions = new HashMap<>();
 	static {
 		//addModifier("optimization.modifier.", unitGroup, multiplier, componentClass, methodName);
 		
@@ -110,7 +110,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		
 		List<ModifierDefinition> list = definitions.get(componentClass);
 		if (list == null) {
-			list = new ArrayList<DefaultSimulationModifierService.ModifierDefinition>();
+			list = new ArrayList<>();
 			definitions.put(componentClass, list);
 		}
 		
@@ -124,7 +124,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	
 	@Override
 	public Collection<SimulationModifier> getModifiers(OpenRocketDocument document) {
-		List<SimulationModifier> modifiers = new ArrayList<SimulationModifier>();
+		List<SimulationModifier> modifiers = new ArrayList<>();
 		
 		Rocket rocket = document.getRocket();
 		
@@ -192,7 +192,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 					modifiers.add(mod);
 
 					// Motor ignition delay
-					mod = new FlightConfigurationModifier<MotorConfiguration>(
+					mod = new FlightConfigurationModifier<>(
 							trans.get("optimization.modifier.motormount.delay"),
 							trans.get("optimization.modifier.motormount.delay.desc"),
 							c, UnitGroup.UNITS_SHORT_TIME,
@@ -250,7 +250,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 			
 			// Recovery device deployment altitude and delay
 			if (c instanceof RecoveryDevice) {
-				SimulationModifier mod = new FlightConfigurationModifier<DeploymentConfiguration>(
+				SimulationModifier mod = new FlightConfigurationModifier<>(
 						trans.get("optimization.modifier.recoverydevice.deployDelay"),
 						trans.get("optimization.modifier.recoverydevice.deployDelay.desc"),
 						c,
@@ -266,7 +266,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				mod.setMaxValue(10);
 				modifiers.add(mod);
 				
-				mod = new FlightConfigurationModifier<DeploymentConfiguration>(
+				mod = new FlightConfigurationModifier<>(
 						trans.get("optimization.modifier.recoverydevice.deployAltitude"),
 						trans.get("optimization.modifier.recoverydevice.deployAltitude.desc"),
 						c,
@@ -277,13 +277,13 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						"DeploymentConfigurations",
 						DeploymentConfiguration.class,
 						"DeployAltitude") {
-					
+
 					@Override
 					public void initialize(Simulation simulation) throws OptimizationException {
 						DeploymentConfiguration config = getModifiedObject(simulation);
 						config.setDeployEvent(DeployEvent.APOGEE);
 					}
-					
+
 				};
 				setDefaultMinMax(mod, simulation);
 				modifiers.add(mod);

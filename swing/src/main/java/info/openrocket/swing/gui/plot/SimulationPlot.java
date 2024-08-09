@@ -94,7 +94,7 @@ public class SimulationPlot {
 	private final PlotConfiguration filled;
 
 	private final List<EventDisplayInfo> eventList;
-	private final List<ModifiedXYItemRenderer> renderers = new ArrayList<ModifiedXYItemRenderer>();
+	private final List<ModifiedXYItemRenderer> renderers = new ArrayList<>();
 
 	private final LegendItems legendItems;
 
@@ -579,7 +579,7 @@ public class SimulationPlot {
 	}
 
 	private List<EventDisplayInfo> buildEventInfo() {
-		ArrayList<EventDisplayInfo> eventList = new ArrayList<EventDisplayInfo>();
+		ArrayList<EventDisplayInfo> eventList = new ArrayList<>();
 
 		for (int branch = 0; branch < branchCount; branch++) {
 			List<FlightEvent> events = simulation.getSimulatedData().getBranch(branch).getEvents();
@@ -595,7 +595,7 @@ public class SimulationPlot {
 			}
 		}
 
-		Collections.sort(eventList, new Comparator<EventDisplayInfo>() {
+		Collections.sort(eventList, new Comparator<>() {
 
 			@Override
 			public int compare(EventDisplayInfo o1, EventDisplayInfo o2) {
@@ -614,10 +614,10 @@ public class SimulationPlot {
 
 	private static class LegendItems implements LegendItemSource {
 
-		private final List<String> lineLabels = new ArrayList<String>();
-		private final List<Paint> linePaints = new ArrayList<Paint>();
-		private final List<Stroke> lineStrokes = new ArrayList<Stroke>();
-		private final List<Shape> pointShapes = new ArrayList<Shape>();
+		private final List<String> lineLabels = new ArrayList<>();
+		private final List<Paint> linePaints = new ArrayList<>();
+		private final List<Stroke> lineStrokes = new ArrayList<>();
+		private final List<Shape> pointShapes = new ArrayList<>();
 
 		@Override
 		public LegendItemCollection getLegendItems() {

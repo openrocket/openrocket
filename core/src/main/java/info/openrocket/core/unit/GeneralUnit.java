@@ -67,7 +67,7 @@ public class GeneralUnit extends Unit {
 	// start, end and scale in this units
 //	@Override
 	public ArrayList<Tick> getTicks(double start, double end, double scale) {
-		ArrayList<Tick> ticks = new ArrayList<Tick>();
+		ArrayList<Tick> ticks = new ArrayList<>();
 		@SuppressWarnings("unused")
 		double delta;
 		@SuppressWarnings("unused")
@@ -121,7 +121,7 @@ public class GeneralUnit extends Unit {
 			throw new IllegalArgumentException("getTicks called with minor="+minor+" major="+major);
 		}
 		
-		ArrayList<Tick> ticks = new ArrayList<Tick>();
+		ArrayList<Tick> ticks = new ArrayList<>();
 		
 		int mod2,mod3,mod4;  // Moduli for minor-notable, major-nonnotable, major-notable
 		double minstep;

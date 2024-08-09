@@ -180,7 +180,7 @@ public class GeneralRocketSaver {
 			return;
 		}
 
-		Set<DecalImage> usedDecals = new TreeSet<DecalImage>();
+		Set<DecalImage> usedDecals = new TreeSet<>();
 
 		// Look for all decals used in the rocket.
 		for (RocketComponent c : document.getRocket()) {

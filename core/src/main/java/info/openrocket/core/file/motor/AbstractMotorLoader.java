@@ -69,8 +69,8 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	 */
 	protected static List<Double> calculateMass(List<Double> time, List<Double> thrust,
 			double total, double prop) {
-		List<Double> mass = new ArrayList<Double>();
-		List<Double> deltam = new ArrayList<Double>();
+		List<Double> mass = new ArrayList<>();
+		List<Double> deltam = new ArrayList<>();
 
 		double t0, f0;
 		double totalMassChange = 0;

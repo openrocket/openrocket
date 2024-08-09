@@ -44,7 +44,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Name", attributes, "Test Name", warnings);
@@ -152,7 +152,7 @@ public class ParachuteHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Xb", attributes, "-10", warnings);

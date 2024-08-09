@@ -22,7 +22,7 @@ class FinSetPointHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final FreeformFinSet finset;
-	private final ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+	private final ArrayList<Coordinate> coordinates = new ArrayList<>();
 
 	public FinSetPointHandler(FreeformFinSet finset, DocumentLoadingContext context) {
 		this.finset = finset;

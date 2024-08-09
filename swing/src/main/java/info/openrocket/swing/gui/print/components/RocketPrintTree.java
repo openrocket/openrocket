@@ -177,7 +177,7 @@ public class RocketPrintTree extends JTree {
 	 * @return an array of CheckBoxNode
 	 */
 	private static CheckBoxNode[] createPrintTreeNode(boolean onlyStageSpecific) {
-		List<CheckBoxNode> nodes = new ArrayList<CheckBoxNode>();
+		List<CheckBoxNode> nodes = new ArrayList<>();
 		OpenRocketPrintable[] printables = OpenRocketPrintable.values();
 		for (OpenRocketPrintable openRocketPrintable : printables) {
 			if (!onlyStageSpecific || openRocketPrintable.isStageSpecific()) {

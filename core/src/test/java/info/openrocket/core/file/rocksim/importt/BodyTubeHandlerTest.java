@@ -68,7 +68,7 @@ public class BodyTubeHandlerTest extends RockSimTestBase {
         AxialStage stage = new AxialStage();
         BodyTubeHandler handler = new BodyTubeHandler(null, stage, new WarningSet());
         BodyTube component = (BodyTube) getField(handler, "bodyTube");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "-1", warnings);

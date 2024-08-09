@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class OptimizationControllerDelegator implements OptimizationController {
 
-	private final List<OptimizationController> controllers = new ArrayList<OptimizationController>();
+	private final List<OptimizationController> controllers = new ArrayList<>();
 
 	/**
 	 * Construct the controlled based on an array of controllers.

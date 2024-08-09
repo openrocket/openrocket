@@ -63,7 +63,7 @@ public class CenteringRingStrategy extends AbstractPrintStrategy<Void> {
         RocketComponent parent = rc.getParent();
         List<RocketComponent> siblings = parent.getChildren();
 
-        List<InnerTube> mounts = new ArrayList<InnerTube>();
+        List<InnerTube> mounts = new ArrayList<>();
         for (RocketComponent rocketComponents : siblings) {
             if (rocketComponents != rc) {
                 if (rocketComponents instanceof InnerTube) {

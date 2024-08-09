@@ -486,7 +486,7 @@ public class Rocket extends ComponentAssembly {
 	 */
 	public void resetListeners() {
 		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
-		listenerList = new HashSet<EventListener>();
+		listenerList = new HashSet<>();
 	}
 	
 	

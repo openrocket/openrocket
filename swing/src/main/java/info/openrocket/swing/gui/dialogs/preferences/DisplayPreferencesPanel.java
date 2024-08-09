@@ -22,14 +22,14 @@ public class DisplayPreferencesPanel extends PreferencesPanel {
 				"gapright para");
 
 		this.add(
-				new JComboBox<Object>(new PrefChoiceSelector(
+				new JComboBox<>(new PrefChoiceSelector(
 						Preferences.ROCKET_INFO_FONT_SIZE,
 						// // Small
 						// // Medium
 						// // Large
 						trans.get("pref.dlg.PrefFontSmall"), trans
-								.get("pref.dlg.PrefFontMedium"), trans
-								.get("pref.dlg.PrefFontLarge"))),
+						.get("pref.dlg.PrefFontMedium"), trans
+						.get("pref.dlg.PrefFontLarge"))),
 				"wrap para, growx, sg combos");
 
 	}

@@ -606,8 +606,8 @@ public class DesignReport {
 			return simulations;
 		}
 		
-		ArrayList<Simulation> simulationsToRun = new ArrayList<Simulation>();
-		ArrayList<Simulation> upToDateSimulations = new ArrayList<Simulation>();
+		ArrayList<Simulation> simulationsToRun = new ArrayList<>();
+		ArrayList<Simulation> upToDateSimulations = new ArrayList<>();
 		for (Simulation simulation : simulations) {
 			boolean simulate = false;
 			boolean copy = !this.updateExistingSimulations;
@@ -679,7 +679,7 @@ public class DesignReport {
 			log.debug("Updating simulations using thread pool");
 			int cores = Runtime.getRuntime().availableProcessors();
 			ThreadPoolExecutor executor = new ThreadPoolExecutor(cores, cores, 0L, TimeUnit.MILLISECONDS,
-			                                                     new LinkedBlockingQueue<Runnable>(),
+					new LinkedBlockingQueue<>(),
 			                                                     new SimulationRunnerThreadFactory());
 			for (Simulation simulation : simulations) {
 				executor.execute(new RunSimulationTask(simulation));

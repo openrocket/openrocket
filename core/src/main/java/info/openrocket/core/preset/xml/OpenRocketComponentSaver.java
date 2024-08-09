@@ -77,29 +77,29 @@ public class OpenRocketComponentSaver {
         // We're going to sort the initial data since that makes the output much easier
         // on the eyes.
 
-        Collections.sort(theMaterialList, new Comparator<Material>() {
+        Collections.sort(theMaterialList, new Comparator<>() {
 
-            @Override
-            public int compare(Material o1, Material o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
+			@Override
+			public int compare(Material o1, Material o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
 
-        });
+		});
 
-        Collections.sort(thePresetList, new Comparator<ComponentPreset>() {
+        Collections.sort(thePresetList, new Comparator<>() {
 
-            @Override
-            public int compare(ComponentPreset o1, ComponentPreset o2) {
-                int manucmp = o1.getManufacturer().getSimpleName().compareTo(o2.getManufacturer().getSimpleName());
+			@Override
+			public int compare(ComponentPreset o1, ComponentPreset o2) {
+				int manucmp = o1.getManufacturer().getSimpleName().compareTo(o2.getManufacturer().getSimpleName());
 
-                if (manucmp != 0) {
-                    return manucmp;
-                }
+				if (manucmp != 0) {
+					return manucmp;
+				}
 
-                return o1.getPartNo().compareTo(o2.getPartNo());
-            }
+				return o1.getPartNo().compareTo(o2.getPartNo());
+			}
 
-        });
+		});
 
         marshaller.marshal(toOpenRocketComponentDTO(theMaterialList, thePresetList, isLegacy), sw);
         return sw.toString();

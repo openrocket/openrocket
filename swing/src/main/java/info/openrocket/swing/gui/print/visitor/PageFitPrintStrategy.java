@@ -60,7 +60,7 @@ public class PageFitPrintStrategy {
     public PageFitPrintStrategy(Document doc, PdfWriter theWriter) {
         document = doc;
         writer = theWriter;
-    	componentToPrint = new ArrayList<PrintableComponent>();
+    	componentToPrint = new ArrayList<>();
     }
 
     /**

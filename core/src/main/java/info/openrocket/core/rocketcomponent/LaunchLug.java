@@ -221,7 +221,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> set = new ArrayList<>();
 		addBound(set, 0, radius);
 		addBound(set, length, radius);
 		return set;

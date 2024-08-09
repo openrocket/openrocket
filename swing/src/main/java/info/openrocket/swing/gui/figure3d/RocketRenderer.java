@@ -174,7 +174,7 @@ public abstract class RocketRenderer {
 		final InstanceMap imap = config.getActiveInstances();
 
 		// output buffer
-		final Collection<Geometry> treeGeometry = new ArrayList<Geometry>();
+		final Collection<Geometry> treeGeometry = new ArrayList<>();
 
 		for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent comp = entry.getKey();
