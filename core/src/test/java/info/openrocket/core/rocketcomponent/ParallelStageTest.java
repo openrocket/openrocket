@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.rocketcomponent.position.*;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;

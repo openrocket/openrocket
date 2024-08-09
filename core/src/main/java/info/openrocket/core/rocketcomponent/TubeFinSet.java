@@ -12,7 +12,10 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.AxialPositionable;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.*;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Transformation;
 
 public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, RingInstanceable, InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();

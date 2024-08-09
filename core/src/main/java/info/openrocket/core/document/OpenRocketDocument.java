@@ -1,7 +1,16 @@
 package info.openrocket.core.document;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,9 +281,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @return	the decal list registered in the document
 	 */
 	public Collection<DecalImage> getDecalList() {
-		
 		return decalRegistry.getDecalList();
-		
 	}
 	
 	/**
@@ -284,10 +291,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public int countDecalUsage(DecalImage img) {
 		int count = 0;
-		
-		Iterator<RocketComponent> it = rocket.iterator();
-		while (it.hasNext()) {
-			RocketComponent c = it.next();
+
+		for (RocketComponent c : rocket) {
 			if (hasDecal(c, img))
 				count++;
 			else if (hasDecalInside(c, img))

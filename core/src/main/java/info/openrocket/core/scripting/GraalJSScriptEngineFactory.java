@@ -3,12 +3,15 @@ package info.openrocket.core.scripting;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
-import java.util.*;
 
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GraalJSScriptEngineFactory implements ScriptEngineFactory {
     private static final String ENGINE_NAME = "Graal.js";

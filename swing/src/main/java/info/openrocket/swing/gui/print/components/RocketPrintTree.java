@@ -8,7 +8,7 @@ import info.openrocket.swing.gui.print.PrintableContext;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.AxialStage;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;

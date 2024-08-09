@@ -1,8 +1,10 @@
 package info.openrocket.swing.gui.preset;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import java.awt.*;
+import java.awt.Component;
 import java.util.HashSet;
 import java.util.Set;
 

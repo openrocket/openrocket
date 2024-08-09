@@ -2,8 +2,6 @@ package info.openrocket.core.aerodynamics;
 
 import static info.openrocket.core.util.MathUtil.pow2;
 
-import java.util.*;
-
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -31,6 +29,15 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PolyInterpolator;
 import info.openrocket.core.util.Reflection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * An aerodynamic calculator that uses the extended Barrowman method to

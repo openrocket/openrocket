@@ -1,11 +1,17 @@
 package info.openrocket.core.rocketcomponent;
 
 import java.awt.geom.Point2D;
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-import info.openrocket.core.util.*;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Transformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
