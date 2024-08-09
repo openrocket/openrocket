@@ -4,6 +4,7 @@ import java.util.Random;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PinkNoise;
 
 /**
@@ -161,8 +162,8 @@ public class PinkNoiseWindModel implements WindModel {
 	}
 
 	@Override
-	public int getModID() {
-		return (int) (average * 1000 + standardDeviation);
+	public ModID getModID() {
+		return ModID.ZERO;
 	}
 
 }

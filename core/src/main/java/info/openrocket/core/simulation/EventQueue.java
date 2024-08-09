@@ -2,6 +2,7 @@ package info.openrocket.core.simulation;
 
 import java.util.PriorityQueue;
 
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 
 /**
@@ -13,7 +14,7 @@ import info.openrocket.core.util.Monitorable;
  */
 public class EventQueue extends PriorityQueue<FlightEvent> implements Monitorable {
 
-	private int modID = 0;
+	private ModID modID = ModID.INVALID;
 
 	public EventQueue() {
 		super();
@@ -25,36 +26,36 @@ public class EventQueue extends PriorityQueue<FlightEvent> implements Monitorabl
 
 	@Override
 	public boolean add(FlightEvent e) {
-		modID++;
+		modID = new ModID();
 		return super.add(e);
 	}
 
 	@Override
 	public void clear() {
-		modID++;
+		modID = new ModID();
 		super.clear();
 	}
 
 	@Override
 	public boolean offer(FlightEvent e) {
-		modID++;
+		modID = new ModID();
 		return super.offer(e);
 	}
 
 	@Override
 	public FlightEvent poll() {
-		modID++;
+		modID = new ModID();
 		return super.poll();
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		modID++;
+		modID = new ModID();
 		return super.remove(o);
 	}
 
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 

@@ -6,6 +6,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Coordinate;
 
 /**
@@ -28,8 +29,8 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	protected WarningSet ignoreWarningSet = new WarningSet();
 
 	/** The aerodynamic modification ID of the latest rocket */
-	private int rocketAeroModID = -1;
-	private int rocketTreeModID = -1;
+	private ModID rocketAeroModID = new ModID();
+	private ModID rocketTreeModID = new ModID();
 
 	//////////////// Aerodynamic calculators ////////////////
 

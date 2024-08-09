@@ -1,6 +1,7 @@
 package info.openrocket.core.optimization.rocketoptimization.modifiers;
 
 import java.util.Locale;
+import java.util.UUID;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.optimization.general.OptimizationException;
@@ -14,7 +15,7 @@ import info.openrocket.core.util.Reflection.Method;
 public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E>> extends GenericModifier<E> {
 
 	private final Class<? extends RocketComponent> componentClass;
-	private final String componentId;
+	private final UUID componentId;
 	private final Method configGetter;
 
 	/**
@@ -47,7 +48,7 @@ public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E
 			UnitGroup unitGroup,
 			double multiplier,
 			Class<? extends RocketComponent> componentClass,
-			String componentId,
+			UUID componentId,
 			String configName,
 			Class<E> flightConfigClass,
 			String methodName) {

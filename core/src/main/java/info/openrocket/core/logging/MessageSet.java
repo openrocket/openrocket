@@ -3,6 +3,7 @@ package info.openrocket.core.logging;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.Mutable;
 
@@ -25,7 +26,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     protected ArrayList<E> messages = new ArrayList<>();
 
     protected Mutable mutable = new Mutable();
-    private int modID = 0;
+    private ModID modID = ModID.ZERO;
 
     /**
      * Add a <code>Message</code> to the set.  If a message of the same type
@@ -38,7 +39,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     public boolean add(E m) {
         mutable.check();
 
-        modID++;
+        modID = new ModID();
         int index = messages.indexOf(m);
 
         if (index < 0) {
@@ -166,7 +167,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     }
 
     @Override
-    public int getModID() {
+    public ModID getModID() {
         return modID;
     }
 }

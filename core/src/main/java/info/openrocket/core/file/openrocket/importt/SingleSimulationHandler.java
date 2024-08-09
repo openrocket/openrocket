@@ -87,6 +87,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 			extensions.add(compatibilityExtension(content.trim()));
 		} else if (element.equals("extension") && !StringUtils.isEmpty(attributes.get("extensionid"))) {
 			String id = attributes.get("extensionid");
+			id = id.replace("net.sf.openrocket", "info.openrocket.core");
 			SimulationExtension extension = null;
 			Set<SimulationExtensionProvider> extensionProviders = Application.getInjector()
 					.getInstance(new Key<Set<SimulationExtensionProvider>>() {

@@ -10,6 +10,7 @@ import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayList;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.Mutable;
 
@@ -51,7 +52,7 @@ public class FlightDataBranch implements Monitorable {
 	
 	private final Mutable mutable = new Mutable();
 	
-	private int modID = 0;
+	private ModID modID = ModID.INVALID;
 	
 	/**
 	 * Sole constructor.  Defines the name of the FlightDataBranch and at least one variable type.
@@ -117,7 +118,7 @@ public class FlightDataBranch implements Monitorable {
 			sanityCheckValues(type, Double.NaN);
 			values.get(type).add(Double.NaN);
 		}
-		modID++;
+		modID = new ModID();
 	}
 
 	private void sanityCheckValues(FlightDataType type, Double value) {
@@ -162,7 +163,7 @@ public class FlightDataBranch implements Monitorable {
 		if (Double.isNaN(max) || (value > max)) {
 			maxValues.put(type, value);
 		}
-		modID++;
+		modID = new ModID();
 	}
 
 	/**
@@ -381,7 +382,7 @@ public class FlightDataBranch implements Monitorable {
 	public void addEvent(FlightEvent event) {
 		mutable.check();
 		events.add(event);
-		modID++;
+		modID = new ModID();
 	}
 	
 	
@@ -441,7 +442,7 @@ public class FlightDataBranch implements Monitorable {
 	
 	
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 

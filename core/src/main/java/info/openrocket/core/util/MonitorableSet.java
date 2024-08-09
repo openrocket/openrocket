@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import info.openrocket.core.util.ModID;
+
 /**
  * A Set that additionally implements the Monitorable interface.
  * 
@@ -11,23 +13,23 @@ import java.util.Iterator;
  */
 public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 
-	private int modID;
+	private ModID modID;
 
 	@Override
 	public boolean add(E e) {
-		modID++;
+		modID = new ModID();
 		return super.add(e);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends E> c) {
-		modID++;
+		modID = new ModID();
 		return super.addAll(c);
 	}
 
 	@Override
 	public void clear() {
-		modID++;
+		modID = new ModID();
 		super.clear();
 	}
 
@@ -38,24 +40,24 @@ public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 
 	@Override
 	public boolean remove(Object o) {
-		modID++;
+		modID = new ModID();
 		return super.remove(o);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		modID++;
+		modID = new ModID();
 		return super.removeAll(c);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		modID++;
+		modID = new ModID();
 		return super.retainAll(c);
 	}
 
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 
@@ -85,7 +87,7 @@ public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 		@Override
 		public void remove() {
 			iterator.remove();
-			modID++;
+			modID = new ModID();
 		}
 	}
 }

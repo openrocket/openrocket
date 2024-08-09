@@ -15,6 +15,7 @@ import info.openrocket.core.simulation.listeners.SimulationListener;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.GeodeticComputationStrategy;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.WorldCoordinate;
 
@@ -62,8 +63,8 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	private int randomSeed = 0;
 
-	private int modID = 0;
-	private int modIDadd = 0;
+	private ModID modID = ModID.INVALID;
+	private ModID modIDadd = ModID.INVALID;
 
 	public AerodynamicCalculator getAerodynamicCalculator() {
 		return aerodynamicCalculator;
@@ -71,8 +72,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setAerodynamicCalculator(AerodynamicCalculator aerodynamicCalculator) {
 		if (this.aerodynamicCalculator != null)
-			this.modIDadd += this.aerodynamicCalculator.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.aerodynamicCalculator = aerodynamicCalculator;
 	}
 
@@ -82,8 +82,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setMassCalculator(MassCalculator massCalculator) {
 		if (this.massCalculator != null)
-			this.modIDadd += this.massCalculator.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.massCalculator = massCalculator;
 	}
 
@@ -105,7 +104,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setLaunchRodLength(double launchRodLength) {
 		this.launchRodLength = launchRodLength;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public double getLaunchRodAngle() {
@@ -114,7 +113,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setLaunchRodAngle(double launchRodAngle) {
 		this.launchRodAngle = launchRodAngle;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public double getLaunchRodDirection() {
@@ -123,7 +122,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setLaunchRodDirection(double launchRodDirection) {
 		this.launchRodDirection = launchRodDirection;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public WorldCoordinate getLaunchSite() {
@@ -134,7 +133,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		if (this.launchSite.equals(site))
 			return;
 		this.launchSite = site;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public Coordinate getLaunchPosition() {
@@ -145,7 +144,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		if (this.launchPosition.equals(launchPosition))
 			return;
 		this.launchPosition = launchPosition;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public Coordinate getLaunchVelocity() {
@@ -156,7 +155,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		if (this.launchVelocity.equals(launchVelocity))
 			return;
 		this.launchVelocity = launchVelocity;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public GeodeticComputationStrategy getGeodeticComputation() {
@@ -170,7 +169,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 			throw new IllegalArgumentException("strategy cannot be null");
 		}
 		this.geodeticComputation = geodeticComputation;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public WindModel getWindModel() {
@@ -179,8 +178,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setWindModel(WindModel windModel) {
 		if (this.windModel != null)
-			this.modIDadd += this.windModel.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.windModel = windModel;
 	}
 
@@ -190,8 +188,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setAtmosphericModel(AtmosphericModel atmosphericModel) {
 		if (this.atmosphericModel != null)
-			this.modIDadd += this.atmosphericModel.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.atmosphericModel = atmosphericModel;
 	}
 
@@ -200,9 +197,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	}
 
 	public void setGravityModel(GravityModel gravityModel) {
-		// if (this.gravityModel != null)
-		// this.modIDadd += this.gravityModel.getModID();
-		this.modID++;
+		this.modID = new ModID();
 		this.gravityModel = gravityModel;
 	}
 
@@ -212,7 +207,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setTimeStep(double timeStep) {
 		this.timeStep = timeStep;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public double getMaximumAngleStep() {
@@ -221,7 +216,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setMaximumAngleStep(double maximumAngle) {
 		this.maximumAngleStep = maximumAngle;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public int getRandomSeed() {
@@ -230,7 +225,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setRandomSeed(int randomSeed) {
 		this.randomSeed = randomSeed;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public void setSimulation(Simulation sim) {
@@ -247,11 +242,8 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	}
 
 	@Override
-	public int getModID() {
-		//return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
-		//		gravityModel.getModID() + aerodynamicCalculator.getModID() + massCalculator.getModID());
-		return (modID + modIDadd + simulation.getRocket().getModID() + windModel.getModID() + atmosphericModel.getModID() +
-				aerodynamicCalculator.getModID() + massCalculator.getModID());
+	public ModID getModID() {
+		return modID;
 	}
 
 	@Override

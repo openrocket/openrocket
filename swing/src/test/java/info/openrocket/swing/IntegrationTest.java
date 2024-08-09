@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import javax.swing.Action;
 
@@ -69,7 +70,7 @@ public class IntegrationTest {
 	private AerodynamicCalculator aeroCalc = new BarrowmanCalculator();
 	private FlightConfigurationId fcid;
 	private FlightConditions conditions;
-	private String massComponentID = null;
+	private UUID massComponentID = null;
 	
 	@BeforeAll
 	public static void setUp() throws Exception {
