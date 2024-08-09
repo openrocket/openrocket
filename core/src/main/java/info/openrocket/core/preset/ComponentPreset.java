@@ -413,7 +413,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 
 			List<TypedKey<?>> keys = new ArrayList<>(properties.keySet());
 
-			Collections.sort(keys, new Comparator<>() {
+			keys.sort(new Comparator<>() {
 				@Override
 				public int compare(TypedKey<?> a, TypedKey<?> b) {
 					return a.getName().compareTo(b.getName());

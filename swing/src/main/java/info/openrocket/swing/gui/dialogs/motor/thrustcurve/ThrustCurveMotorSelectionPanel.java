@@ -581,7 +581,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			motors = filtered;
 		}
 
-		Collections.sort(motors, MOTOR_COMPARATOR);
+		motors.sort(MOTOR_COMPARATOR);
 
 		return motors;
 	}
@@ -665,7 +665,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		// No motor has been used
-		Collections.sort(list, MOTOR_COMPARATOR);
+		list.sort(MOTOR_COMPARATOR);
 		return list.get(0);
 	}
 

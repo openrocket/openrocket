@@ -58,7 +58,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (!checkMotorOverwrite(motor)) {
 			motors.add(motor);
 			digestMap.put(motor, motor.getDigest());
-			Collections.sort(motors, comparator);
+			motors.sort(comparator);
 		}
 
 	}

@@ -88,7 +88,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					// TODO: Could something be computed in parallel?
 					functionExecutor.compute(simplex);
 					functionExecutor.waitFor(simplex);
-					Collections.sort(simplex, comparator);
+					simplex.sort(comparator);
 					simplexComputed = true;
 				}
 
@@ -126,7 +126,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					simplex.clear();
 					simplex.add(current);
 					simplex.addAll(reflection);
-					Collections.sort(simplex, comparator);
+					simplex.sort(comparator);
 
 					if (useExpansion) {
 
@@ -147,7 +147,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 							simplex.add(current);
 							simplex.addAll(expansion);
 							step *= 2;
-							Collections.sort(simplex, comparator);
+							simplex.sort(comparator);
 							expansionAcceptance++;
 						} else {
 							log.debug("Expansion failed");

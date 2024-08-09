@@ -402,7 +402,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 		if (rings != null) {
 			//Sort rings from top of parent to bottom
-			Collections.sort(rings, new Comparator<>() {
+			rings.sort(new Comparator<>() {
 				@Override
 				public int compare(CenteringRing centeringRing, CenteringRing centeringRing1) {
 					return (int) (1000d * (centeringRing.getAxialOffset(AxialMethod.TOP) -

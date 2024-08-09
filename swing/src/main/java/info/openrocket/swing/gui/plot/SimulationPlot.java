@@ -595,7 +595,7 @@ public class SimulationPlot {
 			}
 		}
 
-		Collections.sort(eventList, new Comparator<>() {
+		eventList.sort(new Comparator<>() {
 
 			@Override
 			public int compare(EventDisplayInfo o1, EventDisplayInfo o2) {
