@@ -362,9 +362,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				int stageNo = stage.getStageNumber();
 				if (stageNo == 0)
 					continue;
-				
+
 				StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(this.fcid);
-				if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
+				if (separationConfig.getSeparationEvent().isSeparationEvent(separationConfig, event, stage)) {
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
 							event.getTime() + separationConfig.getSeparationDelay(), stage));
 				}

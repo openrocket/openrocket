@@ -71,6 +71,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 		elements.add((indent ? "    " : "") + "<separationevent>"
 				+ config.getSeparationEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</separationevent>");
+		elements.add((indent ? "    " : "") + "<separationaltitude>" + config.getSeparationAltitude() + "</separationaltitude>");
 		elements.add((indent ? "    " : "") + "<separationdelay>" + config.getSeparationDelay() + "</separationdelay>");
 		return elements;
 

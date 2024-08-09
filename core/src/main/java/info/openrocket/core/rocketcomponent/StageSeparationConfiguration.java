@@ -4,6 +4,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Pair;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,22 +13,17 @@ import java.util.Objects;
 public class StageSeparationConfiguration implements FlightConfigurableParameter<StageSeparationConfiguration> {
 
 	public static enum SeparationEvent {
-		//// Upper stage motor ignition
-		UPPER_IGNITION(trans.get("Stage.SeparationEvent.UPPER_IGNITION")) {
+		//// Launch
+		LAUNCH(trans.get("Stage.SeparationEvent.LAUNCH")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
-				if (e.getType() != FlightEvent.Type.IGNITION)
-					return false;
-
-				int ignition = e.getSource().getStageNumber();
-				int mount = stage.getStageNumber();
-				return (mount == ignition + 1);
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
+				return e.getType() == FlightEvent.Type.LAUNCH;
 			}
 		},
 		//// Current stage motor ignition
 		IGNITION(trans.get("Stage.SeparationEvent.IGNITION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
 					return false;
 
@@ -39,7 +35,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage motor burnout
 		BURNOUT(trans.get("Stage.SeparationEvent.BURNOUT")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.BURNOUT)
 					return false;
 
@@ -51,7 +47,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		//// Current stage ejection charge
 		EJECTION(trans.get("Stage.SeparationEvent.EJECTION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
 					return false;
 
@@ -60,17 +56,58 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 				return (mount == ignition);
 			}
 		},
-		//// Launch
-		LAUNCH(trans.get("Stage.SeparationEvent.LAUNCH")) {
+		//// Upper stage motor ignition
+		UPPER_IGNITION(trans.get("Stage.SeparationEvent.UPPER_IGNITION")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
-				return e.getType() == FlightEvent.Type.LAUNCH;
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
+				if (e.getType() != FlightEvent.Type.IGNITION)
+					return false;
+
+				int ignition = e.getSource().getStageNumber();
+				int mount = stage.getStageNumber();
+				return (mount == ignition + 1);
 			}
 		},
+		//// Fixed altitude (ascending)
+		ALTITUDE_ASCENDING(trans.get("Stage.SeparationEvent.ALTITUDE_ASCENDING")) {
+			@Override
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
+				if ((e.getType() != FlightEvent.Type.ALTITUDE) || (e.getData() == null))
+					return false;
+
+				double alt = config.getSeparationAltitude();
+				Pair<Double, Double> altitude = (Pair<Double, Double>) e.getData();
+
+				return (altitude.getU() <= alt) && (altitude.getV() >= alt);
+			}
+		},
+				
+		//// Apogee
+		APOGEE(trans.get("Stage.SeparationEvent.APOGEE")) {
+			@Override
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
+				return e.getType() == FlightEvent.Type.APOGEE;
+			}
+		},
+			
+		//// Fixed altitude (descending)
+		ALTITUDE_DESCENDING(trans.get("Stage.SeparationEvent.ALTITUDE_DESCENDING")) {
+			@Override
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
+				if ((e.getType() != FlightEvent.Type.ALTITUDE) || (e.getData() == null))
+					return false;
+
+				double alt = config.getSeparationAltitude();
+				Pair<Double, Double> altitude = (Pair<Double, Double>) e.getData();
+
+				return (altitude.getU() >= alt) && (altitude.getV() <= alt);
+			}
+		},
+				
 		//// Never
 		NEVER(trans.get("Stage.SeparationEvent.NEVER")) {
 			@Override
-			public boolean isSeparationEvent(FlightEvent e, AxialStage stage) {
+			public boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage) {
 				return false;
 			}
 		},
@@ -85,8 +122,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		/**
 		 * Test whether a specific event is a stage separation event.
 		 */
-		public abstract boolean isSeparationEvent(FlightEvent e, AxialStage stage);
-
+		public abstract boolean isSeparationEvent(StageSeparationConfiguration config, FlightEvent e, AxialStage stage);
 		@Override
 		public String toString() {
 			return description;
@@ -96,6 +132,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	private static final Translator trans = Application.getTranslator();
 
 	private SeparationEvent separationEvent = SeparationEvent.EJECTION;
+	private double separationAltitude = 200;
 	private double separationDelay = 0;
 
 	private final List<StageSeparationConfiguration> configListeners = new LinkedList<>();
@@ -117,6 +154,21 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 		}
 		this.separationEvent = separationEvent;
 		fireChangeEvent();
+	}
+
+	public double getSeparationAltitude() {
+		return separationAltitude;
+	}
+
+	public void setSeparationAltitude(double separationAltitude) {
+		for (StageSeparationConfiguration listener : configListeners) {
+			listener.setSeparationAltitude(separationAltitude);
+		}
+
+		if (MathUtil.equals(this.separationAltitude, separationAltitude)) {
+			return;
+		}
+		this.separationAltitude = separationAltitude;
 	}
 
 	public double getSeparationDelay() {
@@ -152,6 +204,7 @@ public class StageSeparationConfiguration implements FlightConfigurableParameter
 	public StageSeparationConfiguration copy(final FlightConfigurationId copyId) {
 		StageSeparationConfiguration clone = new StageSeparationConfiguration();
 		clone.separationEvent = this.separationEvent;
+		clone.separationAltitude = this.separationAltitude;
 		clone.separationDelay = this.separationDelay;
 		return clone;
 	}
