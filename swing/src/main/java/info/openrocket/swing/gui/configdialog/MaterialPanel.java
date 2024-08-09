@@ -5,6 +5,7 @@ import info.openrocket.core.util.Invalidatable;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -52,36 +53,8 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         MaterialModel mm = new MaterialModel(this, document, component, type, partName);
         register(mm);
 
-        // Set custom material button
-        JButton customMaterialButton = new JButton(trans.get("MaterialPanel.but.AddCustomMaterial"));
-        customMaterialButton.addActionListener(e -> {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    mm.addCustomMaterial();
-                }
-            });
-        });
-
-        // Edit materials button
-        JButton editMaterialsButton = new JButton(trans.get("MaterialPanel.but.EditMaterials"));
-        editMaterialsButton.addActionListener(e -> {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    for (BasicFrame frame : BasicFrame.getAllFrames()) {
-                        if (frame.getRocketPanel().getDocument() == document) {
-                            PreferencesDialog.showPreferences(frame, 5);
-                            return;
-                        }
-                    }
-                }
-            });
-        });
-
         // Material selection combo box
-        this.materialCombo = MaterialComboBox.createComboBox(mm, customMaterialButton, editMaterialsButton);
-        this.materialCombo.setSelectedItem(mm.getSelectedItem());
+        this.materialCombo = MaterialComboBox.createComboBox(document, mm);
         this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
         this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
         order.add(this.materialCombo);
@@ -154,25 +127,6 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         super.invalidate();
         for (Invalidatable i : invalidatables) {
             i.invalidateMe();
-        }
-    }
-
-    public static class MaterialComboBox extends JComboBox<Material> {
-        private static final Translator trans = Application.getTranslator();
-
-        public static GroupableAndSearchableComboBox<MaterialGroup, Material> createComboBox(
-                MaterialModel mm, Component... extraCategoryWidgets) {
-            return new GroupableAndSearchableComboBox<>(mm,
-                    trans.get("MaterialPanel.MaterialComboBox.placeholder"), extraCategoryWidgets) {
-                @Override
-                public String getDisplayString(Material item) {
-                    String baseText = item.toString();
-                    if (item.isUserDefined()) {
-                        baseText = "(ud) " + baseText;
-                    }
-                    return baseText;
-                }
-            };
         }
     }
 }

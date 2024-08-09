@@ -15,6 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
+import info.openrocket.core.material.MaterialGroup;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -111,7 +114,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		MaterialModel mm = new MaterialModel(panel, document, component, Material.Type.SURFACE);
 		register(mm);
-		JComboBox<Material> streamerMaterialCombo = new JComboBox<>(mm);
+		GroupableAndSearchableComboBox<MaterialGroup, Material> streamerMaterialCombo = MaterialComboBox.createComboBox(document, mm);
 		//// The component material affects the weight of the component.
 		streamerMaterialCombo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
 		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");

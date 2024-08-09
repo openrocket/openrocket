@@ -18,6 +18,9 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
 
+import info.openrocket.core.material.MaterialGroup;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -89,7 +92,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 		MaterialModel mm = new MaterialModel(canopyPanel, document, component, Material.Type.SURFACE);
 		register(mm);
-		JComboBox<Material> surfaceMaterialCombo = new JComboBox<>(mm);
+		GroupableAndSearchableComboBox<MaterialGroup, Material> surfaceMaterialCombo = MaterialComboBox.createComboBox(document, mm);
 		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
 		canopyPanel.add(surfaceMaterialCombo, "spanx, growx, wrap 15lp");
 		order.add(surfaceMaterialCombo);
@@ -160,7 +163,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 		mm = new MaterialModel(shroudPanel, document, component, Material.Type.LINE, "LineMaterial");
 		register(mm);
-		JComboBox<Material> shroudMaterialCombo = new JComboBox<>(mm);
+		GroupableAndSearchableComboBox<MaterialGroup, Material> shroudMaterialCombo = MaterialComboBox.createComboBox(document, mm);
 		shroudPanel.add(shroudMaterialCombo, "spanx, growx");
 		order.add(shroudMaterialCombo);
 

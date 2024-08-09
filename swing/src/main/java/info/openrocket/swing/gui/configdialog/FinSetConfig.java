@@ -21,10 +21,15 @@ import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.components.SVGOptionPanel;
+import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
+import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -629,10 +634,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 		MaterialModel mm = new MaterialModel(filletPanel, document, component, Material.Type.BULK, "FilletMaterial");
 		register(mm);
-	    JComboBox<Material> materialCombo = new JComboBox<>(mm);
 
-	    //// The component material affects the weight of the component.
-	    materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
+		// Material selection combo box
+		GroupableAndSearchableComboBox<MaterialGroup, Material> materialCombo = MaterialComboBox.createComboBox(document, mm);
+		materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(materialCombo, "spanx 4, growx");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);
