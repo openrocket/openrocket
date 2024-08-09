@@ -8,7 +8,7 @@ public class PrintProperties {
 	public static void main(String[] args) {
 
 		// Sort the keys
-		SortedSet<String> keys = new TreeSet<String>();
+		SortedSet<String> keys = new TreeSet<>();
 		for (Object key : System.getProperties().keySet()) {
 			keys.add((String) key);
 		}

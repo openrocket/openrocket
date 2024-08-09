@@ -104,12 +104,12 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		Unit no_unit = new GeneralUnit(1, "", 2) {
 			@Override
 			public double getNextValue(double value) {
-				return value + .1;
+				return value + 0.1;
 			}
 
 			@Override
 			public double getPreviousValue(double value) {
-				return value - .1;
+				return value - 0.1;
 			}
 
 		};
@@ -357,7 +357,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			System.arraycopy(LineStyle.values(), 0, list, 1,
 					LineStyle.values().length);
 
-			final JComboBox<LineStyle> combo = new JComboBox<LineStyle>(new EnumModel<LineStyle>(c,
+			final JComboBox<LineStyle> combo = new JComboBox<>(new EnumModel<>(c,
 					"LineStyle",
 					// // Default style
 					list, trans.get("LineStyle.Defaultstyle")));
@@ -514,7 +514,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		register(mDefault);
 
 		DecalModel decalModel = new DecalModel(panel, document, builder);
-		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
+		JComboBox<DecalImage> textureDropDown = new JComboBox<>(decalModel);
 		textureDropDown.setMaximumRowCount(20);
 
 		// We need to add this action listener that triggers a decalModel update when the same item is selected, because

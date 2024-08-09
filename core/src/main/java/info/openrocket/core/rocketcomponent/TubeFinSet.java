@@ -2,11 +2,8 @@ package info.openrocket.core.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventObject;
 import java.util.List;
 
-import info.openrocket.core.appearance.Appearance;
-import info.openrocket.core.appearance.Decal;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
@@ -15,7 +12,10 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.AxialPositionable;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.*;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Transformation;
 
 public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, RingInstanceable, InsideColorComponent {
 	private static final Translator trans = Application.getTranslator();
@@ -360,7 +360,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
+		List<Coordinate> bounds = new ArrayList<>();
 		double r = getBodyRadius();
 
 		addBound(bounds, 0, 2 * getBoundingRadius());

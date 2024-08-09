@@ -57,7 +57,7 @@ public class Rule extends PrintableComponent {
 
         if (orientation == Orientation.TOP) {
             Font f = g.getFont();
-            g.setFont(f.deriveFont(f.getSize() - 2f));
+            g.setFont(f.deriveFont(f.getSize() - 2.0f));
             g.drawString("in  cm", x - MAJOR_TICK_LENGTH, y + width + 20);
             g.drawString("in", x + width + 4, y + 4);
             g.drawString("cm", x + width + 4, y + 18);
@@ -71,7 +71,7 @@ public class Rule extends PrintableComponent {
         }
         else {
             Font f = g.getFont();
-            g.setFont(f.deriveFont(f.getSize() - 2f));
+            g.setFont(f.deriveFont(f.getSize() - 2.0f));
             g.drawString("in  cm", x - MAJOR_TICK_LENGTH, y);
             g.drawString("cm", x + width + 6, y + width + 4);
             g.drawString("in", x + width + 6, y + width + 18);

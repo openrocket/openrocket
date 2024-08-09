@@ -1,6 +1,7 @@
 package info.openrocket.core.file.openrocket.importt;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.xml.sax.SAXException;
 
@@ -69,8 +70,8 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 			rocket.getFlightConfiguration(fcid).setName(name);
 		}
 
-		for (int stageNr : stageActiveness.keySet()) {
-			rocket.getFlightConfiguration(fcid).preloadStageActiveness(stageNr, stageActiveness.get(stageNr));
+		for (Map.Entry<Integer, Boolean> entry : stageActiveness.entrySet()) {
+			rocket.getFlightConfiguration(fcid).preloadStageActiveness(entry.getKey(), entry.getValue());
 		}
 
 		if ("true".equals(attributes.remove("default"))) {

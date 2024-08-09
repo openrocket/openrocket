@@ -3,6 +3,7 @@ package info.openrocket.core.rocketcomponent;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import info.openrocket.core.util.ArrayList;
@@ -21,7 +22,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 
 	// private static final Logger log =
 	// LoggerFactory.getLogger(ParameterSet.class);
-	protected final LinkedHashMap<FlightConfigurationId, E> map = new LinkedHashMap<FlightConfigurationId, E>();
+	protected final LinkedHashMap<FlightConfigurationId, E> map = new LinkedHashMap<>();
 
 	/**
 	 * Construct a FlightConfiguration that has no overrides.
@@ -38,9 +39,9 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @param configSet the FlightConfigurableParameterSet to copy
 	 */
 	public FlightConfigurableParameterSet(FlightConfigurableParameterSet<E> configSet) {
-		for (FlightConfigurationId key : configSet.map.keySet()) {
-			E cloneConfig = configSet.map.get(key).clone();
-			this.map.put(key, cloneConfig);
+		for (Entry<FlightConfigurationId, E> entry : configSet.map.entrySet()) {
+			E cloneConfig = entry.getValue().clone();
+			this.map.put(entry.getKey(), cloneConfig);
 		}
 	}
 
@@ -152,7 +153,7 @@ public class FlightConfigurableParameterSet<E extends FlightConfigurableParamete
 	 * @return a sorted list of all the contained FlightConfigurationIDs
 	 */
 	public List<FlightConfigurationId> getIds() {
-		ArrayList<FlightConfigurationId> toReturn = new ArrayList<FlightConfigurationId>();
+		ArrayList<FlightConfigurationId> toReturn = new ArrayList<>();
 
 		toReturn.addAll(this.map.keySet());
 		toReturn.remove(FlightConfigurationId.DEFAULT_VALUE_FCID);

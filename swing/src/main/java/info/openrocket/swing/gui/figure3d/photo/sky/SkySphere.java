@@ -32,7 +32,7 @@ public class SkySphere extends Sky {
 		GLUquadric q = glu.gluNewQuadric();
 		glu.gluQuadricTexture(q, true);
 		glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
-		glu.gluSphere(q, 1f, 20, 20);
+		glu.gluSphere(q, 1.0f, 20, 20);
 		sky.disable(gl);
 		gl.glPopMatrix();
 		gl.glCullFace(GL.GL_BACK);

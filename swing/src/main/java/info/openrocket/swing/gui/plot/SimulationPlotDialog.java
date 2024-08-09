@@ -114,7 +114,7 @@ public class SimulationPlotDialog extends JDialog {
 		checkErrors.setVisible(simulation.hasErrors());
 
 		//// Add series selection box
-		ArrayList<String> stages = new ArrayList<String>();
+		ArrayList<String> stages = new ArrayList<>();
 		stages.add(trans.get("PlotDialog.StageDropDown.allStages"));
 		stages.addAll(Util.generateSeriesLabels(simulation));
 

@@ -26,7 +26,7 @@ import info.openrocket.core.util.Statistics;
 public class GoldenSectionSearchOptimizer implements FunctionOptimizer, Statistics {
 	private static final Logger log = LoggerFactory.getLogger(GoldenSectionSearchOptimizer.class);
 
-	private static final double ALPHA = (Math.sqrt(5) - 1) / 2.0;
+	private static final double ALPHA = (2.23606797749979 - 1) / 2.0;	// Math.sqrt(5) - ...
 
 	private ParallelFunctionCache functionExecutor;
 

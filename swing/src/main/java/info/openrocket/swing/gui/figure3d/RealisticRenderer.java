@@ -127,9 +127,7 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
 		float[] convertedColor = this.convertColor(a, alpha);
-		for (int i=0; i < convertedColor.length; i++) {
-			color[i] = convertedColor[i];
-		}
+		System.arraycopy(convertedColor, 0, color, 0, convertedColor.length);
 		
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
@@ -223,18 +221,13 @@ public class RealisticRenderer extends RocketRenderer {
 	}
 	
 	private int toEdgeMode(Decal.EdgeMode m) {
-		switch (m) {
-		case REPEAT:
-			return GL.GL_REPEAT;
-		case MIRROR:
-			return GL.GL_MIRRORED_REPEAT;
-		case CLAMP:
-			return GL.GL_CLAMP_TO_EDGE;
-		case STICKER:
-			return GL2.GL_CLAMP_TO_BORDER;
-		default:
-			return GL.GL_CLAMP_TO_EDGE;
-		}
+		return switch (m) {
+			case REPEAT -> GL.GL_REPEAT;
+			case MIRROR -> GL.GL_MIRRORED_REPEAT;
+			case CLAMP -> GL.GL_CLAMP_TO_EDGE;
+			case STICKER -> GL2.GL_CLAMP_TO_BORDER;
+			default -> GL.GL_CLAMP_TO_EDGE;
+		};
 	}
 	
 	protected static void convertColor(ORColor color, float[] out) {
@@ -244,10 +237,10 @@ public class RealisticRenderer extends RocketRenderer {
 			out[2] = 0;
 			out[3] = 1;
 		} else {
-			out[0] = (float) color.getRed() / 255f;
-			out[1] = (float) color.getGreen() / 255f;
-			out[2] = (float) color.getBlue() / 255f;
-			out[3] = (float) color.getAlpha() / 255f;
+			out[0] = (float) color.getRed() / 255.0f;
+			out[1] = (float) color.getGreen() / 255.0f;
+			out[2] = (float) color.getBlue() / 255.0f;
+			out[3] = (float) color.getAlpha() / 255.0f;
 		}
 	}
 }

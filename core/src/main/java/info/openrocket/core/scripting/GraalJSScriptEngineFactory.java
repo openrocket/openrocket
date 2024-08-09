@@ -3,12 +3,15 @@ package info.openrocket.core.scripting;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptException;
-import java.util.*;
 
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GraalJSScriptEngineFactory implements ScriptEngineFactory {
     private static final String ENGINE_NAME = "Graal.js";
@@ -81,20 +84,14 @@ public class GraalJSScriptEngineFactory implements ScriptEngineFactory {
     }
 
     public Object getParameter(String key) {
-        switch (key) {
-            case "javax.script.name":
-                return "javascript";
-            case "javax.script.engine":
-                return this.getEngineName();
-            case "javax.script.engine_version":
-                return this.getEngineVersion();
-            case "javax.script.language":
-                return this.getLanguageName();
-            case "javax.script.language_version":
-                return this.getLanguageVersion();
-            default:
-                return null;
-        }
+		return switch (key) {
+			case "javax.script.name" -> "javascript";
+			case "javax.script.engine" -> this.getEngineName();
+			case "javax.script.engine_version" -> this.getEngineVersion();
+			case "javax.script.language" -> this.getLanguageName();
+			case "javax.script.language_version" -> this.getLanguageVersion();
+			default -> null;
+		};
     }
 
     public String getProgram(final String... statements) {

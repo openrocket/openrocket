@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.optimization.general.OptimizationException;
@@ -57,7 +56,7 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		final Point point = new Point(p1, p2);
 
 		// Setup stubbing for methods that return values
-		when(domain.getDistanceToDomain(simulation)).thenReturn(new Pair<Double, Value>(ddist, dref));
+		when(domain.getDistanceToDomain(simulation)).thenReturn(new Pair<>(ddist, dref));
 		when(parameter.computeValue(simulation)).thenReturn(pvalue);
 		when(parameter.getUnitGroup()).thenReturn(UnitGroup.UNITS_NONE);
 		when(goal.getMinimizationParameter(pvalue)).thenReturn(gvalue);
@@ -89,7 +88,7 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		verify(modifier1, times(1)).getUnitGroup();
 		verify(modifier2, times(1)).getCurrentSIValue(simulation);
 		verify(modifier2, times(1)).getUnitGroup();
-		verify(listener, times(1)).evaluated(eq(point), argThat(new ArgumentMatcher<Value[]>() {
+		verify(listener, times(1)).evaluated(eq(point), argThat(new ArgumentMatcher<>() {
 			@Override
 			public boolean matches(Value[] argument) {
 				// Customize this as necessary to match the expected Value[] array
@@ -164,7 +163,7 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		function.addRocketOptimizationListener(listener);
 
 		double value = function.evaluate(new Point(p1, p2));
-		assertTrue(value > 1e100);
+		assertTrue(value > 1.0e100);
 
 		// Verify the interactions
 		verify(modifier1).modify(simulation, p1);
@@ -176,7 +175,7 @@ public class TestRocketOptimizationFunction extends BaseTestCase {
 		verify(modifier2).getUnitGroup();
 
 		// For verifying the call to listener.evaluated with complex arguments
-		verify(listener).evaluated(eq(point), argThat(new ArgumentMatcher<Value[]>() {
+		verify(listener).evaluated(eq(point), argThat(new ArgumentMatcher<>() {
 			@Override
 			public boolean matches(Value[] argument) {
 				// Adjust the logic here based on how specific you need to be about the values

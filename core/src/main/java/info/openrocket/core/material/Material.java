@@ -191,22 +191,13 @@ public abstract class Material implements Comparable<Material> {
 	 * @return				the new material
 	 */
 	public static Material newMaterial(Type type, String name, double density, boolean userDefined) {
-		switch (type) {
-		case LINE:
-			return new Material.Line(name, density, userDefined);
-			
-		case SURFACE:
-			return new Material.Surface(name, density, userDefined);
-			
-		case BULK:
-			return new Material.Bulk(name, density, userDefined);
-		
-		case CUSTOM:
-			return new Material.Custom(name, density, userDefined);
-			
-		default:
-			throw new IllegalArgumentException("Unknown material type: " + type);
-		}
+		return switch (type) {
+			case LINE -> new Line(name, density, userDefined);
+			case SURFACE -> new Surface(name, density, userDefined);
+			case BULK -> new Bulk(name, density, userDefined);
+			case CUSTOM -> new Custom(name, density, userDefined);
+			default -> throw new IllegalArgumentException("Unknown material type: " + type);
+		};
 	}
 	
 	public String toStorableString() {
@@ -247,20 +238,13 @@ public abstract class Material implements Comparable<Material> {
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("Illegal material string: " + str, e);
 		}
-		
-		switch (type) {
-		case BULK:
-			return new Material.Bulk(name, density, userDefined);
-			
-		case SURFACE:
-			return new Material.Surface(name, density, userDefined);
-			
-		case LINE:
-			return new Material.Line(name, density, userDefined);
-			
-		default:
-			throw new IllegalArgumentException("Illegal material string: " + str);
-		}
+
+		return switch (type) {
+			case BULK -> new Bulk(name, density, userDefined);
+			case SURFACE -> new Surface(name, density, userDefined);
+			case LINE -> new Line(name, density, userDefined);
+			default -> throw new IllegalArgumentException("Illegal material string: " + str);
+		};
 	}
 	
 }

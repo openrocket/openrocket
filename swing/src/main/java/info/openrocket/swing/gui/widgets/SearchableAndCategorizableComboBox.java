@@ -151,8 +151,8 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 
 	private T[] extractItemsFromMap(Map<E, T[]> itemGroupMap) {
 		Set<T> uniqueItems = new HashSet<>(); // Use a Set to ensure uniqueness
-		for (E group : itemGroupMap.keySet()) {
-			uniqueItems.addAll(Arrays.asList(itemGroupMap.get(group)));
+		for (T[] ts : itemGroupMap.values()) {
+			uniqueItems.addAll(Arrays.asList(ts));
 		}
 		ArrayList<T> items = new ArrayList<>(uniqueItems);
 		return items.toArray((T[]) new Object[0]);
@@ -166,9 +166,9 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		menu.addSeparator(); // Separator between search field and menu items
 
 		// Fill the menu with the groups
-		for (E group : itemGroupMap.keySet()) {
-			JMenu groupList = new JMenu(group.toString());
-			T[] itemsForGroup = itemGroupMap.get(group);
+		for (Map.Entry<E, T[]> entry : itemGroupMap.entrySet()) {
+			JMenu groupList = new JMenu(entry.getKey().toString());
+			T[] itemsForGroup = entry.getValue();
 
 			if (itemsForGroup != null) {
 				for (T item : itemsForGroup) {
@@ -418,7 +418,7 @@ public class SearchableAndCategorizableComboBox<E, T> extends JComboBox<T> {
 		private final SortedSet<T> model;
 
 		public SortedListModel() {
-			Comparator<T> alphabeticalComparator = new Comparator<T>() {
+			Comparator<T> alphabeticalComparator = new Comparator<>() {
 				@Override
 				public int compare(T o1, T o2) {
 					return o1.toString().compareToIgnoreCase(o2.toString());

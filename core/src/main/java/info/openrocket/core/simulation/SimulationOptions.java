@@ -79,7 +79,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	
 	private int randomSeed = new Random().nextInt();
 
-	private List<EventListener> listeners = new ArrayList<EventListener>();
+	private List<EventListener> listeners = new ArrayList<>();
 
 	public SimulationOptions() {
 	}
@@ -349,7 +349,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	public SimulationOptions clone() {
 		try {
 			SimulationOptions copy = (SimulationOptions) super.clone();
-			copy.listeners = new ArrayList<EventListener>();
+			copy.listeners = new ArrayList<>();
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException(e);

@@ -1,6 +1,5 @@
 package info.openrocket.core.file.rasaero;
 
-import info.openrocket.core.file.motor.GeneralMotorLoader;
 import info.openrocket.core.file.motor.RASPMotorLoader;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;

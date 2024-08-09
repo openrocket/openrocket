@@ -16,7 +16,6 @@ import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.ParallelStage;
-import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
@@ -24,6 +23,7 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -100,8 +100,8 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         RocketComponent transition1 = stage1.getChild(0);
         RocketComponent transition2 = stage1.getChild(1);
-        assertEquals(Transition.class, transition1.getClass(), " Component should have been transition");
-        assertEquals(Transition.class, transition2.getClass(), " Component should have been transition");
+        assertSame(Transition.class, transition1.getClass(), " Component should have been transition");
+        assertSame(Transition.class, transition2.getClass(), " Component should have been transition");
         assertEquals(transition1.getName(), "Transition 1");
         assertEquals(transition2.getName(), "Transition 2");
         assertEquals(1, transition1.getChildCount());
@@ -125,8 +125,8 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         RocketComponent finSet1 = transition1.getChild(0);
         RocketComponent finSet2 = transition2.getChild(0);
-        assertEquals(FreeformFinSet.class, finSet1.getClass(), " Component should have been free form fin set");
-        assertEquals(FreeformFinSet.class, finSet2.getClass(), " Component should have been free form fin set");
+        assertSame(FreeformFinSet.class, finSet1.getClass(), " Component should have been free form fin set");
+        assertSame(FreeformFinSet.class, finSet2.getClass(), " Component should have been free form fin set");
         assertEquals(finSet1.getName(), "Fin set 1");
         assertEquals(finSet2.getName(), "Fin set 2");
 
@@ -248,18 +248,18 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(2, nc.getChildCount());
         assertEquals(nc.getChild(0).getName(), "Clay");
         RocketComponent it = nc.getChild(1);
-        assertEquals(InnerTube.class, it.getClass());
+        assertSame(InnerTube.class, it.getClass());
         assertEquals(it.getName(), "Attachment Rod");
 
         assertEquals(3, it.getChildCount());
         RocketComponent c = it.getChild(0);
-        assertEquals(CenteringRing.class, c.getClass());
+        assertSame(CenteringRing.class, c.getClass());
         assertEquals(c.getName(), "Plate");
         c = it.getChild(1);
-        assertEquals(CenteringRing.class, c.getClass());
+        assertSame(CenteringRing.class, c.getClass());
         assertEquals(c.getName(), "Sleeve ");
         c = it.getChild(2);
-        assertEquals(Parachute.class, c.getClass());
+        assertSame(Parachute.class, c.getClass());
         assertEquals(c.getName(), "Nose Cone Parachute");
 
         BodyTube bt1 = (BodyTube) stage1.getChild(1);
@@ -267,7 +267,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(bt1.getChild(0).getName(), "Centering ring");
         assertEquals(bt1.getChild(1).getName(), "Centering ring");
         c = bt1.getChild(2);
-        assertEquals(InnerTube.class, c.getClass());
+        assertSame(InnerTube.class, c.getClass());
         assertEquals(c.getName(), "Body tube");
         assertEquals(bt1.getChild(3).getName(), "Launch lug");
         assertEquals(bt1.getChild(4).getName(), "Pod");
@@ -275,7 +275,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         ParallelStage pod = (ParallelStage) bt1.getChild(4);
         assertEquals(1, pod.getChildCount());
         c = pod.getChild(0);
-        assertEquals(BodyTube.class, c.getClass());
+        assertSame(BodyTube.class, c.getClass());
         assertEquals(pod.getChild(0).getName(), "Body tube");
 
         assertEquals(1, stage2.getChildCount());
@@ -437,56 +437,56 @@ public class RockSimLoaderTest extends BaseTestCase {
         RocketComponent noseCone1 = stage1.getChild(0);
         RocketComponent bodyTube1 = stage1.getChild(1);
         RocketComponent transition1 = stage1.getChild(2);
-        assertEquals(NoseCone.class, noseCone1.getClass());
-        assertEquals(BodyTube.class, bodyTube1.getClass());
-        assertEquals(Transition.class, transition1.getClass());
+        assertSame(NoseCone.class, noseCone1.getClass());
+        assertSame(BodyTube.class, bodyTube1.getClass());
+        assertSame(Transition.class, transition1.getClass());
         assertEquals("Nose cone 1", noseCone1.getName());
         assertEquals("Body tube 1", bodyTube1.getName());
         assertEquals("Transition 1", transition1.getName());
 
         assertEquals(1, noseCone1.getChildCount());
         RocketComponent component = noseCone1.getChild(0);
-        assertEquals(MassComponent.class, component.getClass());
+        assertSame(MassComponent.class, component.getClass());
         assertEquals("Mass object 1", component.getName());
 
         assertEquals(2, bodyTube1.getChildCount());
         RocketComponent pod2 = bodyTube1.getChild(0);
-        assertEquals(ParallelStage.class, pod2.getClass());
+        assertSame(ParallelStage.class, pod2.getClass());
         assertEquals("Pod 2", pod2.getName());
         component = bodyTube1.getChild(1);
-        assertEquals(Bulkhead.class, component.getClass());
+        assertSame(Bulkhead.class, component.getClass());
         assertEquals("Bulkhead 1", component.getName());
 
         assertEquals(3, pod2.getChildCount());
         RocketComponent noseCone2 = pod2.getChild(0);
-        assertEquals(NoseCone.class, noseCone2.getClass());
+        assertSame(NoseCone.class, noseCone2.getClass());
         assertEquals("Nose cone 2", noseCone2.getName());
         RocketComponent bodyTube2 = pod2.getChild(1);
-        assertEquals(BodyTube.class, bodyTube2.getClass());
+        assertSame(BodyTube.class, bodyTube2.getClass());
         assertEquals("Body tube 2", bodyTube2.getName());
         component = pod2.getChild(2);
-        assertEquals(Transition.class, component.getClass());
+        assertSame(Transition.class, component.getClass());
         assertEquals("Transition 2", component.getName());
 
         assertEquals(1, noseCone2.getChildCount());
         component = noseCone2.getChild(0);
-        assertEquals(MassComponent.class, component.getClass());
+        assertSame(MassComponent.class, component.getClass());
         assertEquals("Mass object 2", component.getName());
 
         assertEquals(3, bodyTube2.getChildCount());
         component = bodyTube2.getChild(0);
-        assertEquals(TrapezoidFinSet.class, component.getClass());
+        assertSame(TrapezoidFinSet.class, component.getClass());
         assertEquals("Fin set 2", component.getName());
         RocketComponent pod3 = bodyTube2.getChild(1);
-        assertEquals(ParallelStage.class, pod3.getClass());
+        assertSame(ParallelStage.class, pod3.getClass());
         assertEquals("Pod 3", pod3.getName());
         component = bodyTube2.getChild(2);
-        assertEquals(LaunchLug.class, component.getClass());
+        assertSame(LaunchLug.class, component.getClass());
         assertEquals("Launch lug 1", component.getName());
 
         assertEquals(1, pod3.getChildCount());
         component = pod3.getChild(0);
-        assertEquals(BodyTube.class, component.getClass());
+        assertSame(BodyTube.class, component.getClass());
         assertEquals("Body tube 3", component.getName());
         assertEquals(0.04, pod3.getAxialOffset(), MathUtil.EPSILON);
         assertEquals(1.76043, pod3.getAngleOffset(), 0.0001);
@@ -494,7 +494,7 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         assertEquals(1, transition1.getChildCount());
         component = transition1.getChild(0);
-        assertEquals(MassComponent.class, component.getClass());
+        assertSame(MassComponent.class, component.getClass());
         assertEquals("Mass object 3", component.getName());
     }
 

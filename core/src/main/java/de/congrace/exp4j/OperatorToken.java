@@ -50,24 +50,16 @@ class OperatorToken extends CalculationToken {
 	 * @return the corresponding {@link Operation}
 	 */
 	static Operation getOperation(char c) {
-		switch (c) {
-		case '+':
-			return Operation.ADDITION;
-		case '-':
-			return Operation.SUBTRACTION;
-		case '*':
-			return Operation.MULTIPLICATION;
-		case '/':
-			return Operation.DIVISION;
-		case '^':
-			return Operation.EXPONENTIATION;
-		case '#':
-			return Operation.UNARY_MINUS;
-		case '%':
-			return Operation.MODULO;
-		default:
-			return null;
-		}
+		return switch (c) {
+			case '+' -> Operation.ADDITION;
+			case '-' -> Operation.SUBTRACTION;
+			case '*' -> Operation.MULTIPLICATION;
+			case '/' -> Operation.DIVISION;
+			case '^' -> Operation.EXPONENTIATION;
+			case '#' -> Operation.UNARY_MINUS;
+			case '%' -> Operation.MODULO;
+			default -> null;
+		};
 	}
 
 	static boolean isOperator(char c) {
@@ -132,27 +124,18 @@ class OperatorToken extends CalculationToken {
 	private double applyOperation(double[] values){
 				
 		//System.out.println("Applying "+operation.toString()+" to values starting "+values[0]);
-		
-		switch (operation) {
-		case ADDITION:
-			return values[0] + values[1];
-		case SUBTRACTION:
-			return values[0] - values[1];
-		case MULTIPLICATION:
-			return values[0] * values[1];
-		case EXPONENTIATION:
-			return Math.pow(values[0], values[1]);
-		case DIVISION:
-			return values[0] / values[1];
-		case UNARY_MINUS:
-			return -values[0];
-		case UNARY_PLUS:
-			return values[0];
-		case MODULO:
-			return values[0] % values[1];
-		default:
-			return 0;
-		}
+
+		return switch (operation) {
+			case ADDITION -> values[0] + values[1];
+			case SUBTRACTION -> values[0] - values[1];
+			case MULTIPLICATION -> values[0] * values[1];
+			case EXPONENTIATION -> Math.pow(values[0], values[1]);
+			case DIVISION -> values[0] / values[1];
+			case UNARY_MINUS -> -values[0];
+			case UNARY_PLUS -> values[0];
+			case MODULO -> values[0] % values[1];
+			default -> 0;
+		};
 	}
 
 	@Override
@@ -165,20 +148,11 @@ class OperatorToken extends CalculationToken {
 	}
 
 	int getOperandCount() {
-		switch (operation) {
-		case ADDITION:
-		case SUBTRACTION:
-		case MULTIPLICATION:
-		case DIVISION:
-		case EXPONENTIATION:
-		case MODULO:
-			return 2;
-		case UNARY_MINUS:
-		case UNARY_PLUS:
-			return 1;
-		default:
-			return 0;
-		}
+		return switch (operation) {
+			case ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, EXPONENTIATION, MODULO -> 2;
+			case UNARY_MINUS, UNARY_PLUS -> 1;
+			default -> 0;
+		};
 	}
 
 	/**

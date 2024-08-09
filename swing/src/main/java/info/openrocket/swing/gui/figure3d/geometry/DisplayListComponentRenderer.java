@@ -10,7 +10,7 @@ import info.openrocket.swing.gui.figure3d.geometry.Geometry.Surface;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 
 public class DisplayListComponentRenderer extends ComponentRenderer {
-	private Map<Key, Integer> lists = new HashMap<Key, Integer>();
+	private Map<Key, Integer> lists = new HashMap<>();
 	
 	@Override
 	public void updateFigure(GLAutoDrawable drawable) {

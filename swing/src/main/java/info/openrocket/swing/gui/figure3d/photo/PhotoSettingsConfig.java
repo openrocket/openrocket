@@ -293,8 +293,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 						return trans.get("DecalModel.lbl.select");
 					}
 				};
-				add(new JComboBox<Sky>(new DefaultComboBoxModel<Sky>(new Sky[] { noSky, Mountains.instance, Meadow.instance,
-						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance }) {
+				add(new JComboBox<>(new DefaultComboBoxModel<>(new Sky[]{noSky, Mountains.instance, Meadow.instance,
+						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance}) {
 				}) {
 					{
 						addActionListener(new ActionListener() {
@@ -320,8 +320,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 						if (p.getSky() != null) {
 							setSelectedItem(p.getSky());
-						}
-						else {
+						} else {
 							setSelectedItem(noSky);
 						}
 					}

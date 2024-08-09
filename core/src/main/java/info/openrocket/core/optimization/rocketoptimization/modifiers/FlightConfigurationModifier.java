@@ -60,9 +60,7 @@ public class FlightConfigurationModifier<E extends FlightConfigurableParameter<E
 		try {
 			configName = configName.substring(0, 1).toUpperCase(Locale.ENGLISH) + configName.substring(1);
 			configGetter = new Method(componentClass.getMethod("get" + configName));
-		} catch (SecurityException e) {
-			throw new BugException("Trying to find method get/set" + configName + " in class " + componentClass, e);
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			throw new BugException("Trying to find method get/set" + configName + " in class " + componentClass, e);
 		}
 

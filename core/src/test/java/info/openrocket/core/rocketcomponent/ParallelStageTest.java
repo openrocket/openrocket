@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.rocketcomponent.position.*;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
@@ -158,8 +159,8 @@ public class ParallelStageTest extends BaseTestCase {
 		final Rocket rocket = TestRockets.makeFalcon9Heavy();
 
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
-		Coordinate expectedPosition = new Coordinate(0, 0., 0.); // i.e. half the tube length
-		Coordinate targetPosition = new Coordinate(+4.0, 0., 0.);
+		Coordinate expectedPosition = new Coordinate(0, 0.0, 0.0); // i.e. half the tube length
+		Coordinate targetPosition = new Coordinate(+4.0, 0.0, 0.0);
 
 		// without making the rocket 'external' and the Stage should be restricted to
 		// AFTER positioning.
@@ -583,7 +584,7 @@ public class ParallelStageTest extends BaseTestCase {
 		final AxialStage coreStage = (AxialStage) rocket.getChild(1);
 		final ParallelStage boosterStage = (ParallelStage) coreStage.getChild(0).getChild(0);
 
-		final double targetOffset = +2.50;
+		final double targetOffset = 2.50;
 		final AxialMethod targetMethod = AxialMethod.TOP;
 		boosterStage.setAxialOffset(targetMethod, targetOffset);
 		String treeDumpBefore = rocket.toDebugTree();
@@ -625,8 +626,8 @@ public class ParallelStageTest extends BaseTestCase {
 		boosterB.setName("Booster B Stage");
 		coreBody.addChild(boosterB);
 
-		double targetOffset = +4.5;
-		double expectedOffset = +4.5;
+		double targetOffset = 4.5;
+		double expectedOffset = 4.5;
 		// requirement: regardless of initialization order (which we cannot control)
 		// two boosters with identical initialization commands should end up at the same
 		// place.

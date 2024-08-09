@@ -28,7 +28,7 @@ public class Base64 {
 	// REVERSE[PAD] = 0;
 	// }
 
-	private static final Map<Character, Integer> REVERSE = new HashMap<Character, Integer>();
+	private static final Map<Character, Integer> REVERSE = new HashMap<>();
 	static {
 		for (int i = 0; i < 64; i++) {
 			REVERSE.put(ALPHABET[i], i);

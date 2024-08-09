@@ -65,13 +65,10 @@ public class SlideSetLoader {
 	 */
 	public SlideSet load(String filename) throws IOException {
 		String file = baseDir + filename;
-		InputStream in = getLocalizedFile(file);
-		
-		try {
+
+		try (InputStream in = getLocalizedFile(file)) {
 			InputStreamReader reader = new InputStreamReader(in, "UTF-8");
 			return load(reader);
-		} finally {
-			in.close();
 		}
 	}
 	
@@ -98,7 +95,7 @@ public class SlideSetLoader {
 		}
 		
 
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add(base + "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant() + ext);
 		list.add(base + "_" + locale.getLanguage() + "_" + locale.getCountry() + ext);
 		list.add(base + "_" + locale.getLanguage() + ext);

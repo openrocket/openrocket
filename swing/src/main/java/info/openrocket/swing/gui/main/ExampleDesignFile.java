@@ -4,22 +4,13 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.JarUtil;
@@ -142,7 +133,7 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 	
 	private static ExampleDesignFile[] getJarFileNames() {
 		
-		ArrayList<ExampleDesignFile> list = new ArrayList<ExampleDesignFile>();
+		ArrayList<ExampleDesignFile> list = new ArrayList<>();
 		int dirLength = DIRECTORY.length();
 		
 		// Find and open the jar file this class is contained in
@@ -162,10 +153,8 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 		}
 		
 		// Iterate over JAR entries searching for designs
-		JarFile jarFile = null;
-		try {
-			jarFile = new JarFile(file);
-			
+		try (JarFile jarFile = new JarFile(file)) {
+
 			// Loop through JAR entries searching for files to load
 			Enumeration<JarEntry> entries = jarFile.entries();
 			while (entries.hasMoreElements()) {
@@ -178,18 +167,11 @@ public class ExampleDesignFile implements Comparable<ExampleDesignFile> {
 							name.substring(dirLength, name.length() - 4)));
 				}
 			}
-			
+
 		} catch (IOException e) {
 			logger.error("IOException when processing jarFile", e);
 			// Could be normal condition if not package in JAR
 			return null;
-		} finally {
-			if (jarFile != null) {
-				try {
-					jarFile.close();
-				} catch (IOException e) {
-				}
-			}
 		}
 		
 		return list.toArray(new ExampleDesignFile[0]);

@@ -1,26 +1,20 @@
 package info.openrocket.core.file.rocksim.export;
 
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
-import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.EngineBlock;
-import info.openrocket.core.rocketcomponent.FinSet;
-import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Streamer;
-import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Conversion DTO for a TubeCoupler. TubeCoupler's are represented as Rings in

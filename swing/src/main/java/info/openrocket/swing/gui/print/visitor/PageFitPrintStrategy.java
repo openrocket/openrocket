@@ -3,7 +3,6 @@
  */
 package info.openrocket.swing.gui.print.visitor;
 
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;
@@ -61,7 +60,7 @@ public class PageFitPrintStrategy {
     public PageFitPrintStrategy(Document doc, PdfWriter theWriter) {
         document = doc;
         writer = theWriter;
-    	componentToPrint = new ArrayList<PrintableComponent>();
+    	componentToPrint = new ArrayList<>();
     }
 
     /**

@@ -21,7 +21,7 @@ public class ManifestClasspathProvider implements ClasspathProvider {
 		try {
 			List<String> manifest = readManifestLine(MANIFEST_ATTRIBUTE);
 			
-			List<URL> urls = new ArrayList<URL>();
+			List<URL> urls = new ArrayList<>();
 			for (String s : manifest) {
 				parseManifestLine(urls, s);
 			}
@@ -34,7 +34,7 @@ public class ManifestClasspathProvider implements ClasspathProvider {
 	
 	
 	private List<String> readManifestLine(String name) throws IOException {
-		List<String> lines = new ArrayList<String>();
+		List<String> lines = new ArrayList<>();
 		
 		Enumeration<URL> resources = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
 		

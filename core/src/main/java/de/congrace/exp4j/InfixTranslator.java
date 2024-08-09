@@ -96,7 +96,7 @@ class InfixTranslator {
 		infixExpression = substituteUnaryOperators(infixExpression);
 		final Token[] tokens = new Tokenizer(variableStrings, customFunctions).tokenize(infixExpression);
 		final StringBuilder output = new StringBuilder(tokens.length);
-		final Stack<Token> operatorStack = new Stack<Token>();
+		final Stack<Token> operatorStack = new Stack<>();
 		for (final Token token : tokens) {
 			token.mutateStackForInfixTranslation(operatorStack, output);
 		}

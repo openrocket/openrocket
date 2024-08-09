@@ -56,7 +56,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private double effectiveLaunchRodLength;
 
 	// Set of all motors
-	private final List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
+	private final List<MotorClusterState> motorStateList = new ArrayList<>();
 
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
@@ -80,7 +80,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private boolean landed = false;
 
 	/** Contains a list of deployed recovery devices. */
-	private final MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<RecoveryDevice>();
+	private final MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<>();
 
 	/** The flight event queue */
 	private final EventQueue eventQueue = new EventQueue();
@@ -88,7 +88,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private WarningSet warnings;
 
 	/** Available for special purposes by the listeners. */
-	private final Map<String, Object> extraData = new HashMap<String, Object>();
+	private final Map<String, Object> extraData = new HashMap<>();
 
 	double maxAlt = Double.NEGATIVE_INFINITY;
 	double maxAltTime = 0;
@@ -230,7 +230,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	}
 
 	public Collection<MotorClusterState> getActiveMotors() {
-		List<MotorClusterState> activeList = new ArrayList<MotorClusterState>();
+		List<MotorClusterState> activeList = new ArrayList<>();
 		for (MotorClusterState state : this.motorStateList) {
 			if (this.configuration.isComponentActive(state.getMount())) {
 				activeList.add(state);

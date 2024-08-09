@@ -6,7 +6,6 @@ import java.util.Map;
 
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.util.MathUtil;

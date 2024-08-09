@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TransitionExporter extends RocketComponentExporter<Transition> {
-    private static final double RADIUS_EPSILON = 1e-4;
+    private static final double RADIUS_EPSILON = 1.0e-4;
     private final int nrOfSides;
     private static final Translator trans = Application.getTranslator();
 
@@ -209,7 +209,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                         obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? -1 : 1, 0, 0));
                         for (int i = 0; i <= numSides; i++) {
                             float u = (float) i / numSides;
-                            float v = 1f;
+                            float v = 1.0f;
                             obj.addTexCoord(u, v);
                         }
 
@@ -257,7 +257,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                     obj.addNormal(transformer.convertLocWithoutOriginOffs(isOutside ? 1 : -1, 0, 0));
                     for (int i = 0; i <= numSides; i++) {
                         float u = (float) i / numSides;
-                        float v = 0f;
+                        float v = 0.0f;
                         obj.addTexCoord(u, v);
                     }
                     isAftTip = true;
@@ -414,7 +414,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Need to add a last texture coordinate to close the texture
         final float v = (float) ((length-x) / length);
-        obj.addTexCoord(1f, v);
+        obj.addTexCoord(1.0f, v);
     }
 
     private void addQuadFaces(int numSides, int numStacks, int startIdx, int normalsStartIdx, int texCoordsStartIdx, boolean isOutside) {

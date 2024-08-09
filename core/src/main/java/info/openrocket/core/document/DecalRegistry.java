@@ -41,7 +41,7 @@ public class DecalRegistry {
 	}
 
 	/** the decal usage map */
-	private final Map<String, DecalImageImpl> registeredDecals = new HashMap<String, DecalImageImpl>();
+	private final Map<String, DecalImageImpl> registeredDecals = new HashMap<>();
 
 	/**
 	 * returns a new decal with the same image but with unique names
@@ -113,7 +113,7 @@ public class DecalRegistry {
 
 	public Collection<DecalImage> getDecalList() {
 
-		Set<DecalImage> decals = new TreeSet<DecalImage>();
+		Set<DecalImage> decals = new TreeSet<>();
 
 		decals.addAll(registeredDecals.values());
 
@@ -166,12 +166,9 @@ public class DecalRegistry {
 				if (!exportedFile.exists()) {
 					throw new DecalNotFoundException(exportedFile.getAbsolutePath(), this);
 				}
-				InputStream rawIs = new FileInputStream(exportedFile);
-				try {
+				try (InputStream rawIs = new FileInputStream(exportedFile)) {
 					byte[] bytes = FileUtils.readBytes(rawIs);
 					return new ByteArrayInputStream(bytes);
-				} finally {
-					rawIs.close();
 				}
 
 			}
@@ -299,7 +296,7 @@ public class DecalRegistry {
 		String basename = getGroup(BASE_NAME_INDEX, fileNamePattern.matcher(newName));
 		String extension = getGroup(EXTENSION_INDEX, fileNamePattern.matcher(newName));
 
-		Set<Integer> counts = new TreeSet<Integer>();
+		Set<Integer> counts = new TreeSet<>();
 
 		boolean needsRewrite = false;
 

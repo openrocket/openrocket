@@ -1,6 +1,14 @@
 package info.openrocket.swing.gui.util;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -18,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,13 +52,11 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.LookAndFeel;
 import javax.swing.RootPaneContainer;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
@@ -67,10 +72,8 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.formdev.flatlaf.FlatLightLaf;
 import info.openrocket.swing.gui.Resettable;
 
-import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.Preferences;
@@ -88,7 +91,7 @@ public class GUIUtil {
 	private static final KeyStroke ESCAPE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 	private static final String CLOSE_ACTION_KEY = "escape:WINDOW_CLOSING";
 	
-	private static final List<Image> images = new ArrayList<Image>();
+	private static final List<Image> images = new ArrayList<>();
 	static {
 		loadImage("pix/icon/icon-256.png");
 		loadImage("pix/icon/icon-064.png");
@@ -245,9 +248,9 @@ public class GUIUtil {
 	 * @param c		the component to modify
 	 */
 	public static void setTabToFocusing(Component c) {
-		Set<KeyStroke> strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("pressed TAB")));
+		Set<KeyStroke> strokes = new HashSet<>(Arrays.asList(KeyStroke.getKeyStroke("pressed TAB")));
 		c.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, strokes);
-		strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("shift pressed TAB")));
+		strokes = new HashSet<>(Arrays.asList(KeyStroke.getKeyStroke("shift pressed TAB")));
 		c.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, strokes);
 	}
 	
@@ -552,7 +555,7 @@ public class GUIUtil {
 				combo.removeActionListener(l);
 			}
 			ComboBoxModel<?> model = combo.getModel();
-			combo.setModel(new DefaultComboBoxModel<Object>());
+			combo.setModel(new DefaultComboBoxModel<>());
 			if (model instanceof Invalidatable) {
 				((Invalidatable) model).invalidateMe();
 			}

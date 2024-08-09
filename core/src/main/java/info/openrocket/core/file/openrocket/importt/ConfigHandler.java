@@ -18,7 +18,7 @@ public class ConfigHandler extends AbstractElementHandler {
 
 	private ConfigHandler listHandler;
 	private final Config config = new Config();
-	private final List<Object> list = new ArrayList<Object>();
+	private final List<Object> list = new ArrayList<>();
 
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
@@ -73,7 +73,7 @@ public class ConfigHandler extends AbstractElementHandler {
 				}
 			} else {
 				BigDecimal value = new BigDecimal(str);
-				if (value.equals(BigDecimal.valueOf(value.doubleValue()))) {
+				if (value.compareTo(BigDecimal.valueOf(value.doubleValue())) == 0) {
 					return value.doubleValue();
 				} else {
 					return value;

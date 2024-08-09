@@ -26,7 +26,7 @@ public class TestGenericModifier extends BaseTestCase {
 
 		Object related = new Object();
 
-		gm = new GenericModifier<TestGenericModifier.TestValue>("Test modifier", "Description", related,
+		gm = new GenericModifier<>("Test modifier", "Description", related,
 				UnitGroup.UNITS_NONE, 2.0, TestValue.class, "value") {
 			@Override
 			protected TestValue getModifiedObject(Simulation simulation) {
@@ -78,14 +78,15 @@ public class TestGenericModifier extends BaseTestCase {
 		assertEquals(4.0, value.d, EPSILON);
 	}
 
+	@Test
 	public void testSingularRange() throws OptimizationException {
 		gm.setMinValue(1.0);
 		gm.setMaxValue(1.0);
-		value.d = 0.5;
+		value.d = 0.25;
 		assertEquals(0.0, gm.getCurrentScaledValue(sim), EPSILON);
-		value.d = 1.0;
+		value.d = 0.5;
 		assertEquals(0.5, gm.getCurrentScaledValue(sim), EPSILON);
-		value.d = 1.00001;
+		value.d = 0.50001;
 		assertEquals(1.0, gm.getCurrentScaledValue(sim), EPSILON);
 	}
 

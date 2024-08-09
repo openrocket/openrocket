@@ -118,7 +118,7 @@ public class OpenRocketSaverTest {
 	public void testCreateLoadSave() {
 		
 		// Create rockets
-		ArrayList<OpenRocketDocument> rocketDocs = new ArrayList<OpenRocketDocument>();
+		ArrayList<OpenRocketDocument> rocketDocs = new ArrayList<>();
 		rocketDocs.add(TestRockets.makeTestRocket_v100());
 		rocketDocs.add(TestRockets.makeTestRocket_v101_withFinTabs());
 		rocketDocs.add(TestRockets.makeTestRocket_v101_withTubeCouplerChild());

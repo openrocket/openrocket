@@ -45,7 +45,7 @@ public class RocketDesignDTO {
     private String surface = RASAeroCommonConstants.FINISH_SMOOTH;
     @XmlElement(name = RASAeroCommonConstants.CD)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double CD = 0d;
+    private Double CD = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.MODIFIED_BARROWMAN)
     @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
     private Boolean modifiedBarrowman = false;
@@ -54,13 +54,13 @@ public class RocketDesignDTO {
     private Boolean turbulence = false;
     @XmlElement(name = RASAeroCommonConstants.SUSTAINER_NOZZLE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double sustainerNozzle = 0d;
+    private Double sustainerNozzle = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_NOZZLE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster1Nozzle = 0d;
+    private Double booster1Nozzle = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER2_NOZZLE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster2Nozzle = 0d;
+    private Double booster2Nozzle = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.USE_BOOSTER1)
     @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
     private Boolean useBooster1 = false;

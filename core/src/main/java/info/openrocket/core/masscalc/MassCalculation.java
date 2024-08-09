@@ -6,7 +6,10 @@ import java.util.Map;
 
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
@@ -78,7 +81,7 @@ public class MassCalculation {
 		this.centerOfMass = this.centerOfMass.setWeight(getMass() + mass);
 	}
 	
-	public MassCalculation copy( final RocketComponent _root, final Transformation _transform){
+	public MassCalculation copy(final RocketComponent _root, final Transformation _transform){
 		return new MassCalculation( this.type, this.config, this.simulationTime, this.activeMotorList, _root, _transform, this.analysisMap);
 	}
 		
@@ -119,10 +122,10 @@ public class MassCalculation {
 		return this.centerOfMass.hashCode();
 	}
 
-	public MassCalculation( final Type _type, final FlightConfiguration _config, final double _time,
-							final Collection<MotorClusterState> _activeMotorList,
-							final RocketComponent _root, final Transformation _transform,
-							Map<Integer, CMAnalysisEntry> _map)
+	public MassCalculation(final Type _type, final FlightConfiguration _config, final double _time,
+						   final Collection<MotorClusterState> _activeMotorList,
+						   final RocketComponent _root, final Transformation _transform,
+						   Map<Integer, CMAnalysisEntry> _map)
 	{
 		type = _type;
 		config = _config;
@@ -182,7 +185,7 @@ public class MassCalculation {
 	RigidBody inertia = RigidBody.EMPTY;
 	
 	// center-of-mass AND moment-of-inertia data.
-	final ArrayList<RigidBody> bodies = new ArrayList<RigidBody>();
+	final ArrayList<RigidBody> bodies = new ArrayList<>();
 
 	String prefix = "";
 

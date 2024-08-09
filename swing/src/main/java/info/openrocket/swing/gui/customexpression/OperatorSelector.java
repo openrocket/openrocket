@@ -60,8 +60,8 @@ public class OperatorSelector extends JDialog {
 		
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		int width = table.getColumnModel().getTotalColumnWidth();
-		table.getColumnModel().getColumn(0).setPreferredWidth((int) (.1 * width));
-		table.getColumnModel().getColumn(1).setPreferredWidth((int) (.9 * width));
+		table.getColumnModel().getColumn(0).setPreferredWidth((int) (0.1 * width));
+		table.getColumnModel().getColumn(1).setPreferredWidth((int) (0.9 * width));
 		table.setAutoCreateRowSorter(true);
 		
 		table.addMouseMotionListener(new MouseMotionAdapter() {

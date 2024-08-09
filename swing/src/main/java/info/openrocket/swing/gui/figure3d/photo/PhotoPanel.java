@@ -27,7 +27,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.glu.GLU;
-import com.jogamp.common.type.WriteCloneable;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -77,7 +77,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	private double ratio;
 	private boolean needUpdate = false;
 
-	private List<ImageCallback> imageCallbacks = new java.util.Vector<PhotoPanel.ImageCallback>();
+	private List<ImageCallback> imageCallbacks = new java.util.Vector<>();
 
 	private RocketRenderer rr;
 	private PhotoSettings p;
@@ -267,7 +267,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		if (p.isMotionBlurred()) {
 			Bounds b = calculateBounds();
 
-			float m = .6f;
+			float m = 0.6f;
 			int c = 10;
 			float d = (float) b.xSize / 25.0f;
 
@@ -295,7 +295,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 						.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
 								drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
 			}
-			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
+			final Vector<ImageCallback> cbs = new Vector<>(
 					imageCallbacks);
 			imageCallbacks.clear();
 			for (ImageCallback ia : cbs) {
@@ -383,10 +383,10 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			out[2] = 0;
 			out[3] = 1;
 		} else {
-			out[0] = (float) color.getRed() / 255f;
-			out[1] = (float) color.getGreen() / 255f;
-			out[2] = (float) color.getBlue() / 255f;
-			out[3] = (float) color.getAlpha() / 255f;
+			out[0] = (float) color.getRed() / 255.0f;
+			out[1] = (float) color.getGreen() / 255.0f;
+			out[2] = (float) color.getBlue() / 255.0f;
+			out[3] = (float) color.getAlpha() / 255.0f;
 		}
 	}
 
@@ -454,7 +454,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(p.getFov() * (180.0 / Math.PI), ratio, 0.1f, 50f);
+		glu.gluPerspective(p.getFov() * (180.0 / Math.PI), ratio, 0.1f, 50.0f);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
 		// Flip textures for LEFT handed coords
@@ -521,9 +521,9 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 			Bounds b = calculateBounds();
 			gl.glLightf(GLLightingFunc.GL_LIGHT2,
-					GLLightingFunc.GL_QUADRATIC_ATTENUATION, 20f);
+					GLLightingFunc.GL_QUADRATIC_ATTENUATION, 20.0f);
 			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_POSITION,
-					new float[] { (float) (b.xMax + .1f), 0, 0, 1 }, 0);
+					new float[] { (float) (b.xMax + 0.1f), 0, 0, 1 }, 0);
 			gl.glEnable(GLLightingFunc.GL_LIGHT2);
 		} else {
 			gl.glDisable(GLLightingFunc.GL_LIGHT2);
@@ -531,7 +531,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					new float[] { 0, 0, 0, 1 }, 0);
 		}
 
-		rr.render(drawable, configuration, new HashSet<RocketComponent>());
+		rr.render(drawable, configuration, new HashSet<>());
 
 		//Figure out the lowest stage shown
 
@@ -564,10 +564,10 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 					.toAbsolute(new Coordinate(((RocketComponent) mount)
 							.getLength() + mount.getMotorOverhang() - length));
 
-			for (int i = 0; i < position.length; i++) {
+			for (Coordinate coordinate : position) {
 				gl.glPushMatrix();
-				gl.glTranslated(position[i].x + motor.getLength(),
-						position[i].y, position[i].z);
+				gl.glTranslated(coordinate.x + motor.getLength(),
+						coordinate.y, coordinate.z);
 				FlameRenderer.drawExhaust(gl, p, motor);
 				gl.glPopMatrix();
 			}

@@ -1,8 +1,10 @@
 package info.openrocket.swing.gui.preset;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import java.awt.*;
+import java.awt.Component;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +20,7 @@ public class DeselectableComboBox<T> extends JComboBox<T> {
         super.setRenderer(new DeselectedItemsRenderer());
     }
 
-    private Set<Integer> disabled_items = new HashSet<Integer>();
+    private Set<Integer> disabled_items = new HashSet<>();
 
     public void addItem(T anObject, boolean disabled) {
         super.addItem(anObject);
@@ -30,7 +32,7 @@ public class DeselectableComboBox<T> extends JComboBox<T> {
     @Override
     public void removeAllItems() {
         super.removeAllItems();
-        disabled_items = new HashSet<Integer>();
+        disabled_items = new HashSet<>();
     }
 
     @Override

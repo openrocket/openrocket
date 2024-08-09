@@ -16,9 +16,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 public class TubeFinSetDTO extends BasePartDTO {
 
     @XmlElement(name = RockSimCommonConstants.OD)
-    private double od = 0d;
+    private double od = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ID)
-    private double id = 0d;
+    private double id = 0.0d;
     @XmlElement(name = RockSimCommonConstants.TUBE_COUNT)
     private int tubeCount = 0;
     @XmlElement(name = RockSimCommonConstants.MAX_TUBES_ALLOWED)

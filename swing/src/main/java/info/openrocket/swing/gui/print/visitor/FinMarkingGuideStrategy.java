@@ -10,7 +10,6 @@ import info.openrocket.swing.gui.print.FinMarkingGuide;
 import info.openrocket.swing.gui.print.ITextHelper;
 import info.openrocket.core.rocketcomponent.Rocket;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import org.slf4j.Logger;

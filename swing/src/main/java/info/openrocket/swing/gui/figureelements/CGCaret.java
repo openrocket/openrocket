@@ -3,9 +3,6 @@ package info.openrocket.swing.gui.figureelements;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
-import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.theme.UITheme;
-
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;

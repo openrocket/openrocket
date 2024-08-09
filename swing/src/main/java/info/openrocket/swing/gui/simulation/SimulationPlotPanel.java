@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -135,7 +134,7 @@ public class SimulationPlotPanel extends JPanel {
 		////  Configuration selector
 		
 		// Setup the combo box
-		configurationSelector = new JComboBox<PlotConfiguration>(PRESET_ARRAY);
+		configurationSelector = new JComboBox<>(PRESET_ARRAY);
 		for (PlotConfiguration config : PRESET_ARRAY) {
 			if (config.getName().equals(configuration.getName())) {
 				configurationSelector.setSelectedItem(config);
@@ -213,7 +212,7 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
 		//// The data will be plotted in time order even if the X axis type is not time.
-		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
+		simPlotPanelDesc = new DescriptionArea("", 2, -2.0f, false);
 		simPlotPanelDesc.setVisible(false);
 		simPlotPanelDesc.setForeground(darkErrorColor);
 		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());
@@ -532,7 +531,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			//// Axis:
 			this.add(new JLabel(trans.get("simplotpanel.lbl.Axis")));
-			axisSelector = new JComboBox<String>(POSITIONS);
+			axisSelector = new JComboBox<>(POSITIONS);
 			if (position == LEFT)
 				axisSelector.setSelectedIndex(1);
 			else if (position == RIGHT)
@@ -605,30 +604,20 @@ public class SimulationPlotPanel extends JPanel {
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case 0:
-				return Boolean.class;
-				
-			case 1:
-				return String.class;
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case 0 -> Boolean.class;
+				case 1 -> String.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
 		public Object getValueAt(int row, int column) {
-			switch (column) {
-			case 0:
-				return Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
-				
-			case 1:
-				return eventTypes[row].toString();
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case 0 -> Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
+				case 1 -> eventTypes[row].toString();
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override

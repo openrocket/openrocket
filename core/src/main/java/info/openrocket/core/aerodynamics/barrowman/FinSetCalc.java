@@ -546,9 +546,9 @@ public class FinSetCalc extends RocketComponentCalc {
 		// In between use interpolation polynomial
 		double x = 1.0;
 		double val = 0;
-		
-		for (int i = 0; i < poly.length; i++) {
-			val += poly[i] * x;
+
+		for (double v : poly) {
+			val += v * x;
 			x *= m;
 		}
 		//		logger.debug("val = {}", val);

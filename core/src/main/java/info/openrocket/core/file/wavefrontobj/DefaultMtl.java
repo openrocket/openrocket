@@ -212,7 +212,7 @@ public final class DefaultMtl implements Mtl {
      */
     public DefaultMtl(String name) {
         this.name = name;
-        this.reflOptions = new ArrayList<TextureOptions>();
+        this.reflOptions = new ArrayList<>();
     }
 
     @Override

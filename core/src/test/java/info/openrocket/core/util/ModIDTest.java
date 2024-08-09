@@ -1,7 +1,5 @@
 package info.openrocket.core.util;
 
-import info.openrocket.core.util.ModID;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;

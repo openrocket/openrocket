@@ -29,7 +29,6 @@ import info.openrocket.core.rocketcomponent.InstanceMap;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.Transformation;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
@@ -175,7 +174,7 @@ public abstract class RocketRenderer {
 		final InstanceMap imap = config.getActiveInstances();
 
 		// output buffer
-		final Collection<Geometry> treeGeometry = new ArrayList<Geometry>();
+		final Collection<Geometry> treeGeometry = new ArrayList<>();
 
 		for(Map.Entry<RocketComponent, ArrayList<InstanceContext>> entry: imap.entrySet() ) {
 			final RocketComponent comp = entry.getKey();
@@ -222,10 +221,10 @@ public abstract class RocketRenderer {
 		
 			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
 					.getLength() + mount.getMotorOverhang() - length));
-		
-			for (int i = 0; i < position.length; i++) {
+
+			for (Coordinate coordinate : position) {
 				gl.glPushMatrix();
-				gl.glTranslated(position[i].x, position[i].y, position[i].z);
+				gl.glTranslated(coordinate.x, coordinate.y, coordinate.z);
 				renderMotor(gl, motor);
 				gl.glPopMatrix();
 			}

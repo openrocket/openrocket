@@ -23,7 +23,7 @@ public abstract class Util {
 
 	public static List<String> generateSeriesLabels( Simulation simulation ) {
 		int size = simulation.getSimulatedData().getBranchCount();
-		ArrayList<String> stages = new ArrayList<String>(size);
+		ArrayList<String> stages = new ArrayList<>(size);
 		// we need to generate unique strings for each of the branches.  Since the branch names are based
 		// on the stage name there is no guarantee they are unique.  In order to address this, we first assume
 		// all the names are unique, then go through them looking for duplicates.

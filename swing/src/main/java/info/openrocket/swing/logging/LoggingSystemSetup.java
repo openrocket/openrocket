@@ -24,7 +24,7 @@ public class LoggingSystemSetup {
 	public static void addConsoleAppender() {
 		Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-		ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<ILoggingEvent>();
+		ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
 		appender.setName("console");
 		appender.setContext(context);
 		PatternLayoutEncoder layout = new PatternLayoutEncoder();

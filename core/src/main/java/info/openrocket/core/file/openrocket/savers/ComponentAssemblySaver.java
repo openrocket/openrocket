@@ -9,7 +9,7 @@ public class ComponentAssemblySaver extends RocketComponentSaver {
 	private static final ComponentAssemblySaver instance = new ComponentAssemblySaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		if (!c.isAfter()) {
 			if (c instanceof PodSet) {

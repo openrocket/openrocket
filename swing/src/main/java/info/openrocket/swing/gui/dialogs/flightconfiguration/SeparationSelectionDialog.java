@@ -89,7 +89,8 @@ public class SeparationSelectionDialog extends JDialog {
 		//// Stages separate at:
 		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.SeparatesAt")), "");
 				  
-		final JComboBox<SeparationEvent> event = new JComboBox<SeparationEvent>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
+		final JComboBox<SeparationEvent> event = new JComboBox<>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
+
 		event.setSelectedItem(newConfiguration.getSeparationEvent());
 		panel.add(event, "spanx 3, growx, wrap");
 		

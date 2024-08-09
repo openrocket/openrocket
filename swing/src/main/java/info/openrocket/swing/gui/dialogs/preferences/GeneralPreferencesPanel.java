@@ -73,14 +73,14 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			String locale = preferences.getString("locale", null);
 			userLocale = L10N.toLocale(locale);
 		}
-		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
+		List<Named<Locale>> locales = new ArrayList<>();
 		for (Locale l : SwingPreferences.getSupportedLocales()) {
-			locales.add(new Named<Locale>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
+			locales.add(new Named<>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
 		}
 		Collections.sort(locales);
-		locales.add(0, new Named<Locale>(null, trans.get("generalprefs.languages.default")));
+		locales.add(0, new Named<>(null, trans.get("generalprefs.languages.default")));
 		
-		final JComboBox<?> languageCombo = new JComboBox<Object>(locales.toArray());
+		final JComboBox<?> languageCombo = new JComboBox<>(locales.toArray());
 		for (int i = 0; i < locales.size(); i++) {
 			if (Utils.equals(userLocale, locales.get(i).get())) {
 				languageCombo.setSelectedIndex(i);
@@ -180,7 +180,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			
 			private void changed() {
 				String text = field.getText();
-				List<File> list = new ArrayList<File>();
+				List<File> list = new ArrayList<>();
 				for (String s : text.split(";")) {
 					s = s.trim();
 					if (s.length() > 0) {

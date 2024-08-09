@@ -1,14 +1,5 @@
 package info.openrocket.core.rocketcomponent;
 
-import info.openrocket.core.appearance.Appearance;
-import info.openrocket.core.appearance.Decal;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.position.AxialMethod;
-import info.openrocket.core.util.StateChangeListener;
-
-import java.util.EventObject;
-
 /**
  * This is a marker interface which, if applied to a component, will mark that
  * component as having the possibility to

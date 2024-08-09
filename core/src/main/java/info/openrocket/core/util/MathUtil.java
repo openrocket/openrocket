@@ -302,8 +302,8 @@ public class MathUtil {
 			return Double.NaN;
 		}
 
-		List<Number> sorted = new ArrayList<Number>(values);
-		Collections.sort(sorted, new Comparator<Number>() {
+		List<Number> sorted = new ArrayList<>(values);
+		sorted.sort(new Comparator<>() {
 			@Override
 			public int compare(Number o1, Number o2) {
 				return Double.compare(o1.doubleValue(), o2.doubleValue());
