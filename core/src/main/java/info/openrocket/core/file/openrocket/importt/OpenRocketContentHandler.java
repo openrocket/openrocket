@@ -65,7 +65,11 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 		}
 
 		if (element.equals("photostudio")) {
-			return new PhotoStudioHandler(context.getOpenRocketDocument().getPhotoSettings());
+			return new PhotoStudioHandler(getDocument().getPhotoSettings());
+		}
+
+		if (element.equals("docprefs")) {
+			return new DocumentPreferencesHandler(getDocument());
 		}
 
 		warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));

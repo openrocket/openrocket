@@ -50,7 +50,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
@@ -162,7 +162,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			caps.setBackgroundOpaque(false);
 
 			if (Application.getPreferences().getBoolean(
-					Preferences.OPENGL_ENABLE_AA, true)) {
+					ApplicationPreferences.OPENGL_ENABLE_AA, true)) {
 				caps.setSampleBuffers(true);
 				caps.setNumSamples(6);
 			} else {
@@ -170,7 +170,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			}
 
 			if (Application.getPreferences().getBoolean(
-					Preferences.OPENGL_USE_FBO, false)) {
+					ApplicationPreferences.OPENGL_USE_FBO, false)) {
 				log.trace("GL - Creating GLJPanel");
 				canvas = new GLJPanel(caps);
 				((GLJPanel) canvas).setOpaque(false);
@@ -287,7 +287,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			// in an off-screen framebuffer object (FBO), otherwise the fake transparency rendering will cause the
 			// exported image to have a fully white background.
 			if (!Application.getPreferences().getBoolean(
-					Preferences.OPENGL_USE_FBO, false) && p.getSkyColorOpacity() < 100) {
+					ApplicationPreferences.OPENGL_USE_FBO, false) && p.getSkyColorOpacity() < 100) {
 				i = drawToBufferedImage(drawable);
 			} else {
 				i = (new AWTGLReadBufferUtil(
@@ -443,7 +443,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		// Machines that don't use off-screen rendering can't render transparent background, so we create it
 		// artificially by blending the sky color with white (= color that is rendered as transparent background)
 		if (useFakeTransparencyRendering && !Application.getPreferences().getBoolean(
-				Preferences.OPENGL_USE_FBO, false)) {
+				ApplicationPreferences.OPENGL_USE_FBO, false)) {
 			convertColor(blendColors(p.getSkyColor(), new ORColor(255, 255, 255, 0), 1-p.getSkyColorOpacity()),
 					color);
 		} else {

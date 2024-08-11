@@ -32,7 +32,7 @@ import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.LinearInterpolator;
@@ -428,7 +428,7 @@ public class SimulationPlot {
 		List<Image> eventImages = new ArrayList<>();
 
 		// Plot the markers
-		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false)) {
+		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(ApplicationPreferences.MARKER_STYLE_ICON, false)) {
 			fillEventLists(branch, eventTimes, eventLabels, eventColors, eventImages);
 			plotVerticalLineMarkers(plot, eventTimes, eventLabels, eventColors);
 

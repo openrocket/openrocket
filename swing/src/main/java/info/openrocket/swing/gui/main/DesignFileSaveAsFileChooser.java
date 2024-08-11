@@ -17,7 +17,7 @@ import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.FileUtils;
 
 import info.openrocket.swing.file.wavefrontobj.OBJOptionChooser;
@@ -33,7 +33,7 @@ public class DesignFileSaveAsFileChooser extends SaveFileChooser {
 	private final OpenRocketDocument document;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	public static DesignFileSaveAsFileChooser build(OpenRocketDocument document, FileType type) {
 		return new DesignFileSaveAsFileChooser(document, type, null);

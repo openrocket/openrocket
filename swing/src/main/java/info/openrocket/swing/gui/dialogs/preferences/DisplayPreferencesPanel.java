@@ -6,8 +6,8 @@ package info.openrocket.swing.gui.dialogs.preferences;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
-import info.openrocket.core.startup.Preferences;
 
 /**
  * @author cpearls
@@ -23,13 +23,13 @@ public class DisplayPreferencesPanel extends PreferencesPanel {
 
 		this.add(
 				new JComboBox<>(new PrefChoiceSelector(
-						Preferences.ROCKET_INFO_FONT_SIZE,
+						ApplicationPreferences.ROCKET_INFO_FONT_SIZE,
 						// // Small
 						// // Medium
 						// // Large
 						trans.get("pref.dlg.PrefFontSmall"), trans
-						.get("pref.dlg.PrefFontMedium"), trans
-						.get("pref.dlg.PrefFontLarge"))),
+								.get("pref.dlg.PrefFontMedium"), trans
+								.get("pref.dlg.PrefFontLarge"))),
 				"wrap para, growx, sg combos");
 
 	}

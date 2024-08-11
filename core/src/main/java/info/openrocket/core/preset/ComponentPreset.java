@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import info.openrocket.core.material.Material;
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.rocketcomponent.ExternalComponent.Finish;
 import info.openrocket.core.rocketcomponent.Transition.Shape;
@@ -451,6 +452,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				} else if (key.getType() == Material.class) {
 					double d = ((Material) value).getDensity();
 					os.writeDouble(d);
+				} else if (key.getType() == MaterialGroup.class) {
+					String s = ((MaterialGroup) value).getDatabaseString();
+					os.writeBytes(s);
 				} else if (key.getType() == Shape.class) {
 					// this is ugly to use the ordinal but what else?
 					int i = ((Shape) value).ordinal();
@@ -477,6 +481,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 		String type;
 		boolean userDefined;
 		Double density;
+		String group;
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
@@ -495,6 +500,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				m.type = material.getType().name();
 				m.density = material.getDensity();
 				m.userDefined = material.isUserDefined();
+				m.group = material.getGroup().getDatabaseString();
 				value = m;
 			}
 
@@ -519,7 +525,8 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 
 			if (value instanceof MaterialSerializationProxy) {
 				MaterialSerializationProxy m = (MaterialSerializationProxy) value;
-				value = Material.newMaterial(Material.Type.valueOf(m.type), m.name, m.density, m.userDefined);
+				value = Material.newMaterial(Material.Type.valueOf(m.type), m.name, m.density,
+						MaterialGroup.loadFromDatabaseString(m.group), m.userDefined, true);
 			}
 			if (TYPE.getName().equals(keyName)) {
 				this.properties.put(TYPE, (ComponentPreset.Type) value);

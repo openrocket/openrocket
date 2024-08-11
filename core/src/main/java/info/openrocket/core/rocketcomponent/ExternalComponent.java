@@ -1,5 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import info.openrocket.core.l10n.Translator;
@@ -151,8 +152,19 @@ public abstract class ExternalComponent extends RocketComponent {
 		if (material.equals(mat))
 			return;
 		material = mat;
+		if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+		}
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(material);
+		return materials;
 	}
 
 	public Finish getFinish() {
@@ -184,6 +196,9 @@ public abstract class ExternalComponent extends RocketComponent {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if (mat != null) {
 				material = mat;
+				if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+				}
 			} /*
 				 * TODO -
 				 * else if (c.isMassOverridden()) {

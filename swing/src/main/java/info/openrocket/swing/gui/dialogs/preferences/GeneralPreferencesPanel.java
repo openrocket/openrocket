@@ -38,7 +38,7 @@ import info.openrocket.core.communication.UpdateInfoRetriever.ReleaseStatus;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
@@ -93,7 +93,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				Named<Locale> selection = (Named<Locale>) languageCombo.getSelectedItem();
 				if (selection == null) return;
 				Locale l = selection.get();
-				preferences.putString(Preferences.USER_LOCAL, l == null ? null : l.toString());
+				preferences.putString(ApplicationPreferences.USER_LOCAL, l == null ? null : l.toString());
 			}
 		});
 		this.add(new JLabel(trans.get("generalprefs.lbl.language")), "gapright para");

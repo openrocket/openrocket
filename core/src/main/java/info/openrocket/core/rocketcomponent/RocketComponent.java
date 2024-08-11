@@ -16,9 +16,10 @@ import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
 import org.slf4j.Logger;
@@ -153,7 +154,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Visibility does not affect component simulation.
 	 */
 	private boolean isVisible = true;
-	
+
 	
 	/**
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
@@ -777,7 +778,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final double getOverrideCD() {
 		mutex.verify();
 		if (!isCDOverridden()) {
-			Preferences preferences = Application.getPreferences();
+			ApplicationPreferences preferences = Application.getPreferences();
 			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 		return overrideCD;
@@ -847,7 +848,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 
 		if (!cdOverridden) {
-			Preferences preferences = Application.getPreferences();
+			ApplicationPreferences preferences = Application.getPreferences();
 			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 
@@ -1086,6 +1087,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				overriddenBy = c.cdOverridden && c.overrideSubcomponentsCD ? c : null;
 			}
 		}
+	}
+
+	/**
+	 * Returns all materials present in this component, or null if it does not have a material.
+	 * @return a list of materials
+	 */
+	public List<Material> getAllMaterials() {
+		return null;
 	}
 
 	/**

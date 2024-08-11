@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import info.openrocket.core.document.OpenRocketDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,7 @@ public class Rocket extends ComponentAssembly {
 
 	private boolean eventsEnabled = false;
 
+	private OpenRocketDocument document;
 	private ReferenceType refType = ReferenceType.MAXIMUM; // Set in constructor
 	private double customReferenceLength = DEFAULT_REFERENCE_LENGTH;
 	
@@ -199,7 +201,23 @@ public class Rocket extends ComponentAssembly {
 	public ModID getFunctionalModID() {
 		return functionalModID;
 	}
-	
+
+	/**
+	 * Return the OpenRocketDocument that this rocket is part of, or null if it is not part of any document.
+	 * @return the document, or null
+	 */
+	public OpenRocketDocument getDocument() {
+		return document;
+	}
+
+	/**
+	 * Set the OpenRocketDocument that this rocket is part of.
+	 * @param document the document
+	 */
+	public void setDocument(OpenRocketDocument document) {
+		this.document = document;
+	}
+
 	public Collection<AxialStage> getStageList() {
 		return this.stageMap.values();
 	}

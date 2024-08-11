@@ -4,6 +4,9 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.startup.Application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class StructuralComponent extends InternalComponent {
 
 	private Material material;
@@ -20,6 +23,9 @@ public abstract class StructuralComponent extends InternalComponent {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if (mat != null) {
 				this.material = mat;
+				if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+				}
 			} /*
 				 * TODO -
 				 * else if (c.isMassOverridden()) {
@@ -56,7 +62,18 @@ public abstract class StructuralComponent extends InternalComponent {
 		if (mat.equals(material))
 			return;
 		this.material = mat;
+		if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+		}
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(material);
+		return materials;
 	}
 }

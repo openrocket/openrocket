@@ -9,6 +9,7 @@ import info.openrocket.core.l10n.ExceptionSuppressingTranslator;
 import info.openrocket.core.l10n.Translator;
 
 import com.google.inject.Injector;
+import info.openrocket.core.preferences.ApplicationPreferences;
 
 /**
  * A class that provides singleton instances / beans for other classes to
@@ -58,8 +59,8 @@ public final class Application {
 	/**
 	 * @return the preferences
 	 */
-	public static Preferences getPreferences() {
-		return injector.getInstance(Preferences.class);
+	public static ApplicationPreferences getPreferences() {
+		return injector.getInstance(ApplicationPreferences.class);
 	}
 	
 	

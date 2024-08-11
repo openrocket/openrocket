@@ -21,10 +21,15 @@ import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.material.MaterialGroup;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.components.SVGOptionPanel;
+import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
+import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -62,7 +67,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final Logger log = LoggerFactory.getLogger(FinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private JButton split = null;
 	
@@ -625,12 +630,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(label, "spanx 4, wrap rel");
 
-		MaterialModel mm = new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial");
+		MaterialModel mm = new MaterialModel(filletPanel, document, component, Material.Type.BULK, "FilletMaterial");
 		register(mm);
-	    JComboBox<Material> materialCombo = new JComboBox<>(mm);
 
-	    //// The component material affects the weight of the component.
-	    materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
+		// Material selection combo box
+		GroupableAndSearchableComboBox<MaterialGroup, Material> materialCombo = MaterialComboBox.createComboBox(document, mm);
+		materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
 	    filletPanel.add(materialCombo, "spanx 4, growx");
 		order.add(materialCombo);
 	    filletPanel.setToolTipText(tip);

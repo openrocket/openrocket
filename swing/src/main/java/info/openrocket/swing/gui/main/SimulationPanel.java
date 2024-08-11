@@ -56,6 +56,7 @@ import info.openrocket.core.document.events.DocumentChangeListener;
 import info.openrocket.core.document.events.SimulationChangeEvent;
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -63,7 +64,6 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
 
@@ -743,7 +743,7 @@ public class SimulationPanel extends JPanel {
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.
 	public void activating(){
-		if( ((Preferences) Application.getPreferences()).getAutoRunSimulations()){
+		if( ((ApplicationPreferences) Application.getPreferences()).getAutoRunSimulations()){
 			int nSims = simulationTable.getRowCount();
 			int outdated = 0;
 			if (nSims == 0) {
