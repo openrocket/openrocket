@@ -32,8 +32,8 @@ import info.openrocket.core.util.BugException;
  */
 public class ParallelExecutorCache implements ParallelFunctionCache {
 
-	private final Map<Point, Double> functionCache = new HashMap<Point, Double>();
-	private final Map<Point, Future<Double>> futureMap = new HashMap<Point, Future<Double>>();
+	private final Map<Point, Double> functionCache = new HashMap<>();
+	private final Map<Point, Future<Double>> futureMap = new HashMap<>();
 
 	private final ExecutorService executor;
 
@@ -57,7 +57,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	 */
 	public ParallelExecutorCache(int threadCount) {
 		this(new ThreadPoolExecutor(threadCount, threadCount, 60, TimeUnit.SECONDS,
-				new LinkedBlockingQueue<Runnable>(),
+				new LinkedBlockingQueue<>(),
 				new ThreadFactory() {
 					@Override
 					public Thread newThread(Runnable r) {
@@ -152,7 +152,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 
 	@Override
 	public List<Point> abort(Collection<Point> points) {
-		List<Point> computed = new ArrayList<Point>(Math.min(points.size(), 10));
+		List<Point> computed = new ArrayList<>(Math.min(points.size(), 10));
 
 		for (Point p : points) {
 			if (abort(p)) {
@@ -244,7 +244,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 
 	@Override
 	public void clearCache() {
-		List<Point> list = new ArrayList<Point>(futureMap.keySet());
+		List<Point> list = new ArrayList<>(futureMap.keySet());
 		abort(list);
 		functionCache.clear();
 	}

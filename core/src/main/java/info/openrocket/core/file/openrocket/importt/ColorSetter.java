@@ -47,7 +47,7 @@ class ColorSetter implements Setter {
 		ORColor color = new ORColor(r, g, b);
 		setMethod.invoke(c, color);
 		
-		if (!s.trim().equals("")) {
+		if (!s.trim().isEmpty()) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 		}
 	}

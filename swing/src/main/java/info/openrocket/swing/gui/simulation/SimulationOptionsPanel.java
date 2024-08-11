@@ -31,7 +31,7 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.extension.SimulationExtensionProvider;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
@@ -126,9 +126,9 @@ class SimulationOptionsPanel extends JPanel {
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.GeodeticMethodTip"));
 		subsub.add(label, "gapright para");
 		
-		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
+		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<>(
 				conditions, "GeodeticComputation");
-		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<GeodeticComputationStrategy>(gcsModel);
+		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<>(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -180,12 +180,12 @@ class SimulationOptionsPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Preferences preferences = Application.getPreferences();
+				ApplicationPreferences preferences = Application.getPreferences();
 				conditions.setTimeStep(preferences.getDouble(
-						Preferences.SIMULATION_TIME_STEP,
+						ApplicationPreferences.SIMULATION_TIME_STEP,
 						RK4SimulationStepper.RECOMMENDED_TIME_STEP));
 				conditions.setGeodeticComputation(preferences.getEnum(
-						Preferences.GEODETIC_COMPUTATION,
+						ApplicationPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));
 			}
 		});
@@ -235,7 +235,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	private JPopupMenu getExtensionMenu() {
-		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<Set<SimulationExtensionProvider>>() {
+		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<>() {
 		});
 		
 		JPopupMenu basemenu = new JPopupMenu();
@@ -445,7 +445,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	private SwingSimulationExtensionConfigurator findConfigurator(SimulationExtension extension) {
-		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<Set<SwingSimulationExtensionConfigurator>>() {
+		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<>() {
 		});
 		for (SwingSimulationExtensionConfigurator c : configurators) {
 			if (c.support(extension)) {

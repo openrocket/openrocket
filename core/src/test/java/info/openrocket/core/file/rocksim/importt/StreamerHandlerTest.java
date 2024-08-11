@@ -46,25 +46,25 @@ public class StreamerHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Width", attributes, "0", warnings);
-        Assertions.assertEquals(0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
+        Assertions.assertEquals(0.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
         handler.closeElement("Width", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(),
                 0.001);
         handler.closeElement("Width", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getStripLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
                 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(),
                 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
@@ -150,25 +150,25 @@ public class StreamerHandlerTest extends RockSimTestBase {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
         Assertions.assertEquals(AxialMethod.ABSOLUTE, component.getAxialMethod());
-        Assertions.assertEquals(component.getAxialOffset(), -10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(component.getAxialOffset(), -10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
         Assertions.assertEquals(AxialMethod.BOTTOM, component.getAxialMethod());
-        Assertions.assertEquals(component.getAxialOffset(), 10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
+        Assertions.assertEquals(component.getAxialOffset(), 10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
                 0.001);
 
         handler.closeElement("Thickness", attributes, "0.02", warnings);
-        Assertions.assertEquals(0.01848, handler.computeDensity(RockSimDensityType.ROCKSIM_BULK, 924d), 0.001);
+        Assertions.assertEquals(0.01848, handler.computeDensity(RockSimDensityType.ROCKSIM_BULK, 924.0d), 0.001);
 
         // Test Density Type 0 (Bulk)
         handler.closeElement("Density", attributes, "924.0", warnings);

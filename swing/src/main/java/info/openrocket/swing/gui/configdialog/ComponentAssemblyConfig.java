@@ -18,7 +18,6 @@ import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.PodSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;

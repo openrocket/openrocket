@@ -6,11 +6,12 @@ import java.util.Map;
 
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationStatus;
-import info.openrocket.core.util.*;
-
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
+import info.openrocket.core.util.Monitorable;
+import info.openrocket.core.util.Transformation;
 public class MassCalculator implements Monitorable {
 
 	public static final double MIN_MASS = MathUtil.EPSILON;
@@ -24,7 +25,7 @@ public class MassCalculator implements Monitorable {
 	// private MassData rocketSpentMassCache;
 	// private MassData motorMassCache;
 
-	private final int modId = 0;
+	private final ModID modID = ModID.ZERO;
 
 	////////////////// Constructors ///////////////////
 	public MassCalculator() {
@@ -176,8 +177,8 @@ public class MassCalculator implements Monitorable {
 
 	////////////////// Mass property calculations ///////////////////
 	@Override
-	public int getModID() {
-		return this.modId;
+	public ModID getModID() {
+		return modID;
 	}
 
 }

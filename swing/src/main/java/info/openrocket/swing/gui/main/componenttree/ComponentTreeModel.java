@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
@@ -25,7 +26,7 @@ import info.openrocket.core.util.BugException;
  */
 
 public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
-	ArrayList<TreeModelListener> listeners = new ArrayList<TreeModelListener>();
+	ArrayList<TreeModelListener> listeners = new ArrayList<>();
 	
 	private final RocketComponent root;
 	private final JTree tree;
@@ -102,7 +103,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 
 		// Get currently expanded path IDs
 		Enumeration<TreePath> enumer = tree.getExpandedDescendants(new TreePath(path));
-		ArrayList<String> expanded = new ArrayList<String>();
+		ArrayList<UUID> expanded = new ArrayList<>();
 		if (enumer != null) {
 			while (enumer.hasMoreElements()) {
 				TreePath p = enumer.nextElement();
@@ -113,11 +114,10 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		// Send structure change event
 		TreeModelEvent e = new TreeModelEvent(this, path);
 		Object[] l = listeners.toArray();
-		for (int i = 0; i < l.length; i++)
-			((TreeModelListener) l[i]).treeStructureChanged(e);
+		for (Object o : l) ((TreeModelListener) o).treeStructureChanged(e);
 		
 		// Re-expand the paths
-		for (String id : expanded) {
+		for (UUID id : expanded) {
 			RocketComponent c = root.findComponent(id);
 			if (c == null)
 				continue;
@@ -209,7 +209,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		
 		RocketComponent c = component;
 		
-		List<RocketComponent> list = new LinkedList<RocketComponent>();
+		List<RocketComponent> list = new LinkedList<>();
 		
 		while (c != null) {
 			list.add(0, c);

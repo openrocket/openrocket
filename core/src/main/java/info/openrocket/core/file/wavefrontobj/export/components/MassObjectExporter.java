@@ -83,7 +83,7 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
                 }
 
                 // Add final UV coordinate to close the texture
-                final float u = 1f;
+                final float u = 1.0f;
                 final float v = (float) (numStacks-j) / numStacks;
                 obj.addTexCoord(u, v);
             }

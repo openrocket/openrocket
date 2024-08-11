@@ -43,7 +43,7 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 	}
 
 	private List<String> addDeploymentConfigurationParams(DeploymentConfiguration config, boolean indent) {
-		List<String> elements = new ArrayList<String>(3);
+		List<String> elements = new ArrayList<>(3);
 		elements.add((indent ? "  " : "") + "<deployevent>"
 				+ config.getDeployEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</deployevent>");
 		elements.add((indent ? "  " : "") + "<deployaltitude>" + config.getDeployAltitude() + "</deployaltitude>");

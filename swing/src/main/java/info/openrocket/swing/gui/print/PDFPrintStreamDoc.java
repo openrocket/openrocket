@@ -7,7 +7,11 @@ import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.attribute.AttributeSetUtilities;
 import javax.print.attribute.DocAttributeSet;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
 /**
  * This class implements a javax Doc specifically for PDF printing. All reports in OpenRocket are PDF (iText) based.

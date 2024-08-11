@@ -16,7 +16,21 @@ import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.preset.ComponentPreset;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.Clusterable;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.InsideColorComponentHandler;
+import info.openrocket.core.rocketcomponent.Instanceable;
+import info.openrocket.core.rocketcomponent.LineInstanceable;
+import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.ParallelStage;
+import info.openrocket.core.rocketcomponent.PodSet;
+import info.openrocket.core.rocketcomponent.RailButton;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusPositionable;
@@ -200,7 +214,8 @@ public class RocketComponentSaver {
 		
 		String baseName = trans.getBaseText("material", mat.getName());
 		
-		return str + " density=\"" + mat.getDensity() + "\">" + TextUtil.escapeXML(baseName) + "</" + tag + ">";
+		return str + " density=\"" + mat.getDensity() + "\" group=\"" + mat.getGroup().getDatabaseString() + "\">" +
+				TextUtil.escapeXML(baseName) + "</" + tag + ">";
 	}
 	
 	
@@ -212,7 +227,7 @@ public class RocketComponentSaver {
 		//FlightConfigurationID[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
 		//ParameterSet<FlightConfiguration> configs = ((RocketComponent) mount).getRocket().getConfigurationSet();
 		
-		List<String> elements = new ArrayList<String>();
+		List<String> elements = new ArrayList<>();
 		
 		MotorConfiguration defaultInstance = mount.getDefaultMotorConfig();
 		
@@ -225,7 +240,7 @@ public class RocketComponentSaver {
 		elements.add("  <ignitiondelay>" + defaultInstance.getIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
-		for( FlightConfigurationId fcid : rkt.getIds()){
+		for (FlightConfigurationId fcid : rkt.getIds()){
 			
 			MotorConfiguration motorInstance = mount.getMotorConfig(fcid);
 			// Nothing is stored if no motor loaded

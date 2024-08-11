@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class Config {
 
-	private final LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+	private final LinkedHashMap<String, Object> map = new LinkedHashMap<>();
 
 	public void put(String key, String value) {
 		validateType(value);
@@ -136,7 +136,7 @@ public class Config {
 			return new BigDecimal(value.toString());
 		} else if (value instanceof List<?>) {
 			List<?> list = (List<?>) value;
-			ArrayList<Object> copy = new ArrayList<Object>(list.size());
+			ArrayList<Object> copy = new ArrayList<>(list.size());
 			for (Object o : list) {
 				copy.add(clone(o));
 			}

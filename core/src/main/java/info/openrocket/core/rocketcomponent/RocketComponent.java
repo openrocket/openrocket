@@ -9,15 +9,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +42,6 @@ import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.SafetyMutex;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
 
 /**
  * 	Master class that defines components of rockets
@@ -69,7 +71,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * List of child components of this component.
 	 */
-	protected ArrayList<RocketComponent> children = new ArrayList<RocketComponent>();
+	protected ArrayList<RocketComponent> children = new ArrayList<>();
 	
 	
 	////////  Parameters common to all components:
@@ -133,7 +135,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private String comment = "";
 	
 	// Unique ID of the component
-	private String id = null;
+	private UUID id = null;
 	
 	// Preset component this component is based upon
 	private ComponentPreset presetComponent = null;
@@ -152,7 +154,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Visibility does not affect component simulation.
 	 */
 	private boolean isVisible = true;
-	
+
 	
 	/**
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
@@ -437,7 +439,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			
 			// Reset all parent/child information
 			clone.parent = null;
-			clone.children = new ArrayList<RocketComponent>();
+			clone.children = new ArrayList<>();
 			
 			// Add copied children to the structure without firing events.
 			for (RocketComponent child : this.children) {
@@ -776,7 +778,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final double getOverrideCD() {
 		mutex.verify();
 		if (!isCDOverridden()) {
-			Preferences preferences = Application.getPreferences();
+			ApplicationPreferences preferences = Application.getPreferences();
 			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 		return overrideCD;
@@ -846,7 +848,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 
 		if (!cdOverridden) {
-			Preferences preferences = Application.getPreferences();
+			ApplicationPreferences preferences = Application.getPreferences();
 			overrideCD = getComponentCD(0, 0, preferences.getDefaultMach(), 0);
 		}
 
@@ -1088,6 +1090,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 
 	/**
+	 * Returns all materials present in this component, or null if it does not have a material.
+	 * @return a list of materials
+	 */
+	public List<Material> getAllMaterials() {
+		return null;
+	}
+
+	/**
 	 * placeholder. This allows code to generally test if this component represents multiple instances with just one function call. 
 	 * 
 	 * @return number of instances
@@ -1296,12 +1306,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @return	the ID of the component.
 	 */
-	public final String getID() {
+	public final UUID getID() {
 		return id;
 	}
 	
 	public final String getDebugName() {
-		return (name + "/" + id.substring(0,8));
+		return (name + "/" + id.toString().substring(0,8));
 	}
 	
 	/**
@@ -1309,7 +1319,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private final void newID() {
 		mutex.verify();
-		this.id = UniqueID.uuid();
+		this.id = UUID.randomUUID();
 	}
 
 	/**
@@ -1317,12 +1327,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Generally not recommended to directly set the ID, this is done automatically. Only use this in case you have to.
 	 * @param newID new ID
 	 */
-	public void setID(String newID) {
+	public void setID(UUID newID) {
 		mutex.verify();
 		this.id = newID;
 	}
 	
-	
+	public void setID(String newID) {
+		setID(UUID.fromString(newID));
+	}
 	/**
 	 * Get the characteristic length of the component, for example the length of a body tube
 	 * of the length of the root chord of a fin.  This is used in positioning the component
@@ -1444,12 +1456,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		
 		this.axialMethod = AxialMethod.AFTER;
-		this.axialOffset = 0.;
+		this.axialOffset = 0.0;
 		
 		// if first component in the stage. => position from the top of the parent
 		final int thisIndex = this.parent.getChildPosition(this);
 		if (0 == thisIndex) {
-			this.position = this.position.setX(0.);
+			this.position = this.position.setX(0.0);
 		} else if (0 < thisIndex) {
 			int idx = thisIndex - 1;
 			RocketComponent referenceComponent = parent.getChild(idx);
@@ -1460,7 +1472,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 			// If previous components are inactive, set this as the new reference point
 			if (!getRocket().getSelectedConfiguration().isComponentActive(referenceComponent)) {
-				this.position = this.position.setX(0.);
+				this.position = this.position.setX(0.0);
 				return;
 			}
 
@@ -2392,7 +2404,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param idToFind  ID to search for.
 	 * @return    The component with the ID, or null if not found.
 	 */
-	public final RocketComponent findComponent(String idToFind) {
+	public final RocketComponent findComponent(UUID idToFind) {
 		checkState();
 		mutex.lock("findComponent");
 		Iterator<RocketComponent> iter = this.iterator(true);
@@ -2957,10 +2969,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private static class RocketComponentIterator implements Iterator<RocketComponent> {
 		// Stack holds iterators which still have some components left.
-		private final Deque<Iterator<RocketComponent>> iteratorStack = new ArrayDeque<Iterator<RocketComponent>>();
+		private final Deque<Iterator<RocketComponent>> iteratorStack = new ArrayDeque<>();
 		
 		private final Rocket root;
-		private final int treeModID;
+		private final ModID treeModID;
 		
 		private final RocketComponent original;
 		private boolean returnSelf = false;
@@ -2974,7 +2986,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				treeModID = root.getTreeModID();
 			} else {
 				root = null;
-				treeModID = -1;
+				treeModID = ModID.INVALID;
 			}
 			
 			Iterator<RocketComponent> i = c.children.iterator();
@@ -3041,7 +3053,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 	/// debug functions
 	public String toDebugName() {
-		return this.getName() + "<" + this.getClass().getSimpleName() + ">(" + this.getID().substring(0, 8) + ")";
+		return this.getName() + "<" + this.getClass().getSimpleName() + ">(" + this.getID().toString().substring(0, 8) + ")";
 	}
 	
 	// multi-line output

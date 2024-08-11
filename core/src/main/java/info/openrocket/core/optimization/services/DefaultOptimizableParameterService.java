@@ -24,7 +24,7 @@ public class DefaultOptimizableParameterService implements OptimizableParameterS
 
 	@Override
 	public Collection<OptimizableParameter> getParameters(OpenRocketDocument document) {
-		List<OptimizableParameter> list = new ArrayList<OptimizableParameter>();
+		List<OptimizableParameter> list = new ArrayList<>();
 
 		list.add(new MaximumAltitudeParameter());
 		list.add(new MaximumVelocityParameter());

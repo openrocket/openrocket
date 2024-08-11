@@ -40,7 +40,7 @@ public class CyclicBuffer<E> extends AbstractQueue<E> {
 	 * @param size	the size of the cyclic buffer.
 	 */
 	public CyclicBuffer(int size) {
-		this.buffer = new ArrayList<E>(size);
+		this.buffer = new ArrayList<>(size);
 		for (int i=0; i<size; i++) {
 			this.buffer.add(null);
 		}
@@ -105,7 +105,7 @@ public class CyclicBuffer<E> extends AbstractQueue<E> {
 	 * @return	a list of the buffered objects.
 	 */
 	public synchronized List<E> asList() {
-		ArrayList<E> list = new ArrayList<E>(size);
+		ArrayList<E> list = new ArrayList<>(size);
 		if (startPosition + size > maxSize) {
 			list.addAll(buffer.subList(startPosition, maxSize));
 			list.addAll(buffer.subList(0, startPosition + size - maxSize));

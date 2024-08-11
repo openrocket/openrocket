@@ -40,11 +40,11 @@ public class StyledLabel extends JLabel {
 	
 	
 	public StyledLabel() {
-		this("", SwingConstants.LEADING, 0f);
+		this("", SwingConstants.LEADING, 0.0f);
 	}
 	
 	public StyledLabel(String text) {
-		this(text, SwingConstants.LEADING, 0f);
+		this(text, SwingConstants.LEADING, 0.0f);
 	}
 	
 	public StyledLabel(float size) {
@@ -68,11 +68,11 @@ public class StyledLabel extends JLabel {
 	
 
 	public StyledLabel(Style style) {
-		this("", SwingConstants.LEADING, 0f, style);
+		this("", SwingConstants.LEADING, 0.0f, style);
 	}
 	
 	public StyledLabel(String text, Style style) {
-		this(text, SwingConstants.LEADING, 0f, style);
+		this(text, SwingConstants.LEADING, 0.0f, style);
 	}
 	
 	public StyledLabel(float size, Style style) {

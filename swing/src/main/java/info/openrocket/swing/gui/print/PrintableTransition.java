@@ -95,7 +95,7 @@ public class PrintableTransition extends AbstractPrintable<Transition> {
 		double tmp = Math.sqrt(v * v + len * len);
 		double factor = tmp / v;
 
-		theta = (float) (360d * v / tmp);
+		theta = (float) (360.0d * v / tmp);
 
 		int r1InPoints = (int) PrintUnit.METERS.toPoints(r1 * factor);
 		int r2InPoints = (int) PrintUnit.METERS.toPoints(r2 * factor);

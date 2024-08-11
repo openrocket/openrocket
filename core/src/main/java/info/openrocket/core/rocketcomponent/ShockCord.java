@@ -6,6 +6,9 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.MathUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShockCord extends MassObject {
 	private static final Translator trans = Application.getTranslator();
 
@@ -36,6 +39,14 @@ public class ShockCord extends MassObject {
 			return;
 		this.material = m;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(material);
+		return materials;
 	}
 
 	public double getCordLength() {

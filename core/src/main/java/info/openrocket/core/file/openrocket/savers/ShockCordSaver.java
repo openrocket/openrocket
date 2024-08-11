@@ -10,7 +10,7 @@ public class ShockCordSaver extends MassObjectSaver {
 	private static final ShockCordSaver instance = new ShockCordSaver();
 
 	public static List<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		list.add("<shockcord>");
 		instance.addParams(c, list);

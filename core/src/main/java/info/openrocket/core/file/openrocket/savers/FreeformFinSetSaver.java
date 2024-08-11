@@ -11,7 +11,7 @@ public class FreeformFinSetSaver extends FinSetSaver {
 	private static final FreeformFinSetSaver instance = new FreeformFinSetSaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		list.add("<freeformfinset>");
 		instance.addParams(c, list);

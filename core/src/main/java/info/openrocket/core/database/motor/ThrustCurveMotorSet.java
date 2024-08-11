@@ -7,8 +7,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import info.openrocket.core.motor.DesignationComparator;
 import info.openrocket.core.motor.Manufacturer;
@@ -30,10 +28,10 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	private static final ThrustCurveMotorComparator comparator = new ThrustCurveMotorComparator();
 
-	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
-	private final Map<ThrustCurveMotor, String> digestMap = new IdentityHashMap<ThrustCurveMotor, String>();
+	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<>();
+	private final Map<ThrustCurveMotor, String> digestMap = new IdentityHashMap<>();
 
-	private final List<Double> delays = new ArrayList<Double>();
+	private final List<Double> delays = new ArrayList<>();
 
 	private Manufacturer manufacturer = null;
 	private String commonName = null;
@@ -60,7 +58,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (!checkMotorOverwrite(motor)) {
 			motors.add(motor);
 			digestMap.put(motor, motor.getDigest());
-			Collections.sort(motors, comparator);
+			motors.sort(comparator);
 		}
 
 	}

@@ -2,7 +2,6 @@ package info.openrocket.core.appearance.defaults;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,17 +50,13 @@ public class ResourceDecalImage implements DecalImage {
 	@Override
 	public void exportImage(File file) throws IOException {
 		InputStream is = getBytes();
-		OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 
 		if (is == null) {
 			return;
 		}
 
-		try {
+		try (is; OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
 			FileUtils.copy(is, os);
-		} finally {
-			is.close();
-			os.close();
 		}
 	}
 		

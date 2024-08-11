@@ -5,7 +5,7 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 

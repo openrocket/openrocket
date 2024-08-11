@@ -69,7 +69,7 @@ public class NoseConeHandlerTest extends RockSimTestBase {
     public void testCloseElement() throws Exception {
 
         AxialStage stage = new AxialStage();
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         NoseConeHandler handler = new NoseConeHandler(null, stage, warnings);
@@ -87,25 +87,25 @@ public class NoseConeHandlerTest extends RockSimTestBase {
         warnings.clear();
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("BaseDia", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getAftRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftRadius(), 0.001);
         handler.closeElement("BaseDia", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getAftRadius(),
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getAftRadius(),
                 0.001);
         handler.closeElement("BaseDia", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
-        final double aft = 100d;
+        final double aft = 100.0d;
         component.setAftRadius(aft);
 
         handler.closeElement("ConstructionType", attributes, "0", warnings);
@@ -126,8 +126,8 @@ public class NoseConeHandlerTest extends RockSimTestBase {
         component.setAftShoulderRadius(1.1d);
         handler.closeElement("WallThickness", attributes, "-1", warnings);
         handler.endHandler("Transition", attributes, null, warnings);
-        Assertions.assertEquals(0d, component.getThickness(), 0.001);
-        Assertions.assertEquals(0d, component.getAftShoulderThickness(), 0.001);
+        Assertions.assertEquals(0.0d, component.getThickness(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftShoulderThickness(), 0.001);
         handler.closeElement("WallThickness", attributes, "1.1", warnings);
         handler.endHandler("Transition", attributes, null, warnings);
         Assertions.assertEquals(1.1d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getThickness(),
@@ -136,21 +136,21 @@ public class NoseConeHandlerTest extends RockSimTestBase {
                 component.getAftShoulderThickness(), 0.001);
 
         handler.closeElement("ShoulderLen", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getAftShoulderLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftShoulderLength(), 0.001);
         handler.closeElement("ShoulderLen", attributes, "10", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
                 0.001);
         handler.closeElement("ShoulderLen", attributes, "10.0", warnings);
-        Assertions.assertEquals(10d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
+        Assertions.assertEquals(10.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getAftShoulderLength(),
                 0.001);
         handler.closeElement("ShoulderLen", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("ShoulderOD", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getAftShoulderRadius(), 0.001);
+        Assertions.assertEquals(0.0d, component.getAftShoulderRadius(), 0.001);
         handler.closeElement("ShoulderOD", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS,
                 component.getAftShoulderRadius(), 0.001);
         handler.closeElement("ShoulderOD", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());
@@ -158,7 +158,7 @@ public class NoseConeHandlerTest extends RockSimTestBase {
 
         component.setShapeType(Transition.Shape.HAACK);
         handler.closeElement("ShapeParameter", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getShapeParameter(), 0.001);
+        Assertions.assertEquals(0.0d, component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
         Assertions.assertEquals(Transition.Shape.HAACK.maxParameter(), component.getShapeParameter(), 0.001);
         handler.closeElement("ShapeParameter", attributes, "foo", warnings);
@@ -168,9 +168,9 @@ public class NoseConeHandlerTest extends RockSimTestBase {
         warnings.clear();
 
         component.setShapeType(Transition.Shape.CONICAL);
-        component.setShapeParameter(0d);
+        component.setShapeParameter(0.0d);
         handler.closeElement("ShapeParameter", attributes, "100", warnings);
-        Assertions.assertEquals(0d, component.getShapeParameter(), 0.001);
+        Assertions.assertEquals(0.0d, component.getShapeParameter(), 0.001);
 
         handler.closeElement("FinishCode", attributes, "-1", warnings);
         Assertions.assertEquals(ExternalComponent.Finish.NORMAL, component.getFinish());

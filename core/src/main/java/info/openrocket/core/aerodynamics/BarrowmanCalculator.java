@@ -2,8 +2,6 @@ package info.openrocket.core.aerodynamics;
 
 import static info.openrocket.core.util.MathUtil.pow2;
 
-import java.util.*;
-
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -28,8 +26,18 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PolyInterpolator;
 import info.openrocket.core.util.Reflection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * An aerodynamic calculator that uses the extended Barrowman method to
@@ -526,9 +534,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		// Correct body data in map
 		if (forceMap != null) {
-			for (RocketComponent c : forceMap.keySet()) {
-				if (c instanceof SymmetricComponent) {
-					forceMap.get(c).setFrictionCD(forceMap.get(c).getFrictionCD() * correction);
+			for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
+				if (entry.getKey() instanceof SymmetricComponent) {
+					entry.getValue().setFrictionCD(entry.getValue().getFrictionCD() * correction);
 				}
 			}
 		}
@@ -563,7 +571,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (configuration.getRocket().isPerfectFinish()) {
 
 			// Assume partial laminar layer. Roughness-limitation is checked later.
-			if (Re < 1e4) {
+			if (Re < 1.0e4) {
 				// Too low, constant
 				Cf = 1.33e-2;
 			} else if (Re < 5.39e5) {
@@ -578,18 +586,18 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			
 			if (mach < 1.1) {
 				// Below Re=1e6 no correction
-				if (Re > 1e6) {
-					if (Re < 3e6) {
-						c1 = 1 - 0.1 * pow2(mach) * (Re - 1e6) / 2e6; // transition to turbulent
+				if (Re > 1.0e6) {
+					if (Re < 3.0e6) {
+						c1 = 1 - 0.1 * pow2(mach) * (Re - 1.0e6) / 2.0e6; // transition to turbulent
 					} else {
 						c1 = 1 - 0.1 * pow2(mach);
 					}
 				}
 			}
 			if (mach > 0.9) {
-				if (Re > 1e6) {
-					if (Re < 3e6) {
-						c2 = 1 + (1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25) - 1) * (Re - 1e6) / 2e6;
+				if (Re > 1.0e6) {
+					if (Re < 3.0e6) {
+						c2 = 1 + (1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25) - 1) * (Re - 1.0e6) / 2.0e6;
 					} else {
 						c2 = 1.0 / Math.pow(1 + 0.045 * pow2(mach), 0.25);
 					}
@@ -609,7 +617,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		} else {
 
 			// Assume fully turbulent. Roughness-limitation is checked later.
-			if (Re < 1e4) {
+			if (Re < 1.0e4) {
 				// Too low, constant
 				Cf = 1.48e-2;
 			} else {
@@ -1030,9 +1038,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		// Only cached data is stored, return constant mod ID
-		return 0;
+		return ModID.ZERO;
 	}
 	
 }

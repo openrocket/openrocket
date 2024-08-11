@@ -22,7 +22,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
-import javax.swing.*;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JViewport;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -59,6 +72,7 @@ import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -159,12 +173,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private double cpRoll = Double.NaN;
 
 	// The functional ID of the rocket that was simulated
-	private int flightDataFunctionalID = -1;
+	private ModID flightDataFunctionalID = ModID.INVALID;
     private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
-	private List<EventListener> listeners = new ArrayList<EventListener>();
+	private List<EventListener> listeners = new ArrayList<>();
 
 	// Store the basic frame to know which tab is selected (Rocket design, Motors & Configuration, Flight simulations)
 	private final BasicFrame basicFrame;

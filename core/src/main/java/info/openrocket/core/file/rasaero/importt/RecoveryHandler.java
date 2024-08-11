@@ -75,10 +75,10 @@ public class RecoveryHandler extends AbstractElementHandler {
 
         // Set the values of the recovery parameters
         for (int i = 1; i <= NR_OF_RECOVERY_DEVICES; i++) {
-            for (String e : mapParametersToVars.keySet()) {
-                String key = e + i;
+            for (Map.Entry<String, Object[]> entry : mapParametersToVars.entrySet()) {
+                String key = entry.getKey() + i;
                 if (key.equals(element)) {
-                    Object[] vars = mapParametersToVars.get(e);
+                    Object[] vars = entry.getValue();
                     if (vars.length != NR_OF_RECOVERY_DEVICES) {
                         throw new IllegalArgumentException("Recovery var array length is not 2");
                     }

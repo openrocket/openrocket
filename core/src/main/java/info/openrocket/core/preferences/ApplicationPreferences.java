@@ -1,4 +1,4 @@
-package info.openrocket.core.startup;
+package info.openrocket.core.preferences;
 
 import java.awt.Color;
 import java.io.File;
@@ -24,6 +24,7 @@ import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.ChangeSource;
@@ -32,9 +33,8 @@ import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.UniqueID;
 
-public abstract class Preferences implements ChangeSource {
+public abstract class ApplicationPreferences implements ChangeSource, ORPreferences {
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
@@ -319,28 +319,28 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	public final double getDefaultMach() {
-		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+		return Application.getPreferences().getChoice(ApplicationPreferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}
 	
 	public final void setDefaultMach(double dfn) {
-		double oldDFN = Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+		double oldDFN = Application.getPreferences().getChoice(ApplicationPreferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 		
 		if (MathUtil.equals(oldDFN, dfn))
 			return;
-		this.putDouble(Preferences.DEFAULT_MACH_NUMBER, dfn);
+		this.putDouble(ApplicationPreferences.DEFAULT_MACH_NUMBER, dfn);
 		fireChangeEvent();
 	}
 	
 	public final double getWindTurbulenceIntensity() {
-		return Application.getPreferences().getChoice(Preferences.WIND_TURBULENCE, 0.9, 0.1);
+		return Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.1);
 	}
 	
 	public final void setWindTurbulenceIntensity(double wti) {
-		double oldWTI = Application.getPreferences().getChoice(Preferences.WIND_TURBULENCE, 0.9, 0.3);
+		double oldWTI = Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.3);
 		
 		if (MathUtil.equals(oldWTI, wti))
 			return;
-		this.putDouble(Preferences.WIND_TURBULENCE, wti);
+		this.putDouble(ApplicationPreferences.WIND_TURBULENCE, wti);
 		fireChangeEvent();
 	}
 	
@@ -399,7 +399,7 @@ public abstract class Preferences implements ChangeSource {
 	
 	
 	public double getWindSpeedDeviation() {
-		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, .1);
+		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, 0.1);
 	}
 	
 	public void setWindSpeedDeviation(double windDeviation) {
@@ -570,7 +570,7 @@ public abstract class Preferences implements ChangeSource {
 	}
 
 	public double getTimeStep() {
-		return this.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+		return this.getDouble(ApplicationPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	}
 
 	public void setTimeStep(double timeStep) {
@@ -737,7 +737,7 @@ public abstract class Preferences implements ChangeSource {
 	 * @return true to display designation, false to display common name
 	 */
 	public boolean getMotorNameColumn() {
-		return getBoolean(info.openrocket.core.startup.Preferences.MOTOR_NAME_COLUMN, true);
+		return getBoolean(ApplicationPreferences.MOTOR_NAME_COLUMN, true);
 	}
 
 	/**
@@ -745,21 +745,7 @@ public abstract class Preferences implements ChangeSource {
 	 * @param value if true, display designation, if false, display common name
 	 */
 	public void setMotorNameColumn(boolean value) {
-		putBoolean(info.openrocket.core.startup.Preferences.MOTOR_NAME_COLUMN, value);
-	}
-
-	/**
-	 * Return the OpenRocket unique ID.
-	 *
-	 * @return	a random ID string that stays constant between OpenRocket executions
-	 */
-	public final String getUniqueID() {
-		String id = this.getString("id", null);
-		if (id == null) {
-			id = UniqueID.uuid();
-			this.putString("id", id);
-		}
-		return id;
+		putBoolean(ApplicationPreferences.MOTOR_NAME_COLUMN, value);
 	}
 	
 	/**
@@ -895,16 +881,13 @@ public abstract class Preferences implements ChangeSource {
 			} catch (IllegalArgumentException ignore) {
 			}
 		}
-		
-		switch (type) {
-		case LINE:
-			return StaticFieldHolder.DEFAULT_LINE_MATERIAL;
-		case SURFACE:
-			return StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
-		case BULK:
-			return StaticFieldHolder.DEFAULT_BULK_MATERIAL;
-		}
-		throw new IllegalArgumentException("Unknown material type: " + type);
+
+		return switch (type) {
+			case LINE -> StaticFieldHolder.DEFAULT_LINE_MATERIAL;
+			case SURFACE -> StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
+			case BULK -> StaticFieldHolder.DEFAULT_BULK_MATERIAL;
+			default -> throw new IllegalArgumentException("Unknown material type: " + type);
+		};
 	}
 	
 	/**
@@ -1046,7 +1029,7 @@ public abstract class Preferences implements ChangeSource {
 	 * @return	a list of files to load as thrust curves.
 	 */
 	public List<File> getUserThrustCurveFiles() {
-		List<File> list = new ArrayList<File>();
+		List<File> list = new ArrayList<>();
 
 		String files = getString(USER_THRUST_CURVES_KEY, null);
 		if (files == null) {
@@ -1262,7 +1245,7 @@ public abstract class Preferences implements ChangeSource {
 		 * Map of default line styles
 		 */
 		
-		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<Class<?>, String>();
+		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<>();
 		
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
@@ -1270,7 +1253,7 @@ public abstract class Preferences implements ChangeSource {
 		}
 	}
 	
-	private final List<EventListener> listeners = new ArrayList<EventListener>();
+	private final List<EventListener> listeners = new ArrayList<>();
 	private final EventObject event = new EventObject(this);
 	
 	@Override

@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.simulation;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -15,7 +16,6 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.StateChangeListener;
 
 import javax.swing.JButton;
@@ -54,7 +54,7 @@ public class SimulationConfigDialog extends JDialog {
 	private JButton okButton;
 	private JButton cancelButton;
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences preferences = Application.getPreferences();
+	private static final ApplicationPreferences preferences = Application.getPreferences();
 
 
 	private final WindowListener applyChangesToSimsListener;
@@ -254,7 +254,7 @@ public class SimulationConfigDialog extends JDialog {
 
 			private void setText() {
 				String name = field.getText();
-				if (name == null || name.equals(""))
+				if (name == null || name.isEmpty())
 					return;
 				simulationList[0].setName(name);
 

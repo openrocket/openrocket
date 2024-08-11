@@ -49,7 +49,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		Collection<Coordinate> bounds = new ArrayList<>(8);
 		double x_min = Double.MAX_VALUE;
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
@@ -239,7 +239,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		double newRadius = requestedRadius;
 
 		if (requestedMethod.clampToZero()) {
-			newRadius = 0.;
+			newRadius = 0.0;
 		}
 
 		this.radiusMethod = requestedMethod;

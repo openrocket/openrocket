@@ -180,7 +180,7 @@ public class GeneralRocketSaver {
 			return;
 		}
 
-		Set<DecalImage> usedDecals = new TreeSet<DecalImage>();
+		Set<DecalImage> usedDecals = new TreeSet<>();
 
 		// Look for all decals used in the rocket.
 		for (RocketComponent c : document.getRocket()) {
@@ -211,9 +211,9 @@ public class GeneralRocketSaver {
 
 		// Open a zip stream to write to.
 		ZipOutputStream zos = new ZipOutputStream(output);
-		zos.setLevel(9);
 		// big try block to close the zos.
-		try {
+		try (zos) {
+			zos.setLevel(9);
 
 			ZipEntry mainFile = new ZipEntry("rocket.ork");
 			zos.putNextEntry(mainFile);
@@ -241,8 +241,6 @@ public class GeneralRocketSaver {
 			}
 
 			zos.flush();
-		} finally {
-			zos.close();
 		}
 
 	}

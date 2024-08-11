@@ -25,7 +25,7 @@ public final class OptimizationServiceHelper {
 	 * @return a collection of all simulation modifiers applicable to the document.
 	 */
 	public static Collection<SimulationModifier> getSimulationModifiers(OpenRocketDocument document) {
-		List<SimulationModifier> list = new ArrayList<SimulationModifier>();
+		List<SimulationModifier> list = new ArrayList<>();
 
 		ServiceLoader<SimulationModifierService> loader = ServiceLoader.load(SimulationModifierService.class);
 		for (SimulationModifierService service : loader) {
@@ -47,7 +47,7 @@ public final class OptimizationServiceHelper {
 	 *         document.
 	 */
 	public static Collection<OptimizableParameter> getOptimizableParameters(OpenRocketDocument document) {
-		List<OptimizableParameter> list = new ArrayList<OptimizableParameter>();
+		List<OptimizableParameter> list = new ArrayList<>();
 
 		ServiceLoader<OptimizableParameterService> loader = ServiceLoader.load(OptimizableParameterService.class);
 		for (OptimizableParameterService service : loader) {

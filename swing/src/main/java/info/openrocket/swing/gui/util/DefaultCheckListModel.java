@@ -52,8 +52,8 @@ public class DefaultCheckListModel<T> extends AbstractListModel<T> {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private final List<T> data = new ArrayList<T>();
-	private final Set<T> checks = new HashSet<T>();
+	private final List<T> data = new ArrayList<>();
+	private final Set<T> checks = new HashSet<>();
 	
 	public DefaultCheckListModel(Collection<? extends T> data) {
 		
@@ -98,7 +98,7 @@ public class DefaultCheckListModel<T> extends AbstractListModel<T> {
 	}
 	
 	public Collection<T> getCheckedItems() {
-		List<T> items = new ArrayList<T>(checks);
+		List<T> items = new ArrayList<>(checks);
 		items.retainAll(data);
 		return Collections.unmodifiableList(items);
 	}
@@ -117,7 +117,7 @@ public class DefaultCheckListModel<T> extends AbstractListModel<T> {
 		
 		//		if ( CollectionUtils.isEmpty(items))  return;
 		
-		List<T> correctedItems = new ArrayList<T>(items);
+		List<T> correctedItems = new ArrayList<>(items);
 		correctedItems.retainAll(data);
 		
 		checks.clear();
@@ -129,7 +129,7 @@ public class DefaultCheckListModel<T> extends AbstractListModel<T> {
 	
 	public void setUncheckedItems( Collection<T> items ) {
 		
-		List<T> correctedItems = new ArrayList<T>(data);
+		List<T> correctedItems = new ArrayList<>(data);
 		correctedItems.removeAll(items);
 		
 		checks.clear();

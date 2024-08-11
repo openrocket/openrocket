@@ -38,7 +38,7 @@ import info.openrocket.core.communication.UpdateInfoRetriever.ReleaseStatus;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
@@ -73,14 +73,14 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			String locale = preferences.getString("locale", null);
 			userLocale = L10N.toLocale(locale);
 		}
-		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
+		List<Named<Locale>> locales = new ArrayList<>();
 		for (Locale l : SwingPreferences.getSupportedLocales()) {
-			locales.add(new Named<Locale>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
+			locales.add(new Named<>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
 		}
 		Collections.sort(locales);
-		locales.add(0, new Named<Locale>(null, trans.get("generalprefs.languages.default")));
+		locales.add(0, new Named<>(null, trans.get("generalprefs.languages.default")));
 		
-		final JComboBox<?> languageCombo = new JComboBox<Object>(locales.toArray());
+		final JComboBox<?> languageCombo = new JComboBox<>(locales.toArray());
 		for (int i = 0; i < locales.size(); i++) {
 			if (Utils.equals(userLocale, locales.get(i).get())) {
 				languageCombo.setSelectedIndex(i);
@@ -93,7 +93,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				Named<Locale> selection = (Named<Locale>) languageCombo.getSelectedItem();
 				if (selection == null) return;
 				Locale l = selection.get();
-				preferences.putString(Preferences.USER_LOCAL, l == null ? null : l.toString());
+				preferences.putString(ApplicationPreferences.USER_LOCAL, l == null ? null : l.toString());
 			}
 		});
 		this.add(new JLabel(trans.get("generalprefs.lbl.language")), "gapright para");
@@ -180,7 +180,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			
 			private void changed() {
 				String text = field.getText();
-				List<File> list = new ArrayList<File>();
+				List<File> list = new ArrayList<>();
 				for (String s : text.split(";")) {
 					s = s.trim();
 					if (s.length() > 0) {

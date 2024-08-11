@@ -11,51 +11,51 @@ import java.util.Iterator;
  */
 public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 
-	private int modID;
+	private ModID modID;
 
 	@Override
 	public boolean add(E e) {
-		modID++;
+		modID = new ModID();
 		return super.add(e);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends E> c) {
-		modID++;
+		modID = new ModID();
 		return super.addAll(c);
 	}
 
 	@Override
 	public void clear() {
-		modID++;
+		modID = new ModID();
 		super.clear();
 	}
 
 	@Override
 	public Iterator<E> iterator() {
-		return new MonitorableIterator<E>(super.iterator());
+		return new MonitorableIterator<>(super.iterator());
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		modID++;
+		modID = new ModID();
 		return super.remove(o);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		modID++;
+		modID = new ModID();
 		return super.removeAll(c);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		modID++;
+		modID = new ModID();
 		return super.retainAll(c);
 	}
 
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 
@@ -85,7 +85,7 @@ public class MonitorableSet<E> extends HashSet<E> implements Monitorable {
 		@Override
 		public void remove() {
 			iterator.remove();
-			modID++;
+			modID = new ModID();
 		}
 	}
 }

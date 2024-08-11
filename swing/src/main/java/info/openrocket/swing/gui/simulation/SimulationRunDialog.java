@@ -23,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.core.document.events.SimulationChangeEvent;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -77,7 +76,7 @@ public class SimulationRunDialog extends JDialog {
 
 	static {
 		int n = SwingPreferences.getMaxThreadCount();
-		executor = new ThreadPoolExecutor(n, n, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
+		executor = new ThreadPoolExecutor(n, n, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
 				new ThreadFactory() {
 			private ThreadFactory factory = Executors.defaultThreadFactory();
 

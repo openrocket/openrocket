@@ -64,14 +64,14 @@ public class MassObjectHandlerTest extends RockSimTestBase {
     @org.junit.jupiter.api.Test
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
-        HashMap<String, String> attributes = new HashMap<String, String>();
+        HashMap<String, String> attributes = new HashMap<>();
         WarningSet warnings = new WarningSet();
 
         MassObjectHandler handler = new MassObjectHandler(null, tube, new WarningSet());
         MassComponent component = (MassComponent) getField(handler, "mass");
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getLength(), 0.001);
+        Assertions.assertEquals(0.0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
         Assertions.assertEquals(0.01, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
@@ -81,9 +81,9 @@ public class MassObjectHandlerTest extends RockSimTestBase {
         warnings.clear();
 
         handler.closeElement("KnownMass", attributes, "-1", warnings);
-        Assertions.assertEquals(0d, component.getComponentMass(), 0.001);
+        Assertions.assertEquals(0.0d, component.getComponentMass(), 0.001);
         handler.closeElement("KnownMass", attributes, "100", warnings);
-        Assertions.assertEquals(100d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(),
+        Assertions.assertEquals(100.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(),
                 0.001);
         handler.closeElement("KnownMass", attributes, "foo", warnings);
         Assertions.assertEquals(1, warnings.size());

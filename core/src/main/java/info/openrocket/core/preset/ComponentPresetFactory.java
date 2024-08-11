@@ -3,7 +3,6 @@ package info.openrocket.core.preset;
 import static info.openrocket.core.preset.ComponentPreset.*;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.material.Material;
-import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.Transition;

@@ -1,6 +1,7 @@
 package info.openrocket.core.models.gravity;
 
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.WorldCoordinate;
 
 /**
@@ -28,9 +29,9 @@ public class WGSGravityModel implements GravityModel {
 	}
 
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		// The model is immutable, so it can return a constant mod ID
-		return 0;
+		return ModID.ZERO;
 	}
 
 	private double calcGravity(WorldCoordinate wc) {

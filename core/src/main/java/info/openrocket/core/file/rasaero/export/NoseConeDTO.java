@@ -34,7 +34,7 @@ public class NoseConeDTO extends BasePartDTO {
     private String shape;
     @XmlElement(name = RASAeroCommonConstants.BLUNT_RADIUS)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double bluntRadius = 0d;
+    private Double bluntRadius = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.POWER_LAW)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
     private Double powerLaw;

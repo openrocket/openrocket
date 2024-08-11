@@ -7,6 +7,9 @@ import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
 	private final double DEFAULT_DIAMETER = 0.3;
@@ -130,6 +133,9 @@ public class Parachute extends RecoveryDevice {
 		if (mat.equals(lineMaterial))
 			return;
 		this.lineMaterial = mat;
+		if (lineMaterial.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(this.lineMaterial);
+		}
 		if (getLineCount() != 0) {
 			clearPreset();
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
@@ -137,7 +143,15 @@ public class Parachute extends RecoveryDevice {
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(lineMaterial);
+		return materials;
+	}
+
 	@Override
 	public double getComponentMass() {
 		return super.getComponentMass() +
@@ -213,6 +227,9 @@ public class Parachute extends RecoveryDevice {
 			int count = lineMaterialEmpty.length();
 			if (count > 12 ) {
 				this.lineMaterial = preset.get(ComponentPreset.LINE_MATERIAL);
+				if (lineMaterial.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(this.lineMaterial);
+				}
 			} else {
 				this.lineMaterial = DEFAULT_LINE_MATERIAL;
 			}

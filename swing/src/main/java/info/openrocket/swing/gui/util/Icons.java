@@ -7,7 +7,8 @@ import info.openrocket.core.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -34,7 +35,7 @@ public class Icons {
 		final String SIM_CANTRUN = "pix/icons/sim_cantrun.png";
 		final String SIM_OUTDATED = "pix/icons/refresh_sim.png";
 
-		HashMap<Simulation.Status, Icon> map = new HashMap<Simulation.Status, Icon>();
+		HashMap<Simulation.Status, Icon> map = new HashMap<>();
 		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon(SIM_OUTDATED, "Not simulated"));
 		map.put(Simulation.Status.CANT_RUN, loadImageIcon(SIM_CANTRUN, "Can't run, no motors assigned."));
 		map.put(Simulation.Status.UPTODATE, loadImageIcon(SIM_UPTODATE, "Up to date"));

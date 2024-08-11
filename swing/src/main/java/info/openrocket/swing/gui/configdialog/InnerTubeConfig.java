@@ -43,7 +43,7 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
@@ -65,7 +65,7 @@ import info.openrocket.swing.gui.widgets.SelectColorButton;
 public class InnerTubeConfig extends RocketComponentConfig {
 	private static final long serialVersionUID = 7900041420864324470L;
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private static final String PREF_SEPARATION_RELATIVE = "InnerTubeSeparationRelative";
 
@@ -573,9 +573,9 @@ class ClusterSelectionPanel extends JPanel {
 				double x = points.get(i * 2);
 				double y = points.get(i * 2 + 1);
 
-				double px = BUTTON_SIZE / 2 + x * MOTOR_DIAMETER;
-				double py = BUTTON_SIZE / 2 - y * MOTOR_DIAMETER;
-				circle.setFrameFromCenter(px, py, px + MOTOR_DIAMETER / 2, py + MOTOR_DIAMETER / 2);
+				double px = (double) (double) BUTTON_SIZE / 2 + x * MOTOR_DIAMETER;
+				double py = (double) BUTTON_SIZE / 2 - y * MOTOR_DIAMETER;
+				circle.setFrameFromCenter(px, py, px + (double) MOTOR_DIAMETER / 2, py + (double) MOTOR_DIAMETER / 2);
 
 				g2.setColor(MOTOR_FILL_COLOR);
 				g2.fill(circle);

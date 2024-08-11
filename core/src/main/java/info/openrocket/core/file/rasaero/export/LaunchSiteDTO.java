@@ -8,7 +8,7 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -22,22 +22,22 @@ public class LaunchSiteDTO {
 
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_ALTITUDE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double altitude = 0d;
+    private Double altitude = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_PRESSURE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double pressure = 0d;
+    private Double pressure = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_ROD_ANGLE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double rodAngle = 0d;
+    private Double rodAngle = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_ROD_LENGTH)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double rodLength = 0d;
+    private Double rodLength = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_TEMPERATURE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double temperature = 0d;
+    private Double temperature = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.LAUNCH_WIND_SPEED)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double windSpeed = 0d;
+    private Double windSpeed = 0.0d;
 
     /**
      * We need a default, no-args constructor.
@@ -62,7 +62,7 @@ public class LaunchSiteDTO {
         }
 
         // If we can't get settings from the sims, use the launch site settings from the preferences
-        Preferences prefs = Application.getPreferences();
+        ApplicationPreferences prefs = Application.getPreferences();
         setAltitude(prefs.getLaunchAltitude() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);
         setPressure(prefs.getLaunchPressure() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_PRESSURE);
         setTemperature(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TEMPERATURE(prefs.getLaunchTemperature()));

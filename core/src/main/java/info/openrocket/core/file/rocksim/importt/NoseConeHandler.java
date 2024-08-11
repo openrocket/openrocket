@@ -32,7 +32,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
 	/**
 	 * The wall thickness. Used for hollow nose cones.
 	 */
-	private double thickness = 0d;
+	private double thickness = 0.0d;
 
 	/**
 	 * Constructor.

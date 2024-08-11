@@ -60,12 +60,12 @@ public class TestFunctionOptimizerLoop {
 		System.err.println("PRECISION = " + PRECISION);
 
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.SECONDS,
-				new ArrayBlockingQueue<Runnable>(100));
+				new ArrayBlockingQueue<>(100));
 
 		for (int dim = 1; dim <= 10; dim++) {
 
-			List<Integer> stepCount = new ArrayList<Integer>();
-			List<Integer> functionCount = new ArrayList<Integer>();
+			List<Integer> stepCount = new ArrayList<>();
+			List<Integer> functionCount = new ArrayList<>();
 
 			MultidirectionalSearchOptimizer optimizer = new MultidirectionalSearchOptimizer();
 			for (int count = 0; count < 200; count++) {

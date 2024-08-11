@@ -23,7 +23,7 @@ import info.openrocket.core.unit.UnitGroup;
 public abstract class PreferencesPanel extends JPanel {
 	protected static final Logger log = LoggerFactory.getLogger(PreferencesDialog.class);
 	
-	protected final List<DefaultUnitSelector> unitSelectors = new ArrayList<DefaultUnitSelector>();
+	protected final List<DefaultUnitSelector> unitSelectors = new ArrayList<>();
 	
 	protected File defaultDirectory = null;
 	protected static final Translator trans = Application.getTranslator();
@@ -174,16 +174,11 @@ public abstract class PreferencesPanel extends JPanel {
 		
 		@Override
 		public Object getElementAt(int index) {
-			switch (index) {
-			case 0:
-				return def ? trueDesc : falseDesc;
-				
-			case 1:
-				return def ? falseDesc : trueDesc;
-				
-			default:
-				throw new IndexOutOfBoundsException("Boolean asked for index=" + index);
-			}
+			return switch (index) {
+				case 0 -> def ? trueDesc : falseDesc;
+				case 1 -> def ? falseDesc : trueDesc;
+				default -> throw new IndexOutOfBoundsException("Boolean asked for index=" + index);
+			};
 		}
 		
 		@Override

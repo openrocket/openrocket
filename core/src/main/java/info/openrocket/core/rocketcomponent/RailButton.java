@@ -302,7 +302,7 @@ public class RailButton extends ExternalComponent
 		final double volOuter = Math.PI*Math.pow( outerDiameter_m/2, 2)*flangeHeight_m;
 		final double volInner = Math.PI*Math.pow( innerDiameter_m/2, 2)*getInnerHeight();
 		final double volStandoff = Math.PI*Math.pow( outerDiameter_m/2, 2)* baseHeight_m;
-		final double volScrew = 2f/3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
+		final double volScrew = 2.0f /3 * Math.PI * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
 		final double volInstance = volOuter + volInner + volStandoff + volScrew;
 		return volInstance * getInstanceCount();
 	}
@@ -353,7 +353,7 @@ public class RailButton extends ExternalComponent
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		final double r = outerDiameter_m / 2.0;
-		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> set = new ArrayList<>();
 		set.add(new Coordinate(r, totalHeight_m, r));
 		set.add(new Coordinate(r, totalHeight_m, -r));
 		set.add(new Coordinate(r, 0, r));
@@ -371,7 +371,7 @@ public class RailButton extends ExternalComponent
 		final double massBase = Math.pow(outerDiameter_m / 2, 2) * this.baseHeight_m;
 		final double massInner = Math.pow(innerDiameter_m / 2, 2)* getInnerHeight();
 		final double massFlange = Math.pow(outerDiameter_m / 2, 2)* this.flangeHeight_m;
-		final double massScrew = 2f/3 * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
+		final double massScrew = 2.0f /3 * MathUtil.pow2(outerDiameter_m/2) * screwHeight_m;
 		final double totalMass = massFlange + massInner + massBase + massScrew;
 		final double baseCM = this.baseHeight_m /2;
 		final double innerCM = this.baseHeight_m + this.getInnerHeight()/2;

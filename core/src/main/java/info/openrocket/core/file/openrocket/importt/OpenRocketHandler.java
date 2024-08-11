@@ -72,7 +72,7 @@ public class OpenRocketHandler extends AbstractElementHandler {
 			String str = "Unsupported document version";
 			if (docVersion != null)
 				str += " " + docVersion;
-			if (creator != null && !creator.trim().equals(""))
+			if (creator != null && !creator.trim().isEmpty())
 				str += " (written using '" + creator.trim() + "')";
 			str += ", attempting to read file anyway.";
 			warnings.add(str);

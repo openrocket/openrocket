@@ -3,8 +3,13 @@ package info.openrocket.swing.file.photo;
 import info.openrocket.core.file.openrocket.importt.OpenRocketHandler;
 import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
 import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.*;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Lake;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Meadow;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Miramar;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +36,8 @@ public class PhotoStudioGetter {
 
     public PhotoSettings getPhotoSettings() {
         if (parameters != null) {
-            for (String element : parameters.keySet()) {
-                processElement(element, parameters.get(element));
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                processElement(entry.getKey(), entry.getValue());
             }
         }
         return p;
@@ -161,7 +166,7 @@ public class PhotoStudioGetter {
         }
 
         if ("sky".equals(element)) {
-            if (content.equals("")) {     // Case where sky is null
+            if (content.isEmpty()) {     // Case where sky is null
                 p.setSky(null);
                 return;
             }

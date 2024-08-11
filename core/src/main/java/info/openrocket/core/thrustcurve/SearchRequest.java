@@ -23,7 +23,7 @@ public class SearchRequest {
 		this.manufacturer = null;
 		if (manufacturer != null) {
 			manufacturer = manufacturer.trim();
-			if (!"".equals(manufacturer)) {
+			if (!manufacturer.isEmpty()) {
 				this.manufacturer = manufacturer;
 			}
 		}
@@ -43,7 +43,7 @@ public class SearchRequest {
 			return;
 		}
 		this.common_name = common_name.trim();
-		if ("".equals(this.common_name)) {
+		if (this.common_name.isEmpty()) {
 			this.common_name = null;
 		}
 	}
@@ -52,7 +52,7 @@ public class SearchRequest {
 		this.impulse_class = null;
 		if (impulse_class != null) {
 			this.impulse_class = impulse_class.trim();
-			if ("".equals(impulse_class)) {
+			if (impulse_class.isEmpty()) {
 				this.impulse_class = null;
 			}
 		}

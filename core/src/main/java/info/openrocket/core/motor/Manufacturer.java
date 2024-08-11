@@ -41,7 +41,7 @@ public class Manufacturer implements Serializable {
 	static {
 
 		// AeroTech has many name combinations...
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		for (String s : new String[] { "A", "AT", "AERO", "AEROT", "AEROTECH" }) {
 			names.add(s);
 			names.add(s + "-RMS");
@@ -141,8 +141,8 @@ public class Manufacturer implements Serializable {
 			throw new IllegalArgumentException("motorType cannot be null");
 		}
 
-		Set<String> all = new HashSet<String>();
-		Set<String> search = new HashSet<String>();
+		Set<String> all = new HashSet<>();
+		Set<String> search = new HashSet<>();
 
 		all.add(displayName);
 		all.add(simpleName);

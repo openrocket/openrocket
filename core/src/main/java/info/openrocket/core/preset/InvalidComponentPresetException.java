@@ -5,8 +5,8 @@ import java.util.List;
 
 public class InvalidComponentPresetException extends Exception {
 
-	private final List<String> errors = new ArrayList<String>();
-	private final List<TypedKey<?>> invalidParameters = new ArrayList<TypedKey<?>>();
+	private final List<String> errors = new ArrayList<>();
+	private final List<TypedKey<?>> invalidParameters = new ArrayList<>();
 
 	public InvalidComponentPresetException() {
 		super();

@@ -28,6 +28,7 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 
 
@@ -47,7 +48,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private static final double MAJOR_TICKS = 100.0;
 
 	private final FreeformFinSet finset;
-	private int modID = -1;
+	private ModID modID = ModID.INVALID;
 
 	protected BoundingBox finBounds_m = null;
 	// Fin parent bounds

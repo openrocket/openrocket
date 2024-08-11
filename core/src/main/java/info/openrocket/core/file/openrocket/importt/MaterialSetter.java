@@ -3,10 +3,12 @@ package info.openrocket.core.file.openrocket.importt;
 import java.util.HashMap;
 import java.util.Locale;
 
+import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.material.Material;
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Reflection;
 
@@ -28,7 +30,7 @@ class MaterialSetter implements Setter {
 
 		// Check name != ""
 		name = name.trim();
-		if (name.equals("")) {
+		if (name.isEmpty()) {
 			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
 			return;
 		}
@@ -67,7 +69,18 @@ class MaterialSetter implements Setter {
 			return;
 		}
 
-		mat = Databases.findMaterial(type, name, density);
+		// Check for material group
+		str = attributes.remove("group");
+		MaterialGroup group = null;
+		if (str != null) {
+			try {
+				group = MaterialGroup.loadFromDatabaseString(str);
+			} catch (IllegalArgumentException e) {
+				warnings.add(Warning.fromString("Illegal material group specified, ignoring."));
+			}
+		}
+
+		mat = Databases.findMaterial(type, name, density, group);
 
 		setMethod.invoke(c, mat);
 	}

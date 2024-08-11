@@ -6,8 +6,8 @@ package info.openrocket.swing.gui.dialogs.preferences;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
-import info.openrocket.core.startup.Preferences;
 
 /**
  * @author cpearls
@@ -22,8 +22,8 @@ public class DisplayPreferencesPanel extends PreferencesPanel {
 				"gapright para");
 
 		this.add(
-				new JComboBox<Object>(new PrefChoiceSelector(
-						Preferences.ROCKET_INFO_FONT_SIZE,
+				new JComboBox<>(new PrefChoiceSelector(
+						ApplicationPreferences.ROCKET_INFO_FONT_SIZE,
 						// // Small
 						// // Medium
 						// // Large

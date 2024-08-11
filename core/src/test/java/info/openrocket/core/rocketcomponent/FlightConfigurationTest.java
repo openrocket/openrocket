@@ -22,9 +22,10 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.ModID;
 
 public class FlightConfigurationTest extends BaseTestCase {
-	private final static double EPSILON = MathUtil.EPSILON * 1E3;
+	private final static double EPSILON = MathUtil.EPSILON * 1.0E3;
 
 	/**
 	 * Empty rocket (no components) specific configuration tests
@@ -378,7 +379,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 		{ // Core Stage
 			final List<InstanceContext> coreStageContextList = instances.getInstanceContexts(coreStage);
 			final InstanceContext coreStageContext = coreStageContextList.get(0);
-			assertEquals(coreStageContext.component.getClass(), AxialStage.class);
+			assertSame(coreStageContext.component.getClass(), AxialStage.class);
 			assertEquals(coreStageContext.component.getID(), rocket.getChild(1).getID());
 			assertEquals(coreStageContext.component.getInstanceCount(), 1);
 
@@ -395,7 +396,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 			final ParallelStage boosterStage = (ParallelStage) coreStage.getChild(0).getChild(0);
 			final List<InstanceContext> boosterStageContextList = instances.getInstanceContexts(boosterStage);
 			final InstanceContext boosterStage0Context = boosterStageContextList.get(0);
-			assertEquals(boosterStage0Context.component.getClass(), ParallelStage.class);
+			assertSame(boosterStage0Context.component.getClass(), ParallelStage.class);
 			assertEquals(boosterStage0Context.component.getID(), boosterStage.getID());
 			assertEquals(boosterStage0Context.instanceNumber, 0);
 			{
@@ -406,7 +407,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 			}
 
 			final InstanceContext boosterStage1Context = boosterStageContextList.get(1);
-			assertEquals(boosterStage1Context.component.getClass(), ParallelStage.class);
+			assertSame(boosterStage1Context.component.getClass(), ParallelStage.class);
 			assertEquals(boosterStage1Context.component.getID(), boosterStage.getID());
 			assertEquals(boosterStage1Context.instanceNumber, 1);
 			{
@@ -426,7 +427,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 				// this is the instance number per-parent
 				assertEquals(boosterBodyContext.instanceNumber, 0);
 
-				assertEquals(boosterBodyContext.component.getClass(), BodyTube.class);
+				assertSame(boosterBodyContext.component.getClass(), BodyTube.class);
 
 				final Coordinate bodyTubeLocation = boosterBodyContext.getLocation();
 				assertEquals(bodyTubeLocation.x, 0.564, EPSILON);
@@ -439,7 +440,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(8, mmtContextList.size());
 
 					final InstanceContext motorTubeContext0 = mmtContextList.get(4);
-					assertEquals(motorTubeContext0.component.getClass(), InnerTube.class);
+					assertSame(motorTubeContext0.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext0.instanceNumber, 0);
 					final Coordinate motorTube0Location = motorTubeContext0.getLocation();
 					assertEquals(motorTube0Location.x, 1.214, EPSILON);
@@ -447,7 +448,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(motorTube0Location.z, -0.015, EPSILON);
 
 					final InstanceContext motorTubeContext1 = mmtContextList.get(5);
-					assertEquals(motorTubeContext1.component.getClass(), InnerTube.class);
+					assertSame(motorTubeContext1.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext1.instanceNumber, 1);
 					final Coordinate motorTube1Location = motorTubeContext1.getLocation();
 					assertEquals(motorTube1Location.x, 1.214, EPSILON);
@@ -455,7 +456,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(motorTube1Location.z, -0.015, EPSILON);
 
 					final InstanceContext motorTubeContext2 = mmtContextList.get(6);
-					assertEquals(motorTubeContext2.component.getClass(), InnerTube.class);
+					assertSame(motorTubeContext2.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext2.instanceNumber, 2);
 					final Coordinate motorTube2Location = motorTubeContext2.getLocation();
 					assertEquals(motorTube2Location.x, 1.214, EPSILON);
@@ -463,7 +464,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(motorTube2Location.z, 0.015, EPSILON);
 
 					final InstanceContext motorTubeContext3 = mmtContextList.get(7);
-					assertEquals(motorTubeContext3.component.getClass(), InnerTube.class);
+					assertSame(motorTubeContext3.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext3.instanceNumber, 3);
 					final Coordinate motorTube3Location = motorTubeContext3.getLocation();
 					assertEquals(motorTube3Location.x, 1.214, EPSILON);
@@ -477,7 +478,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(6, finContextList.size());
 
 					final InstanceContext boosterFinContext0 = finContextList.get(3);
-					assertEquals(boosterFinContext0.component.getClass(), TrapezoidFinSet.class);
+					assertSame(boosterFinContext0.component.getClass(), TrapezoidFinSet.class);
 					assertEquals(boosterFinContext0.instanceNumber, 0);
 					final Coordinate boosterFin0Location = boosterFinContext0.getLocation();
 					assertEquals(1.044, boosterFin0Location.x, EPSILON);
@@ -485,7 +486,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(0.0, boosterFin0Location.z, EPSILON);
 
 					final InstanceContext boosterFinContext1 = finContextList.get(4);
-					assertEquals(boosterFinContext1.component.getClass(), TrapezoidFinSet.class);
+					assertSame(boosterFinContext1.component.getClass(), TrapezoidFinSet.class);
 					assertEquals(boosterFinContext1.instanceNumber, 1);
 					final Coordinate boosterFin1Location = boosterFinContext1.getLocation();
 					assertEquals(1.044, boosterFin1Location.x, EPSILON);
@@ -493,7 +494,7 @@ public class FlightConfigurationTest extends BaseTestCase {
 					assertEquals(-0.033341978, boosterFin1Location.z, EPSILON);
 
 					final InstanceContext boosterFinContext2 = finContextList.get(5);
-					assertEquals(boosterFinContext2.component.getClass(), TrapezoidFinSet.class);
+					assertSame(boosterFinContext2.component.getClass(), TrapezoidFinSet.class);
 					assertEquals(boosterFinContext2.instanceNumber, 2);
 					final Coordinate boosterFin2Location = boosterFinContext2.getLocation();
 					assertEquals(1.044, boosterFin2Location.x, EPSILON);
@@ -767,14 +768,14 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// Test boundModID
 		Field boundsModIDField = FlightConfiguration.class.getDeclaredField("boundsModID");
 		boundsModIDField.setAccessible(true);
-		int boundsModIDCopy = (int) boundsModIDField.get(copy);
-		assertEquals(-1, boundsModIDCopy);
+		ModID boundsModIDCopy = (ModID) boundsModIDField.get(copy);
+		assertEquals(ModID.INVALID, boundsModIDCopy);
 
 		// Test refLengthModID
 		Field refLengthModIDField = FlightConfiguration.class.getDeclaredField("refLengthModID");
 		refLengthModIDField.setAccessible(true);
-		int refLengthModIDCopy = (int) refLengthModIDField.get(copy);
-		assertEquals(-1, refLengthModIDCopy);
+		ModID refLengthModIDCopy = (ModID) refLengthModIDField.get(copy);
+		assertEquals(ModID.INVALID, refLengthModIDCopy);
 
 		// Test stageActiveness copy
 		for (int i = 0; i < original.getStageCount(); i++) {
@@ -833,14 +834,14 @@ public class FlightConfigurationTest extends BaseTestCase {
 		// Test boundModID
 		Field boundsModIDField = FlightConfiguration.class.getDeclaredField("boundsModID");
 		boundsModIDField.setAccessible(true);
-		int boundsModIDClone = (int) boundsModIDField.get(clone);
-		assertEquals(-1, boundsModIDClone);
+		ModID boundsModIDClone = (ModID) boundsModIDField.get(clone);
+		assertEquals(ModID.INVALID, boundsModIDClone);
 
 		// Test refLengthModID
 		Field refLengthModIDField = FlightConfiguration.class.getDeclaredField("refLengthModID");
 		refLengthModIDField.setAccessible(true);
-		int refLengthModIDClone = (int) refLengthModIDField.get(clone);
-		assertEquals(-1, refLengthModIDClone);
+		ModID refLengthModIDClone = (ModID) refLengthModIDField.get(clone);
+		assertEquals(ModID.INVALID, refLengthModIDClone);
 
 		// Test stageActiveness copy
 		for (int i = 0; i < original.getStageCount(); i++) {

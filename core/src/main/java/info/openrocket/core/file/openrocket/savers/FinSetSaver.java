@@ -3,8 +3,6 @@ package info.openrocket.core.file.openrocket.savers;
 import java.util.List;
 import java.util.Locale;
 
-import info.openrocket.core.rocketcomponent.FinSet;
-import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.util.MathUtil;
 
 public class FinSetSaver extends ExternalComponentSaver {
@@ -35,17 +33,12 @@ public class FinSetSaver extends ExternalComponentSaver {
 			// anymore
 			String offset = "center";
 			double offsetVal = fins.getTabOffset();
-			switch (fins.getTabOffsetMethod()) {
-				case TOP:
-					offset = "front";
-					break;
-				case BOTTOM:
-					offset = "end";
-					break;
-				case MIDDLE:
-					offset = "center";
-					break;
-			}
+			offset = switch (fins.getTabOffsetMethod()) {
+				case TOP -> "front";
+				case BOTTOM -> "end";
+				case MIDDLE -> "center";
+				default -> offset;
+			};
 			elements.add("<tabposition relativeto=\"" + offset + "\">" +
 					offsetVal + "</tabposition>");
 			elements.add("<tabposition relativeto=\"" +

@@ -4,9 +4,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.simulation.extension.example.StopSimulation;
@@ -15,7 +12,6 @@ import info.openrocket.swing.gui.adaptors.IntegerModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.core.plugin.Plugin;
 import info.openrocket.swing.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
-import info.openrocket.core.unit.UnitGroup;
 
 @Plugin
 public class StopSimulationConfigurator extends AbstractSwingSimulationExtensionConfigurator<StopSimulation> {

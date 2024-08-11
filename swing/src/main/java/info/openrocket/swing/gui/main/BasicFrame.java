@@ -48,6 +48,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
@@ -72,7 +74,6 @@ import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.core.util.MemoryManagement;
@@ -125,7 +126,7 @@ public class BasicFrame extends JFrame {
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 
@@ -142,7 +143,7 @@ public class BasicFrame extends JFrame {
 	 * List of currently open frames.  When the list goes empty
 	 * it is time to exit the application.
 	 */
-	private static final List<BasicFrame> frames = new ArrayList<BasicFrame>();
+	private static final List<BasicFrame> frames = new ArrayList<>();
 	private static BasicFrame startupFrame = null;	// the frame that was created at startup
 
 
@@ -1043,7 +1044,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Exhaust memory selected");
-				LinkedList<byte[]> data = new LinkedList<byte[]>();
+				LinkedList<byte[]> data = new LinkedList<>();
 				int count = 0;
 				final int bytesPerArray = 10240;
 				try {
@@ -1397,6 +1398,7 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAction() {
+		document.fireDocumentSavingEvent(new DocumentChangeEvent(this));
 		File file = document.getFile();
 		if (file == null || document.getDefaultStorageOptions().getFileType().equals(FileType.ROCKSIM)
 				|| document.getDefaultStorageOptions().getFileType().equals(FileType.RASAERO)) {

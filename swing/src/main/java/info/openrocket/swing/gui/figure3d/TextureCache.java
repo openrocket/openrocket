@@ -27,8 +27,8 @@ public class TextureCache {
 	public void init(GLAutoDrawable drawable) {
 		if (texCache != null)
 			throw new IllegalStateException(this + " already initialized.");
-		oldTexCache = new HashMap<String, Texture>();
-		texCache = new HashMap<String, Texture>();
+		oldTexCache = new HashMap<>();
+		texCache = new HashMap<>();
 	}
 	
 	public void dispose(GLAutoDrawable drawable) {
@@ -55,7 +55,7 @@ public class TextureCache {
 				e.getValue().destroy(drawable.getGL().getGL2());
 		}
 		oldTexCache = texCache;
-		texCache = new HashMap<String, Texture>();
+		texCache = new HashMap<>();
 	}
 	
 	public Texture getTexture(URL uri) {

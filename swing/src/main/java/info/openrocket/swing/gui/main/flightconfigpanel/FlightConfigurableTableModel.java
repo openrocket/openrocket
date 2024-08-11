@@ -23,7 +23,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 
 	protected final Rocket rocket;
 	protected final Class<T> clazz;
-	private final List<T> components = new ArrayList<T>();
+	private final List<T> components = new ArrayList<>();
 	
 	public FlightConfigurableTableModel(Class<T> clazz, Rocket rocket) {
 		super();
@@ -83,7 +83,7 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		default: {
 			int index = column - 1;
 			T d = components.get(index);
-			return new Pair<FlightConfigurationId, T>(fcid, d);
+			return new Pair<>(fcid, d);
 		}
 		}
 	}

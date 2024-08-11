@@ -89,25 +89,25 @@ public class RocketConfig extends RocketComponentConfig {
 			public void keyTyped(KeyEvent e) {
 				String text = componentNameField.getText() + e.getKeyChar();
 				String msg = null;
-				String title = null;
-				switch (text) {
-					case "SA-508":
+				String title = switch (text) {
+					case "SA-508" -> {
 						msg = "Houston, we have a problem.\n\nJust kidding, have fun building your 'Apollo 13' rocket!";
-						title = "Oh oh...";
-						break;
-					case "SA-506":
+						yield "Oh oh...";
+					}
+					case "SA-506" -> {
 						msg = "One small step for a rocket, one giant leap for rocketkind.";
-						title = "Or was that not the quote?";
-						break;
-					case "Vega":
+						yield "Or was that not the quote?";
+					}
+					case "Vega" -> {
 						msg = "Viva las Vega!";
-						title = "Vega, Ready for Launch and Laughs!";
-						break;
-					case "Ariane 5":
+						yield "Vega, Ready for Launch and Laughs!";
+					}
+					case "Ariane 5" -> {
 						msg = "Non, je ne regrette rien\u2026 except for that one overflow error\u2026";
-						title = "Happens to the best of us";
-						break;
-				}
+						yield "Happens to the best of us";
+					}
+					default -> null;
+				};
 				if (msg != null) {
 					JOptionPane optionPane = new JOptionPane(msg, JOptionPane.INFORMATION_MESSAGE);
 					JDialog dialog = optionPane.createDialog(RocketConfig.this, title);

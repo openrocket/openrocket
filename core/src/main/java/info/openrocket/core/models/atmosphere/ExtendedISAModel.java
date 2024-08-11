@@ -2,6 +2,7 @@ package info.openrocket.core.models.atmosphere;
 
 import static info.openrocket.core.models.atmosphere.AtmosphericConditions.R;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 
 /**
  * An atmospheric temperature/pressure model based on the International Standard
@@ -122,8 +123,8 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	}
 
 	@Override
-	public int getModID() {
-		return 0;
+	public ModID getModID() {
+		return ModID.ZERO;
 	}
 
 }

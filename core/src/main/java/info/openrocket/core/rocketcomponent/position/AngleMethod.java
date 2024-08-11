@@ -25,7 +25,7 @@ public enum AngleMethod implements DistanceMethod {
 		@Override
 		public double getAngle(final RocketComponent parentComponent, final RocketComponent thisComponent,
 				final double requestedAngleOffset_radians) {
-			return 0.;
+			return 0.00;
 		}
 	},
 

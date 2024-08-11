@@ -13,11 +13,11 @@ import info.openrocket.core.unit.UnitGroup;
 
 public class MaterialHolder {
 
-	private final Map<String, Material.Bulk> bulkMaterials = new HashMap<String, Material.Bulk>();
+	private final Map<String, Material.Bulk> bulkMaterials = new HashMap<>();
 
-	private final Map<String, Material.Surface> surfaceMaterials = new HashMap<String, Material.Surface>();
+	private final Map<String, Material.Surface> surfaceMaterials = new HashMap<>();
 
-	private final Map<String, Material.Line> lineMaterials = new HashMap<String, Material.Line>();
+	private final Map<String, Material.Line> lineMaterials = new HashMap<>();
 
 	public MaterialHolder() {
 	}
@@ -46,16 +46,12 @@ public class MaterialHolder {
 	}
 
 	public Material getMaterial(Material material) {
-		switch (material.getType()) {
-			case BULK:
-				return getBulkMaterial((Material.Bulk) material);
-			case SURFACE:
-				return getSurfaceMaterial((Material.Surface) material, null);
-			case LINE:
-				return getLineMaterial((Material.Line) material);
-			default:
-				return null;
-		}
+		return switch (material.getType()) {
+			case BULK -> getBulkMaterial((Material.Bulk) material);
+			case SURFACE -> getSurfaceMaterial((Material.Surface) material, null);
+			case LINE -> getLineMaterial((Material.Line) material);
+			default -> null;
+		};
 	}
 
 	public Material.Bulk getBulkMaterial(Material.Bulk material) {
@@ -108,7 +104,7 @@ public class MaterialHolder {
 
 	public Collection<Material> values() {
 
-		HashSet<Material> allMats = new HashSet<Material>();
+		HashSet<Material> allMats = new HashSet<>();
 		allMats.addAll(bulkMaterials.values());
 		allMats.addAll(surfaceMaterials.values());
 		allMats.addAll(lineMaterials.values());
@@ -118,7 +114,7 @@ public class MaterialHolder {
 	}
 
 	public Database<Material> asDatabase(Material.Type theType) {
-		Database<Material> result = new Database<Material>();
+		Database<Material> result = new Database<>();
 		switch (theType) {
 			case LINE:
 				result.addAll(lineMaterials.values());

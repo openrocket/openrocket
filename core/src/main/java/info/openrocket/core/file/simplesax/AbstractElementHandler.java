@@ -31,7 +31,7 @@ public abstract class AbstractElementHandler implements ElementHandler {
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 
-		if (!content.trim().equals("")) {
+		if (!content.trim().isEmpty()) {
 			warnings.add(Warning.fromString("Unknown text in element '" + element
 					+ "', ignoring."));
 		}

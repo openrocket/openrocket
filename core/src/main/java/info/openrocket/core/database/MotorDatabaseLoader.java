@@ -103,9 +103,8 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	private void loadSerialized(Pair<File, InputStream> f) {
-		try {
-			log.debug("Reading motors from file " + f.getU().getPath());
-			ObjectInputStream ois = new ObjectInputStream(f.getV());
+		log.debug("Reading motors from file " + f.getU().getPath());
+		try (ObjectInputStream ois = new ObjectInputStream(f.getV())) {
 			List<ThrustCurveMotor> motors = (List<ThrustCurveMotor>) ois.readObject();
 			addMotors(motors);
 		} catch (Exception ex) {

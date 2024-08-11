@@ -103,7 +103,7 @@ public final class L10N {
 		/*
 		 * This list is generated using the L10NGenerator utility.
 		 */
-		Map<Character, String> m = new HashMap<Character, String>();
+		Map<Character, String> m = new HashMap<>();
 		m.put('\u00aa', "a");
 		m.put('\u00b2', "2");
 		m.put('\u00b3', "3");

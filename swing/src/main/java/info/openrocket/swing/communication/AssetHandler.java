@@ -57,9 +57,9 @@ public class AssetHandler {
         if (urls == null) return null;
 
         for (String url : urls) {
-            for (String ext : mapExtensionToPlatform.keySet()) {
-                if (url.endsWith(ext)) {
-                    output.put(mapExtensionToPlatform.get(ext)[0], url);    // First Platform element is enough
+            for (Map.Entry<String, UpdatePlatform[]> entry : mapExtensionToPlatform.entrySet()) {
+                if (url.endsWith(entry.getKey())) {
+                    output.put(entry.getValue()[0], url);    // First Platform element is enough
                 }
             }
         }
@@ -73,10 +73,10 @@ public class AssetHandler {
      * @return URL to download the installer for the given platform
      */
     public static String getInstallerURLForPlatform(UpdatePlatform platform, String version) {
-        for (UpdatePlatform[] platforms : mapPlatformToURL.keySet()) {
-            for (UpdatePlatform p : platforms) {
+        for (Map.Entry<UpdatePlatform[], String> entry : mapPlatformToURL.entrySet()) {
+            for (UpdatePlatform p : entry.getKey()) {
                 if (p == platform) {
-                    return String.format(mapPlatformToURL.get(platforms), version);
+                    return String.format(entry.getValue(), version);
                 }
             }
         }

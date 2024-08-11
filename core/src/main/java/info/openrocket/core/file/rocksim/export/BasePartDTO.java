@@ -34,9 +34,9 @@ public abstract class BasePartDTO {
     private static int currentSerialNumber = 1;
 
     @XmlElement(name = RockSimCommonConstants.KNOWN_MASS)
-    private double knownMass = 0d;
+    private double knownMass = 0.0d;
     @XmlElement(name = RockSimCommonConstants.DENSITY)
-    private double density = 0d;
+    private double density = 0.0d;
     @XmlElement(name = RockSimCommonConstants.MATERIAL)
     private String material = "";
     @XmlElement(name = RockSimCommonConstants.NAME)
@@ -48,9 +48,9 @@ public abstract class BasePartDTO {
     @XmlElement(name = RockSimCommonConstants.XB)
     private double xb = 0;
     @XmlElement(name = RockSimCommonConstants.CALC_MASS)
-    private double calcMass = 0d;
+    private double calcMass = 0.0d;
     @XmlElement(name = RockSimCommonConstants.CALC_CG)
-    private double calcCG = 0d;
+    private double calcCG = 0.0d;
     @XmlElement(name = RockSimCommonConstants.DENSITY_TYPE)
     private int densityType = 0;
     @XmlElement(name = RockSimCommonConstants.RADIAL_LOC)
@@ -60,7 +60,7 @@ public abstract class BasePartDTO {
     @XmlElement(name = RockSimCommonConstants.LOCATION_MODE)
     private int locationMode = 0;
     @XmlElement(name = RockSimCommonConstants.LEN, required = false, nillable = false)
-    private double len = 0d;
+    private double len = 0.0d;
     @XmlElement(name = RockSimCommonConstants.FINISH_CODE)
     private int finishCode = 0;
     @XmlElement(name = RockSimCommonConstants.SERIAL_NUMBER)

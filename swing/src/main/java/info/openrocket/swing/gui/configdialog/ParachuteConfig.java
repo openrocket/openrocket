@@ -7,17 +7,22 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.SwingConstants;
 
+import info.openrocket.core.material.MaterialGroup;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
+import info.openrocket.swing.gui.adaptors.CustomFocusTraversalPolicy;
+import info.openrocket.swing.gui.adaptors.DoubleModel;
+import info.openrocket.swing.gui.adaptors.EnumModel;
+import info.openrocket.swing.gui.adaptors.IntegerModel;
+import info.openrocket.swing.gui.adaptors.MaterialModel;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -31,7 +36,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 
 import info.openrocket.swing.gui.SpinnerEditor;
-import info.openrocket.swing.gui.adaptors.*;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.HtmlLabel;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -87,9 +91,9 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Material:
 		canopyPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "wrap rel");
 
-		MaterialModel mm = new MaterialModel(canopyPanel, component, Material.Type.SURFACE);
+		MaterialModel mm = new MaterialModel(canopyPanel, document, component, Material.Type.SURFACE);
 		register(mm);
-		JComboBox<Material> surfaceMaterialCombo = new JComboBox<>(mm);
+		GroupableAndSearchableComboBox<MaterialGroup, Material> surfaceMaterialCombo = MaterialComboBox.createComboBox(document, mm);
 		surfaceMaterialCombo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
 		canopyPanel.add(surfaceMaterialCombo, "spanx, growx, wrap 15lp");
 		order.add(surfaceMaterialCombo);
@@ -158,9 +162,9 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Material:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "spanx, wrap rel");
 
-		mm = new MaterialModel(shroudPanel, component, Material.Type.LINE, "LineMaterial");
+		mm = new MaterialModel(shroudPanel, document, component, Material.Type.LINE, "LineMaterial");
 		register(mm);
-		JComboBox<Material> shroudMaterialCombo = new JComboBox<>(mm);
+		GroupableAndSearchableComboBox<MaterialGroup, Material> shroudMaterialCombo = MaterialComboBox.createComboBox(document, mm);
 		shroudPanel.add(shroudMaterialCombo, "spanx, growx");
 		order.add(shroudMaterialCombo);
 
@@ -222,7 +226,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 			DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfigurations().getDefault();
 			// this issues a warning because EnumModel implements ComboBoxModel without a parameter...
-			EnumModel<DeploymentConfiguration.DeployEvent> deployOptionsModel = new EnumModel<>(deploymentConfig, "DeployEvent");
+			EnumModel<DeployEvent> deployOptionsModel = new EnumModel<>(deploymentConfig, "DeployEvent");
 			register(deployOptionsModel);
 			JComboBox<DeploymentConfiguration.DeployEvent> eventCombo = new JComboBox<>(deployOptionsModel);
 			if ((component.getStageNumber() + 1) == d.getRocket().getStageCount()) {

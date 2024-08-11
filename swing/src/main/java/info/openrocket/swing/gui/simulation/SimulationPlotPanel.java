@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -32,7 +31,7 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightDataTypeGroup;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 
@@ -135,7 +134,7 @@ public class SimulationPlotPanel extends JPanel {
 		////  Configuration selector
 		
 		// Setup the combo box
-		configurationSelector = new JComboBox<PlotConfiguration>(PRESET_ARRAY);
+		configurationSelector = new JComboBox<>(PRESET_ARRAY);
 		for (PlotConfiguration config : PRESET_ARRAY) {
 			if (config.getName().equals(configuration.getName())) {
 				configurationSelector.setSelectedItem(config);
@@ -174,7 +173,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
+		domainTypeSelector = FlightDataComboBox.createComboBox(Arrays.asList(types));
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
@@ -213,7 +212,7 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
 		//// The data will be plotted in time order even if the X axis type is not time.
-		simPlotPanelDesc = new DescriptionArea("", 2, -2f, false);
+		simPlotPanelDesc = new DescriptionArea("", 2, -2.0f, false);
 		simPlotPanelDesc.setVisible(false);
 		simPlotPanelDesc.setForeground(darkErrorColor);
 		simPlotPanelDesc.setViewportBorder(BorderFactory.createEmptyBorder());
@@ -284,7 +283,7 @@ public class SimulationPlotPanel extends JPanel {
 		bg.add(radioVerticalMarker);
 		bg.add(radioIcon);
 
-		boolean useIcon = preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false);
+		boolean useIcon = preferences.getBoolean(ApplicationPreferences.MARKER_STYLE_ICON, false);
 		if (useIcon) {
 			radioIcon.setSelected(true);
 		} else {
@@ -296,7 +295,7 @@ public class SimulationPlotPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (modifying > 0)
 					return;
-				preferences.putBoolean(Preferences.MARKER_STYLE_ICON, radioIcon.isSelected());
+				preferences.putBoolean(ApplicationPreferences.MARKER_STYLE_ICON, radioIcon.isSelected());
 			}
 		});
 
@@ -498,7 +497,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
+			typeSelector = FlightDataComboBox.createComboBox(Arrays.asList(types));
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override
@@ -532,7 +531,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			//// Axis:
 			this.add(new JLabel(trans.get("simplotpanel.lbl.Axis")));
-			axisSelector = new JComboBox<String>(POSITIONS);
+			axisSelector = new JComboBox<>(POSITIONS);
 			if (position == LEFT)
 				axisSelector.setSelectedIndex(1);
 			else if (position == RIGHT)
@@ -605,30 +604,20 @@ public class SimulationPlotPanel extends JPanel {
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case 0:
-				return Boolean.class;
-				
-			case 1:
-				return String.class;
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case 0 -> Boolean.class;
+				case 1 -> String.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
 		public Object getValueAt(int row, int column) {
-			switch (column) {
-			case 0:
-				return Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
-				
-			case 1:
-				return eventTypes[row].toString();
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case 0 -> Boolean.valueOf(configuration.isEventActive(eventTypes[row]));
+				case 1 -> eventTypes[row].toString();
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override

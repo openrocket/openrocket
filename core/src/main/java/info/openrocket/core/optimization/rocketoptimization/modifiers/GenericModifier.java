@@ -67,9 +67,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 			methodName = methodName.substring(0, 1).toUpperCase(Locale.ENGLISH) + methodName.substring(1);
 			getter = new Method(modifiedClass.getMethod("get" + methodName));
 			setter = new Method(modifiedClass.getMethod("set" + methodName, double.class));
-		} catch (SecurityException e) {
-			throw new BugException("Trying to find method get/set" + methodName + " in class " + modifiedClass, e);
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			throw new BugException("Trying to find method get/set" + methodName + " in class " + modifiedClass, e);
 		}
 	}
