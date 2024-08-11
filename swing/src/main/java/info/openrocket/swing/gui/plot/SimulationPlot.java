@@ -200,14 +200,62 @@ public class SimulationPlot {
 				// Store data in provided units
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
-				XYSeries series = new XYSeries(seriesCount++, false, true);
-				series.setDescription(name);
 				int pointCount = plotx.size();
-				for (int j = 0; j < pointCount; j++) {
-					series.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
+
+				// For a single-stage rocket, there is no need to disambiguate stages
+				if (branchCount == 1) {
+					XYSeries series = new XYSeries(seriesCount++, false, true);
+					series.setDescription(name);
+					for (int j = 0; j < pointCount; j++) {
+						series.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
+					}
+					data[axis].addSeries(series);
 				}
-				data[axis].addSeries(series);
+
+				// For a multi-stage rocket, the stages must be distinguished on the plot
+				else {
+					int numStages = branchCount;
+					int breakpoint = 0;
+					while (numStages > 0) {
+						// Create series for this portion of the main rocket flight
+						XYSeries currentSeries = new XYSeries(seriesCount++, false, true);
+						StringBuilder str = new StringBuilder();
+
+						// Add name of each stage that is still connected to main rocket to the string above
+						for (int j = 0; j < numStages; j++) {
+							FlightDataBranch currentBranch = simulation.getSimulatedData().getBranch(j);
+							str.append(currentBranch.getName());
+							if(j < numStages-1) {
+								str.append(" + ");
+							}
+						}
+
+						// Set the label for the current series
+						currentSeries.setDescription(str + ": " + name);
+						// Create list of y-value data for the branch after this series
+						// This is used to find the stage separation point and stop the current series plot there
+						List<Double> plotyNext = null;
+
+						if (numStages > 1) {
+							plotyNext = simulation.getSimulatedData().getBranch(numStages - 1).get(type);
+						}
+
+						for (int j = breakpoint; j < pointCount; j++) {
+							if ( plotyNext != null && !ploty.get(j).equals(plotyNext.get(j)) ) {
+								if (j != 0) {breakpoint = j - 1;}
+								break;
+							}
+							currentSeries.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
+						}
+
+						// Add newly created series to the data
+						data[axis].addSeries(currentSeries);
+						// Decrement number of stages connected to main rocket (after separation of current stage)
+						numStages--;
+					}
+				}
 			}
+
 			// Secondary branches
 			for (int branchIndex = 1; branchIndex < branchCount; branchIndex++) {
 				FlightDataBranch thisBranch = simulation.getSimulatedData().getBranch(branchIndex);
@@ -304,7 +352,8 @@ public class SimulationPlot {
 
 				// Add data and map to the axis
 				plot.setDataset(axisno, data[axisno]);
-				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
+				// Number of Series = (Number of Branches * 2) - 1
+				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(2*branchCount-1);
 				renderers.add(r);
 				r.setDefaultToolTipGenerator(tooltipGenerator);
 				plot.setRenderer(axisno, r);
@@ -321,11 +370,12 @@ public class SimulationPlot {
 				}
 
 				// Update the cumulative count for the next axis
-				cumulativeSeriesCount += data[axisno].getSeriesCount();
+				cumulativeSeriesCount += data[axisno].getSeriesCount() / branchCount;
 
 				// Now we pull the colors for the legend.
-				for (int j = 0; j < data[axisno].getSeriesCount(); j += branchCount) {
-					String name = data[axisno].getSeries(j).getDescription();
+				for (int j = 0; j < data[axisno].getSeriesCount(); j += (2*branchCount-1)) {
+					String[] description = data[axisno].getSeries(j).getDescription().split(": ");
+					String name = description[description.length-1]; // Get data type and units from description
 					this.legendItems.lineLabels.add(name);
 					Paint linePaint = r.lookupSeriesPaint(j);
 					this.legendItems.linePaints.add(linePaint);
