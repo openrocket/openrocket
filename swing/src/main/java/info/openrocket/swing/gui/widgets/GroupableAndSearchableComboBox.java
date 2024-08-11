@@ -211,11 +211,40 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 		return new ArrayList<>(uniqueItems);
 	}
 
+	static class DeselectMenuListener extends MouseAdapter {
+		final List<JMenu> groupMenus;
+		final JMenu ownMenu;
+
+		DeselectMenuListener(List<JMenu> groupMenus, JMenu ownMenu) {
+			this.groupMenus = groupMenus;
+			this.ownMenu = ownMenu;
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			super.mouseEntered(e);
+			SwingUtilities.invokeLater(() -> {
+				for (JMenu groupMenu : groupMenus) {
+					if (groupMenu != ownMenu) {
+						groupMenu.setSelected(false);
+						groupMenu.setPopupMenuVisible(false);
+					}
+				}
+				if (ownMenu != null) {
+					ownMenu.setSelected(true);
+					ownMenu.setPopupMenuVisible(true);
+				}
+			});
+		}
+	}
+
 	private JPopupMenu createGroupsPopup() {
 		final JPopupMenu menu = new JPopupMenu();
+		final List<JMenu> groupMenus = new ArrayList<>();
 
 		// Add the search field at the top
 		menu.add(searchFieldGroups);
+		searchFieldGroups.addMouseListener(new DeselectMenuListener(groupMenus, null));
 		menu.addSeparator();
 
 		// Fill the menu with the groups
@@ -244,13 +273,16 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 				}
 			}
 
+			groupMenus.add(groupMenu);
 			menu.add(groupMenu);
+			groupMenu.addMouseListener(new DeselectMenuListener(groupMenus, groupMenu));
 		}
 
 		// Extra widgets
 		if (extraGroupPopupWidgets != null) {
 			for (Component widget : extraGroupPopupWidgets) {
 				menu.add(widget);
+				widget.addMouseListener(new DeselectMenuListener(groupMenus, null));
 			}
 		}
 
