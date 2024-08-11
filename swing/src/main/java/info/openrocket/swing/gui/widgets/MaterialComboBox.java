@@ -44,7 +44,7 @@ public abstract class MaterialComboBox extends JComboBox<Material> {
 			});
 		});
 
-		return new GroupableAndSearchableComboBox<>(mm,
+		GroupableAndSearchableComboBox<MaterialGroup, Material> comboBox = new GroupableAndSearchableComboBox<>(mm,
 				trans.get("MaterialPanel.MaterialComboBox.placeholder"), customMaterialButton, editMaterialsButton) {
 			@Override
 			public String getDisplayString(Material item) {
@@ -55,5 +55,15 @@ public abstract class MaterialComboBox extends JComboBox<Material> {
 				return baseText;
 			}
 		};
+
+		// Ensure combobox is hidden when buttons are clicked
+		customMaterialButton.addActionListener(e -> {
+			comboBox.hidePopups();
+		});
+		editMaterialsButton.addActionListener(e -> {
+			comboBox.hidePopups();
+		});
+
+		return comboBox;
 	}
 }

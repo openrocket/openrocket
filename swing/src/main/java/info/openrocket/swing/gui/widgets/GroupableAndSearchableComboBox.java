@@ -334,7 +334,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 		});
 	}
 
-	private void hidePopups() {
+	public void hidePopups() {
 		hideGroupsPopup();
 		hideSearchPopup();
 	}
