@@ -35,6 +35,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.UnitSelector;
@@ -101,7 +102,7 @@ public class SimulationPlotPanel extends JPanel {
 	
 	private JComboBox<PlotConfiguration> configurationSelector;
 	
-	private JComboBox<FlightDataType> domainTypeSelector;
+	private GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
 	
 	private JPanel typeSelectorPanel;
@@ -487,7 +488,7 @@ public class SimulationPlotPanel extends JPanel {
 		private final String[] POSITIONS = { AUTO_NAME, LEFT_NAME, RIGHT_NAME };
 		
 		private final int index;
-		private final JComboBox<FlightDataType> typeSelector;
+		private final GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> typeSelector;
 		private UnitSelector unitSelector;
 		private JComboBox<String> axisSelector;
 		
