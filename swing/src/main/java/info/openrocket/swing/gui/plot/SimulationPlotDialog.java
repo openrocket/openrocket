@@ -20,9 +20,9 @@ import javax.swing.JPanel;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -58,7 +58,7 @@ public class SimulationPlotDialog extends JDialog {
 		super(parent, simulation.getName());
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
-		final boolean initialShowPoints = Application.getPreferences().getBoolean(Preferences.PLOT_SHOW_POINTS, false);
+		final boolean initialShowPoints = Application.getPreferences().getBoolean(ApplicationPreferences.PLOT_SHOW_POINTS, false);
 		
 		final SimulationPlot myPlot = new SimulationPlot(simulation, config, initialShowPoints);
 		
@@ -94,7 +94,7 @@ public class SimulationPlotDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean show = checkData.isSelected();
-				Application.getPreferences().putBoolean(Preferences.PLOT_SHOW_POINTS, show);
+				Application.getPreferences().putBoolean(ApplicationPreferences.PLOT_SHOW_POINTS, show);
 				myPlot.setShowPoints(show);
 			}
 		});

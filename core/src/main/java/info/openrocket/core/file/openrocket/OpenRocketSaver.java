@@ -15,6 +15,8 @@ import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.material.Material;
+import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +113,9 @@ public class OpenRocketSaver extends RocketSaver {
 
 		// Save PhotoSettings
 		savePhotoSettings(document.getPhotoSettings());
+
+		// Save document preferences
+		saveDocumentPreferences(document.getDocumentPreferences());
 		
 		indent--;
 		writeln("</openrocket>");
@@ -361,7 +366,7 @@ public class OpenRocketSaver extends RocketSaver {
 			if (config != null) {
 				for (String key : config.keySet()) {
 					Object value = config.get(key, null);
-					writeEntry(key, value);
+					writeEntry("entry", key, value, false);
 				}
 			}
 			indent--;
@@ -431,38 +436,87 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</photostudio>");
 	}
-	
-	
-	private void writeEntry(String key, Object value) throws IOException {
+
+	private void saveDocumentPreferences(DocumentPreferences docPrefs) throws IOException {
+		log.debug("Saving Document Preferences");
+
+		writeln("<docprefs>");
+		indent++;
+
+		// Normal preferences
+		Map<String, DocumentPreferences.DocumentPreference> prefs = docPrefs.getPreferencesMap();
+		for (Map.Entry<String, DocumentPreferences.DocumentPreference> entry : prefs.entrySet()) {
+			DocumentPreferences.DocumentPreference pref = entry.getValue();
+			writeEntry("pref", entry.getKey(), pref.getValue(), true);
+		}
+
+		// Document materials
+		if (docPrefs.getTotalMaterialCount() > 0) {
+			writeln("<docmaterials>");
+			indent++;
+			for (Material m : docPrefs.getAllMaterials()) {
+				writeln("<material>" + m.toStorableString() + "</material>");
+			}
+			indent--;
+			writeln("</docmaterials>");
+		}
+
+		indent--;
+		writeln("</docprefs>");
+	}
+
+	/**
+	 * Write an entry element, which has a key and type attribute, and a value, to the output.
+	 * For example: <entry key="key" type="string">value</entry>
+	 * @param tagName The tag name (e.g. 'entry')
+	 * @param key The key attribute value
+	 * @param value The value to store
+	 * @param saveNumbersWithExplicitType If true, numbers will be stored with an explicit type attribute ('integer' or 'double'),
+	 *                                    if false, save simply as 'number'
+	 * @throws IOException
+	 */
+	private void writeEntry(String tagName, String key, Object value, boolean saveNumbersWithExplicitType) throws IOException {
 		if (value == null) {
 			return;
 		}
 		String keyAttr;
-		
+
 		if (key != null) {
 			keyAttr = "key=\"" + key + "\" ";
 		} else {
 			keyAttr = "";
 		}
-		
+
+		final String openTag = "<" + tagName + " ";
+		final String closeTag = "</" + tagName + ">";
 		if (value instanceof Boolean) {
-			writeln("<entry " + keyAttr + "type=\"boolean\">" + value + "</entry>");
+			writeln(openTag + keyAttr + "type=\"boolean\">" + value + closeTag);
 		} else if (value instanceof Number) {
-			writeln("<entry " + keyAttr + "type=\"number\">" + value + "</entry>");
+			if (saveNumbersWithExplicitType) {
+				if (value instanceof Integer) {
+					writeln(openTag + keyAttr + "type=\"integer\">" + value + closeTag);
+				} else if (value instanceof Double) {
+					writeln(openTag + keyAttr + "type=\"double\">" + value + closeTag);
+				} else {
+					writeln(openTag + keyAttr + "type=\"number\">" + value + closeTag);
+				}
+			} else {
+				writeln(openTag + keyAttr + "type=\"number\">" + value + closeTag);
+			}
 		} else if (value instanceof String) {
-			writeln("<entry " + keyAttr + "type=\"string\">" + TextUtil.escapeXML((String) value) + "</entry>");
-		} else if (value instanceof List) {
-			List<?> list = (List<?>) value;
-			writeln("<entry " + keyAttr + "type=\"list\">");
+			writeln(openTag + keyAttr + "type=\"string\">" + TextUtil.escapeXML(value) + closeTag);
+		} else if (value instanceof List<?> list) {
+			// Nested element
+			writeln(openTag + keyAttr + "type=\"list\">");
 			indent++;
 			for (Object o : list) {
-				writeEntry(null, o);
+				writeEntry(tagName, null, o, saveNumbersWithExplicitType);
 			}
 			indent--;
-			writeln("</entry>");
+			writeln(closeTag);
 		} else {
 			// Unknown type
-			log.error("Unknown configuration value type " + value.getClass() + "  value=" + value);
+			log.error("Unknown configuration value type {}  value={}", value.getClass(), value);
 		}
 	}
 	

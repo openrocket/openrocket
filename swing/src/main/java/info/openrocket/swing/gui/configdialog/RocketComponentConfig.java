@@ -62,7 +62,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Invalidatable;
 
@@ -70,7 +70,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 	private static final long serialVersionUID = -2925484062132243982L;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences preferences = Application.getPreferences();
+	private static final ApplicationPreferences preferences = Application.getPreferences();
 	
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;

@@ -35,6 +35,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
@@ -47,7 +48,6 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.BoundingBox;
@@ -153,7 +153,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		if (System.getProperty("openrocket.3d.disable") != null)
 			return false;
 		//return by preference
-		return Application.getPreferences().getBoolean(Preferences.OPENGL_ENABLED, true);
+		return Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLED, true);
 	}
 	
 	private void initGLCanvas() {
@@ -167,7 +167,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			log.trace("GL - creating GLCapabilities");
 			final GLCapabilities caps = new GLCapabilities(glp);
 			
-			if (Application.getPreferences().getBoolean(Preferences.OPENGL_ENABLE_AA, true)) {
+			if (Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, true)) {
 				log.trace("GL - setSampleBuffers");
 				caps.setSampleBuffers(true);
 				
@@ -177,7 +177,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 				log.trace("GL - Not enabling AA by user pref");
 			}
 			
-			if (Application.getPreferences().getBoolean(Preferences.OPENGL_USE_FBO, false)) {
+			if (Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_USE_FBO, false)) {
 				log.trace("GL - Creating GLJPanel");
 				canvas = new GLJPanel(caps);
 			} else {

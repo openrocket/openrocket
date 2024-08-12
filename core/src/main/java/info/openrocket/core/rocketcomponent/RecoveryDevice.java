@@ -5,6 +5,9 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * RecoveryDevice is a class representing devices that slow down descent.
  * Recovery devices report that they have no aerodynamic effect, since they
@@ -100,8 +103,19 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 		if (mat.equals(material))
 			return;
 		this.material = (Material.Surface) mat;
+		if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(this.material);
+		}
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(material);
+		return materials;
 	}
 
 	public FlightConfigurableParameterSet<DeploymentConfiguration> getDeploymentConfigurations() {
@@ -133,6 +147,9 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 			if (count > 12 ) {
 				Material m = preset.get(ComponentPreset.MATERIAL);
 				this.material = (Material.Surface) m;
+				if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(this.material);
+				}
 			} else {
 				this.material = defaultMaterial;
 			}

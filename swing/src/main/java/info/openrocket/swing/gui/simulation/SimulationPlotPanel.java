@@ -31,10 +31,11 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightDataTypeGroup;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.UnitSelector;
@@ -101,7 +102,7 @@ public class SimulationPlotPanel extends JPanel {
 	
 	private JComboBox<PlotConfiguration> configurationSelector;
 	
-	private JComboBox<FlightDataType> domainTypeSelector;
+	private GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
 	
 	private JPanel typeSelectorPanel;
@@ -173,7 +174,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
+		domainTypeSelector = FlightDataComboBox.createComboBox(Arrays.asList(types));
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
@@ -283,7 +284,7 @@ public class SimulationPlotPanel extends JPanel {
 		bg.add(radioVerticalMarker);
 		bg.add(radioIcon);
 
-		boolean useIcon = preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false);
+		boolean useIcon = preferences.getBoolean(ApplicationPreferences.MARKER_STYLE_ICON, false);
 		if (useIcon) {
 			radioIcon.setSelected(true);
 		} else {
@@ -295,7 +296,7 @@ public class SimulationPlotPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (modifying > 0)
 					return;
-				preferences.putBoolean(Preferences.MARKER_STYLE_ICON, radioIcon.isSelected());
+				preferences.putBoolean(ApplicationPreferences.MARKER_STYLE_ICON, radioIcon.isSelected());
 			}
 		});
 
@@ -487,7 +488,7 @@ public class SimulationPlotPanel extends JPanel {
 		private final String[] POSITIONS = { AUTO_NAME, LEFT_NAME, RIGHT_NAME };
 		
 		private final int index;
-		private final JComboBox<FlightDataType> typeSelector;
+		private final GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> typeSelector;
 		private UnitSelector unitSelector;
 		private JComboBox<String> axisSelector;
 		
@@ -497,7 +498,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			this.index = plotIndex;
 			
-			typeSelector = FlightDataComboBox.createComboBox(FlightDataTypeGroup.ALL_GROUPS, types);
+			typeSelector = FlightDataComboBox.createComboBox(Arrays.asList(types));
 			typeSelector.setSelectedItem(type);
 			typeSelector.addItemListener(new ItemListener() {
 				@Override

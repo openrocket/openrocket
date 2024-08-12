@@ -72,11 +72,11 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.Resettable;
 
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Invalidatable;
 import info.openrocket.core.util.MemoryManagement;
@@ -288,7 +288,7 @@ public class GUIUtil {
 	 * @return the current theme
 	 */
 	public static UITheme.Theme getUITheme() {
-		Preferences prefs = Application.getPreferences();
+		ApplicationPreferences prefs = Application.getPreferences();
 		Object theme = prefs.getUITheme();
 		if (theme instanceof UITheme.Theme) {
 			return (UITheme.Theme) theme;

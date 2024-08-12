@@ -12,6 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
+import info.openrocket.core.material.Material;
+import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.preferences.DocumentPreferences;
+import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +40,6 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -53,7 +58,8 @@ import info.openrocket.core.util.StateChangeListener;
  */
 public class OpenRocketDocument implements ComponentChangeListener, StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
+	private final DocumentPreferences docPrefs = new DocumentPreferences();
 	private final List<String> file_extensions = Arrays.asList("ork", "ork.gz", "rkt", "rkt.gz");	// Possible extensions of an OpenRocket document
 	/**
 	 * The minimum number of undo levels that are stored.
@@ -123,6 +129,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
+		rocket.setDocument(this);
 		this.objOptions = prefs.loadOBJExportOptions(rocket);
 		rocket.enableEvents();
 		init();
@@ -860,11 +867,18 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 			l.documentChanged(event);
 		}
 	}
-	
+
+	public void fireDocumentSavingEvent(DocumentChangeEvent event) {
+		DocumentChangeListener[] array = listeners.toArray(new DocumentChangeListener[0]);
+		for (DocumentChangeListener l : array) {
+			l.documentSaving(event);
+		}
+	}
+
 	public String toSimulationDetail(){
 		StringBuilder str = new StringBuilder();
 		str.append(">> Dumping simulation list:\n");
-		int simNum = 0; 
+		int simNum = 0;
 		for( Simulation s : this.simulations ){
 			str.append(String.format("    [%d] %s (%s) \n", simNum, s.getName(), s.getId().toShortKey() ));
 			simNum++;
@@ -879,5 +893,26 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 
 	public void setPhotoSettings(Map<String, String> photoSettings) {
 		this.photoSettings = photoSettings;
+	}
+
+	public DocumentPreferences getDocumentPreferences() {
+		return docPrefs;
+	}
+
+	/**
+	 * Load all materials that are user-defined and document materials to the document material database.
+	 */
+	public void reloadDocumentMaterials() {
+		for (RocketComponent c : getRocket()) {
+			List<Material> materials = c.getAllMaterials();
+			if (materials == null) {
+				continue;
+			}
+			for (Material m : materials) {
+				if (m.isUserDefined() && m.isDocumentMaterial()) {
+					getDocumentPreferences().addMaterial(m);
+				}
+			}
+		}
 	}
 }

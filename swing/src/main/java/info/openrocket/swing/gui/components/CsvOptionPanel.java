@@ -9,10 +9,10 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.TextUtil;
 
 /**
@@ -67,7 +67,7 @@ public class CsvOptionPanel extends JPanel {
 		
 		fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
 		fieldSeparator.setEditable(true);
-		fieldSeparator.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ","));
+		fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
 		fieldSeparator.setToolTipText(tip);
 		panel.add(fieldSeparator, "growx, wrap");
 
@@ -76,7 +76,7 @@ public class CsvOptionPanel extends JPanel {
 		label.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
 		panel.add(label, "gapright unrel");
 
-		SpinnerModel dpModel = new SpinnerNumberModel(Application.getPreferences().getInt(Preferences.EXPORT_DECIMAL_PLACES, TextUtil.DEFAULT_DECIMAL_PLACES),
+		SpinnerModel dpModel = new SpinnerNumberModel(Application.getPreferences().getInt(ApplicationPreferences.EXPORT_DECIMAL_PLACES, TextUtil.DEFAULT_DECIMAL_PLACES),
 				0, 15, 1);
 		decimalPlacesSpinner = new JSpinner(dpModel);
 		decimalPlacesSpinner.setToolTipText(trans.get("SimExpPan.lbl.DecimalPlaces.ttip"));
@@ -85,7 +85,7 @@ public class CsvOptionPanel extends JPanel {
 		//// Exponential notation
 		exponentialNotationCheckbox = new JCheckBox(trans.get("SimExpPan.lbl.ExponentialNotation"));
 		exponentialNotationCheckbox.setToolTipText(trans.get("SimExpPan.lbl.ExponentialNotation.ttip"));
-		exponentialNotationCheckbox.setSelected(Application.getPreferences().getBoolean(Preferences.EXPORT_EXPONENTIAL_NOTATION, true));
+		exponentialNotationCheckbox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.EXPORT_EXPONENTIAL_NOTATION, true));
 		panel.add(exponentialNotationCheckbox);
 
 		this.add(panel, "growx, wrap unrel");
@@ -117,7 +117,7 @@ public class CsvOptionPanel extends JPanel {
 		
 		commentCharacter = new JComboBox<>(new String[]{"#", "%", ";"});
 		commentCharacter.setEditable(true);
-		commentCharacter.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_COMMENT_CHARACTER, "#"));
+		commentCharacter.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_COMMENT_CHARACTER, "#"));
 		commentCharacter.setToolTipText(tip);
 		panel.add(commentCharacter, "growx");
 		
@@ -149,10 +149,10 @@ public class CsvOptionPanel extends JPanel {
 	 * Store the selected options to the user preferences.
 	 */
 	public void storePreferences() {
-		Application.getPreferences().putString(Preferences.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
-		Application.getPreferences().putInt(Preferences.EXPORT_DECIMAL_PLACES, getDecimalPlaces());
-		Application.getPreferences().putBoolean(Preferences.EXPORT_EXPONENTIAL_NOTATION, isExponentialNotation());
-		Application.getPreferences().putString(Preferences.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
+		Application.getPreferences().putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
+		Application.getPreferences().putInt(ApplicationPreferences.EXPORT_DECIMAL_PLACES, getDecimalPlaces());
+		Application.getPreferences().putBoolean(ApplicationPreferences.EXPORT_EXPONENTIAL_NOTATION, isExponentialNotation());
+		Application.getPreferences().putString(ApplicationPreferences.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
 		for (int i = 0; i < options.length; i++) {
 			Application.getPreferences().putBoolean("csvOptions." + baseClassName + "." + i, options[i].isSelected());
 		}
