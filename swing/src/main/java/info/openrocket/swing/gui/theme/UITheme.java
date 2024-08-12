@@ -40,6 +40,7 @@ public class UITheme {
 
 
     // TODO: replace a bunch of this with the FlatLaf properties files, see https://www.formdev.com/flatlaf/properties-files
+    // For FlatLaf theme properties, check out swing/src/main/resources/themes
 
     public interface Theme {
         void applyTheme();
@@ -1813,9 +1814,6 @@ public class UITheme {
 
     private static void postApplyTheme(Theme theme) {
         final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
-
-        // TODO: For some reason, FlatLaf does not take the correct values from the properties file
-        UIManager.put("OR.ScrollPane.borderColor", theme.getBorderColor());
 
         // Clear custom default font when switching to non-FlatLaf LaF
         if (!(UIManager.getLookAndFeel() instanceof FlatLaf)) {

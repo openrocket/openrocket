@@ -89,12 +89,7 @@ final class OSXSetup {
 		}
 		log.debug("Setting up OSX UI Elements");
 		try {
-			// Put the menu bar at the top of the screen
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			// Fix window title bar color
-			System.setProperty("apple.awt.application.appearance", "system");
-			// Set the name in the menu
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", APP_NAME);
+			setupOSXProperties();
 
 			// This line must come AFTER the above properties are set, otherwise
 			// the name will not appear
@@ -123,6 +118,20 @@ final class OSXSetup {
 			// so at worst case log an error and continue
 			log.warn("Error setting up OSX UI:", t);
 		}
+	}
+
+	public static void setupOSXProperties() {
+		if (SystemInfo.getPlatform() != Platform.MAC_OS) {
+			log.warn("Attempting to set up OSX properties on non-MAC_OS");
+			return;
+		}
+
+		// Put the menu bar at the top of the screen
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		// Fix window title bar color
+		System.setProperty("apple.awt.application.appearance", "system");
+		// Set the name in the menu
+		System.setProperty("com.apple.mrj.application.apple.menu.about.name", APP_NAME);
 	}
 
 	/**
