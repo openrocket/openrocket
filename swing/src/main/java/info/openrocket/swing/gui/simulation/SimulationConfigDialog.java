@@ -373,12 +373,13 @@ public class SimulationConfigDialog extends JDialog {
 					if (plot != null) {
 						plot.setVisible(true);
 					}
-					closeDialog();
 					return;
 				} else if (tabIdx == EXPORT_IDX) {
-					if (exportTab == null || exportTab.doExport()) {
+					if (exportTab == null) {
 						closeDialog();
+						return;
 					}
+					exportTab.doExport();
 					return;
 				}
 
