@@ -32,7 +32,6 @@ import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtils;
@@ -135,7 +134,7 @@ public class SimulationPlotDialog extends JDialog {
 		}
 		
 		//// Zoom in button
-		JButton button = new SelectColorButton(Icons.ZOOM_IN);
+		JButton button = new JButton(Icons.ZOOM_IN);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -150,7 +149,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 		
 		//// Reset Zoom button.
-		button = new SelectColorButton(Icons.ZOOM_RESET);
+		button = new JButton(Icons.ZOOM_RESET);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -161,7 +160,7 @@ public class SimulationPlotDialog extends JDialog {
 		
 		
 		//// Zoom out button
-		button = new SelectColorButton(Icons.ZOOM_OUT);
+		button = new JButton(Icons.ZOOM_OUT);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -175,7 +174,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 
 		//// Print chart button
-		button = new SelectColorButton(trans.get("PlotDialog.btn.exportImage"));
+		button = new JButton(trans.get("PlotDialog.btn.exportImage"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -185,7 +184,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 		
 		//// Close button
-		button = new SelectColorButton(trans.get("dlg.but.close"));
+		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

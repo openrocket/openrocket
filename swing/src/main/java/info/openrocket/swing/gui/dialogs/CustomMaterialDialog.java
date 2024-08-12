@@ -29,7 +29,6 @@ import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class CustomMaterialDialog extends JDialog {
@@ -151,7 +150,7 @@ public class CustomMaterialDialog extends JDialog {
 		}
 
 		//// OK button
-		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 
 		okButton.addActionListener(new ActionListener() {
 			@Override
@@ -163,7 +162,7 @@ public class CustomMaterialDialog extends JDialog {
 		panel.add(okButton, "span, split, tag ok");
 
 		////  Cancel
-		JButton closeButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton closeButton = new JButton(trans.get("dlg.but.cancel"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -23,7 +23,6 @@ import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.simulation.RK4SimulationStepper;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class SimulationPreferencesPanel extends PreferencesPanel {
 	private static final long serialVersionUID = 7983195730016979888L;
@@ -170,7 +169,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		sub.add(subsub, "spanx, wrap para");
 
 		// Reset to default button
-		JButton button = new SelectColorButton(trans.get("simedtdlg.but.resettodefault"));
+		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		// Reset the time step to its default value (
 		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
 				+ UnitGroup.UNITS_SHORT_TIME

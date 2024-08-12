@@ -54,7 +54,6 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.IconToggleButton;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.document.OpenRocketDocument;
@@ -161,7 +160,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			this.add(presetComboBox, "growx 110");
 			order.add(presetComboBox);
 
-			final JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
+			final JButton selectPreset = new JButton(trans.get("PresetModel.lbl.partsLib"));
 			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
 			selectPreset.addActionListener(new ActionListener() {
 				@Override
@@ -290,7 +289,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		}
 
 		//// Cancel button
-		this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		this.cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		this.cancelButton.setToolTipText(trans.get("RocketCompCfg.btn.Cancel.ttip"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
@@ -329,7 +328,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
 
 		//// Ok button
-		this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		this.okButton = new JButton(trans.get("dlg.but.ok"));
 		this.okButton.setToolTipText(trans.get("RocketCompCfg.btn.OK.ttip"));
 		okButton.addActionListener(new ActionListener() {
 			@Override

@@ -17,7 +17,6 @@ import info.openrocket.core.startup.Application;
 
 import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.adaptors.MaterialModel;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -79,7 +78,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         order.add(finishCombo);
 
         //// Set for all
-        JButton button = new SelectColorButton(trans.get("MaterialPanel.but.SetForAll"));
+        JButton button = new JButton(trans.get("MaterialPanel.but.SetForAll"));
         //// Set this finish for all components of the rocket.
         button.setToolTipText(trans.get("MaterialPanel.but.SetForAll.ttip"));
         button.addActionListener(new ActionListener() {

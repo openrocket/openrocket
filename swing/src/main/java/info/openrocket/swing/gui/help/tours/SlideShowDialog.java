@@ -25,7 +25,6 @@ import info.openrocket.core.util.Chars;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SlideShowDialog extends JDialog {
@@ -54,7 +53,7 @@ public class SlideShowDialog extends JDialog {
 		
 		JPanel sub = new JPanel(new MigLayout("ins 0, fill"));
 		
-		prevButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.prev"));
+		prevButton = new JButton(Chars.LEFT_ARROW + " " + trans.get("btn.prev"));
 		prevButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -66,7 +65,7 @@ public class SlideShowDialog extends JDialog {
 		
 		
 		
-		nextButton = new SelectColorButton(trans.get("btn.next") + " " + Chars.RIGHT_ARROW);
+		nextButton = new JButton(trans.get("btn.next") + " " + Chars.RIGHT_ARROW);
 		nextButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -81,7 +80,7 @@ public class SlideShowDialog extends JDialog {
 
 		panel.add(sub, "pushx, center");
 		
-		closeButton = new SelectColorButton(trans.get("button.close"));
+		closeButton = new JButton(trans.get("button.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

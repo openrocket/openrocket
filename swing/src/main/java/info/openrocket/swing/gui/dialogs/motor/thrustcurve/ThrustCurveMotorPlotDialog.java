@@ -19,7 +19,6 @@ import info.openrocket.core.unit.UnitGroup;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -108,7 +107,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 		
 
 		// Close button
-		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

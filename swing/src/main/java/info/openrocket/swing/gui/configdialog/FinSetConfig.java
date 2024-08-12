@@ -57,7 +57,6 @@ import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		//// Convert buttons
 		if (!(component instanceof FreeformFinSet)) {
 			//// Convert to freeform
-			convert = new SelectColorButton(trans.get("FinSetConfig.but.Converttofreeform"));
+			convert = new JButton(trans.get("FinSetConfig.but.Converttofreeform"));
 			//// Convert this fin set into a freeform fin set
 			convert.setToolTipText(trans.get("FinSetConfig.but.Converttofreeform.ttip"));
 			convert.addActionListener(new ActionListener() {
@@ -114,7 +113,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		}
 		
 		//// Split fins
-		split = new SelectColorButton(trans.get("FinSetConfig.but.Splitfins"));
+		split = new JButton(trans.get("FinSetConfig.but.Splitfins"));
 		//// Split the fin set into separate fins
 		split.setToolTipText(trans.get("FinSetConfig.but.Splitfins.ttip"));
 		split.addActionListener(new ActionListener() {
@@ -146,7 +145,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		split.setEnabled(((FinSet) component).getFinCount() > 1);
 
 		//// Export to SVG
-		JButton exportSVGBtn = new SelectColorButton(trans.get("FinSetConfig.lbl.exportSVG"));
+		JButton exportSVGBtn = new JButton(trans.get("FinSetConfig.lbl.exportSVG"));
 		exportSVGBtn.setToolTipText(trans.get("FinSetConfig.lbl.exportSVG.ttip"));
 		exportSVGBtn.addActionListener(new ActionListener() {
 			@Override
@@ -292,7 +291,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		order.add(enumCombo);
 
 		// Calculate fin tab height, length, and position
-		autoCalc = new SelectColorButton(trans.get("FinSetConfig.but.AutoCalc"));
+		autoCalc = new JButton(trans.get("FinSetConfig.but.AutoCalc"));
 		autoCalc.setToolTipText(trans.get("FinSetConfig.but.AutoCalc.ttip"));
 		
 		autoCalc.addActionListener(new ActionListener() {

@@ -40,7 +40,6 @@ import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.URLUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +132,7 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Lower row buttons
 		//// Remind me later button
-		JButton btnLater = new SelectColorButton(trans.get("update.dlg.btn.remindMeLater"));
+		JButton btnLater = new JButton(trans.get("update.dlg.btn.remindMeLater"));
 		btnLater.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -143,7 +142,7 @@ public class UpdateInfoDialog extends JDialog {
 		panel.add(btnLater, "skip 1, split 2");
 
 		//// Skip this version button
-		JButton btnSkip = new SelectColorButton(trans.get("update.dlg.checkbox.skipThisVersion"));
+		JButton btnSkip = new JButton(trans.get("update.dlg.checkbox.skipThisVersion"));
 		btnSkip.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -181,7 +180,7 @@ public class UpdateInfoDialog extends JDialog {
 		panel.add(comboBox, "pushx, right");
 
 		//// Install update button
-		JButton btnInstall = new SelectColorButton(trans.get("update.dlg.updateAvailable.but.install"));
+		JButton btnInstall = new JButton(trans.get("update.dlg.updateAvailable.but.install"));
 		btnInstall.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

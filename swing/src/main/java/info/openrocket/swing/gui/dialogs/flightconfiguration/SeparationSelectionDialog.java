@@ -33,7 +33,6 @@ import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SeparationSelectionDialog extends JDialog {
@@ -129,7 +128,7 @@ public class SeparationSelectionDialog extends JDialog {
 				
 		panel.add(new JPanel(), "span, split, growx");
 		
-		JButton okButton = new SelectColorButton(trans.get("button.ok"));
+		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -148,7 +147,7 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		panel.add(okButton, "sizegroup btn");
 		
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

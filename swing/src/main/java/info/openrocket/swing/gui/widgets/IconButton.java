@@ -4,13 +4,14 @@ import info.openrocket.swing.gui.util.Icons;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JButton;
 
 /**
  * Button specifically for displaying an icon.
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class IconButton extends SelectColorButton {
+public class IconButton extends JButton {
     private static final int ICON_GAP = 10;
     private static final double ICON_SCALE = 0.9;
 

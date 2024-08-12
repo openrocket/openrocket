@@ -27,7 +27,6 @@ import info.openrocket.swing.gui.print.PaperOrientation;
 import info.openrocket.swing.gui.print.PaperSize;
 import info.openrocket.swing.gui.print.PrintSettings;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
  * This class is a dialog for displaying advanced settings for printing rocket related info.
@@ -93,7 +92,7 @@ public class PrintSettingsDialog extends JDialog {
 
 
 		//// Reset
-		JButton button = new SelectColorButton(trans.get("but.Reset"));
+		JButton button = new JButton(trans.get("but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -107,7 +106,7 @@ public class PrintSettingsDialog extends JDialog {
 		panel.add(button, "spanx, split, right");
 		
 		//// Close
-		JButton closeButton = new SelectColorButton(trans.get("but.Close"));
+		JButton closeButton = new JButton(trans.get("but.Close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -34,7 +34,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import com.itextpdf.text.Font;
 
@@ -111,7 +110,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				});
 				add(commandText, "growx, wrap");
 				
-				final JButton chooser = new SelectColorButton(trans.get("EditDecalDialog.btn.chooser"));
+				final JButton chooser = new JButton(trans.get("EditDecalDialog.btn.chooser"));
 				chooser.setEnabled(commandLineIsSelected);
 				chooser.addActionListener(new ActionListener() {
 					

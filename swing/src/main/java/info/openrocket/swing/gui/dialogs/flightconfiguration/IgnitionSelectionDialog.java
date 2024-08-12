@@ -32,7 +32,6 @@ import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class IgnitionSelectionDialog extends JDialog {
 	private static final long serialVersionUID = -3399966098520607837L;
@@ -101,7 +100,7 @@ public class IgnitionSelectionDialog extends JDialog {
 		
 		panel.add(new JPanel(), "span, split, growx");
 		
-		JButton okButton = new SelectColorButton(trans.get("button.ok"));
+		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -132,7 +131,7 @@ public class IgnitionSelectionDialog extends JDialog {
 		panel.add(okButton, "sizegroup btn");
 		
 		
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

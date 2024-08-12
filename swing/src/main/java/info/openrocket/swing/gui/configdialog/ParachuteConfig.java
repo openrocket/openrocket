@@ -40,7 +40,6 @@ import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.HtmlLabel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class ParachuteConfig extends RecoveryDeviceConfig {
 	
@@ -117,7 +116,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 
 		//// Reset button
-		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
+		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
 		button.setToolTipText(String.format(trans.get("ParachuteCfg.but.ResetCd.ttip"), Parachute.DEFAULT_CD));
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -336,7 +335,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Reset button
-		JButton button = new SelectColorButton(trans.get("ParachuteCfg.but.Reset"));
+		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
 		button.setToolTipText("ParachuteCfg.but.ResetRadial.ttip");
 		button.addActionListener(new ActionListener() {
 			@Override
