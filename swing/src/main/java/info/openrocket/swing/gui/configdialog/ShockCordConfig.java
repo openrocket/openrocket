@@ -16,8 +16,6 @@ import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 
-import info.openrocket.swing.gui.widgets.SelectColorButton;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -168,7 +166,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 
 		//// Reset button
-		JButton button = new SelectColorButton(trans.get("ShockCordCfg.but.Reset"));
+		JButton button = new JButton(trans.get("ShockCordCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

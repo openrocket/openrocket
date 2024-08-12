@@ -39,7 +39,6 @@ import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.HtmlLabel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 
 public class StreamerConfig extends RecoveryDeviceConfig {
@@ -316,7 +315,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Reset button
-		JButton button = new SelectColorButton(trans.get("StreamerCfg.but.Reset"));
+		JButton button = new JButton(trans.get("StreamerCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

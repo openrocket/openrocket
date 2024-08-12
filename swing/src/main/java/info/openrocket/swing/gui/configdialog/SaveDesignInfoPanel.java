@@ -9,7 +9,6 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 
 import info.openrocket.swing.gui.components.StyledLabel;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -54,7 +53,7 @@ public class SaveDesignInfoPanel extends RocketConfig {
         buttonPanel.add(dontShowAgain, "gapright 10, growx");
 
         //// Cancel button
-        this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+        this.cancelButton = new JButton(trans.get("dlg.but.cancel"));
         this.cancelButton.setToolTipText(trans.get("RocketCompCfg.btn.Cancel.ttip"));
         cancelButton.addActionListener(new ActionListener() {
             @Override
@@ -86,7 +85,7 @@ public class SaveDesignInfoPanel extends RocketConfig {
         buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
 
         //// Ok button
-        this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+        this.okButton = new JButton(trans.get("dlg.but.ok"));
         this.okButton.setToolTipText(trans.get("RocketCompCfg.btn.OK.ttip"));
         okButton.addActionListener(new ActionListener() {
             @Override

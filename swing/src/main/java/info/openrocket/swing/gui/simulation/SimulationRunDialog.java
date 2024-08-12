@@ -52,7 +52,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.dialogs.DetailDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class SimulationRunDialog extends JDialog {
 	private static final long serialVersionUID = -1593459321777026455L;
@@ -163,7 +162,7 @@ public class SimulationRunDialog extends JDialog {
 		panel.add(progressBar, "spanx, growx, wrap para");
 
 		// Add cancel button
-		JButton cancel = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

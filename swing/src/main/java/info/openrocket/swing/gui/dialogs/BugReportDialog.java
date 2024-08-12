@@ -37,7 +37,6 @@ import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.logging.LogLevelBufferLogger;
 import info.openrocket.swing.logging.LogLine;
 import info.openrocket.swing.logging.LoggingSystemSetup;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class BugReportDialog extends JDialog {
@@ -98,7 +97,7 @@ public class BugReportDialog extends JDialog {
 		panel.add(new StyledLabel(trans.get("bugreport.lbl.Theinformation"), -1), "wrap para");
 		
 		////Close button
-		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

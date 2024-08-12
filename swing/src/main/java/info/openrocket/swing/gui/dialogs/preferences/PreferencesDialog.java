@@ -29,7 +29,6 @@ import info.openrocket.swing.gui.util.PreferencesImporter;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +97,7 @@ public class PreferencesDialog extends JDialog {
 
 
 		//// Cancel button
-		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.setToolTipText(trans.get("SimulationConfigDialog.btn.Cancel.ttip"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
@@ -121,7 +120,7 @@ public class PreferencesDialog extends JDialog {
 		panel.add(cancelButton, "span, split 2, right, tag cancel");
 
 		//// Ok button
-		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.setToolTipText(trans.get("SimulationConfigDialog.btn.OK.ttip"));
 		okButton.addActionListener(new ActionListener() {
 			@Override

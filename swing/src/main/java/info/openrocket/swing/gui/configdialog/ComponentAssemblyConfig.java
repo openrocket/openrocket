@@ -9,7 +9,6 @@ import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
 
 import info.openrocket.core.logging.Markers;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -156,7 +155,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 		} else {
 			return;
 		}
-		split = new SelectColorButton(btnText);
+		split = new JButton(btnText);
 		split.setToolTipText(btnTextTtip);
 		split.addActionListener(new ActionListener() {
 			@Override

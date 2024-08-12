@@ -34,7 +34,6 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.startup.Application;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class CustomExpressionPanel extends JPanel {
@@ -66,7 +65,7 @@ public class CustomExpressionPanel extends JPanel {
 		//this.add(desc, "width 1px, growx 1, wrap unrel, wrap");
 		
 		//// New expression
-		JButton button = new SelectColorButton(trans.get("customExpressionPanel.but.NewExpression"));
+		JButton button = new JButton(trans.get("customExpressionPanel.but.NewExpression"));
 		button.setToolTipText(trans.get("customExpressionPanel.but.ttip.NewExpression"));
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -81,7 +80,7 @@ public class CustomExpressionPanel extends JPanel {
 		this.add(button, "split 4, width :100:200");
 		
 		//// Import
-		final JButton importButton = new SelectColorButton(trans.get("customExpressionPanel.but.Import"));
+		final JButton importButton = new JButton(trans.get("customExpressionPanel.but.Import"));
 		importButton.setToolTipText(trans.get("customExpressionPanel.but.ttip.Import"));
 		importButton.addActionListener(new ActionListener() {
 			@Override
@@ -120,7 +119,7 @@ public class CustomExpressionPanel extends JPanel {
 		this.add(importButton, "width :100:200");
 		
 		//// Close button
-		final JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
+		final JButton closeButton = new JButton(trans.get("dlg.but.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -215,7 +214,7 @@ public class CustomExpressionPanel extends JPanel {
 			//unitSelector = setLabelStyle(unitSelector);
 			//unitSelector.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 			
-			JButton editButton = new SelectColorButton(Icons.EDIT_EDIT);
+			JButton editButton = new JButton(Icons.EDIT_EDIT);
 			editButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Edit"));
 			editButton.setBorderPainted(false);
 			editButton.addActionListener(new ActionListener() {
@@ -227,7 +226,7 @@ public class CustomExpressionPanel extends JPanel {
 				}
 			});
 			
-			JButton upButton = new SelectColorButton(Icons.UP);
+			JButton upButton = new JButton(Icons.UP);
 			upButton.setToolTipText(trans.get("customExpression.Units.but.ttip.MoveUp"));
 			upButton.setBorderPainted(false);
 			upButton.setVisible(showUp);
@@ -239,7 +238,7 @@ public class CustomExpressionPanel extends JPanel {
 				}
 			});
 			
-			JButton downButton = new SelectColorButton(Icons.DOWN);
+			JButton downButton = new JButton(Icons.DOWN);
 			downButton.setToolTipText(trans.get("customExpression.Units.but.ttip.MoveDown"));
 			downButton.setBorderPainted(false);
 			downButton.setVisible(showDown);
@@ -252,7 +251,7 @@ public class CustomExpressionPanel extends JPanel {
 			});
 			
 			
-			JButton deleteButton = new SelectColorButton(Icons.EDIT_DELETE);
+			JButton deleteButton = new JButton(Icons.EDIT_DELETE);
 			//// Remove this expression
 			deleteButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Delete"));
 			deleteButton.setBorderPainted(false);

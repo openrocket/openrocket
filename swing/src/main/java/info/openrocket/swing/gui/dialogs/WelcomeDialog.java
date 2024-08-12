@@ -5,7 +5,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.URLUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +95,7 @@ public class WelcomeDialog extends JDialog {
         });
 
         // Close button
-        JButton closeBtn = new SelectColorButton(trans.get("button.close"));
+        JButton closeBtn = new JButton(trans.get("button.close"));
         closeBtn.setToolTipText(trans.get("welcome.dlg.btn.close.ttip"));
         closeBtn.addActionListener(new ActionListener() {
             @Override

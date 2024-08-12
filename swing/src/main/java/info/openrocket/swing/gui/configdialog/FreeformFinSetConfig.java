@@ -71,7 +71,6 @@ import info.openrocket.swing.gui.scalefigure.ScaleSelector;
 import info.openrocket.swing.gui.util.CustomFinImporter;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class FreeformFinSetConfig extends FinSetConfig {
@@ -266,7 +265,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		});
 		JScrollPane tablePane = new JScrollPane(table);
 		
-		JButton scaleButton = new SelectColorButton(trans.get("FreeformFinSetConfig.lbl.scaleFin"));
+		JButton scaleButton = new JButton(trans.get("FreeformFinSetConfig.lbl.scaleFin"));
 		scaleButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -295,7 +294,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		//		panel.add(new JLabel("Coordinates:"), "aligny bottom, alignx 50%");
 		//		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
-		JButton exportCsvButton = new SelectColorButton(trans.get("FreeformFinSetConfig.lbl.exportCSV"));
+		JButton exportCsvButton = new JButton(trans.get("FreeformFinSetConfig.lbl.exportCSV"));
 		exportCsvButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -317,7 +316,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				}
 			}
 		});
-        JButton importButton = new SelectColorButton(trans.get("CustomFinImport.button.label"));
+        JButton importButton = new JButton(trans.get("CustomFinImport.button.label"));
             importButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

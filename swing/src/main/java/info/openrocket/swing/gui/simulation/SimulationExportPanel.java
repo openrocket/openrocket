@@ -41,7 +41,6 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SaveCSVWorker;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class SimulationExportPanel extends JPanel {
 	
@@ -143,7 +142,7 @@ public class SimulationExportPanel extends JPanel {
 		panel.add(new JScrollPane(table), "wmin 300lp, width 300lp, height 1, grow 100, wrap");
 		
 		// Select all/none buttons
-		button = new SelectColorButton(trans.get("SimExpPan.but.Selectall"));
+		button = new JButton(trans.get("SimExpPan.but.Selectall"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -152,7 +151,7 @@ public class SimulationExportPanel extends JPanel {
 		});
 		panel.add(button, "split 2, growx 1, sizegroup selectbutton");
 		
-		button = new SelectColorButton(trans.get("SimExpPan.but.Selectnone"));
+		button = new JButton(trans.get("SimExpPan.but.Selectnone"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -208,7 +207,7 @@ public class SimulationExportPanel extends JPanel {
 		
 		/*
 		// Export button
-		button = new SelectColorButton(trans.get("SimExpPan.but.Exporttofile"));
+		button = new JButton(trans.get("SimExpPan.but.Exporttofile"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

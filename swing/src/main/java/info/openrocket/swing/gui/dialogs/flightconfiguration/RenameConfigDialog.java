@@ -22,7 +22,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.CommonStrings;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class RenameConfigDialog extends JDialog {
 	private static final long serialVersionUID = -5423008694485357248L;
@@ -46,7 +45,7 @@ public class RenameConfigDialog extends JDialog {
 		
 		panel.add(new JPanel(), "growx");
 		
-		JButton okButton = new SelectColorButton(trans.get("button.ok"));
+		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -57,7 +56,7 @@ public class RenameConfigDialog extends JDialog {
 		});
 		panel.add(okButton);
 		
-		JButton resetToDefaultButton = new SelectColorButton(trans.get("RenameConfigDialog.but.reset"));
+		JButton resetToDefaultButton = new JButton(trans.get("RenameConfigDialog.but.reset"));
 		resetToDefaultButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -67,7 +66,7 @@ public class RenameConfigDialog extends JDialog {
 		});
 		panel.add(resetToDefaultButton);
 		
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

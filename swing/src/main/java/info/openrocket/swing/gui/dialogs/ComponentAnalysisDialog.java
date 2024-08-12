@@ -71,8 +71,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorToggleButton;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +136,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
-		worstToggle = new SelectColorToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
+		worstToggle = new JToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
 		worstToggle.setSelected(true);
 		worstToggle.addActionListener(new ActionListener() {
 			@Override
@@ -475,7 +473,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JButton button;
 
 		// TODO: LOW: printing
-		//		button = new SelectColorButton("Print");
+		//		button = new JButton("Print");
 		//		button.addActionListener(new ActionListener() {
 		//			public void actionPerformed(ActionEvent e) {
 		//				try {
@@ -489,9 +487,9 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		//		});
 		//		panel.add(button,"tag ok");
 
-		//button = new SelectColorButton("Close");
+		//button = new JButton("Close");
 		//Close button
-		button = new SelectColorButton(trans.get("dlg.but.close"));
+		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

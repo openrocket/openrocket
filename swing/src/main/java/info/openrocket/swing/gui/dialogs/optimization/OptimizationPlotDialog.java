@@ -30,7 +30,6 @@ import info.openrocket.core.util.MathUtil;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -111,7 +110,7 @@ public class OptimizationPlotDialog extends JDialog {
 		panel.add(label, "");
 		
 
-		JButton close = new SelectColorButton(trans.get("button.close"));
+		JButton close = new JButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

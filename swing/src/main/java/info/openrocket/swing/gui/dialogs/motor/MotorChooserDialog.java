@@ -22,7 +22,6 @@ import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.startup.Application;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class MotorChooserDialog extends JDialog implements CloseableDialog {
@@ -51,7 +50,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		
 		
 		// OK / Cancel buttons
-		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -61,7 +60,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		panel.add(okButton, "tag ok, spanx, split");
 		
 		//// Cancel button
-		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

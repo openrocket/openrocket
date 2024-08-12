@@ -36,7 +36,6 @@ import info.openrocket.core.unit.UnitGroup;
 
 import info.openrocket.swing.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
 import info.openrocket.swing.gui.main.FlightConfigurationPanel;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class RecoveryConfigurationPanel extends FlightConfigurablePanel<RecoveryDevice> {
 
@@ -72,12 +71,12 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		popupMenuFull.add(duplicateConfigAction);
 
 		//// Select deployment
-		selectDeploymentButton = new SelectColorButton(selectDeploymentAction);
+		selectDeploymentButton = new JButton(selectDeploymentAction);
 		selectDeploymentButton.setEnabled(false);
 		this.add(selectDeploymentButton, "split, align right, sizegroup button");
 
 		//// Reset deployment
-		resetDeploymentButton = new SelectColorButton(resetDeploymentAction);
+		resetDeploymentButton = new JButton(resetDeploymentAction);
 		resetDeploymentButton.setEnabled(false);
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
 

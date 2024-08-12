@@ -68,7 +68,6 @@ import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
  * Dialog that allows scaling the rocket design.
@@ -476,7 +475,7 @@ public class ScaleDialog extends JDialog {
 		
 		
 		// Scale / Accept Buttons
-		JButton scale = new SelectColorButton(trans.get("button.scale"));
+		JButton scale = new JButton(trans.get("button.scale"));
 		scale.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -495,7 +494,7 @@ public class ScaleDialog extends JDialog {
 		panel.add(scale, "span, split, right, gap para");
 
 		// Cancel Button
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -42,7 +42,6 @@ import info.openrocket.swing.gui.adaptors.ColumnTableModel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.dialogs.CustomMaterialDialog;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class MaterialEditPanel extends JPanel {
@@ -149,7 +148,7 @@ public class MaterialEditPanel extends JPanel {
 		
 
 		//// New button
-		addButton = new SelectColorButton(trans.get("matedtpan.but.new"));
+		addButton = new JButton(trans.get("matedtpan.but.new"));
 		//// Add a new material
 		addButton.setToolTipText(trans.get("matedtpan.col.but.ttip.New"));
 		addButton.addActionListener(new ActionListener() {
@@ -173,7 +172,7 @@ public class MaterialEditPanel extends JPanel {
 		this.add(addButton, "gap rel rel para para, split 3, growx 1");
 		
 		//// Edit button
-		editButton = new SelectColorButton(trans.get("matedtpan.but.edit"));
+		editButton = new JButton(trans.get("matedtpan.but.edit"));
 		//// Edit an existing material
 		editButton.setToolTipText(trans.get("matedtpan.but.ttip.edit"));
 		editButton.addActionListener(new ActionListener() {
@@ -244,7 +243,7 @@ public class MaterialEditPanel extends JPanel {
 		this.add(editButton, "gap rel rel para para, growx 1");
 		
 		//// Delete button
-		deleteButton = new SelectColorButton(trans.get("matedtpan.but.delete"));
+		deleteButton = new JButton(trans.get("matedtpan.but.delete"));
 		//// Delete a user-defined material
 		deleteButton.setToolTipText(trans.get("matedtpan.but.ttip.delete"));
 		deleteButton.addActionListener(new ActionListener() {
@@ -265,7 +264,7 @@ public class MaterialEditPanel extends JPanel {
 		this.add(deleteButton, "gap rel rel para para, growx 1, wrap unrel");
 		
 		//// Revert all button
-		revertButton = new SelectColorButton(trans.get("matedtpan.but.revertall"));
+		revertButton = new JButton(trans.get("matedtpan.but.revertall"));
 		//// Delete all user-defined materials
 		revertButton.setToolTipText(trans.get("matedtpan.but.ttip.revertall"));
 		revertButton.addActionListener(new ActionListener() {

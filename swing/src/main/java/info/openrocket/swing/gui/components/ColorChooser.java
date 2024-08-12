@@ -17,8 +17,6 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import info.openrocket.swing.gui.widgets.SelectColorButton;
-
 /**
  * A panel implementation of a color chooser.  The panel has a label and a textfield.  The label identifies 
  * what the color is to be used for (the purpose), and the textfield is uneditable but has its background set
@@ -60,7 +58,7 @@ public class ColorChooser extends JPanel {
         field.setBackground(curColor);
         parent.add(field, "width 50:100:100");
 
-        final JButton button = new SelectColorButton(COLOR_CHOOSER_BUTTON_LABEL);
+        final JButton button = new JButton(COLOR_CHOOSER_BUTTON_LABEL);
 
         ActionListener actionListener = new ActionListener() {
             @Override

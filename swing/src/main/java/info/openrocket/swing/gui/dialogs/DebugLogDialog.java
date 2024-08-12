@@ -60,7 +60,6 @@ import info.openrocket.swing.logging.LogLevelBufferLogger;
 import info.openrocket.swing.logging.LogLine;
 import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.logging.StackTraceWriter;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class DebugLogDialog extends JDialog {
@@ -182,7 +181,7 @@ public class DebugLogDialog extends JDialog {
 		topPanel.add(followBox, "skip, gapright para, right");
 		
 		//// Clear button
-		JButton clear = new SelectColorButton(trans.get("debuglogdlg.but.clear"));
+		JButton clear = new JButton(trans.get("debuglogdlg.but.clear"));
 		clear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -350,7 +349,7 @@ public class DebugLogDialog extends JDialog {
 		
 		
 		//Close button
-		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

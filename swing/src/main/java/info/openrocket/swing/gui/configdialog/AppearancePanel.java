@@ -64,7 +64,6 @@ import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.EditDecalHelper;
 import info.openrocket.swing.gui.util.EditDecalHelper.EditDecalHelperException;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class AppearancePanel extends JPanel implements Invalidatable, InvalidatingWidget {
 	private static final long serialVersionUID = 2709187552673202019L;
@@ -270,7 +269,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		if (figureColor == null) {
 			figureColor = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 		}
-		final JButton figureColorButton = new SelectColorButton(
+		final JButton figureColorButton = new JButton(
 				new ColorIcon(figureColor));
 
 		ab.addChangeListener(new StateChangeListener() {
@@ -320,7 +319,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			add(colorDefault);
 			order.add(colorDefault);
 
-			saveAsDefault = new SelectColorButton(
+			saveAsDefault = new JButton(
 					trans.get("RocketCompCfg.but.Saveasdefstyle"));
 			saveAsDefault.addActionListener(new ActionListener() {
 				@Override
@@ -532,7 +531,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			}
 		});
 
-		JButton colorButton = new SelectColorButton(new ColorIcon(builder.getPaint()));
+		JButton colorButton = new JButton(new ColorIcon(builder.getPaint()));
 
 		colorButton.addActionListener(new ColorActionListener(builder, "Paint"));
 
@@ -592,7 +591,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			
 		//// Edit button
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
-			JButton editBtn = new SelectColorButton(
+			JButton editBtn = new JButton(
 					trans.get("AppearanceCfg.but.edit"));
 			// Enable the editBtn only when the appearance builder has an Image
 			// assigned to it.

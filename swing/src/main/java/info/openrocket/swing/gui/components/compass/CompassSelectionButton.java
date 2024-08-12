@@ -23,7 +23,6 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.MathUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 
 /**
@@ -147,7 +146,7 @@ public class CompassSelectionButton extends FlatButton implements Resettable {
 			
 			panel.add(new JLabel("" + Chars.DEGREE), "wrap para");
 			
-			JButton close = new SelectColorButton("OK");
+			JButton close = new JButton("OK");
 			close.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
