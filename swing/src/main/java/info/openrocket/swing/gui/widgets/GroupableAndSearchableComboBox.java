@@ -267,7 +267,6 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 					itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
-						fireActionEvent();
 					});
 					groupMenu.add(itemMenu);
 				}
