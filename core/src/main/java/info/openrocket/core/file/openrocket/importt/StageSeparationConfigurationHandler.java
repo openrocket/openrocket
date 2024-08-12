@@ -19,6 +19,7 @@ class StageSeparationConfigurationHandler extends AbstractElementHandler {
 	private final AxialStage stage;
 
 	private SeparationEvent event = null;
+	private double altitude = Double.NaN;
 	private double delay = Double.NaN;
 
 	public StageSeparationConfigurationHandler(AxialStage stage, DocumentLoadingContext context) {
@@ -29,6 +30,9 @@ class StageSeparationConfigurationHandler extends AbstractElementHandler {
 		StageSeparationConfiguration config = def.clone();
 		if (event != null) {
 			config.setSeparationEvent(event);
+		}
+		if (!Double.isNaN(altitude)) {
+			config.setSeparationAltitude(altitude);
 		}
 		if (!Double.isNaN(delay)) {
 			config.setSeparationDelay(delay);
@@ -54,6 +58,9 @@ class StageSeparationConfigurationHandler extends AbstractElementHandler {
 				warnings.add(Warning.FILE_INVALID_PARAMETER);
 				return;
 			}
+			return;
+		} else if ("separationaltitude".equals(element)) {
+			altitude = parseDouble(content, warnings, Warning.FILE_INVALID_PARAMETER);
 			return;
 		} else if ("separationdelay".equals(element)) {
 			delay = parseDouble(content, warnings, Warning.FILE_INVALID_PARAMETER);

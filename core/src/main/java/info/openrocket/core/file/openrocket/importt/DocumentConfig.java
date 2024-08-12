@@ -495,6 +495,9 @@ class DocumentConfig {
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent",
 						StageSeparationConfiguration.SeparationEvent.class),
 				StageSeparationConfiguration.SeparationEvent.class));
+		setters.put("AxialStage:separationaltitude", new DoubleSetter(
+				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
+				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationAltitude", double.class)));
 		setters.put("AxialStage:separationdelay", new DoubleSetter(
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
