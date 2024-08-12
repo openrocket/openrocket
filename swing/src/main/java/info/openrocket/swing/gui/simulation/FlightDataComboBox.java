@@ -7,46 +7,12 @@ import info.openrocket.core.simulation.FlightDataTypeGroup;
 import info.openrocket.core.startup.Application;
 
 import javax.swing.JComboBox;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FlightDataComboBox extends JComboBox<FlightDataType> {
 	private static final Translator trans = Application.getTranslator();
 
 	public static GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> createComboBox(List<FlightDataType> types) {
 		return new GroupableAndSearchableComboBox<>(types, trans.get("FlightDataComboBox.placeholder"));
-	}
-
-	/**
-	 * Create a map of flight data group and corresponding flight data types.
-	 * @param groups the groups
-	 * @param types the types
-	 * @return the map linking the types to their groups
-	 */
-	private static Map<FlightDataTypeGroup, List<FlightDataType>> createFlightDataGroupMap(
-			FlightDataTypeGroup[] groups, FlightDataType[] types) {
-		// Sort the groups based on priority (lower number = higher priority)
-		FlightDataTypeGroup[] sortedGroups = groups.clone();
-		Arrays.sort(sortedGroups, Comparator.comparingInt(FlightDataTypeGroup::getPriority));
-
-		Map<FlightDataTypeGroup, List<FlightDataType>> map = new LinkedHashMap<>();
-		for (FlightDataTypeGroup group : sortedGroups) {
-			List<FlightDataType> itemsForGroup = new ArrayList<>();
-			for (FlightDataType type : types) {
-				if (type.getGroup().equals(group)) {
-					itemsForGroup.add(type);
-				}
-			}
-			// Sort the types within each group based on priority
-			itemsForGroup.sort(Comparator.comparingInt(FlightDataType::getGroupPriority));
-
-			map.put(group, itemsForGroup);
-		}
-
-		return map;
 	}
 }

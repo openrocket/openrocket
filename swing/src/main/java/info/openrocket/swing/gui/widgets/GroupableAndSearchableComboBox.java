@@ -152,6 +152,9 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				if (value != null) {
 					label.setText(getDisplayString((T) value));
+				} else {
+					// Handle the case when no item is selected
+					label.setText("");
 				}
 				return label;
 			}
@@ -162,9 +165,11 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 		this.itemGroupMap = new LinkedHashMap<>(itemGroupMap);  // Create a copy to avoid external modifications
 		this.allItems = extractItemsFromMap(itemGroupMap);
 
-		// Update the existing model instead of creating a new one
+		// Update the model
 		if (getModel() instanceof DefaultComboBoxModel<T>) {
+			T selectedItem = (T) getModel().getSelectedItem();
 			ComboBoxModel<T> model = new DefaultComboBoxModel<>(new Vector<>(allItems));
+			model.setSelectedItem(selectedItem);
 			setModel(model);
 			setupModelListener(model);
 		}
@@ -267,7 +272,6 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 					itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
 					itemMenu.addActionListener(e -> {
 						setSelectedItem(item);
-						fireActionEvent();
 					});
 					groupMenu.add(itemMenu);
 				}
@@ -365,7 +369,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	public void setSelectedItem(Object anObject) {
 		// Hide the popups after selection
 		hidePopups();
-		super.setSelectedItem(anObject);
+		getModel().setSelectedItem(anObject);
 	}
 
 	private void filter(String text) {
@@ -439,7 +443,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 	private void setupModelListener(ComboBoxModel<T> model) {
-		if (model == null) {
+		/*if (model == null) {
 			return;
 		}
 		model.addListDataListener(this);
@@ -448,7 +452,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			public void actionPerformed(ActionEvent e) {
 				model.setSelectedItem(GroupableAndSearchableComboBox.this.getSelectedItem());
 			}
-		});
+		});*/
 	}
 
 	private void setupSearchFieldListeners() {
