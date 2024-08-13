@@ -29,7 +29,7 @@ import info.openrocket.core.util.Mutable;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class FlightDataBranch implements Monitorable {
+public class FlightDataBranch implements DataBranch<FlightDataType> {
 	
 	/** The name of this flight data branch. */
 	private final String name;
@@ -228,26 +228,19 @@ public class FlightDataBranch implements Monitorable {
 		}
 	}
 	
-	/**
-	 * Return the branch name.
-	 */
+	@Override
 	public String getName() {
 		return name;
 	}
 	
-	/**
-	 * Return the variable types included in this branch.  The types are sorted in their
-	 * natural order.
-	 */
+	@Override
 	public FlightDataType[] getTypes() {
 		FlightDataType[] array = values.keySet().toArray(new FlightDataType[0]);
 		Arrays.sort(array);
 		return array;
 	}
 	
-	/**
-	 * Return the number of data points in this branch.
-	 */
+	@Override
 	public int getLength() {
 		for (ArrayList<Double> doubles : values.values()) {
 			return doubles.size();
@@ -255,13 +248,7 @@ public class FlightDataBranch implements Monitorable {
 		return 0;
 	}
 	
-	/**
-	 * Return an array of values for the specified variable type.
-	 * 
-	 * @param type	the variable type.
-	 * @return		a list of the variable values, or <code>null</code> if
-	 * 				the variable type hasn't been added to this branch.
-	 */
+	@Override
 	public List<Double> get(FlightDataType type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null)
@@ -269,12 +256,7 @@ public class FlightDataBranch implements Monitorable {
 		return list.clone();
 	}
 
-	/**
-	 * Return the value of the specified type at the specified index.
-	 * @param type the variable type
-	 * @param index the data index of the value
-	 * @return the value at the specified index
-	 */
+	@Override
 	public Double getByIndex(FlightDataType type, int index) {
 		if (index < 0 || index >= getLength()) {
 			throw new IllegalArgumentException("Index out of bounds");
@@ -286,13 +268,7 @@ public class FlightDataBranch implements Monitorable {
 		return list.get(index);
 	}
 
-	/**
-	 * Return the last value of the specified type in the branch, or NaN if the type is
-	 * unavailable.
-	 * 
-	 * @param type	the parameter type.
-	 * @return		the last value in this branch, or NaN.
-	 */
+	@Override
 	public double getLast(FlightDataType type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null || list.isEmpty())
@@ -300,13 +276,7 @@ public class FlightDataBranch implements Monitorable {
 		return list.get(list.size() - 1);
 	}
 	
-	/**
-	 * Return the minimum value of the specified type in the branch, or NaN if the type
-	 * is unavailable.
-	 * 
-	 * @param type	the parameter type.
-	 * @return		the minimum value in this branch, or NaN.
-	 */
+	@Override
 	public double getMinimum(FlightDataType type) {
 		Double v = minValues.get(type);
 		if (v == null)
@@ -314,13 +284,7 @@ public class FlightDataBranch implements Monitorable {
 		return v;
 	}
 	
-	/**
-	 * Return the maximum value of the specified type in the branch, or NaN if the type
-	 * is unavailable.
-	 * 
-	 * @param type	the parameter type.
-	 * @return		the maximum value in this branch, or NaN.
-	 */
+	@Override
 	public double getMaximum(FlightDataType type) {
 		Double v = maxValues.get(type);
 		if (v == null)
