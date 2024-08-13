@@ -132,7 +132,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Export data
 		if (hasData) {
-			this.exportTab = new SimulationExportPanel(simulationList[0]);
+			this.exportTab = SimulationExportPanel.create(simulationList[0]);
 		} else {
 			this.exportTab = null;
 		}

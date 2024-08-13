@@ -636,12 +636,12 @@ public class SwingPreferences extends ApplicationPreferences implements Simulati
 	
 	/////////  Export variables
 	
-	public boolean isExportSelected(FlightDataType type) {
+	public boolean isFlightDataTypeExportSelected(FlightDataType type) {
 		Preferences prefs = PREFNODE.node("exports");
 		return prefs.getBoolean(type.getName(), false);
 	}
 	
-	public void setExportSelected(FlightDataType type, boolean selected) {
+	public void setFlightDataTypeExportSelected(FlightDataType type, boolean selected) {
 		Preferences prefs = PREFNODE.node("exports");
 		prefs.putBoolean(type.getName(), selected);
 	}
