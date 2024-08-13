@@ -9,10 +9,12 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
@@ -26,6 +28,7 @@ import info.openrocket.swing.gui.theme.UITheme;
 public class RenameConfigDialog extends JDialog {
 	private static final long serialVersionUID = -5423008694485357248L;
 	private static final Translator trans = Application.getTranslator();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private static Color dimTextColor;
 
@@ -55,6 +58,17 @@ public class RenameConfigDialog extends JDialog {
 			}
 		});
 		panel.add(okButton);
+
+		JButton saveAsDefaultButton = new JButton(trans.get("RenameConfigDialog.but.saveDefault"));
+		saveAsDefaultButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(RenameConfigDialog.this, trans.get("RenameConfigDialog.dlg.saveDefault.msg"),
+						trans.get("RenameConfigDialog.dlg.saveDefault.title"), JOptionPane.INFORMATION_MESSAGE);
+				prefs.setDefaultFlightConfigName(textbox.getText());
+			}
+		});
+		panel.add(saveAsDefaultButton);
 		
 		JButton resetToDefaultButton = new JButton(trans.get("RenameConfigDialog.but.reset"));
 		resetToDefaultButton.addActionListener(new ActionListener() {

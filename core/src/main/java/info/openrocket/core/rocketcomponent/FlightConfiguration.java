@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import info.openrocket.core.formatting.RocketDescriptor;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import info.openrocket.core.util.Transformation;
  */
 public class FlightConfiguration implements FlightConfigurableParameter<FlightConfiguration>, Monitorable {
 	private static final Logger log = LoggerFactory.getLogger(FlightConfiguration.class);
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private String configurationName;
 	public static String DEFAULT_CONFIG_NAME = "[{motors}]";
@@ -105,7 +107,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.fcid = _fcid;
 		}
 		this.rocket = rocket;
-		this.configurationName = DEFAULT_CONFIG_NAME;
+		this.configurationName = prefs.getDefaultFlightConfigName();
 		this.configurationInstanceId = configurationInstanceCount++;
 
 		updateStages();
@@ -578,11 +580,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public boolean isNameOverridden() {
-		return (!DEFAULT_CONFIG_NAME.equals(this.configurationName));
+		return (!prefs.getDefaultFlightConfigName().equals(this.configurationName));
 	}
 
 	/**
-	 * Return the name of this configuration, with DEFAULT_CONFIG_NAME replaced by a
+	 * Return the name of this configuration, with the default flight config name replaced by a
 	 * one line motor description.
 	 * If configurationName is null, the one line motor description is returned.
 	 * 
@@ -590,20 +592,20 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public String getName() {
 		if (configurationName == null) {
-			configurationName = DEFAULT_CONFIG_NAME;
+			configurationName = prefs.getDefaultFlightConfigName();
 		}
 		return descriptor.format(configurationName, rocket, fcid);
 	}
 
 	/**
-	 * Return the raw configuration name, without replacing DEFAULT_CONFIG_NAME.
-	 * If the configurationName is null, DEFAULT_CONFIG_NAME is returned.
+	 * Return the raw configuration name, without replacing the default flight config name.
+	 * If the configurationName is null, the default flight config name is returned.
 	 * 
 	 * @return raw flight configuration name
 	 */
 	public String getNameRaw() {
 		if (configurationName == null) {
-			return DEFAULT_CONFIG_NAME;
+			return prefs.getDefaultFlightConfigName();
 		}
 		return configurationName;
 	}
@@ -920,7 +922,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	public void setName(final String newName) {
 		if ((newName == null) || (newName.isEmpty())) {
-			this.configurationName = DEFAULT_CONFIG_NAME;
+			this.configurationName = prefs.getDefaultFlightConfigName();
 			return;
 		} else if (!this.getId().isValid()) {
 			return;
