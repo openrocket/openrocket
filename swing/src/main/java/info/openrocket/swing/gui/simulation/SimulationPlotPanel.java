@@ -57,19 +57,7 @@ public class SimulationPlotPanel extends JPanel {
 
 	private static final Translator trans = Application.getTranslator();
 	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
-	
-	// TODO: LOW: Should these be somewhere else?
-	public static final int AUTO = -1;
-	public static final int LEFT = 0;
-	public static final int RIGHT = 1;
-	
-	//// Auto
-	public static final String AUTO_NAME = trans.get("simplotpanel.AUTO_NAME");
-	//// Left
-	public static final String LEFT_NAME = trans.get("simplotpanel.LEFT_NAME");
-	//// Right
-	public static final String RIGHT_NAME = trans.get("simplotpanel.RIGHT_NAME");
-	
+
 	//// Custom
 	private static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
 	

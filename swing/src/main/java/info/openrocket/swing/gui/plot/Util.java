@@ -6,8 +6,39 @@ import java.util.Collections;
 import java.util.List;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 
 public abstract class Util {
+	private static final Translator trans = Application.getTranslator();
+
+	public enum PlotAxisSelection {
+		AUTO(-1, trans.get("simplotpanel.AUTO_NAME")),			// Automatically decide to plot on the left or right y-axis
+		LEFT(0, trans.get("simplotpanel.LEFT_NAME")),			// Plot on the left y-axis
+		RIGHT(1, trans.get("simplotpanel.RIGHT_NAME"));			// Plot on the right y-axis
+
+		private final int value;
+		private final String name;
+
+		PlotAxisSelection(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
 	private static final Color[] PLOT_COLORS = {
 			new Color(0,114,189),
 			new Color(217,83,25),

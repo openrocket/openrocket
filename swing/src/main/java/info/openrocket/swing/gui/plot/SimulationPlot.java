@@ -549,7 +549,7 @@ public class SimulationPlot {
 				LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
 				// Image annotations are not supported on the right-side axis
 				// TODO: LOW: Can this be achieved by JFreeChart?
-				if (filled.getAxis(index) != SimulationPlotPanel.LEFT) {
+				if (filled.getAxis(index) != Util.PlotAxisSelection.LEFT.getValue()) {
 					continue;
 				}
 

@@ -9,6 +9,7 @@ import info.openrocket.core.util.Group;
 import info.openrocket.core.util.Groupable;
 import info.openrocket.core.util.UnitValue;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.util.Icons;
 
 import java.awt.event.ActionListener;
@@ -26,7 +27,8 @@ public class PlotTypeSelector<G extends Group, T extends Groupable<G> & UnitValu
 	private static final Translator trans = Application.getTranslator();
 	private static final long serialVersionUID = 9056324972817542570L;
 
-	private final String[] POSITIONS = { "Auto", "Left", "Right" };
+	private final String[] POSITIONS = {Util.PlotAxisSelection.AUTO.getName(),
+			Util.PlotAxisSelection.LEFT.getName(), Util.PlotAxisSelection.RIGHT.getName()};
 
 	private final int index;
 	private final GroupableAndSearchableComboBox<G, T> typeSelector;
