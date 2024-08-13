@@ -173,7 +173,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = FlightDataComboBox.createComboBox(Arrays.asList(types));
+		domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(types), trans.get("FlightDataComboBox.placeholder"));
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
