@@ -107,7 +107,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			this.fcid = _fcid;
 		}
 		this.rocket = rocket;
-		this.configurationName = prefs.getDefaultFlightConfigName();
+		this.configurationName = getDefaultName();
 		this.configurationInstanceId = configurationInstanceCount++;
 
 		updateStages();
@@ -580,7 +580,15 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public boolean isNameOverridden() {
-		return (!prefs.getDefaultFlightConfigName().equals(this.configurationName));
+		return (!getDefaultName().equals(this.configurationName));
+	}
+	
+	private String getDefaultName() {
+		String name = prefs.getDefaultFlightConfigName();
+		if (name == null) {
+			name = DEFAULT_CONFIG_NAME;
+		}
+		return name;
 	}
 
 	/**
@@ -592,7 +600,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public String getName() {
 		if (configurationName == null) {
-			configurationName = prefs.getDefaultFlightConfigName();
+			configurationName = getDefaultName();
 		}
 		return descriptor.format(configurationName, rocket, fcid);
 	}
@@ -605,7 +613,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 */
 	public String getNameRaw() {
 		if (configurationName == null) {
-			return prefs.getDefaultFlightConfigName();
+			return getDefaultName();
 		}
 		return configurationName;
 	}
@@ -922,7 +930,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	public void setName(final String newName) {
 		if ((newName == null) || (newName.isEmpty())) {
-			this.configurationName = prefs.getDefaultFlightConfigName();
+			this.configurationName = getDefaultName();
 			return;
 		} else if (!this.getId().isValid()) {
 			return;
