@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.widgets;
+package info.openrocket.swing.gui.plot;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.FlightDataType;
@@ -9,13 +9,13 @@ import info.openrocket.core.util.Group;
 import info.openrocket.core.util.Groupable;
 import info.openrocket.core.util.UnitValue;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.util.Icons;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.List;
 
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JButton;
