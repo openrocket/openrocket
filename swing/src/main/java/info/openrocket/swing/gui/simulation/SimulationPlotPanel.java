@@ -37,12 +37,12 @@ import info.openrocket.core.util.Utils;
 
 import info.openrocket.swing.gui.plot.SimulationPlotConfiguration;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.PlotTypeSelector;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.plot.SimulationPlotDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
 
@@ -464,8 +464,31 @@ public class SimulationPlotPanel extends JPanel {
 			FlightDataType type = configuration.getType(i);
 			Unit unit = configuration.getUnit(i);
 			int axis = configuration.getAxis(i);
-			
-			typeSelectorPanel.add(new PlotTypeSelector(i, type, unit, axis), "wrap");
+
+			PlotTypeSelector<FlightDataTypeGroup, FlightDataType> selector = new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(types));
+			int finalI = i;
+			selector.addTypeSelectionListener(e -> {
+				if (modifying > 0) return;
+				FlightDataType selectedType = selector.getSelectedType();
+				configuration.setPlotDataType(finalI, selectedType);
+				selector.setUnitGroup(selectedType.getUnitGroup());
+				configuration.setPlotDataUnit(finalI, selector.getSelectedUnit());
+				setToCustom();
+			});
+			selector.addUnitSelectionListener(e -> {
+				if (modifying > 0) return;
+				configuration.setPlotDataUnit(finalI, selector.getSelectedUnit());
+			});
+			selector.addAxisSelectionListener(e -> {
+				if (modifying > 0) return;
+				configuration.setPlotDataAxis(finalI, selector.getSelectedAxis());
+			});
+			selector.addRemoveButtonListener(e -> {
+				configuration.removePlotDataType(finalI);
+				setToCustom();
+				updatePlots();
+			});
+			typeSelectorPanel.add(selector, "wrap");
 		}
 		
 		// In order to consistantly update the ui, we need to validate before repaint.
@@ -473,97 +496,6 @@ public class SimulationPlotPanel extends JPanel {
 		typeSelectorPanel.repaint();
 		
 		eventTableModel.fireTableDataChanged();
-	}
-	
-	
-	
-	
-	/**
-	 * A JPanel which configures a single plot of a SimulationPlotConfiguration.
-	 */
-	private class PlotTypeSelector extends JPanel {
-		private static final long serialVersionUID = 9056324972817542570L;
-
-		private final String[] POSITIONS = { AUTO_NAME, LEFT_NAME, RIGHT_NAME };
-		
-		private final int index;
-		private final GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> typeSelector;
-		private UnitSelector unitSelector;
-		private JComboBox<String> axisSelector;
-		
-		
-		public PlotTypeSelector(int plotIndex, FlightDataType type, Unit unit, int position) {
-			super(new MigLayout("ins 0"));
-			
-			this.index = plotIndex;
-			
-			typeSelector = FlightDataComboBox.createComboBox(Arrays.asList(types));
-			typeSelector.setSelectedItem(type);
-			typeSelector.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if (modifying > 0)
-						return;
-					FlightDataType selectedType = (FlightDataType) typeSelector.getSelectedItem();
-					configuration.setPlotDataType(index, selectedType);
-					unitSelector.setUnitGroup(selectedType.getUnitGroup());
-					unitSelector.setSelectedUnit(configuration.getUnit(index));
-					setToCustom();
-				}
-			});
-			this.add(typeSelector, "gapright para");
-			
-			//// Unit:
-			this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")));
-			unitSelector = new UnitSelector(type.getUnitGroup());
-			if (unit != null)
-				unitSelector.setSelectedUnit(unit);
-			unitSelector.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if (modifying > 0)
-						return;
-					Unit selectedUnit = unitSelector.getSelectedUnit();
-					configuration.setPlotDataUnit(index, selectedUnit);
-				}
-			});
-			this.add(unitSelector, "width 40lp, gapright para");
-			
-			//// Axis:
-			this.add(new JLabel(trans.get("simplotpanel.lbl.Axis")));
-			axisSelector = new JComboBox<>(POSITIONS);
-			if (position == LEFT)
-				axisSelector.setSelectedIndex(1);
-			else if (position == RIGHT)
-				axisSelector.setSelectedIndex(2);
-			else
-				axisSelector.setSelectedIndex(0);
-			axisSelector.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if (modifying > 0)
-						return;
-					int axis = axisSelector.getSelectedIndex() - 1;
-					configuration.setPlotDataAxis(index, axis);
-				}
-			});
-			this.add(axisSelector);
-			
-			
-			JButton button = new JButton(Icons.EDIT_DELETE);
-			//// Remove this plot
-			button.setToolTipText(trans.get("simplotpanel.but.ttip.Deletethisplot"));
-			button.setBorderPainted(false);
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					configuration.removePlotDataType(index);
-					setToCustom();
-					updatePlots();
-				}
-			});
-			this.add(button, "gapright 0");
-		}
 	}
 
 	
