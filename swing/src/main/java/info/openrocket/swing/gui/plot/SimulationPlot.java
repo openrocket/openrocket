@@ -113,13 +113,14 @@ public class SimulationPlot {
 	}
 
 	void setShowBranch(int branch) {
+		int series = branch + branchCount-1;
 		XYPlot plot = (XYPlot) chart.getPlot();
 		int datasetcount = plot.getDatasetCount();
 		for (int i = 0; i < datasetcount; i++) {
 			int seriescount = ((XYSeriesCollection) plot.getDataset(i)).getSeriesCount();
 			XYItemRenderer r = ((XYPlot) chart.getPlot()).getRenderer(i);
 			for (int j = 0; j < seriescount; j++) {
-				boolean show = (branch < 0) || (j % branchCount == branch);
+				boolean show = (branch < 0) || (j % (2*branchCount-1) == series);
 				r.setSeriesVisible(j, show);
 			}
 		}
@@ -245,6 +246,9 @@ public class SimulationPlot {
 
 						if (numStages > 1) {
 							plotyNext = simulation.getSimulatedData().getBranch(numStages - 1).get(type);
+						}
+						else {
+							breakpoint = 0; // Start sustainer stage-plotting from the beginning
 						}
 
 						for (int j = breakpoint; j < pointCount; j++) {
