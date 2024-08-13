@@ -35,11 +35,11 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Utils;
 
+import info.openrocket.swing.gui.plot.SimulationPlotConfiguration;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.plot.PlotConfiguration;
 import info.openrocket.swing.gui.plot.SimulationPlotDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
@@ -74,32 +74,32 @@ public class SimulationPlotPanel extends JPanel {
 	private static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
 	
 	/** The "Custom" configuration - not to be used for anything other than the title. */
-	private static final PlotConfiguration CUSTOM_CONFIGURATION;
+	private static final SimulationPlotConfiguration CUSTOM_CONFIGURATION;
 	static {
-		CUSTOM_CONFIGURATION = new PlotConfiguration(CUSTOM);
+		CUSTOM_CONFIGURATION = new SimulationPlotConfiguration(CUSTOM);
 	}
 	
 	/** The array of presets for the combo box. */
-	private static final PlotConfiguration[] PRESET_ARRAY;
+	private static final SimulationPlotConfiguration[] PRESET_ARRAY;
 	static {
-		PRESET_ARRAY = Arrays.copyOf(PlotConfiguration.DEFAULT_CONFIGURATIONS,
-				PlotConfiguration.DEFAULT_CONFIGURATIONS.length + 1);
+		PRESET_ARRAY = Arrays.copyOf(SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS,
+				SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS.length + 1);
 		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
 	}
 	
 	
 	
 	/** The current default configuration, set each time a plot is made. */
-	private static PlotConfiguration defaultConfiguration =
-			PlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
+	private static SimulationPlotConfiguration defaultConfiguration =
+			SimulationPlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
 	
 	
 	private final Simulation simulation;
 	private final FlightDataType[] types;
-	private PlotConfiguration configuration;
+	private SimulationPlotConfiguration configuration;
 	
 	
-	private JComboBox<PlotConfiguration> configurationSelector;
+	private JComboBox<SimulationPlotConfiguration> configurationSelector;
 	
 	private GroupableAndSearchableComboBox<FlightDataTypeGroup, FlightDataType> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
@@ -135,7 +135,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		// Setup the combo box
 		configurationSelector = new JComboBox<>(PRESET_ARRAY);
-		for (PlotConfiguration config : PRESET_ARRAY) {
+		for (SimulationPlotConfiguration config : PRESET_ARRAY) {
 			if (config.getName().equals(configuration.getName())) {
 				configurationSelector.setSelectedItem(config);
 			}
@@ -154,7 +154,7 @@ public class SimulationPlotPanel extends JPanel {
 				}
 				if (modifying > 0)
 					return;
-				PlotConfiguration conf = (PlotConfiguration) configurationSelector.getSelectedItem();
+				SimulationPlotConfiguration conf = (SimulationPlotConfiguration) configurationSelector.getSelectedItem();
 				if (conf == CUSTOM_CONFIGURATION)
 					return;
 				modifying++;
@@ -421,7 +421,7 @@ public class SimulationPlotPanel extends JPanel {
 		return SimulationPlotDialog.getPlot(parent, simulation, configuration);
 	}
 	
-	private void setConfiguration(PlotConfiguration conf) {
+	private void setConfiguration(SimulationPlotConfiguration conf) {
 		
 		boolean modified = false;
 		
@@ -479,7 +479,7 @@ public class SimulationPlotPanel extends JPanel {
 	
 	
 	/**
-	 * A JPanel which configures a single plot of a PlotConfiguration.
+	 * A JPanel which configures a single plot of a SimulationPlotConfiguration.
 	 */
 	private class PlotTypeSelector extends JPanel {
 		private static final long serialVersionUID = 9056324972817542570L;
@@ -565,7 +565,7 @@ public class SimulationPlotPanel extends JPanel {
 			this.add(button, "gapright 0");
 		}
 	}
-	
+
 	
 	
 	private class FlightEventTableModel extends AbstractTableModel {

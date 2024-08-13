@@ -15,7 +15,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -89,9 +88,9 @@ public class SimulationPlot {
 
 	private final JFreeChart chart;
 
-	private final PlotConfiguration config;
+	private final SimulationPlotConfiguration config;
 	private final Simulation simulation;
-	private final PlotConfiguration filled;
+	private final SimulationPlotConfiguration filled;
 
 	private final List<EventDisplayInfo> eventList;
 	private final List<ModifiedXYItemRenderer> renderers = new ArrayList<>();
@@ -129,7 +128,7 @@ public class SimulationPlot {
 		errorAnnotations.setCurrent(branch);
 	}
 
-	SimulationPlot(Simulation simulation, PlotConfiguration config, boolean initialShowPoints) {
+	SimulationPlot(Simulation simulation, SimulationPlotConfiguration config, boolean initialShowPoints) {
 		this.simulation = simulation;
 		this.config = config;
 		this.branchCount = simulation.getSimulatedData().getBranchCount();
@@ -163,7 +162,7 @@ public class SimulationPlot {
 		this.filled = config.fillAutoAxes(mainBranch);
 
 		// Compute the axes based on the min and max value of all branches
-		PlotConfiguration plotConfig = filled.clone();
+		SimulationPlotConfiguration plotConfig = filled.clone();
 		plotConfig.fitAxes(simulation.getSimulatedData().getBranches());
 		List<Axis> minMaxAxes = plotConfig.getAllAxes();
 

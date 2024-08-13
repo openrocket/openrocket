@@ -52,7 +52,7 @@ public class SimulationPlotDialog extends JDialog {
 		initColors();
 	}
 
-	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
+	private SimulationPlotDialog(Window parent, Simulation simulation, SimulationPlotConfiguration config) {
 		//// Flight data plot
 		super(parent, simulation.getName());
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -247,7 +247,7 @@ public class SimulationPlotDialog extends JDialog {
 	 * @param simulation	the simulation to plot.
 	 * @param config		the configuration of the plot.
 	 */
-	public static SimulationPlotDialog getPlot(Window parent, Simulation simulation, PlotConfiguration config) {
+	public static SimulationPlotDialog getPlot(Window parent, Simulation simulation, SimulationPlotConfiguration config) {
 		return new SimulationPlotDialog(parent, simulation, config);
 	}
 	

@@ -17,17 +17,17 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
 
 
-public class PlotConfiguration implements Cloneable {
+public class SimulationPlotConfiguration implements Cloneable {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	public static final PlotConfiguration[] DEFAULT_CONFIGURATIONS;
+	public static final SimulationPlotConfiguration[] DEFAULT_CONFIGURATIONS;
 	static {
-		ArrayList<PlotConfiguration> configs = new ArrayList<>();
-		PlotConfiguration config;
+		ArrayList<SimulationPlotConfiguration> configs = new ArrayList<>();
+		SimulationPlotConfiguration config;
 		
 		//// Vertical motion vs. time
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Verticalmotion"));
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Verticalmotion"));
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_VELOCITY_Z);
 		config.addPlotDataType(FlightDataType.TYPE_ACCELERATION_Z);
@@ -43,7 +43,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Total motion vs. time
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Totalmotion"));
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Totalmotion"));
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_VELOCITY_TOTAL);
 		config.addPlotDataType(FlightDataType.TYPE_ACCELERATION_TOTAL);
@@ -59,7 +59,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Flight side profile
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Flightside"), FlightDataType.TYPE_POSITION_X);
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Flightside"), FlightDataType.TYPE_POSITION_X);
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
@@ -74,7 +74,7 @@ public class PlotConfiguration implements Cloneable {
 	
 		
 		//// Ground track
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Groundtrack"), FlightDataType.TYPE_POSITION_X);
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Groundtrack"), FlightDataType.TYPE_POSITION_X);
 		config.addPlotDataType(FlightDataType.TYPE_POSITION_Y, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 1);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
@@ -87,7 +87,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Stability vs. time
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Stability"));
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Stability"));
 		config.addPlotDataType(FlightDataType.TYPE_STABILITY, 0);
 		config.addPlotDataType(FlightDataType.TYPE_CP_LOCATION, 1);
 		config.addPlotDataType(FlightDataType.TYPE_CG_LOCATION, 1);
@@ -102,7 +102,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Drag coefficients vs. Mach number
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Dragcoef"),
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Dragcoef"),
 				FlightDataType.TYPE_MACH_NUMBER);
 		config.addPlotDataType(FlightDataType.TYPE_DRAG_COEFF, 0);
 		config.addPlotDataType(FlightDataType.TYPE_FRICTION_DRAG_COEFF, 0);
@@ -113,7 +113,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Roll characteristics
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Rollcharacteristics"));
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Rollcharacteristics"));
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_RATE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_MOMENT_COEFF, 1);
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_FORCING_COEFF, 1);
@@ -131,7 +131,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Angle of attack and orientation vs. time
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Angleofattack"));
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Angleofattack"));
 		config.addPlotDataType(FlightDataType.TYPE_AOA, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_PHI);
 		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_THETA);
@@ -147,7 +147,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Simulation time step and computation time
-		config = new PlotConfiguration(trans.get("PlotConfiguration.Simulationtime"));
+		config = new SimulationPlotConfiguration(trans.get("PlotConfiguration.Simulationtime"));
 		config.addPlotDataType(FlightDataType.TYPE_TIME_STEP);
 		config.addPlotDataType(FlightDataType.TYPE_COMPUTATION_TIME);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
@@ -161,7 +161,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 		
-		DEFAULT_CONFIGURATIONS = configs.toArray(new PlotConfiguration[0]);
+		DEFAULT_CONFIGURATIONS = configs.toArray(new SimulationPlotConfiguration[0]);
 	}
 	
 	
@@ -208,15 +208,15 @@ public class PlotConfiguration implements Cloneable {
 	private String name = null;
 	
 	
-	public PlotConfiguration() {
+	public SimulationPlotConfiguration() {
 		this(null, FlightDataType.TYPE_TIME);
 	}
 	
-	public PlotConfiguration(String name) {
+	public SimulationPlotConfiguration(String name) {
 		this(name, FlightDataType.TYPE_TIME);
 	}
 	
-	public PlotConfiguration(String name, FlightDataType domainType) {
+	public SimulationPlotConfiguration(String name, FlightDataType domainType) {
 		this.name = name;
 		// Two axes
 		allAxes.add(new Axis());
@@ -370,7 +370,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	/**
-	 * Returns the name of this PlotConfiguration.
+	 * Returns the name of this SimulationPlotConfiguration.
 	 */
 	@Override
 	public String toString() {
@@ -382,11 +382,11 @@ public class PlotConfiguration implements Cloneable {
 	/**
 	 * Find the best combination of the auto-selectable axes.
 	 * 
-	 * @return	a new PlotConfiguration with the best fitting auto-selected axes and
+	 * @return	a new SimulationPlotConfiguration with the best fitting auto-selected axes and
 	 * 			axes ranges selected.
 	 */
-	public PlotConfiguration fillAutoAxes(FlightDataBranch data) {
-		PlotConfiguration config = recursiveFillAutoAxes(data).getU();
+	public SimulationPlotConfiguration fillAutoAxes(FlightDataBranch data) {
+		SimulationPlotConfiguration config = recursiveFillAutoAxes(data).getU();
 		//System.out.println("BEST FOUND, fitting");
 		config.fitAxes(data);
 		return config;
@@ -399,13 +399,13 @@ public class PlotConfiguration implements Cloneable {
 	 * Recursively search for the best combination of the auto-selectable axes.
 	 * This is a brute-force search method.
 	 * 
-	 * @return	a new PlotConfiguration with the best fitting auto-selected axes and
+	 * @return	a new SimulationPlotConfiguration with the best fitting auto-selected axes and
 	 * 			axes ranges selected, and the goodness value
 	 */
-	private Pair<PlotConfiguration, Double> recursiveFillAutoAxes(FlightDataBranch data) {
+	private Pair<SimulationPlotConfiguration, Double> recursiveFillAutoAxes(FlightDataBranch data) {
 		
 		// Create copy to fill in
-		PlotConfiguration copy = this.clone();
+		SimulationPlotConfiguration copy = this.clone();
 		
 		int autoindex;
 		for (autoindex = 0; autoindex < plotDataAxes.size(); autoindex++) {
@@ -421,11 +421,11 @@ public class PlotConfiguration implements Cloneable {
 		
 		
 		// Set the auto-selected index one at a time and choose the best one
-		PlotConfiguration best = null;
+		SimulationPlotConfiguration best = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < axesCount; i++) {
 			copy.plotDataAxes.set(autoindex, i);
-			Pair<PlotConfiguration, Double> result = copy.recursiveFillAutoAxes(data);
+			Pair<SimulationPlotConfiguration, Double> result = copy.recursiveFillAutoAxes(data);
 			if (result.getV() > bestValue) {
 				best = result.getU();
 				bestValue = result.getV();
@@ -690,11 +690,11 @@ public class PlotConfiguration implements Cloneable {
 	
 	/**
 	 * Reset the units of this configuration to the default units. Returns this
-	 * PlotConfiguration.
+	 * SimulationPlotConfiguration.
 	 * 
-	 * @return   this PlotConfiguration.
+	 * @return   this SimulationPlotConfiguration.
 	 */
-	public PlotConfiguration resetUnits() {
+	public SimulationPlotConfiguration resetUnits() {
 		for (int i = 0; i < plotDataTypes.size(); i++) {
 			plotDataUnits.set(i, plotDataTypes.get(i).getUnitGroup().getDefaultUnit());
 		}
@@ -705,10 +705,10 @@ public class PlotConfiguration implements Cloneable {
 	
 	
 	@Override
-	public PlotConfiguration clone() {
+	public SimulationPlotConfiguration clone() {
 		try {
 			
-			PlotConfiguration copy = (PlotConfiguration) super.clone();
+			SimulationPlotConfiguration copy = (SimulationPlotConfiguration) super.clone();
 			
 			// Shallow-clone all immutable lists
 			copy.plotDataTypes = this.plotDataTypes.clone();
