@@ -119,7 +119,7 @@ public class SimulationConfigDialog extends JDialog {
 		//// Plot data
 		boolean hasData = simulationList[0].hasSimulationData();
 		if (hasData) {
-			this.plotTab = new SimulationPlotPanel(simulationList[0]);
+			this.plotTab = SimulationPlotPanel.create(simulationList[0]);
 		} else {
 			this.plotTab = null;
 		}

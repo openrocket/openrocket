@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.plot;
 
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -67,8 +66,8 @@ public class PlotTypeSelector<G extends Group, T extends Groupable<G> & UnitValu
 		return index;
 	}
 
-	public FlightDataType getSelectedType() {
-		return (FlightDataType) typeSelector.getSelectedItem();
+	public T getSelectedType() {
+		return (T) typeSelector.getSelectedItem();
 	}
 
 	public Unit getSelectedUnit() {
