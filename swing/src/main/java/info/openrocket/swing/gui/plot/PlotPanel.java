@@ -41,7 +41,9 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 	private PlotConfiguration<T, B> defaultConfiguration;
 
-	private final T[] types;
+	// Data types for the x and y axis + plot configuration
+	private final T[] typesX;
+	private final T[] typesY;
 	protected PlotConfiguration<T, B> configuration;
 
 	private JComboBox<PlotConfiguration<T, B>> configurationSelector;
@@ -53,7 +55,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 	protected int modifying = 0;
 
-	public PlotPanel(T[] types, PlotConfiguration<T, B> customConfiguration, PlotConfiguration<T, B>[] presets,
+	public PlotPanel(T[] typesX, T[] typesY, PlotConfiguration<T, B> customConfiguration, PlotConfiguration<T, B>[] presets,
 					 PlotConfiguration<T, B> defaultConfiguration,
 					 Component[] extraWidgetsX, Component[] extraWidgetsY) {
 		super(new MigLayout("fill"));
@@ -61,7 +63,8 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		this.customConfiguration = customConfiguration;
 		this.presetArray = presets;
 		this.defaultConfiguration = defaultConfiguration;
-		this.types = types;
+		this.typesX = typesX;
+		this.typesY = typesY;
 
 		setConfiguration(defaultConfiguration);
 
@@ -108,7 +111,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
-		domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(types), trans.get("FlightDataComboBox.placeholder"));
+		domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(typesX), trans.get("FlightDataComboBox.placeholder"));
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
 			@Override
@@ -192,7 +195,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 				// Select new type smartly
 				T type = null;
-				for (T t : types) {
+				for (T t : typesY) {
 
 					boolean used = false;
 					if (configuration.getDomainAxisType().equals(t)) {
@@ -212,7 +215,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 					}
 				}
 				if (type == null) {
-					type = types[0];
+					type = typesY[0];
 				}
 
 				// Add new type
@@ -232,13 +235,13 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		boolean modified = false;
 
 		configuration = conf.clone();
-		if (!Utils.contains(types, configuration.getDomainAxisType())) {
-			configuration.setDomainAxisType(types[0]);
+		if (!Utils.contains(typesX, configuration.getDomainAxisType())) {
+			configuration.setDomainAxisType(typesX[0]);
 			modified = true;
 		}
 
 		for (int i = 0; i < configuration.getTypeCount(); i++) {
-			if (!Utils.contains(types, configuration.getType(i))) {
+			if (!Utils.contains(typesY, configuration.getType(i))) {
 				configuration.removePlotDataType(i);
 				i--;
 				modified = true;
@@ -278,7 +281,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 			Unit unit = configuration.getUnit(i);
 			int axis = configuration.getAxis(i);
 
-			PlotTypeSelector<G, T> selector = new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(types));
+			PlotTypeSelector<G, T> selector = new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(typesY));
 			int finalI = i;
 			selector.addTypeSelectionListener(e -> {
 				if (modifying > 0) return;

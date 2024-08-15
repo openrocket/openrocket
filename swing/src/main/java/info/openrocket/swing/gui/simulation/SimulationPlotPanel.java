@@ -84,7 +84,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	private SimulationPlotPanel(final Simulation simulation, FlightDataType[] types,
 							   final DescriptionArea simPlotPanelDesc,
 							   Component[] extraWidgetsX, JPanel selectorPanel, Component[] extraWidgetsY) {
-		super(types, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, extraWidgetsX, extraWidgetsY);
+		super(types, types, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, extraWidgetsX, extraWidgetsY);
 
 		this.simulation = simulation;
 
