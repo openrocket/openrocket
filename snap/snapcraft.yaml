@@ -15,7 +15,7 @@ description: |
     * Cross-platform (Java-based)
     * Read more about it on OpenRocket.info
 license: GPL-3.0
-base: core22
+base: core18
 confinement: strict
 
 plugs:
@@ -37,38 +37,39 @@ architectures:
 
 apps:
   openrocket:
-    extensions: [gnome]
     command: bin/launcher
     plugs:
       - home
       - network
       - cups-control
       - opengl
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
-      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$CRAFT_TARGET_ARCH"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAP_ARCH"
 
 parts:
   openrocket:
-    plugin: java
+    plugin: gradle
     source: .
-    java-version: "17"
-    java-build-system: gradle
     gradle-output-dir: 'build/libs'
     gradle-options:
       - shadowJar
     build-packages:
       - openjdk-17-jdk
     override-pull: |
-      craftctl default
+      snapcraftctl pull
       version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
-      craftctl set version="$version"
+      snapcraftctl set-version "$version"
     override-build: |
-      craftctl default
-      mv build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
+      snapcraftctl build
+      mv build/libs/OpenRocket-*.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
-      - openjdk-17-jre-headless
+      - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
     prime:
