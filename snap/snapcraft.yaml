@@ -51,12 +51,13 @@ apps:
 
 parts:
   openrocket:
-    plugin: gradle
+    plugin: java
     source: .
+    java-version: "17"
+    java-build-system: gradle
     gradle-output-dir: 'build/libs'
     gradle-options:
       - shadowJar
-      - -Dorg.gradle.java.home=$JAVA_HOME
     build-packages:
       - openjdk-17-jdk
     override-pull: |
