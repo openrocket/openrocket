@@ -43,10 +43,6 @@ apps:
       - network
       - cups-control
       - opengl
-      - x11
-      - wayland
-      - desktop
-      - desktop-legacy
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
@@ -56,18 +52,16 @@ parts:
   openrocket:
     plugin: gradle
     source: .
-    gradle-output-dir: 'build/libs'
-    gradle-options:
-      - shadowJar
     build-packages:
       - openjdk-17-jdk
     override-pull: |
-      snapcraftctl pull
+      craftctl default
       version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
-      snapcraftctl set-version "$version"
+      craftctl set version="$version"
     override-build: |
-      snapcraftctl build
-      mv build/libs/OpenRocket-*.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
+      craftctl default
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
       - openjdk-17-jre
       - ca-certificates
@@ -80,5 +74,6 @@ parts:
   launcher:
     plugin: dump
     source: snap/local
+    source-type: local
     organize:
-      'launcher': 'bin/'
+      launcher: bin/launcher
