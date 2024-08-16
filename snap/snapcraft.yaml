@@ -6,14 +6,14 @@ description: |
   OpenRocket is a free, fully featured model rocket simulator that allows you
   to design and simulate your rockets before actually building and flying them.
 
-  The main features include
+  The main features include:
 
     * Six-degree-of-freedom flight simulation
     * Automatic design optimization
     * Realtime simulated altitude, velocity and acceleration display
     * Staging and clustering support
     * Cross-platform (Java-based)
-    * Read more about it on the OpenRocket.info.
+    * Read more about it on OpenRocket.info
 license: GPL-3.0
 base: core22
 confinement: strict
@@ -51,40 +51,23 @@ apps:
 
 parts:
   openrocket:
-    plugin: ant
-    build-packages:
-      - ant
-      - ant-contrib
-      - ant-optional
-      - openjdk-17-jdk
-      - openjdk-17-jre
+    plugin: gradle
     source: .
-    source-type: git
-    ant-build-targets:
-      - clean
-      - check
-      - unittest
-      - jar
+    gradle-output-dir: 'build/libs'
+    gradle-options:
+      - shadowJar
+      - -Dorg.gradle.java.home=$JAVA_HOME
+    build-packages:
+      - openjdk-17-jdk
     override-pull: |
-      # Override the pull in order to set the version and the grade.
-      # In the future, the releases can be annotated tags and snapcraft
-      # will use those for the version numbers.
-      #
-      # This can be extended to other parts of OpenRocket (to use the
-      # git describe --tags command) but the build should be updated at
-      # the same time so its consistent across all artifacts. Will defer
-      # that to a later pull request.
-      #
-      # Until then, just use the build.version value
       craftctl default
-      VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
-      craftctl set version="$VERSION"
+      version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
+      craftctl set version="$version"
     override-build: |
       craftctl default
-      mv swing/build/jar/OpenRocket.jar $CRAFT_PART_INSTALL/OpenRocket.jar
+      mv build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
-      - openjdk-17-jdk
-      - openjdk-17-jre
+      - openjdk-17-jre-headless
       - ca-certificates
       - ca-certificates-java
     prime:
@@ -97,4 +80,3 @@ parts:
     source: snap/local
     organize:
       'launcher': 'bin/'
-
