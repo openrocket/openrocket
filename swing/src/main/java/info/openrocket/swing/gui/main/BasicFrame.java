@@ -89,7 +89,7 @@ import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.customexpression.CustomExpressionDialog;
 import info.openrocket.swing.gui.dialogs.AboutDialog;
 import info.openrocket.swing.gui.dialogs.BugReportDialog;
-import info.openrocket.swing.gui.dialogs.ComponentAnalysisDialog;
+import info.openrocket.swing.gui.dialogs.componentanalysis.ComponentAnalysisDialog;
 import info.openrocket.swing.gui.dialogs.DebugLogDialog;
 import info.openrocket.swing.gui.dialogs.DecalNotFoundDialog;
 import info.openrocket.swing.gui.dialogs.DetailDialog;

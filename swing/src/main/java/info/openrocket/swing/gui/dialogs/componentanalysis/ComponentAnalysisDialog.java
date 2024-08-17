@@ -1,11 +1,10 @@
-package info.openrocket.swing.gui.dialogs;
+package info.openrocket.swing.gui.dialogs.componentanalysis;
 
 import static info.openrocket.core.unit.Unit.NOUNIT;
 import static info.openrocket.core.util.Chars.ALPHA;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
-import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.CMAnalysisEntry;
@@ -88,7 +87,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
 	private AerodynamicCalculator aerodynamicCalculator;
-	private double initTheta;
+	private ComponentAnalysisParameters parameters;
 
 	private final ColumnTableModel longitudeStabilityTableModel;
 	private final ColumnTableModel dragTableModel;
@@ -115,18 +114,15 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		rkt = rocketPanel.getDocument().getRocket();
 		this.aerodynamicCalculator = rocketPanel.getAerodynamicCalculator().newInstance();
 
-
 		conditions = new FlightConditions(rkt.getSelectedConfiguration());
 
-		rocketPanel.setCPAOA(0);
-		aoa = new DoubleModel(rocketPanel, "CPAOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
-		rocketPanel.setCPMach(Application.getPreferences().getDefaultMach());
-		mach = new DoubleModel(rocketPanel, "CPMach", UnitGroup.UNITS_COEFFICIENT, 0);
-		initTheta = rocketPanel.getFigure().getRotation();
-		rocketPanel.setCPTheta(rocketPanel.getFigure().getRotation());
-		theta = new DoubleModel(rocketPanel, "CPTheta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-		rocketPanel.setCPRoll(0);
-		roll = new DoubleModel(rocketPanel, "CPRoll", UnitGroup.UNITS_ROLL);
+		// Create ComponentAnalysisParameters
+		parameters = new ComponentAnalysisParameters(rkt, rocketPanel);
+
+		aoa = new DoubleModel(parameters, "AOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
+		mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
+		theta = new DoubleModel(parameters, "Theta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
+		roll = new DoubleModel(parameters, "RollRate", UnitGroup.UNITS_ROLL);
 
 		//// Wind direction:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")));
@@ -435,7 +431,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				theta.setValue(initTheta);
+				theta.setValue(parameters.getInitialTheta());
 
 				//System.out.println("Closing method called: " + this);
 				rkt.removeChangeListener(ComponentAnalysisDialog.this);
@@ -470,7 +466,13 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 		// Buttons
-		JButton button;
+		JButton plotExportBtn = new JButton(trans.get("simpanel.but.plotexport"));
+		plotExportBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO: open plot/export dialog
+			}
+		});
 
 		// TODO: LOW: printing
 		//		button = new JButton("Print");
@@ -487,16 +489,15 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		//		});
 		//		panel.add(button,"tag ok");
 
-		//button = new JButton("Close");
 		//Close button
-		button = new JButton(trans.get("dlg.but.close"));
-		button.addActionListener(new ActionListener() {
+		JButton closeBtn = new JButton(trans.get("dlg.but.close"));
+		closeBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ComponentAnalysisDialog.this.dispose();
 			}
 		});
-		panel.add(button, "span, tag cancel");
+		panel.add(closeBtn, "span, tag cancel");
 
 
 		this.setLocationByPlatform(true);
