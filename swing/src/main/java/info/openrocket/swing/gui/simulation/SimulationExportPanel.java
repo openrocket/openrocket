@@ -32,8 +32,6 @@ import info.openrocket.swing.gui.widgets.SaveFileChooser;
 public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 	
 	private static final long serialVersionUID = 3423905472892675964L;
-	private static final String SPACE = "SPACE";
-	private static final String TAB = "TAB";
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final int OPTION_SIMULATION_COMMENTS = 0;

@@ -29,6 +29,8 @@ import java.util.Arrays;
 
 public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	private static final Translator trans = Application.getTranslator();
+	protected static final String SPACE = "SPACE";
+	protected static final String TAB = "TAB";
 
 	private final JTable table;
 	private final SelectionTableModel tableModel;
@@ -140,8 +142,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	}
 
 	public boolean doExport() {
-		// TODO: Implement this method
-		return false;
+		throw new RuntimeException("Not implemented");
 	}
 
 	private void updateSelectedCount() {
