@@ -1,8 +1,5 @@
 package info.openrocket.core.simulation;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +8,6 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.ModID;
-import info.openrocket.core.util.Monitorable;
-import info.openrocket.core.util.Mutable;
 
 /**
  * A single branch of flight data.  The data is ordered based on some variable, typically time.
@@ -29,30 +24,10 @@ import info.openrocket.core.util.Mutable;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class FlightDataBranch implements DataBranch<FlightDataType> {
-	
-	/** The name of this flight data branch. */
-	private final String name;
-	
-	private final Map<FlightDataType, ArrayList<Double>> values = new LinkedHashMap<>();
-
-	private final Map<FlightDataType, Double> maxValues = new HashMap<>();
-	private final Map<FlightDataType, Double> minValues = new HashMap<>();
-	
-	/**
-	 * time for the rocket to reach apogee if the flight had been no recovery deployment
-	 */
+public class FlightDataBranch extends DataBranch<FlightDataType> {
 	private double timeToOptimumAltitude = Double.NaN;
-	/**
-	 * Altitude the rocket would reach if there had been no recovery deployment.
-	 */
 	private double optimumAltitude = Double.NaN;
-	
 	private final ArrayList<FlightEvent> events = new ArrayList<>();
-	
-	private final Mutable mutable = new Mutable();
-	
-	private ModID modID = ModID.INVALID;
 	
 	/**
 	 * Sole constructor.  Defines the name of the FlightDataBranch and at least one variable type.
@@ -61,22 +36,7 @@ public class FlightDataBranch implements DataBranch<FlightDataType> {
 	 * @param types		data types to include (must include at least one type).
 	 */
 	public FlightDataBranch(String name, FlightDataType... types) {
-		if (types.length == 0) {
-			throw new IllegalArgumentException("Must specify at least one data type.");
-		}
-		
-		this.name = name;
-		
-		for (FlightDataType t : types) {
-			if (values.containsKey(t)) {
-				throw new IllegalArgumentException("Value type " + t + " specified multiple " +
-						"times in constructor.");
-			}
-			
-			values.put(t, new ArrayList<>());
-			minValues.put(t, Double.NaN);
-			maxValues.put(t, Double.NaN);
-		}
+		super(name, types);
 	}
 
 	/**
@@ -89,7 +49,7 @@ public class FlightDataBranch implements DataBranch<FlightDataType> {
 	 * @param parent			the parent branch to copy data from.
 	 */
 	public FlightDataBranch(String name, RocketComponent srcComponent, FlightDataBranch parent) {
-		this.name = name;
+		super(name);
 
 		// Copy all the values from the parent
 		copyValuesFromBranch(parent, srcComponent);
@@ -99,72 +59,13 @@ public class FlightDataBranch implements DataBranch<FlightDataType> {
 	 * Makes an 'empty' flight data branch which has no data but all built in data types are defined.
 	 */
 	public FlightDataBranch() {
-		name = "Empty branch";
+		super("Empty branch");
 		for (FlightDataType type : FlightDataType.ALL_TYPES) {
 			this.setValue(type, Double.NaN);
 		}
 		this.immute();
 	}
-	
-	/**
-	 * Adds a new point into the data branch.  The value for all types is set to NaN by default.
-	 * 
-	 * @throws IllegalStateException	if this object has been made immutable.
-	 */
-	public void addPoint() {
-		mutable.check();
-		
-		for (Map.Entry<FlightDataType, ArrayList<Double>> entry : values.entrySet()) {
-			sanityCheckValues(entry.getKey(), Double.NaN);
-			entry.getValue().add(Double.NaN);
-		}
-		modID = new ModID();
-	}
 
-	private void sanityCheckValues(FlightDataType type, Double value) {
-		ArrayList<Double> list = values.get(type);
-
-		if (list == null) {
-			list = new ArrayList<>();
-			int n = getLength();
-			for (int i = 0; i < n; i++) {
-				list.add(Double.NaN);
-			}
-			values.put(type, list);
-			minValues.put(type, value);
-			maxValues.put(type, value);
-		}
-	}
-
-	/**
-	 * Set the value for a specific data type at the latest point.  New variable types can be
-	 * added to the FlightDataBranch transparently.
-	 *
-	 * @param type		the variable to set.
-	 * @param value		the value to set.
-	 * @throws IllegalStateException	if this object has been made immutable.
-	 */
-	public void setValue(FlightDataType type, double value) {
-		mutable.check();
-
-		sanityCheckValues(type, value);
-		ArrayList<Double> list = values.get(type);
-
-		if (list.size() > 0) {
-			list.set(list.size() - 1, value);
-		}
-		
-		double min = minValues.get(type);
-		double max = maxValues.get(type);
-		
-		if (Double.isNaN(min) || (value < min)) {
-			minValues.put(type, value);
-		}
-		if (Double.isNaN(max) || (value > max)) {
-			maxValues.put(type, value);
-		}
-		modID = new ModID();
-	}
 
 	/**
 	 * Clears all the current values in the branch and copies the values from the given branch.
@@ -226,70 +127,6 @@ public class FlightDataBranch implements DataBranch<FlightDataType> {
 		} else {
 			return component.getStage();
 		}
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public FlightDataType[] getTypes() {
-		FlightDataType[] array = values.keySet().toArray(new FlightDataType[0]);
-		Arrays.sort(array);
-		return array;
-	}
-	
-	@Override
-	public int getLength() {
-		for (ArrayList<Double> doubles : values.values()) {
-			return doubles.size();
-		}
-		return 0;
-	}
-	
-	@Override
-	public List<Double> get(FlightDataType type) {
-		ArrayList<Double> list = values.get(type);
-		if (list == null)
-			return null;
-		return list.clone();
-	}
-
-	@Override
-	public Double getByIndex(FlightDataType type, int index) {
-		if (index < 0 || index >= getLength()) {
-			throw new IllegalArgumentException("Index out of bounds");
-		}
-		ArrayList<Double> list = values.get(type);
-		if (list == null) {
-			return null;
-		}
-		return list.get(index);
-	}
-
-	@Override
-	public double getLast(FlightDataType type) {
-		ArrayList<Double> list = values.get(type);
-		if (list == null || list.isEmpty())
-			return Double.NaN;
-		return list.get(list.size() - 1);
-	}
-	
-	@Override
-	public double getMinimum(FlightDataType type) {
-		Double v = minValues.get(type);
-		if (v == null)
-			return Double.NaN;
-		return v;
-	}
-	
-	@Override
-	public double getMaximum(FlightDataType type) {
-		Double v = maxValues.get(type);
-		if (v == null)
-			return Double.NaN;
-		return v;
 	}
 	
 	
@@ -386,28 +223,6 @@ public class FlightDataBranch implements DataBranch<FlightDataType> {
 			}
 		}
 		return retval;
-	}
-	
-	/**
-	 * Make this FlightDataBranch immutable.  Any calls to the set methods that would
-	 * modify this object will after this call throw an <code>IllegalStateException</code>.
-	 */
-	public void immute() {
-		mutable.immute();
-	}
-	
-	
-	/**
-	 * Return whether this branch is still mutable.
-	 */
-	public boolean isMutable() {
-		return mutable.isMutable();
-	}
-	
-	
-	@Override
-	public ModID getModID() {
-		return modID;
 	}
 
 	public FlightDataBranch clone() {
