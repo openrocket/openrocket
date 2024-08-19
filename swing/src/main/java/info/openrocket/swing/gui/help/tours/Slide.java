@@ -48,7 +48,7 @@ public class Slide {
 		
 		// Otherwise load and cache
 		BufferedImage image = loadImage();
-		imageReference = new SoftReference<BufferedImage>(image);
+		imageReference = new SoftReference<>(image);
 		
 		return image;
 	}

@@ -47,7 +47,6 @@ import info.openrocket.swing.gui.dialogs.flightconfiguration.IgnitionSelectionDi
 import info.openrocket.swing.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import info.openrocket.swing.gui.dialogs.motor.MotorChooserDialog;
 import info.openrocket.swing.gui.main.FlightConfigurationPanel;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount> {
@@ -118,19 +117,19 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		configurationPanel.add(scroll, "spanx, grow, pushy, wrap");
 
 		//// Select motor
-		selectMotorButton = new SelectColorButton(selectMotorAction);
+		selectMotorButton = new JButton(selectMotorAction);
 		configurationPanel.add(selectMotorButton, "split, align right, sizegroup button");
 
 		//// Delete motor button
-		deleteMotorButton = new SelectColorButton(deleteMotorAction);
+		deleteMotorButton = new JButton(deleteMotorAction);
 		configurationPanel.add(deleteMotorButton, "sizegroup button");
 
 		//// Select Ignition button
-		selectIgnitionButton = new SelectColorButton(selectIgnitionAction);
+		selectIgnitionButton = new JButton(selectIgnitionAction);
 		configurationPanel.add(selectIgnitionButton, "sizegroup button, gapleft para");
 
 		//// Reset Ignition button
-		resetIgnitionButton = new SelectColorButton(resetIgnitionAction);
+		resetIgnitionButton = new JButton(resetIgnitionAction);
 		configurationPanel.add(resetIgnitionButton, "sizegroup button, wrap");
 
 		cards.add(configurationPanel, TABLE_LABEL );
@@ -162,7 +161,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	@Override
 	protected JTable initializeTable() {
 		//// Motor selection table.
-		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket) {
+		configurationTableModel = new FlightConfigurableTableModel<>(MotorMount.class, rocket) {
 			@Override
 			protected boolean includeComponent(MotorMount component) {
 				return component.isMotorMount();

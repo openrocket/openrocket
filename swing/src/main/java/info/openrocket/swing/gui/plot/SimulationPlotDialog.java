@@ -20,9 +20,9 @@ import javax.swing.JPanel;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -32,7 +32,6 @@ import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtils;
@@ -58,7 +57,7 @@ public class SimulationPlotDialog extends JDialog {
 		super(parent, simulation.getName());
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
-		final boolean initialShowPoints = Application.getPreferences().getBoolean(Preferences.PLOT_SHOW_POINTS, false);
+		final boolean initialShowPoints = Application.getPreferences().getBoolean(ApplicationPreferences.PLOT_SHOW_POINTS, false);
 		
 		final SimulationPlot myPlot = new SimulationPlot(simulation, config, initialShowPoints);
 		
@@ -94,7 +93,7 @@ public class SimulationPlotDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean show = checkData.isSelected();
-				Application.getPreferences().putBoolean(Preferences.PLOT_SHOW_POINTS, show);
+				Application.getPreferences().putBoolean(ApplicationPreferences.PLOT_SHOW_POINTS, show);
 				myPlot.setShowPoints(show);
 			}
 		});
@@ -114,7 +113,7 @@ public class SimulationPlotDialog extends JDialog {
 		checkErrors.setVisible(simulation.hasErrors());
 
 		//// Add series selection box
-		ArrayList<String> stages = new ArrayList<String>();
+		ArrayList<String> stages = new ArrayList<>();
 		stages.add(trans.get("PlotDialog.StageDropDown.allStages"));
 		stages.addAll(Util.generateSeriesLabels(simulation));
 
@@ -135,7 +134,7 @@ public class SimulationPlotDialog extends JDialog {
 		}
 		
 		//// Zoom in button
-		JButton button = new SelectColorButton(Icons.ZOOM_IN);
+		JButton button = new JButton(Icons.ZOOM_IN);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -150,7 +149,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 		
 		//// Reset Zoom button.
-		button = new SelectColorButton(Icons.ZOOM_RESET);
+		button = new JButton(Icons.ZOOM_RESET);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -161,7 +160,7 @@ public class SimulationPlotDialog extends JDialog {
 		
 		
 		//// Zoom out button
-		button = new SelectColorButton(Icons.ZOOM_OUT);
+		button = new JButton(Icons.ZOOM_OUT);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -175,7 +174,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 
 		//// Print chart button
-		button = new SelectColorButton(trans.get("PlotDialog.btn.exportImage"));
+		button = new JButton(trans.get("PlotDialog.btn.exportImage"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -185,7 +184,7 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 		
 		//// Close button
-		button = new SelectColorButton(trans.get("dlg.but.close"));
+		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

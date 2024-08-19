@@ -25,7 +25,6 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 
 import net.miginfocom.swing.MigLayout;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,7 @@ public class VariableSelector extends JDialog {
 		super(parent, trans.get("CustomVariableSelector.title"), JDialog.ModalityType.DOCUMENT_MODAL);
 
 		this.parentBuilder = parentBuilder;
-		final JButton insertButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
+		final JButton insertButton = new JButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
 
 		JPanel mainPanel = new JPanel(new MigLayout());
 
@@ -63,9 +62,9 @@ public class VariableSelector extends JDialog {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		int width = table.getColumnModel().getTotalColumnWidth();
-		table.getColumnModel().getColumn(0).setPreferredWidth( (int) (.7 * width));
-		table.getColumnModel().getColumn(1).setPreferredWidth( (int) (.15 * width));
-		table.getColumnModel().getColumn(2).setPreferredWidth( (int) (.15 * width));
+		table.getColumnModel().getColumn(0).setPreferredWidth( (int) (0.7 * width));
+		table.getColumnModel().getColumn(1).setPreferredWidth( (int) (0.15 * width));
+		table.getColumnModel().getColumn(2).setPreferredWidth( (int) (0.15 * width));
 		table.setAutoCreateRowSorter(true);
 
 		table.addMouseListener(new MouseListener(){
@@ -116,7 +115,7 @@ public class VariableSelector extends JDialog {
 		mainPanel.add(scrollPane, "wrap, push, grow");
 
 		//// Cancel button
-		final JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		final JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -23,7 +23,6 @@ import info.openrocket.core.startup.Application;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public class ExpressionBuilderDialog extends JDialog {
 	private final JLabel nameCheck = new JLabel(RedIcon);
 	private final JLabel expressionCheck = new JLabel(RedIcon);
 	private final JLabel unitCheck = new JLabel(RedIcon);
-	private final JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+	private final JButton okButton = new JButton(trans.get("dlg.but.ok"));
 	private final JTextField expressionField = new JTextField(20);
 	
 	public ExpressionBuilderDialog(Window parent, OpenRocketDocument doc){
@@ -157,7 +156,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		
 		
 		//// Insert variable button
-		final JButton insertVariableButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
+		final JButton insertVariableButton = new JButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
 		insertVariableButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -168,7 +167,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		});
 		
 		//// Insert operator button
-		final JButton insertOperatorButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertOperator"));
+		final JButton insertOperatorButton = new JButton(trans.get("ExpressionBuilderDialog.InsertOperator"));
 		insertOperatorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -192,7 +191,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		});
 
 		//// Cancel button
-		final JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		final JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

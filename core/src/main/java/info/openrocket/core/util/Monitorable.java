@@ -48,8 +48,8 @@ public interface Monitorable {
 	 * object.
 	 * 
 	 * @return a modification ID value for this object.
-	 * @see UniqueID#next()
+	 * @see ModID()
 	 */
-	public int getModID();
+	public ModID getModID();
 
 }

@@ -23,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.core.document.events.SimulationChangeEvent;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -53,7 +52,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.dialogs.DetailDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class SimulationRunDialog extends JDialog {
 	private static final long serialVersionUID = -1593459321777026455L;
@@ -77,7 +75,7 @@ public class SimulationRunDialog extends JDialog {
 
 	static {
 		int n = SwingPreferences.getMaxThreadCount();
-		executor = new ThreadPoolExecutor(n, n, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
+		executor = new ThreadPoolExecutor(n, n, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
 				new ThreadFactory() {
 			private ThreadFactory factory = Executors.defaultThreadFactory();
 
@@ -164,7 +162,7 @@ public class SimulationRunDialog extends JDialog {
 		panel.add(progressBar, "spanx, growx, wrap para");
 
 		// Add cancel button
-		JButton cancel = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

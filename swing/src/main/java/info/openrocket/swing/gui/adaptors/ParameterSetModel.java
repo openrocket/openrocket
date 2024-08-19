@@ -29,7 +29,7 @@ public class ParameterSetModel<T extends FlightConfigurableParameter<T>> impleme
 	
 	private Object selected;
 	private final FlightConfigurableParameterSet<T> sourceSet;
-	List<FlightConfigurationId> idList= new Vector<FlightConfigurationId>();
+	List<FlightConfigurationId> idList= new Vector<>();
 	
 	public ParameterSetModel(FlightConfigurableParameterSet<T> set ) {
 		this.sourceSet = set;

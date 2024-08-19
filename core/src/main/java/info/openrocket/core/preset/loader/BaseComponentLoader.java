@@ -15,7 +15,7 @@ public abstract class BaseComponentLoader extends RockSimComponentFileLoader {
 
 	public BaseComponentLoader(MaterialHolder materials, File theBasePathToLoadFrom) {
 		super(theBasePathToLoadFrom);
-		presets = new ArrayList<ComponentPreset>();
+		presets = new ArrayList<>();
 
 		fileColumns.add(new ManufacturerColumnParser());
 		fileColumns.add(new StringColumnParser("Part No.", ComponentPreset.PARTNO));

@@ -1,11 +1,22 @@
 package info.openrocket.core.document;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
+import info.openrocket.core.material.Material;
+import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.core.rocketcomponent.*;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.StateChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +27,22 @@ import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.core.document.events.DocumentChangeListener;
 import info.openrocket.core.document.events.SimulationChangeEvent;
+import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.logging.Markers;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.ComponentChangeListener;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.customexpression.CustomExpression;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
+import info.openrocket.core.util.ModID;
+import info.openrocket.core.util.StateChangeListener;
 
 /**
  * Class describing an entire OpenRocket document, including a rocket and
@@ -37,7 +58,8 @@ import info.openrocket.core.util.ArrayList;
  */
 public class OpenRocketDocument implements ComponentChangeListener, StateChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
-	private static final Preferences prefs = Application.getPreferences();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
+	private final DocumentPreferences docPrefs = new DocumentPreferences();
 	private final List<String> file_extensions = Arrays.asList("ork", "ork.gz", "rkt", "rkt.gz");	// Possible extensions of an OpenRocket document
 	/**
 	 * The minimum number of undo levels that are stored.
@@ -56,8 +78,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	
 	private final Rocket rocket;
 	
-	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
-	private final ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
+	private final ArrayList<Simulation> simulations = new ArrayList<>();
+	private final ArrayList<CustomExpression> customExpressions = new ArrayList<>();
 
 	// The Photo Settings will be saved in the core module as a map of key values with corresponding content
 	private Map<String, String> photoSettings = new HashMap<>();
@@ -70,8 +92,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * The undo history of the rocket.   Whenever a new undo position is created while the
 	 * rocket is in "dirty" state, the rocket is copied here.
 	 */
-	private final LinkedList<Rocket> undoHistory = new LinkedList<Rocket>();
-	private final LinkedList<String> undoDescription = new LinkedList<String>();
+	private final LinkedList<Rocket> undoHistory = new LinkedList<>();
+	private final LinkedList<String> undoDescription = new LinkedList<>();
 	
 	/**
 	 * The position in the undoHistory we are currently at.  If modifications have been
@@ -87,18 +109,18 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	private String storedDescription = null;
 	
 	
-	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
+	private final ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<>(2);
 	
 	private File file = null;
-	private int modID = -1;
-	private int savedID = -1;
+	private ModID modID = ModID.INVALID;
+	private ModID savedID = ModID.INVALID;
 	
 	private final StorageOptions storageOptions = new StorageOptions();
 	private final OBJExportOptions objOptions;
 
 	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
-	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
+	private final List<DocumentChangeListener> listeners = new ArrayList<>();
 	
 	/**
 	 * main constructor, enable events in the rocket 
@@ -107,6 +129,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	OpenRocketDocument(Rocket rocket) {
 		this.rocket = rocket;
+		rocket.setDocument(this);
 		this.objOptions = prefs.loadOBJExportOptions(rocket);
 		rocket.enableEvents();
 		init();
@@ -153,7 +176,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @returns a set of all the flight data types defined or available in any way in the rocket document
 	 */
 	public Set<FlightDataType> getFlightDataTypes() {
-		Set<FlightDataType> allTypes = new LinkedHashSet<FlightDataType>();
+		Set<FlightDataType> allTypes = new LinkedHashSet<>();
 		
 		// built in
 		Collections.addAll(allTypes, FlightDataType.ALL_TYPES);
@@ -232,7 +255,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @return	if the current rocket is saved
 	 */
 	public boolean isSaved() {
-		return rocket.getModID() + modID == savedID;
+		return modID == savedID;
 	}
 	
 	/**
@@ -241,9 +264,9 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public void setSaved(boolean saved) {
 		if (!saved)
-			this.savedID = -1;
+			this.savedID = ModID.INVALID;
 		else
-			this.savedID = rocket.getModID() + modID;
+			this.savedID = modID;
 	}
 	
 	/**
@@ -265,9 +288,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 * @return	the decal list registered in the document
 	 */
 	public Collection<DecalImage> getDecalList() {
-		
 		return decalRegistry.getDecalList();
-		
 	}
 	
 	/**
@@ -277,10 +298,8 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	 */
 	public int countDecalUsage(DecalImage img) {
 		int count = 0;
-		
-		Iterator<RocketComponent> it = rocket.iterator();
-		while (it.hasNext()) {
-			RocketComponent c = it.next();
+
+		for (RocketComponent c : rocket) {
 			if (hasDecal(c, img))
 				count++;
 			else if (hasDecalInside(c, img))
@@ -645,7 +664,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 
 	@Override
 	public void stateChanged(EventObject e) {
-		modID++;
+		modID = new ModID();
 		fireDocumentChangeEvent(new DocumentChangeEvent(e.getSource()));
 	}
 
@@ -848,11 +867,18 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 			l.documentChanged(event);
 		}
 	}
-	
+
+	public void fireDocumentSavingEvent(DocumentChangeEvent event) {
+		DocumentChangeListener[] array = listeners.toArray(new DocumentChangeListener[0]);
+		for (DocumentChangeListener l : array) {
+			l.documentSaving(event);
+		}
+	}
+
 	public String toSimulationDetail(){
 		StringBuilder str = new StringBuilder();
 		str.append(">> Dumping simulation list:\n");
-		int simNum = 0; 
+		int simNum = 0;
 		for( Simulation s : this.simulations ){
 			str.append(String.format("    [%d] %s (%s) \n", simNum, s.getName(), s.getId().toShortKey() ));
 			simNum++;
@@ -867,5 +893,26 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 
 	public void setPhotoSettings(Map<String, String> photoSettings) {
 		this.photoSettings = photoSettings;
+	}
+
+	public DocumentPreferences getDocumentPreferences() {
+		return docPrefs;
+	}
+
+	/**
+	 * Load all materials that are user-defined and document materials to the document material database.
+	 */
+	public void reloadDocumentMaterials() {
+		for (RocketComponent c : getRocket()) {
+			List<Material> materials = c.getAllMaterials();
+			if (materials == null) {
+				continue;
+			}
+			for (Material m : materials) {
+				if (m.isUserDefined() && m.isDocumentMaterial()) {
+					getDocumentPreferences().addMaterial(m);
+				}
+			}
+		}
 	}
 }

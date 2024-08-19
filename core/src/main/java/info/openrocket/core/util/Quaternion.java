@@ -268,7 +268,7 @@ public class Quaternion {
 		assert (Math.abs(norm2() - 1) < 0.00001) : "Quaternion not unit length: " + this;
 
 		// (a,b,c,d) = (this)^-1 * coord = (w,-x,-y,-z) * (0,cx,cy,cz)
-		a = +x * coord.x + y * coord.y + z * coord.z;
+		a = x * coord.x + y * coord.y + z * coord.z;
 		b = w * coord.x - y * coord.z + z * coord.y;
 		c = w * coord.y + x * coord.z - z * coord.x;
 		d = w * coord.z - x * coord.y + y * coord.x;

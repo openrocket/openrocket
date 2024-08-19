@@ -45,7 +45,6 @@ import info.openrocket.core.preset.loader.MaterialHolder;
 import info.openrocket.core.preset.xml.OpenRocketComponentDTO;
 import info.openrocket.core.preset.xml.OpenRocketComponentSaver;
 import info.openrocket.core.startup.Application;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,7 +206,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		});
 		
 		
-		JButton addBtn = new SelectColorButton("Add");
+		JButton addBtn = new JButton("Add");
 		addBtn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -272,7 +271,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 	 */
 	class DataTableModel extends DefaultTableModel {
 		
-		private List<Object> associated = new ArrayList<Object>();
+		private List<Object> associated = new ArrayList<>();
 		
 		/**
 		 * Constructs a <code>DefaultTableModel</code> with as many columns as there are elements in
@@ -365,7 +364,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 				if (file.getName().toLowerCase().endsWith(".csv")) {
 					file = file.getParentFile();
 				}
-				presets = new ArrayList<ComponentPreset>();
+				presets = new ArrayList<>();
 				MaterialHolder materialHolder = RockSimComponentFileTranslator.loadAll(presets, file);
 				editContext.setMaterialsLoaded(materialHolder);
 			}
@@ -433,7 +432,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		file = FileHelper.forceExtension(file, "orc");
 		
 		MaterialHolder materials = new MaterialHolder();
-		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
+		List<ComponentPreset> presets = new ArrayList<>();
 		
 		for (int x = 0; x < model.getRowCount(); x++) {
 			ComponentPreset preset = (ComponentPreset) model.getAssociatedObject(x);
@@ -454,7 +453,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			presets.add(preset);
 		}
 		
-		return FileHelper.confirmWrite(file, this) && new OpenRocketComponentSaver().save(file, new ArrayList<Material>(materials.values()), presets);
+		return FileHelper.confirmWrite(file, this) && new OpenRocketComponentSaver().save(file, new ArrayList<>(materials.values()), presets);
 	}
 	
 	class OpenedFileContext {

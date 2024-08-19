@@ -603,17 +603,17 @@ public final class DefaultObj implements Obj {
         if (indices == null) {
             return;
         }
-        for (int i = 0; i < indices.length; i++) {
-            if (indices[i] < 0) {
-                throw new IllegalArgumentException(
-                        name + " index is negative: " + indices[i]);
-            }
-            if (indices[i] >= max) {
-                throw new IllegalArgumentException(
-                        name + " index is " + indices[i] +
-                                ", but must be smaller than " + max);
-            }
-        }
+		for (int index : indices) {
+			if (index < 0) {
+				throw new IllegalArgumentException(
+						name + " index is negative: " + index);
+			}
+			if (index >= max) {
+				throw new IllegalArgumentException(
+						name + " index is " + index +
+								", but must be smaller than " + max);
+			}
+		}
     }
 
     /**

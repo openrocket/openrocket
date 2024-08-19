@@ -34,9 +34,9 @@ public class CenteringRingDTO extends BasePartDTO {
     }
 
     @XmlElement(name = RockSimCommonConstants.OD)
-    private double od = 0d;
+    private double od = 0.0d;
     @XmlElement(name = RockSimCommonConstants.ID)
-    private double id = 0d;
+    private double id = 0.0d;
     @XmlElement(name = RockSimCommonConstants.USAGE_CODE)
     private int usageCode = UsageCode.CenteringRing.ordinal;
     @XmlElement(name = RockSimCommonConstants.AUTO_SIZE)

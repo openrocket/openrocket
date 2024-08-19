@@ -1,11 +1,17 @@
 package info.openrocket.core.rocketcomponent;
 
 import java.awt.geom.Point2D;
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-import info.openrocket.core.util.*;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Transformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,13 +114,13 @@ public abstract class FinSet extends ExternalComponent
 	/*
 	 * Fin tab properties.
 	 */
-	private static final double minimumTabArea = 1e-8;
+	private static final double minimumTabArea = 1.0e-8;
 	private double tabHeight = 0;
 	private double tabLength = 0.05;
 	// this is always measured from the root-lead point.
 	private double tabPosition = 0.0;
 	private AxialMethod tabOffsetMethod = AxialMethod.MIDDLE;
-	private double tabOffset = 0.;
+	private double tabOffset = 0.0;
 
 	/*
 	 * Fin fillet properties
@@ -187,7 +193,7 @@ public abstract class FinSet extends ExternalComponent
 
 	@Override
 	public double getBoundingRadius(){
-		return 0.;
+		return 0.0;
 	}
 
 	/**
@@ -560,7 +566,7 @@ public abstract class FinSet extends ExternalComponent
 				- innerArcAngle * bodyRadius * bodyRadius / 2);
 
 		if (Double.isNaN(crossSectionArea)) {
-			crossSectionArea = 0.;
+			crossSectionArea = 0.0;
 		} else {
 			// each fin has a fillet on each side
 			crossSectionArea *= 2;
@@ -631,7 +637,7 @@ public abstract class FinSet extends ExternalComponent
 			Transformation rotation = Transformation.rotate_x( getAngleOffset());
 			return rotation.transform(filletVolumeCentroid);
 		} else{
-			return filletVolumeCentroid.setY(0.);
+			return filletVolumeCentroid.setY(0.0);
 		}
 	}
 
@@ -1059,7 +1065,7 @@ public abstract class FinSet extends ExternalComponent
 			return null;
 		}
 
-		return getMountPoints(0., parent.getLength(), 0,0);
+		return getMountPoints(0.0, parent.getLength(), 0,0);
 	}
 
 	/**
@@ -1660,7 +1666,7 @@ public abstract class FinSet extends ExternalComponent
 		if (finCount == 1) {
 			this.centerOfMass = baseRotation.transform( eachFinCenterOfMass );
 		} else {
-			this.centerOfMass = eachFinCenterOfMass.setY(0.).setWeight( eachFinMass * this.finCount);
+			this.centerOfMass = eachFinCenterOfMass.setY(0.0).setWeight( eachFinMass * this.finCount);
 		}
 	}
 	

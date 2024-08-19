@@ -79,9 +79,9 @@ public class MotorConfig extends JPanel implements Invalidatable, InvalidatingWi
 		
 		MotorConfiguration motorInstance = mount.getDefaultMotorConfig();
 		
-		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<IgnitionEvent>(motorInstance, "IgnitionEvent", IgnitionEvent.values());
+		final EnumModel<IgnitionEvent> igEvModel = new EnumModel<>(motorInstance, "IgnitionEvent", IgnitionEvent.values());
 		register(igEvModel);
-		final JComboBox<IgnitionEvent> eventBox = new JComboBox<IgnitionEvent>( igEvModel);
+		final JComboBox<IgnitionEvent> eventBox = new JComboBox<>(igEvModel);
 		panel.add(eventBox , "wrap");
 		order.add(eventBox);
 		

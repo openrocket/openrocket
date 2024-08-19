@@ -76,12 +76,11 @@ public enum RockSimComponentFileType {
      */
     public static RockSimComponentFileType determineType(String[] headers) {
         RockSimComponentFileType[] types = values();
-        for (int i = 0; i < types.length; i++) {
-            RockSimComponentFileType type = types[i];
-            if (Arrays.equals(headers, type.columns)) {
-                return type;
-            }
-        }
+		for (RockSimComponentFileType type : types) {
+			if (Arrays.equals(headers, type.columns)) {
+				return type;
+			}
+		}
         return null;
     }
 }

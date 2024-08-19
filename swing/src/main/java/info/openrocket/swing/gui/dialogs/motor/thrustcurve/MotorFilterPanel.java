@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -41,14 +39,13 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public abstract class MotorFilterPanel extends JPanel {
 	private static final long serialVersionUID = -2068101000195158181L;
 
 	private static final Translator trans = Application.getTranslator();
 
-	private static final Hashtable<Integer,JLabel> diameterLabels = new Hashtable<Integer,JLabel>();
+	private static final Hashtable<Integer,JLabel> diameterLabels = new Hashtable<>();
 	private static final double[] motorDiameters = new double[] {
 		0.0,
 		0.013,
@@ -82,7 +79,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
 
-	final private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<Integer,JLabel>();
+	final private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<>();
 	static {
 		int i =0;
 		for( ImpulseClass impulseClass : ImpulseClass.values() ) {
@@ -154,13 +151,13 @@ public abstract class MotorFilterPanel extends JPanel {
 
         List<Manufacturer> manufacturers = new ArrayList<>(allManufacturers);
 
-		manufacturers.sort(new Comparator<Manufacturer>() {
-            @Override
-            public int compare(Manufacturer o1, Manufacturer o2) {
-                return o1.getSimpleName().compareTo(o2.getSimpleName());
-            }
+		manufacturers.sort(new Comparator<>() {
+			@Override
+			public int compare(Manufacturer o1, Manufacturer o2) {
+				return o1.getSimpleName().compareTo(o2.getSimpleName());
+			}
 
-        });
+		});
 
 		manufacturerCheckList = new CheckList.Builder().build();
 		manufacturerCheckList.setData(manufacturers);
@@ -186,7 +183,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
 		sub.add(scrollPane, "grow, pushy, wrap");
 
-		JButton clearMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkNone"));
+		JButton clearMotors = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
 		clearMotors.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -197,7 +194,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		sub.add(clearMotors,"split 2");
 
-		JButton selectMotors = new SelectColorButton(trans.get("TCMotorSelPan.btn.checkAll"));
+		JButton selectMotors = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
 		selectMotors.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -28,7 +28,7 @@ import info.openrocket.core.util.MathUtil;
 public class RollControl extends AbstractSimulationExtension {
 
 	// save fin cant angle as a FlightDataType
-	private static final ArrayList<FlightDataType> types = new ArrayList<FlightDataType>();
+	private static final ArrayList<FlightDataType> types = new ArrayList<>();
 	private static final FlightDataType FIN_CANT_TYPE = FlightDataType.getType("Control fin cant", "\u03B1fc",
 			UnitGroup.UNITS_ANGLE);
 

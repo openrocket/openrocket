@@ -41,7 +41,6 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SaveCSVWorker;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class SimulationExportPanel extends JPanel {
 	
@@ -143,7 +142,7 @@ public class SimulationExportPanel extends JPanel {
 		panel.add(new JScrollPane(table), "wmin 300lp, width 300lp, height 1, grow 100, wrap");
 		
 		// Select all/none buttons
-		button = new SelectColorButton(trans.get("SimExpPan.but.Selectall"));
+		button = new JButton(trans.get("SimExpPan.but.Selectall"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -152,7 +151,7 @@ public class SimulationExportPanel extends JPanel {
 		});
 		panel.add(button, "split 2, growx 1, sizegroup selectbutton");
 		
-		button = new SelectColorButton(trans.get("SimExpPan.but.Selectnone"));
+		button = new JButton(trans.get("SimExpPan.but.Selectnone"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -181,10 +180,10 @@ public class SimulationExportPanel extends JPanel {
 		this.add(csvOptions, "spany, split, growx 1");
 		
 		//// Add series selection box
-		ArrayList<String> stages = new ArrayList<String>();
+		ArrayList<String> stages = new ArrayList<>();
 		stages.addAll(Util.generateSeriesLabels(simulation));
 		
-		final JComboBox<String> stageSelection = new JComboBox<String>(stages.toArray(new String[0]));
+		final JComboBox<String> stageSelection = new JComboBox<>(stages.toArray(new String[0]));
 		stageSelection.addItemListener(new ItemListener() {
 			
 			@Override
@@ -208,7 +207,7 @@ public class SimulationExportPanel extends JPanel {
 		
 		/*
 		// Export button
-		button = new SelectColorButton(trans.get("SimExpPan.but.Exporttofile"));
+		button = new JButton(trans.get("SimExpPan.but.Exporttofile"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -286,9 +285,9 @@ public class SimulationExportPanel extends JPanel {
 		int total = selected.length;
 		int n = 0;
 		String str;
-		
-		for (int i = 0; i < selected.length; i++) {
-			if (selected[i])
+
+		for (boolean b : selected) {
+			if (b)
 				n++;
 		}
 		
@@ -361,51 +360,38 @@ public class SimulationExportPanel extends JPanel {
 		
 		@Override
 		public String getColumnName(int column) {
-			switch (column) {
-			case SELECTED:
-				return "";
-			case NAME:
-				//// Variable
-				return trans.get("SimExpPan.Col.Variable");
-			case UNIT:
-				//// Unit
-				return trans.get("SimExpPan.Col.Unit");
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case SELECTED -> "";
+				case NAME ->
+					//// Variable
+						trans.get("SimExpPan.Col.Variable");
+				case UNIT ->
+					//// Unit
+						trans.get("SimExpPan.Col.Unit");
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 			
 		}
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case SELECTED:
-				return Boolean.class;
-			case NAME:
-				return FlightDataType.class;
-			case UNIT:
-				return Unit.class;
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case SELECTED -> Boolean.class;
+				case NAME -> FlightDataType.class;
+				case UNIT -> Unit.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
 		public Object getValueAt(int row, int column) {
-			
-			switch (column) {
-			case SELECTED:
-				return selected[row];
-				
-			case NAME:
-				return types[row];
-				
-			case UNIT:
-				return units[row];
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+
+			return switch (column) {
+				case SELECTED -> selected[row];
+				case NAME -> types[row];
+				case UNIT -> units[row];
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 			
 		}
 		
@@ -434,19 +420,12 @@ public class SimulationExportPanel extends JPanel {
 		
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			switch (column) {
-			case SELECTED:
-				return true;
-				
-			case NAME:
-				return false;
-				
-			case UNIT:
-				return types[row].getUnitGroup().getUnitCount() > 1;
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case SELECTED -> true;
+				case NAME -> false;
+				case UNIT -> types[row].getUnitGroup().getUnitCount() > 1;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		public void selectAll() {

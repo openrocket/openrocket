@@ -6,13 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import info.openrocket.core.formatting.RocketDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationId;
 import info.openrocket.core.startup.Application;
@@ -20,6 +20,7 @@ import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.Transformation;
 
@@ -47,9 +48,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	private class StageFlags implements Cloneable {
 		public boolean active = true;
 		public int stageNumber = -1;
-		public String stageId;
+		public UUID stageId;
 
-		public StageFlags(int _num, String stageId, boolean _active) {
+		public StageFlags(int _num, UUID stageId, boolean _active) {
 			this.stageNumber = _num;
 			this.stageId = stageId;
 			this.active = _active;
@@ -64,23 +65,23 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	/* Cached data */
 	final protected Map<Integer, StageFlags> stages = new HashMap<>(); // Map of stage number to StageFlags of the
 																		// corresponding stage
-	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<MotorConfigurationId, MotorConfiguration>();
+	final protected Map<MotorConfigurationId, MotorConfiguration> motors = new HashMap<>();
 	private Map<Integer, Boolean> preloadStageActiveness = null;
-	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<MotorConfiguration>();
+	final private Collection<MotorConfiguration> activeMotors = new ConcurrentLinkedQueue<>();
 	final private InstanceMap activeInstances = new InstanceMap();
 	final private InstanceMap extraRenderInstances = new InstanceMap(); // Extra instances to be rendered, besides the
 																		// active instances
 
-	private int boundsModID = -1;
+	private ModID boundsModID = ModID.INVALID;
 	private BoundingBox cachedBoundsAerodynamic = new BoundingBox(); // Bounding box of all aerodynamic components
 	private BoundingBox cachedBounds = new BoundingBox(); // Bounding box of all components
 	private double cachedLengthAerodynamic = -1; // Rocket length of all aerodynamic components
 	private double cachedLength = -1; // Rocket length of all components
 
-	private int refLengthModID = -1;
+	private ModID refLengthModID = ModID.INVALID;
 	private double cachedRefLength = -1;
 
-	private int modID = 0;
+	private ModID modID = ModID.ZERO;
 
 	/**
 	 * Create a Default configuration with the specified <code>Rocket</code>.
@@ -312,15 +313,15 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		if (preloadStageActiveness == null) {
 			return;
 		}
-		for (int stageNumber : preloadStageActiveness.keySet()) {
-			_setStageActive(stageNumber, preloadStageActiveness.get(stageNumber), false);
+		for (Map.Entry<Integer, Boolean> entry : preloadStageActiveness.entrySet()) {
+			_setStageActive(entry.getKey(), entry.getValue(), false);
 		}
 		preloadStageActiveness.clear();
 		preloadStageActiveness = null;
 	}
 
 	public Collection<RocketComponent> getAllComponents() {
-		List<RocketComponent> traversalOrder = new ArrayList<RocketComponent>();
+		List<RocketComponent> traversalOrder = new ArrayList<>();
 		recurseAllComponentsDepthFirst(this.rocket, traversalOrder);
 		return traversalOrder;
 	}
@@ -338,7 +339,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * NOTE: components, NOT instances
 	 */
 	public ArrayList<RocketComponent> getCoreComponents() {
-		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>();
+		Queue<RocketComponent> toProcess = new ArrayDeque<>();
 		toProcess.offer(this.rocket);
 
 		ArrayList<RocketComponent> toReturn = new ArrayList<>();
@@ -376,7 +377,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// recommend migrating to either: `getAllComponents` or `getActiveInstances`
 	@Deprecated
 	public Collection<RocketComponent> getActiveComponents() {
-		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.getActiveStages());
+		Queue<RocketComponent> toProcess = new ArrayDeque<>(this.getActiveStages());
 		ArrayList<RocketComponent> toReturn = new ArrayList<>();
 
 		while (!toProcess.isEmpty()) {
@@ -542,9 +543,9 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	// for outgoing events only
 	protected void fireChangeEvent() {
-		this.modID++;
-		boundsModID = -1;
-		refLengthModID = -1;
+		this.modID = new ModID();
+		boundsModID = ModID.INVALID;
+		refLengthModID = ModID.INVALID;
 
 		updateStages();
 		updateMotors();
@@ -555,7 +556,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 * Update the configuration's modID, thus staging it in need to update.
 	 */
 	public void updateModID() {
-		this.modID++;
+		modID = new ModID();
 	}
 
 	private void updateStages() {
@@ -627,7 +628,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 		this.motors.put(motorConfig.getID(), motorConfig);
 
-		modID++;
+		modID = new ModID();
 	}
 
 	public boolean hasMotors() {
@@ -870,8 +871,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		clone.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
 		clone.cachedBounds = this.cachedBounds.clone();
 		clone.modID = this.modID;
-		clone.boundsModID = -1;
-		clone.refLengthModID = -1;
+		clone.boundsModID = ModID.INVALID;
+		clone.refLengthModID = ModID.INVALID;
 		return clone;
 	}
 
@@ -906,14 +907,14 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		copy.cachedBoundsAerodynamic = this.cachedBoundsAerodynamic.clone();
 		copy.cachedBounds = this.cachedBounds.clone();
 		copy.modID = this.modID;
-		copy.boundsModID = -1;
-		copy.refLengthModID = -1;
+		copy.boundsModID = ModID.INVALID;
+		copy.refLengthModID = ModID.INVALID;
 		copy.configurationName = configurationName;
 		return copy;
 	}
 
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 
@@ -952,7 +953,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		final String fmt = "    [%-2s][%4s]: %6s \n";
 		buf.append(String.format(fmt, "#", "?actv", "Name"));
 		for (StageFlags flags : stages.values()) {
-			final String stageId = flags.stageId;
+			final UUID stageId = flags.stageId;
 			buf.append(String.format(fmt, stageId, (flags.active ? " on" : "off"), rocket.getStage(stageId).getName()));
 		}
 		buf.append("\n");

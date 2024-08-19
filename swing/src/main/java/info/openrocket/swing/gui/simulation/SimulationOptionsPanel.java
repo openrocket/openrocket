@@ -31,7 +31,7 @@ import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.extension.SimulationExtensionProvider;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
@@ -48,7 +48,6 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.simulation.extension.SwingSimulationExtensionConfigurator;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import com.google.inject.Key;
 
@@ -126,9 +125,9 @@ class SimulationOptionsPanel extends JPanel {
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.GeodeticMethodTip"));
 		subsub.add(label, "gapright para");
 		
-		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
+		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<>(
 				conditions, "GeodeticComputation");
-		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<GeodeticComputationStrategy>(gcsModel);
+		final JComboBox<GeodeticComputationStrategy> gcsCombo = new JComboBox<>(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -171,7 +170,7 @@ class SimulationOptionsPanel extends JPanel {
 		sub.add(subsub, "spanx, wrap para");
 		
 		// Reset to default button
-		JButton button = new SelectColorButton(trans.get("simedtdlg.but.resettodefault"));
+		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		// Reset the time step to its default value (
 		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
 				+ UnitGroup.UNITS_SHORT_TIME
@@ -180,12 +179,12 @@ class SimulationOptionsPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Preferences preferences = Application.getPreferences();
+				ApplicationPreferences preferences = Application.getPreferences();
 				conditions.setTimeStep(preferences.getDouble(
-						Preferences.SIMULATION_TIME_STEP,
+						ApplicationPreferences.SIMULATION_TIME_STEP,
 						RK4SimulationStepper.RECOMMENDED_TIME_STEP));
 				conditions.setGeodeticComputation(preferences.getEnum(
-						Preferences.GEODETIC_COMPUTATION,
+						ApplicationPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));
 			}
 		});
@@ -205,7 +204,7 @@ class SimulationOptionsPanel extends JPanel {
 		sub.add(desc, "aligny 0, hmin 100lp, growx, wrap para");
 		
 		
-		final JButton addExtension = new SelectColorButton(trans.get("simedtdlg.SimExt.add"));
+		final JButton addExtension = new JButton(trans.get("simedtdlg.SimExt.add"));
 		extensionMenu = getExtensionMenu();
 		addExtension.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
@@ -235,7 +234,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	private JPopupMenu getExtensionMenu() {
-		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<Set<SimulationExtensionProvider>>() {
+		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<>() {
 		});
 		
 		JPopupMenu basemenu = new JPopupMenu();
@@ -383,7 +382,7 @@ class SimulationOptionsPanel extends JPanel {
 
 			// Configure
 			if (findConfigurator(extension) != null) {
-				button = new SelectColorButton(Icons.CONFIGURE);
+				button = new JButton(Icons.CONFIGURE);
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -397,7 +396,7 @@ class SimulationOptionsPanel extends JPanel {
 
 			// Help
 			if (extension.getDescription() != null) {
-				button = new SelectColorButton(Icons.HELP);
+				button = new JButton(Icons.HELP);
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -406,7 +405,7 @@ class SimulationOptionsPanel extends JPanel {
 						JPanel panel = new JPanel(new MigLayout("fill"));
 						DescriptionArea area = new DescriptionArea(extension.getDescription(), 10, 0);
 						panel.add(area, "width 400lp, wrap para");
-						JButton close = new SelectColorButton(trans.get("button.close"));
+						JButton close = new JButton(trans.get("button.close"));
 						close.addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent e) {
@@ -424,7 +423,7 @@ class SimulationOptionsPanel extends JPanel {
 			}
 
 			// Delete
-			button = new SelectColorButton(Icons.EDIT_DELETE);
+			button = new JButton(Icons.EDIT_DELETE);
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -445,7 +444,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	private SwingSimulationExtensionConfigurator findConfigurator(SimulationExtension extension) {
-		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<Set<SwingSimulationExtensionConfigurator>>() {
+		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<>() {
 		});
 		for (SwingSimulationExtensionConfigurator c : configurators) {
 			if (c.support(extension)) {

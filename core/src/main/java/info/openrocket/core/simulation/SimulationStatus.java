@@ -22,6 +22,7 @@ import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.MonitorableSet;
 import info.openrocket.core.util.Quaternion;
@@ -56,7 +57,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private double effectiveLaunchRodLength;
 
 	// Set of all motors
-	private final List<MotorClusterState> motorStateList = new ArrayList<MotorClusterState>();
+	private final List<MotorClusterState> motorStateList = new ArrayList<>();
 
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
@@ -80,7 +81,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private boolean landed = false;
 
 	/** Contains a list of deployed recovery devices. */
-	private final MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<RecoveryDevice>();
+	private final MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<>();
 
 	/** The flight event queue */
 	private final EventQueue eventQueue = new EventQueue();
@@ -88,13 +89,13 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private WarningSet warnings;
 
 	/** Available for special purposes by the listeners. */
-	private final Map<String, Object> extraData = new HashMap<String, Object>();
+	private final Map<String, Object> extraData = new HashMap<>();
 
 	double maxAlt = Double.NEGATIVE_INFINITY;
 	double maxAltTime = 0;
 
-	private int modID = 0;
-	private int modIDadd = 0;
+	private ModID modID = ModID.INVALID;
+	private ModID modIDadd = ModID.INVALID;
 
 	public SimulationStatus(FlightConfiguration configuration, SimulationConditions simulationConditions) {
 
@@ -212,7 +213,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setSimulationTime(double time) {
 		this.time = time;
-		this.modID++;
+		this.modID = new ModID();
 	}
 
 	public double getSimulationTime() {
@@ -221,8 +222,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setConfiguration(FlightConfiguration configuration) {
 		if (this.configuration != null)
-			this.modIDadd += this.configuration.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.configuration = configuration;
 	}
 
@@ -231,7 +231,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	}
 
 	public Collection<MotorClusterState> getActiveMotors() {
-		List<MotorClusterState> activeList = new ArrayList<MotorClusterState>();
+		List<MotorClusterState> activeList = new ArrayList<>();
 		for (MotorClusterState state : this.motorStateList) {
 			if (this.configuration.isComponentActive(state.getMount())) {
 				activeList.add(state);
@@ -251,8 +251,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setFlightDataBranch(FlightDataBranch flightDataBranch) {
 		if (this.flightDataBranch != null)
-			this.modIDadd += this.flightDataBranch.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.flightDataBranch = flightDataBranch;
 	}
 
@@ -262,7 +261,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setRocketPosition(Coordinate position) {
 		this.position = position;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public Coordinate getRocketPosition() {
@@ -271,7 +270,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setRocketWorldPosition(WorldCoordinate wc) {
 		this.worldPosition = wc;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public WorldCoordinate getRocketWorldPosition() {
@@ -280,7 +279,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setRocketVelocity(Coordinate velocity) {
 		this.velocity = velocity;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public Coordinate getRocketVelocity() {
@@ -289,7 +288,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setRocketAcceleration(Coordinate acceleration) {
 		this.acceleration = acceleration;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public Coordinate getRocketAcceleration() {
@@ -309,7 +308,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setRocketOrientationQuaternion(Quaternion orientation) {
 		this.orientation = orientation;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public Coordinate getRocketRotationVelocity() {
@@ -322,7 +321,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setEffectiveLaunchRodLength(double effectiveLaunchRodLength) {
 		this.effectiveLaunchRodLength = effectiveLaunchRodLength;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public double getEffectiveLaunchRodLength() {
@@ -331,7 +330,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setSimulationStartWallTime(long simulationStartWallTime) {
 		this.simulationStartWallTime = simulationStartWallTime;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public long getSimulationStartWallTime() {
@@ -340,7 +339,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setMotorIgnited(boolean motorIgnited) {
 		this.motorIgnited = motorIgnited;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public boolean isMotorIgnited() {
@@ -349,7 +348,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setLiftoff(boolean liftoff) {
 		this.liftoff = liftoff;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public boolean isLiftoff() {
@@ -358,7 +357,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setLaunchRodCleared(boolean launchRod) {
 		this.launchRodCleared = launchRod;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public boolean isLaunchRodCleared() {
@@ -367,7 +366,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setApogeeReached(boolean apogeeReached) {
 		this.apogeeReached = apogeeReached;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public boolean isApogeeReached() {
@@ -376,7 +375,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setTumbling(boolean tumbling) {
 		this.tumbling = tumbling;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public boolean isTumbling() {
@@ -385,7 +384,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setLanded(boolean landed) {
 		this.landed = landed;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public boolean isLanded() {
@@ -398,7 +397,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setMaxAlt(double maxAlt) {
 		this.maxAlt = maxAlt;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public double getMaxAltTime() {
@@ -407,7 +406,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setMaxAltTime(double maxAltTime) {
 		this.maxAltTime = maxAltTime;
-		this.modID++;
+		modID = new ModID();
 	}
 
 	public Set<RecoveryDevice> getDeployedRecoveryDevices() {
@@ -416,8 +415,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setWarnings(WarningSet warnings) {
 		if (this.warnings != null)
-			this.modIDadd += this.warnings.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.warnings = warnings;
 	}
 
@@ -448,8 +446,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setSimulationConditions(SimulationConditions simulationConditions) {
 		if (this.simulationConditions != null)
-			this.modIDadd += this.simulationConditions.getModID();
-		this.modID++;
+			this.modIDadd = new ModID();
 		this.simulationConditions = simulationConditions;
 	}
 
@@ -498,10 +495,8 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	}
 
 	@Override
-	public int getModID() {
-		return (modID + modIDadd + simulationConditions.getModID() + configuration.getModID() +
-				flightDataBranch.getModID() + deployedRecoveryDevices.getModID() +
-				eventQueue.getModID() + warnings.getModID());
+	public ModID getModID() {
+		return modID;
 	}
 
 	public String toEventDebug() {

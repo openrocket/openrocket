@@ -75,7 +75,7 @@ public class CheckList<T> {
 		
 		@SuppressWarnings("unchecked")
 		public <T> CheckList<T> build() {
-			return new CheckList<T>((JList<T>)list);
+			return new CheckList<>((JList<T>) list);
 		}
 		
 	}
@@ -132,7 +132,7 @@ public class CheckList<T> {
 	 * @param data
 	 */
 	public void setData(Collection<T> data) {
-		setModel(new DefaultCheckListModel<T>(data));
+		setModel(new DefaultCheckListModel<>(data));
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class CheckList<T> {
 	}
 	
 	public Collection<T> getUncheckedItems() {
-		List<T> unchecked = new ArrayList<T>();
+		List<T> unchecked = new ArrayList<>();
 		for (int i = getModel().getSize() - 1; i >= 0; i--) {
 			unchecked.add((T) getModel().getElementAt(i));
 		}

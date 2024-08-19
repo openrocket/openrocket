@@ -93,50 +93,29 @@ class FunctionToken extends CalculationToken {
 	 * The actual function application on a double
 	 */
 	private double applyFunction(double x){
-		switch (function) {
-		case ABS:
-			return Math.abs(x);
-		case ACOS:
-			return Math.acos(x);
-		case ASIN:
-			return Math.asin(x);
-		case ATAN:
-			return Math.atan(x);
-		case CBRT:
-			return Math.cbrt(x);
-		case CEIL:
-			return Math.ceil(x);
-		case COS:
-			return Math.cos(x);
-		case COSH:
-			return Math.cosh(x);
-		case EXP:
-			return Math.exp(x);
-		case EXPM1:
-			return Math.expm1(x);
-		case FLOOR:
-			return Math.floor(x);
-		case ROUND:
-			return Math.round(x);
-		case RANDOM:
-			return Math.random()*x;
-		case LOG:
-			return Math.log(x);
-		case LOG10:
-			return Math.log10(x);
-		case SIN:
-			return Math.sin(x);
-		case SINH:
-			return Math.sinh(x);
-		case SQRT:
-			return Math.sqrt(x);
-		case TAN:
-			return Math.tan(x);
-		case TANH:
-			return Math.tanh(x);
-		default:
-			return Double.NaN; // should not happen ;)
-		}
+		return switch (function) {
+			case ABS -> Math.abs(x);
+			case ACOS -> Math.acos(x);
+			case ASIN -> Math.asin(x);
+			case ATAN -> Math.atan(x);
+			case CBRT -> Math.cbrt(x);
+			case CEIL -> Math.ceil(x);
+			case COS -> Math.cos(x);
+			case COSH -> Math.cosh(x);
+			case EXP -> Math.exp(x);
+			case EXPM1 -> Math.expm1(x);
+			case FLOOR -> Math.floor(x);
+			case ROUND -> Math.round(x);
+			case RANDOM -> Math.random() * x;
+			case LOG -> Math.log(x);
+			case LOG10 -> Math.log10(x);
+			case SIN -> Math.sin(x);
+			case SINH -> Math.sinh(x);
+			case SQRT -> Math.sqrt(x);
+			case TAN -> Math.tan(x);
+			case TANH -> Math.tanh(x);
+			default -> Double.NaN; // should not happen ;)
+		};
 	}
 
 	/**

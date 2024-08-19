@@ -2,13 +2,13 @@ package info.openrocket.core.file.openrocket.importt;
 
 import java.util.HashMap;
 
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.position.*;
 import info.openrocket.core.util.Reflection;
 
 class FinTabPositionSetter extends DoubleSetter {

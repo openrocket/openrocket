@@ -8,7 +8,7 @@ public class EngineBlockSaver extends ThicknessRingComponentSaver {
 	private static final EngineBlockSaver instance = new EngineBlockSaver();
 
 	public static List<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		list.add("<engineblock>");
 		instance.addParams(c, list);

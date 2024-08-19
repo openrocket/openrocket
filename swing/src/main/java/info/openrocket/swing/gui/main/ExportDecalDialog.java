@@ -51,7 +51,7 @@ public class ExportDecalDialog extends JDialog {
 		
 		Collection<DecalImage> exportableDecals = document.getDecalList();
 		
-		decalComboBox = new JComboBox<DecalImage>(exportableDecals.toArray(new DecalImage[0]));
+		decalComboBox = new JComboBox<>(exportableDecals.toArray(new DecalImage[0]));
 		decalComboBox.setEditable(false);
 		panel.add(decalComboBox, "growx, wrap");
 		

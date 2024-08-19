@@ -26,7 +26,6 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 
 import net.miginfocom.swing.MigLayout;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public class OperatorSelector extends JDialog {
 		this.parentWindow = parent;
 		this.parentBuilder = parentBuilder;
 		
-		final JButton insertButton = new SelectColorButton(trans.get("ExpressionBuilderDialog.InsertOperator"));
+		final JButton insertButton = new JButton(trans.get("ExpressionBuilderDialog.InsertOperator"));
 		
 		JPanel mainPanel = new JPanel(new MigLayout());
 		
@@ -60,8 +59,8 @@ public class OperatorSelector extends JDialog {
 		
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		int width = table.getColumnModel().getTotalColumnWidth();
-		table.getColumnModel().getColumn(0).setPreferredWidth((int) (.1 * width));
-		table.getColumnModel().getColumn(1).setPreferredWidth((int) (.9 * width));
+		table.getColumnModel().getColumn(0).setPreferredWidth((int) (0.1 * width));
+		table.getColumnModel().getColumn(1).setPreferredWidth((int) (0.9 * width));
 		table.setAutoCreateRowSorter(true);
 		
 		table.addMouseMotionListener(new MouseMotionAdapter() {
@@ -135,7 +134,7 @@ public class OperatorSelector extends JDialog {
 		mainPanel.add(scrollPane, "wrap, push, grow");
 		
 		//// Cancel button
-		final JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		final JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

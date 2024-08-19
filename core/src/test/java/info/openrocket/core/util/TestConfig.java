@@ -58,7 +58,7 @@ public class TestConfig {
 
 	@Test
 	public void testStoringList() {
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add("Foo");
 		list.add(123);
 		list.add(Math.PI);
@@ -69,7 +69,7 @@ public class TestConfig {
 
 	@Test
 	public void testModifyingStoredList() {
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add("Foo");
 		list.add(123);
 		list.add(Math.PI);
@@ -96,7 +96,7 @@ public class TestConfig {
 		AtomicInteger ai = new AtomicInteger(100);
 		config.put("atomicinteger", ai);
 
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add("Foo");
 		config.put("list", list);
 
@@ -139,7 +139,7 @@ public class TestConfig {
 
 	@Test
 	public void testStoringListWithInvalidTypes() {
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add("Foo");
 		list.add(new Date());
 		try {
@@ -151,7 +151,7 @@ public class TestConfig {
 
 	@Test
 	public void testStoringListWithNull() {
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add("Foo");
 		list.add(new Date());
 		try {

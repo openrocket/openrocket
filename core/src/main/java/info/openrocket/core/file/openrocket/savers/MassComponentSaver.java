@@ -12,7 +12,7 @@ public class MassComponentSaver extends MassObjectSaver {
 	private static final MassComponentSaver instance = new MassComponentSaver();
 
 	public static List<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		list.add("<masscomponent>");
 		instance.addParams(c, list);

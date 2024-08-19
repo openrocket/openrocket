@@ -38,7 +38,7 @@ import info.openrocket.core.communication.UpdateInfoRetriever.ReleaseStatus;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
@@ -54,7 +54,6 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
 import info.openrocket.swing.gui.theme.UITheme;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
@@ -73,14 +72,14 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			String locale = preferences.getString("locale", null);
 			userLocale = L10N.toLocale(locale);
 		}
-		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
+		List<Named<Locale>> locales = new ArrayList<>();
 		for (Locale l : SwingPreferences.getSupportedLocales()) {
-			locales.add(new Named<Locale>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
+			locales.add(new Named<>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
 		}
 		Collections.sort(locales);
-		locales.add(0, new Named<Locale>(null, trans.get("generalprefs.languages.default")));
+		locales.add(0, new Named<>(null, trans.get("generalprefs.languages.default")));
 		
-		final JComboBox<?> languageCombo = new JComboBox<Object>(locales.toArray());
+		final JComboBox<?> languageCombo = new JComboBox<>(locales.toArray());
 		for (int i = 0; i < locales.size(); i++) {
 			if (Utils.equals(userLocale, locales.get(i).get())) {
 				languageCombo.setSelectedIndex(i);
@@ -93,7 +92,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				Named<Locale> selection = (Named<Locale>) languageCombo.getSelectedItem();
 				if (selection == null) return;
 				Locale l = selection.get();
-				preferences.putString(Preferences.USER_LOCAL, l == null ? null : l.toString());
+				preferences.putString(ApplicationPreferences.USER_LOCAL, l == null ? null : l.toString());
 			}
 		});
 		this.add(new JLabel(trans.get("generalprefs.lbl.language")), "gapright para");
@@ -180,7 +179,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			
 			private void changed() {
 				String text = field.getText();
-				List<File> list = new ArrayList<File>();
+				List<File> list = new ArrayList<>();
 				for (String s : text.split(";")) {
 					s = s.trim();
 					if (s.length() > 0) {
@@ -193,7 +192,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(field, "w 100px, gapright unrel, spanx, growx, split");
 		
 		//// Add button
-		JButton button = new SelectColorButton(trans.get("pref.dlg.but.add"));
+		JButton button = new JButton(trans.get("pref.dlg.but.add"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -236,7 +235,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(button, "gapright unrel");
 		
 		//// Reset button
-		button = new SelectColorButton(trans.get("pref.dlg.but.reset"));
+		button = new JButton(trans.get("pref.dlg.but.reset"));
 		
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -270,7 +269,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(softwareUpdateBox);
 		
 		//// Check now button
-		button = new SelectColorButton(trans.get("pref.dlg.but.checknow"));
+		button = new JButton(trans.get("pref.dlg.but.checknow"));
 		//// Check for software updates now
 		button.setToolTipText(trans.get("pref.dlg.ttip.Checkupdatesnow"));
 		button.addActionListener(new ActionListener() {
@@ -341,7 +340,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		JPanel buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));
 
 		//// Import preferences
-		final JButton importPreferences = new SelectColorButton(trans.get("pref.dlg.but.importPreferences"));
+		final JButton importPreferences = new JButton(trans.get("pref.dlg.but.importPreferences"));
 		importPreferences.setToolTipText(trans.get("pref.dlg.but.importPreferences.ttip"));
 		importPreferences.addActionListener(new ActionListener() {
 			@Override
@@ -368,7 +367,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		buttonPanel.add(importPreferences);
 
 		//// Export preferences
-		final JButton exportPreferences = new SelectColorButton(trans.get("pref.dlg.but.exportPreferences"));
+		final JButton exportPreferences = new JButton(trans.get("pref.dlg.but.exportPreferences"));
 		exportPreferences.setToolTipText(trans.get("pref.dlg.but.exportPreferences.ttip"));
 		exportPreferences.addActionListener(new ActionListener() {
 			@Override
@@ -379,7 +378,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		buttonPanel.add(exportPreferences);
 
 		//// Reset all preferences
-		final JButton resetAllPreferences = new SelectColorButton(trans.get("pref.dlg.but.resetAllPreferences"));
+		final JButton resetAllPreferences = new JButton(trans.get("pref.dlg.but.resetAllPreferences"));
 		resetAllPreferences.setToolTipText(trans.get("pref.dlg.but.resetAllPreferences.ttip"));
 		resetAllPreferences.addActionListener(new ActionListener() {
 			@Override
@@ -424,7 +423,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		panel.add(bar, "growx, wrap para");
 		
 		//// Cancel button
-		JButton cancel = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

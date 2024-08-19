@@ -24,9 +24,7 @@ public class ZipFileAttachment extends Attachment {
 	public InputStream getBytes() throws DecalNotFoundException, IOException {
 		String name = getName();
 
-		ZipInputStream zis = new ZipInputStream(zipFileLocation.openStream());
-
-		try {
+		try (ZipInputStream zis = new ZipInputStream(zipFileLocation.openStream())) {
 			ZipEntry entry = zis.getNextEntry();
 			while (entry != null) {
 				if (entry.getName().equals(name)) {
@@ -36,8 +34,6 @@ public class ZipFileAttachment extends Attachment {
 				entry = zis.getNextEntry();
 			}
 			throw new DecalNotFoundException(name, null);
-		} finally {
-			zis.close();
 		}
 
 	}

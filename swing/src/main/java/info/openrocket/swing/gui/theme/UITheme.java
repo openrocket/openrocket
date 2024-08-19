@@ -40,6 +40,7 @@ public class UITheme {
 
 
     // TODO: replace a bunch of this with the FlatLaf properties files, see https://www.formdev.com/flatlaf/properties-files
+    // For FlatLaf theme properties, check out swing/src/main/resources/themes
 
     public interface Theme {
         void applyTheme();
@@ -456,14 +457,14 @@ public class UITheme {
             @Override
             public Border getUnitSelectorBorder() {
                 return new CompoundBorder(
-                        new LineBorder(new Color(0f, 0f, 0f, 0.08f), 1),
+                        new LineBorder(new Color(0.0f, 0.0f, 0.0f, 0.08f), 1),
                         new EmptyBorder(1, 1, 1, 1));
             }
 
             @Override
             public Border getUnitSelectorFocusBorder() {
                 return new CompoundBorder(
-                        new LineBorder(new Color(0f, 0f, 0f, 0.6f)),
+                        new LineBorder(new Color(0.0f, 0.0f, 0.0f, 0.6f)),
                         new EmptyBorder(1, 1, 1, 1));
             }
 
@@ -857,14 +858,14 @@ public class UITheme {
             @Override
             public Border getUnitSelectorBorder() {
                 return new CompoundBorder(
-                        new LineBorder(new Color(1f, 1f, 1f, 0.08f), 1),
+                        new LineBorder(new Color(1.0f, 1.0f, 1.0f, 0.08f), 1),
                         new EmptyBorder(1, 1, 1, 1));
             }
 
             @Override
             public Border getUnitSelectorFocusBorder() {
                 return new CompoundBorder(
-                        new LineBorder(new Color(1f, 1f, 1f, 0.6f)),
+                        new LineBorder(new Color(1.0f, 1.0f, 1.0f, 0.6f)),
                         new EmptyBorder(1, 1, 1, 1));
             }
 
@@ -1258,7 +1259,7 @@ public class UITheme {
             @Override
             public Border getUnitSelectorBorder() {
                 return new CompoundBorder(
-                        new LineBorder(new Color(.9f, 0.9f, 0.9f, 0.15f), 1),
+                        new LineBorder(new Color(0.9f, 0.9f, 0.9f, 0.15f), 1),
                         new EmptyBorder(1, 1, 1, 1));
             }
 
@@ -1814,9 +1815,6 @@ public class UITheme {
     private static void postApplyTheme(Theme theme) {
         final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
-        // TODO: For some reason, FlatLaf does not take the correct values from the properties file
-        UIManager.put("OR.ScrollPane.borderColor", theme.getBorderColor());
-
         // Clear custom default font when switching to non-FlatLaf LaF
         if (!(UIManager.getLookAndFeel() instanceof FlatLaf)) {
             UIManager.put("defaultFont", null);
@@ -1851,35 +1849,35 @@ public class UITheme {
     private static void setGlobalFontSize(int size) {
         // Some fonts have different sizes for different components, so we need to adjust them
         final Map<String, Float> fontOffsets = new HashMap<>();
-        fontOffsets.put("MenuBar.font", 1f);
-        fontOffsets.put("Tree.font", -1f);
-        fontOffsets.put("Slider.font", -2f);
-        fontOffsets.put("TableHeader.font", -1f);
-        fontOffsets.put("ColorChooser.font", -1f);
-        fontOffsets.put("Menu.acceleratorFont", 1f);
-        fontOffsets.put("InternalFrame.optionDialogTitleFont", 1f);
-        fontOffsets.put("InternalFrame.paletteTitleFont", 1f);
-        fontOffsets.put("MenuItem.font", 1f);
-        fontOffsets.put("PopupMenu.font", 1f);
-        fontOffsets.put("MenuItem.acceleratorFont", 1f);
-        fontOffsets.put("RadioButtonMenuItem.font", 1f);
-        fontOffsets.put("Table.font", -1f);
+        fontOffsets.put("MenuBar.font", 1.0f);
+        fontOffsets.put("Tree.font", -1.0f);
+        fontOffsets.put("Slider.font", -2.0f);
+        fontOffsets.put("TableHeader.font", -1.0f);
+        fontOffsets.put("ColorChooser.font", -1.0f);
+        fontOffsets.put("Menu.acceleratorFont", 1.0f);
+        fontOffsets.put("InternalFrame.optionDialogTitleFont", 1.0f);
+        fontOffsets.put("InternalFrame.paletteTitleFont", 1.0f);
+        fontOffsets.put("MenuItem.font", 1.0f);
+        fontOffsets.put("PopupMenu.font", 1.0f);
+        fontOffsets.put("MenuItem.acceleratorFont", 1.0f);
+        fontOffsets.put("RadioButtonMenuItem.font", 1.0f);
+        fontOffsets.put("Table.font", -1.0f);
         //fontOffsets.put("IconButton.font", -2f);      // The default doesn't really look nice, we want the normal font size instead
-        fontOffsets.put("InternalFrame.titleFont", 1f);
-        fontOffsets.put("List.font", -1f);
-        fontOffsets.put("RadioButtonMenuItem.acceleratorFont", 1f);
-        fontOffsets.put("CheckBoxMenuItem.acceleratorFont", 1f);
-        fontOffsets.put("Menu.font", 1f);
-        fontOffsets.put("TabbedPane.smallFont", -2f);
-        fontOffsets.put("CheckBoxMenuItem.font", 1f);
-        fontOffsets.put("ToolTip.font", -2f);
+        fontOffsets.put("InternalFrame.titleFont", 1.0f);
+        fontOffsets.put("List.font", -1.0f);
+        fontOffsets.put("RadioButtonMenuItem.acceleratorFont", 1.0f);
+        fontOffsets.put("CheckBoxMenuItem.acceleratorFont", 1.0f);
+        fontOffsets.put("Menu.font", 1.0f);
+        fontOffsets.put("TabbedPane.smallFont", -2.0f);
+        fontOffsets.put("CheckBoxMenuItem.font", 1.0f);
+        fontOffsets.put("ToolTip.font", -2.0f);
 
         // Iterate over all keys in the UIManager defaults and set the font
         for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements();) {
             Object key = keys.nextElement();
             Object value = UIManager.get(key);
             if (value instanceof Font newFont) {
-				float offset = fontOffsets.getOrDefault(key.toString(), 0f);
+				float offset = fontOffsets.getOrDefault(key.toString(), 0.0f);
                 newFont = newFont.deriveFont(Integer.valueOf(size).floatValue() + offset);
                 UIManager.put(key, newFont);
             }

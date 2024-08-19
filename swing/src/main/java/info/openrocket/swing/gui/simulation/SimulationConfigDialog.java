@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.simulation;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -8,14 +9,12 @@ import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.StateChangeListener;
 
 import javax.swing.JButton;
@@ -54,7 +53,7 @@ public class SimulationConfigDialog extends JDialog {
 	private JButton okButton;
 	private JButton cancelButton;
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences preferences = Application.getPreferences();
+	private static final ApplicationPreferences preferences = Application.getPreferences();
 
 
 	private final WindowListener applyChangesToSimsListener;
@@ -254,7 +253,7 @@ public class SimulationConfigDialog extends JDialog {
 
 			private void setText() {
 				String name = field.getText();
-				if (name == null || name.equals(""))
+				if (name == null || name.isEmpty())
 					return;
 				simulationList[0].setName(name);
 
@@ -314,7 +313,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Run simulation button
 		// TODO: disable when sim is up to date?
-		/*JButton button = new SelectColorButton(trans.get("SimulationEditDialog.btn.simulateAndPlot"));
+		/*JButton button = new JButton(trans.get("SimulationEditDialog.btn.simulateAndPlot"));
 		if (!isSingleEdit()) {
 			button.setText(trans.get("SimulationEditDialog.btn.simulate"));
 		}
@@ -332,7 +331,7 @@ public class SimulationConfigDialog extends JDialog {
 		simEditPanel.add(button, "align right, gapright 10lp, tag ok");*/
 
 		//// Cancel button
-		this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		this.cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		this.cancelButton.setToolTipText(trans.get("SimulationConfigDialog.btn.Cancel.ttip"));
 		this.cancelButton.addActionListener(new ActionListener() {
 			@Override
@@ -350,7 +349,7 @@ public class SimulationConfigDialog extends JDialog {
 		bottomPanel.add(this.cancelButton, "split 2, tag ok");
 
 		//// Ok button
-		this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		this.okButton = new JButton(trans.get("dlg.but.ok"));
 		this.okButton.setToolTipText(trans.get("SimulationConfigDialog.btn.OK.ttip"));
 		this.okButton.addActionListener(new ActionListener() {
 			@Override

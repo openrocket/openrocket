@@ -38,7 +38,7 @@ public class DocumentSelectionModel {
 	private ListSelectionModel simulationListSelectionModel = null;
 
 	private final List<DocumentSelectionListener> listeners =
-		new ArrayList<DocumentSelectionListener>();
+			new ArrayList<>();
 
 	
 	
@@ -219,7 +219,7 @@ public class DocumentSelectionModel {
 				return;
 			}
 			
-			ArrayList<Simulation> list = new ArrayList<Simulation>();
+			ArrayList<Simulation> list = new ArrayList<>();
 			for (int i = min; i <= max; i++) {
 				if (simulationListSelectionModel.isSelectedIndex(i) && 
 						(i < document.getSimulationCount())) {

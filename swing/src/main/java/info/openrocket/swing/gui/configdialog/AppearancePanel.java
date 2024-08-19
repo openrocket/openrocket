@@ -64,7 +64,6 @@ import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.EditDecalHelper;
 import info.openrocket.swing.gui.util.EditDecalHelper.EditDecalHelperException;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class AppearancePanel extends JPanel implements Invalidatable, InvalidatingWidget {
 	private static final long serialVersionUID = 2709187552673202019L;
@@ -104,12 +103,12 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		Unit no_unit = new GeneralUnit(1, "", 2) {
 			@Override
 			public double getNextValue(double value) {
-				return value + .1;
+				return value + 0.1;
 			}
 
 			@Override
 			public double getPreviousValue(double value) {
-				return value - .1;
+				return value - 0.1;
 			}
 
 		};
@@ -270,7 +269,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		if (figureColor == null) {
 			figureColor = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 		}
-		final JButton figureColorButton = new SelectColorButton(
+		final JButton figureColorButton = new JButton(
 				new ColorIcon(figureColor));
 
 		ab.addChangeListener(new StateChangeListener() {
@@ -320,7 +319,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			add(colorDefault);
 			order.add(colorDefault);
 
-			saveAsDefault = new SelectColorButton(
+			saveAsDefault = new JButton(
 					trans.get("RocketCompCfg.but.Saveasdefstyle"));
 			saveAsDefault.addActionListener(new ActionListener() {
 				@Override
@@ -357,7 +356,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			System.arraycopy(LineStyle.values(), 0, list, 1,
 					LineStyle.values().length);
 
-			final JComboBox<LineStyle> combo = new JComboBox<LineStyle>(new EnumModel<LineStyle>(c,
+			final JComboBox<LineStyle> combo = new JComboBox<>(new EnumModel<>(c,
 					"LineStyle",
 					// // Default style
 					list, trans.get("LineStyle.Defaultstyle")));
@@ -514,7 +513,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		register(mDefault);
 
 		DecalModel decalModel = new DecalModel(panel, document, builder);
-		JComboBox<DecalImage> textureDropDown = new JComboBox<DecalImage>(decalModel);
+		JComboBox<DecalImage> textureDropDown = new JComboBox<>(decalModel);
 		textureDropDown.setMaximumRowCount(20);
 
 		// We need to add this action listener that triggers a decalModel update when the same item is selected, because
@@ -532,7 +531,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			}
 		});
 
-		JButton colorButton = new SelectColorButton(new ColorIcon(builder.getPaint()));
+		JButton colorButton = new JButton(new ColorIcon(builder.getPaint()));
 
 		colorButton.addActionListener(new ColorActionListener(builder, "Paint"));
 
@@ -592,7 +591,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			
 		//// Edit button
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
-			JButton editBtn = new SelectColorButton(
+			JButton editBtn = new JButton(
 					trans.get("AppearanceCfg.but.edit"));
 			// Enable the editBtn only when the appearance builder has an Image
 			// assigned to it.

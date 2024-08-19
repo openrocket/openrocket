@@ -8,7 +8,7 @@ public class BulkheadSaver extends RadiusRingComponentSaver {
 	private static final BulkheadSaver instance = new BulkheadSaver();
 
 	public static List<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		list.add("<bulkhead>");
 		instance.addParams(c, list);

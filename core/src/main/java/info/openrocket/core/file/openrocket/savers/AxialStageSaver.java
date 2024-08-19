@@ -15,7 +15,7 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 	private static final AxialStageSaver instance = new AxialStageSaver();
 
 	public static ArrayList<String> getElements(info.openrocket.core.rocketcomponent.RocketComponent c) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		if (c.isAfter()) {
 			// yes, this test is redundant. I'm merely paranoid, and attempting to
@@ -67,10 +67,11 @@ public class AxialStageSaver extends ComponentAssemblySaver {
 	}
 
 	private List<String> addSeparationConfigParams(StageSeparationConfiguration config, boolean indent) {
-		List<String> elements = new ArrayList<String>(2);
+		List<String> elements = new ArrayList<>(2);
 		elements.add((indent ? "    " : "") + "<separationevent>"
 				+ config.getSeparationEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</separationevent>");
+		elements.add((indent ? "    " : "") + "<separationaltitude>" + config.getSeparationAltitude() + "</separationaltitude>");
 		elements.add((indent ? "    " : "") + "<separationdelay>" + config.getSeparationDelay() + "</separationdelay>");
 		return elements;
 

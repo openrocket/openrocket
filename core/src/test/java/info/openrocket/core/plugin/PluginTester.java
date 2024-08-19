@@ -30,7 +30,7 @@ public class PluginTester {
 	private void assertContains(Set<?> set, Class<?>... classes) {
 		assertEquals(classes.length, set.size());
 
-		List<Class<?>> list = new ArrayList<Class<?>>(Arrays.asList(classes));
+		List<Class<?>> list = new ArrayList<>(Arrays.asList(classes));
 		for (Object o : set) {
 			Class<?> c = o.getClass();
 			assertTrue(list.contains(c));

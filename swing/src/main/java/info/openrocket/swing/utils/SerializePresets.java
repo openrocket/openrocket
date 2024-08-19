@@ -40,25 +40,25 @@ public class SerializePresets extends BasicApplication {
 		
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
 
-		for (int i = 0; i < args.length; i++) {
+		for (String arg : args) {
 
-			System.err.println("Processing .orc files in directory " + args[i]);
-			
-			FileIterator iterator = DirectoryIterator.findDirectory(args[i], new SimpleFileFilter("", false, "orc"));
+			System.err.println("Processing .orc files in directory " + arg);
+
+			FileIterator iterator = DirectoryIterator.findDirectory(arg, new SimpleFileFilter("", false, "orc"));
 			if (iterator == null) {
-				throw new RuntimeException("Can't find " + args[i] + " directory");
+				throw new RuntimeException("Can't find " + arg + " directory");
 			}
-			
+
 			while (iterator.hasNext()) {
 				Pair<File, InputStream> f = iterator.next();
 				String fileName = f.getU().getName();
 				InputStream is = f.getV();
-				
+
 				OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
 				Collection<ComponentPreset> presets = loader.load(is, fileName);
-				
+
 				componentPresetDao.addAll(presets);
-				
+
 			}
 
 		}

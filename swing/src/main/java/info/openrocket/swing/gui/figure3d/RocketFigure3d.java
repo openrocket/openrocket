@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
@@ -46,7 +48,6 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.BoundingBox;
@@ -88,8 +89,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private volatile boolean redrawExtras = true;
 	private boolean drawCarets = true;
 	
-	private final ArrayList<FigureElement> relativeExtra = new ArrayList<FigureElement>();
-	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<FigureElement>();
+	private final ArrayList<FigureElement> relativeExtra = new ArrayList<>();
+	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<>();
 	
 	private double roll = 0;
 	private double yaw = 0;
@@ -152,7 +153,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		if (System.getProperty("openrocket.3d.disable") != null)
 			return false;
 		//return by preference
-		return Application.getPreferences().getBoolean(Preferences.OPENGL_ENABLED, true);
+		return Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLED, true);
 	}
 	
 	private void initGLCanvas() {
@@ -166,7 +167,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			log.trace("GL - creating GLCapabilities");
 			final GLCapabilities caps = new GLCapabilities(glp);
 			
-			if (Application.getPreferences().getBoolean(Preferences.OPENGL_ENABLE_AA, true)) {
+			if (Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, true)) {
 				log.trace("GL - setSampleBuffers");
 				caps.setSampleBuffers(true);
 				
@@ -176,7 +177,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 				log.trace("GL - Not enabling AA by user pref");
 			}
 			
-			if (Application.getPreferences().getBoolean(Preferences.OPENGL_USE_FBO, false)) {
+			if (Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_USE_FBO, false)) {
 				log.trace("GL - Creating GLJPanel");
 				canvas = new GLJPanel(caps);
 			} else {
@@ -231,7 +232,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		g2d.setBackground(new Color(0, 0, 0, 0));
 		g2d.clearRect(0, 0, CARET_SIZE, CARET_SIZE);
 		
-		new CGCaret(CARET_SIZE / 2, CARET_SIZE / 2).paint(g2d, 1.0);
+		new CGCaret((double) CARET_SIZE / 2, (double) CARET_SIZE / 2).paint(g2d, 1.0);
 		
 		g2d.dispose();
 		
@@ -243,7 +244,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		g2d.setBackground(new Color(0, 0, 0, 0));
 		g2d.clearRect(0, 0, CARET_SIZE, CARET_SIZE);
 		
-		new CPCaret(CARET_SIZE / 2, CARET_SIZE / 2).paint(g2d, 1.0);
+		new CPCaret((double) CARET_SIZE / 2, (double) CARET_SIZE / 2).paint(g2d, 1.0);
 		
 		g2d.dispose();
 		
@@ -306,8 +307,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		GL2 gl = drawable.getGL().getGL2();
 		GLU glu = new GLU();
 
-		gl.glClearColor(backgroundColor.getRed()/255f, backgroundColor.getGreen()/255f,
-				backgroundColor.getBlue()/255f, backgroundColor.getAlpha()/255f);
+		gl.glClearColor(backgroundColor.getRed()/ 255.0f, backgroundColor.getGreen()/ 255.0f,
+				backgroundColor.getBlue()/ 255.0f, backgroundColor.getAlpha()/ 255.0f);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		
 		setupView(gl, glu);
@@ -335,8 +336,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			}
 			pickPoint = null;
 
-			gl.glClearColor(backgroundColor.getRed()/255f, backgroundColor.getGreen()/255f,
-					backgroundColor.getBlue()/255f, backgroundColor.getAlpha()/255f);
+			gl.glClearColor(backgroundColor.getRed()/ 255.0f, backgroundColor.getGreen()/ 255.0f,
+					backgroundColor.getBlue()/ 255.0f, backgroundColor.getAlpha()/ 255.0f);
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 			gl.glEnable(GL.GL_MULTISAMPLE);
@@ -504,7 +505,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glViewport(0, 0, w, h);
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(fovY, ratio, 0.1f, 50f);
+		glu.gluPerspective(fovY, ratio, 0.1f, 50.0f);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		
 		redrawExtras = true;
@@ -595,13 +596,12 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		internalRepaint();
 	}
 	
-	private Set<RocketComponent> selection = new HashSet<RocketComponent>();
+	private Set<RocketComponent> selection = new HashSet<>();
 	
 	public void setSelection(final RocketComponent[] selection) {
 		this.selection.clear();
 		if (selection != null) {
-			for (RocketComponent c : selection)
-				this.selection.add(c);
+			this.selection.addAll(Arrays.asList(selection));
 		}
 		internalRepaint();
 	}
@@ -705,19 +705,12 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		// the renderer accordingly.  There is certainly a better way to do this.
 		
 		
-		final RocketRenderer newRR;
-		
-		switch (t) {
-		case TYPE_FINISHED:
-			newRR = new RealisticRenderer(document);
-			break;
-		case TYPE_UNFINISHED:
-			newRR = new UnfinishedRenderer(document);
-			break;
-		default:
-			newRR = new FigureRenderer();
-		}
-		
+		final RocketRenderer newRR = switch (t) {
+			case TYPE_FINISHED -> new RealisticRenderer(document);
+			case TYPE_UNFINISHED -> new UnfinishedRenderer(document);
+			default -> new FigureRenderer();
+		};
+
 		if (canvas instanceof GLCanvas && !((GLCanvas) canvas).isRealized()) {
 			rr = newRR;
 		} else if (canvas instanceof GLJPanel && !((GLJPanel) canvas).isRealized()) {

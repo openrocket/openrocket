@@ -33,7 +33,7 @@ public abstract class RockSimComponentFileLoader {
 
 	private final File dir;
 
-	protected List<RockSimComponentFileColumnParser> fileColumns = new ArrayList<RockSimComponentFileColumnParser>();
+	protected List<RockSimComponentFileColumnParser> fileColumns = new ArrayList<>();
 
 	/**
 	 * Constructor.
@@ -128,9 +128,7 @@ public abstract class RockSimComponentFileLoader {
 		if (is == null) {
 			return;
 		}
-		InputStreamReader r = null;
-		try {
-			r = new InputStreamReader(is);
+		try (InputStreamReader r = new InputStreamReader(is)) {
 
 			// Create the CSV reader. Use comma separator.
 			CSVParser parser = new CSVParserBuilder()
@@ -160,13 +158,6 @@ public abstract class RockSimComponentFileLoader {
 			return;
 		} catch (IOException | CsvValidationException e) {
 			throw new BugException("Could not read component file", e);
-		} finally {
-			if (r != null) {
-				try {
-					r.close();
-				} catch (IOException ignored) {
-				}
-			}
 		}
 
 	}

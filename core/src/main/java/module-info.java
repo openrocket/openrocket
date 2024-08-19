@@ -97,6 +97,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.util;
 	exports info.openrocket.core.util.enums;
 	exports info.openrocket.core.utils;
+	exports info.openrocket.core.preferences;
 
 	// Service providers
 	// Also edit core/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service

@@ -52,7 +52,6 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	public List<ThrustCurveMotor.Builder> load(Reader reader, String filename, boolean removeDelayFromDesignation)
 			throws IOException {
 		List<ThrustCurveMotor.Builder> motors = new ArrayList<>();
-		BufferedReader in = new BufferedReader(reader);
 
 		String manufacturer = "";
 		String designation = "";
@@ -62,13 +61,13 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		double diameter = 0;
 		ArrayList<Double> delays = null;
 
-		List<Double> time = new ArrayList<Double>();
-		List<Double> thrust = new ArrayList<Double>();
+		List<Double> time = new ArrayList<>();
+		List<Double> thrust = new ArrayList<>();
 
 		double propW = 0;
 		double totalW = 0;
 
-		try {
+		try (BufferedReader in = new BufferedReader(reader)) {
 			String line;
 			String[] pieces, buf;
 
@@ -80,7 +79,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 				comment = "";
 				length = 0;
 				diameter = 0;
-				delays = new ArrayList<Double>();
+				delays = new ArrayList<>();
 				propW = 0;
 				totalW = 0;
 				time.clear();
@@ -114,13 +113,13 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 
 				} else {
 					buf = split(pieces[3], "[-,]+");
-					for (int i = 0; i < buf.length; i++) {
-						if (buf[i].equalsIgnoreCase("P") ||
-								buf[i].equalsIgnoreCase("plugged")) {
+					for (String s : buf) {
+						if (s.equalsIgnoreCase("P") ||
+								s.equalsIgnoreCase("plugged")) {
 							delays.add(Motor.PLUGGED_DELAY);
-						} else if (buf[i].matches("[0-9]+")) {
+						} else if (s.matches("[0-9]+")) {
 							// Many RASP files have "100" as an only delay
-							double d = Double.parseDouble(buf[i]);
+							double d = Double.parseDouble(s);
 							if (d < 99)
 								delays.add(d);
 						}

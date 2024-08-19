@@ -23,14 +23,11 @@ public class TestFileIterator {
 			@Override
 			protected Pair<File, InputStream> findNext() {
 				count++;
-				switch (count) {
-					case 1:
-						return one;
-					case 2:
-						return two;
-					default:
-						return null;
-				}
+				return switch (count) {
+					case 1 -> one;
+					case 2 -> two;
+					default -> null;
+				};
 			}
 		};
 

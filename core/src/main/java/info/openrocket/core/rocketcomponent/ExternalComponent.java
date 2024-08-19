@@ -1,5 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import info.openrocket.core.l10n.Translator;
@@ -32,19 +33,19 @@ public abstract class ExternalComponent extends RocketComponent {
 		 */
 
 		//// Rough
-		ROUGH("ExternalComponent.Rough", 500e-6),
+		ROUGH("ExternalComponent.Rough", 500.0e-6),
 		//// Rough unfinished
-		ROUGHUNFINISHED("ExternalComponent.Roughunfinished", 250e-6),
+		ROUGHUNFINISHED("ExternalComponent.Roughunfinished", 250.0e-6),
 		//// Unfinished
-		UNFINISHED("ExternalComponent.Unfinished", 150e-6),
+		UNFINISHED("ExternalComponent.Unfinished", 150.0e-6),
 		//// Regular paint
-		NORMAL("ExternalComponent.Regularpaint", 60e-6),
+		NORMAL("ExternalComponent.Regularpaint", 60.0e-6),
 		//// Smooth paint
-		SMOOTH("ExternalComponent.Smoothpaint", 20e-6),
+		SMOOTH("ExternalComponent.Smoothpaint", 20.0e-6),
 		//// Optimum paint
-		OPTIMUM("ExternalComponent.Optimumpaint", 5e-6),
+		OPTIMUM("ExternalComponent.Optimumpaint", 5.0e-6),
 		//// Polished
-		POLISHED("ExternalComponent.Polished", 2e-6),
+		POLISHED("ExternalComponent.Polished", 2.0e-6),
 
 		/*
 		 * The "polished" surface roughness was originally set at 2.0 microns. However,
@@ -62,7 +63,7 @@ public abstract class ExternalComponent extends RocketComponent {
 		 */
 
 		//// Optimum paint
-		FINISHPOLISHED("ExternalComponent.Finishedpolished", .5e-6),
+		FINISHPOLISHED("ExternalComponent.Finishedpolished", 0.5e-6),
 		//// Optimum paint
 		MIRROR("ExternalComponent.Mirror", 0.0e-6);
 
@@ -151,8 +152,19 @@ public abstract class ExternalComponent extends RocketComponent {
 		if (material.equals(mat))
 			return;
 		material = mat;
+		if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+			rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+		}
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	@Override
+	public List<Material> getAllMaterials() {
+		List<Material> materials = super.getAllMaterials();
+		materials = materials == null ? new ArrayList<>() : materials;
+		materials.add(material);
+		return materials;
 	}
 
 	public Finish getFinish() {
@@ -184,6 +196,9 @@ public abstract class ExternalComponent extends RocketComponent {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if (mat != null) {
 				material = mat;
+				if (material.isDocumentMaterial() && getRoot() instanceof Rocket rocket && rocket.getDocument() != null) {
+					rocket.getDocument().getDocumentPreferences().addMaterial(mat);
+				}
 			} /*
 				 * TODO -
 				 * else if (c.isMassOverridden()) {

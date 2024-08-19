@@ -273,7 +273,7 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 		double newRadius = requestRadius;
 
 		if (this.radiusMethod.clampToZero()) {
-			newRadius = 0.;
+			newRadius = 0.0;
 		}
 
 		this.radiusMethod = requestMethod;

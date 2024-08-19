@@ -108,27 +108,27 @@ public class StabilityDomain implements SimulationDomain {
 		if (minAbsolute) {
 			ref = minimum - absolute;
 			if (ref > 0) {
-				return new Pair<Double, Value>(ref, desc);
+				return new Pair<>(ref, desc);
 			}
 		} else {
 			ref = minimum - relative;
 			if (ref > 0) {
-				return new Pair<Double, Value>(ref, desc);
+				return new Pair<>(ref, desc);
 			}
 		}
 
 		if (maxAbsolute) {
 			ref = absolute - maximum;
 			if (ref > 0) {
-				return new Pair<Double, Value>(ref, desc);
+				return new Pair<>(ref, desc);
 			}
 		} else {
 			ref = relative - maximum;
 			if (ref > 0) {
-				return new Pair<Double, Value>(ref, desc);
+				return new Pair<>(ref, desc);
 			}
 		}
 
-		return new Pair<Double, Value>(0.0, desc);
+		return new Pair<>(0.0, desc);
 	}
 }

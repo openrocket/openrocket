@@ -20,7 +20,6 @@ import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class LicenseDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
@@ -145,7 +144,7 @@ public class LicenseDialog extends JDialog {
 		panel.add(info, "newline, width 700lp, height 250lp, pushy, grow, spanx, wrap para");
 		
 		//Close button
-		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

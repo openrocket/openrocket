@@ -17,12 +17,10 @@ import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.URLLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Chars;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
@@ -57,6 +55,7 @@ public class AboutDialog extends JDialog {
 		"Vladimir Beran (Czech)<br>" +
 		"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
 		"Sibo Van Gool (Dutch)<br>" +
+		"Oleksandr Hladin (Ukrainian)" +
 		"Mohamed Amin Elkebsi (Arabic)<br>" +
 		"<br>" +
 		"See all contributors at <br>" + href("https://github.com/openrocket/openrocket/graphs/contributors", false, false) + "<br>" +
@@ -158,7 +157,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		//Close button
-		JButton close = new SelectColorButton(trans.get("button.close"));
+		JButton close = new JButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

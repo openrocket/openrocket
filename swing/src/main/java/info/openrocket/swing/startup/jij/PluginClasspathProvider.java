@@ -15,7 +15,7 @@ public class PluginClasspathProvider implements ClasspathProvider {
 	
 	@Override
 	public List<URL> getUrls() {
-		List<URL> urls = new ArrayList<URL>();
+		List<URL> urls = new ArrayList<>();
 		
 		findPluginDirectoryUrls(urls);
 		findCustomPlugins(urls);

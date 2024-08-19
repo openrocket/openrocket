@@ -21,13 +21,38 @@ import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.BodyComponent;
+import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.EllipticalFinSet;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FreeformFinSet;
+import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.LaunchLug;
+import info.openrocket.core.rocketcomponent.MassComponent;
+import info.openrocket.core.rocketcomponent.MassObject;
+import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.Parachute;
+import info.openrocket.core.rocketcomponent.ParallelStage;
+import info.openrocket.core.rocketcomponent.PodSet;
+import info.openrocket.core.rocketcomponent.RadiusRingComponent;
+import info.openrocket.core.rocketcomponent.RailButton;
+import info.openrocket.core.rocketcomponent.RingComponent;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.ShockCord;
+import info.openrocket.core.rocketcomponent.Streamer;
+import info.openrocket.core.rocketcomponent.SymmetricComponent;
+import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
+import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
-import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -43,7 +68,6 @@ import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
  * Dialog that allows scaling the rocket design.
@@ -63,10 +87,8 @@ public class ScaleDialog extends JDialog {
 	 * There are two scaler instances; one for when the offset distances (axial/radial offset) don't need to be scaled
 	 * together with the other dimensions and one for when the offsets do need to scale.
 	 */
-	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS_NO_OFFSET =
-			new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
-	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS_OFFSET =
-			new HashMap<Class<? extends RocketComponent>, List<Scaler>>();
+	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS_NO_OFFSET = new HashMap<>();
+	private static final Map<Class<? extends RocketComponent>, List<Scaler>> SCALERS_OFFSET = new HashMap<>();
 	static {
 		List<Scaler> list;
 
@@ -182,11 +204,7 @@ public class ScaleDialog extends JDialog {
 	
 	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName,
 								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler) {
-		List<Scaler> list = scaler.get(componentClass);
-		if (list == null) {
-			list = new ArrayList<ScaleDialog.Scaler>();
-			scaler.put(componentClass, list);
-		}
+		List<Scaler> list = scaler.computeIfAbsent(componentClass, k -> new ArrayList<>());
 		list.add(new GeneralScaler(componentClass, methodName, autoMethodName));
 	}
 	
@@ -251,7 +269,7 @@ public class ScaleDialog extends JDialog {
 	
 	private void init() {
 		// Generate options for scaling
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		if (!onlySelection)
 			options.add(SCALE_ROCKET);
 
@@ -354,7 +372,7 @@ public class ScaleDialog extends JDialog {
 		label.setToolTipText(tip);
 		panel.add(label, "span, split, gapright unrel");
 		
-		selectionOption = new JComboBox<String>(options.toArray(new String[0]));
+		selectionOption = new JComboBox<>(options.toArray(new String[0]));
 		selectionOption.setEditable(false);
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");
@@ -457,7 +475,7 @@ public class ScaleDialog extends JDialog {
 		
 		
 		// Scale / Accept Buttons
-		JButton scale = new SelectColorButton(trans.get("button.scale"));
+		JButton scale = new JButton(trans.get("button.scale"));
 		scale.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -467,7 +485,7 @@ public class ScaleDialog extends JDialog {
 				doScale();
 				rocket.enableEvents(true);
 
-				ScaleDialog.this.document.getRocket().fireComponentChangeEvent( ComponentChangeEvent.AEROMASS_CHANGE);
+				ScaleDialog.this.document.getRocket().fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE);
 
 				ScaleDialog.this.setVisible(false);
 			}
@@ -476,7 +494,7 @@ public class ScaleDialog extends JDialog {
 		panel.add(scale, "span, split, right, gap para");
 
 		// Cancel Button
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

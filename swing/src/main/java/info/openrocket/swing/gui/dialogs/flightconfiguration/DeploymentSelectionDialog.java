@@ -33,7 +33,6 @@ import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class DeploymentSelectionDialog extends JDialog {
@@ -89,18 +88,6 @@ public class DeploymentSelectionDialog extends JDialog {
 		}
 		panel.add( deployEvent, "spanx 3, growx, wrap");
 		
-		// ... and delay
-		//// plus
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
-		
-		final DoubleModel delay = new DoubleModel(newConfiguration, "DeployDelay", UnitGroup.UNITS_SHORT_TIME, 0);
-		final JSpinner delaySpinner = new JSpinner(delay.getSpinnerModel());
-		delaySpinner.setEditor(new SpinnerEditor(delaySpinner, 3));
-		panel.add(delaySpinner, "spanx, split");
-		
-		//// seconds
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
-		
 		// Altitude:
 		altText = new JLabel(trans.get("ParachuteCfg.lbl.Altitude"));
 		panel.add(altText);
@@ -115,6 +102,18 @@ public class DeploymentSelectionDialog extends JDialog {
 		altSlider = new BasicSlider(alt.getSliderModel(100, 1000));
 		panel.add(altSlider, "w 100lp, wrap");
 		
+		// ... and delay
+		//// plus
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
+		
+		final DoubleModel delay = new DoubleModel(newConfiguration, "DeployDelay", UnitGroup.UNITS_SHORT_TIME, 0);
+		final JSpinner delaySpinner = new JSpinner(delay.getSpinnerModel());
+		delaySpinner.setEditor(new SpinnerEditor(delaySpinner, 3));
+		panel.add(delaySpinner, "spanx, split");
+		
+		//// seconds
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
+		
 		deployEvent.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -125,7 +124,7 @@ public class DeploymentSelectionDialog extends JDialog {
 		
 		panel.add(new JPanel(), "span, split, growx");
 		
-		JButton okButton = new SelectColorButton(trans.get("button.ok"));
+		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -140,7 +139,7 @@ public class DeploymentSelectionDialog extends JDialog {
 		
 		panel.add(okButton, "sizegroup btn");
 		
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

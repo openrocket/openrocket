@@ -35,7 +35,6 @@ import info.openrocket.core.unit.UnitGroup;
 
 import info.openrocket.swing.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import info.openrocket.swing.gui.main.FlightConfigurationPanel;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialStage> {
 	private static final long serialVersionUID = -1556652925279847316L;
@@ -71,12 +70,12 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 		popupMenuFull.add(duplicateConfigAction);
 		
 		//// Select separation
-		selectSeparationButton = new SelectColorButton(selectSeparationAction);
+		selectSeparationButton = new JButton(selectSeparationAction);
 		selectSeparationButton.setEnabled(false);
 		this.add(selectSeparationButton, "split, align right, sizegroup button");
 		
 		//// Reset separation
-		resetDeploymentButton = new SelectColorButton(resetSeparationAction);
+		resetDeploymentButton = new JButton(resetSeparationAction);
 		resetDeploymentButton.setEnabled(false);
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
 
@@ -94,7 +93,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<AxialS
 	@Override
 	protected JTable initializeTable() {
 		//// Separation selection 
-		separationTableModel = new FlightConfigurableTableModel<AxialStage>(AxialStage.class, rocket) {
+		separationTableModel = new FlightConfigurableTableModel<>(AxialStage.class, rocket) {
 			private static final long serialVersionUID = 7979648984099308970L;
 
 			@Override

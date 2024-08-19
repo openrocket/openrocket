@@ -108,7 +108,7 @@ public class RockSimCommonConstants {
      * Surface Density conversion. RockSim is in grams/sq centimeter, OpenRocket in
      * kilograms/sq meter. 1000/(100*100) = 1/10
      */
-    public static final double ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY = 1 / 10d;
+    public static final double ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY = 1 / 10.0d;
     /**
      * Line Density conversion. RockSim is in kilograms/meter, OpenRocket in
      * kilograms/meter.

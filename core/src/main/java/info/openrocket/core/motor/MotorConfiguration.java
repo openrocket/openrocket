@@ -9,6 +9,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Inertia;
+import info.openrocket.core.util.ModID;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 
 	private final List<MotorConfiguration> configListeners = new LinkedList<>();
 
-	private int modID = 0;
+	private ModID modID = ModID.INVALID;
 
 	public MotorConfiguration(final MotorMount _mount, final FlightConfigurationId _fcid) {
 		if (null == _mount) {
@@ -48,7 +49,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.fcid = _fcid;
 		this.mid = new MotorConfigurationId(_mount, _fcid);
 
-		modID++;
+		modID = new ModID();
 	}
 
 	public MotorConfiguration(final MotorMount _mount, final FlightConfigurationId _fcid,
@@ -262,7 +263,7 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		this.ignitionEvent = configuration.ignitionEvent;
 	}
 
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 

@@ -111,7 +111,7 @@ public enum OpenRocketPrintable {
 	 * @return a list of OpenRocketPrintable
 	 */
 	public static List<OpenRocketPrintable> getUnstaged() {
-		List<OpenRocketPrintable> unstaged = new ArrayList<OpenRocketPrintable>();
+		List<OpenRocketPrintable> unstaged = new ArrayList<>();
 		OpenRocketPrintable[] values = values();
 		for (OpenRocketPrintable value : values) {
 			if (!value.isStageSpecific()) {

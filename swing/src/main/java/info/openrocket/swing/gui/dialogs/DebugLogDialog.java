@@ -60,7 +60,6 @@ import info.openrocket.swing.logging.LogLevelBufferLogger;
 import info.openrocket.swing.logging.LogLine;
 import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.logging.StackTraceWriter;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class DebugLogDialog extends JDialog {
@@ -70,7 +69,7 @@ public class DebugLogDialog extends JDialog {
 	private static final String STACK_TRACE_MARK = "\uFF01";
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final EnumMap<LogLevel, Color> backgroundColors = new EnumMap<LogLevel, Color>(LogLevel.class);
+	private static final EnumMap<LogLevel, Color> backgroundColors = new EnumMap<>(LogLevel.class);
 	static {
 		for (LogLevel l : LogLevel.values()) {
 			// Just to ensure every level has a bg color
@@ -87,15 +86,15 @@ public class DebugLogDialog extends JDialog {
 	}
 	
 	/** Buffer containing the log lines displayed */
-	private final List<LogLine> buffer = new ArrayList<LogLine>();
+	private final List<LogLine> buffer = new ArrayList<>();
 	
 	/** Queue of log lines to be added to the displayed buffer */
-	private final Queue<LogLine> queue = new ConcurrentLinkedQueue<LogLine>();
+	private final Queue<LogLine> queue = new ConcurrentLinkedQueue<>();
 	
 	private final DelegatorLogger delegator;
 	private final LogListener logListener;
 	
-	private final EnumMap<LogLevel, JCheckBox> filterButtons = new EnumMap<LogLevel, JCheckBox>(LogLevel.class);
+	private final EnumMap<LogLevel, JCheckBox> filterButtons = new EnumMap<>(LogLevel.class);
 	private final JCheckBox followBox;
 	private final Timer timer;
 	
@@ -182,7 +181,7 @@ public class DebugLogDialog extends JDialog {
 		topPanel.add(followBox, "skip, gapright para, right");
 		
 		//// Clear button
-		JButton clear = new SelectColorButton(trans.get("debuglogdlg.but.clear"));
+		JButton clear = new JButton(trans.get("debuglogdlg.but.clear"));
 		clear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -300,7 +299,7 @@ public class DebugLogDialog extends JDialog {
 			}
 		});
 		
-		sorter = new TableRowSorter<TableModel>(model);
+		sorter = new TableRowSorter<>(model);
 		sorter.setComparator(0, NumericComparator.INSTANCE);
 		sorter.setComparator(1, NumericComparator.INSTANCE);
 		sorter.setComparator(4, new LocationComparator());
@@ -350,7 +349,7 @@ public class DebugLogDialog extends JDialog {
 		
 		
 		//Close button
-		JButton close = new SelectColorButton(trans.get("dlg.but.close"));
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

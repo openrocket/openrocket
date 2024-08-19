@@ -3,14 +3,15 @@ package info.openrocket.core.unit;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.ModID;
 
 public class PercentageOfLengthUnit extends GeneralUnit {
 
     private final FlightConfiguration configuration;
     private final Rocket rocket;
 
-    private int rocketModId = -1;
-    private int configurationModId = -1;
+    private ModID rocketModId = ModID.INVALID;
+    private ModID configurationModId = ModID.INVALID;
 
     private double referenceLength = -1;
 

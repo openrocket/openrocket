@@ -103,9 +103,7 @@ import info.openrocket.swing.gui.scalefigure.RocketFigure;
 import info.openrocket.swing.gui.scalefigure.ScaleScrollPane;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorToggleButton;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
  * General rocket optimization dialog. 
@@ -266,7 +264,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		// // Add/remove buttons
 		sub = new JPanel(new MigLayout("fill"));
 		
-		addButton = new SelectColorButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
+		addButton = new JButton(Chars.LEFT_ARROW + " " + trans.get("btn.add") + "   ");
 		addButton.setToolTipText(trans.get("btn.add.ttip"));
 		addButton.addActionListener(e -> {
 			List<SimulationModifier> mods = getSelectedAvailableModifiers();
@@ -283,7 +281,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(addButton);
 		sub.add(addButton, "wrap para, sg button");
 		
-		removeButton = new SelectColorButton("   " + trans.get("btn.delete") + " " + Chars.RIGHT_ARROW);
+		removeButton = new JButton("   " + trans.get("btn.delete") + " " + Chars.RIGHT_ARROW);
 		removeButton.setToolTipText(trans.get("btn.delete.ttip"));
 		removeButton.addActionListener(e -> {
 			List<SimulationModifier> mods = getSelectedModifiers();
@@ -302,7 +300,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(removeButton);
 		sub.add(removeButton, "wrap para*2, sg button");
 		
-		removeAllButton = new SelectColorButton(trans.get("btn.deleteAll"));
+		removeAllButton = new JButton(trans.get("btn.deleteAll"));
 		removeAllButton.setToolTipText(trans.get("btn.deleteAll.ttip"));
 		removeAllButton.addActionListener(new ActionListener() {
 			@Override
@@ -540,7 +538,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		// // Start/Stop button
 		
-		startButton = new SelectColorToggleButton(START_TEXT);
+		startButton = new JToggleButton(START_TEXT);
 		startButton.addActionListener(e -> {
 			if (updating) {
 				log.debug("Updating, ignoring event");
@@ -556,7 +554,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		});
 		sub.add(startButton, "span, growx, wrap para*2");
 		
-		plotButton = new SelectColorButton(trans.get("btn.plotPath"));
+		plotButton = new JButton(trans.get("btn.plotPath"));
 		plotButton.setToolTipText(trans.get("btn.plotPath.ttip"));
 		plotButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "Plotting optimization path, dimensionality=" + selectedModifiers.size());
@@ -573,7 +571,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(plotButton);
 		sub.add(plotButton, "span, growx, wrap");
 		
-		saveButton = new SelectColorButton(trans.get("btn.save"));
+		saveButton = new JButton(trans.get("btn.save"));
 		saveButton.setToolTipText(trans.get("btn.save.ttip"));
 		saveButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "User selected save path");
@@ -585,7 +583,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		panel.add(sub, "wrap para*2");
 		
 		// // Bottom buttons
-		final JButton applyButton = new SelectColorButton(trans.get("btn.apply"));
+		final JButton applyButton = new JButton(trans.get("btn.apply"));
 		applyButton.setToolTipText(trans.get("btn.apply.ttip"));
 		applyButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "Applying optimization changes");
@@ -594,7 +592,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(applyButton);
 		panel.add(applyButton, "span, split, gapright para, right");
 
-		final JButton resetButton = new SelectColorButton(trans.get("btn.reset"));
+		final JButton resetButton = new JButton(trans.get("btn.reset"));
 		resetButton.setToolTipText(trans.get("btn.reset.ttip"));
 		resetButton.addActionListener(e -> {
 			log.info(Markers.USER_MARKER, "Resetting optimization design");
@@ -603,7 +601,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		disableComponents.add(resetButton);
 		panel.add(resetButton, "gapright para, right");
 
-		final JButton closeButton = new SelectColorButton(trans.get("btn.close"));
+		final JButton closeButton = new JButton(trans.get("btn.close"));
 		closeButton.setToolTipText(trans.get("btn.close.ttip"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
@@ -1017,17 +1015,12 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		for (SimulationModifier m : OptimizationServiceHelper.getSimulationModifiers(documentCopy)) {
 			Object key = m.getRelatedObject();
-			List<SimulationModifier> list = simulationModifiers.get(key);
-			if (list == null) {
-				list = new ArrayList<>();
-				simulationModifiers.put(key, list);
-			}
+			List<SimulationModifier> list = simulationModifiers.computeIfAbsent(key, k -> new ArrayList<>());
 			list.add(m);
 		}
 		
-		for (Object key : simulationModifiers.keySet()) {
-			List<SimulationModifier> list = simulationModifiers.get(key);
-			list.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+		for (List<SimulationModifier> list : simulationModifiers.values()) {
+			list.sort(Comparator.comparing(SimulationModifier::getName));
 		}
 		
 	}
@@ -1351,35 +1344,25 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		@Override
 		public String getColumnName(int column) {
-			switch (column) {
-			case PARAMETER:
-				return trans.get("table.col.parameter");
-			case CURRENT:
-				return trans.get("table.col.current");
-			case MIN:
-				return trans.get("table.col.min");
-			case MAX:
-				return trans.get("table.col.max");
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case PARAMETER -> trans.get("table.col.parameter");
+				case CURRENT -> trans.get("table.col.current");
+				case MIN -> trans.get("table.col.min");
+				case MAX -> trans.get("table.col.max");
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 			
 		}
 		
 		@Override
 		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case PARAMETER:
-				return String.class;
-			case CURRENT:
-				return Double.class;
-			case MIN:
-				return Double.class;
-			case MAX:
-				return Double.class;
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case PARAMETER -> String.class;
+				case CURRENT -> Double.class;
+				case MIN -> Double.class;
+				case MAX -> Double.class;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 		@Override
@@ -1443,18 +1426,13 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			switch (column) {
-			case PARAMETER:
-				return false;
-			case CURRENT:
-				return false;
-			case MIN:
-				return true;
-			case MAX:
-				return true;
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
+			return switch (column) {
+				case PARAMETER -> false;
+				case CURRENT -> false;
+				case MIN -> true;
+				case MAX -> true;
+				default -> throw new IndexOutOfBoundsException("column=" + column);
+			};
 		}
 		
 	}

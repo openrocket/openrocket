@@ -11,7 +11,11 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.CMAnalysisEntry;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.motor.MotorConfiguration;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -67,8 +71,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorToggleButton;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +98,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 
 	private final List<LongitudinalStabilityRow> stabData = new ArrayList<>();
-	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
-	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
+	private final List<AerodynamicForces> dragData = new ArrayList<>();
+	private final List<AerodynamicForces> rollData = new ArrayList<>();
 
 
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
@@ -134,7 +136,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
 		//// Worst button
-		worstToggle = new SelectColorToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
+		worstToggle = new JToggleButton(trans.get("componentanalysisdlg.ToggleBut.worst"));
 		worstToggle.setSelected(true);
 		worstToggle.addActionListener(new ActionListener() {
 			@Override
@@ -471,7 +473,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		JButton button;
 
 		// TODO: LOW: printing
-		//		button = new SelectColorButton("Print");
+		//		button = new JButton("Print");
 		//		button.addActionListener(new ActionListener() {
 		//			public void actionPerformed(ActionEvent e) {
 		//				try {
@@ -485,9 +487,9 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		//		});
 		//		panel.add(button,"tag ok");
 
-		//button = new SelectColorButton("Close");
+		//button = new JButton("Close");
 		//Close button
-		button = new SelectColorButton(trans.get("dlg.but.close"));
+		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -613,7 +615,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			warningList.setListData(new String[] {trans.get("componentanalysisdlg.noWarnings")
 			});
 		} else {
-			warningList.setListData(new Vector<Warning>(set));
+			warningList.setListData(new Vector<>(set));
 		}
 
 		longitudeStabilityTableModel.fireTableDataChanged();

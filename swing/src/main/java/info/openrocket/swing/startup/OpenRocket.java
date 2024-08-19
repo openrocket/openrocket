@@ -28,6 +28,9 @@ public class OpenRocket {
 	private static final String STARTUP_CLASS = "info.openrocket.swing.startup.SwingStartup";
 	
 	public static void main(String[] args) {
+		// Set OSX-specific properties
+		OSXSetup.setupOSXProperties();
+
 		// This property works around some fundamental bugs in TimSort in the java library which has had known issues
 		// since it was introduced in JDK 1.7.  In OpenRocket it manifests when you sort the motors in the motor chooser dialog
 		// by designation.

@@ -6,7 +6,9 @@ import java.util.Collection;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
-import info.openrocket.core.rocketcomponent.position.*;
+import info.openrocket.core.rocketcomponent.position.AngleMethod;
+import info.openrocket.core.rocketcomponent.position.AnglePositionable;
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
@@ -219,7 +221,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		ArrayList<Coordinate> set = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> set = new ArrayList<>();
 		addBound(set, 0, radius);
 		addBound(set, length, radius);
 		return set;

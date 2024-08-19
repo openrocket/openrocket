@@ -65,7 +65,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
  * Preset editor for creating new preset components.
@@ -214,7 +213,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	
 	private final PresetResultListener resultListener;
 	
-	private static final Map<String, String> componentMap = new HashMap<String, String>();
+	private static final Map<String, String> componentMap = new HashMap<>();
 	
 	private static final String NOSE_CONE_KEY = "NoseCone.NoseCone";
 	private static final String BODY_TUBE_KEY = "BodyTube.BodyTube";
@@ -282,9 +281,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		contentPanel.add(componentOverlayPanel, "cell 1 3 5 2,grow");
 		componentOverlayPanel.setLayout(new CardLayout(0, 0));
 		
-		typeCombo = new DeselectableComboBox<String>();
+		typeCombo = new DeselectableComboBox<>();
 		typeCombo.addItemListener(this);
-		typeCombo.setModel(new DefaultComboBoxModel<String>());
+		typeCombo.setModel(new DefaultComboBoxModel<>());
 		setItems(typeCombo, toEdit);
 		contentPanel.add(typeCombo, "cell 3 1,growx");
 		
@@ -331,9 +330,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JLabel ncShapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape"));
 			ncPanel.add(ncShapeLabel, "cell 0 2,alignx left");
 			
-			ncShapeCB = new JComboBox<String>();
-			ncShapeCB.setModel(new DefaultComboBoxModel<String>(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
-					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName() }));
+			ncShapeCB = new JComboBox<>();
+			ncShapeCB.setModel(new DefaultComboBoxModel<>(new String[]{Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
+					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName()}));
 			ncPanel.add(ncShapeCB, "cell 1 2,growx");
 			
 			JLabel ncLengthLabel = new JLabel(trans.get("NoseConeCfg.lbl.Noseconelength"));
@@ -376,7 +375,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			ncPanel.add(panel, "cell 4 3, span 1 3");
 			panel.setLayout(null);
-			ncImageBtn = new SelectColorButton("No Image");
+			ncImageBtn = new JButton("No Image");
 			ncImageBtn.setMaximumSize(new Dimension(75, 75));
 			ncImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(ncImageBtn);
@@ -431,9 +430,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			JLabel trShapeLabel = new JLabel("Shape:");
 			trPanel.add(trShapeLabel, "cell 0 2,alignx left");
 			
-			trShapeCB = new JComboBox<String>();
-			trShapeCB.setModel(new DefaultComboBoxModel<String>(new String[] { Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
-					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName() }));
+			trShapeCB = new JComboBox<>();
+			trShapeCB.setModel(new DefaultComboBoxModel<>(new String[]{Transition.Shape.OGIVE.getName(), Transition.Shape.CONICAL.getName(), Transition.Shape.PARABOLIC.getName(),
+					Transition.Shape.ELLIPSOID.getName(), Transition.Shape.HAACK.getName()}));
 			trPanel.add(trShapeCB, "cell 1 2,growx");
 			
 			JLabel trLengthLabel = new JLabel("Length:");
@@ -503,7 +502,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			trPanel.add(panel, "cell 4 6");
 			panel.setLayout(null);
-			trImageBtn = new SelectColorButton("No Image");
+			trImageBtn = new JButton("No Image");
 			trImageBtn.setMaximumSize(new Dimension(75, 75));
 			trImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(trImageBtn);
@@ -581,7 +580,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			btPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			btImageBtn = new SelectColorButton("No Image");
+			btImageBtn = new JButton("No Image");
 			btImageBtn.setMaximumSize(new Dimension(75, 75));
 			btImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(btImageBtn);
@@ -659,7 +658,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			tcPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			tcImageBtn = new SelectColorButton("No Image");
+			tcImageBtn = new JButton("No Image");
 			tcImageBtn.setMaximumSize(new Dimension(75, 75));
 			tcImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(tcImageBtn);
@@ -730,7 +729,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			bhPanel.add(panel, "cell 4 2");
 			panel.setLayout(null);
-			bhImageBtn = new SelectColorButton("No Image");
+			bhImageBtn = new JButton("No Image");
 			bhImageBtn.setMaximumSize(new Dimension(75, 75));
 			bhImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(bhImageBtn);
@@ -809,7 +808,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			crPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			crImageBtn = new SelectColorButton("No Image");
+			crImageBtn = new JButton("No Image");
 			crImageBtn.setMaximumSize(new Dimension(75, 75));
 			crImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(crImageBtn);
@@ -887,7 +886,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			ebPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			ebImageBtn = new SelectColorButton("No Image");
+			ebImageBtn = new JButton("No Image");
 			ebImageBtn.setMaximumSize(new Dimension(75, 75));
 			ebImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(ebImageBtn);
@@ -965,7 +964,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			llPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			llImageBtn = new SelectColorButton("No Image");
+			llImageBtn = new JButton("No Image");
 			llImageBtn.setMaximumSize(new Dimension(75, 75));
 			llImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(llImageBtn);
@@ -1062,7 +1061,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			rbPanel.add(panel, "cell 4 4");
 			panel.setLayout(null);
-			rbImageBtn = new SelectColorButton("No Image");
+			rbImageBtn = new JButton("No Image");
 			rbImageBtn.setMaximumSize(new Dimension(75, 75));
 			rbImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(rbImageBtn);
@@ -1140,7 +1139,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			stPanel.add(panel, "cell 4 3");
 			panel.setLayout(null);
-			stImageBtn = new SelectColorButton("No Image");
+			stImageBtn = new JButton("No Image");
 			stImageBtn.setMaximumSize(new Dimension(75, 75));
 			stImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(stImageBtn);
@@ -1232,7 +1231,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			panel.setMinimumSize(new Dimension(200, 200));
 			pcPanel.add(panel, "cell 1 3, span 1 3");
 			panel.setLayout(null);
-			pcImageBtn = new SelectColorButton("No Image");
+			pcImageBtn = new JButton("No Image");
 			pcImageBtn.setMaximumSize(new Dimension(75, 75));
 			pcImageBtn.setMinimumSize(new Dimension(75, 75));
 			panel.add(pcImageBtn);
@@ -1255,7 +1254,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		JPanel buttonPane = new JPanel();
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
 		buttonPane.setLayout(new MigLayout("", "[130px][176.00px][131.00px]", "[29px]"));
-		JButton btnSaveAndNew = new SelectColorButton("Save and New");
+		JButton btnSaveAndNew = new JButton("Save and New");
 		btnSaveAndNew.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -1264,7 +1263,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		});
 		buttonPane.add(btnSaveAndNew, "cell 0 0,alignx left,aligny top");
 		
-		JButton okButton = new SelectColorButton("Save and Close");
+		JButton okButton = new JButton("Save and Close");
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -1277,7 +1276,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		buttonPane.add(okButton, "cell 1 0,alignx left,aligny top");
 		getRootPane().setDefaultButton(okButton);
 		
-		JButton cancelButton = new SelectColorButton("Close");
+		JButton cancelButton = new JButton("Close");
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -2192,10 +2191,10 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				JOptionPane.showMessageDialog(null, "A material must be selected.", "Error", JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			if (!pcLineCount.getText().equals("")) {
+			if (!pcLineCount.getText().isEmpty()) {
 				props.put(ComponentPreset.LINE_COUNT, Integer.parseInt(pcLineCount.getText()));
 			}
-			if (!pcSides.getText().equals("")) {
+			if (!pcSides.getText().isEmpty()) {
 				props.put(ComponentPreset.SIDES, Integer.parseInt(pcSides.getText()));
 			}
 			props.put(ComponentPreset.LINE_LENGTH, pcLineLength.getValue());
@@ -2293,8 +2292,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 		StringBuilder stringBuilder = new StringBuilder();
 		List<String> invalids = e.getErrors();
 		stringBuilder.append(baseMsg).append("\n");
-		for (int i = 0; i < invalids.size(); i++) {
-			String s = invalids.get(i);
+		for (String s : invalids) {
 			stringBuilder.append(s).append("\n");
 		}
 		

@@ -29,7 +29,7 @@ public class Scripting {
 		
 		System.out.println("RSyntaxTextArea supported syntax languages:");
 		TokenMakerFactory f = TokenMakerFactory.getDefaultInstance();
-		List<String> list = new ArrayList<String>(f.keySet());
+		List<String> list = new ArrayList<>(f.keySet());
 		Collections.sort(list);
 		for (String type : list) {
 			System.out.println("  " + type);

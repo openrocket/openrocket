@@ -49,7 +49,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class PhotoSettingsConfig extends JTabbedPane {
@@ -133,16 +132,16 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 		setPreferredSize(new Dimension(240, 320));
 
-		final JButton sunLightColorButton = new SelectColorButton();
+		final JButton sunLightColorButton = new JButton();
 		sunLightColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton skyColorButton = new SelectColorButton();
+		final JButton skyColorButton = new JButton();
 		skyColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton smokeColorButton = new SelectColorButton();
+		final JButton smokeColorButton = new JButton();
 		smokeColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton flameColorButton = new SelectColorButton();
+		final JButton flameColorButton = new JButton();
 		flameColorButton.setMaximumSize(new Dimension(35, 25));
 
 		p.addChangeListener(new StateChangeListener() {
@@ -293,8 +292,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 						return trans.get("DecalModel.lbl.select");
 					}
 				};
-				add(new JComboBox<Sky>(new DefaultComboBoxModel<Sky>(new Sky[] { noSky, Mountains.instance, Meadow.instance,
-						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance }) {
+				add(new JComboBox<>(new DefaultComboBoxModel<>(new Sky[]{noSky, Mountains.instance, Meadow.instance,
+						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance}) {
 				}) {
 					{
 						addActionListener(new ActionListener() {
@@ -320,8 +319,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 						if (p.getSky() != null) {
 							setSelectedItem(p.getSky());
-						}
-						else {
+						} else {
 							setSelectedItem(noSky);
 						}
 					}

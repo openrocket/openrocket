@@ -16,8 +16,8 @@ import java.util.List;
 public class ClusterConfiguration {
 	// Helper vars
 	private static final double R5 = 1.0 / (2 * Math.sin(2 * Math.PI / 10));
-	private static final double SQRT2 = Math.sqrt(2);
-	private static final double SQRT3 = Math.sqrt(3);
+	private static final double SQRT2 = 1.4142135623730951;
+	private static final double SQRT3 = 1.7320508075688772;
 
 	/** A single motor */
 	public static final ClusterConfiguration SINGLE = new ClusterConfiguration("single", 0, 0);
@@ -71,7 +71,7 @@ public class ClusterConfiguration {
 			throw new IllegalArgumentException("Illegal number of points specified: " +
 					points.length);
 		}
-		List<Double> l = new ArrayList<Double>(points.length);
+		List<Double> l = new ArrayList<>(points.length);
 		for (double d : points)
 			l.add(d);
 
@@ -108,7 +108,7 @@ public class ClusterConfiguration {
 	public List<Double> getPoints(double rotation) {
 		double cos = Math.cos(rotation);
 		double sin = Math.sin(rotation);
-		List<Double> ret = new ArrayList<Double>(points.size());
+		List<Double> ret = new ArrayList<>(points.size());
 		for (int i = 0; i < points.size() / 2; i++) {
 			double x = points.get(2 * i);
 			double y = points.get(2 * i + 1);

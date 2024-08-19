@@ -53,7 +53,7 @@ public class URLLabel extends SelectableLabel {
 		if (Desktop.isDesktopSupported()) {
 			
 			// Blue, underlined font
-			Map<TextAttribute, Object> map = new HashMap<TextAttribute, Object>();
+			Map<TextAttribute, Object> map = new HashMap<>();
 			map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 			this.setFont(this.getFont().deriveFont(map));
 			this.setForeground(URLColor);

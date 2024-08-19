@@ -105,7 +105,7 @@ public class ComponentPresetTable extends JTable {
 		};
 
 
-		this.sorter = new TableRowSorter<TableModel>(tableModel);
+		this.sorter = new TableRowSorter<>(tableModel);
 		this.tableColumnModel = new XTableColumnModel();
 
 		/*

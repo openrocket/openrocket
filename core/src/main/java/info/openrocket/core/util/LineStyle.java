@@ -15,13 +15,13 @@ import info.openrocket.core.startup.Application;
 public enum LineStyle {
 
 	//// Solid
-	SOLID("LineStyle.Solid", new float[] { 10f, 0f }),
+	SOLID("LineStyle.Solid", new float[] {10.0f, 0.0f}),
 	//// Dashed
-	DASHED("LineStyle.Dashed", new float[] { 6f, 4f }),
+	DASHED("LineStyle.Dashed", new float[] {6.0f, 4.0f}),
 	//// Dotted
-	DOTTED("LineStyle.Dotted", new float[] { 2f, 3f }),
+	DOTTED("LineStyle.Dotted", new float[] {2.0f, 3.0f}),
 	//// Dash-dotted
-	DASHDOT("LineStyle.Dash-dotted", new float[] { 8f, 3f, 2f, 3f });
+	DASHDOT("LineStyle.Dash-dotted", new float[] {8.0f, 3.0f, 2.0f, 3.0f});
 
 	private static final Translator trans = Application.getTranslator();
 	private final String name;

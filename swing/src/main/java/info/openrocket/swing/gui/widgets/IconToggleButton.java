@@ -4,6 +4,7 @@ import info.openrocket.swing.gui.util.Icons;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import java.awt.Insets;
 
@@ -16,7 +17,7 @@ import java.awt.Insets;
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class IconToggleButton extends SelectColorToggleButton {
+public class IconToggleButton extends JToggleButton {
     private double ICON_SCALE = 1;
 
     public IconToggleButton(Action a) {

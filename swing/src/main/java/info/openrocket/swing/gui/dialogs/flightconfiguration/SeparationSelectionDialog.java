@@ -13,6 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 
 import info.openrocket.core.formatting.RocketDescriptor;
@@ -29,8 +30,9 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.adaptors.EnumModel;
+import info.openrocket.swing.gui.components.BasicSlider;
+import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class SeparationSelectionDialog extends JDialog {
@@ -40,6 +42,11 @@ public class SeparationSelectionDialog extends JDialog {
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private StageSeparationConfiguration newConfiguration;
+	
+	private final JLabel altText;
+	private final JSpinner altSpinner;
+	private final UnitSelector altUnit;
+	private final JSlider altSlider;
 
 	private boolean isOverrideDefault;
 	
@@ -52,7 +59,6 @@ public class SeparationSelectionDialog extends JDialog {
 		}
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
-		
 		
 		// Select separation event
 		panel.add(new JLabel(trans.get("SeparationSelectionDialog.opt.title")), "span, wrap rel");
@@ -77,10 +83,29 @@ public class SeparationSelectionDialog extends JDialog {
 		if (isOverridden) {
 			overrideButton.setSelected(true);
 		}
-		
-		final JComboBox<SeparationEvent> event = new JComboBox<SeparationEvent>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
+
+		//// Separation
+		//// Stages separate at:
+		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.SeparatesAt")), "");
+				  
+		final JComboBox<SeparationEvent> event = new JComboBox<>(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
+
 		event.setSelectedItem(newConfiguration.getSeparationEvent());
-		panel.add(event, "wrap rel");
+		panel.add(event, "spanx 3, growx, wrap");
+		
+		// Altitude:
+		altText = new JLabel(trans.get("ParachuteCfg.lbl.Altitude"));
+		panel.add(altText);
+		
+		final DoubleModel alt = new DoubleModel(newConfiguration, "SeparationAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		
+		altSpinner = new JSpinner(alt.getSpinnerModel());
+		altSpinner.setEditor(new SpinnerEditor(altSpinner));
+		panel.add(altSpinner, "growx");
+		altUnit = new UnitSelector(alt);
+		panel.add(altUnit, "growx");
+		altSlider = new BasicSlider(alt.getSliderModel(100, 1000));
+		panel.add(altSlider, "w 100lp, wrap");
 		
 		// ... and delay
 		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.plus")), "alignx 100%");
@@ -92,11 +117,18 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("ComponentAssemblyConfig.separation.lbl.seconds")), "wrap para");
-		
-		
+
+		event.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateState();
+			}
+		});
+		updateState();
+				
 		panel.add(new JPanel(), "span, split, growx");
 		
-		JButton okButton = new SelectColorButton(trans.get("button.ok"));
+		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -115,7 +147,7 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		panel.add(okButton, "sizegroup btn");
 		
-		JButton cancel = new SelectColorButton(trans.get("button.cancel"));
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -131,6 +163,17 @@ public class SeparationSelectionDialog extends JDialog {
 		GUIUtil.installEscapeCloseButtonOperation(this, okButton);
 	}
 
+	
+	private void updateState() {
+		boolean enabled = ((newConfiguration.getSeparationEvent() == SeparationEvent.ALTITUDE_ASCENDING) ||
+						   (newConfiguration.getSeparationEvent() == SeparationEvent.ALTITUDE_DESCENDING));
+
+		altText.setEnabled(enabled);
+		altSpinner.setEnabled(enabled);
+		altUnit.setEnabled(enabled);
+		altSlider.setEnabled(enabled);
+	}
+	
 	/**
 	 * Returns true if this dialog was used to override the default configuration.
 	 * @return true if this dialog was used to override the default configuration.

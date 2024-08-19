@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import info.openrocket.core.util.Groupable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ import info.openrocket.core.util.StringUtils;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class FlightDataType implements Comparable<FlightDataType> {
+public class FlightDataType implements Comparable<FlightDataType>, Groupable<FlightDataTypeGroup> {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(FlightDataType.class);
 
@@ -41,7 +42,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 
 	/** List of existing types. MUST BE DEFINED BEFORE ANY TYPES!! */
 	/** NOTE: The String key here is now the symbol */
-	private static final Map<String, FlightDataType> EXISTING_TYPES = new HashMap<String, FlightDataType>();
+	private static final Map<String, FlightDataType> EXISTING_TYPES = new HashMap<>();
 
 	//// Time
 	public static final FlightDataType TYPE_TIME = newType(trans.get("FlightDataType.TYPE_TIME"), "t",

@@ -30,11 +30,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.theme.ORScrollPaneBorder;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
@@ -52,16 +54,14 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.widgets.IconToggleButton;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preset.ComponentPreset;
-import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Invalidatable;
 
@@ -69,7 +69,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 	private static final long serialVersionUID = -2925484062132243982L;
 
 	private static final Translator trans = Application.getTranslator();
-	private static final Preferences preferences = Application.getPreferences();
+	private static final ApplicationPreferences preferences = Application.getPreferences();
 	
 	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
@@ -160,7 +160,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			this.add(presetComboBox, "growx 110");
 			order.add(presetComboBox);
 
-			final JButton selectPreset = new SelectColorButton(trans.get("PresetModel.lbl.partsLib"));
+			final JButton selectPreset = new JButton(trans.get("PresetModel.lbl.partsLib"));
 			selectPreset.setToolTipText(trans.get("PresetModel.lbl.partsLib.ttip"));
 			selectPreset.addActionListener(new ActionListener() {
 				@Override
@@ -289,7 +289,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		}
 
 		//// Cancel button
-		this.cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		this.cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		this.cancelButton.setToolTipText(trans.get("RocketCompCfg.btn.Cancel.ttip"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
@@ -328,7 +328,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 		buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
 
 		//// Ok button
-		this.okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		this.okButton = new JButton(trans.get("dlg.but.ok"));
 		this.okButton.setToolTipText(trans.get("RocketCompCfg.btn.OK.ttip"));
 		okButton.addActionListener(new ActionListener() {
 			@Override

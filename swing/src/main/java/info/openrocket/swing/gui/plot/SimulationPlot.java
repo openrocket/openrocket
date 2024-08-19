@@ -14,7 +14,14 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +32,7 @@ import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.LinearInterpolator;
@@ -87,7 +94,7 @@ public class SimulationPlot {
 	private final PlotConfiguration filled;
 
 	private final List<EventDisplayInfo> eventList;
-	private final List<ModifiedXYItemRenderer> renderers = new ArrayList<ModifiedXYItemRenderer>();
+	private final List<ModifiedXYItemRenderer> renderers = new ArrayList<>();
 
 	private final LegendItems legendItems;
 
@@ -419,7 +426,7 @@ public class SimulationPlot {
 		List<Image> eventImages = new ArrayList<>();
 
 		// Plot the markers
-		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(Preferences.MARKER_STYLE_ICON, false)) {
+		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME && !preferences.getBoolean(ApplicationPreferences.MARKER_STYLE_ICON, false)) {
 			fillEventLists(branch, eventTimes, eventLabels, eventColors, eventImages);
 			plotVerticalLineMarkers(plot, eventTimes, eventLabels, eventColors);
 
@@ -445,7 +452,7 @@ public class SimulationPlot {
 
 	private void fillEventLists(int branch, List<Double> eventTimes, List<String> eventLabels,
 								List<Color> eventColors, List<Image> eventImages) {
-		HashSet<FlightEvent.Type> typeSet = new HashSet<>();
+		Set<FlightEvent.Type> typeSet = new HashSet<>();
 		double prevTime = -100;
 		String text = null;
 		Color color = null;
@@ -571,7 +578,7 @@ public class SimulationPlot {
 	}
 
 	private List<EventDisplayInfo> buildEventInfo() {
-		ArrayList<EventDisplayInfo> eventList = new ArrayList<EventDisplayInfo>();
+		ArrayList<EventDisplayInfo> eventList = new ArrayList<>();
 
 		for (int branch = 0; branch < branchCount; branch++) {
 			List<FlightEvent> events = simulation.getSimulatedData().getBranch(branch).getEvents();
@@ -587,7 +594,7 @@ public class SimulationPlot {
 			}
 		}
 
-		Collections.sort(eventList, new Comparator<EventDisplayInfo>() {
+		eventList.sort(new Comparator<>() {
 
 			@Override
 			public int compare(EventDisplayInfo o1, EventDisplayInfo o2) {
@@ -606,10 +613,10 @@ public class SimulationPlot {
 
 	private static class LegendItems implements LegendItemSource {
 
-		private final List<String> lineLabels = new ArrayList<String>();
-		private final List<Paint> linePaints = new ArrayList<Paint>();
-		private final List<Stroke> lineStrokes = new ArrayList<Stroke>();
-		private final List<Shape> pointShapes = new ArrayList<Shape>();
+		private final List<String> lineLabels = new ArrayList<>();
+		private final List<Paint> linePaints = new ArrayList<>();
+		private final List<Stroke> lineStrokes = new ArrayList<>();
+		private final List<Shape> pointShapes = new ArrayList<>();
 
 		@Override
 		public LegendItemCollection getLegendItems() {

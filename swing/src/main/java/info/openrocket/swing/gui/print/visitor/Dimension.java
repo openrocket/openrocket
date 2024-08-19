@@ -15,7 +15,7 @@ public class Dimension {
     /**
      * Breadth, in points.
      */
-    public float breadth = 0f;
+    public float breadth = 0.0f;
 
     /**
      * Constructor.

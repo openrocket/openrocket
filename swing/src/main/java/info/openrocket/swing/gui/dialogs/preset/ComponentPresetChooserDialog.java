@@ -46,7 +46,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.TableUIPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 import info.openrocket.swing.utils.TableRowTraversalPolicy;
 
 /**
@@ -208,7 +207,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		panel.add(alwaysOpenPreset, "spanx 2");
 		
 		// Close buttons
-		JButton closeButton = new SelectColorButton(trans.get("dlg.but.close"));
+		JButton closeButton = new JButton(trans.get("dlg.but.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -376,7 +375,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	}
 	
 	private void updateFilters() {
-		List<RowFilter<TableModel, Object>> filters = new ArrayList<RowFilter<TableModel, Object>>(2);
+		List<RowFilter<TableModel, Object>> filters = new ArrayList<>(2);
 		String filterTextRegex = filterText.getText();
 		if (filterTextRegex != null) {
 			try {

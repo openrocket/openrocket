@@ -44,6 +44,7 @@ import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.jfree.chart.ChartColor;
@@ -137,7 +138,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		//// MotorFilter
 		{
 			// Find all the manufacturers:
-			Set<Manufacturer> allManufacturers = new HashSet<Manufacturer>();
+			Set<Manufacturer> allManufacturers = new HashSet<>();
 			for (ThrustCurveMotorSet s : database) {
 				allManufacturers.add(s.getManufacturer());
 			}
@@ -162,8 +163,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Selectthrustcurve"));
 			panel.add(curveSelectionLabel);
 
-			curveSelectionModel = new DefaultComboBoxModel<MotorHolder>();
-			curveSelectionBox = new JComboBox<MotorHolder>(curveSelectionModel);
+			curveSelectionModel = new DefaultComboBoxModel<>();
+			curveSelectionBox = new JComboBox<>(curveSelectionModel);
 			@SuppressWarnings("unchecked")
 			ListCellRenderer<MotorHolder> lcr = (ListCellRenderer<MotorHolder>) curveSelectionBox.getRenderer(); 
 			curveSelectionBox.setRenderer(new CurveSelectionRenderer(lcr));
@@ -184,7 +185,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			ejectionChargeDelayLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay"));
 			panel.add(ejectionChargeDelayLabel);
 
-			delayBox = new JComboBox<String>();
+			delayBox = new JComboBox<>();
 			delayBox.setEditable(true);
 			delayBox.addActionListener(new ActionListener() {
 				@Override
@@ -217,11 +218,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		{
 			hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
 			GUIUtil.changeFontSize(hideSimilarBox, -1);
-			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(info.openrocket.core.startup.Preferences.MOTOR_HIDE_SIMILAR, true));
+			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.MOTOR_HIDE_SIMILAR, true));
 			hideSimilarBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Application.getPreferences().putBoolean(info.openrocket.core.startup.Preferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+					Application.getPreferences().putBoolean(ApplicationPreferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
 					updateData();
 				}
 			});
@@ -232,11 +233,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		{
 			hideUnavailableBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUnavailable"));
 			GUIUtil.changeFontSize(hideUnavailableBox, -1);
-			hideUnavailableBox.setSelected(Application.getPreferences().getBoolean(info.openrocket.core.startup.Preferences.MOTOR_HIDE_UNAVAILABLE, true));
+			hideUnavailableBox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.MOTOR_HIDE_UNAVAILABLE, true));
 			hideUnavailableBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					Application.getPreferences().putBoolean(info.openrocket.core.startup.Preferences.MOTOR_HIDE_UNAVAILABLE, hideUnavailableBox.isSelected());
+					Application.getPreferences().putBoolean(ApplicationPreferences.MOTOR_HIDE_UNAVAILABLE, hideUnavailableBox.isSelected());
 					motorFilterPanel.setHideUnavailable(hideUnavailableBox.isSelected());
 				}
 			});
@@ -295,7 +296,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 			// Set comparators and widths
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			sorter = new TableRowSorter<TableModel>(model);
+			sorter = new TableRowSorter<>(model);
 			for (int i = 0; i < ThrustCurveMotorColumns.values().length; i++) {
 				ThrustCurveMotorColumns column = ThrustCurveMotorColumns.values()[i];
 				sorter.setComparator(i, column.getComparator());
@@ -340,7 +341,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Number of motors
 		{
-			nrOfMotorsLabel = new StyledLabel(-2f, StyledLabel.Style.ITALIC);
+			nrOfMotorsLabel = new StyledLabel(-2.0f, StyledLabel.Style.ITALIC);
 			nrOfMotorsLabel.setToolTipText(trans.get("TCMotorSelPan.lbl.ttip.nrOfMotors"));
 			updateNrOfMotors();
 			nrOfMotorsLabel.setForeground(dimTextColor);
@@ -439,7 +440,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			ThrustCurveMotorSet motorSetToSelect = null;
 			motorSetToSelect = findMotorSet(motorToSelect);
 			if (motorSetToSelect == null) {
-				database = new ArrayList<ThrustCurveMotorSet>(database);
+				database = new ArrayList<>(database);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
 				extra.addMotor(motorToSelect);
 				database.add(extra);
@@ -485,7 +486,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		// Store selected motor in preferences node, set all others to false
-		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(info.openrocket.core.startup.Preferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : set.getMotors()) {
 			String digest = m.getDigest();
 			prefs.putBoolean(digest, m == motor);
@@ -565,9 +566,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	List<ThrustCurveMotor> getFilteredCurves() {
 		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
 		if (hideSimilarBox.isSelected()  && selectedMotor != null) {
-			List<ThrustCurveMotor> filtered = new ArrayList<ThrustCurveMotor>(motors.size());
-			for (int i = 0; i < motors.size(); i++) {
-				ThrustCurveMotor m = motors.get(i);
+			List<ThrustCurveMotor> filtered = new ArrayList<>(motors.size());
+			for (ThrustCurveMotor m : motors) {
 				if (m.equals(selectedMotor)) {
 					filtered.add(m);
 					continue;
@@ -581,7 +581,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			motors = filtered;
 		}
 
-		Collections.sort(motors, MOTOR_COMPARATOR);
+		motors.sort(MOTOR_COMPARATOR);
 
 		return motors;
 	}
@@ -656,7 +656,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Find which motor has been used the most recently
 		List<ThrustCurveMotor> list = set.getMotors();
-		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(info.openrocket.core.startup.Preferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : list) {
 			String digest = m.getDigest();
 			if (prefs.getBoolean(digest, false)) {
@@ -665,7 +665,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		// No motor has been used
-		Collections.sort(list, MOTOR_COMPARATOR);
+		list.sort(MOTOR_COMPARATOR);
 		return list.get(0);
 	}
 
@@ -711,7 +711,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			if (!containsPlugged) {
 				delayStrings[delayStrings.length - 1] = trans.get("TCMotorSelPan.delayBox.Plugged");
 			}
-			delayBox.setModel(new DefaultComboBoxModel<String>(delayStrings));
+			delayBox.setModel(new DefaultComboBoxModel<>(delayStrings));
 
 			if (reset) {
 				// Find and set the closest value

@@ -15,6 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
+import info.openrocket.core.material.MaterialGroup;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -36,7 +39,6 @@ import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.HtmlLabel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 
 public class StreamerConfig extends RecoveryDeviceConfig {
@@ -109,9 +111,9 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Material:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
 
-		MaterialModel mm = new MaterialModel(panel, component, Material.Type.SURFACE);
+		MaterialModel mm = new MaterialModel(panel, document, component, Material.Type.SURFACE);
 		register(mm);
-		JComboBox<Material> streamerMaterialCombo = new JComboBox<>(mm);
+		GroupableAndSearchableComboBox<MaterialGroup, Material> streamerMaterialCombo = MaterialComboBox.createComboBox(document, mm);
 		//// The component material affects the weight of the component.
 		streamerMaterialCombo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
 		panel.add(streamerMaterialCombo, "spanx 3, growx, wrap 15lp");
@@ -313,7 +315,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Reset button
-		JButton button = new SelectColorButton(trans.get("StreamerCfg.but.Reset"));
+		JButton button = new JButton(trans.get("StreamerCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

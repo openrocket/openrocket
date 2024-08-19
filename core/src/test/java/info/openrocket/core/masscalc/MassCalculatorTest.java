@@ -5,11 +5,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import info.openrocket.core.document.OpenRocketDocumentFactory;
-import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.BodyComponent;
+import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.rocketcomponent.MassComponent;
+import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.rocketcomponent.Parachute;
+import info.openrocket.core.rocketcomponent.ParallelStage;
+import info.openrocket.core.rocketcomponent.PodSet;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.ShockCord;
+import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
-import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Motor;
@@ -994,7 +1011,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		final Motor boosterMotor = mnt.getMotorConfig(config.getFlightConfigurationID()).getMotor();
 
 		final double expBoosterPropMassEach = boosterMotor.getLaunchMass();
-		final double boosterSetMotorCount = 8.; /// use a double merely to prevent type-casting issues
+		final double boosterSetMotorCount = 8.0; /// use a double merely to prevent type-casting issues
 		final double expBoosterPropMass = expBoosterPropMassEach * boosterSetMotorCount;
 
 		final Coordinate expCM = new Coordinate(1.31434, 0, 0, expBoosterPropMass);

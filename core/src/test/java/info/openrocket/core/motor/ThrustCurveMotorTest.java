@@ -108,7 +108,7 @@ public class ThrustCurveMotorTest {
 
 	private class TestPair extends Pair<Double, Double> {
 		private TestPair() {
-			super(0., 0.);
+			super(0.0, 0.0);
 		}
 
 		public TestPair(Double u, Double v) {
@@ -173,7 +173,7 @@ public class ThrustCurveMotorTest {
 	public void testTimeRetrieval() {
 		final ThrustCurveMotor mtr = motorX6;
 
-		final double[] timeList = { 0.2, 0.441, 0.512, 1., 2., 3 };
+		final double[] timeList = { 0.2, 0.441, 0.512, 1.0, 2.0, 3 };
 
 		for (double searchTime : timeList) {
 			assertEquals(searchTime, mtr.getTime(searchTime), 0.00001);

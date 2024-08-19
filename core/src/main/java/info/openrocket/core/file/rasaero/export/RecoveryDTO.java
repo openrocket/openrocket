@@ -30,10 +30,10 @@ import java.util.List;
 public class RecoveryDTO {
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_ALTITUDE + 1)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double altitude1 = 0d;
+    private Double altitude1 = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_ALTITUDE + 2)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double altitude2 = 0d;
+    private Double altitude2 = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_DEVICE_TYPE + 1)
     private String deviceType1 = "None";
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_DEVICE_TYPE + 2)
@@ -46,20 +46,20 @@ public class RecoveryDTO {
     private Boolean event2 = false;
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_SIZE + 1)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double size1 = 0d;
+    private Double size1 = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_SIZE + 2)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double size2 = 0d;
+    private Double size2 = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_EVENT_TYPE + 1)
     private String eventType1 = "None";
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_EVENT_TYPE + 2)
     private String eventType2 = "None";
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_CD + 1)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double CD1 = 0d;
+    private Double CD1 = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.RECOVERY_CD + 2)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double CD2 = 0d;
+    private Double CD2 = 0.0d;
 
     @XmlTransient
     private static final Logger log = LoggerFactory.getLogger(RecoveryDTO.class);

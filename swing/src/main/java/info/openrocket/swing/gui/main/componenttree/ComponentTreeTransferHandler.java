@@ -89,7 +89,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 			}
 		}
 
-		log.info("Creating transferable from component " + sb.toString());
+		log.info("Creating transferable from component " + sb);
 		return new RocketComponentTransferable(components);
 	}
 	

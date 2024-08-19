@@ -47,7 +47,7 @@ public class StringUtils {
 		if (s == null) {
 			return true;
 		}
-		return "".equals(s.trim());
+		return s.trim().isEmpty();
 	}
 
 	/**

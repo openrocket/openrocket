@@ -31,8 +31,6 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
-import org.fife.ui.rtextarea.IconGroup;
 
 public class GuidedTourSelectionDialog extends JDialog {
 	private static final long serialVersionUID = -3643116444821710259L;
@@ -62,7 +60,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		panel.add(new StyledLabel(trans.get("lbl.selectTour"), Style.BOLD), "spanx, wrap rel");
 		
-		tourList = new JList<Named<SlideSet>>(new TourListModel());
+		tourList = new JList<>(new TourListModel());
 		tourList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tourList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -96,7 +94,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		tourLength = new StyledLabel(-1);
 		sub.add(tourLength, "wrap unrel");
 		
-		JButton start = new SelectColorButton(trans.get("btn.start"));
+		JButton start = new JButton(trans.get("btn.start"));
 		start.setIcon(Icons.HELP_TOURS);
 		start.addActionListener(new ActionListener() {
 			@Override
@@ -110,7 +108,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		
 		
-		JButton close = new SelectColorButton(trans.get("button.close"));
+		JButton close = new JButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -176,7 +174,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		public Named<SlideSet> getElementAt(int index) {
 			String name = tourNames.get(index);
 			SlideSet set = slideSetManager.getSlideSet(name);
-			return new Named<SlideSet>(set, set.getTitle());
+			return new Named<>(set, set.getTitle());
 		}
 		
 		@Override

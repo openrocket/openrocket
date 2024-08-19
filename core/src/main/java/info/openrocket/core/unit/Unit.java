@@ -104,7 +104,7 @@ public abstract class Unit {
 
 		double val = toUnit(value);
 
-		if (Math.abs(val) > 1E6) {
+		if (Math.abs(val) > 1.0E6) {
 			return expFormat.format(val);
 		}
 		if (Math.abs(val) >= 100) {

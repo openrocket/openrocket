@@ -36,34 +36,34 @@ public class SimulationDTO {
     private String sustainerEngine;
     @XmlElement(name = RASAeroCommonConstants.SUSTAINER_LAUNCH_WT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double sustainerLaunchWt = 0d;
+    private Double sustainerLaunchWt = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.SUSTAINER_NOZZLE_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double sustainerNozzleDiameter = 0d;
+    private Double sustainerNozzleDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.SUSTAINER_CG)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double sustainerCG = 0d;
+    private Double sustainerCG = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double sustainerIgnitionDelay = 0d;
+    private Double sustainerIgnitionDelay = 0.0d;
 
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_ENGINE)
     private String booster1Engine;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_LAUNCH_WT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster1LaunchWt = 0d;
+    private Double booster1LaunchWt = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_SEPARATION_DELAY)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster1SeparationDelay = 0d;
+    private Double booster1SeparationDelay = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster1IgnitionDelay = 0d;
+    private Double booster1IgnitionDelay = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_CG)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster1CG = 0d;
+    private Double booster1CG = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER1_NOZZLE_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster1NozzleDiameter = 0d;
+    private Double booster1NozzleDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.INCLUDE_BOOSTER1)
     @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
     private Boolean includeBooster1 = false;
@@ -72,38 +72,38 @@ public class SimulationDTO {
     private String booster2Engine;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER2_LAUNCH_WT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster2LaunchWt = 0d;
+    private Double booster2LaunchWt = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster2Delay = 0d;
+    private Double booster2Delay = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER2_CG)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster2CG = 0d;
+    private Double booster2CG = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.BOOSTER2_NOZZLE_DIAMETER)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double booster2NozzleDiameter = 0d;
+    private Double booster2NozzleDiameter = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.INCLUDE_BOOSTER2)
     @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
     private Boolean includeBooster2 = false;
 
     @XmlElement(name = RASAeroCommonConstants.FLIGHT_TIME)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double flightTime = 0d;
+    private Double flightTime = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.TIME_TO_APOGEE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double timetoApogee = 0d;
+    private Double timetoApogee = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.MAX_ALTITUDE)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double maxAltitude = 0d;
+    private Double maxAltitude = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.MAX_VELOCITY)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double maxVelocity = 0d;
+    private Double maxVelocity = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.OPTIMUM_WT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double optimumWt = 0d;
+    private Double optimumWt = 0.0d;
     @XmlElement(name = RASAeroCommonConstants.OPTIMUM_MAX_ALT)
     @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
-    private Double optimumMaxAlt = 0d;
+    private Double optimumMaxAlt = 0.0d;
 
     @XmlTransient
     private static final Translator trans = Application.getTranslator();

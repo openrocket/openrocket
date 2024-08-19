@@ -48,7 +48,6 @@ import info.openrocket.swing.gui.print.components.RocketPrintTree;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 /**
  * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
@@ -71,7 +70,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private JButton saveAsPDF;
 	private JButton cancel;
 
-    private double rotation = 0d;
+    private double rotation = 0.0d;
     
     private boolean updateSimulations = true;
 	
@@ -170,7 +169,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(new JPanel(), "pad 0, aligny top, growx");
 		
 
-		JButton settingsButton = new SelectColorButton(trans.get("printdlg.but.settings"));
+		JButton settingsButton = new JButton(trans.get("printdlg.but.settings"));
 		settingsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -184,7 +183,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(settingsButton, "aligny top, wrap para");
 				
 
-		previewButton = new SelectColorButton(trans.get("but.previewAndPrint"));
+		previewButton = new JButton(trans.get("but.previewAndPrint"));
 		previewButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -195,7 +194,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(previewButton, "split, right, gap para");
 		
 
-		saveAsPDF = new SelectColorButton(trans.get("printdlg.but.saveaspdf"));
+		saveAsPDF = new JButton(trans.get("printdlg.but.saveaspdf"));
 		saveAsPDF.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -207,7 +206,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(saveAsPDF, "right, gap para");
 		
 
-		cancel = new SelectColorButton(trans.get("button.cancel"));
+		cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

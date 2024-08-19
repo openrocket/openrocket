@@ -36,6 +36,7 @@ public final class ExampleDesignFileAction extends JMenu {
         "3D Printable Nose Cone and Fins",
         null,
         // Examples demonstrating complex rocket features
+		"Deployable payload",
         "Airstart timing",
         "Base drag hack (short-wide)",
         "Chute release",

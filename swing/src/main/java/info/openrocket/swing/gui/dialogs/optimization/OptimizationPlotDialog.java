@@ -30,7 +30,6 @@ import info.openrocket.core.util.MathUtil;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -111,7 +110,7 @@ public class OptimizationPlotDialog extends JDialog {
 		panel.add(label, "");
 		
 
-		JButton close = new SelectColorButton(trans.get("button.close"));
+		JButton close = new JButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -143,9 +142,9 @@ public class OptimizationPlotDialog extends JDialog {
 		
 		// Create the optimization path (with autosort)
 		XYSeries series = new XYSeries(trans.get("plot1d.series"), true, true);
-		List<String> tooltips = new ArrayList<String>();
-		for (Point p : evaluations.keySet()) {
-			FunctionEvaluationData data = evaluations.get(p);
+		List<String> tooltips = new ArrayList<>();
+		for (Map.Entry<Point, FunctionEvaluationData> entry : evaluations.entrySet()) {
+			FunctionEvaluationData data = entry.getValue();
 			if (data != null) {
 				if (data.getParameterValue() != null) {
 					Value[] state = data.getState();
@@ -153,7 +152,7 @@ public class OptimizationPlotDialog extends JDialog {
 					tooltips.add(getTooltip(data, parameter));
 				}
 			} else {
-				log.error("Could not find evaluation data for point " + p);
+				log.error("Could not find evaluation data for point " + entry.getKey());
 			}
 		}
 		
@@ -184,9 +183,9 @@ public class OptimizationPlotDialog extends JDialog {
 		}
 		
 		// Add lines to show optimization limits
-		XYLineAnnotation line = new XYLineAnnotation(x1, -1e19, x1, 1e19);
+		XYLineAnnotation line = new XYLineAnnotation(x1, -1.0e19, x1, 1.0e19);
 		chart.getXYPlot().addAnnotation(line);
-		line = new XYLineAnnotation(x2, -1e19, x2, 1e19);
+		line = new XYLineAnnotation(x2, -1.0e19, x2, 1.0e19);
 		chart.getXYPlot().addAnnotation(line);
 		
 		// Mark the optimum point
@@ -242,7 +241,7 @@ public class OptimizationPlotDialog extends JDialog {
 		
 		// Create the optimization path dataset
 		XYSeries pathSeries = new XYSeries(trans.get("plot2d.path"), false, true);
-		List<String> pathTooltips = new ArrayList<String>();
+		List<String> pathTooltips = new ArrayList<>();
 		for (Point p : path) {
 			FunctionEvaluationData data = evaluations.get(p);
 			if (data != null) {
@@ -259,7 +258,7 @@ public class OptimizationPlotDialog extends JDialog {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
 		double[][] evals = new double[3][evaluations.size()];
-		List<String> evalTooltips = new ArrayList<String>();
+		List<String> evalTooltips = new ArrayList<>();
 		
 		Iterator<FunctionEvaluationData> iterator = evaluations.values().iterator();
 		for (int i = 0; i < evaluations.size(); i++) {

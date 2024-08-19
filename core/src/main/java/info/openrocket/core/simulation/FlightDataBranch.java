@@ -10,6 +10,7 @@ import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayList;
+import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.Mutable;
 
@@ -47,11 +48,11 @@ public class FlightDataBranch implements Monitorable {
 	 */
 	private double optimumAltitude = Double.NaN;
 	
-	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
+	private final ArrayList<FlightEvent> events = new ArrayList<>();
 	
 	private final Mutable mutable = new Mutable();
 	
-	private int modID = 0;
+	private ModID modID = ModID.INVALID;
 	
 	/**
 	 * Sole constructor.  Defines the name of the FlightDataBranch and at least one variable type.
@@ -72,7 +73,7 @@ public class FlightDataBranch implements Monitorable {
 						"times in constructor.");
 			}
 			
-			values.put(t, new ArrayList<Double>());
+			values.put(t, new ArrayList<>());
 			minValues.put(t, Double.NaN);
 			maxValues.put(t, Double.NaN);
 		}
@@ -113,11 +114,11 @@ public class FlightDataBranch implements Monitorable {
 	public void addPoint() {
 		mutable.check();
 		
-		for (FlightDataType type : values.keySet()) {
-			sanityCheckValues(type, Double.NaN);
-			values.get(type).add(Double.NaN);
+		for (Map.Entry<FlightDataType, ArrayList<Double>> entry : values.entrySet()) {
+			sanityCheckValues(entry.getKey(), Double.NaN);
+			entry.getValue().add(Double.NaN);
 		}
-		modID++;
+		modID = new ModID();
 	}
 
 	private void sanityCheckValues(FlightDataType type, Double value) {
@@ -162,7 +163,7 @@ public class FlightDataBranch implements Monitorable {
 		if (Double.isNaN(max) || (value > max)) {
 			maxValues.put(type, value);
 		}
-		modID++;
+		modID = new ModID();
 	}
 
 	/**
@@ -248,8 +249,8 @@ public class FlightDataBranch implements Monitorable {
 	 * Return the number of data points in this branch.
 	 */
 	public int getLength() {
-		for (FlightDataType t : values.keySet()) {
-			return values.get(t).size();
+		for (ArrayList<Double> doubles : values.values()) {
+			return doubles.size();
 		}
 		return 0;
 	}
@@ -381,7 +382,7 @@ public class FlightDataBranch implements Monitorable {
 	public void addEvent(FlightEvent event) {
 		mutable.check();
 		events.add(event);
-		modID++;
+		modID = new ModID();
 	}
 	
 	
@@ -441,15 +442,15 @@ public class FlightDataBranch implements Monitorable {
 	
 	
 	@Override
-	public int getModID() {
+	public ModID getModID() {
 		return modID;
 	}
 
 	public FlightDataBranch clone() {
 		FlightDataType[] types = getTypes();
 		FlightDataBranch clone = new FlightDataBranch(name, types);
-		for (FlightDataType type : values.keySet()) {
-			clone.values.put(type, values.get(type).clone());
+		for (Map.Entry<FlightDataType, ArrayList<Double>> entry : values.entrySet()) {
+			clone.values.put(entry.getKey(), entry.getValue().clone());
 		}
 		clone.minValues.putAll(minValues);
 		clone.maxValues.putAll(maxValues);

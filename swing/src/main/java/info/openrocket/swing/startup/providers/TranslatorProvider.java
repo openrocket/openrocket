@@ -18,7 +18,7 @@ public class TranslatorProvider implements Provider<Translator> {
 	
 	private final static Logger log = LoggerFactory.getLogger(TranslatorProvider.class);
 	
-	private AtomicReference<Translator> translator = new AtomicReference<Translator>();
+	private AtomicReference<Translator> translator = new AtomicReference<>();
 	
 	@Override
 	public Translator get() {

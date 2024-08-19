@@ -24,7 +24,6 @@ import info.openrocket.core.startup.Application;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class EditDecalDialog extends JDialog {
@@ -67,7 +66,7 @@ public class EditDecalDialog extends JDialog {
 				commandText.setEnabled(false);
 				panel.add(commandText, "growx, wrap");
 				
-				final JButton chooser = new SelectColorButton(trans.get("EditDecalDialog.btn.chooser"));
+				final JButton chooser = new JButton(trans.get("EditDecalDialog.btn.chooser"));
 				chooser.setEnabled(false);
 				chooser.addActionListener(new ActionListener() {
 					
@@ -102,7 +101,7 @@ public class EditDecalDialog extends JDialog {
 				commandText.setEnabled(true);
 				panel.add(commandText, "growx, wrap");
 				
-				final JButton chooser = new SelectColorButton(trans.get("EditDecalDialog.btn.chooser"));
+				final JButton chooser = new JButton(trans.get("EditDecalDialog.btn.chooser"));
 				chooser.setEnabled(true);
 				chooser.addActionListener(new ActionListener() {
 					
@@ -147,7 +146,7 @@ public class EditDecalDialog extends JDialog {
 		}
 		
 		// OK / Cancel buttons
-		JButton okButton = new SelectColorButton(trans.get("dlg.but.ok"));
+		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -157,7 +156,7 @@ public class EditDecalDialog extends JDialog {
 		panel.add(okButton, "tag ok, spanx, split");
 		
 		//// Cancel button
-		JButton cancelButton = new SelectColorButton(trans.get("dlg.but.cancel"));
+		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -18,6 +18,7 @@ import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.ModID;
 
 /**
  * Helper methods for firing events to simulation listeners.
@@ -35,7 +36,7 @@ public class SimulationListenerHelper {
 	 */
 	public static void fireStartSimulation(SimulationStatus status)
 			throws SimulationException {
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			l.startSimulation(status);
@@ -50,7 +51,7 @@ public class SimulationListenerHelper {
 	 * Fire endSimulation event.
 	 */
 	public static void fireEndSimulation(SimulationStatus status, SimulationException exception) {
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			l.endSimulation(status, exception);
@@ -70,7 +71,7 @@ public class SimulationListenerHelper {
 	public static boolean firePreStep(SimulationStatus status)
 			throws SimulationException {
 		boolean b;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			b = l.preStep(status);
@@ -91,7 +92,7 @@ public class SimulationListenerHelper {
 	 */
 	public static void firePostStep(SimulationStatus status)
 			throws SimulationException {
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			l.postStep(status);
@@ -112,7 +113,7 @@ public class SimulationListenerHelper {
 	 */
 	public static boolean fireAddFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
 		boolean b;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationEventListener) {
@@ -138,7 +139,7 @@ public class SimulationListenerHelper {
 	 */
 	public static boolean fireHandleFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
 		boolean b;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationEventListener) {
@@ -165,7 +166,7 @@ public class SimulationListenerHelper {
 	public static boolean fireMotorIgnition(SimulationStatus status, MotorConfigurationId motorId, MotorMount mount,
 			MotorClusterState instance) throws SimulationException {
 		boolean result;
-		int modID = status.getModID(); // Contains also motor instance
+		ModID modID = status.getModID(); // Contains also motor instance
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationEventListener) {
@@ -192,7 +193,7 @@ public class SimulationListenerHelper {
 	public static boolean fireRecoveryDeviceDeployment(SimulationStatus status, RecoveryDevice device)
 			throws SimulationException {
 		boolean result;
-		int modID = status.getModID(); // Contains also motor instance
+		ModID modID = status.getModID(); // Contains also motor instance
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationEventListener) {
@@ -220,7 +221,7 @@ public class SimulationListenerHelper {
 	public static AtmosphericConditions firePreAtmosphericModel(SimulationStatus status)
 			throws SimulationException {
 		AtmosphericConditions conditions;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -248,7 +249,7 @@ public class SimulationListenerHelper {
 			throws SimulationException {
 		AtmosphericConditions c;
 		AtmosphericConditions clone = conditions.clone();
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -275,7 +276,7 @@ public class SimulationListenerHelper {
 	public static Coordinate firePreWindModel(SimulationStatus status)
 			throws SimulationException {
 		Coordinate wind;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -300,7 +301,7 @@ public class SimulationListenerHelper {
 	 */
 	public static Coordinate firePostWindModel(SimulationStatus status, Coordinate wind) throws SimulationException {
 		Coordinate w;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -326,7 +327,7 @@ public class SimulationListenerHelper {
 	public static double firePreGravityModel(SimulationStatus status)
 			throws SimulationException {
 		double gravity;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -351,7 +352,7 @@ public class SimulationListenerHelper {
 	 */
 	public static double firePostGravityModel(SimulationStatus status, double gravity) throws SimulationException {
 		double g;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -377,7 +378,7 @@ public class SimulationListenerHelper {
 	public static FlightConditions firePreFlightConditions(SimulationStatus status)
 			throws SimulationException {
 		FlightConditions conditions;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -406,7 +407,7 @@ public class SimulationListenerHelper {
 			throws SimulationException {
 		FlightConditions c;
 		FlightConditions clone = conditions.clone();
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -433,7 +434,7 @@ public class SimulationListenerHelper {
 	public static AerodynamicForces firePreAerodynamicCalculation(SimulationStatus status)
 			throws SimulationException {
 		AerodynamicForces forces;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -460,7 +461,7 @@ public class SimulationListenerHelper {
 			throws SimulationException {
 		AerodynamicForces f;
 		AerodynamicForces clone = forces.clone();
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -487,7 +488,7 @@ public class SimulationListenerHelper {
 	public static RigidBody firePreMassCalculation(SimulationStatus status)
 			throws SimulationException {
 		RigidBody mass;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -513,7 +514,7 @@ public class SimulationListenerHelper {
 	public static RigidBody firePostMassCalculation(SimulationStatus status, RigidBody mass)
 			throws SimulationException {
 		RigidBody m;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -539,7 +540,7 @@ public class SimulationListenerHelper {
 	public static double firePreThrustCalculation(SimulationStatus status)
 			throws SimulationException {
 		double thrust;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -564,7 +565,7 @@ public class SimulationListenerHelper {
 	 */
 	public static double firePostThrustCalculation(SimulationStatus status, double thrust) throws SimulationException {
 		double t;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -589,7 +590,7 @@ public class SimulationListenerHelper {
 	 */
 	public static AccelerationData firePreAccelerationCalculation(SimulationStatus status) throws SimulationException {
 		AccelerationData acceleration;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {
@@ -615,7 +616,7 @@ public class SimulationListenerHelper {
 	public static AccelerationData firePostAccelerationCalculation(SimulationStatus status,
 			AccelerationData acceleration) throws SimulationException {
 		AccelerationData a;
-		int modID = status.getModID();
+		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
 			if (l instanceof SimulationComputationListener) {

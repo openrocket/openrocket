@@ -1,6 +1,11 @@
 package info.openrocket.swing.gui.configdialog;
 
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.util.Invalidatable;
+import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
+import info.openrocket.swing.gui.main.BasicFrame;
+import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
+import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -12,7 +17,6 @@ import info.openrocket.core.startup.Application;
 
 import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.adaptors.MaterialModel;
-import info.openrocket.swing.gui.widgets.SelectColorButton;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -23,7 +27,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -32,31 +35,35 @@ import java.util.List;
 public class MaterialPanel extends JPanel implements Invalidatable, InvalidatingWidget {
     private static final Translator trans = Application.getTranslator();
     private final List<Invalidatable> invalidatables = new ArrayList<>();
+    private GroupableAndSearchableComboBox<MaterialGroup, Material> materialCombo = null;
 
     public MaterialPanel(RocketComponent component, OpenRocketDocument document,
                          Material.Type type, String materialString, String finishString,
-                         String partName,  List<Component> order) {
+                         String partName, List<Component> order) {
         super(new MigLayout());
         this.setBorder(BorderFactory.createTitledBorder(trans.get("MaterialPanel.title.Material")));
 
+        //// Component material
         JLabel label = new JLabel(materialString);
-        //// The component material affects the weight of the component.
         label.setToolTipText(trans.get("MaterialPanel.lbl.ttip.ComponentMaterialAffects"));
         this.add(label, "spanx 4, wrap rel");
 
-        MaterialModel mm = new MaterialModel(this, component, type, partName);
+        MaterialModel mm = new MaterialModel(this, document, component, type, partName);
         register(mm);
-        JComboBox<Material> materialCombo = new JComboBox<>(mm);
-        //// The component material affects the weight of the component.
-        materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
-        this.add(materialCombo, "spanx 4, growx, wrap paragraph");
-        order.add(materialCombo);
 
+        // Material selection combo box
+        this.materialCombo = MaterialComboBox.createComboBox(document, mm);
+        this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
+        this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
+        order.add(this.materialCombo);
+
+        // No surface finish for internal components
         if (!(component instanceof ExternalComponent)) {
             return;
         }
+
+        //// Surface finish
         label = new JLabel(finishString);
-        ////<html>The component finish affects the aerodynamic drag of the component.<br>
         String tip = trans.get("MaterialPanel.lbl.ComponentFinish.ttip.longA1")
                 //// The value indicated is the average roughness height of the surface.
                 + trans.get("MaterialPanel.lbl.ComponentFinish.ttip.longA2");
@@ -71,7 +78,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         order.add(finishCombo);
 
         //// Set for all
-        JButton button = new SelectColorButton(trans.get("MaterialPanel.but.SetForAll"));
+        JButton button = new JButton(trans.get("MaterialPanel.but.SetForAll"));
         //// Set this finish for all components of the rocket.
         button.setToolTipText(trans.get("MaterialPanel.but.SetForAll.ttip"));
         button.addActionListener(new ActionListener() {
@@ -82,13 +89,11 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
                     document.startUndo("Set rocket finish");
 
                     // Do changes
-                    Iterator<RocketComponent> iter = component.getRoot().iterator();
-                    while (iter.hasNext()) {
-                        RocketComponent c = iter.next();
-                        if (c instanceof ExternalComponent) {
-                            ((ExternalComponent) c).setFinish(f);
-                        }
-                    }
+					for (RocketComponent c : component.getRocket()) {
+						if (c instanceof ExternalComponent) {
+							((ExternalComponent) c).setFinish(f);
+						}
+					}
                 } finally {
                     document.stopUndo();
                 }

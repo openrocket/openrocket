@@ -1,7 +1,6 @@
 package info.openrocket.core.aerodynamics.barrowman;
 
 import java.util.List;
-import java.lang.Math;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

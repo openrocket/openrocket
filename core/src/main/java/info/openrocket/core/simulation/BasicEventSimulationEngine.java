@@ -57,7 +57,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private FlightConfigurationId fcid;
 
 	// this is just a list of simulation branches to
-	Deque<SimulationStatus> toSimulate = new ArrayDeque<SimulationStatus>();
+	Deque<SimulationStatus> toSimulate = new ArrayDeque<>();
 
 	FlightData flightData;
 	
@@ -202,7 +202,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (!currentStatus.isLanded())
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
 											 currentStatus.getConfiguration().getRocket(),
-											 new Pair<Double, Double>(oldAlt, currentStatus.getRocketPosition().z)));
+							new Pair<>(oldAlt, currentStatus.getRocketPosition().z)));
 				
 				if (currentStatus.getRocketPosition().z > currentStatus.getMaxAlt()) {
 					currentStatus.setMaxAlt(currentStatus.getRocketPosition().z);
@@ -362,9 +362,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				int stageNo = stage.getStageNumber();
 				if (stageNo == 0)
 					continue;
-				
+
 				StageSeparationConfiguration separationConfig = stage.getSeparationConfigurations().get(this.fcid);
-				if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
+				if (separationConfig.getSeparationEvent().isSeparationEvent(separationConfig, event, stage)) {
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
 							event.getTime() + separationConfig.getSeparationDelay(), stage));
 				}

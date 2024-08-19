@@ -4,7 +4,6 @@ package info.openrocket.swing.gui.main;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +25,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,6 @@ import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.startup.Preferences;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Pair;
 import info.openrocket.core.util.Reflection;
@@ -277,20 +276,20 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		int w;
 		
 		Dimension d = viewport.getExtentSize();
-		
-		for (int row = 0; row < buttons.length; row++) {
+
+		for (ComponentButton[] button : buttons) {
 			w = 0;
-			for (int col = 0; col < buttons[row].length; col++) {
+			for (int col = 0; col < button.length; col++) {
 				w += GAP + width;
 				String param = BUTTONPARAM + ",width " + width + "!,height " + height + "!";
-				
+
 				if (w + EXTRASPACE > d.width) {
 					param = param + ",newline";
 					w = GAP + width;
 				}
-				if (col == buttons[row].length - 1)
+				if (col == button.length - 1)
 					param = param + ",wrap";
-				layout.setComponentConstraints(buttons[row][col], param);
+				layout.setComponentConstraints(button[col], param);
 			}
 		}
 		revalidate();
@@ -390,7 +389,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * @return   The position to add the new component to, or null if should not add.
 		 */
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
-			return new Pair<RocketComponent, Integer>(c, null);
+			return new Pair<>(c, null);
 		}
 		
 		/**
@@ -409,8 +408,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
 			Component[] c = getComponents();
-			for (int i = 0; i < c.length; i++)
-				c[i].setEnabled(enabled);
+			for (Component component : c) component.setEnabled(enabled);
 		}
 		
 		
@@ -462,9 +460,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			RocketComponent component;
 			try {
 				component = (RocketComponent) constructor.newInstance();
-			} catch (InstantiationException e) {
-				throw new BugException("Could not construct new instance of class " + constructor, e);
-			} catch (IllegalAccessException e) {
+			} catch (InstantiationException | IllegalAccessException e) {
 				throw new BugException("Could not construct new instance of class " + constructor, e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
@@ -538,7 +534,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			if (c == null || c instanceof Rocket) {
 				// Add as last body component of the last stage
 				Rocket rocket = document.getRocket();
-				return new Pair<RocketComponent, Integer>(rocket.getChild(rocket.getStageCount() - 1),
+				return new Pair<>(rocket.getChild(rocket.getStageCount() - 1),
 						null);
 			}
 			
@@ -552,28 +548,29 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
-			int pos = Application.getPreferences().getChoice(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
+			int pos = Application.getPreferences().getChoice(ApplicationPreferences.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
 			if (pos == 0) {
 				if (parent.getChildPosition(c) == parent.getChildCount() - 1)
 					pos = 2; // Selected component is the last component
 				else
 					pos = askPosition();
 			}
-			
-			switch (pos) {
-			case 0:
-				// Cancel
-				return null;
-			case 1:
-				// Insert after current position
-				return new Pair<RocketComponent, Integer>(parent, parent.getChildPosition(c) + 1);
-			case 2:
-				// Insert at the end of the parent
-				return new Pair<RocketComponent, Integer>(parent, null);
-			default:
-				Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
-				return null;
-			}
+
+			return switch (pos) {
+				case 0 ->
+					// Cancel
+						null;
+				case 1 ->
+					// Insert after current position
+						new Pair<>(parent, parent.getChildPosition(c) + 1);
+				case 2 ->
+					// Insert at the end of the parent
+						new Pair<>(parent, null);
+				default -> {
+					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
+					yield null;
+				}
+			};
 		}
 		
 		private int askPosition() {
@@ -624,7 +621,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			if (check.isSelected()) {
 				// Save the preference
-				Application.getPreferences().putInt(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
+				Application.getPreferences().putInt(ApplicationPreferences.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}
@@ -661,7 +658,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
 			if (c == null || c instanceof Rocket) {
 				// Add to the end
-				return new Pair<RocketComponent, Integer>(document.getRocket(), null);
+				return new Pair<>(document.getRocket(), null);
 			}
 
 			RocketComponent parentStage = null;
@@ -676,7 +673,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
-			int pos = Application.getPreferences().getChoice(Preferences.STAGE_INSERT_POSITION_KEY, 2, 0);
+			int pos = Application.getPreferences().getChoice(ApplicationPreferences.STAGE_INSERT_POSITION_KEY, 2, 0);
 			if (pos == 0) {
 				if (document.getRocket().getChildPosition(parentStage) == document.getRocket().getChildCount() - 1)
 					pos = 2; // Selected component is the last component
@@ -684,20 +681,21 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 					pos = askPosition();
 			}
 
-			switch (pos) {
-				case 0:
+			return switch (pos) {
+				case 0 ->
 					// Cancel
-					return null;
-				case 1:
+						null;
+				case 1 ->
 					// Insert after current stage
-					return new Pair<RocketComponent, Integer>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
-				case 2:
+						new Pair<>(document.getRocket(), document.getRocket().getChildPosition(parentStage) + 1);
+				case 2 ->
 					// Insert at the end
-					return new Pair<RocketComponent, Integer>(document.getRocket(), null);
-				default:
+						new Pair<>(document.getRocket(), null);
+				default -> {
 					Application.getExceptionHandler().handleErrorCondition("ERROR:  Bad position type: " + pos);
-					return null;
-			}
+					yield null;
+				}
+			};
 		}
 
 		private int askPosition() {
@@ -748,7 +746,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 
 			if (check.isSelected()) {
 				// Save the preference
-				Application.getPreferences().putInt(Preferences.STAGE_INSERT_POSITION_KEY, sel);
+				Application.getPreferences().putInt(ApplicationPreferences.STAGE_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}

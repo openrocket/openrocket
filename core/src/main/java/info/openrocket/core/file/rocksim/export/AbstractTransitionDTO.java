@@ -37,9 +37,9 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
     @XmlElement(name = RockSimCommonConstants.CONSTRUCTION_TYPE)
     private int constructionType = 1;
     @XmlElement(name = RockSimCommonConstants.WALL_THICKNESS)
-    private double wallThickness = 0d;
+    private double wallThickness = 0.0d;
     @XmlElement(name = RockSimCommonConstants.SHAPE_PARAMETER)
-    private double shapeParameter = 0d;
+    private double shapeParameter = 0.0d;
 
     @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
     @XmlElementRefs({
@@ -51,7 +51,7 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
             @XmlElementRef(name = RockSimCommonConstants.STREAMER, type = StreamerDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
             @XmlElementRef(name = RockSimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class) })
-    List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
+    List<BasePartDTO> attachedParts = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -78,32 +78,31 @@ public class AbstractTransitionDTO extends BasePartDTO implements AttachablePart
         setWallThickness(nc.getThickness() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         List<RocketComponent> children = nc.getChildren();
-        for (int i = 0; i < children.size(); i++) {
-            RocketComponent rocketComponents = children.get(i);
-            if (rocketComponents instanceof InnerTube) {
-                addAttachedPart(new InnerBodyTubeDTO((InnerTube) rocketComponents, this));
-            } else if (rocketComponents instanceof BodyTube) {
-                addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents));
-            } else if (rocketComponents instanceof Transition) {
-                addAttachedPart(new TransitionDTO((Transition) rocketComponents));
-            } else if (rocketComponents instanceof EngineBlock) {
-                addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponents));
-            } else if (rocketComponents instanceof TubeCoupler) {
-                addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents, this));
-            } else if (rocketComponents instanceof CenteringRing) {
-                addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponents));
-            } else if (rocketComponents instanceof Bulkhead) {
-                addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponents));
-            } else if (rocketComponents instanceof Parachute) {
-                addAttachedPart(new ParachuteDTO((Parachute) rocketComponents));
-            } else if (rocketComponents instanceof MassObject) {
-                addAttachedPart(new MassObjectDTO((MassObject) rocketComponents));
-            } else if (rocketComponents instanceof FreeformFinSet) {
-                addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
-            } else if (rocketComponents instanceof FinSet) {
-                addAttachedPart(new FinSetDTO((FinSet) rocketComponents));
-            }
-        }
+		for (RocketComponent rocketComponents : children) {
+			if (rocketComponents instanceof InnerTube) {
+				addAttachedPart(new InnerBodyTubeDTO((InnerTube) rocketComponents, this));
+			} else if (rocketComponents instanceof BodyTube) {
+				addAttachedPart(new BodyTubeDTO((BodyTube) rocketComponents));
+			} else if (rocketComponents instanceof Transition) {
+				addAttachedPart(new TransitionDTO((Transition) rocketComponents));
+			} else if (rocketComponents instanceof EngineBlock) {
+				addAttachedPart(new EngineBlockDTO((EngineBlock) rocketComponents));
+			} else if (rocketComponents instanceof TubeCoupler) {
+				addAttachedPart(new TubeCouplerDTO((TubeCoupler) rocketComponents, this));
+			} else if (rocketComponents instanceof CenteringRing) {
+				addAttachedPart(new CenteringRingDTO((CenteringRing) rocketComponents));
+			} else if (rocketComponents instanceof Bulkhead) {
+				addAttachedPart(new BulkheadDTO((Bulkhead) rocketComponents));
+			} else if (rocketComponents instanceof Parachute) {
+				addAttachedPart(new ParachuteDTO((Parachute) rocketComponents));
+			} else if (rocketComponents instanceof MassObject) {
+				addAttachedPart(new MassObjectDTO((MassObject) rocketComponents));
+			} else if (rocketComponents instanceof FreeformFinSet) {
+				addAttachedPart(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
+			} else if (rocketComponents instanceof FinSet) {
+				addAttachedPart(new FinSetDTO((FinSet) rocketComponents));
+			}
+		}
     }
 
     public int getShapeCode() {

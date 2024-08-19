@@ -8,7 +8,10 @@ import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationSet;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.*;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
 
 /**
  * Rocket body tube component. Has only two parameters, a radius and length.

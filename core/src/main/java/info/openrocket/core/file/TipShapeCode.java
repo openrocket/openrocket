@@ -14,16 +14,12 @@ public final class TipShapeCode {
      * @return a CrossSection instance
      */
     public static FinSet.CrossSection convertTipShapeCode(int tipShape) {
-        switch (tipShape) {
-            case 0:
-                return FinSet.CrossSection.SQUARE;
-            case 1:
-                return FinSet.CrossSection.ROUNDED;
-            case 2:
-                return FinSet.CrossSection.AIRFOIL;
-            default:
-                return FinSet.CrossSection.SQUARE;
-        }
+		return switch (tipShape) {
+			case 0 -> FinSet.CrossSection.SQUARE;
+			case 1 -> FinSet.CrossSection.ROUNDED;
+			case 2 -> FinSet.CrossSection.AIRFOIL;
+			default -> FinSet.CrossSection.SQUARE;
+		};
     }
 
     public static int convertTipShapeCode(FinSet.CrossSection cs) {

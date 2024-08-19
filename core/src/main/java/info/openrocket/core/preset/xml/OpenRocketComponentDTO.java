@@ -10,7 +10,6 @@ import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlElementRefs;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlValue;
 
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
@@ -31,7 +30,7 @@ public class OpenRocketComponentDTO {
 
     @XmlElementWrapper(name = "Materials")
     @XmlElement(name = "Material")
-    List<MaterialDTO> materials = new ArrayList<MaterialDTO>();
+    List<MaterialDTO> materials = new ArrayList<>();
 
     @XmlElementWrapper(name = "Components")
     @XmlElementRefs({
@@ -46,7 +45,7 @@ public class OpenRocketComponentDTO {
             @XmlElementRef(name = "RailButtons", type = RailButtonDTO.class),
             @XmlElementRef(name = "Streamers", type = StreamerDTO.class),
             @XmlElementRef(name = "Parachutes", type = ParachuteDTO.class) })
-    private List<BaseComponentDTO> components = new ArrayList<BaseComponentDTO>();
+    private List<BaseComponentDTO> components = new ArrayList<>();
 
     public OpenRocketComponentDTO() {
     }
@@ -98,15 +97,15 @@ public class OpenRocketComponentDTO {
     }
 
     public List<ComponentPreset> asComponentPresets() throws InvalidComponentPresetException {
-        List<ComponentPreset> result = new ArrayList<ComponentPreset>(components.size());
-        for (int i = 0; i < components.size(); i++) {
-            result.add(components.get(i).asComponentPreset(getLegacy(), materials));
-        }
+        List<ComponentPreset> result = new ArrayList<>(components.size());
+		for (BaseComponentDTO component : components) {
+			result.add(component.asComponentPreset(getLegacy(), materials));
+		}
         return result;
     }
 
     public List<Material> asMaterialList() {
-        List<Material> result = new ArrayList<Material>(materials.size());
+        List<Material> result = new ArrayList<>(materials.size());
         for (MaterialDTO material : materials) {
             result.add(material.asMaterial());
         }

@@ -11,7 +11,6 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.optimization.general.Function;
 import info.openrocket.core.optimization.general.OptimizationException;
 import info.openrocket.core.optimization.general.Point;
-import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.unit.Value;
 import info.openrocket.core.util.Pair;

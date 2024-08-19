@@ -7,16 +7,12 @@ import java.util.Map;
 
 public class DownloadResponse {
 
-	private final Map<Integer, List<MotorBurnFile>> data = new HashMap<Integer, List<MotorBurnFile>>();
+	private final Map<Integer, List<MotorBurnFile>> data = new HashMap<>();
 
 	private String error = null;
 
 	public void add(MotorBurnFile mbd) {
-		List<MotorBurnFile> currentData = data.get(mbd.getMotorId());
-		if (currentData == null) {
-			currentData = new ArrayList<MotorBurnFile>();
-			data.put(mbd.getMotorId(), currentData);
-		}
+		List<MotorBurnFile> currentData = data.computeIfAbsent(mbd.getMotorId(), k -> new ArrayList<>());
 		currentData.add(mbd);
 	}
 

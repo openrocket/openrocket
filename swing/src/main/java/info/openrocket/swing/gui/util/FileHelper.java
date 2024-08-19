@@ -7,13 +7,13 @@ import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

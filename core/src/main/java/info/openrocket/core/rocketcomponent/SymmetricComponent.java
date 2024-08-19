@@ -174,7 +174,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> list = new ArrayList<Coordinate>(20);
+		List<Coordinate> list = new ArrayList<>(20);
 		for (int n = 0; n <= 5; n++) {
 			double x = n * getLength() / 5;
 			double r = getRadius(x);

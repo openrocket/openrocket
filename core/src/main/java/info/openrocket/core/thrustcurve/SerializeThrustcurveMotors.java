@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +56,7 @@ public class SerializeThrustcurveMotors {
 		String inputDir = args[0];
 		String outputFile = args[1];
 
-		final List<Motor> allMotors = new ArrayList<Motor>();
+		final List<Motor> allMotors = new ArrayList<>();
 
 		loadFromLocalMotorFiles(allMotors, inputDir);
 
@@ -97,21 +96,12 @@ public class SerializeThrustcurveMotors {
 					continue;
 				}
 
-				final Motor.Type type;
-				switch (mi.getType()) {
-					case "SU":
-						type = Motor.Type.SINGLE;
-						break;
-					case "reload":
-						type = Motor.Type.RELOAD;
-						break;
-					case "hybrid":
-						type = Motor.Type.HYBRID;
-						break;
-					default:
-						type = Motor.Type.UNKNOWN;
-						break;
-				}
+				final Motor.Type type = switch (mi.getType()) {
+					case "SU" -> Motor.Type.SINGLE;
+					case "reload" -> Motor.Type.RELOAD;
+					case "hybrid" -> Motor.Type.HYBRID;
+					default -> Motor.Type.UNKNOWN;
+				};
 
 				System.out.println(message);
 
