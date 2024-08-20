@@ -35,6 +35,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 
 import info.openrocket.swing.gui.plot.PlotConfiguration;
 import info.openrocket.swing.gui.plot.PlotPanel;
+import info.openrocket.swing.gui.plot.PlotTypeSelector;
 import info.openrocket.swing.gui.plot.SimulationPlotConfiguration;
 import info.openrocket.swing.gui.plot.SimulationPlotDialog;
 import net.miginfocom.swing.MigLayout;
@@ -48,7 +49,8 @@ import info.openrocket.swing.gui.theme.UITheme;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBranch, FlightDataTypeGroup> {
+public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBranch, FlightDataTypeGroup,
+		PlotTypeSelector<FlightDataTypeGroup, FlightDataType>> {
 	@Serial
 	private static final long serialVersionUID = -2227129713185477998L;
 
@@ -113,9 +115,6 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		//// Y axis
 		addFlightEventsSelectorWidgets(selectorPanel);
 
-		this.add(new JPanel(), "growx");
-		
-
 		updatePlots();
 	}
 
@@ -137,8 +136,10 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		Component[] extraWidgetsX = new Component[] {simPlotPanelDesc};
 
 		// Create extra widgets for the Y axis
+		//// Flight events:
+		JLabel label = new JLabel(trans.get("simplotpanel.lbl.Flightevents"));
 		JPanel selectorPanel = new JPanel(new MigLayout("ins 0"));
-		Component[] extraWidgetsY = new Component[] {selectorPanel};
+		Component[] extraWidgetsY = new Component[] {label, selectorPanel};
 
 		return new SimulationPlotPanel(simulation, types, simPlotPanelDesc, extraWidgetsX, selectorPanel, extraWidgetsY);
 	}

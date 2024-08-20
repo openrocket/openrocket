@@ -28,7 +28,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Arrays;
 
-public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T>, G extends Group> extends JPanel {
+public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T>, G extends Group,
+		S extends PlotTypeSelector<G, T>> extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
 	//// Custom
@@ -46,18 +47,15 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 	private final T[] typesY;
 	protected PlotConfiguration<T, B> configuration;
 
-	private JComboBox<PlotConfiguration<T, B>> configurationSelector;
-
-	protected GroupableAndSearchableComboBox<G, T> domainTypeSelector;
+	private final JComboBox<PlotConfiguration<T, B>> configurationSelector;
+	protected JComboBox<T> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
-
-	private JPanel typeSelectorPanel;
+	private final JPanel typeSelectorPanel;
 
 	protected int modifying = 0;
 
 	public PlotPanel(T[] typesX, T[] typesY, PlotConfiguration<T, B> customConfiguration, PlotConfiguration<T, B>[] presets,
-					 PlotConfiguration<T, B> defaultConfiguration,
-					 Component[] extraWidgetsX, Component[] extraWidgetsY) {
+					 PlotConfiguration<T, B> defaultConfiguration, Component[] extraWidgetsX, Component[] extraWidgetsY) {
 		super(new MigLayout("fill"));
 
 		this.customConfiguration = customConfiguration;
@@ -108,7 +106,13 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 
 		//// X axis
+		addXAxisSelector(typesX, extraWidgetsX);
 
+		//// Y axis selector panel
+		typeSelectorPanel = addYAxisSelector(typesY, extraWidgetsY);
+	}
+
+	protected void addXAxisSelector(T[] typesX, Component[] extraWidgetsX) {
 		//// X axis type:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
 		domainTypeSelector = new GroupableAndSearchableComboBox<>(Arrays.asList(typesX), trans.get("FlightDataComboBox.placeholder"));
@@ -156,25 +160,31 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		} else {
 			this.add(new JLabel(), "wrap unrel");
 		}
+	}
 
-
-		//// Y axis selector panel
+	protected JPanel addYAxisSelector(T[] typesY, Component[] extraWidgetsY) {
+		final JPanel typeSelectorPanel;
 		//// Y axis types:
-		this.add(new JLabel(trans.get("simplotpanel.lbl.Yaxistypes")));
-		//// Flight events:
-		this.add(new JLabel(trans.get("simplotpanel.lbl.Flightevents")), "wrap rel");
+		JPanel yPanel = new JPanel(new MigLayout("fill, ins 0"));
+		yPanel.add(new JLabel(trans.get("simplotpanel.lbl.Yaxistypes")), "wrap rel");
 
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		int spanY = extraWidgetsY == null ? 1 : extraWidgetsY.length + 1;
-		this.add(scroll, "spany " + spanY + ", pushy, wmin 400lp, grow 100, gapright para");
+		yPanel.add(scroll, "pushy, grow 100");
+		if (extraWidgetsY != null) {
+			this.add(yPanel, "pushy, wmin 400lp, grow 100, gapright para");
+		} else {
+			this.add(yPanel, "pushy, spanx, wmin 400lp, grow 100, wrap");
+		}
 
 		// Extra Y widgets
 		if (extraWidgetsY != null) {
+			JPanel extraYPanel = new JPanel(new MigLayout("fill, ins 0"));
 			for (Component widgetsY : extraWidgetsY) {
-				this.add(widgetsY, "growx, wrap");
+				extraYPanel.add(widgetsY, "growx, wrap rel");
 			}
-			this.add(new JPanel(), "pushy, wrap");		// Fill up the rest of the vertical space
+			extraYPanel.add(new JPanel(), "pushy, grow 100"); 	// Fill up the rest of the vertical space
+			this.add(extraYPanel, "pushy, grow 100, wrap");
 		}
 
 
@@ -225,6 +235,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 			}
 		});
 		this.add(newYAxisBtn, "spanx, pushx, left");
+		return typeSelectorPanel;
 	}
 
 	protected PlotConfiguration<T, B> getConfiguration() {
@@ -271,9 +282,11 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 
 	protected void updatePlots() {
-		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
-		domainUnitSelector.setUnitGroup(configuration.getDomainAxisType().getUnitGroup());
-		domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
+		if (domainTypeSelector != null) {
+			domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
+			domainUnitSelector.setUnitGroup(configuration.getDomainAxisType().getUnitGroup());
+			domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
+		}
 
 		typeSelectorPanel.removeAll();
 		for (int i = 0; i < configuration.getTypeCount(); i++) {
@@ -281,34 +294,49 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 			Unit unit = configuration.getUnit(i);
 			int axis = configuration.getAxis(i);
 
-			PlotTypeSelector<G, T> selector = new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(typesY));
-			int finalI = i;
-			selector.addTypeSelectionListener(e -> {
-				if (modifying > 0) return;
-				T selectedType = selector.getSelectedType();
-				configuration.setPlotDataType(finalI, selectedType);
-				selector.setUnitGroup(selectedType.getUnitGroup());
-				configuration.setPlotDataUnit(finalI, selector.getSelectedUnit());
-				setToCustom();
-			});
-			selector.addUnitSelectionListener(e -> {
-				if (modifying > 0) return;
-				configuration.setPlotDataUnit(finalI, selector.getSelectedUnit());
-			});
-			selector.addAxisSelectionListener(e -> {
-				if (modifying > 0) return;
-				configuration.setPlotDataAxis(finalI, selector.getSelectedAxis());
-			});
-			selector.addRemoveButtonListener(e -> {
-				configuration.removePlotDataType(finalI);
-				setToCustom();
-				updatePlots();
-			});
+			S selector = createSelector(i, type, unit, axis);
+			addSelectionListeners(selector, i);
+
 			typeSelectorPanel.add(selector, "wrap");
 		}
 
 		// In order to consistently update the UI, we need to validate before repaint.
 		typeSelectorPanel.validate();
 		typeSelectorPanel.repaint();
+	}
+
+	protected S createSelector(int i, T type, Unit unit, int axis) {
+		return (S) new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(typesY));
+	}
+
+	private void addSelectionListeners(S selector, final int idx) {
+		// Type
+		selector.addTypeSelectionListener(e -> {
+			if (modifying > 0) return;
+			T selectedType = selector.getSelectedType();
+			configuration.setPlotDataType(idx, selectedType);
+			selector.setUnitGroup(selectedType.getUnitGroup());
+			configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
+			setToCustom();
+		});
+
+		// Unit
+		selector.addUnitSelectionListener(e -> {
+			if (modifying > 0) return;
+			configuration.setPlotDataUnit(idx, selector.getSelectedUnit());
+		});
+
+		// Axis
+		selector.addAxisSelectionListener(e -> {
+			if (modifying > 0) return;
+			configuration.setPlotDataAxis(idx, selector.getSelectedAxis());
+		});
+
+		// Remove button
+		selector.addRemoveButtonListener(e -> {
+			configuration.removePlotDataType(idx);
+			setToCustom();
+			updatePlots();
+		});
 	}
 }

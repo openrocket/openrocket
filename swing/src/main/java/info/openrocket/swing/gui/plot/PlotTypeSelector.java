@@ -23,19 +23,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class PlotTypeSelector<G extends Group, T extends Groupable<G> & UnitValue> extends JPanel {
-	private static final Translator trans = Application.getTranslator();
+	protected static final Translator trans = Application.getTranslator();
 	private static final long serialVersionUID = 9056324972817542570L;
 
 	private final String[] POSITIONS = {Util.PlotAxisSelection.AUTO.getName(),
 			Util.PlotAxisSelection.LEFT.getName(), Util.PlotAxisSelection.RIGHT.getName()};
 
 	private final int index;
-	private final GroupableAndSearchableComboBox<G, T> typeSelector;
+	protected final GroupableAndSearchableComboBox<G, T> typeSelector;
 	private final UnitSelector unitSelector;
 	private final JComboBox<String> axisSelector;
 	private final JButton removeButton;
 
-	public PlotTypeSelector(int plotIndex, T type, Unit unit, int position, List<T> availableTypes) {
+	public PlotTypeSelector(int plotIndex, T type, Unit unit, int position, List<T> availableTypes,
+							boolean addRemoveButton) {
 		super(new MigLayout("ins 0"));
 
 		this.index = plotIndex;
@@ -59,6 +60,16 @@ public class PlotTypeSelector<G extends Group, T extends Groupable<G> & UnitValu
 		removeButton = new JButton(Icons.EDIT_DELETE);
 		removeButton.setToolTipText("Remove this plot");
 		removeButton.setBorderPainted(false);
+		if (addRemoveButton) {
+			addRemoveButton();
+		}
+	}
+
+	public PlotTypeSelector(int plotIndex, T type, Unit unit, int position, List<T> availableTypes) {
+		this(plotIndex, type, unit, position, availableTypes, true);
+	}
+
+	protected void addRemoveButton() {
 		this.add(removeButton, "gapright 0");
 	}
 
