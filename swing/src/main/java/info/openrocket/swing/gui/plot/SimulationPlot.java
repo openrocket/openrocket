@@ -19,12 +19,9 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.LinearInterpolator;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYImageAnnotation;
 import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.block.BlockBorder;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -36,11 +33,6 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.RectangleInsets;
 
-/*
- * TODO: It should be possible to simplify this code quite a bit by using a single Renderer instance for
- *  both datasets and the legend.  But for now, the renderers are queried for the line color information
- *  and this is held in the Legend.
- */
 @SuppressWarnings("serial")
 public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, SimulationPlotConfiguration> {
 	private final SimulationPlotConfiguration config;
@@ -50,8 +42,8 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 	private ErrorAnnotationSet errorAnnotations = null;
 
 	SimulationPlot(Simulation simulation, SimulationPlotConfiguration config, boolean initialShowPoints,
-				   JFreeChart chart, FlightDataBranch mainBranch, List<FlightDataBranch> allBranches) {
-		super(chart, mainBranch, config, allBranches, initialShowPoints);
+				   FlightDataBranch mainBranch, List<FlightDataBranch> allBranches) {
+		super(simulation.getName(), mainBranch, config, allBranches, initialShowPoints);
 
 		this.simulation = simulation;
 		this.config = config;
@@ -67,21 +59,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 	}
 
 	public static SimulationPlot create(Simulation simulation, SimulationPlotConfiguration config, boolean initialShowPoints) {
-		JFreeChart chart = ChartFactory.createXYLineChart(
-				//// Simulated flight
-				/*title*/simulation.getName(),
-				/*xAxisLabel*/null,
-				/*yAxisLabel*/null,
-				/*dataset*/null,
-				/*orientation*/PlotOrientation.VERTICAL,
-				/*legend*/false,
-				/*tooltips*/true,
-				/*urls*/false
-		);
-
 		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch(0);
 
-		return new SimulationPlot(simulation, config, initialShowPoints, chart, mainBranch,
+		return new SimulationPlot(simulation, config, initialShowPoints, mainBranch,
 				simulation.getSimulatedData().getBranches());
 	}
 
@@ -101,7 +81,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		XYPlot plot = (XYPlot) chart.getPlot();
 		int datasetcount = plot.getDatasetCount();
 		for (int i = 0; i < datasetcount; i++) {
-			int seriescount = ((XYSeriesCollection) plot.getDataset(i)).getSeriesCount();
+			int seriescount = plot.getDataset(i).getSeriesCount();
 			XYItemRenderer r = ((XYPlot) chart.getPlot()).getRenderer(i);
 			for (int j = 0; j < seriescount; j++) {
 				boolean show = (branch < 0) || (j % branchCount == branch);

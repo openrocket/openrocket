@@ -8,6 +8,7 @@ import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.DecimalFormatter;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
@@ -53,6 +54,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * TODO: It should be possible to simplify this code quite a bit by using a single Renderer instance for
+ *  both datasets and the legend.  But for now, the renderers are queried for the line color information
+ *  and this is held in the Legend.
+ */
 public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extends PlotConfiguration<T, B>> {
 	protected static final Translator trans = Application.getTranslator();
 	protected static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
@@ -64,15 +70,23 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected final LegendItems legendItems;
 	protected final XYSeriesCollection[] data;
 	protected final C filledConfig;		// Configuration after using 'fillAutoAxes'
-	private final List<B> allBranches;
 
 	protected final JFreeChart chart;
 
-	protected Plot(JFreeChart chart, B mainBranch, C config, List<B> allBranches, boolean initialShowPoints) {
-		this.chart = chart;
-		this.allBranches = allBranches;
+	protected Plot(String plotName, B mainBranch, C config, List<B> allBranches, boolean initialShowPoints) {
 		this.branchCount = allBranches.size();
 
+		this.chart = ChartFactory.createXYLineChart(
+				//// Simulated flight
+				/*title*/plotName,
+				/*xAxisLabel*/null,
+				/*yAxisLabel*/null,
+				/*dataset*/null,
+				/*orientation*/PlotOrientation.VERTICAL,
+				/*legend*/false,
+				/*tooltips*/true,
+				/*urls*/false
+		);
 		this.chart.addSubtitle(new TextTitle(config.getName()));
 		this.chart.getTitle().setFont(new Font("Dialog", Font.BOLD, 23));
 		this.chart.setBackgroundPaint(new Color(240, 240, 240));
