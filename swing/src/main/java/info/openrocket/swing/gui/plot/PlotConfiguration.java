@@ -512,7 +512,7 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <C extends PlotConfiguration<T, B>> C cloneConfiguration() {
+	public <C extends PlotConfiguration<T, B>> C cloneConfiguration() {
 		try {
 			C copy = (C) super.clone();
 

@@ -12,7 +12,6 @@ import info.openrocket.core.util.ArrayList;
 
 
 public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataType, FlightDataBranch> {
-	
 	private static final Translator trans = Application.getTranslator();
 
 	public static final SimulationPlotConfiguration[] DEFAULT_CONFIGURATIONS;

@@ -49,7 +49,7 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 		this.name = name;
 	}
 
-	protected void addType(T type) {
+	public void addType(T type) {
 		if (values.containsKey(type)) {
 			throw new IllegalArgumentException("Value type " + type + " already exists.");
 		}

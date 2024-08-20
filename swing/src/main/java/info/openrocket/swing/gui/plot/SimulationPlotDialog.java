@@ -58,8 +58,7 @@ public class SimulationPlotDialog extends JDialog {
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
 		final boolean initialShowPoints = Application.getPreferences().getBoolean(ApplicationPreferences.PLOT_SHOW_POINTS, false);
-		
-		final SimulationPlot myPlot = new SimulationPlot(simulation, config, initialShowPoints);
+		final SimulationPlot myPlot = SimulationPlot.create(simulation, config, initialShowPoints);
 		
 		// Create the dialog
 		JPanel panel = new JPanel(new MigLayout("fill, hidemode 3","[]","[grow][]"));
@@ -115,7 +114,7 @@ public class SimulationPlotDialog extends JDialog {
 		//// Add series selection box
 		ArrayList<String> stages = new ArrayList<>();
 		stages.add(trans.get("PlotDialog.StageDropDown.allStages"));
-		stages.addAll(Util.generateSeriesLabels(simulation));
+		stages.addAll(Util.generateSeriesLabels(simulation.getSimulatedData().getBranches()));
 
 		final JComboBox<String> stageSelection = new JComboBox<>(stages.toArray(new String[0]));
 		stageSelection.addItemListener(new ItemListener() {

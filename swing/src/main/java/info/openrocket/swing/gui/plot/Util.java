@@ -7,6 +7,8 @@ import java.util.List;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.simulation.DataBranch;
+import info.openrocket.core.simulation.DataType;
 import info.openrocket.core.startup.Application;
 
 public abstract class Util {
@@ -52,26 +54,25 @@ public abstract class Util {
 			new Color(85, 107, 47),
 	};
 
-	public static List<String> generateSeriesLabels( Simulation simulation ) {
-		int size = simulation.getSimulatedData().getBranchCount();
-		ArrayList<String> stages = new ArrayList<>(size);
-		// we need to generate unique strings for each of the branches.  Since the branch names are based
+	public static <T extends DataType, B extends DataBranch<T>> List<String> generateSeriesLabels(List<B> branches) {
+		List<String> stages = new ArrayList<>(branches.size());
+		// We need to generate unique strings for each of the branches.  Since the branch names are based
 		// on the stage name there is no guarantee they are unique.  In order to address this, we first assume
 		// all the names are unique, then go through them looking for duplicates.
-		for (int i = 0; i < simulation.getSimulatedData().getBranchCount(); i++) {
-			stages.add(simulation.getSimulatedData().getBranch(i).getName());
+		for (B branch : branches) {
+			stages.add(branch.getName());
 		}
 		// check for duplicates:
-		for( int i = 0; i< stages.size(); i++ ) {
+		for (int i = 0; i < stages.size(); i++) {
 			String stagename = stages.get(i);
 			int numberDuplicates = Collections.frequency(stages, stagename);
-			if ( numberDuplicates > 1 ) {
+			if (numberDuplicates > 1) {
 				int index = i;
 				int count = 1;
-				while( count <= numberDuplicates ) {
-					stages.set(index, stagename + "(" + count + ")" );
+				while (count <= numberDuplicates) {
+					stages.set(index, stagename + "(" + count + ")");
 					count ++;
-					for( index++; index < stages.size() && !stagename.equals(stages.get(index)); index++ );
+					for (index++; index < stages.size() && !stagename.equals(stages.get(index)); index++);
 				}
 			}
 		}

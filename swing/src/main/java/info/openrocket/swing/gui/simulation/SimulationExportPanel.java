@@ -77,7 +77,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 				trans.get("SimExpPan.checkbox.ttip.Incflightevents"));
 
 		//// Add series selection box
-		ArrayList<String> stages = new ArrayList<>(Util.generateSeriesLabels(simulation));
+		ArrayList<String> stages = new ArrayList<>(Util.generateSeriesLabels(simulation.getSimulatedData().getBranches()));
 		if (stages.size() > 1) {
 			final JComboBox<String> stageSelection = new JComboBox<>(stages.toArray(new String[0]));
 
