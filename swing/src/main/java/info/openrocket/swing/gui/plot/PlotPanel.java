@@ -29,33 +29,33 @@ import java.awt.event.ItemListener;
 import java.util.Arrays;
 
 public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T>, G extends Group,
-		S extends PlotTypeSelector<G, T>> extends JPanel {
+		C extends PlotConfiguration<T, B>, S extends PlotTypeSelector<G, T>> extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
 	//// Custom
 	protected static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
 	/** The "Custom" configuration - not to be used for anything other than the title. */
-	private final PlotConfiguration<T, B> customConfiguration;
+	private final C customConfiguration;
 
 	/** The array of presets for the combo box. */
-	private final PlotConfiguration<T, B>[] presetArray;
+	private final C[] presetArray;
 
-	private PlotConfiguration<T, B> defaultConfiguration;
+	private C defaultConfiguration;
 
 	// Data types for the x and y axis + plot configuration
 	private final T[] typesX;
 	private final T[] typesY;
-	protected PlotConfiguration<T, B> configuration;
+	protected C configuration;
 
-	private final JComboBox<PlotConfiguration<T, B>> configurationSelector;
+	private final JComboBox<C> configurationSelector;
 	protected JComboBox<T> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
 	private final JPanel typeSelectorPanel;
 
 	protected int modifying = 0;
 
-	public PlotPanel(T[] typesX, T[] typesY, PlotConfiguration<T, B> customConfiguration, PlotConfiguration<T, B>[] presets,
-					 PlotConfiguration<T, B> defaultConfiguration, Component[] extraWidgetsX, Component[] extraWidgetsY) {
+	public PlotPanel(T[] typesX, T[] typesY, C customConfiguration, C[] presets,
+					 C defaultConfiguration, Component[] extraWidgetsX, Component[] extraWidgetsY) {
 		super(new MigLayout("fill"));
 
 		this.customConfiguration = customConfiguration;
@@ -70,7 +70,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 
 		// Setup the combo box
 		configurationSelector = new JComboBox<>(presetArray);
-		for (PlotConfiguration<T, B> config : presetArray) {
+		for (C config : presetArray) {
 			if (config.getName().equals(configuration.getName())) {
 				configurationSelector.setSelectedItem(config);
 			}
@@ -88,7 +88,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 				}
 				if (modifying > 0)
 					return;
-				PlotConfiguration<T, B> conf = (PlotConfiguration<T, B>) configurationSelector.getSelectedItem();
+				C conf = (C) configurationSelector.getSelectedItem();
 				if (conf == null || conf == customConfiguration)
 					return;
 				modifying++;
@@ -238,14 +238,14 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		return typeSelectorPanel;
 	}
 
-	protected PlotConfiguration<T, B> getConfiguration() {
+	protected C getConfiguration() {
 		return configuration;
 	}
 
-	protected void setConfiguration(PlotConfiguration<T, B> conf) {
+	protected void setConfiguration(C conf) {
 		boolean modified = false;
 
-		configuration = conf.clone();
+		configuration = (C) conf.clone();
 		if (!Utils.contains(typesX, configuration.getDomainAxisType())) {
 			configuration.setDomainAxisType(typesX[0]);
 			modified = true;
@@ -264,10 +264,9 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		}
 	}
 
-	protected void setDefaultConfiguration(PlotConfiguration<T, B> newConfiguration) {
+	protected void setDefaultConfiguration(C newConfiguration) {
 		defaultConfiguration = newConfiguration;
 	}
-
 
 	protected void setToCustom() {
 		modifying++;

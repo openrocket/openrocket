@@ -33,7 +33,6 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
 
-import info.openrocket.swing.gui.plot.PlotConfiguration;
 import info.openrocket.swing.gui.plot.PlotPanel;
 import info.openrocket.swing.gui.plot.PlotTypeSelector;
 import info.openrocket.swing.gui.plot.SimulationPlotConfiguration;
@@ -50,7 +49,7 @@ import info.openrocket.swing.gui.theme.UITheme;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBranch, FlightDataTypeGroup,
-		PlotTypeSelector<FlightDataTypeGroup, FlightDataType>> {
+		SimulationPlotConfiguration, PlotTypeSelector<FlightDataTypeGroup, FlightDataType>> {
 	@Serial
 	private static final long serialVersionUID = -2227129713185477998L;
 
@@ -154,9 +153,9 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	}
 
 	@Override
-	protected void setDefaultConfiguration(PlotConfiguration<FlightDataType, FlightDataBranch> newConfiguration) {
+	protected void setDefaultConfiguration(SimulationPlotConfiguration newConfiguration) {
 		super.setDefaultConfiguration(newConfiguration);
-		DEFAULT_CONFIGURATION = (SimulationPlotConfiguration) newConfiguration;
+		DEFAULT_CONFIGURATION = newConfiguration;
 	}
 
 	private void addFlightEventsSelectorWidgets(JPanel selectorPanel) {
@@ -184,7 +183,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				for (FlightEvent.Type t : FlightEvent.Type.values()) {
-					SimulationPlotConfiguration configuration = (SimulationPlotConfiguration) getConfiguration();
+					SimulationPlotConfiguration configuration = getConfiguration();
 					if (configuration != null) {
 						configuration.setEvent(t, true);
 					}
@@ -271,7 +270,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			return null;
 		}
 		setDefaultConfiguration(configuration.clone());
-		return SimulationPlotDialog.getPlot(parent, simulation, (SimulationPlotConfiguration) configuration);
+		return SimulationPlotDialog.getPlot(parent, simulation, configuration);
 	}
 
 	@Override
@@ -326,7 +325,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		@Override
 		public Object getValueAt(int row, int column) {
 			return switch (column) {
-				case 0 -> ((SimulationPlotConfiguration) configuration).isEventActive(eventTypes[row]);
+				case 0 -> configuration.isEventActive(eventTypes[row]);
 				case 1 -> eventTypes[row].toString();
 				default -> throw new IndexOutOfBoundsException("column=" + column);
 			};
