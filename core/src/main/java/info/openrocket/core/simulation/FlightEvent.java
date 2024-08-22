@@ -124,8 +124,8 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		this(type, time, source, null);
 	}
 	
-	public FlightEvent(final FlightEvent _sourceEvent, final RocketComponent _comp, final Object _data) {
-		this(_sourceEvent.type, _sourceEvent.time, _comp, _data);
+	public FlightEvent( final FlightEvent sourceEvent, final RocketComponent source, final Object data) {
+		this(sourceEvent.type, sourceEvent.time, source, data);
 	}
 	
 	public FlightEvent( final Type type, final double time, final RocketComponent source, final Object data) {
@@ -248,6 +248,12 @@ public class FlightEvent implements Comparable<FlightEvent> {
 			}
 			break;
 		case SIM_WARN:
+			if (null != this.source) {
+				// rather than making event sources take sets of components, or trying to keep them
+				// in sync with the sources of Warnings, we'll require the event source to be null
+				// and pull the actual sources from the Warning
+				throw new IllegalStateException(type.name()+" event requires null source component; was " + this.source);
+			}	
 			if (( null == this.data ) || ( ! ( this.data instanceof Warning ))) {
 				throw new IllegalStateException(type.name()+" events require Warning objects");
 			}
