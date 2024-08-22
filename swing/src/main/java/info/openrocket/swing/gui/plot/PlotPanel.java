@@ -28,9 +28,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Arrays;
 
-public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T>, G extends Group,
-		C extends PlotConfiguration<T, B>, S extends PlotTypeSelector<G, T>> extends JPanel {
-	private static final Translator trans = Application.getTranslator();
+public class PlotPanel<T extends DataType & Groupable<G>,
+		B extends DataBranch<T>,
+		G extends Group,
+		C extends PlotConfiguration<T, B>,
+		S extends PlotTypeSelector<T, G>> extends JPanel {
+	protected static final Translator trans = Application.getTranslator();
 
 	//// Custom
 	protected static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
@@ -193,7 +196,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		newYAxisBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (configuration.getTypeCount() >= 15) {
+				if (configuration.getDataCount() >= 15) {
 					JOptionPane.showMessageDialog(PlotPanel.this,
 							//// A maximum of 15 plots is allowed.
 							//// Cannot add plot
@@ -211,7 +214,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 					if (configuration.getDomainAxisType().equals(t)) {
 						used = true;
 					} else {
-						for (int i = 0; i < configuration.getTypeCount(); i++) {
+						for (int i = 0; i < configuration.getDataCount(); i++) {
 							if (configuration.getType(i).equals(t)) {
 								used = true;
 								break;
@@ -238,7 +241,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		return typeSelectorPanel;
 	}
 
-	protected C getConfiguration() {
+	public C getConfiguration() {
 		return configuration;
 	}
 
@@ -251,7 +254,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 			modified = true;
 		}
 
-		for (int i = 0; i < configuration.getTypeCount(); i++) {
+		for (int i = 0; i < configuration.getDataCount(); i++) {
 			if (!Utils.contains(typesY, configuration.getType(i))) {
 				configuration.removePlotDataType(i);
 				i--;
@@ -288,7 +291,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		}
 
 		typeSelectorPanel.removeAll();
-		for (int i = 0; i < configuration.getTypeCount(); i++) {
+		for (int i = 0; i < configuration.getDataCount(); i++) {
 			T type = configuration.getType(i);
 			Unit unit = configuration.getUnit(i);
 			int axis = configuration.getAxis(i);
@@ -308,7 +311,7 @@ public class PlotPanel<T extends DataType & Groupable<G>, B extends DataBranch<T
 		return (S) new PlotTypeSelector<>(i, type, unit, axis, Arrays.asList(typesY));
 	}
 
-	private void addSelectionListeners(S selector, final int idx) {
+	protected void addSelectionListeners(S selector, final int idx) {
 		// Type
 		selector.addTypeSelectionListener(e -> {
 			if (modifying > 0) return;

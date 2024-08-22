@@ -87,7 +87,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
 	private AerodynamicCalculator aerodynamicCalculator;
-	private ComponentAnalysisParameters parameters;
+	private CAParameters parameters;
 
 	private final ColumnTableModel longitudeStabilityTableModel;
 	private final ColumnTableModel dragTableModel;
@@ -116,8 +116,8 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 
 		conditions = new FlightConditions(rkt.getSelectedConfiguration());
 
-		// Create ComponentAnalysisParameters
-		parameters = new ComponentAnalysisParameters(rkt, rocketPanel);
+		// Create CAParameters
+		parameters = new CAParameters(rkt, rocketPanel);
 
 		aoa = new DoubleModel(parameters, "AOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
 		mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
@@ -470,9 +470,12 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		plotExportBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO: open plot/export dialog
+				ComponentAnalysisPlotExportDialog dialog = new ComponentAnalysisPlotExportDialog(ComponentAnalysisDialog.this,
+						parameters, aerodynamicCalculator, rkt);
+				dialog.setVisible(true);
 			}
 		});
+		panel.add(plotExportBtn, "tag plotexport");
 
 		// TODO: LOW: printing
 		//		button = new JButton("Print");
@@ -542,7 +545,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		dragData.clear();
 		rollData.clear();
 
-		for(final RocketComponent comp: configuration.getAllComponents()) {
+		for (final RocketComponent comp: configuration.getAllComponents()) {
 			CMAnalysisEntry cmEntry = cmMap.get(comp.hashCode());
 			if (null == cmEntry) {
 				log.warn("Could not find massData entry for component: " + comp.getName());
@@ -595,7 +598,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 			// }
 		}
 
-		for(final MotorConfiguration config: configuration.getActiveMotors()) {
+		for (final MotorConfiguration config: configuration.getActiveMotors()) {
 			CMAnalysisEntry cmEntry = cmMap.get(config.getMotor().getDesignation().hashCode());
 			if (null == cmEntry) {
 				continue;

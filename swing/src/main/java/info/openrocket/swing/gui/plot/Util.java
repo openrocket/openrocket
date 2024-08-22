@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.simulation.DataType;
@@ -55,28 +54,34 @@ public abstract class Util {
 	};
 
 	public static <T extends DataType, B extends DataBranch<T>> List<String> generateSeriesLabels(List<B> branches) {
-		List<String> stages = new ArrayList<>(branches.size());
+		List<String> series = new ArrayList<>(branches.size());
 		// We need to generate unique strings for each of the branches.  Since the branch names are based
 		// on the stage name there is no guarantee they are unique.  In order to address this, we first assume
 		// all the names are unique, then go through them looking for duplicates.
 		for (B branch : branches) {
-			stages.add(branch.getName());
+			series.add(formatHTMLString(branch.getName()));
 		}
 		// check for duplicates:
-		for (int i = 0; i < stages.size(); i++) {
-			String stagename = stages.get(i);
-			int numberDuplicates = Collections.frequency(stages, stagename);
+		for (int i = 0; i < series.size(); i++) {
+			String stagename = series.get(i);
+			int numberDuplicates = Collections.frequency(series, stagename);
 			if (numberDuplicates > 1) {
 				int index = i;
 				int count = 1;
 				while (count <= numberDuplicates) {
-					stages.set(index, stagename + "(" + count + ")");
+					series.set(index, stagename + "(" + count + ")");
 					count ++;
-					for (index++; index < stages.size() && !stagename.equals(stages.get(index)); index++);
+					for (index++; index < series.size() && !stagename.equals(series.get(index)); index++);
 				}
 			}
 		}
-		return stages;
+		return series;
+	}
+
+	public static String formatHTMLString(String input) {
+		// TODO: Use AttributeString to format the string
+		// Remove the HTML-like tags from the final string
+		return input.replaceAll("<sub>|</sub>|<sup>|</sup>|<html>|</html>", "");
 	}
 
 	public static Color getPlotColor(int index) {

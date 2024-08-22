@@ -50,6 +50,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,7 +88,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				/*tooltips*/true,
 				/*urls*/false
 		);
-		this.chart.addSubtitle(new TextTitle(config.getName()));
+		this.chart.addSubtitle(new TextTitle(Util.formatHTMLString(config.getName())));
 		this.chart.getTitle().setFont(new Font("Dialog", Font.BOLD, 23));
 		this.chart.setBackgroundPaint(new Color(240, 240, 240));
 		this.legendItems = new LegendItems();
@@ -114,7 +115,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		}
 
 		// Get plot length (ignore trailing NaN's)
-		int typeCount = filledConfig.getTypeCount();
+		int dataCount = filledConfig.getDataCount();
 
 		int seriesCount = 0;
 
@@ -125,7 +126,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		// Create the XYSeries objects from the flight data and store into the collections
 		String[] axisLabel = new String[2];
-		for (int i = 0; i < typeCount; i++) {
+		for (int i = 0; i < dataCount; i++) {
 			// Get info
 			T type = postProcessType(filledConfig.getType(i));
 			Unit unit = filledConfig.getUnit(i);
@@ -133,54 +134,28 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 			String name = getLabel(type, unit);
 
 			// Populate data for each branch.
-
-			// The primary branch (branchIndex = 0) is easy since all the data is copied
-			{
-				int branchIndex = 0;
-				B thisBranch = allBranches.get(branchIndex);
-				// Store data in provided units
-				List<Double> plotx = thisBranch.get(domainType);
-				List<Double> ploty = thisBranch.get(type);
-				XYSeries series = new XYSeries(seriesCount++, false, true);
-				series.setDescription(name);
-				int pointCount = plotx.size();
-				for (int j = 0; j < pointCount; j++) {
-					series.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
-				}
-				data[axis].addSeries(series);
-			}
-			// Secondary branches
-			for (int branchIndex = 1; branchIndex < branchCount; branchIndex++) {
+			for (int branchIndex = 0; branchIndex < branchCount; branchIndex++) {
 				B thisBranch = allBranches.get(branchIndex);
 
 				// Ignore empty branches
 				if (thisBranch.getLength() == 0) {
-					// Add an empty series to keep the series count consistent
-					XYSeries series = new XYSeries(seriesCount++, false, true);
-					series.setDescription(thisBranch.getName() + ": " + name);
-					data[axis].addSeries(series);
 					continue;
 				}
 
-				XYSeries series = new XYSeries(seriesCount++, false, true);
-				series.setDescription(thisBranch.getName() + ": " + name);
+				List<XYSeries> seriesList = createSeriesForType(i, seriesCount, type, unit, thisBranch,
+						(branchIndex == 0 ? name : thisBranch.getName() + ": " + name));
 
-				// Copy all the data from the secondary branch
-				List<Double> plotx = thisBranch.get(domainType);
-				List<Double> ploty = thisBranch.get(type);
-
-				int pointCount = plotx.size();
-				for (int j = 0; j < pointCount; j++) {
-					series.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
+				for (XYSeries series : seriesList) {
+					data[axis].addSeries(series);
+					seriesCount++;
 				}
-				data[axis].addSeries(series);
 			}
 
 			// Update axis label
 			if (axisLabel[axis] == null)
-				axisLabel[axis] = type.getName();
+				axisLabel[axis] = Util.formatHTMLString(type.getName());
 			else
-				axisLabel[axis] += "; " + type.getName();
+				axisLabel[axis] += "; " + Util.formatHTMLString(type.getName());
 		}
 
 		// Add the data and formatting to the plot
@@ -292,11 +267,30 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	}
 
 	private String getLabel(T type, Unit unit) {
-		String name = type.getName();
+		String name = Util.formatHTMLString(type.getName());
 		if (unit != null && !UnitGroup.UNITS_NONE.contains(unit) &&
 				!UnitGroup.UNITS_COEFFICIENT.contains(unit) && unit.getUnit().length() > 0)
 			name += " (" + unit.getUnit() + ")";
 		return name;
+	}
+
+	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, T type, Unit unit, B branch,
+												 String baseName) {
+		// Default implementation for regular DataBranch
+		XYSeries series = new XYSeries(startIndex, false, true);
+		series.setDescription(baseName);
+
+		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
+		List<Double> ploty = branch.get(type);
+
+		int pointCount = plotx.size();
+		for (int j = 0; j < pointCount; j++) {
+			double x = filledConfig.getDomainAxisUnit().toUnit(plotx.get(j));
+			double y = unit.toUnit(ploty.get(j));
+			series.add(x, y);
+		}
+
+		return Collections.singletonList(series);
 	}
 
 	protected T postProcessType(T type) {

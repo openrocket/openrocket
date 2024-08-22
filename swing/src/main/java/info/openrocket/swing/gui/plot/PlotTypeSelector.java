@@ -22,7 +22,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class PlotTypeSelector<G extends Group, T extends Groupable<G> & UnitValue> extends JPanel {
+public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Group> extends JPanel {
 	protected static final Translator trans = Application.getTranslator();
 	private static final long serialVersionUID = 9056324972817542570L;
 

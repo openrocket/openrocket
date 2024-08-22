@@ -130,7 +130,11 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		return plotDataAxes.get(index);
 	}
 
-	public int getTypeCount() {
+	/**
+	 * Returns the number of data types in this configuration.
+	 * @return the number of data types in this configuration.
+	 */
+	public int getDataCount() {
 		return plotDataTypes.size();
 	}
 
@@ -242,31 +246,7 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		}
 
 		// Add full range to the axes
-		int length = plotDataTypes.size();
-		for (int i = 0; i < length; i++) {
-			T type = plotDataTypes.get(i);
-			Unit unit = plotDataUnits.get(i);
-			int index = plotDataAxes.get(i);
-			if (index < 0) {
-				throw new IllegalStateException("fitAxes called with auto-selected axis");
-			}
-			Axis axis = allAxes.get(index);
-
-			double min = unit.toUnit(data.get(0).getMinimum(type));
-			double max = unit.toUnit(data.get(0).getMaximum(type));
-
-			for (int j = 1; j < data.size(); j++) {
-				// Ignore empty data
-				if (data.get(j).getLength() == 0) {
-					continue;
-				}
-				min = Math.min(min, unit.toUnit(data.get(j).getMinimum(type)));
-				max = Math.max(max, unit.toUnit(data.get(j).getMaximum(type)));
-			}
-
-			axis.addBound(min);
-			axis.addBound(max);
-		}
+		calculateAxisBounds(data);
 
 		// Ensure non-zero (or NaN) range, add a few percent range, include zero if it is close
 		for (Axis a : allAxes) {
@@ -321,6 +301,34 @@ public class PlotConfiguration<T extends DataType, B extends DataBranch<T>> impl
 		left.addBound(max1);
 		right.addBound(min2);
 		right.addBound(max2);
+	}
+
+	protected void calculateAxisBounds(List<B> data) {
+		int length = plotDataTypes.size();
+		for (int i = 0; i < length; i++) {
+			T type = plotDataTypes.get(i);
+			Unit unit = plotDataUnits.get(i);
+			int index = plotDataAxes.get(i);
+			if (index < 0) {
+				throw new IllegalStateException("fitAxes called with auto-selected axis");
+			}
+			Axis axis = allAxes.get(index);
+
+			double min = unit.toUnit(data.get(0).getMinimum(type));
+			double max = unit.toUnit(data.get(0).getMaximum(type));
+
+			for (int j = 1; j < data.size(); j++) {
+				// Ignore empty data
+				if (data.get(j).getLength() == 0) {
+					continue;
+				}
+				min = Math.min(min, unit.toUnit(data.get(j).getMinimum(type)));
+				max = Math.max(max, unit.toUnit(data.get(j).getMaximum(type)));
+			}
+
+			axis.addBound(min);
+			axis.addBound(max);
+		}
 	}
 
 	//// Helper methods

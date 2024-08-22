@@ -49,7 +49,7 @@ import info.openrocket.swing.gui.theme.UITheme;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBranch, FlightDataTypeGroup,
-		SimulationPlotConfiguration, PlotTypeSelector<FlightDataTypeGroup, FlightDataType>> {
+		SimulationPlotConfiguration, PlotTypeSelector<FlightDataType, FlightDataTypeGroup>> {
 	@Serial
 	private static final long serialVersionUID = -2227129713185477998L;
 
@@ -262,7 +262,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 
 	@Override
 	public JDialog doPlot(Window parent) {
-		if (configuration.getTypeCount() == 0) {
+		if (configuration.getDataCount() == 0) {
 			JOptionPane.showMessageDialog(SimulationPlotPanel.this,
 					trans.get("error.noPlotSelected"),
 					trans.get("error.noPlotSelected.title"),

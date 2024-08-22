@@ -28,7 +28,6 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.ui.HorizontalAlignment;
 import org.jfree.chart.ui.VerticalAlignment;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.RectangleInsets;
@@ -228,7 +227,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 			double xcoord = domainInterpolator.getValue(t);
 
-			for (int index = 0; index < config.getTypeCount(); index++) {
+			for (int index = 0; index < config.getDataCount(); index++) {
 				FlightDataType type = config.getType(index);
 				List<Double> range = dataBranch.get(type);
 

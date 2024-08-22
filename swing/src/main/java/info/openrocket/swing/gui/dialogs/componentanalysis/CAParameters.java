@@ -6,7 +6,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Mutable;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 
-public class ComponentAnalysisParameters implements Cloneable {
+public class CAParameters implements Cloneable {
 	private final Mutable mutable = new Mutable();
 
 	private final Rocket rocket;
@@ -18,7 +18,7 @@ public class ComponentAnalysisParameters implements Cloneable {
 	private double mach;
 	private double rollRate;
 
-	public ComponentAnalysisParameters(Rocket rocket, RocketPanel rocketPanel) {
+	public CAParameters(Rocket rocket, RocketPanel rocketPanel) {
 		this.rocket = rocket;
 		this.rocketPanel = rocketPanel;
 
@@ -86,9 +86,9 @@ public class ComponentAnalysisParameters implements Cloneable {
 	}
 
 	@Override
-	public ComponentAnalysisParameters clone() {
+	public CAParameters clone() {
 		try {
-			return (ComponentAnalysisParameters) super.clone();
+			return (CAParameters) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
