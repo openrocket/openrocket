@@ -164,6 +164,9 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 				minSpinner.setModel(minModel.getSpinnerModel());
 				maxSpinner.setModel(maxModel.getSpinnerModel());
 				deltaSpinner.setModel(deltaModel.getSpinnerModel());
+				minSpinner.setValue(minModel.getValue());
+				maxSpinner.setValue(maxModel.getValue());
+				deltaSpinner.setValue(deltaModel.getValue());
 			}
 		});
 
@@ -211,10 +214,11 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		if (type == null) {
 			throw new IllegalArgumentException("CADomainDataType cannot be null");
 		}
-		this.minModel = new DoubleModel(type, "Min", 0);
-		this.maxModel = new DoubleModel(type, "Max", minModel);
+		this.minModel = new DoubleModel(type, "Min", type.getMin());
+		this.maxModel = new DoubleModel(type, "Max", minModel, type.getMax());
 		this.minModel.setMaxModel(maxModel);
 		this.deltaModel = new DoubleModel(type, "Delta", type.getMinDelta());
+		this.deltaModel.setValue(type.getDelta());
 	}
 
 	private void invalidateCache() {
@@ -260,6 +264,12 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 	private double getParameterValue(CADomainDataType parameterType) {
 		if (parameterType.equals(CADomainDataType.MACH)) {
 			return parameters.getMach();
+		} else if (parameterType.equals(CADomainDataType.AOA)) {
+			return parameters.getAOA();
+		} else if (parameterType.equals(CADomainDataType.ROLL_RATE)) {
+			return parameters.getRollRate();
+		} else if (parameterType.equals(CADomainDataType.WIND_DIRECTION)) {
+			return parameters.getTheta();
 		}
 		// Add more cases here as more parameter types are implemented
 		else {
