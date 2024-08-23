@@ -167,7 +167,8 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		parameterSelector.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				updateModels(getSelectedParameter());
+				CADomainDataType type = getSelectedParameter();
+				updateModels(type);
 				minSpinner.setModel(minModel.getSpinnerModel());
 				maxSpinner.setModel(maxModel.getSpinnerModel());
 				deltaSpinner.setModel(deltaModel.getSpinnerModel());
@@ -181,6 +182,10 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 				minUnitSelector.setSelectedUnit(minModel.getCurrentUnit());
 				maxUnitSelector.setSelectedUnit(maxModel.getCurrentUnit());
 				deltaUnitSelector.setSelectedUnit(deltaModel.getCurrentUnit());
+
+				if (plotTab != null) {
+					plotTab.setXAxis(type);
+				}
 			}
 		});
 

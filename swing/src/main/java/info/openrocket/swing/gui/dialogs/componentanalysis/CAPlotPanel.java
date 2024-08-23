@@ -70,6 +70,13 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 				parent.getComponentsForType(type), configuration);
 	}
 
+	public void setXAxis(CADomainDataType type) {
+		if (modifying > 0 || type == null)
+			return;
+		configuration.setDomainAxisType(type);
+		setToCustom();
+	}
+
 	@Override
 	protected void setDefaultConfiguration(CAPlotConfiguration newConfiguration) {
 		super.setDefaultConfiguration(newConfiguration);
