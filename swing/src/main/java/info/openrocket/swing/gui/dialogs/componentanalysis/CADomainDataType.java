@@ -12,7 +12,7 @@ public class CADomainDataType extends CADataType {
 	private double delta;
 	private final double minDelta;
 
-	public static final CADomainDataType MACH = new CADomainDataType(trans.get("componentanalysisdlg.lbl.machnumber"),
+	public static final CADomainDataType MACH = new CADomainDataType(trans.get("CADomainDataType.lbl.machnumber"),
 			"M", UnitGroup.UNITS_NONE, CADataTypeGroup.DOMAIN_PARAMETER, 0.0, 3.0, 0.1, 0.001, 0);
 
 	public static final CADomainDataType[] ALL_DOMAIN_TYPES = {
