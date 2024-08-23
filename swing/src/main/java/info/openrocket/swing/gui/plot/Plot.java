@@ -200,15 +200,9 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 						if (collection.getSeriesCount() == 0) {
 							return null;
 						}
-						XYSeries ser = collection.getSeries(series);
+						MetadataXYSeries ser = (MetadataXYSeries) collection.getSeries(series);
 						String name = ser.getDescription();
-
-						// Extract the unit from the last part of the series description, between parenthesis
-						Matcher m = Pattern.compile(".*\\((.*?)\\)").matcher(name);
-						String unitY = "";
-						if (m.find()) {
-							unitY = m.group(1);
-						}
+						String unitY = ser.getUnit();
 						String unitX = domainUnit.getUnit();
 
 						double dataY = dataset.getYValue(series, item);
@@ -277,7 +271,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, T type, Unit unit, B branch,
 												 String baseName) {
 		// Default implementation for regular DataBranch
-		XYSeries series = new XYSeries(startIndex, false, true);
+		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, unit.getUnit());
 		series.setDescription(baseName);
 
 		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
@@ -532,6 +526,18 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 			}
 			super.setRange(new Range(lowerValue, upperValue));
 		}
+	}
 
+	protected class MetadataXYSeries extends XYSeries {
+		private final String unit;
+
+		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, String unit) {
+			super(key, autoSort, allowDuplicateXValues);
+			this.unit = unit;
+		}
+
+		public String getUnit() {
+			return unit;
+		}
 	}
 }
