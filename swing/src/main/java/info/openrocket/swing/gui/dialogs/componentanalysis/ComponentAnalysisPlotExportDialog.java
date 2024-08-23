@@ -9,6 +9,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.EditableSpinner;
+import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.GUIUtil;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
@@ -140,13 +141,17 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		minMaxPanel.add(new JLabel(trans.get("CAPlotExportDialog.lbl.MinValue")));
 		final EditableSpinner minSpinner = new EditableSpinner(minModel.getSpinnerModel());
 		minSpinner.setToolTipText(trans.get("CAPlotExportDialog.lbl.MinValue.ttip"));
-		minMaxPanel.add(minSpinner, "growx, wrap");
+		minMaxPanel.add(minSpinner, "growx");
+		final UnitSelector minUnitSelector = new UnitSelector(minModel);
+		minMaxPanel.add(minUnitSelector, "wrap");
 
 		// Max value
 		minMaxPanel.add(new JLabel(trans.get("CAPlotExportDialog.lbl.MaxValue")));
 		final EditableSpinner maxSpinner = new EditableSpinner(maxModel.getSpinnerModel());
 		maxSpinner.setToolTipText(trans.get("CAPlotExportDialog.lbl.MaxValue.ttip"));
-		minMaxPanel.add(maxSpinner, "growx, wrap");
+		minMaxPanel.add(maxSpinner, "growx");
+		final UnitSelector maxUnitSelector = new UnitSelector(maxModel);
+		minMaxPanel.add(maxUnitSelector, "wrap");
 
 		topPanel.add(minMaxPanel, "growx");
 
@@ -155,6 +160,8 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		final EditableSpinner deltaSpinner = new EditableSpinner(deltaModel.getSpinnerModel());
 		deltaSpinner.setToolTipText(trans.get("CAPlotExportDialog.lbl.Delta.ttip"));
 		topPanel.add(deltaSpinner, "top, growx");
+		final UnitSelector deltaUnitSelector = new UnitSelector(deltaModel);
+		topPanel.add(deltaUnitSelector, "top");
 
 		// Update the models and spinners when the parameter selector changes
 		parameterSelector.addActionListener(new ActionListener() {
@@ -164,9 +171,16 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 				minSpinner.setModel(minModel.getSpinnerModel());
 				maxSpinner.setModel(maxModel.getSpinnerModel());
 				deltaSpinner.setModel(deltaModel.getSpinnerModel());
+				minUnitSelector.setModel(minModel);
+				maxUnitSelector.setModel(maxModel);
+				deltaUnitSelector.setModel(deltaModel);
+
 				minSpinner.setValue(minModel.getValue());
 				maxSpinner.setValue(maxModel.getValue());
 				deltaSpinner.setValue(deltaModel.getValue());
+				minUnitSelector.setSelectedUnit(minModel.getCurrentUnit());
+				maxUnitSelector.setSelectedUnit(maxModel.getCurrentUnit());
+				deltaUnitSelector.setSelectedUnit(deltaModel.getCurrentUnit());
 			}
 		});
 
@@ -214,10 +228,10 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		if (type == null) {
 			throw new IllegalArgumentException("CADomainDataType cannot be null");
 		}
-		this.minModel = new DoubleModel(type, "Min", type.getMin());
-		this.maxModel = new DoubleModel(type, "Max", minModel, type.getMax());
+		this.minModel = new DoubleModel(type, "Min", type.getUnitGroup(), type.getMin());
+		this.maxModel = new DoubleModel(type, "Max", type.getUnitGroup(), minModel, type.getMax());
 		this.minModel.setMaxModel(maxModel);
-		this.deltaModel = new DoubleModel(type, "Delta", type.getMinDelta());
+		this.deltaModel = new DoubleModel(type, "Delta", type.getUnitGroup(), type.getMinDelta());
 		this.deltaModel.setValue(type.getDelta());
 	}
 
