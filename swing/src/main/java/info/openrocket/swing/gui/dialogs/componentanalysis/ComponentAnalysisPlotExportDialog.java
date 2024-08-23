@@ -211,9 +211,9 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		if (type == null) {
 			throw new IllegalArgumentException("CADomainDataType cannot be null");
 		}
-		// TODO: use the maxModel for the max value of minModel and vice versa?
 		this.minModel = new DoubleModel(type, "Min", 0);
-		this.maxModel = new DoubleModel(type, "Max", 0);
+		this.maxModel = new DoubleModel(type, "Max", minModel);
+		this.minModel.setMaxModel(maxModel);
 		this.deltaModel = new DoubleModel(type, "Delta", type.getMinDelta());
 	}
 
