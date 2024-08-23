@@ -8,8 +8,8 @@ public class CADataTypeGroup implements Comparable<CADataTypeGroup>, Group {
 	private static final Translator trans = Application.getTranslator();
 
 	public static final CADataTypeGroup DOMAIN_PARAMETER = new CADataTypeGroup(trans.get("CADataTypeGroup.DOMAIN"), 0);
-	public static final CADataTypeGroup DRAG = new CADataTypeGroup(trans.get("CADataTypeGroup.DRAG"), 10);
-	public static final CADataTypeGroup STABILITY = new CADataTypeGroup(trans.get("CADataTypeGroup.STABILITY"), 20);
+	public static final CADataTypeGroup STABILITY = new CADataTypeGroup(trans.get("CADataTypeGroup.STABILITY"), 10);
+	public static final CADataTypeGroup DRAG = new CADataTypeGroup(trans.get("CADataTypeGroup.DRAG"), 20);
 	public static final CADataTypeGroup ROLL = new CADataTypeGroup(trans.get("CADataTypeGroup.ROLL"), 30);
 
 	private final String name;
