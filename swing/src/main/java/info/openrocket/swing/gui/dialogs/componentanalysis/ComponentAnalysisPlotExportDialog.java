@@ -2,8 +2,6 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.ComponentAssembly;
-import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
@@ -169,6 +167,8 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				CADomainDataType type = getSelectedParameter();
 				updateModels(type);
+
+				// Update spinners and unit selectors
 				minSpinner.setModel(minModel.getSpinnerModel());
 				maxSpinner.setModel(maxModel.getSpinnerModel());
 				deltaSpinner.setModel(deltaModel.getSpinnerModel());
@@ -176,12 +176,18 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 				maxUnitSelector.setModel(maxModel);
 				deltaUnitSelector.setModel(deltaModel);
 
-				minSpinner.setValue(minModel.getValue());
-				maxSpinner.setValue(maxModel.getValue());
-				deltaSpinner.setValue(deltaModel.getValue());
-				minUnitSelector.setSelectedUnit(minModel.getCurrentUnit());
-				maxUnitSelector.setSelectedUnit(maxModel.getCurrentUnit());
-				deltaUnitSelector.setSelectedUnit(deltaModel.getCurrentUnit());
+				// Ensure the unit selectors show the correct unit
+				minUnitSelector.invalidate();
+				maxUnitSelector.invalidate();
+				deltaUnitSelector.invalidate();
+
+				// Update the displayed values
+				minSpinner.setValue(minUnitSelector.getSelectedUnit().toValue(type.getMin()));
+				maxSpinner.setValue(minUnitSelector.getSelectedUnit().toValue(type.getMax()));
+				deltaSpinner.setValue(minUnitSelector.getSelectedUnit().toValue(type.getDelta()));
+				minSpinner.invalidate();
+				maxSpinner.invalidate();
+				deltaSpinner.invalidate();
 
 				if (plotTab != null) {
 					plotTab.setXAxis(type);
@@ -233,11 +239,20 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		if (type == null) {
 			throw new IllegalArgumentException("CADomainDataType cannot be null");
 		}
-		this.minModel = new DoubleModel(type, "Min", type.getUnitGroup(), type.getMin());
-		this.maxModel = new DoubleModel(type, "Max", type.getUnitGroup(), minModel, type.getMax());
-		this.minModel.setMaxModel(maxModel);
+
+		// Create new models
+		this.minModel = new DoubleModel(type, "Min", type.getUnitGroup(), type.getMin(), type.getMax());
+		this.maxModel = new DoubleModel(type, "Max", type.getUnitGroup(), type.getMin(), type.getMax());
 		this.deltaModel = new DoubleModel(type, "Delta", type.getUnitGroup(), type.getMinDelta());
-		this.deltaModel.setValue(type.getDelta());
+
+		// Set the values and units
+		minModel.setValue(type.getMin());
+		maxModel.setValue(type.getMax());
+		deltaModel.setValue(type.getDelta());
+
+		// Set the mutual dependencies
+		this.minModel.setMaxModel(maxModel);
+		this.maxModel.setMinModel(minModel);
 	}
 
 	private void invalidateCache() {
