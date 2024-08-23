@@ -28,7 +28,7 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 
 	//// Stability
 	public static final CADataType CP_X = new CADataType(trans.get("componentanalysisdlg.TabStability.Col.CP"),
-			"CP", UnitGroup.UNITS_NONE, CADataTypeGroup.STABILITY, 10);
+			"CP", UnitGroup.UNITS_LENGTH, CADataTypeGroup.STABILITY, 10);
 	public static final CADataType CNa = new CADataType("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>",
 			"CNa", UnitGroup.UNITS_NONE, CADataTypeGroup.STABILITY, 11);
 
