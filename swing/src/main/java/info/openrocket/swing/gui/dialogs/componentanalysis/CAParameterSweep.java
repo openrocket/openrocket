@@ -81,6 +81,12 @@ public class CAParameterSweep {
 	private void setParameterValue(CADomainDataType parameterType, double value) {
 		if (parameterType.equals(CADomainDataType.MACH)) {
 			parameters.setMach(value);
+		} else if (parameterType.equals(CADomainDataType.AOA)) {
+			parameters.setAOA(value);
+		} else if (parameterType.equals(CADomainDataType.ROLL_RATE)) {
+			parameters.setRollRate(value);
+		} else if (parameterType.equals(CADomainDataType.WIND_DIRECTION)) {
+			parameters.setTheta(value);
 		}
 		// Add more cases here as more parameter types are implemented
 		else {
