@@ -35,8 +35,6 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisPlotExportDialog.class);
 
-	private final Rocket rocket;
-
 	private final JTabbedPane tabbedPane;
 	JComboBox<CADomainDataType> parameterSelector;
 	private JButton okButton;
@@ -64,7 +62,6 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 
 		final JPanel contentPanel = new JPanel(new MigLayout("fill, height 500px"));
 
-		this.rocket = rocket;
 		this.parameters = parameters;
 		this.parameterSweep = new CAParameterSweep(parameters, aerodynamicCalculator, rocket);
 		this.componentCache = new HashMap<>();
@@ -276,7 +273,7 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		}
 
 		if (!componentCache.containsKey(type)) {
-			List<RocketComponent> components = CADataType.calculateComponentsForType(rocket, type);
+			List<RocketComponent> components = CADataType.calculateComponentsForType(parameters.getSelectedConfiguration(), type);
 			componentCache.put(type, components);
 		}
 

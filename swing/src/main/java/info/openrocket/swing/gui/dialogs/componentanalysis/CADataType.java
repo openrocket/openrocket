@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.DataType;
@@ -94,15 +95,15 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 
 	/**
 	 * Calculate all components that are relevant for a given CADataType.
-	 * @param rocket the rocket to search in
+	 * @param configuration the current flight configuration of the rocket
 	 * @param type the CADataType to search for
 	 * @return a list of all components that are relevant for the given CADataType
 	 */
-	public static List<RocketComponent> calculateComponentsForType(Rocket rocket, CADataType type) {
+	public static List<RocketComponent> calculateComponentsForType(FlightConfiguration configuration, CADataType type) {
 		List<RocketComponent> components = new ArrayList<>();
 
 		// Iterate through all components in the rocket
-		for (RocketComponent component : rocket.getSelectedConfiguration().getAllComponents()) {
+		for (RocketComponent component : configuration.getAllActiveComponents()) {
 			// Check if this component is relevant for the given CADataType
 			if (isComponentRelevantForType(component, type)) {
 				components.add(component);

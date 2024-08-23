@@ -322,14 +322,24 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 
 	public Collection<RocketComponent> getAllComponents() {
 		List<RocketComponent> traversalOrder = new ArrayList<>();
-		recurseAllComponentsDepthFirst(this.rocket, traversalOrder);
+		recurseAllComponentsDepthFirst(this.rocket, traversalOrder, false);
 		return traversalOrder;
 	}
 
-	private void recurseAllComponentsDepthFirst(RocketComponent comp, List<RocketComponent> traversalOrder) {
+	public Collection<RocketComponent> getAllActiveComponents() {
+		List<RocketComponent> traversalOrder = new ArrayList<>();
+		recurseAllComponentsDepthFirst(this.rocket, traversalOrder, true);
+		return traversalOrder;
+	}
+
+	private void recurseAllComponentsDepthFirst(RocketComponent comp, List<RocketComponent> traversalOrder,
+												boolean ignoreInactive) {
+		if (ignoreInactive && !isComponentActive(comp)) {
+			return;
+		}
 		traversalOrder.add(comp);
 		for (RocketComponent child : comp.getChildren()) {
-			recurseAllComponentsDepthFirst(child, traversalOrder);
+			recurseAllComponentsDepthFirst(child, traversalOrder, ignoreInactive);
 		}
 	}
 
@@ -374,7 +384,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	// this method is deprecated because it ignores instancing of parent components
 	// (e.g. Strapons or pods )
 	// depending on your context, this may or may not be what you want.
-	// recommend migrating to either: `getAllComponents` or `getActiveInstances`
+	// recommend migrating to 'getAllActiveComponents'
 	@Deprecated
 	public Collection<RocketComponent> getActiveComponents() {
 		Queue<RocketComponent> toProcess = new ArrayDeque<>(this.getActiveStages());
