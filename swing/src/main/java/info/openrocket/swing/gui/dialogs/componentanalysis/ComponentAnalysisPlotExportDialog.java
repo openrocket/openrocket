@@ -54,6 +54,7 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 	private final CAParameters parameters;
 	private final CAParameterSweep parameterSweep;
 
+	private final CADataType[] types;
 	private final Map<CADataType, List<RocketComponent>> componentCache;
 	private boolean isCacheValid;
 
@@ -69,6 +70,8 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		this.componentCache = new HashMap<>();
 		this.isCacheValid = false;
 
+		this.types = getValidTypes();
+
 		// ======== Top panel ========
 		addTopPanel(contentPanel);
 
@@ -76,11 +79,11 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		this.tabbedPane = new JTabbedPane();
 
 		//// Plot data
-		this.plotTab = CAPlotPanel.create(this);
+		this.plotTab = CAPlotPanel.create(this, types);
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Plot"), this.plotTab);
 
 		//// Export data
-		this.exportTab = CAExportPanel.create(CADataType.ALL_TYPES);
+		this.exportTab = CAExportPanel.create(types);
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Export"), this.exportTab);
 
 		contentPanel.add(tabbedPane, "grow, wrap");
@@ -278,6 +281,22 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		}
 
 		isCacheValid = true;
+	}
+
+	/**
+	 * Returns the valid types for the current rocket, i.e. types that have at least once component bound to it.
+	 * @return all valid Component Analysis types for the current rocket
+	 */
+	private CADataType[] getValidTypes() {
+		List<CADataType> validTypes = new ArrayList<>();
+		List<RocketComponent> components;
+		for (CADataType type : CADataType.ALL_TYPES) {
+			components = getComponentsForType(type);
+			if (!components.isEmpty()) {
+				validTypes.add(type);
+			}
+		}
+		return validTypes.toArray(new CADataType[0]);
 	}
 
 	/**

@@ -42,10 +42,10 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 		updatePlots();
 	}
 
-	public static CAPlotPanel create(ComponentAnalysisPlotExportDialog parent) {
+	public static CAPlotPanel create(ComponentAnalysisPlotExportDialog parent, CADataType[] typesY) {
 		CADomainDataType[] typesX = new CADomainDataType[] { parent.getSelectedParameter() };
 
-		return new CAPlotPanel(parent, typesX, CADataType.ALL_TYPES);
+		return new CAPlotPanel(parent, typesX, typesY);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 
 	@Override
 	protected CAPlotTypeSelector createSelector(int i, CADataType type, Unit unit, int axis) {
-		return new CAPlotTypeSelector(parent, i, type, unit, axis, List.of(CADataType.ALL_TYPES),
+		return new CAPlotTypeSelector(parent, i, type, unit, axis, List.of(typesY),
 				parent.getComponentsForType(type), configuration);
 	}
 

@@ -46,8 +46,8 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 	private C defaultConfiguration;
 
 	// Data types for the x and y axis + plot configuration
-	private final T[] typesX;
-	private final T[] typesY;
+	protected final T[] typesX;
+	protected final T[] typesY;
 	protected C configuration;
 
 	private final JComboBox<C> configurationSelector;
