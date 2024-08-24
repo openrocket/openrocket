@@ -14,7 +14,7 @@ import java.util.List;
 public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeGroup> {
 	private final JComboBox<RocketComponent> componentSelector;
 
-	public CAPlotTypeSelector(final ComponentAnalysisPlotExportDialog parent, int plotIndex,
+	public CAPlotTypeSelector(final ComponentAnalysisPlotExportPanel parent, int plotIndex,
 							  CADataType type, Unit unit, int position, List<CADataType> availableTypes,
 							  List<RocketComponent> componentsForType, CAPlotConfiguration configuration) {
 		super(plotIndex, type, unit, position, availableTypes, false);

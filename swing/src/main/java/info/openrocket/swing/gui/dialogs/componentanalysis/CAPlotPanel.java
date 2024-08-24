@@ -24,7 +24,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 	private static CAPlotConfiguration DEFAULT_CONFIGURATION =
 			CAPlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
 
-	private final ComponentAnalysisPlotExportDialog parent;
+	private final ComponentAnalysisPlotExportPanel parent;
 
 	static {
 		CUSTOM_CONFIGURATION = new CAPlotConfiguration(CUSTOM);
@@ -34,7 +34,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
 	}
 
-	private CAPlotPanel(ComponentAnalysisPlotExportDialog parent,
+	private CAPlotPanel(ComponentAnalysisPlotExportPanel parent,
 						CADomainDataType[] typesX, CADataType[] typesY) {
 		super(typesX, typesY, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, null, null);
 
@@ -42,7 +42,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 		updatePlots();
 	}
 
-	public static CAPlotPanel create(ComponentAnalysisPlotExportDialog parent, CADataType[] typesY) {
+	public static CAPlotPanel create(ComponentAnalysisPlotExportPanel parent, CADataType[] typesY) {
 		CADomainDataType[] typesX = new CADomainDataType[] { parent.getSelectedParameter() };
 
 		return new CAPlotPanel(parent, typesX, typesY);
@@ -50,7 +50,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 
 	@Override
 	protected void addXAxisSelector(CADataType[] typesX, Component[] extraWidgetsX) {
-		// Don't add the X axis selector (this is added in the ComponentAnalysisPlotExportDialog)
+		// Don't add the X axis selector (this is added in the ComponentAnalysisPlotExportPanel)
 	}
 
 	@Override
@@ -87,6 +87,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 	public JDialog doPlot(Window parentWindow) {
 		CADataBranch branch = this.parent.runParameterSweep();
 		CAPlotConfiguration config = this.getConfiguration();
-		return CAPlotDialog.create(parent, trans.get("CAPlotPanel.lbl.PlotTitle"), config, Collections.singletonList(branch));
+		return CAPlotDialog.create(parent.getParentWindow(), trans.get("CAPlotPanel.lbl.PlotTitle"), config,
+				Collections.singletonList(branch));
 	}
 }

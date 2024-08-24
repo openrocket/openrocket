@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.dialogs.componentanalysis;
 
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -28,27 +27,27 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 	private final int hashCode;
 
 	//// Stability
-	public static final CADataType CP_X = new CADataType(trans.get("componentanalysisdlg.TabStability.Col.CP"),
+	public static final CADataType CP_X = new CADataType(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP"),
 			"CP", UnitGroup.UNITS_LENGTH, CADataTypeGroup.STABILITY, 10);
 	public static final CADataType CNa = new CADataType("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>",
 			"CNa", UnitGroup.UNITS_NONE, CADataTypeGroup.STABILITY, 11);
 
 	//// Drag
-	public static final CADataType PRESSURE_CD = new CADataType(trans.get("componentanalysisdlg.dragTableModel.Col.Pressure"),
+	public static final CADataType PRESSURE_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.Pressure"),
 			"CD,pressure", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 20);
-	public static final CADataType BASE_CD = new CADataType(trans.get("componentanalysisdlg.dragTableModel.Col.Base"),
+	public static final CADataType BASE_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.Base"),
 			"CD,base", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 21);
-	public static final CADataType FRICTION_CD = new CADataType(trans.get("componentanalysisdlg.dragTableModel.Col.friction"),
+	public static final CADataType FRICTION_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.friction"),
 			"CD,friction", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 22);
-	public static final CADataType TOTAL_CD = new CADataType(trans.get("componentanalysisdlg.dragTableModel.Col.total"),
+	public static final CADataType TOTAL_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.total"),
 			"CD,total", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 23);
 
 	//// Roll
-	public static final CADataType ROLL_FORCING_COEFFICIENT = new CADataType(trans.get("componentanalysisdlg.rollTableModel.Col.rollforc"),
+	public static final CADataType ROLL_FORCING_COEFFICIENT = new CADataType(trans.get("ComponentAnalysisGeneralTab.rollTableModel.Col.rollforc"),
 			"Clf", UnitGroup.UNITS_NONE, CADataTypeGroup.ROLL, 30);
-	public static final CADataType ROLL_DAMPING_COEFFICIENT = new CADataType(trans.get("componentanalysisdlg.rollTableModel.Col.rolldamp"),
+	public static final CADataType ROLL_DAMPING_COEFFICIENT = new CADataType(trans.get("ComponentAnalysisGeneralTab.rollTableModel.Col.rolldamp"),
 			"Cld", UnitGroup.UNITS_NONE, CADataTypeGroup.ROLL, 31);
-	public static final CADataType TOTAL_ROLL_COEFFICIENT = new CADataType(trans.get("componentanalysisdlg.rollTableModel.Col.total"),
+	public static final CADataType TOTAL_ROLL_COEFFICIENT = new CADataType(trans.get("ComponentAnalysisGeneralTab.rollTableModel.Col.total"),
 			"Cl,tot", UnitGroup.UNITS_NONE, CADataTypeGroup.ROLL, 32);
 
 

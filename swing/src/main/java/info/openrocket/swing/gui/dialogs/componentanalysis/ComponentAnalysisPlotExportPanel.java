@@ -8,7 +8,6 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.components.UnitSelector;
-import info.openrocket.swing.gui.util.GUIUtil;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ComponentAnalysisPlotExportDialog extends JDialog {
+public class ComponentAnalysisPlotExportPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisPlotExportDialog.class);
+	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisPlotExportPanel.class);
 
+	private final Window parent;
 	private final JTabbedPane tabbedPane;
 	JComboBox<CADomainDataType> parameterSelector;
 	private JButton okButton;
@@ -56,12 +56,11 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 	private final Map<CADataType, List<RocketComponent>> componentCache;
 	private boolean isCacheValid;
 
-	public ComponentAnalysisPlotExportDialog(Window parent, CAParameters parameters,
-											 AerodynamicCalculator aerodynamicCalculator, Rocket rocket) {
-		super(parent, trans.get("CAPlotExportDialog.title"), JDialog.ModalityType.DOCUMENT_MODAL);
+	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, CAParameters parameters,
+											AerodynamicCalculator aerodynamicCalculator, Rocket rocket) {
+		super(new MigLayout("fill, height 500px"));
 
-		final JPanel contentPanel = new JPanel(new MigLayout("fill, height 500px"));
-
+		this.parent = parent;
 		this.parameters = parameters;
 		this.parameterSweep = new CAParameterSweep(parameters, aerodynamicCalculator, rocket);
 		this.componentCache = new HashMap<>();
@@ -70,23 +69,22 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		this.types = getValidTypes();
 
 		// ======== Top panel ========
-		addTopPanel(contentPanel);
+		addTopPanel();
 
 		// ======== Tabbed pane ========
 		this.tabbedPane = new JTabbedPane();
+		this.add(tabbedPane, "spanx, growx, growy, pushy, wrap");
 
 		//// Plot data
 		this.plotTab = CAPlotPanel.create(this, types);
-		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Plot"), this.plotTab);
+		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Plot"), null, this.plotTab);
 
 		//// Export data
 		this.exportTab = CAExportPanel.create(types);
-		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Export"), this.exportTab);
+		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Export"), null, this.exportTab);
 
-		contentPanel.add(tabbedPane, "grow, wrap");
-
-		// ======== Bottom panel ========
-		addBottomPanel(contentPanel);
+		// Create the OK button
+		createOkButton();
 
 		// Update the OK button text based on the selected tab
 		tabbedPane.addChangeListener(new ChangeListener() {
@@ -107,18 +105,13 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 			}
 		});
 
-		this.add(contentPanel);
-		this.validate();
-		this.pack();
+		validate();
 
 		// Add listeners for events that would invalidate the cache
 		rocket.addComponentChangeListener(e -> invalidateCache());
-
-		this.setLocationByPlatform(true);
-		GUIUtil.setDisposableDialogOptions(this, null);
 	}
 
-	private void addTopPanel(JPanel contentPanel) {
+	private void addTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("fill"));
 		TitledBorder border = BorderFactory.createTitledBorder(trans.get("CAPlotExportDialog.XAxisConfiguration"));
 		topPanel.setBorder(border);
@@ -195,40 +188,25 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 			}
 		});
 
-		contentPanel.add(topPanel, "growx, wrap");
+		this.add(topPanel, "growx, wrap");
 	}
 
-	private void addBottomPanel(JPanel contentPanel) {
-		JPanel bottomPanel = new JPanel(new MigLayout("fill, ins 0"));
-
-		// Close button
-		JButton closeButton = new JButton(trans.get("dlg.but.close"));
-		closeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ComponentAnalysisPlotExportDialog.this.dispose();
-			}
-		});
-		bottomPanel.add(closeButton, "gapbefore push, split 2, right");
-
+	private void createOkButton() {
 		// OK button
 		this.okButton = new JButton(trans.get("SimulationConfigDialog.btn.plot"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (tabbedPane.getSelectedIndex() == PLOT_IDX) {
-					JDialog dialog = ComponentAnalysisPlotExportDialog.this.plotTab.doPlot(ComponentAnalysisPlotExportDialog.this);
+					JDialog dialog = ComponentAnalysisPlotExportPanel.this.plotTab.doPlot(parent);
 					if (dialog != null) {
 						dialog.setVisible(true);
 					}
 				} else if (tabbedPane.getSelectedIndex() == EXPORT_IDX) {
-					ComponentAnalysisPlotExportDialog.this.exportTab.doExport();
+					ComponentAnalysisPlotExportPanel.this.exportTab.doExport();
 				}
 			}
 		});
-		bottomPanel.add(okButton, "wrap");
-
-		contentPanel.add(bottomPanel, "growx, wrap");
 	}
 
 	public CADomainDataType getSelectedParameter() {
@@ -309,6 +287,14 @@ public class ComponentAnalysisPlotExportDialog extends JDialog {
 		CADataBranch dataBranch = parameterSweep.sweep(domainType, min, max, delta, getParameterValue(domainType));
 		log.info("Parameter sweep completed. Data stored in dataBranch.");
 		return dataBranch;
+	}
+
+	public Window getParentWindow() {
+		return parent;
+	}
+
+	public JButton getOkButton() {
+		return okButton;
 	}
 
 	private double getParameterValue(CADomainDataType parameterType) {
