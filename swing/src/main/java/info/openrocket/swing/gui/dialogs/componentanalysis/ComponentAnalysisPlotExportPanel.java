@@ -58,7 +58,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel {
 
 	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, CAParameters parameters,
 											AerodynamicCalculator aerodynamicCalculator, Rocket rocket) {
-		super(new MigLayout("fill, height 500px"));
+		super(new MigLayout("fill, height 700px"));
 
 		this.parent = parent;
 		this.parameters = parameters;
@@ -80,7 +80,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel {
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Plot"), null, this.plotTab);
 
 		//// Export data
-		this.exportTab = CAExportPanel.create(types);
+		this.exportTab = CAExportPanel.create(this, types);
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Export"), null, this.exportTab);
 
 		// Create the OK button

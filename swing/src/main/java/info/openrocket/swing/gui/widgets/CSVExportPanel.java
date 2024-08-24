@@ -32,8 +32,8 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	protected static final String SPACE = "SPACE";
 	protected static final String TAB = "TAB";
 
-	private final JTable table;
-	private final SelectionTableModel tableModel;
+	protected final JTable table;
+	protected final SelectionTableModel tableModel;
 	private final JLabel selectedCountLabel;
 
 	protected final boolean[] selected;
@@ -42,7 +42,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 
 	protected final CsvOptionPanel csvOptions;
 
-	public CSVExportPanel(T[] types, boolean[] selected, CsvOptionPanel csvOptions, Component... extraComponents) {
+	public CSVExportPanel(T[] types, boolean[] selected, CsvOptionPanel csvOptions, boolean separateRowForTable, Component... extraComponents) {
 		super(new MigLayout("fill, flowy"));
 
 		this.types = types;
@@ -59,39 +59,9 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		JButton button;
 
 		// Set up the variable selection table
-		tableModel = new SelectionTableModel();
+		tableModel = createTableModel();
 		table = new JTable(tableModel);
-		table.setDefaultRenderer(Object.class,
-				new SelectionBackgroundCellRenderer(table.getDefaultRenderer(Object.class)));
-		table.setDefaultRenderer(Boolean.class,
-				new SelectionBackgroundCellRenderer(table.getDefaultRenderer(Boolean.class)));
-		table.setRowSelectionAllowed(false);
-		table.setColumnSelectionAllowed(false);
-
-		table.setDefaultEditor(Unit.class, new UnitCellEditor() {
-			private static final long serialVersionUID = 1088570433902420935L;
-
-			@Override
-			protected UnitGroup getUnitGroup(Unit value, int row, int column) {
-				return types[row].getUnitGroup();
-			}
-		});
-
-		// Set column widths
-		TableColumnModel columnModel = table.getColumnModel();
-		TableColumn col = columnModel.getColumn(0);
-		int w = table.getRowHeight();
-		col.setMinWidth(w);
-		col.setPreferredWidth(w);
-		col.setMaxWidth(w);
-
-		col = columnModel.getColumn(1);
-		col.setPreferredWidth(200);
-
-		col = columnModel.getColumn(2);
-		col.setPreferredWidth(100);
-
-		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
+		initializeTable(types);
 
 		// Add table
 		panel = new JPanel(new MigLayout("fill"));
@@ -124,21 +94,77 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		updateSelectedCount();
 		panel.add(selectedCountLabel);
 
-		this.add(panel, "grow 100, wrap");
+		if (separateRowForTable) {
+			this.add(panel, "spanx, grow 100, wrap");
+		} else {
+			this.add(panel, "grow 100, wrap");
+		}
 
 		// Add CSV options
-		this.add(csvOptions, "spany, split, growx 1");
+		if (separateRowForTable) {
+			this.add(csvOptions, "grow 1");
+		} else {
+			this.add(csvOptions, "spany, split, growx 1");
+		}
 
 		//// Add extra widgets
 		if (extraComponents != null) {
 			for (Component c : extraComponents) {
-				this.add(c, "spany, split, growx 1");
+				if (separateRowForTable) {
+					this.add(c, "grow 1");
+				} else {
+					this.add(c, "spany, split, growx 1");
+				}
 			}
 		}
 
 		// Space-filling panel
-		panel = new JPanel();
-		this.add(panel, "width 1, height 1, grow 1");
+		if (!separateRowForTable) {
+			panel = new JPanel();
+			this.add(panel, "width 1, height 1, grow 1");
+		}
+	}
+
+	public CSVExportPanel(T[] types, boolean[] selected, CsvOptionPanel csvOptions, Component... extraComponents) {
+		this(types, selected, csvOptions, false, extraComponents);
+	}
+
+	protected SelectionTableModel createTableModel() {
+		return new SelectionTableModel();
+	}
+
+	protected void initializeTable(T[] types) {
+		table.setDefaultRenderer(Object.class,
+				new SelectionBackgroundCellRenderer(table.getDefaultRenderer(Object.class)));
+		table.setDefaultRenderer(Boolean.class,
+				new SelectionBackgroundCellRenderer(table.getDefaultRenderer(Boolean.class)));
+		table.setRowSelectionAllowed(false);
+		table.setColumnSelectionAllowed(false);
+
+		table.setDefaultEditor(Unit.class, new UnitCellEditor() {
+			private static final long serialVersionUID = 1088570433902420935L;
+
+			@Override
+			protected UnitGroup getUnitGroup(Unit value, int row, int column) {
+				return types[row].getUnitGroup();
+			}
+		});
+
+		// Set column widths
+		TableColumnModel columnModel = table.getColumnModel();
+		TableColumn col = columnModel.getColumn(0);
+		int w = table.getRowHeight();
+		col.setMinWidth(w);
+		col.setPreferredWidth(w);
+		col.setMaxWidth(w);
+
+		col = columnModel.getColumn(1);
+		col.setPreferredWidth(200);
+
+		col = columnModel.getColumn(2);
+		col.setPreferredWidth(100);
+
+		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
 	}
 
 	public boolean doExport() {
@@ -171,11 +197,11 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	/**
 	 * The table model for the variable selection.
 	 */
-	private class SelectionTableModel extends AbstractTableModel {
+	protected class SelectionTableModel extends AbstractTableModel {
 		private static final long serialVersionUID = 493067422917621072L;
-		private static final int SELECTED = 0;
-		private static final int NAME = 1;
-		private static final int UNIT = 2;
+		protected static final int SELECTED = 0;
+		protected static final int NAME = 1;
+		protected static final int UNIT = 2;
 
 		@Override
 		public int getColumnCount() {
@@ -199,7 +225,6 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 						trans.get("SimExpPan.Col.Unit");
 				default -> throw new IndexOutOfBoundsException("column=" + column);
 			};
-
 		}
 
 		@Override
@@ -214,14 +239,12 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 
 		@Override
 		public Object getValueAt(int row, int column) {
-
 			return switch (column) {
 				case SELECTED -> selected[row];
 				case NAME -> types[row];
 				case UNIT -> units[row];
 				default -> throw new IndexOutOfBoundsException("column=" + column);
 			};
-
 		}
 
 		@Override
@@ -243,7 +266,6 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 				default:
 					throw new IndexOutOfBoundsException("column=" + column);
 			}
-
 		}
 
 		@Override
