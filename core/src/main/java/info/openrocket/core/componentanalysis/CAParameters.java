@@ -1,16 +1,18 @@
-package info.openrocket.swing.gui.dialogs.componentanalysis;
+package info.openrocket.core.componentanalysis;
 
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Mutable;
-import info.openrocket.swing.gui.scalefigure.RocketPanel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CAParameters implements Cloneable {
 	private final Mutable mutable = new Mutable();
 
 	private final Rocket rocket;
-	private final RocketPanel rocketPanel;
+	private final List<CAParametersListener> listeners = new ArrayList<>();
 
 	private double theta;
 	private final double initialTheta;
@@ -18,15 +20,22 @@ public class CAParameters implements Cloneable {
 	private double mach;
 	private double rollRate;
 
-	public CAParameters(Rocket rocket, RocketPanel rocketPanel) {
+	public CAParameters(Rocket rocket, double initialTheta) {
 		this.rocket = rocket;
-		this.rocketPanel = rocketPanel;
 
-		setTheta(rocketPanel.getFigure().getRotation());
+		setTheta(initialTheta);
 		this.initialTheta = this.theta;
 		setAOA(0);
 		setMach(Application.getPreferences().getDefaultMach());
 		setRollRate(0);
+	}
+
+	public void addListener(CAParametersListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeListener(CAParametersListener listener) {
+		listeners.remove(listener);
 	}
 
 	public double getTheta() {
@@ -36,7 +45,9 @@ public class CAParameters implements Cloneable {
 	public void setTheta(double theta) {
 		mutable.check();
 		this.theta = theta;
-		this.rocketPanel.setCPTheta(theta);
+		for (CAParametersListener listener : listeners) {
+			listener.onThetaChanged(theta);
+		}
 	}
 
 	public double getInitialTheta() {
@@ -50,7 +61,9 @@ public class CAParameters implements Cloneable {
 	public void setAOA(double aoa) {
 		mutable.check();
 		this.aoa = aoa;
-		this.rocketPanel.setCPAOA(aoa);
+		for (CAParametersListener listener : listeners) {
+			listener.onAOAChanged(aoa);
+		}
 	}
 
 	public double getMach() {
@@ -60,7 +73,9 @@ public class CAParameters implements Cloneable {
 	public void setMach(double mach) {
 		mutable.check();
 		this.mach = mach;
-		this.rocketPanel.setCPMach(mach);
+		for (CAParametersListener listener : listeners) {
+			listener.onMachChanged(mach);
+		}
 	}
 
 	public double getRollRate() {
@@ -70,7 +85,9 @@ public class CAParameters implements Cloneable {
 	public void setRollRate(double rollRate) {
 		mutable.check();
 		this.rollRate = rollRate;
-		this.rocketPanel.setCPRoll(rollRate);
+		for (CAParametersListener listener : listeners) {
+			listener.onRollRateChanged(rollRate);
+		}
 	}
 
 	public FlightConfiguration getSelectedConfiguration() {
@@ -92,5 +109,12 @@ public class CAParameters implements Cloneable {
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public interface CAParametersListener {
+		void onThetaChanged(double theta);
+		void onAOAChanged(double aoa);
+		void onMachChanged(double mach);
+		void onRollRateChanged(double rollRate);
 	}
 }

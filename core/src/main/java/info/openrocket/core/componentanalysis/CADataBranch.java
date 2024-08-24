@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.dialogs.componentanalysis;
+package info.openrocket.core.componentanalysis;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.DataBranch;

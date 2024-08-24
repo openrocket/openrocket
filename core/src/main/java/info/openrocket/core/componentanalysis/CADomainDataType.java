@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.dialogs.componentanalysis;
+package info.openrocket.core.componentanalysis;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;

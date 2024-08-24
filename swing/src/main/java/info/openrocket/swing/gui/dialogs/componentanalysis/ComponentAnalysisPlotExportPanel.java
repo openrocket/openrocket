@@ -1,6 +1,11 @@
 package info.openrocket.swing.gui.dialogs.componentanalysis;
 
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
+import info.openrocket.core.componentanalysis.CADataBranch;
+import info.openrocket.core.componentanalysis.CADataType;
+import info.openrocket.core.componentanalysis.CADomainDataType;
+import info.openrocket.core.componentanalysis.CAParameterSweep;
+import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;

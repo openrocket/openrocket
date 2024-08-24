@@ -1,5 +1,9 @@
 package info.openrocket.swing.gui.dialogs.componentanalysis;
 
+import info.openrocket.core.componentanalysis.CADataBranch;
+import info.openrocket.core.componentanalysis.CADataType;
+import info.openrocket.core.componentanalysis.CADataTypeGroup;
+import info.openrocket.core.componentanalysis.CADomainDataType;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.swing.gui.plot.PlotPanel;

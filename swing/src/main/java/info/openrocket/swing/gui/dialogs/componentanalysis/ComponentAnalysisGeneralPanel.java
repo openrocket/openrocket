@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.CMAnalysisEntry;
@@ -103,7 +104,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.conditions = new FlightConditions(rocket.getSelectedConfiguration());
 
 		// Create CAParameters
-		this.parameters = new CAParameters(rocket, rocketPanel);
+		this.parameters = new CAParameters(rocket, rocketPanel.getFigure().getRotation());
+		this.parameters.addListener(rocketPanel);
 
 		this.aoa = new DoubleModel(parameters, "AOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
 		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
