@@ -6,6 +6,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SaveCSVWorker;
@@ -20,6 +21,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
@@ -127,6 +129,39 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 	public boolean doExport() {
 		CADataBranch branch = this.parent.runParameterSweep();
 
+		// Check for data types with no selected components
+		List<CADataType> typesWithNoComponents = new ArrayList<>();
+		for (int i = 0; i < selected.length; i++) {
+			if (selected[i]) {
+				boolean hasSelectedComponent = selectedComponents.get(i).values().stream().anyMatch(v -> v);
+				if (!hasSelectedComponent) {
+					typesWithNoComponents.add(types[i]);
+				}
+			}
+		}
+
+		// Show warning dialog if there are data types with no selected components
+		if (!typesWithNoComponents.isEmpty()) {
+			StringBuilder message = new StringBuilder(trans.get("CAExportPanel.dlg.MissingComponents.txt1"));
+			message.append("\n\n");
+			for (CADataType type : typesWithNoComponents) {
+				message.append("- ").append(StringUtils.removeHTMLTags(type.getName())).append("\n");
+			}
+			message.append("\n").append(trans.get("CAExportPanel.dlg.MissingComponents.txt2"));
+
+			int result = JOptionPane.showConfirmDialog(
+					this,
+					message.toString(),
+					trans.get("CAExportPanel.dlg.MissingComponents.title"),
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE
+			);
+
+			if (result != JOptionPane.YES_OPTION) {
+				return false;
+			}
+		}
+
 		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
@@ -161,33 +196,27 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 				n++;
 		}
 
-
-		CADataType[] fieldTypes = new CADataType[n];
-		Unit[] fieldUnits = new Unit[n];
-		int pos = 0;
-		for (int i = 0; i < selected.length; i++) {
-			if (selected[i]) {
-				fieldTypes[pos] = types[i];
-				fieldUnits[pos] = units[i];
-				pos++;
-			}
-		}
-
+		List<CADataType> fieldTypes = new ArrayList<>();
+		List<Unit> fieldUnits = new ArrayList<>();
 		Map<CADataType, List<RocketComponent>> components = new HashMap<>();
+
 		// Iterate through the table to get selected items
 		for (int i = 0; i < selected.length; i++) {
-			if (!selected[i]) {
-				continue;
-			}
- 			for (Map.Entry<RocketComponent, Boolean> entry : selectedComponents.get(i).entrySet()) {
-				if (entry.getValue()) {
-					CADataType type = types[i];
-					List<RocketComponent> typeComponents = components.getOrDefault(type, new ArrayList<>());
-					typeComponents.add(entry.getKey());
-					components.put(type, typeComponents);
+			if (selected[i]) {
+				List<RocketComponent> selectedComponentsList = new ArrayList<>();
+				for (Map.Entry<RocketComponent, Boolean> entry : selectedComponents.get(i).entrySet()) {
+					if (entry.getValue()) {
+						selectedComponentsList.add(entry.getKey());
+					}
+				}
+				if (!selectedComponentsList.isEmpty()) {
+					fieldTypes.add(types[i]);
+					fieldUnits.add(units[i]);
+					components.put(types[i], selectedComponentsList);
 				}
 			}
 		}
+
 
 		if (fieldSep.equals(SPACE)) {
 			fieldSep = " ";
@@ -196,8 +225,9 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		}
 
 
-		SaveCSVWorker.exportCAData(file, parent.getParameters(), branch, parent.getSelectedParameter(), fieldTypes,
-				components, fieldUnits, fieldSep, decimalPlaces, isExponentialNotation, commentChar, analysisComments,
+		SaveCSVWorker.exportCAData(file, parent.getParameters(), branch, parent.getSelectedParameter(),
+				fieldTypes.toArray(new CADataType[0]), components, fieldUnits.toArray(new Unit[0]), fieldSep,
+				decimalPlaces, isExponentialNotation, commentChar, analysisComments,
 				fieldDescriptions, SwingUtilities.getWindowAncestor(this));
 
 		return true;
@@ -467,14 +497,7 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		private final ItemListener checkBoxListener = e -> {
 			if (updatingState.get()) return;
 
-			JCheckBox source = (JCheckBox) e.getSource();
-			if (e.getStateChange() == ItemEvent.DESELECTED) {
-				if (checkBoxMap.values().stream().noneMatch(JCheckBox::isSelected)) {
-					source.setSelected(true);
-				}
-			}
-
-			// Notify the listener of the change
+			// Remove the check for deselection and forced selection
 			if (listener != null) {
 				listener.onComponentSelectionChanged(getComponentStates());
 			}
