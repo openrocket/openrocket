@@ -118,7 +118,10 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.winddir")));
 		EditableSpinner spinner = new EditableSpinner(theta.getSpinnerModel());
 		this.add(spinner, "growx");
-		this.add(new UnitSelector(theta));
+		final UnitSelector unitSelectorTheta = new UnitSelector(theta);
+		unitSelectorTheta.addItemListener(e -> setParametersThetaUnit(unitSelectorTheta));
+		setParametersThetaUnit(unitSelectorTheta);
+		this.add(unitSelectorTheta);
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		this.add(slider, "growx, split 2");
 		//// Worst button
@@ -149,19 +152,28 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		////Angle of attack:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.angleofattack")));
 		this.add(new EditableSpinner(aoa.getSpinnerModel()), "growx");
-		this.add(new UnitSelector(aoa));
+		final UnitSelector unitSelectorAOA = new UnitSelector(aoa);
+		unitSelectorAOA.addItemListener(e -> setParametersAOAUnit(unitSelectorAOA));
+		setParametersAOAUnit(unitSelectorAOA);
+		this.add(unitSelectorAOA);
 		this.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
 
 		//// Mach number:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.machnumber")));
 		this.add(new EditableSpinner(mach.getSpinnerModel()));
-		this.add(new UnitSelector(mach));
+		final UnitSelector unitSelectorMach = new UnitSelector(mach);
+		unitSelectorMach.addItemListener(e -> setParametersMachUnit(unitSelectorMach));
+		setParametersMachUnit(unitSelectorMach);
+		this.add(unitSelectorMach);
 		this.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
 
 		//// Roll rate:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.rollrate")));
 		this.add(new EditableSpinner(roll.getSpinnerModel()), "growx");
-		this.add(new UnitSelector(roll));
+		final UnitSelector unitSelectorRoll = new UnitSelector(roll);
+		unitSelectorRoll.addItemListener(e -> setParametersRollUnit(unitSelectorRoll));
+		setParametersRollUnit(unitSelectorRoll);
+		this.add(unitSelectorRoll);
 		this.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap");
 
@@ -466,6 +478,22 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				rocketPanel.setCPRoll(Double.NaN);
 			}
 		});
+	}
+
+	private void setParametersThetaUnit(UnitSelector unitSelector) {
+		parameters.setThetaUnit(unitSelector.getSelectedUnit());
+	}
+
+	private void setParametersAOAUnit(UnitSelector unitSelector) {
+		parameters.setAOAUnit(unitSelector.getSelectedUnit());
+	}
+
+	private void setParametersMachUnit(UnitSelector unitSelector) {
+		parameters.setMachUnit(unitSelector.getSelectedUnit());
+	}
+
+	private void setParametersRollUnit(UnitSelector unitSelector) {
+		parameters.setRollRateUnit(unitSelector.getSelectedUnit());
 	}
 
 

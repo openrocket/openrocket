@@ -3,6 +3,7 @@ package info.openrocket.core.componentanalysis;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.Mutable;
 
 import java.util.ArrayList;
@@ -19,6 +20,11 @@ public class CAParameters implements Cloneable {
 	private double aoa;
 	private double mach;
 	private double rollRate;
+
+	private Unit thetaUnit;
+	private Unit aoaUnit;
+	private Unit machUnit;
+	private Unit rollRateUnit;
 
 	public CAParameters(Rocket rocket, double initialTheta) {
 		this.rocket = rocket;
@@ -50,6 +56,14 @@ public class CAParameters implements Cloneable {
 		}
 	}
 
+	public Unit getThetaUnit() {
+		return thetaUnit;
+	}
+
+	public void setThetaUnit(Unit thetaUnit) {
+		this.thetaUnit = thetaUnit;
+	}
+
 	public double getInitialTheta() {
 		return initialTheta;
 	}
@@ -66,6 +80,14 @@ public class CAParameters implements Cloneable {
 		}
 	}
 
+	public Unit getAOAUnit() {
+		return aoaUnit;
+	}
+
+	public void setAOAUnit(Unit aoaUnit) {
+		this.aoaUnit = aoaUnit;
+	}
+
 	public double getMach() {
 		return mach;
 	}
@@ -78,6 +100,14 @@ public class CAParameters implements Cloneable {
 		}
 	}
 
+	public Unit getMachUnit() {
+		return machUnit;
+	}
+
+	public void setMachUnit(Unit machUnit) {
+		this.machUnit = machUnit;
+	}
+
 	public double getRollRate() {
 		return rollRate;
 	}
@@ -88,6 +118,14 @@ public class CAParameters implements Cloneable {
 		for (CAParametersListener listener : listeners) {
 			listener.onRollRateChanged(rollRate);
 		}
+	}
+
+	public Unit getRollRateUnit() {
+		return rollRateUnit;
+	}
+
+	public void setRollRateUnit(Unit rollRateUnit) {
+		this.rollRateUnit = rollRateUnit;
 	}
 
 	public FlightConfiguration getSelectedConfiguration() {

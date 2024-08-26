@@ -320,22 +320,41 @@ public class CSVExport {
 													   String fieldSeparator, String commentStarter) {
 		StringBuilder line = new StringBuilder(prependComment(commentStarter, "Parameters:")).append(fieldSeparator);
 
-		// TODO: use proper units for the parameters
 		if (domainDataType != CADomainDataType.WIND_DIRECTION) {
 			line.append("Wind direction:").append(fieldSeparator);
-			line.append(parameters.getTheta()).append("°").append(fieldSeparator);
+			Unit unit = parameters.getThetaUnit();
+			if (unit != null) {
+				line.append(unit.toStringUnit(parameters.getTheta())).append(fieldSeparator);
+			} else {
+				line.append(parameters.getTheta()).append(fieldSeparator);
+			}
 		}
 		if (domainDataType != CADomainDataType.AOA) {
 			line.append("Angle of attack:").append(fieldSeparator);
-			line.append(parameters.getAOA()).append("°").append(fieldSeparator);
+			Unit unit = parameters.getAOAUnit();
+			if (unit != null) {
+				line.append(unit.toStringUnit(parameters.getAOA())).append(fieldSeparator);
+			} else {
+				line.append(parameters.getAOA()).append(fieldSeparator);
+			}
 		}
 		if (domainDataType != CADomainDataType.MACH) {
 			line.append("Mach:").append(fieldSeparator);
-			line.append(parameters.getMach()).append(fieldSeparator);
+			Unit unit = parameters.getMachUnit();
+			if (unit != null) {
+				line.append(unit.toStringUnit(parameters.getMach())).append(fieldSeparator);
+			} else {
+				line.append(parameters.getMach()).append(fieldSeparator);
+			}
 		}
 		if (domainDataType != CADomainDataType.ROLL_RATE) {
 			line.append("Roll rate:").append(fieldSeparator);
-			line.append(parameters.getRollRate()).append("°/s").append(fieldSeparator);
+			Unit unit = parameters.getRollRateUnit();
+			if (unit != null) {
+				line.append(unit.toStringUnit(parameters.getRollRate())).append(fieldSeparator);
+			} else {
+				line.append(parameters.getRollRate()).append(fieldSeparator);
+			}
 		}
 
 		line.append("Active stages:").append(fieldSeparator);
