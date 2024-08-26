@@ -13,6 +13,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.plot.PlotPanel;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ComponentAnalysisPlotExportPanel extends JPanel {
+public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPanel.PlotConfigurationListener<CAPlotConfiguration> {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisPlotExportPanel.class);
 
@@ -83,6 +84,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel {
 		//// Plot data
 		this.plotTab = CAPlotPanel.create(this, types);
 		this.tabbedPane.addTab(trans.get("CAPlotExportDialog.tab.Plot"), null, this.plotTab);
+		this.plotTab.addPlotConfigurationListener(this);
 
 		//// Export data
 		this.exportTab = CAExportPanel.create(this, types);
@@ -322,4 +324,9 @@ public class ComponentAnalysisPlotExportPanel extends JPanel {
 		}
 	}
 
+	@Override
+	public void onPlotConfigurationChanged(CAPlotConfiguration newConfiguration) {
+		CADomainDataType type = (CADomainDataType) newConfiguration.getDomainAxisType();
+		this.parameterSelector.setSelectedItem(type);
+	}
 }

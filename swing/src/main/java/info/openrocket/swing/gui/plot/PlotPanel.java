@@ -26,7 +26,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PlotPanel<T extends DataType & Groupable<G>,
 		B extends DataBranch<T>,
@@ -44,13 +46,14 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 	private final C[] presetArray;
 
 	private C defaultConfiguration;
+	private final List<PlotConfigurationListener<C>> configurationListeners = new ArrayList<>();
 
 	// Data types for the x and y axis + plot configuration
 	protected final T[] typesX;
 	protected final T[] typesY;
 	protected C configuration;
 
-	private final JComboBox<C> configurationSelector;
+	protected final JComboBox<C> configurationSelector;
 	protected JComboBox<T> domainTypeSelector;
 	private UnitSelector domainUnitSelector;
 	private final JPanel typeSelectorPanel;
@@ -265,6 +268,10 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 		if (modified) {
 			configuration.setName(CUSTOM);
 		}
+
+		for (PlotConfigurationListener<C> listener : configurationListeners) {
+			listener.onPlotConfigurationChanged(configuration);
+		}
 	}
 
 	protected void setDefaultConfiguration(C newConfiguration) {
@@ -340,5 +347,13 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 			setToCustom();
 			updatePlots();
 		});
+	}
+
+	public void addPlotConfigurationListener(PlotConfigurationListener<C> listener) {
+		this.configurationListeners.add(listener);
+	}
+
+	public interface PlotConfigurationListener<C extends PlotConfiguration<?, ?>> {
+		void onPlotConfigurationChanged(C newConfiguration);
 	}
 }
