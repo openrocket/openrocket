@@ -15,6 +15,7 @@ import info.openrocket.swing.gui.widgets.SaveFileChooser;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -100,7 +101,9 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		super.initializeTable(types);
 
 		// Set custom renderers for each column
-		table.getColumnModel().getColumn(0).setCellRenderer(new CheckBoxRenderer());
+		TableColumn firstColumn = table.getColumnModel().getColumn(0);
+		firstColumn.setCellRenderer(new CheckBoxRenderer());
+		firstColumn.setCellEditor(new CheckBoxEditor());
 		table.getColumnModel().getColumn(1).setCellRenderer(new LeftAlignedRenderer());
 		table.getColumnModel().getColumn(2).setCellRenderer(new LeftAlignedRenderer());
 
@@ -261,7 +264,6 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 	private static class CheckBoxRenderer extends JCheckBox implements TableCellRenderer {
 		public CheckBoxRenderer() {
 			setHorizontalAlignment(JLabel.CENTER);
-			setVerticalAlignment(JLabel.TOP);
 		}
 
 		@Override
@@ -270,7 +272,26 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 			setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 			setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
 			setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0)); // Add top padding
+			setVerticalAlignment(JLabel.TOP);
 			return this;
+		}
+	}
+
+	private static class CheckBoxEditor extends DefaultCellEditor {
+		public CheckBoxEditor() {
+			super(new JCheckBox());
+			((JCheckBox)getComponent()).setHorizontalAlignment(JLabel.CENTER);
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
+			if (c instanceof JCheckBox) {
+				JCheckBox cb = (JCheckBox) c;
+				cb.setVerticalAlignment(JLabel.TOP);
+				cb.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+			}
+			return c;
 		}
 	}
 
