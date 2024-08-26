@@ -104,4 +104,7 @@ public class StringUtils {
 		return sb.toString();
 	}
 
+	public static String removeHTMLTags(String input) {
+		return input.replaceAll("<[^>]*>", "");
+	}
 }

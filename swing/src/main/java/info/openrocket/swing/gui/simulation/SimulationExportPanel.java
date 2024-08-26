@@ -159,7 +159,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 		}
 
 
-		SaveCSVWorker.export(file, simulation, branch, fieldTypes, fieldUnits, fieldSep, decimalPlaces,
+		SaveCSVWorker.exportSimulationData(file, simulation, branch, fieldTypes, fieldUnits, fieldSep, decimalPlaces,
 				isExponentialNotation, commentChar, simulationComment, fieldComment, eventComment,
 				SwingUtilities.getWindowAncestor(this));
 		

@@ -218,6 +218,10 @@ public class ComponentAnalysisPlotExportPanel extends JPanel {
 		return (CADomainDataType) parameterSelector.getSelectedItem();
 	}
 
+	public CAParameters getParameters() {
+		return parameters;
+	}
+
 	private void updateModels(CADomainDataType type) {
 		if (type == null) {
 			throw new IllegalArgumentException("CADomainDataType cannot be null");

@@ -9,6 +9,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.simulation.DataType;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.StringUtils;
 
 public abstract class Util {
 	private static final Translator trans = Application.getTranslator();
@@ -81,7 +82,7 @@ public abstract class Util {
 	public static String formatHTMLString(String input) {
 		// TODO: Use AttributeString to format the string
 		// Remove the HTML-like tags from the final string
-		return input.replaceAll("<sub>|</sub>|<sup>|</sup>|<html>|</html>", "");
+		return StringUtils.removeHTMLTags(input);
 	}
 
 	public static Color getPlotColor(int index) {

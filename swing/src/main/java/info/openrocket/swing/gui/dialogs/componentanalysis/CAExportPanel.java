@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.dialogs.componentanalysis;
 
+import info.openrocket.core.componentanalysis.CADataBranch;
 import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -7,6 +8,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
 import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.SaveCSVWorker;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.CSVExportPanel;
 import info.openrocket.swing.gui.widgets.SaveFileChooser;
@@ -19,6 +21,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -41,14 +44,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CAExportPanel extends CSVExportPanel<CADataType> {
 	private static final long serialVersionUID = 4423905472892675964L;
 	private static final Translator trans = Application.getTranslator();
-	private static final int OPTION_FIELD_DESCRIPTIONS = 0;
 	private static final int FIXED_COMPONENT_COLUMN_WIDTH = 500;
 
+	private static final int OPTION_COMPONENT_ANALYSIS_COMMENTS = 0;
+	private static final int OPTION_FIELD_DESCRIPTIONS = 1;
+
 	private final List<Map<RocketComponent, Boolean>> selectedComponents;
+	private final ComponentAnalysisPlotExportPanel parent;
 
 	private CAExportPanel(ComponentAnalysisPlotExportPanel parent, CADataType[] types,
 						  boolean[] selected, CsvOptionPanel csvOptions, Component... extraComponents) {
 		super(types, selected, csvOptions, true, extraComponents);
+
+		this.parent = parent;
 
 		selectedComponents = new ArrayList<>(types.length);
 		Map<RocketComponent, Boolean> componentSelectedMap;
@@ -80,6 +88,8 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		}
 
 		CsvOptionPanel csvOptions = new CsvOptionPanel(CAExportPanel.class, false,
+				trans.get("CAExportPanel.checkbox.Includecadesc"),
+				trans.get("CAExportPanel.checkbox.ttip.Includecadesc"),
 				trans.get("SimExpPan.checkbox.Includefielddesc"),
 				trans.get("SimExpPan.checkbox.ttip.Includefielddesc"));
 
@@ -94,9 +104,16 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		table.getColumnModel().getColumn(1).setCellRenderer(new LeftAlignedRenderer());
 		table.getColumnModel().getColumn(2).setCellRenderer(new LeftAlignedRenderer());
 
+		ComponentCheckBoxPanel.ComponentSelectionListener listener = (newStates) -> {
+			int row = table.getSelectedRow();
+			if (row != -1) {
+				selectedComponents.set(row, newStates);
+			}
+		};
+
 		TableColumn componentColumn = table.getColumnModel().getColumn(3);
-		componentColumn.setCellRenderer(new ComponentCheckBoxRenderer());
-		componentColumn.setCellEditor(new ComponentCheckBoxEditor());
+		componentColumn.setCellRenderer(new ComponentCheckBoxRenderer(listener));
+		componentColumn.setCellEditor(new ComponentCheckBoxEditor(listener));
 		componentColumn.setPreferredWidth(FIXED_COMPONENT_COLUMN_WIDTH);
 
 		// Set specific client properties for FlatLaf
@@ -105,6 +122,8 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 
 	@Override
 	public boolean doExport() {
+		CADataBranch branch = this.parent.runParameterSweep();
+
 		JFileChooser chooser = new SaveFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
@@ -126,7 +145,8 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		String fieldSep = csvOptions.getFieldSeparator();
 		int decimalPlaces = csvOptions.getDecimalPlaces();
 		boolean isExponentialNotation = csvOptions.isExponentialNotation();
-		boolean fieldComment = csvOptions.getSelectionOption(OPTION_FIELD_DESCRIPTIONS);
+		boolean analysisComments = csvOptions.getSelectionOption(OPTION_COMPONENT_ANALYSIS_COMMENTS);
+		boolean fieldDescriptions = csvOptions.getSelectionOption(OPTION_FIELD_DESCRIPTIONS);
 		csvOptions.storePreferences();
 
 		// Store preferences and export
@@ -150,6 +170,22 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 			}
 		}
 
+		Map<CADataType, List<RocketComponent>> components = new HashMap<>();
+		// Iterate through the table to get selected items
+		for (int i = 0; i < selected.length; i++) {
+			if (!selected[i]) {
+				continue;
+			}
+ 			for (Map.Entry<RocketComponent, Boolean> entry : selectedComponents.get(i).entrySet()) {
+				if (entry.getValue()) {
+					CADataType type = types[i];
+					List<RocketComponent> typeComponents = components.getOrDefault(type, new ArrayList<>());
+					typeComponents.add(entry.getKey());
+					components.put(type, typeComponents);
+				}
+			}
+		}
+
 		if (fieldSep.equals(SPACE)) {
 			fieldSep = " ";
 		} else if (fieldSep.equals(TAB)) {
@@ -157,9 +193,9 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		}
 
 
-		/*SaveCSVWorker.export(file, simulation, branch, fieldTypes, fieldUnits, fieldSep, decimalPlaces,
-				isExponentialNotation, commentChar, simulationComment, fieldComment, eventComment,
-				SwingUtilities.getWindowAncestor(this));*/
+		SaveCSVWorker.exportCAData(file, parent.getParameters(), branch, parent.getSelectedParameter(), fieldTypes,
+				components, fieldUnits, fieldSep, decimalPlaces, isExponentialNotation, commentChar, analysisComments,
+				fieldDescriptions, SwingUtilities.getWindowAncestor(this));
 
 		return true;
 	}
@@ -256,6 +292,11 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 
 	private static class ComponentCheckBoxRenderer implements TableCellRenderer {
 		private ComponentCheckBoxPanel panel;
+		private final ComponentCheckBoxPanel.ComponentSelectionListener listener;
+
+		public ComponentCheckBoxRenderer(ComponentCheckBoxPanel.ComponentSelectionListener listener) {
+			this.listener = listener;
+		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -270,6 +311,7 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 
 			if (panel == null) {
 				panel = new ComponentCheckBoxPanel(componentMap);
+				panel.setComponentSelectionListener(listener);
 			} else {
 				panel.updateComponentStates(componentMap);
 			}
@@ -284,7 +326,6 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 
 	private static class ComponentCheckBoxPanel extends JPanel {
 		private final Map<RocketComponent, JCheckBox> checkBoxMap = new HashMap<>();
-		private final ItemListener checkBoxListener;
 		private final AtomicBoolean updatingState = new AtomicBoolean(false);
 		private Color gridColor = Color.GRAY;
 		private boolean isSelected = false;
@@ -296,20 +337,6 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.weightx = 1.0;
 			gbc.insets = new Insets(2, 2, 2, 2);
-
-			checkBoxListener = e -> {
-				if (updatingState.get()) return;
-
-				JCheckBox source = (JCheckBox) e.getSource();
-				if (e.getStateChange() == ItemEvent.DESELECTED) {
-					if (checkBoxMap.values().stream().noneMatch(JCheckBox::isSelected)) {
-						source.setSelected(true);
-					}
-				}
-
-				// Notify the table that the value has changed
-				firePropertyChange("value", null, getComponentStates());
-			};
 
 			createCheckBoxes(componentMap, gbc);
 
@@ -405,10 +432,44 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 				g.fillRect(0, 0, getWidth(), getHeight() - 1);
 			}
 		}
+
+		public interface ComponentSelectionListener {
+			void onComponentSelectionChanged(Map<RocketComponent, Boolean> newStates);
+		}
+
+		private ComponentSelectionListener listener;
+
+		public void setComponentSelectionListener(ComponentSelectionListener listener) {
+			this.listener = listener;
+		}
+
+		private final ItemListener checkBoxListener = e -> {
+			if (updatingState.get()) return;
+
+			JCheckBox source = (JCheckBox) e.getSource();
+			if (e.getStateChange() == ItemEvent.DESELECTED) {
+				if (checkBoxMap.values().stream().noneMatch(JCheckBox::isSelected)) {
+					source.setSelected(true);
+				}
+			}
+
+			// Notify the listener of the change
+			if (listener != null) {
+				listener.onComponentSelectionChanged(getComponentStates());
+			}
+
+			// Notify the table that the value has changed
+			firePropertyChange("value", null, getComponentStates());
+		};
 	}
 
 	private static class ComponentCheckBoxEditor extends AbstractCellEditor implements TableCellEditor {
 		private ComponentCheckBoxPanel panel;
+		private final ComponentCheckBoxPanel.ComponentSelectionListener listener;
+
+		public ComponentCheckBoxEditor(ComponentCheckBoxPanel.ComponentSelectionListener listener) {
+			this.listener = listener;
+		}
 
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -424,6 +485,7 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 
 			if (panel == null) {
 				panel = new ComponentCheckBoxPanel(componentMap);
+				panel.setComponentSelectionListener(listener);
 			} else {
 				panel.updateComponentStates(componentMap);
 			}
