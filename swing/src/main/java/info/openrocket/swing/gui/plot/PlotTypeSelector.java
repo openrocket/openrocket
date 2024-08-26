@@ -12,6 +12,7 @@ import info.openrocket.swing.gui.util.Icons;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
+import java.io.Serial;
 import java.util.List;
 
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
@@ -41,7 +42,15 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 
 		this.index = plotIndex;
 
-		typeSelector = new GroupableAndSearchableComboBox<>(availableTypes, trans.get("FlightDataComboBox.placeholder"));
+		typeSelector = new GroupableAndSearchableComboBox<>(availableTypes, trans.get("FlightDataComboBox.placeholder")) {
+			@Serial
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getDisplayString(T item) {
+				return PlotTypeSelector.this.getDisplayString(item);
+			}
+		};
 		typeSelector.setSelectedItem(type);
 		this.add(typeSelector, "gapright para");
 
@@ -107,5 +116,9 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 
 	public void setUnitGroup(UnitGroup unitGroup) {
 		unitSelector.setUnitGroup(unitGroup);
+	}
+
+	protected String getDisplayString(T item) {
+		return item.toString();
 	}
 }

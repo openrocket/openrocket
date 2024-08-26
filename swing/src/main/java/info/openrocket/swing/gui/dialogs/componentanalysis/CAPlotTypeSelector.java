@@ -4,6 +4,7 @@ import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CADataTypeGroup;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.Unit;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.plot.PlotTypeSelector;
 
 import javax.swing.JComboBox;
@@ -63,5 +64,10 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 
 	public RocketComponent getSelectedComponent() {
 		return (RocketComponent) componentSelector.getSelectedItem();
+	}
+
+	@Override
+	protected String getDisplayString(CADataType item) {
+		return StringUtils.removeHTMLTags(item.getName());
 	}
 }
