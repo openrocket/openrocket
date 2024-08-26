@@ -52,8 +52,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /*
  * TODO: It should be possible to simplify this code quite a bit by using a single Renderer instance for
@@ -67,6 +65,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected static final float PLOT_STROKE_WIDTH = 1.5f;
 
 	protected int branchCount;
+	protected final List<B> allBranches;
 	protected final List<ModifiedXYItemRenderer> renderers = new ArrayList<>();
 	protected final LegendItems legendItems;
 	protected final XYSeriesCollection[] data;
@@ -76,6 +75,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 	protected Plot(String plotName, B mainBranch, C config, List<B> allBranches, boolean initialShowPoints) {
 		this.branchCount = allBranches.size();
+		this.allBranches = allBranches;
 
 		this.chart = ChartFactory.createXYLineChart(
 				//// Simulated flight
@@ -142,8 +142,9 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 					continue;
 				}
 
-				List<XYSeries> seriesList = createSeriesForType(i, seriesCount, type, unit, thisBranch,
-						(branchIndex == 0 ? name : thisBranch.getName() + ": " + name));
+				String branchName = branchIndex == 0 ? null : thisBranch.getName();
+				List<XYSeries> seriesList = createSeriesForType(i, seriesCount, type, unit, thisBranch, branchIndex,
+						branchName, name);
 
 				for (XYSeries series : seriesList) {
 					data[axis].addSeries(series);
@@ -201,12 +202,14 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 							return null;
 						}
 						MetadataXYSeries ser = (MetadataXYSeries) collection.getSeries(series);
-						String name = ser.getDescription();
 						String unitY = ser.getUnit();
 						String unitX = domainUnit.getUnit();
 
 						double dataY = dataset.getYValue(series, item);
 						double dataX = dataset.getXValue(series, item);
+
+						// Determine the appropriate name based on the time and series
+						String name = getNameBasedOnIdxAndSeries(ser, item);
 
 						return formatSampleTooltip(name, dataX, unitX, dataY, unitY, item);
 					}
@@ -256,6 +259,10 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		plot.getDomainAxis().setLabelFont(new Font("Dialog", Font.BOLD, 14));
 	}
 
+	protected String getNameBasedOnIdxAndSeries(MetadataXYSeries ser, int dataIdx) {
+		return ser.getDescription();
+	}
+
 	public JFreeChart getJFreeChart() {
 		return chart;
 	}
@@ -269,10 +276,9 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	}
 
 	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, T type, Unit unit, B branch,
-												 String baseName) {
+												 int branchIdx, String branchName, String baseName) {
 		// Default implementation for regular DataBranch
-		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, unit.getUnit());
-		series.setDescription(baseName);
+		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, unit.getUnit(), branchName, baseName);
 
 		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
 		List<Double> ploty = branch.get(type);
@@ -291,15 +297,9 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		return type;
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY, int sampleIdx, boolean addYValue) {
-		String ord_end = "th";		// Ordinal number ending (1'st', 2'nd'...)
-		if (sampleIdx % 10 == 1) {
-			ord_end = "st";
-		} else if (sampleIdx % 10 == 2) {
-			ord_end = "nd";
-		} else if (sampleIdx % 10 == 3) {
-			ord_end = "rd";
-		}
+	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY,
+										 int sampleIdx, boolean addYValue) {
+		String ord_end = getOrdinalEnding(sampleIdx);
 
 		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
 		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
@@ -325,6 +325,16 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 	protected String formatSampleTooltip(String dataName, double dataX, String unitX, int sampleIdx) {
 		return formatSampleTooltip(dataName, dataX, unitX, 0, "", sampleIdx, false);
+	}
+
+	private String getOrdinalEnding(int n) {
+		if (n % 100 == 11 || n % 100 == 12 || n % 100 == 13) return "th";
+		return switch (n % 10) {
+			case 1 -> "st";
+			case 2 -> "nd";
+			case 3 -> "rd";
+			default -> "th";
+		};
 	}
 
 	protected static class LegendItems implements LegendItemSource {
@@ -528,16 +538,45 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		}
 	}
 
-	protected class MetadataXYSeries extends XYSeries {
+	protected static class MetadataXYSeries extends XYSeries {
+		private final int branchIdx;
 		private final String unit;
+		private final String branchName;
+		private String baseName;
 
-		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, String unit) {
+		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, String unit,
+								String branchName, String baseName) {
 			super(key, autoSort, allowDuplicateXValues);
+			this.branchIdx = branchIdx;
 			this.unit = unit;
+			this.branchName = branchName;
+			this.baseName = baseName;
+			updateDescription();
 		}
 
 		public String getUnit() {
 			return unit;
+		}
+
+		public int getBranchIdx() {
+			return branchIdx;
+		}
+
+		public String getBranchName() {
+			return branchName;
+		}
+
+		public String getBaseName() {
+			return baseName;
+		}
+
+		public void setBaseName(String baseName) {
+			this.baseName = baseName;
+		}
+
+		public void updateDescription() {
+			String description = branchName == null ? baseName : branchName + ": " + baseName;
+			setDescription(description);
 		}
 	}
 }

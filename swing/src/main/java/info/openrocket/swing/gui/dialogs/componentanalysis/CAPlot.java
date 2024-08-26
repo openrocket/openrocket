@@ -17,20 +17,21 @@ public class CAPlot extends Plot<CADataType, CADataBranch, CAPlotConfiguration> 
 
 	@Override
 	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, CADataType type, Unit unit,
-												 CADataBranch branch, String baseName) {
+												 CADataBranch branch, int branchIdx, String branchName, String baseName) {
 		// Default implementation for regular DataBranch
-		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, unit.getUnit());
+		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, unit.getUnit(),
+				branchName, baseName);
 
 		// Get the component name
 		String componentName = filledConfig.getComponentName(dataIndex);
 
 		// Create a new description that includes the component name
-		String description = baseName;
+		String newBaseName = baseName;
 		if (!componentName.isEmpty()) {
-			description += " (" + componentName + ")";
+			newBaseName += " (" + componentName + ")";
 		}
-
-		series.setDescription(description);
+		series.setBaseName(newBaseName);
+		series.updateDescription();
 
 		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
 		List<Double> ploty = branch.get(type, filledConfig.getComponent(dataIndex));

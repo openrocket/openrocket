@@ -136,6 +136,34 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		}
 	}
 
+	@Override
+	protected String getNameBasedOnIdxAndSeries(Plot.MetadataXYSeries ser, int dataIdx) {
+		int branchIdx = ser.getBranchIdx();
+
+		// Nothing special for single-stage rockets, or the first stage
+		if (branchCount <= 1 || branchIdx == branchCount - 1) {
+			return super.getNameBasedOnIdxAndSeries(ser, dataIdx);
+		}
+
+		// For multi-stage rockets, add the other attached stages to the series name
+		String branchName = ser.getBranchName();
+		branchName = branchName != null ? branchName : allBranches.get(branchIdx).getName();
+		StringBuilder newBranchName = new StringBuilder(branchName);
+		for (int i = branchIdx + 1; i < branchCount; i++) {
+			// Get the separation time of the next stage
+			double separationTime = allBranches.get(i).getSeparationTime();
+			int separationIdx = allBranches.get(i).getDataIndexOfTime(separationTime);
+
+			// If the separation time is after the current data index, the stage is still attached, so add the
+			// stage name to the series name
+			if (separationIdx != -1 && separationIdx > dataIdx) {
+				newBranchName.append(" + ").append(allBranches.get(i).getName());
+			}
+		}
+
+		return newBranchName + ": " + ser.getBaseName();
+	}
+
 	private void fillEventLists(int branch, List<Double> eventTimes, List<String> eventLabels,
 								List<Color> eventColors, List<Image> eventImages) {
 		Set<FlightEvent.Type> typeSet = new HashSet<>();
