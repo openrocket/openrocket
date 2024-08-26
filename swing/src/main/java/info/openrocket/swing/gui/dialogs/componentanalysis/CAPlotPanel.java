@@ -71,7 +71,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 	@Override
 	protected CAPlotTypeSelector createSelector(int i, CADataType type, Unit unit, int axis) {
 		return new CAPlotTypeSelector(parent, i, type, unit, axis, List.of(typesY),
-				parent.getComponentsForType(type), configuration);
+				parent.getComponentsForType(type), configuration, configuration.getComponent(i));
 	}
 
 	public void setXAxis(CADomainDataType type) {

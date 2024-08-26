@@ -18,7 +18,8 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 
 	public CAPlotTypeSelector(final ComponentAnalysisPlotExportPanel parent, int plotIndex,
 							  CADataType type, Unit unit, int position, List<CADataType> availableTypes,
-							  List<RocketComponent> componentsForType, CAPlotConfiguration configuration) {
+							  List<RocketComponent> componentsForType, CAPlotConfiguration configuration,
+							  RocketComponent selectedComponent) {
 		super(plotIndex, type, unit, position, availableTypes, false);
 
 		if (componentsForType.isEmpty()) {
@@ -26,9 +27,11 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 		}
 
 		// Component selector
+		selectedComponent = selectedComponent != null ? selectedComponent : componentsForType.get(0);
 		this.add(new JLabel(trans.get("CAPlotTypeSelector.lbl.component")));
 		componentSelector = new JComboBox<>(componentsForType.toArray(new RocketComponent[0]));
-		configuration.setPlotDataComponent(plotIndex, componentsForType.get(0));
+		componentSelector.setSelectedItem(selectedComponent);
+		configuration.setPlotDataComponent(plotIndex, selectedComponent);
 		this.add(componentSelector, "gapright para");
 
 		addRemoveButton();
@@ -46,6 +49,12 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 				configuration.setPlotDataComponent(plotIndex, (RocketComponent) componentSelector.getSelectedItem());
 			}
 		});
+	}
+
+	public CAPlotTypeSelector(final ComponentAnalysisPlotExportPanel parent, int plotIndex,
+							  CADataType type, Unit unit, int position, List<CADataType> availableTypes,
+							  List<RocketComponent> componentsForType, CAPlotConfiguration configuration) {
+		this(parent, plotIndex, type, unit, position, availableTypes, componentsForType, configuration, null);
 	}
 
 	public void addComponentSelectionListener(ItemListener listener) {

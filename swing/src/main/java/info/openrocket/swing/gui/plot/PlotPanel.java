@@ -212,7 +212,6 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 				// Select new type smartly
 				T type = null;
 				for (T t : typesY) {
-
 					boolean used = false;
 					if (configuration.getDomainAxisType().equals(t)) {
 						used = true;
