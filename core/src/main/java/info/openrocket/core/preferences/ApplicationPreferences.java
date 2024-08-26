@@ -20,6 +20,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.models.atmosphere.AtmosphericModel;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
 import info.openrocket.core.preset.ComponentPreset;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -101,8 +102,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
 
-	// Preferences Related to Simulations
+	// Preferences related to flight configurations
+	public static final String DEFAULT_FLIGHT_CONFIG_NAME = "DefaultFlightConfigName";
 
+	// Preferences Related to Simulations
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 	public static final String AUTO_RUN_SIMULATIONS = "AutoRunSimulations";
 	public static final String LAUNCH_ROD_LENGTH = "LaunchRodLength";
@@ -257,6 +260,18 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putBoolean(DISPLAY_SECONDARY_STABILITY, check);
 	}
 
+
+	/*
+	 * ******************************************************************************************
+	 */
+
+	public String getDefaultFlightConfigName() {
+		return getString(DEFAULT_FLIGHT_CONFIG_NAME, FlightConfiguration.DEFAULT_CONFIG_NAME);
+	}
+
+	public void setDefaultFlightConfigName(String name) {
+		putString(DEFAULT_FLIGHT_CONFIG_NAME, name);
+	}
 
 	/*
 	 * ******************************************************************************************
