@@ -27,6 +27,7 @@ import info.openrocket.core.util.ModID;
 public class FlightDataBranch extends DataBranch<FlightDataType> {
 	private double timeToOptimumAltitude = Double.NaN;
 	private double optimumAltitude = Double.NaN;
+	private double separationTime = Double.NaN;
 	private final ArrayList<FlightEvent> events = new ArrayList<>();
 	
 	/**
@@ -183,6 +184,9 @@ public class FlightDataBranch extends DataBranch<FlightDataType> {
 	public void addEvent(FlightEvent event) {
 		mutable.check();
 		events.add(event);
+		if (event.getType() == FlightEvent.Type.STAGE_SEPARATION) {
+			separationTime = event.getTime();
+		}
 		modID = new ModID();
 	}
 	
@@ -223,6 +227,35 @@ public class FlightDataBranch extends DataBranch<FlightDataType> {
 			}
 		}
 		return retval;
+	}
+
+	/**
+	 * Return the time of the stage separation event.
+	 * @return the time of the stage separation event, or NaN if no separation event has occurred.
+	 */
+	public double getSeparationTime() {
+		return separationTime;
+	}
+
+	/**
+	 * Return the data index corresponding to the given time.
+	 * @param time the time to search for
+	 * @return the data index corresponding to the given time, or -1 if the time is not found.
+	 */
+	public int getDataIndexOfTime(double time) {
+		if (Double.isNaN(time)) {
+			return -1;
+		}
+		List<Double> times = get(FlightDataType.TYPE_TIME);
+		if (times == null) {
+			return -1;
+		}
+		for (int i = 0; i < times.size(); i++) {
+			if (times.get(i) >= time) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public FlightDataBranch clone() {
