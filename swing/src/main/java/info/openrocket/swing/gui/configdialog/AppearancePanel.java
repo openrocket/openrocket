@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -221,14 +223,27 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		}
 	}
 
-	private class ColorHexActionListener extends ColorActionListener implements ActionListener {
-		public ColorHexActionListener(final Object o, final String valueName) {
+	private class HexColorListener extends ColorActionListener implements ActionListener, FocusListener {
+		public HexColorListener(final Object o, final String valueName) {
 			super(o, valueName);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JTextField field = (JTextField) e.getSource();
+			updateColorFromHex((JTextField) e.getSource());
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {
+			updateColorFromHex((JTextField) e.getSource());
+		}
+
+		@Override
+		public void focusGained(FocusEvent e) {
+			// Do nothing
+		}
+
+		private void updateColorFromHex(JTextField field) {
 			String hex = field.getText();
 			try {
 				ORColor color = ColorConversion.fromHexColor(hex);
@@ -330,7 +345,9 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		});
 
 		figureColorButton.addActionListener(new ColorButtonActionListener(c, "Color"));
-		figureColorHexField.addActionListener(new ColorHexActionListener(c, "Color"));
+		HexColorListener colorHexListener = new HexColorListener(c, "Color");
+		figureColorHexField.addActionListener(colorHexListener);
+		figureColorHexField.addFocusListener(colorHexListener);
 
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 		register(fDefault);
@@ -585,7 +602,9 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		colorHexField.setText(ColorConversion.toHexColor(builder.getPaint()));
 
 		colorButton.addActionListener(new ColorButtonActionListener(builder, "Paint"));
-		colorHexField.addActionListener(new ColorHexActionListener(builder, "Paint"));
+		HexColorListener colorHexListener = new HexColorListener(builder, "Paint");
+		colorHexField.addActionListener(colorHexListener);
+		colorHexField.addFocusListener(colorHexListener);
 
 		// Texture Header Row
 		panel.add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"),
