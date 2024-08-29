@@ -64,7 +64,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 
 	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, CAParameters parameters,
 											AerodynamicCalculator aerodynamicCalculator, Rocket rocket) {
-		super(new MigLayout("fill, height 700px"));
+		super(new MigLayout("fill, height 700px!", "[]", "[grow]"));
 
 		this.parent = parent;
 		this.parameters = parameters;
