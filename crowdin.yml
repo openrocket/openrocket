@@ -18,6 +18,7 @@
 files: [
     {
         "source": "core/src/main/resources/l10n/messages.properties",
+        "dest": "core/src/main/resources/l10n/messages_%two_letters_code%.properties",
         "translation": "core/src/main/resources/l10n/messages_%two_letters_code%.properties",
 
         "type": "properties",
@@ -30,6 +31,7 @@ files: [
     },
     {
         "source": "core/src/main/resources/l10n/messages.properties",
+        "dest": "core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
         "translation": "core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
 
         "type": "properties",
