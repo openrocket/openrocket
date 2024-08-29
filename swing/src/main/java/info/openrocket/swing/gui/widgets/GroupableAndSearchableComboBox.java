@@ -26,8 +26,6 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -50,6 +48,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 /**
  * A combo box that has a search box for searching the items in the combobox.
@@ -608,7 +607,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			}
 
 			if (itemName.toLowerCase().contains(searchFieldSearch.getText().toLowerCase())) {
-				itemName = itemName.replaceAll("(?i)(" + searchFieldSearch.getText() + ")", "<u>$1</u>");
+				itemName = itemName.replaceAll("(?i)(" + Pattern.quote(searchFieldSearch.getText()) + ")", "<u>$1</u>");
 				label.setText("<html>" + itemName + "</html>");
 			}
 

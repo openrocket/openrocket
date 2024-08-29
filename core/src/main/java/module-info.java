@@ -34,6 +34,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.appearance.defaults;
 	exports info.openrocket.core.arch;
 	exports info.openrocket.core.communication;
+	exports info.openrocket.core.componentanalysis;
 	exports info.openrocket.core.database;
 	exports info.openrocket.core.database.motor;
 	exports info.openrocket.core.document;

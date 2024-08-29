@@ -18,6 +18,7 @@
 /core/build
 /core/tmp
 /core/misc
+/core/bin
 
 # /core/doc/techdoc/
 /core/doc/techdoc/*.aux
@@ -31,6 +32,7 @@
 /core/resources-src/pix/splashscreen-sormus.xcf.gz
 
 /swing/build
+/swing/bin
 /swing/tmp
 /core/src/main/resources/datafiles/components
 
