@@ -10,16 +10,16 @@
 # Choose file structure in Crowdin
 # e.g. true or false
 #
-"preserve_hierarchy": true
+"preserve_hierarchy": false
 
 #
 # Files configuration
 #
 files: [
   {
-    "source": "core/src/main/resources/l10n/messages.properties",
-    "dest": "core/src/main/resources/l10n/messages_%two_letters_code%.properties",
-    "translation": "core/src/main/resources/l10n/messages_%two_letters_code%.properties",
+    "source": "/core/src/main/resources/l10n/messages.properties",
+    "dest": "/core/src/main/resources/l10n/messages_%two_letters_code%.properties",
+    "translation": "/core/src/main/resources/l10n/messages_%two_letters_code%.properties",
 
     "type": "properties",
 
@@ -30,9 +30,9 @@ files: [
     "escape_special_characters": 0
   },
   {
-    "source": "core/src/main/resources/l10n/messages.properties",
-    "dest": "core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
-    "translation": "core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
+    "source": "/core/src/main/resources/l10n/messages.properties",
+    "dest": "/core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
+    "translation": "/core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
 
     "type": "properties",
 
