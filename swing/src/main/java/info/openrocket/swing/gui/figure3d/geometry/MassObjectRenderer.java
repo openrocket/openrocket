@@ -167,8 +167,8 @@ final class MassObjectRenderer {
 				}
 
 				// Add radial offset
-				double xOffset = o.getRadialPosition() * sin(o.getRadialDirection());
-				double yOffset = o.getRadialPosition() * cos(o.getRadialDirection());
+				double xOffset = o.getRadialPosition() * sin(-o.getRadialDirection());
+				double yOffset = o.getRadialPosition() * cos(-o.getRadialDirection());
 
 				if (r == 0)
 					normal3d(gl, 0, 0, 1);
