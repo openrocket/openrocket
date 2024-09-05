@@ -1139,7 +1139,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		else
 			this.name = name;
 
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		if (this instanceof AxialStage) {
+			fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+		} else {
+			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		}
 	}
 	
 	
