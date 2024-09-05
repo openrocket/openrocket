@@ -45,6 +45,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	public static final String STAGE_INSERT_POSITION_KEY = "StageInsertPosition";
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
+	public static final String USER_COMPONENT_PRESETS_KEY = "UserComponentPresets";
 
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
 
@@ -1018,7 +1019,57 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		return null;
 	}
 
-	public File getDefaultUserComponentDirectory() {
+	/**
+	 * Return a list of files/directories to be loaded as custom component presets.
+	 * <p>
+	 * If this property has not been set, the directory "Components" in the user
+	 * application directory will be used.  The directory will be created if it does not
+	 * exist.
+	 *
+	 * @return	a list of files to load as component presets.
+	 */
+	public List<File> getUserComponentPresetFiles() {
+		List<File> list = new ArrayList<>();
+
+		String files = getString(USER_COMPONENT_PRESETS_KEY, null);
+		if (files == null) {
+			// Default to application directory
+			File cpdir = getDefaultUserComponentFile();
+			if (!cpdir.isDirectory()) {
+				cpdir.mkdirs();
+			}
+			list.add(cpdir);
+		} else {
+			for (String file : files.split("\\" + SPLIT_CHARACTER)) {
+				file = file.trim();
+				if (file.length() > 0) {
+					list.add(new File(file));
+				}
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the files/directories to be loaded as custom component presets, formatting as a string. If there are multiple
+	 * locations, they are separated by a semicolon.
+	 *
+	 * @return a list of files to load as component presets, formatted as a semicolon separated string.
+	 */
+	public String getUserComponentPresetFilesAsString() {
+		List<File> files = getUserComponentPresetFiles();
+		StringBuilder sb = new StringBuilder();
+		for (File file : files) {
+			if (!sb.isEmpty()) {
+				sb.append(";");
+			}
+			sb.append(file.getAbsolutePath());
+		}
+		return sb.toString();
+	}
+
+	public File getDefaultUserComponentFile() {
 		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
 
 		if (!compdir.isDirectory()) {
@@ -1032,6 +1083,28 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 			return null;
 		}
 		return compdir;
+	}
+
+	/**
+	 * Set the list of files/directories to be loaded as custom component presets.
+	 *
+	 * @param files		the files to load, or <code>null</code> to reset to default value.
+	 */
+	public void setUserComponentPresetFiles(List<File> files) {
+		if (files == null) {
+			putString(USER_COMPONENT_PRESETS_KEY, null);
+			return;
+		}
+
+		StringBuilder str = new StringBuilder();
+
+		for (File file : files) {
+			if (!str.isEmpty()) {
+				str.append(SPLIT_CHARACTER);
+			}
+			str.append(file.getAbsolutePath());
+		}
+		putString(USER_COMPONENT_PRESETS_KEY, str.toString());
 	}
 
 	/**
