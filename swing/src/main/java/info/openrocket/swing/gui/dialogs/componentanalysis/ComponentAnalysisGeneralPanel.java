@@ -50,7 +50,10 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -111,8 +114,6 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
 		this.theta = new DoubleModel(parameters, "Theta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		this.roll = new DoubleModel(parameters, "RollRate", UnitGroup.UNITS_ROLL);
-
-		JTable table;
 
 		//// Wind direction:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.winddir")));
@@ -200,7 +201,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 		// Create the Longitudinal Stability (CM vs CP) data table
-		this.longitudeStabilityTableModel = new ColumnTableModel(
+		this.longitudeStabilityTableModel = new CAColumnTableModel(
 
 				//// Component
 				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component")) {
@@ -267,15 +268,24 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			public int getRowCount() {
 				return stabData.size();
 			}
+
+			@Override
+			public RocketComponent getComponentForRow(int row) {
+				if (row < 0 || row >= getRowCount()) {
+					return null;
+				}
+				Object source = stabData.get(row).source;
+				return source instanceof RocketComponent ? (RocketComponent) source : null;
+			}
 		};
 
-		table = new ColumnTable(longitudeStabilityTableModel);
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		this.longitudeStabilityTableModel.setColumnWidths(table.getColumnModel());
+		final JTable stabilityTable = new ColumnTable(longitudeStabilityTableModel);
+		stabilityTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		this.longitudeStabilityTableModel.setColumnWidths(stabilityTable.getColumnModel());
 
-		table.setDefaultRenderer(Object.class, new StabilityCellRenderer());
+		stabilityTable.setDefaultRenderer(Object.class, new StabilityCellRenderer());
 
-		JScrollPane scrollpane = new JScrollPane(table);
+		JScrollPane scrollpane = new JScrollPane(stabilityTable);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Stability and Stability information
@@ -285,7 +295,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 		// Create the drag data table
-		this.dragTableModel = new ColumnTableModel(
+		this.dragTableModel = new CAColumnTableModel(
 				//// Component
 				new Column(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.Component")) {
 					@Override
@@ -340,16 +350,24 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			public int getRowCount() {
 				return dragData.size();
 			}
+
+			@Override
+			public RocketComponent getComponentForRow(int row) {
+				if (row < 0 || row >= getRowCount()) {
+					return null;
+				}
+				return dragData.get(row).getComponent();
+			}
 		};
 
 
-		table = new JTable(dragTableModel);
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		this.dragTableModel.setColumnWidths(table.getColumnModel());
+		final JTable dragTable = new JTable(dragTableModel);
+		dragTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		this.dragTableModel.setColumnWidths(dragTable.getColumnModel());
 
-		table.setDefaultRenderer(Object.class, new DragCellRenderer());
+		dragTable.setDefaultRenderer(Object.class, new DragCellRenderer());
 
-		scrollpane = new JScrollPane(table);
+		scrollpane = new JScrollPane(dragTable);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Drag characteristics and Drag characteristics tooltip
@@ -360,7 +378,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 		// Create the roll data table
-		this.rollTableModel = new ColumnTableModel(
+		this.rollTableModel = new CAColumnTableModel(
 				//// Component
 				new Column(trans.get("ComponentAnalysisGeneralTab.rollTableModel.Col.component")) {
 					@Override
@@ -403,14 +421,22 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			public int getRowCount() {
 				return rollData.size();
 			}
+
+			@Override
+			public RocketComponent getComponentForRow(int row) {
+				if (row < 0 || row >= getRowCount()) {
+					return null;
+				}
+				return rollData.get(row).getComponent();
+			}
 		};
 
 
-		table = new JTable(rollTableModel);
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		table.setDefaultRenderer(Object.class, new RollDynamicsCellRenderer());
+		final JTable rollTable = new JTable(rollTableModel);
+		rollTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		rollTable.setDefaultRenderer(Object.class, new RollDynamicsCellRenderer());
 
-		scrollpane = new JScrollPane(table);
+		scrollpane = new JScrollPane(rollTable);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Roll dynamics and Roll dynamics tooltip
@@ -458,6 +484,11 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.aoa.addChangeListener(this);
 		this.roll.addChangeListener(this);
 		this.stateChanged(null);
+
+		// Add listeners to highlight the selected component in the rocket panel
+		stabilityTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, stabilityTable));
+		dragTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, dragTable));
+		rollTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, rollTable));
 
 		// Remove listeners when closing window
 		parent.addWindowListener(new WindowAdapter() {
@@ -767,8 +798,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		}
 	}
 
-	private class LongitudinalStabilityRow {
-
+	private static class LongitudinalStabilityRow {
 		public String name;
 		public Object source;
 		public double eachMass;
@@ -784,6 +814,34 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			cpx = Double.NaN;
 			cna = Double.NaN;
 		}
+	}
 
+	private abstract static class CAColumnTableModel extends ColumnTableModel {
+		public CAColumnTableModel(Column... columns) {
+			super(columns);
+		}
+
+		public RocketComponent getComponentForRow(int row) {
+			throw new RuntimeException("Not implemented");
+		}
+	}
+
+	private static class CAListSelectionListener implements ListSelectionListener {
+		private final RocketPanel rocketPanel;
+		private final JTable table;
+
+		public CAListSelectionListener(RocketPanel rocketPanel, JTable table) {
+			this.rocketPanel = rocketPanel;
+			this.table = table;
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			TableModel model = table.getModel();
+			if (model instanceof CAColumnTableModel) {
+				RocketComponent component = ((CAColumnTableModel) model).getComponentForRow(table.getSelectedRow());
+				rocketPanel.setSelectedComponent(component);
+			}
+		}
 	}
 }
