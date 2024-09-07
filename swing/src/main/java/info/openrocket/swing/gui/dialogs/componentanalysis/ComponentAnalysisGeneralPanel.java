@@ -764,11 +764,12 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 	private class DragCellRenderer extends CustomCellRenderer {
 		private static final long serialVersionUID = 1L;
 		private final StripedLabelUI stripedUI;
-		private final LabelUI defaultUI = new BasicLabelUI();
+		private final LabelUI defaultUI;
 
 		public DragCellRenderer() {
 			super(dragData, 3);
 			this.stripedUI = new StripedLabelUI(1, 12);
+			this.defaultUI = new BasicLabelUI();
 		}
 
 		@Override
@@ -779,36 +780,48 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			// Reset to default UI
 			label.setUI(defaultUI);
 
-			if (!isSelected && (value instanceof Double)) {
-				double cd = (Double) value;
-				float r = (float) (cd / 1.5);
+			// Handle selection coloring
+			if (isSelected) {
+				label.setBackground(table.getSelectionBackground());
+				label.setForeground(table.getSelectionForeground());
+				label.setOpaque(true);
+			} else {
+				// Non-selected styling
+				if (value instanceof Double) {
+					double cd = (Double) value;
+					float r = (float) (cd / 1.5);
 
-				float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
-				float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
-				float val = 1.0f;
+					float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
+					float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
+					float val = 1.0f;
 
-				label.setBackground(Color.getHSBColor(hue, sat, val));
-				label.setForeground(Color.BLACK);
+					label.setBackground(Color.getHSBColor(hue, sat, val));
+					label.setForeground(Color.BLACK);
+				} else {
+					label.setBackground(table.getBackground());
+					label.setForeground(table.getForeground());
+				}
+				label.setOpaque(true);
 			}
 
-			// For the per instance CD, we want to use a different formatting, because the relative percentages
-			// don't matter, and the total instance CD for the rocket makes no sense.
+			// Special handling for column 4
 			if (column == 4) {
 				if (row == 0) {
 					label.setText("");
-					label.setOpaque(true);
-					label.setBackground(backgroundColor);
-					label.setForeground(foregroundColor);
-					label.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 					label.setUI(stripedUI);
+					if (!isSelected) {
+						label.setBackground(table.getBackground());
+						label.setForeground(table.getForeground());
+					}
 				} else {
 					label.setText(decimalFormat(dragData.get(row).getCD()));
 				}
-				return label;
 			}
 
-			if ((row < 0) || (row >= dragData.size()))
+			// Set font
+			if ((row < 0) || (row >= dragData.size())) {
 				return label;
+			}
 
 			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 5)) {
 				label.setFont(boldFont);
