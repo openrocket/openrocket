@@ -130,18 +130,32 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 	private Map<G, List<T>> constructItemGroupMapFromList(List<T> items) {
-		Map<G, List<T>> itemGroupMap = new TreeMap<>(new Comparator<G>() {
-			@Override
-			public int compare(G g1, G g2) {
-				return Integer.compare(g1.getPriority(), g2.getPriority());
-			}
-		});
+		Map<G, List<T>> itemGroupMap = new TreeMap<>(Comparator.comparing(Group::getPriority));
 
 		for (T item : items) {
 			G group = item.getGroup();
 			itemGroupMap.computeIfAbsent(group, k -> new ArrayList<>()).add(item);
 		}
+
+		// Sort items within each group
+		for (List<T> groupItems : itemGroupMap.values()) {
+			groupItems.sort(new ItemComparator());
+		}
+
 		return itemGroupMap;
+	}
+
+	private class ItemComparator implements Comparator<T> {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int compare(T item1, T item2) {
+			if (item1 instanceof Comparable && item2 instanceof Comparable) {
+				return ((Comparable<T>) item1).compareTo(item2);
+			} else {
+				// Fall back to alphabetical sorting using the display string
+				return getDisplayString(item1).compareToIgnoreCase(getDisplayString(item2));
+			}
+		}
 	}
 
 	public void setupMainRenderer() {
