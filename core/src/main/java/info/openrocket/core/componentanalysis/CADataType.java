@@ -39,8 +39,10 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 			"CD,base", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 21);
 	public static final CADataType FRICTION_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.friction"),
 			"CD,friction", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 22);
+	public static final CADataType PER_INSTANCE_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.perInstance"),
+			"CD,instance", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 23);
 	public static final CADataType TOTAL_CD = new CADataType(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.total"),
-			"CD,total", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 23);
+			"CD,total", UnitGroup.UNITS_NONE, CADataTypeGroup.DRAG, 24);
 
 	//// Roll
 	public static final CADataType ROLL_FORCING_COEFFICIENT = new CADataType(trans.get("ComponentAnalysisGeneralTab.rollTableModel.Col.rollforc"),
@@ -53,7 +55,7 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 
 	public static final CADataType[] ALL_TYPES = {
 			CP_X, CNa,
-			PRESSURE_CD, BASE_CD, FRICTION_CD, TOTAL_CD,
+			PRESSURE_CD, BASE_CD, FRICTION_CD, PER_INSTANCE_CD, TOTAL_CD,
 			ROLL_FORCING_COEFFICIENT, ROLL_DAMPING_COEFFICIENT, TOTAL_ROLL_COEFFICIENT
 	};
 
@@ -124,9 +126,14 @@ public class CADataType implements Comparable<CADataType>, Groupable<CADataTypeG
 			return false;
 		}
 
+		// Doesn't make sense to calculate per-instance drag for rockets
+		if (component instanceof Rocket && type.equals(CADataType.PER_INSTANCE_CD)) {
+			return false;
+		}
+
 		if (type.equals(CADataType.CP_X) || type.equals(CADataType.CNa) ||
 				type.equals(CADataType.PRESSURE_CD) || type.equals(CADataType.BASE_CD) ||
-				type.equals(CADataType.FRICTION_CD) || type.equals(CADataType.TOTAL_CD)) {
+				type.equals(CADataType.FRICTION_CD) || type.equals(CADataType.PER_INSTANCE_CD) || type.equals(CADataType.TOTAL_CD)) {
 			return true;
 		} else if (type.equals(CADataType.ROLL_FORCING_COEFFICIENT) || type.equals(CADataType.ROLL_DAMPING_COEFFICIENT) ||
 				type.equals(CADataType.TOTAL_ROLL_COEFFICIENT)) {

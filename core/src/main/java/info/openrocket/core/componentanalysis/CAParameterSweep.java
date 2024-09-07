@@ -129,7 +129,8 @@ public class CAParameterSweep {
 				dataBranch.setValue(CADataType.PRESSURE_CD, component, forces.getPressureCD());
 				dataBranch.setValue(CADataType.BASE_CD, component, forces.getBaseCD());
 				dataBranch.setValue(CADataType.FRICTION_CD, component, forces.getFrictionCD());
-				dataBranch.setValue(CADataType.TOTAL_CD, component, forces.getCD());
+				dataBranch.setValue(CADataType.PER_INSTANCE_CD, component, forces.getCD());
+				dataBranch.setValue(CADataType.TOTAL_CD, component, forces.getCDTotal());
 			}
 
 			if (component instanceof FinSet) {
@@ -154,7 +155,8 @@ public class CAParameterSweep {
 			dataBranch.setValue(CADataType.PRESSURE_CD, rocket, totalForces.getPressureCD());
 			dataBranch.setValue(CADataType.BASE_CD, rocket, totalForces.getBaseCD());
 			dataBranch.setValue(CADataType.FRICTION_CD, rocket, totalForces.getFrictionCD());
-			dataBranch.setValue(CADataType.TOTAL_CD, rocket, totalForces.getCD());
+			dataBranch.setValue(CADataType.PER_INSTANCE_CD, rocket, totalForces.getCD());
+			dataBranch.setValue(CADataType.TOTAL_CD, rocket, totalForces.getCDTotal());
 		}
 	}
 

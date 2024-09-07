@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -52,12 +53,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.LabelUI;
+import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -333,11 +339,18 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return dragData.get(row).getFrictionCD();
 					}
 				},
+				//// <html>Per instance C<sub>D</sub>
+				new Column(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.perInstance")) {
+					@Override
+					public Object getValueAt(int row) {
+						return dragData.get(row).getCD();
+					}
+				},
 				//// <html>Total C<sub>D</sub>
 				new Column(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.total")) {
 					@Override
 					public Object getValueAt(int row) {
-						return dragData.get(row).getCD();
+						return dragData.get(row).getCDTotal();
 					}
 				}
 		) {
@@ -666,7 +679,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		private final List<?> data;
 		protected final int decimalPlaces;
 
-		private static Color backgroundColor;
+		protected static Color backgroundColor;
+		protected static Color foregroundColor;
 
 		static {
 			initColors();
@@ -687,6 +701,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		private static void updateColors() {
 			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+			foregroundColor = GUIUtil.getUITheme().getTextColor();
 		}
 
 		@Override
@@ -748,15 +763,21 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 	private class DragCellRenderer extends CustomCellRenderer {
 		private static final long serialVersionUID = 1L;
+		private final StripedLabelUI stripedUI;
+		private final LabelUI defaultUI = new BasicLabelUI();
 
 		public DragCellRenderer() {
 			super(dragData, 3);
+			this.stripedUI = new StripedLabelUI(1, 12);
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 													   boolean isSelected, boolean hasFocus, int row, int column) {
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			// Reset to default UI
+			label.setUI(defaultUI);
 
 			if (!isSelected && (value instanceof Double)) {
 				double cd = (Double) value;
@@ -770,10 +791,26 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				label.setForeground(Color.BLACK);
 			}
 
+			// For the per instance CD, we want to use a different formatting, because the relative percentages
+			// don't matter, and the total instance CD for the rocket makes no sense.
+			if (column == 4) {
+				if (row == 0) {
+					label.setText("");
+					label.setOpaque(true);
+					label.setBackground(backgroundColor);
+					label.setForeground(foregroundColor);
+					label.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+					label.setUI(stripedUI);
+				} else {
+					label.setText(decimalFormat(dragData.get(row).getCD()));
+				}
+				return label;
+			}
+
 			if ((row < 0) || (row >= dragData.size()))
 				return label;
 
-			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 4)) {
+			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 5)) {
 				label.setFont(boldFont);
 			} else {
 				label.setFont(normalFont);
@@ -786,9 +823,45 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		protected String formatDouble(Double cd) {
 			final double totalCD = dragData.get(0).getCD();
 
-			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
-			String cdFormatted = df.format(cd);
+			String cdFormatted = decimalFormat(cd);
 			return String.format(cdFormatted + "  (%.0f%%)", 100 * cd / totalCD);
+		}
+
+		private String decimalFormat(Double cd) {
+			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
+			return df.format(cd);
+		}
+
+		private static class StripedLabelUI extends BasicLabelUI {
+			private final int lineWidth;
+			private final int lineSpacing;
+
+			public StripedLabelUI(int lineWidth, int lineSpacing) {
+				this.lineWidth = lineWidth;
+				this.lineSpacing = lineSpacing;
+			}
+
+			@Override
+			public void paint(Graphics g, JComponent c) {
+				Graphics2D g2d = (Graphics2D) g.create();
+				int width = c.getWidth();
+				int height = c.getHeight();
+
+				// Paint background
+				g2d.setColor(c.getBackground());
+				g2d.fillRect(0, 0, width, height);
+
+				// Paint thin lines
+				g2d.setColor(c.getForeground());
+				g2d.setStroke(new BasicStroke(lineWidth));
+				for (int x = -height; x < width; x += (lineWidth + lineSpacing)) {
+					g2d.drawLine(x, height, x + height, 0);
+				}
+
+				g2d.dispose();
+
+				super.paint(g, c);
+			}
 		}
 	}
 

@@ -33,7 +33,7 @@ public class CAPlotTypeSelector extends PlotTypeSelector<CADataType, CADataTypeG
 		componentSelector = new JComboBox<>(componentsForType.toArray(new RocketComponent[0]));
 		componentSelector.setSelectedItem(selectedComponent);
 		configuration.setPlotDataComponent(plotIndex, selectedComponent);
-		this.add(componentSelector, "gapright para");
+		this.add(componentSelector, "growx, gapright para");
 
 		addRemoveButton();
 
