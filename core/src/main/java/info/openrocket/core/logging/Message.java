@@ -73,6 +73,13 @@ public abstract class Message implements Cloneable {
 	 public UUID getID() {
 		 return id;
 	 }
+
+	/**
+	 * Set the ID
+	 **/
+	public void setID(UUID id) {
+		this.id = id;
+	}
 	
 	/**
 	 * Return the rocket component(s) that are the source of this warning.
