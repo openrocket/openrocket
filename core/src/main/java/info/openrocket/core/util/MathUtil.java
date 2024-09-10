@@ -331,7 +331,6 @@ public class MathUtil {
 	 *         or if t is outsize the domain.
 	 */
 	public static double interpolate(List<Double> domain, List<Double> range, double t) {
-
 		if (domain == null || range == null || domain.size() != range.size()) {
 			return Double.NaN;
 		}
@@ -368,7 +367,16 @@ public class MathUtil {
 		}
 
 		return range.get(left) + (t - domain.get(left)) * deltay / deltax;
-
 	}
 
+	/**
+	 * Use interpolation to determine the value of the function at point t.
+	 * @param a the lower bound
+	 * @param b the upper bound
+	 * @param fraction the fraction between a and b
+	 * @return the interpolated value
+	 */
+	public static double interpolate(double a, double b, double fraction) {
+		return a + (b - a) * fraction;
+	}
 }

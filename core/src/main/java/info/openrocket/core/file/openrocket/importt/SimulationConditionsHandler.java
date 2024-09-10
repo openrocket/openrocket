@@ -17,6 +17,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 	public FlightConfigurationId idToSet = FlightConfigurationId.ERROR_FCID;
 	private final SimulationOptions options;
 	private AtmosphereHandler atmosphereHandler;
+	private WindHandler windHandler;
 
 	public SimulationConditionsHandler(Rocket rocket, DocumentLoadingContext context) {
 		this.context = context;
@@ -32,7 +33,10 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-		if (element.equals("atmosphere")) {
+		if (element.equals("wind")) {
+			windHandler = new WindHandler(attributes.get("model"), options);
+			return windHandler;
+		} else if (element.equals("atmosphere")) {
 			atmosphereHandler = new AtmosphereHandler(attributes.get("model"), context);
 			return atmosphereHandler;
 		}
@@ -69,19 +73,33 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 			} else {
 				options.setLaunchRodDirection(d * 2.0 * Math.PI / 360);
 			}
-		} else if (element.equals("windaverage")) {
+		}
+		// TODO: remove once support for OR 23.09 and prior is dropped
+		else if (element.equals("windaverage")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal average windspeed defined, ignoring.");
 			} else {
-				options.setWindSpeedAverage(d);
+				options.getPinkNoiseWindModel().setAverage(d);
 			}
 		} else if (element.equals("windturbulence")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal wind turbulence intensity defined, ignoring.");
 			} else {
-				options.setWindTurbulenceIntensity(d);
+				options.getPinkNoiseWindModel().setTurbulenceIntensity(d);
 			}
-		} else if (element.equals("launchaltitude")) {
+		} else if (element.equals("winddirection")) {
+			if (Double.isNaN(d)) {
+				warnings.add("Illegal wind direction defined, ignoring.");
+			} else {
+				options.getPinkNoiseWindModel().setDirection(d);
+			}
+		}
+
+		else if (element.equals("wind")) {
+			windHandler.storeSettings(options, warnings);
+		}
+
+		else if (element.equals("launchaltitude")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch altitude defined, ignoring.");
 			} else {

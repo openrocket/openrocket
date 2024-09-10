@@ -57,7 +57,7 @@ public class LaunchSiteDTO {
             setTemperature(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TEMPERATURE(options.getLaunchTemperature()));
             setRodAngle(options.getLaunchRodAngle() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ANGLE);
             setRodLength(options.getLaunchRodLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);     // It's a length, but stored in RASAero in feet instead of inches
-            setWindSpeed(options.getWindSpeedAverage() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED);
+            setWindSpeed(options.getPinkNoiseWindModel().getAverage() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED);
             return;
         }
 
@@ -68,7 +68,7 @@ public class LaunchSiteDTO {
         setTemperature(RASAeroCommonConstants.OPENROCKET_TO_RASAERO_TEMPERATURE(prefs.getLaunchTemperature()));
         setRodAngle(prefs.getLaunchRodAngle() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ANGLE);
         setRodLength(prefs.getLaunchRodLength() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_ALTITUDE);     // It's a length, but stored in RASAero in feet instead of inches
-        setWindSpeed(prefs.getWindSpeedAverage() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED);
+        setWindSpeed(prefs.getPinkNoiseWindModel().getAverage() * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED);
     }
 
     public Double getAltitude() {

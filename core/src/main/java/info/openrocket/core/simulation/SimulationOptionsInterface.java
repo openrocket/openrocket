@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation;
 
+import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
@@ -20,31 +21,7 @@ public interface SimulationOptionsInterface extends ChangeSource {
 
 	void setLaunchRodDirection(double launchRodDirection);
 
-	double getWindSpeedAverage();
-
-	void setWindSpeedAverage(double windAverage);
-
-	double getWindSpeedDeviation();
-
-	void setWindSpeedDeviation(double windDeviation);
-
-	/**
-	 * Return the wind turbulence intensity (standard deviation / average).
-	 *
-	 * @return  the turbulence intensity
-	 */
-	double getWindTurbulenceIntensity();
-
-	/**
-	 * Set the wind standard deviation to match the given turbulence intensity.
-	 *
-	 * @param intensity   the turbulence intensity
-	 */
-	void setWindTurbulenceIntensity(double intensity);
-
-	void setWindDirection(double direction);
-
-	double getWindDirection();
+	PinkNoiseWindModel getPinkNoiseWindModel();
 
 	double getLaunchAltitude();
 

@@ -40,7 +40,6 @@ import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
-import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.Simulation;
@@ -59,7 +58,7 @@ import info.openrocket.core.util.BuildProperties;
 import info.openrocket.swing.communication.AssetHandler.UpdatePlatform;
 
 
-public class SwingPreferences extends ApplicationPreferences implements SimulationOptionsInterface {
+public class SwingPreferences extends ApplicationPreferences {
 	private static final Logger log = LoggerFactory.getLogger(SwingPreferences.class);
 
 

@@ -10,15 +10,20 @@ import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.models.wind.MultiLevelWindModel;
+import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.MockPreferences;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -60,15 +65,98 @@ public class SimulationConditionsTest {
         assertEquals(Math.PI / 2, options.getLaunchRodDirection(), EPSILON);
         assertEquals(0.0, options.getLaunchRodAngle(), EPSILON);
         assertTrue(options.getLaunchIntoWind());
-        assertEquals(Math.PI / 2, options.getWindDirection(), EPSILON);
-        assertEquals(0.1, options.getWindTurbulenceIntensity(), EPSILON);
-        assertEquals(2.0, options.getWindSpeedAverage(), EPSILON);
-        assertEquals(0.2, options.getWindSpeedDeviation(), EPSILON);
+        assertEquals(Math.PI / 2, options.getPinkNoiseWindModel().getDirection(), EPSILON);
+        assertEquals(0.1, options.getPinkNoiseWindModel().getTurbulenceIntensity(), EPSILON);
+        assertEquals(2.0, options.getPinkNoiseWindModel().getAverage(), EPSILON);
+        assertEquals(0.2, options.getPinkNoiseWindModel().getStandardDeviation(), EPSILON);
 
         assertEquals(0.05, options.getTimeStep(), EPSILON);
         assertEquals(3 * Math.PI / 180, options.getMaximumStepAngle(), EPSILON);
-
     }
+
+    @Test
+    @DisplayName("Compare PinkNoiseWindModel and MultiLevelWindModel in SimulationConditions")
+    public void testWindModelComparison() {
+        SimulationConditions conditions = new SimulationConditions();
+
+        // Test PinkNoiseWindModel
+        PinkNoiseWindModel pinkNoiseModel = new PinkNoiseWindModel();
+        pinkNoiseModel.setAverage(5.0);
+        pinkNoiseModel.setStandardDeviation(1.0);
+        pinkNoiseModel.setDirection(Math.PI / 4); // 45 degrees
+
+        conditions.setWindModel(pinkNoiseModel);
+
+        Coordinate pinkNoiseVelocity = conditions.getWindModel().getWindVelocity(0, 100);
+        assertNotNull(pinkNoiseVelocity);
+        assertTrue(pinkNoiseVelocity.length() > 0);
+
+        // Test MultiLevelWindModel
+        MultiLevelWindModel multiLevelModel = new MultiLevelWindModel();
+        multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2);
+
+        conditions.setWindModel(multiLevelModel);
+
+        Coordinate multiLevelVelocity = conditions.getWindModel().getWindVelocity(0, 100);
+        assertNotNull(multiLevelVelocity);
+        assertTrue(multiLevelVelocity.length() > 0);
+
+        // Compare behaviors
+        assertNotEquals(pinkNoiseVelocity, multiLevelVelocity);
+    }
+
+    @Test
+    @DisplayName("Test wind velocity consistency for MultiLevelWindModel")
+    public void testMultiLevelWindModelConsistency() {
+        SimulationConditions conditions = new SimulationConditions();
+        MultiLevelWindModel multiLevelModel = new MultiLevelWindModel();
+        multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2);
+
+        conditions.setWindModel(multiLevelModel);
+
+        Coordinate velocity1 = conditions.getWindModel().getWindVelocity(0, 500);
+        Coordinate velocity2 = conditions.getWindModel().getWindVelocity(0, 500);
+
+        assertEquals(velocity1, velocity2);
+    }
+
+    @Test
+    @DisplayName("Test wind velocity variation for PinkNoiseWindModel")
+    public void testPinkNoiseWindModelVariation() {
+        SimulationConditions conditions = new SimulationConditions();
+        PinkNoiseWindModel pinkNoiseModel = new PinkNoiseWindModel();
+        pinkNoiseModel.setAverage(5.0);
+        pinkNoiseModel.setStandardDeviation(1.0);
+        pinkNoiseModel.setDirection(Math.PI / 4);
+
+        conditions.setWindModel(pinkNoiseModel);
+
+        Coordinate velocity1 = conditions.getWindModel().getWindVelocity(0, 100);
+        Coordinate velocity2 = conditions.getWindModel().getWindVelocity(1, 100);
+
+        assertNotEquals(velocity1, velocity2);
+    }
+
+    @Test
+    @DisplayName("Test altitude dependence of MultiLevelWindModel")
+    public void testMultiLevelWindModelAltitudeDependence() {
+        SimulationConditions conditions = new SimulationConditions();
+        MultiLevelWindModel multiLevelModel = new MultiLevelWindModel();
+        multiLevelModel.addWindLevel(0, 5.0, 0);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2);
+
+        conditions.setWindModel(multiLevelModel);
+
+        Coordinate velocityLow = conditions.getWindModel().getWindVelocity(0, 0);
+        Coordinate velocityHigh = conditions.getWindModel().getWindVelocity(0, 1000);
+        Coordinate velocityMid = conditions.getWindModel().getWindVelocity(0, 500);
+
+        assertNotEquals(velocityLow, velocityHigh);
+        assertTrue(velocityMid.length() > velocityLow.length() && velocityMid.length() < velocityHigh.length());
+    }
+
 
     private static class PreferencesModule extends AbstractModule {
         @Override

@@ -6,6 +6,9 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
+import info.openrocket.core.models.wind.MultiLevelWindModel;
+import info.openrocket.core.models.wind.WindModel;
+import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,11 +57,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double launchRodLength = preferences.getDouble(ApplicationPreferences.LAUNCH_ROD_LENGTH, 1);
 	private boolean launchIntoWind = preferences.getBoolean(ApplicationPreferences.LAUNCH_INTO_WIND, true);
 	private double launchRodAngle = preferences.getDouble(ApplicationPreferences.LAUNCH_ROD_ANGLE, 0);
-	private double windDirection = preferences.getDouble(ApplicationPreferences.WIND_DIRECTION, Math.PI / 2);
 	private double launchRodDirection = preferences.getDouble(ApplicationPreferences.LAUNCH_ROD_DIRECTION, Math.PI / 2);
-
-	private double windAverage = preferences.getDouble(ApplicationPreferences.WIND_AVERAGE, 2.0);
-	private double windTurbulence = preferences.getDouble(ApplicationPreferences.WIND_TURBULENCE, 0.1);
 
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
@@ -81,7 +80,13 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 
 	private List<EventListener> listeners = new ArrayList<>();
 
+	private WindModelType windModelType = WindModelType.PINK_NOISE;
+	private final PinkNoiseWindModel pinkNoiseWindModel;
+	private final MultiLevelWindModel multiLevelWindModel;
+
 	public SimulationOptions() {
+		pinkNoiseWindModel = new PinkNoiseWindModel(randomSeed);
+		multiLevelWindModel = new MultiLevelWindModel();
 	}
 
 	public double getLaunchRodLength() {
@@ -120,6 +125,12 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 
 	public double getLaunchRodDirection() {
 		if (launchIntoWind) {
+			double windDirection;
+			if (windModelType == WindModelType.PINK_NOISE) {
+				windDirection = pinkNoiseWindModel.getDirection();
+			} else {
+				windDirection = multiLevelWindModel.getWindDirection(launchAltitude);
+			}
 			this.setLaunchRodDirection(windDirection);
 		}
 		return launchRodDirection;
@@ -133,57 +144,33 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		fireChangeEvent();
 	}
 
-	public double getWindSpeedAverage() {
-		return windAverage;
+	public WindModelType getWindModelType() {
+		return windModelType;
 	}
 
-	public void setWindSpeedAverage(double windAverage) {
-		if (MathUtil.equals(this.windAverage, windAverage))
-			return;
-		this.windAverage = MathUtil.max(windAverage, 0);
-		if (MathUtil.equals(this.windAverage, 0)) {
-			setWindTurbulenceIntensity(0);
+	public void setWindModelType(WindModelType windModelType) {
+		if (this.windModelType != windModelType) {
+			this.windModelType = windModelType;
+			fireChangeEvent();
 		}
-		fireChangeEvent();
 	}
 
-	public double getWindSpeedDeviation() {
-		return windAverage * windTurbulence;
-	}
-
-	public void setWindSpeedDeviation(double windDeviation) {
-		if (windAverage < 0.1) {
-			windAverage = 0.1;
+	public WindModel getWindModel() {
+		if (windModelType == WindModelType.PINK_NOISE) {
+			return pinkNoiseWindModel;
+		} else if (windModelType == WindModelType.MULTI_LEVEL) {
+			return multiLevelWindModel;
+		} else {
+			throw new IllegalArgumentException("Unknown wind model type: " + windModelType);
 		}
-		setWindTurbulenceIntensity(windDeviation / windAverage);
 	}
 
-	public double getWindTurbulenceIntensity() {
-		return windTurbulence;
+	public PinkNoiseWindModel getPinkNoiseWindModel() {
+		return pinkNoiseWindModel;
 	}
 
-	public void setWindTurbulenceIntensity(double intensity) {
-		// Does not check equality so that setWindSpeedDeviation can be sure of event
-		// firing
-		this.windTurbulence = intensity;
-		fireChangeEvent();
-	}
-
-	public void setWindDirection(double direction) {
-		direction = MathUtil.reduce2Pi(direction);
-		if (launchIntoWind) {
-			this.setLaunchRodDirection(direction);
-		}
-		if (MathUtil.equals(this.windDirection, direction))
-			return;
-		this.windDirection = direction;
-		fireChangeEvent();
-
-	}
-
-	public double getWindDirection() {
-		return this.windDirection;
-
+	public MultiLevelWindModel getMultiLevelWindModel() {
+		return multiLevelWindModel;
 	}
 
 	public double getLaunchAltitude() {
@@ -361,6 +348,16 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// only do it if one of the "important" (user specified) parameters has really
 		// changed.
 		boolean isChanged = false;
+
+		if (!this.pinkNoiseWindModel.equals(src.pinkNoiseWindModel)) {
+			isChanged = true;
+			this.pinkNoiseWindModel.loadFrom(src.pinkNoiseWindModel);
+		}
+		if (!this.multiLevelWindModel.equals(src.multiLevelWindModel)) {
+			isChanged = true;
+			this.multiLevelWindModel.loadFrom(src.multiLevelWindModel);
+		}
+
 		if (this.launchAltitude != src.launchAltitude) {
 			isChanged = true;
 			this.launchAltitude = src.launchAltitude;
@@ -405,18 +402,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.maximumAngle = src.maximumAngle;
 		}
-		if (this.windAverage != src.windAverage) {
-			isChanged = true;
-			this.windAverage = src.windAverage;
-		}
-		if (this.windDirection != src.windDirection) {
-			isChanged = true;
-			this.windDirection = src.windDirection;
-		}
-		if (this.windTurbulence != src.windTurbulence) {
-			isChanged = true;
-			this.windTurbulence = src.windTurbulence;
-		}
+
 		if (this.timeStep != src.timeStep) {
 			isChanged = true;
 			this.timeStep = src.timeStep;
@@ -453,10 +439,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.launchRodLength, o.launchRodLength) &&
 				MathUtil.equals(this.launchTemperature, o.launchTemperature) &&
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
-				MathUtil.equals(this.timeStep, o.timeStep) &&
-				MathUtil.equals(this.windAverage, o.windAverage) &&
-				MathUtil.equals(this.windTurbulence, o.windTurbulence) &&
-				MathUtil.equals(this.windDirection, o.windDirection));
+				MathUtil.equals(this.timeStep, o.timeStep)) &&
+				this.windModelType == o.windModelType &&
+				this.pinkNoiseWindModel.equals(o.pinkNoiseWindModel) &&
+				this.multiLevelWindModel.equals(o.multiLevelWindModel);
 	}
 
 	/**
@@ -505,17 +491,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
 
-		PinkNoiseWindModel windModel = new PinkNoiseWindModel(randomSeed);
-		windModel.setAverage(getWindSpeedAverage());
-		windModel.setStandardDeviation(getWindSpeedDeviation());
-		windModel.setDirection(windDirection);
-
+		WindModel windModel = getWindModel().clone();
 		conditions.setWindModel(windModel);
-
 		conditions.setAtmosphericModel(getAtmosphericModel());
-
 		GravityModel gravityModel = new WGSGravityModel();
-
 		conditions.setGravityModel(gravityModel);
 
 		conditions.setAerodynamicCalculator(new BarrowmanCalculator());
@@ -533,10 +512,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    launchRodLength:  %f\n", launchRodLength))
 				.concat(String.format("    launchIntoWind: %b\n", launchIntoWind))
 				.concat(String.format("    launchRodAngle:  %f\n", launchRodAngle))
-				.concat(String.format("    windDirection:  %f\n", windDirection))
 				.concat(String.format("    launchRodDirection:  %f\n", launchRodDirection))
-				.concat(String.format("    windAverage:  %f\n", windAverage))
-				.concat(String.format("    windTurbulence:  %f\n", windTurbulence))
+				.concat(String.format("    windModelType: %s\n", windModelType))
+				.concat(String.format("    pinkNoiseWindModel: %s\n", pinkNoiseWindModel))
+				.concat(String.format("    multiLevelWindModel: %s\n", multiLevelWindModel))
 				.concat(String.format("    launchAltitude:  %f\n", launchAltitude))
 				.concat(String.format("    launchLatitude:  %f\n", launchLatitude))
 				.concat(String.format("    launchLongitude:  %f\n", launchLongitude))
