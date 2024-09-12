@@ -183,7 +183,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				if (!typeSet.contains(type)) {
 					text = text + ", " + type.toString();
 					if (type.ordinal() > maxOrdinal) {
-						color = EventGraphics.getEventColor(type);
+						color = EventGraphics.getEventColor(info.event);
 						image = EventGraphics.getEventImage(info.event);
 						maxOrdinal = type.ordinal();
 					}
@@ -199,7 +199,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				}
 				prevTime = t;
 				text = type.toString();
-				color = EventGraphics.getEventColor(type);
+				color = EventGraphics.getEventColor(info.event);
 				image = EventGraphics.getEventImage(info.event);
 				typeSet.clear();
 				typeSet.add(type);

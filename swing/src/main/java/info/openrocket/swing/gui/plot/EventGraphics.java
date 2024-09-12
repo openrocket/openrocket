@@ -15,7 +15,8 @@ import info.openrocket.core.simulation.FlightEvent;
 
 public class EventGraphics {
 
-	static Color getEventColor(FlightEvent.Type type) {
+	static Color getEventColor(FlightEvent event) {
+		FlightEvent.Type type = event.getType();
 		Color c = EVENT_COLORS.get(type);
 		if (c != null)
 			return c;
@@ -23,7 +24,6 @@ public class EventGraphics {
 	}
 
 	static Image getEventImage(FlightEvent event) {
-
 		FlightEvent.Type type = event.getType();
 		if (type == FlightEvent.Type.SIM_WARN) {
 			return MESSAGE_IMAGES.get(((Warning) event.getData()).getPriority());
@@ -48,6 +48,7 @@ public class EventGraphics {
 		EVENT_COLORS.put(FlightEvent.Type.SIMULATION_END, new Color(128, 0, 0));
 		EVENT_COLORS.put(FlightEvent.Type.TUMBLE, new Color(196, 0, 255));
 		EVENT_COLORS.put(FlightEvent.Type.EXCEPTION, new Color(255, 0, 0));
+		EVENT_COLORS.put(FlightEvent.Type.SIM_WARN, new Color(127, 127, 0));
 		EVENT_COLORS.put(FlightEvent.Type.SIM_ABORT, new Color(255, 0, 0));
 	}
 
