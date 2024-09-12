@@ -26,8 +26,6 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -50,6 +48,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 /**
  * A combo box that has a search box for searching the items in the combobox.
@@ -131,18 +130,32 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 	private Map<G, List<T>> constructItemGroupMapFromList(List<T> items) {
-		Map<G, List<T>> itemGroupMap = new TreeMap<>(new Comparator<G>() {
-			@Override
-			public int compare(G g1, G g2) {
-				return Integer.compare(g1.getPriority(), g2.getPriority());
-			}
-		});
+		Map<G, List<T>> itemGroupMap = new TreeMap<>(Comparator.comparing(Group::getPriority));
 
 		for (T item : items) {
 			G group = item.getGroup();
 			itemGroupMap.computeIfAbsent(group, k -> new ArrayList<>()).add(item);
 		}
+
+		// Sort items within each group
+		for (List<T> groupItems : itemGroupMap.values()) {
+			groupItems.sort(new ItemComparator());
+		}
+
 		return itemGroupMap;
+	}
+
+	private class ItemComparator implements Comparator<T> {
+		@Override
+		@SuppressWarnings("unchecked")
+		public int compare(T item1, T item2) {
+			if (item1 instanceof Comparable && item2 instanceof Comparable) {
+				return ((Comparable<T>) item1).compareTo(item2);
+			} else {
+				// Fall back to alphabetical sorting using the display string
+				return getDisplayString(item1).compareToIgnoreCase(getDisplayString(item2));
+			}
+		}
 	}
 
 	public void setupMainRenderer() {
@@ -608,7 +621,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			}
 
 			if (itemName.toLowerCase().contains(searchFieldSearch.getText().toLowerCase())) {
-				itemName = itemName.replaceAll("(?i)(" + searchFieldSearch.getText() + ")", "<u>$1</u>");
+				itemName = itemName.replaceAll("(?i)(" + Pattern.quote(searchFieldSearch.getText()) + ")", "<u>$1</u>");
 				label.setText("<html>" + itemName + "</html>");
 			}
 

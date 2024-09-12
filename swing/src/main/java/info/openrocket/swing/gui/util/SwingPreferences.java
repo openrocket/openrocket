@@ -24,6 +24,7 @@ import java.util.prefs.Preferences;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.NoseCone;
+import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -636,13 +637,23 @@ public class SwingPreferences extends ApplicationPreferences implements Simulati
 	
 	/////////  Export variables
 	
-	public boolean isExportSelected(FlightDataType type) {
+	public boolean isFlightDataTypeExportSelected(FlightDataType type) {
 		Preferences prefs = PREFNODE.node("exports");
 		return prefs.getBoolean(type.getName(), false);
 	}
 	
-	public void setExportSelected(FlightDataType type, boolean selected) {
+	public void setFlightDataTypeExportSelected(FlightDataType type, boolean selected) {
 		Preferences prefs = PREFNODE.node("exports");
+		prefs.putBoolean(type.getName(), selected);
+	}
+
+	public boolean isComponentAnalysisDataTypeExportSelected(CADataType type) {
+		Preferences prefs = PREFNODE.node("exportsComponentAnalysis");
+		return prefs.getBoolean(type.getName(), false);
+	}
+
+	public void setComponentAnalysisExportSelected(CADataType type, boolean selected) {
+		Preferences prefs = PREFNODE.node("exportsComponentAnalysis");
 		prefs.putBoolean(type.getName(), selected);
 	}
 	

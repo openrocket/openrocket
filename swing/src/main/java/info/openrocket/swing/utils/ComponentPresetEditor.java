@@ -332,7 +332,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			chooser.setCurrentDirectory(editContext.getLastDirectory());
 		}
 		else {
-			chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultUserComponentDirectory());
+			chooser.setCurrentDirectory((Application.getPreferences()).getDefaultUserComponentFile());
 		}
 		
 		int option = chooser.showOpenDialog(ComponentPresetEditor.this);
@@ -414,7 +414,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			chooser.setSelectedFile(editContext.getOpenedFile());
 		}
 		else {
-			chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultUserComponentDirectory());
+			chooser.setCurrentDirectory((Application.getPreferences()).getDefaultUserComponentFile());
 		}
 		
 		int option = chooser.showSaveDialog(ComponentPresetEditor.this);
