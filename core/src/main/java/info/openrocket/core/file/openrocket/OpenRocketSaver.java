@@ -361,6 +361,8 @@ public class OpenRocketSaver extends RocketSaver {
 			writeln("</wind>");
 		}
 
+		writeElement("windmodeltype", cond.getWindModelType().toStringValue());
+
 		writeElement("launchaltitude", cond.getLaunchAltitude());
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
