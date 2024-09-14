@@ -78,7 +78,7 @@ public class PinkNoiseWindModel implements WindModel {
 	 * @param average the average wind speed to set
 	 */
 	public void setAverage(double average) {
-		average = Math.max(average, 0.1);
+		average = Math.max(average, 0);
 		if (average == this.average) {
 			return;
 		}

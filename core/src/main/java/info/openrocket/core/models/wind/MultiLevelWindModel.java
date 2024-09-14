@@ -146,7 +146,7 @@ public class MultiLevelWindModel implements WindModel {
 
 		public WindLevel(double altitude, double speed, double direction) {
 			this.altitude = altitude;
-			this.speed = Math.max(speed, 0.1);
+			this.speed = Math.max(speed, 0);
 			this.direction = direction;
 		}
 
