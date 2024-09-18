@@ -7,11 +7,13 @@ import info.openrocket.core.startup.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.GrayFilter;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -182,5 +184,14 @@ public class Icons {
 				g.drawImage(image, x, y, getIconWidth(), getIconHeight(), c);
 			}
 		};
+	}
+
+	public static Icon createDisabledIcon(Icon icon) {
+		Image image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics g = image.getGraphics();
+		icon.paintIcon(null, g, 0, 0);
+		g.dispose();
+
+		return new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) icon).getImage()));
 	}
 }
