@@ -6,6 +6,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
@@ -131,12 +132,21 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		MultiLevelPinkNoiseWindModel that = (MultiLevelPinkNoiseWindModel) o;
-		return levels.equals(that.levels);
+
+		// Compare the levels list
+		if (levels.size() != that.levels.size()) return false;
+		for (int i = 0; i < levels.size(); i++) {
+			if (!levels.get(i).equals(that.levels.get(i))) return false;
+		}
+
+		// If we implement any additional fields in the future, we should compare them here
+
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		return levels.hashCode();
+		return Objects.hash(levels);
 	}
 
 	public static class LevelWindModel implements Cloneable, ChangeSource {
@@ -203,11 +213,17 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (obj == null || getClass() != obj.getClass()) return false;
-			LevelWindModel that = (LevelWindModel) obj;
-			return Double.compare(that.altitude, altitude) == 0 && model.equals(that.model);
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			LevelWindModel that = (LevelWindModel) o;
+			return Double.compare(that.altitude, altitude) == 0 &&
+					model.equals(that.model);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(altitude, model);
 		}
 
 		@Override

@@ -81,8 +81,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private List<EventListener> listeners = new ArrayList<>();
 
 	private WindModelType windModelType = WindModelType.AVERAGE;
-	private final PinkNoiseWindModel averageWindModel;
-	private final MultiLevelPinkNoiseWindModel multiLevelPinkNoiseWindModel;
+	private PinkNoiseWindModel averageWindModel;
+	private MultiLevelPinkNoiseWindModel multiLevelPinkNoiseWindModel;
 
 	public SimulationOptions() {
 		averageWindModel = new PinkNoiseWindModel(randomSeed);
@@ -338,7 +338,14 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	public SimulationOptions clone() {
 		try {
 			SimulationOptions copy = (SimulationOptions) super.clone();
+
+			// Deep clone the wind models
+			copy.averageWindModel = this.averageWindModel.clone();
+			copy.multiLevelPinkNoiseWindModel = this.multiLevelPinkNoiseWindModel.clone();
+
+			// Create a new list for listeners
 			copy.listeners = new ArrayList<>();
+
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException(e);
