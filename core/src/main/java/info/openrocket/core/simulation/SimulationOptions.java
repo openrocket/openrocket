@@ -86,7 +86,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 
 	public SimulationOptions() {
 		averageWindModel = new PinkNoiseWindModel(randomSeed);
+		averageWindModel.addChangeListener(e -> fireChangeEvent());
 		multiLevelPinkNoiseWindModel = new MultiLevelPinkNoiseWindModel();
+		multiLevelPinkNoiseWindModel.addChangeListener(e -> fireChangeEvent());
 	}
 
 	public double getLaunchRodLength() {

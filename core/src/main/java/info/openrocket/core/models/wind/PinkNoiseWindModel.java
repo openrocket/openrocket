@@ -1,11 +1,16 @@
 package info.openrocket.core.models.wind;
 
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
+import java.util.List;
 import java.util.Random;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PinkNoise;
+import info.openrocket.core.util.StateChangeListener;
 
 /**
  * A wind simulator that generates wind speed as pink noise from a specified
@@ -45,6 +50,8 @@ public class PinkNoiseWindModel implements WindModel {
 	private PinkNoise randomSource = null;
 	private double time1;
 	private double value1, value2;
+
+	private final List<StateChangeListener> listeners = new ArrayList<>();
 
 	/**
 	 * Construct a new wind simulation with a specific seed value.
@@ -222,4 +229,24 @@ public class PinkNoiseWindModel implements WindModel {
 		return result;
 	}
 
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	public void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
+			}
+		}
+	}
 }

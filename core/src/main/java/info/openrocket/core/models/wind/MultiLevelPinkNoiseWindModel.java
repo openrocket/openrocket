@@ -1,14 +1,21 @@
 package info.openrocket.core.models.wind;
 
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
+
+import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.ModID;
+import info.openrocket.core.util.StateChangeListener;
 
 public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private List<LevelWindModel> levels;
+
+	private final List<StateChangeListener> listeners = new ArrayList<>();
 
 	public MultiLevelPinkNoiseWindModel() {
 		this.levels = new ArrayList<>();
@@ -21,23 +28,28 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		pinkNoiseModel.setDirection(direction);
 
 		LevelWindModel newLevel = new LevelWindModel(altitude, pinkNoiseModel);
+		newLevel.addChangeListener(e -> fireChangeEvent());
 		int index = Collections.binarySearch(levels, newLevel, Comparator.comparingDouble(l -> l.altitude));
 		if (index >= 0) {
 			throw new IllegalArgumentException("Wind level already exists for altitude: " + altitude);
 		}
 		levels.add(-index - 1, newLevel);
+		fireChangeEvent();
 	}
 
 	public void removeWindLevel(double altitude) {
 		levels.removeIf(level -> level.altitude == altitude);
+		fireChangeEvent();
 	}
 
 	public void removeWindLevelIdx(int index) {
 		levels.remove(index);
+		fireChangeEvent();
 	}
 
 	public void clearLevels() {
 		levels.clear();
+		fireChangeEvent();
 	}
 
 	public List<LevelWindModel> getLevels() {
@@ -127,9 +139,11 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		return levels.hashCode();
 	}
 
-	public static class LevelWindModel implements Cloneable {
+	public static class LevelWindModel implements Cloneable, ChangeSource {
 		protected double altitude;
 		protected PinkNoiseWindModel model;
+
+		private final List<StateChangeListener> listeners = new ArrayList<>();
 
 		LevelWindModel(double altitude, PinkNoiseWindModel model) {
 			this.altitude = altitude;
@@ -142,6 +156,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 
 		public void setAltitude(double altitude) {
 			this.altitude = altitude;
+			fireChangeEvent();
 		}
 
 		public double getSpeed() {
@@ -193,6 +208,50 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 			if (obj == null || getClass() != obj.getClass()) return false;
 			LevelWindModel that = (LevelWindModel) obj;
 			return Double.compare(that.altitude, altitude) == 0 && model.equals(that.model);
+		}
+
+		@Override
+		public void addChangeListener(StateChangeListener listener) {
+			listeners.add(listener);
+			model.addChangeListener(listener);
+		}
+
+		@Override
+		public void removeChangeListener(StateChangeListener listener) {
+			listeners.remove(listener);
+			model.removeChangeListener(listener);
+		}
+
+		public void fireChangeEvent() {
+			EventObject event = new EventObject(this);
+			// Copy the list before iterating to prevent concurrent modification exceptions.
+			EventListener[] list = listeners.toArray(new EventListener[0]);
+			for (EventListener l : list) {
+				if (l instanceof StateChangeListener) {
+					((StateChangeListener) l).stateChanged(event);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	public void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
+			}
 		}
 	}
 }
