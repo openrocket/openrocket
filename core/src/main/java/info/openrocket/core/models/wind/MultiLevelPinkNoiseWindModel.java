@@ -82,58 +82,12 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		return lowerVelocity.interpolate(upperVelocity, fraction);
 	}
 
-	private static double getInterpolatedDirection(LevelWindModel lowerLevel, LevelWindModel upperLevel, double fractionBetweenLevels) {
-		double lowerDirection = lowerLevel.model.getDirection();
-		double upperDirection = upperLevel.model.getDirection();
-		double directionDifference = upperDirection - lowerDirection;
-
-		// Ensure we take the shortest path around the circle
-		if (directionDifference > Math.PI) {
-			directionDifference -= 2 * Math.PI;
-		} else if (directionDifference < -Math.PI) {
-			directionDifference += 2 * Math.PI;
-		}
-
-		double interpolatedDirection = lowerDirection + fractionBetweenLevels * directionDifference;
-		return interpolatedDirection;
-	}
-
-	private double getPinkNoiseValue(double time, LevelWindModel lower, LevelWindModel upper, double fraction) {
-		double lowerNoise = lower.model.getWindVelocity(time, lower.altitude).length() - lower.model.getAverage();
-		double upperNoise = upper.model.getWindVelocity(time, upper.altitude).length() - upper.model.getAverage();
-		return lowerNoise + fraction * (upperNoise - lowerNoise);
-	}
-
-	public double getWindDirection(double altitude) {
-		if (levels.isEmpty()) {
-			return 0;
-		}
-
-		int index = Collections.binarySearch(levels, new LevelWindModel(altitude, null),
-				Comparator.comparingDouble(l -> l.altitude));
-
-		if (index >= 0) {
-			return levels.get(index).model.getDirection();
-		}
-
-		int insertionPoint = -index - 1;
-		if (insertionPoint == 0) {
-			return levels.get(0).model.getDirection();
-		}
-		if (insertionPoint == levels.size()) {
-			return levels.get(levels.size() - 1).model.getDirection();
-		}
-
-		// Interpolation (take the value between the closest two bounds)
-		LevelWindModel lowerLevel = levels.get(insertionPoint - 1);
-		LevelWindModel upperLevel = levels.get(insertionPoint);
-		double fractionBetweenLevels = (altitude - lowerLevel.altitude) / (upperLevel.altitude - lowerLevel.altitude);
-
-		// Interpolate direction
-		double interpolatedDirection = getInterpolatedDirection(lowerLevel, upperLevel, fractionBetweenLevels);
+	public double getWindDirection(double time, double altitude) {
+		Coordinate velocity = getWindVelocity(time, altitude);
+		double direction = Math.atan2(velocity.x, velocity.y);
 
 		// Normalize the result to be between 0 and 2*PI
-		return (interpolatedDirection + 2 * Math.PI) % (2 * Math.PI);
+		return (direction + 2 * Math.PI) % (2 * Math.PI);
 	}
 
 	@Override

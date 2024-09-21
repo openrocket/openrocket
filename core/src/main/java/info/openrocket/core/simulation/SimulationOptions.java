@@ -129,7 +129,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			if (windModelType == WindModelType.AVERAGE) {
 				windDirection = averageWindModel.getDirection();
 			} else {
-				windDirection = multiLevelPinkNoiseWindModel.getWindDirection(launchAltitude);
+				windDirection = multiLevelPinkNoiseWindModel.getWindDirection(0, launchAltitude);
 			}
 			this.setLaunchRodDirection(windDirection);
 		}
