@@ -311,6 +311,20 @@ public final class Coordinate implements Cloneable, Serializable {
 		}
 		return new Coordinate(x1, y1, z1, w1);
 	}
+
+	/**
+	 * Interpolate between two coordinates.  The fraction is the weight of the other coordinate.
+	 * @param other Coordinate to interpolate to.
+	 * @param fraction Interpolation fraction (0 = this, 1 = other).
+	 * @return Interpolated coordinate.
+	 */
+	public Coordinate interpolate(Coordinate other, double fraction) {
+		double x1 = this.x + (other.x - this.x) * fraction;
+		double y1 = this.y + (other.y - this.y) * fraction;
+		double z1 = this.z + (other.z - this.z) * fraction;
+		double w1 = this.weight + (other.weight - this.weight) * fraction;
+		return new Coordinate(x1, y1, z1, w1);
+	}
 	
 	
 	/**
