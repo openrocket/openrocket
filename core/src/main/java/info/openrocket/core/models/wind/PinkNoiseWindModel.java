@@ -1,14 +1,11 @@
 package info.openrocket.core.models.wind;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PinkNoise;
-import info.openrocket.core.util.StateChangeListener;
 
 /**
  * A wind simulator that generates wind speed as pink noise from a specified
@@ -37,7 +34,7 @@ public class PinkNoiseWindModel implements WindModel {
 	private static final double STDDEV = 2.252;
 
 	/** Time difference between random samples. */
-	private static final double DELTA_T = 0.05;
+	public static final double DELTA_T = 0.05;
 
 	private double average = 0;
 	private double direction = Math.PI / 2; // this is an East wind

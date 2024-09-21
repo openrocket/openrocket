@@ -21,7 +21,7 @@ public interface SimulationOptionsInterface extends ChangeSource {
 
 	void setLaunchRodDirection(double launchRodDirection);
 
-	PinkNoiseWindModel getPinkNoiseWindModel();
+	PinkNoiseWindModel getAverageWindModel();
 
 	double getLaunchAltitude();
 

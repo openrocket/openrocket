@@ -33,18 +33,22 @@ public class WindHandler extends AbstractElementHandler {
 		} catch (NumberFormatException ignore) {
 		}
 
-		if ("pinknoise".equals(model)) {
-			if (element.equals("windaverage")) {
-				if (!Double.isNaN(d)) {
-					options.getPinkNoiseWindModel().setAverage(d);
+		if ("average".equals(model)) {
+			switch (element) {
+				case "speed" -> {
+					if (!Double.isNaN(d)) {
+						options.getAverageWindModel().setAverage(d);
+					}
 				}
-			} else if (element.equals("windturbulence")) {
-				if (!Double.isNaN(d)) {
-					options.getPinkNoiseWindModel().setTurbulenceIntensity(d);
+				case "direction" -> {
+					if (!Double.isNaN(d)) {
+						options.getAverageWindModel().setDirection(d);
+					}
 				}
-			} else if (element.equals("winddirection")) {
-				if (!Double.isNaN(d)) {
-					options.getPinkNoiseWindModel().setDirection(d);
+				case "standarddeviation" -> {
+					if (!Double.isNaN(d)) {
+						options.getAverageWindModel().setStandardDeviation(d);
+					}
 				}
 			}
 		} else if ("multilevel".equals(model)) {
@@ -52,14 +56,15 @@ public class WindHandler extends AbstractElementHandler {
 				double altitude = Double.parseDouble(attributes.get("altitude"));
 				double speed = Double.parseDouble(attributes.get("speed"));
 				double direction = Double.parseDouble(attributes.get("direction"));
-				options.getMultiLevelWindModel().addWindLevel(altitude, speed, direction);
+				double standardDeviation = Double.parseDouble(attributes.get("standarddeviation"));
+				options.getMultiLevelWindModel().addWindLevel(altitude, speed, direction, standardDeviation);
 			}
 		}
 	}
 
 	public void storeSettings(SimulationOptions options, WarningSet warnings) {
-		if ("pinknoise".equals(model)) {
-			options.setWindModelType(WindModelType.PINK_NOISE);
+		if ("average".equals(model)) {
+			options.setWindModelType(WindModelType.AVERAGE);
 		} else if ("multilevel".equals(model)) {
 			options.setWindModelType(WindModelType.MULTI_LEVEL);
 		} else {

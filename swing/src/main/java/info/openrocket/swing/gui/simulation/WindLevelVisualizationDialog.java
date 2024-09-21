@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.simulation;
 
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.models.wind.MultiLevelWindModel;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 
@@ -30,7 +30,7 @@ public class WindLevelVisualizationDialog extends JDialog {
 	private final WindLevelVisualization visualization;
 	private final JCheckBox showDirectionsCheckBox;
 
-	public WindLevelVisualizationDialog(Dialog owner, MultiLevelWindModel model, Unit altitudeUnit, Unit speedUnit) {
+	public WindLevelVisualizationDialog(Dialog owner, MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
 		super(owner, trans.get("WindLevelVisualizationDialog.title.WindLevelVisualization"), false);
 
 		visualization = new WindLevelVisualization(model, altitudeUnit, speedUnit);
@@ -74,7 +74,7 @@ public class WindLevelVisualizationDialog extends JDialog {
 	}
 
 	private static class WindLevelVisualization extends JPanel {
-		private final MultiLevelWindModel model;
+		private final MultiLevelPinkNoiseWindModel model;
 		private static final int MARGIN = 50;
 		private static final int ARROW_SIZE = 10;
 		private static final int TICK_LENGTH = 5;
@@ -83,7 +83,7 @@ public class WindLevelVisualizationDialog extends JDialog {
 		private Unit speedUnit;
 		private boolean showDirections = true;
 
-		public WindLevelVisualization(MultiLevelWindModel model, Unit altitudeUnit, Unit speedUnit) {
+		public WindLevelVisualization(MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
 			this.model = model;
 			this.altitudeUnit = altitudeUnit;
 			this.speedUnit = speedUnit;
@@ -113,14 +113,14 @@ public class WindLevelVisualizationDialog extends JDialog {
 			g2d.setColor(Color.WHITE);
 			g2d.fillRect(0, 0, width, height);
 
-			List<MultiLevelWindModel.WindLevel> levels = model.getLevels();
+			List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
 			if (levels.isEmpty()) return;
 
 			// Sort levels before drawing
-			levels.sort(Comparator.comparingDouble(level -> level.altitude));
+			levels.sort(Comparator.comparingDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getAltitude));
 
-			double maxAltitude = levels.stream().mapToDouble(l -> l.altitude).max().orElse(1000);
-			double maxSpeed = levels.stream().mapToDouble(l -> l.speed).max().orElse(10);
+			double maxAltitude = levels.stream().mapToDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getAltitude).max().orElse(1000);
+			double maxSpeed = levels.stream().mapToDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getSpeed).max().orElse(10);
 
 			// Extend axis ranges by 10% for drawing
 			double extendedMaxAltitude = maxAltitude * 1.1;
@@ -131,10 +131,10 @@ public class WindLevelVisualizationDialog extends JDialog {
 
 			// Draw wind levels
 			for (int i = 0; i < levels.size(); i++) {
-				MultiLevelWindModel.WindLevel level = levels.get(i);
+				MultiLevelPinkNoiseWindModel.LevelWindModel level = levels.get(i);
 
-				int x = MARGIN + (int) (level.speed / extendedMaxSpeed * (width - 2 * MARGIN));
-				int y = height - MARGIN - (int) (level.altitude / extendedMaxAltitude * (height - 2 * MARGIN));
+				int x = MARGIN + (int) (level.getSpeed() / extendedMaxSpeed * (width - 2 * MARGIN));
+				int y = height - MARGIN - (int) (level.getAltitude() / extendedMaxAltitude * (height - 2 * MARGIN));
 
 				// Draw point
 				g2d.setColor(Color.BLUE);
@@ -142,14 +142,14 @@ public class WindLevelVisualizationDialog extends JDialog {
 
 				// Draw wind direction arrow
 				if (showDirections) {
-					drawWindArrow(g2d, x, y, level.direction);
+					drawWindArrow(g2d, x, y, level.getDirection());
 				}
 
 				// Draw connecting line if not the first point
 				if (i > 0) {
-					MultiLevelWindModel.WindLevel prevLevel = levels.get(i - 1);
-					int prevX = MARGIN + (int) (prevLevel.speed / extendedMaxSpeed * (width - 2 * MARGIN));
-					int prevY = height - MARGIN - (int) (prevLevel.altitude / extendedMaxAltitude * (height - 2 * MARGIN));
+					MultiLevelPinkNoiseWindModel.LevelWindModel prevLevel = levels.get(i - 1);
+					int prevX = MARGIN + (int) (prevLevel.getSpeed() / extendedMaxSpeed * (width - 2 * MARGIN));
+					int prevY = height - MARGIN - (int) (prevLevel.getAltitude() / extendedMaxAltitude * (height - 2 * MARGIN));
 					g2d.setColor(Color.GRAY);
 					g2d.drawLine(prevX, prevY, x, y);
 				}

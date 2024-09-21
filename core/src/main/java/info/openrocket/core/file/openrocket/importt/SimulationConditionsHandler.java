@@ -83,21 +83,21 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 				if (Double.isNaN(d)) {
 					warnings.add("Illegal average windspeed defined, ignoring.");
 				} else {
-					options.getPinkNoiseWindModel().setAverage(d);
+					options.getAverageWindModel().setAverage(d);
 				}
 			}
 			case "windturbulence" -> {
 				if (Double.isNaN(d)) {
 					warnings.add("Illegal wind turbulence intensity defined, ignoring.");
 				} else {
-					options.getPinkNoiseWindModel().setTurbulenceIntensity(d);
+					options.getAverageWindModel().setTurbulenceIntensity(d);
 				}
 			}
 			case "winddirection" -> {
 				if (Double.isNaN(d)) {
 					warnings.add("Illegal wind direction defined, ignoring.");
 				} else {
-					options.getPinkNoiseWindModel().setDirection(d);
+					options.getAverageWindModel().setDirection(d);
 				}
 			}
 

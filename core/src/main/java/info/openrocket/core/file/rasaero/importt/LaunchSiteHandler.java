@@ -59,7 +59,7 @@ public class LaunchSiteHandler extends AbstractElementHandler {
                 launchSiteSettings.setLaunchTemperature(
                         RASAeroCommonConstants.RASAERO_TO_OPENROCKET_TEMPERATURE(Double.parseDouble(content)));
             } else if (RASAeroCommonConstants.LAUNCH_WIND_SPEED.equals(element)) {
-                launchSiteSettings.getPinkNoiseWindModel().setAverage(
+                launchSiteSettings.getAverageWindModel().setAverage(
                         Double.parseDouble(content) / RASAeroCommonConstants.OPENROCKET_TO_RASAERO_SPEED);
             }
         } catch (NumberFormatException e) {

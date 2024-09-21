@@ -6,7 +6,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
-import info.openrocket.core.models.wind.MultiLevelWindModel;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -80,13 +80,13 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 
 	private List<EventListener> listeners = new ArrayList<>();
 
-	private WindModelType windModelType = WindModelType.PINK_NOISE;
-	private final PinkNoiseWindModel pinkNoiseWindModel;
-	private final MultiLevelWindModel multiLevelWindModel;
+	private WindModelType windModelType = WindModelType.AVERAGE;
+	private final PinkNoiseWindModel averageWindModel;
+	private final MultiLevelPinkNoiseWindModel multiLevelPinkNoiseWindModel;
 
 	public SimulationOptions() {
-		pinkNoiseWindModel = new PinkNoiseWindModel(randomSeed);
-		multiLevelWindModel = new MultiLevelWindModel();
+		averageWindModel = new PinkNoiseWindModel(randomSeed);
+		multiLevelPinkNoiseWindModel = new MultiLevelPinkNoiseWindModel();
 	}
 
 	public double getLaunchRodLength() {
@@ -126,10 +126,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	public double getLaunchRodDirection() {
 		if (launchIntoWind) {
 			double windDirection;
-			if (windModelType == WindModelType.PINK_NOISE) {
-				windDirection = pinkNoiseWindModel.getDirection();
+			if (windModelType == WindModelType.AVERAGE) {
+				windDirection = averageWindModel.getDirection();
 			} else {
-				windDirection = multiLevelWindModel.getWindDirection(launchAltitude);
+				windDirection = multiLevelPinkNoiseWindModel.getWindDirection(launchAltitude);
 			}
 			this.setLaunchRodDirection(windDirection);
 		}
@@ -156,21 +156,21 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	}
 
 	public WindModel getWindModel() {
-		if (windModelType == WindModelType.PINK_NOISE) {
-			return pinkNoiseWindModel;
+		if (windModelType == WindModelType.AVERAGE) {
+			return averageWindModel;
 		} else if (windModelType == WindModelType.MULTI_LEVEL) {
-			return multiLevelWindModel;
+			return multiLevelPinkNoiseWindModel;
 		} else {
 			throw new IllegalArgumentException("Unknown wind model type: " + windModelType);
 		}
 	}
 
-	public PinkNoiseWindModel getPinkNoiseWindModel() {
-		return pinkNoiseWindModel;
+	public PinkNoiseWindModel getAverageWindModel() {
+		return averageWindModel;
 	}
 
-	public MultiLevelWindModel getMultiLevelWindModel() {
-		return multiLevelWindModel;
+	public MultiLevelPinkNoiseWindModel getMultiLevelWindModel() {
+		return multiLevelPinkNoiseWindModel;
 	}
 
 	public double getLaunchAltitude() {
@@ -349,13 +349,13 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// changed.
 		boolean isChanged = false;
 
-		if (!this.pinkNoiseWindModel.equals(src.pinkNoiseWindModel)) {
+		if (!this.averageWindModel.equals(src.averageWindModel)) {
 			isChanged = true;
-			this.pinkNoiseWindModel.loadFrom(src.pinkNoiseWindModel);
+			this.averageWindModel.loadFrom(src.averageWindModel);
 		}
-		if (!this.multiLevelWindModel.equals(src.multiLevelWindModel)) {
+		if (!this.multiLevelPinkNoiseWindModel.equals(src.multiLevelPinkNoiseWindModel)) {
 			isChanged = true;
-			this.multiLevelWindModel.loadFrom(src.multiLevelWindModel);
+			this.multiLevelPinkNoiseWindModel.loadFrom(src.multiLevelPinkNoiseWindModel);
 		}
 
 		if (this.launchAltitude != src.launchAltitude) {
@@ -441,8 +441,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep)) &&
 				this.windModelType == o.windModelType &&
-				this.pinkNoiseWindModel.equals(o.pinkNoiseWindModel) &&
-				this.multiLevelWindModel.equals(o.multiLevelWindModel);
+				this.averageWindModel.equals(o.averageWindModel) &&
+				this.multiLevelPinkNoiseWindModel.equals(o.multiLevelPinkNoiseWindModel);
 	}
 
 	/**
@@ -514,8 +514,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    launchRodAngle:  %f\n", launchRodAngle))
 				.concat(String.format("    launchRodDirection:  %f\n", launchRodDirection))
 				.concat(String.format("    windModelType: %s\n", windModelType))
-				.concat(String.format("    pinkNoiseWindModel: %s\n", pinkNoiseWindModel))
-				.concat(String.format("    multiLevelWindModel: %s\n", multiLevelWindModel))
+				.concat(String.format("    pinkNoiseWindModel: %s\n", averageWindModel))
+				.concat(String.format("    multiLevelPinkNoiseWindModel: %s\n", multiLevelPinkNoiseWindModel))
 				.concat(String.format("    launchAltitude:  %f\n", launchAltitude))
 				.concat(String.format("    launchLatitude:  %f\n", launchLatitude))
 				.concat(String.format("    launchLongitude:  %f\n", launchLongitude))

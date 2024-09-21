@@ -155,7 +155,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 
-	private PinkNoiseWindModel pinkNoiseWindModel = null;
+	private PinkNoiseWindModel averageWindModel = null;
 
 
 	/*
@@ -398,25 +398,25 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		double turbulenceIntensity = getDouble(WIND_TURBULENCE, 0.1);
 		double direction = getDouble(WIND_DIRECTION, Math.PI / 2);
 
-		getPinkNoiseWindModel().setAverage(average);
-		getPinkNoiseWindModel().setTurbulenceIntensity(turbulenceIntensity);
-		getPinkNoiseWindModel().setDirection(direction);
+		getAverageWindModel().setAverage(average);
+		getAverageWindModel().setTurbulenceIntensity(turbulenceIntensity);
+		getAverageWindModel().setDirection(direction);
 	}
 
 	protected void storeWindModelState() {
-		putDouble(WIND_AVERAGE, getPinkNoiseWindModel().getAverage());
-		putDouble(WIND_TURBULENCE, getPinkNoiseWindModel().getTurbulenceIntensity());
-		putDouble(WIND_DIRECTION, getPinkNoiseWindModel().getDirection());
+		putDouble(WIND_AVERAGE, getAverageWindModel().getAverage());
+		putDouble(WIND_TURBULENCE, getAverageWindModel().getTurbulenceIntensity());
+		putDouble(WIND_DIRECTION, getAverageWindModel().getDirection());
 	}
 
 	@Override
-	public PinkNoiseWindModel getPinkNoiseWindModel() {
-		if (pinkNoiseWindModel == null) {
-			pinkNoiseWindModel = new PinkNoiseWindModel();
-			pinkNoiseWindModel.addChangeListener(this);
+	public PinkNoiseWindModel getAverageWindModel() {
+		if (averageWindModel == null) {
+			averageWindModel = new PinkNoiseWindModel();
+			averageWindModel.addChangeListener(this);
 			loadWindModelState();
 		}
-		return pinkNoiseWindModel;
+		return averageWindModel;
 	}
 
 	public double getLaunchAltitude() {
@@ -1271,7 +1271,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	@Override
 	public void stateChanged(EventObject e) {
-		if (e.getSource() == pinkNoiseWindModel) {
+		if (e.getSource() == averageWindModel) {
 			storeWindModelState();
 		}
 	}

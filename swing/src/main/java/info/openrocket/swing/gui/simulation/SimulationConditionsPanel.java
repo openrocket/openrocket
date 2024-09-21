@@ -35,6 +35,8 @@ import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -45,7 +47,7 @@ import javax.swing.table.TableRowSorter;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
-import info.openrocket.core.models.wind.MultiLevelWindModel;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.simulation.DefaultSimulationOptionFactory;
@@ -84,7 +86,7 @@ public class SimulationConditionsPanel extends JPanel {
 	 * Adds the simulation conditions panel to the parent panel.
 	 * @param parent The parent panel.
 	 * @param target The object containing the simulation conditions setters/getters.
-	 * @param addAllWindModels if false, only the pink noise wind model will be added.
+	 * @param addAllWindModels if false, only the average wind model will be added.
 	 */
 	public static void addSimulationConditionsPanel(JPanel parent, SimulationOptionsInterface target,
 													boolean addAllWindModels) {
@@ -98,7 +100,7 @@ public class SimulationConditionsPanel extends JPanel {
 		UnitSelector unit;
 
 		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation, and direction
-		sub = new JPanel(new MigLayout("fill, gap rel unrel", "[grow]", ""));
+		sub = new JPanel(new MigLayout("fill, ins 20 20 0 20", "[grow]", ""));
 		//// Wind
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Wind")));
 		parent.add(sub, "growx, split 2, aligny 0, flowy, gapright para");
@@ -107,12 +109,12 @@ public class SimulationConditionsPanel extends JPanel {
 		if (addAllWindModels) {
 			addWindModelPanel(sub, target);
 		} else {
-			addPinkNoiseSettings(sub, target);
+			addAverageWindSettings(sub, target);
 		}
 
 		//// Temperature and pressure
-		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][85lp!][35lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout("gap rel unrel",
+				"[][85lp!][35lp!][75lp!]", ""));
 		//// Atmospheric conditions
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Atmoscond")));
 		parent.add(sub, "growx, aligny 0, gapright para");
@@ -139,7 +141,7 @@ public class SimulationConditionsPanel extends JPanel {
 		tip = trans.get("simedtdlg.lbl.ttip.Temperature");
 		label.setToolTipText(tip);
 		isa.addEnableComponent(label, false);
-		sub.add(label);
+		sub.add(label, "gapright 50lp");
 
 		temperatureModel = new DoubleModel(target, "LaunchTemperature", UnitGroup.UNITS_TEMPERATURE, 0);
 
@@ -374,38 +376,43 @@ public class SimulationConditionsPanel extends JPanel {
 	private static void addWindModelPanel(JPanel panel, SimulationOptionsInterface target) {
 		ButtonGroup windModelGroup = new ButtonGroup();
 
+		// Wind model to use
 		panel.add(new JLabel(trans.get("simedtdlg.lbl.WindModelSelection")), "spanx, split 3, gapright para");
 
-		JRadioButton pinkNoiseButton = new JRadioButton(trans.get("simedtdlg.radio.PinkNoiseWind"));
-		pinkNoiseButton.setToolTipText(trans.get("simedtdlg.radio.PinkNoiseWind.ttip"));
+		//// Average
+		JRadioButton averageButton = new JRadioButton(trans.get("simedtdlg.radio.AverageWind"));
+		averageButton.setToolTipText(trans.get("simedtdlg.radio.AverageWind.ttip"));
+		averageButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20));
+
+		//// Multi-level
 		JRadioButton multiLevelButton = new JRadioButton(trans.get("simedtdlg.radio.MultiLevelWind"));
 		multiLevelButton.setToolTipText(trans.get("simedtdlg.radio.MultiLevelWind.ttip"));
 
-		windModelGroup.add(pinkNoiseButton);
+		windModelGroup.add(averageButton);
 		windModelGroup.add(multiLevelButton);
 
-		panel.add(pinkNoiseButton);
+		panel.add(averageButton);
 		panel.add(multiLevelButton, "wrap");
 
 		panel.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
 
 		JPanel windSettingsPanel = new JPanel(new CardLayout());
 
-		JPanel pinkNoisePanel = new JPanel(new MigLayout("fill, ins 0, gap rel unrel", "[grow][75lp!][30lp!][75lp!]", ""));
-		JPanel multiLevelPanel = new JPanel(new MigLayout("fill, ins 0, gap rel unrel", "[grow]", ""));
+		JPanel averagePanel = new JPanel(new MigLayout("fill, ins 0", "[grow][75lp!][30lp!][75lp!]", ""));
+		JPanel multiLevelPanel = new JPanel(new MigLayout("fill, ins 0"));
 
-		addPinkNoiseSettings(pinkNoisePanel, target);
+		addAverageWindSettings(averagePanel, target);
 		addMultiLevelSettings(multiLevelPanel, target);
 
-		windSettingsPanel.add(pinkNoisePanel, "PinkNoise");
+		windSettingsPanel.add(averagePanel, "Average");
 		windSettingsPanel.add(multiLevelPanel, "MultiLevel");
 
 		panel.add(windSettingsPanel, "grow, wrap");
 
-		pinkNoiseButton.addActionListener(e -> {
-			((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "PinkNoise");
+		averageButton.addActionListener(e -> {
+			((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "Average");
 			if (target instanceof SimulationOptions) {
-				((SimulationOptions) target).setWindModelType(WindModelType.PINK_NOISE);
+				((SimulationOptions) target).setWindModelType(WindModelType.AVERAGE);
 			}
 		});
 
@@ -419,9 +426,9 @@ public class SimulationConditionsPanel extends JPanel {
 		// Set initial selection based on current wind model
 		if (target instanceof SimulationOptions) {
 			SimulationOptions options = (SimulationOptions) target;
-			if (options.getWindModelType() == WindModelType.PINK_NOISE) {
-				pinkNoiseButton.setSelected(true);
-				((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "PinkNoise");
+			if (options.getWindModelType() == WindModelType.AVERAGE) {
+				averageButton.setSelected(true);
+				((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "Average");
 			} else {
 				multiLevelButton.setSelected(true);
 				((CardLayout) windSettingsPanel.getLayout()).show(windSettingsPanel, "MultiLevel");
@@ -429,8 +436,8 @@ public class SimulationConditionsPanel extends JPanel {
 		}
 	}
 
-	private static void addPinkNoiseSettings(JPanel panel, SimulationOptionsInterface target) {
-		PinkNoiseWindModel model = target.getPinkNoiseWindModel();
+	private static void addAverageWindSettings(JPanel panel, SimulationOptionsInterface target) {
+		PinkNoiseWindModel model = target.getAverageWindModel();
 
 		// Wind average
 		final DoubleModel windSpeedAverage = addDoubleModel(panel, "Averwindspeed", trans.get("simedtdlg.lbl.ttip.Averwindspeed"), model, "Average",
@@ -458,14 +465,14 @@ public class SimulationConditionsPanel extends JPanel {
 				"TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1.0, true);
 
 		final JLabel intensityLabel = new JLabel(
-				getIntensityDescription(target.getPinkNoiseWindModel().getTurbulenceIntensity()));
+				getIntensityDescription(target.getAverageWindModel().getTurbulenceIntensity()));
 		intensityLabel.setToolTipText(tip);
 		panel.add(intensityLabel, "w 75lp, skip 1, wrap");
 		windTurbulenceIntensity.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				intensityLabel.setText(
-						getIntensityDescription(target.getPinkNoiseWindModel().getTurbulenceIntensity()));
+						getIntensityDescription(target.getAverageWindModel().getTurbulenceIntensity()));
 				windSpeedDeviation.stateChanged(e);
 			}
 		});
@@ -485,7 +492,7 @@ public class SimulationConditionsPanel extends JPanel {
 		if (!(target instanceof SimulationOptions options)) {
 			return;
 		}
-		MultiLevelWindModel model = options.getMultiLevelWindModel();
+		MultiLevelPinkNoiseWindModel model = options.getMultiLevelWindModel();
 
 		// Create the levels table
 		WindLevelTableModel tableModel = new WindLevelTableModel(model);
@@ -493,6 +500,7 @@ public class SimulationConditionsPanel extends JPanel {
 		windLevelTable.setRowSelectionAllowed(false);
 		windLevelTable.setColumnSelectionAllowed(false);
 		windLevelTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		windLevelTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Allow horizontal scrolling
 
 		// Set up value columns
 		SelectAllCellEditor selectAllEditor = new SelectAllCellEditor();
@@ -517,36 +525,46 @@ public class SimulationConditionsPanel extends JPanel {
 		TableRowSorter<WindLevelTableModel> sorter = new TableRowSorter<>(tableModel);
 		windLevelTable.setRowSorter(sorter);
 		sorter.setSortable(0, true);
-		sorter.setSortable(1, false);
-		sorter.setSortable(2, false);
+		for (int i = 1; i < windLevelTable.getColumnCount(); i++) {
+			sorter.setSortable(i, false);
+		}
+		sorter.addRowSorterListener(new RowSorterListener() {
+			@Override
+			public void sorterChanged(RowSorterEvent e) {
+				model.sortLevels();
+			}
+		});
 		sorter.setComparator(0, Comparator.comparingDouble(a -> (Double) a));
 		sorter.setSortKeys(List.of(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 
 		JScrollPane scrollPane = new JScrollPane(windLevelTable);
-		scrollPane.setPreferredSize(new Dimension(350, 150));
-		panel.add(scrollPane, "grow");
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setPreferredSize(new Dimension(400, 150));
+
+		panel.add(scrollPane, "grow, wrap");
 
 		//// Buttons
-		JPanel buttonPanel = new JPanel(new MigLayout("fill, ins 0, gap rel unrel", "[grow]", ""));
+		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 
-		// Add wind level
+		// Add level
 		JButton addButton = new JButton(trans.get("simedtdlg.but.addWindLevel"));
 		addButton.addActionListener(e -> {
 			tableModel.addWindLevel();
 			sorter.sort();
 		});
-		buttonPanel.add(addButton, "growx, wrap");
+		buttonPanel.add(addButton);
 
-		// Remove wind level
+		// Remove level
 		JButton removeButton = new JButton(trans.get("simedtdlg.but.removeWindLevel"));
 		removeButton.addActionListener(e -> {
 			int selectedRow = windLevelTable.getSelectedRow();
 			tableModel.removeWindLevel(selectedRow);
 			sorter.sort();
 		});
-		buttonPanel.add(removeButton, "growx, wrap");
+		buttonPanel.add(removeButton, "gapright unrel");
 
-		// Visualization button
+		// Visualization levels
 		JButton visualizeButton = new JButton(trans.get("simedtdlg.but.visualizeWindLevels"));
 		visualizeButton.addActionListener(e -> {
 			Window owner = SwingUtilities.getWindowAncestor(panel);
@@ -561,7 +579,7 @@ public class SimulationConditionsPanel extends JPanel {
 				visualizationDialog.setVisible(true);
 			}
 		});
-		buttonPanel.add(visualizeButton, "growx, wrap");
+		buttonPanel.add(visualizeButton);
 
 		panel.add(buttonPanel, "grow, wrap");
 
@@ -618,6 +636,7 @@ public class SimulationConditionsPanel extends JPanel {
 		for (int column = 0; column < table.getColumnCount(); column++) {
 			TableColumn tableColumn = columnModel.getColumn(column);
 			int preferredWidth = getPreferredColumnWidth(table, column);
+			preferredWidth = column == 0 ? preferredWidth + 20 : preferredWidth;	// Add extra padding to first column (for sorting arrow)
 			tableColumn.setPreferredWidth(preferredWidth);
 		}
 	}
@@ -653,14 +672,14 @@ public class SimulationConditionsPanel extends JPanel {
 			SimulationOptions defaults = f.getDefault();
 			options.copyConditionsFrom(defaults);
 		});
-		this.add(restoreDefaults, "span, split 3, skip, gapbottom para, gapright para, right");
+		this.add(restoreDefaults, "span, split 3, skip, gapright para, right");
 
 		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
 		saveDefaults.addActionListener(e -> {
 			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 			f.saveDefault(options);
 		});
-		this.add(saveDefaults, "gapbottom para, gapright para, right");
+		this.add(saveDefaults, "gapright para, right");
 	}
 
 	private static String getIntensityDescription(double i) {
@@ -733,7 +752,7 @@ public class SimulationConditionsPanel extends JPanel {
 	}
 
 	private static class WindLevelTableModel extends AbstractTableModel {
-		private final MultiLevelWindModel model;
+		private final MultiLevelPinkNoiseWindModel model;
 		private static final String[] columnNames = {
 				trans.get("simedtdlg.col.Altitude"),
 				trans.get("simedtdlg.col.Unit"),
@@ -741,17 +760,25 @@ public class SimulationConditionsPanel extends JPanel {
 				trans.get("simedtdlg.col.Unit"),
 				trans.get("simedtdlg.col.Direction"),
 				trans.get("simedtdlg.col.Unit"),
+				trans.get("simedtdlg.col.StandardDeviation"),
+				trans.get("simedtdlg.col.Unit"),
+				trans.get("simedtdlg.col.Turbulence"),
+				trans.get("simedtdlg.col.Unit"),
+				trans.get("simedtdlg.col.Intensity"),
 		};
 		private static final UnitGroup[] unitGroups = {
-				UnitGroup.UNITS_DISTANCE, UnitGroup.UNITS_VELOCITY, UnitGroup.UNITS_ANGLE};
+				UnitGroup.UNITS_DISTANCE, UnitGroup.UNITS_VELOCITY, UnitGroup.UNITS_ANGLE,
+				UnitGroup.UNITS_VELOCITY, UnitGroup.UNITS_RELATIVE};
 		private final Unit[] currentUnits = {
 				UnitGroup.UNITS_DISTANCE.getDefaultUnit(),
 				UnitGroup.UNITS_VELOCITY.getDefaultUnit(),
-				UnitGroup.UNITS_ANGLE.getDefaultUnit()
+				UnitGroup.UNITS_ANGLE.getDefaultUnit(),
+				UnitGroup.UNITS_VELOCITY.getDefaultUnit(),
+				UnitGroup.UNITS_RELATIVE.getDefaultUnit(),
 		};
 		private WindLevelVisualizationDialog visualizationDialog;
 
-		public WindLevelTableModel(MultiLevelWindModel model) {
+		public WindLevelTableModel(MultiLevelPinkNoiseWindModel model) {
 			this.model = model;
 		}
 
@@ -780,21 +807,31 @@ public class SimulationConditionsPanel extends JPanel {
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
+			// Intensity column
+			if (columnIndex == getColumnCount()-1) {
+				return String.class;
+			}
 			return (columnIndex % 2 == 0) ? Double.class : Unit.class;
 		}
 
 		public Object getSIValueAt(int rowIndex, int columnIndex) {
-			MultiLevelWindModel.WindLevel level = model.getLevels().get(rowIndex);
+			MultiLevelPinkNoiseWindModel.LevelWindModel level = model.getLevels().get(rowIndex);
 			return switch (columnIndex) {
-				case 0 -> level.altitude;
-				case 2 -> level.speed;
-				case 4 -> level.direction;
+				case 0 -> level.getAltitude();
+				case 2 -> level.getSpeed();
+				case 4 -> level.getDirection();
+				case 6 -> level.getStandardDeviation();
+				case 8 -> level.getTurblenceIntensity();
 				default -> null;
 			};
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
+			// Intensity column
+			if (columnIndex == getColumnCount()-1) {
+				return getIntensityDescription(model.getLevels().get(rowIndex).getTurblenceIntensity());
+			}
 			if (columnIndex % 2 == 0) {
 				Object rawValue = getSIValueAt(rowIndex, columnIndex);
 				if (rawValue == null) {
@@ -812,26 +849,32 @@ public class SimulationConditionsPanel extends JPanel {
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			MultiLevelWindModel.WindLevel level = model.getLevels().get(rowIndex);
+			MultiLevelPinkNoiseWindModel.LevelWindModel level = model.getLevels().get(rowIndex);
 			if (columnIndex % 2 == 0) {
 				// Value column
 				double value = Double.parseDouble((String) aValue);
 				switch (columnIndex) {
 					case 0:
-						level.altitude = currentUnits[0].fromUnit(value);
+						level.setAltitude(currentUnits[0].fromUnit(value));
 						break;
 					case 2:
 						// Handle negative speed
 						if (value < 0) {
-							level.speed = currentUnits[1].fromUnit(Math.abs(value));
+							level.setSpeed(currentUnits[1].fromUnit(Math.abs(value)));
 							// Adjust direction by 180 degrees
-							level.direction = (level.direction + Math.PI) % (2 * Math.PI);
+							level.setDirection((level.getDirection() + Math.PI) % (2 * Math.PI));
 						} else {
-							level.speed = currentUnits[1].fromUnit(value);
+							level.setSpeed(currentUnits[1].fromUnit(value));
 						}
 						break;
 					case 4:
-						level.direction = currentUnits[2].fromUnit(value);
+						level.setDirection(currentUnits[2].fromUnit(value));
+						break;
+					case 6:
+						level.setStandardDeviation(currentUnits[3].fromUnit(value));
+						break;
+					case 8:
+						level.setTurbulenceIntensity(currentUnits[4].fromUnit(value));
 						break;
 				}
 			} else {
@@ -847,16 +890,17 @@ public class SimulationConditionsPanel extends JPanel {
 
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
+			return columnIndex != columnNames.length - 1;		// Intensity column is not editable
 		}
 
 		public void addWindLevel() {
-			List<MultiLevelWindModel.WindLevel> levels = model.getLevels();
-			double newAltitude = levels.isEmpty() ? 0 : levels.get(levels.size() - 1).altitude + 100;
-			double newSpeed = levels.isEmpty() ? 5 : levels.get(levels.size() - 1).speed;
-			double newDirection = levels.isEmpty() ? Math.PI / 2 : levels.get(levels.size() - 1).direction;
+			List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+			double newAltitude = levels.isEmpty() ? 0 : levels.get(levels.size() - 1).getAltitude() + 100;
+			double newSpeed = levels.isEmpty() ? 5 : levels.get(levels.size() - 1).getSpeed();
+			double newDirection = levels.isEmpty() ? Math.PI / 2 : levels.get(levels.size() - 1).getDirection();
+			double newDeviation = levels.isEmpty() ? 0.2 : levels.get(levels.size() - 1).getStandardDeviation();
 
-			model.addWindLevel(newAltitude, newSpeed, newDirection);
+			model.addWindLevel(newAltitude, newSpeed, newDirection, newDeviation);
 			fireTableDataChanged();
 		}
 

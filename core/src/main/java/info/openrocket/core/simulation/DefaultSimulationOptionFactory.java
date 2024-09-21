@@ -35,9 +35,9 @@ public class DefaultSimulationOptionFactory {
 		SimulationOptions defaults = new SimulationOptions();
 		if (prefs != null) {
 
-			defaults.getPinkNoiseWindModel().setAverage(prefs.getPinkNoiseWindModel().getAverage());
-			defaults.getPinkNoiseWindModel().setStandardDeviation(prefs.getPinkNoiseWindModel().getStandardDeviation());
-			defaults.getPinkNoiseWindModel().setTurbulenceIntensity(prefs.getPinkNoiseWindModel().getTurbulenceIntensity());
+			defaults.getAverageWindModel().setAverage(prefs.getAverageWindModel().getAverage());
+			defaults.getAverageWindModel().setStandardDeviation(prefs.getAverageWindModel().getStandardDeviation());
+			defaults.getAverageWindModel().setTurbulenceIntensity(prefs.getAverageWindModel().getTurbulenceIntensity());
 
 			defaults.setLaunchLatitude(prefs.getDouble(SIMCONDITION_SITE_LAT, defaults.getLaunchLatitude()));
 			defaults.setLaunchLongitude(prefs.getDouble(SIMCONDITION_SITE_LON, defaults.getLaunchLongitude()));
@@ -58,9 +58,9 @@ public class DefaultSimulationOptionFactory {
 
 	public void saveDefault(SimulationOptions newDefaults) {
 
-		prefs.putDouble(SIMCONDITION_WIND_SPEED, newDefaults.getPinkNoiseWindModel().getAverage());
-		prefs.putDouble(SIMCONDITION_WIND_STDDEV, newDefaults.getPinkNoiseWindModel().getStandardDeviation());
-		prefs.putDouble(SIMCONDITION_WIND_TURB, newDefaults.getPinkNoiseWindModel().getTurbulenceIntensity());
+		prefs.putDouble(SIMCONDITION_WIND_SPEED, newDefaults.getAverageWindModel().getAverage());
+		prefs.putDouble(SIMCONDITION_WIND_STDDEV, newDefaults.getAverageWindModel().getStandardDeviation());
+		prefs.putDouble(SIMCONDITION_WIND_TURB, newDefaults.getAverageWindModel().getTurbulenceIntensity());
 
 		prefs.putDouble(SIMCONDITION_SITE_LAT, newDefaults.getLaunchLatitude());
 		prefs.putDouble(SIMCONDITION_SITE_LON, newDefaults.getLaunchLongitude());

@@ -10,7 +10,7 @@ import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.formatting.RocketDescriptorImpl;
 import info.openrocket.core.l10n.DebugTranslator;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.models.wind.MultiLevelWindModel;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -65,17 +65,17 @@ public class SimulationConditionsTest {
         assertEquals(Math.PI / 2, options.getLaunchRodDirection(), EPSILON);
         assertEquals(0.0, options.getLaunchRodAngle(), EPSILON);
         assertTrue(options.getLaunchIntoWind());
-        assertEquals(Math.PI / 2, options.getPinkNoiseWindModel().getDirection(), EPSILON);
-        assertEquals(0.1, options.getPinkNoiseWindModel().getTurbulenceIntensity(), EPSILON);
-        assertEquals(2.0, options.getPinkNoiseWindModel().getAverage(), EPSILON);
-        assertEquals(0.2, options.getPinkNoiseWindModel().getStandardDeviation(), EPSILON);
+        assertEquals(Math.PI / 2, options.getAverageWindModel().getDirection(), EPSILON);
+        assertEquals(0.1, options.getAverageWindModel().getTurbulenceIntensity(), EPSILON);
+        assertEquals(2.0, options.getAverageWindModel().getAverage(), EPSILON);
+        assertEquals(0.2, options.getAverageWindModel().getStandardDeviation(), EPSILON);
 
         assertEquals(0.05, options.getTimeStep(), EPSILON);
         assertEquals(3 * Math.PI / 180, options.getMaximumStepAngle(), EPSILON);
     }
 
     @Test
-    @DisplayName("Compare PinkNoiseWindModel and MultiLevelWindModel in SimulationConditions")
+    @DisplayName("Compare PinkNoiseWindModel and MultiLevelPinkNoiseWindModel in SimulationConditions")
     public void testWindModelComparison() {
         SimulationConditions conditions = new SimulationConditions();
 
@@ -91,10 +91,10 @@ public class SimulationConditionsTest {
         assertNotNull(pinkNoiseVelocity);
         assertTrue(pinkNoiseVelocity.length() > 0);
 
-        // Test MultiLevelWindModel
-        MultiLevelWindModel multiLevelModel = new MultiLevelWindModel();
-        multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4);
-        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2);
+        // Test MultiLevelPinkNoiseWindModel
+        MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
+        multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4, 1);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 2);
 
         conditions.setWindModel(multiLevelModel);
 
@@ -107,12 +107,12 @@ public class SimulationConditionsTest {
     }
 
     @Test
-    @DisplayName("Test wind velocity consistency for MultiLevelWindModel")
+    @DisplayName("Test wind velocity consistency for MultiLevelPinkNoiseWindModel")
     public void testMultiLevelWindModelConsistency() {
         SimulationConditions conditions = new SimulationConditions();
-        MultiLevelWindModel multiLevelModel = new MultiLevelWindModel();
-        multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4);
-        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2);
+        MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
+        multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4, 2);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 1);
 
         conditions.setWindModel(multiLevelModel);
 
@@ -140,12 +140,12 @@ public class SimulationConditionsTest {
     }
 
     @Test
-    @DisplayName("Test altitude dependence of MultiLevelWindModel")
+    @DisplayName("Test altitude dependence of MultiLevelPinkNoiseWindModel")
     public void testMultiLevelWindModelAltitudeDependence() {
         SimulationConditions conditions = new SimulationConditions();
-        MultiLevelWindModel multiLevelModel = new MultiLevelWindModel();
-        multiLevelModel.addWindLevel(0, 5.0, 0);
-        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2);
+        MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
+        multiLevelModel.addWindLevel(0, 5.0, 0, 3);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 4.2);
 
         conditions.setWindModel(multiLevelModel);
 

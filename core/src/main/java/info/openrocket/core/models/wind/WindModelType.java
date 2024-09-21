@@ -1,7 +1,7 @@
 package info.openrocket.core.models.wind;
 
 public enum WindModelType {
-	PINK_NOISE("PinkNoise"),
+	AVERAGE("Average"),
 	MULTI_LEVEL("MultiLevel");
 
 	private final String stringValue;
