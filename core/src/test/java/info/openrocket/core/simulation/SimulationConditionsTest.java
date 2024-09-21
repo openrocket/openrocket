@@ -144,8 +144,8 @@ public class SimulationConditionsTest {
     public void testMultiLevelWindModelAltitudeDependence() {
         SimulationConditions conditions = new SimulationConditions();
         MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
-        multiLevelModel.addWindLevel(0, 5.0, 0, 3);
-        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 4.2);
+        multiLevelModel.addWindLevel(0, 5.0, 0, 0);
+        multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 0);
 
         conditions.setWindModel(multiLevelModel);
 
