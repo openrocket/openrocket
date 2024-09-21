@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Window;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -962,21 +964,39 @@ public class SimulationConditionsPanel extends JPanel {
 	}
 
 	private static class SelectAllCellEditor extends DefaultCellEditor {
+		private Object cellEditorValue;
+
 		public SelectAllCellEditor() {
 			super(new JTextField());
 			setClickCountToStart(1);
+
+			JTextField textField = (JTextField) getComponent();
+			textField.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					stopCellEditing();
+				}
+			});
 		}
 
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 			JTextField textField = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					textField.selectAll();
-				}
-			});
+			cellEditorValue = value;
+			SwingUtilities.invokeLater(textField::selectAll);
 			return textField;
+		}
+
+		@Override
+		public boolean stopCellEditing() {
+			JTextField textField = (JTextField) getComponent();
+			cellEditorValue = textField.getText();
+			return super.stopCellEditing();
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return cellEditorValue;
 		}
 
 		@Override
