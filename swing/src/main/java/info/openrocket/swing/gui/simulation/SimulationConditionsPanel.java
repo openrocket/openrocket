@@ -58,6 +58,8 @@ import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.StateChangeListener;
 
+import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.widgets.IconButton;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
@@ -548,7 +550,7 @@ public class SimulationConditionsPanel extends JPanel {
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 
 		// Add level
-		JButton addButton = new JButton(trans.get("simedtdlg.but.addWindLevel"));
+		JButton addButton = new IconButton(trans.get("simedtdlg.but.addWindLevel"), Icons.FILE_NEW);
 		addButton.addActionListener(e -> {
 			tableModel.addWindLevel();
 			sorter.sort();
@@ -556,7 +558,7 @@ public class SimulationConditionsPanel extends JPanel {
 		buttonPanel.add(addButton);
 
 		// Remove level
-		JButton removeButton = new JButton(trans.get("simedtdlg.but.removeWindLevel"));
+		JButton removeButton = new IconButton(trans.get("simedtdlg.but.removeWindLevel"), Icons.EDIT_DELETE);
 		removeButton.addActionListener(e -> {
 			int selectedRow = windLevelTable.getSelectedRow();
 			tableModel.removeWindLevel(selectedRow);
@@ -565,7 +567,7 @@ public class SimulationConditionsPanel extends JPanel {
 		buttonPanel.add(removeButton, "gapright unrel");
 
 		// Visualization levels
-		JButton visualizeButton = new JButton(trans.get("simedtdlg.but.visualizeWindLevels"));
+		JButton visualizeButton = new IconButton(trans.get("simedtdlg.but.visualizeWindLevels"), Icons.SIM_PLOT);
 		visualizeButton.addActionListener(e -> {
 			Window owner = SwingUtilities.getWindowAncestor(panel);
 			if (owner instanceof Dialog) {
