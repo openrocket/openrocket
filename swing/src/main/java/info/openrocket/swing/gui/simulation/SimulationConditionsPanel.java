@@ -1065,6 +1065,7 @@ public class SimulationConditionsPanel extends JPanel {
 		private final JTable table;
 		private int editingRow;
 		private int editingColumn;
+		private Object originalValue;
 
 		public SelectAllCellEditor(JTable table) {
 			super(new JTextField());
@@ -1091,7 +1092,11 @@ public class SimulationConditionsPanel extends JPanel {
 
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			editingRow = row;
+			editingColumn = column;
+			originalValue = value;
 			JTextField textField = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
+			textField.setText(value != null ? value.toString() : "");
 			SwingUtilities.invokeLater(textField::selectAll);
 			return textField;
 		}
@@ -1105,7 +1110,8 @@ public class SimulationConditionsPanel extends JPanel {
 				// If successful, update the cell value
 				table.getModel().setValueAt(value, editingRow, editingColumn);
 			} catch (NumberFormatException e) {
-				// If parsing fails, revert to the original value
+				// Revert to the original value if parsing fails
+				textField.setText(originalValue != null ? originalValue.toString() : "");
 				return false;
 			}
 			boolean result = super.stopCellEditing();
