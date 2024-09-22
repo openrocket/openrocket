@@ -343,6 +343,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			copy.averageWindModel = this.averageWindModel.clone();
 			copy.multiLevelPinkNoiseWindModel = this.multiLevelPinkNoiseWindModel.clone();
 
+			copy.windModelType = this.windModelType;
+
 			// Create a new list for listeners
 			copy.listeners = new ArrayList<>();
 
@@ -358,6 +360,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// changed.
 		boolean isChanged = false;
 
+		if (this.windModelType != src.windModelType) {
+			isChanged = true;
+			this.windModelType = src.windModelType;
+		}
 		if (!this.averageWindModel.equals(src.averageWindModel)) {
 			isChanged = true;
 			this.averageWindModel.loadFrom(src.averageWindModel);
