@@ -663,7 +663,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Component analysis selected");
-				ComponentAnalysisDialog.showDialog(rocketpanel);
+				ComponentAnalysisDialog.showDialog(document, rocketpanel);
 			}
 		});
 		toolsMenu.add(item);

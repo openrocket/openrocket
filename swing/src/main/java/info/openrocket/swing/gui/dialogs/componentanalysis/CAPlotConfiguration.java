@@ -7,21 +7,21 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
-import info.openrocket.core.util.ArrayList;
 import info.openrocket.swing.gui.plot.Axis;
 import info.openrocket.swing.gui.plot.PlotConfiguration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class CAPlotConfiguration extends PlotConfiguration<CADataType, CADataBranch> {
 	private static final Translator trans = Application.getTranslator();
 
-	private ArrayList<RocketComponent> plotDataComponents = new ArrayList<>();
+	private List<List<RocketComponent>> plotDataComponents = new ArrayList<>();
 
 	public static final CAPlotConfiguration[] DEFAULT_CONFIGURATIONS;
 	static {
-		ArrayList<CAPlotConfiguration> configs = new ArrayList<>();
+		List<CAPlotConfiguration> configs = new ArrayList<>();
 		CAPlotConfiguration config;
 
 		//// Total CD vs Mach
@@ -53,17 +53,21 @@ public class CAPlotConfiguration extends PlotConfiguration<CADataType, CADataBra
 		plotDataComponents.add(null);
 	}
 
-	public RocketComponent getComponent(int index) {
+	public List<RocketComponent> getComponents(int index) {
 		return plotDataComponents.get(index);
 	}
 
-	public void setPlotDataComponent(int index, RocketComponent component) {
-		plotDataComponents.set(index, component);
+	public void setPlotDataComponents(int index, List<RocketComponent> components) {
+		plotDataComponents.set(index, components);
 	}
 
-	public String getComponentName(int dataIndex) {
-		RocketComponent component = getComponent(dataIndex);
-		return component != null ? component.getName() : "";
+	public List<String> getComponentNames(int dataIndex) {
+		List<RocketComponent> components = getComponents(dataIndex);
+		List<String> names = new ArrayList<>(components.size());
+		for (RocketComponent c : components) {
+			names.add(c != null ? c.getName() : "");
+		}
+		return names;
 	}
 
 	@Override
@@ -78,8 +82,12 @@ public class CAPlotConfiguration extends PlotConfiguration<CADataType, CADataBra
 			}
 			Axis axis = allAxes.get(index);
 
-			double min = unit.toUnit(data.get(0).getMinimum(type, getComponent(i)));
-			double max = unit.toUnit(data.get(0).getMaximum(type, getComponent(i)));
+			double min = Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+			for (RocketComponent c : getComponents(i)) {
+				min = Math.min(min, unit.toUnit(data.get(0).getMinimum(type, c)));
+				max = Math.max(max, unit.toUnit(data.get(0).getMaximum(type, c)));
+			}
 
 			for (int j = 1; j < data.size(); j++) {
 				// Ignore empty data
@@ -98,7 +106,10 @@ public class CAPlotConfiguration extends PlotConfiguration<CADataType, CADataBra
 	@SuppressWarnings("unchecked")
 	public CAPlotConfiguration cloneConfiguration() {
 		CAPlotConfiguration clone = super.cloneConfiguration();
-		clone.plotDataComponents = this.plotDataComponents.clone();
+		clone.plotDataComponents = new ArrayList<>(plotDataComponents.size());
+		for (List<RocketComponent> components : plotDataComponents) {
+			clone.plotDataComponents.add(components != null ? new ArrayList<>(components) : null);
+		}
 		return clone;
 	}
 }

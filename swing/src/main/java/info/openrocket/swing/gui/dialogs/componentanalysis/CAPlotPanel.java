@@ -4,7 +4,6 @@ import info.openrocket.core.componentanalysis.CADataBranch;
 import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CADataTypeGroup;
 import info.openrocket.core.componentanalysis.CADomainDataType;
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.swing.gui.plot.PlotPanel;
 
@@ -38,8 +37,7 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
 	}
 
-	private CAPlotPanel(ComponentAnalysisPlotExportPanel parent,
-						CADomainDataType[] typesX, CADataType[] typesY) {
+	private CAPlotPanel(ComponentAnalysisPlotExportPanel parent, CADomainDataType[] typesX, CADataType[] typesY) {
 		super(typesX, typesY, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, null, null);
 
 		this.parent = parent;
@@ -63,15 +61,14 @@ public class CAPlotPanel extends PlotPanel<CADataType, CADataBranch, CADataTypeG
 
 		selector.addComponentSelectionListener(e -> {
 			if (modifying > 0) return;
-			RocketComponent component = selector.getSelectedComponent();
-			configuration.setPlotDataComponent(idx, component);
+			configuration.setPlotDataComponents(idx, selector.getSelectedComponents());
 		});
 	}
 
 	@Override
 	protected CAPlotTypeSelector createSelector(int i, CADataType type, Unit unit, int axis) {
-		return new CAPlotTypeSelector(parent, i, type, unit, axis, List.of(typesY),
-				parent.getComponentsForType(type), configuration, configuration.getComponent(i));
+		return new CAPlotTypeSelector(parent, parent.getDocument(), i, type, unit, axis, List.of(typesY),
+				parent.getComponentsForType(type), configuration, configuration.getComponents(i));
 	}
 
 	public void setXAxis(CADomainDataType type) {

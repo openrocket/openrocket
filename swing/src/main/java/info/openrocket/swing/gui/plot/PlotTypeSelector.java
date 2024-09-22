@@ -52,19 +52,19 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 			}
 		};
 		typeSelector.setSelectedItem(type);
-		this.add(typeSelector, "gapright para");
+		this.add(typeSelector, "gapright para, top");
 
-		this.add(new JLabel("Unit:"));
+		this.add(new JLabel("Unit:"), "top");
 		unitSelector = new UnitSelector(type.getUnitGroup());
 		if (unit != null) {
 			unitSelector.setSelectedUnit(unit);
 		}
-		this.add(unitSelector, "width 40lp, gapright para");
+		this.add(unitSelector, "width 40lp, gapright para, top");
 
-		this.add(new JLabel("Axis:"));
+		this.add(new JLabel("Axis:"), "top");
 		axisSelector = new JComboBox<>(POSITIONS);
 		axisSelector.setSelectedIndex(position + 1);
-		this.add(axisSelector);
+		this.add(axisSelector, "top");
 
 		removeButton = new JButton(Icons.EDIT_DELETE);
 		removeButton.setToolTipText("Remove this plot");
@@ -79,7 +79,7 @@ public class PlotTypeSelector<T extends Groupable<G> & UnitValue, G extends Grou
 	}
 
 	protected void addRemoveButton() {
-		this.add(removeButton, "gapright 0");
+		this.add(removeButton, "gapright 0, top");
 	}
 
 	public int getIndex() {

@@ -6,6 +6,7 @@ import info.openrocket.core.componentanalysis.CADataType;
 import info.openrocket.core.componentanalysis.CADomainDataType;
 import info.openrocket.core.componentanalysis.CAParameterSweep;
 import info.openrocket.core.componentanalysis.CAParameters;
+import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -41,6 +42,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 	private static final Logger log = LoggerFactory.getLogger(ComponentAnalysisPlotExportPanel.class);
 
 	private final Window parent;
+	private final OpenRocketDocument document;
 	private final JTabbedPane tabbedPane;
 	JComboBox<CADomainDataType> parameterSelector;
 	private JButton okButton;
@@ -62,11 +64,13 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 	private final Map<CADataType, List<RocketComponent>> componentCache;
 	private boolean isCacheValid;
 
-	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, CAParameters parameters,
-											AerodynamicCalculator aerodynamicCalculator, Rocket rocket) {
+	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, OpenRocketDocument document,
+											CAParameters parameters, AerodynamicCalculator aerodynamicCalculator,
+											Rocket rocket) {
 		super(new MigLayout("fill, height 700px!", "[]", "[grow]"));
 
 		this.parent = parent;
+		this.document = document;
 		this.parameters = parameters;
 		this.parameterSweep = new CAParameterSweep(parameters, aerodynamicCalculator, rocket);
 		this.componentCache = new HashMap<>();
@@ -214,6 +218,10 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 				}
 			}
 		});
+	}
+
+	public OpenRocketDocument getDocument() {
+		return document;
 	}
 
 	public CADomainDataType getSelectedParameter() {
