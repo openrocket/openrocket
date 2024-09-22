@@ -174,11 +174,13 @@ public class DisableStageTest extends BaseTestCase {
         simRemoved.setFlightConfigurationId(fcid);
         simRemoved.getOptions().setISAAtmosphere(true);
         simRemoved.getOptions().setTimeStep(0.05);
+        simRemoved.getOptions().getAverageWindModel().setStandardDeviation(0.0);
 
         Simulation simDisabled = new Simulation(rocketDisabled);
         simDisabled.setFlightConfigurationId(fcid);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
+        simDisabled.getOptions().getAverageWindModel().setStandardDeviation(0.0);
 
         compareSims(simRemoved, simDisabled, DELTA);
 
