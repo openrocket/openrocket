@@ -9,6 +9,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
@@ -23,8 +25,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -37,10 +41,13 @@ import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -501,15 +508,15 @@ public class SimulationConditionsPanel extends JPanel {
 		// Create the levels table
 		WindLevelTableModel tableModel = new WindLevelTableModel(model);
 		JTable windLevelTable = new JTable(tableModel);
-		windLevelTable.setRowSelectionAllowed(false);
+		windLevelTable.setRowSelectionAllowed(true);
 		windLevelTable.setColumnSelectionAllowed(false);
 		windLevelTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		windLevelTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Allow horizontal scrolling
 
 		// Set up value columns
-		SelectAllCellEditor selectAllEditor = new SelectAllCellEditor();
+		SelectAllCellEditor selectAllEditor = new SelectAllCellEditor(windLevelTable);
 		ValueCellRenderer valueCellRenderer = new ValueCellRenderer();
-		for (int i = 0; i < windLevelTable.getColumnCount(); i += 2) {
+		for (int i = 0; i < windLevelTable.getColumnCount() - 2; i += 2) {
 			windLevelTable.getColumnModel().getColumn(i).setCellRenderer(valueCellRenderer);
 			windLevelTable.getColumnModel().getColumn(i).setCellEditor(selectAllEditor);
 		}
@@ -519,6 +526,11 @@ public class SimulationConditionsPanel extends JPanel {
 			windLevelTable.getColumnModel().getColumn(i).setCellRenderer(new UnitSelectorRenderer());
 			windLevelTable.getColumnModel().getColumn(i).setCellEditor(new UnitSelectorEditor());
 		}
+
+		// Set up delete button column
+		TableColumn deleteColumn = windLevelTable.getColumnModel().getColumn(windLevelTable.getColumnCount() - 1);
+		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
+		deleteColumn.setCellEditor(new DeleteButtonEditor(windLevelTable));
 
 		// Adjust column widths
 		adjustColumnWidths(windLevelTable);
@@ -559,14 +571,15 @@ public class SimulationConditionsPanel extends JPanel {
 		});
 		buttonPanel.add(addButton);
 
-		// Remove level
-		JButton removeButton = new IconButton(trans.get("simedtdlg.but.removeWindLevel"), Icons.EDIT_DELETE);
-		removeButton.addActionListener(e -> {
+		// Delete level
+		JButton deleteButton = new IconButton(trans.get("simedtdlg.but.deleteWindLevel"), Icons.EDIT_DELETE);
+		deleteButton.addActionListener(e -> {
 			int selectedRow = windLevelTable.getSelectedRow();
-			tableModel.removeWindLevel(selectedRow);
+			tableModel.deleteWindLevel(selectedRow);
 			sorter.sort();
 		});
-		buttonPanel.add(removeButton, "gapright unrel");
+		deleteButton.setEnabled(false);
+		buttonPanel.add(deleteButton, "gapright unrel");
 
 		// Visualization levels
 		JButton visualizeButton = new IconButton(trans.get("simedtdlg.but.visualizeWindLevels"), Icons.SIM_PLOT);
@@ -583,6 +596,7 @@ public class SimulationConditionsPanel extends JPanel {
 				visualizationDialog.setVisible(true);
 			}
 		});
+		visualizeButton.setEnabled(!tableModel.getLevels().isEmpty());
 		buttonPanel.add(visualizeButton);
 
 		panel.add(buttonPanel, "grow, wrap");
@@ -592,6 +606,44 @@ public class SimulationConditionsPanel extends JPanel {
 			sorter.sort();
 			if (tableModel.getVisualizationDialog() != null) {
 				tableModel.getVisualizationDialog().repaint();
+			}
+			visualizeButton.setEnabled(!tableModel.getLevels().isEmpty());
+		});
+
+		// Add listener to update selected row when table data changes
+		windLevelTable.getSelectionModel().addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				int selectedRow = windLevelTable.getSelectedRow();
+				if (selectedRow != -1) {
+					windLevelTable.setRowSelectionInterval(selectedRow, selectedRow);
+				}
+				deleteButton.setEnabled(windLevelTable.getSelectedRow() != -1);
+			}
+		});
+
+		// Add context menu
+		JPopupMenu contextMenu = createContextMenu(windLevelTable, tableModel);
+		windLevelTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showContextMenu(e);
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showContextMenu(e);
+				}
+			}
+
+			private void showContextMenu(MouseEvent e) {
+				int row = windLevelTable.rowAtPoint(e.getPoint());
+				if (row >= 0 && row < windLevelTable.getRowCount()) {
+					windLevelTable.setRowSelectionInterval(row, row);
+					contextMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
 			}
 		});
 	}
@@ -755,6 +807,37 @@ public class SimulationConditionsPanel extends JPanel {
 		}
 	}
 
+	private static JPopupMenu createContextMenu(JTable table, WindLevelTableModel model) {
+		JPopupMenu popupMenu = new JPopupMenu();
+		JMenuItem deleteItem = new JMenuItem(trans.get("simedtdlg.popupmenu.Delete"));
+		deleteItem.setIcon(Icons.EDIT_DELETE);
+		deleteItem.addActionListener(e -> {
+			int selectedRow = table.getSelectedRow();
+			if (selectedRow != -1) {
+				int modelRow = table.convertRowIndexToModel(selectedRow);
+				model.deleteWindLevel(modelRow);
+			}
+		});
+		popupMenu.add(deleteItem);
+
+		// Disable the delete item if no row is selected
+		popupMenu.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+				int selectedRow = table.getSelectedRow();
+				deleteItem.setEnabled(selectedRow != -1 && table.getRowCount() > 1);
+			}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) {}
+		});
+
+		return popupMenu;
+	}
+
 	private static class WindLevelTableModel extends AbstractTableModel {
 		private final MultiLevelPinkNoiseWindModel model;
 		private static final String[] columnNames = {
@@ -769,6 +852,7 @@ public class SimulationConditionsPanel extends JPanel {
 				trans.get("simedtdlg.col.Turbulence"),
 				trans.get("simedtdlg.col.Unit"),
 				trans.get("simedtdlg.col.Intensity"),
+				trans.get("simedtdlg.col.Delete")
 		};
 		private static final UnitGroup[] unitGroups = {
 				UnitGroup.UNITS_DISTANCE, UnitGroup.UNITS_VELOCITY, UnitGroup.UNITS_ANGLE,
@@ -784,6 +868,10 @@ public class SimulationConditionsPanel extends JPanel {
 
 		public WindLevelTableModel(MultiLevelPinkNoiseWindModel model) {
 			this.model = model;
+		}
+
+		public List<MultiLevelPinkNoiseWindModel.LevelWindModel> getLevels() {
+			return model.getLevels();
 		}
 
 		public void setVisualizationDialog(WindLevelVisualizationDialog visualizationDialog) {
@@ -812,8 +900,12 @@ public class SimulationConditionsPanel extends JPanel {
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
 			// Intensity column
-			if (columnIndex == getColumnCount()-1) {
+			if (columnIndex == getColumnCount() - 2) {
 				return String.class;
+			}
+			// Delete button column
+			if (columnIndex == getColumnCount() - 1) {
+				return JButton.class;
 			}
 			return (columnIndex % 2 == 0) ? Double.class : Unit.class;
 		}
@@ -833,8 +925,11 @@ public class SimulationConditionsPanel extends JPanel {
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			// Intensity column
-			if (columnIndex == getColumnCount()-1) {
+			if (columnIndex == getColumnCount()-2) {
 				return getIntensityDescription(model.getLevels().get(rowIndex).getTurblenceIntensity());
+			}
+			if (columnIndex == getColumnCount()-1) {
+				return null;
 			}
 			if (columnIndex % 2 == 0) {
 				Object rawValue = getSIValueAt(rowIndex, columnIndex);
@@ -853,10 +948,13 @@ public class SimulationConditionsPanel extends JPanel {
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			if (columnIndex >= getColumnCount() - 2) {
+				return;
+			}
 			MultiLevelPinkNoiseWindModel.LevelWindModel level = model.getLevels().get(rowIndex);
 			if (columnIndex % 2 == 0) {
 				// Value column
-				double value = Double.parseDouble((String) aValue);
+				double value = aValue instanceof Double ? (Double) aValue : Double.parseDouble(aValue.toString());
 				switch (columnIndex) {
 					case 0:
 						level.setAltitude(currentUnits[0].fromUnit(value));
@@ -894,7 +992,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return columnIndex != columnNames.length - 1;		// Intensity column is not editable
+			return columnIndex != columnNames.length - 2;		// Intensity & remove column is not editable
 		}
 
 		public void addWindLevel() {
@@ -908,7 +1006,7 @@ public class SimulationConditionsPanel extends JPanel {
 			fireTableDataChanged();
 		}
 
-		public void removeWindLevel(int index) {
+		public void deleteWindLevel(int index) {
 			if (index >= 0 && index < model.getLevels().size()) {
 				model.removeWindLevelIdx(index);
 				fireTableDataChanged();
@@ -964,14 +1062,26 @@ public class SimulationConditionsPanel extends JPanel {
 	}
 
 	private static class SelectAllCellEditor extends DefaultCellEditor {
-		private Object cellEditorValue;
+		private final JTable table;
+		private int editingRow;
+		private int editingColumn;
 
-		public SelectAllCellEditor() {
+		public SelectAllCellEditor(JTable table) {
 			super(new JTextField());
+			this.table = table;
 			setClickCountToStart(1);
 
 			JTextField textField = (JTextField) getComponent();
 			textField.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusGained(FocusEvent e) {
+					editingRow = table.getEditingRow();
+					editingColumn = table.getEditingColumn();
+					if (editingRow != -1) {
+						table.setRowSelectionInterval(editingRow, editingRow);
+					}
+				}
+
 				@Override
 				public void focusLost(FocusEvent e) {
 					stopCellEditing();
@@ -982,7 +1092,6 @@ public class SimulationConditionsPanel extends JPanel {
 		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 			JTextField textField = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
-			cellEditorValue = value;
 			SwingUtilities.invokeLater(textField::selectAll);
 			return textField;
 		}
@@ -990,13 +1099,25 @@ public class SimulationConditionsPanel extends JPanel {
 		@Override
 		public boolean stopCellEditing() {
 			JTextField textField = (JTextField) getComponent();
-			cellEditorValue = textField.getText();
-			return super.stopCellEditing();
+			try {
+				// Attempt to parse the value as a double
+				double value = Double.parseDouble(textField.getText());
+				// If successful, update the cell value
+				table.getModel().setValueAt(value, editingRow, editingColumn);
+			} catch (NumberFormatException e) {
+				// If parsing fails, revert to the original value
+				return false;
+			}
+			boolean result = super.stopCellEditing();
+			if (result && editingRow != -1) {
+				SwingUtilities.invokeLater(() -> table.setRowSelectionInterval(editingRow, editingRow));
+			}
+			return result;
 		}
 
 		@Override
 		public Object getCellEditorValue() {
-			return cellEditorValue;
+			return ((JTextField) getComponent()).getText();
 		}
 
 		@Override
@@ -1005,6 +1126,44 @@ public class SimulationConditionsPanel extends JPanel {
 				return ((MouseEvent) e).getClickCount() >= getClickCountToStart();
 			}
 			return super.isCellEditable(e);
+		}
+	}
+
+	private static class DeleteButtonRenderer extends JButton implements TableCellRenderer {
+		public DeleteButtonRenderer() {
+			setOpaque(true);
+			setIcon(Icons.EDIT_DELETE);
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			return this;
+		}
+	}
+
+	private static class DeleteButtonEditor extends AbstractCellEditor implements TableCellEditor {
+		private final JButton button;
+		private int row;
+
+		public DeleteButtonEditor(JTable table) {
+			button = new JButton();
+			button.setIcon(Icons.EDIT_DELETE);
+			button.addActionListener(e -> {
+				WindLevelTableModel model = (WindLevelTableModel) table.getModel();
+				model.deleteWindLevel(row);
+				fireEditingStopped();
+			});
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			this.row = row;
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return null;
 		}
 	}
 }
