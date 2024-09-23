@@ -44,7 +44,7 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 	
 	private SimulationExportPanel(Simulation simulation, FlightDataBranch branch, FlightDataType[] types,
 								  boolean[] selected, CsvOptionPanel csvOptions, Component... extraComponents) {
-		super(types, selected, csvOptions, extraComponents);
+		super(types, selected, csvOptions, false, extraComponents);
 		this.simulation = simulation;
 		this.branch = branch;
 	}
@@ -164,5 +164,10 @@ public class SimulationExportPanel extends CSVExportPanel<FlightDataType> {
 				SwingUtilities.getWindowAncestor(this));
 		
 		return true;
+	}
+
+	@Override
+	protected String getDisplayName(FlightDataType type) {
+		return type.getName();
 	}
 }

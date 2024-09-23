@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.dialogs.componentanalysis;
 
+import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 
@@ -28,7 +29,7 @@ public class ComponentAnalysisDialog extends JDialog {
 
 	private JButton okButton;
 
-	public ComponentAnalysisDialog(RocketPanel rocketPanel) {
+	public ComponentAnalysisDialog(OpenRocketDocument document, RocketPanel rocketPanel) {
 		//// Component analysis
 		super(SwingUtilities.getWindowAncestor(rocketPanel), trans.get("ComponentAnalysisDialog.componentanalysis"));
 
@@ -42,8 +43,8 @@ public class ComponentAnalysisDialog extends JDialog {
 		tabbedPane.addTab(trans.get("ComponentAnalysisDialog.tab.General"), generalTab);
 
 		// Plot export tab
-		ComponentAnalysisPlotExportPanel plotExportTab = new ComponentAnalysisPlotExportPanel(this, generalTab.getParameters(),
-				generalTab.getAerodynamicCalculator(), generalTab.getRocket());
+		ComponentAnalysisPlotExportPanel plotExportTab = new ComponentAnalysisPlotExportPanel(this, document,
+				generalTab.getParameters(), generalTab.getAerodynamicCalculator(), generalTab.getRocket());
 		tabbedPane.addTab(trans.get("ComponentAnalysisDialog.tab.PlotExport"), plotExportTab);
 
 		panel.add(tabbedPane, "span, pushy, grow, wrap");
@@ -94,10 +95,10 @@ public class ComponentAnalysisDialog extends JDialog {
 
 	/////////  Singleton implementation
 
-	public static void showDialog(RocketPanel rocketpanel) {
+	public static void showDialog(OpenRocketDocument document, RocketPanel rocketpanel) {
 		if (singletonDialog != null)
 			singletonDialog.dispose();
-		singletonDialog = new ComponentAnalysisDialog(rocketpanel);
+		singletonDialog = new ComponentAnalysisDialog(document, rocketpanel);
 		singletonDialog.setVisible(true);
 	}
 
