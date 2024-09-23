@@ -101,8 +101,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		// Create the data series for both axes
 		this.data = new XYSeriesCollection[2];
-		this.data[0] = new XYSeriesCollection();
-		this.data[1] = new XYSeriesCollection();
+		this.data[Util.PlotAxisSelection.LEFT.getValue()] = new XYSeriesCollection();
+		this.data[Util.PlotAxisSelection.RIGHT.getValue()] = new XYSeriesCollection();
 
 		// Fill the auto-selections based on first branch selected.
 		this.filledConfig = config.fillAutoAxes(mainBranch);
@@ -278,7 +278,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, T type, Unit unit, B branch,
 												 int branchIdx, String branchName, String baseName) {
 		// Default implementation for regular DataBranch
-		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, unit.getUnit(), branchName, baseName);
+		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, dataIndex, unit.getUnit(), branchName, baseName);
 
 		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
 		List<Double> ploty = branch.get(type);
@@ -327,7 +327,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		return formatSampleTooltip(dataName, dataX, unitX, 0, "", sampleIdx, false);
 	}
 
-	private String getOrdinalEnding(int n) {
+	protected String getOrdinalEnding(int n) {
 		if (n % 100 == 11 || n % 100 == 12 || n % 100 == 13) return "th";
 		return switch (n % 10) {
 			case 1 -> "st";
@@ -540,18 +540,25 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 	protected static class MetadataXYSeries extends XYSeries {
 		private final int branchIdx;
+		private final int dataIdx;
 		private final String unit;
 		private final String branchName;
 		private String baseName;
 
-		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, String unit,
+		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, int dataIdx, String unit,
 								String branchName, String baseName) {
 			super(key, autoSort, allowDuplicateXValues);
 			this.branchIdx = branchIdx;
+			this.dataIdx = dataIdx;
 			this.unit = unit;
 			this.branchName = branchName;
 			this.baseName = baseName;
 			updateDescription();
+		}
+
+		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, String unit,
+								String branchName, String baseName) {
+			this(key, autoSort, allowDuplicateXValues, branchIdx, -1, unit, branchName, baseName);
 		}
 
 		public String getUnit() {
@@ -560,6 +567,10 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		public int getBranchIdx() {
 			return branchIdx;
+		}
+
+		public int getDataIdx() {
+			return dataIdx;
 		}
 
 		public String getBranchName() {

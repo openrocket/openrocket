@@ -183,6 +183,13 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		// finally, sort on event type
 		return this.type.ordinal() - o.type.ordinal();
 	}
+
+	public boolean equals(FlightEvent o) {
+		if ((this.type == Type.SIM_WARN) && (o.type == Type.SIM_WARN))
+			return ((Warning)(this.data)).equals((Warning)(o.data));
+
+		return this.equals(0);
+	}
 	
 	@Override
 	public String toString() {
