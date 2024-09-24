@@ -259,8 +259,12 @@ public class CSVExport {
 
 	private static void printEvent(PrintWriter writer, FlightEvent e,
 			String commentStarter) {
-		writer.println(prependComment(commentStarter, "Event " + e.getType().name() +
+		writer.print(prependComment(commentStarter, "Event " + e.getType().name() +
 				" occurred at t=" + TextUtil.doubleToString(e.getTime()) + " seconds"));
+		if (e.getType() == FlightEvent.Type.SIM_WARN) {
+			writer.print(": " + (Warning) e.getData());
+		}
+		writer.println();
 	}
 
 	private static void writeSimulationComments(PrintWriter writer,
