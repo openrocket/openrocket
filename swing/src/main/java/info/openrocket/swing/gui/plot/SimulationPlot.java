@@ -327,10 +327,13 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 																yName, ycoord, unitY,
 																sampleIdx) ;					
 						double yloc = slope * ycoord + intercept;
-						XYImageAnnotation annotation =
-							new XYImageAnnotation(xcoord, yloc, image, RectangleAnchor.CENTER);
-						annotation.setToolTipText(tooltipText);
-						plot.addAnnotation(annotation);
+						
+						if (!Double.isNaN(xcoord) && !Double.isNaN(ycoord)) {
+							XYImageAnnotation annotation =
+								new XYImageAnnotation(xcoord, yloc, image, RectangleAnchor.CENTER);
+							annotation.setToolTipText(tooltipText);
+							plot.addAnnotation(annotation);
+						}
 					}
 				}
 			}
