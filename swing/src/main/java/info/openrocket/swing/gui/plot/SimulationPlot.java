@@ -260,6 +260,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(branch);
 
 		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		String tName = FlightDataType.TYPE_TIME.getName();
 		List<Double> domain = dataBranch.get(config.getDomainAxisType());
 		LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
 		String xName = config.getDomainAxisType().getName();
@@ -317,11 +318,11 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 						sampleIdx = closestSample.map(time::indexOf).orElse(-1);
 						
 						// Convert units
-						String unitY = metaSeries.getUnit();
 						String unitX = config.getDomainAxisUnit().getUnit();
-
-						
+						String unitY = metaSeries.getUnit();
+						String unitT = FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString();
 						String tooltipText = formatEventTooltip(getNameBasedOnIdxAndSeries(metaSeries, sampleIdx), events,
+																tName, t, unitT,
 																xName, xcoord, unitX,
 																yName, ycoord, unitY,
 																sampleIdx) ;					
@@ -336,9 +337,13 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		}
 	}
 
-	protected String formatEventTooltip(String dataName, Set<FlightEvent> events, String xName, double dataX, String unitX, String yName, double dataY, String unitY, int sampleIdx) {
+	protected String formatEventTooltip(String dataName, Set<FlightEvent> events,
+										String tName, double time, String unitT,
+										String xName, double dataX, String unitX,
+										String yName, double dataY, String unitY, int sampleIdx) {
 		String ord_end = getOrdinalEnding(sampleIdx);
 
+		DecimalFormat df_t = DecimalFormatter.df(time, 2, false);
 		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
 		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
 
@@ -371,7 +376,10 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			}
 			sb.append(eventStr + "<br>");
 		}
-		
+
+		if (!tName.equals(xName)) {
+			sb.append(String.format("%s: %s %s<br>", tName, df_t.format(time), unitT));
+		}
 		sb.append(String.format("%s: %s %s<br>", xName, df_x.format(dataX), unitX));
 		sb.append(String.format("%s: %s %s<br>", yName, df_y.format(dataY), unitY));
 		sb.append(String.format("%d<sup>%s</sup> sample", sampleIdx, ord_end));
