@@ -42,7 +42,6 @@ public class AbstractChangeSource implements ChangeSource {
 				((StateChangeListener) l).stateChanged(event);
 			}
 		}
-
 	}
 
 	/**

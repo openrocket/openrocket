@@ -16,6 +16,7 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.material.Material;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,8 +337,34 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
-		writeElement("windaverage", cond.getWindSpeedAverage());
-		writeElement("windturbulence", cond.getWindTurbulenceIntensity());
+
+		// TODO: remove once support for OR 23.09 and prior is dropped
+		writeElement("windaverage", cond.getAverageWindModel().getAverage());
+		writeElement("windturbulence", cond.getAverageWindModel().getTurbulenceIntensity());
+		writeElement("winddirection", cond.getAverageWindModel().getDirection());
+
+		writeln("<wind model=\"average\">");
+		indent++;
+		writeElement("speed", cond.getAverageWindModel().getAverage());
+		writeElement("direction", cond.getAverageWindModel().getDirection());
+		writeElement("standarddeviation", cond.getAverageWindModel().getStandardDeviation());
+		indent--;
+		writeln("</wind>");
+
+		if (!cond.getMultiLevelWindModel().getLevels().isEmpty()) {
+			writeln("<wind model=\"multilevel\">");
+			indent++;
+			for (MultiLevelPinkNoiseWindModel.LevelWindModel level : cond.getMultiLevelWindModel().getLevels()) {
+				writeln("<windlevel altitude=\"" + level.getAltitude() + "\" speed=\"" + level.getSpeed() +
+						"\" direction=\"" + level.getDirection() + "\" standarddeviation=\"" + level.getStandardDeviation() +
+						"\"/>");
+			}
+			indent--;
+			writeln("</wind>");
+		}
+
+		writeElement("windmodeltype", cond.getWindModelType().toStringValue());
+
 		writeElement("launchaltitude", cond.getLaunchAltitude());
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
