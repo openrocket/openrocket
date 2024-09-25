@@ -324,8 +324,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 						String tooltipText = formatEventTooltip(getNameBasedOnIdxAndSeries(metaSeries, sampleIdx), events,
 																tName, t, unitT,
 																xName, xcoord, unitX,
-																yName, ycoord, unitY,
-																sampleIdx) ;					
+																yName, ycoord, unitY);
 						double yloc = slope * ycoord + intercept;
 						
 						if (!Double.isNaN(xcoord) && !Double.isNaN(ycoord)) {
@@ -343,8 +342,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 	protected String formatEventTooltip(String dataName, Set<FlightEvent> events,
 										String tName, double time, String unitT,
 										String xName, double dataX, String unitX,
-										String yName, double dataY, String unitY, int sampleIdx) {
-		String ord_end = getOrdinalEnding(sampleIdx);
+										String yName, double dataY, String unitY) {
 
 		DecimalFormat df_t = DecimalFormatter.df(time, 2, false);
 		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
@@ -385,7 +383,6 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		}
 		sb.append(String.format("%s: %s %s<br>", xName, df_x.format(dataX), unitX));
 		sb.append(String.format("%s: %s %s<br>", yName, df_y.format(dataY), unitY));
-		sb.append(String.format("%d<sup>%s</sup> sample", sampleIdx, ord_end));
 
 		// End tooltip
 		sb.append("</html>");

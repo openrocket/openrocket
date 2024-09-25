@@ -211,7 +211,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 						// Determine the appropriate name based on the time and series
 						String name = getNameBasedOnIdxAndSeries(ser, item);
 
-						return formatSampleTooltip(name, dataX, unitX, dataY, unitY, item);
+						return formatSampleTooltip(name, dataX, unitX, dataY, unitY);
 					}
 				};
 
@@ -298,8 +298,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	}
 
 	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY,
-										 int sampleIdx, boolean addYValue) {
-		String ord_end = getOrdinalEnding(sampleIdx);
+										 boolean addYValue) {
 
 		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
 		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
@@ -313,28 +312,17 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		}
 
 		sb.append(String.format("X: %s %s<br>" +
-				"%d<sup>%s</sup> sample" +
-				"</html>", df_x.format(dataX), unitX, sampleIdx, ord_end));
+				"</html>", df_x.format(dataX), unitX));
 
 		return sb.toString();
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY, int sampleIdx) {
-		return formatSampleTooltip(dataName, dataX, unitX, dataY, unitY, sampleIdx, true);
+	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY) {
+		return formatSampleTooltip(dataName, dataX, unitX, dataY, unitY, true);
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, int sampleIdx) {
-		return formatSampleTooltip(dataName, dataX, unitX, 0, "", sampleIdx, false);
-	}
-
-	protected String getOrdinalEnding(int n) {
-		if (n % 100 == 11 || n % 100 == 12 || n % 100 == 13) return "th";
-		return switch (n % 10) {
-			case 1 -> "st";
-			case 2 -> "nd";
-			case 3 -> "rd";
-			default -> "th";
-		};
+	protected String formatSampleTooltip(String dataName, double dataX, String unitX) {
+		return formatSampleTooltip(dataName, dataX, unitX, 0, "", false);
 	}
 
 	protected static class LegendItems implements LegendItemSource {
