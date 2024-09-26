@@ -311,6 +311,10 @@ public abstract class FinSet extends ExternalComponent
 	 * 
 	 */
 	public void setTabHeight(final double newTabHeight) {
+		setTabHeight(newTabHeight, true);
+	}
+
+	public void setTabHeight(double newTabHeight, boolean validateTabHeight) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FinSet) {
 				((FinSet) listener).setTabHeight(newTabHeight);
@@ -320,10 +324,13 @@ public abstract class FinSet extends ExternalComponent
 		if (MathUtil.equals(this.tabHeight, MathUtil.max(newTabHeight, 0))){
 			return;
 		}
-		
+
 		tabHeight = newTabHeight;
-		double maxTabHeight = getMaxTabHeight();
-		this.tabHeight = Math.min(this.tabHeight,  maxTabHeight);
+		if (validateTabHeight) {
+			double maxTabHeight = getMaxTabHeight();
+			this.tabHeight = Math.min(this.tabHeight, maxTabHeight);
+		}
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -336,6 +343,10 @@ public abstract class FinSet extends ExternalComponent
 	 * set tab length
 	 */
 	public void setTabLength(final double lengthRequest) {
+		setTabLength(lengthRequest, true);
+	}
+
+	public void setTabLength(final double lengthRequest, boolean updateTabPosition) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FinSet) {
 				((FinSet) listener).setTabLength(lengthRequest);
@@ -345,15 +356,17 @@ public abstract class FinSet extends ExternalComponent
 		if (MathUtil.equals(tabLength, MathUtil.max(lengthRequest, 0))) {
 			return;
 		}
-		
+
 		tabLength = lengthRequest;
-		
-		updateTabPosition();
-		
+
+		if (updateTabPosition) {
+			updateTabPosition();
+		}
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	public void updateTabPosition(){
+	public void updateTabPosition() {
 		this.tabPosition = this.tabOffsetMethod.getAsPosition(tabOffset, tabLength, length);
 	}
 	
@@ -362,7 +375,7 @@ public abstract class FinSet extends ExternalComponent
 	 * 
 	 * @param offsetRequest new requested tab offset
 	 */
-	public void setTabOffset( final double offsetRequest) {
+	public void setTabOffset(final double offsetRequest) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FinSet) {
 				((FinSet) listener).setTabOffset(offsetRequest);
@@ -373,6 +386,18 @@ public abstract class FinSet extends ExternalComponent
 		updateTabPosition();
 		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	public double getTabOffset(AxialMethod method) {
+		return method.getAsOffset(tabPosition, tabLength, length);
+	}
+
+	public double getTabOffset() {
+		return getTabOffset(this.tabOffsetMethod);
+	}
+
+	public double getTabPosition(AxialMethod method) {
+		return method.getAsPosition(tabOffset, tabLength, length);
 	}
 	
 	public AxialMethod getTabOffsetMethod() {
@@ -403,18 +428,6 @@ public abstract class FinSet extends ExternalComponent
 		return tabPosition;
 	}
 
-	public double getTabOffset(AxialMethod method){
-		return method.getAsOffset(tabPosition, tabLength, length);
-	}
-
-	public double getTabOffset(){
-		return getTabOffset(this.tabOffsetMethod);
-	}
-
-	public double getTabPosition(AxialMethod method) {
-		return method.getAsPosition(tabOffset, tabLength, length);
-	}
-
 	/**
 	 * Return the tab trailing edge position *from the front of the fin*.
 	 */
@@ -435,16 +448,12 @@ public abstract class FinSet extends ExternalComponent
 	}
 	
 	public void validateFinTabLength() {
-		//System.err.println(String.format("    >> Fin Tab Length: %.6f @ %.6f", tabLength, tabOffset));
-		
 		final double xTabBack = getTabTrailingEdge();
 		if (this.length < xTabBack) {
 			this.tabLength -= (xTabBack - this.length);
 		}
 		
 		tabLength = Math.max(0, tabLength);
-		
-		//System.err.println(String.format("    << Fin Tab Length: %.6f @ %.6f", tabLength, tabOffset));
 	}
 
 	/**
