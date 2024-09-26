@@ -47,6 +47,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,10 +140,9 @@ public class ScaleDialog extends JDialog {
 		addScaler(LaunchLug.class, "Length", SCALERS_NO_OFFSET);
 		
 		// FinSet
-		addScaler(FinSet.class, "Thickness", SCALERS_NO_OFFSET);
-		addScaler(FinSet.class, "TabHeight", SCALERS_NO_OFFSET);
-		addScaler(FinSet.class, "TabLength", SCALERS_NO_OFFSET);
-		addScaler(FinSet.class, "TabOffset", SCALERS_NO_OFFSET);
+		list = new ArrayList<>(1);
+		list.add(new FinSetScaler());
+		SCALERS_NO_OFFSET.put(FinSet.class, list);
 		
 		// TrapezoidFinSet
 		addScaler(TrapezoidFinSet.class, "Sweep", SCALERS_NO_OFFSET);
@@ -806,9 +806,31 @@ public class ScaleDialog extends JDialog {
 		}
 		
 	}
+
+	private static class FinSetScaler implements Scaler {
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+			FinSet finset = (FinSet) component;
+			AxialMethod originalTabOffsetMethod = finset.getTabOffsetMethod();
+			finset.setTabOffsetMethod(AxialMethod.ABSOLUTE);
+
+			double tabOffset = finset.getTabOffset();
+			tabOffset = tabOffset * multiplier;
+
+
+			addScaler(FinSet.class, "Thickness", scalers);
+			addScaler(FinSet.class, "TabHeight", scalers);
+			addScaler(FinSet.class, "TabLength", scalers);
+
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
+
+			finset.setTabOffset(tabOffset);
+			finset.setTabOffsetMethod(originalTabOffsetMethod);
+		}
+	}
 	
 	private static class FreeformFinSetScaler implements Scaler {
-		
 		@Override
 		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
 			FreeformFinSet finset = (FreeformFinSet) component;
@@ -817,10 +839,8 @@ public class ScaleDialog extends JDialog {
 				points[i] = points[i].multiply(multiplier);
 			}
 			
-			finset.setPoints(points);
-			
+			finset.setPoints(points, false);
 		}
-		
 	}
 
 	private static class RadiusRingComponentScaler implements Scaler {
