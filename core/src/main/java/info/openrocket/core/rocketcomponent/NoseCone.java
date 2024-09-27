@@ -131,6 +131,19 @@ public class NoseCone extends Transition implements InsideColorComponent {
 	}
 
 	/**
+	 * Sets the shoulder radius (independent of whether the nose cone is flipped or not).
+	 * @param radius the new shoulder radius
+	 * @param doClamping whether to clamp the shoulder radius to the nose cone radius
+	 */
+	public void setShoulderRadius(double radius, boolean doClamping) {
+		if (isFlipped) {
+			setForeShoulderRadius(radius, doClamping);
+		} else {
+			setAftShoulderRadius(radius, doClamping);
+		}
+	}
+
+	/**
 	 * Sets the shoulder radius (independent of whether the nose cone is flipped or
 	 * not).
 	 * This method should be used over {@link #setAftShoulderRadius(double)} because

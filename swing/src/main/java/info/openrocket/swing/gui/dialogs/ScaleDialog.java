@@ -47,6 +47,8 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,18 +109,18 @@ public class ScaleDialog extends JDialog {
 		addScaler(SymmetricComponent.class, "Thickness", "isFilled", SCALERS_NO_OFFSET);
 		
 		// Transition
-		addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", SCALERS_NO_OFFSET);
-		addScaler(Transition.class, "AftRadius", "isAftRadiusAutomatic", SCALERS_NO_OFFSET);
-		addScaler(Transition.class, "ForeShoulderRadius", SCALERS_NO_OFFSET);
+		list = new ArrayList<>(1);
+		list.add(new TransitionScaler());
+		SCALERS_NO_OFFSET.put(Transition.class, list);
 		addScaler(Transition.class, "ForeShoulderThickness", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "ForeShoulderLength", SCALERS_NO_OFFSET);
-		addScaler(Transition.class, "AftShoulderRadius", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "AftShoulderThickness", SCALERS_NO_OFFSET);
 		addScaler(Transition.class, "AftShoulderLength", SCALERS_NO_OFFSET);
 
 		// Nose cone
-		addScaler(NoseCone.class, "BaseRadius", "isBaseRadiusAutomatic", SCALERS_NO_OFFSET);
-		addScaler(NoseCone.class, "ShoulderRadius", SCALERS_NO_OFFSET);
+		list = new ArrayList<>(1);
+		list.add(new NoseConeScaler());
+		SCALERS_NO_OFFSET.put(NoseCone.class, list);
 		addScaler(NoseCone.class, "ShoulderThickness", SCALERS_NO_OFFSET);
 		addScaler(NoseCone.class, "ShoulderLength", SCALERS_NO_OFFSET);
 		
@@ -138,10 +140,9 @@ public class ScaleDialog extends JDialog {
 		addScaler(LaunchLug.class, "Length", SCALERS_NO_OFFSET);
 		
 		// FinSet
-		addScaler(FinSet.class, "Thickness", SCALERS_NO_OFFSET);
-		addScaler(FinSet.class, "TabHeight", SCALERS_NO_OFFSET);
-		addScaler(FinSet.class, "TabLength", SCALERS_NO_OFFSET);
-		addScaler(FinSet.class, "TabOffset", SCALERS_NO_OFFSET);
+		list = new ArrayList<>(1);
+		list.add(new FinSetScaler());
+		SCALERS_NO_OFFSET.put(FinSet.class, list);
 		
 		// TrapezoidFinSet
 		addScaler(TrapezoidFinSet.class, "Sweep", SCALERS_NO_OFFSET);
@@ -198,14 +199,14 @@ public class ScaleDialog extends JDialog {
 	}
 	
 	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName,
-								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler) {
-		addScaler(componentClass, methodName, null, scaler);
+								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler, Object... arguments) {
+		addScaler(componentClass, methodName, null, scaler, arguments);
 	}
 	
 	private static void addScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName,
-								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler) {
+								  Map<Class<? extends RocketComponent>, List<Scaler>> scaler, Object... arguments) {
 		List<Scaler> list = scaler.computeIfAbsent(componentClass, k -> new ArrayList<>());
-		list.add(new GeneralScaler(componentClass, methodName, autoMethodName));
+		list.add(new GeneralScaler(componentClass, methodName, autoMethodName, arguments));
 	}
 	
 	
@@ -658,7 +659,7 @@ public class ScaleDialog extends JDialog {
 	 * Interface for scaling a specific component/value.
 	 */
 	private interface Scaler {
-		public void scale(RocketComponent c, double multiplier, boolean scaleMass);
+		void scale(RocketComponent c, double multiplier, boolean scaleMass);
 	}
 	
 	/**
@@ -669,34 +670,52 @@ public class ScaleDialog extends JDialog {
 		private final Method getter;
 		private final Method setter;
 		private final Method autoMethod;
+		private final Object[] arguments;
 		
-		public GeneralScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName) {
-			
-			getter = Reflection.findMethod(componentClass, "get" + methodName);
-			setter = Reflection.findMethod(componentClass, "set" + methodName, double.class);
-			if (autoMethodName != null) {
-				autoMethod = Reflection.findMethod(componentClass, autoMethodName);
+		public GeneralScaler(Class<? extends RocketComponent> componentClass, String methodName, String autoMethodName,
+							 Object... arguments) {
+
+			this.getter = Reflection.findMethod(componentClass, "get" + methodName);
+			if (arguments == null || arguments.length == 0) {
+				this.setter = Reflection.findMethod(componentClass, "set" + methodName, double.class);
 			} else {
-				autoMethod = null;
+				Class<?>[] argumentClasses = new Class<?>[arguments.length + 1];
+				argumentClasses[0] = double.class;
+				for (int i = 0; i < arguments.length; i++) {
+					argumentClasses[i+1] = ClassUtils.wrapperToPrimitive(arguments[i].getClass());
+				}
+				this.setter = Reflection.findMethod(componentClass, "set" + methodName, argumentClasses);
+			}
+			this.arguments = arguments;
+			if (autoMethodName != null) {
+				this.autoMethod = Reflection.findMethod(componentClass, autoMethodName);
+			} else {
+				this.autoMethod = null;
 			}
 			
 		}
 		
 		@Override
 		public void scale(RocketComponent c, double multiplier, boolean scaleMass) {
-			
 			// Do not scale if set to automatic
-			if (autoMethod != null) {
-				boolean auto = (Boolean) autoMethod.invoke(c);
+			if (this.autoMethod != null) {
+				boolean auto = (Boolean) this.autoMethod.invoke(c);
 				if (auto) {
 					return;
 				}
 			}
 			
 			// Scale value
-			double value = (Double) getter.invoke(c);
+			double value = (Double) this.getter.invoke(c);
 			value = value * multiplier;
-			setter.invoke(c, value);
+			if (this.arguments == null || this.arguments.length == 0) {
+				this.setter.invoke(c, value);
+			} else {
+				Object[] parameters = new Object[this.arguments.length + 1];
+				parameters[0] = value;
+				System.arraycopy(this.arguments, 0, parameters, 1, this.arguments.length);
+				this.setter.invoke(c, parameters);
+			}
 		}
 		
 	}
@@ -723,6 +742,56 @@ public class ScaleDialog extends JDialog {
 		}
 		
 	}
+
+	private static class TransitionScaler implements Scaler {
+
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+
+			// If the multiplier is larger than 1, the fore/aft radius is scaled first
+			// to prevent the fore/aft shoulder radius from becoming larger than the fore/aft radius
+			if (multiplier >= 1) {
+				addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", scalers);
+				addScaler(Transition.class, "AftRadius", "isForeRadiusAutomatic", scalers);
+				addScaler(Transition.class, "ForeShoulderRadius", scalers, false);
+				addScaler(Transition.class, "AftShoulderRadius", scalers, false);
+			}
+			// If the multiplier is smaller than 1, the fore/aft shoulder radius is scaled first
+			// to prevent the fore/aft radius from becoming larger than the fore/aft shoulder radius
+			else  {
+				addScaler(Transition.class, "ForeShoulderRadius", scalers, false);
+				addScaler(Transition.class, "AftShoulderRadius", scalers, false);
+				addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", scalers);
+				addScaler(Transition.class, "AftRadius", "isForeRadiusAutomatic", scalers);
+			}
+
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
+		}
+	}
+
+	private static class NoseConeScaler implements Scaler {
+
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+
+			// If the multiplier is larger than 1, the base radius is scaled first
+			// to prevent the shoulder radius from becoming larger than the base radius
+			if (multiplier >= 1) {
+				addScaler(NoseCone.class, "BaseRadius", "isBaseRadiusAutomatic", scalers);
+				addScaler(NoseCone.class, "ShoulderRadius", scalers);
+			}
+			// If the multiplier is smaller than 1, the shoulder radius is scaled first
+			// to prevent the base radius from becoming larger than the shoulder radius
+			else  {
+				addScaler(NoseCone.class, "ShoulderRadius", scalers);
+				addScaler(NoseCone.class, "BaseRadius", "isBaseRadiusAutomatic", scalers);
+			}
+
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
+		}
+	}
 	
 	private static class MassComponentScaler implements Scaler {
 		
@@ -737,9 +806,31 @@ public class ScaleDialog extends JDialog {
 		}
 		
 	}
+
+	private static class FinSetScaler implements Scaler {
+		@Override
+		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
+			final Map<Class<? extends RocketComponent>, List<Scaler>> scalers = new HashMap<>();
+			FinSet finset = (FinSet) component;
+			AxialMethod originalTabOffsetMethod = finset.getTabOffsetMethod();
+			finset.setTabOffsetMethod(AxialMethod.ABSOLUTE);
+
+			double tabOffset = finset.getTabOffset();
+			tabOffset = tabOffset * multiplier;
+
+
+			addScaler(FinSet.class, "Thickness", scalers);
+			addScaler(FinSet.class, "TabHeight", scalers);
+			addScaler(FinSet.class, "TabLength", scalers);
+
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
+
+			finset.setTabOffset(tabOffset);
+			finset.setTabOffsetMethod(originalTabOffsetMethod);
+		}
+	}
 	
 	private static class FreeformFinSetScaler implements Scaler {
-		
 		@Override
 		public void scale(RocketComponent component, double multiplier, boolean scaleMass) {
 			FreeformFinSet finset = (FreeformFinSet) component;
@@ -748,10 +839,8 @@ public class ScaleDialog extends JDialog {
 				points[i] = points[i].multiply(multiplier);
 			}
 			
-			finset.setPoints(points);
-			
+			finset.setPoints(points, false);
 		}
-		
 	}
 
 	private static class RadiusRingComponentScaler implements Scaler {
@@ -768,11 +857,7 @@ public class ScaleDialog extends JDialog {
 				addScaler(RadiusRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
 			}
 
-			for (List<Scaler> foo : scalers.values()) {
-				for (Scaler s : foo) {
-					s.scale(component, multiplier, scaleMass);
-				}
-			}
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
 		}
 
 	}
@@ -790,11 +875,7 @@ public class ScaleDialog extends JDialog {
 				addScaler(ThicknessRingComponent.class, "OuterRadius", "isOuterRadiusAutomatic", scalers);
 			}
 
-			for (List<Scaler> foo : scalers.values()) {
-				for (Scaler s : foo) {
-					s.scale(component, multiplier, scaleMass);
-				}
-			}
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
 		}
 	}
 
@@ -817,10 +898,15 @@ public class ScaleDialog extends JDialog {
 				addScaler(RailButton.class, "TotalHeight", scalers);
 			}
 
-			for (List<Scaler> foo : scalers.values()) {
-				for (Scaler s : foo) {
-					s.scale(component, multiplier, scaleMass);
-				}
+			performIterativeScaling(scalers, component, multiplier, scaleMass);
+		}
+	}
+
+	private static void performIterativeScaling(Map<Class<? extends RocketComponent>, List<Scaler>> scalers,
+												RocketComponent component, double multiplier, boolean scaleMass) {
+		for (List<Scaler> foo : scalers.values()) {
+			for (Scaler s : foo) {
+				s.scale(component, multiplier, scaleMass);
 			}
 		}
 	}

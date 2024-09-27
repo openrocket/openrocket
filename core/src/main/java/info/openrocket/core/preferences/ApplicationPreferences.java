@@ -19,12 +19,14 @@ import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.models.atmosphere.AtmosphericModel;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
+import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
@@ -35,7 +37,7 @@ import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 
-public abstract class ApplicationPreferences implements ChangeSource, ORPreferences {
+public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
@@ -153,7 +155,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
-	
+
+	private PinkNoiseWindModel averageWindModel = null;
+
+
 	/*
 	 * ******************************************************************************************
 	 *
@@ -347,19 +352,6 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		fireChangeEvent();
 	}
 	
-	public final double getWindTurbulenceIntensity() {
-		return Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.1);
-	}
-	
-	public final void setWindTurbulenceIntensity(double wti) {
-		double oldWTI = Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.3);
-		
-		if (MathUtil.equals(oldWTI, wti))
-			return;
-		this.putDouble(ApplicationPreferences.WIND_TURBULENCE, wti);
-		fireChangeEvent();
-	}
-	
 	public double getLaunchRodLength() {
 		return this.getDouble(LAUNCH_ROD_LENGTH, 1);
 	}
@@ -400,49 +392,34 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		fireChangeEvent();
 	}
 	
-	
-	
-	public double getWindSpeedAverage() {
-		return this.getDouble(WIND_AVERAGE, 2);
+
+
+	protected void loadWindModelState() {
+		double average = getDouble(WIND_AVERAGE, 2.0);
+		double turbulenceIntensity = getDouble(WIND_TURBULENCE, 0.1);
+		double direction = getDouble(WIND_DIRECTION, Math.PI / 2);
+
+		getAverageWindModel().setAverage(average);
+		getAverageWindModel().setTurbulenceIntensity(turbulenceIntensity);
+		getAverageWindModel().setDirection(direction);
 	}
-	
-	public void setWindSpeedAverage(double windAverage) {
-		if (MathUtil.equals(this.getDouble(WIND_AVERAGE, 2), windAverage))
-			return;
-		this.putDouble(WIND_AVERAGE, MathUtil.max(windAverage, 0));
-		fireChangeEvent();
+
+	protected void storeWindModelState() {
+		putDouble(WIND_AVERAGE, getAverageWindModel().getAverage());
+		putDouble(WIND_TURBULENCE, getAverageWindModel().getTurbulenceIntensity());
+		putDouble(WIND_DIRECTION, getAverageWindModel().getDirection());
 	}
-	
-	
-	public double getWindSpeedDeviation() {
-		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, 0.1);
-	}
-	
-	public void setWindSpeedDeviation(double windDeviation) {
-		double windAverage = this.getDouble(WIND_DIRECTION, 2);
-		if (windAverage < 0.1) {
-			windAverage = 0.1;
+
+	@Override
+	public PinkNoiseWindModel getAverageWindModel() {
+		if (averageWindModel == null) {
+			averageWindModel = new PinkNoiseWindModel();
+			averageWindModel.addChangeListener(this);
+			loadWindModelState();
 		}
-		setWindTurbulenceIntensity(windDeviation / windAverage);
+		return averageWindModel;
 	}
-	
-	public void setWindDirection(double direction) {
-		direction = MathUtil.reduce2Pi(direction);
-		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
-			this.setLaunchRodDirection(direction);
-		}
-		if (MathUtil.equals(this.getDouble(WIND_DIRECTION, Math.PI / 2), direction))
-			return;
-		this.putDouble(WIND_DIRECTION, direction);
-		fireChangeEvent();
-		
-	}
-	
-	public double getWindDirection() {
-		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
-		
-	}
-	
+
 	public double getLaunchAltitude() {
 		return this.getDouble(LAUNCH_ALTITUDE, 0);
 	}
@@ -1362,6 +1339,13 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 			if (l instanceof StateChangeListener) {
 				((StateChangeListener) l).stateChanged(event);
 			}
+		}
+	}
+
+	@Override
+	public void stateChanged(EventObject e) {
+		if (e.getSource() == averageWindModel) {
+			storeWindModelState();
 		}
 	}
 }

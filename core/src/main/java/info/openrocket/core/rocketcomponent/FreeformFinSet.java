@@ -242,13 +242,17 @@ public class FreeformFinSet extends FinSet {
 	/** maintained just for backwards compatibility:
 	 */
 	public void setPoints(Coordinate[] newPoints) {
+		setPoints(newPoints, true);
+	}
+
+	public void setPoints(Coordinate[] newPoints, boolean validateFinTab) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FreeformFinSet) {
 				((FreeformFinSet) listener).setPoints(newPoints);
 			}
 		}
 
-		setPoints(new ArrayList<>(Arrays.asList(newPoints)));
+		setPoints(new ArrayList<>(Arrays.asList(newPoints)), validateFinTab);
 	}
 	
 	/**
@@ -256,7 +260,11 @@ public class FreeformFinSet extends FinSet {
 	 * 
 	 * @param newPoints New points to set as the exposed edges of the fin
 	 */
-	public void setPoints( ArrayList<Coordinate> newPoints) {
+	public void setPoints(ArrayList<Coordinate> newPoints) {
+		setPoints(newPoints, true);
+	}
+
+	public void setPoints( ArrayList<Coordinate> newPoints, boolean validateFinTab) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FreeformFinSet) {
 				((FreeformFinSet) listener).setPoints(newPoints);
@@ -264,16 +272,16 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		final Coordinate delta = newPoints.get(0).multiply(-1);
-		if( IGNORE_SMALLER_THAN < delta.length2()){
-			newPoints = translatePoints( newPoints, delta);
+		if (IGNORE_SMALLER_THAN < delta.length2()) {
+			newPoints = translatePoints(newPoints, delta);
 		}
 
-		for ( int i =0; i < newPoints.size(); ++i ) {
+		for (int i = 0; i < newPoints.size(); ++i) {
 			final Coordinate p = newPoints.get(i);
-			if( p.x > SNAP_LARGER_THAN){
+			if (p.x > SNAP_LARGER_THAN) {
 				newPoints.set(i, p.setX(SNAP_LARGER_THAN));
 			}
-			if( p.y > SNAP_LARGER_THAN){
+			if (p.y > SNAP_LARGER_THAN) {
 				newPoints.set(i, p.setY(SNAP_LARGER_THAN));
 			}
 		}
@@ -284,9 +292,9 @@ public class FreeformFinSet extends FinSet {
 
 		this.points = newPoints;
 
-		update();
+		update(validateFinTab);
 
-		if( intersects()){
+		if (intersects()) {
 			// on error, reset to the old points
 			this.points = pointsCopy;
 			this.length = lengthCopy;
@@ -432,21 +440,26 @@ public class FreeformFinSet extends FinSet {
 
 	@Override
 	public void update() {
+		update(true);
+	}
+
+	public void update(boolean validateFinTab) {
 		final double oldLength = this.length;
 		this.length = points.get(points.size() -1).x - points.get(0).x;
 		this.setAxialOffset(this.axialMethod, this.axialOffset);
 
-		if(null != this.getParent()) {
+		if (this.getParent() != null) {
 			clampFirstPoint();
 
-			for(int i=1; i < points.size()-1; i++) {
+			for (int i=1; i < points.size()-1; i++) {
 				clampInteriorPoint(i);
 			}
-			
+
 			clampLastPoint();
 
-			if (oldLength != this.length)
+			if (oldLength != this.length && validateFinTab) {
 				validateFinTabLength();
+			}
 		}
 	}
 

@@ -73,6 +73,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions ().getAverageWindModel().setAverage(0.1);
 		rocket.getSelectedConfiguration().setAllStages();
 		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		sim.setFlightConfigurationId(fcid);
