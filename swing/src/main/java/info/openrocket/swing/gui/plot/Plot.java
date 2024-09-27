@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.plot;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.simulation.DataType;
+import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -197,6 +198,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
 					@Override
 					public String generateToolTip(XYDataset dataset, int series, int item) {
+
 						XYSeriesCollection collection = data[finalAxisno];
 						if (collection.getSeriesCount() == 0) {
 							return null;
@@ -208,16 +210,25 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 						int dataTypeIdx = ser.getDataIdx();
 						DataType type = config.getType(dataTypeIdx);
-						
+
+						String nameT = FlightDataType.TYPE_TIME.getName();
+						double dataT = Double.NaN;
+						List<Double> time = allBranches.get(ser.getBranchIdx()).get((T)FlightDataType.TYPE_TIME);
+						if (null != time) {
+							dataT = time.get(item);
+						}
+						String unitT = FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString();
+
 						String nameX = config.getDomainAxisType().getName();
-						String unitX = domainUnit.getUnit();
 						double dataX = dataset.getXValue(series, item);
+						String unitX = domainUnit.getUnit();
 
 						String nameY = type.toString();
 						double dataY = dataset.getYValue(series, item);
 						String unitY = ser.getUnit();
 						
 						return formatSampleTooltip(name,
+												   nameT, dataT, unitT,
 												   nameX, dataX, unitX,
 												   nameY, dataY, unitY);
 					}
@@ -306,6 +317,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	}
 
 	protected String formatSampleTooltip(String dataName,
+										 String nameT, double dataT, String unitT,
 										 String nameX, double dataX, String unitX,
 										 String nameY, double dataY, String unitY) {
 
@@ -318,20 +330,28 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		sb.append(String.format("<b><i>%s</i></b><br>", dataName));
 
-		sb.append(String.format(strFormat, nameX, df_x.format(dataX), unitX));
-
+		// If I was given valid Y data, put it in tooltip
 		if (!Double.isNaN(dataY)) {
 			DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
 			sb.append(String.format(strFormat, nameY, df_y.format(dataY), unitY));
 		}
 
+		// Assuming X data is valid
+		sb.append(String.format(strFormat, nameX, df_x.format(dataX), unitX));
+
+		// If I've got time data, and my domain isn't time, add time to tooltip
+		if (!Double.isNaN(dataT) && !nameX.equals(nameT)) {
+			DecimalFormat df_t = DecimalFormatter.df(dataT, 2, false);
+			sb.append(String.format(strFormat, nameT, df_t.format(dataT), unitT));
+		}
+			
 		sb.append("</html>");
 		
 		return sb.toString();
 	}
 
 	protected String formatSampleTooltip(String dataName, String nameX, double dataX, String unitX) {
-		return formatSampleTooltip(dataName, nameX, dataX, unitX, "", Double.NaN, "");
+		return formatSampleTooltip(dataName, "", Double.NaN, "", nameX, dataX, unitX, "", Double.NaN, "");
 	}
 
 	protected static class LegendItems implements LegendItemSource {
