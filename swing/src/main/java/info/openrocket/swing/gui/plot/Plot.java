@@ -202,16 +202,24 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 							return null;
 						}
 						MetadataXYSeries ser = (MetadataXYSeries) collection.getSeries(series);
-						String unitY = ser.getUnit();
-						String unitX = domainUnit.getUnit();
-
-						double dataY = dataset.getYValue(series, item);
-						double dataX = dataset.getXValue(series, item);
 
 						// Determine the appropriate name based on the time and series
 						String name = getNameBasedOnIdxAndSeries(ser, item);
 
-						return formatSampleTooltip(name, dataX, unitX, dataY, unitY);
+						int dataTypeIdx = ser.getDataIdx();
+						DataType type = config.getType(dataTypeIdx);
+						
+						String nameX = config.getDomainAxisType().getName();
+						String unitX = domainUnit.getUnit();
+						double dataX = dataset.getXValue(series, item);
+
+						String nameY = type.toString();
+						double dataY = dataset.getYValue(series, item);
+						String unitY = ser.getUnit();
+						
+						return formatSampleTooltip(name,
+												   nameX, dataX, unitX,
+												   nameY, dataY, unitY);
 					}
 				};
 
@@ -297,32 +305,33 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		return type;
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY,
-										 boolean addYValue) {
+	protected String formatSampleTooltip(String dataName,
+										 String nameX, double dataX, String unitX,
+										 String nameY, double dataY, String unitY) {
 
-		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
+		final String strFormat = "%s: %s %s<br>";
+		
 		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("<html>" +
-				"<b><i>%s</i></b><br>", dataName));
+		sb.append("<html>");
 
-		if (addYValue) {
-			sb.append(String.format("Y: %s %s<br>", df_y.format(dataY), unitY));
+		sb.append(String.format("<b><i>%s</i></b><br>", dataName));
+
+		sb.append(String.format(strFormat, nameX, df_x.format(dataX), unitX));
+
+		if (!Double.isNaN(dataY)) {
+			DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
+			sb.append(String.format(strFormat, nameY, df_y.format(dataY), unitY));
 		}
 
-		sb.append(String.format("X: %s %s<br>" +
-				"</html>", df_x.format(dataX), unitX));
-
+		sb.append("</html>");
+		
 		return sb.toString();
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY) {
-		return formatSampleTooltip(dataName, dataX, unitX, dataY, unitY, true);
-	}
-
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX) {
-		return formatSampleTooltip(dataName, dataX, unitX, 0, "", false);
+	protected String formatSampleTooltip(String dataName, String nameX, double dataX, String unitX) {
+		return formatSampleTooltip(dataName, nameX, dataX, unitX, "", Double.NaN, "");
 	}
 
 	protected static class LegendItems implements LegendItemSource {

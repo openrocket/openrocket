@@ -282,14 +282,13 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			double intercept = (maxThis * minLeft - maxLeft * minThis)/(maxThis - minThis);
 			
 			XYSeriesCollection collection = data[axisno];
-			for (XYSeries series : (List<XYSeries>)(collection.getSeries())) {
-				Plot.MetadataXYSeries metaSeries = (Plot.MetadataXYSeries) series;
+			for (MetadataXYSeries series : (List<MetadataXYSeries>)(collection.getSeries())) {
 
-				if (metaSeries.getBranchIdx() != branch) {
+				if (series.getBranchIdx() != branch) {
 					continue;
 				}
 
-				int dataTypeIdx = metaSeries.getDataIdx();
+				int dataTypeIdx = series.getDataIdx();
 				FlightDataType type = config.getType(dataTypeIdx);
 				String yName = type.toString();
 				List<Double> range = dataBranch.get(type);
@@ -319,9 +318,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 						
 						// Convert units
 						String unitX = config.getDomainAxisUnit().getUnit();
-						String unitY = metaSeries.getUnit();
+						String unitY = series.getUnit();
 						String unitT = FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString();
-						String tooltipText = formatEventTooltip(getNameBasedOnIdxAndSeries(metaSeries, sampleIdx), events,
+						String tooltipText = formatEventTooltip(getNameBasedOnIdxAndSeries(series, sampleIdx), events,
 																tName, t, unitT,
 																xName, xcoord, unitX,
 																yName, ycoord, unitY);
