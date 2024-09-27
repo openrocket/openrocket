@@ -1,9 +1,11 @@
 package info.openrocket.swing.gui.plot;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.simulation.DataType;
 import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -53,6 +55,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /*
  * TODO: It should be possible to simplify this code quite a bit by using a single Renderer instance for
@@ -227,10 +230,11 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 						double dataY = dataset.getYValue(series, item);
 						String unitY = ser.getUnit();
 						
-						return formatSampleTooltip(name,
-												   nameT, dataT, unitT,
-												   nameX, dataX, unitX,
-												   nameY, dataY, unitY);
+						return formatTooltip(name,
+											 nameT, dataT, unitT,
+											 nameX, dataX, unitX,
+											 nameY, dataY, unitY,
+											 null);
 					}
 				};
 
@@ -316,10 +320,11 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		return type;
 	}
 
-	protected String formatSampleTooltip(String dataName,
-										 String nameT, double dataT, String unitT,
-										 String nameX, double dataX, String unitX,
-										 String nameY, double dataY, String unitY) {
+	protected String formatTooltip(String dataName,
+								   String nameT, double dataT, String unitT,
+								   String nameX, double dataX, String unitX,
+								   String nameY, double dataY, String unitY,
+								   Set<FlightEvent> events) {
 
 		final String strFormat = "%s: %s %s<br>";
 		
@@ -330,7 +335,29 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		sb.append(String.format("<b><i>%s</i></b><br>", dataName));
 
-		// If I was given valid Y data, put it in tooltip
+		// Any events?
+		if ((null != events) && (events.size() != 0)) {
+			// Pass through and collect any warnings
+			for (FlightEvent event : events) {
+				if (event.getType() == FlightEvent.Type.SIM_WARN) {
+					sb.append("<b><i>Warning:  " + ((Warning) event.getData()).toString() + "</b></i><br>");
+				}
+			}
+
+			// Now pass through and collect the other events
+			String eventStr = "";
+			for (FlightEvent event : events) {
+				if (event.getType() != FlightEvent.Type.SIM_WARN) {
+					if (eventStr != "") {
+						eventStr = eventStr + ", ";
+					}
+					eventStr = eventStr + event.getType();
+				}
+			}
+			sb.append(eventStr + "<br>");
+		}
+
+		// Valid Y data?
 		if (!Double.isNaN(dataY)) {
 			DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
 			sb.append(String.format(strFormat, nameY, df_y.format(dataY), unitY));
@@ -350,8 +377,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		return sb.toString();
 	}
 
-	protected String formatSampleTooltip(String dataName, String nameX, double dataX, String unitX) {
-		return formatSampleTooltip(dataName, "", Double.NaN, "", nameX, dataX, unitX, "", Double.NaN, "");
+	protected String formatTooltip(String dataName, String nameX, double dataX, String unitX) {
+		return formatTooltip(dataName, "", Double.NaN, "", nameX, dataX, unitX, "", Double.NaN, "", null);
 	}
 
 	protected static class LegendItems implements LegendItemSource {

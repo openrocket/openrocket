@@ -320,10 +320,11 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 						String unitX = config.getDomainAxisUnit().getUnit();
 						String unitY = series.getUnit();
 						String unitT = FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString();
-						String tooltipText = formatEventTooltip(getNameBasedOnIdxAndSeries(series, sampleIdx), events,
-																tName, t, unitT,
-																xName, xcoord, unitX,
-																yName, ycoord, unitY);
+						String tooltipText = formatTooltip(getNameBasedOnIdxAndSeries(series, sampleIdx),
+														   tName, t, unitT,
+														   xName, xcoord, unitX,
+														   yName, ycoord, unitY,
+														   events);
 						double yloc = slope * ycoord + intercept;
 						
 						if (!Double.isNaN(xcoord) && !Double.isNaN(ycoord)) {
@@ -336,57 +337,6 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				}
 			}
 		}
-	}
-
-	protected String formatEventTooltip(String dataName, Set<FlightEvent> events,
-										String tName, double time, String unitT,
-										String xName, double dataX, String unitX,
-										String yName, double dataY, String unitY) {
-
-		DecimalFormat df_t = DecimalFormatter.df(time, 2, false);
-		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
-		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
-
-		StringBuilder sb = new StringBuilder();
-
-		// start tooltip
-		sb.append("<html>");
-
-		// Branchname(s)
-		sb.append(String.format("<b><i>%s</i></b><br>", dataName));
-
-		// Any events?
-		if ((null != events) && (events.size() != 0)) {
-			// Pass through and collect any warnings
-			for (FlightEvent event : events) {
-				if (event.getType() == FlightEvent.Type.SIM_WARN) {
-					sb.append("<b><i>Warning:  " + ((Warning) event.getData()).toString() + "</b></i><br>");
-				}
-			}
-
-			// Now pass through and collect the other events
-			String eventStr = "";
-			for (FlightEvent event : events) {
-				if (event.getType() != FlightEvent.Type.SIM_WARN) {
-					if (eventStr != "") {
-						eventStr = eventStr + ", ";
-					}
-					eventStr = eventStr + event.getType();
-				}
-			}
-			sb.append(eventStr + "<br>");
-		}
-
-		if (!tName.equals(xName)) {
-			sb.append(String.format("%s: %s %s<br>", tName, df_t.format(time), unitT));
-		}
-		sb.append(String.format("%s: %s %s<br>", xName, df_x.format(dataX), unitX));
-		sb.append(String.format("%s: %s %s<br>", yName, df_y.format(dataY), unitY));
-
-		// End tooltip
-		sb.append("</html>");
-
-		return sb.toString();
 	}
 
 	private List<EventDisplayInfo> buildEventInfo() {
