@@ -274,10 +274,10 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			
 			double minLeft = minMaxAxes.get(0).getMinValue();
 			double maxLeft = minMaxAxes.get(0).getMaxValue();
-
+			
 			double minThis = minMaxAxes.get(axisno).getMinValue();
 			double maxThis = minMaxAxes.get(axisno).getMaxValue();
-
+			
 			double slope = (maxLeft - minLeft)/(maxThis - minThis);
 			double intercept = (maxThis * minLeft - maxLeft * minThis)/(maxThis - minThis);
 			

@@ -73,7 +73,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected final List<ModifiedXYItemRenderer> renderers = new ArrayList<>();
 	protected final LegendItems legendItems;
 	protected final XYSeriesCollection[] data;
-	protected final C filledConfig;		// Configuration after using 'fillAutoAxes'
+	protected final C filledConfig;		// Configuration after using 'fillAutoAxes' and 'fitAxes'
 
 	protected final JFreeChart chart;
 
@@ -124,9 +124,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		int seriesCount = 0;
 
 		// Compute the axes based on the min and max value of all branches
-		C plotConfig = filledConfig.cloneConfiguration();
-		plotConfig.fitAxes(allBranches);
-		List<Axis> minMaxAxes = plotConfig.getAllAxes();
+		filledConfig.fitAxes(allBranches);
+		List<Axis> minMaxAxes = filledConfig.getAllAxes();
 
 		// Create the XYSeries objects from the flight data and store into the collections
 		String[] axisLabel = new String[2];
