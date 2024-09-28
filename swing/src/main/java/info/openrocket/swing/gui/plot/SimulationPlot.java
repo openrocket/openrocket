@@ -123,8 +123,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		} else {	// Other domains are plotted as image annotations
 			if (branch == -1) {
 				// For icon markers, we need to do the plotting separately, otherwise you can have icon markers from e.g.
-				// branch 1 be plotted on branch 0
-				for (int b = 0; b < simulation.getSimulatedData().getBranchCount(); b++) {
+				// branch 1 be plotted on branch 0.  Also, need to take the branches in reverse order so lower number
+				// branches get their icons put on top of higher number and the tooltip headings are correct.
+				for (int b = simulation.getSimulatedData().getBranchCount() - 1; b >= 0; b--) {
 					fillEventLists(b, eventColors, eventImages, eventSets);
 					dataBranch = simulation.getSimulatedData().getBranch(b);
 					plotIconMarkers(plot, simulation, b, eventImages, eventSets);
@@ -157,9 +158,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			double separationTime = allBranches.get(i).getSeparationTime();
 			int separationIdx = allBranches.get(i).getDataIndexOfTime(separationTime);
 
-			// If the separation time is after the current data index, the stage is still attached, so add the
+			// If the separation time is at or after the current data index, the stage is still attached, so add the
 			// stage name to the series name
-			if (separationIdx != -1 && separationIdx > dataIdx) {
+			if (separationIdx != -1 && separationIdx >= dataIdx) {
 				newBranchName.append(" + ").append(allBranches.get(i).getName());
 			}
 		}
