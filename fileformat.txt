@@ -71,3 +71,5 @@ The following file format versions exist:
       Added a priority attribute to simulation warnings.
       Added document preferences (<docprefs>).
       Added wind model settings (<wind mode="{average or multilevel}">), and windmodeltype to simulation conditions.
+      Added warning flight events
+      

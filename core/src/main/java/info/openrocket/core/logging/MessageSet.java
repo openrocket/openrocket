@@ -1,15 +1,16 @@
 package info.openrocket.core.logging;
 
+import java.util.AbstractSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.Mutable;
-
-import java.util.AbstractSet;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A set that contains multiple <code>Message</code>s.  When adding a
@@ -69,7 +70,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
      * @param sources the sources of the message (rocket components that caused the message)
      *
      */
-    public boolean add(E m, RocketComponent... sources) {
+	public boolean add(E m, RocketComponent... sources) {
         mutable.check();
         try {
             m = (E) m.clone();
@@ -78,7 +79,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
         }
         m.setSources(sources);
         return add(m);
-    }
+	}
 
     /**
      * Add a <code>Message</code> of the specified type with the specified discriminator to the
@@ -148,6 +149,14 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
         }
         return list;
     }
+
+	public Message findById(UUID id) {
+		for (Message m : messages) {
+			if (m.id.equals(id))
+				return m;
+		}
+		throw new BugException("Message with id " + id + " not found");
+	}
 
     public void immute() {
         mutable.immute();

@@ -1,8 +1,11 @@
 package info.openrocket.swing.gui.plot;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.simulation.DataType;
+import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
@@ -52,6 +55,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /*
  * TODO: It should be possible to simplify this code quite a bit by using a single Renderer instance for
@@ -69,7 +73,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected final List<ModifiedXYItemRenderer> renderers = new ArrayList<>();
 	protected final LegendItems legendItems;
 	protected final XYSeriesCollection[] data;
-	protected final C filledConfig;		// Configuration after using 'fillAutoAxes'
+	protected final C filledConfig;		// Configuration after using 'fillAutoAxes' and 'fitAxes'
 
 	protected final JFreeChart chart;
 
@@ -101,8 +105,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		// Create the data series for both axes
 		this.data = new XYSeriesCollection[2];
-		this.data[0] = new XYSeriesCollection();
-		this.data[1] = new XYSeriesCollection();
+		this.data[Util.PlotAxisSelection.LEFT.getValue()] = new XYSeriesCollection();
+		this.data[Util.PlotAxisSelection.RIGHT.getValue()] = new XYSeriesCollection();
 
 		// Fill the auto-selections based on first branch selected.
 		this.filledConfig = config.fillAutoAxes(mainBranch);
@@ -120,9 +124,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		int seriesCount = 0;
 
 		// Compute the axes based on the min and max value of all branches
-		C plotConfig = filledConfig.cloneConfiguration();
-		plotConfig.fitAxes(allBranches);
-		List<Axis> minMaxAxes = plotConfig.getAllAxes();
+		filledConfig.fitAxes(allBranches);
+		List<Axis> minMaxAxes = filledConfig.getAllAxes();
 
 		// Create the XYSeries objects from the flight data and store into the collections
 		String[] axisLabel = new String[2];
@@ -197,21 +200,40 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				StandardXYToolTipGenerator tooltipGenerator = new StandardXYToolTipGenerator() {
 					@Override
 					public String generateToolTip(XYDataset dataset, int series, int item) {
+
 						XYSeriesCollection collection = data[finalAxisno];
 						if (collection.getSeriesCount() == 0) {
 							return null;
 						}
 						MetadataXYSeries ser = (MetadataXYSeries) collection.getSeries(series);
-						String unitY = ser.getUnit();
-						String unitX = domainUnit.getUnit();
-
-						double dataY = dataset.getYValue(series, item);
-						double dataX = dataset.getXValue(series, item);
 
 						// Determine the appropriate name based on the time and series
 						String name = getNameBasedOnIdxAndSeries(ser, item);
 
-						return formatSampleTooltip(name, dataX, unitX, dataY, unitY, item);
+						int dataTypeIdx = ser.getDataIdx();
+						DataType type = config.getType(dataTypeIdx);
+
+						String nameT = FlightDataType.TYPE_TIME.getName();
+						double dataT = Double.NaN;
+						List<Double> time = allBranches.get(ser.getBranchIdx()).get((T)FlightDataType.TYPE_TIME);
+						if (null != time) {
+							dataT = time.get(item);
+						}
+						String unitT = FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString();
+
+						String nameX = config.getDomainAxisType().getName();
+						double dataX = dataset.getXValue(series, item);
+						String unitX = domainUnit.getUnit();
+
+						String nameY = type.toString();
+						double dataY = dataset.getYValue(series, item);
+						String unitY = ser.getUnit();
+						
+						return formatTooltip(name,
+											 nameT, dataT, unitT,
+											 nameX, dataX, unitX,
+											 nameY, dataY, unitY,
+											 null);
 					}
 				};
 
@@ -278,7 +300,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, T type, Unit unit, B branch,
 												 int branchIdx, String branchName, String baseName) {
 		// Default implementation for regular DataBranch
-		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, unit.getUnit(), branchName, baseName);
+		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, dataIndex, unit.getUnit(), branchName, baseName);
 
 		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
 		List<Double> ploty = branch.get(type);
@@ -297,44 +319,65 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		return type;
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY,
-										 int sampleIdx, boolean addYValue) {
-		String ord_end = getOrdinalEnding(sampleIdx);
+	protected String formatTooltip(String dataName,
+								   String nameT, double dataT, String unitT,
+								   String nameX, double dataX, String unitX,
+								   String nameY, double dataY, String unitY,
+								   Set<FlightEvent> events) {
 
-		DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
+		final String strFormat = "%s: %s %s<br>";
+		
 		DecimalFormat df_x = DecimalFormatter.df(dataX, 2, false);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("<html>" +
-				"<b><i>%s</i></b><br>", dataName));
+		sb.append("<html>");
 
-		if (addYValue) {
-			sb.append(String.format("Y: %s %s<br>", df_y.format(dataY), unitY));
+		sb.append(String.format("<b><i>%s</i></b><br>", dataName));
+
+		// Any events?
+		if ((null != events) && (events.size() != 0)) {
+			// Pass through and collect any warnings
+			for (FlightEvent event : events) {
+				if (event.getType() == FlightEvent.Type.SIM_WARN) {
+					sb.append("<b><i>Warning:  " + ((Warning) event.getData()).toString() + "</b></i><br>");
+				}
+			}
+
+			// Now pass through and collect the other events
+			String eventStr = "";
+			for (FlightEvent event : events) {
+				if (event.getType() != FlightEvent.Type.SIM_WARN) {
+					if (eventStr != "") {
+						eventStr = eventStr + ", ";
+					}
+					eventStr = eventStr + event.getType();
+				}
+			}
+			sb.append(eventStr + "<br>");
 		}
 
-		sb.append(String.format("X: %s %s<br>" +
-				"%d<sup>%s</sup> sample" +
-				"</html>", df_x.format(dataX), unitX, sampleIdx, ord_end));
+		// Valid Y data?
+		if (!Double.isNaN(dataY)) {
+			DecimalFormat df_y = DecimalFormatter.df(dataY, 2, false);
+			sb.append(String.format(strFormat, nameY, df_y.format(dataY), unitY));
+		}
 
+		// Assuming X data is valid
+		sb.append(String.format(strFormat, nameX, df_x.format(dataX), unitX));
+
+		// If I've got time data, and my domain isn't time, add time to tooltip
+		if (!Double.isNaN(dataT) && !nameX.equals(nameT)) {
+			DecimalFormat df_t = DecimalFormatter.df(dataT, 2, false);
+			sb.append(String.format(strFormat, nameT, df_t.format(dataT), unitT));
+		}
+			
+		sb.append("</html>");
+		
 		return sb.toString();
 	}
 
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, double dataY, String unitY, int sampleIdx) {
-		return formatSampleTooltip(dataName, dataX, unitX, dataY, unitY, sampleIdx, true);
-	}
-
-	protected String formatSampleTooltip(String dataName, double dataX, String unitX, int sampleIdx) {
-		return formatSampleTooltip(dataName, dataX, unitX, 0, "", sampleIdx, false);
-	}
-
-	private String getOrdinalEnding(int n) {
-		if (n % 100 == 11 || n % 100 == 12 || n % 100 == 13) return "th";
-		return switch (n % 10) {
-			case 1 -> "st";
-			case 2 -> "nd";
-			case 3 -> "rd";
-			default -> "th";
-		};
+	protected String formatTooltip(String dataName, String nameX, double dataX, String unitX) {
+		return formatTooltip(dataName, "", Double.NaN, "", nameX, dataX, unitX, "", Double.NaN, "", null);
 	}
 
 	protected static class LegendItems implements LegendItemSource {
@@ -540,18 +583,25 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 	protected static class MetadataXYSeries extends XYSeries {
 		private final int branchIdx;
+		private final int dataIdx;
 		private final String unit;
 		private final String branchName;
 		private String baseName;
 
-		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, String unit,
+		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, int dataIdx, String unit,
 								String branchName, String baseName) {
 			super(key, autoSort, allowDuplicateXValues);
 			this.branchIdx = branchIdx;
+			this.dataIdx = dataIdx;
 			this.unit = unit;
 			this.branchName = branchName;
 			this.baseName = baseName;
 			updateDescription();
+		}
+
+		public MetadataXYSeries(Comparable key, boolean autoSort, boolean allowDuplicateXValues, int branchIdx, String unit,
+								String branchName, String baseName) {
+			this(key, autoSort, allowDuplicateXValues, branchIdx, -1, unit, branchName, baseName);
 		}
 
 		public String getUnit() {
@@ -560,6 +610,10 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 		public int getBranchIdx() {
 			return branchIdx;
+		}
+
+		public int getDataIdx() {
+			return dataIdx;
 		}
 
 		public String getBranchName() {

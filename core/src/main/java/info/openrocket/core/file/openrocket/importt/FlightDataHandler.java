@@ -39,7 +39,7 @@ class FlightDataHandler extends AbstractElementHandler {
 			WarningSet warnings) {
 		
 		if (element.equals("warning")) {
-			return PlainTextHandler.INSTANCE;
+			return new WarningHandler(context.getOpenRocketDocument().getRocket(), warningSet);
 		}
 		if (element.equals("databranch")) {
 			if (attributes.get("name") == null || attributes.get("types") == null) {
@@ -83,10 +83,10 @@ class FlightDataHandler extends AbstractElementHandler {
 			if (branch.getLength() > 0) {
 				branches.add(branch);
 			}
-		} else if (element.equals("warning")) {
-			String priorityStr = attributes.get("priority");
-			MessagePriority priority = MessagePriority.fromExportLabel(priorityStr);
-			warningSet.add(Warning.fromString(content, priority));
+			//		} else if (element.equals("warning")) {
+			//			String priorityStr = attributes.get("priority");
+			//			MessagePriority priority = MessagePriority.fromExportLabel(priorityStr);
+			//			warningSet.add(Warning.fromString(content, priority));
 		}
 	}
 	
@@ -157,6 +157,9 @@ class FlightDataHandler extends AbstractElementHandler {
 		data.getWarningSet().addAll(warningSet);
 		data.immute();
 	}
-	
-	
+
+
+	public WarningSet getWarningSet() {
+		return warningSet;
+	}
 }

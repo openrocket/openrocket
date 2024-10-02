@@ -430,7 +430,24 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			
 			for (Warning w : data.getWarningSet()) {
-				writeElementWithAttribute("warning", "priority", w.getPriority().getExportLabel(), TextUtil.escapeXML(w.toString()));
+				writeln("<warning>");
+				indent++;
+
+				writeElement("id", w.getID().toString());
+				writeElement("description", w.getMessageDescription());
+				writeElement("priority", w.getPriority());
+
+				if (null != w.getSources()) {
+					for (RocketComponent c : w.getSources()) {
+						writeElement("source", c.getID());
+					}
+				}
+
+				// We write the whole string content for backwards compatibility with old versions
+				writeln(TextUtil.escapeXML(w.toString()));
+
+				indent--;
+				writeln("</warning>");
 			}
 			
 			// Check whether to store data
@@ -606,16 +623,21 @@ public class OpenRocketSaver extends RocketSaver {
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
 			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
-					+ "\" type=\"" + enumToXMLName(event.getType());
+					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"";
+			
 			if (event.getSource() != null) {
-				eventStr += "\" source=\"" + TextUtil.escapeXML(event.getSource().getID());
+				eventStr += " source=\"" + TextUtil.escapeXML(event.getSource().getID()) + "\"";
 			}
 
+			if (event.getType() == FlightEvent.Type.SIM_WARN) {
+				eventStr += " id=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
+			}
+			
 			if (event.getType() == FlightEvent.Type.SIM_ABORT) {
-				eventStr += "\" cause=\"" + enumToXMLName(((SimulationAbort)(event.getData())).getCause());
+				eventStr += " cause=\"" + enumToXMLName(((SimulationAbort)(event.getData())).getCause()) + "\"";
 			}
 
-			eventStr += "\"/>";
+			eventStr += "/>";
 			writeln(eventStr);
 		}
 		
@@ -676,14 +698,6 @@ public class OpenRocketSaver extends RocketSaver {
 			content = "";
 		writeln("<" + element + ">" + TextUtil.escapeXML(content) + "</" + element + ">");
 	}
-
-	private void writeElementWithAttribute(String element, String attributeName, String attribute, Object content) throws IOException {
-		content = content == null ? "" : content;
-
-		writeln("<" + element + " " + attributeName + " = \"" + attribute + "\">" + TextUtil.escapeXML(content) + "</" + element + ">");
-	}
-
-	
 	
 	private void writeln(String str) throws IOException {
 		if (str.length() == 0) {

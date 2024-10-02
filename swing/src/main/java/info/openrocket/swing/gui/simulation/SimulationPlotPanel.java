@@ -174,8 +174,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		col0.setPreferredWidth(w);
 		col0.setMaxWidth(w);
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
-		selectorPanel.add(new JScrollPane(table), "height 200px, width 200lp, grow 1, wrap rel");
-
+		selectorPanel.add(new JScrollPane(table), "width 200lp, grow 1, wrap rel");
 
 		////  All + None buttons
 		JButton button = new JButton(trans.get("simplotpanel.but.All"));

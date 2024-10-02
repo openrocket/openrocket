@@ -1,6 +1,12 @@
 package info.openrocket.core.simulation;
 
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -11,15 +17,12 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;;
 
 /**
  * Tests to verify that simulations contain all the expected flight events.
  */
 public class FlightEventsTest extends BaseTestCase {
+	
 	private static final double EPSILON = 0.005;
 
 	/**
@@ -50,6 +53,7 @@ public class FlightEventsTest extends BaseTestCase {
 				new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.13, null),
 				new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, motorMountTube),
 				new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
+				new FlightEvent(FlightEvent.Type.SIM_WARN, 2.0, null, new Warning.HighSpeedDeployment(80.6)),
 				new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 				new FlightEvent(FlightEvent.Type.APOGEE, 2.48, rocket),
 				new FlightEvent(FlightEvent.Type.GROUND_HIT, 42.97, null),
@@ -99,6 +103,9 @@ public class FlightEventsTest extends BaseTestCase {
 		final ParallelStage sideBoosters = (ParallelStage) centerBoosterBody.getChild(1);
 		final BodyTube sideBoosterBodies = (BodyTube) sideBoosters.getChild(1);
 
+		Warning warn = Warning.OPEN_AIRFRAME_FORWARD;
+		warn.setSources(new BodyTube[]{centerBoosterBody});
+		
 		// events whose time is too variable to check are given a time of 1200
 		for (int b = 0; b < 2; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
@@ -130,6 +137,7 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.BURNOUT, 2.01, centerBoosterBody),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
+						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.01, null, warn),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 2.85, null),
 						new FlightEvent(FlightEvent.Type.APOGEE, 3.78, rocket),
 						new FlightEvent(FlightEvent.Type.GROUND_HIT, 9.0, null),
@@ -158,12 +166,9 @@ public class FlightEventsTest extends BaseTestCase {
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
 
-		// Test event count
-		assertEquals(expectedEvents.length, actualEvents.length, "Branch " + branchNo + " invalid number of events ");
-
 		// Test that all expected events are present, in the right order, at the right
 		// time, from the right sources
-		for (int i = 0; i < actualEvents.length; i++) {
+		for (int i = 0; i < Math.min(expectedEvents.length, actualEvents.length); i++) {
 			final FlightEvent expected = expectedEvents[i];
 			final FlightEvent actual = actualEvents[i];
 			assertSame(expected.getType(), actual.getType(),
@@ -185,6 +190,16 @@ public class FlightEventsTest extends BaseTestCase {
 			// Test that the event sources are correct
 			assertEquals(expected.getSource(), actual.getSource(),
 					"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong source ");
+
+			// If it's a warning event, make sure the warning types match
+			if (expected.getType() == FlightEvent.Type.SIM_WARN) {
+				assertTrue(actual.getData() instanceof Warning, "SIM_WARN event data is not a Warning");
+				assertTrue(((Warning) expected.getData()).equals(actual.getData()), "Expected: " + expected.getData() + " but was: " + actual.getData());
+			}
 		}
+
+		// Test event count
+		assertEquals(expectedEvents.length, actualEvents.length, "Branch " + branchNo + " incorrect number of events ");
+		
 	}
 }
