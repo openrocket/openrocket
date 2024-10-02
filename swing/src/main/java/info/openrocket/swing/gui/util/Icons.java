@@ -187,6 +187,9 @@ public class Icons {
 	}
 
 	public static Icon createDisabledIcon(Icon icon) {
+		if (!(icon instanceof ImageIcon)) {
+			return icon;
+		}
 		Image image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.getGraphics();
 		icon.paintIcon(null, g, 0, 0);
