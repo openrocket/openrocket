@@ -111,7 +111,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				currentStatus.addWarning(Warning.NO_RECOVERY_DEVICE);
 			}
 			
-			currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
+			currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
 			toSimulate.push(currentStatus);
 		
 			SimulationListenerHelper.fireStartSimulation(currentStatus);
