@@ -468,8 +468,7 @@ public class FinSetCalc extends RocketComponentCalc {
 							conditions.getVelocity() * conditions.getBeta());
 		}
 		if (mach >= CNA_SUPERSONIC) {
-			
-			double vel = conditions.getVelocity();
+			double vel = conditions.getVelocity() * conditions.getBeta();
 			double k1 = K1.getValue(mach);
 			double k2 = K2.getValue(mach);
 			double k3 = K3.getValue(mach);
