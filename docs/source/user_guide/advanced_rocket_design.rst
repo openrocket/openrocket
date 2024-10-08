@@ -425,7 +425,7 @@ Complex rockets fall into two basic categories, a rocket that is propelled by a 
 simultaneously ignited or multi-staged (massively-staged), propelled by a series of motors that successively ignite the
 next in line when the prior motor burns out.
 
-.. figure:: /img/user_guide/advanced_rocket_design/xkcd_whatif_24_model_suborbital.png
+.. figure:: /img/user_guide/advanced_rocket_design/Xkcd_whatif_24_model_suborbital.png
    :width: 392 px
    :align: center
    :figclass: or-image-border
@@ -456,23 +456,23 @@ Designing a Rocket with Clustered Motors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 OpenRocket makes it easy to design motor clusters. To begin with, add an **Inner Tube** to your aft-most **Body Tube**.
-On the **Motor** tab, check the "This component is a motor mount" box. Set its inner diameter to one of the standard
-motor sizes, unless you have a unique need: 13, 18, 24, 29, 38, 54, 75 or 98mm. Next, click on the **Cluster** tab.
+On the :guilabel:`Motor` tab, check the "This component is a motor mount" box. Set its inner diameter to one of the standard
+motor sizes, unless you have a unique need: 13, 18, 24, 29, 38, 54, 75 or 98mm. Next, click on the :guilabel:`Cluster` tab.
 
 .. figure:: /img/user_guide/advanced_rocket_design/ClusterTab.png
    :width: 800 px
    :align: center
    :figclass: or-image-border
-   :alt: OpenRocket's **Cluster** tab
+   :alt: OpenRocket's Cluster tab
 
-The **Cluster** tab lets you choose a common cluster configuration, and adjust it in your model. When you make an
+The :guilabel:`Cluster` tab lets you choose a common cluster configuration, and adjust it in your model. When you make an
 **Inner Tube** a cluster, you treat every tube in the cluster identically with each addition. If you add an
 **Engine block** or a **Mass component**, all of the tubes in the cluster will receive one.
 
 First, pick a cluster configuration from the image tiles on the left side of the tab. Realize that depending upon the
 sizes of your motor tube and body tube, not every cluster that you can make will fit.
 
-Next, adjust the **Tube separation**. This value controls how close the clustered motors are to each other. A value of
+Next, adjust the :guilabel:`Tube separation`. This value controls how close the clustered motors are to each other. A value of
 1 places the tubes in contact with each other. You can enter decimals like "1.25" in the separation field. In addition
 to potentially affecting your rocket's stability, the **Tube separation** you choose may influence the difficulty of
 wiring your clustered motors for ignition, and your ability to place adhesive and parts around tightly-packed tubes
@@ -484,7 +484,7 @@ during construction.
    :figclass: or-image-border
    :alt: Clustered motor mounts, viewed from aft.
 
-The **Rotation** setting rotates your cluster around the major axis of your rocket (the Up <--> Down one). It's used to
+The :guilabel:`Rotation` setting rotates your cluster around the major axis of your rocket (the Up <--> Down one). It's used to
 line up the motors with other decorative and structural components of your rocket. This alignment may be critical if
 you're creating a design that ducts eject gasses from one part of the rocket to another.
 

@@ -17,10 +17,10 @@ can export your data for analysis and charting in other packages.
 Plotting your rocket's flight
 =============================
 
-To begin learning about OpenRocket's plotting features, first, click the **Plot / Export** button on the **Flight simulations** window.
+To begin learning about OpenRocket's plotting features, first, click the :guilabel:`Plot / Export` button on the :guilabel:`Flight simulations` window.
 
 .. figure:: /img/user_guide/advanced_flight_simulation/PlotExportButton.png
-   :width: 800 px
+   :width: 400 px
    :align: center
    :figclass: or-image-border
    :alt: The Plot / export Button.
@@ -30,7 +30,7 @@ On the **Edit simulation** panel, you'll see tabs marked **Plot data** and **Exp
 Plotting data
 -------------
 
-The **Plot data** tab opens first. Here you can define many parameters that will determine what values are plotted, and
+The :guilabel:`Plot data` tab opens first. Here you can define many parameters that will determine what values are plotted, and
 what events are marked on the plot.
 
 .. figure:: /img/user_guide/advanced_flight_simulation/PlotExportWindow.png
@@ -137,8 +137,8 @@ margin for error.
 Launch Conditions and Simulation Options
 ========================================
 
-From the **Plot data** window, you can click the **<< Edit** button to configure **Launch conditions**, and
-**Simulation options** before you plot.
+From the :guilabel:`Plot data` window, you can click the :guilabel:`<< Edit:guilabel:` button to configure :guilabel:`Launch conditions`, and
+:guilabel:`Simulation options` before you plot.
 
 Launch conditions
 -----------------
@@ -162,7 +162,7 @@ simulation *passes or fails*, when it's evaluated for minimum speed off the rod.
 Simulation options
 ------------------
 
-In the **Simulation options** tab, the **Simulator options** let you choose the shape of the simulated Earth in your
+In the :guilabel:`Simulation options` tab, the :guilabel:`Simulator options` let you choose the shape of the simulated Earth in your
 calculations (*doing so* **does not** *affect the Earth background in Photo Studio*), and you can choose the time-resolution
 of the simulation. This is also the place where you add and set up **Simulation extensions**, which are beyond this
 guide's purpose.
@@ -180,7 +180,7 @@ guide's purpose.
 Exporting Data
 ==============
 
-Located on the **Plot / export panel**, the **Export Data tab** (shown below) helps you set up a Comma-Separated Value (.csv)
+Located on the :guilabel:`Plot / export panel`, the :guilabel:`Export Data tab` (shown below) helps you set up a Comma-Separated Value (.csv)
 formatted file to export data from your simulations. You can export any or all of over 50 values (generally speaking,
 the list of parameters above, plus **Coriolis acceleration**). Optional **Comments** sections list any flight events
 (**Apogee**, for example) you selected for your simulation, as well as description and field descriptions.
