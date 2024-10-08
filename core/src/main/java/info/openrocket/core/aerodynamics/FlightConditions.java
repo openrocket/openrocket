@@ -55,7 +55,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * Sqrt(1 - M^2) for M<1
 	 * Sqrt(M^2 - 1) for M>1
 	 */
-	private double beta = MathUtil.safeSqrt(1 - mach * mach);
+	private double beta = calculateBeta(mach);
 
 	/** Current roll rate. */
 	private double rollRate = 0;
@@ -243,10 +243,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			return;
 
 		this.mach = mach;
-		if (mach < 1)
-			this.beta = MathUtil.safeSqrt(1 - mach * mach);
-		else
-			this.beta = MathUtil.safeSqrt(mach * mach - 1);
+		this.beta = calculateBeta(mach);
 
 		fireChangeEvent();
 	}
@@ -286,6 +283,23 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 */
 	public double getBeta() {
 		return beta;
+	}
+
+	/**
+	 * Calculate the beta value (compressibility factor/Prandtl-Glauert correction factor) for the given Mach number.
+	 * Source: "Active Guidance and Dynamic Flight Mechanics for Model Rockets", David Ketchledge (1993)
+	 * @param mach the Mach number.
+	 * @return the beta value.
+	 */
+	private static double calculateBeta(double mach) {
+		if (mach < 0.8) {
+			return MathUtil.safeSqrt(1 - mach * mach);
+		} else if (mach < 1.1)
+			// Because beta reaches infinity for M=1, we clamp the factor to 0.6 in the transonic region (Mach 0.8-1.1)
+			return 0.6;		// sqrt(1 - 0.8^2)
+		else {
+			return MathUtil.safeSqrt(mach * mach - 1);
+		}
 	}
 
 	/**
