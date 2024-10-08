@@ -541,6 +541,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		valueChanged((TreeSelectionEvent) null); // updates FigureParameters
 	}
 
+	public void setSelectedComponent(RocketComponent component) {
+		if (component == null) {
+			selectionModel.setSelectionPath(null);
+			return;
+		}
+		TreePath path = ComponentTreeModel.makeTreePath(component);
+		selectionModel.setSelectionPath(path);
+	}
+
 	/**
 	 * Return the angle of attack used in CP calculation.  NaN signifies the default value
 	 * of zero.
@@ -672,8 +681,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			if (newClick) {
 				for (RocketComponent rocketComponent : clicked) {
 					if (!selectedComponents.contains(rocketComponent)) {
-						TreePath path = ComponentTreeModel.makeTreePath(rocketComponent);
-						selectionModel.setSelectionPath(path);
+						setSelectedComponent(rocketComponent);
 					}
 				}
 			}

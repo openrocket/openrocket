@@ -9,6 +9,7 @@ import java.util.Set;
 
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.SimulationAbort;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationId;
@@ -416,6 +417,23 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		if (this.warnings != null)
 			this.modIDadd = new ModID();
 		this.warnings = warnings;
+	}
+
+	public void addWarning(Warning warning) {
+		if (null == warnings) {
+			setWarnings(new WarningSet());
+		}
+		if (!warnings.contains(warning)) {
+			log.trace("Add warning: \"" + warning + "\"");
+			getFlightDataBranch().addEvent(new FlightEvent(FlightEvent.Type.SIM_WARN, getSimulationTime(), null, warning));
+			warnings.add(warning);
+		}
+	}
+
+	public void addWarnings(WarningSet warnings) {
+		for (Warning warning : warnings) {
+			addWarning(warning);
+		}
 	}
 
 	public WarningSet getWarnings() {

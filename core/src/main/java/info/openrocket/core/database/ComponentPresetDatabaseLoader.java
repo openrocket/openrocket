@@ -1,6 +1,7 @@
 package info.openrocket.core.database;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -28,7 +29,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	private static final String SYSTEM_PRESET_DIR = "datafiles/components";
 	private int fileCount = 0;
 	private int presetCount = 0;
-	
+
 	/** the database is immutable*/
 	private final ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
 	
@@ -58,28 +59,28 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	}
 
 	/**
-	 * loads the user defined defined components into the database
+	 * loads the user defined component presets into the database
 	 * uses the directory defined in the preferences
 	 */
 	private void loadUserComponents() {
+		log.info("Starting reading user-defined component presets");
 		SimpleFileFilter orcFilter = new SimpleFileFilter("", false, "orc");
-		FileIterator iterator;
-		try {
-			iterator = new DirectoryIterator(
-					Application.getPreferences().getDefaultUserComponentDirectory(),
-					orcFilter,
-					true);
-		} catch (IOException ioex) {
-			log.debug("Error opening UserComponentDirectory", ioex);
-			return;
+		int initialCount = presetCount;
+		for (File file : (Application.getPreferences()).getUserComponentPresetFiles()) {
+			if (file.isFile()) {
+				try {
+					InputStream stream = new FileInputStream(file);
+					loadFile(file.getName(), stream);
+				} catch (IOException e) {
+					log.warn("Error opening file " + file, e);
+				}
+			} else if (file.isDirectory()) {
+				loadDirectory(orcFilter, file);
+			} else {
+				log.warn("User-defined motor file " + file + " is neither file nor directory");
+			}
 		}
-		while (iterator.hasNext()) {
-			Pair<File, InputStream> f = iterator.next();
-			Collection<ComponentPreset> presets = loadFile(f.getU().getName(), f.getV());
-			componentPresetDao.addAll(presets);
-			fileCount++;
-			presetCount += presets.size();
-		}
+		log.info("Ending reading user-defined component presets, presetCount=" + (presetCount-initialCount));
 	}
 
 	/**
@@ -90,7 +91,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 		log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
 		FileIterator iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("", false, "orc"));
 		
-		if(iterator == null)
+		if (iterator == null)
 			return;
 
 		while (iterator.hasNext()) {
@@ -115,6 +116,28 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 		OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
 		Collection<ComponentPreset> presets = loader.load(stream, fileName);
 		return presets;
-		
+	}
+
+	/**
+	 * loads an entire directory of component presets
+	 *
+	 * @param fileFilter	the supported extensions of files
+	 * @param file			the directory file object
+	 */
+	private void loadDirectory(SimpleFileFilter fileFilter, File file) {
+		FileIterator iterator;
+		try {
+			iterator = new DirectoryIterator(file, fileFilter, true);
+		} catch (IOException ioex) {
+			log.debug("Error opening UserComponentDirectory", ioex);
+			return;
+		}
+		while (iterator.hasNext()) {
+			Pair<File, InputStream> f = iterator.next();
+			Collection<ComponentPreset> presets = loadFile(f.getU().getName(), f.getV());
+			componentPresetDao.addAll(presets);
+			fileCount++;
+			presetCount += presets.size();
+		}
 	}
 }

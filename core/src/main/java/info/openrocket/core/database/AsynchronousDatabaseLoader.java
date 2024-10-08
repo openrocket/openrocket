@@ -43,6 +43,18 @@ public abstract class AsynchronousDatabaseLoader {
 	}
 
 	/**
+	 * Mark the database as loaded. This method is called by the loading thread when it has finished loading the database.
+	 * You can also use this to bypass the database loading, but still mark it as loaded.
+	 */
+	public void markAsLoaded() {
+		synchronized (this) {
+			startedLoading = true;
+			endedLoading = true;
+			this.notifyAll();
+		}
+	}
+
+	/**
 	 * @return whether loading the database has ended.
 	 */
 	public boolean isLoaded() {
@@ -95,10 +107,7 @@ public abstract class AsynchronousDatabaseLoader {
 
 		loadDatabase();
 
-		synchronized (this) {
-			endedLoading = true;
-			this.notifyAll();
-		}
+		markAsLoaded();
 	}
 
 	/**

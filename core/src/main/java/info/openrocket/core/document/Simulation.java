@@ -357,7 +357,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	public boolean hasErrors() {
 		FlightData data = getSimulatedData();
 		for (int branchNo = 0; branchNo < data.getBranchCount(); branchNo++) {
-			if (data.getBranch(branchNo).getFirstEvent(FlightEvent.Type.SIM_ABORT) != null) {
+			if (hasErrors(branchNo)) {
 				return true;
 			}
 		}

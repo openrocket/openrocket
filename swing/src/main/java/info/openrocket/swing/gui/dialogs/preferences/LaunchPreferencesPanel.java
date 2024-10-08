@@ -34,8 +34,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		add(warning, "spanx, growx 0, gapbottom para, wrap");
 
 		// Simulation conditions
-		SimulationConditionsPanel.addSimulationConditionsPanel(this, preferences);
-
+		SimulationConditionsPanel.addSimulationConditionsPanel(this, preferences, false);
 	}
 
 	private static void initColors() {

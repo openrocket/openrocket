@@ -32,6 +32,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -48,6 +49,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -62,6 +64,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -76,6 +79,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -91,6 +95,8 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
+		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -102,6 +108,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.addPlotDataType(FlightDataType.TYPE_BASE_DRAG_COEFF, 0);
 		config.addPlotDataType(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, 0);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -120,6 +127,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -136,6 +144,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
@@ -151,6 +160,7 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
+		config.setEvent(FlightEvent.Type.SIM_WARN, true);
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 

@@ -19,12 +19,14 @@ import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.models.atmosphere.AtmosphericModel;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
+import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
+import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
@@ -35,7 +37,7 @@ import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 
-public abstract class ApplicationPreferences implements ChangeSource, ORPreferences {
+public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
@@ -45,6 +47,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	public static final String STAGE_INSERT_POSITION_KEY = "StageInsertPosition";
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
+	public static final String USER_COMPONENT_PRESETS_KEY = "UserComponentPresets";
 
 	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
 
@@ -152,7 +155,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
-	
+
+	private PinkNoiseWindModel averageWindModel = null;
+
+
 	/*
 	 * ******************************************************************************************
 	 *
@@ -346,19 +352,6 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		fireChangeEvent();
 	}
 	
-	public final double getWindTurbulenceIntensity() {
-		return Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.1);
-	}
-	
-	public final void setWindTurbulenceIntensity(double wti) {
-		double oldWTI = Application.getPreferences().getChoice(ApplicationPreferences.WIND_TURBULENCE, 0.9, 0.3);
-		
-		if (MathUtil.equals(oldWTI, wti))
-			return;
-		this.putDouble(ApplicationPreferences.WIND_TURBULENCE, wti);
-		fireChangeEvent();
-	}
-	
 	public double getLaunchRodLength() {
 		return this.getDouble(LAUNCH_ROD_LENGTH, 1);
 	}
@@ -399,49 +392,34 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		fireChangeEvent();
 	}
 	
-	
-	
-	public double getWindSpeedAverage() {
-		return this.getDouble(WIND_AVERAGE, 2);
+
+
+	protected void loadWindModelState() {
+		double average = getDouble(WIND_AVERAGE, 2.0);
+		double turbulenceIntensity = getDouble(WIND_TURBULENCE, 0.1);
+		double direction = getDouble(WIND_DIRECTION, Math.PI / 2);
+
+		getAverageWindModel().setAverage(average);
+		getAverageWindModel().setTurbulenceIntensity(turbulenceIntensity);
+		getAverageWindModel().setDirection(direction);
 	}
-	
-	public void setWindSpeedAverage(double windAverage) {
-		if (MathUtil.equals(this.getDouble(WIND_AVERAGE, 2), windAverage))
-			return;
-		this.putDouble(WIND_AVERAGE, MathUtil.max(windAverage, 0));
-		fireChangeEvent();
+
+	protected void storeWindModelState() {
+		putDouble(WIND_AVERAGE, getAverageWindModel().getAverage());
+		putDouble(WIND_TURBULENCE, getAverageWindModel().getTurbulenceIntensity());
+		putDouble(WIND_DIRECTION, getAverageWindModel().getDirection());
 	}
-	
-	
-	public double getWindSpeedDeviation() {
-		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULENCE, 0.1);
-	}
-	
-	public void setWindSpeedDeviation(double windDeviation) {
-		double windAverage = this.getDouble(WIND_DIRECTION, 2);
-		if (windAverage < 0.1) {
-			windAverage = 0.1;
+
+	@Override
+	public PinkNoiseWindModel getAverageWindModel() {
+		if (averageWindModel == null) {
+			averageWindModel = new PinkNoiseWindModel();
+			averageWindModel.addChangeListener(this);
+			loadWindModelState();
 		}
-		setWindTurbulenceIntensity(windDeviation / windAverage);
+		return averageWindModel;
 	}
-	
-	public void setWindDirection(double direction) {
-		direction = MathUtil.reduce2Pi(direction);
-		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
-			this.setLaunchRodDirection(direction);
-		}
-		if (MathUtil.equals(this.getDouble(WIND_DIRECTION, Math.PI / 2), direction))
-			return;
-		this.putDouble(WIND_DIRECTION, direction);
-		fireChangeEvent();
-		
-	}
-	
-	public double getWindDirection() {
-		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
-		
-	}
-	
+
 	public double getLaunchAltitude() {
 		return this.getDouble(LAUNCH_ALTITUDE, 0);
 	}
@@ -1018,7 +996,57 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		return null;
 	}
 
-	public File getDefaultUserComponentDirectory() {
+	/**
+	 * Return a list of files/directories to be loaded as custom component presets.
+	 * <p>
+	 * If this property has not been set, the directory "Components" in the user
+	 * application directory will be used.  The directory will be created if it does not
+	 * exist.
+	 *
+	 * @return	a list of files to load as component presets.
+	 */
+	public List<File> getUserComponentPresetFiles() {
+		List<File> list = new ArrayList<>();
+
+		String files = getString(USER_COMPONENT_PRESETS_KEY, null);
+		if (files == null) {
+			// Default to application directory
+			File cpdir = getDefaultUserComponentFile();
+			if (!cpdir.isDirectory()) {
+				cpdir.mkdirs();
+			}
+			list.add(cpdir);
+		} else {
+			for (String file : files.split("\\" + SPLIT_CHARACTER)) {
+				file = file.trim();
+				if (file.length() > 0) {
+					list.add(new File(file));
+				}
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the files/directories to be loaded as custom component presets, formatting as a string. If there are multiple
+	 * locations, they are separated by a semicolon.
+	 *
+	 * @return a list of files to load as component presets, formatted as a semicolon separated string.
+	 */
+	public String getUserComponentPresetFilesAsString() {
+		List<File> files = getUserComponentPresetFiles();
+		StringBuilder sb = new StringBuilder();
+		for (File file : files) {
+			if (!sb.isEmpty()) {
+				sb.append(";");
+			}
+			sb.append(file.getAbsolutePath());
+		}
+		return sb.toString();
+	}
+
+	public File getDefaultUserComponentFile() {
 		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
 
 		if (!compdir.isDirectory()) {
@@ -1032,6 +1060,28 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 			return null;
 		}
 		return compdir;
+	}
+
+	/**
+	 * Set the list of files/directories to be loaded as custom component presets.
+	 *
+	 * @param files		the files to load, or <code>null</code> to reset to default value.
+	 */
+	public void setUserComponentPresetFiles(List<File> files) {
+		if (files == null) {
+			putString(USER_COMPONENT_PRESETS_KEY, null);
+			return;
+		}
+
+		StringBuilder str = new StringBuilder();
+
+		for (File file : files) {
+			if (!str.isEmpty()) {
+				str.append(SPLIT_CHARACTER);
+			}
+			str.append(file.getAbsolutePath());
+		}
+		putString(USER_COMPONENT_PRESETS_KEY, str.toString());
 	}
 
 	/**
@@ -1289,6 +1339,13 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 			if (l instanceof StateChangeListener) {
 				((StateChangeListener) l).stateChanged(event);
 			}
+		}
+	}
+
+	@Override
+	public void stateChanged(EventObject e) {
+		if (e.getSource() == averageWindModel) {
+			storeWindModelState();
 		}
 	}
 }

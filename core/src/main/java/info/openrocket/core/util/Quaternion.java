@@ -242,7 +242,7 @@ public class Quaternion {
 		// return = (a,b,c,d) * (this)^-1 = (a,b,c,d) * (w,-x,-y,-z)
 
 		// Assert that the w-value is zero
-		assert (Math.abs(a * w + b * x + c * y + d * z) < coord.max() * MathUtil.EPSILON)
+		assert (Math.abs(a * w + b * x + c * y + d * z) <= coord.max() * MathUtil.EPSILON)
 				: ("Should be zero: " + (a * w + b * x + c * y + d * z) + " in " + this + " c=" + coord);
 
 		return new Coordinate(

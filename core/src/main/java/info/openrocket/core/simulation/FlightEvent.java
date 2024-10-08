@@ -2,6 +2,7 @@ package info.openrocket.core.simulation;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.SimulationAbort;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -82,6 +83,11 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		TUMBLE(trans.get("FlightEvent.Type.TUMBLE")),
 
 		/**
+		 * A warning was raised during the execution of the simulation
+		 */
+		 SIM_WARN(trans.get("FlightEvent.Type.SIM_WARN")),
+
+		/**
 		 * It is impossible for the simulation proceed due to characteristics
 		 * of the rocket or flight configuration
 		 */
@@ -118,8 +124,8 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		this(type, time, source, null);
 	}
 	
-	public FlightEvent(final FlightEvent _sourceEvent, final RocketComponent _comp, final Object _data) {
-		this(_sourceEvent.type, _sourceEvent.time, _comp, _data);
+	public FlightEvent( final FlightEvent sourceEvent, final RocketComponent source, final Object data) {
+		this(sourceEvent.type, sourceEvent.time, source, data);
 	}
 	
 	public FlightEvent( final Type type, final double time, final RocketComponent source, final Object data) {
@@ -176,6 +182,13 @@ public class FlightEvent implements Comparable<FlightEvent> {
 
 		// finally, sort on event type
 		return this.type.ordinal() - o.type.ordinal();
+	}
+
+	public boolean equals(FlightEvent o) {
+		if ((this.type == Type.SIM_WARN) && (o.type == Type.SIM_WARN))
+			return ((Warning)(this.data)).equals((Warning)(o.data));
+
+		return this.equals(0);
 	}
 	
 	@Override
@@ -239,6 +252,17 @@ public class FlightEvent implements Comparable<FlightEvent> {
 					throw new IllegalStateException(type.name()+" events should have "
 							+MotorClusterState.class.getSimpleName()+" type data payloads");
 				}
+			}
+			break;
+		case SIM_WARN:
+			if (null != this.source) {
+				// rather than making event sources take sets of components, or trying to keep them
+				// in sync with the sources of Warnings, we'll require the event source to be null
+				// and pull the actual sources from the Warning
+				throw new IllegalStateException(type.name()+" event requires null source component; was " + this.source);
+			}	
+			if (( null == this.data ) || ( ! ( this.data instanceof Warning ))) {
+				throw new IllegalStateException(type.name()+" events require Warning objects");
 			}
 			break;
 		case SIM_ABORT:

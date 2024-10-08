@@ -18,7 +18,8 @@ public abstract class Warning extends Message {
 	 * @return a Message with the specific text and priority.
 	 */
 	public static Warning fromString(String text, MessagePriority priority) {
-		return new Warning.Other(text, priority);
+		Warning.Other warn = new Warning.Other(text, priority);
+		return warn;
 	}
 
 	/**
@@ -27,8 +28,6 @@ public abstract class Warning extends Message {
 	public static Warning fromString(String text) {
 		return fromString(text, MessagePriority.NORMAL);
 	}
-
-
 	
 	/////////////  Specific warning classes  /////////////
 	

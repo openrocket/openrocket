@@ -234,6 +234,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		modID = new ModID();
 	}
 
+	/**
+	 * Get the drag coefficient <b>per instance</b>.
+	 * @return The drag coefficient.
+	 */
 	public double getCD() {
 		if (component == null)
 			return CD;
@@ -243,6 +247,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 			return component.getOverrideCD();
 		}
 		return CD;
+	}
+
+	public double getCDTotal() {
+		return getCD() * component.getInstanceCount();
 	}
 
 	public void setPressureCD(double pressureCD) {

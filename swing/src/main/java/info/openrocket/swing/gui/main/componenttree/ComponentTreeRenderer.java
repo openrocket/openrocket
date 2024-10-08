@@ -35,10 +35,6 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 	private static final Translator trans = Application.getTranslator();
 
-	private static Color textSelectionBackgroundColor;
-	private static Color textSelectionForegroundColor;
-	private static Color componentTreeBackgroundColor;
-	private static Color componentTreeForegroundColor;
 	private static Color visibilityHiddenForegroundColor;
 	private static Icon massOverrideSubcomponentIcon;
 	private static Icon massOverrideIcon;

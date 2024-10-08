@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -50,11 +51,19 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.LabelUI;
+import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -111,8 +120,6 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.mach = new DoubleModel(parameters, "Mach", UnitGroup.UNITS_COEFFICIENT, 0);
 		this.theta = new DoubleModel(parameters, "Theta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		this.roll = new DoubleModel(parameters, "RollRate", UnitGroup.UNITS_ROLL);
-
-		JTable table;
 
 		//// Wind direction:
 		this.add(new JLabel(trans.get("ComponentAnalysisGeneralTab.lbl.winddir")));
@@ -200,7 +207,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 		// Create the Longitudinal Stability (CM vs CP) data table
-		this.longitudeStabilityTableModel = new ColumnTableModel(
+		this.longitudeStabilityTableModel = new CAColumnTableModel(
 
 				//// Component
 				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.Component")) {
@@ -267,15 +274,24 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			public int getRowCount() {
 				return stabData.size();
 			}
+
+			@Override
+			public RocketComponent getComponentForRow(int row) {
+				if (row < 0 || row >= getRowCount()) {
+					return null;
+				}
+				Object source = stabData.get(row).source;
+				return source instanceof RocketComponent ? (RocketComponent) source : null;
+			}
 		};
 
-		table = new ColumnTable(longitudeStabilityTableModel);
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		this.longitudeStabilityTableModel.setColumnWidths(table.getColumnModel());
+		final JTable stabilityTable = new ColumnTable(longitudeStabilityTableModel);
+		stabilityTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		this.longitudeStabilityTableModel.setColumnWidths(stabilityTable.getColumnModel());
 
-		table.setDefaultRenderer(Object.class, new StabilityCellRenderer());
+		stabilityTable.setDefaultRenderer(Object.class, new StabilityCellRenderer());
 
-		JScrollPane scrollpane = new JScrollPane(table);
+		JScrollPane scrollpane = new JScrollPane(stabilityTable);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Stability and Stability information
@@ -285,7 +301,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 		// Create the drag data table
-		this.dragTableModel = new ColumnTableModel(
+		this.dragTableModel = new CAColumnTableModel(
 				//// Component
 				new Column(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.Component")) {
 					@Override
@@ -323,11 +339,18 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 						return dragData.get(row).getFrictionCD();
 					}
 				},
+				//// <html>Per instance C<sub>D</sub>
+				new Column(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.perInstance")) {
+					@Override
+					public Object getValueAt(int row) {
+						return dragData.get(row).getCD();
+					}
+				},
 				//// <html>Total C<sub>D</sub>
 				new Column(trans.get("ComponentAnalysisGeneralTab.dragTableModel.Col.total")) {
 					@Override
 					public Object getValueAt(int row) {
-						return dragData.get(row).getCD();
+						return dragData.get(row).getCDTotal();
 					}
 				}
 		) {
@@ -340,16 +363,24 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			public int getRowCount() {
 				return dragData.size();
 			}
+
+			@Override
+			public RocketComponent getComponentForRow(int row) {
+				if (row < 0 || row >= getRowCount()) {
+					return null;
+				}
+				return dragData.get(row).getComponent();
+			}
 		};
 
 
-		table = new JTable(dragTableModel);
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		this.dragTableModel.setColumnWidths(table.getColumnModel());
+		final JTable dragTable = new JTable(dragTableModel);
+		dragTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		this.dragTableModel.setColumnWidths(dragTable.getColumnModel());
 
-		table.setDefaultRenderer(Object.class, new DragCellRenderer());
+		dragTable.setDefaultRenderer(Object.class, new DragCellRenderer());
 
-		scrollpane = new JScrollPane(table);
+		scrollpane = new JScrollPane(dragTable);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Drag characteristics and Drag characteristics tooltip
@@ -360,7 +391,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 
 		// Create the roll data table
-		this.rollTableModel = new ColumnTableModel(
+		this.rollTableModel = new CAColumnTableModel(
 				//// Component
 				new Column(trans.get("ComponentAnalysisGeneralTab.rollTableModel.Col.component")) {
 					@Override
@@ -403,14 +434,22 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			public int getRowCount() {
 				return rollData.size();
 			}
+
+			@Override
+			public RocketComponent getComponentForRow(int row) {
+				if (row < 0 || row >= getRowCount()) {
+					return null;
+				}
+				return rollData.get(row).getComponent();
+			}
 		};
 
 
-		table = new JTable(rollTableModel);
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		table.setDefaultRenderer(Object.class, new RollDynamicsCellRenderer());
+		final JTable rollTable = new JTable(rollTableModel);
+		rollTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		rollTable.setDefaultRenderer(Object.class, new RollDynamicsCellRenderer());
 
-		scrollpane = new JScrollPane(table);
+		scrollpane = new JScrollPane(rollTable);
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 
 		//// Roll dynamics and Roll dynamics tooltip
@@ -458,6 +497,11 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		this.aoa.addChangeListener(this);
 		this.roll.addChangeListener(this);
 		this.stateChanged(null);
+
+		// Add listeners to highlight the selected component in the rocket panel
+		stabilityTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, stabilityTable));
+		dragTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, dragTable));
+		rollTable.getSelectionModel().addListSelectionListener(new CAListSelectionListener(rocketPanel, rollTable));
 
 		// Remove listeners when closing window
 		parent.addWindowListener(new WindowAdapter() {
@@ -635,7 +679,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		private final List<?> data;
 		protected final int decimalPlaces;
 
-		private static Color backgroundColor;
+		protected static Color backgroundColor;
+		protected static Color foregroundColor;
 
 		static {
 			initColors();
@@ -656,6 +701,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 		private static void updateColors() {
 			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+			foregroundColor = GUIUtil.getUITheme().getTextColor();
 		}
 
 		@Override
@@ -717,9 +763,13 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 	private class DragCellRenderer extends CustomCellRenderer {
 		private static final long serialVersionUID = 1L;
+		private final StripedLabelUI stripedUI;
+		private final LabelUI defaultUI;
 
 		public DragCellRenderer() {
 			super(dragData, 3);
+			this.stripedUI = new StripedLabelUI(1, 12);
+			this.defaultUI = new BasicLabelUI();
 		}
 
 		@Override
@@ -727,22 +777,53 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 													   boolean isSelected, boolean hasFocus, int row, int column) {
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-			if (!isSelected && (value instanceof Double)) {
-				double cd = (Double) value;
-				float r = (float) (cd / 1.5);
+			// Reset to default UI
+			label.setUI(defaultUI);
 
-				float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
-				float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
-				float val = 1.0f;
+			// Handle selection coloring
+			if (isSelected) {
+				label.setBackground(table.getSelectionBackground());
+				label.setForeground(table.getSelectionForeground());
+				label.setOpaque(true);
+			} else {
+				// Non-selected styling
+				if (value instanceof Double) {
+					double cd = (Double) value;
+					float r = (float) (cd / 1.5);
 
-				label.setBackground(Color.getHSBColor(hue, sat, val));
-				label.setForeground(Color.BLACK);
+					float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
+					float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
+					float val = 1.0f;
+
+					label.setBackground(Color.getHSBColor(hue, sat, val));
+					label.setForeground(Color.BLACK);
+				} else {
+					label.setBackground(table.getBackground());
+					label.setForeground(table.getForeground());
+				}
+				label.setOpaque(true);
 			}
 
-			if ((row < 0) || (row >= dragData.size()))
-				return label;
+			// Special handling for column 4
+			if (column == 4) {
+				if (row == 0) {
+					label.setText("");
+					label.setUI(stripedUI);
+					if (!isSelected) {
+						label.setBackground(table.getBackground());
+						label.setForeground(table.getForeground());
+					}
+				} else {
+					label.setText(decimalFormat(dragData.get(row).getCD()));
+				}
+			}
 
-			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 4)) {
+			// Set font
+			if ((row < 0) || (row >= dragData.size())) {
+				return label;
+			}
+
+			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 5)) {
 				label.setFont(boldFont);
 			} else {
 				label.setFont(normalFont);
@@ -755,9 +836,45 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		protected String formatDouble(Double cd) {
 			final double totalCD = dragData.get(0).getCD();
 
-			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
-			String cdFormatted = df.format(cd);
+			String cdFormatted = decimalFormat(cd);
 			return String.format(cdFormatted + "  (%.0f%%)", 100 * cd / totalCD);
+		}
+
+		private String decimalFormat(Double cd) {
+			DecimalFormat df = new DecimalFormat("0." + "#".repeat(Math.max(0, decimalPlaces)));
+			return df.format(cd);
+		}
+
+		private static class StripedLabelUI extends BasicLabelUI {
+			private final int lineWidth;
+			private final int lineSpacing;
+
+			public StripedLabelUI(int lineWidth, int lineSpacing) {
+				this.lineWidth = lineWidth;
+				this.lineSpacing = lineSpacing;
+			}
+
+			@Override
+			public void paint(Graphics g, JComponent c) {
+				Graphics2D g2d = (Graphics2D) g.create();
+				int width = c.getWidth();
+				int height = c.getHeight();
+
+				// Paint background
+				g2d.setColor(c.getBackground());
+				g2d.fillRect(0, 0, width, height);
+
+				// Paint thin lines
+				g2d.setColor(c.getForeground());
+				g2d.setStroke(new BasicStroke(lineWidth));
+				for (int x = -height; x < width; x += (lineWidth + lineSpacing)) {
+					g2d.drawLine(x, height, x + height, 0);
+				}
+
+				g2d.dispose();
+
+				super.paint(g, c);
+			}
 		}
 	}
 
@@ -767,8 +884,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		}
 	}
 
-	private class LongitudinalStabilityRow {
-
+	private static class LongitudinalStabilityRow {
 		public String name;
 		public Object source;
 		public double eachMass;
@@ -784,6 +900,34 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			cpx = Double.NaN;
 			cna = Double.NaN;
 		}
+	}
 
+	private abstract static class CAColumnTableModel extends ColumnTableModel {
+		public CAColumnTableModel(Column... columns) {
+			super(columns);
+		}
+
+		public RocketComponent getComponentForRow(int row) {
+			throw new RuntimeException("Not implemented");
+		}
+	}
+
+	private static class CAListSelectionListener implements ListSelectionListener {
+		private final RocketPanel rocketPanel;
+		private final JTable table;
+
+		public CAListSelectionListener(RocketPanel rocketPanel, JTable table) {
+			this.rocketPanel = rocketPanel;
+			this.table = table;
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			TableModel model = table.getModel();
+			if (model instanceof CAColumnTableModel) {
+				RocketComponent component = ((CAColumnTableModel) model).getComponentForRow(table.getSelectedRow());
+				rocketPanel.setSelectedComponent(component);
+			}
+		}
 	}
 }

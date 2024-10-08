@@ -2,11 +2,12 @@ package info.openrocket.swing.gui.dialogs.componentanalysis;
 
 import info.openrocket.core.componentanalysis.CADataBranch;
 import info.openrocket.core.componentanalysis.CADataType;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.swing.gui.plot.Plot;
 import org.jfree.data.xy.XYSeries;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CAPlot extends Plot<CADataType, CADataBranch, CAPlotConfiguration> {
@@ -18,12 +19,27 @@ public class CAPlot extends Plot<CADataType, CADataBranch, CAPlotConfiguration> 
 	@Override
 	protected List<XYSeries> createSeriesForType(int dataIndex, int startIndex, CADataType type, Unit unit,
 												 CADataBranch branch, int branchIdx, String branchName, String baseName) {
-		// Default implementation for regular DataBranch
-		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, unit.getUnit(),
-				branchName, baseName);
+		// Get the component info
+		List<RocketComponent> components = filledConfig.getComponents(dataIndex);
+		List<String> componentNames = filledConfig.getComponentNames(dataIndex);
 
-		// Get the component name
-		String componentName = filledConfig.getComponentName(dataIndex);
+		// Create the series for each component
+		List<XYSeries> allSeries = new ArrayList<>();
+		for (int i = 0; i < components.size(); i++) {
+			XYSeries series = createSingleSeries(startIndex*1000 + i, type, unit, branch, branchIdx, branchName, dataIndex, baseName,
+					components.get(i), componentNames.get(i));
+			allSeries.add(series);
+		}
+
+		return allSeries;
+	}
+
+	private XYSeries createSingleSeries(int key, CADataType type, Unit unit,
+										CADataBranch branch, int branchIdx, String branchName, int dataIndex, String baseName,
+										RocketComponent component, String componentName) {
+		// Default implementation for regular DataBranch
+		MetadataXYSeries series = new MetadataXYSeries(key, false, true, branchIdx, dataIndex, unit.getUnit(),
+				branchName, baseName);
 
 		// Create a new description that includes the component name
 		String newBaseName = baseName;
@@ -34,7 +50,7 @@ public class CAPlot extends Plot<CADataType, CADataBranch, CAPlotConfiguration> 
 		series.updateDescription();
 
 		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
-		List<Double> ploty = branch.get(type, filledConfig.getComponent(dataIndex));
+		List<Double> ploty = branch.get(type, component);
 
 		int pointCount = plotx.size();
 		for (int j = 0; j < pointCount; j++) {
@@ -43,6 +59,6 @@ public class CAPlot extends Plot<CADataType, CADataBranch, CAPlotConfiguration> 
 			series.add(x, y);
 		}
 
-		return Collections.singletonList(series);
+		return series;
 	}
 }
