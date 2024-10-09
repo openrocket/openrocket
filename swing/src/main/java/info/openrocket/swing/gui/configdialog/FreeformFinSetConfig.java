@@ -536,12 +536,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			int mods = event.getModifiersEx();
-		/*XXX
-			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
+
+			if (dragIndex < 0) {
 				super.mouseDragged(event);
 				return;
 			}
-		*/
 
 			Point2D.Double point = getCoordinates(event);
 			final FreeformFinSet finset = (FreeformFinSet) component;
@@ -549,7 +548,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		// If shift is held down and a point is being dragged, constrain angle relative to previous or following point
 			int lockIndex = -1;
 			int highlightIndex = -1;
-			if (dragIndex >= 0 && (mods & MouseEvent.SHIFT_DOWN_MASK) != 0) {
+			if ((mods & MouseEvent.SHIFT_DOWN_MASK) != 0) {
 				if ((mods & MouseEvent.CTRL_DOWN_MASK) != 0) {
 					if (dragIndex < finset.getFinPoints().length-1) {
 						lockIndex = dragIndex + 1;
