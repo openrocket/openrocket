@@ -58,7 +58,10 @@ public class GuiModule extends AbstractModule {
 		BlockingMotorDatabaseProvider motorDatabaseProvider = new BlockingMotorDatabaseProvider(motorLoader);
 		bind(ThrustCurveMotorSetDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
 		bind(MotorDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
-		
+
+		if (System.getProperty("openrocket.debug") != null) {
+
+		}
 	}
 	
 	/**
@@ -67,8 +70,19 @@ public class GuiModule extends AbstractModule {
 	 * object's locator methods to return the correct objects.
 	 */
 	public void startLoader() {
-		presetLoader.startLoading();
-		motorLoader.startLoading();
+		boolean bypassPresets = System.getProperty("openrocket.bypass.presets") != null;
+		boolean bypassMotors = System.getProperty("openrocket.bypass.motors") != null;
+
+		if (!bypassPresets) {
+			presetLoader.startLoading();
+		} else {
+			presetLoader.markAsLoaded();
+		}
+		if (!bypassMotors) {
+			motorLoader.startLoading();
+		} else {
+			motorLoader.markAsLoaded();
+		}
 	}
 	
 }

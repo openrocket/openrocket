@@ -30,6 +30,8 @@ open module info.openrocket.swing {
 	requires com.formdev.flatlaf;
 	requires com.formdev.flatlaf.extras;
 	requires com.formdev.flatlaf.intellijthemes;
+	requires org.checkerframework.checker.qual;
+	requires org.apache.commons.lang3;
 
 	// Service providers
 	// Also edit swing/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service

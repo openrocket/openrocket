@@ -108,7 +108,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			// No recovery device
 			if (!simulationConfig.hasRecoveryDevice()) {
-				currentStatus.getWarnings().add(Warning.NO_RECOVERY_DEVICE);
+				currentStatus.addWarning(Warning.NO_RECOVERY_DEVICE);
 			}
 			
 			currentStatus.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
@@ -315,7 +315,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (currentStatus.isLanded() &&
 				(event.getType() != FlightEvent.Type.ALTITUDE) &&
 				(event.getType() != FlightEvent.Type.SIMULATION_END))
-				currentStatus.getWarnings().add(new Warning.EventAfterLanding(event));
+				currentStatus.addWarning(new Warning.EventAfterLanding(event));
 
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
@@ -500,12 +500,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 							}
 						}
 						if (numActiveBelow != 1) {
-							currentStatus.getWarnings().add(Warning.SEPARATION_ORDER);
+							currentStatus.addWarning(Warning.SEPARATION_ORDER);
 						}
 
 					// If I haven't cleared the rail yet, flag a warning
 					if (!currentStatus.isLaunchRodCleared()) {
-						currentStatus.getWarnings().add(Warning.EARLY_SEPARATION);
+						currentStatus.addWarning(Warning.EARLY_SEPARATION);
 					}
 
 					// Create a new simulation branch for the booster
@@ -565,12 +565,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 					// Check for launch rod
 					if (!currentStatus.isLaunchRodCleared()) {
-						currentStatus.getWarnings().add(Warning.RECOVERY_LAUNCH_ROD);
+						currentStatus.addWarning(Warning.RECOVERY_LAUNCH_ROD);
 					}
 
 					// Check current velocity
 					if (currentStatus.getRocketVelocity().length() > 20) {
-						currentStatus.getWarnings().add(new Warning.HighSpeedDeployment(currentStatus.getRocketVelocity().length()));
+						currentStatus.addWarning(new Warning.HighSpeedDeployment(currentStatus.getRocketVelocity().length()));
 					}
 
 					currentStatus.setLiftoff(true);

@@ -156,6 +156,13 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		doc.addSimulation(simulation);
 	}
 
+	/**
+	 * @return the warning set associated with this simulation
+	 */
+	public WarningSet getWarningSet() {
+		return dataHandler.getWarningSet();
+	}
+
 	private SimulationExtension compatibilityExtension(String className) {
 		JavaCode extension = Application.getInjector().getInstance(JavaCode.class);
 		extension.setClassName(className);

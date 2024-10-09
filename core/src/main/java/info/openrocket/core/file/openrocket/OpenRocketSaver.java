@@ -16,6 +16,7 @@ import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.material.Material;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,8 +337,34 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
-		writeElement("windaverage", cond.getWindSpeedAverage());
-		writeElement("windturbulence", cond.getWindTurbulenceIntensity());
+
+		// TODO: remove once support for OR 23.09 and prior is dropped
+		writeElement("windaverage", cond.getAverageWindModel().getAverage());
+		writeElement("windturbulence", cond.getAverageWindModel().getTurbulenceIntensity());
+		writeElement("winddirection", cond.getAverageWindModel().getDirection());
+
+		writeln("<wind model=\"average\">");
+		indent++;
+		writeElement("speed", cond.getAverageWindModel().getAverage());
+		writeElement("direction", cond.getAverageWindModel().getDirection());
+		writeElement("standarddeviation", cond.getAverageWindModel().getStandardDeviation());
+		indent--;
+		writeln("</wind>");
+
+		if (!cond.getMultiLevelWindModel().getLevels().isEmpty()) {
+			writeln("<wind model=\"multilevel\">");
+			indent++;
+			for (MultiLevelPinkNoiseWindModel.LevelWindModel level : cond.getMultiLevelWindModel().getLevels()) {
+				writeln("<windlevel altitude=\"" + level.getAltitude() + "\" speed=\"" + level.getSpeed() +
+						"\" direction=\"" + level.getDirection() + "\" standarddeviation=\"" + level.getStandardDeviation() +
+						"\"/>");
+			}
+			indent--;
+			writeln("</wind>");
+		}
+
+		writeElement("windmodeltype", cond.getWindModelType().toStringValue());
+
 		writeElement("launchaltitude", cond.getLaunchAltitude());
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
@@ -403,7 +430,24 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			
 			for (Warning w : data.getWarningSet()) {
-				writeElementWithAttribute("warning", "priority", w.getPriority().getExportLabel(), TextUtil.escapeXML(w.toString()));
+				writeln("<warning>");
+				indent++;
+
+				writeElement("id", w.getID().toString());
+				writeElement("description", w.getMessageDescription());
+				writeElement("priority", w.getPriority());
+
+				if (null != w.getSources()) {
+					for (RocketComponent c : w.getSources()) {
+						writeElement("source", c.getID());
+					}
+				}
+
+				// We write the whole string content for backwards compatibility with old versions
+				writeln(TextUtil.escapeXML(w.toString()));
+
+				indent--;
+				writeln("</warning>");
 			}
 			
 			// Check whether to store data
@@ -579,16 +623,21 @@ public class OpenRocketSaver extends RocketSaver {
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
 			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
-					+ "\" type=\"" + enumToXMLName(event.getType());
+					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"";
+			
 			if (event.getSource() != null) {
-				eventStr += "\" source=\"" + TextUtil.escapeXML(event.getSource().getID());
+				eventStr += " source=\"" + TextUtil.escapeXML(event.getSource().getID()) + "\"";
 			}
 
+			if (event.getType() == FlightEvent.Type.SIM_WARN) {
+				eventStr += " id=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
+			}
+			
 			if (event.getType() == FlightEvent.Type.SIM_ABORT) {
-				eventStr += "\" cause=\"" + enumToXMLName(((SimulationAbort)(event.getData())).getCause());
+				eventStr += " cause=\"" + enumToXMLName(((SimulationAbort)(event.getData())).getCause()) + "\"";
 			}
 
-			eventStr += "\"/>";
+			eventStr += "/>";
 			writeln(eventStr);
 		}
 		
@@ -649,14 +698,6 @@ public class OpenRocketSaver extends RocketSaver {
 			content = "";
 		writeln("<" + element + ">" + TextUtil.escapeXML(content) + "</" + element + ">");
 	}
-
-	private void writeElementWithAttribute(String element, String attributeName, String attribute, Object content) throws IOException {
-		content = content == null ? "" : content;
-
-		writeln("<" + element + " " + attributeName + " = \"" + attribute + "\">" + TextUtil.escapeXML(content) + "</" + element + ">");
-	}
-
-	
 	
 	private void writeln(String str) throws IOException {
 		if (str.length() == 0) {

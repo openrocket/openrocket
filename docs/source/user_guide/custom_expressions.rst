@@ -19,7 +19,7 @@ Overview
 Custom expressions are added to your rocket document from the 'Analyze' menu under custom expressions. This will open a
 window showing all your custom expressions.
 
-.. figure:: /img/user_guide/custom_expressions/custom_expressions.png
+.. figure:: /img/user_guide/custom_expressions/Custom_expressions.png
    :align: center
    :width: 55%
    :figclass: or-image-border
@@ -35,7 +35,7 @@ lower right. This opens the expression builder window. You can also import expre
 Building expressions
 ====================
 
-.. figure:: /img/user_guide/custom_expressions/expression_builder.png
+.. figure:: /img/user_guide/custom_expressions/Expression_builder.png
    :align: center
    :width: 45%
    :figclass: or-image-border

@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import info.openrocket.core.util.Groupable;
+import info.openrocket.core.util.UnitValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ import info.openrocket.core.util.StringUtils;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class FlightDataType implements Comparable<FlightDataType>, Groupable<FlightDataTypeGroup> {
+public class FlightDataType implements Comparable<FlightDataType>, Groupable<FlightDataTypeGroup>, DataType {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(FlightDataType.class);
 
@@ -489,10 +490,12 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 		return symbol;
 	}
 
+	@Override
 	public UnitGroup getUnitGroup() {
 		return units;
 	}
 
+	@Override
 	public FlightDataTypeGroup getGroup() {
 		return group;
 	}

@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -128,7 +129,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		//// You need to restart OpenRocket for the theme change to take effect.
 		final JLabel lblRestartORTheme = new JLabel();
 		lblRestartORTheme.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
-		this.add(lblRestartORTheme, "spanx, wrap para*2, growx");
+		this.add(lblRestartORTheme, "spanx, wrap, growx");
 
 		fontSizeSpinner.addChangeListener(new ChangeListener() {
 			@Override
@@ -155,6 +156,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				lblRestartORTheme.setText(trans.get("generalprefs.lbl.themeRestartOR"));
 			}
 		});
+
+		this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 
 		//// User-defined thrust curves:
 		this.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
@@ -251,10 +254,94 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		DescriptionArea desc = new DescriptionArea(trans.get("pref.dlg.DescriptionArea.Adddirectories"), 3, -1.5f, false);
 		desc.setBackground(GUIUtil.getUITheme().getBackgroundColor());
 		desc.setForeground(GUIUtil.getUITheme().getTextColor());
-		this.add(desc, "spanx, growx, wrap 40lp");
-		
-		
-		
+		this.add(desc, "spanx, growx, wrap unrel");
+
+		//// User-defined component presets:
+		this.add(new JLabel(trans.get("pref.dlg.lbl.User-definedComponentPreset")), "spanx, wrap");
+		final JTextField fieldCompPres = new JTextField();
+		str = preferences.getUserComponentPresetFilesAsString();
+		fieldCompPres.setText(str);
+		fieldCompPres.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				changed();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				changed();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				changed();
+			}
+
+			private void changed() {
+				String text = fieldCompPres.getText();
+				List<File> list = new ArrayList<>();
+				for (String s : text.split(";")) {
+					s = s.trim();
+					if (s.length() > 0) {
+						list.add(new File(s));
+					}
+				}
+				preferences.setUserComponentPresetFiles(list);
+			}
+		});
+		this.add(fieldCompPres, "w 100px, gapright unrel, spanx, growx, split");
+
+		//// Add button
+		button = new JButton(trans.get("pref.dlg.but.add"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				SimpleFileFilter filter =
+						new SimpleFileFilter(
+								trans.get("pref.dlg.AllComponentPresetfiles"),
+								true, "orc");
+				chooser.addChoosableFileFilter(filter);
+				//// OpenRocket component files (*.orc)
+				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ORCfiles"),
+						true, "orc"));
+				chooser.setFileFilter(filter);
+				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				if (defaultDirectory != null) {
+					chooser.setCurrentDirectory(defaultDirectory);
+				}
+
+				//// Add
+				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					log.info(Markers.USER_MARKER, "Adding component preset file: " + chooser.getSelectedFile());
+					defaultDirectory = chooser.getCurrentDirectory();
+					String text = fieldCompPres.getText().trim();
+					if (text.length() > 0) {
+						text += ";";
+					}
+					text += chooser.getSelectedFile().getAbsolutePath();
+					fieldCompPres.setText(text);
+				}
+			}
+		});
+		this.add(button, "gapright unrel");
+
+		//// Reset button
+		button = new JButton(trans.get("pref.dlg.but.reset"));
+
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// First one sets to the default, but does not un-set the pref
+				fieldCompPres.setText(preferences.getDefaultUserComponentFile().getAbsolutePath());
+				preferences.setUserComponentPresetFiles(null);
+			}
+		});
+		this.add(button, "wrap");
+
+		this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
+
 
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
