@@ -39,6 +39,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private static final int LINE_WIDTH_FIN_PIXELS = 1;
 	private static final int LINE_WIDTH_BODY_PIXELS = 2;
+	private static final int LINE_WIDTH_HIGHLIGHT_PIXELS = 3;
 
 	// the size of the boxes around each fin point vertex
 	private static final int LINE_WIDTH_BOX_PIXELS = 1;
@@ -59,6 +60,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private Rectangle2D.Double[] finPointHandles = null;
 	private int selectedIndex = -1;
+	private int highlightIndex = -1;
 
 	private static Color backgroundColor;
 	private static Color finPointBodyLineColor;
@@ -124,6 +126,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		paintRocketBody(g2);
 		
 		paintFinShape(g2);
+		paintHighlight(g2);
 		paintFinHandles(g2);
 	}
 	
@@ -260,6 +263,22 @@ public class FinPointFigure extends AbstractScaleFigure {
 		g2.setStroke(new BasicStroke( finEdgeWidth_m, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setColor(finPointBodyLineColor);
 		g2.draw(shape);
+	}
+
+	private void paintHighlight(final Graphics2D g2) {
+		final Coordinate[] points = finset.getFinPointsWithRoot();
+
+		if (highlightIndex < 0 || highlightIndex > points.length - 1) {
+			return;
+		}
+
+		Coordinate start = points[highlightIndex];
+		Coordinate end = points[highlightIndex+1];
+
+		final float highlightWidth_m = (float) (LINE_WIDTH_HIGHLIGHT_PIXELS / scale  );
+		g2.setStroke(new BasicStroke(highlightWidth_m));
+		g2.setColor(Color.RED);
+		g2.draw(new Line2D.Double(start.x, start.y, end.x, end.y));
 	}
 	
 	private void paintFinHandles(final Graphics2D g2) {
@@ -436,6 +455,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	public void setSelectedIndex(final int newIndex) {
 		this.selectedIndex = newIndex;
+	}
+
+	public void setHighlightIndex(final int newIndex) {
+		this.highlightIndex = newIndex;
 	}
 
 }

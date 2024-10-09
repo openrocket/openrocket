@@ -337,9 +337,11 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		order.add(table);
 
 		// row of text directly below figure
-		panel.add(new StyledLabel(trans.get("lbl.doubleClick1")+" "+trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "spanx 3");
-        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 3");
-        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 3, wrap");
+		panel.add(new StyledLabel(trans.get("lbl.doubleClick1")+" "+trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 2, wrap");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.shiftClickDrag"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlShiftClickDrag"), -2), "spanx 2, wrap");
         
         // row of controls at the bottom of the tab:
         panel.add(selector.getAsPanel(), "aligny bottom, gap unrel");
@@ -534,13 +536,58 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			int mods = event.getModifiersEx();
+		/*XXX
 			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
 				super.mouseDragged(event);
 				return;
 			}
+		*/
 
 			Point2D.Double point = getCoordinates(event);
 			final FreeformFinSet finset = (FreeformFinSet) component;
+
+		// If shift is held down and a point is being dragged, constrain angle relative to previous or following point
+			int lockIndex = -1;
+			int highlightIndex = -1;
+			if (dragIndex >= 0 && (mods & MouseEvent.SHIFT_DOWN_MASK) != 0) {
+				if ((mods & MouseEvent.CTRL_DOWN_MASK) != 0) {
+					if (dragIndex < finset.getFinPoints().length-1) {
+						lockIndex = dragIndex + 1;
+						highlightIndex = dragIndex;
+					}
+				}
+				else if (dragIndex > 0) {
+					lockIndex = dragIndex - 1;
+					highlightIndex = dragIndex - 1;
+				}
+
+				if (lockIndex >= 0) {
+					// Fetch point to lock to
+					final Coordinate lockPoint = finset.getFinPoints()[lockIndex];
+					// Distances to vertical and horizontal lines
+					final double diffX = point.x - lockPoint.x;
+					final double diffY = point.y - lockPoint.y;
+					final double distanceX = Math.abs(diffX);
+					final double distanceY = Math.abs(diffY);
+					// Calculate distance to 45 or 135 degree line, as appropriate
+					final double a = 1;		// always
+					final double b = (Math.signum(diffX) == Math.signum(diffY)) ? -1 : 1;
+					final double c = -(a*lockPoint.x + b*lockPoint.y);
+					final double distanceDiag = Math.abs(a*point.x + b*point.y + c) / Math.sqrt(2);
+
+					// Snap in the appropriate direction
+					if (distanceX <= distanceY && distanceX <= distanceDiag) 		// snap horizontal
+						point.x = lockPoint.x;
+					else if (distanceY <= distanceX && distanceY <= distanceDiag)	// snap vertical
+						point.y = lockPoint.y;
+					else {															// snap diagonal
+						point.x = (b*( b*point.x - a*point.y) - a*c) / 2;
+						point.y = (a*(-b*point.x + a*point.y) - b*c) / 2;
+					}
+				}
+			}
+			figure.setHighlightIndex(highlightIndex);
+
 			try {
 				finset.setPoint(dragIndex, point.x, point.y);
 			} catch (IllegalFinPointException e) {
@@ -627,6 +674,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		public void mouseReleased(MouseEvent event) {
 			dragIndex = -1;
 			dragPoint = null;
+			figure.setHighlightIndex(-1);
+			figure.updateFigure();
+
 			super.mouseReleased(event);
 		}
 		
