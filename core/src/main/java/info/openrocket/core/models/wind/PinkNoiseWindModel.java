@@ -1,11 +1,16 @@
 package info.openrocket.core.models.wind;
 
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
+import java.util.List;
 import java.util.Random;
 
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PinkNoise;
+import info.openrocket.core.util.StateChangeListener;
 
 /**
  * A wind simulator that generates wind speed as pink noise from a specified
@@ -34,7 +39,7 @@ public class PinkNoiseWindModel implements WindModel {
 	private static final double STDDEV = 2.252;
 
 	/** Time difference between random samples. */
-	private static final double DELTA_T = 0.05;
+	public static final double DELTA_T = 0.05;
 
 	private double average = 0;
 	private double direction = Math.PI / 2; // this is an East wind
@@ -46,6 +51,8 @@ public class PinkNoiseWindModel implements WindModel {
 	private double time1;
 	private double value1, value2;
 
+	private final List<StateChangeListener> listeners = new ArrayList<>();
+
 	/**
 	 * Construct a new wind simulation with a specific seed value.
 	 * 
@@ -53,6 +60,10 @@ public class PinkNoiseWindModel implements WindModel {
 	 */
 	public PinkNoiseWindModel(int seed) {
 		this.seed = seed ^ SEED_RANDOMIZATION;
+	}
+
+	public PinkNoiseWindModel() {
+		this(new Random().nextInt());
 	}
 
 	/**
@@ -71,13 +82,22 @@ public class PinkNoiseWindModel implements WindModel {
 	 * @param average the average wind speed to set
 	 */
 	public void setAverage(double average) {
+		average = Math.max(average, 0);
+		if (average == this.average) {
+			return;
+		}
 		double intensity = getTurbulenceIntensity();
-		this.average = Math.max(average, 0);
+		this.average = average;
 		setTurbulenceIntensity(intensity);
+		fireChangeEvent();
 	}
 
 	public void setDirection(double direction) {
+		if (direction == this.direction) {
+			return;
+		}
 		this.direction = direction;
+		fireChangeEvent();
 	}
 
 	public double getDirection() {
@@ -99,7 +119,12 @@ public class PinkNoiseWindModel implements WindModel {
 	 * @param standardDeviation the standardDeviation to set
 	 */
 	public void setStandardDeviation(double standardDeviation) {
+		if (standardDeviation == this.standardDeviation) {
+			return;
+		}
 		this.standardDeviation = Math.max(standardDeviation, 0);
+		setTurbulenceIntensity(standardDeviation / average);
+		fireChangeEvent();
 	}
 
 	/**
@@ -161,9 +186,67 @@ public class PinkNoiseWindModel implements WindModel {
 		randomSource = null;
 	}
 
+	public void loadFrom(PinkNoiseWindModel source) {
+		this.average = source.average;
+		this.direction = source.direction;
+		this.standardDeviation = source.standardDeviation;
+	}
+
 	@Override
 	public ModID getModID() {
 		return ModID.ZERO;
 	}
 
+	@Override
+	public PinkNoiseWindModel clone() {
+		try {
+			PinkNoiseWindModel clone = (PinkNoiseWindModel) super.clone();
+			clone.loadFrom(this);
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(); // This should never happen
+		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		PinkNoiseWindModel that = (PinkNoiseWindModel) o;
+		return Double.compare(that.average, average) == 0 &&
+				Double.compare(that.standardDeviation, standardDeviation) == 0 &&
+				Double.compare(that.direction, direction) == 0 &&
+				seed == that.seed;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 17;
+		result = 31 * result + Double.hashCode(average);
+		result = 31 * result + Double.hashCode(standardDeviation);
+		result = 31 * result + Double.hashCode(direction);
+		result = 31 * result + seed;
+		return result;
+	}
+
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	public void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
+			}
+		}
+	}
 }

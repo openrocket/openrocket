@@ -1041,7 +1041,7 @@ public class UITheme {
 
             @Override
             public Color getDisabledTextColor() {
-                return new Color(128, 128, 128);
+                return new Color(128, 128, 128, 223);
             }
 
 

@@ -63,11 +63,6 @@ public abstract class TubeCalc extends RocketComponentCalc {
 			// friction coefficient using Swamee-Jain equation
 			double f = 0.25 / MathUtil.pow2(Math.log10((epsilon / (3.7 * diameter) + 5.74 / Math.pow(Re, 0.9))));
 
-			// If we're supersonic, apply a correction
-			if (conditions.getMach() > 1) {
-				f = f / conditions.getBeta();
-			}
-
 			// pressure drop using Darcy-Weissbach equation
 			deltap = f * (length * rho * MathUtil.pow2(v)) / (2 * diameter);
 

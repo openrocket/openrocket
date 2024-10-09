@@ -76,6 +76,7 @@ import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.core.componentanalysis.CAParameters;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
@@ -104,7 +105,7 @@ import org.slf4j.LoggerFactory;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 @SuppressWarnings("serial")
-public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource {
+public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource, CAParameters.CAParametersListener {
 
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
@@ -540,6 +541,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		valueChanged((TreeSelectionEvent) null); // updates FigureParameters
 	}
 
+	public void setSelectedComponent(RocketComponent component) {
+		if (component == null) {
+			selectionModel.setSelectionPath(null);
+			return;
+		}
+		TreePath path = ComponentTreeModel.makeTreePath(component);
+		selectionModel.setSelectionPath(path);
+	}
+
 	/**
 	 * Return the angle of attack used in CP calculation.  NaN signifies the default value
 	 * of zero.
@@ -671,8 +681,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			if (newClick) {
 				for (RocketComponent rocketComponent : clicked) {
 					if (!selectedComponents.contains(rocketComponent)) {
-						TreePath path = ComponentTreeModel.makeTreePath(rocketComponent);
-						selectionModel.setSelectionPath(path);
+						setSelectedComponent(rocketComponent);
 					}
 				}
 			}
@@ -1169,6 +1178,26 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure.setSelection(components);
 
 		figure3d.setSelection(components);
+	}
+
+	@Override
+	public void onThetaChanged(double theta) {
+		setCPTheta(theta);
+	}
+
+	@Override
+	public void onAOAChanged(double aoa) {
+		setCPAOA(aoa);
+	}
+
+	@Override
+	public void onMachChanged(double mach) {
+		setCPMach(mach);
+	}
+
+	@Override
+	public void onRollRateChanged(double rollRate) {
+		setCPRoll(rollRate);
 	}
 
 	private static class ViewTypeComboBoxModel extends DefaultComboBoxModel<VIEW_TYPE> {

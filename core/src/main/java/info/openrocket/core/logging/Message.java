@@ -1,17 +1,30 @@
 package info.openrocket.core.logging;
 
-import info.openrocket.core.rocketcomponent.RocketComponent;
 import java.util.Arrays;
+import java.util.UUID;
+
+import info.openrocket.core.rocketcomponent.RocketComponent;
 
 /**
  * Baseclass for logging messages (warnings, errors...)
  */
 public abstract class Message implements Cloneable {
+	/** Message ID **/
+	UUID id;
+	
 	/** The rocket component(s) that are the source of this message **/
 	private RocketComponent[] sources = null;
 
 	private MessagePriority priority = MessagePriority.NORMAL;
 
+	protected Message() {
+		this.id = UUID.randomUUID();
+	}
+
+	protected Message(UUID id) {
+		this.id = id;
+	}
+	
 	/**
 	 * Returns the message text + message source objects.
 	 * @return the message text + message source objects.
@@ -54,6 +67,20 @@ public abstract class Message implements Cloneable {
 	 */
 	public abstract boolean replaceBy(Message other);
 
+	/**
+	 * Return the ID
+	 */
+	 public UUID getID() {
+		 return id;
+	 }
+
+	/**
+	 * Set the ID
+	 **/
+	public void setID(UUID id) {
+		this.id = id;
+	}
+	
 	/**
 	 * Return the rocket component(s) that are the source of this warning.
 	 * @return the rocket component(s) that are the source of this warning. Returns null if no sources are specified.

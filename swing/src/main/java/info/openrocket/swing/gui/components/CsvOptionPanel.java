@@ -42,7 +42,7 @@ public class CsvOptionPanel extends JPanel {
 	 * @param includeComments	a list of comment inclusion options to provide;
 	 * 							every second item is the option name and every second the tooltip
 	 */
-	public CsvOptionPanel(Class<?> baseClass, String... includeComments) {
+	public CsvOptionPanel(Class<?> baseClass, boolean placeOnNewRows, String... includeComments) {
 		super(new MigLayout("fill, insets 0"));
 		
 		this.baseClassName = baseClass.getSimpleName();
@@ -88,7 +88,11 @@ public class CsvOptionPanel extends JPanel {
 		exponentialNotationCheckbox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.EXPORT_EXPONENTIAL_NOTATION, true));
 		panel.add(exponentialNotationCheckbox);
 
-		this.add(panel, "growx, wrap unrel");
+		if (placeOnNewRows) {
+			this.add(panel, "growx, wrap unrel");
+		} else {
+			this.add(panel, "growx, gapright unrel");
+		}
 		
 
 
@@ -120,8 +124,16 @@ public class CsvOptionPanel extends JPanel {
 		commentCharacter.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_COMMENT_CHARACTER, "#"));
 		commentCharacter.setToolTipText(tip);
 		panel.add(commentCharacter, "growx");
-		
-		this.add(panel, "growx, wrap");
+
+		if (placeOnNewRows) {
+			this.add(panel, "growx, wrap");
+		} else {
+			this.add(panel, "growx");
+		}
+	}
+
+	public CsvOptionPanel(Class<?> baseClass, String... includeComments) {
+		this(baseClass, true, includeComments);
 	}
 	
 	
