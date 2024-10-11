@@ -22,6 +22,7 @@ import info.openrocket.core.util.ModID;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
+	private static final double MIN_BETA = 0.25;
 
 	private List<EventListener> listenerList = new ArrayList<>();
 	private EventObject event = new EventObject(this);
@@ -291,13 +292,10 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * @return the beta value.
 	 */
 	private static double calculateBeta(double mach) {
-		if (mach < 0.99999) {
-			return MathUtil.safeSqrt(1 - mach * mach);
-		} else if (mach < 1.00001) {
-			// Clamp to avoid singularity near Mach 1
-			return MathUtil.safeSqrt(1 - 0.99999 * 0.99999);
+		if (mach < 1) {
+			return MathUtil.max(MIN_BETA, MathUtil.safeSqrt(1 - mach * mach));
 		} else {
-			return MathUtil.safeSqrt(mach * mach - 1);
+			return MathUtil.max(MIN_BETA, MathUtil.safeSqrt(mach * mach - 1));
 		}
 	}
 
