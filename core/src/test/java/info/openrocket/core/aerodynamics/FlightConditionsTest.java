@@ -86,9 +86,29 @@ class FlightConditionsTest {
 
 	@Test
 	void testSetAndGetMach() {
+		conditions.setMach(0.2);
+		assertEquals(0.2, conditions.getMach(), EPSILON);
+		assertEquals(0.9797958971, conditions.getBeta(), EPSILON);
+
 		conditions.setMach(0.8);
 		assertEquals(0.8, conditions.getMach(), EPSILON);
 		assertEquals(0.6, conditions.getBeta(), EPSILON);
+
+		conditions.setMach(0.9999999999);
+		assertEquals(0.9999999999, conditions.getMach(), EPSILON);
+		assertEquals(0.25, conditions.getBeta(), EPSILON);
+
+		conditions.setMach(1.00000000001);
+		assertEquals(1.00000000001, conditions.getMach(), EPSILON);
+		assertEquals(0.25, conditions.getBeta(), EPSILON);
+
+		conditions.setMach(1.3);
+		assertEquals(1.3, conditions.getMach(), EPSILON);
+		assertEquals(0.8306623863, conditions.getBeta(), EPSILON);
+
+		conditions.setMach(3);
+		assertEquals(3, conditions.getMach(), EPSILON);
+		assertEquals(2.8284271247, conditions.getBeta(), EPSILON);
 	}
 
 	@Test
