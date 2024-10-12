@@ -22,6 +22,7 @@ import info.openrocket.core.util.ModID;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
+	private static final double MIN_BETA = 0.25;
 
 	private List<EventListener> listenerList = new ArrayList<>();
 	private EventObject event = new EventObject(this);
@@ -55,7 +56,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * Sqrt(1 - M^2) for M<1
 	 * Sqrt(M^2 - 1) for M>1
 	 */
-	private double beta = MathUtil.safeSqrt(1 - mach * mach);
+	private double beta = calculateBeta(mach);
 
 	/** Current roll rate. */
 	private double rollRate = 0;
@@ -243,10 +244,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			return;
 
 		this.mach = mach;
-		if (mach < 1)
-			this.beta = MathUtil.safeSqrt(1 - mach * mach);
-		else
-			this.beta = MathUtil.safeSqrt(mach * mach - 1);
+		this.beta = calculateBeta(mach);
 
 		fireChangeEvent();
 	}
@@ -286,6 +284,19 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 */
 	public double getBeta() {
 		return beta;
+	}
+
+	/**
+	 * Calculate the beta value (compressibility factor/Prandtl-Glauert correction factor) for the given Mach number.
+	 * @param mach the Mach number.
+	 * @return the beta value.
+	 */
+	private static double calculateBeta(double mach) {
+		if (mach < 1) {
+			return MathUtil.max(MIN_BETA, MathUtil.safeSqrt(1 - mach * mach));
+		} else {
+			return MathUtil.max(MIN_BETA, MathUtil.safeSqrt(mach * mach - 1));
+		}
 	}
 
 	/**

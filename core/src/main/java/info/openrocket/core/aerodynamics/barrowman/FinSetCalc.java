@@ -162,9 +162,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		// TODO: LOW: fin-fin mach cone effect, MIL-HDBK page 5-25
 		// Calculate CP position
 		double x = macLead + calculateCPPos(conditions) * macLength;
-		//		logger.debug("Component macLead = {}", macLead);
-		//		logger.debug("Component macLength = {}", macLength);
-		//		logger.debug("Component x = {}", x);
 		
 		
 		// Calculate roll forces, reduce forcing above stall angle
@@ -176,16 +173,11 @@ public class FinSetCalc extends RocketComponentCalc {
 		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
-			//			System.out.println("Fin stalling in roll");
 			forces.setCrollForce(forces.getCrollForce() * MathUtil.clamp(
 					1 - (conditions.getAOA() - STALL_ANGLE) / (STALL_ANGLE / 2), 0, 1));
 		}
 		forces.setCrollDamp(calculateDampingMoment(conditions));
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
-		
-		//		System.out.printf(component.getName() + ":  roll rate:%.3f  force:%.3f  damp:%.3f  " +
-		//				"total:%.3f\n",
-		//				conditions.getRollRate(), forces.CrollForce, forces.CrollDamp, forces.Croll);
 		
 		forces.setCNa(cna);
 		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
@@ -349,7 +341,6 @@ public class FinSetCalc extends RocketComponentCalc {
 			double y = i * dy;
 			
 			macLength += length * length;
-			//logger.debug("macLength = {}, length = {}, i = {}", macLength, length, i);
 			macSpan += y * length;
 			macLead += chordLead[i] * length;
 			area += length;
@@ -408,10 +399,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		K1 = new LinearInterpolator(x, k1);
 		K2 = new LinearInterpolator(x, k2);
 		K3 = new LinearInterpolator(x, k3);
-		
-		//		System.out.println("K1[m="+CNA_SUPERSONIC+"] = "+k1[0]);
-		//		System.out.println("K2[m="+CNA_SUPERSONIC+"] = "+k2[0]);
-		//		System.out.println("K3[m="+CNA_SUPERSONIC+"] = "+k3[0]);
 	}
 	
 	protected double calculateFinCNa1(FlightConditions conditions) {
@@ -445,8 +432,6 @@ public class FinSetCalc extends RocketComponentCalc {
 				K3.getValue(CNA_SUPERSONIC) * pow2(alpha)) / ref;
 		superD = -finArea / ref * 2 * CNA_SUPERSONIC / CNA_SUPERSONIC_B;
 		
-		//		System.out.println("subV="+subV+" superV="+superV+" subD="+subD+" superD="+superD);
-		
 		return cnaInterpolator.interpolate(mach, subV, superV, subD, superD, 0);
 	}
 	
@@ -473,24 +458,16 @@ public class FinSetCalc extends RocketComponentCalc {
 			}
 			sum = sum * (span / DIVISIONS) * 2 * Math.PI / conditions.getBeta() /
 					(conditions.getRefArea() * conditions.getRefLength());
-			
-			//			System.out.println("SPECIAL: " + 
-			//					(MathUtil.sign(rollRate) * sum));
+
 			return MathUtil.sign(rollRate) * sum;
 		}
 		
 		if (mach <= CNA_SUBSONIC) {
-			//			System.out.println("BASIC:   "+
-			//					(2*Math.PI * rollRate * rollSum / 
-			//			(conditions.getRefArea() * conditions.getRefLength() * 
-			//					conditions.getVelocity() * conditions.getBeta())));
-			
 			return 2 * Math.PI * rollRate * rollSum /
 					(conditions.getRefArea() * conditions.getRefLength() *
 							conditions.getVelocity() * conditions.getBeta());
 		}
 		if (mach >= CNA_SUPERSONIC) {
-			
 			double vel = conditions.getVelocity();
 			double k1 = K1.getValue(mach);
 			double k2 = K2.getValue(mach);
@@ -511,7 +488,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 		
 		// Transonic, do linear interpolation
-		
 		FlightConditions cond = conditions.clone();
 		cond.setMach(CNA_SUBSONIC - 0.01);
 		double subsonic = calculateDampingMoment(cond);
@@ -532,7 +508,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	 */
 	private double calculateCPPos(FlightConditions cond) {
 		double m = cond.getMach();
-		//		logger.debug("m = {} ", m);
+
 		if (m <= 0.5) {
 			// At subsonic speeds CP at quarter chord
 			return 0.25;
@@ -551,7 +527,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			val += v * x;
 			x *= m;
 		}
-		//		logger.debug("val = {}", val);
+
 		return val;
 	}
 	
