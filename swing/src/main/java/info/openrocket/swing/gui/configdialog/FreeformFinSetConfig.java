@@ -1,10 +1,13 @@
 package info.openrocket.swing.gui.configdialog;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -31,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -230,11 +235,40 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		// Create the table
 		tableModel = new FinPointTableModel();
-		table = new JTable(tableModel);
+		table = new JTable(tableModel) {
+			@Override
+			public void changeSelection(int row, int column, boolean toggle, boolean extend) {
+				super.changeSelection(row, column, toggle, extend);
+
+				if (isCellEditable(row, column)) {
+					editCellAt(row, column);
+					Component editor = getEditorComponent();
+					if (editor != null) {
+						editor.requestFocus();
+					}
+				}
+			}
+		};
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		for (int i = 0; i < Columns.values().length; i++) {
 			table.getColumnModel().getColumn(i).setPreferredWidth(Columns.values()[i].getWidth());
 		}
+
+		// Set custom editor for highlighting all text
+		DefaultCellEditor editor = new DefaultCellEditor(new JTextField()) {
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				JTextField textField = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
+				SwingUtilities.invokeLater(textField::selectAll);
+				return textField;
+			}
+		};
+
+		// Apply the editor to all columns
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setCellEditor(editor);
+		}
+
 		table.addMouseListener(new MouseAdapter() {
 		    @Override
             public void mouseClicked(MouseEvent e) {
@@ -264,6 +298,17 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 		});
 		JScrollPane tablePane = new JScrollPane(table);
+
+		// Remove focus from table when interacting on the figure
+		figurePane.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (table.isEditing()) {
+					table.getCellEditor().stopCellEditing();
+				}
+				table.clearSelection();
+			}
+		});
 		
 		JButton scaleButton = new JButton(trans.get("FreeformFinSetConfig.lbl.scaleFin"));
 		scaleButton.addActionListener(new ActionListener() {
@@ -337,9 +382,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		order.add(table);
 
 		// row of text directly below figure
-		panel.add(new StyledLabel(trans.get("lbl.doubleClick1")+" "+trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "spanx 2");
-        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 2, wrap");
-        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 2, wrap");
         panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.shiftClickDrag"), -2), "spanx 2");
         panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlShiftClickDrag"), -2), "spanx 2, wrap");
         
@@ -503,6 +547,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 		@Override
 		public void mousePressed(MouseEvent event) {
+			requestFocusInWindow();
 			final FreeformFinSet finset = (FreeformFinSet) component;
 
 			final int pressIndex = getPoint(event);
@@ -681,8 +726,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		@Override
 		public void mouseClicked(MouseEvent event) {
-            int mods = event.getModifiersEx();
-            if(( event.getButton() == MouseEvent.BUTTON1) && (0 < (MouseEvent.CTRL_DOWN_MASK & mods))) {
+			int mods = event.getModifiersEx();
+			if ((event.getButton() == MouseEvent.BUTTON1) && (0 < (MouseEvent.CTRL_DOWN_MASK & mods))) {
                 int clickIndex = getPoint(event);
                 if ( 0 < clickIndex) {
                     // if ctrl+click, delete point
@@ -695,8 +740,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
                     return;
                 }
             }
-            
-            super.mouseClicked(event);
+			super.mouseClicked(event);
         }
 		
 		private int getPoint(MouseEvent event) {
