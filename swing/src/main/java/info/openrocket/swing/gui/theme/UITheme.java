@@ -93,6 +93,7 @@ public class UITheme {
         Color getFinPointPointColor();
         Color getFinPointSelectedPointColor();
         Color getFinPointBodyLineColor();
+        Color getFinPointSnapHighlightColor();
 
         Icon getMassOverrideIcon();
         Icon getMassOverrideSubcomponentIcon();
@@ -402,6 +403,11 @@ public class UITheme {
             @Override
             public Color getFinPointBodyLineColor() {
                 return Color.BLACK;
+            }
+
+            @Override
+            public Color getFinPointSnapHighlightColor() {
+                return Color.RED;
             }
 
             @Override
@@ -806,6 +812,11 @@ public class UITheme {
             }
 
             @Override
+            public Color getFinPointSnapHighlightColor() {
+                return new Color(255, 58, 58, 255);
+            }
+
+            @Override
             public Icon getMassOverrideIcon() {
                 return Icons.MASS_OVERRIDE_DARK;
             }
@@ -1204,6 +1215,11 @@ public class UITheme {
             @Override
             public Color getFinPointBodyLineColor() {
                 return Color.WHITE;
+            }
+
+            @Override
+            public Color getFinPointSnapHighlightColor() {
+                return new Color(241, 77, 77, 255);
             }
 
             @Override
@@ -1623,6 +1639,11 @@ public class UITheme {
 
             @Override
             public Color getFinPointBodyLineColor() {
+                return getCurrentTheme().getFinPointBodyLineColor();
+            }
+
+            @Override
+            public Color getFinPointSnapHighlightColor() {
                 return getCurrentTheme().getFinPointBodyLineColor();
             }
 

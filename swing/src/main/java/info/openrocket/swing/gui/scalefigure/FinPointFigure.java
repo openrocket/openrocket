@@ -68,6 +68,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	private static Color finPointGridMinorLineColor;
 	private static Color finPointPointColor;
 	private static Color finPointSelectedPointColor;
+	private static Color finPointSnapHighlightColor;
 
 	static {
 		initColors();
@@ -94,6 +95,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		finPointGridMinorLineColor = GUIUtil.getUITheme().getFinPointGridMinorLineColor();
 		finPointPointColor = GUIUtil.getUITheme().getFinPointPointColor();
 		finPointSelectedPointColor = GUIUtil.getUITheme().getFinPointSelectedPointColor();
+		finPointSnapHighlightColor = GUIUtil.getUITheme().getFinPointSnapHighlightColor();
 	}
 
 	@Override
@@ -277,7 +279,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final float highlightWidth_m = (float) (LINE_WIDTH_HIGHLIGHT_PIXELS / scale  );
 		g2.setStroke(new BasicStroke(highlightWidth_m));
-		g2.setColor(Color.RED);
+		g2.setColor(finPointSnapHighlightColor);
 		g2.draw(new Line2D.Double(start.x, start.y, end.x, end.y));
 	}
 	
