@@ -590,44 +590,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			Point2D.Double point = getCoordinates(event);
 			final FreeformFinSet finset = (FreeformFinSet) component;
 
-		// If shift is held down and a point is being dragged, constrain angle relative to previous or following point
-			int lockIndex = -1;
+			// If shift is held down, apply snapping
 			int highlightIndex = -1;
 			if ((mods & MouseEvent.SHIFT_DOWN_MASK) != 0) {
-				if ((mods & MouseEvent.CTRL_DOWN_MASK) != 0) {
-					if (dragIndex < finset.getFinPoints().length-1) {
-						lockIndex = dragIndex + 1;
-						highlightIndex = dragIndex;
-					}
-				}
-				else if (dragIndex > 0) {
-					lockIndex = dragIndex - 1;
-					highlightIndex = dragIndex - 1;
-				}
+				int lockIndex = getLockIndex(mods);
+				highlightIndex = getHighlightIndex(lockIndex);
 
 				if (lockIndex >= 0) {
-					// Fetch point to lock to
-					final Coordinate lockPoint = finset.getFinPoints()[lockIndex];
-					// Distances to vertical and horizontal lines
-					final double diffX = point.x - lockPoint.x;
-					final double diffY = point.y - lockPoint.y;
-					final double distanceX = Math.abs(diffX);
-					final double distanceY = Math.abs(diffY);
-					// Calculate distance to 45 or 135 degree line, as appropriate
-					final double a = 1;		// always
-					final double b = (Math.signum(diffX) == Math.signum(diffY)) ? -1 : 1;
-					final double c = -(a*lockPoint.x + b*lockPoint.y);
-					final double distanceDiag = Math.abs(a*point.x + b*point.y + c) / Math.sqrt(2);
-
-					// Snap in the appropriate direction
-					if (distanceX <= distanceY && distanceX <= distanceDiag) 		// snap horizontal
-						point.x = lockPoint.x;
-					else if (distanceY <= distanceX && distanceY <= distanceDiag)	// snap vertical
-						point.y = lockPoint.y;
-					else {															// snap diagonal
-						point.x = (b*( b*point.x - a*point.y) - a*c) / 2;
-						point.y = (a*(-b*point.x + a*point.y) - b*c) / 2;
-					}
+					point = snapPoint(point, finset.getFinPoints()[lockIndex]);
 				}
 			}
 			figure.setHighlightIndex(highlightIndex);
@@ -643,29 +613,59 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 			updateFields();
 
-			// if point is within borders of figure _AND_ outside borders of the ScrollPane's view:
-			final Rectangle dragRectangle = viewport.getViewRect();
-			final Point canvasPoint = new Point( dragPoint.x + dragRectangle.x, dragPoint.y + dragRectangle.y);
-			if( (figure.getBorderWidth() < canvasPoint.x) && (canvasPoint.x < (figure.getWidth() - figure.getBorderWidth()))
-			    && (figure.getBorderHeight() < canvasPoint.y) && (canvasPoint.y < (figure.getHeight() - figure.getBorderHeight())))
-			{
-				boolean hitBorder = false;
-				if(dragPoint.x < figure.getBorderWidth()){
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - figure.getBorderWidth();
-				} else if(dragPoint.x >(dragRectangle.width -figure.getBorderWidth())) {
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
-				}
+			// Handle scrolling if point is dragged out of view
+			handleScrolling();
+		}
 
-				if (dragPoint.y<figure.getBorderHeight()) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - figure.getBorderHeight();
-				} else if(dragPoint.y >(dragRectangle.height -figure.getBorderHeight())) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
-				}
+		private int getLockIndex(int mods) {
+			if ((mods & MouseEvent.CTRL_DOWN_MASK) != 0) {
+				return (dragIndex < ((FreeformFinSet) component).getFinPoints().length - 1) ? dragIndex + 1 : -1;
+			} else {
+				return (dragIndex > 0) ? dragIndex - 1 : -1;
+			}
+		}
 
+		private int getHighlightIndex(int lockIndex) {
+			return (lockIndex == dragIndex + 1) ? dragIndex : lockIndex;
+		}
+
+		private Point2D.Double snapPoint(Point2D.Double point, Coordinate lockPoint) {
+			Point2D.Double snappedPoint = new Point2D.Double(point.x, point.y);
+
+			double diffX = point.x - lockPoint.x;
+			double diffY = point.y - lockPoint.y;
+			double distanceX = Math.abs(diffX);
+			double distanceY = Math.abs(diffY);
+
+			// Calculate distance to 45 or 135 degree line
+			double a = 1;
+			double b = (Math.signum(diffX) == Math.signum(diffY)) ? -1 : 1;
+			double c = -(a * lockPoint.x + b * lockPoint.y);
+			double distanceDiag = Math.abs(a * point.x + b * point.y + c) / Math.sqrt(2);
+
+			// Snap to the closest constraint
+			if (distanceX <= distanceY && distanceX <= distanceDiag) {
+				// Snap horizontal
+				snappedPoint.x = lockPoint.x;
+			} else if (distanceY <= distanceX && distanceY <= distanceDiag) {
+				// Snap vertical
+				snappedPoint.y = lockPoint.y;
+			} else {
+				// Snap diagonal (45 degrees)
+				double avgDist = (Math.abs(diffX) + Math.abs(diffY)) / 2;
+				snappedPoint.x = lockPoint.x + Math.signum(diffX) * avgDist;
+				snappedPoint.y = lockPoint.y + Math.signum(diffY) * avgDist;
+			}
+
+			return snappedPoint;
+		}
+
+		private void handleScrolling() {
+			Rectangle dragRectangle = viewport.getViewRect();
+			Point canvasPoint = new Point(dragPoint.x + dragRectangle.x, dragPoint.y + dragRectangle.y);
+
+			if (isPointWithinFigureBounds(canvasPoint)) {
+				boolean hitBorder = updateScrollPosition(dragRectangle);
 				if (hitBorder) {
 					super.setFitting(false);
 					selector.update();
@@ -675,43 +675,31 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 		}
 
-		@Override
-		public void componentResized(ComponentEvent e) {
-			if (fit) {
-				// if we're fitting the whole figure in the ScrollPane, the parent behavior is fine
-				super.componentResized(e);
-			} else if (0 > dragIndex) {
-				// if we're not _currently_ dragging a point, the parent behavior is fine
-				super.componentResized(e);
-			} else {
-				// currently dragging a point.
-				// ... and if we drag out-of-bounds, we want to move the viewport to keep up
-				boolean hitBorder = false;
-				final Rectangle dragRectangle = viewport.getViewRect();
+		private boolean isPointWithinFigureBounds(Point point) {
+			return figure.getBorderWidth() < point.x && point.x < (figure.getWidth() - figure.getBorderWidth())
+					&& figure.getBorderHeight() < point.y && point.y < (figure.getHeight() - figure.getBorderHeight());
+		}
 
-				if(dragPoint.x<figure.getBorderWidth()){
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - figure.getBorderWidth();
-				} else if(dragPoint.x >(dragRectangle.width -figure.getBorderWidth())) {
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
-				}
+		private boolean updateScrollPosition(Rectangle dragRectangle) {
+			boolean hitBorder = false;
 
-				if (dragPoint.y<figure.getBorderHeight()) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - figure.getBorderHeight();
-				} else if(dragPoint.y >(dragRectangle.height -figure.getBorderHeight())) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
-				}
-
-				if (hitBorder) {
-					super.setFitting(false);
-					selector.update();
-					figure.scrollRectToVisible(dragRectangle);
-					revalidate();
-				}
+			if (dragPoint.x < figure.getBorderWidth()) {
+				hitBorder = true;
+				dragRectangle.x += dragPoint.x - figure.getBorderWidth();
+			} else if (dragPoint.x > (dragRectangle.width - figure.getBorderWidth())) {
+				hitBorder = true;
+				dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
 			}
+
+			if (dragPoint.y < figure.getBorderHeight()) {
+				hitBorder = true;
+				dragRectangle.y += dragPoint.y - figure.getBorderHeight();
+			} else if (dragPoint.y > (dragRectangle.height - figure.getBorderHeight())) {
+				hitBorder = true;
+				dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
+			}
+
+			return hitBorder;
 		}
 
 		@Override
