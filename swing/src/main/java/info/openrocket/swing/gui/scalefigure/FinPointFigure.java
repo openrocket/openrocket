@@ -60,7 +60,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private Rectangle2D.Double[] finPointHandles = null;
 	private int selectedIndex = -1;
-	private int highlightIndex = -1;
+	private int highlightIndex = -1;					// The first index of the segment to highlight when snapping to a fin point
 
 	private static Color backgroundColor;
 	private static Color finPointBodyLineColor;
@@ -267,6 +267,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 		g2.draw(shape);
 	}
 
+	/**
+	 * Paints the highlight line between the two points when snapping to a fin point.
+	 * @param g2 The graphics context to paint to.
+	 */
 	private void paintHighlight(final Graphics2D g2) {
 		final Coordinate[] points = finset.getFinPointsWithRoot();
 
