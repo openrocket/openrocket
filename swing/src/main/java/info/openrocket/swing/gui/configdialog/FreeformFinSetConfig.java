@@ -591,16 +591,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			final FreeformFinSet finset = (FreeformFinSet) component;
 
 			// If shift is held down, apply snapping
-			int highlightIndex = -1;
 			if ((mods & MouseEvent.SHIFT_DOWN_MASK) != 0) {
 				int lockIndex = getLockIndex(mods);
-				highlightIndex = getHighlightIndex(lockIndex);
 
-				if (lockIndex >= 0) {
+				if (lockIndex != -1) {
 					point = snapPoint(point, finset.getFinPoints()[lockIndex]);
+					int highlightIndex = getHighlightIndex(lockIndex);
+					figure.setHighlightIndex(highlightIndex);
 				}
 			}
-			figure.setHighlightIndex(highlightIndex);
 
 			try {
 				finset.setPoint(dragIndex, point.x, point.y);
@@ -617,11 +616,17 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			handleScrolling();
 		}
 
+		/**
+		 * Get the index of the point that the current point should lock to.
+		 * @param mods The modifiers of the mouse event
+		 * @return The index of the point to lock to, or -1 if no point should be locked to
+		 */
 		private int getLockIndex(int mods) {
+			int length = ((FreeformFinSet) component).getFinPoints().length;
 			if ((mods & MouseEvent.CTRL_DOWN_MASK) != 0) {
-				return (dragIndex < ((FreeformFinSet) component).getFinPoints().length - 1) ? dragIndex + 1 : -1;
+				return (dragIndex > 0 && dragIndex < length - 1) ? dragIndex + 1 : -1;
 			} else {
-				return (dragIndex > 0) ? dragIndex - 1 : -1;
+				return (dragIndex < length - 1 && dragIndex > 0) ? dragIndex - 1 : -1;
 			}
 		}
 
