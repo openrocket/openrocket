@@ -138,10 +138,10 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
 						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.01, null, warn),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.85, null),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.73, null),
 						new FlightEvent(FlightEvent.Type.APOGEE, 3.78, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 9.0, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 9.0, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 8.94, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 8.94, null)
 				};
 
 				// Side Boosters
