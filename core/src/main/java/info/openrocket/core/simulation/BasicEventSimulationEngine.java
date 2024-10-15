@@ -41,10 +41,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private final SimulationStepper landingStepper = new BasicLandingStepper();
 	private final SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	private final SimulationStepper groundStepper = new GroundStepper();
-
-	// Constant holding 20 degrees in radians. This is the AOA condition
-	// necessary to transition to tumbling.
-	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	// The thrust must be below this value for the transition to tumbling.
 	// TODO HIGH: this is an arbitrary value
@@ -265,16 +261,30 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Conditions for transition are:
 				// is not already tumbling
 				// and not stable (cg > cp)
-				// and aoa > AOA_TUMBLE_CONDITION threshold
+				// and stallMargin() < 0
 
 				if (!currentStatus.isTumbling()) {
 					final double cp = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CP_LOCATION);
 					final double cg = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_AOA);
-					
-					if (cg > cp && aoa > AOA_TUMBLE_CONDITION) {
-						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
-					}					
+					final double margin =
+						currentStatus.getSimulationConditions().getAerodynamicCalculator().getStallMargin();
+
+					// large AOA -- stalling.					
+					if (margin < 0) {
+						// If we're stable, put a warning about large AOA
+						// note -- if cp is NaN (which it is while on the rod) cg > cp is false
+						if (cg > cp) {
+							// Not stable, so transition to tumbling
+							currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
+						} else {
+							// Stable, so warning about AOA
+							if (currentStatus.recordWarnings()) {
+									currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIM_WARN, currentStatus.getSimulationTime(), null,
+																		   new Warning.LargeAOA(aoa)));
+							}
+						}
+					}
 				}
 
 				// If I'm on the ground and have no events in the queue, I'm done

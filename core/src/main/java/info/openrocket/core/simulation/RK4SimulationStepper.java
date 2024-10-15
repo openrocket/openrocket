@@ -401,22 +401,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * launch rod or 0.25 seconds after departure, and when the velocity has dropped
 		 * below 20% of the max. velocity.
 		 */
-		WarningSet warnings = new WarningSet();
-		store.maxZvelocity = MathUtil.max(store.maxZvelocity, status.getRocketVelocity().z);
-		
-		if (!status.isLaunchRodCleared()) {
-			warnings = null;
-		} else {
-			if (status.getRocketVelocity().z < 0.2 * store.maxZvelocity) {
-				warnings = null;
-			}
-			if (Double.isNaN(store.startWarningTime)) {
-				store.startWarningTime = status.getSimulationTime() + 0.25;
-			}
-		}
-
-		if (!(status.getSimulationTime() > store.startWarningTime))
-			warnings = null;
+		WarningSet warnings = status.recordWarnings() ? new WarningSet() : null;
 
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()

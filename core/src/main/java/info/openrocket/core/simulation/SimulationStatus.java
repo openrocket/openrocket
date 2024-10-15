@@ -38,6 +38,13 @@ import org.slf4j.LoggerFactory;
 
 public class SimulationStatus implements Cloneable, Monitorable {
 
+	// time after leaving launch rod before recording flight event warnings
+	private final double WARNINGS_WAIT = 0.25;
+
+	// when our z velocity decreases to this proportion of max z velocity, stop recording
+	// most flight event warnings
+	private final double WARNINGS_VEL = 0.2;
+	
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 
 	private SimulationConditions simulationConditions;
@@ -54,6 +61,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private Quaternion orientation;
 	private Coordinate rotationVelocity;
 
+	private double maxZVelocity = Double.NEGATIVE_INFINITY;
+	private double startWarningsTime = 1200;
+	
 	private double effectiveLaunchRodLength;
 
 	// Set of all motors
@@ -189,7 +199,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		this.apogeeReached = orig.apogeeReached;
 		this.tumbling = orig.tumbling;
 		this.landed = orig.landed;
-
+		this.maxZVelocity = orig.maxZVelocity;
+		this.startWarningsTime = orig.startWarningsTime;
+		
 		this.configuration.copyStages(orig.configuration);
 
 		this.deployedRecoveryDevices.clear();
@@ -357,6 +369,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	public void setLaunchRodCleared(boolean launchRod) {
 		this.launchRodCleared = launchRod;
+		if (launchRod) {
+			startWarningsTime = getSimulationTime() + WARNINGS_WAIT;
+		}
 		modID = new ModID();
 	}
 
@@ -550,6 +565,8 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
 					  MathUtil.hypot(getRocketVelocity().x, getRocketVelocity().y));
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, getRocketVelocity().z);
+		setMaxZVelocity(Math.max(getRocketVelocity().z, getMaxZVelocity()));
+		
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, getRocketVelocity().length());
 		
 		Coordinate c = getRocketOrientationQuaternion().rotateZ();
@@ -564,12 +581,53 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	}		
 
 	/**
+	 * Get max Z velocity so far in flight
+	 * @return max Z velocity so far
+	 */
+	public double getMaxZVelocity() {
+		return maxZVelocity;
+	}
+
+	/**
+	 * Set max Z velocity so far
+	 * @param zVel current z velocity
+	 */
+	private void setMaxZVelocity(double zVel) {
+		if (zVel > maxZVelocity) {
+			maxZVelocity = zVel;
+			modID = new ModID();
+		}
+	}
+	
+	/**
+	 * Determine whether (most) flight event warnings are currently being saved.
+	 * Warnings are not saved until 0.25 seconds after leaving the rail, and again
+	 * after Z velocity is reduced to 20% of the max.
+	 */
+	boolean recordWarnings() {
+		if (!launchRodCleared) {
+			return false;
+		}
+		
+		if (getSimulationTime() < startWarningsTime) {
+			return false;
+		}
+
+		if (getRocketVelocity().z < getMaxZVelocity() * 0.2) {
+			return false;
+		}
+
+		return true;
+	}
+		
+	/**
 	 * Add a flight event to the event queue unless a listener aborts adding it.
 	 *
 	 * @param event		the event to add to the queue.
 	 */
 	public void addEvent(FlightEvent event) throws SimulationException {
 		if (SimulationListenerHelper.fireAddFlightEvent(this, event)) {
+			
 			if (event.getType() != FlightEvent.Type.ALTITUDE) {
 				log.trace("Adding event to queue:  " + event);
 			}
