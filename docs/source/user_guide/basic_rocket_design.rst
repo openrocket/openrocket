@@ -300,7 +300,7 @@ You have now had a brief run through the various components available for use in
 In this section we will look at the components used in the *A simple model rocket* example design. To get started, start
 OpenRocket and navigate to the main window. As a reminder it looks like this:
 
-.. figure:: /img/user_guide/basic_rocket_design/Main_window.png
+.. figure:: /img/user_guide/basic_rocket_design/main_window.png
    :width: 95%
    :align: center
    :figclass: or-image-border

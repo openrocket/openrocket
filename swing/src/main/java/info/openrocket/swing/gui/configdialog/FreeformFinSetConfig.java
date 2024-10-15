@@ -1,10 +1,13 @@
 package info.openrocket.swing.gui.configdialog;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -31,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -230,11 +235,40 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		// Create the table
 		tableModel = new FinPointTableModel();
-		table = new JTable(tableModel);
+		table = new JTable(tableModel) {
+			@Override
+			public void changeSelection(int row, int column, boolean toggle, boolean extend) {
+				super.changeSelection(row, column, toggle, extend);
+
+				if (isCellEditable(row, column)) {
+					editCellAt(row, column);
+					Component editor = getEditorComponent();
+					if (editor != null) {
+						editor.requestFocus();
+					}
+				}
+			}
+		};
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		for (int i = 0; i < Columns.values().length; i++) {
 			table.getColumnModel().getColumn(i).setPreferredWidth(Columns.values()[i].getWidth());
 		}
+
+		// Set custom editor for highlighting all text
+		DefaultCellEditor editor = new DefaultCellEditor(new JTextField()) {
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				JTextField textField = (JTextField) super.getTableCellEditorComponent(table, value, isSelected, row, column);
+				SwingUtilities.invokeLater(textField::selectAll);
+				return textField;
+			}
+		};
+
+		// Apply the editor to all columns
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setCellEditor(editor);
+		}
+
 		table.addMouseListener(new MouseAdapter() {
 		    @Override
             public void mouseClicked(MouseEvent e) {
@@ -264,6 +298,17 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 		});
 		JScrollPane tablePane = new JScrollPane(table);
+
+		// Remove focus from table when interacting on the figure
+		figurePane.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (table.isEditing()) {
+					table.getCellEditor().stopCellEditing();
+				}
+				table.clearSelection();
+			}
+		});
 		
 		JButton scaleButton = new JButton(trans.get("FreeformFinSetConfig.lbl.scaleFin"));
 		scaleButton.addActionListener(new ActionListener() {
@@ -337,9 +382,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		order.add(table);
 
 		// row of text directly below figure
-		panel.add(new StyledLabel(trans.get("lbl.doubleClick1")+" "+trans.get("FreeformFinSetConfig.lbl.doubleClick2"), -2), "spanx 3");
-        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 3");
-        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 3, wrap");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlClick"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.clickDrag"), -2), "spanx 2, wrap");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.shiftClickDrag"), -2), "spanx 2");
+        panel.add(new StyledLabel(trans.get("FreeformFinSetConfig.lbl.ctrlShiftClickDrag"), -2), "spanx 2, wrap");
         
         // row of controls at the bottom of the tab:
         panel.add(selector.getAsPanel(), "aligny bottom, gap unrel");
@@ -501,6 +547,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 		@Override
 		public void mousePressed(MouseEvent event) {
+			requestFocusInWindow();
 			final FreeformFinSet finset = (FreeformFinSet) component;
 
 			final int pressIndex = getPoint(event);
@@ -534,13 +581,26 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			int mods = event.getModifiersEx();
-			if (dragIndex < 0 || (mods & (ANY_MASK | MouseEvent.BUTTON1_DOWN_MASK)) != MouseEvent.BUTTON1_DOWN_MASK) {
+
+			if (dragIndex < 0) {
 				super.mouseDragged(event);
 				return;
 			}
 
 			Point2D.Double point = getCoordinates(event);
 			final FreeformFinSet finset = (FreeformFinSet) component;
+
+			// If shift is held down, apply snapping
+			if ((mods & MouseEvent.SHIFT_DOWN_MASK) != 0) {
+				int lockIndex = getLockIndex(mods);
+
+				if (lockIndex != -1) {
+					point = snapPoint(point, finset.getFinPoints()[lockIndex]);
+					int highlightIndex = getHighlightIndex(lockIndex);
+					figure.setHighlightIndex(highlightIndex);
+				}
+			}
+
 			try {
 				finset.setPoint(dragIndex, point.x, point.y);
 			} catch (IllegalFinPointException e) {
@@ -552,29 +612,65 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 			updateFields();
 
-			// if point is within borders of figure _AND_ outside borders of the ScrollPane's view:
-			final Rectangle dragRectangle = viewport.getViewRect();
-			final Point canvasPoint = new Point( dragPoint.x + dragRectangle.x, dragPoint.y + dragRectangle.y);
-			if( (figure.getBorderWidth() < canvasPoint.x) && (canvasPoint.x < (figure.getWidth() - figure.getBorderWidth()))
-			    && (figure.getBorderHeight() < canvasPoint.y) && (canvasPoint.y < (figure.getHeight() - figure.getBorderHeight())))
-			{
-				boolean hitBorder = false;
-				if(dragPoint.x < figure.getBorderWidth()){
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - figure.getBorderWidth();
-				} else if(dragPoint.x >(dragRectangle.width -figure.getBorderWidth())) {
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
-				}
+			// Handle scrolling if point is dragged out of view
+			handleScrolling();
+		}
 
-				if (dragPoint.y<figure.getBorderHeight()) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - figure.getBorderHeight();
-				} else if(dragPoint.y >(dragRectangle.height -figure.getBorderHeight())) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
-				}
+		/**
+		 * Get the index of the point that the current point should lock to.
+		 * @param mods The modifiers of the mouse event
+		 * @return The index of the point to lock to, or -1 if no point should be locked to
+		 */
+		private int getLockIndex(int mods) {
+			int length = ((FreeformFinSet) component).getFinPoints().length;
+			if ((mods & MouseEvent.CTRL_DOWN_MASK) != 0) {
+				return (dragIndex > 0 && dragIndex < length - 1) ? dragIndex + 1 : -1;
+			} else {
+				return (dragIndex < length - 1 && dragIndex > 0) ? dragIndex - 1 : -1;
+			}
+		}
 
+		private int getHighlightIndex(int lockIndex) {
+			return (lockIndex == dragIndex + 1) ? dragIndex : lockIndex;
+		}
+
+		private Point2D.Double snapPoint(Point2D.Double point, Coordinate lockPoint) {
+			Point2D.Double snappedPoint = new Point2D.Double(point.x, point.y);
+
+			double diffX = point.x - lockPoint.x;
+			double diffY = point.y - lockPoint.y;
+			double distanceX = Math.abs(diffX);
+			double distanceY = Math.abs(diffY);
+
+			// Calculate distance to 45 or 135 degree line
+			double a = 1;
+			double b = (Math.signum(diffX) == Math.signum(diffY)) ? -1 : 1;
+			double c = -(a * lockPoint.x + b * lockPoint.y);
+			double distanceDiag = Math.abs(a * point.x + b * point.y + c) / Math.sqrt(2);
+
+			// Snap to the closest constraint
+			if (distanceX <= distanceY && distanceX <= distanceDiag) {
+				// Snap horizontal
+				snappedPoint.x = lockPoint.x;
+			} else if (distanceY <= distanceX && distanceY <= distanceDiag) {
+				// Snap vertical
+				snappedPoint.y = lockPoint.y;
+			} else {
+				// Snap diagonal (45 degrees)
+				double avgDist = (Math.abs(diffX) + Math.abs(diffY)) / 2;
+				snappedPoint.x = lockPoint.x + Math.signum(diffX) * avgDist;
+				snappedPoint.y = lockPoint.y + Math.signum(diffY) * avgDist;
+			}
+
+			return snappedPoint;
+		}
+
+		private void handleScrolling() {
+			Rectangle dragRectangle = viewport.getViewRect();
+			Point canvasPoint = new Point(dragPoint.x + dragRectangle.x, dragPoint.y + dragRectangle.y);
+
+			if (isPointWithinFigureBounds(canvasPoint)) {
+				boolean hitBorder = updateScrollPosition(dragRectangle);
 				if (hitBorder) {
 					super.setFitting(false);
 					selector.update();
@@ -584,56 +680,47 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			}
 		}
 
-		@Override
-		public void componentResized(ComponentEvent e) {
-			if (fit) {
-				// if we're fitting the whole figure in the ScrollPane, the parent behavior is fine
-				super.componentResized(e);
-			} else if (0 > dragIndex) {
-				// if we're not _currently_ dragging a point, the parent behavior is fine
-				super.componentResized(e);
-			} else {
-				// currently dragging a point.
-				// ... and if we drag out-of-bounds, we want to move the viewport to keep up
-				boolean hitBorder = false;
-				final Rectangle dragRectangle = viewport.getViewRect();
+		private boolean isPointWithinFigureBounds(Point point) {
+			return figure.getBorderWidth() < point.x && point.x < (figure.getWidth() - figure.getBorderWidth())
+					&& figure.getBorderHeight() < point.y && point.y < (figure.getHeight() - figure.getBorderHeight());
+		}
 
-				if(dragPoint.x<figure.getBorderWidth()){
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - figure.getBorderWidth();
-				} else if(dragPoint.x >(dragRectangle.width -figure.getBorderWidth())) {
-					hitBorder = true;
-					dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
-				}
+		private boolean updateScrollPosition(Rectangle dragRectangle) {
+			boolean hitBorder = false;
 
-				if (dragPoint.y<figure.getBorderHeight()) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - figure.getBorderHeight();
-				} else if(dragPoint.y >(dragRectangle.height -figure.getBorderHeight())) {
-					hitBorder = true;
-					dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
-				}
-
-				if (hitBorder) {
-					super.setFitting(false);
-					selector.update();
-					figure.scrollRectToVisible(dragRectangle);
-					revalidate();
-				}
+			if (dragPoint.x < figure.getBorderWidth()) {
+				hitBorder = true;
+				dragRectangle.x += dragPoint.x - figure.getBorderWidth();
+			} else if (dragPoint.x > (dragRectangle.width - figure.getBorderWidth())) {
+				hitBorder = true;
+				dragRectangle.x += dragPoint.x - (dragRectangle.width - figure.getBorderWidth());
 			}
+
+			if (dragPoint.y < figure.getBorderHeight()) {
+				hitBorder = true;
+				dragRectangle.y += dragPoint.y - figure.getBorderHeight();
+			} else if (dragPoint.y > (dragRectangle.height - figure.getBorderHeight())) {
+				hitBorder = true;
+				dragRectangle.y += dragPoint.y - (dragRectangle.height - figure.getBorderHeight());
+			}
+
+			return hitBorder;
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent event) {
 			dragIndex = -1;
 			dragPoint = null;
+			figure.setHighlightIndex(-1);
+			figure.updateFigure();
+
 			super.mouseReleased(event);
 		}
 		
 		@Override
 		public void mouseClicked(MouseEvent event) {
-            int mods = event.getModifiersEx();
-            if(( event.getButton() == MouseEvent.BUTTON1) && (0 < (MouseEvent.CTRL_DOWN_MASK & mods))) {
+			int mods = event.getModifiersEx();
+			if ((event.getButton() == MouseEvent.BUTTON1) && (0 < (MouseEvent.CTRL_DOWN_MASK & mods))) {
                 int clickIndex = getPoint(event);
                 if ( 0 < clickIndex) {
                     // if ctrl+click, delete point
@@ -646,8 +733,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
                     return;
                 }
             }
-            
-            super.mouseClicked(event);
+			super.mouseClicked(event);
         }
 		
 		private int getPoint(MouseEvent event) {
