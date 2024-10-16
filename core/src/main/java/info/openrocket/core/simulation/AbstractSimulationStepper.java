@@ -246,9 +246,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 		public Coordinate launchRodDirection = null;
 		
-		public double maxZvelocity = Double.NaN;
-		public double startWarningTime = Double.NaN;
-		
 		// set by calculateFlightConditions and calculateAcceleration:
 		public AerodynamicForces forces;
 		public Coordinate windVelocity = new Coordinate(Double.NaN, Double.NaN, Double.NaN);

@@ -56,6 +56,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private double cacheDiameter = -1;
 	private double cacheLength = -1;
 
+	private final double stallAngle = 17.5 * Math.PI / 180;
+	private double stallMargin;
+	
 	public BarrowmanCalculator() {
 		
 	}
@@ -65,7 +68,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	public BarrowmanCalculator newInstance() {
 		return new BarrowmanCalculator();
 	}
-	
+
+	/**
+	 * Determine whether calculations are suspect because we are stalling
+	 *
+	 * @return               whether we are stalling, and the margin
+	 *                       between our AOA and a stall
+	 *                       If the return is positive we aren't;
+	 *                       If it's negative we are.
+	 *             
+	 */
+	@Override
+	public double getStallMargin() {
+		return stallMargin;
+	}
 	
 	/**
 	 * Calculate the CP according to the extended Barrowman method.
@@ -215,6 +231,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		total.setCm(total.getCm() - total.getPitchDampingMoment());
 		total.setCyaw(total.getCyaw() - total.getYawDampingMoment());
 
+		// How far are we from stalling?
+		stallMargin = stallAngle - conditions.getAOA();
+		
 		return total;
 	}
 
@@ -257,9 +276,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 		if (warnings == null)
 			warnings = ignoreWarningSet;
-
-		if (conditions.getAOA() > 17.5 * Math.PI / 180)
-			warnings.add(new Warning.LargeAOA(conditions.getAOA()));
 
 		if (calcMap == null)
 			buildCalcMap(configuration);
