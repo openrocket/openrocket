@@ -57,7 +57,8 @@ public abstract class Warning extends Message {
 				return trans.get("Warning.LargeAOA.str1");
 			//// Large angle of attack encountered (
 			return (trans.get("Warning.LargeAOA.str2") +
-					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
+					//					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
+					UnitGroup.UNITS_ANGLE.toStringUnit(aoa) + ").");
 		}
 
 		@Override
