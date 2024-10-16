@@ -353,7 +353,9 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 					eventStr = eventStr + event.getType();
 				}
 			}
-			sb.append(eventStr + "<br>");
+			if (eventStr != "") {
+				sb.append(eventStr + "<br>");
+			}
 		}
 
 		// Valid Y data?
