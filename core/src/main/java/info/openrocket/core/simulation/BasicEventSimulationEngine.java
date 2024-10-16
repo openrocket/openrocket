@@ -257,13 +257,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 //					}
 //				}
 				
-				// Check for Tumbling
-				// Conditions for transition are:
-				// is not already tumbling
-				// and not stable (cg > cp)
-				// and stallMargin() < 0
-
-				if (!currentStatus.isTumbling()) {
+				// Check for fin stall and either set tumbling or LargeAOA warning depending on
+				// rocket stability margin
+				// Inhibited if already tumbling, parachutes deployed, or on the ground
+				if (!currentStatus.isTumbling() &&
+					(currentStatus.getDeployedRecoveryDevices().size() == 0) &&
+					!currentStatus.isLanded()) {
 					final double cp = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CP_LOCATION);
 					final double cg = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_AOA);
@@ -560,6 +559,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case RECOVERY_DEVICE_DEPLOYMENT:
 				RocketComponent c = event.getSource();
 				int n = c.getStageNumber();
+
 				// Ignore event if stage not active
 				if (currentStatus.getConfiguration().isStageActive(n)) {
 					// TODO: HIGH: Check stage activeness for other events as well?
