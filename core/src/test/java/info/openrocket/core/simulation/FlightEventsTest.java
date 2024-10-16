@@ -170,10 +170,26 @@ public class FlightEventsTest extends BaseTestCase {
 		// time, from the right sources
 		for (int i = 0; i < Math.min(expectedEvents.length, actualEvents.length); i++) {
 			final FlightEvent expected = expectedEvents[i];
+			Warning expectedWarning = null;
+			if (expected.getType() == FlightEvent.Type.SIM_WARN) {
+				expectedWarning = (Warning) expected.getData();
+			}
+			
 			final FlightEvent actual = actualEvents[i];
+			Warning actualWarning = null;
+			if (actual.getType() == FlightEvent.Type.SIM_WARN) {
+				actualWarning = (Warning) actual.getData();
+			}
+
+			assertTrue(((expectedWarning == null) && (actualWarning == null)) ||
+					   ((expectedWarning != null) && expectedWarning.equals(actualWarning)) ||
+					   ((actualWarning != null) && actualWarning.equals(expectedWarning)),
+					   "Branch " + branchNo + " FlightEvent " + i + ": " + expectedWarning
+					   + " not found; " + actualWarning + " found instead");
+			
 			assertSame(expected.getType(), actual.getType(),
-					"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType()
-							+ " not found; FlightEvent " + actual.getType() + " found instead");
+					   "Branch " + branchNo + " FlightEvent " + i + ": type " + expected.getType()
+					   + " not found; FlightEvent " + actual.getType() + " found instead");
 
 			if (1200 != expected.getTime()) {
 				// event times that are dependent on simulation step time shouldn't be held to
