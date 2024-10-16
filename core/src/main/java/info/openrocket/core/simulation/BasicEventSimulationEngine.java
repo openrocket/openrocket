@@ -280,8 +280,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						} else {
 							// Stable, so warning about AOA
 							if (currentStatus.recordWarnings()) {
-									currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIM_WARN, currentStatus.getSimulationTime(), null,
-																		   new Warning.LargeAOA(aoa)));
+								currentStatus.addWarning(new Warning.LargeAOA(aoa));
 							}
 						}
 					}
