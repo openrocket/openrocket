@@ -58,7 +58,6 @@ public class ComponentPresetTable extends JTable {
 		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
 		this.columns = new ComponentPresetTableColumn[ComponentPreset.ORDERED_KEY_LIST.size() + 1];
 
-
 		this.tableModel = new AbstractTableModel() {
 			final ComponentPresetTableColumn[] myColumns = columns;
 
@@ -134,6 +133,13 @@ public class ComponentPresetTable extends JTable {
 							return Double.compare(o1.getValue(), o2.getValue());
 						}
 
+					});
+				} else if (key.getType() == Integer.class){
+					sorter.setComparator(index, new Comparator<Integer>() {
+						@Override
+						public int compare(Integer o1, Integer o2) {
+							return Integer.compare(o1.intValue(), o2.intValue());
+						}
 					});
 				} else if (key.getType() == Boolean.class) {
 					sorter.setComparator(index, new Comparator<Boolean>() {
