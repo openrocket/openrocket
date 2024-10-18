@@ -46,17 +46,28 @@ public abstract class MotorFilterPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
 	private static final Hashtable<Integer,JLabel> diameterLabels = new Hashtable<>();
-	private static final double[] motorDiameters = new double[] {
-		0.0,
-		0.013,
-		0.018,
-		0.024,
-		0.029,
-		0.038,
-		0.054,
-		0.075,
-		0.098,
-		1.000
+	
+	private static class MotorDiameter {
+		double nominal;
+		double actual;
+		
+		MotorDiameter(double _nominal, double _actual) {
+			nominal = _nominal;
+			actual = _actual;
+		}
+	}
+	private static final MotorDiameter[] motorDiameters = new MotorDiameter[] {
+		new MotorDiameter(0.0, 0.0),
+		new MotorDiameter(0.013, 0.013),
+		new MotorDiameter(0.018, 0.018),
+		new MotorDiameter(0.024, 0.024),
+		new MotorDiameter(0.029, 0.029),
+		new MotorDiameter(0.032, 0.032),
+		new MotorDiameter(0.038, 0.0381),
+		new MotorDiameter(0.054, 0.054),
+		new MotorDiameter(0.075, 0.0763),
+		new MotorDiameter(0.098, 0.983),
+		new MotorDiameter(1.000, 1.000)
 	};
 
 	/**
@@ -66,7 +77,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
 		for( int i = 0; i < motorDiameters.length; i++ ) {
 			// Round the labels, because for imperial units, the labels can otherwise overlap
-			double diam = unit.toUnit(motorDiameters[i]);
+			double diam = unit.toUnit(motorDiameters[i].nominal);
 			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
 			diam = unit.fromUnit(diamRounded);
 			String formatted = unit.toString(diam);
@@ -272,12 +283,12 @@ public abstract class MotorFilterPanel extends JPanel {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					final int minDiameter = diameterSlider.getValueAt(0);
-					MotorFilterPanel.this.filter.setMinimumDiameter(motorDiameters[minDiameter]);
+					MotorFilterPanel.this.filter.setMinimumDiameter(motorDiameters[minDiameter].actual);
 					int maxDiameter = diameterSlider.getValueAt(1);
 					if( maxDiameter == motorDiameters.length-1 ) {
 						MotorFilterPanel.this.filter.setMaximumDiameter(null);
 					} else {
-						MotorFilterPanel.this.filter.setMaximumDiameter(motorDiameters[maxDiameter]);
+						MotorFilterPanel.this.filter.setMaximumDiameter(motorDiameters[maxDiameter].actual);
 					}
 					onSelectionChanged();
 				}
@@ -396,7 +407,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			// find the next largest diameter
 			int i;
 			for( i =0; i < motorDiameters.length; i++ ) {
-				if ( mountDiameter < motorDiameters[i] - 0.0005 ) {
+				if ( mountDiameter < motorDiameters[i].actual - 0.0005 ) {
 					break;
 				}
 			}
