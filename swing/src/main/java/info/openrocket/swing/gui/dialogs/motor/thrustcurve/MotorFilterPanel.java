@@ -54,7 +54,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		0.029,
 		0.038,
 		0.054,
-		0.075,
+		0.0762,
 		0.098,
 		1.000
 	};
