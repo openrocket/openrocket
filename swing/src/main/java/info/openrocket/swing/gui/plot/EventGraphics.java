@@ -67,6 +67,7 @@ public class EventGraphics {
 				"pix/eventicons/event-recovery-device-deployment.png");
 		loadImage(EVENT_IMAGES, FlightEvent.Type.GROUND_HIT, "pix/eventicons/event-ground-hit.png");
 		loadImage(EVENT_IMAGES, FlightEvent.Type.SIMULATION_END, "pix/eventicons/event-simulation-end.png");
+		loadImage(EVENT_IMAGES, FlightEvent.Type.TUMBLE, "pix/eventicons/event-tumble.png");
 		loadImage(EVENT_IMAGES, FlightEvent.Type.EXCEPTION, "pix/eventicons/event-exception.png");
 		loadImage(EVENT_IMAGES, FlightEvent.Type.SIM_ABORT, "pix/eventicons/event-exception.png");
 	}
