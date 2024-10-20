@@ -421,7 +421,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 					}
 					abortString.append("\n")
 							.append(trans.get("simulationplot.abort.stage")).append(": ").append(branch.getName()).append("; ")
-							.append(trans.get("simulationplot.abort.time")).append(": ").append(abortEvent.getTime()).append(" s; ")
+						.append(trans.get("simulationplot.abort.time")).append(": ").append(String.format("%.2f", abortEvent.getTime())).append(" s; ")
 							.append(trans.get("simulationplot.abort.cause")).append(": ").append(((SimulationAbort) abortEvent.getData()).getMessageDescription());
 				}
 			}
