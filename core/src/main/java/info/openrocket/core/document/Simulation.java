@@ -64,7 +64,10 @@ public class Simulation implements ChangeSource, Cloneable {
 		NOT_SIMULATED,
 		
 		/** Can't be simulated, NO_MOTORS **/
-		CANT_RUN
+		CANT_RUN,
+
+		/** Aborted when last run **/
+		ABORTED
 	}
 	
 	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -348,6 +351,11 @@ public class Simulation implements ChangeSource, Cloneable {
 			status = Status.CANT_RUN;
 		}
 
+		// If it has errors, it has aborted
+		if (hasErrors()) {
+			status = Status.ABORTED;
+		}
+
 		return status;
 	}
 
@@ -356,9 +364,11 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public boolean hasErrors() {
 		FlightData data = getSimulatedData();
-		for (int branchNo = 0; branchNo < data.getBranchCount(); branchNo++) {
-			if (hasErrors(branchNo)) {
-				return true;
+		if (null != data) {
+			for (int branchNo = 0; branchNo < data.getBranchCount(); branchNo++) {
+				if (hasErrors(branchNo)) {
+					return true;
+				}
 			}
 		}
 		return false;

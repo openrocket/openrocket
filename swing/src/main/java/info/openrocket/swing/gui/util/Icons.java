@@ -36,6 +36,7 @@ public class Icons {
 		final String SIM_UPTODATE = "pix/icons/tick.png";
 		final String SIM_CANTRUN = "pix/icons/sim_cantrun.png";
 		final String SIM_OUTDATED = "pix/icons/refresh_sim.png";
+		final String SIM_ABORTED = "pix/eventicons/event-exception.png";
 
 		HashMap<Simulation.Status, Icon> map = new HashMap<>();
 		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon(SIM_OUTDATED, "Not simulated"));
@@ -44,6 +45,7 @@ public class Icons {
 		map.put(Simulation.Status.LOADED, loadImageIcon(SIM_UPTODATE, "Loaded from File"));
 		map.put(Simulation.Status.OUTDATED, loadImageIcon(SIM_OUTDATED, "Out-of-date"));
 		map.put(Simulation.Status.EXTERNAL, loadImageIcon(SIM_UPTODATE, "Imported data"));
+		map.put(Simulation.Status.ABORTED, loadImageIcon(SIM_ABORTED, "Simulation run aborted"));
 		SIMULATION_STATUS_ICON_MAP = Collections.unmodifiableMap(map);
 	}
 	
