@@ -64,7 +64,10 @@ public class Simulation implements ChangeSource, Cloneable {
 		NOT_SIMULATED,
 		
 		/** Can't be simulated, NO_MOTORS **/
-		CANT_RUN
+		CANT_RUN,
+
+		/** Aborted when last run **/
+		ABORTED
 	}
 	
 	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -346,6 +349,11 @@ public class Simulation implements ChangeSource, Cloneable {
 		// Make sure this simulation has motors.
 		if (!config.hasMotors()) {
 			status = Status.CANT_RUN;
+		}
+
+		// If it has errors, it has aborted
+		if (hasErrors()) {
+			status = Status.ABORTED;
 		}
 
 		return status;
