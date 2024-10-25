@@ -13,7 +13,6 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.formatting.RocketDescriptor;
-import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -47,11 +46,10 @@ import info.openrocket.core.util.StateChangeListener;
  */
 public class Simulation implements ChangeSource, Cloneable {
 	private static final Logger log = LoggerFactory.getLogger(Simulation.class);
-	private static final Translator trans = Application.getTranslator();
 	
 	public static enum Status {
 		/** Up-to-date */
-		UPTODATE(trans.get("Simulation.Status.UPTODATE")),
+		UPTODATE,
 		
 		/** Loaded from file, status probably up-to-date */
 		LOADED,
