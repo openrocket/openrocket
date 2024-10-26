@@ -13,6 +13,7 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.formatting.RocketDescriptor;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -46,28 +47,55 @@ import info.openrocket.core.util.StateChangeListener;
  */
 public class Simulation implements ChangeSource, Cloneable {
 	private static final Logger log = LoggerFactory.getLogger(Simulation.class);
+	private static final Translator trans = Application.getTranslator();
 	
 	public static enum Status {
 		/** Up-to-date */
-		UPTODATE,
+		UPTODATE(trans.get("Simulation.Status.UPTODATE"),
+				 trans.get("Simulation.Status.Description.UPTODATE")),
 		
 		/** Loaded from file, status probably up-to-date */
-		LOADED,
+		LOADED(trans.get("Simulation.Status.LOADED"),
+			   trans.get("Simulation.Status.Description.LOADED")),
 		
 		/** Data outdated */
-		OUTDATED,
+		OUTDATED(trans.get("Simulation.Status.OUTDATED"),
+				 trans.get("Simulation.Status.Description.OUTDATED")),
 		
 		/** Imported external data */
-		EXTERNAL,
+		EXTERNAL(trans.get("Simulation.Status.EXTERNAL"),
+				 trans.get("Simulation.Status.Description.EXTERNAL")),
 		
 		/** Not yet simulated */
-		NOT_SIMULATED,
+		NOT_SIMULATED(trans.get("Simulation.Status.NOT_SIMULATED"),
+				 trans.get("Simulation.Status.Description.NOT_SIMULATED")),
 		
 		/** Can't be simulated, NO_MOTORS **/
-		CANT_RUN,
+		CANT_RUN(trans.get("Simulation.Status.CANT_RUN"),
+				 trans.get("Simulation.Status.Description.CANT_RUN")),
 
 		/** Aborted when last run **/
-		ABORTED
+		ABORTED(trans.get("Simulation.Status.ABORTED"),
+				trans.get("Simulation.Status.Description.ABORTED"));
+
+		private final String name;
+		private final String description;
+
+		private Status(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
+
+		// just the name of the status
+		@Override
+		public String toString() {
+			return name;
+		}
+
+		// a longer, more "user friendly" description.
+		public String getDescription() {
+			return description;
+		}
 	}
 	
 	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);

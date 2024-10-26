@@ -797,37 +797,17 @@ public class SimulationPanel extends JPanel {
 			return tip.toString();
 		}
 
-		switch (sim.getStatus()) {
-			case CANT_RUN:
-				tip.append(trans.get("simpanel.ttip.noData")).append("<br>");
-				break;
-			case LOADED:
-				tip.append(trans.get("simpanel.ttip.loaded")).append("<br>");
-				break;
-			case UPTODATE:
-				tip.append(trans.get("simpanel.ttip.uptodate")).append("<br>");
-				break;
-
-			case OUTDATED:
-				tip.append(trans.get("simpanel.ttip.outdated")).append("<br>");
-				break;
-
-			case EXTERNAL:
-				tip.append(trans.get("simpanel.ttip.external")).append("<br>");
-				return tip.toString();
-
-			case NOT_SIMULATED:
-				tip.append(trans.get("simpanel.ttip.notSimulated"));
-				return tip.toString();
-		}
-
-		for (int b = 0; b < data.getBranchCount(); b++) {
-			FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
-			if (abortEvent != null) {
-				tip.append("<font color=\"red\"><i><b>").append(trans.get("simpanel.ttip.simAbort")).append(":</b></i> ").append((abortEvent.getData()).toString()).append("</font><br />");
+		if (sim.getStatus() == Simulation.Status.ABORTED) {
+			for (int b = 0; b < data.getBranchCount(); b++) {
+				FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
+				if (abortEvent != null) {
+					tip.append("<font color=\"red\"><i><b>").append(sim.getStatus().getDescription()).append(": </b></i> ").append((abortEvent.getData()).toString()).append("</font><br>");
+				}
 			}
+		} else {
+				tip.append(sim.getStatus().getDescription()).append("<br>");		
 		}
-
+		
 		return tip.toString();
 	}
 
