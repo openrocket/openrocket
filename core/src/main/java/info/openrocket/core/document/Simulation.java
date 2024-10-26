@@ -93,9 +93,41 @@ public class Simulation implements ChangeSource, Cloneable {
 		}
 
 		// a longer, more "user friendly" description.
-		public String getDescription() {
-			return description;
+		public String getDescription(Simulation sim) {
+			switch (sim.getStatus()) {
+			    case ABORTED:
+					String abortString = "<font color=\"red\"><b>" + description + ":  </b>";
+					StringBuilder builder = new StringBuilder();
+
+					// We'll put every abort event on a new line (note that more than one branch can abort)
+					FlightData data = sim.getSimulatedData();
+					if (null != data) {
+						for (int b = 0; b < data.getBranchCount(); b++) {
+							FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
+							if (abortEvent != null) {
+								builder.append(abortString)
+									.append("<i>")
+									.append(abortEvent.getData().toString())
+									.append("</i><br>");
+							}
+						}
+					}
+					
+					// It shouldn't be possible to abort without an abort event. But just in case...
+					if (builder.length() > 0) {
+						return builder.toString();
+					} else {
+						return abortString;
+					}
+
+			    default:
+					return description;
+			}
 		}
+	}
+
+	public String getStatusDescription() {
+		return getStatus().getDescription(this);
 	}
 	
 	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);

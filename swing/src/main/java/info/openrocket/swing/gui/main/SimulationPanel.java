@@ -797,16 +797,7 @@ public class SimulationPanel extends JPanel {
 			return tip.toString();
 		}
 
-		if (sim.getStatus() == Simulation.Status.ABORTED) {
-			for (int b = 0; b < data.getBranchCount(); b++) {
-				FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
-				if (abortEvent != null) {
-					tip.append("<font color=\"red\"><i><b>").append(sim.getStatus().getDescription()).append(": </b></i> ").append((abortEvent.getData()).toString()).append("</font><br>");
-				}
-			}
-		} else {
-				tip.append(sim.getStatus().getDescription()).append("<br>");		
-		}
+		tip.append(sim.getStatusDescription()).append("<br>");		
 		
 		return tip.toString();
 	}

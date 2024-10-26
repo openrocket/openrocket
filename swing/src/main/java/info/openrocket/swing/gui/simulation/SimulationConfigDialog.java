@@ -286,6 +286,13 @@ public class SimulationConfigDialog extends JDialog {
 		});
 		topPanel.add(configComboBox, "span");
 
+		//// Display current simulation status
+		JLabel statusLabel = new JLabel(trans.get("simpanel.col.Status") + ":");
+		topPanel.add(statusLabel, "growx 0, gapright para");
+
+		JLabel simStatus = new JLabel("<html>" + simulationList[0].getStatusDescription() + "</html>");
+		topPanel.add(simStatus);
+		
 		topPanel.add(new JPanel(), "growx, wrap");
 
 		contentPanel.add(topPanel, "growx, wrap");
