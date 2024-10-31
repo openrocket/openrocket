@@ -96,7 +96,6 @@ public class Simulation implements ChangeSource, Cloneable {
 		public String getDescription(Simulation sim) {
 			switch (sim.getStatus()) {
 			    case ABORTED:
-					String abortString = "<font color=\"red\"><b>" + description + ":  </b>";
 					StringBuilder builder = new StringBuilder();
 
 					// We'll put every abort event on a new line (note that more than one branch can abort)
@@ -105,10 +104,10 @@ public class Simulation implements ChangeSource, Cloneable {
 						for (int b = 0; b < data.getBranchCount(); b++) {
 							FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
 							if (abortEvent != null) {
-								builder.append(abortString)
-									.append("<i>")
+								builder.append(description)
+									.append("<font color=\"red\"><i>: ")
 									.append(abortEvent.getData().toString())
-									.append("</i><br>");
+									.append("</i></font><br>");
 							}
 						}
 					}
@@ -117,7 +116,7 @@ public class Simulation implements ChangeSource, Cloneable {
 					if (builder.length() > 0) {
 						return builder.toString();
 					} else {
-						return abortString;
+						return description;
 					}
 
 			    default:
