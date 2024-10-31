@@ -2,6 +2,8 @@ package info.openrocket.swing.gui.figureelements;
 
 import static info.openrocket.core.util.Chars.ALPHA;
 import static info.openrocket.core.util.Chars.THETA;
+
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
@@ -11,6 +13,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.StringUtils;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -61,6 +64,7 @@ public class RocketInfo implements FigureElement {
 	private boolean showWarnings = true;
 	
 	private boolean calculatingData = false;
+	private Simulation simulation = null;
 	private FlightData flightData = null;
 	
 	private Graphics2D g2 = null;
@@ -173,9 +177,21 @@ public class RocketInfo implements FigureElement {
 		this.mach = mach;
 	}
 	
-	
 	public void setFlightData(FlightData data) {
 		this.flightData = data;
+	}
+
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
+
+		System.out.println("simulation " + simulation);
+		System.out.println("    has data: " + simulation.hasSummaryData());
+		System.out.println("    status: " + simulation.getStatus());
+		if (simulation.hasSummaryData()) {
+			setFlightData(simulation.getSimulatedData());
+		} else {
+			setFlightData(FlightData.NaN_DATA);
+		}
 	}
 	
 	public void setCalculatingData(boolean calc) {
@@ -462,9 +478,16 @@ public class RocketInfo implements FigureElement {
 			return 0;
 		
 		double width=0;
+
+		//// Sim status. Only show on aborts
+		String status = "";
+		if ((null != simulation) && (simulation.getStatus() == Simulation.Status.ABORTED)) {
+			status = StringUtils.removeHTMLTags(simulation.getStatusDescription());
+		}
 		
 		//// Apogee: 
 		GlyphVector apogee = createText(trans.get("RocketInfo.Apogee")+" ");
+		
 		//// Max. velocity:
 		GlyphVector maxVelocity = createText(trans.get("RocketInfo.Maxvelocity") +" ");
 		//// Max. acceleration: 
@@ -508,6 +531,11 @@ public class RocketInfo implements FigureElement {
 		
 		width += 5;
 
+		if (null != status) {
+			g2.setColor(Color.red);
+			g2.drawString(status, x1, y2-3*line);
+		}
+		
 		if (!calculatingData) 
 			g2.setColor(flightDataTextActiveColor);
 		else
