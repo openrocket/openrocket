@@ -44,6 +44,7 @@ public class RocketInfo implements FigureElement {
 	// Font to use
 	private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
 	private Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
+	private Font boldFont = font.deriveFont(Font.BOLD);
 	
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
@@ -529,8 +530,14 @@ public class RocketInfo implements FigureElement {
 		width += 5;
 
 		if (null != status) {
+			Color oldColor = g2.getColor();
+			
+			GlyphVector statusVector = createBoldText(status);
 			g2.setColor(Color.red);
-			g2.drawString(status, x1, y2-3*line);
+			g2.drawGlyphVector(statusVector, x1, y2-3*line);
+			
+			g2.setColor(oldColor);
+			
 		}
 		
 		if (!calculatingData) 
@@ -558,6 +565,7 @@ public class RocketInfo implements FigureElement {
 		// Update the font sizes to whatever the currently selected font size is
 		font = font.deriveFont(size);
 		smallFont = smallFont.deriveFont((float)(size - 2.0));
+		boldFont = boldFont.deriveFont((float)(size + 2.0));
 	}
 		
 	private GlyphVector createText(String text) {
@@ -566,6 +574,10 @@ public class RocketInfo implements FigureElement {
 
 	private GlyphVector createSmallText(String text) {
 		return smallFont.createGlyphVector(g2.getFontRenderContext(), text);
+	}
+
+	private GlyphVector createBoldText(String text) {
+		return boldFont.createGlyphVector(g2.getFontRenderContext(), text);
 	}
 	
 	public void setCurrentConfig(FlightConfiguration newConfig) {
