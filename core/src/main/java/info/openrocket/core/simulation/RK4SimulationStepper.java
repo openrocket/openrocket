@@ -347,10 +347,17 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation()
 				.getCoriolisAcceleration(status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
-		
-		// If still on the launch rod, project acceleration onto launch rod direction and
-		// set angular acceleration to zero.
-		if (!status.isLaunchRodCleared()) {
+
+		// If we haven't taken off yet, don't sink into the ground
+		if (!status.isLiftoff()) {
+			angularAcceleration = Coordinate.NUL;
+			if (linearAcceleration.z < 0) {
+				linearAcceleration = Coordinate.ZERO;
+			}
+		} else if (!status.isLaunchRodCleared()) {
+
+			// If still on the launch rod, project acceleration onto launch rod direction and
+			// set angular acceleration to zero.
 			
 			linearAcceleration = store.launchRodDirection.multiply(linearAcceleration.dot(store.launchRodDirection));
 			angularAcceleration = Coordinate.NUL;
