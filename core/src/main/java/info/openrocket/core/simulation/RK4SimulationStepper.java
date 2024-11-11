@@ -300,9 +300,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		Coordinate linearAcceleration;
 		Coordinate angularAcceleration;
-			
-		// Compute the forces affecting the rocket
-		calculateForces(status, store);
 		
 		// Calculate mass data
 		RigidBody structureMassData = calculateStructureMass(status);
@@ -313,6 +310,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
 			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
+			
+		// Compute the forces affecting the rocket
+		calculateForces(status, store);
 
 		// Calculate the forces from the aerodynamic coefficients
 		
