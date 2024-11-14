@@ -107,7 +107,7 @@ public class FlightEventsTest extends BaseTestCase {
 		warn.setSources(new BodyTube[]{centerBoosterBody});
 		
 		// events whose time is too variable to check are given a time of 1200
-		for (int b = 0; b < 2; b++) {
+		for (int b = 0; b < branchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
 				// Sustainer
 				case 0 -> new FlightEvent[]{
