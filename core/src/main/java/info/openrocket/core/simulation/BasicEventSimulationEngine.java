@@ -342,16 +342,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
-			// Ignore events for components that are no longer attached to the rocket
-			if (event.getSource() != null && event.getSource().getParent() != null &&
-					!currentStatus.getConfiguration().isComponentActive(event.getSource())) {
-				log.trace("Ignoring event from unattached component");
-				log.debug("    source " + event.getSource());
-				log.debug("    parent " + event.getSource().getParent());
-				log.debug("    active " + currentStatus.getConfiguration().isComponentActive(event.getSource()));
-				continue;
-			}
-			
 			// Call simulation listeners, allow aborting event handling
 			if (!SimulationListenerHelper.fireHandleFlightEvent(currentStatus, event)) {
 				continue;
@@ -526,10 +516,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						// Mark the current status as having dropped the current stage and all stages
 						// below it
 						currentStatus.getConfiguration().clearStagesBelow(stageNumber);
-
+						currentStatus.removeUnattachedEvents();
+						
 						// Mark the booster status as having no active stages above
 						boosterStatus.getConfiguration().clearStagesAbove(stageNumber);
-
+						boosterStatus.removeUnattachedEvents();
+						
 						toSimulate.push(boosterStatus);
 
 					// Make sure upper stages can still be simulated

@@ -3,6 +3,7 @@ package info.openrocket.core.simulation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -459,6 +460,35 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		return eventQueue;
 	}
 
+	/**
+	 * Remove all events that came from components which are no longer
+	 * attached from the event queue.
+	 */
+	public void removeUnattachedEvents() {
+		Iterator<FlightEvent> i = getEventQueue().iterator();
+		while (i.hasNext()) {
+			if (!isAttached(i.next())) {
+				i.remove();
+			}
+		}
+	}
+
+	/**
+	 * Determine whether a FlightEvent came from a RocketComponent that is
+	 * still attached to the current stage
+	 *
+	 * @param event the event to be tested
+	 * return true if attached, false if not
+	 */
+	private boolean isAttached(FlightEvent event) {
+		if ((null == event.getSource()) ||
+			(null == event.getSource().getParent()) ||
+			getConfiguration().isComponentActive(event.getSource())) {
+			return true;
+			}
+		return false;
+	}
+	
 	public void setSimulationConditions(SimulationConditions simulationConditions) {
 		if (this.simulationConditions != null)
 			this.modIDadd = new ModID();
