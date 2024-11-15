@@ -90,8 +90,9 @@ public class FlightEventsTest extends BaseTestCase {
 		*/
 
 		// Test branch count
-		final int branchCount = sim.getSimulatedData().getBranchCount();
-		assertEquals(3, branchCount, " Multi-stage simulation invalid branch count ");
+		final int expectedBranchCount = 3;
+		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
+		assertEquals(expectedBranchCount, actualBranchCount, " Multi-stage simulation invalid branch count ");
 
 		final AxialStage sustainer = rocket.getStage(0);
 		final BodyTube sustainerBody = (BodyTube) sustainer.getChild(1);
@@ -107,7 +108,7 @@ public class FlightEventsTest extends BaseTestCase {
 		warn.setSources(new BodyTube[]{centerBoosterBody});
 		
 		// events whose time is too variable to check are given a time of 1200
-		for (int b = 0; b < branchCount; b++) {
+		for (int b = 0; b < actualBranchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
 				// Sustainer
 				case 0 -> new FlightEvent[]{
