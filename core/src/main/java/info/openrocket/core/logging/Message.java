@@ -46,7 +46,7 @@ public abstract class Message implements Cloneable {
 			for (int i = 0; i < sources.length; i++) {
 				sourceNames[i] = sources[i].getName();
 			}
-			return text + ": \"" + String.join(", ", sourceNames) + "\"";
+			return String.join(", ", sourceNames) + ": " + text;
 		}
 		return text;
 	}
