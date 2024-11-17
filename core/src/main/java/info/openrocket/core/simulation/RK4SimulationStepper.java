@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
@@ -413,7 +414,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
 				.getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
+		
 		if (null != warnings) {
+			if (store.rocketMass.getCM().x > store.forces.getCP().x) {
+				warnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
+			}
+				
 			status.addWarnings(warnings);
 		}
 

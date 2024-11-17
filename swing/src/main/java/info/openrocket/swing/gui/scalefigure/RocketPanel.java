@@ -46,6 +46,7 @@ import javax.swing.tree.TreeSelectionModel;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -877,6 +878,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setDiameter(diameter);
 		extraText.setMassWithMotors(cg.weight);
 		extraText.setMassWithoutMotors( emptyInfo.getMass() );
+		if ((null != warnings) && (cgx > cpx)) {
+			warnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
+		}
+			
 		extraText.setWarnings(warnings);
 		if (this.showWarnings != null) {
 			extraText.setShowWarnings(showWarnings.isSelected());
