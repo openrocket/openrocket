@@ -20,6 +20,7 @@ import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.LinearInterpolator;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.utils.DecimalFormatter;
 
 import org.jfree.chart.annotations.XYImageAnnotation;
@@ -428,12 +429,13 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 			if (!abortString.toString().isEmpty()) {
 				TextTitle abortsTitle = new TextTitle(abortString.toString(),
-													  new Font(Font.SANS_SERIF, Font.BOLD, 14), Color.RED,
+													  new Font(Font.SANS_SERIF, Font.BOLD, 14),
+													  GUIUtil.getUITheme().getErrorColor(),
 													  RectangleEdge.TOP,
 													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
 													  new RectangleInsets(5, 5, 5, 5));
 				abortsTitle.setBackgroundPaint(Color.WHITE);
-				BlockBorder abortsBorder = new BlockBorder(Color.RED);
+				BlockBorder abortsBorder = new BlockBorder(GUIUtil.getUITheme().getErrorColor());
 				abortsTitle.setFrame(abortsBorder);
 
 				return new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
