@@ -414,9 +414,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
 				.getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
-		
+
+		// If this doesn't include the sustainer and isn't stable, don't
+		// store open airframe warnings
 		if (null != warnings) {
-			if (store.rocketMass.getCM().x > store.forces.getCP().x) {
+			if (!status.getConfiguration().isStageActive(0) &&
+				(store.rocketMass.getCM().x > store.forces.getCP().x)) {
 				warnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
 			}
 				
