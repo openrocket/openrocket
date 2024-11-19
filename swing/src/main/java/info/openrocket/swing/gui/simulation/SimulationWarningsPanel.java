@@ -50,8 +50,8 @@ public class SimulationWarningsPanel extends JPanel {
 		this.add(normalPanel, "spanx, grow, wrap 5lp");
 
 		// Informative warnings
-		//JPanel infoPanel = createWarningsPanel(informativeWarnings, Icons.WARNING_LOW, trans.get("SimulationWarningsPanel.lbl.InformativeWarnings"), informationColor);
-		//this.add(infoPanel, "spanx, grow, wrap 5lp");
+		JPanel infoPanel = createWarningsPanel(informativeWarnings, Icons.WARNING_LOW, trans.get("SimulationWarningsPanel.lbl.InformativeWarnings"), informationColor);
+		this.add(infoPanel, "spanx, grow, wrap 5lp");
 
 		JPanel filler = new JPanel();
 		this.add(filler, "grow, spanx, pushy");
