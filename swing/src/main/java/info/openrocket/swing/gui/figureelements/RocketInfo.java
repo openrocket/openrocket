@@ -533,7 +533,7 @@ public class RocketInfo implements FigureElement {
 			Color oldColor = g2.getColor();
 			
 			GlyphVector statusVector = createBoldText(status);
-			g2.setColor(Color.red);
+			g2.setColor(GUIUtil.getUITheme().getErrorColor());
 			g2.drawGlyphVector(statusVector, x1, y2-3*line);
 			
 			g2.setColor(oldColor);
