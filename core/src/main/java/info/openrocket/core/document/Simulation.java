@@ -105,9 +105,9 @@ public class Simulation implements ChangeSource, Cloneable {
 							FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
 							if (abortEvent != null) {
 								builder.append(description)
-									.append("<font color=\"red\"><i>: ")
+									.append("<i>: ")
 									.append(abortEvent.getData().toString())
-									.append("</i></font><br>");
+									.append("</i><br>");
 							}
 						}
 					}

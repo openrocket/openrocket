@@ -797,8 +797,11 @@ public class SimulationPanel extends JPanel {
 			return tip.toString();
 		}
 
-		tip.append(sim.getStatusDescription()).append("<br>");		
-		
+		String statusText = sim.getStatusDescription();
+		Color statusColor = GUIUtil.getUITheme().getStatusColor(sim.getStatus());
+
+		tip.append(ColorConversion.formatHTMLColor(statusColor, statusText)).append("<br>");
+
 		return tip.toString();
 	}
 

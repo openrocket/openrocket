@@ -7,6 +7,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.events.DocumentChangeEvent;
 import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.l10n.Translator;
@@ -290,7 +291,15 @@ public class SimulationConfigDialog extends JDialog {
 		JLabel statusLabel = new JLabel(trans.get("simpanel.col.Status") + ":");
 		topPanel.add(statusLabel, "growx 0, gapright para");
 
-		JLabel simStatus = new JLabel("<html>" + simulationList[0].getStatusDescription() + "</html>");
+		StringBuilder statusBuilder = new StringBuilder("<html>");
+
+		String statusText = simulationList[0].getStatusDescription();
+		Color statusColor = GUIUtil.getUITheme().getStatusColor(simulationList[0].getStatus());
+	
+		JLabel simStatus = new JLabel("<html>" +
+									  ColorConversion.formatHTMLColor(statusColor, statusText) +
+									  "</html>"
+									  );
 		topPanel.add(simStatus);
 		
 		topPanel.add(new JPanel(), "growx, wrap");
