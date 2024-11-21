@@ -46,6 +46,7 @@ import javax.swing.tree.TreeSelectionModel;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;

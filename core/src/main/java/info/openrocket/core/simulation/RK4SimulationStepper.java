@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
@@ -300,9 +301,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		Coordinate linearAcceleration;
 		Coordinate angularAcceleration;
-			
-		// Compute the forces affecting the rocket
-		calculateForces(status, store);
 		
 		// Calculate mass data
 		RigidBody structureMassData = calculateStructureMass(status);
@@ -313,6 +311,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
 			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
+			
+		// Compute the forces affecting the rocket
+		calculateForces(status, store);
 
 		// Calculate the forces from the aerodynamic coefficients
 		
@@ -413,7 +414,24 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
 				.getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
+
 		if (null != warnings) {
+			// If this doesn't include the sustainer and either isn't stable or is about
+			// to deploy a recovery device, don't store open airframe warnings
+			boolean sustainer = status.getConfiguration().isStageActive(0);
+			boolean stable = store.rocketMass.getCM().x < store.forces.getCP().x;
+			boolean recoverySoon = false;
+			for (FlightEvent e : status.getEventQueue()) {
+				if ((e.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) &&
+					(e.getTime() < status.getSimulationTime() + 0.5)) {
+					recoverySoon = true;
+				}
+			}
+			
+			if (!sustainer && (!stable || recoverySoon)) {
+				warnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
+			}
+				
 			status.addWarnings(warnings);
 		}
 

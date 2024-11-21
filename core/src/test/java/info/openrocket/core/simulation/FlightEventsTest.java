@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
@@ -80,15 +81,6 @@ public class FlightEventsTest extends BaseTestCase {
 
 		sim.simulate();
 
-		/*
-		for (int b = 0; b < sim.getSimulatedData().getBranchCount(); b++) {
-			System.out.println("branch " + b);
-			for (FlightEvent event : sim.getSimulatedData().getBranch(b).getEvents()) {
-				System.out.println("    " + event);
-			}
-		}
-		*/
-
 		// Test branch count
 		final int expectedBranchCount = 3;
 		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
@@ -103,9 +95,12 @@ public class FlightEventsTest extends BaseTestCase {
 
 		final ParallelStage sideBoosters = (ParallelStage) centerBoosterBody.getChild(1);
 		final BodyTube sideBoosterBodies = (BodyTube) sideBoosters.getChild(1);
+		final Parachute sideChutes = (Parachute) sideBoosterBodies.getChild(0);
 
-		Warning warn = Warning.OPEN_AIRFRAME_FORWARD;
-		warn.setSources(new BodyTube[]{centerBoosterBody});
+		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
+		
+		Warning warn = new Warning.HighSpeedDeployment(53.2);
+		warn.setSources(null);
 		
 		// events whose time is too variable to check are given a time of 1200
 		for (int b = 0; b < actualBranchCount; b++) {
@@ -115,46 +110,42 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, sideBoosterBodies),
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.01, centerBoosterBody),
-						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.8255, null),
-						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.828, null),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 0.85, sideBoosterBodies),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 0.85, sideBoosters),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 0.85, sideBoosters),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 2.01, centerBoosterBody),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
-						new FlightEvent(FlightEvent.Type.IGNITION, 2.01, sustainerBody),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 4.01, sustainerBody),
-						new FlightEvent(FlightEvent.Type.APOGEE, 8.5, rocket),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 9.01, sustainer),
-						new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 9.01, sustainerChute),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 83.27, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 83.27, null)
+						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.073, null),
+						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.075, null),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 1.05, sideBoosterBodies),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 1.05, sideBoosters),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 1.05, sideBoosters),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 2.11, centerBoosterBody),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
+						new FlightEvent(FlightEvent.Type.IGNITION, 2.11, sustainerBody),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.37, null),
+						new FlightEvent(FlightEvent.Type.SIM_ABORT, 1200, null, simAbort)
 				};
 
 				// Center Booster
 				case 1 -> new FlightEvent[]{
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.01, centerBoosterBody),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 2.01, centerBoosterBody),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.01, centerBooster),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.01, centerBooster),
-						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.01, null, warn),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.73, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 3.78, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 8.94, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 8.94, null)
+						new FlightEvent(FlightEvent.Type.BURNOUT, 2.11, centerBoosterBody),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
+						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
+						new FlightEvent(FlightEvent.Type.APOGEE, 3.89, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 17.78, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 17.78, null)
 				};
 
 				// Side Boosters
 				case 2 -> new FlightEvent[]{
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, sideBoosterBodies),
-						new FlightEvent(FlightEvent.Type.BURNOUT, 0.85, sideBoosterBodies),
-						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 0.85, sideBoosters),
-						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 0.85, sideBoosters),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 1.0, null),
-						new FlightEvent(FlightEvent.Type.APOGEE, 1.01, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1.21, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1.21, null)
+						new FlightEvent(FlightEvent.Type.BURNOUT, 1.05, sideBoosterBodies),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 1.05, sideBoosters),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 1.05, sideBoosters),
+						new FlightEvent(FlightEvent.Type.SIM_WARN, 1.05, null, warn),
+						new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 1.051, sideChutes),
+						new FlightEvent(FlightEvent.Type.APOGEE, 1.35, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 17.2, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 17.2, null)
 				};
 				default -> throw new IllegalStateException("Invalid branch number " + b);
 			};
@@ -217,6 +208,5 @@ public class FlightEventsTest extends BaseTestCase {
 
 		// Test event count
 		assertEquals(expectedEvents.length, actualEvents.length, "Branch " + branchNo + " incorrect number of events ");
-		
 	}
 }
