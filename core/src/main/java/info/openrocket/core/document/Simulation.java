@@ -13,6 +13,7 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.formatting.RocketDescriptor;
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
@@ -46,25 +47,86 @@ import info.openrocket.core.util.StateChangeListener;
  */
 public class Simulation implements ChangeSource, Cloneable {
 	private static final Logger log = LoggerFactory.getLogger(Simulation.class);
+	private static final Translator trans = Application.getTranslator();
 	
 	public static enum Status {
 		/** Up-to-date */
-		UPTODATE,
+		UPTODATE(trans.get("Simulation.Status.UPTODATE"),
+				 trans.get("Simulation.Status.Description.UPTODATE")),
 		
 		/** Loaded from file, status probably up-to-date */
-		LOADED,
+		LOADED(trans.get("Simulation.Status.LOADED"),
+			   trans.get("Simulation.Status.Description.LOADED")),
 		
 		/** Data outdated */
-		OUTDATED,
+		OUTDATED(trans.get("Simulation.Status.OUTDATED"),
+				 trans.get("Simulation.Status.Description.OUTDATED")),
 		
 		/** Imported external data */
-		EXTERNAL,
+		EXTERNAL(trans.get("Simulation.Status.EXTERNAL"),
+				 trans.get("Simulation.Status.Description.EXTERNAL")),
 		
 		/** Not yet simulated */
-		NOT_SIMULATED,
+		NOT_SIMULATED(trans.get("Simulation.Status.NOT_SIMULATED"),
+				 trans.get("Simulation.Status.Description.NOT_SIMULATED")),
 		
 		/** Can't be simulated, NO_MOTORS **/
-		CANT_RUN
+		CANT_RUN(trans.get("Simulation.Status.CANT_RUN"),
+				 trans.get("Simulation.Status.Description.CANT_RUN")),
+
+		/** Aborted when last run **/
+		ABORTED(trans.get("Simulation.Status.ABORTED"),
+				trans.get("Simulation.Status.Description.ABORTED"));
+
+		private final String name;
+		private final String description;
+
+		private Status(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
+
+		// just the name of the status
+		@Override
+		public String toString() {
+			return name;
+		}
+
+		// a longer, more "user friendly" description.
+		public String getDescription(Simulation sim) {
+			switch (sim.getStatus()) {
+			    case ABORTED:
+					StringBuilder builder = new StringBuilder();
+
+					// We'll put every abort event on a new line (note that more than one branch can abort)
+					FlightData data = sim.getSimulatedData();
+					if (null != data) {
+						for (int b = 0; b < data.getBranchCount(); b++) {
+							FlightEvent abortEvent = data.getBranch(b).getFirstEvent(FlightEvent.Type.SIM_ABORT);
+							if (abortEvent != null) {
+								builder.append(description)
+									.append("<i>: ")
+									.append(abortEvent.getData().toString())
+									.append("</i><br>");
+							}
+						}
+					}
+					
+					// It shouldn't be possible to abort without an abort event. But just in case...
+					if (builder.length() > 0) {
+						return builder.toString();
+					} else {
+						return description;
+					}
+
+			    default:
+					return description;
+			}
+		}
+	}
+
+	public String getStatusDescription() {
+		return getStatus().getDescription(this);
 	}
 	
 	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -348,6 +410,11 @@ public class Simulation implements ChangeSource, Cloneable {
 			status = Status.CANT_RUN;
 		}
 
+		// If it has errors, it has aborted
+		if (hasErrors()) {
+			status = Status.ABORTED;
+		}
+
 		return status;
 	}
 
@@ -356,9 +423,11 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public boolean hasErrors() {
 		FlightData data = getSimulatedData();
-		for (int branchNo = 0; branchNo < data.getBranchCount(); branchNo++) {
-			if (hasErrors(branchNo)) {
-				return true;
+		if (null != data) {
+			for (int branchNo = 0; branchNo < data.getBranchCount(); branchNo++) {
+				if (hasErrors(branchNo)) {
+					return true;
+				}
 			}
 		}
 		return false;

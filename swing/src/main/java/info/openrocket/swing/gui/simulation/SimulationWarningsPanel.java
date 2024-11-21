@@ -35,7 +35,7 @@ public class SimulationWarningsPanel extends JPanel {
 
 	public SimulationWarningsPanel(final Simulation simulation) {
 		super(new MigLayout("fill"));
-
+		
 		WarningSet warnings = simulation.getSimulatedWarnings();
 		List<Warning> criticalWarnings = warnings == null ? null : warnings.getCriticalWarnings();
 		List<Warning> normalWarnings = warnings == null ? null : warnings.getNormalWarnings();

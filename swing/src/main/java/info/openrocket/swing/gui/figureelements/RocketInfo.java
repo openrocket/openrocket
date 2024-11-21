@@ -2,6 +2,8 @@ package info.openrocket.swing.gui.figureelements;
 
 import static info.openrocket.core.util.Chars.ALPHA;
 import static info.openrocket.core.util.Chars.THETA;
+
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
@@ -11,6 +13,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.StringUtils;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -41,6 +44,7 @@ public class RocketInfo implements FigureElement {
 	// Font to use
 	private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
 	private Font smallFont = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
+	private Font boldFont = font.deriveFont(Font.BOLD);
 	
 	private final Caret cpCaret = new CPCaret(0,0);
 	private final Caret cgCaret = new CGCaret(0,0);
@@ -61,6 +65,7 @@ public class RocketInfo implements FigureElement {
 	private boolean showWarnings = true;
 	
 	private boolean calculatingData = false;
+	private Simulation simulation = null;
 	private FlightData flightData = null;
 	
 	private Graphics2D g2 = null;
@@ -173,9 +178,18 @@ public class RocketInfo implements FigureElement {
 		this.mach = mach;
 	}
 	
-	
 	public void setFlightData(FlightData data) {
 		this.flightData = data;
+	}
+
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
+
+		if (simulation.hasSummaryData()) {
+			setFlightData(simulation.getSimulatedData());
+		} else {
+			setFlightData(FlightData.NaN_DATA);
+		}
 	}
 	
 	public void setCalculatingData(boolean calc) {
@@ -465,6 +479,7 @@ public class RocketInfo implements FigureElement {
 		
 		//// Apogee: 
 		GlyphVector apogee = createText(trans.get("RocketInfo.Apogee")+" ");
+		
 		//// Max. velocity:
 		GlyphVector maxVelocity = createText(trans.get("RocketInfo.Maxvelocity") +" ");
 		//// Max. acceleration: 
@@ -508,6 +523,20 @@ public class RocketInfo implements FigureElement {
 		
 		width += 5;
 
+		//// Sim status. Only show on aborts
+		if ((null != simulation) && (simulation.getStatus() == Simulation.Status.ABORTED)) {
+			String status = StringUtils.removeHTMLTags(simulation.getStatusDescription());
+
+			Color oldColor = g2.getColor();
+			
+			GlyphVector statusVector = createBoldText(status);
+			g2.setColor(GUIUtil.getUITheme().getStatusColor(simulation.getStatus()));
+			g2.drawGlyphVector(statusVector, x1, y2-3*line);
+			
+			g2.setColor(oldColor);
+			
+		}
+		
 		if (!calculatingData) 
 			g2.setColor(flightDataTextActiveColor);
 		else
@@ -533,6 +562,7 @@ public class RocketInfo implements FigureElement {
 		// Update the font sizes to whatever the currently selected font size is
 		font = font.deriveFont(size);
 		smallFont = smallFont.deriveFont((float)(size - 2.0));
+		boldFont = boldFont.deriveFont((float)(size + 2.0));
 	}
 		
 	private GlyphVector createText(String text) {
@@ -541,6 +571,10 @@ public class RocketInfo implements FigureElement {
 
 	private GlyphVector createSmallText(String text) {
 		return smallFont.createGlyphVector(g2.getFontRenderContext(), text);
+	}
+
+	private GlyphVector createBoldText(String text) {
+		return boldFont.createGlyphVector(g2.getFontRenderContext(), text);
 	}
 	
 	public void setCurrentConfig(FlightConfiguration newConfig) {

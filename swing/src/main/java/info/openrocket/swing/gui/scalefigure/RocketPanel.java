@@ -1000,11 +1000,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private boolean updateFlightData(Simulation sim) {
 		FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
 		if (sim.getFlightConfigurationId().compareTo(curID) == 0) {
-			if (sim.hasSimulationData()) {
-				extraText.setFlightData(sim.getSimulatedData());
-			} else {
-				extraText.setFlightData(FlightData.NaN_DATA);
-			}
+			extraText.setSimulation(sim);
 			return true;
 		}
 		return false;

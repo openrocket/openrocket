@@ -10,6 +10,7 @@ import com.formdev.flatlaf.ui.FlatBorder;
 import com.formdev.flatlaf.ui.FlatMarginBorder;
 import com.jthemedetecor.OsThemeDetector;
 import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.document.Simulation.Status;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.util.Icons;
@@ -94,6 +95,8 @@ public class UITheme {
         Color getFinPointSelectedPointColor();
         Color getFinPointBodyLineColor();
         Color getFinPointSnapHighlightColor();
+
+		Color getStatusColor(Status status);
 
         Icon getMassOverrideIcon();
         Icon getMassOverrideSubcomponentIcon();
@@ -183,7 +186,7 @@ public class UITheme {
 
         return false;
     }
-
+	
     public enum Themes implements Theme {
         /*
         Standard light theme
@@ -1824,7 +1827,21 @@ public class UITheme {
             public String getComponentIconMassTracker() {
                 return getCurrentTheme().getComponentIconMassTracker();
             }
-        }
+        };
+
+		@Override
+		public Color getStatusColor(Status status) {
+			switch (status) {
+			case ABORTED:
+				return getErrorColor();
+				
+			case OUTDATED:
+				return getWarningColor();
+				
+			default:
+				return getTextColor();
+			}
+		}
     }
 
     private static void preApplyTheme() {
@@ -1904,5 +1921,4 @@ public class UITheme {
             }
         }
     }
-
 }
