@@ -476,12 +476,6 @@ public class RocketInfo implements FigureElement {
 			return 0;
 		
 		double width=0;
-
-		//// Sim status. Only show on aborts
-		String status = "";
-		if ((null != simulation) && (simulation.getStatus() == Simulation.Status.ABORTED)) {
-			status = StringUtils.removeHTMLTags(simulation.getStatusDescription());
-		}
 		
 		//// Apogee: 
 		GlyphVector apogee = createText(trans.get("RocketInfo.Apogee")+" ");
@@ -529,11 +523,14 @@ public class RocketInfo implements FigureElement {
 		
 		width += 5;
 
-		if (null != status) {
+		//// Sim status. Only show on aborts
+		if ((null != simulation) && (simulation.getStatus() == Simulation.Status.ABORTED)) {
+			String status = StringUtils.removeHTMLTags(simulation.getStatusDescription());
+
 			Color oldColor = g2.getColor();
 			
 			GlyphVector statusVector = createBoldText(status);
-			g2.setColor(GUIUtil.getUITheme().getErrorColor());
+			g2.setColor(GUIUtil.getUITheme().getStatusColor(simulation.getStatus()));
 			g2.drawGlyphVector(statusVector, x1, y2-3*line);
 			
 			g2.setColor(oldColor);
