@@ -15,7 +15,8 @@ Release Notes
 
 <div id="24.12">
  
-## OpenRocket 24.12 beta 1
+OpenRocket 24.12.beta01 (2024-12-XX)
+------------------------
 
 Notable features and fixes in *bold*.
 
@@ -40,6 +41,7 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 * Fire outdated sim on stage rename (fixes 2532)
 * Added "aborted" status mark to simulations
 * Don't show vertical acceleration as negative before liftoff
+* Clamp compressibility correction factor to avoid singularity (fixes 2570)
 
 #### Warnings
 * **Add SIM_ABORT flight even type, instead of throwing exceptions**
@@ -99,7 +101,7 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 
 ### Project
 * **Move project documentation to Sphinx**
-* **Switched build system from And to Gradle**
+* **Switched build system from Ant to Gradle**
 * Adopted Java Platform Module System
 
 ### Misc
