@@ -13,6 +13,104 @@ Release Notes
 
 </div>
 
+<div id="24.12">
+ 
+## OpenRocket 24.12 beta 1
+
+Notable features and fixes in *bold*.
+
+### RELEASE HIGHLIGHTS
+* **Overhauled Simulation tab UI**:  This is the beginning of a multi-release effort to make it easier to manage simulations and interpret their results. Please let us know what you think so far.
+* **Multi-level wind input**
+* **Plot and export Component Analysis parameter sweeps**: See the new Plot/Export tab in Component Analysis and give it a try.
+* **Export fin shapes to SVG file**: For use with laser cutters and import into other tools.
+* **Project documentation moved to Sphinx**: See it at https://openrockt.readthedocs.io/.
+
+### Simulation
+As mentioned above, a lot of work went into the Simulation tab for this release, and there is a lot more to come.
+
+#### Flight simulation
+* **Overhauled Sim table GUI** (fixes 2456)
+* **Multi-level wind input** (fixes 922, 2060, 2558)
+* Sync wind speed, deviation, and turbulence widgets together in sim settings (fixes 2388)
+* Add South/West units for latitude and longitude of launch site (fixes 2178)
+* Improved accuracy of thrust calculation
+* Abort sim when recovery deployment occurs under thrust
+* Allow sustainer to tumble before apogee; if under thrust, abort sim
+* Fire outdated sim on stage rename (fixes 2532)
+* Added "aborted" status mark to simulations
+* Don't show vertical acceleration as negative before liftoff
+
+#### Warnings
+* **Add SIM_ABORT flight even type, instead of throwing exceptions**
+* Don't warn about large angle of attack when we start to tumble
+* Don't set open airframe warning if rocket is unstable (and improve wording)
+
+#### Plotting
+* **Organize axis plot types selector into categories and add search function** (fixes 2338)
+* Add air density as plottable variable (fixes 2462)
+* Show stage name in sim plot tooltips (fixes 2521)
+* Keep edit sim dialog open after plotting/exporting (fixes 2531)
+* Add Flight Warning events to plots
+
+### Component Analysis
+* **Plot and export component analysis parameter sweeps** (fixes 2525): See the new Plot/Export tab.
+* Highlight component selected in Component Analysis in the rocket figure display
+* Add per-instance Cd column to Component Analysis Dialog (fixes 2019)
+* Select components for plot/export
+
+### Import/Export
+* **Export fins to SVG file**: See button at bottom of config window
+* Improve OBJ export using Delaunay triangulation (fixes 2444)
+* Support booster export and import with Rocksim, other bug fixes (fixes 2437, 2377, 2435)
+* Correct launch rod length when exporting to RASAero  
+
+### Materials
+* **Add material groups with search**: Check this out in any config window.
+* **Add "document materials" that can be reused within a document (i.e. ORK file)**
+* Easier to add custom materials
+* Set balsa as default fin material
+
+### Motor Configurations
+* **Separate motor nominal vs. actual diameter** (fixes 2569): This allows Loki 76mm motors to pass the 75mm motor filter.
+* Add "Save as default" option to motor config name (fixes 2537)
+
+### Multi-stage Rockets
+* **Add stage separation options for deployable payloads and a deployable payload example** (fixes 852, 2519): We had many requests for this from various competition participants.
+* Don't add motor delay time to upper stage motor ignition time (fixes 2450)
+
+### Parachute Preset Library
+* **Fix parachute length resizing when using preset parachute**: Lots of folks reported this one.
+* Correct diameter of Spherachutes to match Cd (fixes 2517)
+* Fix sorting problems in preset library (fixes 2576)
+
+### User Interface
+* **Allow components to be hidden from view** (fixes 2485): Use the edit menu or contextual menu to show/hide selected components
+* **Constrain angles in freeform fin editor** (fixes 427): Hold down shift or control-shift while dragging a point.
+* **Add hex color input field in appearance panel** (fixes 2224)
+* **Rotate 2D views by click-dragging** (fixes 2093)
+* Allow 3 digits of precision in "shape" parameter (fixes 2409)
+* Fix Mass Object radial rotation in 3D view (fixes 2550)
+* Improve texture select combobox operation
+
+### Command Line Options
+* Choose user-defined component preset locations (fixes 1081)
+* Suppress preset and motor loading at startup (fixes 1579)
+
+### Project
+* **Move project documentation to Sphinx**
+* **Switched build system from And to Gradle**
+* Adopted Java Platform Module System
+
+### Misc
+* **Re-introduced motor ignition delay optimization to Rocket Optimization** (fixes 2345)
+* Support more and larger page sizes for printing (fixes 2483)
+* Improve manufacturer search in Component preset library (fixes 2479)
+* Fix shoulder scaling (fixes 2463)
+
+*...and, as always, lots more minor fixes and improvements.*
+</div>
+
 <div id="23.09">
 
 OpenRocket 23.09 (2023-11-16)
