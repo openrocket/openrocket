@@ -15,7 +15,7 @@ Release Notes
 
 <div id="24.12">
  
-OpenRocket 24.12.beta01 (2024-12-XX)
+OpenRocket 24.12.beta.01 (2024-12-XX)
 ------------------------
 
 Notable features and fixes in *bold*.
