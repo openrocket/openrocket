@@ -44,9 +44,9 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 * Clamp compressibility correction factor to avoid singularity
 
 #### Warnings
-* **Add SIM_ABORT flight even type, instead of throwing exceptions**
+* **Add SIM_ABORT flight event type, instead of throwing exceptions**
 * Don't warn about large angle of attack when we start to tumble
-* Don't set open airframe warning if rocket is unstable (and improve wording)
+* Don't set open airframe warning on booster stages if either they're about to deploy a recovery device or they're unstable (and improve wording)
 
 #### Plotting
 * **Organize axis plot types selector into categories and add search function** (fixes 2338)
