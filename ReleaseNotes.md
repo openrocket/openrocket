@@ -41,7 +41,7 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 * Fire outdated sim on stage rename (fixes 2532)
 * Added "aborted" status mark to simulations
 * Don't show vertical acceleration as negative before liftoff
-* Clamp compressibility correction factor to avoid singularity (fixes 2570)
+* Clamp compressibility correction factor to avoid singularity
 
 #### Warnings
 * **Add SIM_ABORT flight even type, instead of throwing exceptions**
