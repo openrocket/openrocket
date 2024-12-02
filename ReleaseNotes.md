@@ -13,7 +13,7 @@ Release Notes
 
 </div>
 
-<div id="24.12">
+<div id="24.12.beta.01">
  
 OpenRocket 24.12.beta.01 (2024-12-XX)
 ------------------------
