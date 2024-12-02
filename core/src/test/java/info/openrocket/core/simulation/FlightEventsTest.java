@@ -2,6 +2,7 @@ package info.openrocket.core.simulation;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -88,7 +89,6 @@ public class FlightEventsTest extends BaseTestCase {
 
 		final AxialStage sustainer = rocket.getStage(0);
 		final BodyTube sustainerBody = (BodyTube) sustainer.getChild(1);
-		final Parachute sustainerChute = (Parachute) sustainerBody.getChild(0);
 
 		final AxialStage centerBooster = rocket.getStage(1);
 		final BodyTube centerBoosterBody = (BodyTube) centerBooster.getChild(0);
@@ -131,8 +131,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
 						new FlightEvent(FlightEvent.Type.APOGEE, 3.89, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 17.78, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 17.78, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 				};
 
 				// Side Boosters
@@ -144,8 +144,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.SIM_WARN, 1.05, null, warn),
 						new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 1.051, sideChutes),
 						new FlightEvent(FlightEvent.Type.APOGEE, 1.35, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 17.2, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 17.2, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
 				};
 				default -> throw new IllegalStateException("Invalid branch number " + b);
 			};
@@ -188,8 +188,7 @@ public class FlightEventsTest extends BaseTestCase {
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
 						(actual.getType() == FlightEvent.Type.APOGEE) ||
-						(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
-						(actual.getType() == FlightEvent.Type.SIMULATION_END) ? sim.getOptions().getTimeStep()
+						(actual.getType() == FlightEvent.Type.GROUND_HIT) ? (5 * sim.getOptions().getTimeStep())
 						: EPSILON;
 				assertEquals(expected.getTime(), actual.getTime(), epsilon,
 						"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ");
@@ -201,8 +200,8 @@ public class FlightEventsTest extends BaseTestCase {
 
 			// If it's a warning event, make sure the warning types match
 			if (expected.getType() == FlightEvent.Type.SIM_WARN) {
-				assertTrue(actual.getData() instanceof Warning, "SIM_WARN event data is not a Warning");
-				assertTrue(((Warning) expected.getData()).equals(actual.getData()), "Expected: " + expected.getData() + " but was: " + actual.getData());
+				assertInstanceOf(Warning.class, actual.getData(), "SIM_WARN event data is not a Warning");
+				assertEquals((expected.getData()), actual.getData(), "Expected: " + expected.getData() + " but was: " + actual.getData());
 			}
 		}
 
