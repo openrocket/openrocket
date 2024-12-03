@@ -25,7 +25,7 @@ Notable features and fixes in *bold*.
 * **Multi-level wind input**
 * **Plot and export Component Analysis parameter sweeps**: See the new Plot/Export tab in Component Analysis and give it a try.
 * **Export fin shapes to SVG file**: For use with laser cutters and import into other tools.
-* **Project documentation moved to Sphinx**: See it at https://openrockt.readthedocs.io/.
+* **Project documentation moved to Sphinx**: See it at https://openrocket.readthedocs.io/.
 
 ### Simulation
 As mentioned above, a lot of work went into the Simulation tab for this release, and there is a lot more to come.
