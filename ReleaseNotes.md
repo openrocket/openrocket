@@ -94,6 +94,7 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 * Allow 3 digits of precision in "shape" parameter (fixes 2409)
 * Fix Mass Object radial rotation in 3D view (fixes 2550)
 * Improve texture select combobox operation
+* Change LAF engine to FlatLaf for all UI themes
 
 ### Command Line Options
 * Choose user-defined component preset locations (fixes 1081)
