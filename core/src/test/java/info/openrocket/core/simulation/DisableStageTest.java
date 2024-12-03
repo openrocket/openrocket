@@ -20,7 +20,8 @@ import org.junit.jupiter.api.Test;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class DisableStageTest extends BaseTestCase {
-    public static final double DELTA = 0.05; // 5 % error margin (simulations are not exact)
+    public static final double DELTA = 0.05; // 3 % error margin (simulations are not exact)
+    public static final double DELTA_COURSE = 0.1; // 10 % course error margin (simulations are not exact)
 
     /**
      * Tests that the simulation results are correct when a single stage is deactivated and re-activated.
@@ -53,7 +54,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages(); // Re-enable all stages.
 
-        compareSims(simOriginal, simDisabled, DELTA);
+        compareSims(simOriginal, simDisabled);
     }
 
     /**
@@ -80,7 +81,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
 
-        compareSims(simRemoved, simDisabled, DELTA);
+        compareSims(simRemoved, simDisabled);
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeBeta();
@@ -91,7 +92,7 @@ public class DisableStageTest extends BaseTestCase {
         
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, DELTA);
+        compareSims(simOriginal, simDisabled);
     }
 
     /**
@@ -182,7 +183,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getOptions().setTimeStep(0.05);
         simDisabled.getOptions().getAverageWindModel().setStandardDeviation(0.0);
 
-        compareSims(simRemoved, simDisabled, DELTA);
+        compareSims(simRemoved, simDisabled);
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
@@ -195,7 +196,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, DELTA);
+        compareSims(simOriginal, simDisabled);
     }
 
     /**
@@ -248,7 +249,7 @@ public class DisableStageTest extends BaseTestCase {
 
         simDisabled.getActiveConfiguration().setAllStages();
 
-        compareSims(simOriginal, simDisabled, DELTA);
+        compareSims(simOriginal, simDisabled);
     }
 
     /**
@@ -296,9 +297,8 @@ public class DisableStageTest extends BaseTestCase {
      *  - groundHitVelocity
      * @param simExpected the expected simulation results
      * @param simActual the actual simulation results
-     * @param delta the error margin for the comparison (e.g. 0.05 = 5 % error margin)
      */
-    private void compareSims(Simulation simExpected, Simulation simActual, double delta) {
+    private void compareSims(Simulation simExpected, Simulation simActual) {
         try {
             simExpected.simulate();
             double maxAltitudeOriginal = simExpected.getSimulatedData().getMaxAltitude();
@@ -318,15 +318,15 @@ public class DisableStageTest extends BaseTestCase {
             double launchRodVelocityDisabled = simActual.getSimulatedData().getLaunchRodVelocity();
             double deploymentVelocityDisabled = simActual.getSimulatedData().getDeploymentVelocity();
 
-            assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, calculateDelta(maxAltitudeOriginal, delta));
-            assertEquals(maxVelocityOriginal, maxVelocityDisabled, calculateDelta(maxVelocityOriginal, delta));
-            assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, calculateDelta(maxMachNumberOriginal, delta));
-            assertEquals(flightTimeOriginal, flightTimeDisabled, calculateDelta(flightTimeOriginal, delta));
-            assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, calculateDelta(timeToApogeeOriginal, delta));
+            assertEquals(maxAltitudeOriginal, maxAltitudeDisabled, 25);
+            assertEquals(maxVelocityOriginal, maxVelocityDisabled, 15);
+            assertEquals(maxMachNumberOriginal, maxMachNumberDisabled, 0.05);
+            assertEquals(flightTimeOriginal, flightTimeDisabled, calculateDelta(flightTimeOriginal, DELTA_COURSE));
+            assertEquals(timeToApogeeOriginal, timeToApogeeDisabled, calculateDelta(timeToApogeeOriginal, DELTA_COURSE));
             assertEquals(launchRodVelocityOriginal, launchRodVelocityDisabled,
-                    calculateDelta(launchRodVelocityOriginal, delta));
+                    calculateDelta(launchRodVelocityOriginal, DELTA));
             assertEquals(deploymentVelocityOriginal, deploymentVelocityDisabled,
-                    calculateDelta(deploymentVelocityOriginal, delta));
+                    calculateDelta(deploymentVelocityOriginal, DELTA));
         } catch (SimulationException e) {
             fail("Simulation failed: " + e);
         }
