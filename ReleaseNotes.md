@@ -21,10 +21,10 @@ OpenRocket 24.12.beta.01 (2024-12-XX)
 Notable features and fixes in *bold*.
 
 ### RELEASE HIGHLIGHTS
-* **Overhauled Simulation tab UI**:  This is the beginning of a multi-release effort to make it easier to manage simulations and interpret their results. Please let us know what you think so far.
-* **Multi-level wind input**
-* **Plot and export Component Analysis parameter sweeps**: See the new Plot/Export tab in Component Analysis and give it a try.
-* **Export fin shapes to SVG file**: For use with laser cutters and import into other tools.
+* **Enhanced Simulation tab UI**: This is the beginning of a multi-release effort to make it easier to manage simulations and interpret their results. Please let us know what you think so far.
+* **Multi-level wind input**: Configure different wind settings at different altitudes (in the simulation configuration dialog).
+* **New Component Analysis Parameter Sweep Tool**: Plot and export Component Analysis parameter sweeps in the new Component Analysis Plot/Export tab.
+* **SVG Fin Export**: Export fin shapes directly to SVG for laser cutting or importing into CAD tools.
 * **Project documentation moved to Sphinx**: See it at https://openrocket.readthedocs.io/.
 
 ### Simulation
