@@ -18,7 +18,7 @@ Release Notes
 OpenRocket 24.12.beta.01 (2024-12-XX)
 ------------------------
 
-Notable features and fixes in *bold*.
+Notable features and fixes in **bold**.
 
 ### RELEASE HIGHLIGHTS
 * **Enhanced Simulation tab UI**: This is the beginning of a multi-release effort to make it easier to manage simulations and interpret their results. Please let us know what you think so far.
