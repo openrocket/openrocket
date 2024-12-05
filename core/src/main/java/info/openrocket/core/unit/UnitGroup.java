@@ -68,8 +68,9 @@ public class UnitGroup {
 	/** Time in the order of seconds (motor delay etc). */
 	public static final UnitGroup UNITS_SHORT_TIME;
 
-	/** Time in the order of the flight time of a rocket. */
-	public static final UnitGroup UNITS_FLIGHT_TIME;
+	/** Time in the order of minutes (flight time etc). */
+	public static final UnitGroup UNITS_LONG_TIME;
+
 	public static final UnitGroup UNITS_ROLL;
 	public static final UnitGroup UNITS_TEMPERATURE;
 	public static final UnitGroup UNITS_PRESSURE;
@@ -269,9 +270,9 @@ public class UnitGroup {
 		UNITS_SHORT_TIME = new UnitGroup();
 		UNITS_SHORT_TIME.addUnit(new GeneralUnit(1, "s"));
 
-		UNITS_FLIGHT_TIME = new UnitGroup();
-		UNITS_FLIGHT_TIME.addUnit(new GeneralUnit(1, "s"));
-		UNITS_FLIGHT_TIME.addUnit(new GeneralUnit(60, "min"));
+		UNITS_LONG_TIME = new UnitGroup();
+		UNITS_LONG_TIME.addUnit(new GeneralUnit(1, "s"));
+		UNITS_LONG_TIME.addUnit(new GeneralUnit(60, "min"));
 
 		UNITS_ROLL = new UnitGroup();
 		UNITS_ROLL.addUnit(new GeneralUnit(1, "rad/s"));
@@ -345,7 +346,7 @@ public class UnitGroup {
 		map.put("IMPULSE", UNITS_IMPULSE);
 		map.put("TIME_STEP", UNITS_TIME_STEP);
 		map.put("SHORT_TIME", UNITS_SHORT_TIME);
-		map.put("FLIGHT_TIME", UNITS_FLIGHT_TIME);
+		map.put("FLIGHT_TIME", UNITS_LONG_TIME);
 		map.put("ROLL", UNITS_ROLL);
 		map.put("TEMPERATURE", UNITS_TEMPERATURE);
 		map.put("PRESSURE", UNITS_PRESSURE);
@@ -376,7 +377,7 @@ public class UnitGroup {
 		simap.put("kg/m^3", UNITS_DENSITY_BULK);
 		simap.put("N", UNITS_FORCE);
 		simap.put("Ns", UNITS_IMPULSE);
-		simap.put("s", UNITS_FLIGHT_TIME);
+		simap.put("s", UNITS_LONG_TIME);
 		simap.put("Pa", UNITS_PRESSURE);
 		simap.put("V", UNITS_VOLTAGE);
 		simap.put("A", UNITS_CURRENT);
@@ -407,7 +408,7 @@ public class UnitGroup {
 		UNITS_FORCE.setDefaultUnit("N");
 		UNITS_IMPULSE.setDefaultUnit("Ns");
 		UNITS_TIME_STEP.setDefaultUnit("s");
-		UNITS_FLIGHT_TIME.setDefaultUnit("s");
+		UNITS_LONG_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
 		UNITS_TEMPERATURE.setDefaultUnit(DEGREE + "C");
 		UNITS_WINDSPEED.setDefaultUnit("m/s");
@@ -437,7 +438,7 @@ public class UnitGroup {
 		UNITS_FORCE.setDefaultUnit("N");
 		UNITS_IMPULSE.setDefaultUnit("Ns");
 		UNITS_TIME_STEP.setDefaultUnit("s");
-		UNITS_FLIGHT_TIME.setDefaultUnit("s");
+		UNITS_LONG_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
 		UNITS_TEMPERATURE.setDefaultUnit(DEGREE + "F");
 		UNITS_WINDSPEED.setDefaultUnit("mph");
@@ -479,7 +480,7 @@ public class UnitGroup {
 		UNITS_IMPULSE.setDefaultUnit(0);
 		UNITS_TIME_STEP.setDefaultUnit(1);
 		UNITS_SHORT_TIME.setDefaultUnit(0);
-		UNITS_FLIGHT_TIME.setDefaultUnit(0);
+		UNITS_LONG_TIME.setDefaultUnit(0);
 		UNITS_ROLL.setDefaultUnit(1);
 		UNITS_TEMPERATURE.setDefaultUnit(1);
 		UNITS_PRESSURE.setDefaultUnit(0);
