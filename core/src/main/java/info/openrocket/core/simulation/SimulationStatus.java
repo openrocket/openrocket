@@ -63,7 +63,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private Coordinate rotationVelocity;
 
 	private double maxZVelocity = Double.NEGATIVE_INFINITY;
-	private double startWarningsTime = 1200;
+	private double startWarningsTime = RK4SimulationStepper.RECOMMENDED_MAX_TIME;
 	
 	private double effectiveLaunchRodLength;
 

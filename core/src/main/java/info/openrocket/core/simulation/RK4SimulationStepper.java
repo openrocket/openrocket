@@ -37,6 +37,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * A recommended reasonably accurate time step.
 	 */
 	public static final double RECOMMENDED_TIME_STEP = 0.05;
+
+	/**
+	 * A recommended reasonable maximum simulation time (in seconds).
+	 */
+	public static final double RECOMMENDED_MAX_TIME = 1200;
 	
 	/**
 	 * A recommended maximum angle step value.
