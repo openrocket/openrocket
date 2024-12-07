@@ -17,6 +17,9 @@ to publish installers for the following platforms.
 * Sibo Van Gool
 
 # Instructions on updating the macOS drag-and-drop installer
+
+Either run "update_ds_store.sh" or follow the instructions below.
+
 This is an example of updating the installer from 22.02 to 23.09.beta.01:
 
 If you use the `macOS_resources/template_dmg_rw.dmg` file, you can skip to step 4
