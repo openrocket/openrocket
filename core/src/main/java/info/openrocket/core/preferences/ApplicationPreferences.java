@@ -575,7 +575,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 
 	public double getMaxSimulationTime() {
-		return this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME);
+		double maxTime = this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME);
+		return maxTime == 0 ? RK4SimulationStepper.RECOMMENDED_MAX_TIME : maxTime;
 	}
 
 	public void setMaxSimulationTime(double maxTime) {
