@@ -21,7 +21,7 @@
   <launchers>
     <launcher name="OpenRocket 24.12.beta.01" id="59" icnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="../../swing/build/resources/main/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
-        <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2023 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
+        <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2024 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
       </executable>
       <splashScreen show="true" width="662" height="336" bitmapFile="../../swing/build/resources/main/pix/splashscreen.png">
         <text>
@@ -225,12 +225,12 @@ return console.askOkCancel(message, true);
                   </property>
                   <property name="icon">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>/home/joseph/rockets/openrocket/git/openrocket/work/swing/build/resources/main/pix/icon/icon-windows.ico</string>
+                      <string>../../swing/src/main/resources/pix/icon/icon-windows.ico</string>
                     </object>
                   </property>
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>/home/joseph/rockets/openrocket/git/openrocket/work/swing/build/resources/main/pix/icon/icon-048.png</string>
+                      <string>../../swing/src/main/resources/pix/icon/icon-048.png</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -257,12 +257,12 @@ return console.askOkCancel(message, true);
                   <property name="name" type="string">${compiler:sys.fullName}</property>
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>/home/joseph/rockets/openrocket/git/openrocket/work/swing/build/resources/main/pix/icon/icon-064.png</string>
+                      <string>../../swing/src/main/resources/pix/icon/icon-064.png</string>
                     </object>
                   </property>
                   <property name="winIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>/home/joseph/rockets/openrocket/git/openrocket/work/swing/build/resources/main/pix/icon/icon-windows.ico</string>
+                      <string>../../swing/src/main/resources/pix/icon/icon-windows.ico</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -276,13 +276,13 @@ return console.askOkCancel(message, true);
                   <property name="unix" type="boolean" value="true" />
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>/home/joseph/rockets/openrocket/git/openrocket/work/swing/build/resources/main/pix/icon/icon-064.png</string>
+                      <string>../../swing/src/main/resources/pix/icon/icon-064.png</string>
                     </object>
                   </property>
                   <property name="unixMimeType" type="string">application/x-openrocket</property>
                   <property name="windowsIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
-                      <string>/home/joseph/rockets/openrocket/git/openrocket/work/swing/build/resources/main/pix/icon/icon-windows.ico</string>
+                      <string>../../swing/src/main/resources/pix/icon/icon-windows.ico</string>
                     </object>
                   </property>
                 </serializedBean>
@@ -642,6 +642,6 @@ return console.askYesNo(message, true);
     </macosArchive>
   </mediaSets>
   <buildIds>
-    <mediaSet refId="240" />
+    <mediaSet refId="168" />
   </buildIds>
 </install4j>
