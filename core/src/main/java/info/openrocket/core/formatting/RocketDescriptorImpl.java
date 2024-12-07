@@ -1,6 +1,6 @@
 package info.openrocket.core.formatting;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import com.google.inject.Inject;
 
@@ -10,7 +10,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 public class RocketDescriptorImpl implements RocketDescriptor {
 
 	@Inject
-	private HashSet<RocketSubstitutor> substitutors;
+	private Set<RocketSubstitutor> substitutors;
 
 	@Override
 	public String format(final Rocket rocket, final FlightConfigurationId configId) {
