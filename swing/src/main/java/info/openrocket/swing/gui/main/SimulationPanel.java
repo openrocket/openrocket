@@ -62,7 +62,6 @@ import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.FlightData;
-import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
@@ -1529,7 +1528,7 @@ public class SimulationPanel extends JPanel {
 					},
 
 					//// Time to apogee
-					new ValueColumn(trans.get("simpanel.col.Timetoapogee"), UnitGroup.UNITS_FLIGHT_TIME) {
+					new ValueColumn(trans.get("simpanel.col.Timetoapogee"), UnitGroup.UNITS_LONG_TIME) {
 						@Override
 						public Double valueAt(int row) {
 							if (row < 0 || row >= document.getSimulationCount())
@@ -1544,7 +1543,7 @@ public class SimulationPanel extends JPanel {
 					},
 
 					//// Flight time
-					new ValueColumn(trans.get("simpanel.col.Flighttime"), UnitGroup.UNITS_FLIGHT_TIME) {
+					new ValueColumn(trans.get("simpanel.col.Flighttime"), UnitGroup.UNITS_LONG_TIME) {
 						@Override
 						public Double valueAt(int row) {
 							if (row < 0 || row >= document.getSimulationCount())

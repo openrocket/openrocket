@@ -120,7 +120,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				flightData.addBranch(dataBranch);
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 				
-				simulateLoop();
+				simulateLoop(simulationConditions);
 				dataBranch.immute();
 				flightData.getWarningSet().addAll(currentStatus.getWarnings());
 				
@@ -148,7 +148,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 	
-	private void simulateLoop() throws SimulationException {
+	private void simulateLoop(SimulationConditions simulationConditions) throws SimulationException {
 
 		// Initialize the simulation. We'll use the flight stepper unless we're already
 		// on the ground
@@ -169,7 +169,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			checkGeometry(currentStatus);
 			
 			// Start the simulation
-			while (handleEvents()) {
+			while (handleEvents(simulationConditions)) {
 				// Take the step
 				double oldAlt = currentStatus.getRocketPosition().z;
 				
@@ -310,7 +310,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * Each event that has occurred before or at the current simulation time is
 	 * processed.  Suitable events are also added to the flight data.
 	 */
-	private boolean handleEvents() throws SimulationException {
+	private boolean handleEvents(SimulationConditions simulationConditions) throws SimulationException {
 		boolean ret = true;
 		FlightEvent event;
 
@@ -640,11 +640,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 		}
 
-		// TODO FUTURE : do not hard code the 1200 (maybe even make it configurable by
-		// the user)
-		if (1200 < currentStatus.getSimulationTime()) {
+		if (currentStatus.getSimulationTime() >= simulationConditions.getMaxSimulationTime()) {
 			ret = false;
-			log.error("Simulation hit max time (1200s): aborting.");
+			log.error("Simulation hit max time (" + RK4SimulationStepper.RECOMMENDED_MAX_TIME + "s): aborting.");
 			currentStatus.getFlightDataBranch()
 					.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 		}

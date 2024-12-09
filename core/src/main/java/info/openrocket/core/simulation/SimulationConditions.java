@@ -56,6 +56,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private MassCalculator massCalculator;
 
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
+	private double maxSimulationTime = RK4SimulationStepper.RECOMMENDED_MAX_TIME;
 	private double maximumAngleStep = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 
 
@@ -207,6 +208,15 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public void setTimeStep(double timeStep) {
 		this.timeStep = timeStep;
+		this.modID = new ModID();
+	}
+
+	public double getMaxSimulationTime() {
+		return maxSimulationTime;
+	}
+
+	public void setMaxSimulationTime(double maxSimulationTime) {
+		this.maxSimulationTime = maxSimulationTime;
 		this.modID = new ModID();
 	}
 

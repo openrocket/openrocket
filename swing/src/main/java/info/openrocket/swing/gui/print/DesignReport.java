@@ -442,7 +442,7 @@ public class DesignReport {
 				motorTable.addCell(ITextHelper.createCell(
 						UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getAverageThrustEstimate()), border));
 				motorTable.addCell(ITextHelper.createCell(
-						UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit().toStringUnit(motor.getBurnTimeEstimate()), border));
+						UnitGroup.UNITS_LONG_TIME.getDefaultUnit().toStringUnit(motor.getBurnTimeEstimate()), border));
 				motorTable.addCell(ITextHelper.createCell(
 						UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(motor.getMaxThrustEstimate()), border));
 				motorTable.addCell(ITextHelper.createCell(
@@ -515,7 +515,7 @@ public class DesignReport {
 				}
 				final Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
 				final Unit velocityUnit = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
-				final Unit flightTimeUnit = UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit();
+				final Unit flightTimeUnit = UnitGroup.UNITS_LONG_TIME.getDefaultUnit();
 				
 				PdfPTable labelTable = new PdfPTable(2);
 				labelTable.setWidths(new int[] { 3, 2 });

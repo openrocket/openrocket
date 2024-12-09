@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import info.openrocket.core.util.Groupable;
-import info.openrocket.core.util.UnitValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,7 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 
 	//// Time
 	public static final FlightDataType TYPE_TIME = newType(trans.get("FlightDataType.TYPE_TIME"), "t",
-			UnitGroup.UNITS_FLIGHT_TIME,
+			UnitGroup.UNITS_LONG_TIME,
 			FlightDataTypeGroup.TIME, 0);
 
 	//// Position and motion

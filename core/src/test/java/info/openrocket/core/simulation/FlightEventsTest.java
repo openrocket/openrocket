@@ -102,7 +102,7 @@ public class FlightEventsTest extends BaseTestCase {
 		Warning warn = new Warning.HighSpeedDeployment(53.2);
 		warn.setSources(null);
 		
-		// events whose time is too variable to check are given a time of 1200
+		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
 			FlightEvent[] expectedEvents = switch (b) {
 				// Sustainer
@@ -120,7 +120,7 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.IGNITION, 2.11, sustainerBody),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 2.37, null),
-						new FlightEvent(FlightEvent.Type.SIM_ABORT, 1200, null, simAbort)
+						new FlightEvent(FlightEvent.Type.SIM_ABORT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null, simAbort)
 				};
 
 				// Center Booster
@@ -131,8 +131,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.TUMBLE, 2.38, null),
 						new FlightEvent(FlightEvent.Type.APOGEE, 3.89, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null)
 				};
 
 				// Side Boosters
@@ -144,8 +144,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.SIM_WARN, 1.05, null, warn),
 						new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 1.051, sideChutes),
 						new FlightEvent(FlightEvent.Type.APOGEE, 1.35, rocket),
-						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
-						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null)
 				};
 				default -> throw new IllegalStateException("Invalid branch number " + b);
 			};
@@ -183,7 +183,7 @@ public class FlightEventsTest extends BaseTestCase {
 					   "Branch " + branchNo + " FlightEvent " + i + ": type " + expected.getType()
 					   + " not found; FlightEvent " + actual.getType() + " found instead");
 
-			if (1200 != expected.getTime()) {
+			if (expected.getTime() != RK4SimulationStepper.RECOMMENDED_MAX_TIME) {
 				// event times that are dependent on simulation step time shouldn't be held to
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||

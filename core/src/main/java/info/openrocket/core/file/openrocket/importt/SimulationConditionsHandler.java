@@ -144,6 +144,13 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setTimeStep(d);
 				}
 			}
+			case "maxtime" -> {
+				if (Double.isNaN(d) || d <= 0) {
+					warnings.add("Illegal max simulation time defined, ignoring.");
+				} else {
+					options.setMaxSimulationTime(d);
+				}
+			}
 		}
 	}
 }

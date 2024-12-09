@@ -74,6 +74,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
 	
 	private double timeStep = preferences.getTimeStep();
+	private double maxSimulationTime = preferences.getMaxSimulationTime();
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
@@ -295,6 +296,17 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		fireChangeEvent();
 	}
 
+	public double getMaxSimulationTime() {
+		return maxSimulationTime;
+	}
+
+	public void setMaxSimulationTime(double maxSimulationTime) {
+		if (MathUtil.equals(this.maxSimulationTime, maxSimulationTime))
+			return;
+		this.maxSimulationTime = maxSimulationTime;
+		fireChangeEvent();
+	}
+
 	public double getMaximumStepAngle() {
 		return maximumAngle;
 	}
@@ -422,6 +434,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.timeStep = src.timeStep;
 		}
+		if (this.maxSimulationTime != src.maxSimulationTime) {
+			isChanged = true;
+			this.maxSimulationTime = src.maxSimulationTime;
+		}
 		if (this.geodeticComputation != src.geodeticComputation) {
 			isChanged = true;
 			this.geodeticComputation = src.geodeticComputation;
@@ -454,7 +470,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.launchRodLength, o.launchRodLength) &&
 				MathUtil.equals(this.launchTemperature, o.launchTemperature) &&
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
-				MathUtil.equals(this.timeStep, o.timeStep)) &&
+				MathUtil.equals(this.timeStep, o.timeStep) &&
+				MathUtil.equals(this.maxSimulationTime, o.maxSimulationTime)) &&
 				this.windModelType == o.windModelType &&
 				this.averageWindModel.equals(o.averageWindModel) &&
 				this.multiLevelPinkNoiseWindModel.equals(o.multiLevelPinkNoiseWindModel);
@@ -516,6 +533,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setMassCalculator(new MassCalculator());
 
 		conditions.setTimeStep(getTimeStep());
+		conditions.setMaxSimulationTime(getMaxSimulationTime());
 		conditions.setMaximumAngleStep(getMaximumStepAngle());
 
 		return conditions;
@@ -539,6 +557,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    launchTemperature:  %f\n", launchTemperature))
 				.concat(String.format("    launchPressure:  %f\n", launchPressure))
 				.concat(String.format("    timeStep:  %f\n", timeStep))
+				.concat(String.format("    maxTime:  %f\n", maxSimulationTime))
 				.concat(String.format("    maximumAngle:  %f\n", maximumAngle))
 				.concat("]\n");
 	}

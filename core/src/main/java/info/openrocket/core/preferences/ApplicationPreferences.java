@@ -125,6 +125,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String LAUNCH_PRESSURE = "LaunchPressure";
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
+	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
 
 	public static final String UI_THEME = "UITheme";
@@ -570,6 +571,18 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (MathUtil.equals(this.getDouble(SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP), timeStep))
 			return;
 		this.putDouble(SIMULATION_TIME_STEP, timeStep);
+		fireChangeEvent();
+	}
+
+	public double getMaxSimulationTime() {
+		double maxTime = this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME);
+		return maxTime == 0 ? RK4SimulationStepper.RECOMMENDED_MAX_TIME : maxTime;
+	}
+
+	public void setMaxSimulationTime(double maxTime) {
+		if (MathUtil.equals(this.getDouble(SIMULATION_MAX_TIME, RK4SimulationStepper.RECOMMENDED_MAX_TIME), maxTime))
+			return;
+		this.putDouble(SIMULATION_MAX_TIME, maxTime);
 		fireChangeEvent();
 	}
 
