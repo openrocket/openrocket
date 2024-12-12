@@ -12,10 +12,10 @@
   </application>
   <files>
     <mountPoints>
-      <mountPoint id="58" />
+      <mountPoint id="252" location="jar" />
     </mountPoints>
     <entries>
-      <fileEntry mountPoint="58" file="../../build/libs/OpenRocket.jar" />
+      <fileEntry mountPoint="252" file="../../build/libs/OpenRocket.jar" />
     </entries>
   </files>
   <launchers>
@@ -31,7 +31,7 @@
       </splashScreen>
       <java mainClass="info.openrocket.swing.startup.OpenRocket" vmParameters="-Dapple.awt.application.appearance=&quot;system&quot; --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
         <classPath>
-          <archive location="OpenRocket.jar" failOnError="false" />
+          <archive location="jar/OpenRocket.jar" failOnError="false" />
         </classPath>
       </java>
       <iconImageFiles>
@@ -622,7 +622,9 @@ return console.askYesNo(message, true);
         </modules>
       </jreBundle>
     </windows>
-    <unixInstaller name="linux amd64" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}" />
+    <unixInstaller name="linux amd64" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}">
+      <jreBundle includedJre="linux-amd64-17.0.13" />
+    </unixInstaller>
     <unixInstaller name="linux aarch64" id="244" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}">
       <jreBundle platform="linux-aarch64" />
     </unixInstaller>
@@ -641,7 +643,7 @@ return console.askYesNo(message, true);
       </topLevelFiles>
     </macosArchive>
   </mediaSets>
-  <buildIds>
-    <mediaSet refId="168" />
+  <buildIds buildAll="false">
+    <mediaSet refId="213" />
   </buildIds>
 </install4j>
