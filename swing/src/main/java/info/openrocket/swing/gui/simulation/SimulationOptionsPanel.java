@@ -165,7 +165,26 @@ class SimulationOptionsPanel extends JPanel {
 		subsub.add(unit, "");
 		slider = new BasicSlider(m.getSliderModel(0.01, 0.2));
 		slider.setToolTipText(tip);
-		subsub.add(slider, "w 100");
+		subsub.add(slider, "w 100, wrap");
+
+		// // Maximum simulation time:
+		label = new JLabel(trans.get("simedtdlg.lbl.MaxSimTime"));
+		tip = trans.get("simedtdlg.lbl.ttip.MaxSimTime");
+		label.setToolTipText(tip);
+		subsub.add(label, "gapright para");
+
+		m = new DoubleModel(conditions, "MaxSimulationTime",
+				UnitGroup.UNITS_LONG_TIME, 1);
+
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		subsub.add(spin, "");
+
+		unit = new UnitSelector(m);
+		unit.setToolTipText(tip);
+		subsub.add(unit, "wrap");
+
 		
 		sub.add(subsub, "spanx, wrap para");
 		
@@ -183,6 +202,9 @@ class SimulationOptionsPanel extends JPanel {
 				conditions.setTimeStep(preferences.getDouble(
 						ApplicationPreferences.SIMULATION_TIME_STEP,
 						RK4SimulationStepper.RECOMMENDED_TIME_STEP));
+				conditions.setMaxSimulationTime(preferences.getDouble(
+						ApplicationPreferences.SIMULATION_MAX_TIME,
+						RK4SimulationStepper.RECOMMENDED_MAX_TIME));
 				conditions.setGeodeticComputation(preferences.getEnum(
 						ApplicationPreferences.GEODETIC_COMPUTATION,
 						GeodeticComputationStrategy.SPHERICAL));

@@ -71,6 +71,7 @@ public class SimulationConditionsTest {
         assertEquals(0.2, options.getAverageWindModel().getStandardDeviation(), EPSILON);
 
         assertEquals(0.05, options.getTimeStep(), EPSILON);
+        assertEquals(1200, options.getMaxSimulationTime(), EPSILON);
         assertEquals(3 * Math.PI / 180, options.getMaximumStepAngle(), EPSILON);
     }
 

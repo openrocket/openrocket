@@ -87,9 +87,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 (component.getShapeType() == Transition.Shape.PARABOLIC && component.getShapeParameter() == 0)) {
 
             float outerAft = (float) component.getAftRadius();
-            float innerAft = isFilled ? 0 : (float) (component.getAftRadius() - component.getThickness());
+            float innerAft = isFilled ? 0 : (float) (Math.max(0, component.getAftRadius() - component.getThickness()));
             float outerFore = (float) component.getForeRadius();
-            float innerFore = isFilled ? 0 : (float) (component.getForeRadius() - component.getThickness());
+            float innerFore = isFilled ? 0 : (float) (Math.max(0, component.getForeRadius() - component.getThickness()));
 
             TubeExporter.addTubeMesh(obj, transformer, null, outerFore, outerAft, innerFore, innerAft,
                     (float) component.getLength(), this.nrOfSides,

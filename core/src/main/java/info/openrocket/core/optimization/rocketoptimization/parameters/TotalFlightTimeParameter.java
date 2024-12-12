@@ -27,7 +27,7 @@ public class TotalFlightTimeParameter extends SimulationBasedParameter {
 
 	@Override
 	public UnitGroup getUnitGroup() {
-		return UnitGroup.UNITS_FLIGHT_TIME;
+		return UnitGroup.UNITS_LONG_TIME;
 	}
 
 }

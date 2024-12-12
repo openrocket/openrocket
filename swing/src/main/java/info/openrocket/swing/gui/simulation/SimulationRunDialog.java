@@ -249,7 +249,7 @@ public class SimulationRunDialog extends JDialog {
 			return;
 		}
 
-		Unit u = UnitGroup.UNITS_FLIGHT_TIME.getDefaultUnit();
+		Unit u = UnitGroup.UNITS_LONG_TIME.getDefaultUnit();
 		timeLabel.setText(u.toStringUnit(simulationStatuses[index].getSimulationTime()));
 
 		u = UnitGroup.UNITS_DISTANCE.getDefaultUnit();

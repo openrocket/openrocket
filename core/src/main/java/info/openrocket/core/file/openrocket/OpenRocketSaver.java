@@ -382,6 +382,7 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		
 		writeElement("timestep", cond.getTimeStep());
+		writeElement("maxtime", cond.getMaxSimulationTime());
 		
 		indent--;
 		writeln("</conditions>");
