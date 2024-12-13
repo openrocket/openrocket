@@ -228,6 +228,15 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 	}
 
+	/*
+	 * The DataStore holds calculated data to be used in computing a simulation step.
+	 * It is saved to the FlightDataBranch at the beginning of the time step, and one
+	 * extra time following the final simulation step so we have a full set of data for
+	 * the final step.
+
+	 * Note that it's a little shady to save this data only at the start of an RK4SimulationStepper
+	 * step, since the contents change over the course of a step.
+	 */
 	protected static class DataStore {
 	
 		public double timeStep = Double.NaN;
