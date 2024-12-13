@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
@@ -44,18 +45,17 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
+
+		calculateFlightConditions(status, store);
+		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
-		// Get the atmospheric conditions
-		store.atmosphericConditions = modelAtmosphericConditions(status);
-		
-		//// Local wind speed and direction
-		store.windVelocity = modelWindVelocity(status);
+		//// airSpeed
 		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		
 		// Compute drag force
-		final double mach = airSpeed.length() / store.atmosphericConditions.getMachSpeed();
+		final double mach = airSpeed.length() / atmosphericConditions.getMachSpeed();
 		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
-		store.dragForce = 0.5 * CdA * store.atmosphericConditions.getDensity() * airSpeed.length2();
+		store.dragForce = 0.5 * CdA * atmosphericConditions.getDensity() * airSpeed.length2();
 
 		RigidBody structureMassData = calculateStructureMass(status);
 		store.motorMass = calculateMotorMass(status);
@@ -132,7 +132,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// calculations to get it "right"; this will be close enough for our purposes.
 			// use chain rule to compute jerk
 			// dA/dT = dA/dV * dV/dT
-			final double dFdV = CdA * store.atmosphericConditions.getDensity() * airSpeed.length();
+			final double dFdV = CdA * atmosphericConditions.getDensity() * airSpeed.length();
 			final Coordinate dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
 			final Coordinate jerk = linearAcceleration.multiply(dAdV);
 			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(store.timeStep));
@@ -188,7 +188,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		final double Re = airSpeed.length() *
 			status.getConfiguration().getLengthAerodynamic() /
-			store.atmosphericConditions.getKinematicViscosity();
+			atmosphericConditions.getKinematicViscosity();
 		dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 
 		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));

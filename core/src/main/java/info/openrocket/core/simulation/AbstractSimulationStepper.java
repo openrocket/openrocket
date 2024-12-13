@@ -21,6 +21,86 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	protected static final double MIN_TIME_STEP = 0.001;
 
 	/**
+	 * Calculate the flight conditions for the current rocket status.
+	 * Listeners can override these if necessary.
+	 * <p>
+	 * Additionally the fields thetaRotation and lateralPitchRate are defined in
+	 * the data store, and can be used after calling this method.
+	 */
+	protected void calculateFlightConditions(SimulationStatus status, DataStore store)
+			throws SimulationException {
+		
+		// Call pre listeners, allow complete override
+		store.flightConditions = SimulationListenerHelper.firePreFlightConditions(
+				status);
+		if (store.flightConditions != null) {
+			// Compute the store values
+			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
+			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
+			return;
+		}
+
+		//// Atmospheric conditions
+		AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
+		store.flightConditions = new FlightConditions(status.getConfiguration());
+		store.flightConditions.setAtmosphericConditions(atmosphere);
+		
+
+		//// Local wind speed and direction
+		store.windVelocity = modelWindVelocity(status);
+		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
+		
+
+		// Lateral direction:
+		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
+		if (len > 0.0001) {
+			store.thetaRotation = new Rotation2D(airSpeed.y / len, airSpeed.x / len);
+			store.flightConditions.setTheta(Math.atan2(airSpeed.y, airSpeed.x));
+		} else {
+			store.thetaRotation = Rotation2D.ID;
+			store.flightConditions.setTheta(0);
+		}
+		
+		double velocity = airSpeed.length();
+		store.flightConditions.setVelocity(velocity);
+		if (velocity > 0.01) {
+			// aoa must be calculated from the monotonous cosine
+			// sine can be calculated by a simple division
+			store.flightConditions.setAOA(Math.acos(airSpeed.z / velocity), len / velocity);
+		} else {
+			store.flightConditions.setAOA(0);
+		}
+
+		// Roll, pitch and yaw rate
+		Coordinate rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
+		rot = store.thetaRotation.invRotateZ(rot);
+		
+		store.flightConditions.setRollRate(rot.z);
+		if (len < 0.001) {
+			store.flightConditions.setPitchRate(0);
+			store.flightConditions.setYawRate(0);
+			store.lateralPitchRate = 0;
+		} else {
+			store.flightConditions.setPitchRate(rot.y);
+			store.flightConditions.setYawRate(rot.x);
+			// TODO: LOW: set this as power of two?
+			store.lateralPitchRate = MathUtil.hypot(rot.x, rot.y);
+		}
+
+		// Call post listeners
+		FlightConditions c = SimulationListenerHelper.firePostFlightConditions(
+				status, store.flightConditions);
+		if (c != store.flightConditions) {
+			// Listeners changed the values, recalculate data store
+			store.flightConditions = c;
+			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
+			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
+		}
+		
+	}
+
+	/**
 	 * Compute the atmospheric conditions, allowing listeners to override.
 	 * 
 	 * @param status	the simulation status
@@ -243,8 +323,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		public AccelerationData accelerationData;
 		
-		public AtmosphericConditions atmosphericConditions;
-		
 		public FlightConditions flightConditions;
 		
 		public RigidBody rocketMass;
@@ -345,8 +423,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				dataBranch.setValue(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF,	forces.getPitchDampingMoment());
 				
 				if (null != rocketMass && null != flightConditions) {
-					dataBranch.setValue(FlightDataType.TYPE_STABILITY,
-										(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+					if (null != forces.getCP()) {
+						dataBranch.setValue(FlightDataType.TYPE_STABILITY,
+											(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+					}
 					dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
 										forces.getCm() - forces.getCN() * rocketMass.getCM().x / flightConditions.getRefLength());
 					dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
