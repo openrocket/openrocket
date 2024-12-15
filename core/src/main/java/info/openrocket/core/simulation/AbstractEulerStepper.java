@@ -48,7 +48,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		
 		calculateFlightConditions(status, store);
 
-		store.accelerationData = calculateAcceleration(status, store);
+		calculateAcceleration(status, store);
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		Coordinate linearAcceleration = store.accelerationData.getLinearAccelerationWC();
@@ -163,7 +163,8 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 
-	AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+	@Override
+	void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
 		//// airSpeed
@@ -198,7 +199,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 				status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
 
-		return new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
+		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
 	}
 
 	private static class EulerValues {

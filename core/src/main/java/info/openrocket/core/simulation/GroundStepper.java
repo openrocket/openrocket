@@ -20,4 +20,9 @@ public class GroundStepper extends AbstractSimulationStepper {
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
 		status.storeData();
 	}
+
+	@Override
+	void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+		// empty
+	}
 }

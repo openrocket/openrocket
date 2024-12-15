@@ -20,6 +20,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 	protected static final double MIN_TIME_STEP = 0.001;
 
+	abstract void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException;
+
 	/**
 	 * Calculate the flight conditions for the current rocket status.
 	 * Listeners can override these if necessary.
@@ -434,5 +436,5 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				}
 			}
 		}
-	}		
+	}
 }
