@@ -45,39 +45,14 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
-
+		
 		calculateFlightConditions(status, store);
+
+		store.accelerationData = calculateAcceleration(status, store);
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
-		
-		//// airSpeed
 		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
-		
-		// Compute drag force
-		final double mach = airSpeed.length() / atmosphericConditions.getMachSpeed();
+		Coordinate linearAcceleration = store.accelerationData.getLinearAccelerationWC();
 		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
-		store.dragForce = 0.5 * CdA * atmosphericConditions.getDensity() * airSpeed.length2();
-
-		RigidBody structureMassData = calculateStructureMass(status);
-		store.motorMass = calculateMotorMass(status);
-		store.rocketMass = structureMassData.add( store.motorMass );
-
-		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
-			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
-		}
-
-		// Compute drag acceleration
-		Coordinate linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
-		
-		// Add effect of gravity
-		store.gravity = modelGravity(status);
-		linearAcceleration = linearAcceleration.sub(0, 0, store.gravity);
-
-		// Add coriolis acceleration
-		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
-				status.getRocketWorldPosition(), status.getRocketVelocity());
-		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
-
-		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
 
 		// Select tentative time step
 		store.timeStep = RECOVERY_TIME_STEP;
@@ -185,13 +160,45 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		dataBranch.addPoint();
 		status.storeData();
 
-		airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
+	}
+
+	AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
+		
+		//// airSpeed
+		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		
+		// Compute drag force
+		final double mach = airSpeed.length() / atmosphericConditions.getMachSpeed();
+		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
+		store.dragForce = 0.5 * CdA * atmosphericConditions.getDensity() * airSpeed.length2();
+
+		RigidBody structureMassData = calculateStructureMass(status);
+		store.motorMass = calculateMotorMass(status);
+		store.rocketMass = structureMassData.add( store.motorMass );
+
+		if (store.rocketMass.getMass() < MathUtil.EPSILON) {
+			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
+		}
+
 		final double Re = airSpeed.length() *
 			status.getConfiguration().getLengthAerodynamic() /
 			atmosphericConditions.getKinematicViscosity();
-		dataBranch.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 
-		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
+		// Compute drag acceleration
+		Coordinate linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
+		
+		// Add effect of gravity
+		store.gravity = modelGravity(status);
+		linearAcceleration = linearAcceleration.sub(0, 0, store.gravity);
+
+		// Add coriolis acceleration
+		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
+				status.getRocketWorldPosition(), status.getRocketVelocity());
+		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
+
+		return new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
 	}
 
 	private static class EulerValues {

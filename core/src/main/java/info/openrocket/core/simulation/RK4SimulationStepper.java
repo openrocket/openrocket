@@ -263,7 +263,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 
 
-	private RK4Parameters computeParameters(SimulationStatus status, DataStore dataStore)
+	private RK4Parameters computeParameters(SimulationStatus status, DataStore store)
 			throws SimulationException {
 		RK4Parameters params = new RK4Parameters();
 		
@@ -272,14 +272,14 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 		// Calculate acceleration (if not overridden by pre-listeners)
 		if (store.accelerationData == null) {
-			store.accelerationData = calculateAcceleration(status, dataStore);
+			store.accelerationData = calculateAcceleration(status, store);
 		}
 
 		// Call post-listeners
 		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
 
-		params.a = dataStore.accelerationData.getLinearAccelerationWC();
-		params.ra = dataStore.accelerationData.getRotationalAccelerationWC();
+		params.a = store.accelerationData.getLinearAccelerationWC();
+		params.ra = store.accelerationData.getRotationalAccelerationWC();
 		params.v = status.getRocketVelocity();
 		params.rv = status.getRocketRotationVelocity();
 		
