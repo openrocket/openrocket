@@ -266,17 +266,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private RK4Parameters computeParameters(SimulationStatus status, DataStore store)
 			throws SimulationException {
 		RK4Parameters params = new RK4Parameters();
-		
-		// Call pre-listeners
-		store.accelerationData = SimulationListenerHelper.firePreAccelerationCalculation(status);
 
-		// Calculate acceleration (if not overridden by pre-listeners)
-		if (store.accelerationData == null) {
-			store.accelerationData = calculateAcceleration(status, store);
-		}
-
-		// Call post-listeners
-		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
+		calculateAcceleration(status, store);
 
 		params.a = store.accelerationData.getLinearAccelerationWC();
 		params.ra = store.accelerationData.getRotationalAccelerationWC();
@@ -292,8 +283,20 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	}
 	
 	
+	void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+		
+		// Call pre-listeners
+		store.accelerationData = SimulationListenerHelper.firePreAccelerationCalculation(status);
 
+		// Calculate acceleration (if not overridden by pre-listeners)
+		if (store.accelerationData == null) {
+			store.accelerationData = computeAcceleration(status, store);
+		}
 
+		// Call post-listeners
+		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
+
+	}
 
 	/**
 	 * Calculate the linear and angular acceleration at the given status.  The results
@@ -302,7 +305,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @param status   the status of the rocket.
 	 * @throws SimulationException 
 	 */
-	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+	private AccelerationData computeAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		Coordinate linearAcceleration;
 		Coordinate angularAcceleration;
 		
