@@ -62,7 +62,6 @@ import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.FlightData;
-import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
@@ -827,12 +826,12 @@ public class SimulationPanel extends JPanel {
 
 		List<Warning> criticalWarnings = warnings.getCriticalWarnings();
 		List<Warning> normalWarnings = warnings.getNormalWarnings();
-		List<Warning> informativeWarnings = warnings.getInformativeWarnings();
+		List<Warning> informationalWarnings = warnings.getInformationalWarnings();
 
 		// Critical warnings
 		if (!criticalWarnings.isEmpty()) {
 			tip.append("<br><b>")
-					.append(ColorConversion.formatHTMLColor(errorColor, trans.get("simpanel.ttip.criticalWarnings")))
+					.append(ColorConversion.formatHTMLColor(errorColor, trans.get("simpanel.ttip.CriticalWarnings")))
 					.append("</b>");
 			for (Message m : criticalWarnings) {
 				tip.append("<br>").append(m.toString());
@@ -842,19 +841,19 @@ public class SimulationPanel extends JPanel {
 		// Warnings
 		if (!normalWarnings.isEmpty()) {
 			tip.append("<br><b>")
-					.append(ColorConversion.formatHTMLColor(warningColor, trans.get("simpanel.ttip.normalWarnings")))
+					.append(ColorConversion.formatHTMLColor(warningColor, trans.get("simpanel.ttip.NormalWarnings")))
 					.append("</b>");
 			for (Message m : normalWarnings) {
 				tip.append("<br>").append(m.toString());
 			}
 		}
 
-		// Informative warnings
-		if (!informativeWarnings.isEmpty()) {
+		// Informational warnings
+		if (!informationalWarnings.isEmpty()) {
 			tip.append("<br><b>")
-					.append(ColorConversion.formatHTMLColor(informationColor, trans.get("simpanel.ttip.informativeWarnings")))
+					.append(ColorConversion.formatHTMLColor(informationColor, trans.get("simpanel.ttip.InformationalWarnings")))
 					.append("</b>");
-			for (Message m : informativeWarnings) {
+			for (Message m : informationalWarnings) {
 				tip.append("<br>").append(m.toString());
 			}
 		}
@@ -1259,7 +1258,7 @@ public class SimulationPanel extends JPanel {
 
 			int nrOfCriticalWarnings = warnings.getNrOfCriticalWarnings();
 			int nrOfNormalWarnings = warnings.getNrOfNormalWarnings();
-			int nrOfInfoWarnings = warnings.getNrOfInformativeWarnings();
+			int nrOfInfoWarnings = warnings.getNrOfInformationalWarnings();
 
 			if (nrOfCriticalWarnings > 0) {
 				add(new JLabel(nrOfCriticalWarnings + " "));

@@ -39,29 +39,39 @@ public class SimulationWarningsPanel extends JPanel {
 		WarningSet warnings = simulation.getSimulatedWarnings();
 		List<Warning> criticalWarnings = warnings == null ? null : warnings.getCriticalWarnings();
 		List<Warning> normalWarnings = warnings == null ? null : warnings.getNormalWarnings();
-		List<Warning> informativeWarnings = warnings == null ? null : warnings.getInformativeWarnings();
+		List<Warning> informationalWarnings = warnings == null ? null : warnings.getInformationalWarnings();
 
-		// Critical warnings
-		if (criticalWarnings != null && !criticalWarnings.isEmpty()) {
-			JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH, trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"), darkErrorColor);
-			this.add(criticalPanel, "spanx, grow, wrap 3lp");
-		}
+		boolean hasCriticalWarnings = criticalWarnings != null && !criticalWarnings.isEmpty();
+		boolean hasNormalWarnings = normalWarnings != null && !normalWarnings.isEmpty();
+		boolean hasInformationalWarnings = informationalWarnings != null && !informationalWarnings.isEmpty();
 
-		// Normal warnings
-		if (normalWarnings != null && !normalWarnings.isEmpty()) {
-			JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL, trans.get("SimulationWarningsPanel.lbl.NormalWarnings"), warningColor);
-			this.add(normalPanel, "spanx, grow, wrap 5lp");
-		}
+		// No warnings
+		if (!hasCriticalWarnings && !hasNormalWarnings && !hasInformationalWarnings) {
+			StyledLabel noWarnings = new StyledLabel(trans.get("SimulationWarningsPanel.lbl.NoWarnings"), 1.1f,
+					StyledLabel.Style.ITALIC);
+			noWarnings.setToolTipText(trans.get("SimulationWarningsPanel.lbl.NoWarnings.ttip"));
+			this.add(noWarnings, "spanx, alignx center, gaptop 75px, wrap 3lp");
+		} else {
+			// Critical warnings
+			if (hasCriticalWarnings) {
+				JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH,
+						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"), darkErrorColor);
+				this.add(criticalPanel, "spanx, grow, wrap 3lp");
+			}
 
-		// Informational warnings
-		if (informativeWarnings != null && !informativeWarnings.isEmpty()) {
-			JPanel infoPanel = createWarningsPanel(informativeWarnings, Icons.WARNING_LOW, trans.get("SimulationWarningsPanel.lbl.InformativeWarnings"), informationColor);
-			this.add(infoPanel, "spanx, grow, wrap 5lp");
-		}
+			// Normal warnings
+			if (hasNormalWarnings) {
+				JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL,
+						trans.get("SimulationWarningsPanel.lbl.NormalWarnings"), warningColor);
+				this.add(normalPanel, "spanx, grow, wrap 5lp");
+			}
 
-		if (criticalWarnings.isEmpty() && normalWarnings.isEmpty() && informativeWarnings.isEmpty()) {
-			StyledLabel noWarnings = new StyledLabel(trans.get("SimulationWarningsPanel.lbl.NoWarnings"), 2f, StyledLabel.Style.BOLD);
-			this.add(noWarnings, "spanx, align 50%, gaptop 75px");
+			// Informational warnings
+			if (hasInformationalWarnings) {
+				JPanel infoPanel = createWarningsPanel(informationalWarnings, Icons.WARNING_LOW,
+						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings"), informationColor);
+				this.add(infoPanel, "spanx, grow, wrap 5lp");
+			}
 		}
 
 		JPanel filler = new JPanel();
