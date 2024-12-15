@@ -59,6 +59,11 @@ public class SimulationWarningsPanel extends JPanel {
 			this.add(infoPanel, "spanx, grow, wrap 5lp");
 		}
 
+		if (criticalWarnings.isEmpty() && normalWarnings.isEmpty() && informativeWarnings.isEmpty()) {
+			StyledLabel noWarnings = new StyledLabel(trans.get("SimulationWarningsPanel.lbl.NoWarnings"), 2f, StyledLabel.Style.BOLD);
+			this.add(noWarnings, "spanx, align 50%, gaptop 75px");
+		}
+
 		JPanel filler = new JPanel();
 		this.add(filler, "grow, spanx, pushy");
 	}
