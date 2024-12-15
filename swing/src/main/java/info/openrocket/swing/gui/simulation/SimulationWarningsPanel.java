@@ -42,16 +42,22 @@ public class SimulationWarningsPanel extends JPanel {
 		List<Warning> informativeWarnings = warnings == null ? null : warnings.getInformativeWarnings();
 
 		// Critical warnings
-		JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH, trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"), darkErrorColor);
-		this.add(criticalPanel, "spanx, grow, wrap 3lp");
+		if (criticalWarnings != null && !criticalWarnings.isEmpty()) {
+			JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH, trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"), darkErrorColor);
+			this.add(criticalPanel, "spanx, grow, wrap 3lp");
+		}
 
 		// Normal warnings
-		JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL, trans.get("SimulationWarningsPanel.lbl.NormalWarnings"), warningColor);
-		this.add(normalPanel, "spanx, grow, wrap 5lp");
+		if (normalWarnings != null && !normalWarnings.isEmpty()) {
+			JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL, trans.get("SimulationWarningsPanel.lbl.NormalWarnings"), warningColor);
+			this.add(normalPanel, "spanx, grow, wrap 5lp");
+		}
 
-		// Informative warnings
-		JPanel infoPanel = createWarningsPanel(informativeWarnings, Icons.WARNING_LOW, trans.get("SimulationWarningsPanel.lbl.InformativeWarnings"), informationColor);
-		this.add(infoPanel, "spanx, grow, wrap 5lp");
+		// Informational warnings
+		if (informativeWarnings != null && !informativeWarnings.isEmpty()) {
+			JPanel infoPanel = createWarningsPanel(informativeWarnings, Icons.WARNING_LOW, trans.get("SimulationWarningsPanel.lbl.InformativeWarnings"), informationColor);
+			this.add(infoPanel, "spanx, grow, wrap 5lp");
+		}
 
 		JPanel filler = new JPanel();
 		this.add(filler, "grow, spanx, pushy");

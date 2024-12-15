@@ -1295,7 +1295,7 @@ public class SimulationPanel extends JPanel {
 				// Wrap the box in a panel with BorderLayout to allow alignment
 				JPanel panel = new JPanel(new BorderLayout());
 				panel.setToolTipText(box.getToolTipText());
-				panel.add(box, BorderLayout.EAST); 	// Align to the right within the panel
+				panel.add(box, BorderLayout.CENTER); 	// Align to the right within the panel
 				panel.setOpaque(true);
 				if (isSelected) {
 					panel.setBackground(table.getSelectionBackground());
