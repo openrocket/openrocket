@@ -19,10 +19,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.List;
 
 public class SimulationWarningsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
+	private static final int LIST_HEIGHT = 100;  // Default height for warning lists
 
 	private static Border border;
 	private static Color darkErrorColor;
@@ -50,14 +52,14 @@ public class SimulationWarningsPanel extends JPanel {
 			StyledLabel noWarnings = new StyledLabel(trans.get("SimulationWarningsPanel.lbl.NoWarnings"), 1.1f,
 					StyledLabel.Style.ITALIC);
 			noWarnings.setToolTipText(trans.get("SimulationWarningsPanel.lbl.NoWarnings.ttip"));
-			this.add(noWarnings, "spanx, alignx center, gaptop 75px, wrap 3lp");
+			this.add(noWarnings, "spanx, alignx center, gaptop 75px, wrap");
 		} else {
 			// Critical warnings
 			if (hasCriticalWarnings) {
 				JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH,
 						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"),
 						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings.desc"), darkErrorColor);
-				this.add(criticalPanel, "spanx, grow, wrap 3lp");
+				this.add(criticalPanel, "spanx, grow, wrap 8lp");
 			}
 
 			// Normal warnings
@@ -65,7 +67,7 @@ public class SimulationWarningsPanel extends JPanel {
 				JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL,
 						trans.get("SimulationWarningsPanel.lbl.NormalWarnings"),
 						trans.get("SimulationWarningsPanel.lbl.NormalWarnings.desc"), warningColor);
-				this.add(normalPanel, "spanx, grow, wrap 5lp");
+				this.add(normalPanel, "spanx, grow, wrap 8lp");
 			}
 
 			// Informational warnings
@@ -73,12 +75,12 @@ public class SimulationWarningsPanel extends JPanel {
 				JPanel infoPanel = createWarningsPanel(informationalWarnings, Icons.WARNING_LOW,
 						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings"),
 						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings.desc"), informationColor);
-				this.add(infoPanel, "spanx, grow, wrap 5lp");
+				this.add(infoPanel, "spanx, grow, wrap 8lp");
 			}
 		}
 
 		JPanel filler = new JPanel();
-		this.add(filler, "grow, spanx, pushy");
+		this.add(filler, "grow, spanx, pushy, growy 0.5");
 	}
 
 	private static void initColors() {
@@ -95,7 +97,7 @@ public class SimulationWarningsPanel extends JPanel {
 
 	private static JPanel createWarningsPanel(final List<Warning> warnings, final Icon icon,
 											  final String titleText, final String descriptionText, Color textColor) {
-		JPanel panel = new JPanel(new MigLayout("fillx"));
+		JPanel panel = new JPanel(new MigLayout("fillx, insets 1"));
 
 		// Title
 		float size = 1.1f;
@@ -115,11 +117,14 @@ public class SimulationWarningsPanel extends JPanel {
 		// Warning list
 		Warning[] w = warnings.toArray(new Warning[0]);
 		final JList<Warning> warningList = new JList<>(w);
-		warningList.setSelectionModel(new NoSelectionModel());		// Disable selection
+		warningList.setSelectionModel(new NoSelectionModel());
 		warningList.setCellRenderer(new BetterListCellRenderer(icon));
+		warningList.setVisibleRowCount(4); // Show only 4 rows by default
+
 		JScrollPane warningPane = new JScrollPane(warningList);
+		warningPane.setPreferredSize(new Dimension(warningPane.getPreferredSize().width, LIST_HEIGHT));
 		warningList.setBorder(border);
-		panel.add(warningPane, "wrap, spanx, growx");
+		panel.add(warningPane, "wrap, spanx, growx"); // Reduced wrap gap
 
 		return panel;
 	}
