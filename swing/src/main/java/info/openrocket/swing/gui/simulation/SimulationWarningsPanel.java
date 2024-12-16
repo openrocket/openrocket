@@ -27,6 +27,7 @@ public class SimulationWarningsPanel extends JPanel {
 	private static final int LIST_HEIGHT = 100;  // Default height for warning lists
 
 	private static Border border;
+	private static Color dimTextColor;
 	private static Color darkErrorColor;
 	private static Color warningColor;
 	private static Color informationColor;
@@ -90,6 +91,7 @@ public class SimulationWarningsPanel extends JPanel {
 
 	private static void updateColors() {
 		border = GUIUtil.getUITheme().getBorder();
+		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 		warningColor = GUIUtil.getUITheme().getWarningColor();
 		informationColor = GUIUtil.getUITheme().getInformationColor();
@@ -111,7 +113,8 @@ public class SimulationWarningsPanel extends JPanel {
 		}
 
 		// Description
-		StyledLabel description = new StyledLabel(descriptionText, size, StyledLabel.Style.ITALIC);
+		StyledLabel description = new StyledLabel(descriptionText, 0.8f, StyledLabel.Style.ITALIC);
+		description.setFontColor(dimTextColor);
 		panel.add(description, "gapleft 15lp, wrap, spanx");
 
 		// Warning list
