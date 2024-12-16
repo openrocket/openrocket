@@ -190,7 +190,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			this.filled = false;
 		}
 		if (preset.has(ComponentPreset.FILLED)) {
-			this.filled = true;
+			this.filled = preset.get(ComponentPreset.FILLED);
 		}
 
 		super.loadFromPreset(preset);
