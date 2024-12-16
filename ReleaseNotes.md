@@ -85,7 +85,7 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 
 ### Preset Library
 * **Fix parachute length resizing when using preset parachute**: Lots of folks reported this one.
-* **Fix transition and nose cone component presets defaulting to a filled shape** (fixes #2480 & #2614)
+* **Fix transition and nose cone component presets defaulting to a filled shape** (fixes #2480 and #2614)
 * Correct diameter of Spherachutes to match Cd (fixes #2517)
 * Fix sorting problems in preset library (fixes #2576)
 
