@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputMap;
@@ -1293,6 +1294,7 @@ public class SimulationPanel extends JPanel {
 			if (value instanceof WarningsBox box) {
 				// Wrap the box in a panel with BorderLayout to allow alignment
 				JPanel panel = new JPanel(new BorderLayout());
+				panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // Add left padding
 				panel.setToolTipText(box.getToolTipText());
 				panel.add(box, BorderLayout.CENTER); 	// Align to the center (or left) within the panel
 				panel.setOpaque(true);
