@@ -49,6 +49,9 @@
 **/.idea/jsLibraryMappings.xml
 **/.idea/copilot
 **/.idea/shelf
+swing/OpenRocket Swing.iml
+core/OpenRocket Core.iml
+lib-test/OpenRocket Library Test.iml
 
 # Sensitive or high-churn files:
 **/.idea/dataSources.ids
