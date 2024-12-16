@@ -172,16 +172,15 @@ public class FlightEventsTest extends BaseTestCase {
 			if (actual.getType() == FlightEvent.Type.SIM_WARN) {
 				actualWarning = (Warning) actual.getData();
 			}
+			
+			assertSame(expected.getType(), actual.getType(),
+					   "Branch " + branchNo + " FlightEvent " + i);
 
 			assertTrue(((expectedWarning == null) && (actualWarning == null)) ||
 					   ((expectedWarning != null) && expectedWarning.equals(actualWarning)) ||
 					   ((actualWarning != null) && actualWarning.equals(expectedWarning)),
 					   "Branch " + branchNo + " FlightEvent " + i + ": " + expectedWarning
 					   + " not found; " + actualWarning + " found instead");
-			
-			assertSame(expected.getType(), actual.getType(),
-					   "Branch " + branchNo + " FlightEvent " + i + ": type " + expected.getType()
-					   + " not found; FlightEvent " + actual.getType() + " found instead");
 
 			if (expected.getTime() != RK4SimulationStepper.RECOMMENDED_MAX_TIME) {
 				// event times that are dependent on simulation step time shouldn't be held to
