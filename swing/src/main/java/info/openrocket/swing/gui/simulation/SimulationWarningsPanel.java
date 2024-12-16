@@ -55,21 +55,24 @@ public class SimulationWarningsPanel extends JPanel {
 			// Critical warnings
 			if (hasCriticalWarnings) {
 				JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH,
-						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"), darkErrorColor);
+						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"),
+						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings.desc"), darkErrorColor);
 				this.add(criticalPanel, "spanx, grow, wrap 3lp");
 			}
 
 			// Normal warnings
 			if (hasNormalWarnings) {
 				JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL,
-						trans.get("SimulationWarningsPanel.lbl.NormalWarnings"), warningColor);
+						trans.get("SimulationWarningsPanel.lbl.NormalWarnings"),
+						trans.get("SimulationWarningsPanel.lbl.NormalWarnings.desc"), warningColor);
 				this.add(normalPanel, "spanx, grow, wrap 5lp");
 			}
 
 			// Informational warnings
 			if (hasInformationalWarnings) {
 				JPanel infoPanel = createWarningsPanel(informationalWarnings, Icons.WARNING_LOW,
-						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings"), informationColor);
+						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings"),
+						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings.desc"), informationColor);
 				this.add(infoPanel, "spanx, grow, wrap 5lp");
 			}
 		}
@@ -90,7 +93,8 @@ public class SimulationWarningsPanel extends JPanel {
 		informationColor = GUIUtil.getUITheme().getInformationColor();
 	}
 
-	private static JPanel createWarningsPanel(final List<Warning> warnings, final Icon icon, final String titleText, Color textColor) {
+	private static JPanel createWarningsPanel(final List<Warning> warnings, final Icon icon,
+											  final String titleText, final String descriptionText, Color textColor) {
 		JPanel panel = new JPanel(new MigLayout("fillx"));
 
 		// Title
@@ -103,6 +107,10 @@ public class SimulationWarningsPanel extends JPanel {
 		if (nrOfWarnings == 0) {
 			return panel;
 		}
+
+		// Description
+		StyledLabel description = new StyledLabel(descriptionText, size, StyledLabel.Style.ITALIC);
+		panel.add(description, "gapleft 15lp, wrap, spanx");
 
 		// Warning list
 		Warning[] w = warnings.toArray(new Warning[0]);
