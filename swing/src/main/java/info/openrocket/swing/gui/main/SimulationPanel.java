@@ -1388,7 +1388,7 @@ public class SimulationPanel extends JPanel {
 
 						@Override
 						public int getDefaultWidth() {
-							return 70;
+							return 80;
 						}
 
 						@Override
