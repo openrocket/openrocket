@@ -35,7 +35,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * the FlightDataBranch
 	 */
 	public void cleanup(SimulationStatus status) throws SimulationException {
-		log.debug("called cleanup");
+		log.debug("called cleanup from stepper " + this);
 		DataStore store = new DataStore();
 		calculateFlightConditions(status, store);
 		calculateAcceleration(status, store);

@@ -632,18 +632,18 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Inhibit if we've deployed a parachute or we're on the ground
 				if ((currentStatus.getDeployedRecoveryDevices().size() > 0) || currentStatus.isLanded())
 					break;
-
-				currentStepper = tumbleStepper;
-				lastStepper = currentStepper;
-				currentStatus = currentStepper.initialize(currentStatus);
 				
 				final boolean tooMuchThrust = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
 				if (tooMuchThrust) {
 					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
-				}					
-				
-				currentStatus.setTumbling(true);
-				currentStatus.getFlightDataBranch().addEvent(event);
+				} else {
+					currentStepper = tumbleStepper;
+					lastStepper = currentStepper;
+					currentStatus = currentStepper.initialize(currentStatus);
+					
+					currentStatus.setTumbling(true);
+					currentStatus.getFlightDataBranch().addEvent(event);
+				}
 				break;
 			}
 			
