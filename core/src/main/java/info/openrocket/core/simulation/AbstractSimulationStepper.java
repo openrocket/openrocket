@@ -19,9 +19,24 @@ import info.openrocket.core.util.Rotation2D;
 public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 	protected static final double MIN_TIME_STEP = 0.001;
-
+	
+	/*
+	 * calculate acceleration at a given point in time
+	 *
+	 */
 	abstract void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException;
 
+	/*
+	 * clean up at end of a simulation branch. Computes acceleration parameters and puts them in
+	 * the FlightDataBranch
+	 */
+	public void cleanup(SimulationStatus status) throws SimulationException {
+		DataStore store = new DataStore();
+		calculateFlightConditions(status, store);
+		calculateAcceleration(status, store);
+		store.storeData(status);
+	}
+	
 	/**
 	 * Calculate the flight conditions for the current rocket status.
 	 * Listeners can override these if necessary.
@@ -99,7 +114,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
 			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
 		}
-		
 	}
 
 	/**

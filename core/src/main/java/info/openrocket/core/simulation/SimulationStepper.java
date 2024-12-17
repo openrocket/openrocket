@@ -36,4 +36,9 @@ public interface SimulationStepper {
 	 */
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException;
 
+	/*
+	 * clean up at end of simulation. Calculates DataStore values one last time and
+	 * writes them to FlightDataBranch
+	 */
+	void cleanup(SimulationStatus status) throws SimulationException;
 }

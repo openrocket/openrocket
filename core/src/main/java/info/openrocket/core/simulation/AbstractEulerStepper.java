@@ -24,19 +24,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) {
-		store.thrustForce = 0;
-		
-		// note most of our forces don't end up getting set, so they're all NaN.
-		AerodynamicForces forces = new AerodynamicForces();
-
-		double cd = computeCD(status);
-		forces.setCD(cd);
-		forces.setCDaxial(cd);
-		forces.setFrictionCD(0);
-		forces.setPressureCD(cd);
-		forces.setBaseCD(0);
-		
-		store.forces = forces;
 
 		return status;
 	}
@@ -165,6 +152,19 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 	@Override
 	void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+		store.thrustForce = 0;
+		
+		// note most of our forces don't end up getting set, so they're all NaN.
+		AerodynamicForces forces = new AerodynamicForces();
+
+		double cd = computeCD(status);
+		forces.setCD(cd);
+		forces.setCDaxial(cd);
+		forces.setFrictionCD(0);
+		forces.setPressureCD(cd);
+		forces.setBaseCD(0);
+		
+		store.forces = forces;
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
 		//// airSpeed
