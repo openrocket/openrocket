@@ -182,7 +182,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			store.timeStep = minTimeStep;
 		}
 
-		checkNaN(store.timeStep);
+		checkNaN(store.timeStep, "store.timeStep");
 
 
 
@@ -274,10 +274,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		params.v = status.getRocketVelocity();
 		params.rv = status.getRocketRotationVelocity();
 		
-		checkNaN(params.a);
-		checkNaN(params.ra);
-		checkNaN(params.v);
-		checkNaN(params.rv);
+		checkNaN(params.a, "params.a");
+		checkNaN(params.ra, "params.ra");
+		checkNaN(params.v, "params.v");
+		checkNaN(params.rv, "params.rv");
 		
 		return params;
 	}

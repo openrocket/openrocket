@@ -139,8 +139,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		conditions = SimulationListenerHelper.firePostAtmosphericModel(status, conditions);
 
-		checkNaN(conditions.getPressure());
-		checkNaN(conditions.getTemperature());
+		checkNaN(conditions.getPressure(), "conditions.getPressure()");
+		checkNaN(conditions.getTemperature(), "conditions.getTemperature()");
 
 		return conditions;
 	}
@@ -168,7 +168,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		wind = SimulationListenerHelper.firePostWindModel(status, wind);
 
-		checkNaN(wind);
+		checkNaN(wind, "wind");
 
 		return wind;
 	}
@@ -195,7 +195,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		gravity = SimulationListenerHelper.firePostGravityModel(status, gravity);
 
-		checkNaN(gravity);
+		checkNaN(gravity, "gravity");
 
 		return gravity;
 	}
@@ -221,9 +221,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		structureMass = SimulationListenerHelper.firePostMassCalculation(status, structureMass);
 
-		checkNaN(structureMass.getCenterOfMass());
-		checkNaN(structureMass.getLongitudinalInertia());
-		checkNaN(structureMass.getRotationalInertia());
+		checkNaN(structureMass.getCenterOfMass(), "structureMass.getCenterOfMass()");
+		checkNaN(structureMass.getLongitudinalInertia(), "structureMass.getLongitudinalInertia()");
+		checkNaN(structureMass.getRotationalInertia(), "structureMass.getRotationalInertia()");
 
 		return structureMass;
 	}
@@ -243,9 +243,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		motorMass = SimulationListenerHelper.firePostMassCalculation(status, motorMass);
 
-		checkNaN(motorMass.getCenterOfMass());
-		checkNaN(motorMass.getLongitudinalInertia());
-		checkNaN(motorMass.getRotationalInertia());
+		checkNaN(motorMass.getCenterOfMass(), "motorMass.getCenterOfMass()");
+		checkNaN(motorMass.getLongitudinalInertia(), "motorMass.getLongitudinalInertia()");
+		checkNaN(motorMass.getRotationalInertia(), "motorMass.getRotationalInertia()");
 
 		return motorMass;
 	}
@@ -282,7 +282,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Post-listeners
 		thrust = SimulationListenerHelper.firePostThrustCalculation(status, thrust);
 
-		checkNaN(thrust);
+		checkNaN(thrust, "thrust");
 
 		return thrust;
 	}
@@ -293,9 +293,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param d					the double value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(double d) {
+	protected void checkNaN(double d, String var) {
 		if (Double.isNaN(d)) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug.");
+			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug.");
 		}
 	}
 	
@@ -305,9 +305,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param c					the coordinate value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(Coordinate c) {
+	protected void checkNaN(Coordinate c, String var) {
 		if (c.isNaN()) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug, c=" + c);
+			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug, c=" + c);
 		}
 	}
 	
@@ -318,9 +318,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param q					the quaternion value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(Quaternion q) {
+	protected void checkNaN(Quaternion q, String var) {
 		if (q.isNaN()) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug, q=" + q);
+			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug, q=" + q);
 		}
 	}
 
