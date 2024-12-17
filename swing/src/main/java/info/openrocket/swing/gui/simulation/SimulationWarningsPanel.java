@@ -113,7 +113,7 @@ public class SimulationWarningsPanel extends JPanel {
 		}
 
 		// Description
-		StyledLabel description = new StyledLabel("— " + descriptionText, 0f, StyledLabel.Style.ITALIC);
+		StyledLabel description = new StyledLabel("\u2014 " + descriptionText, 0f, StyledLabel.Style.ITALIC);
 		description.setFontColor(dimTextColor);
 		panel.add(description, "gapleft 10lp, left, wrap, spanx, pushx");
 
