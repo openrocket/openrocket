@@ -24,6 +24,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -32,6 +33,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -111,7 +113,13 @@ public class SimulationConfigDialog extends JDialog {
 
 		//// Simulation Warnings
 		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsTab);
+		JScrollPane warningsScrollPane = new JScrollPane(warningsTab);
+		warningsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		warningsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		Dimension d = warningsScrollPane.getPreferredSize();
+		warningsScrollPane.setPreferredSize(new Dimension(d.width, 500));
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsScrollPane);
+
 		if (isMultiCompEdit()) {
 			tabbedPane.setEnabledAt(WARNINGS_IDX, false);
 			tabbedPane.setToolTipTextAt(WARNINGS_IDX, trans.get("SimulationConfigDialog.tab.warnDis.ttip"));
@@ -203,6 +211,7 @@ public class SimulationConfigDialog extends JDialog {
 		this.addWindowListener(applyChangesToSimsListener);
 
 		GUIUtil.setDisposableDialogOptions(this, null);
+		GUIUtil.rememberWindowPosition(this);
 	}
 
 	private static void initColors() {

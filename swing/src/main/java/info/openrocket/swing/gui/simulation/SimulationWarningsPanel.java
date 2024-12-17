@@ -12,19 +12,17 @@ import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.startup.Application;
 
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.List;
 
 public class SimulationWarningsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
-	private static final int LIST_HEIGHT = 100;  // Default height for warning lists
 
 	private static Border border;
 	private static Color dimTextColor;
@@ -60,7 +58,8 @@ public class SimulationWarningsPanel extends JPanel {
 				JPanel criticalPanel = createWarningsPanel(criticalWarnings, Icons.WARNING_HIGH,
 						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings"),
 						trans.get("SimulationWarningsPanel.lbl.CriticalWarnings.desc"), darkErrorColor);
-				this.add(criticalPanel, "spanx, grow, wrap 8lp");
+				String wrap = hasNormalWarnings || hasInformationalWarnings ? "wrap 20lp" : "wrap";
+				this.add(criticalPanel, "spanx, grow, " + wrap);
 			}
 
 			// Normal warnings
@@ -68,7 +67,8 @@ public class SimulationWarningsPanel extends JPanel {
 				JPanel normalPanel = createWarningsPanel(normalWarnings, Icons.WARNING_NORMAL,
 						trans.get("SimulationWarningsPanel.lbl.NormalWarnings"),
 						trans.get("SimulationWarningsPanel.lbl.NormalWarnings.desc"), warningColor);
-				this.add(normalPanel, "spanx, grow, wrap 8lp");
+				String wrap = hasInformationalWarnings ? "wrap 20lp" : "wrap";
+				this.add(normalPanel, "spanx, grow, " + wrap);
 			}
 
 			// Informational warnings
@@ -76,7 +76,7 @@ public class SimulationWarningsPanel extends JPanel {
 				JPanel infoPanel = createWarningsPanel(informationalWarnings, Icons.WARNING_LOW,
 						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings"),
 						trans.get("SimulationWarningsPanel.lbl.InformationalWarnings.desc"), informationColor);
-				this.add(infoPanel, "spanx, grow, wrap 8lp");
+				this.add(infoPanel, "spanx, grow, wrap");
 			}
 		}
 
@@ -120,30 +120,17 @@ public class SimulationWarningsPanel extends JPanel {
 		// Warning list
 		Warning[] w = warnings.toArray(new Warning[0]);
 		final JList<Warning> warningList = new JList<>(w);
-		warningList.setSelectionModel(new NoSelectionModel());
 		warningList.setCellRenderer(new BetterListCellRenderer(icon));
-		warningList.setVisibleRowCount(4); // Show only 4 rows by default
-
-		JScrollPane warningPane = new JScrollPane(warningList);
-		warningPane.setPreferredSize(new Dimension(warningPane.getPreferredSize().width, LIST_HEIGHT));
 		warningList.setBorder(border);
-		panel.add(warningPane, "wrap, spanx, growx"); // Reduced wrap gap
+		panel.add(warningList, "wrap, spanx, growx"); // Reduced wrap gap
+
+		warningList.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				warningList.clearSelection();
+			}
+		});
 
 		return panel;
-	}
-
-	private static class NoSelectionModel extends DefaultListSelectionModel {
-
-		@Override
-		public void setAnchorSelectionIndex(final int anchorIndex) {}
-
-		@Override
-		public void setLeadAnchorNotificationEnabled(final boolean flag) {}
-
-		@Override
-		public void setLeadSelectionIndex(final int leadIndex) {}
-
-		@Override
-		public void setSelectionInterval(final int index0, final int index1) { }
 	}
 }
