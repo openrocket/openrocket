@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.simulation;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -174,7 +175,10 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		col0.setPreferredWidth(w);
 		col0.setMaxWidth(w);
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
-		selectorPanel.add(new JScrollPane(table), "width 200lp, grow 1, wrap rel");
+		JScrollPane scrollPane = new JScrollPane(table);
+		Dimension d = table.getPreferredSize();
+		scrollPane.setPreferredSize(new Dimension(d.width, 300));
+		selectorPanel.add(scrollPane, "width 200lp, grow 1, wrap rel");
 
 		////  All + None buttons
 		JButton button = new JButton(trans.get("simplotpanel.but.All"));
