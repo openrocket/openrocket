@@ -56,9 +56,9 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
         // Alternating row colors
         if (!isSelected) {
             if (index % 2 == 0) {
-                label.setBackground(rowBackgroundDarkerColor);
-            } else {
                 label.setBackground(rowBackgroundLighterColor);
+            } else {
+                label.setBackground(rowBackgroundDarkerColor);
             }
         }
         // Text color
