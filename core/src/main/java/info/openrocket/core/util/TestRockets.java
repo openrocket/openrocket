@@ -1884,6 +1884,8 @@ public class TestRockets {
 		Simulation simulation1 = new Simulation(rocket);
 		simulation1.getOptions().setISAAtmosphere(false); // helps cover code in saveComponent()
 		simulation1.getOptions().setTimeStep(0.05);
+		simulation1.getOptions().setLaunchPressure(100000);
+		simulation1.getOptions().setLaunchTemperature(288);
 		rocketDoc.addSimulation(simulation1);
 
 		Simulation simulation2 = new Simulation(rocket);
