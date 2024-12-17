@@ -102,20 +102,20 @@ public class SimulationWarningsPanel extends JPanel {
 		JPanel panel = new JPanel(new MigLayout("fillx, insets 1"));
 
 		// Title
-		float size = 1.1f;
+		float size = 2f;
 		int nrOfWarnings = warnings == null ? 0 : warnings.size();
 		StyledLabel title = new StyledLabel(nrOfWarnings + " " + titleText, size, StyledLabel.Style.BOLD);
 		title.setFontColor(textColor);
-		panel.add(title, "wrap, spanx");
+		panel.add(title);
 
 		if (nrOfWarnings == 0) {
 			return panel;
 		}
 
 		// Description
-		StyledLabel description = new StyledLabel(descriptionText, 0.8f, StyledLabel.Style.ITALIC);
+		StyledLabel description = new StyledLabel("— " + descriptionText, 0f, StyledLabel.Style.ITALIC);
 		description.setFontColor(dimTextColor);
-		panel.add(description, "gapleft 15lp, wrap, spanx");
+		panel.add(description, "gapleft 10lp, left, wrap, spanx, pushx");
 
 		// Warning list
 		Warning[] w = warnings.toArray(new Warning[0]);
