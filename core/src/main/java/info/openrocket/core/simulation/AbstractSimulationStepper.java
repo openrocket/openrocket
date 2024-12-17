@@ -2,6 +2,9 @@ package info.openrocket.core.simulation;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.masscalc.MassCalculator;
@@ -17,6 +20,7 @@ import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
 
 public abstract class AbstractSimulationStepper implements SimulationStepper {
+	private static final Logger log = LoggerFactory.getLogger(AbstractSimulationStepper.class);
 
 	protected static final double MIN_TIME_STEP = 0.001;
 	
@@ -31,6 +35,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * the FlightDataBranch
 	 */
 	public void cleanup(SimulationStatus status) throws SimulationException {
+		log.debug("called cleanup");
 		DataStore store = new DataStore();
 		calculateFlightConditions(status, store);
 		calculateAcceleration(status, store);
@@ -135,7 +140,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Compute conditions
 		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
 		conditions = status.getSimulationConditions().getAtmosphericModel().getConditions(altitude);
-
+		
 		// Call post-listener
 		conditions = SimulationListenerHelper.firePostAtmosphericModel(status, conditions);
 
