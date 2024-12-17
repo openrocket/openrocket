@@ -95,7 +95,10 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// use chain rule to compute jerk
 			// dA/dT = dA/dV * dV/dT
 			final double dFdV = CdA * atmosphericConditions.getDensity() * airSpeed.length();
-			final Coordinate dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
+			Coordinate dAdV = Coordinate.ZERO;
+			if (airSpeed.length() > MathUtil.EPSILON) {
+				dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
+			}
 			final Coordinate jerk = linearAcceleration.multiply(dAdV);
 			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(store.timeStep));
 
@@ -188,7 +191,10 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			atmosphericConditions.getKinematicViscosity();
 
 		// Compute drag acceleration
-		Coordinate linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
+		Coordinate linearAcceleration = Coordinate.ZERO;
+		if (airSpeed.length() > MathUtil.EPSILON) {
+			linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
+		}
 		
 		// Add effect of gravity
 		store.gravity = modelGravity(status);
