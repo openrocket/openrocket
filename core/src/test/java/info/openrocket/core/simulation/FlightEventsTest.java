@@ -234,6 +234,6 @@ public class FlightEventsTest extends BaseTestCase {
 			}
 		}
 		assertTrue(mismatches.isEmpty(), "Final flight data variables " + mismatches + " are NaN");
-		assertTrue(Double.isNaN(branch.getLast(FlightDataType.TYPE_TIME_STEP)), "FlightDataType.TYPE_TIME_STEP isn't NaN");
+		assertTrue(Double.isNaN(branch.getLast(FlightDataType.TYPE_TIME_STEP)), "Final FlightDataType.TYPE_TIME_STEP isn't NaN");
 	}
 }
