@@ -32,25 +32,22 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
-		
-		calculateFlightConditions(status, store);
 
+		// get flight conditions and calculate acceleration
+		calculateFlightConditions(status, store);
 		calculateAcceleration(status, store);
-		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
-		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
-		Coordinate linearAcceleration = store.accelerationData.getLinearAccelerationWC();
-		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
 
 		// Select tentative time step
 		store.timeStep = RECOVERY_TIME_STEP;
 
 		// adjust based on acceleration
+		Coordinate linearAcceleration = store.accelerationData.getLinearAccelerationWC();
 		final double absAccel = linearAcceleration.length();
 		if (absAccel > MathUtil.EPSILON) {
 			store.timeStep = Math.min(store.timeStep, 1.0/absAccel);
 		}
 
-		// Honor max step size passed in.  If the time to next time step is greater than our minimum
+		// Honor max step size passed in.  If the time to next event is greater than our minimum
 		// we'll set our next step to just before it in order to better capture discontinuities in things like chute opening
 		if (maxTimeStep < store.timeStep) {
 			if (maxTimeStep > MIN_TIME_STEP) {
@@ -79,6 +76,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		final double v = status.getRocketVelocity().z;
 		final double z = status.getRocketPosition().z;
 		double t = store.timeStep;
+		
 		if (newVals.pos.z < 0) {
 			// If I've hit the ground, the new timestep is the solution of
 			// 1/2 at^2 + vt + z = 0
@@ -94,6 +92,9 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// calculations to get it "right"; this will be close enough for our purposes.
 			// use chain rule to compute jerk
 			// dA/dT = dA/dV * dV/dT
+			final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
+			final AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
+			final Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 			final double dFdV = CdA * atmosphericConditions.getDensity() * airSpeed.length();
 			Coordinate dAdV = Coordinate.ZERO;
 			if (airSpeed.length() > MathUtil.EPSILON) {
@@ -102,7 +103,8 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			final Coordinate jerk = linearAcceleration.multiply(dAdV);
 			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(store.timeStep));
 
-			// Only do this one if acceleration is appreciably different from 0
+			// If acceleration is appreciably different from 0, and changes sign during the time
+			// step, oscillation is building up.
 			if (newAcceleration.z * linearAcceleration.z < -MathUtil.EPSILON) {
 				// If acceleration oscillation is building up, the new timestep is the solution of
 				// a + j*t = 0
