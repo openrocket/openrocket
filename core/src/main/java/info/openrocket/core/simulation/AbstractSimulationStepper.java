@@ -2,6 +2,9 @@ package info.openrocket.core.simulation;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.masscalc.MassCalculator;
@@ -17,8 +20,106 @@ import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
 
 public abstract class AbstractSimulationStepper implements SimulationStepper {
+	private static final Logger log = LoggerFactory.getLogger(AbstractSimulationStepper.class);
 
 	protected static final double MIN_TIME_STEP = 0.001;
+	
+	/*
+	 * calculate acceleration at a given point in time
+	 *
+	 */
+	abstract void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException;
+
+	/*
+	 * clean up at end of a simulation branch. Computes acceleration parameters and puts them in
+	 * the FlightDataBranch
+	 */
+	public void cleanup(SimulationStatus status) throws SimulationException {
+		log.debug("called cleanup from stepper " + this);
+		DataStore store = new DataStore();
+		calculateFlightConditions(status, store);
+		calculateAcceleration(status, store);
+		store.storeData(status);
+	}
+	
+	/**
+	 * Calculate the flight conditions for the current rocket status.
+	 * Listeners can override these if necessary.
+	 * <p>
+	 * Additionally the fields thetaRotation and lateralPitchRate are defined in
+	 * the data store, and can be used after calling this method.
+	 */
+	protected void calculateFlightConditions(SimulationStatus status, DataStore store)
+			throws SimulationException {
+		
+		// Call pre listeners, allow complete override
+		store.flightConditions = SimulationListenerHelper.firePreFlightConditions(
+				status);
+		if (store.flightConditions != null) {
+			// Compute the store values
+			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
+			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
+			return;
+		}
+
+		//// Atmospheric conditions
+		AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
+		store.flightConditions = new FlightConditions(status.getConfiguration());
+		store.flightConditions.setAtmosphericConditions(atmosphere);
+		
+
+		//// Local wind speed and direction
+		store.windVelocity = modelWindVelocity(status);
+		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
+		
+
+		// Lateral direction:
+		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
+		if (len > 0.0001) {
+			store.thetaRotation = new Rotation2D(airSpeed.y / len, airSpeed.x / len);
+			store.flightConditions.setTheta(Math.atan2(airSpeed.y, airSpeed.x));
+		} else {
+			store.thetaRotation = Rotation2D.ID;
+			store.flightConditions.setTheta(0);
+		}
+		
+		double velocity = airSpeed.length();
+		store.flightConditions.setVelocity(velocity);
+		if (velocity > 0.01) {
+			// aoa must be calculated from the monotonous cosine
+			// sine can be calculated by a simple division
+			store.flightConditions.setAOA(Math.acos(airSpeed.z / velocity), len / velocity);
+		} else {
+			store.flightConditions.setAOA(0);
+		}
+
+		// Roll, pitch and yaw rate
+		Coordinate rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
+		rot = store.thetaRotation.invRotateZ(rot);
+		
+		store.flightConditions.setRollRate(rot.z);
+		if (len < 0.001) {
+			store.flightConditions.setPitchRate(0);
+			store.flightConditions.setYawRate(0);
+			store.lateralPitchRate = 0;
+		} else {
+			store.flightConditions.setPitchRate(rot.y);
+			store.flightConditions.setYawRate(rot.x);
+			// TODO: LOW: set this as power of two?
+			store.lateralPitchRate = MathUtil.hypot(rot.x, rot.y);
+		}
+
+		// Call post listeners
+		FlightConditions c = SimulationListenerHelper.firePostFlightConditions(
+				status, store.flightConditions);
+		if (c != store.flightConditions) {
+			// Listeners changed the values, recalculate data store
+			store.flightConditions = c;
+			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
+			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
+		}
+	}
 
 	/**
 	 * Compute the atmospheric conditions, allowing listeners to override.
@@ -39,12 +140,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Compute conditions
 		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
 		conditions = status.getSimulationConditions().getAtmosphericModel().getConditions(altitude);
-
+		
 		// Call post-listener
 		conditions = SimulationListenerHelper.firePostAtmosphericModel(status, conditions);
 
-		checkNaN(conditions.getPressure());
-		checkNaN(conditions.getTemperature());
+		checkNaN(conditions.getPressure(), "conditions.getPressure()");
+		checkNaN(conditions.getTemperature(), "conditions.getTemperature()");
 
 		return conditions;
 	}
@@ -72,7 +173,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		wind = SimulationListenerHelper.firePostWindModel(status, wind);
 
-		checkNaN(wind);
+		checkNaN(wind, "wind");
 
 		return wind;
 	}
@@ -99,7 +200,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		gravity = SimulationListenerHelper.firePostGravityModel(status, gravity);
 
-		checkNaN(gravity);
+		checkNaN(gravity, "gravity");
 
 		return gravity;
 	}
@@ -125,9 +226,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		structureMass = SimulationListenerHelper.firePostMassCalculation(status, structureMass);
 
-		checkNaN(structureMass.getCenterOfMass());
-		checkNaN(structureMass.getLongitudinalInertia());
-		checkNaN(structureMass.getRotationalInertia());
+		checkNaN(structureMass.getCenterOfMass(), "structureMass.getCenterOfMass()");
+		checkNaN(structureMass.getLongitudinalInertia(), "structureMass.getLongitudinalInertia()");
+		checkNaN(structureMass.getRotationalInertia(), "structureMass.getRotationalInertia()");
 
 		return structureMass;
 	}
@@ -147,9 +248,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Call post-listener
 		motorMass = SimulationListenerHelper.firePostMassCalculation(status, motorMass);
 
-		checkNaN(motorMass.getCenterOfMass());
-		checkNaN(motorMass.getLongitudinalInertia());
-		checkNaN(motorMass.getRotationalInertia());
+		checkNaN(motorMass.getCenterOfMass(), "motorMass.getCenterOfMass()");
+		checkNaN(motorMass.getLongitudinalInertia(), "motorMass.getLongitudinalInertia()");
+		checkNaN(motorMass.getRotationalInertia(), "motorMass.getRotationalInertia()");
 
 		return motorMass;
 	}
@@ -186,7 +287,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		// Post-listeners
 		thrust = SimulationListenerHelper.firePostThrustCalculation(status, thrust);
 
-		checkNaN(thrust);
+		checkNaN(thrust, "thrust");
 
 		return thrust;
 	}
@@ -197,9 +298,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param d					the double value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(double d) {
+	protected void checkNaN(double d, String var) {
 		if (Double.isNaN(d)) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug.");
+			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug.");
 		}
 	}
 	
@@ -209,9 +310,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param c					the coordinate value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(Coordinate c) {
+	protected void checkNaN(Coordinate c, String var) {
 		if (c.isNaN()) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug, c=" + c);
+			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug, c=" + c);
 		}
 	}
 	
@@ -222,19 +323,26 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param q					the quaternion value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(Quaternion q) {
+	protected void checkNaN(Quaternion q, String var) {
 		if (q.isNaN()) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug, q=" + q);
+			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug, q=" + q);
 		}
 	}
 
+	/*
+	 * The DataStore holds calculated data to be used in computing a simulation step.
+	 * It is saved to the FlightDataBranch at the beginning of the time step, and one
+	 * extra time following the final simulation step so we have a full set of data for
+	 * the final step.
+
+	 * Note that it's a little shady to save this data only at the start of an RK4SimulationStepper
+	 * step, since the contents change over the course of a step.
+	 */
 	protected static class DataStore {
 	
 		public double timeStep = Double.NaN;
 		
 		public AccelerationData accelerationData;
-		
-		public AtmosphericConditions atmosphericConditions;
 		
 		public FlightConditions flightConditions;
 		
@@ -336,8 +444,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				dataBranch.setValue(FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF,	forces.getPitchDampingMoment());
 				
 				if (null != rocketMass && null != flightConditions) {
-					dataBranch.setValue(FlightDataType.TYPE_STABILITY,
-										(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+					if (null != forces.getCP()) {
+						dataBranch.setValue(FlightDataType.TYPE_STABILITY,
+											(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+					}
 					dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
 										forces.getCm() - forces.getCN() * rocketMass.getCM().x / flightConditions.getRefLength());
 					dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
@@ -345,5 +455,5 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				}
 			}
 		}
-	}		
+	}
 }

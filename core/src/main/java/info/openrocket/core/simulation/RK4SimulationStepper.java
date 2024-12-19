@@ -102,7 +102,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * Get the current atmospheric conditions
 		 */
 		calculateFlightConditions(status, store);
-		store.atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 
 		/*
 		 * Perform RK4 integration.  Decide the time step length after the first step.
@@ -183,7 +182,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			store.timeStep = minTimeStep;
 		}
 
-		checkNaN(store.timeStep);
+		checkNaN(store.timeStep, "store.timeStep");
 
 
 
@@ -264,37 +263,40 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 
 
-	private RK4Parameters computeParameters(SimulationStatus status, DataStore dataStore)
+	private RK4Parameters computeParameters(SimulationStatus status, DataStore store)
 			throws SimulationException {
 		RK4Parameters params = new RK4Parameters();
+
+		calculateAcceleration(status, store);
+
+		params.a = store.accelerationData.getLinearAccelerationWC();
+		params.ra = store.accelerationData.getRotationalAccelerationWC();
+		params.v = status.getRocketVelocity();
+		params.rv = status.getRocketRotationVelocity();
+		
+		checkNaN(params.a, "params.a");
+		checkNaN(params.ra, "params.ra");
+		checkNaN(params.v, "params.v");
+		checkNaN(params.rv, "params.rv");
+		
+		return params;
+	}
+	
+	@Override
+	void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		
 		// Call pre-listeners
 		store.accelerationData = SimulationListenerHelper.firePreAccelerationCalculation(status);
 
 		// Calculate acceleration (if not overridden by pre-listeners)
 		if (store.accelerationData == null) {
-			store.accelerationData = calculateAcceleration(status, dataStore);
+			store.accelerationData = computeAcceleration(status, store);
 		}
 
 		// Call post-listeners
 		store.accelerationData = SimulationListenerHelper.firePostAccelerationCalculation(status, store.accelerationData);
 
-		params.a = dataStore.accelerationData.getLinearAccelerationWC();
-		params.ra = dataStore.accelerationData.getRotationalAccelerationWC();
-		params.v = status.getRocketVelocity();
-		params.rv = status.getRocketRotationVelocity();
-		
-		checkNaN(params.a);
-		checkNaN(params.ra);
-		checkNaN(params.v);
-		checkNaN(params.rv);
-		
-		return params;
 	}
-	
-	
-
-
 
 	/**
 	 * Calculate the linear and angular acceleration at the given status.  The results
@@ -303,7 +305,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @param status   the status of the rocket.
 	 * @throws SimulationException 
 	 */
-	private AccelerationData calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
+	private AccelerationData computeAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		Coordinate linearAcceleration;
 		Coordinate angularAcceleration;
 		
@@ -451,90 +453,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	}
 	
 	
-
-	/**
-	 * Calculate and return the flight conditions for the current rocket status.
-	 * Listeners can override these if necessary.
-	 * <p>
-	 * Additionally the fields thetaRotation and lateralPitchRate are defined in
-	 * the data store, and can be used after calling this method.
-	 */
-	private void calculateFlightConditions(SimulationStatus status, DataStore store)
-			throws SimulationException {
-		
-		// Call pre listeners, allow complete override
-		store.flightConditions = SimulationListenerHelper.firePreFlightConditions(
-				status);
-		if (store.flightConditions != null) {
-			// Compute the store values
-			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
-			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
-			return;
-		}
-		
-
-
-		//// Atmospheric conditions
-		AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
-		store.flightConditions = new FlightConditions(status.getConfiguration());
-		store.flightConditions.setAtmosphericConditions(atmosphere);
-		
-
-		//// Local wind speed and direction
-		store.windVelocity = modelWindVelocity(status);
-		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
-		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
-		
-
-		// Lateral direction:
-		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
-		if (len > 0.0001) {
-			store.thetaRotation = new Rotation2D(airSpeed.y / len, airSpeed.x / len);
-			store.flightConditions.setTheta(Math.atan2(airSpeed.y, airSpeed.x));
-		} else {
-			store.thetaRotation = Rotation2D.ID;
-			store.flightConditions.setTheta(0);
-		}
-		
-		double velocity = airSpeed.length();
-		store.flightConditions.setVelocity(velocity);
-		if (velocity > 0.01) {
-			// aoa must be calculated from the monotonous cosine
-			// sine can be calculated by a simple division
-			store.flightConditions.setAOA(Math.acos(airSpeed.z / velocity), len / velocity);
-		} else {
-			store.flightConditions.setAOA(0);
-		}
-		
-
-		// Roll, pitch and yaw rate
-		Coordinate rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
-		rot = store.thetaRotation.invRotateZ(rot);
-		
-		store.flightConditions.setRollRate(rot.z);
-		if (len < 0.001) {
-			store.flightConditions.setPitchRate(0);
-			store.flightConditions.setYawRate(0);
-			store.lateralPitchRate = 0;
-		} else {
-			store.flightConditions.setPitchRate(rot.y);
-			store.flightConditions.setYawRate(rot.x);
-			// TODO: LOW: set this as power of two?
-			store.lateralPitchRate = MathUtil.hypot(rot.x, rot.y);
-		}
-		
-
-		// Call post listeners
-		FlightConditions c = SimulationListenerHelper.firePostFlightConditions(
-				status, store.flightConditions);
-		if (c != store.flightConditions) {
-			// Listeners changed the values, recalculate data store
-			store.flightConditions = c;
-			store.thetaRotation = new Rotation2D(store.flightConditions.getTheta());
-			store.lateralPitchRate = Math.hypot(store.flightConditions.getPitchRate(), store.flightConditions.getYawRate());
-		}
-		
-	}
 
 	private static class RK4Parameters {
 		/** Linear acceleration */

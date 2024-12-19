@@ -23,7 +23,22 @@ public interface SimulationStepper {
 	 *                    can be used to limit a stepper
 	 *                    from stepping over upcoming flight events (motor ignition
 	 *                    etc).
+	 *
+	 * When the step() is called, a new record has been started for the simulation step, and
+	 * the SimulationStatus at the start time of the step has been saved to the FlightDataBranch.
+	 * The stepper's DataStore is saved to the FlightDataBranch as soon as it has been calculated.
+	 *
+	 * At the end of the step, the simulation time is updated, a new record is created in the FlightDataBranch,
+	 * and the updated SimulationStatus is saved to the FlightDataBranch.
+	 *
+	 * When the simulation terminates, the DataStore has to be computed one more time and saved to the
+	 * FlightDataBranch to complete the last record.
 	 */
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException;
 
+	/*
+	 * clean up at end of simulation. Calculates DataStore values one last time and
+	 * writes them to FlightDataBranch
+	 */
+	void cleanup(SimulationStatus status) throws SimulationException;
 }

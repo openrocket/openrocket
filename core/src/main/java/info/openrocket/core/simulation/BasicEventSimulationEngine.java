@@ -41,12 +41,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private final SimulationStepper landingStepper = new BasicLandingStepper();
 	private final SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	private final SimulationStepper groundStepper = new GroundStepper();
-	
+
 	// The thrust must be below this value for the transition to tumbling.
 	// TODO HIGH: this is an arbitrary value
 	private final static double THRUST_TUMBLE_CONDITION = 0.01;
 	
 	private SimulationStepper currentStepper;
+	// used to remember last stepper in use before ground hit
+	private SimulationStepper lastStepper;
 	
 	private SimulationStatus currentStatus;
 	
@@ -121,6 +123,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 				
 				simulateLoop(simulationConditions);
+				
 				dataBranch.immute();
 				flightData.getWarningSet().addAll(currentStatus.getWarnings());
 				
@@ -141,6 +144,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			if (!flightData.getWarningSet().isEmpty()) {
 				log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 			}
+			
 		} catch (SimulationException e) {
 			throw e;
 		} finally {
@@ -149,13 +153,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	private void simulateLoop(SimulationConditions simulationConditions) throws SimulationException {
-
 		// Initialize the simulation. We'll use the flight stepper unless we're already
-		// on the ground
+		// on the ground.
 		if (currentStatus.isLanded())
 			currentStepper = groundStepper;
 		else
 			currentStepper = flightStepper;
+		lastStepper = flightStepper;
 		
 		currentStatus = currentStepper.initialize(currentStatus);
 		double previousSimulationTime = currentStatus.getSimulationTime();
@@ -291,6 +295,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 				previousSimulationTime = currentStatus.getSimulationTime();
 			}
+
+			// clean up at end of simulation
+			lastStepper.cleanup(currentStatus);
 			
 		} catch (SimulationException e) {
 			
@@ -589,6 +596,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// switch to landing stepper (unless we're already on the ground)
 					if (!currentStatus.isLanded()) {
 						currentStepper = landingStepper;
+						lastStepper = currentStepper;
 						currentStatus = currentStepper.initialize(currentStatus);
 					}
 					
@@ -599,7 +607,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			case GROUND_HIT:
 				currentStatus.setLanded(true);
-				
+
 				currentStepper = groundStepper;
 				currentStatus = currentStepper.initialize(currentStatus);
 				
@@ -624,17 +632,18 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Inhibit if we've deployed a parachute or we're on the ground
 				if ((currentStatus.getDeployedRecoveryDevices().size() > 0) || currentStatus.isLanded())
 					break;
-
-				currentStepper = tumbleStepper;
-				currentStatus = currentStepper.initialize(currentStatus);
-
+				
 				final boolean tooMuchThrust = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_THRUST_FORCE) > THRUST_TUMBLE_CONDITION;
 				if (tooMuchThrust) {
 					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
-				}					
-				
-				currentStatus.setTumbling(true);
-				currentStatus.getFlightDataBranch().addEvent(event);
+				} else {
+					currentStepper = tumbleStepper;
+					lastStepper = currentStepper;
+					currentStatus = currentStepper.initialize(currentStatus);
+					
+					currentStatus.setTumbling(true);
+					currentStatus.getFlightDataBranch().addEvent(event);
+				}
 				break;
 			}
 			

@@ -1,5 +1,8 @@
 package info.openrocket.core.simulation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -16,6 +19,7 @@ import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.TestRockets;
@@ -62,6 +66,7 @@ public class FlightEventsTest extends BaseTestCase {
 				new FlightEvent(FlightEvent.Type.SIMULATION_END, 42.97, null)
 		};
 
+		checkLastRecord(sim, 0);
 		checkEvents(expectedEvents, sim, 0);
 	}
 
@@ -119,7 +124,6 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.11, centerBooster),
 						new FlightEvent(FlightEvent.Type.IGNITION, 2.11, sustainerBody),
-						new FlightEvent(FlightEvent.Type.TUMBLE, 2.37, null),
 						new FlightEvent(FlightEvent.Type.SIM_ABORT, RK4SimulationStepper.RECOMMENDED_MAX_TIME, null, simAbort)
 				};
 
@@ -150,10 +154,15 @@ public class FlightEventsTest extends BaseTestCase {
 				default -> throw new IllegalStateException("Invalid branch number " + b);
 			};
 
+			checkLastRecord(sim, b);
 			checkEvents(expectedEvents, sim, b);
 		}
 	}
 
+	/*
+	 * make sure expected and actual events match
+	 *
+	 */
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo) {
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
@@ -172,16 +181,15 @@ public class FlightEventsTest extends BaseTestCase {
 			if (actual.getType() == FlightEvent.Type.SIM_WARN) {
 				actualWarning = (Warning) actual.getData();
 			}
+			
+			assertSame(expected.getType(), actual.getType(),
+					   "Branch " + branchNo + " FlightEvent " + i);
 
 			assertTrue(((expectedWarning == null) && (actualWarning == null)) ||
 					   ((expectedWarning != null) && expectedWarning.equals(actualWarning)) ||
 					   ((actualWarning != null) && actualWarning.equals(expectedWarning)),
 					   "Branch " + branchNo + " FlightEvent " + i + ": " + expectedWarning
 					   + " not found; " + actualWarning + " found instead");
-			
-			assertSame(expected.getType(), actual.getType(),
-					   "Branch " + branchNo + " FlightEvent " + i + ": type " + expected.getType()
-					   + " not found; FlightEvent " + actual.getType() + " found instead");
 
 			if (expected.getTime() != RK4SimulationStepper.RECOMMENDED_MAX_TIME) {
 				// event times that are dependent on simulation step time shouldn't be held to
@@ -205,7 +213,27 @@ public class FlightEventsTest extends BaseTestCase {
 			}
 		}
 
-		// Test event count
+		// Test event count.  I don't think it's possible to fail here without having failed earlier, but just in case.
 		assertEquals(expectedEvents.length, actualEvents.length, "Branch " + branchNo + " incorrect number of events ");
+	}
+
+	/*
+	 * make sure no flight data variables are present in next-to-last flight record, but not last record, except
+	 * sim step time which should be NaN on the last step
+	 */
+	private void checkLastRecord(Simulation sim, int b) {
+		FlightData data = sim.getSimulatedData();
+		FlightDataBranch branch = data.getBranch(b);
+		List<String> mismatches = new ArrayList<>();
+		int length = branch.getLength();
+		for (FlightDataType type : branch.getTypes()) {
+			if (!branch.getByIndex(type, length-2).isNaN() &&
+				Double.isNaN(branch.getLast(type)) &&
+				(type != FlightDataType.TYPE_TIME_STEP)) {
+				mismatches.add(type.getName());
+			}
+		}
+		assertTrue(mismatches.isEmpty(), "Final flight data variables " + mismatches + " are NaN");
+		assertTrue(Double.isNaN(branch.getLast(FlightDataType.TYPE_TIME_STEP)), "Final FlightDataType.TYPE_TIME_STEP isn't NaN");
 	}
 }
