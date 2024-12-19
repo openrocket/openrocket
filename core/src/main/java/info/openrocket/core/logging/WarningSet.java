@@ -38,7 +38,7 @@ public class WarningSet extends MessageSet<Warning> {
         return getNrOfMessagesWithPriority(MessagePriority.NORMAL);
     }
 
-    public int getNrOfInformativeWarnings() {
+    public int getNrOfInformationalWarnings() {
         return getNrOfMessagesWithPriority(MessagePriority.LOW);
     }
 
@@ -52,7 +52,7 @@ public class WarningSet extends MessageSet<Warning> {
         return convertMessageListToWarningList(list);
     }
 
-    public List<Warning> getInformativeWarnings() {
+    public List<Warning> getInformationalWarnings() {
         List<Message> list = getMessagesWithPriority(MessagePriority.LOW);
         return convertMessageListToWarningList(list);
     }

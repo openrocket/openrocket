@@ -129,9 +129,9 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 			}
 		} else {
 			JPanel optionsPanel = new JPanel(new MigLayout("insets 0"));
-			optionsPanel.add(csvOptions, "growx");
+			optionsPanel.add(csvOptions, "growx, wrap");
 			for (Component comp : extraComponents) {
-				optionsPanel.add(comp, "growx");
+				optionsPanel.add(comp, "growx, wrap");
 			}
 			add(optionsPanel, "growx, top");
 		}

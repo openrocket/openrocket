@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputMap;
@@ -826,12 +827,12 @@ public class SimulationPanel extends JPanel {
 
 		List<Warning> criticalWarnings = warnings.getCriticalWarnings();
 		List<Warning> normalWarnings = warnings.getNormalWarnings();
-		List<Warning> informativeWarnings = warnings.getInformativeWarnings();
+		List<Warning> informationalWarnings = warnings.getInformationalWarnings();
 
 		// Critical warnings
 		if (!criticalWarnings.isEmpty()) {
 			tip.append("<br><b>")
-					.append(ColorConversion.formatHTMLColor(errorColor, trans.get("simpanel.ttip.criticalWarnings")))
+					.append(ColorConversion.formatHTMLColor(errorColor, trans.get("simpanel.ttip.CriticalWarnings")))
 					.append("</b>");
 			for (Message m : criticalWarnings) {
 				tip.append("<br>").append(m.toString());
@@ -841,19 +842,19 @@ public class SimulationPanel extends JPanel {
 		// Warnings
 		if (!normalWarnings.isEmpty()) {
 			tip.append("<br><b>")
-					.append(ColorConversion.formatHTMLColor(warningColor, trans.get("simpanel.ttip.normalWarnings")))
+					.append(ColorConversion.formatHTMLColor(warningColor, trans.get("simpanel.ttip.NormalWarnings")))
 					.append("</b>");
 			for (Message m : normalWarnings) {
 				tip.append("<br>").append(m.toString());
 			}
 		}
 
-		// Informative warnings
-		if (!informativeWarnings.isEmpty()) {
+		// Informational warnings
+		if (!informationalWarnings.isEmpty()) {
 			tip.append("<br><b>")
-					.append(ColorConversion.formatHTMLColor(informationColor, trans.get("simpanel.ttip.informativeWarnings")))
+					.append(ColorConversion.formatHTMLColor(informationColor, trans.get("simpanel.ttip.InformationalWarnings")))
 					.append("</b>");
-			for (Message m : informativeWarnings) {
+			for (Message m : informationalWarnings) {
 				tip.append("<br>").append(m.toString());
 			}
 		}
@@ -1258,7 +1259,7 @@ public class SimulationPanel extends JPanel {
 
 			int nrOfCriticalWarnings = warnings.getNrOfCriticalWarnings();
 			int nrOfNormalWarnings = warnings.getNrOfNormalWarnings();
-			int nrOfInfoWarnings = warnings.getNrOfInformativeWarnings();
+			int nrOfInfoWarnings = warnings.getNrOfInformationalWarnings();
 
 			if (nrOfCriticalWarnings > 0) {
 				add(new JLabel(nrOfCriticalWarnings + " "));
@@ -1293,8 +1294,9 @@ public class SimulationPanel extends JPanel {
 			if (value instanceof WarningsBox box) {
 				// Wrap the box in a panel with BorderLayout to allow alignment
 				JPanel panel = new JPanel(new BorderLayout());
+				panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // Add left padding
 				panel.setToolTipText(box.getToolTipText());
-				panel.add(box, BorderLayout.EAST); 	// Align to the right within the panel
+				panel.add(box, BorderLayout.CENTER); 	// Align to the center (or left) within the panel
 				panel.setOpaque(true);
 				if (isSelected) {
 					panel.setBackground(table.getSelectionBackground());
@@ -1386,7 +1388,7 @@ public class SimulationPanel extends JPanel {
 
 						@Override
 						public int getDefaultWidth() {
-							return 70;
+							return 80;
 						}
 
 						@Override

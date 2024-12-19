@@ -395,32 +395,32 @@ public abstract class Warning extends Message {
 	
 	
 	/** A <code>Warning</code> that the body diameter is discontinuous. */
-	public static final Warning DIAMETER_DISCONTINUITY = new Other(trans.get("Warning.DISCONTINUITY"), MessagePriority.NORMAL);
+	public static final Warning DIAMETER_DISCONTINUITY = new Other(trans.get("Warning.DISCONTINUITY"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that a ComponentAssembly has an open forward end */	
 	public static final Warning OPEN_AIRFRAME_FORWARD = new Other(trans.get("Warning.OPEN_AIRFRAME_FORWARD"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that there is a gap in the airframe */
-	public static final Warning AIRFRAME_GAP = new Other(trans.get("Warning.AIRFRAME_GAP"), MessagePriority.NORMAL);
+	public static final Warning AIRFRAME_GAP = new Other(trans.get("Warning.AIRFRAME_GAP"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that there are overlapping airframe components */
-	public static final Warning AIRFRAME_OVERLAP = new Other(trans.get("Warning.AIRFRAME_OVERLAP"), MessagePriority.NORMAL);
+	public static final Warning AIRFRAME_OVERLAP = new Other(trans.get("Warning.AIRFRAME_OVERLAP"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that an inline podset is completely forward of its parent component */
-	public static final Warning PODSET_FORWARD = new Other(trans.get("Warning.PODSET_FORWARD"), MessagePriority.NORMAL);
+	public static final Warning PODSET_FORWARD = new Other(trans.get("Warning.PODSET_FORWARD"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that an inline podset overlaps its parent component */
-	public static final Warning PODSET_OVERLAP = new Other(trans.get("Warning.PODSET_OVERLAP"), MessagePriority.NORMAL);
+	public static final Warning PODSET_OVERLAP = new Other(trans.get("Warning.PODSET_OVERLAP"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that the fins are thick compared to the rocket body. */
 	////Thick fins may not be modeled accurately.
-	public static final Warning THICK_FIN = new Other(trans.get("Warning.THICK_FIN"), MessagePriority.NORMAL);
+	public static final Warning THICK_FIN = new Other(trans.get("Warning.THICK_FIN"), MessagePriority.LOW);
 	
 	/** A <code>Warning</code> that the fins have jagged edges. */
-	public static final Warning JAGGED_EDGED_FIN = new Other(trans.get("Warning.JAGGED_EDGED_FIN"), MessagePriority.NORMAL);
+	public static final Warning JAGGED_EDGED_FIN = new Other(trans.get("Warning.JAGGED_EDGED_FIN"), MessagePriority.LOW);
 	
 	/** A <code>Warning</code> that the fins have a zero area. */
-	public static final Warning ZERO_AREA_FIN = new Other(trans.get("Warning.ZERO_AREA_FIN"), MessagePriority.NORMAL);
+	public static final Warning ZERO_AREA_FIN = new Other(trans.get("Warning.ZERO_AREA_FIN"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that simulation listeners have affected the simulation */
 	public static final Warning LISTENERS_AFFECTED = new Other(trans.get("Warning.LISTENERS_AFFECTED"), MessagePriority.LOW);
@@ -432,7 +432,7 @@ public abstract class Warning extends Message {
 	public static final Warning FILE_INVALID_PARAMETER = new Other(trans.get("Warning.FILE_INVALID_PARAMETER"), MessagePriority.NORMAL);
 
 	/** Too many parallel fins */
-	public static final Warning PARALLEL_FINS = new Other(trans.get("Warning.PARALLEL_FINS"), MessagePriority.NORMAL);
+	public static final Warning PARALLEL_FINS = new Other(trans.get("Warning.PARALLEL_FINS"), MessagePriority.LOW);
 
 	/** Body calculations may not be entirely accurate at supersonic speeds. */
 	public static final Warning SUPERSONIC = new Other(trans.get("Warning.SUPERSONIC"), MessagePriority.NORMAL);
@@ -444,19 +444,19 @@ public abstract class Warning extends Message {
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"), MessagePriority.HIGH);
 
 	/** Flight Event occurred after landing:  */
-	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"), MessagePriority.NORMAL);
+	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"), MessagePriority.HIGH);
 
 	/** Zero-volume bodies may not simulate accurately */
-	public static final Warning ZERO_VOLUME_BODY = new Other(trans.get("Warning.ZERO_VOLUME_BODY"), MessagePriority.NORMAL);
+	public static final Warning ZERO_VOLUME_BODY = new Other(trans.get("Warning.ZERO_VOLUME_BODY"), MessagePriority.LOW);
 
 	/** Space between tube fins may not simulate accurately. */
-	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"), MessagePriority.NORMAL);
+	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"), MessagePriority.LOW);
 
 	/** Overlapping tube fins may not simulate accurately. */
-	public static final Warning TUBE_OVERLAP = new Other(trans.get("Warning.TUBE_OVERLAP"), MessagePriority.NORMAL);
+	public static final Warning TUBE_OVERLAP = new Other(trans.get("Warning.TUBE_OVERLAP"), MessagePriority.LOW);
 
 	/** Zero-thickness component can cause issues for 3D printing */
-	public static final Warning OBJ_ZERO_THICKNESS = new Other(trans.get("Warning.OBJ_ZERO_THICKNESS"), MessagePriority.NORMAL);
+	public static final Warning OBJ_ZERO_THICKNESS = new Other(trans.get("Warning.OBJ_ZERO_THICKNESS"), MessagePriority.LOW);
 
 	/** A <code>Warning</code> that stage separation occurred at other than the last stage */
 	public static final Warning SEPARATION_ORDER = new Other(trans.get("Warning.SEPARATION_ORDER"), MessagePriority.NORMAL);
