@@ -89,7 +89,7 @@ public class Icons {
 	public static final Icon HELP_BUG_REPORT = loadImageIcon("pix/icons/help-bug.png", "Bug report");
 	public static final Icon HELP_DEBUG_LOG = loadImageIcon("pix/icons/help-log.png", "Debug log");
 	public static final Icon HELP_TOURS = loadImageIcon("pix/icons/help-tours.png", "Guided tours");
-	public static final Icon WIKI = loadImageIcon("pix/icons/wiki.png", "Wiki (Documentation)");
+	public static final Icon DOCUMENTATION = loadImageIcon("pix/icons/documentation.png", "Documentation");
 
 	public static final Icon ZOOM_IN = loadImageIcon("pix/icons/zoom-in.png", "Zoom in");
 	public static final Icon ZOOM_OUT = loadImageIcon("pix/icons/zoom-out.png", "Zoom out");

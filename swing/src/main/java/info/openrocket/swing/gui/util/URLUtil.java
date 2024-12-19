@@ -7,7 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public abstract class URLUtil {
-    public static final String WIKI_URL = "http://wiki.openrocket.info/";
+    public static final String DOCS_URL = "https://openrocket.readthedocs.io/en/latest/";
 
     public static boolean openWebpage(URI uri) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;

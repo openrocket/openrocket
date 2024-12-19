@@ -1,8 +1,7 @@
 # OpenRocket support
 
-OpenRocket has two main Wiki-pages for documentation:
-* [GitHub wiki](https://github.com/openrocket/openrocket/wiki)
-* [OpenRocket wiki](http://wiki.openrocket.info/Main_Page)
+OpenRocket's documentation is available in the following places:':
+* [GitHub Documentation](https://openrocket.readthedocs.io/en/latest/)
 * [OpenRocket website](https://openrocket.info/index.html)
 
 Also check out our tutorials to get you going on OpenRocket:

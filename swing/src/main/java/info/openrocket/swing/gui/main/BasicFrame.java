@@ -742,15 +742,15 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-		////	Wiki (Online Help)
-		item = new JMenuItem(trans.get("main.menu.help.wiki"));
-		item.setIcon(Icons.WIKI);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.wiki.desc"));
+		////	Online Documentation
+		item = new JMenuItem(trans.get("main.menu.help.documentation"));
+		item.setIcon(Icons.DOCUMENTATION);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.documentation.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Wiki selected");
-				URLUtil.openWebpage(URLUtil.WIKI_URL);
+				log.info(Markers.USER_MARKER, "Documentation selected");
+				URLUtil.openWebpage(URLUtil.DOCS_URL);
 			}
 		});
 		menu.add(item);
