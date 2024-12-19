@@ -587,133 +587,133 @@ public class FlightConfigurationTest extends BaseTestCase {
 		selected.setName("[{motors}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "[[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0]", selected.getName());
 
 		// Test only manufacturers
 		selected.setName("[{manufacturers}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "[[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech]", selected.getName());
 
 		// Test only cases
 		selected.setName("[{cases}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "[[Rocket.motorCount.noStageMotors]; SU 75/512; 4\u00D7SU 29/180]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; SU 75/512; 4\u00D7SU 29/180]", selected.getName());
 
 		// Test only motors or only manufacturers
 		selected.setName("[{motors}] - [{manufacturers}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(),
-				"[[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0] - [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0] - [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech]",
+					 selected.getName());
 
 		selected.setOnlyStage(0);
-		assertEquals(selected.getName(), "[[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]");
+		assertEquals("[[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]", selected.getName());
 
 		selected.setOnlyStage(1);
-		assertEquals(selected.getName(), "[; M1350-0; ] - [; AeroTech; ]");
+		assertEquals("[; M1350-0; ] - [; AeroTech; ]", selected.getName());
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(), "[; M1350-0; 4\u00D7G77-0] - [; AeroTech; 4\u00D7AeroTech]");
+		assertEquals("[; M1350-0; 4\u00D7G77-0] - [; AeroTech; 4\u00D7AeroTech]", selected.getName());
 
 		// Test combination of motors and manufacturers
 		selected.setName("[{motors  manufacturers}] -- [{manufacturers}] - [{motors}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(),
-				"[[Rocket.motorCount.noStageMotors]; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech] - [[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [[Rocket.motorCount.noStageMotors]; AeroTech; 4\u00D7AeroTech] - [[Rocket.motorCount.noStageMotors]; M1350-0; 4\u00D7G77-0]",
+					 selected.getName());
 
 		selected.setOnlyStage(0);
-		assertEquals(selected.getName(), "[[Rocket.motorCount.Nomotor]] -- [[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]");
+		assertEquals("[[Rocket.motorCount.Nomotor]] -- [[Rocket.motorCount.Nomotor]] - [[Rocket.motorCount.Nomotor]]", selected.getName());
 
 		selected.setOnlyStage(1);
-		assertEquals(selected.getName(), "[; M1350-0  AeroTech; ] -- [; AeroTech; ] - [; M1350-0; ]");
+		assertEquals("[; M1350-0  AeroTech; ] -- [; AeroTech; ] - [; M1350-0; ]", selected.getName());
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(),
-				"[; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [; AeroTech; 4\u00D7AeroTech] - [; M1350-0; 4\u00D7G77-0]");
+		assertEquals("[; M1350-0  AeroTech; 4\u00D7G77-0  AeroTech] -- [; AeroTech; 4\u00D7AeroTech] - [; M1350-0; 4\u00D7G77-0]",
+					 selected.getName());
 
 		// Test combination of manufacturers and motors
 		selected.setName("[{manufacturers | motors}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "[[Rocket.motorCount.noStageMotors]; AeroTech | M1350-0; 4\u00D7AeroTech | G77-0]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; AeroTech | M1350-0; 4\u00D7AeroTech | G77-0]",
+					 selected.getName());
 
 		selected.setOnlyStage(0);
-		assertEquals(selected.getName(), "[[Rocket.motorCount.Nomotor]]");
+		assertEquals("[[Rocket.motorCount.Nomotor]]", selected.getName());
 
 		selected.setOnlyStage(1);
-		assertEquals(selected.getName(), "[; AeroTech | M1350-0; ]");
+		assertEquals("[; AeroTech | M1350-0; ]", selected.getName());
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(), "[; AeroTech | M1350-0; 4\u00D7AeroTech | G77-0]");
+		assertEquals("[; AeroTech | M1350-0; 4\u00D7AeroTech | G77-0]", selected.getName());
 
 		// Test combination of motors, manufacturers and cases
 		selected.setName("[{motors manufacturers | cases}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(),
-				"[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]", selected.getName());
 
 		// Test combination of motors, manufacturers and cases
 		selected.setName("[{motors manufacturers | cases}]");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]");
+		assertEquals("[[Rocket.motorCount.noStageMotors]; M1350-0 AeroTech | SU 75/512; 4\u00D7G77-0 AeroTech | SU 29/180]", selected.getName());
 
 		// Test empty tags
 		selected.setName("{}");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "{}");
+		assertEquals("{}", selected.getName());
 
 		selected.setOnlyStage(0);
-		assertEquals(selected.getName(), "{}");
+		assertEquals("{}", selected.getName());
 
 		selected.setOnlyStage(1);
-		assertEquals(selected.getName(), "{}");
+		assertEquals("{}", selected.getName());		
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(), "{}");
+		assertEquals("{}", selected.getName());		
 
 		// Test invalid tags (1)
 		selected.setName("{motorms}");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "{motorms}");
+		assertEquals("{motorms}", selected.getName());
 
 		selected.setOnlyStage(0);
-		assertEquals(selected.getName(), "{motorms}");
+		assertEquals("{motorms}", selected.getName());
 
 		selected.setOnlyStage(1);
-		assertEquals(selected.getName(), "{motorms}");
+		assertEquals("{motorms}", selected.getName());
 
 		selected.setName("{motor}");
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(), "{motor}");
+		assertEquals("{motor}", selected.getName());
 
 		// Test invalid tags (2)
 		selected.setName("{mot'ors manuf'acturers '}");
 
 		selected.setAllStages();
-		assertEquals(selected.getName(), "{mot'ors manuf'acturers '}");
+		assertEquals("{mot'ors manuf'acturers '}", selected.getName());
 
 		selected.setOnlyStage(0);
-		assertEquals(selected.getName(), "{mot'ors manuf'acturers '}");
+		assertEquals("{mot'ors manuf'acturers '}", selected.getName());
 
 		selected.setOnlyStage(1);
-		assertEquals(selected.getName(), "{mot'ors manuf'acturers '}");
+		assertEquals("{mot'ors manuf'acturers '}", selected.getName());
 
 		selected.setAllStages();
 		selected._setStageActive(0, false);
-		assertEquals(selected.getName(), "{mot'ors manuf'acturers '}");
+		assertEquals("{mot'ors manuf'acturers '}", selected.getName());
 	}
 
 	@Test
