@@ -608,34 +608,34 @@ return console.askYesNo(message, true);
     </styles>
   </installerGui>
   <mediaSets>
-    <windows name="windows amd64" id="60" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}" architecture="64">
+    <windows name="windows x86_64" id="60" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Windows-x86_64" architecture="64">
       <jreBundle>
         <modules>
           <module name="java.scripting" />
         </modules>
       </jreBundle>
     </windows>
-    <windows name="windows aarch64" id="248" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}" architecture="arm64">
+    <windows name="windows Arm64" id="248" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Windows-Arm64" architecture="arm64">
       <jreBundle>
         <modules>
           <module name="java.scripting" />
         </modules>
       </jreBundle>
     </windows>
-    <unixInstaller name="linux amd64" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}">
+    <unixInstaller name="linux x86_64" id="168" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-x86_64">
       <jreBundle includedJre="linux-amd64-17.0.13" />
     </unixInstaller>
-    <unixInstaller name="linux aarch64" id="244" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-${compiler:sys.jreBundleArch}">
+    <unixInstaller name="linux Arm64" id="244" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-Linux-Arm64">
       <jreBundle platform="linux-aarch64" />
     </unixInstaller>
-    <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS-Intel" architecture="amd64" launcherId="59">
+    <macosArchive name="macOS (Intel)" id="213" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-macOS-Intel" architecture="amd64" launcherId="59">
       <topLevelFiles>
         <file name=".DS_Store" file="./macOS_resources/DS_Store" />
         <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
         <symlink name="Applications" target="/Applications" />
       </topLevelFiles>
     </macosArchive>
-    <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-macOS-AppleSilicon" launcherId="59">
+    <macosArchive name="macOS (Apple Silicon)" id="240" mediaFileName="${compiler:sys.shortName}-${compiler:sys.version}-installer-macOS-AppleSilicon" launcherId="59">
       <topLevelFiles>
         <file name=".DS_Store" file="./macOS_resources/DS_Store" />
         <file name=".background/macOS_installer_background.png" file="./macOS_resources/macOS_installer_background.png" />
@@ -644,6 +644,9 @@ return console.askYesNo(message, true);
     </macosArchive>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="213" />
+    <mediaSet refId="60" />
+    <mediaSet refId="248" />
+    <mediaSet refId="168" />
+    <mediaSet refId="244" />
   </buildIds>
 </install4j>
