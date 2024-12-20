@@ -16,16 +16,16 @@ Release Notes
 <div id="24.12.beta.01">
  
 OpenRocket 24.12.beta.01 (2024-12-20)
-------------------------
+-------------------------------------
 
 Notable features and fixes in **bold**.
 
 ### RELEASE HIGHLIGHTS
-* **Expanded Platform Support**: We now offer installers for x86_64 and Arm64 on Windows, Mac, and Linux.
 * **Enhanced Simulation tab UI**: This is the beginning of a multi-release effort to make it easier to manage simulations and interpret their results. Please let us know what you think so far.
 * **Multi-level wind input**: Configure different wind settings at different altitudes (in the simulation configuration dialog).
 * **New Component Analysis Parameter Sweep Tool**: Plot and export Component Analysis parameter sweeps in the new Component Analysis Plot/Export tab. For instance, you can plot the rocket CD as a function of Mach number.
 * **SVG Fin Export**: Export fin shapes directly to SVG for laser cutting or importing into CAD tools.
+* **Expanded Platform Support**: We now offer installers for x86_64 and Arm64 on Windows, Mac, and Linux.
 * **Project documentation moved to Sphinx**: See it at https://openrocket.readthedocs.io/.
 
 ### Simulation
