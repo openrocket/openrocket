@@ -14,6 +14,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.itextpdf.awt.PdfGraphics2D;
+import info.openrocket.swing.gui.figureelements.CGCaret;
+import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.scalefigure.AbstractScaleFigure;
 import info.openrocket.swing.gui.scalefigure.RocketFigure;
 import info.openrocket.swing.gui.theme.UITheme;
@@ -374,6 +376,8 @@ public class DesignReport {
 	private void updateColors() {
 		AbstractScaleFigure.updateColors();
 		RocketFigure.updateColors();
+		CGCaret.updateColors();
+		CPCaret.updateColors();
 		((SwingPreferences) Application.getPreferences()).updateColors();
 	}
 
