@@ -168,7 +168,7 @@ public class UITheme {
     }
 
     public static boolean isLightTheme(Theme theme) {
-        if (theme == Themes.DARK) {
+        if (theme == Themes.DARK || theme == Themes.DARK_CONTRAST) {
             return false;
         } else if (theme == Themes.LIGHT) {
             return true;
