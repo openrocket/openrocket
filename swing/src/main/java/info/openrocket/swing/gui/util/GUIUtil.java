@@ -296,6 +296,13 @@ public class GUIUtil {
 		return UITheme.Themes.LIGHT;
 	}
 
+	public static void setUITheme(UITheme.Theme theme) {
+		ApplicationPreferences prefs = Application.getPreferences();
+		prefs.setUITheme(theme);
+		theme.applyTheme();
+		// TODO: use UITheme notifyUIThemeChangeListeners once properly implemented
+	}
+
 	public static void applyLAF() {
 		UITheme.Theme theme = getUITheme();
 		theme.applyTheme();

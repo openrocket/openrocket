@@ -97,6 +97,7 @@ public class PrintController {
                         DesignReport dp = new DesignReport(doc, idoc, rotation, runSims, true, this.window);
                         dp.writeToDocument(writer);
                         idoc.newPage();
+						dp.restoreUITheme();
                         break;
 
                     case FIN_TEMPLATE:
