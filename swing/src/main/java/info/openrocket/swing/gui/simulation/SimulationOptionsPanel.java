@@ -250,7 +250,7 @@ class SimulationOptionsPanel extends JPanel {
 		UITheme.Theme.addUIThemeChangeListener(SimulationOptionsPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}

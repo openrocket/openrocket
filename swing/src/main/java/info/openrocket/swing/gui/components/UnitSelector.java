@@ -116,7 +116,7 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 		UITheme.Theme.addUIThemeChangeListener(UnitSelector::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		normalBorder = GUIUtil.getUITheme().getUnitSelectorBorder();
 		withinBorder = GUIUtil.getUITheme().getUnitSelectorFocusBorder();
 	}

@@ -120,7 +120,7 @@ public class SimulationPlotDialog extends PlotDialog<FlightDataType, FlightDataB
 		UITheme.Theme.addUIThemeChangeListener(SimulationPlotDialog::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 }

@@ -137,7 +137,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		UITheme.Theme.addUIThemeChangeListener(ComponentTreeRenderer::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		massOverrideSubcomponentIcon = GUIUtil.getUITheme().getMassOverrideSubcomponentIcon();
 		massOverrideIcon = GUIUtil.getUITheme().getMassOverrideIcon();
 		CGOverrideSubcomponentIcon = GUIUtil.getUITheme().getCGOverrideSubcomponentIcon();

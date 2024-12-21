@@ -86,7 +86,7 @@ public abstract class AbstractScaleFigure extends JPanel {
 		UITheme.Theme.addUIThemeChangeListener(AbstractScaleFigure::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 	}
 

@@ -75,7 +75,7 @@ public class SimulationModifierTree extends BasicTree {
 		UITheme.Theme.addUIThemeChangeListener(SimulationModifierTree::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		disabledTextColor = GUIUtil.getUITheme().getDisabledTextColor();

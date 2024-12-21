@@ -38,7 +38,7 @@ public class CGCaret extends Caret {
 		UITheme.Theme.addUIThemeChangeListener(CGCaret::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		CGColor = GUIUtil.getUITheme().getCGColor();
 	}
 

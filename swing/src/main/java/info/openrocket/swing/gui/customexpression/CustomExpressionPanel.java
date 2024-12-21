@@ -182,7 +182,7 @@ public class CustomExpressionPanel extends JPanel {
 			initColors();
 		}
 
-		private static void updateColors() {
+		public static void updateColors() {
 			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		}
 

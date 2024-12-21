@@ -142,7 +142,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		UITheme.Theme.addUIThemeChangeListener(CSVExportPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		ALTERNATE_ROW_COLOR = GUIUtil.getUITheme().getRowBackgroundLighterColor();
 	}
 

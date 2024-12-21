@@ -125,7 +125,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 		UITheme.Theme.addUIThemeChangeListener(GroupableAndSearchableComboBox::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textSelectionBackground = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
 	}
 

@@ -147,7 +147,7 @@ public class ComponentIcons {
 		UITheme.Theme.addUIThemeChangeListener(ComponentIcons::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		noseCone = GUIUtil.getUITheme().getComponentIconNoseCone();
 		bodyTube = GUIUtil.getUITheme().getComponentIconBodyTube();
 		transition = GUIUtil.getUITheme().getComponentIconTransition();

@@ -128,7 +128,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		UITheme.Theme.addUIThemeChangeListener(RocketFigure::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		motorFillColor = GUIUtil.getUITheme().getMotorFillColor();
 		motorBorderColor = GUIUtil.getUITheme().getMotorBorderColor();
 	}

@@ -219,7 +219,7 @@ public class SimulationConfigDialog extends JDialog {
 		UITheme.Theme.addUIThemeChangeListener(SimulationConfigDialog::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
 	}
 

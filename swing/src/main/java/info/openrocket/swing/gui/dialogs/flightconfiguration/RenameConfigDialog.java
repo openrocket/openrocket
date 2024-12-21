@@ -108,7 +108,7 @@ public class RenameConfigDialog extends JDialog {
 		UITheme.Theme.addUIThemeChangeListener(RenameConfigDialog::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 }

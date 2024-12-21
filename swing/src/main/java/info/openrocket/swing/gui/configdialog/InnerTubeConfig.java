@@ -518,7 +518,7 @@ class ClusterSelectionPanel extends JPanel {
 		UITheme.Theme.addUIThemeChangeListener(ClusterSelectionPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		UNSELECTED_COLOR = GUIUtil.getUITheme().getBackgroundColor();
 	}
 

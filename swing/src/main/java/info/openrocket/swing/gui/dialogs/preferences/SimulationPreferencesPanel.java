@@ -327,7 +327,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		UITheme.Theme.addUIThemeChangeListener(SimulationPreferencesPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 }

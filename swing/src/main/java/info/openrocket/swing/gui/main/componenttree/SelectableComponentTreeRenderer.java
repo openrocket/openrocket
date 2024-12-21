@@ -41,7 +41,7 @@ public class SelectableComponentTreeRenderer extends ComponentTreeRenderer {
 		italicFont = regularFont.deriveFont(Font.ITALIC);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		disabledTextColor = GUIUtil.getUITheme().getDisabledTextColor();
 	}
 

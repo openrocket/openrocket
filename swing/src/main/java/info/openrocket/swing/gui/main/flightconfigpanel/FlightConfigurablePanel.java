@@ -81,7 +81,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		UITheme.Theme.addUIThemeChangeListener(FlightConfigurablePanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}

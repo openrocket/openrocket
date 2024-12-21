@@ -255,7 +255,7 @@ class MotorInformationPanel extends JPanel {
 		UITheme.Theme.addUIThemeChangeListener(MotorInformationPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
 		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
 		textColor = GUIUtil.getUITheme().getTextColor();
