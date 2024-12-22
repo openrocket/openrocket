@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.dialogs.preferences;
 
+import info.openrocket.core.unit.FixedPrecisionUnit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import net.miginfocom.swing.MigLayout;
+
+import static info.openrocket.core.util.Chars.ZWSP;
 
 @SuppressWarnings("serial")
 public class UIPreferencesPanel extends PreferencesPanel {
@@ -65,7 +68,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 	}
 
 	public UIPreferencesPanel(PreferencesDialog parent) {
-		super(parent, new MigLayout("fillx"));
+		super(parent, new MigLayout());
 
 		this.currentTheme = GUIUtil.getUITheme();
 		this.currentUIScale = preferences.getUIScale();
@@ -88,27 +91,29 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		}
 
 		this.add(new JLabel(trans.get("generalprefs.lbl.UITheme")), "gapright para");
-		this.add(themesCombo, "wrap, growx");
+		this.add(themesCombo, "sizegroup uiSettings, wrap");
 
 		// UI Scale selector
+		UnitGroup scaleUnit = new UnitGroup();
+		scaleUnit.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.05));
 		JLabel lblUIScale = new JLabel(trans.get("generalprefs.lbl.UIScale"));
 		lblUIScale.setToolTipText(trans.get("generalprefs.lbl.UIScale.ttip"));
 		this.add(lblUIScale, "gapright para");
-		final DoubleModel uiScaleModel = new DoubleModel(preferences, "UIScale", UnitGroup.UNITS_COEFFICIENT, 0.5, 2.0);
+		final DoubleModel uiScaleModel = new DoubleModel(preferences, "UIScale", scaleUnit, 0.5, 2.0);
 		final JSpinner uiScaleSpinner = new JSpinner(uiScaleModel.getSpinnerModel());
 		uiScaleSpinner.setEditor(new SpinnerEditor(uiScaleSpinner));
 		uiScaleSpinner.setToolTipText(trans.get("generalprefs.lbl.UIScale.ttip"));
-		this.add(uiScaleSpinner, "growx, wrap");
+		this.add(uiScaleSpinner, "sizegroup uiSettings, wrap");
 
 		// Font size selector
 		JLabel lblFontSize = new JLabel(trans.get("generalprefs.lbl.FontSize"));
 		lblFontSize.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
 		this.add(lblFontSize, "gapright para");
-		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSize", 5, 25);
+		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSizeRaw", 5, 25);
 		final JSpinner fontSizeSpinner = new JSpinner(fontSizeModel.getSpinnerModel());
 		fontSizeSpinner.setEditor(new SpinnerEditor(fontSizeSpinner));
 		fontSizeSpinner.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
-		this.add(fontSizeSpinner, "growx, wrap");
+		this.add(fontSizeSpinner, "wrap, sizegroup uiSettings");
 
 		// Font style selector
 		JLabel lblFontStyle = new JLabel(trans.get("generalprefs.lbl.FontStyle"));
@@ -123,7 +128,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 				break;
 			}
 		}
-		this.add(fontStyleCombo, "wrap, growx");
+		this.add(fontStyleCombo, "sizegroup uiSettings, wrap");
 
 		// Letter spacing selector
 		JLabel lblSpacing = new JLabel(trans.get("generalprefs.lbl.CharacterSpacing"));
@@ -136,7 +141,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 
 		final JSpinner characterSpacingSpinner = new JSpinner(letterSpacingModel.getSpinnerModel());
 		characterSpacingSpinner.setEditor(new SpinnerEditor(characterSpacingSpinner));
-		this.add(characterSpacingSpinner, "growx, wrap");
+		this.add(characterSpacingSpinner, "sizegroup uiSettings, wrap");
 
 		// Restart warning label
 		this.lblRestartOR = new JLabel();
@@ -162,8 +167,9 @@ public class UIPreferencesPanel extends PreferencesPanel {
 					return;
 				}
 				preferences.setUITheme(t);
-				t.applyTheme();
-				previewPanel.updateTheme(t);
+				// TODO: re-enable once you have figured out how to update custom UITheme Colors (from UITheme.java)
+				//  t.applyTheme();
+				//  previewPanel.updateTheme(t);
 				updateRestartLabel(lblRestartOR);
 			}
 		});

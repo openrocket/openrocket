@@ -424,10 +424,18 @@ public class SwingPreferences extends ApplicationPreferences {
 	}
 
 	/**
-	 * Set the font size used for the UI.
+	 * Get the current font size used for the UI without scaling.
+	 * @return the current font size
+	 */
+	public int getUIFontSizeRaw() {
+		return getInt(UI_FONT_SIZE, getDefaultFontSize());
+	}
+
+	/**
+	 * Set the font size used for the UI (without scaling).
 	 * @param size the font size to set
 	 */
-	public void setUIFontSize(int size) {
+	public void setUIFontSizeRaw(int size) {
 		putInt(UI_FONT_SIZE, size);
 		storeVersion();
 	}

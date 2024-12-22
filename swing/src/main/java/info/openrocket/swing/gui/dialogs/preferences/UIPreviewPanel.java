@@ -74,8 +74,9 @@ public class UIPreviewPanel extends JPanel {
 
 		add(checkBox, "span 2, wrap 15");
 
-		add(warning, "span 2, wrap");
-		add(error, "span 2");
+		// TODO: add once theme preview is implemented
+		//  add(warning, "span 2, wrap");
+		//  add(error, "span 2");
 	}
 
 	public void updatePreview(String fontStyle, int fontSize, float letterSpacing) {
