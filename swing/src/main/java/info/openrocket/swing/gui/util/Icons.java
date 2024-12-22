@@ -168,7 +168,7 @@ public class Icons {
 	 * @return scaled down icon. If <icon> is not an ImageIcon, the original icon is returned.
 	 */
 	public static Icon getScaledIcon(Icon icon, final double scale) {
-		if (!(icon instanceof ImageIcon)) {
+		if (!(icon instanceof ImageIcon) || scale == 1) {
 			return icon;
 		}
 
