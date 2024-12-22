@@ -13,6 +13,7 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.Simulation.Status;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -28,6 +29,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -38,6 +40,32 @@ import java.util.Map;
 public class UITheme {
     private static final Translator trans = Application.getTranslator();
     private static final Logger log = LoggerFactory.getLogger(UITheme.class);
+
+    private static final Map<String, Float> fontOffsets = new HashMap<>();
+
+    static {
+        fontOffsets.put("MenuBar.font", 1.0f);
+        fontOffsets.put("Tree.font", -1.0f);
+        fontOffsets.put("Slider.font", -2.0f);
+        fontOffsets.put("TableHeader.font", -1.0f);
+        fontOffsets.put("ColorChooser.font", -1.0f);
+        fontOffsets.put("Menu.acceleratorFont", 1.0f);
+        fontOffsets.put("InternalFrame.optionDialogTitleFont", 1.0f);
+        fontOffsets.put("InternalFrame.paletteTitleFont", 1.0f);
+        fontOffsets.put("MenuItem.font", 1.0f);
+        fontOffsets.put("PopupMenu.font", 1.0f);
+        fontOffsets.put("MenuItem.acceleratorFont", 1.0f);
+        fontOffsets.put("RadioButtonMenuItem.font", 1.0f);
+        fontOffsets.put("Table.font", -1.0f);
+        fontOffsets.put("InternalFrame.titleFont", 1.0f);
+        fontOffsets.put("List.font", -1.0f);
+        fontOffsets.put("RadioButtonMenuItem.acceleratorFont", 1.0f);
+        fontOffsets.put("CheckBoxMenuItem.acceleratorFont", 1.0f);
+        fontOffsets.put("Menu.font", 1.0f);
+        fontOffsets.put("TabbedPane.smallFont", -2.0f);
+        fontOffsets.put("CheckBoxMenuItem.font", 1.0f);
+        fontOffsets.put("ToolTip.font", -2.0f);
+    }
 
 
     // TODO: replace a bunch of this with the FlatLaf properties files, see https://www.formdev.com/flatlaf/properties-files
@@ -1845,6 +1873,7 @@ public class UITheme {
     }
 
     private static void preApplyTheme() {
+        final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
         FlatAnimatedLafChange.showSnapshot();
 
         FlatLaf.registerCustomDefaultsSource("themes");
@@ -1854,14 +1883,29 @@ public class UITheme {
         final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
         // Clear custom default font when switching to non-FlatLaf LaF
-        if (!(UIManager.getLookAndFeel() instanceof FlatLaf)) {
-            UIManager.put("defaultFont", null);
-        }
+        //if (!(UIManager.getLookAndFeel() instanceof FlatLaf)) {
+        //    UIManager.put("defaultFont", null);
+        //}
 
-        setGlobalFontSize(prefs.getUIFontSize());
+        // Set the UI scale factor
+        String uiScale = String.valueOf(((SwingPreferences) Application.getPreferences()).getUIScale());
+        log.info("Setting UI scale factor to {}", uiScale);
+        System.setProperty("flatlaf.uiScale", uiScale);
 
-        System.setProperty("flatlaf.uiScale.enabled", "true");
-        System.setProperty("flatlaf.uiScale", String.valueOf(prefs.getUIFontSize() / 12));
+        // Load custom fonts
+        log.info("Loading custom fonts");
+        GUIUtil.loadCustomFonts();
+
+        // Set the global font to
+        int fontSize = prefs.getUIFontSize();
+        String fontStyle = prefs.getUIFontStyle();
+        log.info("Setting global font to {} {}", fontSize, fontStyle);
+        setGlobalFont(fontStyle, fontSize, 0.02f);
+
+        // Set the global font style
+
+        log.info("Setting global font style to {}", fontStyle);
+        System.setProperty("defaultFont", fontStyle);
 
         // After applying the theme settings, notify listeners
         Theme.notifyUIThemeChangeListeners();
@@ -1884,41 +1928,35 @@ public class UITheme {
         }
     }
 
-    private static void setGlobalFontSize(int size) {
-        // Some fonts have different sizes for different components, so we need to adjust them
-        final Map<String, Float> fontOffsets = new HashMap<>();
-        fontOffsets.put("MenuBar.font", 1.0f);
-        fontOffsets.put("Tree.font", -1.0f);
-        fontOffsets.put("Slider.font", -2.0f);
-        fontOffsets.put("TableHeader.font", -1.0f);
-        fontOffsets.put("ColorChooser.font", -1.0f);
-        fontOffsets.put("Menu.acceleratorFont", 1.0f);
-        fontOffsets.put("InternalFrame.optionDialogTitleFont", 1.0f);
-        fontOffsets.put("InternalFrame.paletteTitleFont", 1.0f);
-        fontOffsets.put("MenuItem.font", 1.0f);
-        fontOffsets.put("PopupMenu.font", 1.0f);
-        fontOffsets.put("MenuItem.acceleratorFont", 1.0f);
-        fontOffsets.put("RadioButtonMenuItem.font", 1.0f);
-        fontOffsets.put("Table.font", -1.0f);
-        //fontOffsets.put("IconButton.font", -2f);      // The default doesn't really look nice, we want the normal font size instead
-        fontOffsets.put("InternalFrame.titleFont", 1.0f);
-        fontOffsets.put("List.font", -1.0f);
-        fontOffsets.put("RadioButtonMenuItem.acceleratorFont", 1.0f);
-        fontOffsets.put("CheckBoxMenuItem.acceleratorFont", 1.0f);
-        fontOffsets.put("Menu.font", 1.0f);
-        fontOffsets.put("TabbedPane.smallFont", -2.0f);
-        fontOffsets.put("CheckBoxMenuItem.font", 1.0f);
-        fontOffsets.put("ToolTip.font", -2.0f);
-
+    private static void setGlobalFont(String fontStyle, int size, float letterSpacing) {
         // Iterate over all keys in the UIManager defaults and set the font
         for (Enumeration<Object> keys = UIManager.getDefaults().keys(); keys.hasMoreElements();) {
             Object key = keys.nextElement();
             Object value = UIManager.get(key);
-            if (value instanceof Font newFont) {
-				float offset = fontOffsets.getOrDefault(key.toString(), 0.0f);
-                newFont = newFont.deriveFont(Integer.valueOf(size).floatValue() + offset);
+            if (value instanceof Font) {
+                float offset = 0.0f;
+                // Check if this key has a size offset
+                if (key.toString().endsWith(".font")) {
+                    String fontKey = key.toString();
+                    // Reuse the existing fontOffsets map logic here
+                    offset = fontOffsets.getOrDefault(fontKey, 0.0f);
+                }
+                // Create a font with the letter spacing attribute
+                Map<TextAttribute, Object> attributes = new HashMap<>();
+                attributes.put(TextAttribute.FAMILY, fontStyle);
+                attributes.put(TextAttribute.SIZE, size + offset);
+                attributes.put(TextAttribute.TRACKING, letterSpacing);
+
+                Font newFont = Font.getFont(attributes);
                 UIManager.put(key, newFont);
             }
         }
+
+        // Set the default font
+        Map<TextAttribute, Object> attributes = new HashMap<>();
+        attributes.put(TextAttribute.FAMILY, fontStyle);
+        attributes.put(TextAttribute.SIZE, size);
+        attributes.put(TextAttribute.TRACKING, letterSpacing);
+        UIManager.put("defaultFont", Font.getFont(attributes));
     }
 }

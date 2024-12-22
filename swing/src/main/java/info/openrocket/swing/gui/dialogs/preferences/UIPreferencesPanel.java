@@ -21,15 +21,46 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class UIPreferencesPanel extends PreferencesPanel {
 	private final UITheme.Theme currentTheme;
-	private final int currentFontSize;
 	private final double currentUIScale;
+	private final int currentFontSize;
+	private final String currentFontStyle;
+
+	// Font weight options
+	public enum FontStyle {
+		LIGHT("Light", "Inter-Regular_Light"),
+		REGULAR("Regular", "Inter-Regular"),
+		MEDIUM("Medium", "Inter-Regular_Medium"),
+		BOLD("Bold", "Inter-Regular_Bold");
+
+		private final String displayName;
+		private final String fontName;
+
+		FontStyle(String displayName, String fontName) {
+			this.displayName = displayName;
+			this.fontName = fontName;
+		}
+
+		public String getDisplayName() {
+			return displayName;
+		}
+
+		public String getFontName() {
+			return fontName;
+		}
+
+		@Override
+		public String toString() {
+			return displayName;
+		}
+	}
 
 	public UIPreferencesPanel(PreferencesDialog parent) {
 		super(parent, new MigLayout("fillx, ins 30lp n n n"));
 
 		this.currentTheme = GUIUtil.getUITheme();
-		this.currentFontSize = preferences.getUIFontSize();
 		this.currentUIScale = preferences.getUIScale();
+		this.currentFontSize = preferences.getUIFontSize();
+		this.currentFontStyle = preferences.getUIFontStyle();
 
 		// UI Theme selector
 		UITheme.Theme currentTheme = GUIUtil.getUITheme();
@@ -69,12 +100,37 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		fontSizeSpinner.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
 		this.add(fontSizeSpinner, "growx, wrap");
 
+		GUIUtil.printAvailableFonts();
+
+		// Font style selector
+		JLabel lblFontStyle = new JLabel(trans.get("generalprefs.lbl.FontStyle"));
+		lblFontStyle.setToolTipText(trans.get("generalprefs.lbl.FontStyle.ttip"));
+		this.add(lblFontStyle, "gapright para");
+		final JComboBox<FontStyle> fontStyleCombo = new JComboBox<>(FontStyle.values());
+
+		// Set the current font style
+		for (FontStyle style : FontStyle.values()) {
+			if (style.getFontName().equals(currentFontStyle)) {
+				fontStyleCombo.setSelectedItem(style);
+				break;
+			}
+		}
+		this.add(fontStyleCombo, "wrap, growx");
+
+
 		// Restart warning label
 		final JLabel lblRestartOR = new JLabel();
 		lblRestartOR.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
 		this.add(lblRestartOR, "spanx, wrap, growx");
 
 		// Add change listeners
+		uiScaleSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateRestartLabel(lblRestartOR);
+			}
+		});
+
 		fontSizeSpinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -82,9 +138,12 @@ public class UIPreferencesPanel extends PreferencesPanel {
 			}
 		});
 
-		uiScaleSpinner.addChangeListener(new ChangeListener() {
+		fontStyleCombo.addActionListener(new ActionListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void actionPerformed(ActionEvent e) {
+				FontStyle selected = (FontStyle) fontStyleCombo.getSelectedItem();
+				if (selected == null) return;
+				preferences.setUIFontStyle(selected.getFontName());
 				updateRestartLabel(lblRestartOR);
 			}
 		});
@@ -110,8 +169,9 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		boolean needsRestart = false;
 
 		// Check if any UI settings have changed
-		needsRestart |= preferences.getUIFontSize() != currentFontSize;
 		needsRestart |= preferences.getUIScale() != currentUIScale;
+		needsRestart |= preferences.getUIFontSize() != currentFontSize;
+		needsRestart |= !preferences.getUIFontStyle().equals(currentFontStyle);
 		needsRestart |= !GUIUtil.getUITheme().equals(currentTheme);
 
 		if (needsRestart) {

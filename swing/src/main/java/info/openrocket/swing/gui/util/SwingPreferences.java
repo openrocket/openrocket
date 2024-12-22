@@ -64,8 +64,9 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
-	private static final String UI_FONT_SIZE = "UIFontSize";
 	public static final String UI_SCALE = "UIScaling";
+	private static final String UI_FONT_SIZE = "UIFontSize";
+	public static final String UI_FONT_STYLE = "UIFontStyle";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
@@ -428,6 +429,22 @@ public class SwingPreferences extends ApplicationPreferences {
 	public void setUIFontSize(int size) {
 		putInt(UI_FONT_SIZE, size);
 		storeVersion();
+	}
+
+	/**
+	 * Get the current font style used for the UI.
+	 * @return the current style weight (e.g. "Inter-Regular_Medium")
+	 */
+	public String getUIFontStyle() {
+		return getString(UI_FONT_STYLE, "Inter-Regular_Medium");
+	}
+
+	/**
+	 * Set the font weight used for the UI.
+	 * @param fontWeight the font weight to set
+	 */
+	public void setUIFontStyle(String fontWeight) {
+		putString(UI_FONT_STYLE, fontWeight);
 	}
 
 	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
