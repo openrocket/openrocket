@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.dialogs.preferences;
 
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
 import info.openrocket.swing.gui.SpinnerEditor;
@@ -8,7 +9,9 @@ import info.openrocket.swing.gui.adaptors.IntegerModel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
@@ -24,6 +27,10 @@ public class UIPreferencesPanel extends PreferencesPanel {
 	private final double currentUIScale;
 	private final int currentFontSize;
 	private final String currentFontStyle;
+
+	private static final double TRACKING_SCALE_FACTOR = 100.0; // UI shows 0-100 instead of 0-1
+	private static final double MIN_TRACKING_UI = -20;  // Shows as -20 in UI, means -0.2 tracking
+	private static final double MAX_TRACKING_UI = 30;   // Shows as 30 in UI, means 0.3 tracking
 
 	// Font weight options
 	public enum FontStyle {
@@ -55,7 +62,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 	}
 
 	public UIPreferencesPanel(PreferencesDialog parent) {
-		super(parent, new MigLayout("fillx, ins 30lp n n n"));
+		super(parent, new MigLayout());
 
 		this.currentTheme = GUIUtil.getUITheme();
 		this.currentUIScale = preferences.getUIScale();
@@ -116,6 +123,19 @@ public class UIPreferencesPanel extends PreferencesPanel {
 			}
 		}
 		this.add(fontStyleCombo, "wrap, growx");
+
+		// Letter spacing selector
+		JLabel lblSpacing = new JLabel(trans.get("generalprefs.lbl.CharacterSpacing"));
+		lblSpacing.setToolTipText(trans.get("generalprefs.lbl.CharacterSpacing.ttip"));
+		this.add(lblSpacing, "gapright para");
+
+		// Create a custom DoubleModel that converts between UI values and actual tracking values
+		final DoubleModel letterSpacingModel = new DoubleModel(preferences, "UIFontTracking", TRACKING_SCALE_FACTOR,
+				UnitGroup.UNITS_NONE, MIN_TRACKING_UI, MAX_TRACKING_UI);
+
+		final JSpinner letterSpacingSpinner = new JSpinner(letterSpacingModel.getSpinnerModel());
+		letterSpacingSpinner.setEditor(new SpinnerEditor(letterSpacingSpinner));
+		this.add(letterSpacingSpinner, "growx");
 
 
 		// Restart warning label

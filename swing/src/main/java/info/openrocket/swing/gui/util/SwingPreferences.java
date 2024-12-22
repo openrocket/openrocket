@@ -67,6 +67,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public static final String UI_SCALE = "UIScaling";
 	private static final String UI_FONT_SIZE = "UIFontSize";
 	public static final String UI_FONT_STYLE = "UIFontStyle";
+	public static final String UI_FONT_TRACKING = "UIFontTracking";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
@@ -445,6 +446,22 @@ public class SwingPreferences extends ApplicationPreferences {
 	 */
 	public void setUIFontStyle(String fontWeight) {
 		putString(UI_FONT_STYLE, fontWeight);
+	}
+
+	/**
+	 * Get the current font tracking used for the UI.
+	 * @return the current tracking value
+	 */
+	public double getUIFontTracking() {
+		return getDouble(UI_FONT_TRACKING, 0.0);
+	}
+
+	/**
+	 * Set the font tracking used for the UI.
+	 * @param tracking the tracking value to set
+	 */
+	public void setUIFontTracking(double tracking) {
+		putDouble(UI_FONT_TRACKING, tracking);
 	}
 
 	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {

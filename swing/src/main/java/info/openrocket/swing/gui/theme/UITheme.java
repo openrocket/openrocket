@@ -1899,13 +1899,9 @@ public class UITheme {
         // Set the global font to
         int fontSize = prefs.getUIFontSize();
         String fontStyle = prefs.getUIFontStyle();
-        log.info("Setting global font to {} {}", fontSize, fontStyle);
-        setGlobalFont(fontStyle, fontSize, 0.02f);
-
-        // Set the global font style
-
-        log.info("Setting global font style to {}", fontStyle);
-        System.setProperty("defaultFont", fontStyle);
+        double fontTracking = prefs.getUIFontTracking();
+        log.info("Setting global font to {} {} {}", fontSize, fontStyle, fontTracking);
+        setGlobalFont(fontStyle, fontSize, (float) fontTracking);
 
         // After applying the theme settings, notify listeners
         Theme.notifyUIThemeChangeListeners();
