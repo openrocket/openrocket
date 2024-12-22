@@ -49,16 +49,6 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		this.add(new JLabel(trans.get("generalprefs.lbl.UITheme")), "gapright para");
 		this.add(themesCombo, "wrap, growx");
 
-		// Font size selector
-		JLabel lblFontSize = new JLabel(trans.get("generalprefs.lbl.FontSize"));
-		lblFontSize.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
-		this.add(lblFontSize, "gapright para");
-		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSize", 5, 25);
-		final JSpinner fontSizeSpinner = new JSpinner(fontSizeModel.getSpinnerModel());
-		fontSizeSpinner.setEditor(new SpinnerEditor(fontSizeSpinner));
-		fontSizeSpinner.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
-		this.add(fontSizeSpinner, "growx, wrap");
-
 		// UI Scale selector
 		JLabel lblUIScale = new JLabel(trans.get("generalprefs.lbl.UIScale"));
 		lblUIScale.setToolTipText(trans.get("generalprefs.lbl.UIScale.ttip"));
@@ -68,6 +58,16 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		uiScaleSpinner.setEditor(new SpinnerEditor(uiScaleSpinner));
 		uiScaleSpinner.setToolTipText(trans.get("generalprefs.lbl.UIScale.ttip"));
 		this.add(uiScaleSpinner, "growx, wrap");
+
+		// Font size selector
+		JLabel lblFontSize = new JLabel(trans.get("generalprefs.lbl.FontSize"));
+		lblFontSize.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
+		this.add(lblFontSize, "gapright para");
+		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSize", 5, 25);
+		final JSpinner fontSizeSpinner = new JSpinner(fontSizeModel.getSpinnerModel());
+		fontSizeSpinner.setEditor(new SpinnerEditor(fontSizeSpinner));
+		fontSizeSpinner.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
+		this.add(fontSizeSpinner, "growx, wrap");
 
 		// Restart warning label
 		final JLabel lblRestartOR = new JLabel();
