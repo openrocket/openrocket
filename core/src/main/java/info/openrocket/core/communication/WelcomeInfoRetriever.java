@@ -28,7 +28,7 @@ public abstract class WelcomeInfoRetriever {
         if (in == null) {
             // Try to load the file from the file system (only really useful when running
             // the unit tests directly from your IDE)
-            File f = new File("../ReleaseNotes.md");
+            File f = new File("ReleaseNotes.md");
             in = f.toURI().toURL().openStream();
             if (in == null) {
                 throw new FileNotFoundException("ReleaseNotes.md not found");
