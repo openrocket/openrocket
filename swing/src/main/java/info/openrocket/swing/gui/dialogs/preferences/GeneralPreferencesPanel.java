@@ -49,7 +49,7 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
-import info.openrocket.swing.gui.theme.UITheme;
+
 
 @SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
