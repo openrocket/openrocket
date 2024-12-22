@@ -12,8 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -81,7 +79,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	private final JViewport viewport;
 	private final MigLayout layout;
 	
-	private final int width, height;
+	//private final int width, height;
 	
 	
 	public ComponentAddButtons(OpenRocketDocument document, TreeSelectionModel model,
@@ -174,48 +172,9 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				//				new ComponentButton("Payload"),
 				//// Mass component
 				new ComponentButton(document, selectionModel, MassComponent.class, trans.get("compaddbuttons.MassComponent")));
-		
 
-		// Get maximum button size
-		int w = 0, h = 0;
-		
-		for (row = 0; row < buttons.length; row++) {
-			for (col = 0; col < buttons[row].length; col++) {
-				Dimension d = buttons[row][col].getPreferredSize();
-				if (d.width > w)
-					w = d.width;
-				if (d.height > h)
-					h = d.height;
-			}
-		}
-		
-		// Set all buttons to maximum size
-		width = w;
-		height = h;
-		Dimension d = new Dimension(width, height);
-		for (row = 0; row < buttons.length; row++) {
-			for (col = 0; col < buttons[row].length; col++) {
-				buttons[row][col].setMinimumSize(d);
-				buttons[row][col].setPreferredSize(d);
-				buttons[row][col].validate();
-			}
-		}
-		
-		// Add viewport listener if viewport provided
-		if (viewport != null) {
-			viewport.addChangeListener(new ChangeListener() {
-				private int oldWidth = -1;
-				
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					Dimension d1 = ComponentAddButtons.this.viewport.getExtentSize();
-					if (d1.width != oldWidth) {
-						oldWidth = d1.width;
-						flowButtons();
-					}
-				}
-			});
-		}
+		// Align the buttons
+		flowButtons();
 		
 		add(new JPanel(), "grow");
 	}
@@ -252,28 +211,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	
 	
 	/**
-	 * Flows the buttons in all rows of the panel.  If a button would come too close
-	 * to the right edge of the viewport, "newline" is added to its constraints flowing 
-	 * it to the next line.
+	 * Flows the buttons in all rows of the panel.
 	 */
 	private void flowButtons() {
 		if (viewport == null)
 			return;
-		
-		int w;
-		
-		Dimension d = viewport.getExtentSize();
 
 		for (ComponentButton[] button : buttons) {
-			w = 0;
 			for (int col = 0; col < button.length; col++) {
-				w += GAP + width;
-				String param = BUTTONPARAM + ",width " + width + "!,height " + height + "!";
-
-				if (w + EXTRASPACE > d.width) {
-					param = param + ",newline";
-					w = GAP + width;
-				}
+				String param = BUTTONPARAM;
 				if (col == button.length - 1)
 					param = param + ",wrap";
 				layout.setComponentConstraints(button[col], param);
