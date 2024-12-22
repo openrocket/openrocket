@@ -110,8 +110,6 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		fontSizeSpinner.setToolTipText(trans.get("generalprefs.lbl.FontSize.ttip"));
 		this.add(fontSizeSpinner, "growx, wrap");
 
-		GUIUtil.printAvailableFonts();
-
 		// Font style selector
 		JLabel lblFontStyle = new JLabel(trans.get("generalprefs.lbl.FontStyle"));
 		lblFontStyle.setToolTipText(trans.get("generalprefs.lbl.FontStyle.ttip"));
