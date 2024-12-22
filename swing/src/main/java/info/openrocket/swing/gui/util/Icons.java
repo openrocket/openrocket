@@ -23,6 +23,7 @@ import java.util.Map;
 public class Icons {
 	private static final Logger log = LoggerFactory.getLogger(Icons.class);
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	static {
 		log.debug("Starting to load icons");
@@ -156,7 +157,8 @@ public class Icons {
 			Application.getExceptionHandler().handleErrorCondition("Image file " + file + " not found, ignoring.");
 			return null;
 		}
-		return new ImageIcon(url, name);
+		ImageIcon icon = new ImageIcon(url, name);
+		return (ImageIcon) getScaledIcon(icon, prefs.getUIScale());
 	}
 
 	/**
@@ -169,23 +171,16 @@ public class Icons {
 		if (!(icon instanceof ImageIcon)) {
 			return icon;
 		}
-		final Image image = ((ImageIcon) icon).getImage();
-		return new ImageIcon(image) {
-			@Override
-			public int getIconWidth() {
-				return (int)(image.getWidth(null) * scale);
-			}
 
-			@Override
-			public int getIconHeight() {
-				return (int)(image.getHeight(null) * scale);
-			}
+		Image image = ((ImageIcon) icon).getImage();
+		int width = (int)(image.getWidth(null) * scale);
+		int height = (int)(image.getHeight(null) * scale);
 
-			@Override
-			public void paintIcon(Component c, Graphics g, int x, int y) {
-				g.drawImage(image, x, y, getIconWidth(), getIconHeight(), c);
-			}
-		};
+		// Create a new scaled image
+		Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
+		// Create and return a new ImageIcon with the scaled image
+		return new ImageIcon(scaledImage);
 	}
 
 	public static Icon createDisabledIcon(Icon icon) {

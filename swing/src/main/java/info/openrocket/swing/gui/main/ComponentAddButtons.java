@@ -1,8 +1,13 @@
 package info.openrocket.swing.gui.main;
 
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -12,11 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
@@ -62,46 +66,40 @@ import info.openrocket.swing.gui.components.StyledLabel;
 public class ComponentAddButtons extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 4315680855765544950L;
 	
-	private static final Logger log = LoggerFactory.getLogger(ComponentAddButtons.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final int ROWS = 4;
-	private static final int MAXCOLS = 6;
-	private static final String BUTTONPARAM = "grow, sizegroup buttons";
-	
-	private static final int GAP = 5;
-	private static final int EXTRASPACE = 0;
-	
+
 	private final ComponentButton[][] buttons;
 	
 	private final OpenRocketDocument document;
 	private final TreeSelectionModel selectionModel;
 	private final JViewport viewport;
 	private final MigLayout layout;
-	
-	//private final int width, height;
-	
+
+	private static final int BUTTON_GAP = 5;  // Space between buttons
+	private static final int BUTTON_PADDING = 5;  // Internal padding within buttons
+
 	
 	public ComponentAddButtons(OpenRocketDocument document, TreeSelectionModel model,
 			JViewport viewport) {
 		
 		super();
-		String constaint = "[min!]";
-		for (int i = 1; i < MAXCOLS; i++)
-			constaint = constaint + GAP + "[min!]";
-		
-		layout = new MigLayout("fill", constaint);
+
+		// With this more flexible configuration:
+		layout = new MigLayout("wrap", // Layout constraints - enable wrapping
+				"[]", // Column constraints - don't grow
+				"[]"); // Row constraints
 		setLayout(layout);
 		this.document = document;
 		this.selectionModel = model;
 		this.viewport = viewport;
 
 		buttons = new ComponentButton[ROWS][];
-		for( int rowCur = 0; rowCur < ROWS; rowCur++){
-			buttons[rowCur]=null;
+		for (int rowCur = 0; rowCur < ROWS; rowCur++) {
+			buttons[rowCur] = null;
 		}
 		int row = 0;
-		int col = 0;
 
 		////////////////////////////////////////////
 		add(new JLabel(trans.get("compaddbuttons.ComponentAssembly")), "span, gaptop 0, wrap");
@@ -174,9 +172,20 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new ComponentButton(document, selectionModel, MassComponent.class, trans.get("compaddbuttons.MassComponent")));
 
 		// Align the buttons
+		if (viewport != null) {
+			viewport.addComponentListener(new ComponentAdapter() {
+				@Override
+				public void componentResized(ComponentEvent e) {
+					flowButtons();
+				}
+			});
+		}
+
 		flowButtons();
-		
+
 		add(new JPanel(), "grow");
+
+		//SwingUtilities.invokeLater(this::flowButtons);
 	}
 	
 	
@@ -187,25 +196,70 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	 * @param b      List of ComponentButtons to place on the row
 	 */
 	private void addButtonGroup(int row, ComponentButton... b) {
+		// Create a panel for this group of buttons with specific gaps
+		JPanel groupPanel = new JPanel(new MigLayout("ins 0",
+				"[]" + BUTTON_GAP + "[]",
+				"[]"));
 
-		int oldLen=0;
-		if( null == buttons[row] ){
+		int oldLen = 0;
+		if (null == buttons[row]) {
 			buttons[row] = new ComponentButton[b.length];
-		}else{
+		} else {
 			ComponentButton[] oldArr = buttons[row];
 			oldLen = oldArr.length;
 			ComponentButton[] newArr = new ComponentButton[oldLen + b.length];
 			System.arraycopy(oldArr, 0, newArr, 0, oldLen);
 			buttons[row] = newArr;
 		}
-		
+
 		int dstCol = oldLen;
-		int srcCol=0;
-		while( srcCol < b.length) {
-			buttons[row][dstCol] = b[srcCol];
-			add(b[srcCol], BUTTONPARAM);
+		int srcCol = 0;
+		while (srcCol < b.length) {
+			ComponentButton button = b[srcCol];
+			buttons[row][dstCol] = button;
+
+			// Set button padding
+			button.setMargin(new Insets(BUTTON_PADDING, BUTTON_PADDING, BUTTON_PADDING, BUTTON_PADDING));
+
+			groupPanel.add(button, "top, gapright " + BUTTON_GAP);
 			dstCol++;
 			srcCol++;
+		}
+
+		// Add the group panel to the main panel
+		add(groupPanel, "wrap");
+	}
+
+	/**
+	 * Calculate and apply uniform size to all buttons
+	 */
+	private void uniformButtonSizes() {
+		int maxWidth = 0;
+		int maxHeight = 0;
+
+		// First pass: find maximum dimensions and ensure buttons have rendered
+		for (ComponentButton[] buttonRow : buttons) {
+			if (buttonRow == null) continue;
+			for (ComponentButton button : buttonRow) {
+				if (button == null) continue;
+				// Force the button to calculate its preferred size
+				button.setSize(button.getPreferredSize());
+				Dimension prefSize = button.getPreferredSize();
+				maxWidth = Math.max(maxWidth, prefSize.width);
+				maxHeight = Math.max(maxHeight, prefSize.height);
+			}
+		}
+
+		// Second pass: apply uniform size
+		Dimension uniformSize = new Dimension(maxWidth, maxHeight);
+		for (ComponentButton[] buttonRow : buttons) {
+			if (buttonRow == null) continue;
+			for (ComponentButton button : buttonRow) {
+				if (button == null) continue;
+				button.setPreferredSize(uniformSize);
+				button.setMinimumSize(uniformSize);
+				button.setMaximumSize(uniformSize);
+			}
 		}
 	}
 	
@@ -217,17 +271,55 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		if (viewport == null)
 			return;
 
-		for (ComponentButton[] button : buttons) {
-			for (int col = 0; col < button.length; col++) {
-				String param = BUTTONPARAM;
-				if (col == button.length - 1)
-					param = param + ",wrap";
-				layout.setComponentConstraints(button[col], param);
+		uniformButtonSizes();
+
+		int availableWidth = viewport.getWidth() - 35;	// Add extra margin
+		boolean anyLayoutChanged = false;
+
+		// For each group panel
+		for (Component comp : getComponents()) {
+			if (comp instanceof JPanel) {
+				JPanel groupPanel = (JPanel) comp;
+				Component[] groupButtons = groupPanel.getComponents();
+
+				if (groupButtons.length > 0) {
+					int totalButtonWidth = groupButtons[0].getPreferredSize().width + BUTTON_GAP;
+					int buttonsPerRow = Math.max(1, (availableWidth - BUTTON_GAP) / totalButtonWidth);
+
+					MigLayout layout = (MigLayout)groupPanel.getLayout();
+					String newConstraints = "ins 0, wrap " + buttonsPerRow;
+
+					// Only update if constraints actually changed
+					if (!newConstraints.equals(layout.getLayoutConstraints())) {
+						layout.setLayoutConstraints(newConstraints);
+						anyLayoutChanged = true;
+
+						// Force the group panel to re-layout
+						groupPanel.invalidate();
+					}
+				}
 			}
 		}
-		revalidate();
+
+		if (anyLayoutChanged) {
+			// Force complete re-layout of the entire component hierarchy
+			Container parent = getParent();
+			while (parent != null) {
+				parent.invalidate();
+				parent = parent.getParent();
+			}
+
+			// Request validation of the entire hierarchy
+			SwingUtilities.invokeLater(() -> {
+				Container top = getTopLevelAncestor();
+				if (top != null) {
+					top.validate();
+					top.repaint();
+				}
+			});
+		}
 	}
-	
+
 	/**
 	 * A class suitable for BodyComponents.  Addition is allowed ...  
 	 */
