@@ -1,17 +1,11 @@
 package info.openrocket.swing.gui.main;
 
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,9 +14,6 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -31,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.logging.Markers;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyComponent;
 import info.openrocket.core.rocketcomponent.BodyTube;
@@ -59,12 +49,9 @@ import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Pair;
-import info.openrocket.core.util.Reflection;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
-import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
-import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 
 /**
  * A component that contains addition buttons to add different types of rocket components
@@ -124,8 +111,8 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		//// Component Assembly Components:
 		addButtonGroup(row,
 				new StageButton(AxialStage.class, trans.get("compaddbuttons.AxialStage")),
-				new ComponentButton(ParallelStage.class, trans.get("compaddbuttons.ParallelStage")),
-				new ComponentButton(PodSet.class, trans.get("compaddbuttons.Pods")));
+				new ComponentButton(document, selectionModel, ParallelStage.class, trans.get("compaddbuttons.ParallelStage")),
+				new ComponentButton(document, selectionModel, PodSet.class, trans.get("compaddbuttons.Pods")));
 		row++;
 
 		////////////////////////////////////////////
@@ -140,17 +127,17 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				//// Transition
 				new BodyComponentButton(Transition.class, trans.get("compaddbuttons.Transition")),
 				//// Trapezoidal
-				new ComponentButton(TrapezoidFinSet.class, trans.get("compaddbuttons.Trapezoidal")), // TODO: MEDIUM: freer fin placing
+				new ComponentButton(document, selectionModel, TrapezoidFinSet.class, trans.get("compaddbuttons.Trapezoidal")), // TODO: MEDIUM: freer fin placing
 				//// Elliptical
-				new ComponentButton(EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
+				new ComponentButton(document, selectionModel, EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
 				//// Freeform
-				new ComponentButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
+				new ComponentButton(document, selectionModel, FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
 				//// Freeform
-				new ComponentButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
+				new ComponentButton(document, selectionModel, TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
 				//// Rail Button
-				new ComponentButton( RailButton.class, trans.get("compaddbuttons.RailButton")),
+				new ComponentButton(document, selectionModel, RailButton.class, trans.get("compaddbuttons.RailButton")),
 				//// Launch lug
-				new ComponentButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
+				new ComponentButton(document, selectionModel, LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
 		row++;
 		
 		/////////////////////////////////////////////
@@ -159,15 +146,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		add(new JLabel(trans.get("compaddbuttons.InnerComponent")), "span, gaptop unrel, wrap");
 		addButtonGroup(row, 
 				//// Inner tube
-				new ComponentButton(InnerTube.class, trans.get("compaddbuttons.Innertube")),
+				new ComponentButton(document, selectionModel, InnerTube.class, trans.get("compaddbuttons.Innertube")),
 				//// Coupler
-				new ComponentButton(TubeCoupler.class, trans.get("compaddbuttons.Coupler")),
+				new ComponentButton(document, selectionModel, TubeCoupler.class, trans.get("compaddbuttons.Coupler")),
 				//// Centering\nring
-				new ComponentButton(CenteringRing.class, trans.get("compaddbuttons.Centeringring")),
+				new ComponentButton(document, selectionModel, CenteringRing.class, trans.get("compaddbuttons.Centeringring")),
 				//// Bulkhead
-				new ComponentButton(Bulkhead.class, trans.get("compaddbuttons.Bulkhead")),
+				new ComponentButton(document, selectionModel, Bulkhead.class, trans.get("compaddbuttons.Bulkhead")),
 				//// Engine\nblock
-				new ComponentButton(EngineBlock.class, trans.get("compaddbuttons.Engineblock")));
+				new ComponentButton(document, selectionModel, EngineBlock.class, trans.get("compaddbuttons.Engineblock")));
 		
 		row++;
 
@@ -178,15 +165,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		// NOTE: These are on the same line as the assemblies above
 		addButtonGroup(row, 
 				//// Parachute
-				new ComponentButton(Parachute.class, trans.get("compaddbuttons.Parachute")),
+				new ComponentButton(document, selectionModel, Parachute.class, trans.get("compaddbuttons.Parachute")),
 				//// Streamer
-				new ComponentButton(Streamer.class, trans.get("compaddbuttons.Streamer")),
+				new ComponentButton(document, selectionModel, Streamer.class, trans.get("compaddbuttons.Streamer")),
 				//// Shock cord
-				new ComponentButton(ShockCord.class, trans.get("compaddbuttons.Shockcord")),
+				new ComponentButton(document, selectionModel, ShockCord.class, trans.get("compaddbuttons.Shockcord")),
 				//				new ComponentButton("Motor clip"),
 				//				new ComponentButton("Payload"),
 				//// Mass component
-				new ComponentButton(MassComponent.class, trans.get("compaddbuttons.MassComponent")));
+				new ComponentButton(document, selectionModel, MassComponent.class, trans.get("compaddbuttons.MassComponent")));
 		
 
 		// Get maximum button size
@@ -295,203 +282,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		revalidate();
 	}
 	
-	
-
-	/**
-	 * Class for a component button.
-	 */
-	private class ComponentButton extends JButton implements TreeSelectionListener {
-		private static final long serialVersionUID = 4510127994205259083L;
-		protected Class<? extends RocketComponent> componentClass = null;
-		private Constructor<? extends RocketComponent> constructor = null;
-		
-		/** Only label, no icon. */
-		public ComponentButton(String text) {
-			this(text, null, null);
-		}
-		
-		/**
-		 * Constructor with icon and label.  The icon and label are placed into the button.
-		 * The label may contain "\n" as a newline.
-		 */
-		public ComponentButton(String text, Icon enabled, Icon disabled) {
-			super(text, enabled);
-
-			setVerticalTextPosition(SwingConstants.BOTTOM); 		// Put the text below the icon
-			setHorizontalTextPosition(SwingConstants.CENTER); 		// Center the text horizontally
-			//setIconTextGap(0); // Optional; sets the gap between the icon and the text
-
-			// set the disabled icon if it is not null
-			if (disabled != null) {
-				setDisabledIcon(disabled);
-			}
-
-			setHorizontalAlignment(SwingConstants.CENTER); 			// Center the button in its parent component
-
-			// if you have multiline text, you could use html to format it
-			if (text != null && text.contains("\n")) {
-				text = "<html><center>" + text.replace("\n", "<br>") + "</center></html>";
-				setText(text);
-			}
-
-			// Initialize enabled status
-			valueChanged(null);
-
-			// Attach a tree selection listener if selection model is not null
-			if (selectionModel != null) {
-				selectionModel.addTreeSelectionListener(this);
-			}
-		}
-		
-		
-		/**
-		 * Main constructor that should be used.  The generated component type is specified
-		 * and the text.  The icons are fetched based on the component type.
-		 */
-		public ComponentButton(Class<? extends RocketComponent> c, String text) {
-			this(text, ComponentIcons.getLargeIcon(c), ComponentIcons.getLargeDisabledIcon(c));
-			
-			if (c == null)
-				return;
-			
-			componentClass = c;
-			
-			try {
-				constructor = c.getConstructor();
-			} catch (NoSuchMethodException e) {
-				throw new IllegalArgumentException("Unable to get default " +
-						"constructor for class " + c, e);
-			}
-		}
-		
-		
-		/**
-		 * Return whether the current component is addable when the component c is selected.
-		 * c is null if there is no selection.  The default is to use c.isCompatible(class).
-		 */
-		public boolean isAddable(RocketComponent c) {
-			if (c == null)
-				return false;
-			if (componentClass == null)
-				return false;
-			return c.isCompatible(componentClass);
-		}
-		
-		/**
-		 * Return the position to add the component if component c is selected currently.
-		 * The first element of the returned array is the RocketComponent to add the component
-		 * to, and the second (if non-null) an Integer telling the position of the component.
-		 * A return value of null means that the user cancelled addition of the component.
-		 * If the Integer is null, the component is added at the end of the sibling 
-		 * list.  By default returns the end of the currently selected component.
-		 * 
-		 * @param c  The component currently selected
-		 * @return   The position to add the new component to, or null if should not add.
-		 */
-		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
-			return new Pair<>(c, null);
-		}
-		
-		/**
-		 * Updates the enabled status of the button.
-		 * TODO: LOW: What about updates to the rocket tree?
-		 */
-		@Override
-		public void valueChanged(TreeSelectionEvent e) {
-			updateEnabled();
-		}
-		
-		/**
-		 * Sets the enabled status of the button and all subcomponents.
-		 */
-		@Override
-		public void setEnabled(boolean enabled) {
-			super.setEnabled(enabled);
-			Component[] c = getComponents();
-			for (Component component : c) component.setEnabled(enabled);
-		}
-		
-		
-		/**
-		 * Update the enabled status of the button.
-		 */
-		private void updateEnabled() {
-			RocketComponent c = null;
-			TreePath p = selectionModel.getSelectionPath();
-			if (p != null)
-				c = (RocketComponent) p.getLastPathComponent();
-			setEnabled(isAddable(c));
-		}
-		
-		
-		@Override
-		protected void fireActionPerformed(ActionEvent event) {
-			super.fireActionPerformed(event);
-			log.info(Markers.USER_MARKER, "Adding component of type " + componentClass.getSimpleName());
-			RocketComponent c = null;
-			Integer position = null;
-			
-			TreePath p = selectionModel.getSelectionPath();
-			if (p != null)
-				c = (RocketComponent) p.getLastPathComponent();
-			
-			Pair<RocketComponent, Integer> pos = getAdditionPosition(c);
-			if (pos == null) {
-				// Cancel addition
-				log.info("No position to add component");
-				return;
-			}
-			c = pos.getU();
-			position = pos.getV();
-			
-
-			if (c == null) {
-				// Should not occur
-				Application.getExceptionHandler().handleErrorCondition("ERROR:  Could not place new component.");
-				updateEnabled();
-				return;
-			}
-			
-			if (constructor == null) {
-				Application.getExceptionHandler().handleErrorCondition("ERROR:  Construction of type not supported yet.");
-				return;
-			}
-			
-			RocketComponent component;
-			try {
-				component = (RocketComponent) constructor.newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new BugException("Could not construct new instance of class " + constructor, e);
-			} catch (InvocationTargetException e) {
-				throw Reflection.handleWrappedException(e);
-			}
-			
-			// Next undo position is set by opening the configuration dialog
-			document.addUndoPosition("Add " + component.getComponentName());
-			
-			log.info("Adding component " + component.getComponentName() + " to component " + c.getComponentName() +
-					" position=" + position);
-			
-			if (position == null)
-				c.addChild(component);
-			else
-				c.addChild(component, position);
-			
-			// Select new component and open config dialog
-			selectionModel.setSelectionPath(ComponentTreeModel.makeTreePath(component));
-			
-			JFrame parent = null;
-			for (Component comp = ComponentAddButtons.this; comp != null; comp = comp.getParent()) {
-				if (comp instanceof JFrame) {
-					parent = (JFrame) comp;
-					break;
-				}
-			}
-			
-			ComponentConfigDialog.showDialog(parent, document, component, false, true);
-		}
-	}
-	
 	/**
 	 * A class suitable for BodyComponents.  Addition is allowed ...  
 	 */
@@ -499,17 +289,17 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		private static final long serialVersionUID = 1574998068156786363L;
 
 		public BodyComponentButton(Class<? extends RocketComponent> c, String text) {
-			super(c, text);
+			super(document, selectionModel, c, text);
 		}
 		
 		public BodyComponentButton(String text, Icon enabled, Icon disabled) {
-			super(text, enabled, disabled);
+			super(document, selectionModel, text, enabled, disabled);
 		}
 		
 		public BodyComponentButton(String text) {
-			super(text);
+			super(document, selectionModel, text);
 		}
-		
+
 		@Override
 		public boolean isAddable(RocketComponent selectedComponent) {
 			if (super.isAddable(selectedComponent)) {
@@ -638,15 +428,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	private class StageButton extends ComponentButton {
 
 		public StageButton(String text) {
-			super(text);
+			super(document, selectionModel, text);
 		}
 
 		public StageButton(String text, Icon enabled, Icon disabled) {
-			super(text, enabled, disabled);
+			super(document, selectionModel, text, enabled, disabled);
 		}
 
 		public StageButton(Class<? extends RocketComponent> c, String text) {
-			super(c, text);
+			super(document, selectionModel, c, text);
 		}
 
 		@Override
