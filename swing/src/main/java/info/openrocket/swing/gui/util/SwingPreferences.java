@@ -399,11 +399,16 @@ public class SwingPreferences extends ApplicationPreferences {
 	 * @return the current font size
 	 */
 	public int getUIFontSize() {
-		return getInt(UI_FONT_SIZE, getDefaultFontSize());
+		int fontSize = getInt(UI_FONT_SIZE, getDefaultFontSize());
+		int scaledFontSize = (int) (fontSize * getUIScale());
+		return Math.max(8, scaledFontSize);
 	}
 
 	public final float getRocketInfoFontSize() {
-		return (float) ((getUIFontSize() - 2) + 3 * Application.getPreferences().getChoice(ApplicationPreferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+		float fontSize = (float) ((getUIFontSize() - 2) + 3 *
+				Application.getPreferences().getChoice(ApplicationPreferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+		float scaledFontSize = (float) (fontSize * getUIScale());
+		return Math.max(8, scaledFontSize);
 	}
 
 	private static int getDefaultFontSize() {
