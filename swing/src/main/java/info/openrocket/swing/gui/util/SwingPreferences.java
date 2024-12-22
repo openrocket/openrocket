@@ -65,6 +65,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
 	private static final String UI_FONT_SIZE = "UIFontSize";
+	public static final String UI_SCALE = "UIScaling";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
@@ -377,6 +378,19 @@ public class SwingPreferences extends ApplicationPreferences {
 	public void setUITheme(Object theme) {
 		if (!(theme instanceof UITheme.Theme)) return;
 		putString(ApplicationPreferences.UI_THEME, ((UITheme.Theme) theme).name());
+		storeVersion();
+	}
+
+	public double getUIScale() {
+		return getDouble(UI_SCALE, 1.0);
+	}
+
+	/**
+	 * Set how much the UI should be scaled.
+	 * @param scale: scaling factor, 1.0 = no scaling, < 1.0 = smaller UI, > 1.0 = larger UI
+	 */
+	public void setUIScale(double scale) {
+		putDouble(UI_SCALE, scale);
 		storeVersion();
 	}
 

@@ -200,6 +200,10 @@ public class SwingStartup {
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
+
+		// Set the UI scale factor
+		log.info("Setting UI scale factor");
+		System.setProperty("flatlaf.uiScale", String.valueOf(((SwingPreferences) Application.getPreferences()).getUIScale()));
 		
 		// Set the look-and-feel
 		log.info("Setting LAF");
