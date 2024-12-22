@@ -77,7 +77,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	private final JViewport viewport;
 	private final MigLayout layout;
 
-	private static final int BUTTON_GAP = 5;  // Space between buttons
+	private static final int BUTTON_GAP = 8;  // Space between buttons
 	private static final int BUTTON_PADDING = 5;  // Internal padding within buttons
 
 	
