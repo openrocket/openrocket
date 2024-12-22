@@ -1907,7 +1907,7 @@ public class UITheme {
         Theme.notifyUIThemeChangeListeners();
 
         // Update all components
-        FlatLaf.updateUI();     // TODO: has no effect (UI doesn't change)
+        FlatLaf.updateUI();     // TODO: has no effect (UI doesn't change) --> Nevermind, you just have to call "Theme.applyTheme" after you change the theme in preferneces
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
     }
 

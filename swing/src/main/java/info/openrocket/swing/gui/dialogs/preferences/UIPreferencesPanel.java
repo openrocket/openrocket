@@ -28,7 +28,10 @@ public class UIPreferencesPanel extends PreferencesPanel {
 	private final int currentFontSize;
 	private final String currentFontStyle;
 
-	private static final double TRACKING_SCALE_FACTOR = 100.0; // UI shows 0-100 instead of 0-1
+	private final JLabel lblRestartOR;
+	private final UIPreviewPanel previewPanel;
+
+	public static final double TRACKING_SCALE_FACTOR = 100.0; // UI shows 0-100 instead of 0-1
 	private static final double MIN_TRACKING_UI = -20;  // Shows as -20 in UI, means -0.2 tracking
 	private static final double MAX_TRACKING_UI = 30;   // Shows as 30 in UI, means 0.3 tracking
 
@@ -62,7 +65,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 	}
 
 	public UIPreferencesPanel(PreferencesDialog parent) {
-		super(parent, new MigLayout());
+		super(parent, new MigLayout("fillx"));
 
 		this.currentTheme = GUIUtil.getUITheme();
 		this.currentUIScale = preferences.getUIScale();
@@ -91,7 +94,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		JLabel lblUIScale = new JLabel(trans.get("generalprefs.lbl.UIScale"));
 		lblUIScale.setToolTipText(trans.get("generalprefs.lbl.UIScale.ttip"));
 		this.add(lblUIScale, "gapright para");
-		final DoubleModel uiScaleModel = new DoubleModel(preferences, "UIScale", 0.5, 2.0);
+		final DoubleModel uiScaleModel = new DoubleModel(preferences, "UIScale", UnitGroup.UNITS_COEFFICIENT, 0.5, 2.0);
 		final JSpinner uiScaleSpinner = new JSpinner(uiScaleModel.getSpinnerModel());
 		uiScaleSpinner.setEditor(new SpinnerEditor(uiScaleSpinner));
 		uiScaleSpinner.setToolTipText(trans.get("generalprefs.lbl.UIScale.ttip"));
@@ -133,41 +136,22 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		final DoubleModel letterSpacingModel = new DoubleModel(preferences, "UIFontTracking", TRACKING_SCALE_FACTOR,
 				UnitGroup.UNITS_NONE, MIN_TRACKING_UI, MAX_TRACKING_UI);
 
-		final JSpinner letterSpacingSpinner = new JSpinner(letterSpacingModel.getSpinnerModel());
-		letterSpacingSpinner.setEditor(new SpinnerEditor(letterSpacingSpinner));
-		this.add(letterSpacingSpinner, "growx");
-
+		final JSpinner characterSpacingSpinner = new JSpinner(letterSpacingModel.getSpinnerModel());
+		characterSpacingSpinner.setEditor(new SpinnerEditor(characterSpacingSpinner));
+		this.add(characterSpacingSpinner, "growx, wrap");
 
 		// Restart warning label
-		final JLabel lblRestartOR = new JLabel();
-		lblRestartOR.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
+		this.lblRestartOR = new JLabel();
+		this.lblRestartOR.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
 		this.add(lblRestartOR, "spanx, wrap, growx");
 
+
+		// Add preview panel
+		previewPanel = new UIPreviewPanel();
+		this.add(previewPanel, "span, grow, wrap");
+
+
 		// Add change listeners
-		uiScaleSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				updateRestartLabel(lblRestartOR);
-			}
-		});
-
-		fontSizeSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				updateRestartLabel(lblRestartOR);
-			}
-		});
-
-		fontStyleCombo.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				FontStyle selected = (FontStyle) fontStyleCombo.getSelectedItem();
-				if (selected == null) return;
-				preferences.setUIFontStyle(selected.getFontName());
-				updateRestartLabel(lblRestartOR);
-			}
-		});
-
 		themesCombo.addActionListener(new ActionListener() {
 			@Override
 			@SuppressWarnings("unchecked")
@@ -180,9 +164,28 @@ public class UIPreferencesPanel extends PreferencesPanel {
 					return;
 				}
 				preferences.setUITheme(t);
+				t.applyTheme();
+				previewPanel.updateTheme(t);
 				updateRestartLabel(lblRestartOR);
 			}
 		});
+
+		uiScaleSpinner.addChangeListener(new UIPreferenceChangeListener());
+		fontSizeSpinner.addChangeListener(new UIPreferenceChangeListener());
+		characterSpacingSpinner.addChangeListener(new UIPreferenceChangeListener());
+
+		fontStyleCombo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FontStyle selected = (FontStyle) fontStyleCombo.getSelectedItem();
+				if (selected == null) return;
+				preferences.setUIFontStyle(selected.getFontName());
+				updatePreview();
+				updateRestartLabel(lblRestartOR);
+			}
+		});
+
+		updatePreview();
 	}
 
 	private void updateRestartLabel(JLabel label) {
@@ -198,6 +201,22 @@ public class UIPreferencesPanel extends PreferencesPanel {
 			label.setText(trans.get("generalprefs.lbl.themeRestartOR"));
 		} else {
 			label.setText("");
+		}
+	}
+
+	private void updatePreview() {
+		previewPanel.updatePreview(
+				preferences.getUIFontStyle(),
+				preferences.getUIFontSize(),
+				(float) preferences.getUIFontTracking()
+		);
+	}
+
+	private class UIPreferenceChangeListener implements ChangeListener {
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			updatePreview();
+			updateRestartLabel(lblRestartOR);
 		}
 	}
 }
