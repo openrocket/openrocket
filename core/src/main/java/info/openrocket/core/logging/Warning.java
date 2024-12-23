@@ -400,6 +400,9 @@ public abstract class Warning extends Message {
 	/** A <code>Warning</code> that a ComponentAssembly has an open forward end */	
 	public static final Warning OPEN_AIRFRAME_FORWARD = new Other(trans.get("Warning.OPEN_AIRFRAME_FORWARD"), MessagePriority.LOW);
 
+	/** A <code>Warning</code> that the lower stage of a rocket has an open forward airframe following stage separation **/
+	public static final Warning OPEN_BOOSTER_FORWARD = new Other(trans.get("Warning.OPEN_BOOSTER_FORWARD"), MessagePriority.LOW);
+	
 	/** A <code>Warning</code> that there is a gap in the airframe */
 	public static final Warning AIRFRAME_GAP = new Other(trans.get("Warning.AIRFRAME_GAP"), MessagePriority.LOW);
 

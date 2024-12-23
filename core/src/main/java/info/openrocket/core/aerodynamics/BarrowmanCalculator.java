@@ -340,7 +340,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 					SymmetricComponent sym = (SymmetricComponent) comp;
 					if (null == prevComp) {
 						if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
-							warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym);
+							if (comp.getStageNumber() == 0) {
+								warnings.add(Warning.OPEN_AIRFRAME_FORWARD, sym);
+							} else {
+								warnings.add(Warning.OPEN_BOOSTER_FORWARD, sym);
+							}
 						}
 					} else {
 						// Check for radius discontinuity

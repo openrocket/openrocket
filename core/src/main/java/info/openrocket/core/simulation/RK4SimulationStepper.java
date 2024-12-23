@@ -436,7 +436,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			}
 			
 			if (!sustainer && (!stable || recoverySoon)) {
-				warnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
+				warnings.filterOut(Warning.OPEN_BOOSTER_FORWARD);
 			}
 				
 			status.addWarnings(warnings);
