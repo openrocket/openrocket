@@ -1,6 +1,7 @@
 package info.openrocket.core.aerodynamics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import info.openrocket.core.logging.WarningSet;
 import org.junit.jupiter.api.BeforeAll;
@@ -108,5 +109,73 @@ public class FinSetCalcTest {
 		assertEquals(exp_cpx_fins, forces.getCP().x, EPSILON, " FinSetCalc produces bad C_p.x: ");
 		assertEquals(0.0, forces.getCN(), EPSILON, " FinSetCalc produces bad CN: ");
 		assertEquals(0.0, forces.getCm(), EPSILON, " FinSetCalc produces bad C_m: ");
+	}
+
+	@Test
+	public void testZeroAreaFin() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+
+		// Set fin dimensions to zero
+		fins.setHeight(0.0);
+
+		assertEquals(0.0, fins.getPlanformArea(), EPSILON, "Zero-area fin should have zero planform area");
+
+		// Calculate forces
+		AerodynamicForces forces = sumFins(fins, rocket);
+
+		// Verify all force components are zero and not NaN
+		assertEquals(0.0, forces.getCNa(), EPSILON, "CNa should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCN(), EPSILON, "CN should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCm(), EPSILON, "Cm should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCroll(), EPSILON, "Croll should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCrollDamp(), EPSILON, "CrollDamp should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCrollForce(), EPSILON, "CrollForce should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCside(), EPSILON, "Cside should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCyaw(), EPSILON, "Cyaw should be zero for zero-area fin");
+
+		// Check the same for a canted fin
+		fins.setCantAngle(0.1);
+
+		// Calculate forces
+		forces = sumFins(fins, rocket);
+
+		// Verify all force components are zero and not NaN
+		assertEquals(0.0, forces.getCNa(), EPSILON, "CNa should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCN(), EPSILON, "CN should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCm(), EPSILON, "Cm should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCroll(), EPSILON, "Croll should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCrollDamp(), EPSILON, "CrollDamp should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCrollForce(), EPSILON, "CrollForce should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCside(), EPSILON, "Cside should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCyaw(), EPSILON, "Cyaw should be zero for canted zero-area fin");
+	}
+
+	@Test
+	public void testVerySmallArea() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+
+		// Set fin dimensions to very small values (less than 0.0025m)
+		double tinyDimension = 0.0001; // 0.1 mm
+		fins.setHeight(tinyDimension);
+
+		// Calculate forces
+		AerodynamicForces forces = sumFins(fins, rocket);
+
+		// Verify results are not NaN
+		assertFalse(Double.isNaN(forces.getCNa()), "CNa should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCN()), "CN should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCm()), "Cm should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCroll()), "Croll should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCrollDamp()), "CrollDamp should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCrollForce()), "CrollForce should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCside()), "Cside should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCyaw()), "Cyaw should not be NaN for very small fin");
+
+		// Verify CP location is valid
+		assertFalse(Double.isNaN(forces.getCP().x), "CP x-coordinate should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCP().y), "CP y-coordinate should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCP().z), "CP z-coordinate should not be NaN for very small fin");
 	}
 }
