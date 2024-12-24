@@ -341,7 +341,7 @@ public class OBJOptionChooser extends JPanel {
         UITheme.Theme.addUIThemeChangeListener(OBJOptionChooser::updateColors);
     }
 
-    private static void updateColors() {
+    public static void updateColors() {
         darkWarningColor = GUIUtil.getUITheme().getDarkErrorColor();
     }
 

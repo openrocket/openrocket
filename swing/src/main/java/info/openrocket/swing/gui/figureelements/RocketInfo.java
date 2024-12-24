@@ -93,7 +93,7 @@ public class RocketInfo implements FigureElement {
 		UITheme.Theme.addUIThemeChangeListener(RocketInfo::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		darkErrorColor = GUIUtil.getUITheme().getErrorColor();

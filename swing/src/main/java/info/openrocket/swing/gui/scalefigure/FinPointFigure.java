@@ -88,7 +88,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 		UITheme.Theme.addUIThemeChangeListener(FinPointFigure::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		finPointBodyLineColor = GUIUtil.getUITheme().getFinPointBodyLineColor();
 		finPointGridMajorLineColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();

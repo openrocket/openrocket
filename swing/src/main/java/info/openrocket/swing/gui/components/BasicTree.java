@@ -53,7 +53,7 @@ public class BasicTree extends JTree {
 		UITheme.Theme.addUIThemeChangeListener(BasicTree::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 	}
 	

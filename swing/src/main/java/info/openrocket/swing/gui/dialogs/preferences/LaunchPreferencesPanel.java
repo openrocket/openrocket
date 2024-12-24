@@ -42,7 +42,7 @@ public class LaunchPreferencesPanel extends PreferencesPanel {
 		UITheme.Theme.addUIThemeChangeListener(LaunchPreferencesPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 

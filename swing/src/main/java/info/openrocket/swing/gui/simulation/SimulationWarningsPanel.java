@@ -89,7 +89,7 @@ public class SimulationWarningsPanel extends JPanel {
 		UITheme.Theme.addUIThemeChangeListener(SimulationWarningsPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		border = GUIUtil.getUITheme().getBorder();
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();

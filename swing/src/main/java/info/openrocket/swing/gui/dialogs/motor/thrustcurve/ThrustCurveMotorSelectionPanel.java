@@ -413,7 +413,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		UITheme.Theme.addUIThemeChangeListener(ThrustCurveMotorSelectionPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 

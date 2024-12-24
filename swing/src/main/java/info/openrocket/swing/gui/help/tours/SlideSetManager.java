@@ -58,7 +58,7 @@ public class SlideSetManager {
 		UITheme.Theme.addUIThemeChangeListener(SlideSetManager::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 	

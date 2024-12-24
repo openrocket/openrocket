@@ -14,6 +14,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.itextpdf.awt.PdfGraphics2D;
+import info.openrocket.swing.gui.figureelements.CGCaret;
+import info.openrocket.swing.gui.figureelements.CPCaret;
+import info.openrocket.swing.gui.scalefigure.AbstractScaleFigure;
+import info.openrocket.swing.gui.scalefigure.RocketFigure;
+import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.util.SwingPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +138,8 @@ public class DesignReport {
 	 * Parent window for showing simulation run dialog as necessary
 	 */
 	private Window window = null;
+
+	private final UITheme.Theme originalTheme;
 	
 	/** The displayed strings. */
 	private static final String STAGES = "Stages: ";
@@ -192,10 +201,13 @@ public class DesignReport {
 	 */
 	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc, Double figureRotation,
 	                    boolean runOutOfDateSims, boolean updateExistingSims, Window window) {
-		document = theIDoc;
-		rocketDocument = theRocDoc;
-		panel = new RocketPanel(rocketDocument);
-		rotation = figureRotation;
+		this.originalTheme = GUIUtil.getUITheme();
+		GUIUtil.setUITheme(UITheme.Themes.LIGHT);
+		updateColors();
+		this.document = theIDoc;
+		this.rocketDocument = theRocDoc;
+		this.panel = new RocketPanel(this.rocketDocument);
+		this.rotation = figureRotation;
 		this.runOutOfDateSimulations = runOutOfDateSims;
 		this.updateExistingSimulations = updateExistingSims;
 		this.window = window;
@@ -355,7 +367,20 @@ public class DesignReport {
 		g2d.dispose();
 		return scale;
 	}
-	
+
+	public void restoreUITheme() {
+		GUIUtil.setUITheme(originalTheme);
+		updateColors();
+	}
+
+	private void updateColors() {
+		AbstractScaleFigure.updateColors();
+		RocketFigure.updateColors();
+		CGCaret.updateColors();
+		CPCaret.updateColors();
+		((SwingPreferences) Application.getPreferences()).updateColors();
+	}
+
 	/**
 	 * Add the motor data for a motor configuration to the table.
 	 *

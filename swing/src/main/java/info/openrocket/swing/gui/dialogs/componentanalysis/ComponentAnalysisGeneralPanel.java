@@ -699,7 +699,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			UITheme.Theme.addUIThemeChangeListener(CustomCellRenderer::updateColors);
 		}
 
-		private static void updateColors() {
+		public static void updateColors() {
 			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 			foregroundColor = GUIUtil.getUITheme().getTextColor();
 		}

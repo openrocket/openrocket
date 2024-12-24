@@ -214,7 +214,7 @@ public class UpdateInfoDialog extends JDialog {
 		UITheme.Theme.addUIThemeChangeListener(UpdateInfoDialog::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
 	}
 

@@ -75,7 +75,7 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
         UITheme.Theme.addUIThemeChangeListener(BetterListCellRenderer::updateColors);
     }
 
-    private static void updateColors() {
+    public static void updateColors() {
         rowBackgroundDarkerColor = GUIUtil.getUITheme().getRowBackgroundDarkerColor();
         rowBackgroundLighterColor = GUIUtil.getUITheme().getRowBackgroundLighterColor();
         textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();

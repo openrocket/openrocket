@@ -149,7 +149,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		UITheme.Theme.addUIThemeChangeListener(SimulationPlotPanel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
 	}
 

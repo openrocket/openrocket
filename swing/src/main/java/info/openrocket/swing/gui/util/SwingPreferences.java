@@ -131,6 +131,10 @@ public class SwingPreferences extends ApplicationPreferences {
 		DEFAULT_COLORS.put(ParallelStage.class, getUIThemeAsTheme().getDefaultParallelStageColor());
 	}
 
+	public void updateColors() {
+		fillDefaultComponentColors();
+	}
+
 	public String getNodename() {
 		return NODENAME;
 	}

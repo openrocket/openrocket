@@ -40,7 +40,7 @@ public abstract class ErrorWarningDialog {
         UITheme.Theme.addUIThemeChangeListener(ErrorWarningDialog::updateColors);
     }
 
-    private static void updateColors() {
+    public static void updateColors() {
 		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
         textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
     }

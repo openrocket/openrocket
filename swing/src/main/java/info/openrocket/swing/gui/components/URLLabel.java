@@ -80,7 +80,7 @@ public class URLLabel extends SelectableLabel {
 		UITheme.Theme.addUIThemeChangeListener(URLLabel::updateColors);
 	}
 
-	private static void updateColors() {
+	public static void updateColors() {
 		URLColor = GUIUtil.getUITheme().getURLColor();
 	}
 }
