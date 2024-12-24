@@ -197,7 +197,8 @@ public class Databases {
 		String name = trans.get("material", baseName);
 
 		for (Material m : db) {
-			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density) && m.getGroup() == group) {
+			// Material group comparison is omitted to keep compatibility with files pre OR 24.12
+			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
 				return m;
 			}
 		}
