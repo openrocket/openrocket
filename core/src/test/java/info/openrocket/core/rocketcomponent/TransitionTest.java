@@ -159,4 +159,20 @@ public class TransitionTest extends BaseTestCase {
 		assertEquals(0.011, nose.getAftShoulderRadius(), EPSILON, "Alpha3 nose cone aft shoulder radius is wrong ");
 	}
 
+	/**
+	 * Test the calculation of the properties of a zero-length transition.
+	 * This is to ensure no regressions with GitHub issue #2626.
+	 */
+	@Test
+	public void testZeroLengthTransitionCalculations() {
+		Transition transition = new Transition() {
+			@Override
+			public double getLength() {
+				return 0.0;
+			}
+		};
+		transition.setAftShoulderLength(0.1);
+		transition.calculateProperties();
+	}
+
 }
