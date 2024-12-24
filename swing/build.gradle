@@ -80,9 +80,9 @@ dependencies {
     implementation group: 'io.github.g00fy2', name: 'versioncompare', version: '1.5.0'
     implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.8'
 
-    implementation group: 'com.formdev', name: 'flatlaf', version: '3.5'
-    implementation group: 'com.formdev', name: 'flatlaf-extras', version: '3.5'
-    implementation group: 'com.formdev', name: 'flatlaf-intellij-themes', version: '3.5'
+    implementation group: 'com.formdev', name: 'flatlaf', version: '3.5.4'
+    implementation group: 'com.formdev', name: 'flatlaf-extras', version: '3.5.4'
+    implementation group: 'com.formdev', name: 'flatlaf-intellij-themes', version: '3.5.4'
 
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
