@@ -25,6 +25,7 @@ public class MotorExporter {
     protected final String groupName;
     protected final ObjUtils.LevelOfDetail LOD;
     protected final CoordTransform transformer;
+    protected final boolean exportAllInstances;
     protected final WarningSet warnings;
 
     /**
@@ -38,7 +39,7 @@ public class MotorExporter {
      * @param LOD         Level of detail to use for the export (e.g. '80')
      */
     public MotorExporter(DefaultObj obj, FlightConfiguration config, CoordTransform transformer, RocketComponent mount,
-                         String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
+                         String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances, WarningSet warnings) {
         if (!(mount instanceof MotorMount)) {
             throw new IllegalArgumentException("Motor exporter can only be used for motor mounts");
         }
@@ -48,6 +49,7 @@ public class MotorExporter {
         this.mount = mount;
         this.groupName = groupName;
         this.LOD = LOD;
+        this.exportAllInstances = exportAllInstances;
         this.warnings = warnings;
     }
 
@@ -61,7 +63,10 @@ public class MotorExporter {
 
         obj.setActiveGroupNames(groupName + "_" + motor.getMotorName());
 
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(mount)) {
+        // Generate the mesh
+        List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts(mount);
+        contexts = exportAllInstances ? contexts : contexts.subList(0, 1);
+        for (InstanceContext context : contexts) {
             generateMesh(motor, context);
         }
     }

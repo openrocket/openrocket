@@ -18,8 +18,9 @@ import java.util.List;
 
 public class FinSetExporter extends RocketComponentExporter<FinSet> {
     public FinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                          FinSet component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                          FinSet component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
+                          WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         }
 
         // Generate the fin meshes
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(floatPoints, floatTabPoints, thickness, hasTabs, context);
         }
     }

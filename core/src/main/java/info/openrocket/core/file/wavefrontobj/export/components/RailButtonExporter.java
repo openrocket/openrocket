@@ -27,8 +27,8 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
      * @param LOD       Level of detail to use for the export (e.g. '80')
      */
     public RailButtonExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              RailButton component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                              RailButton component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         final float screwHeight = (float) component.getScrewHeight();
 
         // Generate the mesh
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(outerRadius, innerRadius, baseHeight, innerHeight, flangeHeight, screwHeight, context);
         }
     }

@@ -54,6 +54,7 @@ public class OBJOptionChooser extends JPanel {
     private final JButton optRend;
     private final JLabel componentsLabel;
     private final JCheckBox exportChildren;
+    private final JCheckBox exportAllInstances;
     private final JCheckBox exportMotors;
     private final JCheckBox exportAppearance;
     private final JCheckBox exportAsSeparateFiles;
@@ -162,6 +163,11 @@ public class OBJOptionChooser extends JPanel {
         });
         destroyTheMagic(exportChildren);
         this.add(exportChildren, "spanx, wrap");
+
+        //// Export all component instances
+        this.exportAllInstances = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportAllInstances"));
+        this.exportAllInstances.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportAllInstances.ttip"));
+        this.add(exportAllInstances, "spanx, wrap");
 
         //// Export motors
         this.exportMotors = new JCheckBox(trans.get("OBJOptionChooser.checkbox.exportMotors"));
@@ -408,6 +414,7 @@ public class OBJOptionChooser extends JPanel {
             exportChildren.setToolTipText(trans.get("OBJOptionChooser.checkbox.exportChildren.ttip"));
         }
 
+        this.exportAllInstances.setSelected(opts.isExportAllInstances());
         this.exportMotors.setSelected(opts.isExportMotors());
         this.exportAppearance.setSelected(opts.isExportAppearance());
         this.exportAsSeparateFiles.setSelected(opts.isExportAsSeparateFiles());
@@ -441,6 +448,7 @@ public class OBJOptionChooser extends JPanel {
         if (alwaysStoreExportChildren || !onlyComponentAssemblies) {
             opts.setExportChildren(exportChildren.isSelected());
         }
+        opts.setExportAllInstances(exportAllInstances.isSelected());
         opts.setExportMotors(exportMotors.isSelected());
         opts.setExportAppearance(exportAppearance.isSelected());
         opts.setExportAsSeparateFiles(exportAsSeparateFiles.isSelected());

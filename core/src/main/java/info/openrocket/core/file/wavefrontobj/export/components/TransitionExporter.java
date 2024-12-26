@@ -27,8 +27,9 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private static final Translator trans = Application.getTranslator();
 
     public TransitionExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                              Transition component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
+                              WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
         this.nrOfSides = LOD.getNrOfSides(Math.max(component.getForeRadius(), component.getAftRadius()));
     }
 
@@ -41,7 +42,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         }
 
         // Generate the mesh
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(context);
         }
     }

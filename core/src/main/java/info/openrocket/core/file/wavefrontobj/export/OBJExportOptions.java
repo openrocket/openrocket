@@ -13,6 +13,10 @@ public class OBJExportOptions {
      */
     private boolean exportChildren;
     /**
+     * If false, export only a single instance of each component.
+     */
+    private boolean exportAllInstances;
+    /**
      * If true, export the motors of the components as well.
      */
     private boolean exportMotors;
@@ -72,6 +76,14 @@ public class OBJExportOptions {
 
     public void setExportChildren(boolean exportChildren) {
         this.exportChildren = exportChildren;
+    }
+
+    public boolean isExportAllInstances() {
+        return exportAllInstances;
+    }
+
+    public void setExportAllInstances(boolean exportAllInstances) {
+        this.exportAllInstances = exportAllInstances;
     }
 
     public boolean isExportMotors() {

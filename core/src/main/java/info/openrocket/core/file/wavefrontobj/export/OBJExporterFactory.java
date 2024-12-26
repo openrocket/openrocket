@@ -267,7 +267,8 @@ public class OBJExporterFactory {
         }
 
         // Export component
-        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD, warnings);
+        final RocketComponentExporter<T> exporter = factory.create(obj, config, transformer, component, groupName, LOD,
+                options.isExportAllInstances(), warnings);
         exporter.addToObj();
 
         // Export motor
@@ -285,7 +286,8 @@ public class OBJExporterFactory {
             }
 
             // Export the motor geometry
-            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD, warnings);
+            MotorExporter motorExporter = new MotorExporter(obj, config, transformer, component, groupName, LOD,
+                    options.isExportAllInstances(), warnings);
             motorExporter.addToObj();
         }
     }
@@ -327,6 +329,7 @@ public class OBJExporterFactory {
 
     interface ExporterFactory<T extends RocketComponent> {
         RocketComponentExporter<T> create(DefaultObj obj, FlightConfiguration config, CoordTransform transformer,
-                                          T component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings);
+                                          T component, String groupName, ObjUtils.LevelOfDetail LOD,
+                                          boolean exportAllInstances, WarningSet warnings);
     }
 }
