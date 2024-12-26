@@ -65,7 +65,7 @@ public class MotorExporter {
 
         // Generate the mesh
         List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts(mount);
-        contexts = exportAllInstances ? contexts : contexts.subList(0, 1);
+        contexts = (exportAllInstances || contexts.isEmpty()) ? contexts : contexts.subList(0, 1);
         for (InstanceContext context : contexts) {
             generateMesh(motor, context);
         }

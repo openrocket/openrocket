@@ -53,6 +53,6 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
 
     protected List<InstanceContext> getInstanceContexts() {
         List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts(component);
-        return exportAllInstances ? contexts : contexts.subList(0, 1);
+        return (exportAllInstances || contexts.isEmpty()) ? contexts : contexts.subList(0, 1);
     }
 }
