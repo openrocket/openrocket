@@ -9,6 +9,8 @@ import info.openrocket.core.unit.UnitGroup;
 public abstract class Column {
 	private final String name;
 	private final String toolTip;
+	private final boolean autoSize;
+	private final boolean includeHeaderInAutoSize;
 	
 	/**
 	 * Create a new column with specified name.  Additionally, the {@link #getValueAt(int)}
@@ -17,8 +19,7 @@ public abstract class Column {
 	 * @param name	the caption of the column.
 	 */
 	public Column(String name) {
-		this.name = name;
-		this.toolTip = null;
+		this(name, name);
 	}
 	
 	/**
@@ -26,9 +27,23 @@ public abstract class Column {
 	 * 
 	 * 
 	 */
-	public Column(String name, String toolTip ) {
+	public Column(String name, String toolTip) {
+		this(name, toolTip, false);
+	}
+
+	public Column(String name, String toolTip, boolean autoSize) {
+		this(name, toolTip, autoSize, true);
+	}
+
+	public Column(String name, boolean autoSize, boolean includeHeaderInAutoSize) {
+		this(name, name, autoSize, includeHeaderInAutoSize);
+	}
+
+	public Column(String name, String toolTip, boolean autoSize, boolean includeHeaderInAutoSize) {
 		this.name = name;
 		this.toolTip = toolTip;
+		this.autoSize = autoSize;
+		this.includeHeaderInAutoSize = includeHeaderInAutoSize;
 	}
 	
 	/**
@@ -43,6 +58,8 @@ public abstract class Column {
 	 * Return the default width of the column.  This is used by the method
 	 * {@link #ColumnTableModel.setColumnWidth(TableColumnModel)}.  The default width is
 	 * 100, the method may be overridden to return other values relative to this value.
+	 *
+	 * If autoSize is true, this value is used as the minimum width.
 	 * 
 	 * @return		the relative width of the column (default 100).
 	 */
@@ -59,6 +76,14 @@ public abstract class Column {
 	 */
 	public int getExactWidth() {
 		return 0;
+	}
+
+	public boolean isAutoSize() {
+		return autoSize;
+	}
+
+	public boolean includeHeaderInAutoSize() {
+		return includeHeaderInAutoSize;
 	}
 	
 	public UnitGroup getUnits() {

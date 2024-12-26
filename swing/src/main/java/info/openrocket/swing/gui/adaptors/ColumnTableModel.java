@@ -13,18 +13,29 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 	public ColumnTableModel(Column... columns) {
 		this.columns = columns;
 	}
-	
+
 	public void setColumnWidths(TableColumnModel model) {
 		for (int i = 0; i < columns.length; i++) {
+			TableColumn col = model.getColumn(i);
+
 			if (columns[i].getExactWidth() > 0) {
-				TableColumn col = model.getColumn(i);
+				// Handle exact width columns as before
 				int w = columns[i].getExactWidth();
 				col.setResizable(false);
 				col.setMinWidth(w);
 				col.setMaxWidth(w);
 				col.setPreferredWidth(w);
-			} else {
-				model.getColumn(i).setPreferredWidth(columns[i].getDefaultWidth());
+			}
+			else if (columns[i].isAutoSize()) {
+				// For auto-size columns, set minimum width but allow expansion
+				col.setResizable(true);
+				col.setMinWidth(columns[i].getDefaultWidth());
+				col.setPreferredWidth(columns[i].getDefaultWidth());
+				col.setMaxWidth(Integer.MAX_VALUE);
+			}
+			else {
+				// Handle normal columns as before
+				col.setPreferredWidth(columns[i].getDefaultWidth());
 			}
 		}
 	}
