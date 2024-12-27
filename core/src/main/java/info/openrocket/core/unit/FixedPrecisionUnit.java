@@ -62,7 +62,8 @@ public class FixedPrecisionUnit extends Unit {
 
 	@Override
 	public double round(double value) {
-		return Math.rint(value / precision) * precision;
+		double scale = 1.0 / precision;
+		return Math.round(value * scale) / scale;
 	}
 
 	@Override
