@@ -200,6 +200,28 @@ of the hyperlink. For example: `Hey, I'm a link! <https://www.youtube.com/watch?
    Always use a double underscore at the end. Don't use a single underscore, as this can cause issues when you have
    multiple hyperlinks with the same text.
 
+Hyperlinks to other pages in the documentation are created like this:
+
+.. code-block:: rst
+
+    :doc:`link text </path/to/your/page>`
+
+Or if you want to link to a certain section in the same page:
+
+.. code-block:: rst
+
+    :ref:`link text <Link anchor>`
+
+You can create an anchor by adding the following code to the place you want to link to:
+
+.. code-block:: rst
+
+    .. _Link anchor:
+
+   This is the place you want to link to.
+
+For instance, you can jump to the :ref:`Heading levels <heading_levels>` section.
+
 Admonitions: Tip, Note, Warning, Attention, See also
 ----------------------------------------------------
 
@@ -273,7 +295,7 @@ See Also
 
 .. seealso::
 
-   See also the following page :doc:`Development Overview </dev_guide/development_overview>`
+   See also the following page\: :doc:`Development Overview </dev_guide/development_overview>`
 
 Semantic Markup
 ---------------
@@ -324,6 +346,15 @@ The ``:guilabel:`` role is used to indicate labels of GUI elements like buttons,
 
 Example:
   Click the :guilabel:`Submit` button to save your changes.
+
+Abbreviations
+-------------
+
+If you want to define an abbreviation in the text, you can use the ``:abbr:`` role. This will create a tooltip with the
+full text of the abbreviation when you hover over it.
+
+Example:
+  :abbr:`OR (OpenRocket)` is a very awesome tool!
 
 Substitutions
 -------------

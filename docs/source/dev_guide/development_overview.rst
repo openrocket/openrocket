@@ -46,6 +46,10 @@ Explore the following sections to learn more about OpenRocket's development:
   |br_no_pad|
   *How to test and debug the OpenRocket code.*
 
+- :doc:`File Specification </dev_guide/file_specification>`
+  |br_no_pad|
+  *The specification of OpenRocket's design file format (.ork) and component file format (.orc).*
+
 - :doc:`API Documentation </dev_guide/api_documentation>`
   |br_no_pad|
   *Documentation for the OpenRocket API.*

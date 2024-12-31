@@ -88,23 +88,6 @@ Scripts
 Plugins
 =======
 
-File Format (.ork)
-==================
-
-The OpenRocket native format uses the file extension \*.ork. It is an XML format file combined with any needed graphics
-files, contained in a ZIP archive. The extension \*.ork.gz is also accepted by OpenRocket, though plain .ork is recommended.
-In other to view the contents of the file, you can simply rename the file extension to .zip and extract the contents.
-
-
-The ``version`` attribute of the <openrocket> tag describes the file format version used, while the ``creator``
-attribute *may* describe the software and version used to write the document. The file format version is increased
-every time the format is changed. The minor number is increased when changes are made that are mostly backward-compatible,
-meaning that older software versions should be able to read the design sans the new features. The major number is
-increased when changes are made that render the design problematic or impossible to read for older software. For maximum
-compatibility software should save a file in the oldest file format version that supports all the necessary design features.
-
-For an overview of the changes between file format versions, see the `fileformat.txt <https://github.com/openrocket/openrocket/blob/unstable/fileformat.txt>`_
-file in the root directory of the repository.
 
 
 
