@@ -48,6 +48,7 @@ Welcome to OpenRocket's documentation!
    /dev_guide/codebase_walkthrough
    /dev_guide/development_guidelines
    /dev_guide/testing_and_debugging
+   /dev_guide/file_specification
    /dev_guide/api_documentation
    /dev_guide/building_releasing
    /dev_guide/contributing_to_translations
