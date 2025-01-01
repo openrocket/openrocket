@@ -63,10 +63,14 @@ public class PreferencesDialog extends JDialog {
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "grow, wrap");
 
-		// Options and Miscellaneous options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null,
+		// General options
+		tabbedPane.addTab(trans.get("pref.dlg.tab.General"), null,
 				new GeneralPreferencesPanel(this),
-				trans.get("pref.dlg.tab.Miscellaneousoptions"));
+				trans.get("pref.dlg.tab.General.ttip"));
+		// UI options
+		tabbedPane.addTab(trans.get("pref.dlg.tab.UI"), null,
+				new UIPreferencesPanel(this),
+				trans.get("pref.dlg.tab.UI.ttip"));
 		// Designer options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Design"), null,
 				new DesignPreferencesPanel(), trans.get("pref.dlg.tab.Design"));

@@ -64,7 +64,10 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	public static final String NODE_WINDOWS = "windows";
 	public static final String NODE_TABLES = "tables";
+	public static final String UI_SCALE = "UIScaling";
 	private static final String UI_FONT_SIZE = "UIFontSize";
+	public static final String UI_FONT_STYLE = "UIFontStyle";
+	public static final String UI_FONT_TRACKING = "UIFontTracking";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
@@ -384,16 +387,34 @@ public class SwingPreferences extends ApplicationPreferences {
 		storeVersion();
 	}
 
+	public double getUIScale() {
+		return getDouble(UI_SCALE, 1.0);
+	}
+
+	/**
+	 * Set how much the UI should be scaled.
+	 * @param scale: scaling factor, 1.0 = no scaling, < 1.0 = smaller UI, > 1.0 = larger UI
+	 */
+	public void setUIScale(double scale) {
+		putDouble(UI_SCALE, scale);
+		storeVersion();
+	}
+
 	/**
 	 * Get the current font size used for the UI.
 	 * @return the current font size
 	 */
 	public int getUIFontSize() {
-		return getInt(UI_FONT_SIZE, getDefaultFontSize());
+		int fontSize = getInt(UI_FONT_SIZE, getDefaultFontSize());
+		int scaledFontSize = (int) (fontSize * getUIScale());
+		return Math.max(8, scaledFontSize);
 	}
 
 	public final float getRocketInfoFontSize() {
-		return (float) ((getUIFontSize() - 2) + 3 * Application.getPreferences().getChoice(ApplicationPreferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+		float fontSize = (float) ((getUIFontSize() - 2) + 3 *
+				Application.getPreferences().getChoice(ApplicationPreferences.ROCKET_INFO_FONT_SIZE, 2, 0));
+		float scaledFontSize = (float) (fontSize * getUIScale());
+		return Math.max(8, scaledFontSize);
 	}
 
 	private static int getDefaultFontSize() {
@@ -407,12 +428,52 @@ public class SwingPreferences extends ApplicationPreferences {
 	}
 
 	/**
-	 * Set the font size used for the UI.
+	 * Get the current font size used for the UI without scaling.
+	 * @return the current font size
+	 */
+	public int getUIFontSizeRaw() {
+		return getInt(UI_FONT_SIZE, getDefaultFontSize());
+	}
+
+	/**
+	 * Set the font size used for the UI (without scaling).
 	 * @param size the font size to set
 	 */
-	public void setUIFontSize(int size) {
+	public void setUIFontSizeRaw(int size) {
 		putInt(UI_FONT_SIZE, size);
 		storeVersion();
+	}
+
+	/**
+	 * Get the current font style used for the UI.
+	 * @return the current style weight (e.g. "Inter-Regular_Medium")
+	 */
+	public String getUIFontStyle() {
+		return getString(UI_FONT_STYLE, "Inter-Regular_Medium");
+	}
+
+	/**
+	 * Set the font weight used for the UI.
+	 * @param fontWeight the font weight to set
+	 */
+	public void setUIFontStyle(String fontWeight) {
+		putString(UI_FONT_STYLE, fontWeight);
+	}
+
+	/**
+	 * Get the current font tracking used for the UI.
+	 * @return the current tracking value
+	 */
+	public double getUIFontTracking() {
+		return getDouble(UI_FONT_TRACKING, 0.0);
+	}
+
+	/**
+	 * Set the font tracking used for the UI.
+	 * @param tracking the tracking value to set
+	 */
+	public void setUIFontTracking(double tracking) {
+		putDouble(UI_FONT_TRACKING, tracking);
 	}
 
 	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {

@@ -21,12 +21,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -44,8 +41,6 @@ import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
 
-import info.openrocket.swing.gui.SpinnerEditor;
-import info.openrocket.swing.gui.adaptors.IntegerModel;
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
@@ -54,18 +49,13 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
-import info.openrocket.swing.gui.theme.UITheme;
+
 
 @SuppressWarnings("serial")
 public class GeneralPreferencesPanel extends PreferencesPanel {
-	private final UITheme.Theme currentTheme;
-	private final int currentFontSize;
 
 	public GeneralPreferencesPanel(PreferencesDialog parent) {
 		super(parent, new MigLayout("fillx, ins 30lp n n n"));
-
-		this.currentTheme = GUIUtil.getUITheme();
-		this.currentFontSize = preferences.getUIFontSize();
 		
 		//// Language selector
 		Locale userLocale;
@@ -100,62 +90,6 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		this.add(languageCombo, "wrap rel, growx, sg combos");
 		
 		this.add(new StyledLabel(trans.get("generalprefs.lbl.languageEffect"), -3, Style.ITALIC), "span, wrap rel");
-
-		//// UI Theme
-		UITheme.Theme currentTheme = GUIUtil.getUITheme();
-		List<Named<UITheme.Theme>> themes = new ArrayList<>();
-		for (UITheme.Theme t : UITheme.Themes.values()) {
-			themes.add(new Named<>(t, t.getDisplayName()));
-		}
-		Collections.sort(themes);
-
-		final JComboBox<?> themesCombo = new JComboBox<>(themes.toArray());
-		for (int i = 0; i < themes.size(); i++) {
-			if (Utils.equals(currentTheme, themes.get(i).get())) {
-				themesCombo.setSelectedIndex(i);
-			}
-		}
-
-		this.add(new JLabel(trans.get("generalprefs.lbl.UITheme")), "gapright para");
-		this.add(themesCombo, "wrap, growx, sg combos");
-
-		//// Font size
-		this.add(new JLabel(trans.get("generalprefs.lbl.FontSize")), "gapright para");
-		final IntegerModel fontSizeModel = new IntegerModel(preferences, "UIFontSize", 5, 25);
-		final JSpinner fontSizeSpinner = new JSpinner(fontSizeModel.getSpinnerModel());
-		fontSizeSpinner.setEditor(new SpinnerEditor(fontSizeSpinner));
-		this.add(fontSizeSpinner, "growx, wrap");
-
-		//// You need to restart OpenRocket for the theme change to take effect.
-		final JLabel lblRestartORTheme = new JLabel();
-		lblRestartORTheme.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
-		this.add(lblRestartORTheme, "spanx, wrap, growx");
-
-		fontSizeSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (fontSizeModel.getValue() == currentFontSize) {
-					lblRestartORTheme.setText("");
-					return;
-				}
-				lblRestartORTheme.setText(trans.get("generalprefs.lbl.themeRestartOR"));
-			}
-		});
-		themesCombo.addActionListener(new ActionListener() {
-			@Override
-			@SuppressWarnings("unchecked")
-			public void actionPerformed(ActionEvent e) {
-				Named<UITheme.Theme> selection = (Named<UITheme.Theme>) themesCombo.getSelectedItem();
-				if (selection == null) return;
-				UITheme.Theme t = selection.get();
-				if (t == currentTheme) {
-					lblRestartORTheme.setText("");
-					return;
-				}
-				preferences.setUITheme(t);
-				lblRestartORTheme.setText(trans.get("generalprefs.lbl.themeRestartOR"));
-			}
-		});
 
 		this.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap para");
 

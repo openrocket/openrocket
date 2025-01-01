@@ -36,9 +36,12 @@ import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.util.SwingPreferences;
 
 public class ComponentIcons {
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	private static final String ICON_DIRECTORY = "pix/componenticons/";
 	private static final String SMALL_SUFFIX = "-small.png";
@@ -243,7 +246,8 @@ public class ComponentIcons {
 					"ERROR:  Couldn't find file: " + file);
 			return null;
 		}
-		return new ImageIcon(url, desc);
+		ImageIcon icon = new ImageIcon(url, desc);
+		return (ImageIcon) Icons.getScaledIcon(icon, prefs.getUIScale());
 	}
 
 	private static ImageIcon[] loadLarge(String file, String desc) {
@@ -303,7 +307,12 @@ public class ComponentIcons {
 			icons[1] = new ImageIcon(bi2, desc + " "
 					+ trans.get("ComponentIcons.disabled"));
 
-			return icons;
+			ImageIcon[] scaledIcons = new ImageIcon[2];
+			for (int i = 0; i < 2; i++) {
+				scaledIcons[i] = (ImageIcon) Icons.getScaledIcon(icons[i], prefs.getUIScale());
+			}
+
+			return scaledIcons;
 		} else {
 			Application.getExceptionHandler().handleErrorCondition(
 					"ERROR:  Couldn't find file: " + file);

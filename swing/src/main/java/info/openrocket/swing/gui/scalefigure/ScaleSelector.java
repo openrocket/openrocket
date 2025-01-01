@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.scalefigure;
 
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -52,7 +54,17 @@ public class ScaleSelector {
 		});
 
 		// Zoom level selector
-		scaleSelectorCombo = new JComboBox<>(SCALE_LABELS);
+		scaleSelectorCombo = new JComboBox<>(SCALE_LABELS)  {
+			@Override
+			public Dimension getPreferredSize() {
+				Dimension d = super.getPreferredSize();
+				String currentText = getSelectedItem() != null ? getSelectedItem().toString() : "";
+				FontMetrics fm = getFontMetrics(getFont());
+				int textWidth = fm.stringWidth(currentText);
+				d.width = Math.max(d.width, textWidth + 30); // Add padding for combobox arrow
+				return d;
+			}
+		};
 		scaleSelectorCombo.setEditable(true);
 		scaleSelectorCombo.setSelectedItem(" Fit (100.0%) ");	// Make sure the combobox can fit this text
 		scaleSelectorCombo.setPreferredSize(scaleSelectorCombo.getPreferredSize());
