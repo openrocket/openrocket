@@ -1,28 +1,53 @@
 package info.openrocket.core.unit;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 public class FixedPrecisionUnit extends Unit {
 
 	private final double precision;
 	private final String formatString;
+	private final boolean displayTrailingZeros;
+	private final DecimalFormat formatter;
 
 	public FixedPrecisionUnit(String unit, double precision) {
 		this(unit, precision, 1.0);
 	}
 
 	public FixedPrecisionUnit(String unit, double precision, double multiplier) {
+		this(unit, precision, multiplier, true);
+	}
+
+	public FixedPrecisionUnit(String unit, double precision, double multiplier, boolean displayTrailingZeros) {
 		super(multiplier, unit);
 
 		this.precision = precision;
+		this.displayTrailingZeros = displayTrailingZeros;
 
+		// Calculate number of decimal places needed
 		int decimals = 0;
 		double p = precision;
 		while ((p - Math.floor(p)) > 0.0000001) {
 			p *= 10;
 			decimals++;
 		}
-		formatString = "%." + decimals + "f";
+
+		// Create format string based on whether we want trailing zeros
+		this.formatString = "%." + decimals + "f";
+
+		// Initialize DecimalFormat for handling trailing zeros
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+		StringBuilder pattern = new StringBuilder("0");
+		if (decimals > 0) {
+			pattern.append(".");
+			if (displayTrailingZeros) {
+				pattern.append("0".repeat(decimals));
+			} else {
+				pattern.append("#".repeat(decimals));
+			}
+		}
+		this.formatter = new DecimalFormat(pattern.toString(), symbols);
 	}
 
 	@Override
@@ -37,12 +62,18 @@ public class FixedPrecisionUnit extends Unit {
 
 	@Override
 	public double round(double value) {
-		return Math.rint(value / precision) * precision;
+		double scale = 1.0 / precision;
+		return Math.round(value * scale) / scale;
 	}
 
 	@Override
 	public String toString(double value) {
-		return String.format(formatString, this.toUnit(value));
+		double unitValue = this.toUnit(value);
+		if (displayTrailingZeros) {
+			return String.format(formatString, unitValue);
+		} else {
+			return formatter.format(unitValue);
+		}
 	}
 
 	// TODO: LOW: This is copied from GeneralUnit, perhaps combine

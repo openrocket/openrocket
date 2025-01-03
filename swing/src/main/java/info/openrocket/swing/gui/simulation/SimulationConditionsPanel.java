@@ -209,7 +209,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		//// Launch site conditions
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][65lp!][30lp!][75lp!]", ""));
+				"[grow][90lp!][30lp!][75lp!]", ""));
 		//// Launch site
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Launchsite")));
 		parent.add(sub, "growx, split 2, aligny 0, flowy");
@@ -228,7 +228,7 @@ public class SimulationConditionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -249,7 +249,7 @@ public class SimulationConditionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -272,7 +272,7 @@ public class SimulationConditionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		sub.add(spin, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);

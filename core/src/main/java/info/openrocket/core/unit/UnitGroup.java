@@ -197,12 +197,12 @@ public class UnitGroup {
 		UNITS_WINDSPEED.addUnit(new GeneralUnit(0.51444445, "kt"));
 
 		UNITS_LATITUDE = new UnitGroup();
-		UNITS_LATITUDE.addUnit(new GeneralUnit(1, DEGREE + " " + trans.get("CompassRose.lbl.north")));
-		UNITS_LATITUDE.addUnit(new GeneralUnit(-1, DEGREE + " " + trans.get("CompassRose.lbl.south")));
+		UNITS_LATITUDE.addUnit(new FixedPrecisionUnit(DEGREE + " " + trans.get("CompassRose.lbl.north"), 10E-6, 1, false));
+		UNITS_LATITUDE.addUnit(new FixedPrecisionUnit(DEGREE + " " + trans.get("CompassRose.lbl.south"), 10E-6, -1, false));
 
 		UNITS_LONGITUDE = new UnitGroup();
-		UNITS_LONGITUDE.addUnit(new GeneralUnit(1, DEGREE + " " + trans.get("CompassRose.lbl.east")));
-		UNITS_LONGITUDE.addUnit(new GeneralUnit(-1, DEGREE + " " + trans.get("CompassRose.lbl.west")));
+		UNITS_LONGITUDE.addUnit(new FixedPrecisionUnit(DEGREE + " " + trans.get("CompassRose.lbl.east"), 10E-6, 1, false));
+		UNITS_LONGITUDE.addUnit(new FixedPrecisionUnit(DEGREE + " " + trans.get("CompassRose.lbl.west"), 10E-6, -1, false));
 
 		UNITS_ACCELERATION = new UnitGroup();
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s" + SQUARED));
