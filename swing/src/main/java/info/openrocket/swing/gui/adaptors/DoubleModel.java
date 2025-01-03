@@ -1091,7 +1091,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	public void stateChanged(EventObject e) {
 		modelInvalidator.checkState(true);
 
-		if (e.getSource() == minModel || e.getSource() == maxModel) {
+		if (e != null && (e.getSource() == minModel || e.getSource() == maxModel)) {
 			// Min or max value has changed, we need to ensure our current value is still within bounds
 			double currentValue = getValue();
 			setValue(currentValue);  // This will clamp the value if necessary

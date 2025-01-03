@@ -821,6 +821,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		panel.add(combo, "wrap");
 		order.add(combo);
 
+		final EventObject event = new EventObject(this);
 		builder.addChangeListener(new StateChangeListener() {
 			double lastOpacity = builder.getOpacity();
 			@Override
@@ -828,7 +829,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				colorButton.setIcon(new ColorIcon(builder.getPaint()));
 				colorHexField.setText(ColorConversion.toHexColor(builder.getPaint()));
 				if (lastOpacity != builder.getOpacity()) {
-					opacityModel.stateChanged(null);
+					opacityModel.stateChanged(event);
 					lastOpacity = builder.getOpacity();
 				}
 				if (!insideBuilder) {
