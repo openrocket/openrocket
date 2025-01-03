@@ -14,8 +14,8 @@ import info.openrocket.core.util.Coordinate;
 
 public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
     public LaunchLugExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                             LaunchLug component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                             LaunchLug component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
         }
 
         // Generate the mesh
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(outerRadius, innerRadius, length, context);
         }
     }

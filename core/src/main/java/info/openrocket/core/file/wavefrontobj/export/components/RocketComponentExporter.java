@@ -6,7 +6,10 @@ import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+
+import java.util.List;
 
 /**
  * Base class for a rocket component Wavefront OBJ exporter.
@@ -21,6 +24,7 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
     protected final String groupName;
     protected final ObjUtils.LevelOfDetail LOD;
     protected final CoordTransform transformer;
+    protected final boolean exportAllInstances;
     protected final WarningSet warnings;
 
     /**
@@ -33,7 +37,7 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
      * @param LOD Level of detail to use for the export (e.g. '80')
      */
     public RocketComponentExporter(@NotNull DefaultObj obj, @NotNull FlightConfiguration config, @NotNull CoordTransform transformer,
-                                   T component, String groupName, ObjUtils.LevelOfDetail LOD,
+                                   T component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
                                    WarningSet warnings) {
         this.obj = obj;
         this.config = config;
@@ -41,8 +45,14 @@ public abstract class RocketComponentExporter<T extends RocketComponent> {
         this.groupName = groupName;
         this.LOD = LOD;
         this.transformer = transformer;
+        this.exportAllInstances = exportAllInstances;
         this.warnings = warnings;
     }
 
     public abstract void addToObj();
+
+    protected List<InstanceContext> getInstanceContexts() {
+        List<InstanceContext> contexts = config.getActiveInstances().getInstanceContexts(component);
+        return (exportAllInstances || contexts.isEmpty()) ? contexts : contexts.subList(0, 1);
+    }
 }

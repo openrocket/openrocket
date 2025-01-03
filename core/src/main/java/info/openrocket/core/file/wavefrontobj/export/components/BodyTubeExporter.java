@@ -13,8 +13,8 @@ import info.openrocket.core.util.Coordinate;
 
 public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
     public BodyTubeExporter(DefaultObj obj, FlightConfiguration config, CoordTransform transformer, BodyTube component,
-                            String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                            String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances, WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
         }
 
         // Generate the mesh
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(outerRadius, innerRadius, length, isFilled, context);
         }
     }

@@ -14,8 +14,9 @@ import info.openrocket.core.util.Coordinate;
 
 public class RingComponentExporter extends RocketComponentExporter<RingComponent> {
     public RingComponentExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                                 RingComponent component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                                 RingComponent component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
+                                 WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class RingComponentExporter extends RocketComponentExporter<RingComponent
         }
 
         // Generate the mesh
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(outerRadius, innerRadius, length, context);
         }
     }

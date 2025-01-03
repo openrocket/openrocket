@@ -14,8 +14,9 @@ import info.openrocket.core.util.RocketComponentUtils;
 
 public class MassObjectExporter extends RocketComponentExporter<MassObject> {
     public MassObjectExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
-                              MassObject component, String groupName, ObjUtils.LevelOfDetail LOD, WarningSet warnings) {
-        super(obj, config, transformer, component, groupName, LOD, warnings);
+                              MassObject component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
+                              WarningSet warnings) {
+        super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }
 
     @Override
@@ -26,7 +27,7 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
         final int numStacks = LOD.getValue() / 2;
 
         // Generate the mesh
-        for (InstanceContext context : config.getActiveInstances().getInstanceContexts(component)) {
+        for (InstanceContext context : getInstanceContexts()) {
             generateMesh(numSides, numStacks, context);
         }
     }
