@@ -187,30 +187,42 @@ public class MassComponentShapes extends RocketComponentShapes {
 		return newShape;
 	}
 
-	private static Shape[] addDeploymentChargeSymbol(Shape[] baseShape){
-		int rays=15;
-		Shape[] newShape = new Shape[baseShape.length+2];
-		int offset=baseShape.length;
+	private static Shape[] addDeploymentChargeSymbol(Shape[] baseShape) {
+		int rays = 15;
+		Shape[] newShape = new Shape[baseShape.length + 2];
+		int offset = baseShape.length;
 		System.arraycopy(baseShape, 0, newShape, 0, baseShape.length);
-			
+
 		Rectangle2D bounds = baseShape[0].getBounds2D();
-		
-		Double vMargin=bounds.getWidth()/10;
-		Double xCenter=bounds.getCenterX();
-		Double yCenter=bounds.getCenterY();
+		double xCenter = bounds.getCenterX();
+		double yCenter = bounds.getCenterY();
 		Random rand = new Random();
-	
-		newShape[offset]= new Arc2D.Double(xCenter-2*vMargin, yCenter-2*vMargin,4*vMargin,4*vMargin, 55.0, 180.0, Arc2D.CHORD);
-		
+
+		// Make arc size proportional to component size
+		double arcRadius = Math.min(bounds.getWidth(), bounds.getHeight()) / 4.0;
+		newShape[offset] = new Arc2D.Double(
+				xCenter - arcRadius,
+				yCenter - arcRadius,
+				2 * arcRadius,
+				2 * arcRadius,
+				55.0,
+				180.0,
+				Arc2D.CHORD
+		);
+
 		Path2D.Double explosion = new Path2D.Double();
-		newShape[offset+1]=explosion;
-		
-		for(int i=1; i<rays; i++){
-			Double rx = rand.nextDouble()*3.0;
-			Double ry = rand.nextDouble()*2.0;
+		newShape[offset + 1] = explosion;
+
+		// Scale rays proportionally to component size
+		double maxRayLength = Math.min(bounds.getWidth(), bounds.getHeight()) / 4.0;
+
+		for (int i = 1; i < rays; i++) {
+			double rx = rand.nextDouble() * maxRayLength;
+			double ry = rand.nextDouble() * maxRayLength;
 			explosion.moveTo(xCenter, yCenter);
-			explosion.lineTo(xCenter+rx*vMargin, yCenter+ry*vMargin);		
+			explosion.lineTo(xCenter + rx, yCenter + ry);
 		}
+
 		return newShape;
 	}
 
