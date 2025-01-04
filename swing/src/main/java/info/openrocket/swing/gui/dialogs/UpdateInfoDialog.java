@@ -160,8 +160,8 @@ public class UpdateInfoDialog extends JDialog {
 		//// Install operating system combo box
 		List<String> assetURLs = release.getAssetURLs();
 		Map<UpdatePlatform, String> mappedAssets = AssetHandler.mapURLToPlatform(assetURLs);
-		JComboBox<Object> comboBox;
-		if (mappedAssets == null || mappedAssets.size() == 0) {
+		JComboBox<Object> comboBox = null;
+		/*if (mappedAssets == null || mappedAssets.size() == 0) {
 			comboBox = new JComboBox<>(new String[]{
 					String.format("- %s -", trans.get("update.dlg.updateAvailable.combo.noDownloads"))});
 		}
@@ -177,7 +177,7 @@ public class UpdateInfoDialog extends JDialog {
 				}
 			});
 		}
-		panel.add(comboBox, "pushx, right");
+		panel.add(comboBox, "pushx, right");*/
 
 		//// Install update button
 		JButton btnInstall = new JButton(trans.get("update.dlg.updateAvailable.but.install"));
@@ -185,8 +185,8 @@ public class UpdateInfoDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (mappedAssets == null) return;
-				String url = AssetHandler.getInstallerURLForPlatform((UpdatePlatform) comboBox.getSelectedItem(),
-						release.getReleaseName());
+				UpdatePlatform platform = comboBox != null ? (UpdatePlatform) comboBox.getSelectedItem() : null;
+				String url = AssetHandler.getInstallerURLForPlatform(platform, release.getReleaseName());
 				if (url == null) return;
 				try {
 					URLUtil.openWebpage(url);
