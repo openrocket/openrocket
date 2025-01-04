@@ -292,6 +292,16 @@ public class UpdateInfoRetriever {
 		}
 
 		/**
+		 * Check if the release name is an official release, i.e. a release without a devTag (e.g. 'beta').
+		 * @param name release name to check
+		 * @return true if the release name is an official release, false otherwise
+		 */
+		public static boolean isOfficialRelease(String name) {
+			return Arrays.stream(devTags.keySet().toArray(new String[0])
+					).noneMatch(name::contains) && !name.contains(snapshotTag);
+		}
+
+		/**
 		 * Return the latest JSON GitHub release object from a JSON array of release objects.
 		 * E.g. from a JSON array where JSON objects have release tags {"14.01", "15.03", "11.01"} return the JSON object
 		 * with release tag "15.03"?

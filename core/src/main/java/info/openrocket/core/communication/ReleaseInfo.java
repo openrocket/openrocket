@@ -91,6 +91,14 @@ public class ReleaseInfo {
         return assetURLs;
     }
 
+    /**
+     * Check if the release is an official release. An official release is a release that is not a pre-release.
+     * @return true if the release is an official release (e.g. 24.12), false otherwise (e.g. 24.12.beta.01)
+     */
+    public boolean isOfficialRelease() {
+        return UpdateInfoRetriever.UpdateInfoFetcher.isOfficialRelease(getReleaseName());
+    }
+
     @Override
     public String toString() {
         return String.format("releaseTag = %s ; releaseNotes = %s ; releaseURL = %s", getReleaseName(),

@@ -1,5 +1,6 @@
 package info.openrocket.swing.communication;
 
+import info.openrocket.core.communication.UpdateInfoRetriever;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.core.startup.Application;
 
@@ -73,6 +74,28 @@ public class AssetHandler {
      * @return URL to download the installer for the given platform
      */
     public static String getInstallerURLForPlatform(UpdatePlatform platform, String version) {
+        // If it is not an official release, use the GitHub download link
+        if (UpdateInfoRetriever.UpdateInfoFetcher.isOfficialRelease(version)) {
+            return getWebsiteDownloadURL(platform, version);
+        } else {
+            return getGitHubDownloadURL(version);
+        }
+
+
+    }
+
+    /**
+     * Returns the URL to download the installer for the given version from the OpenRocket website.
+     * @param platform platform to get the installer URL for; or null to get to the general download page
+     * @param version version of the installer to download
+     * @return URL to download the installer for the given version
+     */
+    private static String getWebsiteDownloadURL(UpdatePlatform platform, String version) {
+        // If the platform is null, return the general download URL
+        if (platform == null) {
+            return String.format("https://openrocket.info/downloads.html?vers=%s", version);
+        }
+
         for (Map.Entry<UpdatePlatform[], String> entry : mapPlatformToURL.entrySet()) {
             for (UpdatePlatform p : entry.getKey()) {
                 if (p == platform) {
@@ -81,6 +104,15 @@ public class AssetHandler {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the URL to download the installer for the given version from the GitHub releases page.
+     * @param version version of the installer to download
+     * @return URL to download the installer for the given version
+     */
+    private static String getGitHubDownloadURL(String version) {
+        return String.format("https://github.com/openrocket/openrocket/releases/tag/release-%s", version);
     }
 
     /**
