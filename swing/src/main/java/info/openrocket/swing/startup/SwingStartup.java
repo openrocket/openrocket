@@ -290,8 +290,9 @@ public class SwingStartup {
 					UpdateInfo info = updateRetriever.getUpdateInfo();
 
 					// Only display something when an update is found
+					boolean checkAllUpdates = System.getProperty("openrocket.debug.checkAllVersionUpdates") != null;
 					if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER &&
-						!preferences.getIgnoreUpdateVersions().contains(info.getLatestRelease().getReleaseName())) {
+							(checkAllUpdates || !preferences.getIgnoreUpdateVersions().contains(info.getLatestRelease().getReleaseName()))) {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
 					}
