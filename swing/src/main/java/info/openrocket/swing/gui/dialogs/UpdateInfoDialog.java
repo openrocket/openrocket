@@ -54,6 +54,7 @@ public class UpdateInfoDialog extends JDialog {
 	private final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
 	private static Color textColor;
+	private static Color warningTextColor;
 
 	static {
 		initColors();
@@ -72,8 +73,15 @@ public class UpdateInfoDialog extends JDialog {
 		//	OpenRocket version available!
 		panel.add(new StyledLabel(trans.get("update.dlg.updateAvailable.lbl.title"), 8, StyledLabel.Style.BOLD), "spanx, wrap");
 
-		// Your version
+		//	Pre-release warning
 		ReleaseInfo release = info.getLatestRelease();
+		if (!release.isOfficialRelease()) {
+			StyledLabel label = new StyledLabel(trans.get("update.dlg.lbl.preReleaseWarning"), 5, StyledLabel.Style.BOLD);
+			label.setFontColor(warningTextColor);
+			panel.add(label, "spanx, wrap");
+		}
+
+		// Your version
 		panel.add(new StyledLabel(String.format(trans.get("update.dlg.updateAvailable.lbl.yourVersion"),
 				release.getReleaseName(), BuildProperties.getVersion()), -1, StyledLabel.Style.PLAIN), "skip 1, spanx, wrap para");
 
@@ -82,10 +90,12 @@ public class UpdateInfoDialog extends JDialog {
 
 		// Release information box
 		final JTextPane textPane = new JTextPane();
-		textPane.setBorder(BorderFactory.createLineBorder(textColor));
+		textPane.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(textColor),
+				BorderFactory.createEmptyBorder(0, 10, 10, 10)
+		));
 		textPane.setEditable(false);
 		textPane.setContentType("text/html");
-		textPane.setMargin(new Insets(10, 10, 40, 10));
 		textPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
 
 		StringBuilder sb = new StringBuilder();
@@ -216,6 +226,7 @@ public class UpdateInfoDialog extends JDialog {
 
 	public static void updateColors() {
 		textColor = GUIUtil.getUITheme().getTextColor();
+		warningTextColor = GUIUtil.getUITheme().getWarningColor();
 	}
 
 	/**
