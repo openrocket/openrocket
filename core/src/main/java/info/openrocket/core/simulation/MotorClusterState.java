@@ -123,26 +123,7 @@ public class MotorClusterState {
 	}
 
 	/**
-	 * Compute the average thrust over an interval.
-	 * 
-	 * @param startSimulationTime start time of the averaging interval
-	 * @param endSimulationTime   end time of the averaging interval
-	 * @return
-	 */
-	public double getAverageThrust(final double startSimulationTime, final double endSimulationTime) {
-		if (this.currentState.isThrusting()) {
-			double motorStartTime = this.getMotorTime(startSimulationTime);
-			double motorEndTime = this.getMotorTime(endSimulationTime);
-
-			int instanceCount = this.config.getMount().getLocations().length;
-			return instanceCount * motor.getAverageThrust(motorStartTime, motorEndTime);
-		} else {
-			return 0.00;
-		}
-	}
-
-	/**
-	 * Compute the average thrust over an interval.
+	 * Compute the thrust
 	 * 
 	 * @param simulationTime
 	 * @return
