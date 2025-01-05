@@ -1899,7 +1899,7 @@ public class UITheme {
         // Set the global font to
         int fontSize = prefs.getUIFontSize();
         String fontStyle = prefs.getUIFontStyle();
-        double fontTracking = prefs.getUIFontTracking();
+        double fontTracking = 0.01 + prefs.getUIFontTracking();        // Add a default +0.01 separation
         log.info("Setting global font to {} {} {}", fontSize, fontStyle, fontTracking);
         setGlobalFont(fontStyle, fontSize, (float) fontTracking);
 
