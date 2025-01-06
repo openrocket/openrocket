@@ -2,9 +2,14 @@ package info.openrocket.core.aerodynamics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.ComponentAssembly;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +34,8 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
+
+import java.util.Map;
 
 public class BarrowmanCalculatorTest {
 	protected final double EPSILON = 0.00001;
@@ -663,5 +670,100 @@ public class BarrowmanCalculatorTest {
 		final AerodynamicForces zeroForces = calc.getAerodynamicForces(config, conditions, warnings);
 		final double zeroCD = zeroForces.getCD();
 		assertEquals(epsCD, zeroCD, EPSILON, "drag at mach 0 should equal drag at mach MathUtil.EPSILON");
+	}
+
+	/**
+	 * Tests that the force map contains all necessary components when stages are enabled/disabled.
+	 */
+	@Test
+	public void testForceMapContent() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfigurationId fcid = new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
+
+		AerodynamicCalculator calculator = new BarrowmanCalculator();
+
+		Simulation simulation = new Simulation(rocket);
+		simulation.setFlightConfigurationId(fcid);
+		FlightConfiguration config = simulation.getActiveConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		WarningSet warnings = new WarningSet();
+
+		// Get force analysis with all stages active
+		Map<RocketComponent, AerodynamicForces> forceMap = calculator.getForceAnalysis(config, conditions, warnings);
+
+		// First verify all stages active case
+		assertTrue(config.isStageActive(TestRockets.FALCON_9H_PAYLOAD_STAGE_NUMBER));
+		assertTrue(config.isStageActive(TestRockets.FALCON_9H_CORE_STAGE_NUMBER));
+		assertTrue(config.isStageActive(TestRockets.FALCON_9H_BOOSTER_STAGE_NUMBER));
+
+		// Check that force map contains all aerodynamic components
+		for (RocketComponent comp : rocket) {
+			if (comp.isAerodynamic() || comp instanceof ComponentAssembly) {
+				assertTrue(forceMap.containsKey(comp),
+						"Force map missing component: " + comp.getName());
+				assertNotNull(forceMap.get(comp),
+						"Force entry is null for: " + comp.getName());
+			}
+		}
+		assertEquals(13, forceMap.size(), "Force map should contain 13 components");
+
+		// Now disable core stage and check map is updated correctly
+		config._setStageActive(TestRockets.FALCON_9H_CORE_STAGE_NUMBER, false);
+		config._setStageActive(TestRockets.FALCON_9H_BOOSTER_STAGE_NUMBER, false);
+
+		warnings.clear();
+		Map<RocketComponent, AerodynamicForces> disabledForceMap = calculator.getForceAnalysis(config, conditions, warnings);
+
+		// Map should only contain components from active stages
+		for (RocketComponent comp : rocket) {
+			if (!config.isComponentActive(comp)) {
+				assertFalse(disabledForceMap.containsKey(comp),
+						"Force map contains inactive component: " + comp.getName());
+			}
+			else if (comp.isAerodynamic() || comp instanceof ComponentAssembly) {
+				assertTrue(disabledForceMap.containsKey(comp),
+						"Force map missing active component: " + comp.getName());
+				assertNotNull(disabledForceMap.get(comp),
+						"Force entry is null for active component: " + comp.getName());
+			}
+		}
+		assertEquals(7, disabledForceMap.size(), "Force map should contain 7 components");
+
+		// Re-enable the stages and verify map is complete again
+		config.setAllStages();
+
+		warnings.clear();
+		Map<RocketComponent, AerodynamicForces> reenabledForceMap = calculator.getForceAnalysis(config, conditions, warnings);
+
+		for (RocketComponent comp : rocket) {
+			if (comp.isAerodynamic() || comp instanceof ComponentAssembly) {
+				assertTrue(reenabledForceMap.containsKey(comp),
+						"Force map missing component after re-enable: " + comp.getName());
+				assertNotNull(reenabledForceMap.get(comp),
+						"Force entry is null after re-enable for: " + comp.getName());
+			}
+		}
+
+		// Now disable the core stage, but enable its child stage, the booster
+		config._setStageActive(TestRockets.FALCON_9H_CORE_STAGE_NUMBER, false);
+		config._setStageActive(TestRockets.FALCON_9H_BOOSTER_STAGE_NUMBER, true);
+
+		warnings.clear();
+		Map<RocketComponent, AerodynamicForces> boosterOnlyForceMap = calculator.getForceAnalysis(config, conditions, warnings);
+
+		// Map should only contain components from active stages
+		for (RocketComponent comp : rocket) {
+			if (!config.isComponentActive(comp)) {
+				assertFalse(boosterOnlyForceMap.containsKey(comp),
+						"Force map contains inactive component: " + comp.getName());
+			}
+			else if (comp.isAerodynamic() || comp instanceof ComponentAssembly) {
+				assertTrue(boosterOnlyForceMap.containsKey(comp),
+						"Force map missing active component: " + comp.getName());
+				assertNotNull(boosterOnlyForceMap.get(comp),
+						"Force entry is null for active component: " + comp.getName());
+			}
+		}
+		assertEquals(11, boosterOnlyForceMap.size(), "Force map should contain 10 components");
 	}
 }
