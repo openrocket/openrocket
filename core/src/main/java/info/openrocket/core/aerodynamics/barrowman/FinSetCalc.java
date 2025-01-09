@@ -85,7 +85,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		warnings.addAll(geometryWarnings);
 		
-		if (finArea < MathUtil.EPSILON) {
+		if (finArea < MathUtil.EPSILON || macSpan < MathUtil.EPSILON) {
 			forces.setCm(0);
 			forces.setCN(0);
 			forces.setCNa(0);
@@ -224,7 +224,12 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		span = component.getSpan();
 		finArea = component.getPlanformArea();
-		ar = 2 * pow2(span) / finArea;
+		if (finArea < MathUtil.EPSILON) {
+			geometryWarnings.add(Warning.ZERO_AREA_FIN, component);
+			ar = 0;
+		} else {
+			ar = 2 * pow2(span) / finArea;
+		}
 		
 		// Check geometry; don't consider points along fin root for this
 		// (doing so will cause spurious jagged fin warnings)
@@ -239,10 +244,6 @@ public class FinSetCalc extends RocketComponentCalc {
 			if (points[i].y < points[i - 1].y - 0.001) {
 				down = true;
 			}
-		}
-
-		if (finArea < MathUtil.EPSILON) {
-			geometryWarnings.add(Warning.ZERO_AREA_FIN, component);
 		}
 
 		if ((bodyRadius > 0) && (thickness > bodyRadius / 2)){
@@ -348,10 +349,16 @@ public class FinSetCalc extends RocketComponentCalc {
 			
 			if (i > 0) {
 				double dx = (chordTrail[i] + chordLead[i]) / 2 - (chordTrail[i - 1] + chordLead[i - 1]) / 2;
-				cosGamma += dy / MathUtil.hypot(dx, dy);
-				
+				double hypot = MathUtil.hypot(dx, dy);
+				if (hypot != 0) {
+					cosGamma += dy / hypot;
+				}
+
 				dx = chordLead[i] - chordLead[i - 1];
-				cosGammaLead += dy / MathUtil.hypot(dx, dy);
+				hypot = MathUtil.hypot(dx, dy);
+				if (hypot != 0) {
+					cosGammaLead += dy / hypot;
+				}
 			}
 		}
 		
@@ -361,9 +368,15 @@ public class FinSetCalc extends RocketComponentCalc {
 		macLead *= dy;
 		area *= dy;
 		rollSum *= dy;
-		macLength /= area;
-		macSpan /= area;
-		macLead /= area;
+		if (area > MathUtil.EPSILON) {
+			macLength /= area;
+			macSpan /= area;
+			macLead /= area;
+		} else {
+			macLength = 0;
+			macSpan = 0;
+			macLead = 0;
+		}
 		cosGamma /= (DIVISIONS - 1);
 		cosGammaLead /= (DIVISIONS - 1);
 	}
@@ -406,7 +419,11 @@ public class FinSetCalc extends RocketComponentCalc {
 		double ref = conditions.getRefArea();
 		double alpha = MathUtil.min(conditions.getAOA(),
 				Math.PI - conditions.getAOA(), STALL_ANGLE);
-		
+
+		if (finArea < MathUtil.EPSILON || span < MathUtil.EPSILON || cosGamma < MathUtil.EPSILON) {
+			return 0;
+		}
+
 		// Subsonic case
 		if (mach <= CNA_SUBSONIC) {
 			return 2 * Math.PI * pow2(span) / (1 + MathUtil.safeSqrt(1 + (1 - pow2(mach)) *
@@ -595,7 +612,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	@Override
 	public double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings) {
 		// a fin with 0 area contributes no drag
-		if (finArea < MathUtil.EPSILON) {
+		if (finArea < MathUtil.EPSILON || macLength < MathUtil.EPSILON) {
 			return 0.0;
 		}
 		
