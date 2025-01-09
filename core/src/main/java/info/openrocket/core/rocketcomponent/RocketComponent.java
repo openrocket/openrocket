@@ -2366,6 +2366,54 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 
 	/**
+	 * Return all the stages that are a child of this component.
+	 * @return all the stages that are a child of this component.
+	 */
+	public final List<AxialStage> getAllChildStages() {
+		checkState();
+
+		Iterator<RocketComponent> children = iterator(false);
+
+		List<AxialStage> result = new ArrayList<>();
+
+		while (children.hasNext()) {
+			RocketComponent child = children.next();
+			if (child instanceof AxialStage) {
+				result.add((AxialStage) child);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Return all the stages that are a child of this component without counting child stages of the found stages.
+	 * @return all the stages that are a child of this component without counting child stages of the found stages.
+	 */
+	public final List<AxialStage> getTopLevelChildStages() {
+		checkState();
+
+		List<AxialStage> result = new ArrayList<>();
+		addTopLevelStagesToList(result, this);
+
+		return result;
+	}
+
+	/**
+	 * Add all the top-level stages of the given component to the list.
+	 * @param list list to add the top-level stages to
+	 * @param parent parent component to search for top-level stages
+	 */
+	private void addTopLevelStagesToList(List<AxialStage> list, RocketComponent parent) {
+		for (RocketComponent child : parent.getChildren()) {
+			if (child instanceof AxialStage) {
+				list.add((AxialStage) child);
+			} else {
+				addTopLevelStagesToList(list, child);
+			}
+		}
+	}
+
+	/**
 	 * Return all the component assemblies that are a parent or super-parent of this component
 	 * @return list of ComponentAssembly components that are a parent or super-parent of this component
 	 */
