@@ -188,6 +188,18 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		for (RocketComponent child : comp.getChildren()) {
 			// Ignore inactive stages
 			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
+				// Check if there are child stages that are active and need to be calculated
+				for (AxialStage childStage : child.getTopLevelChildStages()) {
+					if (configuration.isStageActive(childStage.getStageNumber())) {
+						// forces particular to each component
+						AerodynamicForces childForces = calculateForceAnalysis(configuration, conds, childStage, instances,
+								eachForces, assemblyForces, warnings);
+
+						if (childForces != null) {
+							aggregateForces.merge(childForces);
+						}
+					}
+				}
 				continue;
 			}
 			
@@ -308,13 +320,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	public void checkGeometry(FlightConfiguration configuration, final RocketComponent treeRoot, WarningSet warnings) {
 		Queue<RocketComponent> queue = new LinkedList<>();
 
-		for (RocketComponent child : treeRoot.getChildren()) {
-			// Ignore inactive stages
-			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
-				continue;
-			}
-			queue.add(child);
-		}
+		// Add the (active) child stages
+		addDirectChildStagesToQueue(configuration, queue, treeRoot);
 
 		SymmetricComponent prevComp = null;
 		if ((treeRoot instanceof ComponentAssembly) &&
@@ -328,13 +335,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if ((comp instanceof SymmetricComponent) ||
 					((comp instanceof AxialStage) &&
 							!(comp instanceof ParallelStage))) {
-				for (RocketComponent child : comp.getChildren()) {
-					// Ignore inactive stages
-					if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
-						continue;
-					}
-					queue.add(child);
-				}
+				// Add the (active) child stages
+				addDirectChildStagesToQueue(configuration, queue, comp);
 
 				if (comp instanceof SymmetricComponent) {
 					SymmetricComponent sym = (SymmetricComponent) comp;
@@ -440,6 +442,29 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		}
 	}
 
+	/**
+	 * Add child stages to the queue. Only active stages are added. If a child stages is inactive, but it does have
+	 * active child stages, these are added to the queue.
+	 * @param configuration Rocket configuration
+	 * @param queue Queue to add stages to
+	 * @param comp Component to add stages from
+	 */
+	private void addDirectChildStagesToQueue(FlightConfiguration configuration, Queue<RocketComponent> queue, RocketComponent comp) {
+		for (RocketComponent child : comp.getChildren()) {
+			// Ignore inactive stages
+			if (child instanceof AxialStage && !configuration.isStageActive(child.getStageNumber())) {
+				// Check if there are child stages that are active and need to be calculated
+				for (AxialStage childStage : child.getTopLevelChildStages()) {
+					if (configuration.isStageActive(childStage.getStageNumber())) {
+						queue.add(childStage);
+					}
+				}
+				continue;
+			}
+			queue.add(child);
+		}
+	}
+
 	//////////////// DRAG CALCULATIONS ////////////////
 	/**
 	 * Calculation of drag coefficient due to air friction
@@ -540,6 +565,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			if (forceMap != null) {
+				if (forceMap.get(c) == null) {
+					System.out.println("No forces for " + c);
+				}
 				forceMap.get(c).setFrictionCD(componentFrictionCD);
 			}
 		}
