@@ -13,6 +13,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
@@ -24,6 +28,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -599,6 +604,27 @@ public class SimulationConditionsPanel extends JPanel {
 		visualizeButton.setEnabled(!tableModel.getLevels().isEmpty());
 		buttonPanel.add(visualizeButton);
 
+		// Import levels
+		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.FILE_NEW);
+		importButton.addActionListener(e -> {
+			// Create a text box pop up where you can paste a CSV file
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fileChooser.setMultiSelectionEnabled(false);
+			int returnVal = fileChooser.showOpenDialog(panel);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fileChooser.getSelectedFile();
+				// try {
+					// Import the CSV file
+					tableModel.importLevels(file);
+					sorter.sort();
+				// } catch (IOException ex) {
+				// 	ex.printStackTrace();
+				// }
+			}
+		});
+		buttonPanel.add(importButton);
+
 		panel.add(buttonPanel, "grow, wrap");
 
 		// Add listener to update visualization when table data changes
@@ -1010,6 +1036,32 @@ public class SimulationConditionsPanel extends JPanel {
 			if (index >= 0 && index < model.getLevels().size()) {
 				model.removeWindLevelIdx(index);
 				fireTableDataChanged();
+			}
+		}
+
+		public void importLevels(File file) {
+			// Go line by line and parse each line as csv
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+				// Add wind level order is altitude, speed, direction, standard deviation
+				String line;
+				while ((line = reader.readLine()) != null) {
+					try {
+						String[] values = line.split(",");
+						double altitude = Double.parseDouble(values[0]);
+						double speed = Double.parseDouble(values[1]);
+						double direction = Double.parseDouble(values[2]) * (Math.PI / 180);
+						double stddev = Double.parseDouble(values[3]);
+
+						if (altitude != -9999 && speed != -9999 && direction != -174.515471906913) {
+							model.addWindLevel(altitude, speed, direction, stddev);
+						}
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					}
+				}
+				fireTableDataChanged();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 
