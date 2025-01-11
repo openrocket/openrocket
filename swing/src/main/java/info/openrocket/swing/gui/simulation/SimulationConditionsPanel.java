@@ -71,7 +71,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.StateChangeListener;
-
+import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.IconButton;
 import net.miginfocom.swing.MigLayout;
@@ -609,18 +609,19 @@ public class SimulationConditionsPanel extends JPanel {
 		importButton.addActionListener(e -> {
 			// Create a text box pop up where you can paste a CSV file
 			JFileChooser fileChooser = new JFileChooser();
+
+			fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
+			fileChooser.setFileFilter(FileHelper.CSV_FILTER);
+
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setMultiSelectionEnabled(false);
+
 			int returnVal = fileChooser.showOpenDialog(panel);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fileChooser.getSelectedFile();
-				// try {
-					// Import the CSV file
-					tableModel.importLevels(file);
-					sorter.sort();
-				// } catch (IOException ex) {
-				// 	ex.printStackTrace();
-				// }
+				// Import the CSV file
+				tableModel.importLevels(file);
+				sorter.sort();
 			}
 		});
 		buttonPanel.add(importButton);
@@ -1040,23 +1041,26 @@ public class SimulationConditionsPanel extends JPanel {
 		}
 
 		public void importLevels(File file) {
+			// Clear all wind levels
+			model.clearLevels();
+
 			// Go line by line and parse each line as csv
 			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-				// Add wind level order is altitude, speed, direction, standard deviation
+				// Add wind level order is altitude (meter), speed (knots), direction (degrees), standard deviation
 				String line;
 				while ((line = reader.readLine()) != null) {
 					try {
 						String[] values = line.split(",");
 						double altitude = Double.parseDouble(values[0]);
-						double speed = Double.parseDouble(values[1]);
-						double direction = Double.parseDouble(values[2]) * (Math.PI / 180);
+						double speed = Double.parseDouble(values[1]) * 0.5144444444; // knots to m/s
+						double direction = Double.parseDouble(values[2]) * (Math.PI / 180); // degrees to radians
 						double stddev = Double.parseDouble(values[3]);
 
 						if (altitude != -9999 && speed != -9999 && direction != -174.515471906913) {
 							model.addWindLevel(altitude, speed, direction, stddev);
 						}
 					} catch (NumberFormatException e) {
-						e.printStackTrace();
+						e.printStackTrace(); // assuming its the header
 					}
 				}
 				fireTableDataChanged();
