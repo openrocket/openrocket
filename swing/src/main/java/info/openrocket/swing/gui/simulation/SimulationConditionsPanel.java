@@ -17,6 +17,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
@@ -57,6 +59,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
+
+import org.checkerframework.checker.units.qual.h;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
@@ -1048,13 +1052,22 @@ public class SimulationConditionsPanel extends JPanel {
 			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 				// Add wind level order is altitude (meter), speed (knots), direction (degrees), standard deviation
 				String line;
+
+				// Read the first line as a header
+				List<String> headers = Arrays.asList(reader.readLine().split(","));
+
+				int altIndex = headers.indexOf("alt");
+				int speedIndex = headers.indexOf("speed");
+				int dirIndex = headers.indexOf("dir");
+				int stddevIndex = headers.indexOf("stddev");
+
 				while ((line = reader.readLine()) != null) {
 					try {
 						String[] values = line.split(",");
-						double altitude = Double.parseDouble(values[0]);
-						double speed = Double.parseDouble(values[1]) * 0.5144444444; // knots to m/s
-						double direction = Double.parseDouble(values[2]) * (Math.PI / 180); // degrees to radians
-						double stddev = Double.parseDouble(values[3]);
+						double altitude = Double.parseDouble(values[altIndex]);
+						double speed = Double.parseDouble(values[speedIndex]) * 0.5144444444; // knots to m/s
+						double direction = Double.parseDouble(values[dirIndex]) * (Math.PI / 180); // degrees to radians
+						double stddev = Double.parseDouble(values[stddevIndex]);
 
 						if (altitude != -9999 && speed != -9999 && direction != -174.515471906913) {
 							model.addWindLevel(altitude, speed, direction, stddev);
