@@ -1263,7 +1263,9 @@ public class SimulationPanel extends JPanel {
 			int nrOfInfoWarnings = warnings.getNrOfInformationalWarnings();
 
 			if (nrOfCriticalWarnings > 0) {
-				add(new JLabel(nrOfCriticalWarnings + " "));
+				if (nrOfCriticalWarnings > 1) {
+					add(new JLabel(nrOfCriticalWarnings + " "));
+				}
 				add(new JLabel(Icons.WARNING_HIGH));
 			}
 
@@ -1272,7 +1274,9 @@ public class SimulationPanel extends JPanel {
 			}
 
 			if (nrOfNormalWarnings > 0) {
-				add(new JLabel(nrOfNormalWarnings + " "));
+				if (nrOfNormalWarnings > 1) {
+					add(new JLabel(nrOfNormalWarnings + " "));
+				}
 				add(new JLabel(Icons.WARNING_NORMAL));
 			}
 
@@ -1281,7 +1285,9 @@ public class SimulationPanel extends JPanel {
 			}
 
 			if (nrOfInfoWarnings > 0) {
-				add(new JLabel(nrOfInfoWarnings + " "));
+				if (nrOfInfoWarnings > 1) {
+					add(new JLabel(nrOfInfoWarnings + " "));
+				}
 				add(new JLabel(Icons.WARNING_LOW));
 			}
 
