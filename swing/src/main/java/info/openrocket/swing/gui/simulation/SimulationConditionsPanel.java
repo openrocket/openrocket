@@ -1045,12 +1045,9 @@ public class SimulationConditionsPanel extends JPanel {
 		}
 
 		public void importLevels(File file) {
-			// Clear all wind levels
 			model.clearLevels();
 
-			// Go line by line and parse each line as csv
 			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-				// Add wind level order is altitude (meter), speed (knots), direction (degrees), standard deviation
 				String line;
 
 				// Read the first line as a header
@@ -1065,8 +1062,8 @@ public class SimulationConditionsPanel extends JPanel {
 					try {
 						String[] values = line.split(",");
 						double altitude = Double.parseDouble(values[altIndex]);
-						double speed = Double.parseDouble(values[speedIndex]) * 0.5144444444; // knots to m/s
-						double direction = Double.parseDouble(values[dirIndex]) * (Math.PI / 180); // degrees to radians
+						double speed = Double.parseDouble(values[speedIndex]);
+						double direction = Double.parseDouble(values[dirIndex]);
 						double stddev = Double.parseDouble(values[stddevIndex]);
 
 						if (altitude != -9999 && speed != -9999 && direction != -174.515471906913) {
