@@ -20,19 +20,30 @@ public class MotorClusterPodsTest extends BaseTestCase {
 	public void testMotorClusterPods() throws SimulationException {
 		final Rocket rocket = TestRockets.makeClusterPods();
 		FlightConfiguration config = rocket.getFlightConfigurationByIndex(0);
-		config.setAllStages();
 
 		SimulationStatus status = new SimulationStatus(config, new SimulationConditions());
 		for (MotorClusterState clusterState : status.getMotors()) {
 			clusterState.ignite(0.0);
 		}
-
+		
 		RK4SimulationStepper stepper = new RK4SimulationStepper();
 		status.setSimulationTime(0.4);
-		double thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
-
 		// Thrust of a single C6 at time 0.4 is 5 (from TestRockets.java, not actual thrustcurve)
-		// Two in the sustainer, three pods, four in each pod gives a total of 14 motors so total is 70
-		assertEquals(70.0, thrust, MathUtil.EPSILON, "Calculated thrust incorrect");
+		double c6Thrust = 5.0;
+		
+		// Two motors in sustainer
+		config.setOnlyStage(0);
+		double thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
+		assertEquals(2.0 * c6Thrust, thrust, MathUtil.EPSILON, "Sustainer thrust incorrect");
+
+		// Three side boosters with four motors in each
+		config.setOnlyStage(1);
+		thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
+		assertEquals(12.0 * c6Thrust, thrust, MathUtil.EPSILON, "side booster thrust incorrect");
+
+		// All 14 motors now
+		config.setAllStages();
+		thrust = stepper.calculateThrust(status, new RK4SimulationStepper.DataStore());
+		assertEquals(14.0 * c6Thrust, thrust, MathUtil.EPSILON, "Total thrust incorrect");
 	}
 }
