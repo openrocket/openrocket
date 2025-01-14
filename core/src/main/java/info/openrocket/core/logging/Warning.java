@@ -449,6 +449,9 @@ public abstract class Warning extends Message {
 	/** Zero-volume bodies may not simulate accurately */
 	public static final Warning ZERO_VOLUME_BODY = new Other(trans.get("Warning.ZERO_VOLUME_BODY"), MessagePriority.LOW);
 
+	/** Isolated tube fins may not simulate accurately */
+	public static final Warning TUBE_ISOLATED = new Other(trans.get("Warning.TUBE_ISOLATED"), MessagePriority.LOW);
+	
 	/** Space between tube fins may not simulate accurately. */
 	public static final Warning TUBE_SEPARATION = new Other(trans.get("Warning.TUBE_SEPARATION"), MessagePriority.LOW);
 
