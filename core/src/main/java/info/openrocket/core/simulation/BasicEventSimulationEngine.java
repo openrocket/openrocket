@@ -565,10 +565,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 					// Check whether any motor in the active stages is active anymore
 					for (MotorClusterState state : currentStatus.getActiveMotors() ) {
-						if (state.isDelaying() || state.isSpent()) {
-							continue;
+						if (state.getThrust(currentStatus.getSimulationTime()) > MathUtil.EPSILON) {
+							currentStatus.abortSimulation(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
 						}
-						currentStatus.abortSimulation(SimulationAbort.Cause.DEPLOY_UNDER_THRUST);
 					}
 
 					// Check for launch rod

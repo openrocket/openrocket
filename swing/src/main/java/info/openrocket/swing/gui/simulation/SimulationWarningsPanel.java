@@ -104,7 +104,7 @@ public class SimulationWarningsPanel extends JPanel {
 		// Title
 		float size = 2f;
 		int nrOfWarnings = warnings == null ? 0 : warnings.size();
-		StyledLabel title = new StyledLabel(nrOfWarnings + " " + titleText, size, StyledLabel.Style.BOLD);
+		StyledLabel title = new StyledLabel(titleText, size, StyledLabel.Style.BOLD);
 		title.setFontColor(textColor);
 		panel.add(title);
 
