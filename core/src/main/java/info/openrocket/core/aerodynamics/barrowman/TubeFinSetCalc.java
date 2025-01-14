@@ -143,6 +143,8 @@ public class TubeFinSetCalc extends TubeCalc {
 	@Override
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
+
+		warnings.addAll(geometryWarnings);
 		
 		if (outerRadius < 0.001) {
 			forces.setCm(0);
