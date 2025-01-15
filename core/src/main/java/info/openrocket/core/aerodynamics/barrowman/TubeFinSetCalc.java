@@ -48,16 +48,18 @@ public class TubeFinSetCalc extends TubeCalc {
 
 	public TubeFinSetCalc(RocketComponent component) {
 		super(component);
+
 		if (!(component instanceof TubeFinSet)) {
 			throw new IllegalArgumentException("Illegal component type " + component);
 		}
 		
 		tubes = (TubeFinSet) component;
-
-		if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
-			geometryWarnings.add(Warning.TUBE_SEPARATION);
+		if (tubes.getFinCount() == 1) {
+			geometryWarnings.add(Warning.TUBE_ISOLATED, tubes);
+		} else if (tubes.getTubeSeparation() > MathUtil.EPSILON) {
+			geometryWarnings.add(Warning.TUBE_SEPARATION, tubes);
 		} else if (tubes.getTubeSeparation() < -MathUtil.EPSILON) {
-			geometryWarnings.add(Warning.TUBE_OVERLAP);
+			geometryWarnings.add(Warning.TUBE_OVERLAP, tubes);
 		}
 
 		bodyRadius = tubes.getBodyRadius();
@@ -142,6 +144,8 @@ public class TubeFinSetCalc extends TubeCalc {
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
 			AerodynamicForces forces, WarningSet warnings) {
 
+		warnings.addAll(geometryWarnings);
+		
 		if (outerRadius < 0.001) {
 			forces.setCm(0);
 			forces.setCN(0);
