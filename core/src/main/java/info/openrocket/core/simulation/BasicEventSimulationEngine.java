@@ -577,7 +577,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 					// Check current velocity
 					if (currentStatus.getRocketVelocity().length() > 20) {
-						currentStatus.addWarning(new Warning.HighSpeedDeployment(currentStatus.getRocketVelocity().length()));
+						currentStatus.addWarning(new Warning.HighSpeedDeployment(currentStatus.getRocketVelocity().length(), c));
 					}
 
 					currentStatus.setLiftoff(true);
