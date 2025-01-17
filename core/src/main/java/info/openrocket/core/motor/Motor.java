@@ -162,8 +162,6 @@ public interface Motor {
 
 	public String getDigest();
 
-	public double getAverageThrust(final double startTime, final double endTime);
-
 	public double getLaunchCGx();
 
 	public double getBurnoutCGx();
