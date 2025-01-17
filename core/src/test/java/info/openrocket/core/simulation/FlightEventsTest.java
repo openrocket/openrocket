@@ -59,6 +59,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final InnerTube motorMountTube = (InnerTube) stage.getChild(1).getChild(2);
 		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
 
+		Warning warn = new Warning.HighSpeedDeployment(80.6, parachute);
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
@@ -77,7 +78,7 @@ public class FlightEventsTest extends BaseTestCase {
 				new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.13, null),
 				new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, motorMountTube),
 				new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
-				new FlightEvent(FlightEvent.Type.SIM_WARN, 2.0, null, new Warning.HighSpeedDeployment(80.6)),
+				new FlightEvent(FlightEvent.Type.SIM_WARN, 2.0, null, warn),
 				new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 				new FlightEvent(FlightEvent.Type.APOGEE, 2.48, rocket),
 				new FlightEvent(FlightEvent.Type.GROUND_HIT, 42.97, null),
@@ -133,11 +134,10 @@ public class FlightEventsTest extends BaseTestCase {
 		motorConfig.setIgnitionEvent(IgnitionEvent.NEVER);
 		sustainerMount.setMotorConfig(motorConfig, fcid);
 
+		Warning warn = new Warning.HighSpeedDeployment(53.2, chute);
+
 		sim.simulate();
 
-		Warning warn = new Warning.HighSpeedDeployment(94.9);
-		warn.setSources(null);
-		
 		// Test branch count
 		final int expectedBranchCount = 2;
 		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
@@ -216,8 +216,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 		
-		Warning warn = new Warning.HighSpeedDeployment(53.2);
-		warn.setSources(null);
+		Warning warn = new Warning.HighSpeedDeployment(53.2, sideChutes);
 		
 		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
