@@ -121,12 +121,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
 				flightData.addBranch(dataBranch);
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
-				
 				simulateLoop(simulationConditions);
 				
 				dataBranch.immute();
 				flightData.getWarningSet().addAll(currentStatus.getWarnings());
-				
 				log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
 									   dataBranch.getName(),
 									   currentStatus.getSimulationTime(),
@@ -153,14 +151,27 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	private void simulateLoop(SimulationConditions simulationConditions) throws SimulationException {
-		// Initialize the simulation. We'll use the flight stepper unless we're already
-		// on the ground.
-		if (currentStatus.isLanded())
+		// Initialize the simulation.
+
+		// Select the appropriate stepper:
+		//     On the ground: ground stepper
+		//     Tumbling: tumble stepper
+		//     At least one recovery device deployed: landing stepper
+		//     Otherwise: flight stepper
+
+		if (currentStatus.isLanded()) {
 			currentStepper = groundStepper;
-		else
+		} else if (currentStatus.isTumbling()) {
+			currentStepper = tumbleStepper;
+		} else if (!currentStatus.getDeployedRecoveryDevices().isEmpty()) {
+			currentStepper = landingStepper;
+		} else {
 			currentStepper = flightStepper;
-		lastStepper = flightStepper;
-		
+		}
+
+		// remember what our last stepper was so we can finish up on landing
+		lastStepper = currentStepper;
+
 		currentStatus = currentStepper.initialize(currentStatus);
 		double previousSimulationTime = currentStatus.getSimulationTime();
 		

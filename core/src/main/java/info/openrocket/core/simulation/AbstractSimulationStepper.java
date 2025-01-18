@@ -333,14 +333,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 			dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, thrustForce);
 			dataBranch.setValue(FlightDataType.TYPE_GRAVITY, gravity);
-			double weight = rocketMass.getMass() * gravity;
-			dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
 			dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
 		
 			dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, windVelocity.length());
 			dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
 			
-			if (GeodeticComputationStrategy.FLAT != status.getSimulationConditions().getGeodeticComputation()) {
+			if (null != coriolisAcceleration) {
 				dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
 			}
 			
@@ -353,6 +351,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			}
 			
 			if (null != rocketMass) {
+				double weight = rocketMass.getMass() * gravity;
+				dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
 				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().x);
 				dataBranch.setValue(FlightDataType.TYPE_MASS, rocketMass.getMass());
 				dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, rocketMass.getLongitudinalInertia());
