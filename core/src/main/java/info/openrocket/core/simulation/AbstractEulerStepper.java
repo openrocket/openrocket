@@ -143,16 +143,12 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		status.setRocketWorldPosition(w);
 
 		// Store data
-		final FlightDataBranch dataBranch = status.getFlightDataBranch();
-
 		// Values looked up or calculated at start of time step
 		store.storeData(status);
 		
 		// Values calculated on this step
-		dataBranch.addPoint();
 		status.storeData();
 
-		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 
 	@Override

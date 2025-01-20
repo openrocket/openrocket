@@ -584,6 +584,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	 * Store data from current sim status
 	 */
 	public void storeData() {
+		flightDataBranch.addPoint();
 		flightDataBranch.setValue(FlightDataType.TYPE_TIME, getSimulationTime());
 		flightDataBranch.setValue(FlightDataType.TYPE_ALTITUDE, getRocketPosition().z);
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_X, getRocketPosition().x);

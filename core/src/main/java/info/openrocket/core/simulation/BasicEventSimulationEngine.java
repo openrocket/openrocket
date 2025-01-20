@@ -85,7 +85,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			currentStatus.setFlightDataBranch(initialBranch);
 			
 			// put a point on it so we can plot if we get an early abort event
-			initialBranch.addPoint();
 			currentStatus.storeData();
 			
 			// Sanity checks on design and configuration
