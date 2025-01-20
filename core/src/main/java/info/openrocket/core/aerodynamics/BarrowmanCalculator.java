@@ -360,7 +360,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						// Check for phantom tube
 						if ((sym.getLength() < MathUtil.EPSILON) ||
 							(sym.getAftRadius() < MathUtil.EPSILON && sym.getForeRadius() < MathUtil.EPSILON)) {
-							warnings.add(Warning.ZERO_VOLUME_BODY, sym.getName());
+							warnings.add(Warning.ZERO_VOLUME_BODY, sym);
 						}
 
 						// check for gap or overlap in airframe. We'll use a textual comparison to see

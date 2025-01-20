@@ -2,6 +2,7 @@ package info.openrocket.core.logging;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.unit.UnitGroup;
@@ -58,7 +59,7 @@ public abstract class Warning extends Message {
 			//// Large angle of attack encountered (
 			return (trans.get("Warning.LargeAOA.str2") +
 					//					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
-					UnitGroup.UNITS_ANGLE.toStringUnit(aoa) + ").");
+					UnitGroup.UNITS_ANGLE.toStringUnit(aoa) + ")");
 		}
 
 		@Override
@@ -95,19 +96,22 @@ public abstract class Warning extends Message {
 		private double recoverySpeed;
 		
 		/**
-		 * Sole constructor.  The argument is the speed that caused this warning.
+		 * Sole constructor.  The arguments are the speed that caused this warning,
+		 * and the parachute that is opening
 		 * 
 		 * @param speed  the speed that caused this warning
+		 * @param chute  the chute(s) that were opening
 		 */
-		public HighSpeedDeployment(double speed) {
+		public HighSpeedDeployment(double speed, RocketComponent... chute) {
 			this.recoverySpeed = speed;
+			this.setSources(chute);
 			setPriority(MessagePriority.NORMAL);
 		}
 		
 		@Override
 		public String getMessageDescription() {
 			if (Double.isNaN(recoverySpeed)) {
-				return trans.get("Warning.RECOVERY_HIGH_SPEED");
+				 return trans.get("Warning.RECOVERY_HIGH_SPEED");
 			}
 			return trans.get("Warning.RECOVERY_HIGH_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
 		}
