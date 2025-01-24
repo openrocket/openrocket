@@ -890,6 +890,21 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		importSubMenu.add(importRockSim);
+
+		//// Properties
+		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_OPEN_BRACKET);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.properties.desc"));
+		item.setIcon(Icons.CONFIGURE);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_OPEN_BRACKET, SHORTCUT_KEY));
+		item.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Properties selected");
+				ComponentConfigDialog.showDialog(parent, basicFrame.document, basicFrame.rocket);
+			}
+		});
+		fileMenu.add(item);
+
 	}
 
 	public RocketActions getRocketActions() {
