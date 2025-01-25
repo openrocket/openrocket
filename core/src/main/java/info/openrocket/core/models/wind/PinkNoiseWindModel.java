@@ -123,7 +123,6 @@ public class PinkNoiseWindModel implements WindModel {
 			return;
 		}
 		this.standardDeviation = Math.max(standardDeviation, 0);
-		setTurbulenceIntensity(standardDeviation / average);
 		fireChangeEvent();
 	}
 
@@ -137,7 +136,7 @@ public class PinkNoiseWindModel implements WindModel {
 			if (MathUtil.equals(standardDeviation, 0))
 				return 0;
 			else
-				return 1000;
+				return 1;
 		}
 		return standardDeviation / average;
 	}
