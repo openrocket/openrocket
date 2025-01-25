@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -609,7 +610,7 @@ public class SimulationConditionsPanel extends JPanel {
 		buttonPanel.add(visualizeButton);
 
 		// Import levels
-		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.FILE_NEW);
+		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.FILE_IMPORT);
 		importButton.addActionListener(e -> {
 			// Create a text box pop up where you can paste a CSV file
 			JFileChooser fileChooser = new JFileChooser();
@@ -1066,7 +1067,7 @@ public class SimulationConditionsPanel extends JPanel {
 						double direction = Double.parseDouble(values[dirIndex]);
 						double stddev = Double.parseDouble(values[stddevIndex]);
 
-						if (altitude != -9999 && speed != -9999 && direction != -174.515471906913) {
+						if (altitude != -9999 && speed != -5143.9296 && direction != -174.51) { // Values are invalid, from NOAA soundings and converted to correct units
 							model.addWindLevel(altitude, speed, direction, stddev);
 						}
 					} catch (NumberFormatException e) {
