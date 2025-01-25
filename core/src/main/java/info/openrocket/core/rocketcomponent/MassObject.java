@@ -111,6 +111,12 @@ public abstract class MassObject extends InternalComponent {
 		if (parent == null) {
 			return radius;
 		}
+		double autoRadius = getMaxParentRadius();
+
+		return MathUtil.equals(autoRadius, 0) ? radius : autoRadius;
+	}
+
+	public double getMaxParentRadius() {
 		if (parent instanceof NoseCone) {
 			return ((NoseCone) parent).getBaseRadius();
 		} else if (parent instanceof Transition) {
@@ -122,8 +128,7 @@ public abstract class MassObject extends InternalComponent {
 		} else if (parent instanceof RingComponent) {
 			return ((RingComponent) parent).getInnerRadius();
 		}
-
-		return radius;
+		return 0;
 	}
 
 	public void setRadius(double radius) {
