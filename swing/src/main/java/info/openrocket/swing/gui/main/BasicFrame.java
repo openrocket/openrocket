@@ -515,7 +515,7 @@ public class BasicFrame extends JFrame {
 
 
 		//// Properties
-		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_OPEN_BRACKET);
+		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_I);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.properties.desc"));
 		item.setIcon(Icons.CONFIGURE);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_KEY));
