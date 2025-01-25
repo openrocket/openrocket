@@ -91,6 +91,9 @@ public abstract class MassObject extends InternalComponent {
 		// transform that back
 		// to the non auto radius situation to set this.length (the volume in both
 		// situations is the same).
+		if (MathUtil.equals(radius, 0)) {
+			return length;
+		}
 		return volume / Math.pow(radius, 2);
 	}
 
