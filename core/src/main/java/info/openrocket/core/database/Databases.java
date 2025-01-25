@@ -60,7 +60,7 @@ public class Databases {
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Pine", 530, MaterialGroup.WOODS));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Plywood (birch)", 630, MaterialGroup.WOODS));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Polycarbonate (Lexan)", 1200, MaterialGroup.PLASTICS));
-		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Polystyrene", 1050, MaterialGroup.FOAMS));
+		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Polystyrene", 1050, MaterialGroup.PLASTICS));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "PVC", 1390, MaterialGroup.PLASTICS));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Spruce", 450, MaterialGroup.WOODS));
 		BULK_MATERIAL.add(newMaterial(Material.Type.BULK, "Steel", 7850, MaterialGroup.METALS));
