@@ -114,11 +114,11 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                         hasAftShoulder && isAftShoulderZeroThickness);
             }
 
-            // Draw bottom and top face
-            if (!(hasForeShoulder && isForeShoulderZeroThickness)) {
+            // Draw bottom and top face if there's no shoulder, or it is a zero-thickness shoulder
+            if (!hasForeShoulder || isForeShoulderZeroThickness) {
                 closeFace(outsideForeRingVertices, insideForeRingVertices, true);
             }
-            if (!(hasAftShoulder && isAftShoulderZeroThickness)) {
+            if (!hasAftShoulder || isAftShoulderZeroThickness) {
                 closeFace(outsideAftRingVertices, insideAftRingVertices, false);
             }
 
