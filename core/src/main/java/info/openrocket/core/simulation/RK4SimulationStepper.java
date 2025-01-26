@@ -90,9 +90,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 
 	@Override
-	public void step(SimulationStatus simulationStatus, double maxTimeStep) throws SimulationException {
+	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
 		
-		SimulationStatus status = simulationStatus;
+		status.storeData();
 
 		////////  Perform RK4 integration:  ////////
 		
@@ -111,6 +111,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//// First position, k1 = f(t, y)
 		
 		k1 = computeParameters(status, store);
+		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
 		store.storeData(status);
 		
 		/*
@@ -245,10 +246,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			throw new IllegalArgumentException("Stepping backwards in time, timestep=" + store.timeStep);
 		}
 		status.setSimulationTime(status.getSimulationTime() + store.timeStep);
-		
-		// Store data
-		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
-		status.storeData();
 		
 		// Verify that values don't run out of range
 		if (status.getRocketVelocity().length2() > 1.0e18 ||

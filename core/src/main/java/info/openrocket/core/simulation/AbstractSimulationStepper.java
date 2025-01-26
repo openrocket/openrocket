@@ -29,18 +29,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 *
 	 */
 	abstract void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException;
-
-	/*
-	 * clean up at end of a simulation branch. Computes acceleration parameters and puts them in
-	 * the FlightDataBranch
-	 */
-	public void cleanup(SimulationStatus status) throws SimulationException {
-		log.debug("called cleanup from stepper " + this);
-		DataStore store = new DataStore();
-		calculateFlightConditions(status, store);
-		calculateAcceleration(status, store);
-		store.storeData(status);
-	}
 	
 	/**
 	 * Calculate the flight conditions for the current rocket status.

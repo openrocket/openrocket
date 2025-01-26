@@ -32,6 +32,8 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
+		
+		status.storeData();
 
 		// get flight conditions and calculate acceleration
 		calculateFlightConditions(status, store);
@@ -142,13 +144,13 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
 
-		// Store data
-		// Values looked up or calculated at start of time step
-		store.storeData(status);
-		
-		// Values calculated on this step
-		status.storeData();
+		// Store values calculated for time step
 
+		// On our last step (after landing) we'll set our timeStep to NaN
+		if (Double.isNaN(maxTimeStep)) {
+			store.timeStep = maxTimeStep;
+		}
+		store.storeData(status);
 	}
 
 	@Override
