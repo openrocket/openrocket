@@ -571,7 +571,7 @@ public class SimulationConditionsPanel extends JPanel {
 		panel.add(scrollPane, "grow, wrap");
 
 		//// Buttons
-		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
+		JPanel buttonPanel = new JPanel(new MigLayout("wrap 3"));
 
 		// Add level
 		JButton addButton = new IconButton(trans.get("simedtdlg.but.addWindLevel"), Icons.FILE_NEW);
