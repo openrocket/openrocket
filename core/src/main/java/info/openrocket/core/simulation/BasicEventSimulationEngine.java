@@ -617,6 +617,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			case SIM_ABORT:
 				ret = false;
+
+				// store current status to flight data.  Don't take one last simulation step,
+				// as the SIM_ABORT may well be to avoid an exception
+				currentStatus.storeData();
 				
 				currentStatus.getFlightDataBranch().addEvent(event);
 				break;

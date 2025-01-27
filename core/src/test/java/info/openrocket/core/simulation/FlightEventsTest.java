@@ -266,7 +266,12 @@ public class FlightEventsTest extends BaseTestCase {
 			};
 
 			checkEvents(expectedEvents, sim, b);
-			checkLastRecord(sim, b);
+
+			// We don't save the sim step params on an abort, so the last record's saved types will
+			// be missing a lot of them.
+			if (expectedEvents[expectedEvents.length - 1].getType() != FlightEvent.Type.SIM_ABORT) {
+				checkLastRecord(sim, b);
+			}
 		}
 	}
 
@@ -306,8 +311,9 @@ public class FlightEventsTest extends BaseTestCase {
 				// event times that are dependent on simulation step time shouldn't be held to
 				// tighter bounds than that
 				double epsilon = (actual.getType() == FlightEvent.Type.TUMBLE) ||
-						(actual.getType() == FlightEvent.Type.APOGEE) ||
-						(actual.getType() == FlightEvent.Type.GROUND_HIT) ? (5 * sim.getOptions().getTimeStep())
+					(actual.getType() == FlightEvent.Type.APOGEE) ||
+					(actual.getType() == FlightEvent.Type.GROUND_HIT) ||
+					(actual.getType() == FlightEvent.Type.SIMULATION_END) ? (5 * sim.getOptions().getTimeStep())
 						: EPSILON;
 				assertEquals(expected.getTime(), actual.getTime(), epsilon,
 						"Branch " + branchNo + " FlightEvent " + i + " type " + expected.getType() + " has wrong time ");
@@ -345,6 +351,6 @@ public class FlightEventsTest extends BaseTestCase {
 			}
 		}
 		assertTrue(mismatches.isEmpty(), "Final flight data variables " + mismatches + " are NaN");
-		assertTrue(Double.isNaN(branch.getLast(FlightDataType.TYPE_TIME_STEP)), "Final FlightDataType.TYPE_TIME_STEP isn't NaN");
+		assertTrue(Double.isNaN(branch.getLast(FlightDataType.TYPE_TIME_STEP)), "Sim branch " + b + " final FlightDataType.TYPE_TIME_STEP isn't NaN");
 	}
 }
