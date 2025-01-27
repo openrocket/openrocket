@@ -351,7 +351,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		double refArea = store.flightConditions.getRefArea();
 		double refLength = store.flightConditions.getRefLength();
 		
-
 		// Linear forces in rocket coordinates
 		store.dragForce = store.forces.getCDaxial() * dynP * refArea;
 		double fN = store.forces.getCN() * dynP * refArea;

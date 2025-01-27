@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.AerodynamicForces;
+import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
@@ -37,6 +38,12 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 		// get flight conditions and calculate acceleration
 		calculateFlightConditions(status, store);
+		FlightConditions flightConditions = store.flightConditions;
+		flightConditions.setAOA(Double.NaN);
+		flightConditions.setRollRate(Double.NaN);
+		flightConditions.setPitchRate(Double.NaN);
+		flightConditions.setYawRate(Double.NaN);
+		
 		calculateAcceleration(status, store);
 
 		// Select tentative time step
@@ -145,7 +152,6 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		status.setRocketWorldPosition(w);
 
 		// Store values calculated for time step
-
 		// On our last step (after landing) we'll set our timeStep to NaN
 		if (Double.isNaN(maxTimeStep)) {
 			store.timeStep = maxTimeStep;
