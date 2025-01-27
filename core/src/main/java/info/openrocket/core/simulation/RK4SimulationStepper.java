@@ -91,7 +91,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
-		
+
 		status.storeData();
 
 		////////  Perform RK4 integration:  ////////
@@ -111,8 +111,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//// First position, k1 = f(t, y)
 		
 		k1 = computeParameters(status, store);
-		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
-		store.storeData(status);
+
+		// If maxTimeStep is NaN we'll just record sim params and leave
+		if (Double.isNaN(maxTimeStep)) {
+			store.timeStep = maxTimeStep;
+			store.storeData(status);
+			return;
+		}
 		
 		/*
 		 * Select the actual time step to use.  It is the minimum of the following:
@@ -159,21 +164,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 		log.trace("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
 
-		// If we have a scheduled event coming up before the end of our timestep, truncate step
-		// else if the time from the end of our timestep to the next scheduled event time is less than
-		// minTimeStep, stretch it
+		// If our selected time step is too close to our next scheduled event,
+		// (passed in as maxTimeStep) adjust
 		double minTimeStep = status.getSimulationConditions().getTimeStep() / 20;
-		FlightEvent nextEvent = status.getEventQueue().peek();
-		if (nextEvent != null) {
-			double nextEventTime = nextEvent.getTime();
-			if (status.getSimulationTime() + store.timeStep > nextEventTime) {
-				store.timeStep = nextEventTime - status.getSimulationTime();
-				log.trace("scheduled event at " + nextEventTime + " truncates timestep to " + store.timeStep);
-			} else if ((status.getSimulationTime() + store.timeStep < nextEventTime) &&
-					   (status.getSimulationTime() + store.timeStep + minTimeStep > nextEventTime)) {
-				store.timeStep = nextEventTime - status.getSimulationTime();
-				log.trace("Scheduled event at " + nextEventTime + " stretches timestep to " + store.timeStep);
-			}
+
+		if (Math.abs(maxTimeStep - store.timeStep) < minTimeStep) {
+			store.timeStep = maxTimeStep;
+			log.trace("selected time step too close to maxTimeStep; adjusted to " + store.timeStep);
 		}
 
 		// If we've wound up with a too-small timestep, increase it avoid numerical instability even at the
@@ -184,9 +181,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			store.timeStep = minTimeStep;
 		}
 
+		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
+		store.storeData(status);
 		checkNaN(store.timeStep, "store.timeStep");
-
-
 
 		//// Second position, k2 = f(t + h/2, y + k1*h/2)
 		
