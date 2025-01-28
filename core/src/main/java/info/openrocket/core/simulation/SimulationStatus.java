@@ -303,7 +303,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	public Coordinate getRocketVelocity() {
 		return velocity;
 	}
-
+	/*
 	public void setRocketAcceleration(Coordinate acceleration) {
 		this.acceleration = acceleration;
 		modID = new ModID();
@@ -312,7 +312,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	public Coordinate getRocketAcceleration() {
 		return acceleration;
 	}
-
+	*/
 	public boolean moveBurntOutMotor(final MotorConfigurationId motor) {
 		// get motor from normal list
 		// remove motor from 'normal' list
