@@ -621,6 +621,9 @@ public class SimulationConditionsPanel extends JPanel {
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setMultiSelectionEnabled(false);
 
+			// Add description next to the file field
+			fileChooser.setAccessory(new JLabel(trans.get("simedtdlg.but.importLevelsDesc")));
+
 			int returnVal = fileChooser.showOpenDialog(panel);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fileChooser.getSelectedFile();
