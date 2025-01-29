@@ -62,6 +62,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import info.openrocket.swing.gui.util.SwingPreferences;
 import org.checkerframework.checker.units.qual.h;
 
 import info.openrocket.core.document.Simulation;
@@ -618,11 +619,11 @@ public class SimulationConditionsPanel extends JPanel {
 		importButton.addActionListener(e -> {
 			// Create a text box pop up where you can paste a CSV file
 			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 			fileChooser.setDialogTitle(trans.get("simedtdlg.dlg.importLevels.title"));
 
 			fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
 			fileChooser.setFileFilter(FileHelper.CSV_FILTER);
-
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setMultiSelectionEnabled(false);
 
@@ -640,9 +641,16 @@ public class SimulationConditionsPanel extends JPanel {
 			int returnVal = fileChooser.showOpenDialog(panel);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fileChooser.getSelectedFile();
+
 				// Import the CSV file
-				tableModel.importLevels(file);
-				sorter.sort();
+				try {
+					tableModel.importLevels(file);
+					sorter.sort();
+				} catch (IllegalArgumentException ex) {
+					JOptionPane.showMessageDialog(panel, new String[] {
+							trans.get("simedtdlg.msg.importLevelsError"),
+							ex.getMessage() }, trans.get("simedtdlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		lastColumnPanel.add(importButton, "growx");
@@ -1061,39 +1069,55 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		}
 
-		public void importLevels(File file) {
+		public void importLevels(File file) throws IllegalArgumentException {
 			model.clearLevels();
 
 			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 				String line;
 
 				// Read the first line as a header
-				List<String> headers = Arrays.asList(reader.readLine().split(","));
+				List<String> headers = Arrays.asList(reader.readLine().split(","));		// TODO: make separator customizable (check `CsvOptionPanel` implementation)
 
-				int altIndex = headers.indexOf("alt");
-				int speedIndex = headers.indexOf("speed");
-				int dirIndex = headers.indexOf("dir");
-				int stddevIndex = headers.indexOf("stddev");
+				int altIndex = getHeaderIndex(headers, "alt");
+				int speedIndex = getHeaderIndex(headers, "speed");
+				int dirIndex = getHeaderIndex(headers, "dir");
+				int stddevIndex = getHeaderIndex(headers, "stddev");
 
 				while ((line = reader.readLine()) != null) {
+					// Ignore empty lines
+					if (line.isEmpty()) {
+						continue;
+					}
 					try {
 						String[] values = line.split(",");
 						double altitude = Double.parseDouble(values[altIndex]);
 						double speed = Double.parseDouble(values[speedIndex]);
-						double direction = Double.parseDouble(values[dirIndex]);
+						double direction = Double.parseDouble(values[dirIndex]);		// TODO: use degrees input instead of radians, so convert degrees input to radians here
 						double stddev = Double.parseDouble(values[stddevIndex]);
 
+						// TODO: what is this?
 						if (altitude != -9999 && speed != -5143.9296 && direction != -174.51) { // Values are invalid, from NOAA soundings and converted to correct units
 							model.addWindLevel(altitude, speed, direction, stddev);
 						}
 					} catch (NumberFormatException e) {
-						e.printStackTrace(); // assuming its the header
+						throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.WrongFormat")
+								+ e.getMessage());
 					}
 				}
 				fireTableDataChanged();
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.CouldNotLoadFile") + " '"
+						+ file.getName() + "'");
 			}
+		}
+
+		private int getHeaderIndex(List<String> headers, String header) {
+			int idx = headers.indexOf(header);
+			if (idx == -1) {
+				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.NoHeader") + " '"
+						+ header + "'");
+			}
+			return idx;
 		}
 
 		public UnitGroup getUnitGroup(int columnIndex) {
