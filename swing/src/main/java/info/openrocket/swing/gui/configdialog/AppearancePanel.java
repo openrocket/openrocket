@@ -199,7 +199,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				model.addChangeListener(changeListener);
 
 				JDialog d = JColorChooser.createDialog(AppearancePanel.this,
-						trans.get("RocketCompCfg.lbl.Choosecolor"), true,
+						trans.get("RocketCompCfg.lbl.Choosecolor"), false,
 						colorChooser,
 						new ActionListener() {
 							@Override
