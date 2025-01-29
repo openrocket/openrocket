@@ -1093,7 +1093,12 @@ public class SimulationConditionsPanel extends JPanel {
 						double altitude = Double.parseDouble(values[altIndex]);
 						double speed = Double.parseDouble(values[speedIndex]);
 						double direction = Double.parseDouble(values[dirIndex]);		// TODO: use degrees input instead of radians, so convert degrees input to radians here
-						double stddev = Double.parseDouble(values[stddevIndex]);
+						double stddev;
+						if (stddevIndex != -1) {
+							stddev = Double.parseDouble(values[stddevIndex]);
+						} else {
+							stddev = 0.4;
+						}
 
 						// TODO: what is this?
 						if (altitude != -9999 && speed != -5143.9296 && direction != -174.51) { // Values are invalid, from NOAA soundings and converted to correct units
