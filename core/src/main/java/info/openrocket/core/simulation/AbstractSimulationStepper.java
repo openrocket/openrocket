@@ -60,7 +60,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.windVelocity = modelWindVelocity(status);
 		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
-		
 
 		// Lateral direction:
 		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
@@ -280,6 +279,45 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 	}
 
+	/**
+	 * Set status and store to values consistent with sitting on the ground
+	 *
+	 */
+	protected void landedValues(SimulationStatus status, DataStore store) throws SimulationException {
+		store.timeStep = Double.NaN;
+
+		// get flight conditions
+		calculateFlightConditions(status, store);
+		FlightConditions flightConditions = store.flightConditions;
+		flightConditions.setAOA(Double.NaN);
+		flightConditions.setRollRate(Double.NaN);
+		flightConditions.setPitchRate(Double.NaN);
+		flightConditions.setYawRate(Double.NaN);
+		
+		// note most of our forces don't end up getting set, so they're all NaN.
+		AerodynamicForces forces = new AerodynamicForces();
+		forces.setCD(Double.NaN);
+		forces.setCDaxial(Double.NaN);
+		forces.setFrictionCD(Double.NaN);
+		forces.setPressureCD(Double.NaN);
+		forces.setBaseCD(Double.NaN);
+		store.forces = forces;
+
+		RigidBody structureMassData = calculateStructureMass(status);
+		store.motorMass = calculateMotorMass(status);
+		store.rocketMass = structureMassData.add( store.motorMass );
+		store.gravity = modelGravity(status);
+		store.thrustForce = 0.0;
+		store.dragForce = 0.0;
+		store.coriolisAcceleration = Coordinate.ZERO;
+		
+		store.accelerationData = new AccelerationData(Coordinate.ZERO, Coordinate.ZERO, null, null,
+													  new Quaternion());
+
+		status.setRocketPosition(new Coordinate(status.getRocketPosition().x, status.getRocketPosition().y, 0));
+		status.setRocketVelocity(Coordinate.ZERO);
+	}
+		
 	/*
 	 * The DataStore holds calculated data to be used in computing a simulation step.
 	 * It is saved to the FlightDataBranch at the beginning of the time step, and one

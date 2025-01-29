@@ -116,6 +116,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (Double.isNaN(maxTimeStep)) {
 			store.timeStep = maxTimeStep;
 			store.storeData(status);
+
+			landedValues(status, store);
 			return;
 		}
 		

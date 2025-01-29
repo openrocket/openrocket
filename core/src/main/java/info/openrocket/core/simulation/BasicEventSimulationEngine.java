@@ -608,7 +608,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 				// take one last simulation step so we can save current
 				// status and compute parameters at the instant of impact
-				// (we won't save the updated status after this step)
 				currentStepper.step(currentStatus, Double.NaN);
 				
 				currentStepper = groundStepper;
