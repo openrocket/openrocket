@@ -513,6 +513,21 @@ public class BasicFrame extends JFrame {
 
 		// ------------------------------------------------------------------------------------------
 
+
+		//// Properties
+		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_I);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.properties.desc"));
+		item.setIcon(Icons.CONFIGURE);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_KEY));
+		item.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Properties selected");
+				ComponentConfigDialog.showDialog(BasicFrame.this,document, rocket);
+			}
+		});
+		fileMenu.add(item);
+
 		////	Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_KEY));
@@ -890,6 +905,7 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		importSubMenu.add(importRockSim);
+
 	}
 
 	public RocketActions getRocketActions() {

@@ -697,7 +697,8 @@ public class Rocket extends ComponentAssembly {
 
 			if (l instanceof ComponentChangeListener) {
 				((ComponentChangeListener) l).componentChanged(cce);
-			} else if (l instanceof StateChangeListener) {
+			}
+			if (l instanceof StateChangeListener) {
 				((StateChangeListener) l).stateChanged(cce);
 			}
 		}
