@@ -62,7 +62,6 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private Coordinate position;
 	private WorldCoordinate worldPosition;
 	private Coordinate velocity;
-	private Coordinate acceleration;
 
 	private Quaternion orientation;
 	private Coordinate rotationVelocity;
@@ -122,7 +121,6 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		this.position = this.simulationConditions.getLaunchPosition();
 		this.velocity = this.simulationConditions.getLaunchVelocity();
 		this.worldPosition = this.simulationConditions.getLaunchSite();
-		this.acceleration = Coordinate.ZERO;
 
 		// Initialize to roll angle with least stability w.r.t. the wind
 		Quaternion o;
@@ -192,7 +190,6 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		this.flightDataBranch = orig.flightDataBranch;
 		this.time = orig.time;
 		this.position = orig.position;
-		this.acceleration = orig.acceleration;
 		this.worldPosition = orig.worldPosition;
 		this.velocity = orig.velocity;
 		this.orientation = orig.orientation;
@@ -303,16 +300,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	public Coordinate getRocketVelocity() {
 		return velocity;
 	}
-	/*
-	public void setRocketAcceleration(Coordinate acceleration) {
-		this.acceleration = acceleration;
-		modID = new ModID();
-	}
 
-	public Coordinate getRocketAcceleration() {
-		return acceleration;
-	}
-	*/
 	public boolean moveBurntOutMotor(final MotorConfigurationId motor) {
 		// get motor from normal list
 		// remove motor from 'normal' list
