@@ -1118,7 +1118,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		private int getHeaderIndex(List<String> headers, String header) {
 			int idx = headers.indexOf(header);
-			if (idx == -1) {
+			if (idx == -1 && header != "stddev") {
 				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.NoHeader") + " '"
 						+ header + "'");
 			}
