@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
@@ -571,7 +572,7 @@ public class SimulationConditionsPanel extends JPanel {
 		panel.add(scrollPane, "grow, wrap");
 
 		//// Buttons
-		JPanel buttonPanel = new JPanel(new MigLayout("wrap 3"));
+		JPanel buttonPanel = new JPanel(new MigLayout("ins 0, wrap 3"));
 
 		// Add level
 		JButton addButton = new IconButton(trans.get("simedtdlg.but.addWindLevel"), Icons.FILE_NEW);
@@ -579,7 +580,7 @@ public class SimulationConditionsPanel extends JPanel {
 			tableModel.addWindLevel();
 			sorter.sort();
 		});
-		buttonPanel.add(addButton);
+		buttonPanel.add(addButton, "top");
 
 		// Delete level
 		JButton deleteButton = new IconButton(trans.get("simedtdlg.but.deleteWindLevel"), Icons.EDIT_DELETE);
@@ -589,7 +590,10 @@ public class SimulationConditionsPanel extends JPanel {
 			sorter.sort();
 		});
 		deleteButton.setEnabled(false);
-		buttonPanel.add(deleteButton, "gapright unrel");
+		buttonPanel.add(deleteButton, "top, gapright unrel");
+
+		JPanel lastColumnPanel = new JPanel(new MigLayout("ins 0, fill"));
+		buttonPanel.add(lastColumnPanel);
 
 		// Visualization levels
 		JButton visualizeButton = new IconButton(trans.get("simedtdlg.but.visualizeWindLevels"), Icons.SIM_PLOT);
@@ -607,13 +611,14 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		});
 		visualizeButton.setEnabled(!tableModel.getLevels().isEmpty());
-		buttonPanel.add(visualizeButton);
+		lastColumnPanel.add(visualizeButton, "growx, wrap");
 
 		// Import levels
-		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.FILE_IMPORT);
+		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.IMPORT);
 		importButton.addActionListener(e -> {
 			// Create a text box pop up where you can paste a CSV file
 			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setDialogTitle(trans.get("simedtdlg.dlg.importLevels.title"));
 
 			fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
 			fileChooser.setFileFilter(FileHelper.CSV_FILTER);
@@ -621,8 +626,16 @@ public class SimulationConditionsPanel extends JPanel {
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setMultiSelectionEnabled(false);
 
-			// Add description next to the file field
-			fileChooser.setAccessory(new JLabel(trans.get("simedtdlg.but.importLevelsDesc")));
+			// Add accessory panel with description
+			JPanel accessoryPanel = new JPanel();
+			accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.title")));
+
+			JTextArea descriptionArea = new JTextArea(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
+			descriptionArea.setEditable(false);
+			descriptionArea.setBackground(null);
+
+			accessoryPanel.add(descriptionArea);
+			fileChooser.setAccessory(accessoryPanel);
 
 			int returnVal = fileChooser.showOpenDialog(panel);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -632,7 +645,7 @@ public class SimulationConditionsPanel extends JPanel {
 				sorter.sort();
 			}
 		});
-		buttonPanel.add(importButton);
+		lastColumnPanel.add(importButton, "growx");
 
 		panel.add(buttonPanel, "grow, wrap");
 
