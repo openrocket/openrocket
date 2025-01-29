@@ -16,6 +16,9 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
 import info.openrocket.core.material.MaterialGroup;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.ComponentChangeListener;
+import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import info.openrocket.swing.gui.widgets.MaterialComboBox;
 import info.openrocket.swing.gui.adaptors.CustomFocusTraversalPolicy;
@@ -209,11 +212,17 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 			placementPanel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
 
 			////// Automatic
-			JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+			final JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
 			checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
 			checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
+			checkAutoPackedRadius.setEnabled(((MassObject) component).getMaxParentRadius() > 0);
 			placementPanel.add(checkAutoPackedRadius, "skip, spanx 2");
-			order.add(checkAutoPackedRadius);
+			component.getParent().addComponentChangeListener(new ComponentChangeListener() {
+				@Override
+				public void componentChanged(ComponentChangeEvent e) {
+					checkAutoPackedRadius.setEnabled(((MassObject) component).getMaxParentRadius() > 0);
+				}
+			});
 		}
 
 		{// ---------------------------- Deployment ----------------------------
