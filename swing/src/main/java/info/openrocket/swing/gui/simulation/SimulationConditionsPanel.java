@@ -1092,7 +1092,7 @@ public class SimulationConditionsPanel extends JPanel {
 						String[] values = line.split(",");
 						double altitude = Double.parseDouble(values[altIndex]);
 						double speed = Double.parseDouble(values[speedIndex]);
-						double direction = Double.parseDouble(values[dirIndex]);		// TODO: use degrees input instead of radians, so convert degrees input to radians here
+						double direction = Double.parseDouble(values[dirIndex]) * Math.PI / 180;
 						double stddev;
 						if (stddevIndex != -1) {
 							stddev = Double.parseDouble(values[stddevIndex]);
