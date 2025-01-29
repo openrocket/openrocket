@@ -8,17 +8,35 @@ import info.openrocket.core.simulation.exception.SimulationException;
 public class GroundStepper extends AbstractSimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(GroundStepper.class);
 
+	DataStore store = new DataStore();
+
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) {
 		log.trace("initializing GroundStepper");
+		
 		return status;
 	}
 
 	@Override
 	public void step(SimulationStatus status, double timeStep) throws SimulationException {
 		log.trace("step:  position=" + status.getRocketPosition() + ", velocity=" + status.getRocketVelocity());
+
+		// Set to values sitting on the ground
+		landedValues(status, store);
+		
+		// Put in a step to immediately go to rest status
+		double time = status.getSimulationTime();
+		if (timeStep > MIN_TIME_STEP) {
+			status.setSimulationTime(time + MIN_TIME_STEP);
+			status.storeData();
+			store.storeData(status);
+		}
+		
+		// Set status to reflect sitting on the ground ever since the last step
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
-		//		status.storeData();
+
+		status.storeData();
+		store.storeData(status);
 	}
 
 	@Override
