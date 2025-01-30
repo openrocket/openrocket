@@ -11,8 +11,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import javax.swing.*;
-
 import info.openrocket.swing.gui.util.GUIUtil;
 import net.miginfocom.swing.MigLayout;
 
@@ -21,6 +19,14 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
@@ -58,8 +64,8 @@ public class RocketConfig extends RocketComponentConfig {
 
 		//// Design Type
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designtype")), "top, pad 4lp, gapright 10lp");
-		String[] options = {"Original Design/Other", "Commercial Kit","Clone of a Commercial Kit","Upscale of a Commercial Kit",
-				"Downscale of a Commercial Kit", "Modification of a Commercial Kit", "Kit Bash of Commercial Kits"};
+		String[] options = {trans.get("RocketCfg.lbl.Originaldesign"), trans.get("RocketCfg.lbl.Commercialkit"), trans.get("RocketCfg.lbl.Clonekit"),trans.get("RocketCfg.lbl.Upscalekit"),
+				trans.get("RocketCfg.lbl.Downscalekit"), trans.get("RocketCfg.lbl.Modificationkit"), trans.get("RocketCfg.lbl.Kitbashkit")};
 		JComboBox<String> designTypeDropdown = new JComboBox<>(options);
 		designTypeDropdown.setSelectedItem(rocket.getDesignType());
 		designTypeDropdown.addActionListener(e -> rocket.setDesignType((String) designTypeDropdown.getSelectedItem()));

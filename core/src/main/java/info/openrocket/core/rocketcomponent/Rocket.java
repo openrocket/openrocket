@@ -1,6 +1,5 @@
 package info.openrocket.core.rocketcomponent;
 
-import java.awt.*;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashSet;
@@ -69,9 +68,9 @@ public class Rocket extends ComponentAssembly {
 	private String designer = "";
 	private String revision = "";
 	private String designType = "";
-	private boolean OptimizationFlight = false;
-	private boolean OptimizationAppearance = false;
-	private boolean OptimizationConstruction = false;
+	private boolean optimizationFlight = false;
+	private boolean optimizationAppearance = false;
+	private boolean optimizationConstruction = false;
 	
 	
 	// Flight configuration list
@@ -136,31 +135,31 @@ public class Rocket extends ComponentAssembly {
 
 	public Boolean isOptimizationFlight(){
 		checkState();
-		return OptimizationFlight;
+		return optimizationFlight;
 	}
 
 	public void setOptimizationFlight(boolean b){
-		OptimizationFlight = b;
+		optimizationFlight = b;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 
 	public Boolean isOptimizationAppearance(){
 		checkState();
-		return OptimizationAppearance;
+		return optimizationAppearance;
 	}
 
 	public void setOptimizationAppearance(boolean b){
-		OptimizationAppearance = b;
+		optimizationAppearance = b;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 
 	public Boolean isOptimizationConstruction(){
 		checkState();
-		return OptimizationConstruction;
+		return optimizationConstruction;
 	}
 
 	public void setOptimizationConstruction(boolean b){
-		OptimizationConstruction = b;
+		optimizationConstruction = b;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
