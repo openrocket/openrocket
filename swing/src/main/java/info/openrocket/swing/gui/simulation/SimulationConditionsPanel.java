@@ -62,6 +62,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import org.checkerframework.checker.units.qual.h;
 
@@ -1092,7 +1093,7 @@ public class SimulationConditionsPanel extends JPanel {
 						String[] values = line.split(",");
 						double altitude = Double.parseDouble(values[altIndex]);
 						double speed = Double.parseDouble(values[speedIndex]);
-						double direction = Double.parseDouble(values[dirIndex]) * Math.PI / 180;
+						double direction = MathUtil.deg2rad(Double.parseDouble(values[dirIndex]));
 						double stddev;
 						if (stddevIndex != -1) {
 							stddev = Double.parseDouble(values[stddevIndex]);
