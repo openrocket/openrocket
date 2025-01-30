@@ -139,7 +139,7 @@ public class Rocket extends ComponentAssembly {
 		return OptimizationFlight;
 	}
 
-	public void setOptimizationFlight(Boolean b){
+	public void setOptimizationFlight(boolean b){
 		OptimizationFlight = b;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
@@ -149,7 +149,7 @@ public class Rocket extends ComponentAssembly {
 		return OptimizationAppearance;
 	}
 
-	public void setOptimizationAppearance(Boolean b){
+	public void setOptimizationAppearance(boolean b){
 		OptimizationAppearance = b;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
@@ -159,7 +159,7 @@ public class Rocket extends ComponentAssembly {
 		return OptimizationConstruction;
 	}
 
-	public void setOptimizationConstruction(Boolean b){
+	public void setOptimizationConstruction(boolean b){
 		OptimizationConstruction = b;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
