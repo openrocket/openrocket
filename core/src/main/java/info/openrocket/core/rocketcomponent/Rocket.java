@@ -1,5 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
+import java.awt.*;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashSet;
@@ -67,6 +68,10 @@ public class Rocket extends ComponentAssembly {
 	
 	private String designer = "";
 	private String revision = "";
+	private String designType = "";
+	private boolean OptimizationFlight = false;
+	private boolean OptimizationAppearance = false;
+	private boolean OptimizationConstruction = false;
 	
 	
 	// Flight configuration list
@@ -116,7 +121,48 @@ public class Rocket extends ComponentAssembly {
 		designer = s;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	public String getDesignType(){
+		checkState();
+		return designType;
+	}
+
+	public void setDesignType(String s){
+		if (s == null)
+			s = "";
+		designType = s;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	public Boolean isOptimizationFlight(){
+		checkState();
+		return OptimizationFlight;
+	}
+
+	public void setOptimizationFlight(Boolean b){
+		OptimizationFlight = b;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	public Boolean isOptimizationAppearance(){
+		checkState();
+		return OptimizationAppearance;
+	}
+
+	public void setOptimizationAppearance(Boolean b){
+		OptimizationAppearance = b;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	public Boolean isOptimizationConstruction(){
+		checkState();
+		return OptimizationConstruction;
+	}
+
+	public void setOptimizationConstruction(Boolean b){
+		OptimizationConstruction = b;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
 	
 	public String getRevision() {
 		checkState();

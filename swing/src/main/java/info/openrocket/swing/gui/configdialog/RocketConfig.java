@@ -11,11 +11,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 import info.openrocket.swing.gui.util.GUIUtil;
 import net.miginfocom.swing.MigLayout;
@@ -50,7 +46,7 @@ public class RocketConfig extends RocketComponentConfig {
 		
 		//// Designer:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designer")), "top, pad 4lp, gapright 10lp");
-		
+
 		textFieldListener = new TextFieldListener();
 		designerTextArea = new JTextArea(rocket.getDesigner());
 		designerTextArea.setLineWrap(true);
@@ -59,7 +55,37 @@ public class RocketConfig extends RocketComponentConfig {
 		GUIUtil.setTabToFocusing(designerTextArea);
 		designerTextArea.addFocusListener(textFieldListener);
 		this.add(new JScrollPane(designerTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
-		
+
+		//// Design Type
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Designtype")), "top, pad 4lp, gapright 10lp");
+		String[] options = {"Original Design/Other", "Commercial Kit","Clone of a Commercial Kit","Upscale of a Commercial Kit",
+				"Downscale of a Commercial Kit", "Modification of a Commercial Kit", "Kit Bash of Commercial Kits"};
+		JComboBox<String> designTypeDropdown = new JComboBox<>(options);
+		designTypeDropdown.setSelectedItem(rocket.getDesignType());
+		designTypeDropdown.addActionListener(e -> rocket.setDesignType((String) designTypeDropdown.getSelectedItem()));
+		this.add(designTypeDropdown, "growx, wrap para");
+
+		//// Optimization
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Optimization")), "top, pad 4lp, gapright 10lp");
+
+		// Flight
+		JCheckBox flightCheckbox = new JCheckBox("Flight");
+		flightCheckbox.setSelected(rocket.isOptimizationFlight());
+		flightCheckbox.addActionListener(e -> rocket.setOptimizationFlight(flightCheckbox.isSelected()));
+		this.add(flightCheckbox, "split 3, gapright 10lp");
+
+		// Appearance
+		JCheckBox appearanceCheckbox = new JCheckBox("Appearance");
+		appearanceCheckbox.setSelected(rocket.isOptimizationAppearance());
+		appearanceCheckbox.addActionListener(e -> rocket.setOptimizationAppearance(appearanceCheckbox.isSelected()));
+		this.add(appearanceCheckbox, "gapright 10lp");
+
+		// Construction
+		JCheckBox constructionCheckbox = new JCheckBox("Construction");
+		constructionCheckbox.setSelected(rocket.isOptimizationConstruction());
+		constructionCheckbox.addActionListener(e -> rocket.setOptimizationConstruction(constructionCheckbox.isSelected()));
+		this.add(constructionCheckbox, "wrap para");
+
 		//// Comments:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Comments")), "top, pad 4lp, gapright 10lp");
 		this.add(new JScrollPane(commentTextArea), "wmin 400lp, height 155lp:155lp:, grow 100, wrap para");
