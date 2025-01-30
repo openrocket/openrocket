@@ -1100,8 +1100,8 @@ public class SimulationConditionsPanel extends JPanel {
 							stddev = 0.4;
 						}
 
-						// TODO: what is this?
-						if (altitude != -9999 && speed != -5143.9296 && direction != -174.51) { // Values are invalid, from NOAA soundings and converted to correct units
+						// Check to make sure the values are valid
+						if (altitude >= 0 && speed >= 0 && 180 >= direction && direction >= -180) {
 							model.addWindLevel(altitude, speed, direction, stddev);
 						}
 					} catch (NumberFormatException e) {
