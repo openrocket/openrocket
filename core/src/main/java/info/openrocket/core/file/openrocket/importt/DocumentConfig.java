@@ -490,12 +490,14 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
 		setters.put("Rocket:designtype", new StringSetter(
 				Reflection.findMethod(Rocket.class, "setDesignType", String.class)));
-		setters.put("Rocket:optimizationflight", new BooleanSetter(
-				Reflection.findMethod(Rocket.class, "setOptimizationFlight", boolean.class)));
-		setters.put("Rocket:optimizationappearance", new BooleanSetter(
-				Reflection.findMethod(Rocket.class, "setOptimizationAppearance", boolean.class)));
-		setters.put("Rocket:optimizationconstruction", new BooleanSetter(
-				Reflection.findMethod(Rocket.class, "setOptimizationConstruction", boolean.class)));
+		setters.put("Rocket:kitname", new StringSetter(
+				Reflection.findMethod(Rocket.class, "setKitName", String.class)));
+//		setters.put("Rocket:optimizationflight", new BooleanSetter(
+//				Reflection.findMethod(Rocket.class, "setOptimizationFlight", boolean.class)));
+//		setters.put("Rocket:optimizationappearance", new BooleanSetter(
+//				Reflection.findMethod(Rocket.class, "setOptimizationAppearance", boolean.class)));
+//		setters.put("Rocket:optimizationconstruction", new BooleanSetter(
+//				Reflection.findMethod(Rocket.class, "setOptimizationConstruction", boolean.class)));
 
 		// Axial Stage
 		setters.put("AxialStage:separationevent", new EnumSetter<>(

@@ -26,7 +26,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
-import javax.swing.JCheckBox;
+//import javax.swing.JCheckBox;
+import javax.swing.SwingUtilities;
 
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
@@ -35,21 +36,25 @@ public class RocketConfig extends RocketComponentConfig {
 	
 	private JTextArea designerTextArea;
 	private JTextArea revisionTextArea;
+	private JComboBox<String> designTypeDropdown;
+	private JLabel kitNameLabel;
+	private JTextArea kitNameTextArea;
+	private JScrollPane kitNameScrollPane;
 	
 	private final Rocket rocket;
-	
+
 	public RocketConfig(OpenRocketDocument d, RocketComponent c, JDialog parent) {
 		super(d, c, parent);
-		
+
 		rocket = (Rocket) c;
-		
+
 		this.removeAll();
 		setLayout(new MigLayout("fill, hideMode 3"));
-		
+
 		//// Design name:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designname")), "top, pad 4lp, gapright 10lp");
 		this.add(componentNameField, "growx, wrap para");
-		
+
 		//// Designer:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designer")), "top, pad 4lp, gapright 10lp");
 
@@ -66,36 +71,53 @@ public class RocketConfig extends RocketComponentConfig {
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designtype")), "top, pad 4lp, gapright 10lp");
 		String[] options = {trans.get("RocketCfg.lbl.Originaldesign"), trans.get("RocketCfg.lbl.Commercialkit"), trans.get("RocketCfg.lbl.Clonekit"),trans.get("RocketCfg.lbl.Upscalekit"),
 				trans.get("RocketCfg.lbl.Downscalekit"), trans.get("RocketCfg.lbl.Modificationkit"), trans.get("RocketCfg.lbl.Kitbashkit")};
-		JComboBox<String> designTypeDropdown = new JComboBox<>(options);
+		designTypeDropdown = new JComboBox<>(options);
 		designTypeDropdown.setSelectedItem(rocket.getDesignType());
-		designTypeDropdown.addActionListener(e -> rocket.setDesignType((String) designTypeDropdown.getSelectedItem()));
+		designTypeDropdown.addActionListener(e -> {
+			rocket.setDesignType((String) designTypeDropdown.getSelectedItem());
+			updateKitNameTextArea();
+		});
 		this.add(designTypeDropdown, "growx, wrap para");
 
-		//// Optimization
-		this.add(new JLabel(trans.get("RocketCfg.lbl.Optimization")), "top, pad 4lp, gapright 10lp");
+		//// Kit Name (initial rendering)
+		kitNameLabel = new JLabel(trans.get("RocketCfg.lbl.Kitname"));
+		kitNameTextArea = new JTextArea(rocket.getKitName());
+		kitNameTextArea.setLineWrap(true);
+		kitNameTextArea.setWrapStyleWord(true);
+		kitNameTextArea.setEditable(true);
+		GUIUtil.setTabToFocusing(kitNameTextArea);
+		kitNameTextArea.addFocusListener(textFieldListener);
 
-		// Flight
-		JCheckBox flightCheckbox = new JCheckBox("Flight");
-		flightCheckbox.setSelected(rocket.isOptimizationFlight());
-		flightCheckbox.addActionListener(e -> rocket.setOptimizationFlight(flightCheckbox.isSelected()));
-		this.add(flightCheckbox, "split 3, gapright 10lp");
+		this.add(kitNameLabel, "top, pad 4lp, gapright 10lp");
+		kitNameScrollPane = new JScrollPane(kitNameTextArea);
+		this.add(kitNameScrollPane, "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
+		updateKitNameTextArea(); // Ensure correct initial state
 
-		// Appearance
-		JCheckBox appearanceCheckbox = new JCheckBox("Appearance");
-		appearanceCheckbox.setSelected(rocket.isOptimizationAppearance());
-		appearanceCheckbox.addActionListener(e -> rocket.setOptimizationAppearance(appearanceCheckbox.isSelected()));
-		this.add(appearanceCheckbox, "gapright 10lp");
-
-		// Construction
-		JCheckBox constructionCheckbox = new JCheckBox("Construction");
-		constructionCheckbox.setSelected(rocket.isOptimizationConstruction());
-		constructionCheckbox.addActionListener(e -> rocket.setOptimizationConstruction(constructionCheckbox.isSelected()));
-		this.add(constructionCheckbox, "wrap para");
+//		//// Optimization
+//		this.add(new JLabel(trans.get("RocketCfg.lbl.Optimization")), "top, pad 4lp, gapright 10lp");
+//
+//		// Flight
+//		JCheckBox flightCheckbox = new JCheckBox("Flight");
+//		flightCheckbox.setSelected(rocket.isOptimizationFlight());
+//		flightCheckbox.addActionListener(e -> rocket.setOptimizationFlight(flightCheckbox.isSelected()));
+//		this.add(flightCheckbox, "split 3, gapright 10lp");
+//
+//		// Appearance
+//		JCheckBox appearanceCheckbox = new JCheckBox("Appearance");
+//		appearanceCheckbox.setSelected(rocket.isOptimizationAppearance());
+//		appearanceCheckbox.addActionListener(e -> rocket.setOptimizationAppearance(appearanceCheckbox.isSelected()));
+//		this.add(appearanceCheckbox, "gapright 10lp");
+//
+//		// Construction
+//		JCheckBox constructionCheckbox = new JCheckBox("Construction");
+//		constructionCheckbox.setSelected(rocket.isOptimizationConstruction());
+//		constructionCheckbox.addActionListener(e -> rocket.setOptimizationConstruction(constructionCheckbox.isSelected()));
+//		this.add(constructionCheckbox, "wrap para");
 
 		//// Comments:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Comments")), "top, pad 4lp, gapright 10lp");
 		this.add(new JScrollPane(commentTextArea), "wmin 400lp, height 155lp:155lp:, grow 100, wrap para");
-		
+
 		//// Revision history:
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Revisionhistory")), "top, pad 4lp, gapright 10lp");
 		revisionTextArea = new JTextArea(rocket.getRevision());
@@ -104,12 +126,28 @@ public class RocketConfig extends RocketComponentConfig {
 		revisionTextArea.setEditable(true);
 		GUIUtil.setTabToFocusing(revisionTextArea);
 		revisionTextArea.addFocusListener(textFieldListener);
-		
+
 		this.add(new JScrollPane(revisionTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
-		
 
 		addButtons();
 		addEasterEgg();
+	}
+
+	/**
+	 * Method that updates the visibility of kitNameLabel and kitNameTextArea based on designType.
+	 */
+	private void updateKitNameTextArea() {
+		String selectedType = (String) designTypeDropdown.getSelectedItem();
+		boolean isOriginalDesign = selectedType.equals(trans.get("RocketCfg.lbl.Originaldesign"));
+
+		kitNameLabel.setVisible(!isOriginalDesign);
+		kitNameTextArea.setVisible(!isOriginalDesign);
+		kitNameScrollPane.setVisible(!isOriginalDesign);
+
+		SwingUtilities.invokeLater(() -> {
+			this.revalidate();
+			this.repaint();
+		});
 	}
 
 	/**
@@ -176,6 +214,9 @@ public class RocketConfig extends RocketComponentConfig {
 			}
 			if (!rocket.getRevision().equals(revisionTextArea.getText())) {
 				rocket.setRevision(revisionTextArea.getText());
+			}
+			if (!rocket.getKitName().equals(kitNameTextArea.getText())) {
+				rocket.setKitName(kitNameTextArea.getText());
 			}
 		}
 	}

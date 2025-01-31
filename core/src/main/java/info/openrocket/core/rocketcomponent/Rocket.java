@@ -68,9 +68,10 @@ public class Rocket extends ComponentAssembly {
 	private String designer = "";
 	private String revision = "";
 	private String designType = "";
-	private boolean optimizationFlight = false;
-	private boolean optimizationAppearance = false;
-	private boolean optimizationConstruction = false;
+	private String kitName = "";
+//	private boolean optimizationFlight = false;
+//	private boolean optimizationAppearance = false;
+//	private boolean optimizationConstruction = false;
 	
 	
 	// Flight configuration list
@@ -133,35 +134,47 @@ public class Rocket extends ComponentAssembly {
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 
-	public Boolean isOptimizationFlight(){
+	public String getKitName(){
 		checkState();
-		return optimizationFlight;
+		return kitName;
 	}
 
-	public void setOptimizationFlight(boolean b){
-		optimizationFlight = b;
+	public void setKitName(String s){
+		if (s == null)
+			s = "";
+		kitName = s;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 
-	public Boolean isOptimizationAppearance(){
-		checkState();
-		return optimizationAppearance;
-	}
-
-	public void setOptimizationAppearance(boolean b){
-		optimizationAppearance = b;
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}
-
-	public Boolean isOptimizationConstruction(){
-		checkState();
-		return optimizationConstruction;
-	}
-
-	public void setOptimizationConstruction(boolean b){
-		optimizationConstruction = b;
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}
+//	public Boolean isOptimizationFlight(){
+//		checkState();
+//		return optimizationFlight;
+//	}
+//
+//	public void setOptimizationFlight(boolean b){
+//		optimizationFlight = b;
+//		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+//	}
+//
+//	public Boolean isOptimizationAppearance(){
+//		checkState();
+//		return optimizationAppearance;
+//	}
+//
+//	public void setOptimizationAppearance(boolean b){
+//		optimizationAppearance = b;
+//		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+//	}
+//
+//	public Boolean isOptimizationConstruction(){
+//		checkState();
+//		return optimizationConstruction;
+//	}
+//
+//	public void setOptimizationConstruction(boolean b){
+//		optimizationConstruction = b;
+//		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+//	}
 	
 	public String getRevision() {
 		checkState();
