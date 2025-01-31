@@ -147,6 +147,7 @@ public class RocketConfig extends RocketComponentConfig {
 		SwingUtilities.invokeLater(() -> {
 			this.revalidate();
 			this.repaint();
+			parent.pack();
 		});
 	}
 
