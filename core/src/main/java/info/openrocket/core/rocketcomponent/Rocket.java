@@ -67,7 +67,7 @@ public class Rocket extends ComponentAssembly {
 	
 	private String designer = "";
 	private String revision = "";
-	private String designType = "";
+	private DesignType designType = DesignType.ORIGINAL;
 	private String kitName = "";
 //	private boolean optimizationFlight = false;
 //	private boolean optimizationAppearance = false;
@@ -127,19 +127,20 @@ public class Rocket extends ComponentAssembly {
 	 * design...).
 	 * @return the design type
 	 */
-	public String getDesignType() {
+	public DesignType getDesignType() {
 		checkState();
 		return designType;
 	}
 
 	/**
 	 * Set the design type of the rocket.
-	 * @param s the design type
+	 * @param type the design type
 	 */
-	public void setDesignType(String s) {
-		if (s == null)
-			s = "";
-		designType = s;
+	public void setDesignType(DesignType type) {
+		if (type == null) {
+			type = DesignType.ORIGINAL;
+		}
+		designType = type;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 

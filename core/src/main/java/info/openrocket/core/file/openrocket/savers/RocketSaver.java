@@ -36,11 +36,7 @@ public class RocketSaver extends RocketComponentSaver {
 					+ info.openrocket.core.util.TextUtil.escapeXML(rocket.getDesigner())
 					+ "</designer>");
 		}
-		if (rocket.getDesignType().length() > 0) {
-			elements.add("<designtype>"
-					+ info.openrocket.core.util.TextUtil.escapeXML(rocket.getDesignType())
-					+ "</designtype>");
-		}
+		elements.add("<designtype>" + rocket.getDesignType().getStorableString() + "</designtype>");
 		if (rocket.getKitName().length() > 0){
 			elements.add("<kitname>"
 					+ info.openrocket.core.util.TextUtil.escapeXML(rocket.getKitName())

@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.configdialog;
 
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Toolkit;
@@ -11,6 +12,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import info.openrocket.core.rocketcomponent.DesignType;
 import info.openrocket.swing.gui.util.GUIUtil;
 import net.miginfocom.swing.MigLayout;
 
@@ -20,8 +22,10 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -36,7 +40,7 @@ public class RocketConfig extends RocketComponentConfig {
 	
 	private JTextArea designerTextArea;
 	private JTextArea revisionTextArea;
-	private JComboBox<String> designTypeDropdown;
+	private JComboBox<DesignType> designTypeDropdown;
 	private JLabel kitNameLabel;
 	private JTextArea kitNameTextArea;
 	private JScrollPane kitNameScrollPane;
@@ -67,14 +71,23 @@ public class RocketConfig extends RocketComponentConfig {
 		designerTextArea.addFocusListener(textFieldListener);
 		this.add(new JScrollPane(designerTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
 
-		//// Design Type
+		// Design Type
 		this.add(new JLabel(trans.get("RocketCfg.lbl.Designtype")), "top, pad 4lp, gapright 10lp");
-		String[] options = {trans.get("RocketCfg.lbl.Originaldesign"), trans.get("RocketCfg.lbl.Commercialkit"), trans.get("RocketCfg.lbl.Clonekit"),trans.get("RocketCfg.lbl.Upscalekit"),
-				trans.get("RocketCfg.lbl.Downscalekit"), trans.get("RocketCfg.lbl.Modificationkit"), trans.get("RocketCfg.lbl.Kitbashkit")};
-		designTypeDropdown = new JComboBox<>(options);
+
+		designTypeDropdown = new JComboBox<>(DesignType.values());
+		designTypeDropdown.setRenderer(new DefaultListCellRenderer() {
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value,
+														  int index, boolean isSelected, boolean cellHasFocus) {
+				DesignType type = (DesignType) value;
+				String displayText = type.getName();
+				return super.getListCellRendererComponent(list, displayText, index, isSelected, cellHasFocus);
+			}
+		});
+
 		designTypeDropdown.setSelectedItem(rocket.getDesignType());
 		designTypeDropdown.addActionListener(e -> {
-			rocket.setDesignType((String) designTypeDropdown.getSelectedItem());
+			rocket.setDesignType((DesignType) designTypeDropdown.getSelectedItem());
 			updateKitNameTextArea();
 		});
 		this.add(designTypeDropdown, "growx, wrap para");
@@ -137,8 +150,7 @@ public class RocketConfig extends RocketComponentConfig {
 	 * Method that updates the visibility of kitNameLabel and kitNameTextArea based on designType.
 	 */
 	private void updateKitNameTextArea() {
-		String selectedType = (String) designTypeDropdown.getSelectedItem();
-		boolean isOriginalDesign = selectedType.equals(trans.get("RocketCfg.lbl.Originaldesign"));
+		boolean isOriginalDesign = rocket.getDesignType() == DesignType.ORIGINAL;
 
 		kitNameLabel.setVisible(!isOriginalDesign);
 		kitNameTextArea.setVisible(!isOriginalDesign);
