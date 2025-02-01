@@ -122,24 +122,41 @@ public class Rocket extends ComponentAssembly {
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 
-	public String getDesignType(){
+	/**
+	 * Get the design type of the rocket (e.g. is the current model a clone of a kit, an upscale of a kit, an original
+	 * design...).
+	 * @return the design type
+	 */
+	public String getDesignType() {
 		checkState();
 		return designType;
 	}
 
-	public void setDesignType(String s){
+	/**
+	 * Set the design type of the rocket.
+	 * @param s the design type
+	 */
+	public void setDesignType(String s) {
 		if (s == null)
 			s = "";
 		designType = s;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 
-	public String getKitName(){
+	/**
+	 * Get the name of the kit that this rocket is based on.
+	 * @return the kit name
+	 */
+	public String getKitName() {
 		checkState();
 		return kitName;
 	}
 
-	public void setKitName(String s){
+	/**
+	 * Set the name of the kit that this rocket is based on.
+	 * @param s the kit name
+	 */
+	public void setKitName(String s) {
 		if (s == null)
 			s = "";
 		kitName = s;
