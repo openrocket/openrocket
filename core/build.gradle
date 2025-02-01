@@ -50,6 +50,9 @@ dependencies {
 
     implementation 'de.javagl:obj:0.4.0'
 
+    implementation group: 'org.ow2.asm', name: 'asm', version: '9.7.1'
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: '9.7.1'
+
     implementation group: 'jakarta.activation', name: 'jakarta.activation-api', version: '2.1.2'
     implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '4.0.5'
     implementation group: 'org.glassfish', name: 'jakarta.json', version: '2.0.1'
