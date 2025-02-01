@@ -147,8 +147,8 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		List<CADataType> typesWithNoComponents = new ArrayList<>();
 		for (int i = 0; i < selected.length; i++) {
 			if (selected[i]) {
-				boolean hasSelectedComponent = !selectedComponents.get(i).isEmpty();
-				if (!hasSelectedComponent) {
+				List<RocketComponent> selectedComponents = this.selectedComponents.get(types[i]);
+				if (!selectedComponents.isEmpty()) {
 					typesWithNoComponents.add(types[i]);
 				}
 			}
@@ -214,7 +214,7 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 		// Iterate through the table to get selected items
 		for (int i = 0; i < selected.length; i++) {
 			if (selected[i]) {
-				List<RocketComponent> selectedComponentsList = new ArrayList<>(selectedComponents.get(i));
+				List<RocketComponent> selectedComponentsList = new ArrayList<>(selectedComponents.get(types[i]));
 				if (!selectedComponentsList.isEmpty()) {
 					fieldTypes.add(types[i]);
 					fieldUnits.add(units[i]);
