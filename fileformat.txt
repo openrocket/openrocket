@@ -73,4 +73,4 @@ The following file format versions exist:
       Added wind model settings (<wind mode="{average or multilevel}">), and windmodeltype to simulation conditions.
       Added warning flight events
       Added <maxtime> attribute to simulation conditions.
-      
+      Added <designtype> and  <kitname> to <rocket> element.
