@@ -23,7 +23,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
+import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -32,7 +32,6 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.communication.ReleaseInfo;
 import info.openrocket.core.communication.UpdateInfo;
 import info.openrocket.core.communication.UpdateInfoRetriever;
-import info.openrocket.core.communication.UpdateInfoRetriever.ReleaseStatus;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
@@ -430,104 +429,107 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 	private void checkForUpdates() {
 		final UpdateInfoRetriever retriever = new UpdateInfoRetriever();
 		retriever.startFetchUpdateInfo();
-		
-		
-		// Progress dialog
-		final JDialog dialog1 = new JDialog(this.parentDialog, ModalityType.APPLICATION_MODAL);
+
+		final JDialog dialog1 = new JDialog(this.parentDialog, ModalityType.MODELESS); // Make non-modal
 		JPanel panel = new JPanel(new MigLayout());
-		
-		//// Checking for updates...
+
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Checkingupdates")), "wrap");
-		
+
 		JProgressBar bar = new JProgressBar();
 		bar.setIndeterminate(true);
 		panel.add(bar, "growx, wrap para");
-		
-		//// Cancel button
+
 		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
-		cancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dialog1.dispose();
-			}
+		cancel.addActionListener(e -> {
+			retriever.cancel(); // Add way to cancel retriever
+			dialog1.dispose();
 		});
 		panel.add(cancel, "right");
 		dialog1.add(panel);
-		
+
 		GUIUtil.setDisposableDialogOptions(dialog1, cancel);
-		
-		
-		// Timer to monitor progress
-		final Timer timer = new Timer(100, null);
-		final long startTime = System.currentTimeMillis();
-		
-		ActionListener listener = new ActionListener() {
+
+		SwingWorker<UpdateInfo, Void> worker = new SwingWorker<>() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!retriever.isRunning() || startTime + 10000 < System.currentTimeMillis()) {
-					timer.stop();
-					dialog1.dispose();
+			protected UpdateInfo doInBackground() {
+				long startTime = System.currentTimeMillis();
+				while (retriever.isRunning() && System.currentTimeMillis() - startTime < 10000) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						break;
+					}
+				}
+				return retriever.getUpdateInfo();
+			}
+
+			@Override
+			protected void done() {
+				dialog1.dispose();
+				try {
+					handleUpdateResult(get(), retriever);
+				} catch (Exception e) {
+					handleError(e);
 				}
 			}
 		};
-		timer.addActionListener(listener);
-		timer.start();
-		
-		
-		// Wait for action
-		dialog1.setVisible(true);
-		
-		
-		// Check result
-		UpdateInfo info = retriever.getUpdateInfo();
 
-		// Something went wrong
+		worker.execute();
+		dialog1.setVisible(true);
+	}
+
+	private void handleUpdateResult(UpdateInfo info, UpdateInfoRetriever retriever) {
 		if (info == null) {
-			JOptionPane.showMessageDialog(this,
-					//// An error occurred while communicating with the server.
-					trans.get("update.dlg.error"),
-					//// Unable to retrieve update information
-					trans.get("update.dlg.error.title"), JOptionPane.WARNING_MESSAGE, null);
+			if (!retriever.isCancelled()) {
+				JOptionPane.showMessageDialog(this,
+						trans.get("update.dlg.error"),
+						trans.get("update.dlg.error.title"),
+						JOptionPane.WARNING_MESSAGE);
+			}
 			return;
 		}
 
-		// Something went wrong, but we know what went wrong
 		if (info.getException() != null) {
 			JOptionPane.showMessageDialog(this,
 					info.getException().getMessage(),
-					trans.get("update.dlg.exception.title"), JOptionPane.WARNING_MESSAGE, null);
+					trans.get("update.dlg.exception.title"),
+					JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 
-		// Nothing went wrong (yay!)
-		ReleaseStatus status = info.getReleaseStatus();
 		ReleaseInfo release = info.getLatestRelease();
-
-		// Do nothing if the release is part of the ignore versions
-		if (preferences.getIgnoreUpdateVersions().contains(release.getReleaseName())) {
+		// Skip if version is in ignore list
+		boolean checkAllUpdates = System.getProperty("openrocket.debug.checkAllVersionUpdates") != null;
+		if (!checkAllUpdates && preferences.getIgnoreUpdateVersions().contains(release.getReleaseName())) {
 			return;
 		}
 
-		// Display software updater dialog, based on the current build version status
-		switch (status) {
+		switch (info.getReleaseStatus()) {
 			case LATEST:
 				JOptionPane.showMessageDialog(this,
-						//// You are running the latest version of OpenRocket.
-						String.format(trans.get("update.dlg.latestVersion"), BuildProperties.getVersion()),
-						//// No updates available
-						trans.get("update.dlg.latestVersion.title"), JOptionPane.INFORMATION_MESSAGE, null);
+						String.format(trans.get("update.dlg.latestVersion"),
+								BuildProperties.getVersion()),
+						trans.get("update.dlg.latestVersion.title"),
+						JOptionPane.INFORMATION_MESSAGE);
 				break;
 			case NEWER:
 				JOptionPane.showMessageDialog(this,
-						//// You are running a newer version than the latest official release
-						String.format("<html><body><p style='width: %dpx'>%s", 400, String.format(trans.get("update.dlg.newerVersion"),
-								BuildProperties.getVersion(), release.getReleaseName())),
-						//// Newer version detected
-						trans.get("update.dlg.newerVersion.title"), JOptionPane.INFORMATION_MESSAGE, null);
+						String.format("<html><body><p style='width: %dpx'>%s", 400,
+								String.format(trans.get("update.dlg.newerVersion"),
+										BuildProperties.getVersion(), release.getReleaseName())),
+						trans.get("update.dlg.newerVersion.title"),
+						JOptionPane.INFORMATION_MESSAGE);
 				break;
 			case OLDER:
-				UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
-				infoDialog.setVisible(true);
+				new UpdateInfoDialog(info).setVisible(true);
+				break;
 		}
+	}
+
+	private void handleError(Exception e) {
+		JOptionPane.showMessageDialog(this,
+				trans.get("update.dlg.error"),
+				trans.get("update.dlg.error.title"),
+				JOptionPane.WARNING_MESSAGE);
 	}
 }
