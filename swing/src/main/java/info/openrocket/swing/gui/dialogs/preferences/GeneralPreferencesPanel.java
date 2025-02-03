@@ -1,6 +1,5 @@
 package info.openrocket.swing.gui.dialogs.preferences;
 
-import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -14,36 +13,29 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
-import info.openrocket.core.communication.ReleaseInfo;
-import info.openrocket.core.communication.UpdateInfo;
-import info.openrocket.core.communication.UpdateInfoRetriever;
 import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.l10n.L10N;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.Named;
 import info.openrocket.core.util.Utils;
 
 import info.openrocket.swing.gui.components.DescriptionArea;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
-import info.openrocket.swing.gui.dialogs.UpdateInfoDialog;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
@@ -295,7 +287,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				checkForUpdates();
+				UpdateInfoRunner.checkForUpdates(parent);
 			}
 		});
 		this.add(button, "right, wrap");
@@ -423,113 +415,5 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		buttonPanel.add(resetAllPreferences, "pushx, right, gaptop 20lp, wrap");
 
 		this.add(buttonPanel, "spanx, growx, pushy, bottom, wrap");
-	}
-
-
-	private void checkForUpdates() {
-		final UpdateInfoRetriever retriever = new UpdateInfoRetriever();
-		retriever.startFetchUpdateInfo();
-
-		final JDialog dialog1 = new JDialog(this.parentDialog, ModalityType.MODELESS); // Make non-modal
-		JPanel panel = new JPanel(new MigLayout());
-
-		panel.add(new JLabel(trans.get("pref.dlg.lbl.Checkingupdates")), "wrap");
-
-		JProgressBar bar = new JProgressBar();
-		bar.setIndeterminate(true);
-		panel.add(bar, "growx, wrap para");
-
-		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
-		cancel.addActionListener(e -> {
-			retriever.cancel(); // Add way to cancel retriever
-			dialog1.dispose();
-		});
-		panel.add(cancel, "right");
-		dialog1.add(panel);
-
-		GUIUtil.setDisposableDialogOptions(dialog1, cancel);
-
-		SwingWorker<UpdateInfo, Void> worker = new SwingWorker<>() {
-			@Override
-			protected UpdateInfo doInBackground() {
-				long startTime = System.currentTimeMillis();
-				while (retriever.isRunning() && System.currentTimeMillis() - startTime < 10000) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						break;
-					}
-				}
-				return retriever.getUpdateInfo();
-			}
-
-			@Override
-			protected void done() {
-				dialog1.dispose();
-				try {
-					handleUpdateResult(get(), retriever);
-				} catch (Exception e) {
-					handleError(e);
-				}
-			}
-		};
-
-		worker.execute();
-		dialog1.setVisible(true);
-	}
-
-	private void handleUpdateResult(UpdateInfo info, UpdateInfoRetriever retriever) {
-		if (info == null) {
-			if (!retriever.isCancelled()) {
-				JOptionPane.showMessageDialog(this,
-						trans.get("update.dlg.error"),
-						trans.get("update.dlg.error.title"),
-						JOptionPane.WARNING_MESSAGE);
-			}
-			return;
-		}
-
-		if (info.getException() != null) {
-			JOptionPane.showMessageDialog(this,
-					info.getException().getMessage(),
-					trans.get("update.dlg.exception.title"),
-					JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		ReleaseInfo release = info.getLatestRelease();
-		// Skip if version is in ignore list
-		boolean checkAllUpdates = System.getProperty("openrocket.debug.checkAllVersionUpdates") != null;
-		if (!checkAllUpdates && preferences.getIgnoreUpdateVersions().contains(release.getReleaseName())) {
-			return;
-		}
-
-		switch (info.getReleaseStatus()) {
-			case LATEST:
-				JOptionPane.showMessageDialog(this,
-						String.format(trans.get("update.dlg.latestVersion"),
-								BuildProperties.getVersion()),
-						trans.get("update.dlg.latestVersion.title"),
-						JOptionPane.INFORMATION_MESSAGE);
-				break;
-			case NEWER:
-				JOptionPane.showMessageDialog(this,
-						String.format("<html><body><p style='width: %dpx'>%s", 400,
-								String.format(trans.get("update.dlg.newerVersion"),
-										BuildProperties.getVersion(), release.getReleaseName())),
-						trans.get("update.dlg.newerVersion.title"),
-						JOptionPane.INFORMATION_MESSAGE);
-				break;
-			case OLDER:
-				new UpdateInfoDialog(info).setVisible(true);
-				break;
-		}
-	}
-
-	private void handleError(Exception e) {
-		JOptionPane.showMessageDialog(this,
-				trans.get("update.dlg.error"),
-				trans.get("update.dlg.error.title"),
-				JOptionPane.WARNING_MESSAGE);
 	}
 }

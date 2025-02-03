@@ -50,6 +50,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
@@ -810,6 +811,19 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "License selected");
 				new LicenseDialog(parent).setVisible(true);
+			}
+		});
+		menu.add(item);
+
+		////	Check for updates
+		item = new JMenuItem(trans.get("main.menu.help.checkForUpdates"), KeyEvent.VK_U);
+		item.setIcon(Icons.HELP_CHECK_FOR_UPDATES);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.checkForUpdates.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Check for updates selected");
+				UpdateInfoRunner.checkForUpdates(parent);
 			}
 		});
 		menu.add(item);
