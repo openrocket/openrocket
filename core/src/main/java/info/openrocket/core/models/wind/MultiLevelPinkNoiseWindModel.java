@@ -199,6 +199,10 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	 * @return The extracted double value
 	 */
 	private double extractDouble(String[] values, int index, String column) {
+		if (index >= values.length) {
+			throw new IllegalArgumentException(String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.MissingColumnValue"),
+					column));
+		}
 		if (values[index] == null || values[index].trim().isEmpty()) {
 			throw new IllegalArgumentException(String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.EmptyOrNullValue"),
 					column));
