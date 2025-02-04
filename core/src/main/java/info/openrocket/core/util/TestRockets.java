@@ -2002,6 +2002,67 @@ public class TestRockets {
 	}
 
 	/**
+	 * This is an incomplete rocket; just enough so we can see if clusters and
+	 * pods multiply thrust appropriately.
+	 *
+	 * center motor mount is a two-motor cluster
+	 * three pods, each containing a four-motor cluster
+	 * resulting thrust should 14 times the thrust of a single motor
+	 */
+	public static final Rocket makeClusterPods() {
+
+		Rocket rocket = new Rocket();
+
+		FlightConfigurationId selFCID = rocket.createFlightConfiguration(new FlightConfigurationId()).getFlightConfigurationID();
+
+		// Sustainer
+		AxialStage sustainer = new AxialStage();
+		sustainer.setName("Sustainer");
+		rocket.addChild(sustainer);
+
+		// Sustainer body tube
+		BodyTube sustainerBodyTube = new BodyTube();
+		sustainerBodyTube.setName("Sustainer Body Tube");
+		sustainer.addChild(sustainerBodyTube);
+
+		// Inner tubes for motor mount cluster
+		InnerTube sustainerMotorMount = new InnerTube();
+		sustainerMotorMount.setMotorMount(true);
+		sustainerMotorMount.setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[1]); // two motors
+		sustainerBodyTube.addChild(sustainerMotorMount);
+		
+		MotorConfiguration sustainerMotorConfig = new MotorConfiguration(sustainerMotorMount, selFCID);
+		sustainerMotorConfig.setMotor(TestRockets.generateMotor_C6_18mm());
+		sustainerMotorConfig.setIgnitionEvent(IgnitionEvent.LAUNCH);
+		sustainerMotorMount.setMotorConfig(sustainerMotorConfig, selFCID);
+		
+		// Three Side Boosters
+		ParallelStage sideBoosters = new ParallelStage(3);
+		sustainerBodyTube.addChild(sideBoosters);
+
+		BodyTube sideBodyTubes = new BodyTube();
+		sideBodyTubes.setName("Side Booster Body Tubes");
+		sideBoosters.addChild(sideBodyTubes);
+
+		// Each side booster has a four-motor cluster
+		InnerTube sideBoosterMounts = new InnerTube();
+		sideBoosterMounts.setMotorMount(true);
+		sideBoosterMounts.setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[3]); // four motors
+		sideBodyTubes.addChild(sideBoosterMounts);
+		
+		MotorConfiguration sideMotorConfig = new MotorConfiguration(sideBoosterMounts, selFCID);
+		sideMotorConfig.setMotor(TestRockets.generateMotor_C6_18mm());
+		sideMotorConfig.setIgnitionEvent(IgnitionEvent.LAUNCH);
+		sideBoosterMounts.setMotorConfig(sideMotorConfig, selFCID);
+
+		rocket.enableEvents();
+		rocket.setSelectedConfiguration(selFCID);
+
+		return rocket;
+	}
+		
+
+	/**
 	 * dump a test rocket to a file, so we can open it in OR
 	 */
 	public static void dumpRocket(Rocket rocket, String filename) {

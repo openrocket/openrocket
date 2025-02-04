@@ -138,7 +138,19 @@ public class UpdateInfoDialog extends JDialog {
 				preferences.setCheckUpdates(checkAtStartup.isSelected());
 			}
 		});
-		panel.add(checkAtStartup, "skip 1, spanx, wrap");
+		panel.add(checkAtStartup, "skip 1, split 2, spanx");
+
+		//// Check for beta releases
+		final JCheckBox betaUpdateBox = new JCheckBox(trans.get("pref.dlg.checkbox.CheckBetaupdates"));
+		betaUpdateBox.setToolTipText(trans.get("pref.dlg.checkbox.CheckBetaupdates.ttip"));
+		betaUpdateBox.setSelected(preferences.getCheckBetaUpdates());
+		betaUpdateBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setCheckBetaUpdates(betaUpdateBox.isSelected());
+			}
+		});
+		panel.add(betaUpdateBox, "gapleft para, wrap");
 
 		// Lower row buttons
 		//// Remind me later button

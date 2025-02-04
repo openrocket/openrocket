@@ -344,53 +344,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 
 	@Override
-	public double getAverageThrust(final double startTime, final double endTime) {
-
-		int timeIndex = 0;
-
-		while (timeIndex < time.length - 1 && startTime > time[timeIndex + 1]) {
-			timeIndex++;
-		}
-
-		if (timeIndex == time.length - 1) {
-			return 0.0;
-		}
-
-		if (endTime <= time[timeIndex + 1]) {
-			// we are completely within this time slice so the computation of the average is
-			// pretty easy:
-			double startThrust = MathUtil.map(startTime, time[timeIndex], time[timeIndex + 1], thrust[timeIndex],
-					thrust[timeIndex + 1]);
-			double endThrust = MathUtil.map(endTime, time[timeIndex], time[timeIndex + 1], thrust[timeIndex],
-					thrust[timeIndex + 1]);
-			return (startThrust + endThrust) / 2.0;
-		}
-
-		double impulse = 0.0;
-
-		// portion from startTime through time[timeIndex+1]
-		double startThrust = MathUtil.map(startTime, time[timeIndex], time[timeIndex + 1], thrust[timeIndex],
-				thrust[timeIndex + 1]);
-		impulse = (time[timeIndex + 1] - startTime) * (startThrust + thrust[timeIndex + 1]) / 2.0;
-
-		// Now add the whole steps;
-		timeIndex++;
-		while (timeIndex < time.length - 1 && endTime >= time[timeIndex + 1]) {
-			impulse += (time[timeIndex + 1] - time[timeIndex]) * (thrust[timeIndex] + thrust[timeIndex + 1]) / 2.0;
-			timeIndex++;
-		}
-
-		// Now add the bit after the last time index
-		if (timeIndex < time.length - 1) {
-			double endThrust = MathUtil.map(endTime, time[timeIndex], time[timeIndex + 1], thrust[timeIndex],
-					thrust[timeIndex + 1]);
-			impulse += (endTime - time[timeIndex]) * (thrust[timeIndex] + endThrust) / 2.0;
-		}
-
-		return impulse / (endTime - startTime);
-	}
-
-	@Override
 	public double getThrust(final double motorTime) {
 		double pseudoIndex = getPseudoIndex(motorTime);
 

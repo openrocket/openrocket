@@ -1,5 +1,8 @@
 package info.openrocket.swing.gui.configdialog;
 
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.ComponentChangeListener;
+import info.openrocket.core.rocketcomponent.MassObject;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -105,10 +108,17 @@ public class ShockCordConfig extends RocketComponentConfig {
 				placementPanel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
 
 				////// Automatic
-				JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
+				final JCheckBox checkAutoPackedRadius = new JCheckBox(od.getAutomaticAction());
 				checkAutoPackedRadius.setText(trans.get("ParachuteCfg.checkbox.AutomaticPacked"));
 				checkAutoPackedRadius.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticPacked.ttip"));
+				checkAutoPackedRadius.setEnabled(((MassObject) component).getMaxParentRadius() > 0);
 				placementPanel.add(checkAutoPackedRadius, "skip, spanx 2, wrap");
+				component.getParent().addComponentChangeListener(new ComponentChangeListener() {
+					@Override
+					public void componentChanged(ComponentChangeEvent e) {
+						checkAutoPackedRadius.setEnabled(((MassObject) component).getMaxParentRadius() > 0);
+					}
+				});
 				order.add(checkAutoPackedRadius);
 			}
 		}

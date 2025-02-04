@@ -141,9 +141,16 @@ public class GeneralRocketSaver {
 		boolean success = temporaryNewFile.renameTo(dest);
 
 		if (success) {
+			dest.setLastModified(System.currentTimeMillis());
 			if (destExists) {
 				oldBackupFile.delete();
 			}
+		} else {
+			temporaryNewFile.delete();
+			if (destExists) {
+				oldBackupFile.renameTo(dest);
+			}
+			throw new IOException("Unable to move temporary file to destination");
 		}
 	}
 

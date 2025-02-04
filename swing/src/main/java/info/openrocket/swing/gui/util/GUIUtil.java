@@ -186,7 +186,6 @@ public class GUIUtil {
 		setWindowIcons(dialog);
 		addModelNullingListener(dialog);
 		dialog.setLocationRelativeTo(dialog.getOwner());
-		dialog.setLocationByPlatform(true);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.pack();
 		if (defaultButton != null) {
