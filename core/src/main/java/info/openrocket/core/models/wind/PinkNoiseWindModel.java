@@ -84,7 +84,7 @@ public class PinkNoiseWindModel implements WindModel {
 	 */
 	public void setAverage(double average) {
 		if (average < 0) {
-			average = - average;
+			average = -average;
 			setDirection(Math.PI + getDirection());
 		}
 		if (average == this.average) {
