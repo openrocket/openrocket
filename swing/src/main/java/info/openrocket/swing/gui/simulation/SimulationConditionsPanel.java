@@ -588,6 +588,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		// Delete level
 		JButton deleteButton = new IconButton(trans.get("simedtdlg.but.deleteWindLevel"), Icons.EDIT_DELETE);
+		deleteButton.setToolTipText(trans.get("simedtdlg.but.deleteWindLevel.ttip"));
 		deleteButton.addActionListener(e -> {
 			int selectedRow = windLevelTable.getSelectedRow();
 			tableModel.deleteWindLevel(selectedRow);
@@ -601,6 +602,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		// Visualization levels
 		JButton visualizeButton = new IconButton(trans.get("simedtdlg.but.visualizeWindLevels"), Icons.SIM_PLOT);
+		visualizeButton.setToolTipText(trans.get("simedtdlg.but.visualizeWindLevels.ttip"));
 		visualizeButton.addActionListener(e -> {
 			Window owner = SwingUtilities.getWindowAncestor(panel);
 			if (owner instanceof Dialog) {
@@ -619,6 +621,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		// Import levels
 		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.IMPORT);
+		importButton.setToolTipText(trans.get("simedtdlg.but.importLevels.ttip"));
 		importButton.addActionListener(e -> {
 			// Create a text box pop up where you can paste a CSV file
 			JFileChooser fileChooser = new JFileChooser();
