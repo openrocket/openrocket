@@ -13,15 +13,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
-import java.util.Objects;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -62,7 +57,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 
 import info.openrocket.core.document.Simulation;
@@ -681,6 +675,7 @@ public class SimulationConditionsPanel extends JPanel {
 					tableModel.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
 					sorter.sort();
 				} catch (IllegalArgumentException ex) {
+					tableModel.fireTableDataChanged();		// Just in case, because the table can be updated (data can be first cleared, but then an exception can be thrown)
 					JOptionPane.showMessageDialog(panel, new String[] {
 							trans.get("simedtdlg.msg.importLevelsError"),
 							ex.getMessage() }, trans.get("simedtdlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
@@ -1103,113 +1098,9 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		}
 
-		/**
-		 * Import the wind levels from a CSV file
-		 * @param file The file to import
-		 * @param fieldSeparator The field separator used in the CSV file
-		 * @throws IllegalArgumentException If the file could not be loaded or the format is incorrect
-		 */
-		public void importLevels(File file, String fieldSeparator) throws IllegalArgumentException {
-			final int requiredNrOfColumns = 3;		// alt, speed, dir
-			String line;
-
-			// Clear the current levels
-			model.clearLevels();
+		public void importLevels(File file, String separator) {
+			model.importLevelsFromCSV(file, separator);
 			fireTableDataChanged();
-
-			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-				// Read the first line as a header
-				line = reader.readLine();
-				String[] headers = line.split(fieldSeparator);
-				sanityCheckColumnSize(fieldSeparator, headers, requiredNrOfColumns, line);
-
-				List<String> headersList = Arrays.asList(headers);
-				int altIndex = getHeaderIndex(headersList, "alt");
-				int speedIndex = getHeaderIndex(headersList, "speed");
-				int dirIndex = getHeaderIndex(headersList, "dir");
-				int stddevIndex = getHeaderIndex(headersList, "stddev");
-
-				while ((line = reader.readLine()) != null) {
-					// Ignore empty lines
-					if (line.isEmpty()) {
-						continue;
-					}
-					String[] values = line.split(fieldSeparator);
-					sanityCheckColumnSize(fieldSeparator, values, requiredNrOfColumns, line);
-					double altitude = extractDouble(values, altIndex, "alt");
-					double speed = extractDouble(values, speedIndex, "speed");
-					double direction = MathUtil.deg2rad(extractDouble(values, dirIndex, "dir"));
-					Double stddev;
-					if (stddevIndex != -1) {
-						stddev = extractDouble(values, stddevIndex, "stddev");
-					} else {
-						stddev = null;
-					}
-
-					// Add the wind level
-					if (stddev == null) {
-						model.addWindLevel(altitude, speed, direction);
-					} else {
-						model.addWindLevel(altitude, speed, direction, stddev);
-					}
-				}
-				fireTableDataChanged();
-			} catch (IOException e) {
-				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.CouldNotLoadFile") + " '"
-						+ file.getName() + "'");
-			}
-		}
-
-		private double extractDouble(String[] values, int index, String column) {
-			if (values[index] == null || values[index].trim().isEmpty()) {
-				throw new IllegalArgumentException(String.format(trans.get("simedtdlg.msg.importLevelsError.EmptyOrNullValue"),
-						column));
-			}
-
-			String value = values[index].trim();
-
-			try {
-				// Try parsing with period as decimal separator
-				return Double.parseDouble(value);
-			} catch (NumberFormatException e) {
-				try {
-					// If that fails, try replacing last comma with period (for European format)
-					int lastCommaIndex = value.lastIndexOf(",");
-					if (lastCommaIndex != -1) {
-						value = value.substring(0, lastCommaIndex) + "." +
-								value.substring(lastCommaIndex + 1);
-						return Double.parseDouble(value);
-					}
-					throw e; // Re-throw if no comma found
-				} catch (NumberFormatException ex) {
-					throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.WrongFormat")
-							+ " Value: '" + values[index] + "'");
-				}
-			}
-		}
-
-		private void sanityCheckColumnSize(String fieldSeparator, String[] columns, int requiredNrOfColumns, String line) {
-			int nrOfColumns = columns.length;
-			if (nrOfColumns < requiredNrOfColumns) {
-				String[] msg = {
-						String.format(trans.get("simedtdlg.msg.importLevelsError.NotEnoughColumns1"),
-								nrOfColumns, line),
-						String.format(trans.get("simedtdlg.msg.importLevelsError.NotEnoughColumns2"),
-								requiredNrOfColumns, "alt, speed & dir"),
-						String.format(trans.get("simedtdlg.msg.importLevelsError.NotEnoughColumns3"),
-								fieldSeparator),
-				};
-				throw new IllegalArgumentException(String.join("\n", msg));
-			}
-		}
-
-		private int getHeaderIndex(List<String> headers, String header) {
-			int idx = headers.indexOf(header);
-			if (idx == -1 && !Objects.equals(header, "stddev")) {
-				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.NoHeader") + " '"
-						+ header + "'");
-			}
-			return idx;
 		}
 
 		public UnitGroup getUnitGroup(int columnIndex) {

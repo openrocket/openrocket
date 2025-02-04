@@ -1,6 +1,11 @@
 package info.openrocket.core.models.wind;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
@@ -8,15 +13,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
 
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 
 public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private List<LevelWindModel> levels;
+	private static final Translator trans = Application.getTranslator();
 
 	private final List<StateChangeListener> listeners = new ArrayList<>();
+
+	private static final int REQUIRED_NR_OF_CSV_COLUMNS = 3;		// alt, speed, dir
+	private static final String COLUMN_ALTITUDE = "alt";
+	private static final String COLUMN_SPEED = "speed";
+	private static final String COLUMN_DIRECTION = "dir";
+	private static final String COLUMN_STDDEV = "stddev";
 
 	public MultiLevelPinkNoiseWindModel() {
 		this.levels = new ArrayList<>();
@@ -119,6 +134,137 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		for (LevelWindModel level : source.levels) {
 			this.levels.add(level.clone());
 		}
+	}
+
+	/**
+	 * Import the wind levels from a CSV file
+	 * @param file The file to import
+	 * @param fieldSeparator The field separator used in the CSV file
+	 * @throws IllegalArgumentException If the file could not be loaded or the format is incorrect
+	 */
+	public void importLevelsFromCSV(File file, String fieldSeparator) throws IllegalArgumentException {
+		String line;
+
+		// Clear the current levels
+		clearLevels();
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+			// Read the first line as a header
+			line = reader.readLine();
+			String[] headers = line.split(fieldSeparator);
+			sanityCheckColumnSize(fieldSeparator, headers, line);
+
+			List<String> headersList = Arrays.asList(headers);
+			int altIndex = getHeaderIndex(headersList, COLUMN_ALTITUDE);
+			int speedIndex = getHeaderIndex(headersList, COLUMN_SPEED);
+			int dirIndex = getHeaderIndex(headersList, COLUMN_DIRECTION);
+			int stddevIndex = getHeaderIndex(headersList, COLUMN_STDDEV, false);
+
+			while ((line = reader.readLine()) != null) {
+				// Ignore empty lines
+				if (line.isEmpty()) {
+					continue;
+				}
+				String[] values = line.split(fieldSeparator);
+				sanityCheckColumnSize(fieldSeparator, values, line);
+				double altitude = extractDouble(values, altIndex, COLUMN_ALTITUDE);
+				double speed = extractDouble(values, speedIndex, COLUMN_SPEED);
+				double direction = MathUtil.deg2rad(extractDouble(values, dirIndex, COLUMN_DIRECTION));
+				Double stddev;
+				if (stddevIndex != -1) {
+					stddev = extractDouble(values, stddevIndex, COLUMN_STDDEV);
+				} else {
+					stddev = null;
+				}
+
+				// Add the wind level
+				if (stddev == null) {
+					addWindLevel(altitude, speed, direction);
+				} else {
+					addWindLevel(altitude, speed, direction, stddev);
+				}
+			}
+		} catch (IOException e) {
+			throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.CouldNotLoadFile") + " '"
+					+ file.getName() + "'");
+		}
+	}
+
+	/**
+	 * Extract a double value from a string array.
+	 * Checks for both period and comma as decimal separator. Commas used as thousands separator are not supported.
+	 * @param values The array of values
+	 * @param index The index of the value to extract
+	 * @param column The name of the column
+	 * @return The extracted double value
+	 */
+	private double extractDouble(String[] values, int index, String column) {
+		if (values[index] == null || values[index].trim().isEmpty()) {
+			throw new IllegalArgumentException(String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.EmptyOrNullValue"),
+					column));
+		}
+
+		String value = values[index].trim();
+
+		try {
+			// Try parsing with period as decimal separator
+			return Double.parseDouble(value);
+		} catch (NumberFormatException e) {
+			try {
+				// If that fails, try replacing last comma with period (for European format)
+				int lastCommaIndex = value.lastIndexOf(",");
+				if (lastCommaIndex != -1) {
+					value = value.substring(0, lastCommaIndex) + "." +
+							value.substring(lastCommaIndex + 1);
+					return Double.parseDouble(value);
+				}
+				throw e; // Re-throw if no comma found
+			} catch (NumberFormatException ex) {
+				throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.WrongFormat")
+						+ " Value: '" + values[index] + "'");
+			}
+		}
+	}
+
+	/**
+	 * Check if the number of columns in a line is correct
+	 * @param fieldSeparator The field separator used in the CSV file
+	 * @param columns The columns in the line
+	 * @param line The line that was read
+	 */
+	private void sanityCheckColumnSize(String fieldSeparator, String[] columns, String line) {
+		int nrOfColumns = columns.length;
+		if (nrOfColumns < REQUIRED_NR_OF_CSV_COLUMNS) {
+			String[] msg = {
+					String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumns1"),
+							nrOfColumns, line),
+					String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumns2"),
+							REQUIRED_NR_OF_CSV_COLUMNS, "alt, speed & dir"),
+					String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumns3"),
+							fieldSeparator),
+			};
+			throw new IllegalArgumentException(String.join("\n", msg));
+		}
+	}
+
+	/**
+	 * Get the index of a header in a list of headers
+	 * @param headers The list of headers
+	 * @param header The header to find
+	 * @param required If the header is required
+	 * @return The index of the header
+	 */
+	private int getHeaderIndex(List<String> headers, String header, boolean required) {
+		int idx = headers.indexOf(header);
+		if (idx == -1 && required) {
+			throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NoHeader") + " '"
+					+ header + "'");
+		}
+		return idx;
+	}
+
+	private int getHeaderIndex(List<String> headers, String header) {
+		return getHeaderIndex(headers, header, true);
 	}
 
 	@Override
