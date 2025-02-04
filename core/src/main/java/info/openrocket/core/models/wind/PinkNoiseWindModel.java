@@ -78,11 +78,15 @@ public class PinkNoiseWindModel implements WindModel {
 	/**
 	 * Set the average wind speed. This method will also modify the
 	 * standard deviation such that the turbulence intensity remains constant.
+	 * If the average wind speed is negative, the direction will be reversed.
 	 * 
 	 * @param average the average wind speed to set
 	 */
 	public void setAverage(double average) {
-		average = Math.max(average, 0);
+		if (average < 0) {
+			average = - average;
+			setDirection(Math.PI + getDirection());
+		}
 		if (average == this.average) {
 			return;
 		}
@@ -96,7 +100,7 @@ public class PinkNoiseWindModel implements WindModel {
 		if (direction == this.direction) {
 			return;
 		}
-		this.direction = direction;
+		this.direction = MathUtil.reduce2Pi(direction);
 		fireChangeEvent();
 	}
 

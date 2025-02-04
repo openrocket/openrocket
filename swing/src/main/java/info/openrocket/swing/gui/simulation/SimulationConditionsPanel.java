@@ -1101,13 +1101,11 @@ public class SimulationConditionsPanel extends JPanel {
 							stddev = null;
 						}
 
-						// Check to make sure the values are valid
-						if (altitude >= 0 && speed >= 0 && 180 >= direction && direction >= -180) {
-							if (stddev == null) {
-								model.addWindLevel(altitude, speed, direction);
-							} else {
-								model.addWindLevel(altitude, speed, direction, stddev);
-							}
+						// Add the wind level
+						if (stddev == null) {
+							model.addWindLevel(altitude, speed, direction);
+						} else {
+							model.addWindLevel(altitude, speed, direction, stddev);
 						}
 					} catch (NumberFormatException e) {
 						throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.WrongFormat")
