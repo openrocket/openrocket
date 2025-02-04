@@ -641,7 +641,19 @@ public class SimulationConditionsPanel extends JPanel {
 
 			int returnVal = fileChooser.showOpenDialog(panel);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fileChooser.getSelectedFile();
+				File selectedFile = fileChooser.getSelectedFile();
+				selectedFile = FileHelper.forceExtension(selectedFile, "csv");
+
+				((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
+
+				// Show a warning message that the current levels will be overwritten
+				if (!model.getLevels().isEmpty()) {
+					int result = JOptionPane.showConfirmDialog(panel, trans.get("simedtdlg.dlg.overwriteLevels.msg"),
+							trans.get("simedtdlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION) {
+						return;
+					}
+				}
 
 				// Import the CSV file
 				try {
