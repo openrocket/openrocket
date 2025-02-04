@@ -25,8 +25,8 @@ public class CsvOptionPanel extends JPanel {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String SPACE = trans.get("CsvOptionPanel.separator.space");
-	private static final String TAB = trans.get("CsvOptionPanel.separator.tab");
+	public static final String SPACE = trans.get("CsvOptionPanel.separator.space");
+	public static final String TAB = trans.get("CsvOptionPanel.separator.tab");
 	
 	private final String baseClassName;
 	
