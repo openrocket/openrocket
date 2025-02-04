@@ -1134,34 +1134,57 @@ public class SimulationConditionsPanel extends JPanel {
 					if (line.isEmpty()) {
 						continue;
 					}
-					try {
-						String[] values = line.split(fieldSeparator);
-						sanityCheckColumnSize(fieldSeparator, values, requiredNrOfColumns, line);
-						double altitude = Double.parseDouble(values[altIndex]);
-						double speed = Double.parseDouble(values[speedIndex]);
-						double direction = MathUtil.deg2rad(Double.parseDouble(values[dirIndex]));
-						Double stddev;
-						if (stddevIndex != -1) {
-							stddev = Double.parseDouble(values[stddevIndex]);
-						} else {
-							stddev = null;
-						}
+					String[] values = line.split(fieldSeparator);
+					sanityCheckColumnSize(fieldSeparator, values, requiredNrOfColumns, line);
+					double altitude = extractDouble(values, altIndex, "alt");
+					double speed = extractDouble(values, speedIndex, "speed");
+					double direction = MathUtil.deg2rad(extractDouble(values, dirIndex, "dir"));
+					Double stddev;
+					if (stddevIndex != -1) {
+						stddev = extractDouble(values, stddevIndex, "stddev");
+					} else {
+						stddev = null;
+					}
 
-						// Add the wind level
-						if (stddev == null) {
-							model.addWindLevel(altitude, speed, direction);
-						} else {
-							model.addWindLevel(altitude, speed, direction, stddev);
-						}
-					} catch (NumberFormatException e) {
-						throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.WrongFormat")
-								+ e.getMessage());
+					// Add the wind level
+					if (stddev == null) {
+						model.addWindLevel(altitude, speed, direction);
+					} else {
+						model.addWindLevel(altitude, speed, direction, stddev);
 					}
 				}
 				fireTableDataChanged();
 			} catch (IOException e) {
 				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.CouldNotLoadFile") + " '"
 						+ file.getName() + "'");
+			}
+		}
+
+		private double extractDouble(String[] values, int index, String column) {
+			if (values[index] == null || values[index].trim().isEmpty()) {
+				throw new IllegalArgumentException(String.format(trans.get("simedtdlg.msg.importLevelsError.EmptyOrNullValue"),
+						column));
+			}
+
+			String value = values[index].trim();
+
+			try {
+				// Try parsing with period as decimal separator
+				return Double.parseDouble(value);
+			} catch (NumberFormatException e) {
+				try {
+					// If that fails, try replacing last comma with period (for European format)
+					int lastCommaIndex = value.lastIndexOf(",");
+					if (lastCommaIndex != -1) {
+						value = value.substring(0, lastCommaIndex) + "." +
+								value.substring(lastCommaIndex + 1);
+						return Double.parseDouble(value);
+					}
+					throw e; // Re-throw if no comma found
+				} catch (NumberFormatException ex) {
+					throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.WrongFormat")
+							+ " Value: '" + values[index] + "'");
+				}
 			}
 		}
 
