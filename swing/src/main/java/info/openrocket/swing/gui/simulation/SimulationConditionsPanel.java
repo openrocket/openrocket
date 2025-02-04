@@ -1094,16 +1094,20 @@ public class SimulationConditionsPanel extends JPanel {
 						double altitude = Double.parseDouble(values[altIndex]);
 						double speed = Double.parseDouble(values[speedIndex]);
 						double direction = MathUtil.deg2rad(Double.parseDouble(values[dirIndex]));
-						double stddev;
+						Double stddev;
 						if (stddevIndex != -1) {
 							stddev = Double.parseDouble(values[stddevIndex]);
 						} else {
-							stddev = 0.4;
+							stddev = null;
 						}
 
 						// Check to make sure the values are valid
 						if (altitude >= 0 && speed >= 0 && 180 >= direction && direction >= -180) {
-							model.addWindLevel(altitude, speed, direction, stddev);
+							if (stddev == null) {
+								model.addWindLevel(altitude, speed, direction);
+							} else {
+								model.addWindLevel(altitude, speed, direction, stddev);
+							}
 						}
 					} catch (NumberFormatException e) {
 						throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.WrongFormat")

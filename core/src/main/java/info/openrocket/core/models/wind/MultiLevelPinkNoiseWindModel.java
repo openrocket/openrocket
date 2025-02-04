@@ -22,10 +22,12 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		this.levels = new ArrayList<>();
 	}
 
-	public void addWindLevel(double altitude, double speed, double direction, double standardDeviation) {
+	public void addWindLevel(double altitude, double speed, double direction, Double standardDeviation) {
 		PinkNoiseWindModel pinkNoiseModel = new PinkNoiseWindModel();
 		pinkNoiseModel.setAverage(speed);
-		pinkNoiseModel.setStandardDeviation(standardDeviation);
+		if (standardDeviation != null) {
+			pinkNoiseModel.setStandardDeviation(standardDeviation);
+		}
 		pinkNoiseModel.setDirection(direction);
 
 		LevelWindModel newLevel = new LevelWindModel(altitude, pinkNoiseModel);
@@ -36,6 +38,10 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		}
 		levels.add(-index - 1, newLevel);
 		fireChangeEvent();
+	}
+
+	public void addWindLevel(double altitude, double speed, double direction) {
+		addWindLevel(altitude, speed, direction, null);
 	}
 
 	public void removeWindLevel(double altitude) {

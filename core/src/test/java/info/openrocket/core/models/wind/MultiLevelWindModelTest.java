@@ -30,8 +30,8 @@ class MultiLevelWindModelTest {
 	@Test
 	@DisplayName("Add and remove wind levels")
 	void testAddAndRemoveWindLevels() {
-		model.addWindLevel(100, 5, Math.PI / 4, 1);
-		model.addWindLevel(200, 10, Math.PI / 2, 1);
+		model.addWindLevel(100, 5, Math.PI / 4, 1d);
+		model.addWindLevel(200, 10, Math.PI / 2, 1d);
 		assertEquals(2, model.getLevels().size());
 
 		model.removeWindLevel(100);
@@ -49,15 +49,15 @@ class MultiLevelWindModelTest {
 	@Test
 	@DisplayName("Adding duplicate altitude throws IllegalArgumentException")
 	void testAddDuplicateAltitude() {
-		model.addWindLevel(100, 5, Math.PI / 4, 1);
-		assertThrows(IllegalArgumentException.class, () -> model.addWindLevel(100, 10, Math.PI / 2, 1));
+		model.addWindLevel(100, 5, Math.PI / 4, 1d);
+		assertThrows(IllegalArgumentException.class, () -> model.addWindLevel(100, 10, Math.PI / 2, 1d));
 	}
 
 	@Test
 	@DisplayName("Get wind velocity")
 	void testGetWindVelocity() {
-		model.addWindLevel(0, 5, 0, 1);
-		model.addWindLevel(1000, 10, Math.PI / 2, 2);
+		model.addWindLevel(0, 5, 0, 1d);
+		model.addWindLevel(1000, 10, Math.PI / 2, 2d);
 
 		verifyWind(0, 5, 0, 1);
 		verifyWind(1000, 10, Math.PI / 2, 2);
@@ -77,8 +77,8 @@ class MultiLevelWindModelTest {
 		model.clearLevels();
 
 		// Test direction interpolation when speed vectors are parallel
-		model.addWindLevel(0, 5, 0, 0);
-		model.addWindLevel(1000, 5, Math.PI, 0);
+		model.addWindLevel(0, 5, 0, 0d);
+		model.addWindLevel(1000, 5, Math.PI, 0d);
 
 		verifyWind(200, 3, 0, EPSILON);
 		verifyWind(501, 0, Math.PI, 0.01);
@@ -87,8 +87,8 @@ class MultiLevelWindModelTest {
 		model.clearLevels();
 
 		// Test direction interpolation when speed vectors are not parallel
-		model.addWindLevel(0, 5, 0, 0);
-		model.addWindLevel(1000, 5, Math.PI / 2, 0);
+		model.addWindLevel(0, 5, 0, 0d);
+		model.addWindLevel(1000, 5, Math.PI / 2, 0d);
 
 		verifyWind(200, 4.1231056256, 0.2449786631, EPSILON);
 		verifyWind(500, 3.5355339059, Math.PI / 4, EPSILON);
@@ -109,9 +109,9 @@ class MultiLevelWindModelTest {
 	@Test
 	@DisplayName("Resort levels")
 	void testSortLevels() {
-		model.addWindLevel(200, 10, Math.PI / 2, 1);
-		model.addWindLevel(100, 5, Math.PI / 4, 1);
-		model.addWindLevel(300, 15, 3 * Math.PI / 4, 1);
+		model.addWindLevel(200, 10, Math.PI / 2, 1d);
+		model.addWindLevel(100, 5, Math.PI / 4, 1d);
+		model.addWindLevel(300, 15, 3 * Math.PI / 4, 1d);
 
 		model.sortLevels();
 
@@ -125,22 +125,22 @@ class MultiLevelWindModelTest {
 	@Test
 	@DisplayName("Clone model")
 	void testClone() {
-		model.addWindLevel(100, 5, Math.PI / 4, 1);
-		model.addWindLevel(200, 10, Math.PI / 2, 2);
+		model.addWindLevel(100, 5, Math.PI / 4, 1d);
+		model.addWindLevel(200, 10, Math.PI / 2, 2d);
 
 		MultiLevelPinkNoiseWindModel clonedModel = model.clone();
 		assertNotSame(model, clonedModel);
 		assertEquals(model, clonedModel);
 
-		clonedModel.addWindLevel(300, 15, 3 * Math.PI / 4, 1);
+		clonedModel.addWindLevel(300, 15, 3 * Math.PI / 4, 1d);
 		assertNotEquals(model, clonedModel);
 	}
 
 	@Test
 	@DisplayName("Load from another model")
 	void testLoadFrom() {
-		model.addWindLevel(100, 5, Math.PI / 4, 2);
-		model.addWindLevel(200, 10, Math.PI / 2, 1);
+		model.addWindLevel(100, 5, Math.PI / 4, 2d);
+		model.addWindLevel(200, 10, Math.PI / 2, 1d);
 
 		MultiLevelPinkNoiseWindModel newModel = new MultiLevelPinkNoiseWindModel();
 		newModel.loadFrom(model);
