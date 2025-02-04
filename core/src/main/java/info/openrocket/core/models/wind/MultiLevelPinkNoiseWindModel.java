@@ -39,11 +39,11 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 
 	public void addWindLevel(double altitude, double speed, double direction, Double standardDeviation) {
 		PinkNoiseWindModel pinkNoiseModel = new PinkNoiseWindModel();
+		pinkNoiseModel.setDirection(direction);
 		pinkNoiseModel.setAverage(speed);
 		if (standardDeviation != null) {
 			pinkNoiseModel.setStandardDeviation(standardDeviation);
 		}
-		pinkNoiseModel.setDirection(direction);
 
 		LevelWindModel newLevel = new LevelWindModel(altitude, pinkNoiseModel);
 		newLevel.addChangeListener(e -> fireChangeEvent());
