@@ -17,12 +17,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -62,9 +61,9 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import org.checkerframework.checker.units.qual.h;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
@@ -88,6 +87,9 @@ import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
+
+import static info.openrocket.swing.gui.components.CsvOptionPanel.TAB;
+import static info.openrocket.swing.gui.components.CsvOptionPanel.SPACE;
 
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
@@ -628,15 +630,31 @@ public class SimulationConditionsPanel extends JPanel {
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setMultiSelectionEnabled(false);
 
-			// Add accessory panel with description
-			JPanel accessoryPanel = new JPanel();
+			// Accessory panel
+			//// CSV file description
+			JPanel accessoryPanel = new JPanel(new MigLayout());
 			accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.title")));
 
 			JTextArea descriptionArea = new JTextArea(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
 			descriptionArea.setEditable(false);
 			descriptionArea.setBackground(null);
+			accessoryPanel.add(descriptionArea, "spanx, wrap");
 
-			accessoryPanel.add(descriptionArea);
+			accessoryPanel.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
+
+			//// Field separation
+			JLabel label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
+			String ttip = trans.get("SimExpPan.lbl.longA1") +
+					trans.get("SimExpPan.lbl.longA2");
+			label.setToolTipText(ttip);
+			accessoryPanel.add(label, "gapright unrel");
+
+			JComboBox<String> fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
+			fieldSeparator.setEditable(true);
+			fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
+			fieldSeparator.setToolTipText(ttip);
+			accessoryPanel.add(fieldSeparator, "growx, wrap");
+
 			fileChooser.setAccessory(accessoryPanel);
 
 			int returnVal = fileChooser.showOpenDialog(panel);
@@ -657,7 +675,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 				// Import the CSV file
 				try {
-					tableModel.importLevels(file);
+					tableModel.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
 					sorter.sort();
 				} catch (IllegalArgumentException ex) {
 					JOptionPane.showMessageDialog(panel, new String[] {
@@ -1082,19 +1100,31 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		}
 
-		public void importLevels(File file) throws IllegalArgumentException {
+		/**
+		 * Import the wind levels from a CSV file
+		 * @param file The file to import
+		 * @param fieldSeparator The field separator used in the CSV file
+		 * @throws IllegalArgumentException If the file could not be loaded or the format is incorrect
+		 */
+		public void importLevels(File file, String fieldSeparator) throws IllegalArgumentException {
+			final int requiredNrOfColumns = 3;		// alt, speed, dir
+			String line;
+
+			// Clear the current levels
 			model.clearLevels();
+			fireTableDataChanged();
 
 			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-				String line;
-
 				// Read the first line as a header
-				List<String> headers = Arrays.asList(reader.readLine().split(","));		// TODO: make separator customizable (check `CsvOptionPanel` implementation)
+				line = reader.readLine();
+				String[] headers = line.split(fieldSeparator);
+				sanityCheckColumnSize(fieldSeparator, headers, requiredNrOfColumns, line);
 
-				int altIndex = getHeaderIndex(headers, "alt");
-				int speedIndex = getHeaderIndex(headers, "speed");
-				int dirIndex = getHeaderIndex(headers, "dir");
-				int stddevIndex = getHeaderIndex(headers, "stddev");
+				List<String> headersList = Arrays.asList(headers);
+				int altIndex = getHeaderIndex(headersList, "alt");
+				int speedIndex = getHeaderIndex(headersList, "speed");
+				int dirIndex = getHeaderIndex(headersList, "dir");
+				int stddevIndex = getHeaderIndex(headersList, "stddev");
 
 				while ((line = reader.readLine()) != null) {
 					// Ignore empty lines
@@ -1102,7 +1132,8 @@ public class SimulationConditionsPanel extends JPanel {
 						continue;
 					}
 					try {
-						String[] values = line.split(",");
+						String[] values = line.split(fieldSeparator);
+						sanityCheckColumnSize(fieldSeparator, values, requiredNrOfColumns, line);
 						double altitude = Double.parseDouble(values[altIndex]);
 						double speed = Double.parseDouble(values[speedIndex]);
 						double direction = MathUtil.deg2rad(Double.parseDouble(values[dirIndex]));
@@ -1131,9 +1162,24 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		}
 
+		private void sanityCheckColumnSize(String fieldSeparator, String[] columns, int requiredNrOfColumns, String line) {
+			int nrOfColumns = columns.length;
+			if (nrOfColumns < requiredNrOfColumns) {
+				String[] msg = {
+						String.format(trans.get("simedtdlg.msg.importLevelsError.NotEnoughColumns1"),
+								nrOfColumns, line),
+						String.format(trans.get("simedtdlg.msg.importLevelsError.NotEnoughColumns2"),
+								requiredNrOfColumns, "alt, speed & dir"),
+						String.format(trans.get("simedtdlg.msg.importLevelsError.NotEnoughColumns3"),
+								fieldSeparator),
+				};
+				throw new IllegalArgumentException(String.join("\n", msg));
+			}
+		}
+
 		private int getHeaderIndex(List<String> headers, String header) {
 			int idx = headers.indexOf(header);
-			if (idx == -1 && header != "stddev") {
+			if (idx == -1 && !Objects.equals(header, "stddev")) {
 				throw new IllegalArgumentException(trans.get("simedtdlg.msg.importLevelsError.NoHeader") + " '"
 						+ header + "'");
 			}
