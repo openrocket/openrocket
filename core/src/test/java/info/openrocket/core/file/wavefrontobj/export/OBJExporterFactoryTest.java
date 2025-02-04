@@ -166,7 +166,7 @@ public class OBJExporterFactoryTest {
         OBJExporterFactory exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
         exporterFactory.doExport();
         //// Just hope for no exceptions :)
-        assertEquals(warnings.size(), 0);
+        assertEquals(0, warnings.size());
 
 
         // Test with other parameters
@@ -181,28 +181,37 @@ public class OBJExporterFactoryTest {
         options.setScaling(1000);
         options.setLOD(ObjUtils.LevelOfDetail.LOW_QUALITY);
 
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
-        exporterFactory.doExport();
-        //// Just hope for no exceptions :)
-        assertEquals(warnings.size(), 0);
+        testExportWarnings(warnings, components, rocket, tempFile, options, 0);
 
         // Test zero-thickness nose cone
         noseCone.setThickness(0);
-
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
-        exporterFactory.doExport();
-        //// Just hope for no exceptions :)
-        assertEquals(warnings.size(), 1);
+        testExportWarnings(warnings, components, rocket, tempFile, options, 1);
 
         // Test simple triangulation
         options.setTriangulationMethod(ObjUtils.TriangulationMethod.SIMPLE);
+        testExportWarnings(warnings, components, rocket, tempFile, options, 1);
 
-        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
-        exporterFactory.doExport();
-        //// Just hope for no exceptions :)
-        assertEquals(warnings.size(), 1);
+        // Test non-zero thickness nose cone with zero thickness shoulder
+        noseCone.setThickness(0.01);
+        noseCone.setShoulderThickness(0);
+        testExportWarnings(warnings, components, rocket, tempFile, options, 1);
+
+        // Test zero thickness nose cone with zero thickness shoulder
+        noseCone.setThickness(0);
+        noseCone.setShoulderThickness(0);
+        testExportWarnings(warnings, components, rocket, tempFile, options, 2);
+
 
         // Clean up
         Files.delete(tempFile);
+    }
+
+    private static void testExportWarnings(WarningSet warnings, List<RocketComponent> components, Rocket rocket, Path tempFile, OBJExportOptions options, int expectedWarnings) {
+        OBJExporterFactory exporterFactory;
+        warnings.clear();
+        exporterFactory = new OBJExporterFactory(components, rocket.getSelectedConfiguration(), tempFile.toFile(), options, warnings);
+        exporterFactory.doExport();
+        //// Just hope for no exceptions :)
+        assertEquals(expectedWarnings, warnings.size());
     }
 }

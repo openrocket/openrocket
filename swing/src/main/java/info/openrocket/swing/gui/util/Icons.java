@@ -87,6 +87,7 @@ public class Icons {
 	public static final Icon SIM_PLOT = loadImageIcon("pix/icons/sim-plot.png", "Plot");
 	
 	public static final Icon HELP_ABOUT = loadImageIcon("pix/icons/help-about.png", "About");
+	public static final Icon HELP_CHECK_FOR_UPDATES = loadImageIcon("pix/icons/help-check-for-updates.png", "Check For Updates");
 	public static final Icon HELP_LICENSE = loadImageIcon("pix/icons/help-license.png", "License");
 	public static final Icon HELP_BUG_REPORT = loadImageIcon("pix/icons/help-bug.png", "Bug report");
 	public static final Icon HELP_DEBUG_LOG = loadImageIcon("pix/icons/help-log.png", "Debug log");

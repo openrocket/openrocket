@@ -36,6 +36,27 @@ public class RocketSaver extends RocketComponentSaver {
 					+ info.openrocket.core.util.TextUtil.escapeXML(rocket.getDesigner())
 					+ "</designer>");
 		}
+		elements.add("<designtype>" + rocket.getDesignType().getStorableString() + "</designtype>");
+		if (rocket.getKitName().length() > 0){
+			elements.add("<kitname>"
+					+ info.openrocket.core.util.TextUtil.escapeXML(rocket.getKitName())
+					+ "</kitname>");
+		}
+//		if (rocket.isOptimizationFlight() != null){
+//			elements.add("<optimizationflight>"
+//					+ rocket.isOptimizationFlight()
+//					+ "</optimizationflight>");
+//		}
+//		if (rocket.isOptimizationAppearance() != null){
+//			elements.add("<optimizationappearance>"
+//					+ rocket.isOptimizationAppearance()
+//					+ "</optimizationappearance>");
+//		}
+//		if (rocket.isOptimizationConstruction() != null){
+//			elements.add("<optimizationconstruction>"
+//					+ rocket.isOptimizationConstruction()
+//					+ "</optimizationconstruction>");
+//		}
 		if (rocket.getRevision().length() > 0) {
 			elements.add("<revision>"
 					+ info.openrocket.core.util.TextUtil.escapeXML(rocket.getRevision())

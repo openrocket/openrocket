@@ -54,6 +54,8 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 && component.getForeRadius() > 0;
         final boolean hasAftShoulder = Double.compare(component.getAftShoulderLength(), 0) > 0
                 && component.getAftRadius() > 0;
+        final boolean isForeShoulderZeroThickness = Double.compare(component.getForeShoulderThickness(), 0) == 0;
+        final boolean isAftShoulderZeroThickness = Double.compare(component.getAftShoulderThickness(), 0) == 0;
 
         final boolean foreSmallerThickn = Double.compare(component.getForeRadius(), component.getThickness()) <= 0;
         final boolean aftSmallerThickn = Double.compare(component.getAftRadius(), component.getThickness()) <= 0;
@@ -66,11 +68,11 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 (foreShoulderCapped && aftShoulderCapped);
 
         // Warn for zero-thickness shoulders
-        if (hasForeShoulder && Double.compare(component.getForeShoulderThickness(), 0) == 0) {
+        if (hasForeShoulder && isForeShoulderZeroThickness) {
             warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName() +
                     " (" + trans.get("RocketCompCfg.border.Foreshoulder") + ")");
         }
-        if (hasAftShoulder && Double.compare(component.getAftShoulderThickness(), 0) == 0) {
+        if (hasAftShoulder && isAftShoulderZeroThickness) {
             warnings.add(Warning.OBJ_ZERO_THICKNESS, component.getName() +
                     " (" + trans.get("RocketCompCfg.border.Aftshoulder") + ")");
         }
@@ -102,19 +104,21 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
             // Draw outside
             addTransitionMesh(this.nrOfSides, numStacks, 0, true,
-                    outsideForeRingVertices, outsideAftRingVertices, hasForeShoulder, hasAftShoulder);
+                    outsideForeRingVertices, outsideAftRingVertices, hasForeShoulder && isForeShoulderZeroThickness,
+                    hasAftShoulder && isAftShoulderZeroThickness);
 
             // Draw inside
             if (!isFilled) {
                 addTransitionMesh(this.nrOfSides, numStacks, -component.getThickness(), false,
-                        insideForeRingVertices, insideAftRingVertices, hasForeShoulder, hasAftShoulder);
+                        insideForeRingVertices, insideAftRingVertices, hasForeShoulder && isForeShoulderZeroThickness,
+                        hasAftShoulder && isAftShoulderZeroThickness);
             }
 
-            // Draw bottom and top face
-            if (!hasForeShoulder)  {
+            // Draw bottom and top face if there's no shoulder, or it is a zero-thickness shoulder
+            if (!hasForeShoulder || isForeShoulderZeroThickness) {
                 closeFace(outsideForeRingVertices, insideForeRingVertices, true);
             }
-            if (!hasAftShoulder) {
+            if (!hasAftShoulder || isAftShoulderZeroThickness) {
                 closeFace(outsideAftRingVertices, insideAftRingVertices, false);
             }
 
@@ -479,12 +483,38 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private void addShoulder(float shoulderRadius, float shoulderLength, float shoulderThickness, boolean isCapped, boolean isFilled,
                              boolean isForeSide, int nrOfSides, List<Integer> outerRingVertices, List<Integer> innerRingVertices) {
         final float innerCylinderRadius = isCapped || isFilled ? 0 : shoulderRadius - shoulderThickness;
-        final List<Integer> outerCylinderForeVertices = new ArrayList<>();
-        final List<Integer> outerCylinderAftVertices = new ArrayList<>();
-        final List<Integer> innerCylinderForeVertices = isCapped || isFilled ? null : new ArrayList<>();
-        final List<Integer> innerCylinderAftVertices = isCapped || isFilled ? null : new ArrayList<>();
+        final boolean isZeroThickness = Double.compare(shoulderThickness, 0) == 0;
+        final List<Integer> outerCylinderForeVertices = new ArrayList<>();      // Vertices of the outer shoulder cylinder on the fore side
+        final List<Integer> outerCylinderAftVertices = new ArrayList<>();       // Vertices of the outer shoulder cylinder on the aft side
+        final List<Integer> innerCylinderForeVertices = isCapped || isFilled ? null : new ArrayList<>();        // Vertices of the inner shoulder cylinder on the fore side
+        final List<Integer> innerCylinderAftVertices = isCapped || isFilled ? null : new ArrayList<>();         // Vertices of the inner shoulder cylinder on the aft side
         int startIdx;
         int endIdx;
+
+        // For zero thickness shoulders, we create geometry that it separate from the transition
+        if (isZeroThickness) {
+            // Generate outer cylinder
+            startIdx = obj.getNumVertices();
+            CylinderExporter.addCylinderMesh(obj, transformer, null, shoulderRadius, shoulderLength,
+                    false, nrOfSides, outerCylinderForeVertices, outerCylinderAftVertices);
+            endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
+
+            // Translate the outer cylinder to the correct position
+            float dx = isForeSide ? -shoulderLength : (float) component.getLength();
+            FloatTuple offsetLoc = transformer.convertLocWithoutOriginOffs(dx, 0, 0);
+            ObjUtils.translateVertices(obj, startIdx, endIdx, offsetLoc.getX(), offsetLoc.getY(), offsetLoc.getZ());
+
+            // Close the mesh if it is capped
+            if (isCapped) {
+                if (isForeSide) {
+                    DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderForeVertices, innerCylinderForeVertices, false, true);
+                } else {
+                    DiskExporter.closeDiskMesh(obj, transformer, null, outerCylinderAftVertices, innerCylinderAftVertices, false, false);
+                }
+            }
+
+            return;
+        }
 
         /*
             Cross-section of a transition with aft shoulder:
@@ -507,7 +537,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             5: transition outer disk
             6: transition inner disk
             7: shoulder inner open cylinder (only if uncapped)
-            */
+        */
 
         // Generate outer cylinder (no. 3)
         startIdx = obj.getNumVertices();

@@ -50,6 +50,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
@@ -513,6 +514,21 @@ public class BasicFrame extends JFrame {
 
 		// ------------------------------------------------------------------------------------------
 
+
+		//// Properties
+		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_I);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.properties.desc"));
+		item.setIcon(Icons.CONFIGURE);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_KEY));
+		item.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Properties selected");
+				ComponentConfigDialog.showDialog(BasicFrame.this,document, rocket);
+			}
+		});
+		fileMenu.add(item);
+
 		////	Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_KEY));
@@ -799,6 +815,19 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
+		////	Check for updates
+		item = new JMenuItem(trans.get("main.menu.help.checkForUpdates"), KeyEvent.VK_U);
+		item.setIcon(Icons.HELP_CHECK_FOR_UPDATES);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.checkForUpdates.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Check for updates selected");
+				UpdateInfoRunner.checkForUpdates(parent);
+			}
+		});
+		menu.add(item);
+
 		////	About
 		item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
 		item.setIcon(Icons.HELP_ABOUT);
@@ -890,6 +919,7 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		importSubMenu.add(importRockSim);
+
 	}
 
 	public RocketActions getRocketActions() {

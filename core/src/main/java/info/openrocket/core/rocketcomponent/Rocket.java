@@ -67,6 +67,11 @@ public class Rocket extends ComponentAssembly {
 	
 	private String designer = "";
 	private String revision = "";
+	private DesignType designType = DesignType.ORIGINAL;
+	private String kitName = "";
+//	private boolean optimizationFlight = false;
+//	private boolean optimizationAppearance = false;
+//	private boolean optimizationConstruction = false;
 	
 	
 	// Flight configuration list
@@ -116,7 +121,78 @@ public class Rocket extends ComponentAssembly {
 		designer = s;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
+
+	/**
+	 * Get the design type of the rocket (e.g. is the current model a clone of a kit, an upscale of a kit, an original
+	 * design...).
+	 * @return the design type
+	 */
+	public DesignType getDesignType() {
+		checkState();
+		return designType;
+	}
+
+	/**
+	 * Set the design type of the rocket.
+	 * @param type the design type
+	 */
+	public void setDesignType(DesignType type) {
+		if (type == null) {
+			type = DesignType.ORIGINAL;
+		}
+		designType = type;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	/**
+	 * Get the name of the kit that this rocket is based on.
+	 * @return the kit name
+	 */
+	public String getKitName() {
+		checkState();
+		return kitName;
+	}
+
+	/**
+	 * Set the name of the kit that this rocket is based on.
+	 * @param s the kit name
+	 */
+	public void setKitName(String s) {
+		if (s == null)
+			s = "";
+		kitName = s;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+//	public Boolean isOptimizationFlight(){
+//		checkState();
+//		return optimizationFlight;
+//	}
+//
+//	public void setOptimizationFlight(boolean b){
+//		optimizationFlight = b;
+//		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+//	}
+//
+//	public Boolean isOptimizationAppearance(){
+//		checkState();
+//		return optimizationAppearance;
+//	}
+//
+//	public void setOptimizationAppearance(boolean b){
+//		optimizationAppearance = b;
+//		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+//	}
+//
+//	public Boolean isOptimizationConstruction(){
+//		checkState();
+//		return optimizationConstruction;
+//	}
+//
+//	public void setOptimizationConstruction(boolean b){
+//		optimizationConstruction = b;
+//		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+//	}
 	
 	public String getRevision() {
 		checkState();
@@ -697,7 +773,8 @@ public class Rocket extends ComponentAssembly {
 
 			if (l instanceof ComponentChangeListener) {
 				((ComponentChangeListener) l).componentChanged(cce);
-			} else if (l instanceof StateChangeListener) {
+			}
+			if (l instanceof StateChangeListener) {
 				((StateChangeListener) l).stateChanged(cce);
 			}
 		}

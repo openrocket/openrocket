@@ -20,6 +20,7 @@ class DoubleSetter implements Setter {
 	private final double multiplier;
 	private String separator;
 	private Object[] extraParameters = null;
+	private final boolean checkForValidDouble = true;
 
 	/**
 	 * Set only the double value.
@@ -129,6 +130,12 @@ class DoubleSetter implements Setter {
 		if (!special.equalsIgnoreCase(specialString) || (args != null && args.length > 1)) {
 			try {
 				double d = Double.parseDouble(data);
+
+				// Check for valid double
+				if (checkForValidDouble && (Double.isInfinite(d) || Double.isNaN(d))) {
+					warnings.add(Warning.FILE_INVALID_PARAMETER + " data: '" + data + "' - " + c.getName());
+					return;
+				}
 
 				Object obj = c;
 				if (configGetter != null) {

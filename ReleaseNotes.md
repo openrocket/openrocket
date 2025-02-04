@@ -109,6 +109,7 @@ As mentioned above, a lot of work went into the Simulation tab for this release,
 * **Switched build system from Ant to Gradle**
 * **Added Arm64 support for Windows and Linux**
 * Adopted Java Platform Module System
+* Renamed `net.sf.openrocket` package to `info.openrocket.core` and `info.openrocket.swing`. This breaks compatibility with plugins or other OR extensions that use the `net.sf.openrocket` package name.
 
 ### Misc
 * **Re-introduced motor ignition delay optimization to Rocket Optimization** (fixes #2345)

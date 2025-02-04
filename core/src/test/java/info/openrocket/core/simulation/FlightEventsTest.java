@@ -6,19 +6,24 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.Warning;
+import info.openrocket.core.motor.IgnitionEvent;
+import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.Parachute;
 import info.openrocket.core.rocketcomponent.ParallelStage;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
@@ -32,6 +37,19 @@ public class FlightEventsTest extends BaseTestCase {
 	private static final double EPSILON = 0.005;
 
 	/**
+	 * find the first child component of the given type
+	 */
+	RocketComponent findComponent(RocketComponent parent, Class componentClass) {
+		RocketComponent ret = null;
+		for (RocketComponent child : parent.getChildren()) {
+			if (child.getClass() == componentClass) {
+				ret = child;
+			}
+		}
+		return ret;
+	}
+	
+	/**
 	 * Tests for a single stage design.
 	 */
 	@Test
@@ -41,6 +59,7 @@ public class FlightEventsTest extends BaseTestCase {
 		final InnerTube motorMountTube = (InnerTube) stage.getChild(1).getChild(2);
 		final Parachute parachute = (Parachute) stage.getChild(1).getChild(3);
 
+		Warning warn = new Warning.HighSpeedDeployment(80.6, parachute);
 		final Simulation sim = new Simulation(rocket);
 		sim.getOptions().setISAAtmosphere(true);
 		sim.getOptions().setTimeStep(0.05);
@@ -59,16 +78,109 @@ public class FlightEventsTest extends BaseTestCase {
 				new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.13, null),
 				new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, motorMountTube),
 				new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, stage),
-				new FlightEvent(FlightEvent.Type.SIM_WARN, 2.0, null, new Warning.HighSpeedDeployment(80.6)),
+				new FlightEvent(FlightEvent.Type.SIM_WARN, 2.0, null, warn),
 				new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.001, parachute),
 				new FlightEvent(FlightEvent.Type.APOGEE, 2.48, rocket),
 				new FlightEvent(FlightEvent.Type.GROUND_HIT, 42.97, null),
 				new FlightEvent(FlightEvent.Type.SIMULATION_END, 42.97, null)
 		};
 
-		checkLastRecord(sim, 0);
 		checkEvents(expectedEvents, sim, 0);
+		checkLastRecord(sim, 0);
 	}
+																			   
+	/**
+	 * Should not get a sim abort if recovery device deploys when upper stage motor never fires
+	 */
+	@Test
+	public void testDeployNoMotorEnabled() throws SimulationException {
+		final Rocket rocket = TestRockets.makeBeta();
+		final AxialStage sustainer = (AxialStage) rocket.getChild(0);
+		
+		BodyTube sustainerBody = (BodyTube) findComponent(sustainer, BodyTube.class);
+		assertNotNull(sustainerBody, "Failed to find sustainer body tube");
+
+		Parachute chute = (Parachute) findComponent(sustainerBody, Parachute.class);
+		assertNotNull(chute, "Failed to find sustainer parachute");
+
+		// Set parachute to deploy 1/2 second after stage separation
+		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
+		deploymentConfig.setDeployEvent(DeploymentConfiguration.DeployEvent.LOWER_STAGE_SEPARATION);
+		deploymentConfig.setDeployDelay(0.5);
+		chute.getDeploymentConfigurations().setDefault(deploymentConfig);
+		
+		InnerTube sustainerMount = (InnerTube) findComponent(sustainerBody, InnerTube.class);
+		assertNotNull(sustainerMount, "Failed to find sustainer motor mount");
+
+		AxialStage booster = (AxialStage) rocket.getChild(1);
+		assertNotNull(booster, "failed to find booster axial stage");
+
+		BodyTube boosterBody = (BodyTube) findComponent(booster, BodyTube.class);
+		assertNotNull(boosterBody, "failed to find booster body tube");
+
+		InnerTube boosterMount = (InnerTube) findComponent(boosterBody, InnerTube.class);
+		assertNotNull(boosterMount, "failed to find booster motor mount");
+		
+		final Simulation sim = new Simulation(rocket);
+		sim.getOptions().setISAAtmosphere(true);
+		sim.getOptions().setTimeStep(0.05);
+		sim.getOptions ().getAverageWindModel().setAverage(0.1);
+		rocket.getSelectedConfiguration().setAllStages();
+		FlightConfigurationId fcid = rocket.getSelectedConfiguration().getFlightConfigurationID();
+		sim.setFlightConfigurationId(fcid);
+
+		// Set sustainer motor to never fire
+		MotorConfiguration motorConfig = sustainerMount.getDefaultMotorConfig();
+		motorConfig.setIgnitionEvent(IgnitionEvent.NEVER);
+		sustainerMount.setMotorConfig(motorConfig, fcid);
+
+		Warning warn = new Warning.HighSpeedDeployment(53.2, chute);
+
+		sim.simulate();
+
+		// Test branch count
+		final int expectedBranchCount = 2;
+		final int actualBranchCount = sim.getSimulatedData().getBranchCount();
+		
+		// events whose time is too variable to check are given a time of the max sim time
+		for (int b = 0; b < actualBranchCount; b++) {
+			FlightEvent[] expectedEvents = switch (b) {
+				// Sustainer
+				case 0 -> new FlightEvent[]{
+						new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
+						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMount),
+						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.09, null),
+						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.09, null),
+						new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
+						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
+						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
+						new FlightEvent(FlightEvent.Type.SIM_WARN, 2.5, null, warn),
+						new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 2.5, chute),
+						new FlightEvent(FlightEvent.Type.APOGEE, 2.87, rocket),
+						new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+						new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+				};
+
+				// Stage
+				case 1 -> new FlightEvent[]{
+					new FlightEvent(FlightEvent.Type.IGNITION, 0.0, boosterMount),
+					new FlightEvent(FlightEvent.Type.BURNOUT, 2.0, boosterMount),
+					new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 2.0, booster),
+					new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 2.0, booster),
+					new FlightEvent(FlightEvent.Type.TUMBLE, 2.1, null),
+					new FlightEvent(FlightEvent.Type.APOGEE, 3.5, rocket),
+					new FlightEvent(FlightEvent.Type.GROUND_HIT, 1200, null),
+					new FlightEvent(FlightEvent.Type.SIMULATION_END, 1200, null)
+				};
+				
+				default -> throw new IllegalStateException("Invalid branch number " + b);
+			};
+
+			checkEvents(expectedEvents, sim, b);
+			checkLastRecord(sim, b);
+		}
+	}
+	
 
 	/**
 	 * Tests for a multi-stage design.
@@ -104,8 +216,7 @@ public class FlightEventsTest extends BaseTestCase {
 
 		SimulationAbort simAbort = new SimulationAbort(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 		
-		Warning warn = new Warning.HighSpeedDeployment(53.2);
-		warn.setSources(null);
+		Warning warn = new Warning.HighSpeedDeployment(53.2, sideChutes);
 		
 		// events whose time is too variable to check are given a time of the max sim time
 		for (int b = 0; b < actualBranchCount; b++) {
@@ -115,8 +226,8 @@ public class FlightEventsTest extends BaseTestCase {
 						new FlightEvent(FlightEvent.Type.LAUNCH, 0.0, rocket),
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.0, sideBoosterBodies),
 						new FlightEvent(FlightEvent.Type.IGNITION, 0.01, centerBoosterBody),
-						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.073, null),
-						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.075, null),
+						new FlightEvent(FlightEvent.Type.LIFTOFF, 0.06, null),
+						new FlightEvent(FlightEvent.Type.LAUNCHROD, 0.0625, null),
 						new FlightEvent(FlightEvent.Type.BURNOUT, 1.05, sideBoosterBodies),
 						new FlightEvent(FlightEvent.Type.EJECTION_CHARGE, 1.05, sideBoosters),
 						new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, 1.05, sideBoosters),
@@ -154,8 +265,8 @@ public class FlightEventsTest extends BaseTestCase {
 				default -> throw new IllegalStateException("Invalid branch number " + b);
 			};
 
-			checkLastRecord(sim, b);
 			checkEvents(expectedEvents, sim, b);
+			checkLastRecord(sim, b);
 		}
 	}
 
@@ -166,7 +277,7 @@ public class FlightEventsTest extends BaseTestCase {
 	private void checkEvents(FlightEvent[] expectedEvents, Simulation sim, int branchNo) {
 
 		FlightEvent[] actualEvents = sim.getSimulatedData().getBranch(branchNo).getEvents().toArray(new FlightEvent[0]);
-
+			
 		// Test that all expected events are present, in the right order, at the right
 		// time, from the right sources
 		for (int i = 0; i < Math.min(expectedEvents.length, actualEvents.length); i++) {

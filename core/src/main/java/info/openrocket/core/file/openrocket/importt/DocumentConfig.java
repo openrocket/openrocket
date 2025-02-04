@@ -13,6 +13,7 @@ import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import info.openrocket.core.rocketcomponent.DesignType;
 import info.openrocket.core.rocketcomponent.EllipticalFinSet;
 import info.openrocket.core.rocketcomponent.EngineBlock;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
@@ -488,7 +489,18 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setDesigner", String.class)));
 		setters.put("Rocket:revision", new StringSetter(
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
-		
+		setters.put("Rocket:designtype", new EnumSetter<>(
+				Reflection.findMethod(Rocket.class, "setDesignType", DesignType.class),
+				DesignType.class));
+		setters.put("Rocket:kitname", new StringSetter(
+				Reflection.findMethod(Rocket.class, "setKitName", String.class)));
+//		setters.put("Rocket:optimizationflight", new BooleanSetter(
+//				Reflection.findMethod(Rocket.class, "setOptimizationFlight", boolean.class)));
+//		setters.put("Rocket:optimizationappearance", new BooleanSetter(
+//				Reflection.findMethod(Rocket.class, "setOptimizationAppearance", boolean.class)));
+//		setters.put("Rocket:optimizationconstruction", new BooleanSetter(
+//				Reflection.findMethod(Rocket.class, "setOptimizationConstruction", boolean.class)));
+
 		// Axial Stage
 		setters.put("AxialStage:separationevent", new EnumSetter<>(
 				Reflection.findMethod(AxialStage.class, "getSeparationConfigurations"),
