@@ -652,7 +652,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public boolean hasMotors() {
-		return (0 < motors.size());
+		return !motors.isEmpty();
 	}
 
 	public Collection<MotorConfiguration> getAllMotors() {
@@ -660,8 +660,18 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	public Collection<MotorConfiguration> getActiveMotors() {
-
 		return activeMotors;
+	}
+
+	public void clearAllMotors() {
+		for (RocketComponent comp : getActiveComponents()) {
+			if ((comp instanceof MotorMount) && (((MotorMount) comp).isMotorMount())) {
+				MotorMount mount = (MotorMount) comp;
+				mount.reset(fcid);
+				motors.put(mount.getMotorConfig(fcid).getMID(), null);
+			}
+		}
+		updateMotors();
 	}
 
 	private void updateMotors() {
