@@ -105,10 +105,10 @@ public class FileUtilsTest {
 	void testRemoveExtension_DotFile() {
 		assertEquals("", FileUtils.removeExtension(".gitignore"));
 		// Test periods in path
-		assertEquals("test", FileUtils.removeExtension("/path/with.dots/test.txt"));
-		assertEquals("test", FileUtils.removeExtension("C:/my.folder/sub.folder/test.txt"));
-		assertEquals("test.1.2", FileUtils.removeExtension("C:/my.folder/sub.folder/test.1.2.txt"));
-		assertEquals("test", FileUtils.removeExtension("folder.name/test.txt"));
+		assertEquals("/path/with.dots/test", FileUtils.removeExtension("/path/with.dots/test.txt"));
+		assertEquals("C:/my.folder/sub.folder/test", FileUtils.removeExtension("C:/my.folder/sub.folder/test.txt"));
+		assertEquals("C:/my.folder/sub.folder/test.1.2", FileUtils.removeExtension("C:/my.folder/sub.folder/test.1.2.txt"));
+		assertEquals("folder.name/test", FileUtils.removeExtension("folder.name/test.txt"));
 	}
 
 	@Test

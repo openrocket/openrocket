@@ -44,36 +44,10 @@ public abstract class FileUtils {
 	 * @return the file name without extension
 	 */
 	public static String removeExtension(String fileName) {
-		if (fileName == null || fileName.isEmpty()) {
-			return fileName;
-		}
-
-		// First get just the filename portion if this is a path
-		String name = Paths.get(fileName).getFileName().toString();
-
-		// Handle special case of files starting with a dot
-		if (name.startsWith(".")) {
-			if (name.length() == 1) { // Just a dot
-				return name;
-			}
-			// Check if there's another dot in the name after the first character
-			int secondDot = name.indexOf('.', 1);
-			if (secondDot == -1) { // No other dots, it's a dotfile like .gitignore
-				return "";
-			}
-			// Has another extension after the dot prefix
-			return name.substring(0, secondDot);
-		}
-
-		// Find last occurrence of dot in the filename
-		int lastDot = name.lastIndexOf('.');
-
-		if (lastDot == -1) { // No extension found
-			return name;
-		}
-
-		return name.substring(0, lastDot);
+		return fileName == null || fileName.isEmpty() ? fileName :
+				fileName.replaceFirst("[.][^.]+$", "");
 	}
+
 
 	/**
 	 * Get the file name from a path.
