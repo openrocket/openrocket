@@ -107,6 +107,7 @@ public class FileUtilsTest {
 		// Test periods in path
 		assertEquals("test", FileUtils.removeExtension("/path/with.dots/test.txt"));
 		assertEquals("test", FileUtils.removeExtension("C:/my.folder/sub.folder/test.txt"));
+		assertEquals("test.1.2", FileUtils.removeExtension("C:/my.folder/sub.folder/test.1.2.txt"));
 		assertEquals("test", FileUtils.removeExtension("folder.name/test.txt"));
 	}
 
