@@ -13,7 +13,7 @@ import info.openrocket.core.logging.WarningSet;
  * 
  * @author Billy Olsen
  */
-public class TestFlightData {
+public class FlightDataTest {
 
 	/**
 	 * Test method for
