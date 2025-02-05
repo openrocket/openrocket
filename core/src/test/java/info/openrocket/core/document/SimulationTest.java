@@ -6,6 +6,8 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.FlightData;
+import info.openrocket.core.simulation.FlightDataBranch;
+import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -15,6 +17,9 @@ import info.openrocket.core.logging.SimulationAbort;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SimulationTest extends BaseTestCase {
 	private static final double EPSILON = 0.0001;
@@ -128,5 +133,38 @@ public class SimulationTest extends BaseTestCase {
 
 		// Status should be outdated after options change
 		assertEquals(Simulation.Status.NOT_SIMULATED, simulation.getStatus());
+	}
+
+	@Test
+	public void testAltitudeAboveSeaLevel() throws SimulationException {
+		double launchAltitude = 123;
+		simulation.getOptions().setLaunchAltitude(launchAltitude);
+
+		simulation.simulate();
+
+		FlightData flightData =  simulation.getSimulatedData();
+		FlightDataBranch branch = flightData.getBranch(0);
+
+		List<Double> altitudeData = branch.get(FlightDataType.TYPE_ALTITUDE);
+		List<Double> altitudeASLData = branch.get(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
+
+		assertNotNull(altitudeData);
+		assertNotNull(altitudeASLData);
+		assertEquals(altitudeData.size(), altitudeASLData.size());
+		assertFalse(altitudeData.isEmpty());
+
+		// Verify that altitude above sea level = altitude + launch altitude for each data point
+		for (int i = 0; i < altitudeData.size(); i++) {
+			double altitude = altitudeData.get(i);
+			double altitudeASL = altitudeASLData.get(i);
+			assertEquals(altitude + launchAltitude, altitudeASL, 0.001,
+					"Altitude above sea level should equal altitude + launch altitude at index " + i);
+		}
+
+		// Additionally verify max altitudes
+		double maxAltitude = Collections.max(altitudeData);
+		double maxAltitudeASL = Collections.max(altitudeASLData);
+		assertEquals(maxAltitude + launchAltitude, maxAltitudeASL, 0.001,
+				"Maximum altitude above sea level should equal maximum altitude + launch altitude");
 	}
 }
