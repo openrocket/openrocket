@@ -67,6 +67,12 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		if (altitude >= layer[1]) {
 			throw new IllegalArgumentException("Too high first altitude: " + altitude);
 		}
+		if (temperature <= 0) {
+			throw new IllegalArgumentException("Temperature must be positive (Kelvin)");
+		}
+		if (pressure <= 0) {
+			throw new IllegalArgumentException("Pressure must be positive (Pascals)");
+		}
 
 		layer[0] = altitude;
 		baseTemperature[0] = temperature;

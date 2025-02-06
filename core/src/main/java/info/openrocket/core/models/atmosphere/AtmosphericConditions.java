@@ -51,6 +51,9 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	}
 
 	public void setPressure(double pressure) {
+		if (pressure <= 0) {
+			throw new IllegalArgumentException("Pressure must be positive (Pascals)");
+		}
 		this.pressure = pressure;
 		this.modID = new ModID();
 	}
@@ -60,6 +63,9 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	}
 
 	public void setTemperature(double temperature) {
+		if (temperature <= 0) {
+			throw new IllegalArgumentException("Temperature must be positive (Kelvin)");
+		}
 		this.temperature = temperature;
 		this.modID = new ModID();
 	}
