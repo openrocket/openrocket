@@ -61,6 +61,7 @@ subprojects {
         testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.2'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
         testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.10.0'
         testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
         testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
     }
