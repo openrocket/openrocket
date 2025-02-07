@@ -1,8 +1,8 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
     id 'checkstyle'
-    id 'org.javamodularity.moduleplugin' version '1.8.14'
+    id 'org.javamodularity.moduleplugin' version '1.8.15'
     id 'application'
 }
 
@@ -27,8 +27,8 @@ version = buildProperties['build.version']
 allprojects {
     repositories {
         mavenCentral()
-        maven { url "https://jitpack.io" }
-        maven { url "https://jogamp.org/deployment/maven/" }
+        maven { url = "https://jitpack.io" }
+        maven { url = "https://jogamp.org/deployment/maven/" }
     }
 }
 
@@ -93,8 +93,8 @@ jar {
 
 // Project dependencies
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":swing"))
+    implementation(project(path: ":core", configuration: "default"))
+    implementation(project(path: ":swing", configuration: "default"))
 }
 
 shadowJar {
