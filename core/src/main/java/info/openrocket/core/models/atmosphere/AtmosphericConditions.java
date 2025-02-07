@@ -5,18 +5,23 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.ModID;
 
+/**
+ * Represents atmospheric conditions at a specific point, containing fundamental
+ * properties (temperature and pressure) and methods to calculate derived properties.
+ * This class serves as the basic unit of atmospheric data in the simulation.
+ */
 public class AtmosphericConditions implements Cloneable, Monitorable {
 
-	/** Specific gas constant of dry air. */
+	/** Specific gas constant of dry air (J/(kg*K)). */
 	public static final double R = 287.053;
 
-	/** Specific heat ratio of air. */
+	/** Specific heat ratio of air (dimensionless). */
 	public static final double GAMMA = 1.4;
 
-	/** The standard air pressure (1.01325 bar). */
+	/** The standard air pressure (Pa). */
 	public static final double STANDARD_PRESSURE = 101325.0;
 
-	/** The standard air temperature (20 degrees Celsius). */
+	/** The standard air temperature (K). */
 	public static final double STANDARD_TEMPERATURE = 293.15;
 
 	/** Air pressure, in Pascals. */
@@ -71,9 +76,14 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	}
 
 	/**
-	 * Return the current density of air for dry air.
-	 * 
-	 * @return the current density of air.
+	 * Calculate the current density of air using the ideal gas law for dry air.
+	 * The formula used is rho = P/(R*T) where:
+	 * - rho is the density in kg/m3
+	 * - P is the pressure in Pa
+	 * - R is the specific gas constant for dry air
+	 * - T is the temperature in Kelvin
+	 *
+	 * @return The current air density in kg/m3
 	 */
 	public double getDensity() {
 		return getPressure() / (R * getTemperature());
