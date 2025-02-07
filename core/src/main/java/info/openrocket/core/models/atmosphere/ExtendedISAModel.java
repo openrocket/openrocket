@@ -123,26 +123,37 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	 */
 	@Override
 	protected AtmosphericConditions getExactConditions(double altitude) {
+		// Clamp altitude to be within defined layers
 		altitude = MathUtil.clamp(altitude, layer[0], layer[layer.length - 1]);
-		int n;
-		for (n = 0; n < layer.length - 1; n++) {
-			if (layer[n + 1] > altitude)
+
+		// Find the correct layer
+		int startLayer;
+		for (startLayer = 0; startLayer < layer.length - 1; startLayer++) {
+			if (layer[startLayer + 1] > altitude) {
 				break;
+			}
 		}
 
-		double rate = (baseTemperature[n + 1] - baseTemperature[n]) / (layer[n + 1] - layer[n]);
+		double altDiff = altitude - layer[startLayer];
 
-		double t = baseTemperature[n] + (altitude - layer[n]) * rate;
-		double p;
-		if (Math.abs(rate) > 0.001) {
-			p = basePressure[n] *
-					Math.pow(1 + (altitude - layer[n]) * rate / baseTemperature[n], -G / (rate * R));
+		double startTemp = baseTemperature[startLayer];
+		// Temperature lapse rate
+		double tempRate = (baseTemperature[startLayer + 1] - startTemp) / (layer[startLayer + 1] - layer[startLayer]);
+
+		double temp = startTemp + altDiff * tempRate;
+		double startPress = basePressure[startLayer];
+		double press;
+
+		// Use the appropriate barometric formula
+		if (Math.abs(tempRate) > 0.0000001) { // If temperature varies with altitude
+			// Non-isothermal case
+			press = startPress * Math.pow(1 - altDiff * tempRate / startTemp, G / (tempRate * R));
 		} else {
-			p = basePressure[n] *
-					Math.exp(-(altitude - layer[n]) * G / (R * baseTemperature[n]));
+			// Isothermal case
+			press = startPress * Math.exp(-altDiff * G / (R * startTemp));
 		}
 
-		return new AtmosphericConditions(t, p);
+		return new AtmosphericConditions(temp, press);
 	}
 
 	@Override
