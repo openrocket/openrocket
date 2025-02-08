@@ -43,28 +43,28 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	/** Standard sea level pressure in Pascal */
 	public static final double STANDARD_PRESSURE = 101325;
 
-	/** Gravitational acceleration in m/s² */
+	/** Gravitational acceleration in m/s2 */
 	private static final double G = 9.80665;
 
 	/**
 	 * ISA atmospheric layers.
 	 * Each element represents the altitude in meters where a new layer begins.
 	 */
-	private final double[] layer = { 0, 11000, 20000, 32000, 47000, 51000, 71000, 84852 };
-
+	private static final double[] STANDARD_LAYERS = { 0, 11000, 20000, 32000, 47000, 51000, 71000, 84852 };
 	/**
 	 * Base temperatures for each ISA layer in Kelvin.
 	 * These define the temperature profile of the standard atmosphere.
 	 */
-	private final double[] baseTemperature = {
-			288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.95
-	};
+	private static final double[] STANDARD_TEMPERATURES = { 288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.95 };
+
+	// The actual layer and temperature arrays used by this model
+	private final double[] layer;
+	private final double[] baseTemperature;
 
 	/**
-	 * Base pressures for each layer, computed based on the temperature profile
-	 * and the hydrostatic equation.
+	 * Base pressures for each layer, computed based on the temperature profile and the barometric formula.
 	 */
-	private final double[] basePressure = new double[layer.length];
+	private final double[] basePressure;
 
 	/**
 	 * Construct the standard ISA model.
@@ -96,7 +96,7 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	 * @throws IllegalArgumentException if the altitude exceeds the second layer boundary of the ISA model (over 11km).
 	 */
 	public ExtendedISAModel(double altitude, double temperature, double pressure) {
-		if (altitude >= layer[1]) {
+		if (altitude >= STANDARD_LAYERS[1]) {
 			throw new IllegalArgumentException("Too high first altitude: " + altitude);
 		}
 		if (temperature <= 0) {
@@ -106,11 +106,48 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			throw new IllegalArgumentException("Pressure must be positive (Pascals)");
 		}
 
-		layer[0] = altitude;
-		baseTemperature[0] = temperature;
-		basePressure[0] = pressure;
+		// If altitude is not 0, we need to create a new layer structure
+		if (altitude > 0) {
+			// Create new arrays with one extra layer
+			final int newSize = STANDARD_LAYERS.length + 1;
+			layer = new double[newSize];
+			baseTemperature = new double[newSize];
+			basePressure = new double[newSize];
 
-		for (int i = 1; i < basePressure.length; i++) {
+			// Standard second layer values (11km)
+			double layer1Alt = STANDARD_LAYERS[1];
+			double layer1Temp = STANDARD_TEMPERATURES[1];
+
+			// Calculate temperature lapse rate between altitude and 11km
+			double tempRate = (layer1Temp - temperature) / (layer1Alt - altitude);
+
+			// Back-calculate sea level temperature using the same lapse rate
+			double seaLevelTemp = temperature - tempRate * altitude;
+
+			// Set up the layers
+			layer[0] = 0;                  // Sea level
+			layer[1] = altitude;           // Custom altitude
+			baseTemperature[0] = seaLevelTemp;
+			baseTemperature[1] = temperature;
+			basePressure[0] = calculatePressure(0, seaLevelTemp, altitude, temperature, pressure);
+			basePressure[1] = pressure;
+
+			// Copy remaining standard layers
+			for (int i = 2; i < layer.length; i++) {
+				layer[i] = STANDARD_LAYERS[i-1];
+				baseTemperature[i] = STANDARD_TEMPERATURES[i-1];
+			}
+		} else {
+			layer = STANDARD_LAYERS.clone();
+			baseTemperature = STANDARD_TEMPERATURES.clone();
+			basePressure = new double[layer.length];
+			layer[0] = 0;
+			baseTemperature[0] = temperature;
+			basePressure[0] = pressure;
+		}
+
+		// Calculate pressures for all remaining layers
+		for (int i = (altitude > 0 ? 2 : 1); i < basePressure.length; i++) {
 			basePressure[i] = getExactConditions(layer[i] - 1).getPressure();
 		}
 	}
@@ -142,18 +179,24 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 
 		double temp = startTemp + altDiff * tempRate;
 		double startPress = basePressure[startLayer];
-		double press;
-
-		// Use the appropriate barometric formula
-		if (Math.abs(tempRate) > 0.0000001) { // If temperature varies with altitude
-			// Non-isothermal case
-			press = startPress * Math.pow(1 - altDiff * tempRate / startTemp, G / (tempRate * R));
-		} else {
-			// Isothermal case
-			press = startPress * Math.exp(-altDiff * G / (R * startTemp));
-		}
+		double press = calculatePressure(altitude, temp, layer[startLayer], startTemp, startPress);
 
 		return new AtmosphericConditions(temp, press);
+	}
+
+	/**
+	 * Calculate pressure at sea level given conditions at altitude.
+	 * Uses the barometric formula (<a href="https://en.wikipedia.org/wiki/Barometric_formula">source</a>).
+	 */
+	private double calculatePressure(double alt1, double temp1, double alt2, double temp2, double press2) {
+		double tempRate = (temp2 - temp1) / (alt2 - alt1);
+		if (Math.abs(tempRate) > 0.000001) {
+			// Non-isothermal case
+			return press2 / Math.pow(1 + (alt2 - alt1) * tempRate / temp1, -G / (tempRate * R));
+		} else {
+			// Isothermal case
+			return press2 / Math.exp(-(alt2 - alt1) * G / (R * temp1));
+		}
 	}
 
 	@Override

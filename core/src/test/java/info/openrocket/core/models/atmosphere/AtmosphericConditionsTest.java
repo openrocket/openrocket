@@ -26,7 +26,7 @@ public class AtmosphericConditionsTest {
 	@Test
 	@DisplayName("Density calculation should be correct for standard conditions")
 	void testDensityCalculation() {
-		// ρ = P/(R*T) where R = 287.053
+		// rho = P/(R*T) where R = 287.053
 		double expectedDensity = 101325.0 / (287.053 * 293.15);
 		assertEquals(expectedDensity, conditions.getDensity(), 0.001);
 	}
@@ -41,9 +41,9 @@ public class AtmosphericConditionsTest {
 
 	@ParameterizedTest
 	@CsvSource({
-			"273.15, 331.3",  // 0°C
-			"293.15, 343.2",  // 20°C (standard)
-			"313.15, 355.1"   // 40°C
+			"273.15, 331.3",  // 0 degC
+			"293.15, 343.2",  // 20 degC (standard)
+			"313.15, 355.1"   // 40 degC
 	})
 	@DisplayName("Mach speed calculation should be accurate")
 	void testMachSpeed(double tempK, double expectedSpeed) {

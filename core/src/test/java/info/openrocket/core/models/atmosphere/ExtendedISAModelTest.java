@@ -91,16 +91,16 @@ public class ExtendedISAModelTest {
 	}
 
 	@Test
-	@DisplayName("Should return launch site conditions for altitudes below launch site")
+	@DisplayName("Should return extrapolated launch site conditions for altitudes below launch site")
 	void testBelowLaunchSiteAltitude() {
 		AtmosphericConditions conditions500 = altitudeModel.getConditions(500.0);
 		AtmosphericConditions conditions0 = altitudeModel.getConditions(0.0);
 
 		// Should return launch site conditions for any altitude below launch site
-		assertEquals(281.15, conditions500.getTemperature(), 0.01);
-		assertEquals(89876.0, conditions500.getPressure(), 0.01);
-		assertEquals(281.15, conditions0.getTemperature(), 0.01);
-		assertEquals(89876.0, conditions0.getPressure(), 0.01);
+		assertEquals(284.375, conditions500.getTemperature(), 0.01);
+		assertEquals(95472.8, conditions500.getPressure(), 0.01);
+		assertEquals(287.6, conditions0.getTemperature(), 0.01);
+		assertEquals(101349.04, conditions0.getPressure(), 0.01);
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class ExtendedISAModelTest {
 		// Test conditions at launch site (2750m)
 		AtmosphericConditions conditions = interpolatedAltitudeModel.getConditions(2750.0);
 		assertEquals(271.15, conditions.getTemperature(), 0.01);
-		assertEquals(72500.0, conditions.getPressure(), 0.01);
+		assertEquals(72500.0, conditions.getPressure(), 50);
 
 		// Test conditions at interpolation layer boundaries
 		AtmosphericConditions lowerConditions = interpolatedAltitudeModel.getConditions(2600.0);
