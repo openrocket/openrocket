@@ -277,20 +277,36 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		return flightDataBranch;
 	}
 
+	/**
+	 * Set the rocket position relative to the launch site; at t = 0s, equals (0, 0, 0).
+	 * @param position the rocket position
+	 */
 	public void setRocketPosition(Coordinate position) {
 		this.position = position;
 		modID = new ModID();
 	}
 
+	/**
+	 * Get the rocket position relative to the launch site; at t = 0s, equals (0, 0, 0).
+	 * @return the rocket position
+	 */
 	public Coordinate getRocketPosition() {
 		return position;
 	}
 
+	/**
+	 * Set the rocket position in world coordinates (including the launch site altitude, longitude, and latitude).
+	 * @param wc the rocket position in world coordinates
+	 */
 	public void setRocketWorldPosition(WorldCoordinate wc) {
 		this.worldPosition = wc;
 		modID = new ModID();
 	}
 
+	/**
+	 * Get the rocket position in world coordinates (including the launch site altitude, longitude, and latitude).
+	 * @return the rocket position in world coordinates
+	 */
 	public WorldCoordinate getRocketWorldPosition() {
 		return worldPosition;
 	}
@@ -586,6 +602,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	public void storeData() {
 		flightDataBranch.setValue(FlightDataType.TYPE_TIME, getSimulationTime());
 		flightDataBranch.setValue(FlightDataType.TYPE_ALTITUDE, getRocketPosition().z);
+		flightDataBranch.setValue(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA, getRocketWorldPosition().getAltitude());
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_X, getRocketPosition().x);
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_Y, getRocketPosition().y);
 		
