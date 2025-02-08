@@ -204,6 +204,14 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		return layer[layer.length - 1];
 	}
 
+	/**
+	 * Get the maximum allowed launch site altitude where the model is valid.
+	 * @return The maximum altitude in meters
+	 */
+	public static double getMaximumAllowedAltitude() {
+		return STANDARD_LAYERS[1] - 1;
+	}
+
 	public static void main(String[] foo) {
 		ExtendedISAModel model1 = new ExtendedISAModel();
 		ExtendedISAModel model2 = new ExtendedISAModel(278.15, 100000);

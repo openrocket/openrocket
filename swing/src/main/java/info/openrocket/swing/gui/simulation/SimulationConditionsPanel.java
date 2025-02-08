@@ -276,7 +276,7 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 
-		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0, ExtendedISAModel.getMaximumAllowedAltitude());
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

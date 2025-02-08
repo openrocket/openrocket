@@ -183,7 +183,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	public void setLaunchAltitude(double altitude) {
 		if (MathUtil.equals(this.launchAltitude, altitude))
 			return;
-		this.launchAltitude = altitude;
+		this.launchAltitude = MathUtil.min(altitude, ExtendedISAModel.getMaximumAllowedAltitude());
 
 		// Update the launch temperature and pressure if using ISA
 		if (useISA) {
