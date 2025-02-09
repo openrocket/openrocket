@@ -14,7 +14,7 @@ open module info.openrocket.core {
 	requires org.graalvm.sdk;
 	requires org.graalvm.js;
 	requires org.graalvm.truffle;
-	requires transitive de.javagl.obj;
+	requires de.javagl.obj;
 	requires com.sun.istack.runtime;
 	requires jakarta.activation;
 	requires jakarta.inject;

@@ -1,8 +1,8 @@
 plugins {
     id 'com.github.johnrengelman.shadow'
     id 'java'
-    id 'com.adarshr.test-logger' version '3.2.0'
     id 'checkstyle'
+    id 'com.adarshr.test-logger' version '3.2.0'
     id 'org.gradlex.extra-java-module-info' version '1.8'
 }
 
@@ -18,7 +18,7 @@ version = buildProperties['build.version']
 
 repositories {
     mavenCentral()
-    maven { url "https://repository.mulesoft.org/nexus/content/repositories/public/" }
+    maven { url = "https://repository.mulesoft.org/nexus/content/repositories/public/" }
 }
 
 checkstyle {
@@ -26,10 +26,18 @@ checkstyle {
     maxWarnings = 0
 }
 
+configurations {
+    testArtifactsClasspath {
+        canBeConsumed = false
+        canBeResolved = true
+        visible = false  // Add this line
+    }
+}
+
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
-    module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
+    automaticModule('obj-0.4.0.jar', 'de.javagl.obj')
 }
 
 dependencies {

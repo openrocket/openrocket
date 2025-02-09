@@ -43,12 +43,28 @@ public interface SimulationOptionsInterface extends ChangeSource {
 
 	void setISAAtmosphere(boolean isa);
 
+	/**
+	 * Get the launch temperature in Kelvin at the launch site.
+	 * @return the launch temperature in Kelvin
+	 */
 	double getLaunchTemperature();
 
+	/**
+	 * Set the launch temperature in Kelvin at the launch site.
+	 * @param launchTemperature the launch temperature in Kelvin
+	 */
 	void setLaunchTemperature(double launchTemperature);
 
+	/**
+	 * Get the launch pressure in Pascals at the launch site.
+	 * @return the launch pressure in Pascals
+	 */
 	double getLaunchPressure();
 
+	/**
+	 * Set the launch pressure in Pascals at the launch site.
+	 * @param launchPressure the launch pressure in Pascals
+	 */
 	void setLaunchPressure(double launchPressure);
 
 }
