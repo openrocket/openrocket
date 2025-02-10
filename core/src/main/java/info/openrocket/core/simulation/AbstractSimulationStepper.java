@@ -290,9 +290,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		calculateFlightConditions(status, store);
 		FlightConditions flightConditions = store.flightConditions;
 		flightConditions.setAOA(Double.NaN);
-		flightConditions.setRollRate(Double.NaN);
-		flightConditions.setPitchRate(Double.NaN);
-		flightConditions.setYawRate(Double.NaN);
+		flightConditions.setRollRate(0);
+		flightConditions.setPitchRate(0);
+		flightConditions.setYawRate(0);
 		
 		// note most of our forces don't end up getting set, so they're all NaN.
 		AerodynamicForces forces = new AerodynamicForces();

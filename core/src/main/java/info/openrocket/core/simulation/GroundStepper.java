@@ -20,13 +20,18 @@ public class GroundStepper extends AbstractSimulationStepper {
 	@Override
 	public void step(SimulationStatus status, double timeStep) throws SimulationException {
 		log.trace("step:  position=" + status.getRocketPosition() + ", velocity=" + status.getRocketVelocity());
-
+		
 		// Set to values sitting on the ground
 		landedValues(status, store);
 		
-		// Put in a step to immediately go to rest status
+		// Put in a step to immediately go to landed status
 		double time = status.getSimulationTime();
-		if (timeStep > MIN_TIME_STEP) {
+		if (timeStep > 2 * MIN_TIME_STEP) {
+			// Record timeStep in *current* flightDataBranch record, replacing NaN which was there
+			// previously
+			status.getFlightDataBranch().setValue(FlightDataType.TYPE_TIME_STEP, MIN_TIME_STEP);
+			timeStep = timeStep - MIN_TIME_STEP;
+			
 			status.setSimulationTime(time + MIN_TIME_STEP);
 			status.storeData();
 			store.storeData(status);
@@ -34,7 +39,8 @@ public class GroundStepper extends AbstractSimulationStepper {
 		
 		// Set status to reflect sitting on the ground ever since the last step
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
-
+		status.getFlightDataBranch().setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
+		
 		status.storeData();
 		store.storeData(status);
 	}
