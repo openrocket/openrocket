@@ -379,4 +379,22 @@ public class MathUtil {
 	public static double interpolate(double a, double b, double fraction) {
 		return a + (b - a) * fraction;
 	}
+
+	/**
+	 * Convert an angle in degrees to radians.
+	 * @param deg the angle in degrees
+	 * @return the angle in radians
+	 */
+	public static double deg2rad(double deg) {
+		return deg * Math.PI / 180;
+	}
+
+	/**
+	 * Convert an angle in radians to degrees.
+	 * @param rad the angle in radians
+	 * @return the angle in degrees
+	 */
+	public static double rad2deg(double rad) {
+		return rad * 180 / Math.PI;
+	}
 }

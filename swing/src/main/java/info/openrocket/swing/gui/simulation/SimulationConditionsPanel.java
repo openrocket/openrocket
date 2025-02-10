@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
@@ -24,6 +25,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -34,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
@@ -53,6 +56,9 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.util.SwingPreferences;
+
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
@@ -66,7 +72,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.StateChangeListener;
-
+import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.IconButton;
 import net.miginfocom.swing.MigLayout;
@@ -75,6 +81,9 @@ import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
+
+import static info.openrocket.swing.gui.components.CsvOptionPanel.TAB;
+import static info.openrocket.swing.gui.components.CsvOptionPanel.SPACE;
 
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
@@ -267,7 +276,7 @@ public class SimulationConditionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		sub.add(label);
 
-		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0, ExtendedISAModel.getMaximumAllowedAltitude());
 
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -561,7 +570,7 @@ public class SimulationConditionsPanel extends JPanel {
 		panel.add(scrollPane, "grow, wrap");
 
 		//// Buttons
-		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
+		JPanel buttonPanel = new JPanel(new MigLayout("ins 0, wrap 3"));
 
 		// Add level
 		JButton addButton = new IconButton(trans.get("simedtdlg.but.addWindLevel"), Icons.FILE_NEW);
@@ -569,20 +578,25 @@ public class SimulationConditionsPanel extends JPanel {
 			tableModel.addWindLevel();
 			sorter.sort();
 		});
-		buttonPanel.add(addButton);
+		buttonPanel.add(addButton, "top");
 
 		// Delete level
 		JButton deleteButton = new IconButton(trans.get("simedtdlg.but.deleteWindLevel"), Icons.EDIT_DELETE);
+		deleteButton.setToolTipText(trans.get("simedtdlg.but.deleteWindLevel.ttip"));
 		deleteButton.addActionListener(e -> {
 			int selectedRow = windLevelTable.getSelectedRow();
 			tableModel.deleteWindLevel(selectedRow);
 			sorter.sort();
 		});
 		deleteButton.setEnabled(false);
-		buttonPanel.add(deleteButton, "gapright unrel");
+		buttonPanel.add(deleteButton, "top, gapright unrel");
+
+		JPanel lastColumnPanel = new JPanel(new MigLayout("ins 0, fill"));
+		buttonPanel.add(lastColumnPanel);
 
 		// Visualization levels
 		JButton visualizeButton = new IconButton(trans.get("simedtdlg.but.visualizeWindLevels"), Icons.SIM_PLOT);
+		visualizeButton.setToolTipText(trans.get("simedtdlg.but.visualizeWindLevels.ttip"));
 		visualizeButton.addActionListener(e -> {
 			Window owner = SwingUtilities.getWindowAncestor(panel);
 			if (owner instanceof Dialog) {
@@ -597,7 +611,78 @@ public class SimulationConditionsPanel extends JPanel {
 			}
 		});
 		visualizeButton.setEnabled(!tableModel.getLevels().isEmpty());
-		buttonPanel.add(visualizeButton);
+		lastColumnPanel.add(visualizeButton, "growx, wrap");
+
+		// Import levels
+		JButton importButton = new IconButton(trans.get("simedtdlg.but.importLevels"), Icons.IMPORT);
+		importButton.setToolTipText(trans.get("simedtdlg.but.importLevels.ttip"));
+		importButton.addActionListener(e -> {
+			// Create a text box pop up where you can paste a CSV file
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+			fileChooser.setDialogTitle(trans.get("simedtdlg.dlg.importLevels.title"));
+
+			fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
+			fileChooser.setFileFilter(FileHelper.CSV_FILTER);
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fileChooser.setMultiSelectionEnabled(false);
+
+			// Accessory panel
+			//// CSV file description
+			JPanel accessoryPanel = new JPanel(new MigLayout());
+			accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.title")));
+
+			JTextArea descriptionArea = new JTextArea(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
+			descriptionArea.setEditable(false);
+			descriptionArea.setBackground(null);
+			accessoryPanel.add(descriptionArea, "spanx, wrap");
+
+			accessoryPanel.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
+
+			//// Field separation
+			JLabel label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
+			String ttip = trans.get("SimExpPan.lbl.longA1") +
+					trans.get("SimExpPan.lbl.longA2");
+			label.setToolTipText(ttip);
+			accessoryPanel.add(label, "gapright unrel");
+
+			JComboBox<String> fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
+			fieldSeparator.setEditable(true);
+			fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
+			fieldSeparator.setToolTipText(ttip);
+			accessoryPanel.add(fieldSeparator, "growx, wrap");
+
+			fileChooser.setAccessory(accessoryPanel);
+
+			int returnVal = fileChooser.showOpenDialog(panel);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = fileChooser.getSelectedFile();
+				selectedFile = FileHelper.forceExtension(selectedFile, "csv");
+
+				((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
+
+				// Show a warning message that the current levels will be overwritten
+				if (!model.getLevels().isEmpty()) {
+					int result = JOptionPane.showConfirmDialog(panel, trans.get("simedtdlg.dlg.overwriteLevels.msg"),
+							trans.get("simedtdlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION) {
+						return;
+					}
+				}
+
+				// Import the CSV file
+				try {
+					tableModel.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
+					sorter.sort();
+				} catch (IllegalArgumentException ex) {
+					tableModel.fireTableDataChanged();		// Just in case, because the table can be updated (data can be first cleared, but then an exception can be thrown)
+					JOptionPane.showMessageDialog(panel, new String[] {
+							trans.get("simedtdlg.msg.importLevelsError"),
+							ex.getMessage() }, trans.get("simedtdlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		lastColumnPanel.add(importButton, "growx");
 
 		panel.add(buttonPanel, "grow, wrap");
 
@@ -1011,6 +1096,11 @@ public class SimulationConditionsPanel extends JPanel {
 				model.removeWindLevelIdx(index);
 				fireTableDataChanged();
 			}
+		}
+
+		public void importLevels(File file, String separator) {
+			model.importLevelsFromCSV(file, separator);
+			fireTableDataChanged();
 		}
 
 		public UnitGroup getUnitGroup(int columnIndex) {

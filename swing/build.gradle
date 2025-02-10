@@ -18,8 +18,8 @@ version = buildProperties['build.version']
 
 repositories {
     mavenCentral()
-    maven { url "https://jitpack.io" }
-    maven { url "https://jogamp.org/deployment/maven/" }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://jogamp.org/deployment/maven/" }
 }
 
 checkstyle {
@@ -31,15 +31,16 @@ configurations {
     testArtifactsClasspath {
         canBeConsumed = false
         canBeResolved = true
+        visible = false
     }
 }
 
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
-    module('slf4j-api-1.7.25.jar', 'org.slf4j.api', '1.7.25')
-    module('slf4j-api-1.7.32.jar', 'org.slf4j.api', '1.7.32')
-    module('versioncompare-1.5.0.jar', 'versioncompare', '1.5.0')
+    automaticModule('slf4j-api-1.7.25.jar', 'org.slf4j.api')
+    automaticModule('slf4j-api-1.7.32.jar', 'org.slf4j.api')
+    automaticModule('versioncompare-1.5.0.jar', 'versioncompare')
     module('gluegen-rt-2.5.0.jar', 'org.jogamp.gluegen.rt', '2.5.0') {
         requires('java.desktop')
         exportAllPackages()
@@ -53,16 +54,16 @@ extraJavaModuleInfo {
         requires('java.desktop')
         exportAllPackages()
     }
-    module('itextpdf-5.5.13.3.jar', 'itextpdf', '5.5.13.3') {
+    module('itextpdf-5.5.13.3.jar', 'itextpdf') {
         requires('java.desktop')
         exportAllPackages()
     }
 
-    module('obj-0.4.0.jar', 'de.javagl.obj', '0.4.0')
+    automaticModule('obj-0.4.0.jar', 'de.javagl.obj')
 }
 
 dependencies {
-    implementation project(':core')
+    implementation(project(path: ':core', configuration: 'default'))
 
     implementation 'de.javagl:obj:0.4.0'
 

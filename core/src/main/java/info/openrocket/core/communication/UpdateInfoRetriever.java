@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import info.openrocket.core.l10n.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +30,7 @@ import jakarta.json.stream.JsonParsingException;
  */
 public class UpdateInfoRetriever {
 	private UpdateInfoFetcher fetcher = null;
+	private volatile boolean cancelled = false;
 
 	// Map of development tags for releases and their corresponding priority (higher
 	// number = more priority; newer release)
@@ -59,10 +59,22 @@ public class UpdateInfoRetriever {
 	 * This call will return immediately.
 	 */
 	public void startFetchUpdateInfo() {
+		this.cancelled = false;
 		this.fetcher = new UpdateInfoFetcher();
 		this.fetcher.setName("UpdateInfoFetcher");
 		this.fetcher.setDaemon(true);
 		this.fetcher.start();
+	}
+
+	public void cancel() {
+		this.cancelled = true;
+		if (this.fetcher != null) {
+			this.fetcher.interrupt();
+		}
+	}
+
+	public boolean isCancelled() {
+		return cancelled;
 	}
 	
 	
@@ -76,7 +88,7 @@ public class UpdateInfoRetriever {
 		if (this.fetcher == null) {
 			throw new IllegalStateException("Fetcher has not been called yet");
 		}
-		return this.fetcher.isAlive();
+		return !cancelled && this.fetcher.isAlive();
 	}
 
 	/**
@@ -106,7 +118,6 @@ public class UpdateInfoRetriever {
 	 */
 	public static class UpdateInfoFetcher extends Thread {
 		private static final Logger log = LoggerFactory.getLogger(UpdateInfoFetcher.class);
-		private static final Translator trans = Application.getTranslator();
 
 		private final String preTag = null; // Change e.g. to 'android' for Android release
 		private final String[] filterTags = null; // Change to e.g. ["beta"] to only retrieve beta releases
@@ -118,7 +129,7 @@ public class UpdateInfoRetriever {
 			try {
 				runUpdateFetcher();
 			} catch (UpdateCheckerException e) {
-				info = new UpdateInfo(e);
+				this.info = new UpdateInfo(e);
 			}
 		}
 

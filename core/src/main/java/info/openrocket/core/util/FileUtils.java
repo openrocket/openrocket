@@ -38,18 +38,16 @@ public abstract class FileUtils {
 	}
 
 	/**
-	 * Remove the extension from a file name.
-	 * 
-	 * @param fileName the file name
+	 * Remove the extension from a file name, properly handling paths and edge cases.
+	 *
+	 * @param fileName the file name or path
 	 * @return the file name without extension
 	 */
 	public static String removeExtension(String fileName) {
-		String[] splitResults = fileName.split("\\.");
-		if (splitResults.length > 0) {
-			return splitResults[0];
-		}
-		return fileName;
+		return fileName == null || fileName.isEmpty() ? fileName :
+				fileName.replaceFirst("[.][^.]+$", "");
 	}
+
 
 	/**
 	 * Get the file name from a path.

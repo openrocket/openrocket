@@ -25,6 +25,7 @@ import info.openrocket.core.database.Databases;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.componentanalysis.CADataType;
+import info.openrocket.swing.gui.dialogs.preferences.UIPreferencesPanel;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -446,10 +447,10 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	/**
 	 * Get the current font style used for the UI.
-	 * @return the current style weight (e.g. "Inter-Regular_Medium")
+	 * @return the current style weight (e.g. "Inter-Regular")
 	 */
 	public String getUIFontStyle() {
-		return getString(UI_FONT_STYLE, "Inter-Regular_Medium");
+		return getString(UI_FONT_STYLE, UIPreferencesPanel.FontStyle.REGULAR.getFontName());
 	}
 
 	/**

@@ -54,56 +54,60 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), "h",
 			UnitGroup.UNITS_DISTANCE,
 			FlightDataTypeGroup.POSITION_AND_MOTION, 0);
+	//// Altitude above sea level
+	public static final FlightDataType TYPE_ALTITUDE_ABOVE_SEA = newType(trans.get("FlightDataType.TYPE_ALTITUDE_ABOVE_SEA"),
+			"ha", UnitGroup.UNITS_DISTANCE,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 1);
 	//// Vertical velocity
 	public static final FlightDataType TYPE_VELOCITY_Z = newType(trans.get("FlightDataType.TYPE_VELOCITY_Z"), "Vz",
 			UnitGroup.UNITS_VELOCITY,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 1);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 2);
 	//// Total velocity
 	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"),
 			"Vt", UnitGroup.UNITS_VELOCITY,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 2);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 3);
 	//// Vertical acceleration
 	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"),
 			"Az", UnitGroup.UNITS_ACCELERATION,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 3);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 4);
 	//// Total acceleration
 	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(
 			trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), "At", UnitGroup.UNITS_ACCELERATION,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 4);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 5);
 
 	//// Lateral position and motion
 	//// Position East of launch
 	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px",
 			UnitGroup.UNITS_DISTANCE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 0);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 10);
 	//// Position North of launch
 	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), "Py",
 			UnitGroup.UNITS_DISTANCE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 1);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 11);
 	//// Lateral distance
 	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl",
 			UnitGroup.UNITS_DISTANCE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 2);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 12);
 	//// Lateral direction
 	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(
 			trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "\u03b8l", UnitGroup.UNITS_ANGLE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 3);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 13);
 	//// Lateral velocity
 	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl",
 			UnitGroup.UNITS_VELOCITY,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 4);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 14);
 	//// Lateral acceleration
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"),
 			"Al", UnitGroup.UNITS_ACCELERATION,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 5);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 15);
 	//// Latitude
 	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6",
 			UnitGroup.UNITS_LATITUDE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 6);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 16);
 	//// Longitude
 	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb",
 			UnitGroup.UNITS_LONGITUDE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 7);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 17);
 
 	// Orientation
 	//// Angle of attack
@@ -299,6 +303,7 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType[] ALL_TYPES = {
 			TYPE_TIME,
 			TYPE_ALTITUDE,
+			TYPE_ALTITUDE_ABOVE_SEA,
 			TYPE_VELOCITY_Z,
 			TYPE_ACCELERATION_Z,
 			TYPE_VELOCITY_TOTAL,
