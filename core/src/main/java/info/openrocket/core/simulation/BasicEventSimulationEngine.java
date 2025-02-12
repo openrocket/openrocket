@@ -112,13 +112,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					break;
 				}
 				currentStatus = toSimulate.pop();
+				currentStatus.setWarnings(flightData.getWarningSet());
 				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
 				flightData.addBranch(dataBranch);
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 				simulateLoop(simulationConditions);
 				
 				dataBranch.immute();
-				flightData.getWarningSet().addAll(currentStatus.getWarnings());
 				log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
 									   dataBranch.getName(),
 									   currentStatus.getSimulationTime(),
