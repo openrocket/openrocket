@@ -146,13 +146,22 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private void simulateLoop(SimulationConditions simulationConditions) throws SimulationException {
 		// Initialize the simulation.
-		
-		// Initialize the simulation. We'll use the flight stepper unless we're already
-		// on the ground.
-		if (currentStatus.isLanded())
+
+		// Select the appropriate stepper:
+		//     On the ground: ground stepper
+		//     Tumbling: tumble stepper
+		//     At least one recovery device deployed: landing stepper
+		//     Otherwise: flight stepper
+
+		if (currentStatus.isLanded()) {
 			currentStepper = groundStepper;
-		else
+		} else if (currentStatus.isTumbling()) {
+			currentStepper = tumbleStepper;
+		} else if (!currentStatus.getDeployedRecoveryDevices().isEmpty()) {
+			currentStepper = landingStepper;
+		} else {
 			currentStepper = flightStepper;
+		}
 
 		currentStatus = currentStepper.initialize(currentStatus);
 		double previousSimulationTime = currentStatus.getSimulationTime();
