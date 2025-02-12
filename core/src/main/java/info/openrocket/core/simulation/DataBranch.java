@@ -66,7 +66,6 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 */
 	public void addPoint() {
 		mutable.check();
-
 		for (Map.Entry<T, ArrayList<Double>> entry : values.entrySet()) {
 			sanityCheckValues(entry.getKey(), Double.NaN);
 			entry.getValue().add(Double.NaN);

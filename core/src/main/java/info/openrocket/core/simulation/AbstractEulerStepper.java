@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.AerodynamicForces;
+import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
@@ -32,10 +33,31 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
+		
+		status.storeData();
 
 		// get flight conditions and calculate acceleration
 		calculateFlightConditions(status, store);
+		FlightConditions flightConditions = store.flightConditions;
+		flightConditions.setAOA(Double.NaN);
+		flightConditions.setRollRate(Double.NaN);
+		flightConditions.setPitchRate(Double.NaN);
+		flightConditions.setYawRate(Double.NaN);
+		
 		calculateAcceleration(status, store);
+
+		// If the max time step was NaN, this is the final acceleration update
+		// upon ground hit.  We need to save the acceleration data, then update
+		// the status to reflect the fact we're laying on the ground. This final
+		// status won't get written to the FlightDataBranch unless there are
+		// events after landing
+		if (Double.isNaN(maxTimeStep)) {
+			store.timeStep = Double.NaN;
+			store.storeData(status);
+			
+			landedValues(status, store);
+			return;
+		}
 
 		// Select tentative time step
 		store.timeStep = RECOVERY_TIME_STEP;
@@ -142,34 +164,28 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
 
-		// Store data
-		final FlightDataBranch dataBranch = status.getFlightDataBranch();
-
-		// Values looked up or calculated at start of time step
+		// Store values calculated for time step
+		// On our last step (after landing) we'll set our timeStep to NaN
+		if (Double.isNaN(maxTimeStep)) {
+			store.timeStep = maxTimeStep;
+		}
 		store.storeData(status);
-		
-		// Values calculated on this step
-		dataBranch.addPoint();
-		status.storeData();
-
-		log.trace("time " + dataBranch.getLast(FlightDataType.TYPE_TIME) + ", altitude " + dataBranch.getLast(FlightDataType.TYPE_ALTITUDE) + ", velocity " + dataBranch.getLast(FlightDataType.TYPE_VELOCITY_Z));
 	}
 
 	@Override
 	void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
 		store.thrustForce = 0;
 		
-		// note most of our forces don't end up getting set, so they're all NaN.
+		// note some of our forces don't end up getting set, so they're all NaN.
 		AerodynamicForces forces = new AerodynamicForces();
-
 		double cd = computeCD(status);
 		forces.setCD(cd);
 		forces.setCDaxial(cd);
 		forces.setFrictionCD(0);
 		forces.setPressureCD(cd);
 		forces.setBaseCD(0);
-		
 		store.forces = forces;
+
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
 		//// airSpeed
@@ -178,6 +194,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		// Compute drag force
 		final double mach = airSpeed.length() / atmosphericConditions.getMachSpeed();
 		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
+
 		store.dragForce = 0.5 * CdA * atmosphericConditions.getDensity() * airSpeed.length2();
 
 		RigidBody structureMassData = calculateStructureMass(status);

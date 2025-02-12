@@ -47,8 +47,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private final static double THRUST_TUMBLE_CONDITION = 0.01;
 	
 	private SimulationStepper currentStepper;
-	// used to remember last stepper in use before ground hit
-	private SimulationStepper lastStepper;
 	
 	private SimulationStatus currentStatus;
 	
@@ -84,10 +82,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
 			currentStatus.setFlightDataBranch(initialBranch);
 			
-			// put a point on it so we can plot if we get an early abort event
-			initialBranch.addPoint();
-			currentStatus.storeData();
-			
 			// Sanity checks on design and configuration
 			
 			// Problems that keep us from simulating at all
@@ -121,12 +115,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
 				flightData.addBranch(dataBranch);
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
-				
 				simulateLoop(simulationConditions);
 				
 				dataBranch.immute();
 				flightData.getWarningSet().addAll(currentStatus.getWarnings());
-				
 				log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
 									   dataBranch.getName(),
 									   currentStatus.getSimulationTime(),
@@ -153,14 +145,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	private void simulateLoop(SimulationConditions simulationConditions) throws SimulationException {
+		// Initialize the simulation.
+		
 		// Initialize the simulation. We'll use the flight stepper unless we're already
 		// on the ground.
 		if (currentStatus.isLanded())
 			currentStepper = groundStepper;
 		else
 			currentStepper = flightStepper;
-		lastStepper = flightStepper;
-		
+
 		currentStatus = currentStepper.initialize(currentStatus);
 		double previousSimulationTime = currentStatus.getSimulationTime();
 		
@@ -188,9 +181,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						maxStepTime = 0.0;
 					}
 
-					log.trace(
-							"Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
-					currentStepper.step(currentStatus, maxStepTime);
+					if (maxStepTime > MathUtil.EPSILON) {
+						log.trace(
+								  "Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
+						currentStepper.step(currentStatus, maxStepTime);
+					}
 				}
 				SimulationListenerHelper.firePostStep(currentStatus);
 				
@@ -295,10 +290,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 				previousSimulationTime = currentStatus.getSimulationTime();
 			}
-
-			// clean up at end of simulation
-			lastStepper.cleanup(currentStatus);
-			
 		} catch (SimulationException e) {
 			
 			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
@@ -595,7 +586,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// switch to landing stepper (unless we're already on the ground)
 					if (!currentStatus.isLanded()) {
 						currentStepper = landingStepper;
-						lastStepper = currentStepper;
 						currentStatus = currentStepper.initialize(currentStatus);
 					}
 					
@@ -607,6 +597,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case GROUND_HIT:
 				currentStatus.setLanded(true);
 
+				// take one last simulation step so we can save current
+				// status and compute parameters at the instant of impact
+				currentStepper.step(currentStatus, Double.NaN);
+				
 				currentStepper = groundStepper;
 				currentStatus = currentStepper.initialize(currentStatus);
 				
@@ -615,6 +609,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 			case SIM_ABORT:
 				ret = false;
+
+				// store current status to flight data.  Don't take one last simulation step,
+				// as the SIM_ABORT may well be to avoid an exception
+				currentStatus.storeData();
+				
 				currentStatus.getFlightDataBranch().addEvent(event);
 				break;
 
@@ -637,7 +636,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					currentStatus.abortSimulation(SimulationAbort.Cause.TUMBLE_UNDER_THRUST);
 				} else {
 					currentStepper = tumbleStepper;
-					lastStepper = currentStepper;
 					currentStatus = currentStepper.initialize(currentStatus);
 					
 					currentStatus.setTumbling(true);

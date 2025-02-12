@@ -29,18 +29,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 *
 	 */
 	abstract void calculateAcceleration(SimulationStatus status, DataStore store) throws SimulationException;
-
-	/*
-	 * clean up at end of a simulation branch. Computes acceleration parameters and puts them in
-	 * the FlightDataBranch
-	 */
-	public void cleanup(SimulationStatus status) throws SimulationException {
-		log.debug("called cleanup from stepper " + this);
-		DataStore store = new DataStore();
-		calculateFlightConditions(status, store);
-		calculateAcceleration(status, store);
-		store.storeData(status);
-	}
 	
 	/**
 	 * Calculate the flight conditions for the current rocket status.
@@ -72,7 +60,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.windVelocity = modelWindVelocity(status);
 		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
-		
 
 		// Lateral direction:
 		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
@@ -292,6 +279,45 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 	}
 
+	/**
+	 * Set status and store to values consistent with sitting on the ground
+	 *
+	 */
+	protected void landedValues(SimulationStatus status, DataStore store) throws SimulationException {
+		store.timeStep = Double.NaN;
+
+		// get flight conditions
+		calculateFlightConditions(status, store);
+		FlightConditions flightConditions = store.flightConditions;
+		flightConditions.setAOA(Double.NaN);
+		flightConditions.setRollRate(0);
+		flightConditions.setPitchRate(0);
+		flightConditions.setYawRate(0);
+		
+		// note most of our forces don't end up getting set, so they're all NaN.
+		AerodynamicForces forces = new AerodynamicForces();
+		forces.setCD(Double.NaN);
+		forces.setCDaxial(Double.NaN);
+		forces.setFrictionCD(Double.NaN);
+		forces.setPressureCD(Double.NaN);
+		forces.setBaseCD(Double.NaN);
+		store.forces = forces;
+
+		RigidBody structureMassData = calculateStructureMass(status);
+		store.motorMass = calculateMotorMass(status);
+		store.rocketMass = structureMassData.add( store.motorMass );
+		store.gravity = modelGravity(status);
+		store.thrustForce = 0.0;
+		store.dragForce = 0.0;
+		store.coriolisAcceleration = Coordinate.ZERO;
+		
+		store.accelerationData = new AccelerationData(Coordinate.ZERO, Coordinate.ZERO, null, null,
+													  new Quaternion());
+
+		status.setRocketPosition(new Coordinate(status.getRocketPosition().x, status.getRocketPosition().y, 0));
+		status.setRocketVelocity(Coordinate.ZERO);
+	}
+		
 	/*
 	 * The DataStore holds calculated data to be used in computing a simulation step.
 	 * It is saved to the FlightDataBranch at the beginning of the time step, and one
@@ -333,14 +359,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 			dataBranch.setValue(FlightDataType.TYPE_THRUST_FORCE, thrustForce);
 			dataBranch.setValue(FlightDataType.TYPE_GRAVITY, gravity);
-			double weight = rocketMass.getMass() * gravity;
-			dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
 			dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
 		
 			dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, windVelocity.length());
 			dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
 			
-			if (GeodeticComputationStrategy.FLAT != status.getSimulationConditions().getGeodeticComputation()) {
+			if (null != coriolisAcceleration) {
 				dataBranch.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
 			}
 			
@@ -353,6 +377,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			}
 			
 			if (null != rocketMass) {
+				double weight = rocketMass.getMass() * gravity;
+				dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
 				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().x);
 				dataBranch.setValue(FlightDataType.TYPE_MASS, rocketMass.getMass());
 				dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, rocketMass.getLongitudinalInertia());

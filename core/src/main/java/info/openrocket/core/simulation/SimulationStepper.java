@@ -24,21 +24,18 @@ public interface SimulationStepper {
 	 *                    from stepping over upcoming flight events (motor ignition
 	 *                    etc).
 	 *
-	 * When the step() is called, a new record has been started for the simulation step, and
-	 * the SimulationStatus at the start time of the step has been saved to the FlightDataBranch.
-	 * The stepper's DataStore is saved to the FlightDataBranch as soon as it has been calculated.
+	 * When the step() is called, a new point is added to the flight data branch,
+	 * and the current simulation status is saved to that point.
 	 *
-	 * At the end of the step, the simulation time is updated, a new record is created in the FlightDataBranch,
-	 * and the updated SimulationStatus is saved to the FlightDataBranch.
+	 * The sim parameters to update the status are calculated, and saved to
+	 * the new point (it's a little flaky that only the sim parameters at the
+	 * start of an RK4 step are saved, since they vary throughout the step)
 	 *
-	 * When the simulation terminates, the DataStore has to be computed one more time and saved to the
-	 * FlightDataBranch to complete the last record.
+	 * Upon ground hit, one extra step is take to save the simulation status
+	 * and parameters at the moment of impact. The updated status at the end
+	 * of this step isn't saved, as the rocket actually stops moving at this
+	 * point.
 	 */
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException;
 
-	/*
-	 * clean up at end of simulation. Calculates DataStore values one last time and
-	 * writes them to FlightDataBranch
-	 */
-	void cleanup(SimulationStatus status) throws SimulationException;
 }
