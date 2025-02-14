@@ -4,8 +4,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,10 +26,10 @@ import java.util.jar.JarOutputStream;
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
 public class JarMigrationHelper {
-	private static final Logger log = LoggerFactory.getLogger(JarMigrationHelper.class);
-
 	private static final String OLD_PACKAGE_PREFIX = "net.sf.openrocket";
 	public static final String MIGRATION_SUFFIX = "-migrated";
+	// We first save the migrated plugin with this suffix so SwingStartup can check later that it has been migrated.
+	// It is then renamed to the final name (without this suffix).
 	public static final String NEW_MIGRATION_SUFFIX = "-new";
 
 	/**
@@ -67,7 +65,7 @@ public class JarMigrationHelper {
 		}
 
 		// Check if another JAR in the list is the migrated version of this JAR
-		String migratedName = getMigratedName(jarFile);
+		String migratedName = getMigratedName(jarFile, false);
 
 		for (File f : allJars) {
 			if (f.getName().equals(migratedName)) {
@@ -83,8 +81,12 @@ public class JarMigrationHelper {
 	 * @param jarFile The original JAR file.
 	 * @return The name of the migrated JAR file.
 	 */
+	private static String getMigratedName(File jarFile, boolean includeNewSuffix) {
+		return jarFile.getName().replaceFirst("\\.jar$", MIGRATION_SUFFIX + (includeNewSuffix ? NEW_MIGRATION_SUFFIX : "") + ".jar");
+	}
+
 	private static String getMigratedName(File jarFile) {
-		return jarFile.getName().replaceFirst("\\.jar$", MIGRATION_SUFFIX + NEW_MIGRATION_SUFFIX + ".jar");
+		return getMigratedName(jarFile, true);
 	}
 
 	/**
@@ -104,7 +106,6 @@ public class JarMigrationHelper {
 			}
 		} catch (IOException e) {
 			String msg = String.format("Error checking JAR file %s: %s", jarFile.getName(), e.getMessage());
-			log.error(msg);
 			throw new JarMigrationException(msg);
 		}
 		return false;
@@ -164,11 +165,9 @@ public class JarMigrationHelper {
 				migratedJar.delete();
 			}
 			String msg = String.format("Error migrating JAR file %s: %s", migratedJar.getName(), e.getMessage());
-			log.error(msg);
 			throw new JarMigrationException(e.getMessage());
 		}
 
-		log.info("Migrated JAR file: {}", migratedJar.getName());
 		return migratedJar;
 	}
 
