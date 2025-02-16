@@ -23,7 +23,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v4
       - name: Execute Gradle build
         run: ./gradlew clean check build dist
       # If wanting to serialize all the engines during build
