@@ -95,6 +95,22 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
         return this.add(m.toString() + ":  \"" + d + "\"");
     }
 
+	/**
+	 * obtain Message from set matching Message passed in
+	 *
+	 * @param m the message passed in
+	 * @returns the matching message
+	 */
+	public Message get(Message m) {
+		for (Message target : messages) {
+			if (m.equals(target)) {
+				return target;
+			}
+		}
+
+		return null;
+	}
+
     @Override
     public Iterator<E> iterator() {
         final Iterator<E> iterator = messages.iterator();
