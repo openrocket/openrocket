@@ -53,7 +53,7 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
 
         E old = messages.get(index);
         if (old.replaceBy(m)) {
-            messages.set(index, m);
+            old.replaceContents(m);
         }
 
         return false;

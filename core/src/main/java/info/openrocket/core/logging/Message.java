@@ -1,5 +1,6 @@
 package info.openrocket.core.logging;
 
+import java.lang.UnsupportedOperationException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -68,6 +69,16 @@ public abstract class Message implements Cloneable {
 	public abstract boolean replaceBy(Message other);
 
 	/**
+	 * Replace the contents of this Message with another
+	 *
+	 * This must be overridden by any subclass making use of it; this is the case for
+	 * subclasses for which replaceBy() can return true
+	 **/
+	public void replaceContents(Message m) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("class doesn't implement replaceContents");
+	}
+
+	/**
 	 * Return the ID
 	 */
 	 public UUID getID() {
@@ -112,7 +123,7 @@ public abstract class Message implements Cloneable {
 	public void setPriority(MessagePriority priority) {
 		this.priority = priority;
 	}
-
+	
 	/**
 	 * Two <code>Message</code>s are by default considered equal if they are of
 	 * the same class.  Therefore only one instance of a particular message type

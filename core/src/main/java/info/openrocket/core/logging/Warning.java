@@ -1,5 +1,7 @@
 package info.openrocket.core.logging;
 
+import java.lang.IllegalArgumentException;
+
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -71,6 +73,14 @@ public abstract class Warning extends Message {
 			if (Double.isNaN(this.aoa)) // If this has value NaN then replace
 				return true;
 			return (o.aoa > this.aoa);
+		}
+
+		@Override
+		public void replaceContents(Message other) throws IllegalArgumentException {
+			if (!(other instanceof LargeAOA)) {
+				throw new IllegalArgumentException();
+			}
+			this.aoa = ((LargeAOA) other).aoa;
 		}
 
 		// Don't compare aoa, otherwise you have a million LargeAOA warnings with different values
