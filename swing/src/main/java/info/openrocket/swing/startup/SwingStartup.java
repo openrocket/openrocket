@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import javax.swing.JOptionPane;
@@ -14,6 +15,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.plugin.JarMigrationHelper;
+import info.openrocket.core.plugin.PluginHelper;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import net.miginfocom.layout.LayoutUtil;
@@ -44,13 +48,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+import static info.openrocket.core.file.rasaero.export.BodyTubeDTOAdapter.trans;
+
 /**
  * Start the OpenRocket swing application.
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SwingStartup {
-	
 	private final static Logger log = LoggerFactory.getLogger(SwingStartup.class);
 	
 	/**
@@ -236,7 +241,21 @@ public class SwingStartup {
 		// Check whether update info has been fetched or whether it needs more time
 		log.info("Checking update status");
 		checkUpdateStatus(updateRetriever);
-		
+
+		// Check if plugins were migrated, if so, display a message
+		final List<File> files = PluginHelper.getPluginJars();
+		final Translator trans = Application.getTranslator();
+		files.stream()
+				.filter(f -> f.getName().contains(JarMigrationHelper.MIGRATION_SUFFIX + JarMigrationHelper.NEW_MIGRATION_SUFFIX))
+				.forEach(f -> displayPluginMigratedMessage(f, trans));
+	}
+
+	private static void displayPluginMigratedMessage(File f, Translator trans) {
+		File newFile = new File(f.getAbsolutePath().replace(JarMigrationHelper.NEW_MIGRATION_SUFFIX, ""));
+		f.renameTo(newFile);
+		String message = String.format(trans.get("SwingStartup.pluginMigrated"),
+				newFile.getName().replace(JarMigrationHelper.MIGRATION_SUFFIX, ""), newFile);
+		JOptionPane.showMessageDialog(null, message, "Plugin migrated", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	/**

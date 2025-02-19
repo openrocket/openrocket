@@ -176,6 +176,55 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		return multiLevelPinkNoiseWindModel;
 	}
 
+	// Deprecated wind methods to keep compatibility with old plugins (e.g. the original multi-level wind code)
+	@Deprecated
+	public double getWindSpeedAverage() {
+		setWindModelType(WindModelType.AVERAGE);
+		return averageWindModel.getAverage();
+	}
+
+	@Deprecated
+	public void setWindSpeedAverage(double windAverage) {
+		setWindModelType(WindModelType.AVERAGE);
+		averageWindModel.setAverage(windAverage);
+	}
+
+	@Deprecated
+	public double getWindSpeedDeviation() {
+		setWindModelType(WindModelType.AVERAGE);
+		return averageWindModel.getStandardDeviation();
+	}
+
+	@Deprecated
+	public void setWindSpeedDeviation(double windDeviation) {
+		setWindModelType(WindModelType.AVERAGE);
+		averageWindModel.setStandardDeviation(windDeviation);
+	}
+
+	@Deprecated
+	public double getWindTurbulenceIntensity() {
+		setWindModelType(WindModelType.AVERAGE);
+		return averageWindModel.getTurbulenceIntensity();
+	}
+
+	@Deprecated
+	public void setWindTurbulenceIntensity(double intensity) {
+		setWindModelType(WindModelType.AVERAGE);
+		averageWindModel.setTurbulenceIntensity(intensity);
+	}
+
+	@Deprecated
+	public double getWindDirection() {
+		setWindModelType(WindModelType.AVERAGE);
+		return averageWindModel.getDirection();
+	}
+
+	@Deprecated
+	public void setWindDirection(double direction) {
+		setWindModelType(WindModelType.AVERAGE);
+		averageWindModel.setDirection(direction);
+	}
+
 	public double getLaunchAltitude() {
 		return launchAltitude;
 	}
