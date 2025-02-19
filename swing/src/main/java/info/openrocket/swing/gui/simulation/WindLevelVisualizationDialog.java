@@ -4,6 +4,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
+import info.openrocket.core.util.StateChangeListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -22,6 +23,7 @@ import java.awt.RenderingHints;
 import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.util.Comparator;
+import java.util.EventObject;
 import java.util.List;
 
 public class WindLevelVisualizationDialog extends JDialog {
@@ -73,7 +75,7 @@ public class WindLevelVisualizationDialog extends JDialog {
 		visualization.updateUnits(altitudeUnit, speedUnit);
 	}
 
-	private static class WindLevelVisualization extends JPanel {
+	public static class WindLevelVisualization extends JPanel implements StateChangeListener {
 		private final MultiLevelPinkNoiseWindModel model;
 		private static final int MARGIN = 50;
 		private static final int ARROW_SIZE = 10;
@@ -82,6 +84,8 @@ public class WindLevelVisualizationDialog extends JDialog {
 		private Unit altitudeUnit;
 		private Unit speedUnit;
 		private boolean showDirections = true;
+
+		private MultiLevelPinkNoiseWindModel.LevelWindModel selectedLevel = null;
 
 		public WindLevelVisualization(MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
 			this.model = model;
@@ -92,6 +96,11 @@ public class WindLevelVisualizationDialog extends JDialog {
 		public void updateUnits(Unit altitudeUnit, Unit speedUnit) {
 			this.altitudeUnit = altitudeUnit;
 			this.speedUnit = speedUnit;
+			repaint();
+		}
+
+		public void setSelectedLevel(MultiLevelPinkNoiseWindModel.LevelWindModel level) {
+			this.selectedLevel = level;
 			repaint();
 		}
 
@@ -137,8 +146,17 @@ public class WindLevelVisualizationDialog extends JDialog {
 				int y = height - MARGIN - (int) (level.getAltitude() / extendedMaxAltitude * (height - 2 * MARGIN));
 
 				// Draw point
-				g2d.setColor(Color.BLUE);
-				g2d.fillOval(x - 3, y - 3, 6, 6);
+				if (level.equals(selectedLevel)) {
+					// Draw highlighted point
+					g2d.setColor(Color.ORANGE);
+					g2d.fillOval(x - 5, y - 5, 10, 10);
+					g2d.setColor(Color.BLACK);
+					g2d.drawOval(x - 5, y - 5, 10, 10);
+				} else {
+					// Draw normal point
+					g2d.setColor(Color.BLUE);
+					g2d.fillOval(x - 3, y - 3, 6, 6);
+				}
 
 				// Draw wind direction arrow
 				if (showDirections) {
@@ -230,6 +248,11 @@ public class WindLevelVisualizationDialog extends JDialog {
 
 			// Draw filled arrow head
 			drawFilledArrowHead(g, x + dx + dx_arrow, y - dy - dy_arrow, arrowSize, direction - Math.PI/2);
+		}
+
+		@Override
+		public void stateChanged(EventObject e) {
+			repaint();
 		}
 	}
 
