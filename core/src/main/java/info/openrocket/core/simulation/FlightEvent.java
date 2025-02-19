@@ -188,7 +188,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		if ((this.type == Type.SIM_WARN) && (o.type == Type.SIM_WARN))
 			return ((Warning)(this.data)).equals((Warning)(o.data));
 
-		return this.equals(0);
+		return this.compareTo(o) == 0;
 	}
 	
 	@Override
