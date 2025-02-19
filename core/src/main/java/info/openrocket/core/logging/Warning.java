@@ -166,10 +166,12 @@ public abstract class Warning extends Message {
 		// so severity of problem is clear to the user
 		@Override
 		public boolean equals(Object o) {
-			return false;
+			if (!(o instanceof EventAfterLanding)) {
+				return false;
+			}
+			return super.equals(o) && event.equals(((EventAfterLanding) o).event);
 		}
 		
-
 		@Override
 		public String getMessageDescription() {
 			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
