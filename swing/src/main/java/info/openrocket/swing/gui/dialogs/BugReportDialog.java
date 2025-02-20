@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -230,6 +232,9 @@ public class BugReportDialog extends JDialog {
 		sbTemp.append("LAF: " + UIManager.getLookAndFeel().getClass().getName() + "\n");
 		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
 		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
+		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> arguments = runtimeMxBean.getInputArguments();
+		sbTemp.append("JVM Arguments: " + String.join(" ", arguments) + "\n");
 		sbTemp.append("System properties:\n");
 
 		// Sort the keys
