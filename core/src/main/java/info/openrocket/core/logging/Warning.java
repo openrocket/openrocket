@@ -162,19 +162,28 @@ public abstract class Warning extends Message {
 			setPriority(MessagePriority.HIGH);
 		}
 
-		// I want a warning on every event that occurs after we land,
-		// so severity of problem is clear to the user
 		@Override
 		public boolean equals(Object o) {
-			if (!(o instanceof EventAfterLanding)) {
+			if ((null == o) || !(o instanceof EventAfterLanding)) {
 				return false;
 			}
-			return super.equals(o) && event.equals(((EventAfterLanding) o).event);
+
+			EventAfterLanding e = (EventAfterLanding) o;
+			
+			if ((null == event) || (null == e.event)) {
+				return false;
+			}
+			
+			return super.equals(o) && event.equals(e.event);
 		}
-		
+
 		@Override
 		public String getMessageDescription() {
-			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
+			String msg = trans.get("Warning.EVENT_AFTER_LANDING");
+			if (null != event) {
+				return msg + event.getType();
+			}
+			return msg;
 		}
 
 		@Override
