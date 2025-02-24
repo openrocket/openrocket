@@ -39,7 +39,7 @@ class WarningHandler extends AbstractElementHandler {
 		if (element.equals("id")) {
 			id = UUID.fromString(content);
 		} else if (element.equals("description")) {
-			warning = Warning.fromString(content);
+			warningText = content.trim();
 		} else if (element.equals("priority")) {
 			priority = MessagePriority.fromExportLabel(content);
 		} else if (element.equals("source")) {
@@ -54,10 +54,16 @@ class WarningHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 						   String content, WarningSet warnings) {
 
-		// If we didn't already create a warning, this came from an old version
-		if (null == warning) {
-			warning = Warning.fromString(content.trim());
+		String type = attributes.get("type");
+		if (null == type) {
+			type = "Other";
 		}
+		if (null == warningText) {
+			warningText = content.trim();
+		}
+
+		warning = Warning.fromString(content.trim());
+
 		if (null != id) {
 			warning.setID(id);
 		}

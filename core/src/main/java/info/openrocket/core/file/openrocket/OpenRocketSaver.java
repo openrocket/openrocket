@@ -431,8 +431,8 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			
 			for (Warning w : data.getWarningSet()) {
-				writeln("<warning>");
-				indent++;
+				writeln("<warning type=\"" + w.getClass().getSimpleName() + "\">");
+				indent++; 
 
 				writeElement("id", w.getID().toString());
 				writeElement("description", w.getMessageDescription());
