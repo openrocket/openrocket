@@ -484,15 +484,13 @@ public class SimulationConditionsPanel extends JPanel {
 		final DoubleModel windTurbulenceIntensity = addDoubleModel(panel, "Turbulenceintensity", tip, model,
 				"TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1.0, true);
 
-		final JLabel intensityLabel = new JLabel(
-				getIntensityDescription(target.getAverageWindModel().getTurbulenceIntensity()));
+		final JLabel intensityLabel = new JLabel(target.getAverageWindModel().getIntensityDescription());
 		intensityLabel.setToolTipText(tip);
 		panel.add(intensityLabel, "w 75lp, skip 1, wrap");
 		windTurbulenceIntensity.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				intensityLabel.setText(
-						getIntensityDescription(target.getAverageWindModel().getTurbulenceIntensity()));
+				intensityLabel.setText(target.getAverageWindModel().getIntensityDescription());
 				windSpeedDeviation.stateChanged(e);
 			}
 		});
@@ -823,29 +821,6 @@ public class SimulationConditionsPanel extends JPanel {
 		this.add(saveDefaults, "gapright para, right");
 	}
 
-	private static String getIntensityDescription(double i) {
-		if (i < 0.001)
-			//// None
-			return trans.get("simedtdlg.IntensityDesc.None");
-		if (i < 0.05)
-			//// Very low
-			return trans.get("simedtdlg.IntensityDesc.Verylow");
-		if (i < 0.10)
-			//// Low
-			return trans.get("simedtdlg.IntensityDesc.Low");
-		if (i < 0.15)
-			//// Medium
-			return trans.get("simedtdlg.IntensityDesc.Medium");
-		if (i < 0.20)
-			//// High
-			return trans.get("simedtdlg.IntensityDesc.High");
-		if (i < 0.25)
-			//// Very high
-			return trans.get("simedtdlg.IntensityDesc.Veryhigh");
-		//// Extreme
-		return trans.get("simedtdlg.IntensityDesc.Extreme");
-	}
-
 	/**
 	 * Shh, don't tell anyone about this easter-egg. (displays a fun quote when the text of the spinner equals 42)
 	 * @param spinner the magic spinner!
@@ -1011,7 +986,7 @@ public class SimulationConditionsPanel extends JPanel {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			// Intensity column
 			if (columnIndex == getColumnCount()-2) {
-				return getIntensityDescription(model.getLevels().get(rowIndex).getTurblenceIntensity());
+				return model.getLevels().get(rowIndex).getIntensityDescription();
 			}
 			if (columnIndex == getColumnCount()-1) {
 				return null;

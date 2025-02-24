@@ -357,6 +357,10 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 			model.setTurbulenceIntensity(turbulenceIntensity);
 		}
 
+		public String getIntensityDescription() {
+			return model.getIntensityDescription();
+		}
+
 		@Override
 		public LevelWindModel clone() {
 			try {
