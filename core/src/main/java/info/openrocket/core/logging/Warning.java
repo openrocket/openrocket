@@ -170,6 +170,11 @@ public abstract class Warning extends Message {
 			setPriority(MessagePriority.HIGH);
 		}
 
+		// this is only used for patching the data structure while reading the .ork file
+		public void setEvent(FlightEvent event) {
+			this.event = event;
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if ((null == o) || !(o instanceof EventAfterLanding)) {

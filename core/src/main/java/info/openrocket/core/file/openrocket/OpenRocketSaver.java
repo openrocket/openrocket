@@ -640,7 +640,7 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 
 			if (event.getType() == FlightEvent.Type.SIM_WARN) {
-				eventStr += " id=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
+				eventStr += " warnid=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
 			}
 			
 			if (event.getType() == FlightEvent.Type.SIM_ABORT) {

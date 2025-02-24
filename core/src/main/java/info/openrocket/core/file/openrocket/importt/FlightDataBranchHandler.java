@@ -6,6 +6,7 @@ import java.util.UUID;
 import info.openrocket.core.logging.Message;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.SimulationAbort.Cause;
+import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.file.DocumentLoadingContext;
 import info.openrocket.core.file.simplesax.AbstractElementHandler;
@@ -159,7 +160,10 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 
 			// For warning events, get the warning
 			if (type == FlightEvent.Type.SIM_WARN) {
-				data = simHandler.getWarningSet().findById(UUID.fromString(attributes.get("id")));
+				String warnid = attributes.get("warnid");
+				if (null != warnid) {
+					data = simHandler.getWarningSet().findById(UUID.fromString(warnid));
+				}
 			}
 			
 			// For aborts, get the cause
@@ -168,12 +172,20 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				data = new SimulationAbort(cause);
 			}
 
+			FlightEvent event = null;
 			try {
-				branch.addEvent(new FlightEvent(type, time, source, data));
+				event = new FlightEvent(type, time, source, data);
+				branch.addEvent(event);
 			} catch (Exception e) {
 				warnings.add("Illegal parameters for FlightEvent: " + e.getMessage());
 			}
-			
+
+			// For EventAfterLanding warning events, hook the event up to the warning
+			if ((type == FlightEvent.Type.SIM_WARN) &&
+				(null != data) &&
+				(data instanceof Warning.EventAfterLanding)) {
+				((Warning.EventAfterLanding) data).setEvent(event);
+			}
 			return;
 		}
 		
