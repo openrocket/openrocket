@@ -444,6 +444,11 @@ public class OpenRocketSaver extends RocketSaver {
 					}
 				}
 
+				// Data for specific warning types
+				if (w instanceof Warning.LargeAOA) {
+					writeElement("parameter", ((Warning.LargeAOA) w).getAOA());
+				}
+
 				// We write the whole string content for backwards compatibility with old versions
 				writeln(TextUtil.escapeXML(w.toString()));
 

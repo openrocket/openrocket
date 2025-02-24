@@ -52,6 +52,10 @@ public abstract class Warning extends Message {
 			this.aoa = aoa;
 			setPriority(MessagePriority.NORMAL);
 		}
+
+		public double getAOA() {
+			return aoa;
+		}
 		
 		@Override
 		public String getMessageDescription() {

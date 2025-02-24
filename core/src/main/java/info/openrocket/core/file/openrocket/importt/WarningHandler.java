@@ -22,6 +22,8 @@ class WarningHandler extends AbstractElementHandler {
 	private ArrayList<RocketComponent> sources = new ArrayList<>();
 	private String warningText;
 
+	private String parameter;
+
 	public WarningHandler(Rocket rocket, WarningSet warningSet) {
 		this.rocket = rocket;
 		this.warningSet = warningSet;
@@ -45,6 +47,8 @@ class WarningHandler extends AbstractElementHandler {
 		} else if (element.equals("source")) {
 			RocketComponent component = rocket.findComponent(UUID.fromString(content));
 			sources.add(component);
+		} else if (element.equals("parameter")) {
+			parameter = content.trim();
 		} else {
 			warnings.add("Unknown element '" + element + "', ignoring.");
 		}
@@ -62,7 +66,11 @@ class WarningHandler extends AbstractElementHandler {
 			warningText = content.trim();
 		}
 
-		warning = Warning.fromString(content.trim());
+		if (type.equals("LargeAOA")) {
+			warning = new Warning.LargeAOA(Double.parseDouble(parameter));
+		} else {
+			warning = Warning.fromString(content.trim());
+		}
 
 		if (null != id) {
 			warning.setID(id);
