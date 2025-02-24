@@ -449,6 +449,10 @@ public class OpenRocketSaver extends RocketSaver {
 					writeElement("parameter", ((Warning.LargeAOA) w).getAOA());
 				}
 
+				if (w instanceof Warning.HighSpeedDeployment) {
+					writeElement("parameter", ((Warning.HighSpeedDeployment) w).getSpeed());
+				}
+
 				// We write the whole string content for backwards compatibility with old versions
 				writeln(TextUtil.escapeXML(w.toString()));
 

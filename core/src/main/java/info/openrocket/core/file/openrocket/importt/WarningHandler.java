@@ -66,8 +66,15 @@ class WarningHandler extends AbstractElementHandler {
 			warningText = content.trim();
 		}
 
+		double parameterVal = Double.NaN;
+		if (null != parameter) {
+			parameterVal = Double.parseDouble(parameter);
+		}
+		
 		if (type.equals("LargeAOA")) {
-			warning = new Warning.LargeAOA(Double.parseDouble(parameter));
+			warning = new Warning.LargeAOA(parameterVal);
+		} else if (type.equals("HighSpeedDeployment")) {
+			warning = new Warning.HighSpeedDeployment(parameterVal, null);
 		} else {
 			warning = Warning.fromString(content.trim());
 		}

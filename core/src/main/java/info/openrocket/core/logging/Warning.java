@@ -121,6 +121,10 @@ public abstract class Warning extends Message {
 			this.setSources(chute);
 			setPriority(MessagePriority.NORMAL);
 		}
+
+		public double getSpeed() {
+			return recoverySpeed;
+		}
 		
 		@Override
 		public String getMessageDescription() {
