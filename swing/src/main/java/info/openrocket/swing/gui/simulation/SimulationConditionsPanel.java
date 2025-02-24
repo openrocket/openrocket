@@ -1002,7 +1002,7 @@ public class SimulationConditionsPanel extends JPanel {
 				case 2 -> level.getSpeed();
 				case 4 -> level.getDirection();
 				case 6 -> level.getStandardDeviation();
-				case 8 -> level.getTurblenceIntensity();
+				case 8 -> level.getTurbulenceIntensity();
 				default -> null;
 			};
 		}

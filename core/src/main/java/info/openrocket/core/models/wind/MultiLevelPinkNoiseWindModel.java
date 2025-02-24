@@ -349,7 +349,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 			model.setStandardDeviation(standardDeviation);
 		}
 
-		public double getTurblenceIntensity() {
+		public double getTurbulenceIntensity() {
 			return model.getTurbulenceIntensity();
 		}
 
