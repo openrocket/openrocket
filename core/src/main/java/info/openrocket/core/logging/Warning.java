@@ -481,9 +481,6 @@ public abstract class Warning extends Message {
 	/** Stage began to tumble under thrust. */
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"), MessagePriority.HIGH);
 
-	/** Flight Event occurred after landing:  */
-	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"), MessagePriority.HIGH);
-
 	/** Zero-volume bodies may not simulate accurately */
 	public static final Warning ZERO_VOLUME_BODY = new Other(trans.get("Warning.ZERO_VOLUME_BODY"), MessagePriority.LOW);
 
