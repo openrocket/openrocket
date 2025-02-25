@@ -29,7 +29,7 @@
           <versionLine x="489" y="143" text="version ${compiler:sys.version}" fontSize="10" fontColor="255,255,255" />
         </text>
       </splashScreen>
-      <java mainClass="info.openrocket.swing.startup.OpenRocket" vmParameters="-Dapple.awt.application.appearance=&quot;system&quot; --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
+      <java mainClass="info.openrocket.swing.startup.OpenRocket" vmParameters="-Dapple.awt.application.appearance=&quot;system&quot; -Dsun.java2d.noddraw=true -Dsun.java2d.d3d=false -Dsun.java2d.ddforcevram=true -Dsun.java2d.ddblit=false -Dswing.useflipBufferStrategy=True --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
         <classPath>
           <archive location="jar/OpenRocket.jar" failOnError="false" />
         </classPath>

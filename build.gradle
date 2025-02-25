@@ -15,6 +15,24 @@ java {
 application {
     mainModule = 'info.openrocket.swing'
     mainClass = 'info.openrocket.swing.startup.OpenRocket'
+
+    /*applicationDefaultJvmArgs = [
+            // Use the system appearance on macOS for the FlatLaf title bar
+            '-Dapple.awt.application.appearance=system',
+            // Fix JOGL 3D importing on Windows
+            '--add-exports',
+            'java.base/java.lang=ALL-UNNAMED',
+            '--add-exports',
+            'java.desktop/sun.awt=ALL-UNNAMED',
+            '--add-exports',
+            'java.desktop/sun.java2d=ALL-UNNAMED',
+            // Fix Windows window ghosting (issue #1667),
+            '-Dsun.java2d.noddraw=true',
+            '-Dsun.java2d.d3d=false',
+            '-Dsun.java2d.ddforcevram=true',
+            '-Dsun.java2d.ddblit=false',
+            '-Dswing.useflipBufferStrategy=True'
+    ]*/
 }
 
 // Fetch the build version from the build.properties file
@@ -102,6 +120,20 @@ shadowJar {
     archiveVersion.set(buildProperties['build.version'])
     archiveClassifier.set('')
     dependsOn(distTar, distZip)
+
+    manifest {
+        from jar.manifest
+        attributes(
+                'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
+                'SplashScreen-Image': 'pix/splashscreen.png',
+                'Implementation-Version': buildProperties['build.version'],
+                'Implementation-Vendor': 'OpenRocket',
+                'Implementation-Vendor-Id': 'info.openrocket',
+                'Implementation-URL': 'https://openrocket.info/',
+                'Add-Exports': 'java.base/java.lang=ALL-UNNAMED java.desktop/sun.awt=ALL-UNNAMED java.desktop/sun.java2d=ALL-UNNAMED',
+                'JVM-Args': '-Dapple.awt.application.appearance=system -Dsun.java2d.noddraw=true -Dsun.java2d.d3d=false -Dsun.java2d.ddforcevram=true -Dsun.java2d.ddblit=false -Dswing.useflipBufferStrategy=True'
+        )
+    }
 }
 
 // Package the application for distribution.
