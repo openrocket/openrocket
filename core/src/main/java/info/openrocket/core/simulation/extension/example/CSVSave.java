@@ -220,7 +220,7 @@ public class CSVSave extends AbstractSimulationExtension {
 
 	@Override
 	public String getDescription() {
-		return "dump a CSV file with a predetermined set of flight variables to a CSV file while running";
+		return "dump a CSV file with a predetermined set of flight variables to a CSV file while running.  Note: this is an example of reading simulation variables from an extension, not a practical way of exporting them. If your actual goal is to dump the simulation variables, use the Export Data tab in the Edit simulation dialog ";
 	}
 
 	@Override
