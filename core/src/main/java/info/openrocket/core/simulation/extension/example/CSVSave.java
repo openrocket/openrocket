@@ -221,6 +221,7 @@ public class CSVSave extends AbstractSimulationExtension {
 		public abstract double getValue(SimulationStatus status);
 	}
 
+	// format of CSV file name
 	public static final String FILENAME_FORMAT = "simulation-%03d.csv";
 
 	private PrintStream output = null;
@@ -243,7 +244,6 @@ public class CSVSave extends AbstractSimulationExtension {
 		// when we start the simulation we'll create the .csv file and write the column headings
 		@Override
 		public void startSimulation(SimulationStatus status) throws SimulationException {
-
 			// Just in case a prior run somehow failed to close the file.
 			if (output != null) {
 				log.warn("WARNING: Ending simulation logging to CSV file " +
@@ -252,9 +252,9 @@ public class CSVSave extends AbstractSimulationExtension {
 				output = null;
 			}
 			
+			File file = null;
 			try {
 				// Construct filename, atomically create and open file
-				File file;
 				int n = 1;
 				do {
 					file = new File(String.format(FILENAME_FORMAT, n));
