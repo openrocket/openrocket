@@ -34,6 +34,10 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
      * exists in the set, the message that is left in the set is defined by the
      * method {@link Message#replaceBy(Message)}.
      *
+	 * If a new element is added to the set, returns true else returns false
+	 * Replacing an old element with the new one is not regarded as adding the new
+	 * element to the set (so it returns false in this case)
+	 *
      * @throws IllegalStateException	if this message set has been made immutable.
      */
     @Override
@@ -44,16 +48,15 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
         int index = messages.indexOf(m);
 
         if (index < 0) {
-            messages.add(m);
-            return false;
+            return messages.add(m);
         }
 
         E old = messages.get(index);
         if (old.replaceBy(m)) {
-            messages.set(index, m);
+            old.replaceContents(m);
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -91,6 +94,22 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
     public boolean add(E m, String d) {
         return this.add(m.toString() + ":  \"" + d + "\"");
     }
+
+	/**
+	 * obtain Message from set matching Message passed in
+	 *
+	 * @param m the message passed in
+	 * @returns the matching message
+	 */
+	public Message get(Message m) {
+		for (Message target : messages) {
+			if (m.equals(target)) {
+				return target;
+			}
+		}
+
+		return null;
+	}
 
     @Override
     public Iterator<E> iterator() {

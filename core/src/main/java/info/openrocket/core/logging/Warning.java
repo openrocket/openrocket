@@ -1,5 +1,7 @@
 package info.openrocket.core.logging;
 
+import java.lang.IllegalArgumentException;
+
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -50,6 +52,10 @@ public abstract class Warning extends Message {
 			this.aoa = aoa;
 			setPriority(MessagePriority.NORMAL);
 		}
+
+		public double getAOA() {
+			return aoa;
+		}
 		
 		@Override
 		public String getMessageDescription() {
@@ -71,6 +77,14 @@ public abstract class Warning extends Message {
 			if (Double.isNaN(this.aoa)) // If this has value NaN then replace
 				return true;
 			return (o.aoa > this.aoa);
+		}
+
+		@Override
+		public void replaceContents(Message other) throws IllegalArgumentException {
+			if (!(other instanceof LargeAOA)) {
+				throw new IllegalArgumentException();
+			}
+			this.aoa = ((LargeAOA) other).aoa;
 		}
 
 		// Don't compare aoa, otherwise you have a million LargeAOA warnings with different values
@@ -106,6 +120,10 @@ public abstract class Warning extends Message {
 			this.recoverySpeed = speed;
 			this.setSources(chute);
 			setPriority(MessagePriority.NORMAL);
+		}
+
+		public double getSpeed() {
+			return recoverySpeed;
 		}
 		
 		@Override
@@ -152,17 +170,33 @@ public abstract class Warning extends Message {
 			setPriority(MessagePriority.HIGH);
 		}
 
-		// I want a warning on every event that occurs after we land,
-		// so severity of problem is clear to the user
+		// this is only used for patching the data structure while reading the .ork file
+		public void setEvent(FlightEvent event) {
+			this.event = event;
+		}
+
 		@Override
 		public boolean equals(Object o) {
-			return false;
+			if ((null == o) || !(o instanceof EventAfterLanding)) {
+				return false;
+			}
+
+			EventAfterLanding e = (EventAfterLanding) o;
+			
+			if ((null == event) || (null == e.event)) {
+				return false;
+			}
+			
+			return super.equals(o) && event.equals(e.event);
 		}
-		
 
 		@Override
 		public String getMessageDescription() {
-			return trans.get("Warning.EVENT_AFTER_LANDING") + event.getType();
+			String msg = trans.get("Warning.EVENT_AFTER_LANDING");
+			if (null != event) {
+				return msg + event.getType();
+			}
+			return msg;
 		}
 
 		@Override
@@ -446,9 +480,6 @@ public abstract class Warning extends Message {
 
 	/** Stage began to tumble under thrust. */
 	public static final Warning TUMBLE_UNDER_THRUST = new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"), MessagePriority.HIGH);
-
-	/** Flight Event occurred after landing:  */
-	public static final Warning EVENT_AFTER_LANDING = new Other(trans.get("Warning.EVENT_AFTER_LANDING"), MessagePriority.HIGH);
 
 	/** Zero-volume bodies may not simulate accurately */
 	public static final Warning ZERO_VOLUME_BODY = new Other(trans.get("Warning.ZERO_VOLUME_BODY"), MessagePriority.LOW);

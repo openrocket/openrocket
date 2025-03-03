@@ -22,6 +22,8 @@ class WarningHandler extends AbstractElementHandler {
 	private ArrayList<RocketComponent> sources = new ArrayList<>();
 	private String warningText;
 
+	private String parameter;
+
 	public WarningHandler(Rocket rocket, WarningSet warningSet) {
 		this.rocket = rocket;
 		this.warningSet = warningSet;
@@ -39,12 +41,14 @@ class WarningHandler extends AbstractElementHandler {
 		if (element.equals("id")) {
 			id = UUID.fromString(content);
 		} else if (element.equals("description")) {
-			warning = Warning.fromString(content);
+			warningText = content.trim();
 		} else if (element.equals("priority")) {
 			priority = MessagePriority.fromExportLabel(content);
 		} else if (element.equals("source")) {
 			RocketComponent component = rocket.findComponent(UUID.fromString(content));
 			sources.add(component);
+		} else if (element.equals("parameter")) {
+			parameter = content.trim();
 		} else {
 			warnings.add("Unknown element '" + element + "', ignoring.");
 		}
@@ -54,10 +58,29 @@ class WarningHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes,
 						   String content, WarningSet warnings) {
 
-		// If we didn't already create a warning, this came from an old version
-		if (null == warning) {
+		String type = attributes.get("type");
+		if (null == type) {
+			type = "Other";
+		}
+		if (null == warningText) {
+			warningText = content.trim();
+		}
+
+		double parameterVal = Double.NaN;
+		if (null != parameter) {
+			parameterVal = Double.parseDouble(parameter);
+		}
+		
+		if (type.equals("LargeAOA")) {
+			warning = new Warning.LargeAOA(parameterVal);
+		} else if (type.equals("HighSpeedDeployment")) {
+			warning = new Warning.HighSpeedDeployment(parameterVal, (RocketComponent) null);
+		} else if (type.equals("EventAfterLanding")) {
+			warning = new Warning.EventAfterLanding(null);
+		} else {
 			warning = Warning.fromString(content.trim());
 		}
+
 		if (null != id) {
 			warning.setID(id);
 		}
