@@ -273,6 +273,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		int prevIdx = Math.max(0, rows.indexOf(row) - 1);
 		int thisIdx = rows.indexOf(row);
 		rows.remove(row);
+		row.invalidateModels();
 		thisIdx = Math.min(thisIdx, rows.size() - 1);
 		windModel.removeWindLevel(row.getLevel().getAltitude());
 		resortRows(originalOrder, prevIdx, thisIdx);
@@ -457,6 +458,24 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	public void removeSelectionListener(RowSelectionListener listener) {
 		selectionListeners.remove(listener);
 	}
+	
+	/**
+	 * Removes all selection listeners from the table.
+	 * This should be called when the dialog is being disposed to prevent memory leaks.
+	 */
+	public void removeAllSelectionListeners() {
+		selectionListeners.clear();
+	}
+	
+	/**
+	 * Invalidates all DoubleModels in the table rows.
+	 * This should be called when the dialog is being disposed to prevent memory leaks.
+	 */
+	public void invalidateModels() {
+		for (LevelRow row : rows) {
+			row.invalidateModels();
+		}
+	}
 
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
@@ -484,6 +503,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private class LevelRow extends JPanel {
 		private final LevelWindModel level;
 		private final DoubleModel dmAltitude;
+		private final DoubleModel dmSpeed;
+		private final DoubleModel dmDirection;
+		private final DoubleModel dmStdDeviation;
+		private final DoubleModel dmTurbulence;
 		private final JLabel intensityLabel;
 		private final JButton deleteButton;
 		private JMenuItem deleteItem;
@@ -496,10 +519,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 			// Create DoubleModels bound to the level
 			dmAltitude = new DoubleModel(level, "Altitude", UnitGroup.UNITS_DISTANCE, -100, ExtendedISAModel.getMaximumAllowedAltitude());
-			final DoubleModel dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
-			final DoubleModel dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-			final DoubleModel dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
-			final DoubleModel dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
+			dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
+			dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
+			dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
+			dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
 
 			// Add property change listener for altitude
 			dmAltitude.addChangeListener(e -> {
@@ -721,6 +744,18 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 			timer.setRepeats(false);
 			timer.start();
+		}
+		
+		/**
+		 * Invalidates all DoubleModels in this row.
+		 * This should be called when the dialog is being disposed to prevent memory leaks.
+		 */
+		public void invalidateModels() {
+			dmAltitude.invalidateMe();
+			dmSpeed.invalidateMe();
+			dmDirection.invalidateMe();
+			dmStdDeviation.invalidateMe();
+			dmTurbulence.invalidateMe();
 		}
 	}
 }

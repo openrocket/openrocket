@@ -252,6 +252,19 @@ public class MultiLevelWindEditDialog extends JDialog {
 		SwingUtilities.invokeLater(windTable::clearSelection);
 	}
 
+	@Override
+	public void dispose() {
+		if (windTable != null) {
+			windTable.invalidateModels();
+			windTable.removeAllSelectionListeners();
+			if (visualization != null) {
+				windTable.removeChangeListener(visualization);
+			}
+		}
+
+		super.dispose();
+	}
+	
 	public static void main(String[] args) {
 		com.google.inject.Module applicationModule = new CoreServicesModule();
 		com.google.inject.Module pluginModule = new PluginModule();
