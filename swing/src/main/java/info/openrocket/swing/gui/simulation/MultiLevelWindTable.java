@@ -56,7 +56,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private static final double ALTITUDE_INCREASE = 100;		// Default altitude increase when adding a new row
 	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 	private static final int FLASH_DURATION_MS = 800;
-	private static final int CELL_GAP = 2;
+	private static final int CELL_GAP = 1;
 	private static final int CELL_PADDING = 8; // Padding inside cells
 
 	// Table column definitions
@@ -155,7 +155,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 1, 1, tableBorderColor),
+				BorderFactory.createMatteBorder(1, 0, 1, 0, tableBorderColor),
 				BorderFactory.createEmptyBorder(1, 0, 1, 0)
 		));
 		panel.setBackground(tableHeaderBg);
@@ -191,9 +191,17 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		JPanel group = new JPanel();
 		group.setLayout(new BoxLayout(group, BoxLayout.X_AXIS));
 		group.setOpaque(false);
+		
+		// Add left padding
+		group.add(Box.createRigidArea(new Dimension(CELL_PADDING, 0)));
+		
+		// Add components with spacing between them
 		group.add(comp1);
 		group.add(Box.createRigidArea(new Dimension(CELL_GAP, 0)));
 		group.add(comp2);
+		
+		// Add right padding
+		group.add(Box.createRigidArea(new Dimension(CELL_PADDING, 0)));
 		
 		// Fixed height based on row height constant to ensure consistent alignment
 		Dimension currentSize = group.getPreferredSize();
