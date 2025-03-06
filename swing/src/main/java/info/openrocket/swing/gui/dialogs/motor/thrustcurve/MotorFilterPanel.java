@@ -339,6 +339,7 @@ public abstract class MotorFilterPanel extends JPanel {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					lengthSlider.setValueAt(1, (int) (1000* maxLengthModel.getValue()));
+					onSelectionChanged();
 				}
 			});
 			sub.add(maxLengthSpinner, "growx");
@@ -351,12 +352,24 @@ public abstract class MotorFilterPanel extends JPanel {
 			lengthSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					
 					int minLength = lengthSlider.getValueAt(0);
 					minLengthModel.setValue(minLength/1000.0);
-					int maxLength = lengthSlider.getValueAt(1);
-					maxLengthModel.setValue(maxLength/1000.0);
+
+					double maxLengthValue;
+					if (limitByLength) {
+						maxLengthValue = mountLength;
+					} else {
+						int maxLength = lengthSlider.getValueAt(1);
+						if (maxLength < 1000) {
+							maxLengthValue = maxLength/1000.0;
+						} else {
+							maxLengthValue = Double.POSITIVE_INFINITY;
+						}
+					}
+
+					maxLengthModel.setValue(maxLengthValue);
 					onSelectionChanged();
+					
 				}
 			});
 
@@ -393,6 +406,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitByLength);
 		if ( mountLength != null  & limitByLength ) {
 			lengthSlider.setValueAt(1, (int) Math.min(1000,Math.round(1000*mountLength)));
+			maxLengthModel.setValue(mountLength);
 		}
 	}
 	
