@@ -5,23 +5,37 @@ import com.google.inject.Injector;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.CoreServicesModule;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Window;
+import java.io.File;
+
+import static info.openrocket.swing.gui.components.CsvOptionPanel.SPACE;
+import static info.openrocket.swing.gui.components.CsvOptionPanel.TAB;
 
 public class MultiLevelWindEditDialog extends JDialog {
 	private final MultiLevelWindTable windTable;
@@ -111,11 +125,11 @@ public class MultiLevelWindEditDialog extends JDialog {
 		JButton importButton = new JButton(trans.get("WindProfileEditorDlg.but.importLevels"));
 		importButton.setToolTipText(trans.get("WindProfileEditorDlg.but.importLevels.ttip"));
 		importButton.setIcon(Icons.IMPORT);
-		/*importButton.addActionListener(e -> {
+		importButton.addActionListener(e -> {
 			// Create a text box pop up where you can paste a CSV file
 			JFileChooser fileChooser = new JFileChooser();
 			fileChooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-			fileChooser.setDialogTitle(trans.get("simedtdlg.dlg.importLevels.title"));
+			fileChooser.setDialogTitle(trans.get("WindProfileEditorDlg.dlg.importLevels.title"));
 
 			fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
 			fileChooser.setFileFilter(FileHelper.CSV_FILTER);
@@ -125,9 +139,9 @@ public class MultiLevelWindEditDialog extends JDialog {
 			// Accessory panel
 			//// CSV file description
 			JPanel accessoryPanel = new JPanel(new MigLayout());
-			accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.title")));
+			accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.title")));
 
-			JTextArea descriptionArea = new JTextArea(trans.get("simedtdlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
+			JTextArea descriptionArea = new JTextArea(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
 			descriptionArea.setEditable(false);
 			descriptionArea.setBackground(null);
 			accessoryPanel.add(descriptionArea, "spanx, wrap");
@@ -149,7 +163,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 
 			fileChooser.setAccessory(accessoryPanel);
 
-			int returnVal = fileChooser.showOpenDialog(panel);
+			int returnVal = fileChooser.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File selectedFile = fileChooser.getSelectedFile();
 				selectedFile = FileHelper.forceExtension(selectedFile, "csv");
@@ -158,8 +172,8 @@ public class MultiLevelWindEditDialog extends JDialog {
 
 				// Show a warning message that the current levels will be overwritten
 				if (!model.getLevels().isEmpty()) {
-					int result = JOptionPane.showConfirmDialog(panel, trans.get("simedtdlg.dlg.overwriteLevels.msg"),
-							trans.get("simedtdlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					int result = JOptionPane.showConfirmDialog(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
+							trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if (result != JOptionPane.YES_OPTION) {
 						return;
 					}
@@ -167,16 +181,15 @@ public class MultiLevelWindEditDialog extends JDialog {
 
 				// Import the CSV file
 				try {
-					tableModel.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
-					sorter.sort();
+					windTable.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
 				} catch (IllegalArgumentException ex) {
-					tableModel.fireTableDataChanged();		// Just in case, because the table can be updated (data can be first cleared, but then an exception can be thrown)
-					JOptionPane.showMessageDialog(panel, new String[] {
-							trans.get("simedtdlg.msg.importLevelsError"),
-							ex.getMessage() }, trans.get("simedtdlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
+					windTable.resortRows(null);
+					JOptionPane.showMessageDialog(this, new String[] {
+							trans.get("WindProfileEditorDlg.msg.importLevelsError"),
+							ex.getMessage() }, trans.get("WindProfileEditorDlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
-		});*/
+		});
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));

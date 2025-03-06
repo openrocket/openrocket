@@ -41,6 +41,7 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventListener;
@@ -394,8 +395,20 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		fireChangeEvent();
 	}
 
-	private void resortRows(List<LevelRow> originalOrder) {
+	public void resortRows(List<LevelRow> originalOrder) {
 		resortRows(originalOrder, -1, -1);
+	}
+
+	public void importLevels(File file, String separator) {
+		windModel.importLevelsFromCSV(file, separator);
+
+		// Synchronize the rows with the model
+		rows.clear();
+		windModel.getLevels().forEach(lvl -> {
+			LevelRow row = new LevelRow(lvl);
+			rows.add(row);
+		});
+		resortRows(null);
 	}
 
 	private void highlightChangedRows(int highlightStartIdx, int highlightEndIdx) {
