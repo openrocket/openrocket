@@ -66,11 +66,11 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private record ColumnDefinition(String header, int width) { }
 
 	private static final ColumnDefinition[] COLUMNS = {
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Altitude"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Altitude"), 110),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 120),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 120),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 145),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Turbulence"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 100),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Turbulence"), 100),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Intensity"), 85),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Delete"), 60)
 	};
