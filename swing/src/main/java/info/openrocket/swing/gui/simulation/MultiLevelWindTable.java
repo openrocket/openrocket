@@ -498,8 +498,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmAltitude = new DoubleModel(level, "Altitude", UnitGroup.UNITS_DISTANCE, -100, ExtendedISAModel.getMaximumAllowedAltitude());
 			DoubleModel dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
 			DoubleModel dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-			DoubleModel dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0,
-					new DoubleModel(level, "Speed", 0.25, UnitGroup.UNITS_COEFFICIENT, 0));
+			DoubleModel dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
 			DoubleModel dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
 
 			// Add property change listener for altitude
@@ -515,7 +514,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmSpeed.addChangeListener(stateListener);
 			dmDirection.addChangeListener(stateListener);
 			dmStdDeviation.addChangeListener(stateListener);
+			dmStdDeviation.addChangeListener(dmTurbulence);
 			dmTurbulence.addChangeListener(stateListener);
+			dmTurbulence.addChangeListener(dmStdDeviation);
 
 			// Create UI components for each column
 			JPanel altitudeGroup = createSpinnerWithUnitSelector(dmAltitude, COLUMNS[0].width);
