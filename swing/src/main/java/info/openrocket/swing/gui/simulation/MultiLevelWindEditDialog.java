@@ -169,6 +169,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 				selectedFile = FileHelper.forceExtension(selectedFile, "csv");
 
 				((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
+				Application.getPreferences().putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, (String) fieldSeparator.getSelectedItem());
 
 				// Show a warning message that the current levels will be overwritten
 				if (!model.getLevels().isEmpty()) {
