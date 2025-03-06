@@ -51,7 +51,7 @@ import java.util.function.Consumer;
 public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	// Forward declarations for UI themes and accessibility
 	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
-	private static final int ROW_HEIGHT = 30;
+
 	// Constants
 	private static final Translator trans = Application.getTranslator();
 	private static final int FLASH_DURATION_MS = 800;
@@ -192,7 +192,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		group.add(comp2);
 		
 		// Fixed height based on row height constant to ensure consistent alignment
-		Dimension size = new Dimension(width, ROW_HEIGHT - (CELL_PADDING * 2));
+		Dimension currentSize = group.getPreferredSize();
+		Dimension size = new Dimension(width, currentSize.height);
 		group.setPreferredSize(size);
 		group.setMinimumSize(size);
 		group.setMaximumSize(size);
@@ -350,12 +351,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		public LevelRow(LevelWindModel level) {
 			this.level = level;
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			
-			// Always use fixed row height for consistent layout
-			Dimension rowSize = new Dimension(0, ROW_HEIGHT); // Width will be set later
-			setPreferredSize(rowSize);
-			setMinimumSize(rowSize);
-			setMaximumSize(new Dimension(Integer.MAX_VALUE, ROW_HEIGHT));
 
 			// Create DoubleModels bound to the level
 			dmAltitude = new DoubleModel(level, "Altitude", UnitGroup.UNITS_DISTANCE, -100, ExtendedISAModel.getMaximumAllowedAltitude());
@@ -426,9 +421,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			totalWidth += (COLUMNS.length - 1); // 1px for each separator
 
 			// Update width while keeping fixed height
-			rowSize.width = totalWidth;
-			setPreferredSize(rowSize);
-			setMaximumSize(rowSize);
+			Dimension currentSize = getPreferredSize();
+			Dimension size = new Dimension(totalWidth, currentSize.height);
+			setPreferredSize(size);
+			setMaximumSize(size);
 
 			// Install right-click context menu
 			installContextMenu();
