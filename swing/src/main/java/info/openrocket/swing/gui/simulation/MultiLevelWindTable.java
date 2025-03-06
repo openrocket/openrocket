@@ -49,11 +49,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class MultiLevelWindTable extends JPanel implements ChangeSource {
-	// Forward declarations for UI themes and accessibility
-	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
-
-	// Constants
 	private static final Translator trans = Application.getTranslator();
+
+	private static final double ALTITUDE_INCREASE = 100;		// Default altitude increase when adding a new row
+	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 	private static final int FLASH_DURATION_MS = 800;
 	private static final int CELL_GAP = 5;
 	private static final int CELL_PADDING = 8; // Padding inside cells
@@ -128,7 +127,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		});
 
 		// Initial sort
-		resortRows();
+		resortRows(null);
 	}
 
 	private static void initColors() {
@@ -212,7 +211,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	public void addRow() {
 		double newAltitude = rows.isEmpty()
 				? 0
-				: rows.stream().mapToDouble(LevelRow::getAltitude).max().orElse(0) + 100;
+				: rows.stream().mapToDouble(LevelRow::getAltitude).max().orElse(0) + ALTITUDE_INCREASE;
 
 		// Add to model
 		windModel.addWindLevel(newAltitude, 5.0, Math.PI / 2, 0.2);
@@ -223,10 +222,12 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 				.findFirst();
 
 		newLevel.ifPresent(lvl -> {
+			List<LevelRow> originalOrder = new ArrayList<>(rows);
 			LevelRow row = new LevelRow(lvl);
 			rows.add(row);
 			changedRow = row; // Mark the new row to be highlighted
-			resortRows();
+			int thisIdx = rows.indexOf(row);
+			resortRows(originalOrder, thisIdx, thisIdx);
 
 			// Scroll to make the new row visible
 			SwingUtilities.invokeLater(() -> {
@@ -239,9 +240,13 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	}
 
 	private void removeRow(LevelRow row) {
+		List<LevelRow> originalOrder = new ArrayList<>(rows);
+		int prevIdx = Math.max(0, rows.indexOf(row) - 1);
+		int thisIdx = rows.indexOf(row);
 		rows.remove(row);
+		thisIdx = Math.min(thisIdx, rows.size() - 1);
 		windModel.removeWindLevel(row.getLevel().getAltitude());
-		resortRows();
+		resortRows(originalOrder, prevIdx, thisIdx);
 	}
 
 	private void selectRow(LevelRow row) {
@@ -258,8 +263,41 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		}
 	}
 
-	private void resortRows() {
+	/**
+	 * Resort the rows based on altitude and update the UI.
+	 * @param originalOrder the original order of rows before adding/removing a row
+	 */
+	private void resortRows(List<LevelRow> originalOrder, int highlightStartIdx, int highlightEndIdx) {
+		// Perform the sort
 		rows.sort(Comparator.comparingDouble(LevelRow::getAltitude));
+
+		// Check if order changed
+		boolean orderChanged = false;
+		if (originalOrder != null) {
+			if (originalOrder.size() != rows.size()) {
+				orderChanged = true;
+			} else if (!rows.isEmpty()) {
+				for (int i = 0; i < rows.size(); i++) {
+					if (originalOrder.get(i) != rows.get(i)) {
+						orderChanged = true;
+						break;
+					}
+				}
+			}
+		} else {
+			orderChanged = true;
+		}
+
+		// Don't do anything if the order didn't change
+		if (!orderChanged) {
+			// Still update the UI
+			rowsPanel.revalidate();
+			rowsPanel.repaint();
+			fireChangeEvent();
+
+			return;
+		}
+
 		rowsPanel.removeAll();
 
 		// Add all rows with alternating background colors
@@ -271,15 +309,27 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		}
 
 		// Highlight changed rows
-		highlightChangedRows();
+		highlightChangedRows(highlightStartIdx, highlightEndIdx);
 
 		rowsPanel.revalidate();
 		rowsPanel.repaint();
 		fireChangeEvent();
 	}
 
-	private void highlightChangedRows() {
-		if (changedRow != null) {
+	private void resortRows(List<LevelRow> originalOrder) {
+		resortRows(originalOrder, -1, -1);
+	}
+
+	private void highlightChangedRows(int highlightStartIdx, int highlightEndIdx) {
+		// If a range is specified, highlight the range
+		if (highlightStartIdx != -1 && highlightEndIdx != -1) {
+			for (int i = highlightStartIdx; i <= highlightEndIdx; i++) {
+				rows.get(i).flashMovement();
+			}
+			changedRow = null;
+		}
+		// Otherwise, highlight the changed row and its neighbors
+		else if (changedRow != null) {
 			int idx = rows.indexOf(changedRow);
 			Set<LevelRow> highlightSet = new HashSet<>();
 			highlightSet.add(changedRow);
@@ -339,12 +389,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private class LevelRow extends JPanel {
 		private final LevelWindModel level;
 		private final DoubleModel dmAltitude;
-		private final DoubleModel dmSpeed;
-		private final DoubleModel dmDirection;
-		private final DoubleModel dmStdDeviation;
-		private final DoubleModel dmTurbulence;
 		private final JLabel intensityLabel;
-		private final List<Component> focusComponents = new ArrayList<>();
 
 		private boolean selected = false;
 		
@@ -354,16 +399,17 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 			// Create DoubleModels bound to the level
 			dmAltitude = new DoubleModel(level, "Altitude", UnitGroup.UNITS_DISTANCE, -100, ExtendedISAModel.getMaximumAllowedAltitude());
-			dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
-			dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-			dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0,
+			DoubleModel dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
+			DoubleModel dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
+			DoubleModel dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0,
 					new DoubleModel(level, "Speed", 0.25, UnitGroup.UNITS_COEFFICIENT, 0));
-			dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
+			DoubleModel dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
 
 			// Add property change listener for altitude
 			dmAltitude.addChangeListener(e -> {
 				changedRow = this;
-				resortRows();
+				List<LevelRow> originalOrder = new ArrayList<>(rows);
+				resortRows(originalOrder);
 			});
 
 			// Add a single state change listener for efficiency
@@ -457,7 +503,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 		// Add component to focus tracking system
 		private void addToFocusTracking(Component component) {
-			focusComponents.add(component);
 			component.addFocusListener(new FocusAdapter() {
 				@Override
 				public void focusGained(FocusEvent e) {
