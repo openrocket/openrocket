@@ -316,7 +316,6 @@ public abstract class MotorFilterPanel extends JPanel {
 
 			sub.add( limitByLengthCheckBox, "gapleft para, spanx, growx, wrap" );
 			
-			
 			minLengthModel = new DoubleModel(filter, "MinimumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
 			maxLengthModel = new DoubleModel(filter, "MaximumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
 
@@ -325,7 +324,20 @@ public abstract class MotorFilterPanel extends JPanel {
 			minLengthModel.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(0, (int)(1000* minLengthModel.getValue()));
+					double minValue = minLengthModel.getValue();
+
+					if (minValue > maxLengthModel.getValue()) {
+						maxLengthModel.setValue(minValue);
+					}
+
+					lengthSlider.setValueAt(0, (int)(1000 * minValue));
+					// If our value is greater than 1000 mm, moving the slider sets it down to 1000
+					// Patch it if so
+					if (minLengthModel.getValue() != minValue) {
+						minLengthModel.setValue(minValue);
+					}
+
+					onSelectionChanged();
 				}
 			});
 			sub.add(minLengthSpinner, "split 5, growx");
@@ -338,7 +350,19 @@ public abstract class MotorFilterPanel extends JPanel {
 			maxLengthModel.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(1, (int) (1000* maxLengthModel.getValue()));
+					double maxValue = maxLengthModel.getValue();
+					
+					if (maxValue < minLengthModel.getValue()) {
+						minLengthModel.setValue(maxValue);
+					}
+					
+					lengthSlider.setValueAt(1, (int) (1000 * maxValue));
+					// If our value is greater than 1000 mm, moving the slider sets it to infinite
+					// Patch it if so
+					if (maxLengthModel.getValue() != maxValue) {
+						maxLengthModel.setValue(maxValue);
+					}
+					
 					onSelectionChanged();
 				}
 			});
@@ -366,10 +390,9 @@ public abstract class MotorFilterPanel extends JPanel {
 							maxLengthValue = Double.POSITIVE_INFINITY;
 						}
 					}
-
 					maxLengthModel.setValue(maxLengthValue);
-					onSelectionChanged();
 					
+					onSelectionChanged();
 				}
 			});
 
