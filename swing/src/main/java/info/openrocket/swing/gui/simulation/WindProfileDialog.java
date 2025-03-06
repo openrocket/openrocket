@@ -158,13 +158,13 @@ public class WindProfileDialog extends JDialog {
 				// Draw point
 				if (level.equals(selectedLevel)) {
 					// Draw highlighted point
-					g2d.setColor(Color.ORANGE);
+					g2d.setColor(Color.BLUE);
 					g2d.fillOval(x - 5, y - 5, 10, 10);
 					g2d.setColor(Color.BLACK);
 					g2d.drawOval(x - 5, y - 5, 10, 10);
 				} else {
 					// Draw normal point
-					g2d.setColor(Color.BLUE);
+					g2d.setColor(Color.RED);
 					g2d.fillOval(x - 3, y - 3, 6, 6);
 				}
 
@@ -256,7 +256,7 @@ public class WindProfileDialog extends JDialog {
 			int dy = (int) (directionVectorLength * Math.cos(direction));
 			int arrowSize = 10;
 
-			g.setColor(Color.RED);
+			g.setColor(new Color(255, 98, 0, 150)); // Semi-transparent orange
 
 			// Draw the main line
 			g.drawLine(x, y, x + dx, y - dy);
