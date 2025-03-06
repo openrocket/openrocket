@@ -491,7 +491,7 @@ public class SimulationConditionsPanel extends JPanel {
 		});
 		
 		panel.add(summaryPanel, "grow, wrap");
-		panel.add(editButton, "wrap");
+		panel.add(editButton, "spanx, growx, wrap");
 	}
 	
 	private static void updateWindLevelSummary(JLabel label, MultiLevelPinkNoiseWindModel model) {
