@@ -55,6 +55,10 @@ public class MultiLevelWindEditDialog extends JDialog {
 		tableScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		// Improve scrolling speed
+		tableScrollPane.getHorizontalScrollBar().setUnitIncrement(16); // Faster horizontal scrolling
+		tableScrollPane.getVerticalScrollBar().setUnitIncrement(16);   // Faster vertical scrolling
 
 		// Create visualization panel
 		visualization = new WindProfileDialog.WindLevelVisualization(model,

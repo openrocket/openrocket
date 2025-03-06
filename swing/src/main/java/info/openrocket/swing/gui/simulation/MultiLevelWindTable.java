@@ -117,9 +117,13 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		}
 		// Add some extra width for separators
 		totalWidth += (COLUMNS.length - 1); // 1px for each separator
-
-		// Set the preferred size for the rows panel
-		rowsPanel.setPreferredSize(new Dimension(totalWidth, rowsPanel.getPreferredSize().height));
+		
+		// Ensure rows panel has its preferred width set but allows vertical scrolling
+		rowsPanel.setMinimumSize(new Dimension(totalWidth, 10));
+		
+		// Set a small preferred height initially to ensure vertical scrolling works
+		// This will be updated when rows are added to match actual content height
+		rowsPanel.setPreferredSize(new Dimension(totalWidth, 10));
 
 		// Populate rows from the wind model
 		windModel.getLevels().forEach(lvl -> {
@@ -364,6 +368,17 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			row.setBaseBackground(bg);
 			rowsPanel.add(row);
 		}
+		
+		// Update the rows panel preferred size based on row count
+		Dimension size = rowsPanel.getPreferredSize();
+		if (!rows.isEmpty()) {
+			// Set height based on the total height of all rows
+			int totalHeight = rows.stream()
+					.mapToInt(row -> row.getPreferredSize().height)
+					.sum();
+			size.height = totalHeight;
+			rowsPanel.setPreferredSize(size);
+		}
 
 		// Highlight changed rows
 		highlightChangedRows(highlightStartIdx, highlightEndIdx);
@@ -526,11 +541,12 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			// Add some extra width for separators
 			totalWidth += (COLUMNS.length - 1); // 1px for each separator
 
-			// Update width while keeping fixed height
+			// Update dimensions with fixed width and height 
 			Dimension currentSize = getPreferredSize();
 			Dimension size = new Dimension(totalWidth, currentSize.height);
 			setPreferredSize(size);
-			setMaximumSize(size);
+			setMinimumSize(size);
+			setMaximumSize(size); // Fixed height to ensure consistent row heights
 
 			// Install right-click context menu
 			installContextMenu();
