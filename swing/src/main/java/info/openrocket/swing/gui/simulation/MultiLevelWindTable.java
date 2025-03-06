@@ -4,6 +4,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel.LevelWindModel;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
@@ -52,6 +53,7 @@ import java.util.function.Consumer;
 
 public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private static final Translator trans = Application.getTranslator();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private static final double ALTITUDE_INCREASE = 100;		// Default altitude increase when adding a new row
 	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
@@ -226,12 +228,16 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 	// Row Management Methods
 	public void addRow() {
-		double newAltitude = rows.isEmpty()
-				? 0
+		double newAltitude = rows.isEmpty() ? 0
 				: rows.stream().mapToDouble(LevelRow::getAltitude).max().orElse(0) + ALTITUDE_INCREASE;
 
+		LevelRow prevRow = rows.isEmpty() ? null : rows.get(rows.size() - 1);
+		double newSpeed = prevRow != null ? prevRow.getLevel().getSpeed() : prefs.getAverageWindModel().getAverage();
+		double newDirection = prevRow != null ? prevRow.getLevel().getDirection() : 0;
+		double newStdDeviation = prevRow != null ? prevRow.getLevel().getStandardDeviation() : 0;
+
 		// Add to model
-		windModel.addWindLevel(newAltitude, 5.0, Math.PI / 2, 0.2);
+		windModel.addWindLevel(newAltitude, newSpeed, newDirection, newStdDeviation);
 
 		// Find the added level
 		Optional<LevelWindModel> newLevel = windModel.getLevels().stream()
