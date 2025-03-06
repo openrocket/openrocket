@@ -25,7 +25,7 @@ import java.awt.Window;
 
 public class MultiLevelWindEditDialog extends JDialog {
 	private final MultiLevelWindTable windTable;
-	private final WindLevelVisualizationDialog.WindLevelVisualization visualization;
+	private final WindProfileDialog.WindLevelVisualization visualization;
 	private static final Translator trans = Application.getTranslator();
 
 	public MultiLevelWindEditDialog(Window owner, MultiLevelPinkNoiseWindModel model) {
@@ -57,7 +57,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		// Create visualization panel
-		visualization = new WindLevelVisualizationDialog.WindLevelVisualization(model, 
+		visualization = new WindProfileDialog.WindLevelVisualization(model,
 				UnitGroup.UNITS_DISTANCE.getSIUnit(), 
 				UnitGroup.UNITS_WINDSPEED.getSIUnit());
 		visualization.setPreferredSize(new Dimension(300, 400));

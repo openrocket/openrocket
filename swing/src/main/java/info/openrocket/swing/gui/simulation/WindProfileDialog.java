@@ -26,13 +26,19 @@ import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
 
-public class WindLevelVisualizationDialog extends JDialog {
+/**
+ * Dialog for visualizing wind levels in a multi-level wind model.
+ * It displays a scatter plot of wind speed vs. altitude, with optional wind direction arrows.
+ *
+ * @author Sibo Van Gool <sibo.vangool@hotmail.com>
+ */
+public class WindProfileDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 
 	private final WindLevelVisualization visualization;
 	private final JCheckBox showDirectionsCheckBox;
 
-	public WindLevelVisualizationDialog(Dialog owner, MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
+	public WindProfileDialog(Dialog owner, MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
 		super(owner, trans.get("WindLevelVisualizationDialog.title.WindLevelVisualization"), false);
 
 		visualization = new WindLevelVisualization(model, altitudeUnit, speedUnit);
