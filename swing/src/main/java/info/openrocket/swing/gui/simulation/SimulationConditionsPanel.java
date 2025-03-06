@@ -425,8 +425,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		// Wind standard deviation
 		final DoubleModel windSpeedDeviation = addDoubleModel(panel, "Stddeviation", trans.get("simedtdlg.lbl.ttip.Stddeviation"),
-				model, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0,
-				new DoubleModel(model, "Average", 0.25, UnitGroup.UNITS_COEFFICIENT, 0));
+				model, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, windSpeedAverage);
 
 		windSpeedAverage.addChangeListener(new ChangeListener() {
 			@Override
