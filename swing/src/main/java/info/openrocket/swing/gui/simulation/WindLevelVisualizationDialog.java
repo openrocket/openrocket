@@ -123,7 +123,11 @@ public class WindLevelVisualizationDialog extends JDialog {
 			g2d.fillRect(0, 0, width, height);
 
 			List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
-			if (levels.isEmpty()) return;
+			if (levels.isEmpty()) {
+				// Draw axes
+				drawAxes(g2d, width, height);
+				return;
+			}
 
 			// Sort levels before drawing
 			levels.sort(Comparator.comparingDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getAltitude));
@@ -174,33 +178,37 @@ public class WindLevelVisualizationDialog extends JDialog {
 			}
 		}
 
-		private void drawAxes(Graphics2D g2d, int width, int height, double maxSpeed, double maxAltitude,
-							  double extendedMaxSpeed, double extendedMaxAltitude) {
+		private void drawAxes(Graphics2D g2d, int width, int height, Double maxSpeed, Double maxAltitude,
+							  Double extendedMaxSpeed, Double extendedMaxAltitude) {
 			g2d.setColor(Color.BLACK);
 
 			// Draw X-axis
 			g2d.drawLine(MARGIN, height - MARGIN, width - MARGIN, height - MARGIN);
-			drawFilledArrowHead(g2d, width - MARGIN + (ARROW_SIZE-2), height - MARGIN, ARROW_SIZE, 0);
+			drawFilledArrowHead(g2d, width - MARGIN + (ARROW_SIZE - 2), height - MARGIN, ARROW_SIZE, 0);
 
 			// Draw Y-axis
 			g2d.drawLine(MARGIN, height - MARGIN, MARGIN, MARGIN);
-			drawFilledArrowHead(g2d, MARGIN, MARGIN - (ARROW_SIZE-2), ARROW_SIZE, -Math.PI / 2);
+			drawFilledArrowHead(g2d, MARGIN, MARGIN - (ARROW_SIZE - 2), ARROW_SIZE, -Math.PI / 2);
 
 			// Draw max value ticks and labels
 			g2d.setFont(g2d.getFont().deriveFont(10f));
 			FontMetrics fm = g2d.getFontMetrics();
 
 			// X-axis max value
-			int xTickX = MARGIN + (int) ((maxSpeed / extendedMaxSpeed) * (width - 2 * MARGIN));
-			g2d.drawLine(xTickX, height - MARGIN, xTickX, height - MARGIN + TICK_LENGTH);
-			String xMaxLabel = speedUnit.toString(maxSpeed);
-			g2d.drawString(xMaxLabel, xTickX - fm.stringWidth(xMaxLabel) / 2, height - MARGIN + TICK_LENGTH + fm.getHeight());
+			if (maxSpeed != null && extendedMaxSpeed != null) {
+				int xTickX = MARGIN + (int) ((maxSpeed / extendedMaxSpeed) * (width - 2 * MARGIN));
+				g2d.drawLine(xTickX, height - MARGIN, xTickX, height - MARGIN + TICK_LENGTH);
+				String xMaxLabel = speedUnit.toString(maxSpeed);
+				g2d.drawString(xMaxLabel, xTickX - fm.stringWidth(xMaxLabel) / 2, height - MARGIN + TICK_LENGTH + fm.getHeight());
+			}
 
 			// Y-axis max value
-			int yTickY = height - MARGIN - (int) ((maxAltitude / extendedMaxAltitude) * (height - 2 * MARGIN));
-			g2d.drawLine(MARGIN - TICK_LENGTH, yTickY, MARGIN, yTickY);
-			String yMaxLabel = altitudeUnit.toString(maxAltitude);
-			g2d.drawString(yMaxLabel, MARGIN - TICK_LENGTH - fm.stringWidth(yMaxLabel) - 2, yTickY + fm.getAscent() / 2);
+			if (maxAltitude != null && extendedMaxAltitude != null) {
+				int yTickY = height - MARGIN - (int) ((maxAltitude / extendedMaxAltitude) * (height - 2 * MARGIN));
+				g2d.drawLine(MARGIN - TICK_LENGTH, yTickY, MARGIN, yTickY);
+				String yMaxLabel = altitudeUnit.toString(maxAltitude);
+				g2d.drawString(yMaxLabel, MARGIN - TICK_LENGTH - fm.stringWidth(yMaxLabel) - 2, yTickY + fm.getAscent() / 2);
+			}
 
 			// Draw axis labels
 			g2d.setFont(g2d.getFont().deriveFont(12f));
@@ -216,6 +224,10 @@ public class WindLevelVisualizationDialog extends JDialog {
 			g2d.rotate(-Math.PI / 2);
 			g2d.drawString(yLabel, -height / 2 - fm.stringWidth(yLabel) / 2, MARGIN / 2);
 			g2d.setTransform(originalTransform);
+		}
+
+		private void drawAxes(Graphics2D g2d, int width, int height) {
+			drawAxes(g2d, width, height, null, null, null, null);
 		}
 
 		private void drawFilledArrowHead(Graphics2D g, int x, int y, int arrowSize, double angle) {
