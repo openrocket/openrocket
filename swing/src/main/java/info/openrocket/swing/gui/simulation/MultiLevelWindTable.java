@@ -399,16 +399,26 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		resortRows(originalOrder, -1, -1);
 	}
 
-	public void importLevels(File file, String separator) {
-		windModel.importLevelsFromCSV(file, separator);
-
-		// Synchronize the rows with the model
+	/**
+	 * Synchronize the rows with the wind model.
+	 */
+	private void syncRowsFromModel() {
 		rows.clear();
 		windModel.getLevels().forEach(lvl -> {
 			LevelRow row = new LevelRow(lvl);
 			rows.add(row);
 		});
 		resortRows(null);
+	}
+
+	public void importLevels(File file, String separator) {
+		windModel.importLevelsFromCSV(file, separator);
+		syncRowsFromModel();
+	}
+
+	public void resetLevels() {
+		windModel.resetLevels();
+		syncRowsFromModel();
 	}
 
 	private void highlightChangedRows(int highlightStartIdx, int highlightEndIdx) {

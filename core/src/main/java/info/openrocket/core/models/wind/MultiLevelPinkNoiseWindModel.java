@@ -39,8 +39,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		this.levels = new ArrayList<>();
 
 		// Add a default wind level
-		addWindLevel(0, prefs.getAverageWindModel().getAverage(), prefs.getAverageWindModel().getDirection(),
-				prefs.getAverageWindModel().getStandardDeviation());
+		addInitialLevel();
 	}
 
 	public void addWindLevel(double altitude, double speed, double direction, Double standardDeviation) {
@@ -65,6 +64,11 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		addWindLevel(altitude, speed, direction, null);
 	}
 
+	private void addInitialLevel() {
+		addWindLevel(0, prefs.getAverageWindModel().getAverage(), prefs.getAverageWindModel().getDirection(),
+				prefs.getAverageWindModel().getStandardDeviation());
+	}
+
 	public void removeWindLevel(double altitude) {
 		levels.removeIf(level -> level.altitude == altitude);
 		fireChangeEvent();
@@ -75,8 +79,20 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		fireChangeEvent();
 	}
 
+	/**
+	 * Clear all current levels.
+	 */
 	public void clearLevels() {
 		levels.clear();
+		fireChangeEvent();
+	}
+
+	/**
+	 * Clear all current levels and add a default wind level.
+	 */
+	public void resetLevels() {
+		levels.clear();
+		addInitialLevel();
 		fireChangeEvent();
 	}
 

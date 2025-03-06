@@ -184,7 +184,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 				try {
 					windTable.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
 				} catch (IllegalArgumentException ex) {
-					windTable.resortRows(null);
+					windTable.resetLevels();
 					JOptionPane.showMessageDialog(this, new String[] {
 							trans.get("WindProfileEditorDlg.msg.importLevelsError"),
 							ex.getMessage() }, trans.get("WindProfileEditorDlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
