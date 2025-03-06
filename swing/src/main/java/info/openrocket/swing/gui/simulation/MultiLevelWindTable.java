@@ -157,7 +157,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		selectedRowColor = currentTheme.getTableRowSelectionColor();
 	}
 
-	// UI Creation Methods
 	private JPanel createHeaderPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
@@ -227,7 +226,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		return sep;
 	}
 
-	// Row Management Methods
 	public void addRow() {
 		double newAltitude = rows.isEmpty() ? 0
 				: rows.stream().mapToDouble(LevelRow::getAltitude).max().orElse(0) + ALTITUDE_INCREASE;
@@ -260,8 +258,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 					viewport.scrollRectToVisible(bounds);
 				}
 			});
-			
-			// Update delete buttons state
+
 			updateDeleteButtonsState();
 		});
 	}
@@ -280,8 +277,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		windModel.removeWindLevel(row.getLevel().getAltitude());
 		resortRows(originalOrder, prevIdx, thisIdx);
 		selectRow(null);
-		
-		// Update delete button state after removal
+
 		updateDeleteButtonsState();
 	}
 
@@ -380,10 +376,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		Dimension size = rowsPanel.getPreferredSize();
 		if (!rows.isEmpty()) {
 			// Set height based on the total height of all rows
-			int totalHeight = rows.stream()
+			size.height = rows.stream()
 					.mapToInt(row -> row.getPreferredSize().height)
 					.sum();
-			size.height = totalHeight;
 			rowsPanel.setPreferredSize(size);
 		}
 
@@ -395,7 +390,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		fireChangeEvent();
 	}
 
-	public void resortRows(List<LevelRow> originalOrder) {
+	private void resortRows(List<LevelRow> originalOrder) {
 		resortRows(originalOrder, -1, -1);
 	}
 
@@ -447,7 +442,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		}
 	}
 
-	// Accessor methods for embedding in a JScrollPane
 	public JPanel getRowsPanel() {
 		return rowsPanel;
 	}
