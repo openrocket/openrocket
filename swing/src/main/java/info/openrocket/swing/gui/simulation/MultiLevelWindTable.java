@@ -496,10 +496,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 			// Create DoubleModels bound to the level
 			dmAltitude = new DoubleModel(level, "Altitude", UnitGroup.UNITS_DISTANCE, -100, ExtendedISAModel.getMaximumAllowedAltitude());
-			DoubleModel dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
-			DoubleModel dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-			DoubleModel dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
-			DoubleModel dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
+			final DoubleModel dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
+			final DoubleModel dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
+			final DoubleModel dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
+			final DoubleModel dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
 
 			// Add property change listener for altitude
 			dmAltitude.addChangeListener(e -> {
@@ -512,6 +512,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			StateChangeListener stateListener = e -> MultiLevelWindTable.this.fireChangeEvent();
 			dmAltitude.addChangeListener(stateListener);
 			dmSpeed.addChangeListener(stateListener);
+			dmSpeed.addChangeListener(dmStdDeviation);
 			dmDirection.addChangeListener(stateListener);
 			dmStdDeviation.addChangeListener(stateListener);
 			dmStdDeviation.addChangeListener(dmTurbulence);
