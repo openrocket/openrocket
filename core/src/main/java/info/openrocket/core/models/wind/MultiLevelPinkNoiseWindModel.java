@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
@@ -24,6 +25,7 @@ import info.openrocket.core.util.StateChangeListener;
 public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private List<LevelWindModel> levels;
 	private static final Translator trans = Application.getTranslator();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private final List<StateChangeListener> listeners = new ArrayList<>();
 
@@ -35,6 +37,10 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 
 	public MultiLevelPinkNoiseWindModel() {
 		this.levels = new ArrayList<>();
+
+		// Add a default wind level
+		addWindLevel(0, prefs.getAverageWindModel().getAverage(), prefs.getAverageWindModel().getDirection(),
+				prefs.getAverageWindModel().getStandardDeviation());
 	}
 
 	public void addWindLevel(double altitude, double speed, double direction, Double standardDeviation) {

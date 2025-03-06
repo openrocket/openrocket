@@ -497,7 +497,7 @@ public class SimulationConditionsPanel extends JPanel {
 	private static void updateWindLevelSummary(JLabel label, MultiLevelPinkNoiseWindModel model) {
 		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
 		
-		if (levels.isEmpty()) {
+		if (levels.isEmpty()) {		// This shouldn't really be possible, but oh well
 			label.setText(trans.get("simedtdlg.lbl.noWindLevels"));
 		} else {
 			StringBuilder sb = new StringBuilder();
@@ -517,6 +517,10 @@ public class SimulationConditionsPanel extends JPanel {
 				sb.append(String.format(trans.get("simedtdlg.lbl.altitudeRange"),
 						UnitGroup.UNITS_DISTANCE.toStringUnit(minAlt), UnitGroup.UNITS_DISTANCE.toStringUnit(maxAlt)));
 				sb.append("<br>");
+			} else {
+				sb.append(String.format(trans.get("simedtdlg.lbl.altitude"),
+						UnitGroup.UNITS_DISTANCE.toStringUnit(levels.get(0).getAltitude())));
+				sb.append("<br>");
 			}
 			
 			// Show speed range
@@ -531,6 +535,9 @@ public class SimulationConditionsPanel extends JPanel {
 				
 				sb.append(String.format(trans.get("simedtdlg.lbl.speedRange"),
 						UnitGroup.UNITS_VELOCITY.toStringUnit(minSpeed), UnitGroup.UNITS_VELOCITY.toStringUnit(maxSpeed)));
+			} else {
+				sb.append(String.format(trans.get("simedtdlg.lbl.speed"),
+						UnitGroup.UNITS_VELOCITY.toStringUnit(levels.get(0).getSpeed())));
 			}
 			
 			sb.append("</html>");
