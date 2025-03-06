@@ -1,17 +1,13 @@
 package info.openrocket.swing.gui.simulation;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
-import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
-import info.openrocket.swing.utils.CoreServicesModule;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
@@ -263,21 +259,5 @@ public class MultiLevelWindEditDialog extends JDialog {
 		}
 
 		super.dispose();
-	}
-	
-	public static void main(String[] args) {
-		com.google.inject.Module applicationModule = new CoreServicesModule();
-		com.google.inject.Module pluginModule = new PluginModule();
-
-		Injector injector = Guice.createInjector(applicationModule, pluginModule);
-		Application.setInjector(injector);
-
-		MultiLevelPinkNoiseWindModel model = new MultiLevelPinkNoiseWindModel();
-		model.addWindLevel(0, 0, 0);
-		model.addWindLevel(1000, 5, 5);
-		model.addWindLevel(2000, 10, 10);
-
-		MultiLevelWindEditDialog dialog = new MultiLevelWindEditDialog(null, model);
-		dialog.setVisible(true);
 	}
 }
