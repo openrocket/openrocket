@@ -56,7 +56,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private static final double ALTITUDE_INCREASE = 100;		// Default altitude increase when adding a new row
 	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 	private static final int FLASH_DURATION_MS = 800;
-	private static final int CELL_GAP = 5;
+	private static final int CELL_GAP = 2;
 	private static final int CELL_PADDING = 8; // Padding inside cells
 
 	// Table column definitions
@@ -130,6 +130,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 		// Initial sort
 		resortRows(null);
+		
+		// Initialize delete buttons state
+		updateDeleteButtonsState();
 	}
 
 	private static void initColors() {
@@ -153,7 +156,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(1, 1, 1, 1, tableBorderColor),
-				BorderFactory.createEmptyBorder(2, 0, 2, 0)
+				BorderFactory.createEmptyBorder(1, 0, 1, 0)
 		));
 		panel.setBackground(tableHeaderBg);
 
@@ -175,9 +178,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private JPanel createFixedCell(JComponent comp, int width) {
 		JPanel panel = new JPanel(new BorderLayout());
 		// Add padding around the component
-		panel.setBorder(BorderFactory.createEmptyBorder(CELL_PADDING, CELL_PADDING, CELL_PADDING, CELL_PADDING));
+		panel.setBorder(BorderFactory.createEmptyBorder(CELL_PADDING / 2, CELL_PADDING, CELL_PADDING / 2, CELL_PADDING));
 		panel.add(comp, BorderLayout.CENTER);
-		Dimension size = new Dimension(width, comp.getPreferredSize().height + CELL_PADDING * 2);
+		Dimension size = new Dimension(width, comp.getPreferredSize().height + CELL_PADDING);
 		panel.setPreferredSize(size);
 		panel.setMinimumSize(size);
 		panel.setMaximumSize(size);
@@ -238,10 +241,18 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 					viewport.scrollRectToVisible(bounds);
 				}
 			});
+			
+			// Update delete buttons state
+			updateDeleteButtonsState();
 		});
 	}
 
-	private void removeRow(LevelRow row) {
+	private void deleteRow(LevelRow row) {
+		// Don't allow deleting the last row
+		if (rows.size() <= 1) {
+			return;
+		}
+		
 		List<LevelRow> originalOrder = new ArrayList<>(rows);
 		int prevIdx = Math.max(0, rows.indexOf(row) - 1);
 		int thisIdx = rows.indexOf(row);
@@ -249,20 +260,56 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		thisIdx = Math.min(thisIdx, rows.size() - 1);
 		windModel.removeWindLevel(row.getLevel().getAltitude());
 		resortRows(originalOrder, prevIdx, thisIdx);
+		selectRow(null);
+		
+		// Update delete button state after removal
+		updateDeleteButtonsState();
 	}
 
+	public void deleteSelectedRow() {
+		if (selectedRow != null) {
+			deleteRow(selectedRow);
+		}
+	}
+	
+	/**
+	 * Updates the enabled state of all delete buttons based on the number of rows.
+	 * Disables delete functionality when there's only one row left.
+	 */
+	private void updateDeleteButtonsState() {
+		boolean enabled = rows.size() > 1;
+		for (LevelRow row : rows) {
+			row.setDeleteEnabled(enabled);
+		}
+	}
+
+	/**
+	 * Select a row in the table.
+	 * @param row the row to select, or null to deselect all rows
+	 */
 	private void selectRow(LevelRow row) {
+		// Deselect the currently selected row
 		if (selectedRow != null) {
 			selectedRow.setSelected(false);
 		}
+
+		// Select the new row
 		selectedRow = row;
 		if (row != null) {
 			row.setSelected(true);
 		}
+
 		// Notify listeners
 		for (RowSelectionListener listener : selectionListeners) {
 			listener.onRowSelected(row == null ? null : row.getLevel());
 		}
+	}
+	
+	/**
+	 * Clears the current row selection.
+	 */
+	public void clearSelection() {
+		selectRow(null);
 	}
 
 	/**
@@ -392,6 +439,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		private final LevelWindModel level;
 		private final DoubleModel dmAltitude;
 		private final JLabel intensityLabel;
+		private final JButton deleteButton;
+		private JMenuItem deleteItem;
 
 		private boolean selected = false;
 		
@@ -438,9 +487,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmTurbulence.addChangeListener(e -> intensityLabel.setText(level.getIntensityDescription()));
 
 			// Delete button with improved styling
-			JButton deleteButton = new JButton(Icons.EDIT_DELETE);
+			deleteButton = new JButton(Icons.EDIT_DELETE);
 			deleteButton.setToolTipText(trans.get("MultiLevelWindTable.but.deleteWindLevel.ttip"));
-			deleteButton.addActionListener(e -> removeRow(this));
+			deleteButton.addActionListener(e -> deleteRow(this));
+			// Button state will be set by updateDeleteButtonsState()
 
 			JPanel deleteCell = createFixedCell(deleteButton, COLUMNS[6].width);
 			deleteCell.setOpaque(false);
@@ -516,6 +566,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 				@Override
 				public void focusLost(FocusEvent e) {
+					if (selectedRow == LevelRow.this) {
+						MultiLevelWindTable.this.selectRow(null);
+					}
 					SwingUtilities.invokeLater(LevelRow.this::updateHighlight);
 				}
 			});
@@ -524,6 +577,18 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		public void setSelected(boolean selected) {
 			this.selected = selected;
 			updateHighlight();
+		}
+		
+		/**
+		 * Set the delete button and menu item enabled/disabled.
+		 *
+		 * @param enabled true to enable, false to disable
+		 */
+		public void setDeleteEnabled(boolean enabled) {
+			deleteButton.setEnabled(enabled);
+			if (deleteItem != null) {
+				deleteItem.setEnabled(enabled);
+			}
 		}
 
 		// Update highlighting based on selection and edit mode
@@ -544,23 +609,23 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		// Install context menu for row deletion
 		private void installContextMenu() {
 			JPopupMenu popup = new JPopupMenu();
-			JMenuItem deleteItem = new JMenuItem(trans.get("MultiLevelWindTable.popupmenu.Delete"), Icons.EDIT_DELETE);
-			deleteItem.addActionListener(e -> removeRow(this));
+			deleteItem = new JMenuItem(trans.get("MultiLevelWindTable.popupmenu.Delete"), Icons.EDIT_DELETE);
+			deleteItem.addActionListener(e -> deleteRow(this));
 			popup.add(deleteItem);
 			popup.addPopupMenuListener(new PopupMenuListener() {
 				@Override
 				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-					setSelected(true);
+					MultiLevelWindTable.this.selectRow(LevelRow.this);
 				}
 
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-					setSelected(false);
+					MultiLevelWindTable.this.selectRow(null);
 				}
 
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
-					setSelected(false);
+					MultiLevelWindTable.this.selectRow(null);
 				}
 			});
 
