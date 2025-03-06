@@ -15,6 +15,7 @@ import info.openrocket.swing.utils.CoreServicesModule;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -108,7 +109,11 @@ public class MultiLevelWindEditDialog extends JDialog {
 		addRowButton.setIcon(Icons.FILE_NEW);
 		addRowButton.addActionListener(e -> windTable.addRow());
 
-		// Delete Level
+		// Delete levels panel
+		JPanel deletePanel = new JPanel();
+		deletePanel.setLayout(new BoxLayout(deletePanel, BoxLayout.Y_AXIS));
+
+		//// Delete Level
 		JButton deleteRowButton = new JButton(trans.get("WindProfileEditorDlg.but.DeleteLevel"));
 		deleteRowButton.setToolTipText(trans.get("WindProfileEditorDlg.but.deleteWindLevel.ttip"));
 		deleteRowButton.setIcon(Icons.EDIT_DELETE);
@@ -120,6 +125,27 @@ public class MultiLevelWindEditDialog extends JDialog {
 		windTable.addSelectionListener(selectedLevel -> {
 			deleteRowButton.setEnabled(selectedLevel != null && model.getLevels().size() > 1);
 		});
+
+		//// Reset Levels
+		JButton resetButton = new JButton(trans.get("WindProfileEditorDlg.but.ResetLevels"));
+		resetButton.setToolTipText(trans.get("WindProfileEditorDlg.but.ResetLevels.ttip"));
+		resetButton.addActionListener(e -> {
+			// Show confirmation dialog
+			int result = JOptionPane.showConfirmDialog(this,
+					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
+					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"),
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+
+			// If confirmed, reset the levels
+			if (result == JOptionPane.YES_OPTION) {
+				windTable.resetLevels();
+			}
+		});
+
+		// Add the reset button to the button panel after the delete button
+		deletePanel.add(deleteRowButton);
+		deletePanel.add(resetButton);
 
 		// Import Levels
 		JButton importButton = new JButton(trans.get("WindProfileEditorDlg.but.importLevels"));
@@ -192,11 +218,11 @@ public class MultiLevelWindEditDialog extends JDialog {
 			}
 		});
 
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel buttonPanel = new JPanel(new MigLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		buttonPanel.add(addRowButton);
-		buttonPanel.add(deleteRowButton);
-		buttonPanel.add(importButton);
+		buttonPanel.add(addRowButton, "top");
+		buttonPanel.add(deletePanel, "top");
+		buttonPanel.add(importButton, "gapleft para, top");
 
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 
