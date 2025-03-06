@@ -11,6 +11,8 @@ import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 
 import javax.swing.BorderFactory;
@@ -27,7 +29,6 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -49,16 +50,10 @@ import java.util.function.Consumer;
 
 public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	// Forward declarations for UI themes and accessibility
-	private static final Color TABLE_HEADER_BG = new Color(230, 230, 230);
-	private static final Color TABLE_BORDER_COLOR = new Color(200, 200, 200);
 	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 	private static final int ROW_HEIGHT = 30;
 	// Constants
 	private static final Translator trans = Application.getTranslator();
-	private static final Color EVEN_ROW_COLOR = Color.WHITE;
-	private static final Color ODD_ROW_COLOR = new Color(240, 240, 240);
-	private static final Color FLASH_COLOR = new Color(255, 255, 153);
-	private static final Border DEFAULT_ROW_BORDER = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY);
 	private static final int FLASH_DURATION_MS = 800;
 	private static final int CELL_GAP = 5;
 	private static final int CELL_PADDING = 8; // Padding inside cells
@@ -90,6 +85,17 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private LevelRow selectedRow = null;
 	private final List<RowSelectionListener> selectionListeners = new ArrayList<>();
 	private final List<StateChangeListener> listeners = new ArrayList<>();
+
+	private static Color tableHeaderBg;
+	private static Color tableBorderColor;
+	private static Color evenRowColor;
+	private static Color oddRowColor;
+	private static Color flashColor;
+	private static Color selectedRowColor;
+
+	static {
+		initColors();
+	}
 
 	public MultiLevelWindTable(MultiLevelPinkNoiseWindModel windModel) {
 		this.windModel = windModel;
@@ -125,21 +131,36 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		resortRows();
 	}
 
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(MultiLevelWindTable::updateColors);
+	}
+
+	public static void updateColors() {
+		UITheme.Theme currentTheme = GUIUtil.getUITheme();
+		tableHeaderBg = currentTheme.getRowBackgroundDarkerColor();
+		tableBorderColor = currentTheme.getBorderColor();
+		evenRowColor = currentTheme.getRowBackgroundLighterColor();
+		oddRowColor = currentTheme.getRowBackgroundDarkerColor();
+		flashColor = currentTheme.getTableRowFlashColor();
+		selectedRowColor = currentTheme.getTableRowSelectionColor();
+	}
+
 	// UI Creation Methods
 	private JPanel createHeaderPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createMatteBorder(1, 1, 1, 1, TABLE_BORDER_COLOR),
+				BorderFactory.createMatteBorder(1, 1, 1, 1, tableBorderColor),
 				BorderFactory.createEmptyBorder(2, 0, 2, 0)
 		));
-		panel.setBackground(TABLE_HEADER_BG);
+		panel.setBackground(tableHeaderBg);
 
 		for (int i = 0; i < COLUMNS.length; i++) {
 			JLabel label = new JLabel(COLUMNS[i].header, SwingConstants.CENTER);
 			label.setFont(HEADER_FONT);
 			JPanel cell = createFixedCell(label, COLUMNS[i].width);
-			cell.setBackground(TABLE_HEADER_BG);
+			cell.setBackground(tableHeaderBg);
 			panel.add(cell);
 
 			if (i < COLUMNS.length - 1) {
@@ -182,7 +203,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		JPanel sep = new JPanel();
 		sep.setPreferredSize(new Dimension(1, 0));
 		sep.setMaximumSize(new Dimension(1, Integer.MAX_VALUE));
-		sep.setBackground(Color.GRAY);
+		sep.setBackground(tableBorderColor);
 		return sep;
 	}
 
@@ -243,7 +264,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		// Add all rows with alternating background colors
 		for (int i = 0; i < rows.size(); i++) {
 			LevelRow row = rows.get(i);
-			Color bg = (i % 2 == 0) ? EVEN_ROW_COLOR : ODD_ROW_COLOR;
+			Color bg = (i % 2 == 0) ? evenRowColor : oddRowColor;
 			row.setBaseBackground(bg);
 			rowsPanel.add(row);
 		}
@@ -329,10 +350,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		public LevelRow(LevelWindModel level) {
 			this.level = level;
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-			setBorder(BorderFactory.createCompoundBorder(
-					DEFAULT_ROW_BORDER,
-					BorderFactory.createEmptyBorder(2, 0, 2, 0)
-			));
 			
 			// Always use fixed row height for consistent layout
 			Dimension rowSize = new Dimension(0, ROW_HEIGHT); // Width will be set later
@@ -470,10 +487,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		private void updateHighlight() {
 			if (selected) {
 				// Also add a slight background tint
-				setBackground(new Color(240, 240, 255));
+				setBackground(selectedRowColor);
 			} else {
 				// Restore original background
-				Color bg = (rows.indexOf(this) % 2 == 0) ? EVEN_ROW_COLOR : ODD_ROW_COLOR;
+				Color bg = (rows.indexOf(this) % 2 == 0) ? evenRowColor : oddRowColor;
 				setBackground(bg);
 			}
 			
@@ -522,7 +539,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		// Flash the row with a highlight color temporarily
 		public void flashMovement() {
 			final Color originalColor = getBackground();
-			setBackground(FLASH_COLOR);
+			setBackground(flashColor);
 
 			Timer timer = new Timer(FLASH_DURATION_MS, e -> {
 				setBackground(originalColor);
