@@ -29,6 +29,8 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -61,13 +63,13 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private record ColumnDefinition(String header, int width) { }
 
 	private static final ColumnDefinition[] COLUMNS = {
-			new ColumnDefinition(trans.get("simedtdlg.col.Altitude"), 120),
-			new ColumnDefinition(trans.get("simedtdlg.col.Speed"), 120),
-			new ColumnDefinition(trans.get("simedtdlg.col.Direction"), 120),
-			new ColumnDefinition(trans.get("simedtdlg.col.StandardDeviation"), 145),
-			new ColumnDefinition(trans.get("simedtdlg.col.Turbulence"), 120),
-			new ColumnDefinition(trans.get("simedtdlg.col.Intensity"), 85),
-			new ColumnDefinition(trans.get("simedtdlg.col.Delete"), 60)
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Altitude"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 145),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Turbulence"), 120),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Intensity"), 85),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Delete"), 60)
 	};
 
 	public interface RowSelectionListener {
@@ -437,7 +439,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 			// Delete button with improved styling
 			JButton deleteButton = new JButton(Icons.EDIT_DELETE);
-			deleteButton.setToolTipText("Delete this row");
+			deleteButton.setToolTipText(trans.get("MultiLevelWindTable.but.deleteWindLevel.ttip"));
 			deleteButton.addActionListener(e -> removeRow(this));
 
 			JPanel deleteCell = createFixedCell(deleteButton, COLUMNS[6].width);
@@ -542,9 +544,25 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		// Install context menu for row deletion
 		private void installContextMenu() {
 			JPopupMenu popup = new JPopupMenu();
-			JMenuItem deleteItem = new JMenuItem("Delete this row", Icons.EDIT_DELETE);
+			JMenuItem deleteItem = new JMenuItem(trans.get("MultiLevelWindTable.popupmenu.Delete"), Icons.EDIT_DELETE);
 			deleteItem.addActionListener(e -> removeRow(this));
 			popup.add(deleteItem);
+			popup.addPopupMenuListener(new PopupMenuListener() {
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+					setSelected(true);
+				}
+
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+					setSelected(false);
+				}
+
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent e) {
+					setSelected(false);
+				}
+			});
 
 			// Apply popup menu to all components recursively
 			applyToAllComponents(this, component -> {
