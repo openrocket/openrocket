@@ -15,6 +15,10 @@ public class WindHandler extends AbstractElementHandler {
 
 	public WindHandler(String model, SimulationOptions options) {
 		this.model = model;
+		// For multilevel wind model, clear the levels (clear the initial level) to fill it up with actual data
+		if ("multilevel".equals(model)) {
+			options.getMultiLevelWindModel().clearLevels();
+		}
 		this.options = options;
 	}
 
