@@ -133,6 +133,12 @@ public class CSVSave extends AbstractSimulationExtension {
 				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_WIND_VELOCITY);
 			}
 		},
+		WINDDIRECTION {
+			@Override
+			public double getValue(SimulationStatus status) {
+				return status.getFlightDataBranch().getLast(FlightDataType.TYPE_WIND_DIRECTION);
+			}
+		},
 		PITCHDAMPING {
 			@Override
 			public double getValue(SimulationStatus status) {

@@ -362,6 +362,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			dataBranch.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);
 		
 			dataBranch.setValue(FlightDataType.TYPE_WIND_VELOCITY, windVelocity.length());
+			dataBranch.setValue(FlightDataType.TYPE_WIND_DIRECTION, getWindDirection(windVelocity));
 			dataBranch.setValue(FlightDataType.TYPE_TIME_STEP, timeStep);
 			
 			if (null != coriolisAcceleration) {
@@ -443,6 +444,18 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 										forces.getCyaw() - forces.getCside() * rocketMass.getCM().x / flightConditions.getRefLength());
 				}
 			}
+		}
+
+		/**
+		 * Calculate the wind direction in the horizontal (X-Y) plane
+		 * @param windVector The wind vector as a Coordinate object
+		 * @return The angle in radians, where 0 is North, Pi/2 is East, etc.
+		 */
+		private static double getWindDirection(Coordinate windVector) {
+			// Math.atan2(y, x) returns the angle in radians measured counterclockwise from the positive x-axis
+			// But we want the angle clockwise from North (positive y-axis)
+			double angle = Math.atan2(windVector.x, windVector.y);
+			return MathUtil.reduce2Pi(angle);
 		}
 	}
 }

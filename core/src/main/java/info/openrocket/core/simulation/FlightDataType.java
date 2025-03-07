@@ -272,22 +272,26 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType TYPE_WIND_VELOCITY = newType(trans.get("FlightDataType.TYPE_WIND_VELOCITY"),
 			"Vw", UnitGroup.UNITS_VELOCITY,
 			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 0);
+	//// Wind direction
+	public static final FlightDataType TYPE_WIND_DIRECTION = newType(trans.get("FlightDataType.TYPE_WIND_DIRECTION"),
+			"\u03b8w", UnitGroup.UNITS_ANGLE,
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 1);
 	//// Air temperature
 	public static final FlightDataType TYPE_AIR_TEMPERATURE = newType(trans.get("FlightDataType.TYPE_AIR_TEMPERATURE"),
 			"T", UnitGroup.UNITS_TEMPERATURE,
-			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 1);
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 2);
 	//// Air pressure
 	public static final FlightDataType TYPE_AIR_PRESSURE = newType(trans.get("FlightDataType.TYPE_AIR_PRESSURE"), "P",
 			UnitGroup.UNITS_PRESSURE,
-			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 2);
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 3);
 	//// Air density
 	public static final FlightDataType TYPE_AIR_DENSITY = newType(trans.get("FlightDataType.TYPE_AIR_DENSITY"), "\u03C1",
 			UnitGroup.UNITS_DENSITY_BULK,
-			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 3);
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 4);
 	//// Speed of sound
 	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType(trans.get("FlightDataType.TYPE_SPEED_OF_SOUND"),
 			"Vs", UnitGroup.UNITS_VELOCITY,
-			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 4);
+			FlightDataTypeGroup.ATMOSPHERIC_CONDITIONS, 5);
 
 	// Simulation information
 	//// Simulation time step
@@ -353,6 +357,7 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			TYPE_ORIENTATION_THETA,
 			TYPE_ORIENTATION_PHI,
 			TYPE_WIND_VELOCITY,
+			TYPE_WIND_DIRECTION,
 			TYPE_AIR_TEMPERATURE,
 			TYPE_AIR_PRESSURE,
 			TYPE_AIR_DENSITY,
