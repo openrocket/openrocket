@@ -4,6 +4,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -90,8 +91,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 		visPanel.setBorder(border);
 
 		// Add title
-		JLabel visualizationTitle = new JLabel(trans.get("WindProfilePanel.title.WindProfileVisualization"));
-		GUIUtil.changeFontSize(visualizationTitle, 1.5f);
+		StyledLabel visualizationTitle = new StyledLabel(trans.get("WindProfilePanel.title.WindProfileVisualization"), 1.5f, StyledLabel.Style.BOLD);
 		visualizationTitle.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 		visPanel.add(visualizationTitle, BorderLayout.NORTH);
 
