@@ -4,8 +4,9 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import net.miginfocom.swing.MigLayout;
@@ -13,7 +14,6 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -25,6 +25,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -36,8 +37,14 @@ import static info.openrocket.swing.gui.components.CsvOptionPanel.TAB;
 
 public class MultiLevelWindEditDialog extends JDialog {
 	private final MultiLevelWindTable windTable;
-	private final WindProfileDialog.WindLevelVisualization visualization;
+	private final WindProfilePanel visualization;
 	private static final Translator trans = Application.getTranslator();
+
+	private static Border border;
+
+	static {
+		initColors();
+	}
 
 	public MultiLevelWindEditDialog(Window owner, MultiLevelPinkNoiseWindModel model) {
 		super(owner, trans.get("WindProfileEditorDlg.title"), ModalityType.APPLICATION_MODAL);
@@ -72,29 +79,24 @@ public class MultiLevelWindEditDialog extends JDialog {
 		tableScrollPane.getVerticalScrollBar().setUnitIncrement(16);   // Faster vertical scrolling
 
 		// Create visualization that uses the units from the table
-		visualization = new WindProfileDialog.WindLevelVisualization(model,
-				windTable.getAltitudeUnit(), 
-				windTable.getSpeedUnit());
+		visualization = new WindProfilePanel(model, windTable);
 		visualization.setPreferredSize(new Dimension(300, 400));
 
 		// Set up synchronization between table and visualization
 		windTable.addChangeListener(visualization);
 		windTable.addSelectionListener(visualization::setSelectedLevel);
 
-		// Add visualization controls
 		JPanel visPanel = new JPanel(new BorderLayout());
+		visPanel.setBorder(border);
+
+		// Add title
+		JLabel visualizationTitle = new JLabel(trans.get("WindProfilePanel.title.WindProfileVisualization"));
+		GUIUtil.changeFontSize(visualizationTitle, 1.5f);
+		visualizationTitle.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+		visPanel.add(visualizationTitle, BorderLayout.NORTH);
+
+		// Add visualization
 		visPanel.add(visualization, BorderLayout.CENTER);
-
-		JCheckBox showDirectionsCheckBox = new JCheckBox(trans.get("WindProfileEditorDlg.checkbox.ShowWindDirections"));
-		showDirectionsCheckBox.setSelected(true);
-		showDirectionsCheckBox.addActionListener(e -> {
-			visualization.setShowDirections(showDirectionsCheckBox.isSelected());
-			visualization.repaint();
-		});
-
-		JPanel visControlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		visControlPanel.add(showDirectionsCheckBox);
-		visPanel.add(visControlPanel, BorderLayout.SOUTH);
 
 		// Add table controls (add button, etc.)
 		JPanel tablePanel = new JPanel(new BorderLayout());
@@ -246,6 +248,15 @@ public class MultiLevelWindEditDialog extends JDialog {
 		setMinimumSize(new Dimension(700, 400));
 
 		SwingUtilities.invokeLater(windTable::clearSelection);
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(MultiLevelWindEditDialog::updateColors);
+	}
+
+	public static void updateColors() {
+		border = GUIUtil.getUITheme().getBorder();
 	}
 
 	@Override

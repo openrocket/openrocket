@@ -2,46 +2,41 @@ package info.openrocket.swing.gui.simulation;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
+import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel.LevelWindModel;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.StateChangeListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
 
 /**
- * Dialog for visualizing wind levels in a multi-level wind model.
+ * Panel for visualizing wind levels in a multi-level wind model.
  * It displays a scatter plot of wind speed vs. altitude, with optional wind direction arrows.
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class WindProfileDialog extends JDialog implements StateChangeListener {
+public class WindProfilePanel extends JPanel implements StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 
-	private final WindLevelVisualization visualization;
+	private final WindProfileVisualization visualization;
 	private final JCheckBox showDirectionsCheckBox;
 	private final MultiLevelWindTable windTable;
 
-	public WindProfileDialog(Dialog owner, MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
-		super(owner, trans.get("WindLevelVisualizationDialog.title.WindLevelVisualization"), false);
+	public WindProfilePanel(MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
+		super(new BorderLayout());
 		
 		this.windTable = windTable;
 		
@@ -49,21 +44,20 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 		Unit altitudeUnit = windTable.getAltitudeUnit();
 		Unit speedUnit = windTable.getSpeedUnit();
 
-		visualization = new WindLevelVisualization(model, altitudeUnit, speedUnit);
+		visualization = new WindProfileVisualization(model, altitudeUnit, speedUnit);
 		visualization.setPreferredSize(new Dimension(400, 500));
 		
 		// Listen for changes in the wind table to update the visualization
 		windTable.addChangeListener(this);
 
-		JPanel contentPane = new JPanel(new BorderLayout());
-		contentPane.add(visualization, BorderLayout.CENTER);
+		add(visualization, BorderLayout.CENTER);
 
-		// Use BorderLayout for the control panel
+		// Create control panel with checkbox
 		JPanel controlPanel = new JPanel(new BorderLayout());
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Add some padding
 
-		// Checkbox on the left
-		showDirectionsCheckBox = new JCheckBox(trans.get("WindLevelVisualizationDialog.checkbox.ShowDirections"));
+		// Checkbox to toggle direction arrows
+		showDirectionsCheckBox = new JCheckBox(trans.get("WindProfilePanel.checkbox.ShowDirections"));
 		showDirectionsCheckBox.setSelected(true);
 		showDirectionsCheckBox.addActionListener(e -> {
 			visualization.setShowDirections(showDirectionsCheckBox.isSelected());
@@ -71,21 +65,7 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 		});
 		controlPanel.add(showDirectionsCheckBox, BorderLayout.WEST);
 
-		// Close button on the right
-		JButton closeButton = new JButton(trans.get("button.close"));
-		closeButton.addActionListener(e -> dispose());
-		JPanel closeButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-		closeButtonPanel.add(closeButton);
-		controlPanel.add(closeButtonPanel, BorderLayout.EAST);
-
-		contentPane.add(controlPanel, BorderLayout.SOUTH);
-
-		setContentPane(contentPane);
-		pack();
-		setLocationRelativeTo(owner);
-
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setAlwaysOnTop(true);
+		add(controlPanel, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -96,16 +76,20 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 		Unit speedUnit = windTable.getSpeedUnit();
 		visualization.updateUnits(altitudeUnit, speedUnit);
 	}
+	
+	/**
+	 * Sets the selected level to highlight in the visualization
+	 */
+	public void setSelectedLevel(LevelWindModel level) {
+		visualization.setSelectedLevel(level);
+	}
 
 	@Override
 	public void stateChanged(EventObject e) {
-		if (e.getSource() instanceof Unit) {
-			System.out.println("yes");
-			updateVisualization();
-		}
+		updateVisualization();
 	}
 
-	public static class WindLevelVisualization extends JPanel implements StateChangeListener {
+	public static class WindProfileVisualization extends JPanel implements StateChangeListener {
 		private final MultiLevelPinkNoiseWindModel model;
 		private static final int MARGIN = 50;
 		private static final int ARROW_SIZE = 10;
@@ -115,9 +99,9 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 		private Unit speedUnit;
 		private boolean showDirections = true;
 
-		private MultiLevelPinkNoiseWindModel.LevelWindModel selectedLevel = null;
+		private LevelWindModel selectedLevel = null;
 
-		public WindLevelVisualization(MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
+		public WindProfileVisualization(MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
 			this.model = model;
 			this.altitudeUnit = altitudeUnit;
 			this.speedUnit = speedUnit;
@@ -133,11 +117,10 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 		public void updateUnits(Unit altitudeUnit, Unit speedUnit) {
 			this.altitudeUnit = altitudeUnit;
 			this.speedUnit = speedUnit;
-
 			repaint();
 		}
 
-		public void setSelectedLevel(MultiLevelPinkNoiseWindModel.LevelWindModel level) {
+		public void setSelectedLevel(LevelWindModel level) {
 			this.selectedLevel = level;
 			repaint();
 		}
@@ -160,7 +143,7 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 			g2d.setColor(Color.WHITE);
 			g2d.fillRect(0, 0, width, height);
 
-			List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+			List<LevelWindModel> levels = model.getLevels();
 			if (levels.isEmpty()) {
 				// Draw axes
 				drawAxes(g2d, width, height);
@@ -168,10 +151,10 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 			}
 
 			// Sort levels before drawing
-			levels.sort(Comparator.comparingDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getAltitude));
+			levels.sort(Comparator.comparingDouble(LevelWindModel::getAltitude));
 
-			double maxAltitude = levels.stream().mapToDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getAltitude).max().orElse(1000);
-			double maxSpeed = levels.stream().mapToDouble(MultiLevelPinkNoiseWindModel.LevelWindModel::getSpeed).max().orElse(10);
+			double maxAltitude = levels.stream().mapToDouble(LevelWindModel::getAltitude).max().orElse(1000);
+			double maxSpeed = levels.stream().mapToDouble(LevelWindModel::getSpeed).max().orElse(10);
 
 			// Extend axis ranges by 10% for drawing
 			double extendedMaxAltitude = maxAltitude * 1.1;
@@ -180,12 +163,16 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 			// Draw axes
 			drawAxes(g2d, width, height, maxSpeed, maxAltitude, extendedMaxSpeed, extendedMaxAltitude);
 
-			// Draw wind levels
+			// Draw wind levels - using the currently selected units
 			for (int i = 0; i < levels.size(); i++) {
-				MultiLevelPinkNoiseWindModel.LevelWindModel level = levels.get(i);
+				LevelWindModel level = levels.get(i);
+				
+				// Convert values are already in SI units, which is what we use for calculations
+				double speed = level.getSpeed();
+				double altitude = level.getAltitude();
 
-				int x = MARGIN + (int) (level.getSpeed() / extendedMaxSpeed * (width - 2 * MARGIN));
-				int y = height - MARGIN - (int) (level.getAltitude() / extendedMaxAltitude * (height - 2 * MARGIN));
+				int x = MARGIN + (int) (speed / extendedMaxSpeed * (width - 2 * MARGIN));
+				int y = height - MARGIN - (int) (altitude / extendedMaxAltitude * (height - 2 * MARGIN));
 
 				// Draw point
 				if (level.equals(selectedLevel)) {
@@ -207,7 +194,7 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 
 				// Draw connecting line if not the first point
 				if (i > 0) {
-					MultiLevelPinkNoiseWindModel.LevelWindModel prevLevel = levels.get(i - 1);
+					LevelWindModel prevLevel = levels.get(i - 1);
 					int prevX = MARGIN + (int) (prevLevel.getSpeed() / extendedMaxSpeed * (width - 2 * MARGIN));
 					int prevY = height - MARGIN - (int) (prevLevel.getAltitude() / extendedMaxAltitude * (height - 2 * MARGIN));
 					g2d.setColor(Color.GRAY);
@@ -252,12 +239,12 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 			g2d.setFont(g2d.getFont().deriveFont(12f));
 			fm = g2d.getFontMetrics();
 
-			// X-axis label
-			String xLabel = trans.get("WindLevelVisualizationDialog.lbl.WindSpeed") + " (" + speedUnit.getUnit() + ")";
+			// X-axis label with updated units
+			String xLabel = trans.get("WindProfilePanel.lbl.WindSpeed") + " (" + speedUnit.getUnit() + ")";
 			g2d.drawString(xLabel, width / 2 - fm.stringWidth(xLabel) / 2, height - 10);
 
-			// Y-axis label
-			String yLabel = trans.get("WindLevelVisualizationDialog.lbl.Altitude") + " (" + altitudeUnit.getUnit() + ")";
+			// Y-axis label with updated units
+			String yLabel = trans.get("WindProfilePanel.lbl.Altitude") + " (" + altitudeUnit.getUnit() + ")";
 			AffineTransform originalTransform = g2d.getTransform();
 			g2d.rotate(-Math.PI / 2);
 			g2d.drawString(yLabel, -height / 2 - fm.stringWidth(yLabel) / 2, MARGIN / 2);
@@ -304,14 +291,5 @@ public class WindProfileDialog extends JDialog implements StateChangeListener {
 		public void stateChanged(EventObject e) {
 			repaint();
 		}
-	}
-
-	@Override
-	public void dispose() {
-		for (WindowListener listener : getWindowListeners()) {
-			removeWindowListener(listener);
-		}
-
-		super.dispose();
 	}
 }
