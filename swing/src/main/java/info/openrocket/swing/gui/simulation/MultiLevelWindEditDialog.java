@@ -71,10 +71,10 @@ public class MultiLevelWindEditDialog extends JDialog {
 		tableScrollPane.getHorizontalScrollBar().setUnitIncrement(16); // Faster horizontal scrolling
 		tableScrollPane.getVerticalScrollBar().setUnitIncrement(16);   // Faster vertical scrolling
 
-		// Create visualization panel
+		// Create visualization that uses the units from the table
 		visualization = new WindProfileDialog.WindLevelVisualization(model,
-				UnitGroup.UNITS_DISTANCE.getSIUnit(), 
-				UnitGroup.UNITS_WINDSPEED.getSIUnit());
+				windTable.getAltitudeUnit(), 
+				windTable.getSpeedUnit());
 		visualization.setPreferredSize(new Dimension(300, 400));
 
 		// Set up synchronization between table and visualization

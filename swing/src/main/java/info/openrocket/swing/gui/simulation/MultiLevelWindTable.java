@@ -6,6 +6,7 @@ import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel.LevelWindModel;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.StateChangeListener;
@@ -59,20 +60,19 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private static final double ALTITUDE_INCREASE = 100;		// Default altitude increase when adding a new row
 	private static final Font HEADER_FONT = new Font(Font.DIALOG, Font.BOLD, 12);
 	private static final int FLASH_DURATION_MS = 800;
-	private static final int CELL_GAP = 1;
 	private static final int CELL_PADDING = 8; // Padding inside cells
 
 	// Table column definitions
-	private record ColumnDefinition(String header, int width) { }
+	private record ColumnDefinition(String header, int width, UnitGroup unitGroup) { }
 
 	private static final ColumnDefinition[] COLUMNS = {
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Altitude"), 110),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 120),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 100),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 120),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Turbulence"), 100),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Intensity"), 85),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Delete"), 60)
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Altitude"), 110, UnitGroup.UNITS_DISTANCE),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 120, UnitGroup.UNITS_WINDSPEED),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 100, UnitGroup.UNITS_ANGLE),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 120, UnitGroup.UNITS_WINDSPEED),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Turbulence"), 100, UnitGroup.UNITS_RELATIVE),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Intensity"), 85, null),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Delete"), 60, null)
 	};
 
 	public interface RowSelectionListener {
@@ -89,6 +89,20 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private LevelRow selectedRow = null;
 	private final List<RowSelectionListener> selectionListeners = new ArrayList<>();
 	private final List<StateChangeListener> listeners = new ArrayList<>();
+	
+	// Shared unit models
+	private final DoubleModel unitAltitudeModel;
+	private final DoubleModel unitSpeedModel;
+	private final DoubleModel unitDirectionModel;
+	private final DoubleModel unitStdDeviationModel;
+	private final DoubleModel unitTurbulenceModel;
+	
+	// Unit selectors in header
+	private UnitSelector altitudeUnitSelector;
+	private UnitSelector speedUnitSelector;
+	private UnitSelector directionUnitSelector;
+	private UnitSelector stdDeviationUnitSelector;
+	private UnitSelector turbulenceUnitSelector;
 
 	private static Color tableHeaderBg;
 	private static Color tableBorderColor;
@@ -105,7 +119,15 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		this.windModel = windModel;
 		this.rows = new ArrayList<>();
 		setLayout(new BorderLayout());
-
+		
+		// Initialize shared unit models with dummy values (will be updated when units change)
+		// We use 1.0 as a placeholder value since we're only interested in the unit, not the value
+		this.unitAltitudeModel = new DoubleModel(1.0, UnitGroup.UNITS_DISTANCE);
+		this.unitSpeedModel = new DoubleModel(1.0, UnitGroup.UNITS_WINDSPEED);
+		this.unitDirectionModel = new DoubleModel(1.0, UnitGroup.UNITS_ANGLE);
+		this.unitStdDeviationModel = new DoubleModel(1.0, UnitGroup.UNITS_WINDSPEED);
+		this.unitTurbulenceModel = new DoubleModel(1.0, UnitGroup.UNITS_RELATIVE);
+		
 		// Build header panel
 		headerPanel = createHeaderPanel();
 
@@ -167,9 +189,39 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		panel.setBackground(tableHeaderBg);
 
 		for (int i = 0; i < COLUMNS.length; i++) {
-			JLabel label = new JLabel(COLUMNS[i].header, SwingConstants.CENTER);
-			label.setFont(HEADER_FONT);
-			JPanel cell = createFixedCell(label, COLUMNS[i].width);
+			ColumnDefinition column = COLUMNS[i];
+			
+			// Create header cell with label and optional unit selector
+			JPanel cell;
+			if (column.unitGroup() != null) {
+				// Create a panel with vertical layout for label and unit selector
+				JPanel headerContent = new JPanel();
+				headerContent.setLayout(new BoxLayout(headerContent, BoxLayout.Y_AXIS));
+				headerContent.setOpaque(false);
+				
+				// Add label at the top
+				JLabel label = new JLabel(column.header(), SwingConstants.CENTER);
+				label.setFont(HEADER_FONT);
+				label.setAlignmentX(CENTER_ALIGNMENT);
+				headerContent.add(label);
+				
+				// Add small gap
+				headerContent.add(Box.createVerticalStrut(3));
+				
+				// Add unit selector at the bottom
+				UnitSelector unitSelector = createUnitSelector(i, column.unitGroup());
+				unitSelector.setAlignmentX(CENTER_ALIGNMENT);
+				headerContent.add(unitSelector);
+				
+				// Create the cell with the header content
+				cell = createFixedCell(headerContent, column.width());
+			} else {
+				// For columns without units, just add the label
+				JLabel label = new JLabel(column.header(), SwingConstants.CENTER);
+				label.setFont(HEADER_FONT);
+				cell = createFixedCell(label, column.width());
+			}
+			
 			cell.setBackground(tableHeaderBg);
 			panel.add(cell);
 
@@ -179,6 +231,45 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		}
 
 		return panel;
+	}
+	
+	/**
+	 * Creates a unit selector for a specific column and registers it
+	 */
+	private UnitSelector createUnitSelector(int columnIndex, UnitGroup unitGroup) {
+		UnitSelector selector;
+		
+		switch (columnIndex) {
+			case 0: // Altitude
+				selector = new UnitSelector(unitAltitudeModel);
+				altitudeUnitSelector = selector;
+				selector.addItemListener(e -> updateAltitudeUnits(selector.getSelectedUnit()));
+				break;
+			case 1: // Speed
+				selector = new UnitSelector(unitSpeedModel);
+				speedUnitSelector = selector;
+				selector.addItemListener(e -> updateSpeedUnits(selector.getSelectedUnit()));
+				break;
+			case 2: // Direction
+				selector = new UnitSelector(unitDirectionModel);
+				directionUnitSelector = selector;
+				selector.addItemListener(e -> updateDirectionUnits(selector.getSelectedUnit()));
+				break;
+			case 3: // Standard Deviation
+				selector = new UnitSelector(unitStdDeviationModel);
+				stdDeviationUnitSelector = selector;
+				selector.addItemListener(e -> updateStdDeviationUnits(selector.getSelectedUnit()));
+				break;
+			case 4: // Turbulence
+				selector = new UnitSelector(unitTurbulenceModel);
+				turbulenceUnitSelector = selector;
+				selector.addItemListener(e -> updateTurbulenceUnits(selector.getSelectedUnit()));
+				break;
+			default:
+				selector = new UnitSelector(unitGroup);
+		}
+		
+		return selector;
 	}
 
 	private JPanel createFixedCell(JComponent comp, int width) {
@@ -191,31 +282,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		panel.setMinimumSize(size);
 		panel.setMaximumSize(size);
 		return panel;
-	}
-
-	private JPanel createGroupCell(JComponent comp1, JComponent comp2, int width) {
-		JPanel group = new JPanel();
-		group.setLayout(new BoxLayout(group, BoxLayout.X_AXIS));
-		group.setOpaque(false);
-		
-		// Add left padding
-		group.add(Box.createRigidArea(new Dimension(CELL_PADDING, 0)));
-		
-		// Add components with spacing between them
-		group.add(comp1);
-		group.add(Box.createRigidArea(new Dimension(CELL_GAP, 0)));
-		group.add(comp2);
-		
-		// Add right padding
-		group.add(Box.createRigidArea(new Dimension(CELL_PADDING, 0)));
-		
-		// Fixed height based on row height constant to ensure consistent alignment
-		Dimension currentSize = group.getPreferredSize();
-		Dimension size = new Dimension(width, currentSize.height);
-		group.setPreferredSize(size);
-		group.setMinimumSize(size);
-		group.setMaximumSize(size);
-		return group;
 	}
 
 	private Component createVerticalSeparator() {
@@ -475,6 +541,97 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		for (LevelRow row : rows) {
 			row.invalidateModels();
 		}
+		
+		// Also invalidate the shared unit models
+		unitAltitudeModel.invalidateMe();
+		unitSpeedModel.invalidateMe();
+		unitDirectionModel.invalidateMe();
+		unitStdDeviationModel.invalidateMe();
+		unitTurbulenceModel.invalidateMe();
+	}
+	
+	/**
+	 * Update the altitude unit for all rows
+	 */
+	private void updateAltitudeUnits(Unit unit) {
+		// Create a copy of the rows to avoid ConcurrentModificationException
+		List<LevelRow> rowsCopy = new ArrayList<>(rows);
+		for (LevelRow row : rowsCopy) {
+			row.setAltitudeUnit(unit);
+		}
+		
+		// Notify listeners for plot update
+		fireChangeEvent(unit);
+	}
+	
+	/**
+	 * Update the speed unit for all rows
+	 */
+	private void updateSpeedUnits(Unit unit) {
+		// Create a copy of the rows to avoid ConcurrentModificationException
+		List<LevelRow> rowsCopy = new ArrayList<>(rows);
+		for (LevelRow row : rowsCopy) {
+			row.setSpeedUnit(unit);
+		}
+		
+		// Notify listeners for plot update
+		fireChangeEvent(unit);
+	}
+	
+	/**
+	 * Update the direction unit for all rows
+	 */
+	private void updateDirectionUnits(Unit unit) {
+		// Create a copy of the rows to avoid ConcurrentModificationException
+		List<LevelRow> rowsCopy = new ArrayList<>(rows);
+		for (LevelRow row : rowsCopy) {
+			row.setDirectionUnit(unit);
+		}
+		
+		// Notify listeners for plot update
+		fireChangeEvent(unit);
+	}
+	
+	/**
+	 * Update the standard deviation unit for all rows
+	 */
+	private void updateStdDeviationUnits(Unit unit) {
+		// Create a copy of the rows to avoid ConcurrentModificationException
+		List<LevelRow> rowsCopy = new ArrayList<>(rows);
+		for (LevelRow row : rowsCopy) {
+			row.setStdDeviationUnit(unit);
+		}
+		
+		// Notify listeners for plot update
+		fireChangeEvent(unit);
+	}
+	
+	/**
+	 * Update the turbulence unit for all rows
+	 */
+	private void updateTurbulenceUnits(Unit unit) {
+		// Create a copy of the rows to avoid ConcurrentModificationException
+		List<LevelRow> rowsCopy = new ArrayList<>(rows);
+		for (LevelRow row : rowsCopy) {
+			row.setTurbulenceUnit(unit);
+		}
+		
+		// Notify listeners for plot update
+		fireChangeEvent(unit);
+	}
+	
+	/**
+	 * Get the selected altitude unit
+	 */
+	public Unit getAltitudeUnit() {
+		return altitudeUnitSelector.getSelectedUnit();
+	}
+	
+	/**
+	 * Get the selected speed unit
+	 */
+	public Unit getSpeedUnit() {
+		return speedUnitSelector.getSelectedUnit();
 	}
 
 	@Override
@@ -487,8 +644,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		listeners.remove(listener);
 	}
 
-	public void fireChangeEvent() {
-		EventObject event = new EventObject(this);
+	public void fireChangeEvent(Object source) {
+		EventObject event = new EventObject(source);
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listeners.toArray(new EventListener[0]);
 		for (EventListener l : list) {
@@ -496,6 +653,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 				((StateChangeListener) l).stateChanged(event);
 			}
 		}
+	}
+
+	public void fireChangeEvent() {
+		fireChangeEvent(this);
 	}
 
 
@@ -523,6 +684,23 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 			dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
 			dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
+			
+			// Initialize with current shared units if available
+			if (altitudeUnitSelector != null) {
+				dmAltitude.setCurrentUnit(altitudeUnitSelector.getSelectedUnit());
+			}
+			if (speedUnitSelector != null) {
+				dmSpeed.setCurrentUnit(speedUnitSelector.getSelectedUnit());
+			}
+			if (directionUnitSelector != null) {
+				dmDirection.setCurrentUnit(directionUnitSelector.getSelectedUnit());
+			}
+			if (stdDeviationUnitSelector != null) {
+				dmStdDeviation.setCurrentUnit(stdDeviationUnitSelector.getSelectedUnit());
+			}
+			if (turbulenceUnitSelector != null) {
+				dmTurbulence.setCurrentUnit(turbulenceUnitSelector.getSelectedUnit());
+			}
 
 			// Add property change listener for altitude
 			dmAltitude.addChangeListener(e -> {
@@ -543,11 +721,11 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmTurbulence.addChangeListener(dmStdDeviation);
 
 			// Create UI components for each column
-			JPanel altitudeGroup = createSpinnerWithUnitSelector(dmAltitude, COLUMNS[0].width);
-			JPanel speedGroup = createSpinnerWithUnitSelector(dmSpeed, COLUMNS[1].width);
-			JPanel directionGroup = createSpinnerWithUnitSelector(dmDirection, COLUMNS[2].width);
-			JPanel stdDeviationGroup = createSpinnerWithUnitSelector(dmStdDeviation, COLUMNS[3].width);
-			JPanel turbulenceGroup = createSpinnerWithUnitSelector(dmTurbulence, COLUMNS[4].width);
+			JPanel altitudeGroup = createSpinnerOnly(dmAltitude, COLUMNS[0].width);
+			JPanel speedGroup = createSpinnerOnly(dmSpeed, COLUMNS[1].width);
+			JPanel directionGroup = createSpinnerOnly(dmDirection, COLUMNS[2].width);
+			JPanel stdDeviationGroup = createSpinnerOnly(dmStdDeviation, COLUMNS[3].width);
+			JPanel turbulenceGroup = createSpinnerOnly(dmTurbulence, COLUMNS[4].width);
 
 			// Intensity description label
 			intensityLabel = new JLabel(level.getIntensityDescription());
@@ -600,20 +778,63 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			installContextMenu();
 		}
 
-		// Helper method to create spinner with unit selector
-		private JPanel createSpinnerWithUnitSelector(DoubleModel model, int width) {
+		// Helper method to create spinner without unit selector
+		private JPanel createSpinnerOnly(DoubleModel model, int width) {
 			JSpinner spinner = new JSpinner(model.getSpinnerModel());
 			spinner.setEditor(new SpinnerEditor(spinner));
-			UnitSelector unitSelector = new UnitSelector(model);
 
 			// Get editor component for focus tracking
 			Component editorComponent = getEditorComponent(spinner);
-
-			// Add both components to focus tracking
 			addToFocusTracking(editorComponent);
-			addToFocusTracking(unitSelector);
 
-			return createGroupCell(spinner, unitSelector, width);
+			// Create a centered panel for the spinner
+			JPanel panel = new JPanel(new BorderLayout());
+			panel.setOpaque(false);
+			panel.add(spinner, BorderLayout.CENTER);
+			panel.setBorder(BorderFactory.createEmptyBorder(0, CELL_PADDING, 0, CELL_PADDING));
+			
+			// Fixed width
+			Dimension size = new Dimension(width, spinner.getPreferredSize().height);
+			panel.setPreferredSize(size);
+			panel.setMinimumSize(size);
+			panel.setMaximumSize(size);
+			
+			return panel;
+		}
+		
+		/**
+		 * Sets the altitude unit for this row
+		 */
+		public void setAltitudeUnit(Unit unit) {
+			dmAltitude.setCurrentUnit(unit);
+		}
+		
+		/**
+		 * Sets the speed unit for this row
+		 */
+		public void setSpeedUnit(Unit unit) {
+			dmSpeed.setCurrentUnit(unit);
+		}
+		
+		/**
+		 * Sets the direction unit for this row
+		 */
+		public void setDirectionUnit(Unit unit) {
+			dmDirection.setCurrentUnit(unit);
+		}
+		
+		/**
+		 * Sets the standard deviation unit for this row
+		 */
+		public void setStdDeviationUnit(Unit unit) {
+			dmStdDeviation.setCurrentUnit(unit);
+		}
+		
+		/**
+		 * Sets the turbulence unit for this row
+		 */
+		public void setTurbulenceUnit(Unit unit) {
+			dmTurbulence.setCurrentUnit(unit);
 		}
 
 		// Helper method to get editor component from spinner

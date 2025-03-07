@@ -20,6 +20,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.util.Comparator;
@@ -32,17 +33,27 @@ import java.util.List;
  *
  * @author Sibo Van Gool <sibo.vangool@hotmail.com>
  */
-public class WindProfileDialog extends JDialog {
+public class WindProfileDialog extends JDialog implements StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 
 	private final WindLevelVisualization visualization;
 	private final JCheckBox showDirectionsCheckBox;
+	private final MultiLevelWindTable windTable;
 
-	public WindProfileDialog(Dialog owner, MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
+	public WindProfileDialog(Dialog owner, MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
 		super(owner, trans.get("WindLevelVisualizationDialog.title.WindLevelVisualization"), false);
+		
+		this.windTable = windTable;
+		
+		// Get current units from the table
+		Unit altitudeUnit = windTable.getAltitudeUnit();
+		Unit speedUnit = windTable.getSpeedUnit();
 
 		visualization = new WindLevelVisualization(model, altitudeUnit, speedUnit);
 		visualization.setPreferredSize(new Dimension(400, 500));
+		
+		// Listen for changes in the wind table to update the visualization
+		windTable.addChangeListener(this);
 
 		JPanel contentPane = new JPanel(new BorderLayout());
 		contentPane.add(visualization, BorderLayout.CENTER);
@@ -77,8 +88,21 @@ public class WindProfileDialog extends JDialog {
 		setAlwaysOnTop(true);
 	}
 
-	public void updateUnits(Unit altitudeUnit, Unit speedUnit) {
+	/**
+	 * Updates the visualization with the current units from the wind table
+	 */
+	private void updateVisualization() {
+		Unit altitudeUnit = windTable.getAltitudeUnit();
+		Unit speedUnit = windTable.getSpeedUnit();
 		visualization.updateUnits(altitudeUnit, speedUnit);
+	}
+
+	@Override
+	public void stateChanged(EventObject e) {
+		if (e.getSource() instanceof Unit) {
+			System.out.println("yes");
+			updateVisualization();
+		}
 	}
 
 	public static class WindLevelVisualization extends JPanel implements StateChangeListener {
@@ -99,9 +123,17 @@ public class WindProfileDialog extends JDialog {
 			this.speedUnit = speedUnit;
 		}
 
+		/**
+		 * Updates the units used for altitude and speed in the visualization.
+		 * This will cause the axis labels to be updated and the plot to be redrawn.
+		 *
+		 * @param altitudeUnit the new altitude unit
+		 * @param speedUnit the new speed unit
+		 */
 		public void updateUnits(Unit altitudeUnit, Unit speedUnit) {
 			this.altitudeUnit = altitudeUnit;
 			this.speedUnit = speedUnit;
+
 			repaint();
 		}
 
