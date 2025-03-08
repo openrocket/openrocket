@@ -146,6 +146,14 @@ public class MultiLevelWindEditDialog extends JDialog {
 			importLevels(model);
 		});
 
+		// Export Levels
+		/*JButton exportButton = new JButton(trans.get("WindProfileEditorDlg.but.exportLevels"));
+		exportButton.setToolTipText(trans.get("WindProfileEditorDlg.but.exportLevels.ttip"));
+		exportButton.setIcon(Icons.EXPORT);
+		exportButton.addActionListener(e -> {
+			// TODO
+		});*/
+
 		JPanel buttonPanel = new JPanel(new MigLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		buttonPanel.add(addRowButton);
