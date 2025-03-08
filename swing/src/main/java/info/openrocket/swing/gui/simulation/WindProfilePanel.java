@@ -10,6 +10,7 @@ import info.openrocket.core.util.StateChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,7 +18,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventObject;
 import java.util.List;
@@ -33,18 +36,11 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 
 	private final WindProfileVisualization visualization;
 	private final JCheckBox showDirectionsCheckBox;
-	private final MultiLevelWindTable windTable;
 
 	public WindProfilePanel(MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
 		super(new BorderLayout());
-		
-		this.windTable = windTable;
-		
-		// Get current units from the table
-		Unit altitudeUnit = windTable.getAltitudeUnit();
-		Unit speedUnit = windTable.getSpeedUnit();
 
-		visualization = new WindProfileVisualization(model, altitudeUnit, speedUnit);
+		visualization = new WindProfileVisualization(model, windTable);
 		visualization.setPreferredSize(new Dimension(400, 500));
 		
 		// Listen for changes in the wind table to update the visualization
@@ -67,15 +63,6 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 
 		add(controlPanel, BorderLayout.SOUTH);
 	}
-
-	/**
-	 * Updates the visualization with the current units from the wind table
-	 */
-	private void updateVisualization() {
-		Unit altitudeUnit = windTable.getAltitudeUnit();
-		Unit speedUnit = windTable.getSpeedUnit();
-		visualization.updateUnits(altitudeUnit, speedUnit);
-	}
 	
 	/**
 	 * Sets the selected level to highlight in the visualization
@@ -86,7 +73,7 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 
 	@Override
 	public void stateChanged(EventObject e) {
-		updateVisualization();
+		visualization.repaint();
 	}
 
 	public static class WindProfileVisualization extends JPanel implements StateChangeListener {
@@ -95,29 +82,17 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 		private static final int ARROW_SIZE = 10;
 		private static final int TICK_LENGTH = 5;
 
-		private Unit altitudeUnit;
-		private Unit speedUnit;
+		private final MultiLevelWindTable windTable;
 		private boolean showDirections = true;
 
 		private LevelWindModel selectedLevel = null;
 
-		public WindProfileVisualization(MultiLevelPinkNoiseWindModel model, Unit altitudeUnit, Unit speedUnit) {
+		public WindProfileVisualization(MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
 			this.model = model;
-			this.altitudeUnit = altitudeUnit;
-			this.speedUnit = speedUnit;
-		}
+			this.windTable = windTable;
 
-		/**
-		 * Updates the units used for altitude and speed in the visualization.
-		 * This will cause the axis labels to be updated and the plot to be redrawn.
-		 *
-		 * @param altitudeUnit the new altitude unit
-		 * @param speedUnit the new speed unit
-		 */
-		public void updateUnits(Unit altitudeUnit, Unit speedUnit) {
-			this.altitudeUnit = altitudeUnit;
-			this.speedUnit = speedUnit;
-			repaint();
+			// Enable tooltips for this component
+			ToolTipManager.sharedInstance().registerComponent(this);
 		}
 
 		public void setSelectedLevel(LevelWindModel level) {
@@ -220,6 +195,7 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 			FontMetrics fm = g2d.getFontMetrics();
 
 			// X-axis max value
+			Unit speedUnit = windTable.getSpeedUnit();
 			if (maxSpeed != null && extendedMaxSpeed != null) {
 				int xTickX = MARGIN + (int) ((maxSpeed / extendedMaxSpeed) * (width - 2 * MARGIN));
 				g2d.drawLine(xTickX, height - MARGIN, xTickX, height - MARGIN + TICK_LENGTH);
@@ -228,6 +204,7 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 			}
 
 			// Y-axis max value
+			Unit altitudeUnit = windTable.getAltitudeUnit();
 			if (maxAltitude != null && extendedMaxAltitude != null) {
 				int yTickY = height - MARGIN - (int) ((maxAltitude / extendedMaxAltitude) * (height - 2 * MARGIN));
 				g2d.drawLine(MARGIN - TICK_LENGTH, yTickY, MARGIN, yTickY);
@@ -290,6 +267,87 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 		@Override
 		public void stateChanged(EventObject e) {
 			repaint();
+		}
+
+		@Override
+		public String getToolTipText(MouseEvent event) {
+			List<LevelWindModel> levels = model.getLevels();
+			if (levels.isEmpty()) {
+				return null;
+			}
+
+			// Sort levels by altitude
+			levels = new ArrayList<>(levels);
+			levels.sort(Comparator.comparingDouble(LevelWindModel::getAltitude));
+
+			int mouseX = event.getX();
+			int mouseY = event.getY();
+			int width = getWidth();
+			int height = getHeight();
+
+			double maxAltitude = levels.stream().mapToDouble(LevelWindModel::getAltitude).max().orElse(1000);
+			double maxSpeed = levels.stream().mapToDouble(LevelWindModel::getSpeed).max().orElse(10);
+
+			// Extend axis ranges by 10% for drawing (same as in paintComponent)
+			double extendedMaxAltitude = maxAltitude * 1.1;
+			double extendedMaxSpeed = maxSpeed * 1.1;
+
+			// Find closest dot
+			LevelWindModel closestLevel = null;
+			double closestDistance = Double.MAX_VALUE;
+
+			for (LevelWindModel level : levels) {
+				// Calculate dot position (same calculation as in paintComponent)
+				double speed = level.getSpeed();
+				double altitude = level.getAltitude();
+
+				int x = MARGIN + (int) (speed / extendedMaxSpeed * (width - 2 * MARGIN));
+				int y = height - MARGIN - (int) (altitude / extendedMaxAltitude * (height - 2 * MARGIN));
+
+				// Calculate distance to mouse position
+				double distance = Math.sqrt((mouseX - x) * (mouseX - x) + (mouseY - y) * (mouseY - y));
+
+				// Update closest dot if this one is closer
+				int dotRadius = level.equals(selectedLevel) ? 5 : 3;
+				if (distance <= dotRadius * 2 && distance < closestDistance) {  // Use a slightly larger detection area
+					closestLevel = level;
+					closestDistance = distance;
+				}
+			}
+
+			// Return tooltip text for closest dot, if any
+			if (closestLevel != null) {
+				return formatTooltipText(closestLevel);
+			}
+
+			return null;
+		}
+
+		private String formatTooltipText(LevelWindModel level) {
+			StringBuilder sb = new StringBuilder("<html>");
+
+			// Add altitude
+			Unit altitudeUnit = windTable.getAltitudeUnit();
+			sb.append(trans.get("MultiLevelWindTable.col.Altitude")).append(": ")
+					.append(altitudeUnit.toStringUnit(level.getAltitude())).append("<br>");
+
+			// Add speed
+			Unit speedUnit = windTable.getSpeedUnit();
+			sb.append(trans.get("MultiLevelWindTable.col.Speed")).append(": ")
+					.append(speedUnit.toStringUnit(level.getSpeed())).append("<br>");
+
+			// Add direction (using a degrees unit for readability)
+			Unit directionUnit = windTable.getDirectionUnit();
+			sb.append(trans.get("MultiLevelWindTable.col.Direction")).append(": ")
+					.append(directionUnit.toStringUnit(level.getDirection())).append("<br>");
+
+			// Add standard deviation
+			Unit deviationUnit = windTable.getStdDeviationUnit();
+			sb.append(trans.get("MultiLevelWindTable.col.StandardDeviation")).append(": ")
+					.append(deviationUnit.toStringUnit(level.getStandardDeviation()));
+
+			sb.append("</html>");
+			return sb.toString();
 		}
 	}
 }

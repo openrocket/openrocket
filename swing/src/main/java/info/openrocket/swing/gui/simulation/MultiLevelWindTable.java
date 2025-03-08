@@ -604,6 +604,20 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		return speedUnitSelector.getSelectedUnit();
 	}
 
+	/**
+	 * Get the selected direction unit
+	 */
+	public Unit getDirectionUnit() {
+		return directionUnitSelector.getSelectedUnit();
+	}
+
+	/**
+	 * Get the selected standard deviation unit
+	 */
+	public Unit getStdDeviationUnit() {
+		return stdDeviationUnitSelector.getSelectedUnit();
+	}
+
 	@Override
 	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(listener);
