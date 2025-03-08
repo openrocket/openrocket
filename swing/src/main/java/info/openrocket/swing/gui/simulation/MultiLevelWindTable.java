@@ -47,10 +47,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventListener;
 import java.util.EventObject;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class MultiLevelWindTable extends JPanel implements ChangeSource {
@@ -315,7 +313,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			rows.add(row);
 			changedRow = row; // Mark the new row to be highlighted
 			int thisIdx = rows.indexOf(row);
-			resortRows(originalOrder, thisIdx, thisIdx);
+			resortRows(originalOrder);
+			highlightChangedRows(thisIdx, thisIdx);
 
 			// Scroll to make the new row visible
 			SwingUtilities.invokeLater(() -> {
@@ -336,14 +335,15 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		}
 		
 		List<LevelRow> originalOrder = new ArrayList<>(rows);
-		int prevIdx = Math.max(0, rows.indexOf(row) - 1);
 		int thisIdx = rows.indexOf(row);
 		rows.remove(row);
 		row.invalidateModels();
-		thisIdx = Math.min(thisIdx, rows.size() - 1);
 		windModel.removeWindLevel(row.getLevel().getAltitude());
-		resortRows(originalOrder, prevIdx, thisIdx);
+		resortRows(originalOrder);
 		selectRow(null);
+		if (thisIdx < rows.size()) {
+			highlightChangedRows(thisIdx, thisIdx);
+		}
 
 		updateDeleteButtonsState();
 	}
@@ -397,8 +397,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	/**
 	 * Resort the rows based on altitude and update the UI.
 	 * @param originalOrder the original order of rows before adding/removing a row
+	 * @return true if the order changed, false if it stayed the same
 	 */
-	private void resortRows(List<LevelRow> originalOrder, int highlightStartIdx, int highlightEndIdx) {
+	private boolean resortRows(List<LevelRow> originalOrder) {
 		// Perform the sort
 		rows.sort(Comparator.comparingDouble(LevelRow::getAltitude));
 
@@ -426,7 +427,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			rowsPanel.repaint();
 			fireChangeEvent();
 
-			return;
+			return false;
 		}
 
 		rowsPanel.removeAll();
@@ -438,27 +439,12 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			row.setBaseBackground(bg);
 			rowsPanel.add(row);
 		}
-		
-		// Update the rows panel preferred size based on row count
-		Dimension size = rowsPanel.getPreferredSize();
-		if (!rows.isEmpty()) {
-			// Set height based on the total height of all rows
-			size.height = rows.stream()
-					.mapToInt(row -> row.getPreferredSize().height)
-					.sum();
-			rowsPanel.setPreferredSize(size);
-		}
-
-		// Highlight changed rows
-		highlightChangedRows(highlightStartIdx, highlightEndIdx);
 
 		rowsPanel.revalidate();
 		rowsPanel.repaint();
 		fireChangeEvent();
-	}
 
-	private void resortRows(List<LevelRow> originalOrder) {
-		resortRows(originalOrder, -1, -1);
+		return true;
 	}
 
 	/**
@@ -489,24 +475,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			for (int i = highlightStartIdx; i <= highlightEndIdx; i++) {
 				rows.get(i).flashMovement();
 			}
-			changedRow = null;
 		}
-		// Otherwise, highlight the changed row and its neighbors
-		else if (changedRow != null) {
-			int idx = rows.indexOf(changedRow);
-			Set<LevelRow> highlightSet = new HashSet<>();
-			highlightSet.add(changedRow);
-
-			if (idx > 0) {
-				highlightSet.add(rows.get(idx - 1));
-			}
-			if (idx < rows.size() - 1) {
-				highlightSet.add(rows.get(idx + 1));
-			}
-
-			highlightSet.forEach(LevelRow::flashMovement);
-			changedRow = null;
-		}
+		changedRow = null;
 	}
 
 	public JPanel getRowsPanel() {
@@ -706,7 +676,15 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmAltitude.addChangeListener(e -> {
 				changedRow = this;
 				List<LevelRow> originalOrder = new ArrayList<>(rows);
-				resortRows(originalOrder);
+				boolean changed = resortRows(originalOrder);
+				if (changed) {
+					int thisIdx = rows.indexOf(this);
+					int startIdx = Math.max(0, thisIdx - 1);
+					int endIdx = Math.min(rows.size() - 1, thisIdx + 1);
+					SwingUtilities.invokeLater(() -> {
+						highlightChangedRows(startIdx, endIdx);
+					});
+				}
 			});
 
 			// Add a single state change listener for efficiency
@@ -955,16 +933,25 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 		// Flash the row with a highlight color temporarily
 		public void flashMovement() {
-			final Color originalColor = getBackground();
-			setBackground(flashColor);
+			final LevelRow thisRow = this;
 
-			Timer timer = new Timer(FLASH_DURATION_MS, e -> {
-				setBackground(originalColor);
-				((Timer) e.getSource()).stop();
+			// Force a complete repaint before changing the color
+			SwingUtilities.invokeLater(() -> {
+				// Set the flash color and ensure it's visible
+				setBackground(flashColor);
+				setOpaque(true);
+
+				// Schedule restoration of the correct background color after delay
+				Timer timer = new Timer(FLASH_DURATION_MS, e -> {
+					// Calculate the correct background color based on current position
+					Color bg = (rows.indexOf(thisRow) % 2 == 0) ? evenRowColor : oddRowColor;
+					setBackground(bg);
+					((Timer) e.getSource()).stop();
+				});
+
+				timer.setRepeats(false);
+				timer.start();
 			});
-
-			timer.setRepeats(false);
-			timer.start();
 		}
 		
 		/**
