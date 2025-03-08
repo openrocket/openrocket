@@ -30,6 +30,7 @@ import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Window;
 import java.io.File;
 
@@ -107,11 +108,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 		addRowButton.setIcon(Icons.FILE_NEW);
 		addRowButton.addActionListener(e -> windTable.addRow());
 
-		// Delete levels panel
-		JPanel deletePanel = new JPanel();
-		deletePanel.setLayout(new BoxLayout(deletePanel, BoxLayout.Y_AXIS));
-
-		//// Delete Level
+		// Delete Level
 		JButton deleteRowButton = new JButton(trans.get("WindProfileEditorDlg.but.DeleteLevel"));
 		deleteRowButton.setToolTipText(trans.get("WindProfileEditorDlg.but.deleteWindLevel.ttip"));
 		deleteRowButton.setIcon(Icons.EDIT_DELETE);
@@ -124,7 +121,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 			deleteRowButton.setEnabled(selectedLevel != null && model.getLevels().size() > 1);
 		});
 
-		//// Reset Levels
+		// Reset Levels
 		JButton resetButton = new JButton(trans.get("WindProfileEditorDlg.but.ResetLevels"));
 		resetButton.setToolTipText(trans.get("WindProfileEditorDlg.but.ResetLevels.ttip"));
 		resetButton.addActionListener(e -> {
@@ -141,86 +138,20 @@ public class MultiLevelWindEditDialog extends JDialog {
 			}
 		});
 
-		// Add the reset button to the button panel after the delete button
-		deletePanel.add(deleteRowButton);
-		deletePanel.add(resetButton);
-
 		// Import Levels
 		JButton importButton = new JButton(trans.get("WindProfileEditorDlg.but.importLevels"));
 		importButton.setToolTipText(trans.get("WindProfileEditorDlg.but.importLevels.ttip"));
 		importButton.setIcon(Icons.IMPORT);
 		importButton.addActionListener(e -> {
-			// Create a text box pop up where you can paste a CSV file
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-			fileChooser.setDialogTitle(trans.get("WindProfileEditorDlg.dlg.importLevels.title"));
-
-			fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
-			fileChooser.setFileFilter(FileHelper.CSV_FILTER);
-			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			fileChooser.setMultiSelectionEnabled(false);
-
-			// Accessory panel
-			//// CSV file description
-			JPanel accessoryPanel = new JPanel(new MigLayout());
-			accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.title")));
-
-			JTextArea descriptionArea = new JTextArea(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
-			descriptionArea.setEditable(false);
-			descriptionArea.setBackground(null);
-			accessoryPanel.add(descriptionArea, "spanx, wrap");
-
-			accessoryPanel.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
-
-			//// Field separation
-			JLabel label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
-			String ttip = trans.get("SimExpPan.lbl.longA1") +
-					trans.get("SimExpPan.lbl.longA2");
-			label.setToolTipText(ttip);
-			accessoryPanel.add(label, "gapright unrel");
-
-			JComboBox<String> fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
-			fieldSeparator.setEditable(true);
-			fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
-			fieldSeparator.setToolTipText(ttip);
-			accessoryPanel.add(fieldSeparator, "growx, wrap");
-
-			fileChooser.setAccessory(accessoryPanel);
-
-			int returnVal = fileChooser.showOpenDialog(this);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File selectedFile = fileChooser.getSelectedFile();
-				selectedFile = FileHelper.forceExtension(selectedFile, "csv");
-
-				((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
-				Application.getPreferences().putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, (String) fieldSeparator.getSelectedItem());
-
-				// Show a warning message that the current levels will be overwritten
-				if (!model.getLevels().isEmpty()) {
-					int result = JOptionPane.showConfirmDialog(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
-							trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-					if (result != JOptionPane.YES_OPTION) {
-						return;
-					}
-				}
-
-				// Import the CSV file
-				try {
-					windTable.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
-				} catch (IllegalArgumentException ex) {
-					windTable.resetLevels();
-					JOptionPane.showMessageDialog(this, new String[] {
-							trans.get("WindProfileEditorDlg.msg.importLevelsError"),
-							ex.getMessage() }, trans.get("WindProfileEditorDlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
-				}
-			}
+			importLevels(model);
 		});
 
 		JPanel buttonPanel = new JPanel(new MigLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		buttonPanel.add(addRowButton, "top");
-		buttonPanel.add(deletePanel, "top");
-		buttonPanel.add(importButton, "gapleft para, top");
+		buttonPanel.add(addRowButton);
+		buttonPanel.add(deleteRowButton, "growx");
+		buttonPanel.add(importButton, "gapleft para, wrap");
+		buttonPanel.add(resetButton, "skip 1, growx");
 
 		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -248,6 +179,73 @@ public class MultiLevelWindEditDialog extends JDialog {
 		setMinimumSize(new Dimension(700, 400));
 
 		SwingUtilities.invokeLater(windTable::clearSelection);
+	}
+
+	private void importLevels(MultiLevelPinkNoiseWindModel model) {
+		// Create a text box pop up where you can paste a CSV file
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+		fileChooser.setDialogTitle(trans.get("WindProfileEditorDlg.dlg.importLevels.title"));
+
+		fileChooser.addChoosableFileFilter(FileHelper.CSV_FILTER);
+		fileChooser.setFileFilter(FileHelper.CSV_FILTER);
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setMultiSelectionEnabled(false);
+
+		// Accessory panel
+		//// CSV file description
+		JPanel accessoryPanel = new JPanel(new MigLayout());
+		accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.title")));
+
+		JTextArea descriptionArea = new JTextArea(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
+		descriptionArea.setEditable(false);
+		descriptionArea.setBackground(null);
+		accessoryPanel.add(descriptionArea, "spanx, wrap");
+
+		accessoryPanel.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
+
+		//// Field separation
+		JLabel label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
+		String ttip = trans.get("SimExpPan.lbl.longA1") +
+				trans.get("SimExpPan.lbl.longA2");
+		label.setToolTipText(ttip);
+		accessoryPanel.add(label, "gapright unrel");
+
+		JComboBox<String> fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
+		fieldSeparator.setEditable(true);
+		fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
+		fieldSeparator.setToolTipText(ttip);
+		accessoryPanel.add(fieldSeparator, "growx, wrap");
+
+		fileChooser.setAccessory(accessoryPanel);
+
+		int returnVal = fileChooser.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			selectedFile = FileHelper.forceExtension(selectedFile, "csv");
+
+			((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
+			Application.getPreferences().putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, (String) fieldSeparator.getSelectedItem());
+
+			// Show a warning message that the current levels will be overwritten
+			if (!model.getLevels().isEmpty()) {
+				int result = JOptionPane.showConfirmDialog(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
+						trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (result != JOptionPane.YES_OPTION) {
+					return;
+				}
+			}
+
+			// Import the CSV file
+			try {
+				windTable.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
+			} catch (IllegalArgumentException ex) {
+				windTable.resetLevels();
+				JOptionPane.showMessageDialog(this, new String[] {
+						trans.get("WindProfileEditorDlg.msg.importLevelsError"),
+						ex.getMessage() }, trans.get("WindProfileEditorDlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 
 	private static void initColors() {
