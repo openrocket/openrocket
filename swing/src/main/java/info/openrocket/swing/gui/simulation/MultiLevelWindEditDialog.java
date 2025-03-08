@@ -13,7 +13,6 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -30,7 +29,6 @@ import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Window;
 import java.io.File;
 
@@ -186,7 +184,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 		// Set minimum size to ensure UI doesn't get too cramped
 		setMinimumSize(new Dimension(700, 400));
 
-		SwingUtilities.invokeLater(windTable::clearSelection);
+		GUIUtil.installEscapeCloseButtonOperation(this, closeButton);
 	}
 
 	private void importLevels(MultiLevelPinkNoiseWindModel model) {
