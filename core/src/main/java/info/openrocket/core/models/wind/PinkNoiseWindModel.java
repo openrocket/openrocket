@@ -182,6 +182,11 @@ public class PinkNoiseWindModel implements WindModel {
 	}
 
 	@Override
+	public Coordinate getWindVelocity(double time, double altitudeMSL, double altitudeAGL) {
+		return getWindVelocity(time, altitudeMSL);
+	}
+
+	@Override
 	public Coordinate getWindVelocity(double time, double altitude) {
 		if (time < 0) {
 			throw new IllegalArgumentException("Requesting wind speed at t=" + time);

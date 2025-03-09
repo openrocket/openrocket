@@ -35,8 +35,11 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private static final String COLUMN_DIRECTION = "dir";
 	private static final String COLUMN_STDDEV = "stddev";
 
+	private AltitudeReference altitudeReference;
+
 	public MultiLevelPinkNoiseWindModel() {
 		this.levels = new ArrayList<>();
+		this.altitudeReference = AltitudeReference.MSL;
 
 		// Add a default wind level
 		addInitialLevel();
@@ -105,6 +108,15 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	}
 
 	@Override
+	public Coordinate getWindVelocity(double time, double altitudeMSL, double altitudeAGL) {
+		if (altitudeReference == AltitudeReference.MSL) {
+			return getWindVelocity(time, altitudeMSL);
+		} else {
+			return getWindVelocity(time, altitudeAGL);
+		}
+	}
+
+	@Override
 	public Coordinate getWindVelocity(double time, double altitude) {
 		if (levels.isEmpty()) {
 			return Coordinate.ZERO;
@@ -146,6 +158,23 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		return (direction + 2 * Math.PI) % (2 * Math.PI);
 	}
 
+	/**
+	 * Returns how the altitude reference is set.
+	 * @return The altitude reference method used for altitude-wind relations
+	 */
+	public AltitudeReference getAltitudeReference() {
+		return altitudeReference;
+	}
+
+	/**
+	 * Set the altitude reference used for altitude-wind relations.
+	 * @param altitudeReference the new altitude reference
+	 */
+	public void setAltitudeReference(AltitudeReference altitudeReference) {
+		this.altitudeReference = altitudeReference;
+		fireChangeEvent();
+	}
+
 	@Override
 	public ModID getModID() {
 		return ModID.ZERO; // You might want to create a specific ModID for this model
@@ -156,6 +185,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		for (LevelWindModel level : source.levels) {
 			this.levels.add(level.clone());
 		}
+		this.altitudeReference = source.altitudeReference;
 	}
 
 	/**
@@ -310,6 +340,8 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		MultiLevelPinkNoiseWindModel that = (MultiLevelPinkNoiseWindModel) o;
+
+		if (altitudeReference != that.altitudeReference) return false;
 
 		// Compare the levels list
 		if (levels.size() != that.levels.size()) return false;

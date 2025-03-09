@@ -35,6 +35,7 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 
 	private final WindProfileVisualization visualization;
+	private final MultiLevelPinkNoiseWindModel model;
 	private final JCheckBox showDirectionsCheckBox;
 
 	private static final Color LEVEL_COLOR = Color.BLUE;
@@ -46,6 +47,7 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 	public WindProfilePanel(MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
 		super(new BorderLayout());
 
+		this.model = model;
 		visualization = new WindProfileVisualization(model, windTable);
 		visualization.setPreferredSize(new Dimension(400, 500));
 		
@@ -227,7 +229,13 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 			g2d.drawString(xLabel, width / 2 - fm.stringWidth(xLabel) / 2, height - 10);
 
 			// Y-axis label with updated units
-			String yLabel = trans.get("WindProfilePanel.lbl.Altitude") + " (" + altitudeUnit.getUnit() + ")";
+			String key;
+			switch (model.getAltitudeReference()) {
+				case MSL -> key = "AltitudeMSL";
+				case AGL -> key = "AltitudeAGL";
+				default -> key = "Altitude";
+			}
+			String yLabel = trans.get("WindProfilePanel.lbl." + key) + " (" + altitudeUnit.getUnit() + ")";
 			AffineTransform originalTransform = g2d.getTransform();
 			g2d.rotate(-Math.PI / 2);
 			g2d.drawString(yLabel, -height / 2 - fm.stringWidth(yLabel) / 2, MARGIN / 2);
@@ -334,7 +342,13 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 
 			// Add altitude
 			Unit altitudeUnit = windTable.getAltitudeUnit();
-			sb.append(trans.get("MultiLevelWindTable.col.Altitude")).append(": ")
+			String key;
+			switch (model.getAltitudeReference()) {
+				case MSL -> key = "AltitudeMSL";
+				case AGL -> key = "AltitudeAGL";
+				default -> key = "Altitude";
+			}
+			sb.append(trans.get("MultiLevelWindTable.col." + key)).append(": ")
 					.append(altitudeUnit.toStringUnit(level.getAltitude())).append("<br>");
 
 			// Add speed

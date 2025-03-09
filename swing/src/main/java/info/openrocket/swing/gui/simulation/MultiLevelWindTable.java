@@ -4,6 +4,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel.LevelWindModel;
+import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
@@ -60,11 +61,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private static final int FLASH_DURATION_MS = 800;
 	private static final int CELL_PADDING = 8; // Padding inside cells
 
-	// Table column definitions
-	private record ColumnDefinition(String header, int width, UnitGroup unitGroup) { }
-
 	private static final ColumnDefinition[] COLUMNS = {
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Altitude"), 100, UnitGroup.UNITS_DISTANCE),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.AltitudeMSL"), trans.get("MultiLevelWindTable.col.AltitudeMSL.ttip"),
+					100, UnitGroup.UNITS_DISTANCE),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 100, UnitGroup.UNITS_WINDSPEED),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 90, UnitGroup.UNITS_ANGLE),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 100, UnitGroup.UNITS_WINDSPEED),
@@ -83,6 +82,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	private final MultiLevelPinkNoiseWindModel windModel;
 	private final List<LevelRow> rows;
 	private LevelRow changedRow = null;
+	private JLabel altitudeHeaderLabel;
 
 	private LevelRow selectedRow = null;
 	private final List<RowSelectionListener> selectionListeners = new ArrayList<>();
@@ -160,6 +160,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		
 		// Initialize delete buttons state
 		updateDeleteButtonsState();
+
+		updateAltitudeHeader(windModel.getAltitudeReference());
 	}
 
 	private static void initColors() {
@@ -199,9 +201,17 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 				
 				// Add label at the top
 				JLabel label = new JLabel(column.header(), SwingConstants.CENTER);
+				String tooltip = column.headerTooltip();
+				if (tooltip != null) {
+					label.setToolTipText(tooltip);
+				}
 				label.setFont(HEADER_FONT);
 				label.setAlignmentX(CENTER_ALIGNMENT);
 				headerContent.add(label);
+
+				if (i == 0) {
+					altitudeHeaderLabel = label;
+				}
 				
 				// Add small gap
 				headerContent.add(Box.createVerticalStrut(3));
@@ -485,6 +495,17 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 	public JPanel getHeaderPanel() {
 		return headerPanel;
+	}
+
+	public void updateAltitudeHeader(WindModel.AltitudeReference reference) {
+		String key;
+		switch (reference) {
+			case MSL -> key = "AltitudeMSL";
+			case AGL -> key = "AltitudeAGL";
+			default -> key = "Altitude";
+		}
+		altitudeHeaderLabel.setText(trans.get("MultiLevelWindTable.col." + key));
+		altitudeHeaderLabel.setToolTipText(trans.get("MultiLevelWindTable.col." + key + ".ttip"));
 	}
 
 	public void addSelectionListener(RowSelectionListener listener) {
@@ -978,6 +999,40 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			dmDirection.invalidateMe();
 			dmStdDeviation.invalidateMe();
 			dmTurbulence.invalidateMe();
+		}
+	}
+
+	private static class ColumnDefinition {
+		private final String header;
+		private final String headerTooltip;
+		private final int width;
+		private final UnitGroup unitGroup;
+
+		ColumnDefinition(String header, String headerTooltip, int width, UnitGroup unitGroup) {
+			this.header = header;
+			this.headerTooltip = headerTooltip;
+			this.width = width;
+			this.unitGroup = unitGroup;
+		}
+
+		ColumnDefinition(String header, int width, UnitGroup unitGroup) {
+			this(header, null, width, unitGroup);
+		}
+
+		String header() {
+			return header;
+		}
+
+		String headerTooltip() {
+			return headerTooltip;
+		}
+
+		int width() {
+			return width;
+		}
+
+		UnitGroup unitGroup() {
+			return unitGroup;
 		}
 	}
 }

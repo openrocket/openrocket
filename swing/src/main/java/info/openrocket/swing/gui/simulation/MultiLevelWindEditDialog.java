@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.simulation;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
+import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -13,6 +14,7 @@ import info.openrocket.swing.gui.util.SwingPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -20,11 +22,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -101,25 +103,72 @@ public class MultiLevelWindEditDialog extends JDialog {
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.add(tableScrollPane, BorderLayout.CENTER);
 
-		// Add New Level
+		// Controls panel
+		JPanel controlsPanel = new JPanel(new MigLayout());
+		controlsPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+		//// Altitude reference
+		JPanel altitudeRefPanel = new JPanel(new MigLayout("ins 0"));
+		JLabel altitudeRefLabel = new JLabel(trans.get("WindProfileEditorDlg.lbl.AltitudeReference"));
+		altitudeRefLabel.setToolTipText(trans.get("WindProfileEditorDlg.lbl.AltitudeReference.ttip"));
+		altitudeRefPanel.add(altitudeRefLabel);
+
+		ButtonGroup altitudeRefGroup = new ButtonGroup();
+		JRadioButton butMSL = new JRadioButton(trans.get("WindProfileEditorDlg.radio.MSL"));
+		JRadioButton butAGL = new JRadioButton(trans.get("WindProfileEditorDlg.radio.AGL"));
+		altitudeRefGroup.add(butMSL);
+		altitudeRefGroup.add(butAGL);
+		altitudeRefPanel.add(butMSL);
+		altitudeRefPanel.add(butAGL, "wrap");
+
+		butMSL.addActionListener(e -> {
+			model.setAltitudeReference(WindModel.AltitudeReference.MSL);
+			windTable.updateAltitudeHeader(WindModel.AltitudeReference.MSL);
+			visualization.repaint();
+		});
+		butAGL.addActionListener(e -> {
+			model.setAltitudeReference(WindModel.AltitudeReference.AGL);
+			windTable.updateAltitudeHeader(WindModel.AltitudeReference.AGL);
+			visualization.repaint();
+		});
+
+		switch (model.getAltitudeReference()) {
+			case MSL -> butMSL.setSelected(true);
+			case AGL -> butAGL.setSelected(true);
+		}
+
+		controlsPanel.add(altitudeRefPanel, "spanx, growx, wrap");
+
+		//// Add New Level
 		JButton addRowButton = new JButton(trans.get("WindProfileEditorDlg.but.AddNewLevel"));
 		addRowButton.setIcon(Icons.FILE_NEW);
 		addRowButton.addActionListener(e -> windTable.addRow());
+		controlsPanel.add(addRowButton);
 
-		// Delete Level
+		//// Delete Level
 		JButton deleteRowButton = new JButton(trans.get("WindProfileEditorDlg.but.DeleteLevel"));
 		deleteRowButton.setToolTipText(trans.get("WindProfileEditorDlg.but.deleteWindLevel.ttip"));
 		deleteRowButton.setIcon(Icons.EDIT_DELETE);
 		deleteRowButton.addActionListener(e -> windTable.deleteSelectedRow());
 		// Initially disable until a row is selected
 		deleteRowButton.setEnabled(false);
+		controlsPanel.add(deleteRowButton, "growx");
 
 		// Add listener to enable/disable delete button based on selection
 		windTable.addSelectionListener(selectedLevel -> {
 			deleteRowButton.setEnabled(selectedLevel != null && model.getLevels().size() > 1);
 		});
 
-		// Reset Levels
+		//// Import Levels
+		JButton importButton = new JButton(trans.get("WindProfileEditorDlg.but.importLevels"));
+		importButton.setToolTipText(trans.get("WindProfileEditorDlg.but.importLevels.ttip"));
+		importButton.setIcon(Icons.IMPORT);
+		importButton.addActionListener(e -> {
+			importLevels(model);
+		});
+		controlsPanel.add(importButton, "gapleft para, wrap");
+
+		//// Reset Levels
 		JButton resetButton = new JButton(trans.get("WindProfileEditorDlg.but.ResetLevels"));
 		resetButton.setToolTipText(trans.get("WindProfileEditorDlg.but.ResetLevels.ttip"));
 		resetButton.addActionListener(e -> {
@@ -135,16 +184,9 @@ public class MultiLevelWindEditDialog extends JDialog {
 				windTable.resetLevels();
 			}
 		});
+		controlsPanel.add(resetButton, "skip 1, growx");
 
-		// Import Levels
-		JButton importButton = new JButton(trans.get("WindProfileEditorDlg.but.importLevels"));
-		importButton.setToolTipText(trans.get("WindProfileEditorDlg.but.importLevels.ttip"));
-		importButton.setIcon(Icons.IMPORT);
-		importButton.addActionListener(e -> {
-			importLevels(model);
-		});
-
-		// Export Levels
+		//// Export Levels
 		/*JButton exportButton = new JButton(trans.get("WindProfileEditorDlg.but.exportLevels"));
 		exportButton.setToolTipText(trans.get("WindProfileEditorDlg.but.exportLevels.ttip"));
 		exportButton.setIcon(Icons.EXPORT);
@@ -152,14 +194,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 			// TODO
 		});*/
 
-		JPanel buttonPanel = new JPanel(new MigLayout());
-		buttonPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		buttonPanel.add(addRowButton);
-		buttonPanel.add(deleteRowButton, "growx");
-		buttonPanel.add(importButton, "gapleft para, wrap");
-		buttonPanel.add(resetButton, "skip 1, growx");
-
-		tablePanel.add(buttonPanel, BorderLayout.SOUTH);
+		tablePanel.add(controlsPanel, BorderLayout.SOUTH);
 
 		// Add panels to split pane
 		splitPane.setLeftComponent(tablePanel);

@@ -154,8 +154,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Compute conditions
-		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
-		wind = status.getSimulationConditions().getWindModel().getWindVelocity(status.getSimulationTime(), altitude);
+		double altitudeAGL = status.getRocketPosition().z;
+		double altitudeMSL = altitudeAGL + status.getSimulationConditions().getLaunchSite().getAltitude();
+		wind = status.getSimulationConditions().getWindModel().getWindVelocity(status.getSimulationTime(), altitudeMSL, altitudeAGL);
 
 		// Call post-listener
 		wind = SimulationListenerHelper.firePostWindModel(status, wind);
