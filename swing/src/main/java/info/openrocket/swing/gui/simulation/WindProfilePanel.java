@@ -37,6 +37,12 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 	private final WindProfileVisualization visualization;
 	private final JCheckBox showDirectionsCheckBox;
 
+	private static final Color LEVEL_COLOR = Color.BLUE;
+	private static final Color SELECTED_LEVEL_COLOR = Color.RED;
+	private static final Color DIRECTION_COLOR = new Color(40, 40, 199);
+	private static final Color SELECTED_DIRECTION_COLOR = new Color(199, 40, 40);
+	private static final Color LINE_COLOR = Color.GRAY;
+
 	public WindProfilePanel(MultiLevelPinkNoiseWindModel model, MultiLevelWindTable windTable) {
 		super(new BorderLayout());
 
@@ -152,19 +158,19 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 				// Draw point
 				if (level.equals(selectedLevel)) {
 					// Draw highlighted point
-					g2d.setColor(Color.BLUE);
+					g2d.setColor(SELECTED_LEVEL_COLOR);
 					g2d.fillOval(x - 5, y - 5, 10, 10);
 					g2d.setColor(Color.BLACK);
 					g2d.drawOval(x - 5, y - 5, 10, 10);
 				} else {
 					// Draw normal point
-					g2d.setColor(Color.RED);
+					g2d.setColor(LEVEL_COLOR);
 					g2d.fillOval(x - 3, y - 3, 6, 6);
 				}
 
 				// Draw wind direction arrow
 				if (showDirections) {
-					drawWindArrow(g2d, x, y, level.getDirection());
+					drawWindArrow(g2d, x, y, level.getDirection(), level.equals(selectedLevel));
 				}
 
 				// Draw connecting line if not the first point
@@ -172,7 +178,7 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 					LevelWindModel prevLevel = levels.get(i - 1);
 					int prevX = MARGIN + (int) (prevLevel.getSpeed() / extendedMaxSpeed * (width - 2 * MARGIN));
 					int prevY = height - MARGIN - (int) (prevLevel.getAltitude() / extendedMaxAltitude * (height - 2 * MARGIN));
-					g2d.setColor(Color.GRAY);
+					g2d.setColor(LINE_COLOR);
 					g2d.drawLine(prevX, prevY, x, y);
 				}
 			}
@@ -246,13 +252,13 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 			g.fillPolygon(xPoints, yPoints, 3);
 		}
 
-		private void drawWindArrow(Graphics2D g, int x, int y, double direction) {
+		private void drawWindArrow(Graphics2D g, int x, int y, double direction, boolean selected) {
 			int directionVectorLength = 15;
 			int dx = (int) (directionVectorLength * Math.sin(direction));
 			int dy = (int) (directionVectorLength * Math.cos(direction));
 			int arrowSize = 10;
 
-			g.setColor(new Color(255, 98, 0, 150)); // Semi-transparent orange
+			g.setColor(selected ? SELECTED_DIRECTION_COLOR : DIRECTION_COLOR);
 
 			// Draw the main line
 			g.drawLine(x, y, x + dx, y - dy);
