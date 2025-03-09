@@ -65,10 +65,11 @@ public class SimulationConfigDialog extends JDialog {
 	private boolean isModified = false;			// Whether the simulation has been modified
 	private final boolean isNewSimulation;		// Whether you are editing a new simulation, or an existing one
 
-	private static final int SETTINGS_IDX = 0;
-	private static final int WARNINGS_IDX = 1;
-	private static final int PLOT_IDX = 2;
-	private static final int EXPORT_IDX = 3;
+	private static final int LAUNCH_CONDITIONS_IDX = 0;
+	private static final int SIMULATION_OPTIONS_IDX = 1;
+	private static final int WARNINGS_IDX = 2;
+	private static final int PLOT_IDX = 3;
+	private static final int EXPORT_IDX = 4;
 
 	private final SimulationPlotPanel plotTab;
 	private final SimulationExportPanel exportTab;
@@ -107,9 +108,11 @@ public class SimulationConfigDialog extends JDialog {
 		// ======== Tabbed pane ========
 		this.tabbedPane = new JTabbedPane();
 
-		//// Simulation Settings
-		final SimulationSettingsPanel settingsTab = new SimulationSettingsPanel(document, simulationList[0]);
-		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Settings"), settingsTab);
+		//// Launch conditions
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Launchcond"), new SimulationConditionsPanel(simulationList[0]));
+
+		//// Simulation options
+		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Simopt"), new SimulationOptionsPanel(document, simulationList[0]));
 
 		//// Simulation Warnings
 		final SimulationWarningsPanel warningsTab = new SimulationWarningsPanel(simulationList[0]);
@@ -168,7 +171,8 @@ public class SimulationConfigDialog extends JDialog {
 				}
 				int selectedIndex = tabbedPane.getSelectedIndex();
 				switch (selectedIndex) {
-					case SETTINGS_IDX:
+					case LAUNCH_CONDITIONS_IDX:
+					case SIMULATION_OPTIONS_IDX:
 						okButton.setText(trans.get("dlg.but.ok"));
 						cancelButton.setText(trans.get("dlg.but.cancel"));
 						cancelButton.setVisible(true);
@@ -224,7 +228,7 @@ public class SimulationConfigDialog extends JDialog {
 	}
 
 	public void switchToSettingsTab() {
-		tabbedPane.setSelectedIndex(SETTINGS_IDX);
+		tabbedPane.setSelectedIndex(LAUNCH_CONDITIONS_IDX);
 	}
 
 	public void switchToWarningsTab() {
@@ -361,7 +365,8 @@ public class SimulationConfigDialog extends JDialog {
 		this.cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tabbedPane.getSelectedIndex() == SETTINGS_IDX) {
+				if (tabbedPane.getSelectedIndex() == LAUNCH_CONDITIONS_IDX ||
+						tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX) {
 					cancelSimEdit();
 				} else {
 					// Normal close action
