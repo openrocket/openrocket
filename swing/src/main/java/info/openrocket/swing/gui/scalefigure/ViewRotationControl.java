@@ -8,6 +8,7 @@ import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
 import info.openrocket.swing.gui.util.Icons;
+import info.openrocket.swing.gui.util.SwingPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JLabel;
@@ -27,8 +28,9 @@ import java.awt.event.ActionListener;
  * for disabling/enabling the click-drag rotation.
  */
 public class ViewRotationControl extends JPanel {
-
 	private static final Translator trans = Application.getTranslator();
+	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
+
 	private final DoubleModel rotationModel;
 	private final BasicSlider rotationSlider;
 	private final JToggleButton lockButton;
@@ -41,6 +43,8 @@ public class ViewRotationControl extends JPanel {
 	 */
 	public ViewRotationControl(RocketFigure figure) {
 		super(new MigLayout("fill, insets 0, gap 0"));
+
+		dragRotationLocked = prefs.isClickDragRotationLocked();
 
 		// Create rotation model
 		rotationModel = new DoubleModel(figure, "Rotation", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
@@ -78,12 +82,14 @@ public class ViewRotationControl extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				dragRotationLocked = lockButton.isSelected();
+				prefs.setClickDragRotationLocked(dragRotationLocked);
 			}
 		});
 		Dimension lockSize = new Dimension(24, 24);
 		lockButton.setPreferredSize(lockSize);
 		lockButton.setMaximumSize(lockSize);
 		lockButton.setMinimumSize(lockSize);
+		lockButton.setSelected(dragRotationLocked);
 
 		// Add components to the control panel
 		controlsPanel.add(spinner, "width 50!");

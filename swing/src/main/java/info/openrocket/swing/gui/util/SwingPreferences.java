@@ -70,6 +70,7 @@ public class SwingPreferences extends ApplicationPreferences {
 	public static final String UI_FONT_STYLE = "UIFontStyle";
 	public static final String UI_FONT_TRACKING = "UIFontTracking";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
+	public static final String LOCK_CLICK_DRAG_ROTATION = "LockClickDragRotation";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -475,6 +476,22 @@ public class SwingPreferences extends ApplicationPreferences {
 	 */
 	public void setUIFontTracking(double tracking) {
 		putDouble(UI_FONT_TRACKING, tracking);
+	}
+
+	/**
+	 * Whether to lock the click-drag rotation in the rocket panel.
+	 * @return true if the rotation is locked, false otherwise (allow click-drag rotation)
+	 */
+	public boolean isClickDragRotationLocked() {
+		return getBoolean(LOCK_CLICK_DRAG_ROTATION, false);
+	}
+
+	/**
+	 * Set whether to lock the click-drag rotation in the rocket panel.
+	 * @param lock true to lock the rotation, false to allow click-drag rotation
+	 */
+	public void setClickDragRotationLocked(boolean lock) {
+		putBoolean(LOCK_CLICK_DRAG_ROTATION, lock);
 	}
 
 	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
