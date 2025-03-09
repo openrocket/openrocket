@@ -52,6 +52,7 @@ public class ViewRotationControl extends JPanel {
 
 		// Create spinner
 		JSpinner spinner = new JSpinner(rotationModel.getSpinnerModel());
+		spinner.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
 		spinner.setEditor(new SpinnerEditor(spinner));
 		// Remove the spinner buttons
 		spinner.setUI(new BasicSpinnerUI() {
