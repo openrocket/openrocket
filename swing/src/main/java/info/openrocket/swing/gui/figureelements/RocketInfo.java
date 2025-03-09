@@ -476,6 +476,9 @@ public class RocketInfo implements FigureElement {
 			return 0;
 		
 		double width=0;
+
+		//// Flight configuration:
+		GlyphVector flightConfig = createText(trans.get("RocketInfo.FlightConfig")+" ");
 		
 		//// Apogee: 
 		GlyphVector apogee = createText(trans.get("RocketInfo.Apogee")+" ");
@@ -485,7 +488,8 @@ public class RocketInfo implements FigureElement {
 		//// Max. acceleration: 
 		GlyphVector maxAcceleration = createText(trans.get("RocketInfo.Maxacceleration") + " ");
 
-		GlyphVector apogeeValue, velocityValue, accelerationValue;
+		GlyphVector flightConfigValue, apogeeValue, velocityValue, accelerationValue;
+		flightConfigValue = createText(configuration.getName());
 		if (!Double.isNaN(flightData.getMaxAltitude())) {
 			apogeeValue = createText(
 					UnitGroup.UNITS_DISTANCE.toStringUnit(flightData.getMaxAltitude()));
@@ -512,6 +516,9 @@ public class RocketInfo implements FigureElement {
 		}
 		
 		Rectangle2D rect;
+		rect = flightConfig.getVisualBounds();
+		width = MathUtil.max(width, rect.getWidth());
+
 		rect = apogee.getVisualBounds();
 		width = MathUtil.max(width, rect.getWidth());
 		
@@ -521,7 +528,7 @@ public class RocketInfo implements FigureElement {
 		rect = maxAcceleration.getVisualBounds();
 		width = MathUtil.max(width, rect.getWidth());
 		
-		width += 5;
+		width += 10;
 
 		//// Sim status. Only show on aborts
 		if ((null != simulation) && (simulation.getStatus() == Simulation.Status.ABORTED)) {
@@ -542,15 +549,17 @@ public class RocketInfo implements FigureElement {
 		else
 			g2.setColor(flightDataTextInactiveColor);
 
+		g2.drawGlyphVector(flightConfig, x1, y2-3*line);
 		g2.drawGlyphVector(apogee, x1, y2-2*line);
 		g2.drawGlyphVector(maxVelocity, x1, y2-line);
 		g2.drawGlyphVector(maxAcceleration, x1, y2);
 
+		g2.drawGlyphVector(flightConfigValue, (float)(x1+width), y2-3*line);
 		g2.drawGlyphVector(apogeeValue, (float)(x1+width), y2-2*line);
 		g2.drawGlyphVector(velocityValue, (float)(x1+width), y2-line);
 		g2.drawGlyphVector(accelerationValue, (float)(x1+width), y2);
 		
-		return 3*line;
+		return 4*line;
 	}
 	
 	private synchronized void updateFontSizes() {
