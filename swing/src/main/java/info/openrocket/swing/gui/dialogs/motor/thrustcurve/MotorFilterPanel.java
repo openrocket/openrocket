@@ -66,7 +66,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		new MotorDiameter(0.038, 0.0381),
 		new MotorDiameter(0.054, 0.054),
 		new MotorDiameter(0.075, 0.0763),
-		new MotorDiameter(0.098, 0.983),
+		new MotorDiameter(0.098, 0.0983),
 		new MotorDiameter(1.000, 1.000)
 	};
 
@@ -316,7 +316,6 @@ public abstract class MotorFilterPanel extends JPanel {
 
 			sub.add( limitByLengthCheckBox, "gapleft para, spanx, growx, wrap" );
 			
-			
 			minLengthModel = new DoubleModel(filter, "MinimumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
 			maxLengthModel = new DoubleModel(filter, "MaximumLength", UnitGroup.UNITS_MOTOR_DIMENSIONS, 0);
 
@@ -325,7 +324,20 @@ public abstract class MotorFilterPanel extends JPanel {
 			minLengthModel.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(0, (int)(1000* minLengthModel.getValue()));
+					double minValue = minLengthModel.getValue();
+
+					if (minValue > maxLengthModel.getValue()) {
+						maxLengthModel.setValue(minValue);
+					}
+
+					lengthSlider.setValueAt(0, (int)(1000 * minValue));
+					// If our value is greater than 1000 mm, moving the slider sets it down to 1000
+					// Patch it if so
+					if (minLengthModel.getValue() != minValue) {
+						minLengthModel.setValue(minValue);
+					}
+
+					onSelectionChanged();
 				}
 			});
 			sub.add(minLengthSpinner, "split 5, growx");
@@ -338,7 +350,20 @@ public abstract class MotorFilterPanel extends JPanel {
 			maxLengthModel.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					lengthSlider.setValueAt(1, (int) (1000* maxLengthModel.getValue()));
+					double maxValue = maxLengthModel.getValue();
+					
+					if (maxValue < minLengthModel.getValue()) {
+						minLengthModel.setValue(maxValue);
+					}
+					
+					lengthSlider.setValueAt(1, (int) (1000 * maxValue));
+					// If our value is greater than 1000 mm, moving the slider sets it to infinite
+					// Patch it if so
+					if (maxLengthModel.getValue() != maxValue) {
+						maxLengthModel.setValue(maxValue);
+					}
+					
+					onSelectionChanged();
 				}
 			});
 			sub.add(maxLengthSpinner, "growx");
@@ -351,11 +376,22 @@ public abstract class MotorFilterPanel extends JPanel {
 			lengthSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					
 					int minLength = lengthSlider.getValueAt(0);
 					minLengthModel.setValue(minLength/1000.0);
-					int maxLength = lengthSlider.getValueAt(1);
-					maxLengthModel.setValue(maxLength/1000.0);
+
+					double maxLengthValue;
+					if (limitByLength) {
+						maxLengthValue = mountLength;
+					} else {
+						int maxLength = lengthSlider.getValueAt(1);
+						if (maxLength < 1000) {
+							maxLengthValue = maxLength/1000.0;
+						} else {
+							maxLengthValue = Double.POSITIVE_INFINITY;
+						}
+					}
+					maxLengthModel.setValue(maxLengthValue);
+					
 					onSelectionChanged();
 				}
 			});
@@ -393,6 +429,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitByLength);
 		if ( mountLength != null  & limitByLength ) {
 			lengthSlider.setValueAt(1, (int) Math.min(1000,Math.round(1000*mountLength)));
+			maxLengthModel.setValue(mountLength);
 		}
 	}
 	
