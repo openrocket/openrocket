@@ -189,13 +189,13 @@ class SimulationOptionsPanel extends JPanel {
 		sub.add(subsub, "spanx, wrap para");
 		
 		// Reset to default button
-		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
+		JButton resetBtn = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		// Reset the time step to its default value (
-		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
+		resetBtn.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
 				+ UnitGroup.UNITS_SHORT_TIME
 						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
 				+ ").");
-		button.addActionListener(new ActionListener() {
+		resetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ApplicationPreferences preferences = Application.getPreferences();
@@ -210,8 +210,21 @@ class SimulationOptionsPanel extends JPanel {
 						GeodeticComputationStrategy.SPHERICAL));
 			}
 		});
+
+		// Save as default button
+		JButton saveBtn = new JButton(trans.get("simedtdlg.but.savedefault"));
+		saveBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ApplicationPreferences preferences = Application.getPreferences();
+				preferences.setTimeStep(conditions.getTimeStep());
+				preferences.setMaxSimulationTime(conditions.getMaxSimulationTime());
+				preferences.setGeodeticComputation(conditions.getGeodeticComputation());
+			}
+		});
 		
-		sub.add(button, "align left");
+		sub.add(resetBtn, "align left, split 2");
+		sub.add(saveBtn, "wrap");
 		
 		
 		

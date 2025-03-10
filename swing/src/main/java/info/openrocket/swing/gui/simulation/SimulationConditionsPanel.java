@@ -807,6 +807,7 @@ public class SimulationConditionsPanel extends JPanel {
 	}
 
 	private void addDefaultButtons(SimulationOptions options) {
+		// Reset to default
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		restoreDefaults.addActionListener(e -> {
 			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
@@ -815,6 +816,7 @@ public class SimulationConditionsPanel extends JPanel {
 		});
 		this.add(restoreDefaults, "span, split 3, skip, gapright para, right");
 
+		// Save as default
 		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
 		saveDefaults.addActionListener(e -> {
 			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
