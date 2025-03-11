@@ -174,40 +174,44 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
 		return combinations;
 	}
 
-	private static String getFinalSubstitute(List<String> substitutes, StringBuilder sbStageSub) {
-		if (substitutes.size() == 1 || !sbStageSub.isEmpty()) {
+	/**
+	 * Get the final substitute for a stage. If there is only one substitute, return that. If there are multiple
+	 * identical substitutes, return a string with the number of occurrences of each configuration (e.g. "3xA3-4").
+	 * If there are multiple different substitutes, return a string with all the configurations separated by commas
+	 * (e.g. "A3-4, B6-0").
+	 * @param substitutes List of substitutes for a stage
+	 * @param existingSubstitution StringBuilder containing any existing substitution for the stage
+	 * @return The final substitute for the stage
+	 */
+	private static String getFinalSubstitute(List<String> substitutes, StringBuilder existingSubstitution) {
+		// Special cases
+		if (substitutes.isEmpty()) {
+			return "";
+		}
+		if (substitutes.size() == 1 || !existingSubstitution.isEmpty()) {
 			return substitutes.get(0);
 		}
 
-		// Change multiple occurrences of a configuration to 'n x configuration'
-		String stageName = "";
-		String previous = null;
-		int count = 0;
-
-		Collections.sort(substitutes);
-		for (String current : substitutes) {
-			if (current.isEmpty()) {
-				continue;
-			}
-			if (current.equals(previous)) {
-				count++;
-			} else {
-				if (previous != null) {
-					String s = count > 1 ? count + Chars.TIMES + previous : previous;
-					stageName = stageName.isEmpty() ? s : stageName + "," + s;
-				}
-
-				previous = current;
-				count = 1;
+		// Count occurrences of each non-empty substitute
+		Map<String, Integer> motorCounts = new HashMap<>();
+		for (String motorData : substitutes) {
+			if (!motorData.isEmpty()) {
+				motorCounts.put(motorData, motorCounts.getOrDefault(motorData, 0) + 1);
 			}
 		}
 
-		if (previous != null) {
-			String s = count > 1 ? "" + count + Chars.TIMES + previous : previous;
-			stageName = stageName.isEmpty() ? s : stageName + "," + s;
+		// Build formatted result with sorted keys
+		List<String> formattedMotors = new ArrayList<>();
+		List<String> sortedKeys = new ArrayList<>(motorCounts.keySet());
+		Collections.sort(sortedKeys);
+
+		for (String motorData : sortedKeys) {
+			int count = motorCounts.get(motorData);
+			String formatted = count > 1 ? "" + count + Chars.TIMES + motorData : motorData;
+			formattedMotors.add(formatted);
 		}
 
-		return stageName;
+		return String.join(", ", formattedMotors);
 	}
 
 	@Override
