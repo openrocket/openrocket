@@ -617,8 +617,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	private UnitGroup units;
 	private Unit currentUnit;
 	
-	private final double minValue;
-	private final double maxValue;
+	private double minValue;
+	private double maxValue;
 	private DoubleModel minModel;
 	private DoubleModel maxModel;
 	
@@ -1092,6 +1092,12 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		modelInvalidator.checkState(true);
 
 		if (e != null && (e.getSource() == minModel || e.getSource() == maxModel)) {
+			if (e.getSource() == minModel) {
+				minValue = minModel.getValue();
+			}
+			if (e.getSource() == maxModel) {
+				maxValue = maxModel.getValue();
+			}
 			// Min or max value has changed, we need to ensure our current value is still within bounds
 			double currentValue = getValue();
 			setValue(currentValue);  // This will clamp the value if necessary

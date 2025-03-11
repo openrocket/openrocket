@@ -35,7 +35,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		if (element.equals("wind")) {
-			windHandler = new WindHandler(attributes.get("model"), options);
+			windHandler = new WindHandler(attributes.get("model"), options, attributes);
 			return windHandler;
 		} else if (element.equals("atmosphere")) {
 			atmosphereHandler = new AtmosphereHandler(attributes.get("model"), context);

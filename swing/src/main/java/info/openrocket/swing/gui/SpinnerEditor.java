@@ -7,8 +7,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -82,6 +85,23 @@ public class SpinnerEditor extends JSpinner.DefaultEditor {
 
 		// Fix key behavior on text selection
 		getTextField().addKeyListener(new TextComponentSelectionKeyListener(getTextField()));
+		
+		// Add Enter key handler to commit value and transfer focus
+		getTextField().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					// Commit the edit first
+					try {
+						getTextField().commitEdit();
+					} catch (java.text.ParseException ex) {
+						// Ignore parse exception, the formatter will handle it
+					}
+					// Transfer focus away from the spinner
+					KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
+				}
+			}
+		});
 	}
 
 	/**

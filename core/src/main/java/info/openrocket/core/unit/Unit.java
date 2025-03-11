@@ -90,9 +90,7 @@ public abstract class Unit {
 
 	/**
 	 * Format the given value (in SI units) to a string representation of the value
-	 * in this
-	 * units. An suitable amount of decimals for the unit are used in the
-	 * representation.
+	 * in this unit. A suitable amount of decimals for the unit are used in the representation.
 	 * The unit is not appended to the numerical value.
 	 * 
 	 * @param value Value in SI units.

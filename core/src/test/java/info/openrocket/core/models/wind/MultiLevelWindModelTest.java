@@ -1,5 +1,6 @@
 package info.openrocket.core.models.wind;
 
+import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MultiLevelWindModelTest {
+class MultiLevelWindModelTest extends BaseTestCase {
 	private final static double EPSILON = MathUtil.EPSILON;
 	private static final double DELTA_T = PinkNoiseWindModel.DELTA_T;
 	private static final int SAMPLE_SIZE = 1000;
@@ -26,7 +27,7 @@ class MultiLevelWindModelTest {
 	private MultiLevelPinkNoiseWindModel model;
 
 	@BeforeEach
-	void setUp() {
+	void setUpModel() {
 		model = new MultiLevelPinkNoiseWindModel();
 	}
 
@@ -35,9 +36,13 @@ class MultiLevelWindModelTest {
 	void testAddAndRemoveWindLevels() {
 		model.addWindLevel(100, 5, Math.PI / 4, 1d);
 		model.addWindLevel(200, 10, Math.PI / 2, 1d);
-		assertEquals(2, model.getLevels().size());
+		assertEquals(3, model.getLevels().size());
 
 		model.removeWindLevel(100);
+		assertEquals(2, model.getLevels().size());
+		assertEquals(200, model.getLevels().get(1).altitude, EPSILON);
+
+		model.removeWindLevel(0);
 		assertEquals(1, model.getLevels().size());
 		assertEquals(200, model.getLevels().get(0).altitude, EPSILON);
 
@@ -52,6 +57,8 @@ class MultiLevelWindModelTest {
 	@Test
 	@DisplayName("Adding duplicate altitude throws IllegalArgumentException")
 	void testAddDuplicateAltitude() {
+		assertThrows(IllegalArgumentException.class, () -> model.addWindLevel(0, 0, 0, 1d));
+
 		model.addWindLevel(100, 5, Math.PI / 4, 1d);
 		assertThrows(IllegalArgumentException.class, () -> model.addWindLevel(100, 10, Math.PI / 2, 1d));
 	}
@@ -59,6 +66,7 @@ class MultiLevelWindModelTest {
 	@Test
 	@DisplayName("Get wind velocity")
 	void testGetWindVelocity() {
+		model.clearLevels();
 		model.addWindLevel(0, 5, 0, 1d);
 		model.addWindLevel(1000, 10, Math.PI / 2, 2d);
 
@@ -70,7 +78,8 @@ class MultiLevelWindModelTest {
 	@DisplayName("Interpolation between levels")
 	void testInterpolationBetweenLevels() {
 		// Test speed interpolation
-		model.addWindLevel(0, 5, 0, 0.1);
+		model.getLevels().get(0).setSpeed(5);
+		model.getLevels().get(0).setStandardDeviation(0.1);
 		model.addWindLevel(1000, 10, 0, 0.3);
 
 		verifyWind(200, 6, 0, 0.14);
@@ -104,7 +113,8 @@ class MultiLevelWindModelTest {
 		model.addWindLevel(100, 5, 0, 1.4);
 		model.addWindLevel(200, 10, Math.PI / 2, 2.2);
 
-		verifyWind(0, 5, 0, 1.4);
+		//verifyWind(-100, 5, Math.PI, 1.4);
+		verifyWind(0, 0, 0, 0);
 		verifyWind(300, 10, Math.PI / 2, 2.2);
 		verifyWind(1000, 10, Math.PI / 2, 2.2);
 	}
@@ -119,10 +129,11 @@ class MultiLevelWindModelTest {
 		model.sortLevels();
 
 		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
-		assertEquals(3, levels.size());
-		assertEquals(100, levels.get(0).altitude, EPSILON);
-		assertEquals(200, levels.get(1).altitude, EPSILON);
-		assertEquals(300, levels.get(2).altitude, EPSILON);
+		assertEquals(4, levels.size());
+		assertEquals(0, levels.get(0).altitude, EPSILON);
+		assertEquals(100, levels.get(1).altitude, EPSILON);
+		assertEquals(200, levels.get(2).altitude, EPSILON);
+		assertEquals(300, levels.get(3).altitude, EPSILON);
 	}
 
 	@Test

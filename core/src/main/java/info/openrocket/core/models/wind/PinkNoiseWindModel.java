@@ -6,6 +6,8 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
 
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
@@ -22,6 +24,7 @@ import info.openrocket.core.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class PinkNoiseWindModel implements WindModel {
+	private static final Translator trans = Application.getTranslator();
 
 	/** Random value with which to XOR the random seed value */
 	private static final int SEED_RANDOMIZATION = 0x7343AA03;
@@ -152,6 +155,35 @@ public class PinkNoiseWindModel implements WindModel {
 	 */
 	public void setTurbulenceIntensity(double intensity) {
 		setStandardDeviation(intensity * average);
+	}
+
+	public String getIntensityDescription() {
+		double i = getTurbulenceIntensity();
+		if (i < 0.001)
+		//// None
+			return trans.get("simedtdlg.IntensityDesc.None");
+		if (i < 0.05)
+		//// Very low
+			return trans.get("simedtdlg.IntensityDesc.Verylow");
+		if (i < 0.10)
+		//// Low
+			return trans.get("simedtdlg.IntensityDesc.Low");
+		if (i < 0.15)
+		//// Medium
+			return trans.get("simedtdlg.IntensityDesc.Medium");
+		if (i < 0.20)
+		//// High
+			return trans.get("simedtdlg.IntensityDesc.High");
+		if (i < 0.25)
+		//// Very high
+			return trans.get("simedtdlg.IntensityDesc.Veryhigh");
+		//// Extreme
+		return trans.get("simedtdlg.IntensityDesc.Extreme");
+	}
+
+	@Override
+	public Coordinate getWindVelocity(double time, double altitudeMSL, double altitudeAGL) {
+		return getWindVelocity(time, altitudeMSL);
 	}
 
 	@Override

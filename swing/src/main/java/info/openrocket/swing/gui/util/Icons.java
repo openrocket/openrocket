@@ -67,6 +67,7 @@ public class Icons {
 	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/print-design.specs.png", "Print specifications");
 	public static final Icon FILE_IMPORT = loadImageIcon("pix/icons/model_import.png", "Import");
 	public static final Icon IMPORT = loadImageIcon("pix/icons/import.png", "Import");
+	public static final Icon EXPORT = loadImageIcon("pix/icons/export.png", "Export");
 	public static final Icon FILE_EXPORT = loadImageIcon("pix/icons/model_export.png", "Export");
 	public static final Icon SIM_TABLE_EXPORT = loadImageIcon("pix/icons/sim_table_export.png", "Export simulation table");
 	public static final Icon EXPORT_3D = loadImageIcon("pix/icons/model_export3d.png", "Export 3D");

@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
@@ -24,6 +25,7 @@ import info.openrocket.core.util.StateChangeListener;
 public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private List<LevelWindModel> levels;
 	private static final Translator trans = Application.getTranslator();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private final List<StateChangeListener> listeners = new ArrayList<>();
 
@@ -33,8 +35,14 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private static final String COLUMN_DIRECTION = "dir";
 	private static final String COLUMN_STDDEV = "stddev";
 
+	private AltitudeReference altitudeReference;
+
 	public MultiLevelPinkNoiseWindModel() {
 		this.levels = new ArrayList<>();
+		this.altitudeReference = AltitudeReference.MSL;
+
+		// Add a default wind level
+		addInitialLevel();
 	}
 
 	public void addWindLevel(double altitude, double speed, double direction, Double standardDeviation) {
@@ -59,6 +67,11 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		addWindLevel(altitude, speed, direction, null);
 	}
 
+	private void addInitialLevel() {
+		addWindLevel(0, prefs.getAverageWindModel().getAverage(), prefs.getAverageWindModel().getDirection(),
+				prefs.getAverageWindModel().getStandardDeviation());
+	}
+
 	public void removeWindLevel(double altitude) {
 		levels.removeIf(level -> level.altitude == altitude);
 		fireChangeEvent();
@@ -69,8 +82,20 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		fireChangeEvent();
 	}
 
+	/**
+	 * Clear all current levels.
+	 */
 	public void clearLevels() {
 		levels.clear();
+		fireChangeEvent();
+	}
+
+	/**
+	 * Clear all current levels and add a default wind level.
+	 */
+	public void resetLevels() {
+		levels.clear();
+		addInitialLevel();
 		fireChangeEvent();
 	}
 
@@ -80,6 +105,15 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 
 	public void sortLevels() {
 		levels.sort(Comparator.comparingDouble(l -> l.altitude));
+	}
+
+	@Override
+	public Coordinate getWindVelocity(double time, double altitudeMSL, double altitudeAGL) {
+		if (altitudeReference == AltitudeReference.MSL) {
+			return getWindVelocity(time, altitudeMSL);
+		} else {
+			return getWindVelocity(time, altitudeAGL);
+		}
 	}
 
 	@Override
@@ -124,6 +158,23 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		return (direction + 2 * Math.PI) % (2 * Math.PI);
 	}
 
+	/**
+	 * Returns how the altitude reference is set.
+	 * @return The altitude reference method used for altitude-wind relations
+	 */
+	public AltitudeReference getAltitudeReference() {
+		return altitudeReference;
+	}
+
+	/**
+	 * Set the altitude reference used for altitude-wind relations.
+	 * @param altitudeReference the new altitude reference
+	 */
+	public void setAltitudeReference(AltitudeReference altitudeReference) {
+		this.altitudeReference = altitudeReference;
+		fireChangeEvent();
+	}
+
 	@Override
 	public ModID getModID() {
 		return ModID.ZERO; // You might want to create a specific ModID for this model
@@ -134,6 +185,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		for (LevelWindModel level : source.levels) {
 			this.levels.add(level.clone());
 		}
+		this.altitudeReference = source.altitudeReference;
 	}
 
 	/**
@@ -289,6 +341,8 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		if (o == null || getClass() != o.getClass()) return false;
 		MultiLevelPinkNoiseWindModel that = (MultiLevelPinkNoiseWindModel) o;
 
+		if (altitudeReference != that.altitudeReference) return false;
+
 		// Compare the levels list
 		if (levels.size() != that.levels.size()) return false;
 		for (int i = 0; i < levels.size(); i++) {
@@ -349,12 +403,16 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 			model.setStandardDeviation(standardDeviation);
 		}
 
-		public double getTurblenceIntensity() {
+		public double getTurbulenceIntensity() {
 			return model.getTurbulenceIntensity();
 		}
 
 		public void setTurbulenceIntensity(double turbulenceIntensity) {
 			model.setTurbulenceIntensity(turbulenceIntensity);
+		}
+
+		public String getIntensityDescription() {
+			return model.getIntensityDescription();
 		}
 
 		@Override

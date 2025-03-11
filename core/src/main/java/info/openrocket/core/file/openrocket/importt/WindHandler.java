@@ -4,6 +4,7 @@ import info.openrocket.core.file.simplesax.AbstractElementHandler;
 import info.openrocket.core.file.simplesax.ElementHandler;
 import info.openrocket.core.file.simplesax.PlainTextHandler;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.simulation.SimulationOptions;
 
@@ -13,8 +14,21 @@ public class WindHandler extends AbstractElementHandler {
 	private final String model;
 	private final SimulationOptions options;
 
-	public WindHandler(String model, SimulationOptions options) {
+	public WindHandler(String model, SimulationOptions options, HashMap<String, String> attributes) {
 		this.model = model;
+
+		if ("multilevel".equals(model)) {
+			// For multilevel wind model, clear the levels (clear the initial level) to fill it up with actual data
+			options.getMultiLevelWindModel().clearLevels();
+
+			// Set the altitude reference
+			String reference = attributes.get("altituderef");
+			if (reference != null) {
+				WindModel.AltitudeReference altitudeReference =
+						(WindModel.AltitudeReference) DocumentConfig.findEnum(reference, WindModel.AltitudeReference.class);
+				options.getMultiLevelWindModel().setAltitudeReference(altitudeReference);
+			}
+		}
 		this.options = options;
 	}
 

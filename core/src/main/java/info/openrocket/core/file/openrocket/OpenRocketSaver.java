@@ -17,6 +17,7 @@ import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
+import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.preferences.DocumentPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -352,7 +353,9 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("</wind>");
 
 		if (!cond.getMultiLevelWindModel().getLevels().isEmpty()) {
-			writeln("<wind model=\"multilevel\">");
+			WindModel.AltitudeReference altitudeRef = cond.getMultiLevelWindModel().getAltitudeReference();
+			String altitudeRefString = enumToXMLName(altitudeRef);
+			writeln("<wind model=\"multilevel\" altituderef=\"" + altitudeRefString + "\">");
 			indent++;
 			for (MultiLevelPinkNoiseWindModel.LevelWindModel level : cond.getMultiLevelWindModel().getLevels()) {
 				writeln("<windlevel altitude=\"" + level.getAltitude() + "\" speed=\"" + level.getSpeed() +

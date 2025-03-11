@@ -94,6 +94,7 @@ public class SimulationConditionsTest {
 
         // Test MultiLevelPinkNoiseWindModel
         MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
+        multiLevelModel.clearLevels();
         multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4, 1d);
         multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 2d);
 
@@ -112,6 +113,7 @@ public class SimulationConditionsTest {
     public void testMultiLevelWindModelConsistency() {
         SimulationConditions conditions = new SimulationConditions();
         MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
+        multiLevelModel.clearLevels();
         multiLevelModel.addWindLevel(0, 5.0, Math.PI / 4, 2d);
         multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 1d);
 
@@ -145,6 +147,7 @@ public class SimulationConditionsTest {
     public void testMultiLevelWindModelAltitudeDependence() {
         SimulationConditions conditions = new SimulationConditions();
         MultiLevelPinkNoiseWindModel multiLevelModel = new MultiLevelPinkNoiseWindModel();
+        multiLevelModel.clearLevels();
         multiLevelModel.addWindLevel(0, 5.0, 0, 0d);
         multiLevelModel.addWindLevel(1000, 10.0, Math.PI / 2, 0d);
 
