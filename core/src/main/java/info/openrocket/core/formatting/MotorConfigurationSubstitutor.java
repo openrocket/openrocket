@@ -207,7 +207,7 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
 
 		for (String motorData : sortedKeys) {
 			int count = motorCounts.get(motorData);
-			String formatted = count > 1 ? "" + count + Chars.TIMES + motorData : motorData;
+			String formatted = count > 1 ? "" + count + Chars.TIMES + " " + motorData : motorData;
 			formattedMotors.add(formatted);
 		}
 
