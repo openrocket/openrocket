@@ -119,6 +119,14 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	public int getMotorCount();
 
 	/**
+	 * Get the number of motors available for all flight configurations, including
+	 * assembly copies (e.g. if you have 1 motor in a 2-instance booster, the total returned will be 2).
+	 *
+	 * @return the number of motors.
+	 */
+	public int getMotorCountIncludingAssemblyCopies();
+
+	/**
 	 * Return the distance that the motors hang outside this motor mount.
 	 * 
 	 * @return the overhang length.

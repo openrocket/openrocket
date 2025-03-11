@@ -448,7 +448,7 @@ public class DesignReport {
 					continue;
 				}
 				
-				int motorCount = mount.getMotorCount();
+				int motorCount = mount.getMotorCountIncludingAssemblyCopies();
 				
 				int border = Rectangle.NO_BORDER;
 				if (topBorder) {

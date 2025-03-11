@@ -1,6 +1,7 @@
 package info.openrocket.core.rocketcomponent;
 
 import java.util.Iterator;
+import java.util.List;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.Motor;
@@ -468,6 +469,19 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	@Override
 	public int getMotorCount() {
 		return this.getClusterConfiguration().getClusterCount();
+	}
+
+	@Override
+	public int getMotorCountIncludingAssemblyCopies() {
+		// Get the parent assemblies of the motor mount, and multiply the data by the number of instances
+		int multiplier = 1;
+		List<RocketComponent> parents = getParentAssemblies();
+		for (RocketComponent parent : parents) {
+			multiplier *= parent.getInstanceCount();
+		}
+
+		int count = getMotorCount();
+		return count * multiplier;
 	}
 		
 	@Override

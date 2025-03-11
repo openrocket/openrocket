@@ -388,6 +388,19 @@ public class InnerTube extends ThicknessRingComponent
 	public int getMotorCount() {
 		return this.getClusterConfiguration().getClusterCount();
 	}
+
+	@Override
+	public int getMotorCountIncludingAssemblyCopies() {
+		// Get the parent assemblies of the motor mount, and multiply the data by the number of instances
+		int multiplier = 1;
+		List<RocketComponent> parents = getParentAssemblies();
+		for (RocketComponent parent : parents) {
+			multiplier *= parent.getInstanceCount();
+		}
+
+		int count = getMotorCount();
+		return count * multiplier;
+	}
 	
 	
 	@Override

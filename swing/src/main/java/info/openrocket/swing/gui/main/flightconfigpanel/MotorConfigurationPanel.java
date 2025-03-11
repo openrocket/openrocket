@@ -526,7 +526,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 
 			String str = motor.getMotorName(curMotorInstance.getEjectionDelay());
-			int count = mount.getInstanceCount();
+			int count = mount.getMotorCountIncludingAssemblyCopies();
 			if (count > 1) {
 				str = "" + count + Chars.TIMES + " " + str;
 			}
