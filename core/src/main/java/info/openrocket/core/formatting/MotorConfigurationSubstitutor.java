@@ -274,7 +274,7 @@ public class MotorConfigurationSubstitutor implements RocketSubstitutor {
 					String data = getData(motor, inst);
 
 					// Add the data for each motor instance
-					for (int i = 0; i < mount.getMotorCount(); i++) {
+					for (int i = 0; i < mount.getMotorCountIncludingAssemblyCopies(); i++) {
 						dataList.add(data);
 					}
 				}
