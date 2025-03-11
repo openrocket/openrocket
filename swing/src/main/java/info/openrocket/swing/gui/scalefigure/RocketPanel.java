@@ -1,57 +1,15 @@
 package info.openrocket.swing.gui.scalefigure;
 
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.stream.Collectors;
-
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JViewport;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
-import info.openrocket.core.logging.Warning;
-import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.events.SimulationChangeEvent;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
@@ -68,22 +26,14 @@ import info.openrocket.core.simulation.listeners.SimulationListener;
 import info.openrocket.core.simulation.listeners.system.GroundHitListener;
 import info.openrocket.core.simulation.listeners.system.InterruptListener;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
-import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
-
-import info.openrocket.swing.gui.components.StyledLabel;
-import info.openrocket.core.componentanalysis.CAParameters;
-import net.miginfocom.swing.MigLayout;
-import info.openrocket.swing.gui.adaptors.DoubleModel;
-import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StageSelector;
-import info.openrocket.swing.gui.components.UnitSelector;
+import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
 import info.openrocket.swing.gui.figureelements.CGCaret;
@@ -95,8 +45,49 @@ import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.swing.gui.simulation.SimulationWorker;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.CustomClickCountListener;
+import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JViewport;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EventListener;
+import java.util.EventObject;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 
 /**
@@ -156,8 +147,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private TreeSelectionModel selectionModel = null;
 
-	private BasicSlider rotationSlider;
-	private DoubleModel rotationModel;
+	private ViewRotationControl rotationControl;
 	private ScaleSelector scaleSelector;
 
 	/* Calculation of CP and CG */
@@ -318,7 +308,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		is3d = true;
 		figureHolder.remove(scrollPane);
 		figureHolder.add(figure3d, BorderLayout.CENTER);
-		rotationSlider.setEnabled(false);
+		rotationControl.setEnabled(false);
 		scaleSelector.setEnabled(false);
 
 		revalidate();
@@ -333,7 +323,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		is3d = false;
 		figureHolder.remove(figure3d);
 		figureHolder.add(scrollPane, BorderLayout.CENTER);
-		rotationSlider.setEnabled(true);
+		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
 		scrollPane.revalidate();
 		scrollPane.repaint();
@@ -356,7 +346,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		});
 
-		setLayout(new MigLayout("", "[shrink][grow]", "[shrink][shrink][grow][shrink]"));
+		setLayout(new MigLayout("", "[shrink][grow]", "[shrink][grow][shrink]"));
 
 		setPreferredSize(new Dimension(800, 300));
 
@@ -442,35 +432,22 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		add(ribbon, "growx, span, wrap");
 
-		// Create slider and scroll pane
-		rotationModel = new DoubleModel(figure, "Rotation", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
-		figure.addChangeListener(rotationModel);
-		UnitSelector us = new UnitSelector(rotationModel, true);
-		us.setHorizontalAlignment(JLabel.CENTER);
-		add(us, "alignx 50%, growx");
-		us.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
+		// Create rotation control
+		rotationControl = new ViewRotationControl(figure);
+		add(rotationControl, "growx, growy");
 
-		// Add the rocket figure
-		add(figureHolder, "grow, spany 2, wmin 300lp, hmin 100lp, wrap");
-
-		// Add rotation slider
-		// Dummy label to find the minimum size to fit "360.0deg"
-		JLabel l = new JLabel("360.0" + Chars.DEGREE);
-		Dimension d = l.getPreferredSize();
-
-		us.setMinimumSize(new Dimension(d.width, us.getPreferredSize().height));
-		rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true);
-		add(rotationSlider, "ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
-		rotationSlider.addChangeListener(new ChangeListener() {
+		rotationControl.getRotationSlider().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				updateExtras();
 			}
 		});
-		rotationSlider.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
+
+		// Add the rocket figure
+		add(figureHolder, "grow, wmin 300lp, hmin 100lp, wrap");
 
 		// Bottom row
-		JPanel bottomRow = new JPanel(new MigLayout("fill, gapy 0, ins 0"));
+		JPanel bottomRow = new JPanel(new MigLayout("fillx, gapy 0, ins 0"));
 
 		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
 		infoMessage = new StyledLabel(trans.get("RocketPanel.lbl.infoMessage"), -3);
@@ -489,7 +466,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		});
 
-		add(bottomRow, "skip, growx, span, gapleft 25");
+		add(bottomRow, "skip, growx, gapleft 25");
 
 		addExtras();
 	}
@@ -779,7 +756,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void handleMouseDragged(MouseEvent event, Point originalDragLocation, double originalRotation) {
-		if (originalDragLocation == null || is3d) {
+		if (originalDragLocation == null || is3d || rotationControl.isDragRotationLocked()) {
 			return;
 		}
 
