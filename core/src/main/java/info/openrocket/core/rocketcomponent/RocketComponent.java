@@ -124,9 +124,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private boolean cdOverridden = false;
 	private boolean overrideSubcomponentsCD = false;
 	private RocketComponent CDOverriddenBy = null;	// The (super-)parent component that overrides the CD of this component
-
-	private boolean cdOverriddenByAncestor = false;
-	
 	
 	// User-given name of the component
     protected String name = null;
@@ -862,7 +859,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public final boolean isCDOverriddenByAncestor() {
 		mutex.verify();
-		return cdOverriddenByAncestor;
+		return (null != parent) &&
+			(parent.isCDOverriddenByAncestor() ||
+			 (parent.isCDOverridden() && parent.isSubcomponentsOverriddenCD()));
 	}
 	
 	
@@ -1008,8 +1007,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	void overrideSubcomponentsCD(boolean override) {
 		for (RocketComponent c : this.children) {
 			if (c.isCDOverriddenByAncestor() != override) {
-
-				c.cdOverriddenByAncestor = override;
 
 				if (!override && c.isCDOverridden() && c.isSubcomponentsOverriddenCD()) {
 					c.overrideSubcomponentsCD(true);
@@ -2982,7 +2979,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.massOverridden = src.massOverridden;
 		this.overrideCGX = src.overrideCGX;
 		this.cgOverridden = src.cgOverridden;
-		this.cdOverriddenByAncestor = src.cdOverriddenByAncestor;
 		this.overrideSubcomponentsMass = src.overrideSubcomponentsMass;
 		this.overrideSubcomponentsCG = src.overrideSubcomponentsCG;
 		this.overrideSubcomponentsCD = src.overrideSubcomponentsCD;
