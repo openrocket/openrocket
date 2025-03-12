@@ -908,7 +908,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		updateChildrenMassOverriddenBy();
 
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN);
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN);
 	}
 
 	/**
@@ -946,7 +946,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		updateChildrenCGOverriddenBy();
 
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN);
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN);
 	}
 
 	/**
@@ -986,7 +986,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		overrideSubcomponentsCD(override);
 
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN);
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN);
 	}
 
 	/**
