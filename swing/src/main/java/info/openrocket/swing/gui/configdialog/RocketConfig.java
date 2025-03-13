@@ -144,8 +144,6 @@ public class RocketConfig extends RocketComponentConfig {
 
 		addButtons();
 		addEasterEgg();
-
-		SwingUtilities.invokeLater(componentNameField::requestFocus);
 	}
 
 	/**
