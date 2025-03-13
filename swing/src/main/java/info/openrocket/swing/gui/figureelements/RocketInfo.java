@@ -475,7 +475,8 @@ public class RocketInfo implements FigureElement {
 		if (flightData == null)
 			return 0;
 		
-		double width=0;
+		double width = 0;
+		double height = 4*line;
 
 		//// Flight configuration:
 		GlyphVector flightConfig = createText(trans.get("RocketInfo.FlightConfig")+" ");
@@ -541,7 +542,8 @@ public class RocketInfo implements FigureElement {
 			g2.drawGlyphVector(statusVector, x1, y2-4*line);
 			
 			g2.setColor(oldColor);
-			
+
+			height += line;
 		}
 		
 		if (!calculatingData) 
@@ -559,7 +561,7 @@ public class RocketInfo implements FigureElement {
 		g2.drawGlyphVector(velocityValue, (float)(x1+width), y2-line);
 		g2.drawGlyphVector(accelerationValue, (float)(x1+width), y2);
 		
-		return 4*line;
+		return height;
 	}
 	
 	private synchronized void updateFontSizes() {
