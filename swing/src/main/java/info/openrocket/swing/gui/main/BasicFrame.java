@@ -1357,7 +1357,7 @@ public class BasicFrame extends JFrame {
 		}
 
 		////	Handle the document
-		OpenRocketDocument doc = null;
+		final OpenRocketDocument doc;
 		try {
 			doc = worker.get();
 		} catch (ExecutionException e) {
@@ -1407,11 +1407,11 @@ public class BasicFrame extends JFrame {
 		BasicFrame frame = new BasicFrame(doc);
 		frame.setVisible(true);
 
-		if (parent != null && parent instanceof BasicFrame) {
+		if (parent instanceof BasicFrame) {
 			((BasicFrame) parent).closeIfReplaceable();
 		}
 		if (openRocketConfigDialog) {
-			ComponentConfigDialog.showDialog(frame, doc, doc.getRocket());
+			SwingUtilities.invokeLater(() -> ComponentConfigDialog.showDialog(frame, doc, doc.getRocket()));
 		}
 
 		return frame;
