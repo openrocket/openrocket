@@ -133,21 +133,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		rowsPanel = new JPanel();
 		rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.Y_AXIS));
 
-		// Calculate total width based on column definitions
-		int totalWidth = 0;
-		for (ColumnDefinition col : COLUMNS) {
-			totalWidth += col.width();
-		}
-		// Add some extra width for separators
-		totalWidth += (COLUMNS.length - 1); // 1px for each separator
-		
-		// Ensure rows panel has its preferred width set but allows vertical scrolling
-		rowsPanel.setMinimumSize(new Dimension(totalWidth, 10));
-		
-		// Set a small preferred height initially to ensure vertical scrolling works
-		// This will be updated when rows are added to match actual content height
-		rowsPanel.setPreferredSize(new Dimension(totalWidth, 10));
-
 		// Populate rows from the wind model
 		windModel.getLevels().forEach(lvl -> {
 			LevelRow row = new LevelRow(lvl);
