@@ -735,7 +735,7 @@ public class CSVImportSettingsDialog extends JDialog {
 			// Generate sample data rows
 			double[] altitudes = {100.0, 200.0, 300.0, 400.0};
 			double[] speeds = {5.0, 7.5, 10.0, 12.5};
-			double[] directions = {45.0, 75.0, 105.0, 135.0};
+			double[] directions = {Math.PI / 2, Math.PI * 5/12, Math.PI * 7/12, Math.PI * 3/4};
 			double[] stdDevs = {1.0, 1.5, 2.0, 2.5};
 
 			for (int i = 0; i < 4; i++) {
