@@ -454,9 +454,40 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		resortRows(null);
 	}
 
-	public void importLevels(File file, String separator) {
-		windModel.importLevelsFromCSV(file, separator);
-		syncRowsFromModel();
+	/**
+	 * Import wind levels from a CSV file with the specified settings.
+	 *
+	 * @param file The CSV file to import
+	 * @param separator The field separator used in the CSV file
+	 * @param altitudeColumn The name or index of the altitude column
+	 * @param speedColumn The name or index of the speed column
+	 * @param directionColumn The name or index of the direction column
+	 * @param stdDeviationColumn The name or index of the standard deviation column (can be empty)
+	 * @param altitudeUnit The unit used for altitude values in the CSV
+	 * @param speedUnit The unit used for speed values in the CSV
+	 * @param directionUnit The unit used for direction values in the CSV
+	 * @param stdDeviationUnit The unit used for standard deviation values in the CSV
+	 * @param hasHeaders Whether the CSV file has headers
+	 */
+	public void importLevels(File file, String separator,
+							 String altitudeColumn, String speedColumn,
+							 String directionColumn, String stdDeviationColumn,
+							 Unit altitudeUnit, Unit speedUnit,
+							 Unit directionUnit, Unit stdDeviationUnit,
+							 boolean hasHeaders) {
+		try {
+			windModel.importLevelsFromCSV(file, separator,
+					altitudeColumn, speedColumn,
+					directionColumn, stdDeviationColumn,
+					altitudeUnit, speedUnit,
+					directionUnit, stdDeviationUnit,
+					hasHeaders);
+			syncRowsFromModel();
+		} catch (Exception e) {
+			// Ensure we reset if any error occurs
+			resetLevels();
+			throw e;
+		}
 	}
 
 	public void resetLevels() {

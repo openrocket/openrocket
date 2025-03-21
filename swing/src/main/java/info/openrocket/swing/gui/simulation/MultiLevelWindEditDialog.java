@@ -16,7 +16,6 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -24,9 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -34,13 +31,11 @@ import java.awt.FlowLayout;
 import java.awt.Window;
 import java.io.File;
 
-import static info.openrocket.swing.gui.components.CsvOptionPanel.SPACE;
-import static info.openrocket.swing.gui.components.CsvOptionPanel.TAB;
-
 public class MultiLevelWindEditDialog extends JDialog {
 	private final MultiLevelWindTable windTable;
 	private final WindProfilePanel visualization;
 	private static final Translator trans = Application.getTranslator();
+	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private static Border border;
 
@@ -223,7 +218,36 @@ public class MultiLevelWindEditDialog extends JDialog {
 	}
 
 	private void importLevels(MultiLevelPinkNoiseWindModel model) {
-		// Create a text box pop up where you can paste a CSV file
+		// First, open the import settings dialog to configure column mappings and units
+		CSVImportSettingsDialog settingsDialog = new CSVImportSettingsDialog(this);
+		settingsDialog.setVisible(true);
+
+		// If user canceled, return
+		if (!settingsDialog.isApproved()) {
+			return;
+		}
+
+		// Save the preferences
+		prefs.setMultiLevelWindCsvImportHeader(settingsDialog.hasHeader());
+
+		prefs.setMultiLevelWindCsvImportAltitudeColumn(settingsDialog.getAltitudeColumnName());
+		prefs.setMultiLevelWindCsvImportSpeedColumn(settingsDialog.getSpeedColumnName());
+		prefs.setMultiLevelWindCsvImportDirectionColumn(settingsDialog.getDirectionColumnName());
+		prefs.setMultiLevelWindCsvImportStddevColumn(settingsDialog.getStdDeviationColumnName());
+
+		prefs.setMultiLevelWindCsvImportAltitudeColumnIndex(settingsDialog.getAltitudeColumnIndex());
+		prefs.setMultiLevelWindCsvImportSpeedColumnIndex(settingsDialog.getSpeedColumnIndex());
+		prefs.setMultiLevelWindCsvImportDirectionColumnIndex(settingsDialog.getDirectionColumnIndex());
+		prefs.setMultiLevelWindCsvImportStddevColumnIndex(settingsDialog.getStdDeviationColumnIndex());
+
+		prefs.setMultiLevelWindCsvImportAltitudeUnit(settingsDialog.getAltitudeUnit());
+		prefs.setMultiLevelWindCsvImportSpeedUnit(settingsDialog.getSpeedUnit());
+		prefs.setMultiLevelWindCsvImportDirectionUnit(settingsDialog.getDirectionUnit());
+		prefs.setMultiLevelWindCsvImportStddevUnit(settingsDialog.getStdDeviationUnit());
+
+		prefs.putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, settingsDialog.getSeparator());
+
+		// Now open file chooser to select the CSV file
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		fileChooser.setDialogTitle(trans.get("WindProfileEditorDlg.dlg.importLevels.title"));
@@ -233,40 +257,12 @@ public class MultiLevelWindEditDialog extends JDialog {
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setMultiSelectionEnabled(false);
 
-		// Accessory panel
-		//// CSV file description
-		JPanel accessoryPanel = new JPanel(new MigLayout());
-		accessoryPanel.setBorder(BorderFactory.createTitledBorder(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.title")));
-
-		JTextArea descriptionArea = new JTextArea(trans.get("WindProfileEditorDlg.dlg.importLevels.accessoryPanel.desc"), 6, 30);
-		descriptionArea.setEditable(false);
-		descriptionArea.setBackground(null);
-		accessoryPanel.add(descriptionArea, "spanx, wrap");
-
-		accessoryPanel.add(new JSeparator(JSeparator.HORIZONTAL), "spanx, growx, wrap");
-
-		//// Field separation
-		JLabel label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
-		String ttip = trans.get("SimExpPan.lbl.longA1") +
-				trans.get("SimExpPan.lbl.longA2");
-		label.setToolTipText(ttip);
-		accessoryPanel.add(label, "gapright unrel");
-
-		JComboBox<String> fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
-		fieldSeparator.setEditable(true);
-		fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
-		fieldSeparator.setToolTipText(ttip);
-		accessoryPanel.add(fieldSeparator, "growx, wrap");
-
-		fileChooser.setAccessory(accessoryPanel);
-
 		int returnVal = fileChooser.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
 			selectedFile = FileHelper.forceExtension(selectedFile, "csv");
 
 			((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
-			Application.getPreferences().putString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, (String) fieldSeparator.getSelectedItem());
 
 			// Show a warning message that the current levels will be overwritten
 			if (!model.getLevels().isEmpty()) {
@@ -277,9 +273,21 @@ public class MultiLevelWindEditDialog extends JDialog {
 				}
 			}
 
-			// Import the CSV file
+			// Import the CSV file with the configured settings
 			try {
-				windTable.importLevels(selectedFile, (String) fieldSeparator.getSelectedItem());
+				windTable.importLevels(
+						selectedFile,
+						settingsDialog.getSeparator(),
+						settingsDialog.getAltitudeColumn(),
+						settingsDialog.getSpeedColumn(),
+						settingsDialog.getDirectionColumn(),
+						settingsDialog.getStdDeviationColumn(),
+						settingsDialog.getAltitudeUnit(),
+						settingsDialog.getSpeedUnit(),
+						settingsDialog.getDirectionUnit(),
+						settingsDialog.getStdDeviationUnit(),
+						settingsDialog.hasHeader()
+				);
 			} catch (IllegalArgumentException ex) {
 				windTable.resetLevels();
 				JOptionPane.showMessageDialog(this, new String[] {
