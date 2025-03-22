@@ -2,7 +2,7 @@
 
 # Variables
 OLD_APP_NAME="OpenRocket"
-NEW_APP_NAME="OpenRocket 24.12.beta.01"
+NEW_APP_NAME="OpenRocket 24.12.RC.01"
 DMG_TEMPLATE="macOS_resources/OpenRocket-23.09-macOS-AppleSilicon.dmg"
 OUTPUT_DIR="./macOS_resources"
 
