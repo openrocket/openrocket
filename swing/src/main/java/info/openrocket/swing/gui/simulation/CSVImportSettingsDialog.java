@@ -764,6 +764,8 @@ public class CSVImportSettingsDialog extends JDialog {
 			e.printStackTrace();
 		}
 
+		// TODO: I'd rather have a way to disable the auto scrolling, but I haven't found a way for it yet.
+		//   using scrollPane.setAutoscrolls(false) doesn't seem to work
 		if (viewportPosition != null) {
 			SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(viewportPosition));
 		}
