@@ -1365,11 +1365,15 @@ public class FreeformFinSetTest extends BaseTestCase {
 		bt.addChild(fins);
 		FinSetCalc calc = new FinSetCalc(fins);
 		FlightConditions conditions = new FlightConditions(null);
-		Transformation transform = Transformation.IDENTITY;
+		// rotate 90 degrees about the X axis
+		Transformation transform = new Transformation(new double[][] {
+				{1, 0,  0},
+				{0, 0, -1},
+				{0, 1,  1}
+			});
 		AerodynamicForces forces = new AerodynamicForces();
 		WarningSet warnings = new WarningSet();
 		calc.calculateNonaxialForces(conditions, transform, forces, warnings);
-		// System.out.println(forces);
 		assertEquals(0.023409, forces.getCP().x, 0.0001);
 	}
 
