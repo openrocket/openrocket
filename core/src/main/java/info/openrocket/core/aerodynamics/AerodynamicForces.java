@@ -17,7 +17,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	private RocketComponent component = null;
 
 	/** CP and CNa. */
-	private Coordinate cp = null;
+	private Coordinate cpCNa = Coordinate.ZERO;
 
 	/**
 	 * Normal force coefficient derivative. At values close to zero angle of attack
@@ -106,16 +106,30 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		return component;
 	}
 
+	/**
+	 * set cpCNa as the moment defined by cp
+	 */
 	public void setCP(Coordinate cp) {
-		if ((this.cp != null) && this.cp.equals(cp))
+		Coordinate newCpCNa;
+		if (MathUtil.equals(0, cp.weight)) {
+			newCpCNa = Coordinate.ZERO;
+		} else {
+			newCpCNa = new Coordinate(cp.x*cp.weight, cp.y*cp.weight, cp.z*cp.weight, cp.weight);
+		}
+		
+		if ((this.cpCNa != null) && this.cpCNa.equals(newCpCNa))
 			return;
 		
-		this.cp = cp;
+		this.cpCNa = newCpCNa;
 		modID = new ModID();
 	}
 
 	public Coordinate getCP() {
-		return cp;
+		if (MathUtil.equals(0, cpCNa.weight)) {
+			return Coordinate.ZERO;
+		} 
+				
+		return new Coordinate(cpCNa.x / cpCNa.weight, cpCNa.y / cpCNa.weight, cpCNa.z / cpCNa.weight, cpCNa.weight);
 	}
 
 	public void setCNa(double cNa) {
@@ -476,7 +490,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public AerodynamicForces merge(AerodynamicForces other) {
-		this.cp = cp.average(other.getCP());
+		this.cpCNa = cpCNa.add(other.cpCNa);
 		this.CNa = CNa + other.getCNa();
 		this.CN = CN + other.getCN();
 		this.Cm = Cm + other.getCm();
