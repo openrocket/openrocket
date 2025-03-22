@@ -1903,6 +1903,7 @@ public class UITheme {
 		public Color getStatusColor(Status status) {
 			switch (status) {
 			case ABORTED:
+            case CANT_RUN:
 				return getErrorColor();
 				
 			case OUTDATED:
