@@ -200,7 +200,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Write test data
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5,0,1.5",
 				"100,10,45,2.0",
 				"1000,15,90,2.5"
@@ -237,7 +237,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Test different number formats
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5.5,0,1.5",      // Standard format
 				"100,10,2,2.0",     // Integer
 				"1000,15.0,90,2.5", // With trailing zero
@@ -263,7 +263,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,-5,0,1.5",      // Negative speed
 				"100,10,-45,2.0",  // Negative direction
 				"1000,-15,-90,2.5"  // Negative speed and direction
@@ -290,7 +290,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Test different number formats
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5,0,1.5",
 				"100,10,45",		// Missing value
 				"1000,15,90,2.5"
@@ -308,7 +308,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt;speed;dir;stddev",
+				"altitude;speed;direction;stddev",
 				"0;5;0;1,5",        // European format with comma
 				"100;10;45;2,0",    // European format
 				"1000;15,2;90;2,5"  // European format with multiple commas
@@ -332,7 +332,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Missing speed column
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,dir,stddev",
+				"altitude,direction,stddev",
 				"0,0,1.5"
 		));
 
@@ -342,7 +342,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Invalid number format
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,invalid,0,1.5"
 		));
 
@@ -352,7 +352,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Empty value
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,,0,1.5"
 		));
 
@@ -368,7 +368,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"dir,speed,alt,stddev",  // Different order
+				"direction,speed,altitude,stddev",  // Different order
 				"0,5,0,1.5",
 				"45,10,100,2.0"
 		));
@@ -390,7 +390,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev,extra1,extra2",  // Extra columns
+				"altitude,speed,direction,stddev,extra1,extra2",  // Extra columns
 				"0,5,0,1.5,100,200",
 				"100,10,45,2.0,300,400"
 		));
@@ -514,7 +514,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		File tempFile = tempDir.resolve("custom_units.csv").toFile();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				// Alt in feet, speed in mph, direction in degrees, stddev in mph
 				"0,11.2,0,3.4",       // 0m, 5m/s, 0rad, 1.5m/s
 				"328,22.4,45,4.5",    // 100m, 10m/s, PI/4rad, 2.0m/s
@@ -527,7 +527,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		Unit degreeUnit = new DegreeUnit();
 
 		model.importLevelsFromCSV(tempFile, ",",
-				"alt", "speed", "dir", "stddev",
+				"altitude", "speed", "direction", "stddev",
 				feetUnit,      // altitude in feet
 				mphUnit,       // speed in mph
 				degreeUnit,    // direction in degrees
@@ -556,7 +556,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		File tempFile = tempDir.resolve("no_stddev.csv").toFile();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir",
+				"altitude,speed,direction",
 				"0,5,0",
 				"100,10,45",
 				"1000,15,90"
@@ -564,7 +564,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Import without stddev column
 		model.importLevelsFromCSV(tempFile, ",",
-				"alt", "speed", "dir", "",  // empty stddev column name
+				"altitude", "speed", "direction", "",  // empty stddev column name
 				UnitGroup.UNITS_DISTANCE.getSIUnit(),
 				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
 				new DegreeUnit(),
@@ -591,7 +591,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		File tempFile = tempDir.resolve("invalid_indices.csv").toFile();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5,0,1.5"
 		));
 

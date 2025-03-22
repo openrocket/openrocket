@@ -299,7 +299,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	}
 
 	public void importLevelsFromCSV(File file, String fieldSeparator) {
-		importLevelsFromCSV(file, fieldSeparator, "alt", "speed", "dir", "stddev",
+		importLevelsFromCSV(file, fieldSeparator, "altitude", "speed", "direction", "stddev",
 				UnitGroup.UNITS_DISTANCE.getSIUnit(),
 				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
 				new DegreeUnit(),	// This is more common in wind data

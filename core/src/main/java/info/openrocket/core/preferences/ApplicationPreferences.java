@@ -1354,7 +1354,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the column name for the altitude
 	 */
 	public String getMultiLevelWindCsvImportAltitudeColumn() {
-		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN, "alt");
+		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN, "altitude");
 	}
 
 	/**
@@ -1460,7 +1460,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the column name for the direction
 	 */
 	public String getMultiLevelWindCsvImportDirectionColumn() {
-		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN, "dir");
+		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN, "direction");
 	}
 
 	/**
