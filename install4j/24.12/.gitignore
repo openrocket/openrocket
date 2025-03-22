@@ -21,4 +21,4 @@ media/
 
 code_signing/
 
-macOS_resources/template_dmg_rw.dmg
+macOS_resources/*.dmg
