@@ -625,7 +625,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		File tempFile = tempDir.resolve("european_format.csv").toFile();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"höhe;geschwindigkeit;richtung;abweichung",
+				"hohe;geschwindigkeit;richtung;abweichung",
 				"0;5,0;0;1,5",
 				"100;10,0;45;2,0",
 				"1000;15,0;90;2,5"
@@ -633,7 +633,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Import with European column names and formatting
 		model.importLevelsFromCSV(tempFile, ";",
-				"höhe", "geschwindigkeit", "richtung", "abweichung",
+				"hohe", "geschwindigkeit", "richtung", "abweichung",
 				UnitGroup.UNITS_DISTANCE.getSIUnit(),
 				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
 				new DegreeUnit(),
