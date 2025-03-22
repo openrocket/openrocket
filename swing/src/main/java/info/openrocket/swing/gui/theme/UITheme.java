@@ -1915,9 +1915,7 @@ public class UITheme {
     }
 
     private static void preApplyTheme() {
-        final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
         FlatAnimatedLafChange.showSnapshot();
-
         FlatLaf.registerCustomDefaultsSource("themes");
     }
 
