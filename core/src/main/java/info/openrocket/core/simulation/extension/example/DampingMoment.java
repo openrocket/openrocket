@@ -139,7 +139,7 @@ public class DampingMoment extends AbstractSimulationExtension {
 
 				// System.out.println(comp.toString());
 
-				double CNa = entry.getValue().getCNa(); // ?
+				double CNa = entry.getValue().getCP().weight; // ?
 				double Cp = entry.getValue().getCP().length();
 				double z = comp.getAxialOffset();
 

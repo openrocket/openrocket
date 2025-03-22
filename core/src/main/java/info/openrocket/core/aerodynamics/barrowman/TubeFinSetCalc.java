@@ -149,8 +149,7 @@ public class TubeFinSetCalc extends TubeCalc {
 		if (outerRadius < 0.001) {
 			forces.setCm(0);
 			forces.setCN(0);
-			forces.setCNa(0);
-			forces.setCP(Coordinate.NUL);
+			forces.setCP(Coordinate.ZERO);
 			forces.setCroll(0);
 			forces.setCrollDamp(0);
 			forces.setCrollForce(0);
@@ -183,7 +182,6 @@ public class TubeFinSetCalc extends TubeCalc {
 
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 
-		forces.setCNa(cna);
 		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
 		forces.setCP(new Coordinate(x, 0, 0, cna));
 		forces.setCm(forces.getCN() * x / conditions.getRefLength());

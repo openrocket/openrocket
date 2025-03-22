@@ -122,7 +122,7 @@ public class CAParameterSweep {
 				double cpx = (component instanceof Rocket && forces.getCP().weight < MathUtil.EPSILON) ?
 						Double.NaN : forces.getCP().x;
 				dataBranch.setValue(CADataType.CP_X, component, cpx);
-				dataBranch.setValue(CADataType.CNa, component, forces.getCNa());
+				dataBranch.setValue(CADataType.CNa, component, forces.getCP().weight);
 			}
 
 			if (!Double.isNaN(forces.getCD())) {
@@ -145,7 +145,7 @@ public class CAParameterSweep {
 		AerodynamicForces totalForces = aeroData.get(rocket);
 		if (totalForces != null && totalForces.getCP() != null) {
 			dataBranch.setValue(CADataType.CP_X, rocket, totalForces.getCP().x);
-			dataBranch.setValue(CADataType.CNa, rocket, totalForces.getCNa());
+			dataBranch.setValue(CADataType.CNa, rocket, totalForces.getCP().weight);
 		}
 	}
 

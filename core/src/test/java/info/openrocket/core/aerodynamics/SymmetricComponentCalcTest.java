@@ -69,7 +69,7 @@ public class SymmetricComponentCalcTest {
 		double cna_nose = 2;
 		double cpx_nose = 2.0 / 3.0 * nose.getLength();
 
-		assertEquals(cna_nose, forces.getCNa(), EPSILON, " SymmetricComponentCalc produces bad CNa: ");
+		assertEquals(cna_nose, forces.getCP().weight, EPSILON, " SymmetricComponentCalc produces bad CNa: ");
 		assertEquals(cpx_nose, forces.getCP().x, EPSILON, " SymmetricComponentCalc produces bad C_p.x: ");
 		assertEquals(0.0, forces.getCN(), EPSILON, " SymmetricComponentCalc produces bad CN: ");
 		assertEquals(0.0, forces.getCm(), EPSILON, " SymmetricComponentCalc produces bad C_m: ");
@@ -100,7 +100,7 @@ public class SymmetricComponentCalcTest {
 		double l_nose = nose.getLength();
 		double cna_nose = 2;
 		double cpx_nose = 0.46216 * l_nose;
-		assertEquals(cna_nose, forces.getCNa(), EPSILON, " SymmetricComponentCalc produces bad CNa:  ");
+		assertEquals(cna_nose, forces.getCP().weight, EPSILON, " SymmetricComponentCalc produces bad CNa:  ");
 		assertEquals(cpx_nose, forces.getCP().x, EPSILON, " SymmetricComponentCalc produces bad C_p.x:");
 		assertEquals(0.0, forces.getCN(), EPSILON, " SymmetricComponentCalc produces bad CN:   ");
 		assertEquals(0.0, forces.getCm(), EPSILON, " SymmetricComponentCalc produces bad C_m:  ");

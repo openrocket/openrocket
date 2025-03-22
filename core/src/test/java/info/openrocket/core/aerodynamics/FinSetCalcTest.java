@@ -80,7 +80,7 @@ public class FinSetCalcTest {
 		double exp_cna_fins = 24.146933;
 		double exp_cpx_fins = 0.0193484;
 
-		assertEquals(exp_cna_fins, forces.getCNa(), EPSILON, " FinSetCalc produces bad CNa: ");
+		assertEquals(exp_cna_fins, forces.getCP().weight, EPSILON, " FinSetCalc produces bad CNa: ");
 		assertEquals(exp_cpx_fins, forces.getCP().x, EPSILON, " FinSetCalc produces bad C_p.x: ");
 		assertEquals(0.0, forces.getCN(), EPSILON, " FinSetCalc produces bad CN: ");
 		assertEquals(0.0, forces.getCm(), EPSILON, " FinSetCalc produces bad C_m: ");
@@ -105,7 +105,7 @@ public class FinSetCalcTest {
 		double exp_cna_fins = 32.195911;
 		double exp_cpx_fins = 0.0193484;
 
-		assertEquals(exp_cna_fins, forces.getCNa(), EPSILON, " FinSetCalc produces bad CNa: ");
+		assertEquals(exp_cna_fins, forces.getCP().weight, EPSILON, " FinSetCalc produces bad CNa: ");
 		assertEquals(exp_cpx_fins, forces.getCP().x, EPSILON, " FinSetCalc produces bad C_p.x: ");
 		assertEquals(0.0, forces.getCN(), EPSILON, " FinSetCalc produces bad CN: ");
 		assertEquals(0.0, forces.getCm(), EPSILON, " FinSetCalc produces bad C_m: ");
@@ -125,7 +125,7 @@ public class FinSetCalcTest {
 		AerodynamicForces forces = sumFins(fins, rocket);
 
 		// Verify all force components are zero and not NaN
-		assertEquals(0.0, forces.getCNa(), EPSILON, "CNa should be zero for zero-area fin");
+		assertEquals(0.0, forces.getCP().weight, EPSILON, "CNa should be zero for zero-area fin");
 		assertEquals(0.0, forces.getCN(), EPSILON, "CN should be zero for zero-area fin");
 		assertEquals(0.0, forces.getCm(), EPSILON, "Cm should be zero for zero-area fin");
 		assertEquals(0.0, forces.getCroll(), EPSILON, "Croll should be zero for zero-area fin");
@@ -141,7 +141,7 @@ public class FinSetCalcTest {
 		forces = sumFins(fins, rocket);
 
 		// Verify all force components are zero and not NaN
-		assertEquals(0.0, forces.getCNa(), EPSILON, "CNa should be zero for canted zero-area fin");
+		assertEquals(0.0, forces.getCP().weight, EPSILON, "CNa should be zero for canted zero-area fin");
 		assertEquals(0.0, forces.getCN(), EPSILON, "CN should be zero for canted zero-area fin");
 		assertEquals(0.0, forces.getCm(), EPSILON, "Cm should be zero for canted zero-area fin");
 		assertEquals(0.0, forces.getCroll(), EPSILON, "Croll should be zero for canted zero-area fin");
@@ -164,7 +164,7 @@ public class FinSetCalcTest {
 		AerodynamicForces forces = sumFins(fins, rocket);
 
 		// Verify results are not NaN
-		assertFalse(Double.isNaN(forces.getCNa()), "CNa should not be NaN for very small fin");
+		assertFalse(Double.isNaN(forces.getCP().weight), "CNa should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCN()), "CN should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCm()), "Cm should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCroll()), "Croll should not be NaN for very small fin");

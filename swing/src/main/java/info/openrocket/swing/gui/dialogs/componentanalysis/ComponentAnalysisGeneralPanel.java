@@ -622,7 +622,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 				} else {
 					row.cpx = forces.getCP().x;
 				}
-				row.cna = forces.getCNa();
+				row.cna = forces.getCP().weight;
 			}
 
 			if (!Double.isNaN(forces.getCD())) {
