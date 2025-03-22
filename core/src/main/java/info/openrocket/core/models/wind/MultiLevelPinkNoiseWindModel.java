@@ -16,7 +16,9 @@ import java.util.Objects;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.DegreeUnit;
 import info.openrocket.core.unit.Unit;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.ModID;
@@ -294,6 +296,14 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 			throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.CouldNotLoadFile") + " '"
 					+ file.getName() + "'");
 		}
+	}
+
+	public void importLevelsFromCSV(File file, String fieldSeparator) {
+		importLevelsFromCSV(file, fieldSeparator, "alt", "speed", "dir", "stddev",
+				UnitGroup.UNITS_DISTANCE.getSIUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				new DegreeUnit(),	// This is more common in wind data
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(), true);
 	}
 
 	/**
