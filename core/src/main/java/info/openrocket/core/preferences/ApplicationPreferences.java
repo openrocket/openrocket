@@ -28,6 +28,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.DegreeUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
@@ -1387,7 +1388,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public Unit getMultiLevelWindCsvImportAltitudeUnit() {
 		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_UNIT, null);
 		if (unitString == null) {
-			return UnitGroup.UNITS_DISTANCE.getDefaultUnit();
+			return UnitGroup.UNITS_DISTANCE.getSIUnit();
 		} else {
 			return UnitGroup.UNITS_DISTANCE.getUnit(unitString);
 		}
@@ -1440,7 +1441,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public Unit getMultiLevelWindCsvImportSpeedUnit() {
 		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_UNIT, null);
 		if (unitString == null) {
-			return UnitGroup.UNITS_WINDSPEED.getDefaultUnit();
+			return UnitGroup.UNITS_WINDSPEED.getSIUnit();
 		} else {
 			return UnitGroup.UNITS_WINDSPEED.getUnit(unitString);
 		}
@@ -1493,7 +1494,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public Unit getMultiLevelWindCsvImportDirectionUnit() {
 		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_UNIT, null);
 		if (unitString == null) {
-			return UnitGroup.UNITS_ANGLE.getDefaultUnit();
+			return new DegreeUnit();
 		} else {
 			return UnitGroup.UNITS_ANGLE.getUnit(unitString);
 		}
@@ -1546,7 +1547,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public Unit getMultiLevelWindCsvImportStddevUnit() {
 		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_UNIT, null);
 		if (unitString == null) {
-			return UnitGroup.UNITS_WINDSPEED.getDefaultUnit();
+			return UnitGroup.UNITS_WINDSPEED.getSIUnit();
 		} else {
 			return UnitGroup.UNITS_WINDSPEED.getUnit(unitString);
 		}
