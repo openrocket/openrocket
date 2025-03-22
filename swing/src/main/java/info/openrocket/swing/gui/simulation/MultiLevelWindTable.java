@@ -633,12 +633,28 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	public Unit getAltitudeUnit() {
 		return altitudeUnitSelector.getSelectedUnit();
 	}
+
+	/**
+	 * Set the selected altitude unit
+	 * @param unit the unit to set
+	 */
+	public void setAltitudeUnit(Unit unit) {
+		altitudeUnitSelector.setSelectedUnit(unit);
+	}
 	
 	/**
 	 * Get the selected speed unit
 	 */
 	public Unit getSpeedUnit() {
 		return speedUnitSelector.getSelectedUnit();
+	}
+
+	/**
+	 * Set the selected speed unit
+	 * @param unit the unit to set
+	 */
+	public void setSpeedUnit(Unit unit) {
+		speedUnitSelector.setSelectedUnit(unit);
 	}
 
 	/**
@@ -649,10 +665,26 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	}
 
 	/**
+	 * Set the selected direction unit
+	 * @param unit the unit to set
+	 */
+	public void setDirectionUnit(Unit unit) {
+		directionUnitSelector.setSelectedUnit(unit);
+	}
+
+	/**
 	 * Get the selected standard deviation unit
 	 */
 	public Unit getStdDeviationUnit() {
 		return stdDeviationUnitSelector.getSelectedUnit();
+	}
+
+	/**
+	 * Set the selected standard deviation unit
+	 * @param unit the unit to set
+	 */
+	public void setStdDeviationUnit(Unit unit) {
+		stdDeviationUnitSelector.setSelectedUnit(unit);
 	}
 
 	@Override

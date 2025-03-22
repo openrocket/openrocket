@@ -258,42 +258,50 @@ public class MultiLevelWindEditDialog extends JDialog {
 		fileChooser.setMultiSelectionEnabled(false);
 
 		int returnVal = fileChooser.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			selectedFile = FileHelper.forceExtension(selectedFile, "csv");
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
 
-			((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
+		File selectedFile = fileChooser.getSelectedFile();
+		selectedFile = FileHelper.forceExtension(selectedFile, "csv");
 
-			// Show a warning message that the current levels will be overwritten
-			if (!model.getLevels().isEmpty()) {
-				int result = JOptionPane.showConfirmDialog(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
-						trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if (result != JOptionPane.YES_OPTION) {
-					return;
-				}
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fileChooser.getCurrentDirectory());
+
+		// Show a warning message that the current levels will be overwritten
+		if (!model.getLevels().isEmpty()) {
+			int result = JOptionPane.showConfirmDialog(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
+					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (result != JOptionPane.YES_OPTION) {
+				return;
 			}
+		}
 
-			// Import the CSV file with the configured settings
-			try {
-				windTable.importLevels(
-						selectedFile,
-						settingsDialog.getSeparator(),
-						settingsDialog.getAltitudeColumn(),
-						settingsDialog.getSpeedColumn(),
-						settingsDialog.getDirectionColumn(),
-						settingsDialog.getStdDeviationColumn(),
-						settingsDialog.getAltitudeUnit(),
-						settingsDialog.getSpeedUnit(),
-						settingsDialog.getDirectionUnit(),
-						settingsDialog.getStdDeviationUnit(),
-						settingsDialog.hasHeader()
-				);
-			} catch (IllegalArgumentException ex) {
-				windTable.resetLevels();
-				JOptionPane.showMessageDialog(this, new String[] {
-						trans.get("WindProfileEditorDlg.msg.importLevelsError"),
-						ex.getMessage() }, trans.get("WindProfileEditorDlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
-			}
+		// Import the CSV file with the configured settings
+		try {
+			windTable.importLevels(
+					selectedFile,
+					settingsDialog.getSeparator(),
+					settingsDialog.getAltitudeColumn(),
+					settingsDialog.getSpeedColumn(),
+					settingsDialog.getDirectionColumn(),
+					settingsDialog.getStdDeviationColumn(),
+					settingsDialog.getAltitudeUnit(),
+					settingsDialog.getSpeedUnit(),
+					settingsDialog.getDirectionUnit(),
+					settingsDialog.getStdDeviationUnit(),
+					settingsDialog.hasHeader()
+			);
+
+			// Update the units from the wind table to match those from the settings dialog
+			windTable.setAltitudeUnit(settingsDialog.getAltitudeUnit());
+			windTable.setSpeedUnit(settingsDialog.getSpeedUnit());
+			windTable.setDirectionUnit(settingsDialog.getDirectionUnit());
+			windTable.setStdDeviationUnit(settingsDialog.getStdDeviationUnit());
+		} catch (IllegalArgumentException ex) {
+			windTable.resetLevels();
+			JOptionPane.showMessageDialog(this, new String[] {
+					trans.get("WindProfileEditorDlg.msg.importLevelsError"),
+					ex.getMessage() }, trans.get("WindProfileEditorDlg.msg.importLevelsError.title"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
