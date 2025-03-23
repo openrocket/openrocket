@@ -859,19 +859,6 @@
             <OutsideDiameter Unit="m">0.009398</OutsideDiameter>
             <Length Unit="m">0.0127</Length>
         </CenteringRing>
-        <NoseCone>
-            <Manufacturer>Quest</Manufacturer>
-            <PartNumber>19990</PartNumber>
-            <Description>MMX</Description>
-            <Material Type="BULK">Balsa</Material>
-            <Mass Unit="kg">0.01417476155</Mass>
-            <Filled>true</Filled>
-            <Shape>OGIVE</Shape>
-            <OutsideDiameter Unit="m">0.0099568</OutsideDiameter>
-            <ShoulderDiameter Unit="m">0.0094488</ShoulderDiameter>
-            <ShoulderLength Unit="m">0.009524999999999999</ShoulderLength>
-            <Length Unit="m">0.0254</Length>
-        </NoseCone>
         <Transition>
             <Manufacturer>Quest</Manufacturer>
             <PartNumber>2520</PartNumber>
@@ -1010,27 +997,6 @@
             <OutsideDiameter Unit="m">0.034036000000000004</OutsideDiameter>
             <Length Unit="m">0.053974999999999995</Length>
         </TubeCoupler>
-        <Parachute>
-            <Manufacturer>Quest</Manufacturer>
-            <PartNumber>7810</PartNumber>
-            <Description>14 in Plastic Parachute</Description>
-            <Material Type="SURFACE">Polyethylene LDPE</Material>
-            <Mass Unit="kg">0.0283495231</Mass>
-            <Diameter Unit="m">0.35559999999999997</Diameter>
-            <Sides>6</Sides>
-            <LineCount>6</LineCount>
-            <LineLength Unit="m">0.35559999999999997</LineLength>
-            <LineMaterial Type="LINE">Carpet String</LineMaterial>
-        </Parachute>
-        <Streamer>
-            <Manufacturer>Quest</Manufacturer>
-            <PartNumber>7811</PartNumber>
-            <Description>Streamer 3in x 36in (2mil Plastic)</Description>
-            <Material Type="SURFACE">Polyethylene LDPE</Material>
-            <Length Unit="m">0.9144</Length>
-            <Width Unit="m">0.07619999999999999</Width>
-            <Thickness Unit="m">2.54E-5</Thickness>
-        </Streamer>
         <BodyTube>
             <Manufacturer>Quest</Manufacturer>
             <PartNumber>9527</PartNumber>
@@ -1196,19 +1162,6 @@
         </NoseCone>
         <NoseCone>
             <Manufacturer>Quest</Manufacturer>
-            <PartNumber>PNC25</PartNumber>
-            <Description>25mm Plastic Nose Cone</Description>
-            <Material Type="BULK">Polystyrene PS</Material>
-            <Mass Unit="kg">0.007087380775</Mass>
-            <Shape>OGIVE</Shape>
-            <OutsideDiameter Unit="m">0.024993599999999998</OutsideDiameter>
-            <ShoulderDiameter Unit="m">0.0237236</ShoulderDiameter>
-            <ShoulderLength Unit="m">0.0127</ShoulderLength>
-            <Length Unit="m">0.08001</Length>
-            <Thickness Unit="m">0.003175</Thickness>
-        </NoseCone>
-        <NoseCone>
-            <Manufacturer>Quest</Manufacturer>
             <PartNumber>PNC30</PartNumber>
             <Description>30mm Plastic Nose Cone</Description>
             <Material Type="BULK">Polystyrene PS</Material>
@@ -1297,26 +1250,6 @@
         </BodyTube>
         <BodyTube>
             <Manufacturer>Quest</Manufacturer>
-            <PartNumber>T153000</PartNumber>
-            <Description>Body Tube/30in</Description>
-            <Material Type="BULK">Paper</Material>
-            <Mass Unit="kg">0.017009713859999998</Mass>
-            <InsideDiameter Unit="m">0.01397</InsideDiameter>
-            <OutsideDiameter Unit="m">0.014986</OutsideDiameter>
-            <Length Unit="m">0.762</Length>
-        </BodyTube>
-        <BodyTube>
-            <Manufacturer>Quest</Manufacturer>
-            <PartNumber>T203000</PartNumber>
-            <Description>Body Tube/30in</Description>
-            <Material Type="BULK">Paper</Material>
-            <Mass Unit="kg">0.019844666169999997</Mass>
-            <InsideDiameter Unit="m">0.019100799999999998</InsideDiameter>
-            <OutsideDiameter Unit="m">0.0200152</OutsideDiameter>
-            <Length Unit="m">0.762</Length>
-        </BodyTube>
-        <BodyTube>
-            <Manufacturer>Quest</Manufacturer>
             <PartNumber>T253000</PartNumber>
             <Description>Body Tube/30in</Description>
             <Material Type="BULK">Paper</Material>
@@ -1333,16 +1266,6 @@
             <Mass Unit="kg">0.034019427719999995</Mass>
             <InsideDiameter Unit="m">0.0289814</InsideDiameter>
             <OutsideDiameter Unit="m">0.0299974</OutsideDiameter>
-            <Length Unit="m">0.762</Length>
-        </BodyTube>
-        <BodyTube>
-            <Manufacturer>Quest</Manufacturer>
-            <PartNumber>T353000</PartNumber>
-            <Description>Body Tube/30in</Description>
-            <Material Type="BULK">Paper</Material>
-            <Mass Unit="kg">0.035436903875</Mass>
-            <InsideDiameter Unit="m">0.034036000000000004</InsideDiameter>
-            <OutsideDiameter Unit="m">0.03505199999999999</OutsideDiameter>
             <Length Unit="m">0.762</Length>
         </BodyTube>
         <BodyTube>
