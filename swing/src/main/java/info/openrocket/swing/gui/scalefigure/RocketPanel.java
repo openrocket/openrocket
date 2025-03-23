@@ -881,7 +881,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Check whether to compute or not
 		if (!((SwingPreferences) Application.getPreferences()).computeFlightInBackground()) {
-			extraText.setFlightData(null);
+			extraText.setSimulation(null);
 			extraText.setCalculatingData(false);
 			stopBackgroundSimulation();
 			return;
@@ -900,7 +900,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		stopBackgroundSimulation();
 
 		// Check that configuration has motors
-		if (!curConfig.hasMotors()){
+		if (!curConfig.hasMotors()) {
+			extraText.setSimulation(null);
 			extraText.setFlightData(FlightData.NaN_DATA);
 			extraText.setCalculatingData(false);
 			return;

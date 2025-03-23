@@ -184,6 +184,10 @@ public class RocketInfo implements FigureElement {
 
 	public void setSimulation(Simulation simulation) {
 		this.simulation = simulation;
+		if (simulation == null) {
+			setFlightData(null);
+			return;
+		}
 
 		if (simulation.hasSummaryData()) {
 			setFlightData(simulation.getSimulatedData());
