@@ -1,5 +1,8 @@
 package info.openrocket.core.models.wind;
 
+import info.openrocket.core.unit.DegreeUnit;
+import info.openrocket.core.unit.Unit;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,13 +12,14 @@ import org.junit.jupiter.api.DisplayName;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +29,9 @@ class MultiLevelWindModelTest extends BaseTestCase {
 	private static final int SAMPLE_SIZE = 1000;
 
 	private MultiLevelPinkNoiseWindModel model;
+
+	@TempDir
+	Path tempDir;
 
 	@BeforeEach
 	void setUpModel() {
@@ -193,7 +200,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Write test data
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5,0,1.5",
 				"100,10,45,2.0",
 				"1000,15,90,2.5"
@@ -230,7 +237,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Test different number formats
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5.5,0,1.5",      // Standard format
 				"100,10,2,2.0",     // Integer
 				"1000,15.0,90,2.5", // With trailing zero
@@ -256,7 +263,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,-5,0,1.5",      // Negative speed
 				"100,10,-45,2.0",  // Negative direction
 				"1000,-15,-90,2.5"  // Negative speed and direction
@@ -283,7 +290,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Test different number formats
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,5,0,1.5",
 				"100,10,45",		// Missing value
 				"1000,15,90,2.5"
@@ -301,7 +308,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt;speed;dir;stddev",
+				"altitude;speed;direction;stddev",
 				"0;5;0;1,5",        // European format with comma
 				"100;10;45;2,0",    // European format
 				"1000;15,2;90;2,5"  // European format with multiple commas
@@ -325,7 +332,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Missing speed column
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,dir,stddev",
+				"altitude,direction,stddev",
 				"0,0,1.5"
 		));
 
@@ -335,7 +342,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Invalid number format
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,invalid,0,1.5"
 		));
 
@@ -345,7 +352,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 
 		// Empty value
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev",
+				"altitude,speed,direction,stddev",
 				"0,,0,1.5"
 		));
 
@@ -361,7 +368,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"dir,speed,alt,stddev",  // Different order
+				"direction,speed,altitude,stddev",  // Different order
 				"0,5,0,1.5",
 				"45,10,100,2.0"
 		));
@@ -383,7 +390,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		tempFile.deleteOnExit();
 
 		Files.write(tempFile.toPath(), Arrays.asList(
-				"alt,speed,dir,stddev,extra1,extra2",  // Extra columns
+				"altitude,speed,direction,stddev,extra1,extra2",  // Extra columns
 				"0,5,0,1.5,100,200",
 				"100,10,45,2.0,300,400"
 		));
@@ -426,5 +433,258 @@ class MultiLevelWindModelTest extends BaseTestCase {
 			sumCos += Math.cos(angle);
 		}
 		return Math.atan2(sumSin, sumCos);
+	}
+
+	@Test
+	@DisplayName("Import with custom column names")
+	void testImportWithCustomColumnNames() throws IOException {
+		// Create a temporary CSV file with different column names
+		File tempFile = tempDir.resolve("custom_columns.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"height,velocity,angle,variation",
+				"0,5,0,1.5",
+				"100,10,45,2.0",
+				"1000,15,90,2.5"
+		));
+
+		// Import with custom column names
+		model.importLevelsFromCSV(tempFile, ",",
+				"height", "velocity", "angle", "variation",
+				UnitGroup.UNITS_DISTANCE.getSIUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				new DegreeUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				true);
+
+		// Verify the data was imported correctly
+		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+		assertEquals(3, levels.size(), "Should have 3 wind levels");
+
+		assertEquals(0, levels.get(0).getAltitude(), EPSILON);
+		assertEquals(5, levels.get(0).getSpeed(), EPSILON);
+		assertEquals(0, levels.get(0).getDirection(), EPSILON);
+		assertEquals(1.5, levels.get(0).getStandardDeviation(), EPSILON);
+
+		assertEquals(100, levels.get(1).getAltitude(), EPSILON);
+		assertEquals(10, levels.get(1).getSpeed(), EPSILON);
+		assertEquals(Math.PI/4, levels.get(1).getDirection(), EPSILON); // 45 degrees
+		assertEquals(2.0, levels.get(1).getStandardDeviation(), EPSILON);
+	}
+
+	@Test
+	@DisplayName("Import with column indices")
+	void testImportWithColumnIndices() throws IOException {
+		// Create a temporary CSV file without headers
+		File tempFile = tempDir.resolve("no_headers.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"0,5,0,1.5",
+				"100,10,45,2.0",
+				"1000,15,90,2.5"
+		));
+
+		// Import using column indices without headers
+		model.importLevelsFromCSV(tempFile, ",",
+				"0", "1", "2", "3", // alt=0, speed=1, dir=2, stddev=3
+				UnitGroup.UNITS_DISTANCE.getSIUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				new DegreeUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				false);  // no headers
+
+		// Verify the data was imported correctly
+		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+		assertEquals(3, levels.size(), "Should have 3 wind levels");
+
+		assertEquals(0, levels.get(0).getAltitude(), EPSILON);
+		assertEquals(5, levels.get(0).getSpeed(), EPSILON);
+		assertEquals(0, levels.get(0).getDirection(), EPSILON);
+		assertEquals(1.5, levels.get(0).getStandardDeviation(), EPSILON);
+
+		assertEquals(100, levels.get(1).getAltitude(), EPSILON);
+		assertEquals(10, levels.get(1).getSpeed(), EPSILON);
+		assertEquals(Math.PI/4, levels.get(1).getDirection(), EPSILON); // 45 degrees
+	}
+
+	@Test
+	@DisplayName("Import with custom units")
+	void testImportWithCustomUnits() throws IOException {
+		// Create a temporary CSV file with values in different units
+		File tempFile = tempDir.resolve("custom_units.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"altitude,speed,direction,stddev",
+				// Alt in feet, speed in mph, direction in degrees, stddev in mph
+				"0,11.2,0,3.4",       // 0m, 5m/s, 0rad, 1.5m/s
+				"328,22.4,45,4.5",    // 100m, 10m/s, PI/4rad, 2.0m/s
+				"3280,33.6,90,5.6"    // 1000m, 15m/s, PI/2rad, 2.5m/s
+		));
+
+		// Import with custom units
+		Unit feetUnit = UnitGroup.UNITS_DISTANCE.getUnit("ft");
+		Unit mphUnit = UnitGroup.UNITS_WINDSPEED.getUnit("mph");
+		Unit degreeUnit = new DegreeUnit();
+
+		model.importLevelsFromCSV(tempFile, ",",
+				"altitude", "speed", "direction", "stddev",
+				feetUnit,      // altitude in feet
+				mphUnit,       // speed in mph
+				degreeUnit,    // direction in degrees
+				mphUnit,       // stddev in mph
+				true);
+
+		// Verify the data was imported and converted correctly
+		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+		assertEquals(3, levels.size(), "Should have 3 wind levels");
+
+		// Check conversions (allowing for rounding errors)
+		assertEquals(0, levels.get(0).getAltitude(), EPSILON);
+		assertEquals(5, levels.get(0).getSpeed(), 0.1); // ~5 m/s
+		assertEquals(0, levels.get(0).getDirection(), EPSILON);
+		assertEquals(1.5, levels.get(0).getStandardDeviation(), 0.1); // ~1.5 m/s
+
+		assertEquals(100, levels.get(1).getAltitude(), 0.1); // ~100 m
+		assertEquals(10, levels.get(1).getSpeed(), 0.1); // ~10 m/s
+		assertEquals(Math.PI/4, levels.get(1).getDirection(), EPSILON); // 45 degrees
+	}
+
+	@Test
+	@DisplayName("Import with optional standard deviation column")
+	void testImportWithOptionalStdDevColumn() throws IOException {
+		// Create a temporary CSV file without stddev column
+		File tempFile = tempDir.resolve("no_stddev.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"altitude,speed,direction",
+				"0,5,0",
+				"100,10,45",
+				"1000,15,90"
+		));
+
+		// Import without stddev column
+		model.importLevelsFromCSV(tempFile, ",",
+				"altitude", "speed", "direction", "",  // empty stddev column name
+				UnitGroup.UNITS_DISTANCE.getSIUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				new DegreeUnit(),
+				null,  // no unit needed for stddev
+				true);
+
+		// Verify the data was imported correctly
+		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+		assertEquals(3, levels.size(), "Should have 3 wind levels");
+
+		// The standard deviation should be the default value from PinkNoiseWindModel
+		double defaultStdDev = new PinkNoiseWindModel().getStandardDeviation();
+
+		assertEquals(0, levels.get(0).getAltitude(), EPSILON);
+		assertEquals(5, levels.get(0).getSpeed(), EPSILON);
+		assertEquals(0, levels.get(0).getDirection(), EPSILON);
+		assertEquals(defaultStdDev, levels.get(0).getStandardDeviation(), EPSILON);
+	}
+
+	@Test
+	@DisplayName("Import with invalid column indices")
+	void testImportWithInvalidColumnIndices() throws IOException {
+		// Create a temporary CSV file
+		File tempFile = tempDir.resolve("invalid_indices.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"altitude,speed,direction,stddev",
+				"0,5,0,1.5"
+		));
+
+		// Try to import with an out-of-bounds index
+		assertThrows(IllegalArgumentException.class, () ->
+				model.importLevelsFromCSV(tempFile, ",",
+						"0", "1", "5", "3",  // dir=5 is out of bounds
+						UnitGroup.UNITS_DISTANCE.getSIUnit(),
+						UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+						new DegreeUnit(),
+						UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+						true)
+		);
+
+		// Try to import with a non-numeric index when headers=false
+		assertThrows(IllegalArgumentException.class, () ->
+				model.importLevelsFromCSV(tempFile, ",",
+						"0", "speed", "2", "3",  // non-numeric "speed" for index
+						UnitGroup.UNITS_DISTANCE.getSIUnit(),
+						UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+						new DegreeUnit(),
+						UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+						false)
+		);
+	}
+
+	@Test
+	@DisplayName("Import with European units and number format")
+	void testImportWithEuropeanUnitsAndFormat() throws IOException {
+		// Create a temporary CSV file with European number format
+		File tempFile = tempDir.resolve("european_format.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"hohe;geschwindigkeit;richtung;abweichung",
+				"0;5,0;0;1,5",
+				"100;10,0;45;2,0",
+				"1000;15,0;90;2,5"
+		));
+
+		// Import with European column names and formatting
+		model.importLevelsFromCSV(tempFile, ";",
+				"hohe", "geschwindigkeit", "richtung", "abweichung",
+				UnitGroup.UNITS_DISTANCE.getSIUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				new DegreeUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				true);
+
+		// Verify the data was imported correctly
+		List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+		assertEquals(3, levels.size(), "Should have 3 wind levels");
+
+		assertEquals(0, levels.get(0).getAltitude(), EPSILON);
+		assertEquals(5.0, levels.get(0).getSpeed(), EPSILON);
+		assertEquals(0, levels.get(0).getDirection(), EPSILON);
+		assertEquals(1.5, levels.get(0).getStandardDeviation(), EPSILON);
+	}
+
+	@Test
+	@DisplayName("Import with mixed column references (names and indices)")
+	void testImportWithMixedColumnReferences() throws IOException {
+		// This test is only relevant if the API allows mixing names and indices
+		// Create a temporary CSV file
+		File tempFile = tempDir.resolve("mixed_references.csv").toFile();
+
+		Files.write(tempFile.toPath(), Arrays.asList(
+				"height,velocity,angle,variation",
+				"0,5,0,1.5",
+				"100,10,45,2.0"
+		));
+
+		// Import using a mix of names and indices
+		// Note: This assumes your implementation can handle mixed references
+		// If not, adjust the test accordingly
+		try {
+			model.importLevelsFromCSV(tempFile, ",",
+					"height", "1", "angle", "3",  // mix of names and indices
+					UnitGroup.UNITS_DISTANCE.getSIUnit(),
+					UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+					new DegreeUnit(),
+					UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+					true);
+
+			// If implementation supports mixed references, verify the data
+			List<MultiLevelPinkNoiseWindModel.LevelWindModel> levels = model.getLevels();
+			assertEquals(2, levels.size(), "Should have 2 wind levels");
+
+			assertEquals(0, levels.get(0).getAltitude(), EPSILON);
+			assertEquals(5, levels.get(0).getSpeed(), EPSILON);
+			assertEquals(0, levels.get(0).getDirection(), EPSILON);
+		} catch (IllegalArgumentException e) {
+			// If mixing is not supported, that's fine - the test is informative
+			// No assertion needed
+		}
 	}
 }

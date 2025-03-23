@@ -28,6 +28,9 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.RK4SimulationStepper;
 import info.openrocket.core.simulation.SimulationOptionsInterface;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.DegreeUnit;
+import info.openrocket.core.unit.Unit;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.ChangeSource;
@@ -82,6 +85,21 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public static final String MATCH_FORE_DIAMETER = "MatchForeDiameter";
 	public static final String MATCH_AFT_DIAMETER = "MatchAftDiameter";
+
+	// Preferences related to multi-level wind CSV import
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_HAS_HEADER = "MultiLevelWindCSVImportHasHeader";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN = "MultiLevelWindCSVImportAltitudeColumn";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN_INDEX = "MultiLevelWindCSVImportAltitudeColumnIndex";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_UNIT = "MultiLevelWindCSVImportAltitudeUnit";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_COLUMN = "MultiLevelWindCSVImportSpeedColumn";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_COLUMN_INDEX = "MultiLevelWindCSVImportSpeedColumnIndex";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_UNIT = "MultiLevelWindCSVImportSpeedUnit";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN = "MultiLevelWindCSVImportDirectionColumn";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN_INDEX = "MultiLevelWindCSVImportDirectionColumnIndex";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_UNIT = "MultiLevelWindCSVImportDirectionUnit";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_COLUMN = "MultiLevelWindCSVImportStddevColumn";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_COLUMN_INDEX = "MultiLevelWindCSVImportStddevColumnIndex";
+	private static final String MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_UNIT = "MultiLevelWindCSVImportStddevUnit";
 
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "PreferredThrustCurveMotors";
@@ -1313,6 +1331,234 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 */
 	public void setSVGStrokeWidth(double width) {
 		putDouble(SVG_STROKE_WIDTH, width);
+	}
+
+	/**
+	 * Returns whether the multi-level wind CSV import has a header row.
+	 * @return true if the CSV import has a header
+	 */
+	public boolean isMultiLevelWindCsvImportHeader() {
+		return getBoolean(MULTI_LEVEL_WIND_CSV_IMPORT_HAS_HEADER, true);
+	}
+
+	/**
+	 * Sets whether the multi-level wind CSV import has a header row.
+	 * @param hasHeader true if the CSV import has a header
+	 */
+	public void setMultiLevelWindCsvImportHeader(boolean hasHeader) {
+		putBoolean(MULTI_LEVEL_WIND_CSV_IMPORT_HAS_HEADER, hasHeader);
+	}
+
+	/**
+	 * Returns the column name used for the altitude in the CSV import for multi-level wind.
+	 * @return the column name for the altitude
+	 */
+	public String getMultiLevelWindCsvImportAltitudeColumn() {
+		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN, "altitude");
+	}
+
+	/**
+	 * Sets the column name used for the altitude in the CSV import for multi-level wind.
+	 * @param columnName the column name for the altitude
+	 */
+	public void setMultiLevelWindCsvImportAltitudeColumn(String columnName) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN, columnName);
+	}
+
+	/**
+	 * Returns the column index used for the altitude in the CSV import for multi-level wind.
+	 * @return the column index for the altitude
+	 */
+	public int getMultiLevelWindCsvImportAltitudeColumnIndex() {
+		return getInt(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN_INDEX, 0);
+	}
+
+	/**
+	 * Sets the column index used for the altitude in the CSV import for multi-level wind.
+	 * @param columnIndex the column index for the altitude
+	 */
+	public void setMultiLevelWindCsvImportAltitudeColumnIndex(int columnIndex) {
+		putInt(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_COLUMN_INDEX, columnIndex);
+	}
+
+	/**
+	 * Gets the unit used for the altitude in the CSV import for multi-level wind.
+	 * @return the unit for the altitude
+	 */
+	public Unit getMultiLevelWindCsvImportAltitudeUnit() {
+		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_UNIT, null);
+		if (unitString == null) {
+			return UnitGroup.UNITS_DISTANCE.getSIUnit();
+		} else {
+			return UnitGroup.UNITS_DISTANCE.getUnit(unitString);
+		}
+	}
+
+	/**
+	 * Sets the unit used for the altitude in the CSV import for multi-level wind.
+	 * @param unit the unit for the altitude
+	 */
+	public void setMultiLevelWindCsvImportAltitudeUnit(Unit unit) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_ALTITUDE_UNIT, unit.toString());
+	}
+
+	/**
+	 * Returns the column name used for the speed in the CSV import for multi-level wind.
+	 * @return the column name for the speed
+	 */
+	public String getMultiLevelWindCsvImportSpeedColumn() {
+		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_COLUMN, "speed");
+	}
+
+	/**
+	 * Sets the column name used for the speed in the CSV import for multi-level wind.
+	 * @param columnName the column name for the speed
+	 */
+	public void setMultiLevelWindCsvImportSpeedColumn(String columnName) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_COLUMN, columnName);
+	}
+
+	/**
+	 * Returns the column index used for the speed in the CSV import for multi-level wind.
+	 * @return the column index for the speed
+	 */
+	public int getMultiLevelWindCsvImportSpeedColumnIndex() {
+		return getInt(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_COLUMN_INDEX, 1);
+	}
+
+	/**
+	 * Sets the column index used for the speed in the CSV import for multi-level wind.
+	 * @param columnIndex the column index for the speed
+	 */
+	public void setMultiLevelWindCsvImportSpeedColumnIndex(int columnIndex) {
+		putInt(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_COLUMN_INDEX, columnIndex);
+	}
+
+	/**
+	 * Gets the unit used for the speed in the CSV import for multi-level wind.
+	 * @return the unit for the speed
+	 */
+	public Unit getMultiLevelWindCsvImportSpeedUnit() {
+		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_UNIT, null);
+		if (unitString == null) {
+			return UnitGroup.UNITS_WINDSPEED.getSIUnit();
+		} else {
+			return UnitGroup.UNITS_WINDSPEED.getUnit(unitString);
+		}
+	}
+
+	/**
+	 * Sets the unit used for the speed in the CSV import for multi-level wind.
+	 * @param unit the unit for the speed
+	 */
+	public void setMultiLevelWindCsvImportSpeedUnit(Unit unit) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_SPEED_UNIT, unit.toString());
+	}
+
+	/**
+	 * Returns the column name used for the direction in the CSV import for multi-level wind.
+	 * @return the column name for the direction
+	 */
+	public String getMultiLevelWindCsvImportDirectionColumn() {
+		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN, "direction");
+	}
+
+	/**
+	 * Sets the column name used for the direction in the CSV import for multi-level wind.
+	 * @param columnName the column name for the direction
+	 */
+	public void setMultiLevelWindCsvImportDirectionColumn(String columnName) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN, columnName);
+	}
+
+	/**
+	 * Returns the column index used for the direction in the CSV import for multi-level wind.
+	 * @return the column index for the direction
+	 */
+	public int getMultiLevelWindCsvImportDirectionColumnIndex() {
+		return getInt(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN_INDEX, 2);
+	}
+
+	/**
+	 * Sets the column index used for the direction in the CSV import for multi-level wind.
+	 * @param columnIndex the column index for the direction
+	 */
+	public void setMultiLevelWindCsvImportDirectionColumnIndex(int columnIndex) {
+		putInt(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_COLUMN_INDEX, columnIndex);
+	}
+
+	/**
+	 * Gets the unit used for the direction in the CSV import for multi-level wind.
+	 * @return the unit for the direction
+	 */
+	public Unit getMultiLevelWindCsvImportDirectionUnit() {
+		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_UNIT, null);
+		if (unitString == null) {
+			return new DegreeUnit();
+		} else {
+			return UnitGroup.UNITS_ANGLE.getUnit(unitString);
+		}
+	}
+
+	/**
+	 * Sets the unit used for the direction in the CSV import for multi-level wind.
+	 * @param unit the unit for the direction
+	 */
+	public void setMultiLevelWindCsvImportDirectionUnit(Unit unit) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_DIRECTION_UNIT, unit.toString());
+	}
+
+	/**
+	 * Returns the column name used for the stddev in the CSV import for multi-level wind.
+	 * @return the column name for the stddev
+	 */
+	public String getMultiLevelWindCsvImportStddevColumn() {
+		return getString(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_COLUMN, "stddev");
+	}
+
+	/**
+	 * Sets the column name used for the stddev in the CSV import for multi-level wind.
+	 * @param columnName the column name for the stddev
+	 */
+	public void setMultiLevelWindCsvImportStddevColumn(String columnName) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_COLUMN, columnName);
+	}
+
+	/**
+	 * Returns the column index used for the std deviation in the CSV import for multi-level wind.
+	 * @return the column index for the std deviation
+	 */
+	public int getMultiLevelWindCsvImportStddevColumnIndex() {
+		return getInt(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_COLUMN_INDEX, 3);
+	}
+
+	/**
+	 * Sets the column index used for the std deviation in the CSV import for multi-level wind.
+	 * @param columnIndex the column index for the std deviation
+	 */
+	public void setMultiLevelWindCsvImportStddevColumnIndex(int columnIndex) {
+		putInt(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_COLUMN_INDEX, columnIndex);
+	}
+
+	/**
+	 * Gets the unit used for the stddev in the CSV import for multi-level wind.
+	 * @return the unit for the stddev
+	 */
+	public Unit getMultiLevelWindCsvImportStddevUnit() {
+		String unitString = getString(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_UNIT, null);
+		if (unitString == null) {
+			return UnitGroup.UNITS_WINDSPEED.getSIUnit();
+		} else {
+			return UnitGroup.UNITS_WINDSPEED.getUnit(unitString);
+		}
+	}
+
+	/**
+	 * Sets the unit used for the stddev in the CSV import for multi-level wind.
+	 * @param unit the unit for the stddev
+	 */
+	public void setMultiLevelWindCsvImportStddevUnit(Unit unit) {
+		putString(MULTI_LEVEL_WIND_CSV_IMPORT_STDDEV_UNIT, unit.toString());
 	}
 
 	/*

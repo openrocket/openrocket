@@ -16,9 +16,11 @@ import java.util.Objects;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.DegreeUnit;
+import info.openrocket.core.unit.Unit;
+import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -30,10 +32,6 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private final List<StateChangeListener> listeners = new ArrayList<>();
 
 	private static final int REQUIRED_NR_OF_CSV_COLUMNS = 3;		// alt, speed, dir
-	private static final String COLUMN_ALTITUDE = "alt";
-	private static final String COLUMN_SPEED = "speed";
-	private static final String COLUMN_DIRECTION = "dir";
-	private static final String COLUMN_STDDEV = "stddev";
 
 	private AltitudeReference altitudeReference;
 
@@ -189,57 +187,123 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	}
 
 	/**
-	 * Import the wind levels from a CSV file
-	 * @param file The file to import
+	 * Import wind levels from a CSV file with the specified settings.
+	 *
+	 * @param file The CSV file to import
 	 * @param fieldSeparator The field separator used in the CSV file
+	 * @param altitudeColumn The name or index of the altitude column
+	 * @param speedColumn The name or index of the speed column
+	 * @param directionColumn The name or index of the direction column
+	 * @param stdDeviationColumn The name or index of the standard deviation column (can be empty)
+	 * @param altitudeUnit The unit used for altitude values in the CSV
+	 * @param speedUnit The unit used for speed values in the CSV
+	 * @param directionUnit The unit used for direction values in the CSV
+	 * @param stdDeviationUnit The unit used for standard deviation values in the CSV
+	 * @param hasHeaders Whether the CSV file has headers
 	 * @throws IllegalArgumentException If the file could not be loaded or the format is incorrect
 	 */
-	public void importLevelsFromCSV(File file, String fieldSeparator) throws IllegalArgumentException {
+	public void importLevelsFromCSV(File file, String fieldSeparator,
+									String altitudeColumn, String speedColumn,
+									String directionColumn, String stdDeviationColumn,
+									Unit altitudeUnit, Unit speedUnit,
+									Unit directionUnit, Unit stdDeviationUnit,
+									boolean hasHeaders) throws IllegalArgumentException {
 		String line;
 
 		// Clear the current levels
 		clearLevels();
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-			// Read the first line as a header
-			line = reader.readLine();
-			String[] headers = line.split(fieldSeparator);
-			sanityCheckColumnSize(fieldSeparator, headers, line);
+			// Map column indices
+			int altIndex = -1, speedIndex = -1, dirIndex = -1, stddevIndex = -1;
 
-			List<String> headersList = Arrays.asList(headers);
-			int altIndex = getHeaderIndex(headersList, COLUMN_ALTITUDE);
-			int speedIndex = getHeaderIndex(headersList, COLUMN_SPEED);
-			int dirIndex = getHeaderIndex(headersList, COLUMN_DIRECTION);
-			int stddevIndex = getHeaderIndex(headersList, COLUMN_STDDEV, false);
+			if (hasHeaders) {
+				// Read the first line as a header
+				line = reader.readLine();
+				if (line == null) {
+					throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.EmptyFile"));
+				}
 
+				String[] headers = line.split(fieldSeparator, -1);  // -1 to keep empty trailing fields
+
+				// Find column indices by name
+				List<String> headersList = Arrays.asList(headers);
+				altIndex = findColumnIndex(headersList, altitudeColumn, "altitude", true);
+				speedIndex = findColumnIndex(headersList, speedColumn, "speed", true);
+				dirIndex = findColumnIndex(headersList, directionColumn, "direction", true);
+
+				// Standard deviation is optional
+				if (!stdDeviationColumn.isEmpty()) {
+					stddevIndex = findColumnIndex(headersList, stdDeviationColumn, "standard deviation", false);
+				}
+			} else {
+				// No headers, parse column indices directly
+				try {
+					altIndex = Integer.parseInt(altitudeColumn);
+					speedIndex = Integer.parseInt(speedColumn);
+					dirIndex = Integer.parseInt(directionColumn);
+					stddevIndex = stdDeviationColumn.isEmpty() ? -1 : Integer.parseInt(stdDeviationColumn);
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.InvalidColumnIndex"));
+				}
+			}
+
+			// Read data rows
+			int lineNumber = hasHeaders ? 1 : 0;
 			while ((line = reader.readLine()) != null) {
-				// Ignore empty lines
-				if (line.isEmpty()) {
+				lineNumber++;
+
+				// Skip empty lines
+				if (line.trim().isEmpty()) {
 					continue;
 				}
-				String[] values = line.split(fieldSeparator);
-				sanityCheckColumnSize(fieldSeparator, values, line);
-				double altitude = extractDouble(values, altIndex, COLUMN_ALTITUDE);
-				double speed = extractDouble(values, speedIndex, COLUMN_SPEED);
-				double direction = MathUtil.deg2rad(extractDouble(values, dirIndex, COLUMN_DIRECTION));
-				Double stddev;
-				if (stddevIndex != -1) {
-					stddev = extractDouble(values, stddevIndex, COLUMN_STDDEV);
-				} else {
-					stddev = null;
+
+				String[] values = line.split(fieldSeparator, -1);  // -1 to keep empty trailing fields
+
+				// Check if we have enough columns
+				int maxColumnIndex = Math.max(Math.max(altIndex, speedIndex),
+						Math.max(dirIndex, Math.max(stddevIndex, 0)));
+				if (maxColumnIndex >= values.length) {
+					throw new IllegalArgumentException(String.format(
+							trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumnsInLine"),
+							lineNumber));
+				}
+
+				// Extract and convert values
+				double altitude = extractDoubleAndConvert(values, altIndex, "altitude", altitudeUnit);
+				double speed = extractDoubleAndConvert(values, speedIndex, "speed", speedUnit);
+				double direction = extractDoubleAndConvert(values, dirIndex, "direction", directionUnit);
+
+				// Standard deviation is optional
+				Double stddev = null;
+				if (stddevIndex >= 0 && stddevIndex < values.length && !values[stddevIndex].trim().isEmpty()) {
+					stddev = extractDoubleAndConvert(values, stddevIndex, "standard deviation", stdDeviationUnit);
 				}
 
 				// Add the wind level
-				if (stddev == null) {
-					addWindLevel(altitude, speed, direction);
-				} else {
-					addWindLevel(altitude, speed, direction, stddev);
-				}
+				addWindLevel(altitude, speed, direction, stddev);
 			}
+
+			// Sort levels by altitude
+			sortLevels();
+
+			// Check if we have at least one level
+			if (getLevels().isEmpty()) {
+				throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NoValidData"));
+			}
+
 		} catch (IOException e) {
 			throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.CouldNotLoadFile") + " '"
 					+ file.getName() + "'");
 		}
+	}
+
+	public void importLevelsFromCSV(File file, String fieldSeparator) {
+		importLevelsFromCSV(file, fieldSeparator, "altitude", "speed", "direction", "stddev",
+				UnitGroup.UNITS_DISTANCE.getSIUnit(),
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(),
+				new DegreeUnit(),	// This is more common in wind data
+				UnitGroup.UNITS_WINDSPEED.getSIUnit(), true);
 	}
 
 	/**
@@ -277,30 +341,52 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 				throw e; // Re-throw if no comma found
 			} catch (NumberFormatException ex) {
 				throw new IllegalArgumentException(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.WrongFormat")
-						+ " Value: '" + values[index] + "'");
+						+ "\nValue: '" + values[index] + "'");
 			}
 		}
 	}
 
 	/**
-	 * Check if the number of columns in a line is correct
-	 * @param fieldSeparator The field separator used in the CSV file
-	 * @param columns The columns in the line
-	 * @param line The line that was read
+	 * Find a column index in a list of headers.
+	 *
+	 * @param headers The list of headers
+	 * @param columnName The column name or index to find
+	 * @param fieldName Display name of the field for error messages
+	 * @param required Whether the column is required
+	 * @return The index of the column
+	 * @throws IllegalArgumentException If the column is required but not found
 	 */
-	private void sanityCheckColumnSize(String fieldSeparator, String[] columns, String line) {
-		int nrOfColumns = columns.length;
-		if (nrOfColumns < REQUIRED_NR_OF_CSV_COLUMNS) {
-			String[] msg = {
-					String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumns1"),
-							nrOfColumns, line),
-					String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumns2"),
-							REQUIRED_NR_OF_CSV_COLUMNS, "alt, speed & dir"),
-					String.format(trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.NotEnoughColumns3"),
-							fieldSeparator),
-			};
-			throw new IllegalArgumentException(String.join("\n", msg));
+	private int findColumnIndex(List<String> headers, String columnName, String fieldName, boolean required) {
+		int index = headers.indexOf(columnName);
+
+		if (index == -1 && required) {
+			throw new IllegalArgumentException(String.format(
+					trans.get("MultiLevelPinkNoiseWindModel.msg.importLevelsError.ColumnNotFound"),
+					fieldName, columnName));
 		}
+
+		return index;
+	}
+
+	/**
+	 * Extract a double value from a string array and convert it to the appropriate unit.
+	 *
+	 * @param values The array of values
+	 * @param index The index of the value to extract
+	 * @param fieldName Display name of the field for error messages
+	 * @param unit The unit of the value as specified in the CSV
+	 * @return The extracted double value in SI units
+	 */
+	private double extractDoubleAndConvert(String[] values, int index, String fieldName, Unit unit) {
+		// Extract the raw value
+		double rawValue = extractDouble(values, index, fieldName);
+
+		// Convert from the input unit to SI units (the internal unit system)
+		if (unit != null) {
+			return unit.fromUnit(rawValue);
+		}
+
+		return rawValue;
 	}
 
 	/**

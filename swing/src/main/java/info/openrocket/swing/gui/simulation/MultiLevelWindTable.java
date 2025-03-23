@@ -133,21 +133,6 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		rowsPanel = new JPanel();
 		rowsPanel.setLayout(new BoxLayout(rowsPanel, BoxLayout.Y_AXIS));
 
-		// Calculate total width based on column definitions
-		int totalWidth = 0;
-		for (ColumnDefinition col : COLUMNS) {
-			totalWidth += col.width();
-		}
-		// Add some extra width for separators
-		totalWidth += (COLUMNS.length - 1); // 1px for each separator
-		
-		// Ensure rows panel has its preferred width set but allows vertical scrolling
-		rowsPanel.setMinimumSize(new Dimension(totalWidth, 10));
-		
-		// Set a small preferred height initially to ensure vertical scrolling works
-		// This will be updated when rows are added to match actual content height
-		rowsPanel.setPreferredSize(new Dimension(totalWidth, 10));
-
 		// Populate rows from the wind model
 		windModel.getLevels().forEach(lvl -> {
 			LevelRow row = new LevelRow(lvl);
@@ -469,9 +454,40 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		resortRows(null);
 	}
 
-	public void importLevels(File file, String separator) {
-		windModel.importLevelsFromCSV(file, separator);
-		syncRowsFromModel();
+	/**
+	 * Import wind levels from a CSV file with the specified settings.
+	 *
+	 * @param file The CSV file to import
+	 * @param separator The field separator used in the CSV file
+	 * @param altitudeColumn The name or index of the altitude column
+	 * @param speedColumn The name or index of the speed column
+	 * @param directionColumn The name or index of the direction column
+	 * @param stdDeviationColumn The name or index of the standard deviation column (can be empty)
+	 * @param altitudeUnit The unit used for altitude values in the CSV
+	 * @param speedUnit The unit used for speed values in the CSV
+	 * @param directionUnit The unit used for direction values in the CSV
+	 * @param stdDeviationUnit The unit used for standard deviation values in the CSV
+	 * @param hasHeaders Whether the CSV file has headers
+	 */
+	public void importLevels(File file, String separator,
+							 String altitudeColumn, String speedColumn,
+							 String directionColumn, String stdDeviationColumn,
+							 Unit altitudeUnit, Unit speedUnit,
+							 Unit directionUnit, Unit stdDeviationUnit,
+							 boolean hasHeaders) {
+		try {
+			windModel.importLevelsFromCSV(file, separator,
+					altitudeColumn, speedColumn,
+					directionColumn, stdDeviationColumn,
+					altitudeUnit, speedUnit,
+					directionUnit, stdDeviationUnit,
+					hasHeaders);
+			syncRowsFromModel();
+		} catch (Exception e) {
+			// Ensure we reset if any error occurs
+			resetLevels();
+			throw e;
+		}
 	}
 
 	public void resetLevels() {
@@ -617,12 +633,28 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	public Unit getAltitudeUnit() {
 		return altitudeUnitSelector.getSelectedUnit();
 	}
+
+	/**
+	 * Set the selected altitude unit
+	 * @param unit the unit to set
+	 */
+	public void setAltitudeUnit(Unit unit) {
+		altitudeUnitSelector.setSelectedUnit(unit);
+	}
 	
 	/**
 	 * Get the selected speed unit
 	 */
 	public Unit getSpeedUnit() {
 		return speedUnitSelector.getSelectedUnit();
+	}
+
+	/**
+	 * Set the selected speed unit
+	 * @param unit the unit to set
+	 */
+	public void setSpeedUnit(Unit unit) {
+		speedUnitSelector.setSelectedUnit(unit);
 	}
 
 	/**
@@ -633,10 +665,26 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 	}
 
 	/**
+	 * Set the selected direction unit
+	 * @param unit the unit to set
+	 */
+	public void setDirectionUnit(Unit unit) {
+		directionUnitSelector.setSelectedUnit(unit);
+	}
+
+	/**
 	 * Get the selected standard deviation unit
 	 */
 	public Unit getStdDeviationUnit() {
 		return stdDeviationUnitSelector.getSelectedUnit();
+	}
+
+	/**
+	 * Set the selected standard deviation unit
+	 * @param unit the unit to set
+	 */
+	public void setStdDeviationUnit(Unit unit) {
+		stdDeviationUnitSelector.setSelectedUnit(unit);
 	}
 
 	@Override
