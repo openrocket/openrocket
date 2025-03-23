@@ -18,21 +18,15 @@ Release Notes
 OpenRocket 24.12.RC.01 (2025-XX-XX)
 -------------------------------------
 
-Following are changes since 24.12.beta.01.  Notable features and fixes in **bold**
+Following are changes since 24.12.beta.01.  Notable features and fixes in **bold**.
 
-### Multi-level Wind Feature ###
+### Multi-level Wind Feature
 * **Import wind data from CSV file**: Thanks to @CSutter5 for their contribution!
 * Heavily reworked UI
 * Allow "0" for wind speed setting (fixes #2678)
 * Add "Wind Direction" flight data type
 
-### Warnings ###
-* **Standardize Warning format** (fixes #2669)
-* Clarify "Open airframe" warnings when due to separated booster stage
-* Don't generate spurious warning when using a single tube fin (fixes #2663)
-* Improve how warnings are saved to and reloaded from ORK file (fixes #2694)
-
-### User Interface ###
+### User Interface
 * **Eliminate Window Ghosting on Windows OS**: We think Sibo has finally squashed this vexing problem (fixes #1667)
 * **Improve UI Readability**: Some assorted changes to improve the readability of the UI after beta 1's change to the FlatLaf
 * **Add UI Customization**: You can now tweak the UI to your liking.  See the "UI" tab in app preferences.
@@ -46,6 +40,38 @@ Following are changes since 24.12.beta.01.  Notable features and fixes in **bold
 * Add File->Properties menu item (fixes #2662).  Thanks to @MiguelECL for their contribution!
 * Focus Rocket Config Dialog when opening file (fixes #2146).  Thanks to @JonathanDeLaCruz for their contribution!
 * Clear "Simulation abort" warning in design view when resetting flight config (fixes #2749)
+
+### Warnings
+* **Standardize Warning format** (fixes #2669)
+* Clarify "Open airframe" warnings when due to separated booster stage
+* Don't generate spurious warning when using a single tube fin (fixes #2663)
+* Improve how warnings are saved to and reloaded from ORK file (fixes #2694)
+
+### Calculations
+* Correctly calculate CG on zero-length components (fixes #2626)
+* Improve handling of very small fins (fixes #2633)
+* Include enabled stages in calculations even if parent stage is disabled (fixes #2657)
+* Correctly handle "auto" mass object size when parent component is filled (fixes #2660)
+* Fix CP calculation error with tail cones (fixes #2751)
+
+### Simulation
+* Add "Altitude above Sea Level" as new flight data type
+* Include side boosters in thrust calculation (fixes #2639)
+* Improve handling of launch site altitude and limit to 11 km (fixes #2699)
+
+### Export
+* Add option to export only one instance of component to OBJ
+* Fix export of Component Analysis data (fixes #2697)
+* Correctly handle periods in file path when exporting (fixes #2701)
+  
+### Miscellaneous
+* Improve compatibility with old plugins (fixes #2676)
+* Clean up the "CSV Save" example simulation extension (fixes #2696)
+* Re-enable opacity setting in appearance panel (fixes #2644)
+* Improvements to software updater (fixes #2648)
+* Update "modified data" file metadata when saving
+* Add additional file properties (fixes #2664).  Thanks to @MigelECL for their contribution!
+* Honor Cd override when read from file (fixes #2745)
 
 ...and the usual additional assortment of small fixes and tweaks.
 
