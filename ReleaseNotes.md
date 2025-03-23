@@ -18,6 +18,37 @@ Release Notes
 OpenRocket 24.12.RC.01 (2025-XX-XX)
 -------------------------------------
 
+Following are changes since 24.12.beta.01.  Notable features and fixes in **bold**
+
+### Multi-level Wind Feature ###
+* **Import wind data from CSV file**: Thanks to @CSutter5 for their contribution!
+* Heavily reworked UI
+* Allow "0" for wind speed setting (fixes #2678)
+* Add "Wind Direction" flight data type
+
+### Warnings ###
+* **Standardize Warning format** (fixes #2669)
+* Clarify "Open airframe" warnings when due to separated booster stage
+* Don't generate spurious warning when using a single tube fin (fixes #2663)
+* Improve how warnings are saved to and reloaded from ORK file (fixes #2694)
+
+### User Interface ###
+* **Eliminate Window Ghosting on Windows OS**: We think Sibo has finally squashed this vexing problem (fixes #1667)
+* **Improve UI Readability**: Some assorted changes to improve the readability of the UI after beta 1's change to the FlatLaf
+* **Add UI Customization**: You can now tweak the UI to your liking.  See the "UI" tab in app preferences.
+* **Improvements to Rotation Control in 2D Views**: You can now lock the angle so you don't accidentally rotate it with a click-drag; you can also enter the desired angle directly
+* **Show Flight Config in Design View**: This should make it easier to get all necessary information when screenshotting just the rocket figure display (fixes #2735)
+* Use light mode when exporting design info (fixes #2510)
+* Support 5 decimal places in latitude and longitude settings (fixes #2590)
+* Better positioning of modal dialogs (fixes #2652)
+* Correctly track when files have changed (fixes #2679)
+* Include number of assembly copies in motor count display (fixes #2725)
+* Add File->Properties menu item (fixes #2662).  Thanks to @MiguelECL for their contribution!
+* Focus Rocket Config Dialog when opening file (fixes #2146).  Thanks to @JonathanDeLaCruz for their contribution!
+* Clear "Simulation abort" warning in design view when resetting flight config (fixes #2749)
+
+...and the usual additional assortment of small fixes and tweaks.
+
 </div>
 
 <div id="24.12.beta.01">
