@@ -72,6 +72,8 @@ Following are changes since 24.12.beta.01.  Notable features and fixes in **bold
 * Update "modified data" file metadata when saving
 * Add additional file properties (fixes #2664).  Thanks to @MigelECL for their contribution!
 * Honor Cd override when reading from a file (fixes #2745)
+* Add Piotr Tendera Rocket Motors (TSP) and Raketenmodelbau Klima (Klima) motor manufacturers to motor database
+* Enhancements and fixes to motor length and diameter filters
 
 ...and the usual additional assortment of small fixes and tweaks.
 
