@@ -130,9 +130,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				continue;
 			}
 
-			if (Double.isNaN(f.getCNa())) {
-				f.setCNa(0.0);
-			}
 			if (f.getCP().isNaN()) {
 				f.setCP(Coordinate.ZERO);
 			}

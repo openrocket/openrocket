@@ -141,8 +141,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		}
 
 		forces.setCP(cp);
-		forces.setCNa(cp.weight);
-		forces.setCN(forces.getCNa() * conditions.getAOA());
+		forces.setCN(forces.getCP().weight * conditions.getAOA());
 		forces.setCm(forces.getCN() * cp.x / conditions.getRefLength());
 		forces.setCroll(0);
 		forces.setCrollDamp(0);

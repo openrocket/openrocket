@@ -17,14 +17,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	private RocketComponent component = null;
 
 	/** CP and CNa. */
-	private Coordinate cp = null;
-
-	/**
-	 * Normal force coefficient derivative. At values close to zero angle of attack
-	 * this value may be poorly defined or NaN if the calculation method does not
-	 * compute CNa directly.
-	 */
-	private double CNa = Double.NaN;
+	private Coordinate cpCNa = Coordinate.ZERO;
 
 	/** Normal force coefficient. */
 	private double CN = Double.NaN;
@@ -106,28 +99,30 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		return component;
 	}
 
+	/**
+	 * set cpCNa as the moment defined by cp
+	 */
 	public void setCP(Coordinate cp) {
-		if ((this.cp != null) && this.cp.equals(cp))
+		Coordinate newCpCNa;
+		if (MathUtil.equals(0, cp.weight)) {
+			newCpCNa = Coordinate.ZERO;
+		} else {
+			newCpCNa = new Coordinate(cp.x*cp.weight, cp.y*cp.weight, cp.z*cp.weight, cp.weight);
+		}
+		
+		if ((this.cpCNa != null) && this.cpCNa.equals(newCpCNa))
 			return;
 		
-		this.cp = cp;
+		this.cpCNa = newCpCNa;
 		modID = new ModID();
 	}
 
 	public Coordinate getCP() {
-		return cp;
-	}
-
-	public void setCNa(double cNa) {
-		if (CNa == cNa)
-			return;
-		
-		CNa = cNa;
-		modID = new ModID();
-	}
-
-	public double getCNa() {
-		return CNa;
+		if (MathUtil.equals(0, cpCNa.weight)) {
+			return Coordinate.ZERO;
+		} 
+				
+		return new Coordinate(cpCNa.x / cpCNa.weight, cpCNa.y / cpCNa.weight, cpCNa.z / cpCNa.weight, cpCNa.weight);
 	}
 
 	public void setCN(double cN) {
@@ -356,7 +351,6 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		setComponent(null);
 
 		setCP(null);
-		setCNa(Double.NaN);
 		setCN(Double.NaN);
 		setCm(Double.NaN);
 		setCside(Double.NaN);
@@ -378,7 +372,6 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 
 		setAxisymmetric(true);
 		setCP(Coordinate.NUL);
-		setCNa(0);
 		setCN(0);
 		setCm(0);
 		setCside(0);
@@ -411,8 +404,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 			return false;
 		AerodynamicForces other = (AerodynamicForces) obj;
 
-		return (MathUtil.equals(this.getCNa(), other.getCNa()) &&
-				MathUtil.equals(this.getCN(), other.getCN()) &&
+		return (MathUtil.equals(this.getCN(), other.getCN()) &&
 				MathUtil.equals(this.getCm(), other.getCm()) &&
 				MathUtil.equals(this.getCside(), other.getCside()) &&
 				MathUtil.equals(this.getCyaw(), other.getCyaw()) &&
@@ -431,7 +423,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 
 	@Override
 	public int hashCode() {
-		return (int) (1000 * (this.getCD() + this.getCDaxial() + this.getCNa())) + this.getCP().hashCode();
+		return (int) (1000 * (this.getCD() + this.getCDaxial() + this.getCP().weight)) + this.getCP().hashCode();
 	}
 
 	@Override
@@ -442,9 +434,6 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 			text += "component:" + getComponent() + ",";
 		if (getCP() != null)
 			text += "cp:" + getCP() + ",";
-
-		if (!Double.isNaN(getCNa()))
-			text += "CNa:" + getCNa() + ",";
 		if (!Double.isNaN(getCN()))
 			text += "CN:" + getCN() + ",";
 		if (!Double.isNaN(getCm()))
@@ -476,8 +465,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public AerodynamicForces merge(AerodynamicForces other) {
-		this.cp = cp.average(other.getCP());
-		this.CNa = CNa + other.getCNa();
+		this.cpCNa = cpCNa.add(other.cpCNa);
 		this.CN = CN + other.getCN();
 		this.Cm = Cm + other.getCm();
 		this.Cside = Cside + other.getCside();
