@@ -21,15 +21,15 @@ OpenRocket 24.12.RC.01 (2025-XX-XX)
 Following are changes since 24.12.beta.01.  Notable features and fixes in **bold**.
 
 ### Multi-level Wind Feature
-* **Import wind data from CSV file**: Thanks to @CSutter5 for their contribution!
-* Heavily reworked UI
-* Allow "0" for wind speed setting (fixes #2678)
+* **CSV Wind Data Import**: Import detailed wind profiles directly from CSV files. Thanks to @CSutter5!
+* Reworked UI
+* Allow zero wind speed input (fixes #2678)
 * Add "Wind Direction" flight data type
 
 ### User Interface
-* **Eliminate Window Ghosting on Windows OS**: We think Sibo has finally squashed this vexing problem (fixes #1667)
-* **Improve UI Readability**: Some assorted changes to improve the readability of the UI after beta 1's change to the FlatLaf
-* **Add UI Customization**: You can now tweak the UI to your liking.  See the "UI" tab in app preferences.
+* **Window Ghosting Eliminated on Windows OS**: We think @SiboVG has finally squashed this vexing problem (fixes #1667)
+* **Improved UI Readability**: Some assorted changes to improve the readability of the UI after the 24.12.beta.01 change to the FlatLaf UI
+* **Add UI Customization**: You can now tweak the UI to your liking. Added "UI Scale", "Font Size", and "Character Spacing".  See the "UI" tab in app preferences.
 * **Improvements to Rotation Control in 2D Views**: You can now lock the angle so you don't accidentally rotate it with a click-drag; you can also enter the desired angle directly
 * **Show Flight Config in Design View**: This should make it easier to get all necessary information when screenshotting just the rocket figure display (fixes #2735)
 * Use light mode when exporting design info (fixes #2510)
@@ -65,13 +65,13 @@ Following are changes since 24.12.beta.01.  Notable features and fixes in **bold
 * Correctly handle periods in file path when exporting (fixes #2701)
   
 ### Miscellaneous
-* Improve compatibility with old plugins (fixes #2676)
+* Add compatibility with plugins using the old `net.sf.openrocket` package instead of the new `info.openrocket.core` and `info.openrocket.swing`. The old plugins are copied and migrated to the new package structure with a `-migrated` suffix. (fixes #2676)
 * Clean up the "CSV Save" example simulation extension (fixes #2696)
-* Re-enable opacity setting in appearance panel (fixes #2644)
-* Improvements to software updater (fixes #2648)
+* Fix exception when changing the opacity setting in the appearance panel (fixes #2644)
+* Improvements to the software updater (fixes #2648)
 * Update "modified data" file metadata when saving
 * Add additional file properties (fixes #2664).  Thanks to @MigelECL for their contribution!
-* Honor Cd override when read from file (fixes #2745)
+* Honor Cd override when reading from a file (fixes #2745)
 
 ...and the usual additional assortment of small fixes and tweaks.
 
