@@ -1524,32 +1524,6 @@
         </NoseCone>
         <NoseCone>
             <Manufacturer>Estes</Manufacturer>
-            <PartNumber>PNC-60L</PartNumber>
-            <Description>Plastic Nose cone</Description>
-            <Material Type="BULK">Polystyrene PS</Material>
-            <Mass Unit="kg">0.011056</Mass>
-            <Shape>ELLIPSOID</Shape>
-            <OutsideDiameter Unit="m">0.0415798</OutsideDiameter>
-            <ShoulderDiameter Unit="m">0.040513</ShoulderDiameter>
-            <ShoulderLength Unit="m">0.019049999999999997</ShoulderLength>
-            <Length Unit="m">0.0635</Length>
-            <Thickness Unit="m">0.003175</Thickness>
-        </NoseCone>
-        <NoseCone>
-            <Manufacturer>Estes</Manufacturer>
-            <PartNumber>PNC-60MS</PartNumber>
-            <Description>Plastic Nose cone</Description>
-            <Material Type="BULK">Polystyrene PS</Material>
-            <Mass Unit="kg">0.01417476155</Mass>
-            <Shape>PARABOLIC</Shape>
-            <OutsideDiameter Unit="m">0.0415798</OutsideDiameter>
-            <ShoulderDiameter Unit="m">0.040513</ShoulderDiameter>
-            <ShoulderLength Unit="m">0.019049999999999997</ShoulderLength>
-            <Length Unit="m">0.0635</Length>
-            <Thickness Unit="m">0.003175</Thickness>
-        </NoseCone>
-        <NoseCone>
-            <Manufacturer>Estes</Manufacturer>
             <PartNumber>PNC-60NA</PartNumber>
             <Description>Plastic Nose cone</Description>
             <Material Type="BULK">Polystyrene PS</Material>

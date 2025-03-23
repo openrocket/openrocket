@@ -358,21 +358,6 @@
             <Length Unit="m">0.508</Length>
             <Thickness Unit="m">0.0022224999999999996</Thickness>
         </Transition>
-        <Transition>
-            <Manufacturer>Public Missiles</Manufacturer>
-            <PartNumber>Little Lunar</PartNumber>
-            <Description>Boatail</Description>
-            <Material Type="BULK">Polystyrene PS</Material>
-            <Shape>OGIVE</Shape>
-            <ForeOutsideDiameter Unit="m">0.1022096</ForeOutsideDiameter>
-            <ForeShoulderDiameter Unit="m">0.09855199999999999</ForeShoulderDiameter>
-            <ForeShoulderLength Unit="m">0.1022096</ForeShoulderLength>
-            <AftOutsideDiameter Unit="m">0.0418846</AftOutsideDiameter>
-            <AftShoulderDiameter Unit="m">0.038227</AftShoulderDiameter>
-            <AftShoulderLength Unit="m">2.54E-5</AftShoulderLength>
-            <Length Unit="m">0.30479999999999996</Length>
-            <Thickness Unit="m">0.0016002</Thickness>
-        </Transition>
         <BodyTube>
             <Manufacturer>Public Missiles</Manufacturer>
             <PartNumber>PML 29/38ADPTR</PartNumber>
