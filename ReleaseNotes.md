@@ -18,6 +18,65 @@ Release Notes
 OpenRocket 24.12.RC.01 (2025-XX-XX)
 -------------------------------------
 
+Following are changes since 24.12.beta.01.  Notable features and fixes in **bold**.
+
+### Multi-level Wind Feature
+* **CSV Wind Data Import**: Import detailed wind profiles directly from CSV files. Thanks to @CSutter5!
+* Reworked UI
+* Allow zero wind speed input (fixes #2678)
+* Add "Wind Direction" flight data type
+
+### User Interface
+* **Window Ghosting Eliminated on Windows OS**: We think @SiboVG has finally squashed this vexing problem (fixes #1667)
+* **Improved UI Readability**: Some assorted changes to improve the readability of the UI after the 24.12.beta.01 change to the FlatLaf UI
+* **Add UI Customization**: You can now tweak the UI to your liking. Added "UI Scale", "Font Size", and "Character Spacing".  See the "UI" tab in app preferences.
+* **Improvements to Rotation Control in 2D Views**: You can now lock the angle so you don't accidentally rotate it with a click-drag; you can also enter the desired angle directly
+* **Show Flight Config in Design View**: This should make it easier to get all necessary information when screenshotting just the rocket figure display (fixes #2735)
+* Use light mode when exporting design info (fixes #2510)
+* Support 5 decimal places in latitude and longitude settings (fixes #2590)
+* Better positioning of modal dialogs (fixes #2652)
+* Correctly track when files have changed (fixes #2679)
+* Include number of assembly copies in motor count display (fixes #2725)
+* Add File->Properties menu item (fixes #2662).  Thanks to @MiguelECL for their contribution!
+* Focus Rocket Config Dialog when opening file (fixes #2146).  Thanks to @JonathanDeLaCruz for their contribution!
+* Clear "Simulation abort" warning in design view when resetting flight config (fixes #2749)
+
+### Warnings
+* **Standardize Warning format** (fixes #2669)
+* Clarify "Open airframe" warnings when due to separated booster stage
+* Don't generate spurious warning when using a single tube fin (fixes #2663)
+* Improve how warnings are saved to and reloaded from ORK file (fixes #2694)
+
+### Calculations
+* Correctly calculate CG on zero-length components (fixes #2626)
+* Improve handling of very small fins (fixes #2633)
+* Include enabled stages in calculations even if parent stage is disabled (fixes #2657)
+* Correctly handle "auto" mass object size when parent component is filled (fixes #2660)
+* Fix CP calculation error with tail cones (fixes #2751)
+
+### Simulation
+* Add "Altitude above Sea Level" as new flight data type
+* Include side boosters in thrust calculation (fixes #2639)
+* Improve handling of launch site altitude and limit to 11 km (fixes #2699)
+
+### Export
+* Add option to export only one instance of component to OBJ
+* Fix export of Component Analysis data (fixes #2697)
+* Correctly handle periods in file path when exporting (fixes #2701)
+  
+### Miscellaneous
+* Add compatibility with plugins using the old `net.sf.openrocket` package instead of the new `info.openrocket.core` and `info.openrocket.swing`. The old plugins are copied and migrated to the new package structure with a `-migrated` suffix. (fixes #2676)
+* Clean up the "CSV Save" example simulation extension (fixes #2696)
+* Fix exception when changing the opacity setting in the appearance panel (fixes #2644)
+* Improvements to the software updater (fixes #2648)
+* Update "modified data" file metadata when saving
+* Add additional file properties (fixes #2664).  Thanks to @MigelECL for their contribution!
+* Honor Cd override when reading from a file (fixes #2745)
+* Add Piotr Tendera Rocket Motors (TSP) and Raketenmodelbau Klima (Klima) motor manufacturers to motor database
+* Enhancements and fixes to motor length and diameter filters
+
+...and the usual additional assortment of small fixes and tweaks.
+
 </div>
 
 <div id="24.12.beta.01">
