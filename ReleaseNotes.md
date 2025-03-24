@@ -15,7 +15,7 @@ Release Notes
 
 <div id="24.12.RC.01">
 
-OpenRocket 24.12.RC.01 (2025-XX-XX)
+OpenRocket 24.12.RC.01 (2025-03-25)
 -------------------------------------
 
 Following are changes since 24.12.beta.01.  Notable features and fixes in **bold**.
