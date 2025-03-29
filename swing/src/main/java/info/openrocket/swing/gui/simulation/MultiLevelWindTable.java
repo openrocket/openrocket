@@ -733,7 +733,7 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 
 			// Create DoubleModels bound to the level
 			dmAltitude = new DoubleModel(level, "Altitude", UnitGroup.UNITS_DISTANCE, -100, ExtendedISAModel.getMaximumAllowedAltitude());
-			dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0, 10.0);
+			dmSpeed = new DoubleModel(level, "Speed", UnitGroup.UNITS_WINDSPEED, 0);
 			dmDirection = new DoubleModel(level, "Direction", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 			dmStdDeviation = new DoubleModel(level, "StandardDeviation", UnitGroup.UNITS_WINDSPEED, 0, dmSpeed);
 			dmTurbulence = new DoubleModel(level, "TurbulenceIntensity", UnitGroup.UNITS_RELATIVE, 0, 1);
