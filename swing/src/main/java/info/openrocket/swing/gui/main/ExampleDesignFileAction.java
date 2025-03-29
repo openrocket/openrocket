@@ -31,7 +31,7 @@ public final class ExampleDesignFileAction extends JMenu {
         "A simple model rocket",
         "Two stage high power rocket",
         "Three stage low power rocket",
-        "TARC payload rocket",
+        "ARC payload rocket",
         "Tube fin rocket",
         "3D Printable Nose Cone and Fins",
         null,
