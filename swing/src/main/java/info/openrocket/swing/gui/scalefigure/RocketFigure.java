@@ -339,9 +339,9 @@ public class RocketFigure extends AbstractScaleFigure {
 			// so, just draw a motor once for each Coordinate returned... 
 			Coordinate[] mountLocations = mount.getComponentLocations();
 
-			double mountLength = mountComponent.getLength();
+			Coordinate motorPosition = mount.getMotorPosition(config.getId());
 			for (Coordinate curMountLocation : mountLocations) {
-				Coordinate curMotorLocation = curMountLocation.add(mountLength - motorLength + mount.getMotorOverhang(), 0, 0);
+				Coordinate curMotorLocation = curMountLocation.add(motorPosition);
 
 				// rotate by figure's axial rotation:
 				curMotorLocation = getFigureRotation().transform(curMotorLocation);
