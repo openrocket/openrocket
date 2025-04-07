@@ -335,9 +335,9 @@ public class RocketFigure extends AbstractScaleFigure {
 				continue;
 			}
 
-			// <component>.getLocation() will return all the parent instances of this owning component,  AND all of it's own instances as well.
+			// <component>.getComponentLocations() will return all the parent instances of this owning component,  AND all of its own instances as well.
 			// so, just draw a motor once for each Coordinate returned... 
-			Coordinate[] mountLocations = mount.getLocations();
+			Coordinate[] mountLocations = mount.getComponentLocations();
 
 			double mountLength = mountComponent.getLength();
 			for (Coordinate curMountLocation : mountLocations) {

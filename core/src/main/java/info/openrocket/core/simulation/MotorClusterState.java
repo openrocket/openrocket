@@ -26,7 +26,7 @@ public class MotorClusterState {
 		this.config = _config;
 
 		this.motor = this.config.getMotor();
-		this.motorCount = this.config.getMount().getLocations().length;
+		this.motorCount = this.config.getMount().getComponentLocations().length;
 		this.thrustDuration = this.motor.getBurnTimeEstimate();
 
 		this.reset();

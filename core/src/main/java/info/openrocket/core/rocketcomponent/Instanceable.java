@@ -4,9 +4,6 @@ import info.openrocket.core.util.Coordinate;
 
 public interface Instanceable {
 	
-	@Deprecated
-	Coordinate[] getLocations();
-	
 	/**
 	 * Returns vector coordinates of each instance of this component relative to this component's parent
 	 * 

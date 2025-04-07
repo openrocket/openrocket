@@ -21,10 +21,10 @@ public class LaunchLugTest extends BaseTestCase {
 		lug.setInstanceSeparation(0.05);
 		lug.setInstanceCount(2);
 
-		double expX = 0.111 + body.getLocations()[0].x;
+		double expX = 0.111 + body.getComponentLocations()[0].x;
 		double expR = -(body.getOuterRadius() + lug.getOuterRadius());
 		Coordinate expPos = new Coordinate(expX, expR, 0, 0);
-		Coordinate[] actPos = lug.getLocations();
+		Coordinate[] actPos = lug.getComponentLocations();
 		assertEquals(expPos.x, actPos[0].x, EPSILON, " LaunchLug has the wrong x value: ");
 		assertEquals(expPos.y, actPos[0].y, EPSILON, " LaunchLug has the wrong y value: ");
 		assertEquals(expPos.z, actPos[0].z, EPSILON, " LaunchLug has the wrong z value: ");
@@ -46,12 +46,12 @@ public class LaunchLugTest extends BaseTestCase {
 		lug.setInstanceSeparation(0.05);
 		lug.setInstanceCount(2);
 
-		double expX = 0.111 + body.getLocations()[0].x;
+		double expX = 0.111 + body.getComponentLocations()[0].x;
 		double expR = 0.015;
 		double expY = Math.cos(startAngle) * expR;
 		double expZ = Math.sin(startAngle) * expR;
 		Coordinate expPos = new Coordinate(expX, expY, expZ, 0);
-		Coordinate[] actPos = lug.getLocations();
+		Coordinate[] actPos = lug.getComponentLocations();
 		assertEquals(expPos.x, actPos[0].x, EPSILON, " LaunchLug has the wrong x value: ");
 		assertEquals(expPos.y, actPos[0].y, EPSILON, " LaunchLug has the wrong y value: ");
 		assertEquals(expPos.z, actPos[0].z, EPSILON, " LaunchLug has the wrong z value: ");

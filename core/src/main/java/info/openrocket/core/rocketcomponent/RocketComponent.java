@@ -1579,13 +1579,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public Coordinate[] getInstanceOffsets() {
 		return new Coordinate[] { Coordinate.ZERO };
 	}
-
-	// this is an inefficient way to calculate all of the locations;
-	// it also breaks locality, (i.e. is a rocket-wide calculation )
-	@Deprecated
-	public Coordinate[] getLocations() {
-		return getComponentLocations();
-	}
 	
 	/** 
 	 * Provides locations of all instances of component *accounting for all parent instancing*
@@ -1739,10 +1732,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		// not sure if this will give us an answer, or THE answer... 
 		//final Coordinate sourceLoc = this.getLocation()[0];
-		final Coordinate[] destLocs = dest.getLocations();
+		final Coordinate[] destLocs = dest.getComponentLocations();
 		Coordinate[] toReturn = new Coordinate[destLocs.length];
 		for (int coordIndex = 0; coordIndex < destLocs.length; coordIndex++) {
-			toReturn[coordIndex] = this.getLocations()[0].add(c).sub(destLocs[coordIndex]);
+			toReturn[coordIndex] = this.getComponentLocations()[0].add(c).sub(destLocs[coordIndex]);
 		}
 		
 		mutex.unlock("toRelative");
@@ -3165,7 +3158,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				final String instancePrefix = String.format("%s    [%2d/%2d]", indent, instanceNumber + 1,
 						getInstanceCount());
 				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(),
-						this.axialOffset, getLocations()[instanceNumber]));
+						this.axialOffset, getComponentLocations()[instanceNumber]));
 			}
 		} else {
 			throw new IllegalStateException(
