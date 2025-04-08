@@ -44,8 +44,11 @@ public abstract class Message implements Cloneable {
 	protected static String addSourcesToMessageText(String text, RocketComponent[] sources) {
 		if (sources != null && sources.length > 0) {
 			String[] sourceNames = new String[sources.length];
+			int j = 0;
 			for (int i = 0; i < sources.length; i++) {
-				sourceNames[i] = "\"" + sources[i].getName() + "\"";
+				if (sources[i] != null) {
+					sourceNames[j++] = "\"" + sources[i].getName() + "\"";
+				}
 			}
 			return text + ":  " + String.join(", ", sourceNames);
 		}
