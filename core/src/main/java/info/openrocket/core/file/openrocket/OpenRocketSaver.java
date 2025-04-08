@@ -443,7 +443,9 @@ public class OpenRocketSaver extends RocketSaver {
 
 				if (null != w.getSources()) {
 					for (RocketComponent c : w.getSources()) {
-						writeElement("source", c.getID());
+						if (c != null) {
+							writeElement("source", c.getID());
+						}
 					}
 				}
 
