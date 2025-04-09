@@ -22,6 +22,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.core.util.Transformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1602,17 +1603,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// override <instance>.getInstanceLocations() in each subclass
 			Coordinate[] instanceLocations = this.getInstanceLocations();
 			int instanceCount = instanceLocations.length;
+
+			// We also need to include the parent rotations
+			Coordinate[] parentRotations = this.parent.getComponentAngles();
 			
 			// usual case optimization
 			if ((parentCount == 1) && (instanceCount == 1)) {
-				return new Coordinate[]{parentPositions[0].add(instanceLocations[0])};
+				Transformation rotation = Transformation.getRotationTransform(parentRotations[0], this.position);
+				return new Coordinate[]{parentPositions[0].add(rotation.transform(instanceLocations[0]))};
 			}
 			
 			int thisCount = instanceCount * parentCount;
 			Coordinate[] thesePositions = new Coordinate[thisCount];
 			for (int pi = 0; pi < parentCount; pi++) {
+				Transformation rotation = Transformation.getRotationTransform(parentRotations[pi], this.position);
 				for (int ii = 0; ii < instanceCount; ii++) {
-					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(instanceLocations[ii]);
+					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(rotation.transform(instanceLocations[ii]));
 				}
 			}
 			return thesePositions;
