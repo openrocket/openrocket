@@ -320,6 +320,28 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_STROKE_NORMALIZE);
 	
 		// Draw motors
+		drawMotors(g2);
+
+
+		// Draw relative extras
+		if (drawCarets) {
+			for (FigureElement e : relativeExtra) {
+				e.paint(g2, scale);
+			}
+		}
+
+		
+		// Draw absolute extras
+		g2.setTransform(baseTransform);
+		Rectangle rect = this.getVisibleRect();
+		
+		for (FigureElement e : absoluteExtra) {
+			e.paint(g2, 1.0, rect);
+		}
+		
+	}
+
+	private void drawMotors(Graphics2D g2) {
 		Color fillColor = motorFillColor;
 		Color borderColor = motorBorderColor;
 
@@ -335,7 +357,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			double motorRadius = motor.getDiameter() / 2;
 
 			// <component>.getComponentLocations() will return all the parent instances of this owning component,  AND all of its own instances as well.
-			// so, just draw a motor once for each Coordinate returned... 
+			// so, just draw a motor once for each Coordinate returned...
 			Coordinate[] mountLocations = mount.getComponentLocations();
 
 			Coordinate motorPosition = mount.getMotorPosition(config.getId());
@@ -365,26 +387,8 @@ public class RocketFigure extends AbstractScaleFigure {
 				}
 			}
 		}
-		
-
-		// Draw relative extras
-		if (drawCarets) {
-			for (FigureElement e : relativeExtra) {
-				e.paint(g2, scale);
-			}
-		}
-
-		
-		// Draw absolute extras
-		g2.setTransform(baseTransform);
-		Rectangle rect = this.getVisibleRect();
-		
-		for (FigureElement e : absoluteExtra) {
-			e.paint(g2, 1.0, rect);
-		}
-		
 	}
-	
+
 	public RocketComponent[] getComponentsByPoint(double x, double y) {
 		// Calculate point in shapes' coordinates
 		Point2D.Double p = new Point2D.Double(x, y);
