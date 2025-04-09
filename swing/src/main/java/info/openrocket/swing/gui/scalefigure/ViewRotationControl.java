@@ -32,6 +32,8 @@ public class ViewRotationControl extends JPanel {
 	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
 	private final DoubleModel rotationModel;
+	private final JSpinner spinner;
+	private final UnitSelector unitSelector;
 	private final BasicSlider rotationSlider;
 	private final JToggleButton lockButton;
 	private boolean dragRotationLocked = false;
@@ -51,7 +53,7 @@ public class ViewRotationControl extends JPanel {
 		figure.addChangeListener(rotationModel);
 
 		// Create spinner
-		JSpinner spinner = new JSpinner(rotationModel.getSpinnerModel());
+		this.spinner = new JSpinner(rotationModel.getSpinnerModel());
 		spinner.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
 		spinner.setEditor(new SpinnerEditor(spinner));
 		// Remove the spinner buttons
@@ -68,7 +70,7 @@ public class ViewRotationControl extends JPanel {
 		});
 
 		// Create unit selector
-		UnitSelector unitSelector = new UnitSelector(rotationModel);
+		this.unitSelector = new UnitSelector(rotationModel);
 		unitSelector.setHorizontalAlignment(JLabel.CENTER);
 		unitSelector.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
 
@@ -117,6 +119,15 @@ public class ViewRotationControl extends JPanel {
 	 */
 	public boolean isDragRotationLocked() {
 		return dragRotationLocked;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		rotationSlider.setEnabled(enabled);
+		spinner.setEnabled(enabled);
+		unitSelector.setEnabled(enabled);
+		lockButton.setEnabled(enabled);
 	}
 
 	/**
