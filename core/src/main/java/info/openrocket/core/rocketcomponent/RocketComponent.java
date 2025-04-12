@@ -22,6 +22,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.core.util.Transformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1579,13 +1580,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public Coordinate[] getInstanceOffsets() {
 		return new Coordinate[] { Coordinate.ZERO };
 	}
-
-	// this is an inefficient way to calculate all of the locations;
-	// it also breaks locality, (i.e. is a rocket-wide calculation )
-	@Deprecated
-	public Coordinate[] getLocations() {
-		return getComponentLocations();
-	}
 	
 	/** 
 	 * Provides locations of all instances of component *accounting for all parent instancing*
@@ -1609,17 +1603,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// override <instance>.getInstanceLocations() in each subclass
 			Coordinate[] instanceLocations = this.getInstanceLocations();
 			int instanceCount = instanceLocations.length;
+
+			// We also need to include the parent rotations
+			Coordinate[] parentRotations = this.parent.getComponentAngles();
 			
 			// usual case optimization
 			if ((parentCount == 1) && (instanceCount == 1)) {
-				return new Coordinate[]{parentPositions[0].add(instanceLocations[0])};
+				Transformation rotation = Transformation.getRotationTransform(parentRotations[0], this.position);
+				return new Coordinate[]{parentPositions[0].add(rotation.transform(instanceLocations[0]))};
 			}
 			
 			int thisCount = instanceCount * parentCount;
 			Coordinate[] thesePositions = new Coordinate[thisCount];
 			for (int pi = 0; pi < parentCount; pi++) {
+				Transformation rotation = Transformation.getRotationTransform(parentRotations[pi], this.position);
 				for (int ii = 0; ii < instanceCount; ii++) {
-					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(instanceLocations[ii]);
+					thesePositions[pi + parentCount*ii] = parentPositions[pi].add(rotation.transform(instanceLocations[ii]));
 				}
 			}
 			return thesePositions;
@@ -1739,10 +1738,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		// not sure if this will give us an answer, or THE answer... 
 		//final Coordinate sourceLoc = this.getLocation()[0];
-		final Coordinate[] destLocs = dest.getLocations();
+		final Coordinate[] destLocs = dest.getComponentLocations();
 		Coordinate[] toReturn = new Coordinate[destLocs.length];
 		for (int coordIndex = 0; coordIndex < destLocs.length; coordIndex++) {
-			toReturn[coordIndex] = this.getLocations()[0].add(c).sub(destLocs[coordIndex]);
+			toReturn[coordIndex] = this.getComponentLocations()[0].add(c).sub(destLocs[coordIndex]);
 		}
 		
 		mutex.unlock("toRelative");
@@ -3165,7 +3164,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				final String instancePrefix = String.format("%s    [%2d/%2d]", indent, instanceNumber + 1,
 						getInstanceCount());
 				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, getLength(),
-						this.axialOffset, getLocations()[instanceNumber]));
+						this.axialOffset, getComponentLocations()[instanceNumber]));
 			}
 		} else {
 			throw new IllegalStateException(

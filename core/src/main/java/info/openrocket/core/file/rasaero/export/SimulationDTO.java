@@ -303,7 +303,7 @@ public class SimulationDTO {
 
         // Calculate the motor CG
         double motorPositionXRel = mount.getMotorPosition(fcid).x; // Motor position relative to the mount
-        double mountLocationX = mount.getLocations()[0].x;
+        double mountLocationX = mount.getComponentLocations()[0].x;
         double motorLocationX = mountLocationX + motorPositionXRel;
         double motorCG = ((ThrustCurveMotor) motor).getCGPoints()[0].x + motorLocationX;
 

@@ -45,6 +45,55 @@ public class Transformation implements java.io.Serializable {
 	}
 
 	/**
+	 * Create a transformation that rotates the coordinate system by the given
+	 * angles.
+	 * @param rotation The rotation angles in radians. For example, [Math.PI/2, 0, Math.PI] rotates 90 deg around the x-axis,
+	 *                 0 deg around the y-axis,and 180 deg around the z-axis.
+	 * @return The transformation.
+	 */
+	static public Transformation getRotationTransform(final Coordinate rotation) {
+		Transformation transformation = new Transformation();
+
+		// Apply rotations in X-Y-Z order
+		if (Math.abs(rotation.x) > ANGLE_EPSILON) {
+			transformation = transformation.applyTransformation(rotate_x(rotation.x));
+		}
+
+		if (Math.abs(rotation.y) > ANGLE_EPSILON) {
+			transformation = transformation.applyTransformation(rotate_y(rotation.y));
+		}
+
+		if (Math.abs(rotation.z) > ANGLE_EPSILON) {
+			transformation = transformation.applyTransformation(rotate_z(rotation.z));
+		}
+
+		return transformation;
+	}
+
+	/**
+	 * Creates a transformation that rotates around a specific origin point.
+	 *
+	 * @param rotation The rotation angles (x, y, z) in radians
+	 * @param origin The point to rotate around
+	 * @return A transformation that rotates around the specified origin
+	 */
+	static public Transformation getRotationTransform(final Coordinate rotation, final Coordinate origin) {
+		// 1. Translate to origin point
+		Transformation translateToOrigin = getTranslationTransform(-origin.x, -origin.y, -origin.z);
+
+		// 2. Apply the rotations
+		Transformation rotateTransform = getRotationTransform(rotation);
+
+		// 3. Translate back from origin
+		Transformation translateBack = getTranslationTransform(origin);
+
+		// Combine the transformations:
+		// First translate to origin, then rotate, then translate back
+		return translateBack.applyTransformation(
+				rotateTransform.applyTransformation(translateToOrigin));
+	}
+
+	/**
 	 * Create identity transformation.
 	 */
 	private Transformation() {
@@ -96,7 +145,6 @@ public class Transformation implements java.io.Serializable {
 	 * Create transformation with given rotation matrix and translation.
 	 * 
 	 * @param rotation
-	 * @param translation
 	 */
 	public Transformation(double[][] rotation) {
 		for (int i = 0; i < 3; i++)

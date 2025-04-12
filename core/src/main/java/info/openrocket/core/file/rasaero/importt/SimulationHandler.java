@@ -513,7 +513,7 @@ public class SimulationHandler extends AbstractElementHandler {
         Coordinate[] CGPoints = motor.getCGPoints();
         if (CGPoints != null && CGPoints.length > 1) {
             double motorPositionXRel = mount.getMotorPosition(fcid).x; // Motor position relative to the mount
-            double mountLocationX = mount.getLocations()[0].x;
+            double mountLocationX = mount.getComponentLocations()[0].x;
             double motorLocationX = mountLocationX + motorPositionXRel; // Front location of the motor
             double motorCG = motorLocationX + CGPoints[0].x;
 

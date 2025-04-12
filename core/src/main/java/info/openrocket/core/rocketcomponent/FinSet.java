@@ -924,7 +924,7 @@ public abstract class FinSet extends ExternalComponent
 			}
 		}
 		
-		Coordinate location = this.getLocations()[0];
+		Coordinate location = this.getComponentLocations()[0];
 		x_max += location.x;
 		
 		if( parent instanceof SymmetricComponent){
