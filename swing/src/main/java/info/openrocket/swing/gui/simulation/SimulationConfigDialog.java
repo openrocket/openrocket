@@ -120,7 +120,7 @@ public class SimulationConfigDialog extends JDialog {
 		warningsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		warningsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		Dimension d = warningsScrollPane.getPreferredSize();
-		warningsScrollPane.setPreferredSize(new Dimension(d.width, 500));
+		warningsScrollPane.setPreferredSize(new Dimension(d.width, 300));
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsScrollPane);
 
 		if (isMultiCompEdit()) {
