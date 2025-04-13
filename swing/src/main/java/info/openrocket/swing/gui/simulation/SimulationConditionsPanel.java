@@ -325,7 +325,9 @@ public class SimulationConditionsPanel extends JPanel {
 				UnitGroup.UNITS_ANGLE.toStringUnit(0) +
 				" " + trans.get("simedtdlg.lbl.ttip.Direction2") + " " +
 				UnitGroup.UNITS_ANGLE.toStringUnit(2*Math.PI) +
-				" " + trans.get("simedtdlg.lbl.ttip.Direction3");
+				". " + trans.get("simedtdlg.lbl.ttip.Direction3") + " " +
+				UnitGroup.UNITS_ANGLE.toStringUnit(Math.PI / 2) + " " +
+				trans.get("simedtdlg.lbl.ttip.Direction4");
 		directionLabel.setToolTipText(tip);
 		sub.add(directionLabel);
 
