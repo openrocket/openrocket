@@ -447,7 +447,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		double cgx = 0;
 
 		// Check length > 0
-		if (getLength() <= 0) {
+		if (getLength() < MathUtil.EPSILON) {
 			return;
 		}
 
