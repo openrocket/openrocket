@@ -32,6 +32,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Window;
@@ -99,6 +100,8 @@ public class SimulationConfigDialog extends JDialog {
 			}
 		});
 
+		this.setLayout(new BorderLayout());
+
 		final JPanel contentPanel = new JPanel(new MigLayout("fill"));
 
 		// ======== Top panel ========
@@ -120,7 +123,7 @@ public class SimulationConfigDialog extends JDialog {
 		warningsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		warningsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		Dimension d = warningsScrollPane.getPreferredSize();
-		warningsScrollPane.setPreferredSize(new Dimension(d.width, 300));
+		warningsScrollPane.setPreferredSize(new Dimension(d.width, 200));
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsScrollPane);
 
 		if (isMultiCompEdit()) {
@@ -155,12 +158,16 @@ public class SimulationConfigDialog extends JDialog {
 			tabbedPane.setToolTipTextAt(EXPORT_IDX, ttip);
 		}
 
-		contentPanel.add(tabbedPane, "grow, wrap");
+		contentPanel.add(tabbedPane, "grow, push, wrap");
 
+		// Create a scroll pane for the content
+		JScrollPane scrollPane = new JScrollPane(contentPanel);
+		scrollPane.setBorder(null);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		// ======== Bottom panel ========
-		addBottomPanel(contentPanel);
-
+		JPanel bottomPanel = generateBottomPanel();
 
 		tabbedPane.addChangeListener(new ChangeListener() {
 
@@ -200,7 +207,8 @@ public class SimulationConfigDialog extends JDialog {
 
 		});
 
-		this.add(contentPanel);
+		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(bottomPanel, BorderLayout.SOUTH);
 		this.validate();
 		this.pack();
 
@@ -317,11 +325,11 @@ public class SimulationConfigDialog extends JDialog {
 		
 		topPanel.add(new JPanel(), "growx, wrap");
 
-		contentPanel.add(topPanel, "growx, wrap");
+		contentPanel.add(topPanel, "growx, height pref, wrap");
 	}
 
-	private void addBottomPanel(JPanel contentPanel) {
-		final JPanel bottomPanel = new JPanel(new MigLayout("fill, ins 0"));
+	private JPanel generateBottomPanel() {
+		final JPanel bottomPanel = new JPanel(new MigLayout("fill"));
 
 		//// Multi-simulation edit
 		if (isMultiCompEdit()) {
@@ -376,7 +384,7 @@ public class SimulationConfigDialog extends JDialog {
 				// TODO: include plot/export undo?
 			}
 		});
-		bottomPanel.add(this.cancelButton, "split 2, tag ok");
+		bottomPanel.add(this.cancelButton, "split 2, tag ok, pushx, align right");
 
 		//// Ok button
 		this.okButton = new JButton(trans.get("dlg.but.ok"));
@@ -417,7 +425,7 @@ public class SimulationConfigDialog extends JDialog {
 		});
 		bottomPanel.add(this.okButton, "tag ok");
 
-		contentPanel.add(bottomPanel, "growx, wrap");
+		return bottomPanel;
 	}
 
 	private void copyChangesToAllSims() {

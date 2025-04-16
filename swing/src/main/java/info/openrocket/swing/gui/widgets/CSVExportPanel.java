@@ -113,12 +113,12 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		selectNoneButton.addActionListener(e -> selectNone());
 		buttonPanel.add(selectNoneButton, "growx");
 
-		exportPanel.add(buttonPanel, "growx, wrap");
-
 		// Selected count label
 		selectedCountLabel = new JLabel();
 		updateSelectedCount();
-		exportPanel.add(selectedCountLabel, "growx");
+		buttonPanel.add(selectedCountLabel, "gapleft para, growx");
+
+		exportPanel.add(buttonPanel, "growx, wrap");
 		add(exportPanel, "grow, gapright para" + (separateRowForOptions ? ", spanx, wrap" : ""));
 
 		// CSV options and extra components

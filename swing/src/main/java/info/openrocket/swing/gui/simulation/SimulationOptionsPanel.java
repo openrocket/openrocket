@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.simulation;
 
 import java.awt.Color;
 import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -251,8 +252,9 @@ class SimulationOptionsPanel extends JPanel {
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
 		scroll.setForeground(textColor);
+		scroll.setPreferredSize(new Dimension(scroll.getPreferredSize().width, 200));
 		//  &#$%! scroll pane will not honor "growy"...
-		sub.add(scroll, "growx, growy, h 100%");
+		sub.add(scroll, "growx");
 		
 		updateCurrentExtensions();
 		
