@@ -224,6 +224,7 @@ public class SimulationConfigDialog extends JDialog {
 
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
+		GUIUtil.rememberWindowSize(this);
 	}
 
 	private static void initColors() {
