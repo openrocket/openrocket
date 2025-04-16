@@ -73,7 +73,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	SimulationOptionsPanel(OpenRocketDocument document, final Simulation simulation) {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fill, ins n n 0 n"));
 		this.document = document;
 		this.simulation = simulation;
 

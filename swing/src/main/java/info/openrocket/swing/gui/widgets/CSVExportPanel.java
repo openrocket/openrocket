@@ -47,7 +47,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 
 	public CSVExportPanel(T[] types, boolean[] selected, CsvOptionPanel csvOptions, boolean separateRowForOptions,
 						  Component... extraComponents) {
-		super(new MigLayout("fill, wrap 2", "[grow,fill][]", "[grow,fill][]"));
+		super(new MigLayout("fill, ins n n 0 n, wrap 2", "[grow,fill][]", "[grow,fill][]"));
 
 		this.types = types;
 		this.selected = selected;

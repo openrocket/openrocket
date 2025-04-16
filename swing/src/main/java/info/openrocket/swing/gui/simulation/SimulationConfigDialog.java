@@ -330,7 +330,7 @@ public class SimulationConfigDialog extends JDialog {
 	}
 
 	private JPanel generateBottomPanel() {
-		final JPanel bottomPanel = new JPanel(new MigLayout("fill"));
+		final JPanel bottomPanel = new JPanel(new MigLayout("fill, ins 0 n n n"));
 
 		//// Multi-simulation edit
 		if (isMultiCompEdit()) {
