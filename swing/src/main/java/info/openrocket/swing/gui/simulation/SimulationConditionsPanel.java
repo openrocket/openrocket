@@ -17,7 +17,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -51,7 +50,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 
 	SimulationConditionsPanel(final Simulation simulation) {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fill, ins n n 0 n"));
 
 		SimulationOptions simulationOptions = simulation.getOptions();
 
