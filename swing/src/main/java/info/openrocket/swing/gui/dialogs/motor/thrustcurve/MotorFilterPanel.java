@@ -70,26 +70,6 @@ public abstract class MotorFilterPanel extends JPanel {
 		new MotorDiameter(1.000, 1.000)
 	};
 
-	/**
-	 * updates: motorDiameters, diameterLabels
-	 */
-	private static void scaleDiameterLabels(){
-		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
-		for( int i = 0; i < motorDiameters.length; i++ ) {
-			// Round the labels, because for imperial units, the labels can otherwise overlap
-			double diam = unit.toUnit(motorDiameters[i].nominal);
-			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
-			diam = unit.fromUnit(diamRounded);
-			String formatted = unit.toString(diam);
-			// Remove the leading zero for numbers between 0 and 1
-			if (diamRounded > 0 && diamRounded < 1) {
-				formatted = formatted.substring(1);
-			}
-			diameterLabels.put( i, new JLabel(formatted));
-		}
-		diameterLabels.get( motorDiameters.length-1).setText("+");
-	}
-
 	final private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<>();
 	static {
 		int i =0;
@@ -402,6 +382,26 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 		this.add(sub, "grow,wrap");
 
+	}
+
+	/**
+	 * updates: motorDiameters, diameterLabels
+	 */
+	private static void scaleDiameterLabels(){
+		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
+		for (int i = 0; i < motorDiameters.length; i++) {
+			// Round the labels, because for imperial units, the labels can otherwise overlap
+			double diam = unit.toUnit(motorDiameters[i].nominal);
+			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
+			diam = unit.fromUnit(diamRounded);
+			String formatted = unit.toString(diam);
+			// Remove the leading zero for numbers between 0 and 1
+			if (diamRounded > 0 && diamRounded < 1) {
+				formatted = formatted.substring(1);
+			}
+			diameterLabels.put( i, new JLabel(formatted));
+		}
+		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
 
 	public void setMotorMount( MotorMount mount ) {
