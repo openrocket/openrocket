@@ -127,7 +127,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
-		super(new MigLayout("fill", "[grow]"));
+		super(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][grow][][][]"));
 		this.filter = filter;
 
 		scaleDiameterLabels();
@@ -135,8 +135,8 @@ public abstract class MotorFilterPanel extends JPanel {
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
 
-		limitByLength = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitLength", false);
-		limitDiameter = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitDiameter", false);
+		limitByLength = Application.getPreferences().getBoolean("motorFilterLimitLength", false);
+		limitDiameter = Application.getPreferences().getBoolean("motorFilterLimitDiameter", false);
 		
 		//// Hide used motor files
 		{
@@ -153,7 +153,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 
 		// Manufacturer selection
-		JPanel sub = new JPanel(new MigLayout("fill"));
+		JPanel sub = new JPanel(new MigLayout("fill, ins rel rel rel rel"));
 		TitledBorder border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.MANUFACTURER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
@@ -220,7 +220,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		// Total Impulse selection
 		{
-			sub = new JPanel(new MigLayout("fill"));
+			sub = new JPanel(new MigLayout("fill, ins n n 0 n"));
 			border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
 			GUIUtil.changeFontStyle(border, Font.BOLD);
 			sub.setBorder(border);
@@ -247,7 +247,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 
 		// Motor Dimensions
-		sub = new JPanel(new MigLayout("fill"));
+		sub = new JPanel(new MigLayout("fill, ins n n 0 n"));
 		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCMotorSelPan.MotorSize"));
 		GUIUtil.changeFontStyle(diameterTitleBorder, Font.BOLD);
 		sub.setBorder(diameterTitleBorder);

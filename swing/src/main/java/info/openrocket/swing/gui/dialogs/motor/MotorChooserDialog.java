@@ -42,8 +42,8 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		// We're going to reuse this dialog so only hide it when it's closed.
 		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		
+		JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
+
 		selectionPanel = new ThrustCurveMotorSelectionPanel();
 		
 		panel.add(selectionPanel, "grow, wrap");
@@ -57,7 +57,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 				close(true);
 			}
 		});
-		panel.add(okButton, "tag ok, spanx, split");
+		panel.add(okButton, "tag ok, split, align right, gapright unrel, gapbottom unrel");
 		
 		//// Cancel button
 		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
