@@ -59,7 +59,7 @@ Dive into the essentials: adjust component dimensions, plot a simulation, swap o
 
 ## 💪 Contribute
 
-Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](http://openrocket.sourceforge.net/getinvolved.html) and the [practicalities of contributing](CONTRIBUTING.md).
+Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](https://openrocket.info/contribute.html) and the [practicalities of contributing](CONTRIBUTING.md).
 
 ### ✨ Contributors
 - [Sampo Niskanen](https://github.com/plaa) - Original developer
