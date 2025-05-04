@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -105,10 +107,13 @@ public abstract class MotorFilterPanel extends JPanel {
 	private final MultiSlider lengthSlider;
 	private final MultiSlider diameterSlider;
 
+	private JPanel contentPanel;
+
 
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
-		super(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][grow][][][]"));
+		super(new BorderLayout());
 		this.filter = filter;
+		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][grow][][][]"));
 
 		scaleDiameterLabels();
 
@@ -129,7 +134,7 @@ public abstract class MotorFilterPanel extends JPanel {
 					onSelectionChanged();
 				}
 			});
-			this.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
+			contentPanel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
 		}
 
 		// Manufacturer selection
@@ -171,11 +176,13 @@ public abstract class MotorFilterPanel extends JPanel {
 			}
 		});
 
-		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
-		sub.add(scrollPane, "grow, pushy, wrap");
+		JScrollPane manufacturerScrollPane = new JScrollPane(manufacturerCheckList.getList());
+		//manufacturerScrollPane.setMinimumSize(new Dimension(20, 10));
+		manufacturerScrollPane.setMinimumSize(new Dimension(0, 0));
+		sub.add(manufacturerScrollPane, "grow, pushy, growprio 200, hmin 1, wrap");
 
 		JButton clearMotors = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
-		clearMotors.addActionListener( new ActionListener() {
+		clearMotors.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				MotorFilterPanel.this.manufacturerCheckList.clearAll();
@@ -196,7 +203,7 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		sub.add(selectMotors,"wrap");
 
-		this.add(sub,"grow, wrap");
+		contentPanel.add(sub,"grow, pushy, wrap");
 
 		// Total Impulse selection
 		{
@@ -223,7 +230,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			});
 			sub.add( impulseSlider, "growx, wrap");
 		}
-		this.add(sub,"grow, wrap");
+		contentPanel.add(sub,"grow, wrap");
 
 
 		// Motor Dimensions
@@ -380,8 +387,16 @@ public abstract class MotorFilterPanel extends JPanel {
 			limitByLengthModel.addEnableComponent(lengthSlider,false);
 			
 		}
-		this.add(sub, "grow,wrap");
+		contentPanel.add(sub, "grow,wrap");
 
+		// Main scroll pane
+		contentPanel.setMinimumSize(new Dimension(0, 0));
+		JScrollPane mainScrollPane = new JScrollPane(contentPanel);
+		mainScrollPane.setMinimumSize(new Dimension(0, 0));
+		mainScrollPane.setBorder(null);
+		mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		this.add(mainScrollPane, BorderLayout.CENTER);
 	}
 
 	/**

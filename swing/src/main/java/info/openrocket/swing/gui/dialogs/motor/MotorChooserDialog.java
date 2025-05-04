@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.dialogs.motor;
 
 
+import java.awt.Dimension;
 import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -45,8 +46,8 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
 
 		selectionPanel = new ThrustCurveMotorSelectionPanel();
-		
-		panel.add(selectionPanel, "grow, wrap");
+		selectionPanel.setMinimumSize(new Dimension(0, 0));
+		panel.add(selectionPanel, "grow, pushx, pushy, wrap");
 		
 		
 		// OK / Cancel buttons
