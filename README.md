@@ -51,7 +51,9 @@ You can find our documentation on [ReadTheDocs](https://openrocket.readthedocs.i
 
 ## 🚀 Getting started
 
-The easiest way to get started is to open one of our in-program example designs:
+**Check out [our documentation](https://openrocket.readthedocs.io/en/latest/setup/getting_started.html) for a detailled guide on how to get started.**
+
+The easiest way to get familiar with OpenRocket is to open one of our in-program example designs:
 
 ![Get started with the example designs](.github/getting-started.png)
 
