@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.xml.sax.SAXException;
-
+import java.util.concurrent.*;
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
 import info.openrocket.core.file.motor.GeneralMotorLoader;
@@ -78,83 +78,122 @@ public class SerializeThrustcurveMotors {
 	}
 
 	public static void loadFromThrustCurve(List<Motor> allMotors) throws SAXException, IOException {
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
 
-		SearchRequest searchRequest = new SearchRequest();
-		for (String m : manufacturers) {
-			searchRequest.setManufacturer(m);
-			System.out.println("Motors for : " + m);
+		try {
+			List<CompletableFuture<List<Motor>>> futureMotorLists = new ArrayList<>();
 
-			SearchResponse res = ThrustCurveAPI.doSearch(searchRequest);
+			for (String manufacturer : manufacturers) {
+				System.out.println("Motors for : " + manufacturer);
 
-			for (TCMotor mi : res.getResults()) {
-				StringBuilder message = new StringBuilder();
-				message.append(mi.getManufacturer_abbr());
-				message.append(" ");
-				message.append(mi.getCommon_name());
-				message.append(" ");
-				message.append(mi.getMotor_id());
+				SearchRequest searchRequest = new SearchRequest();
+				searchRequest.setManufacturer(manufacturer);
+				SearchResponse res = ThrustCurveAPI.doSearch(searchRequest);
 
-				if (mi.getData_files() == null || mi.getData_files().intValue() == 0) {
-					continue;
-				}
-
-				final Motor.Type type = switch (mi.getType()) {
-					case "SU" -> Motor.Type.SINGLE;
-					case "reload" -> Motor.Type.RELOAD;
-					case "hybrid" -> Motor.Type.HYBRID;
-					default -> Motor.Type.UNKNOWN;
-				};
-
-				System.out.println(message);
-
-				List<MotorBurnFile> b = getThrustCurvesForMotorId(mi.getMotor_id());
-				for (MotorBurnFile burnFile : b) {
-					try {
-						ThrustCurveMotor.Builder builder = burnFile.getThrustCurveMotor();
-						if (builder == null) {
-							continue;
-						}
-						if (mi.getTot_mass_g() != null) {
-							builder.setInitialMass(mi.getTot_mass_g() / 1000.0);
-						}
-						if (mi.getProp_mass_g() != null) {
-							// builder.setPropellantMass(mi.getProp_mass_g() / 1000.0);
-						}
-
-						builder.setCaseInfo(mi.getCase_info());
-						builder.setPropellantInfo(mi.getProp_info());
-						builder.setDiameter(mi.getDiameter() / 1000.0);
-						builder.setLength(mi.getLength() / 1000.0);
-						builder.setMotorType(type);
-
-						builder.setCommonName(mi.getCommon_name());
-						builder.setDesignation(mi.getDesignation());
-
-						if ("OOP".equals(mi.getAvailability())) {
-							builder.setAvailability(false);
-						}
-
-						allMotors.add(builder.build());
-					} catch (IllegalArgumentException e) {
-						System.out.println("\tError in simFile " + burnFile.getSimfileId() + ":  " + e.getMessage());
-						try {
-							FileOutputStream out = new FileOutputStream(
-									("simfile-" + burnFile.getSimfileId()).toString());
-							out.write(burnFile.getContents().getBytes());
-							out.close();
-						} catch (IOException i) {
-							System.out.println("unable to write bad file:  " + i.getMessage());
-						}
+				for (TCMotor tcMotor : res.getResults()) {
+					if (tcMotor.getData_files() == null || tcMotor.getData_files() == 0) {
+						continue;
 					}
-
+					CompletableFuture<List<Motor>> future = fetchMotorsCompletables(tcMotor, executor);
+					futureMotorLists.add(future);
 				}
-
-				System.out.println("\t curves: " + b.size());
-
 			}
+
+			for (CompletableFuture<List<Motor>> futureList : futureMotorLists) {
+				try {
+					allMotors.addAll(futureList.get());
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+				}
+			}
+
+		} finally {
+			executor.shutdown();
 		}
 	}
 
+	private static CompletableFuture<List<Motor>> fetchMotorsCompletables(TCMotor tcMotor, ExecutorService executor) {
+		System.out.println(formatMotorMessage(tcMotor));
+		Motor.Type type = getType(tcMotor);
+
+		return CompletableFuture.supplyAsync(() -> fetchMotors(tcMotor, type), executor);
+	}
+
+	private static List<Motor> fetchMotors(TCMotor tcMotor, Motor.Type type) {
+		List<Motor> motors = new ArrayList<>();
+		try {
+			List<MotorBurnFile> motorBurnFiles = getThrustCurvesForMotorId(tcMotor.getMotor_id());
+			for (MotorBurnFile burnFile : motorBurnFiles) {
+				try {
+					ThrustCurveMotor.Builder builder = initThrustCurveMotorBuilder(tcMotor, burnFile, type);
+					if (builder != null) {
+						motors.add(builder.build());
+					}
+				} catch (IllegalArgumentException e) {
+					System.out.println("\tError in simFile " + burnFile.getSimfileId() + ": " + e.getMessage());
+					writeBadFile(burnFile);
+				}
+			}
+			System.out.println("\t curves: " + motors.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return motors;
+	}
+
+	private static void writeBadFile(MotorBurnFile burnFile) {
+		try (FileOutputStream out = new FileOutputStream("simfile-" + burnFile.getSimfileId())) {
+			out.write(burnFile.getContents().getBytes());
+		} catch (IOException e) {
+			System.out.println("Unable to write bad file: " + e.getMessage());
+		}
+	}
+
+
+
+	private static Motor.Type getType(TCMotor tcMotor) {
+		final Motor.Type type = switch (tcMotor.getType()) {
+			case "SU" -> Motor.Type.SINGLE;
+			case "reload" -> Motor.Type.RELOAD;
+			case "hybrid" -> Motor.Type.HYBRID;
+			default -> Motor.Type.UNKNOWN;
+		};
+		return type;
+	}
+
+	private static StringBuilder formatMotorMessage(TCMotor tcMotor) {
+		StringBuilder message = new StringBuilder();
+		message.append(tcMotor.getManufacturer_abbr());
+		message.append(" ");
+		message.append(tcMotor.getCommon_name());
+		message.append(" ");
+		message.append(tcMotor.getMotor_id());
+		return message;
+	}
+	private static ThrustCurveMotor.Builder initThrustCurveMotorBuilder(TCMotor tcMotor, MotorBurnFile burnFile, Motor.Type type) {
+		ThrustCurveMotor.Builder builder = burnFile.getThrustCurveMotor();
+		if (builder == null) {
+			return null;
+		}
+		if (tcMotor.getTot_mass_g() != null) {
+			builder.setInitialMass(tcMotor.getTot_mass_g() / 1000.0);
+		}
+
+		builder.setCaseInfo(tcMotor.getCase_info());
+		builder.setPropellantInfo(tcMotor.getProp_info());
+		builder.setDiameter(tcMotor.getDiameter() / 1000.0);
+		builder.setLength(tcMotor.getLength() / 1000.0);
+		builder.setMotorType(type);
+
+		builder.setCommonName(tcMotor.getCommon_name());
+		builder.setDesignation(tcMotor.getDesignation());
+
+		if ("OOP".equals(tcMotor.getAvailability())) {
+			builder.setAvailability(false);
+		}
+		return builder;
+
+	}
 	private static List<MotorBurnFile> getThrustCurvesForMotorId(int motorId) {
 		String[] formats = new String[] { "RASP", "RockSim" };
 		List<MotorBurnFile> b = new ArrayList<>();
