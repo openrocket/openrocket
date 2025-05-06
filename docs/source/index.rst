@@ -44,17 +44,17 @@ Welcome to OpenRocket's documentation!
 
    dev_guide/development_overview
    dev_guide/development_setup
-   /dev_guide/architecture
-   /dev_guide/codebase_walkthrough
-   /dev_guide/development_guidelines
-   /dev_guide/testing_and_debugging
-   /dev_guide/file_specification
-   /dev_guide/api_documentation
-   /dev_guide/building_releasing
-   /dev_guide/contributing_to_translations
-   /dev_guide/contributing_to_the_docs
-   /dev_guide/contributing_to_the_website
-   /dev_guide/faq_troubleshooting
+   dev_guide/architecture
+   dev_guide/codebase_walkthrough
+   dev_guide/development_guidelines
+   dev_guide/testing_and_debugging
+   dev_guide/file_specification
+   dev_guide/api_documentation
+   dev_guide/building_releasing
+   dev_guide/contributing_to_translations
+   dev_guide/contributing_to_the_docs
+   dev_guide/contributing_to_the_website
+   dev_guide/faq_troubleshooting
 
 Indices and tables
 ==================

@@ -84,7 +84,7 @@ The **Edit Menu** is divided into three types of operations:
 
 1. :guilabel:`Undo` and :guilabel:`Redo` an action
 2. :guilabel:`Cut`, :guilabel:`Copy`, :guilabel:`Paste`, and :guilabel:`Delete` objects
-3. :guilabel:`Scale`: scale components or the entire rocket.button
+3. :guilabel:`Scale`: scale components or the entire rocket.
 4. :guilabel:`Preferences`: access OpenRocket system preferences
 
 Tools
@@ -495,8 +495,7 @@ OpenRocket includes two styles of launch guides, **Rail Buttons** and a **Launch
 body tube, a **Launch Lug** will be used for this design. As with fins, launch guides attach to another component, in
 this case the body tube.
 
-You should now be able to open the **Launch Lug configuration** window without assistance. So, open your **Launch Lug configuration**
-window, and change the specifications to match those shown below.
+Following the pattern from the previous components, open the **Launch Lug configuration** window. Then, change the specifications to match those shown below.
 
 .. figure:: /img/setup/getting_started/11.06.02.Rocket_Build.Launch_Lug.png
    :width: 60%
