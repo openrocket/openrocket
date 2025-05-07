@@ -73,35 +73,34 @@ public class StringUtils {
 	/**
 	 * Returns an escaped version of the String so that it can be safely used as a
 	 * value in a CSV file.
-	 * The goal is to surround the input string in double quotes if it contains any
-	 * double quotes, commas,
-	 * newlines, or carriage returns, and to escape any double quotes within the
-	 * string by doubling them up.
-	 * 
+	 * The method follows standard CSV escaping rules:
+	 * 1. If the input contains any double quotes, commas, newlines, or carriage returns,
+	 *    the entire string is surrounded by double quotes
+	 * 2. Any double quotes within the string are escaped by doubling them
+	 *
 	 * @param input the string to escape
 	 * @return the escaped string that can be safely used in a CSV file
 	 */
 	public static String escapeCSV(String input) {
-		final List<Character> CSV_SEARCH_CHARS = new ArrayList<>(Arrays.asList(',', '"', '\r', '\n'));
+		if (input == null) {
+			return "";
+		}
 
-		StringBuilder sb = new StringBuilder();
-		boolean quoted = false;
-		for (int i = 0; i < input.length(); i++) {
-			char c = input.charAt(i);
-			if (CSV_SEARCH_CHARS.contains(c)) {
-				quoted = true;
-				sb.append('\"');
-			}
-			if (c == '\"') {
-				sb.append('\"');
-			}
-			sb.append(c);
+		// Check if we need to quote the string
+		boolean needsQuoting = input.contains("\"") ||
+				input.contains(",") ||
+				input.contains("\r") ||
+				input.contains("\n");
+
+		if (!needsQuoting) {
+			return input;
 		}
-		if (quoted) {
-			sb.insert(0, '\"');
-			sb.append('\"');
-		}
-		return sb.toString();
+
+		// Replace all double quotes with doubled double quotes
+		String escaped = input.replace("\"", "\"\"");
+
+		// Surround with quotes
+		return "\"" + escaped + "\"";
 	}
 
 	public static String removeHTMLTags(String input) {

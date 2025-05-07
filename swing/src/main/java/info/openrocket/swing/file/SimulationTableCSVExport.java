@@ -232,8 +232,8 @@ public class SimulationTableCSVExport {
 
 		for (Warning warning : warnings) {
 			if (warning != null) {
-				String escapedWarning = StringUtils.escapeCSV(warning.toString());
-				warningsText.append(escapedWarning);
+				String warningString = warning.toString();
+				warningsText.append(warningString);
 
 				if (warningIndex < warnings.size() - 1) {
 					warningsText.append(warningDelimiter);
@@ -242,7 +242,7 @@ public class SimulationTableCSVExport {
 			warningIndex++;
 		}
 
-		return warningsText.toString();
+		return StringUtils.escapeCSV(warningsText.toString());
 	}
 
 	/**
