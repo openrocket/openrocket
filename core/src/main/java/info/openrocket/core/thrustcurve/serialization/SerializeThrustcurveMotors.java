@@ -1,4 +1,4 @@
-package info.openrocket.core.thrustcurve;
+package info.openrocket.core.thrustcurve.serialization;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,7 +8,10 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import info.openrocket.core.thrustcurve.*;
 import org.xml.sax.SAXException;
+
+import java.util.Scanner;
 import java.util.concurrent.*;
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
@@ -54,15 +57,24 @@ public class SerializeThrustcurveMotors {
 					+ " <input-dir> <output-file>");
 			System.exit(1);
 		}
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Enter percentage of available processors to use (e.g., 75 for 75%): ");
+		double percent = 50;
 
+		try {
+			percent = Double.parseDouble(scanner.nextLine());
+		} catch (NumberFormatException e) {
+			System.out.println("Invalid input. Defaulting to 50%");
+		}
 		String inputDir = args[0];
 		String outputFile = args[1];
+
 
 		final List<Motor> allMotors = new ArrayList<>();
 
 		loadFromLocalMotorFiles(allMotors, inputDir);
 
-		loadFromThrustCurve(allMotors);
+		loadFromThrustCurve(allMotors, determineNumberOfThreads(percent));
 
 		File outFile = new File(outputFile);
 
@@ -77,8 +89,8 @@ public class SerializeThrustcurveMotors {
 
 	}
 
-	public static void loadFromThrustCurve(List<Motor> allMotors) throws SAXException, IOException {
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2);
+	public static void loadFromThrustCurve(List<Motor> allMotors, int threads) throws SAXException, IOException {
+		ExecutorService executor = Executors.newFixedThreadPool(threads);
 
 		try {
 			List<CompletableFuture<List<Motor>>> futureMotorLists = new ArrayList<>();
@@ -112,6 +124,13 @@ public class SerializeThrustcurveMotors {
 		}
 	}
 
+	private static int determineNumberOfThreads(double percent){
+		int availableProcessors = Runtime.getRuntime().availableProcessors();
+		int threads = Math.max(1, (int) Math.floor((percent / 100.0) * availableProcessors));
+		System.out.println("Available threads: " + threads);
+		return threads;
+	}
+
 	private static CompletableFuture<List<Motor>> fetchMotorsCompletables(TCMotor tcMotor, ExecutorService executor) {
 		System.out.println(formatMotorMessage(tcMotor));
 		Motor.Type type = getType(tcMotor);
@@ -134,7 +153,7 @@ public class SerializeThrustcurveMotors {
 					writeBadFile(burnFile);
 				}
 			}
-			System.out.println("\t curves: " + motors.size());
+			System.out.println("\t curves for " + tcMotor.getManufacturer() + " " + tcMotor.getCommon_name()+ ":" + motors.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -152,13 +171,12 @@ public class SerializeThrustcurveMotors {
 
 
 	private static Motor.Type getType(TCMotor tcMotor) {
-		final Motor.Type type = switch (tcMotor.getType()) {
-			case "SU" -> Motor.Type.SINGLE;
-			case "reload" -> Motor.Type.RELOAD;
-			case "hybrid" -> Motor.Type.HYBRID;
-			default -> Motor.Type.UNKNOWN;
-		};
-		return type;
+        return switch (tcMotor.getType()) {
+            case "SU" -> Motor.Type.SINGLE;
+            case "reload" -> Motor.Type.RELOAD;
+            case "hybrid" -> Motor.Type.HYBRID;
+            default -> Motor.Type.UNKNOWN;
+        };
 	}
 
 	private static StringBuilder formatMotorMessage(TCMotor tcMotor) {

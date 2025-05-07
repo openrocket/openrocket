@@ -93,8 +93,9 @@ tasks.register('serializeEnginesExecute', JavaExec) {
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
-    mainClass.set('info.openrocket.core.thrustcurve.SerializeThrustcurveMotors')
+    mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
     args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPath
+    standardInput = System.in
 
     doFirst {
         println "Starting serializeEnginesExecute..."
@@ -111,9 +112,9 @@ tasks.register('serializeEnginesExecuteDist', JavaExec) {
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
-    mainClass.set('info.openrocket.core.thrustcurve.SerializeThrustcurveMotors')
+    mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
     args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist
-
+    standardInput = System.in
     doFirst {
         println "Starting serializeEnginesExecuteDist..."
     }
