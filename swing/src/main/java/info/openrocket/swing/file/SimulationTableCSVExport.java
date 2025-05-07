@@ -110,8 +110,7 @@ public class SimulationTableCSVExport {
 			rowColumnElement.add(colName);
 		}
 
-		// ONE difference here is that we'll place any warnings at the last cell in the CSV.
-		CSVSimResultString = StringUtils.join(fieldSep, rowColumnElement) + fieldSep + "Simulation Warnings";
+		CSVSimResultString = StringUtils.join(fieldSep, rowColumnElement);
 
 		StringBuilder fullOutputResult = new StringBuilder(CSVSimResultString);
 
@@ -137,19 +136,32 @@ public class SimulationTableCSVExport {
 			int nullCnt = 0;
 			rowColumnElement.clear();
 
+			// Choose a warning delimiter that doesn't conflict with the field separator
+			String warningDelimiter = " | ";
+			if (fieldSep.equals("|")) {
+				warningDelimiter = " ; ";
+			}
+
 			// Get the simulation's warning text if any. This bypasses the need to use
 			// the column 0 stuff which is kind of difficult to use!
 			WarningSet ws = document.getSimulation(idx).getSimulatedWarnings();
 			StringBuilder warningsText = new StringBuilder();
+			int warningIdx = 0;
 			for (Warning w : ws) {
 				String warning = w.toString();
 				if (warning != null) {
-					warningsText.append(w).append(" "); // TODO - formatting.  inserting a \n does funny things so use " " for now
+					String escapedWarning = StringUtils.escapeCSV(warning);
+					warningsText.append(escapedWarning);
+					if (warningIdx < ws.size() - 1) {
+						warningsText.append(warningDelimiter);
+					}
 				}
+				warningIdx++;
 			}
+			rowColumnElement.add(warningsText.toString());
 
 			// Piece together the column data for the index-row, skipping any rows with null counts > 0!
-			for (int j = 1; j < modelColumnCount ; j++) { // skip first column
+			for (int j = 2; j < modelColumnCount ; j++) { // start at the name column
 				Object o = simulationTableModel.getValueAt(idx, j);
 				if (o != null) {
 					final String valueString;
@@ -176,7 +188,6 @@ public class SimulationTableCSVExport {
 
 			// Piece together all rows into one big ginormous string, adding any warnings to the item
 			fullOutputResult.append("\n").append(CSVSimResultString);
-			fullOutputResult.append(fieldSep).append(warningsText);
 		}
 
 		return fullOutputResult.toString();
