@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class TubeCalc extends RocketComponentCalc {
 
-	private final static Logger log = LoggerFactory.getLogger(TubeFinSetCalc.class);
+	private final static Logger log = LoggerFactory.getLogger(TubeCalc.class);
 
 	private final Tube tube;
 	private final double diameter;
