@@ -162,7 +162,7 @@ public class SerializeThrustcurveMotors {
 					writeBadFile(burnFile);
 				}
 			}
-			System.out.println("\t curves for " + tcMotor.getManufacturer() + " " + tcMotor.getCommon_name()+ ":" + motors.size());
+			System.out.println("\t curves for " + tcMotor.getManufacturer() + " " + tcMotor.getCommon_name()+ ": " + motors.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -189,14 +189,15 @@ public class SerializeThrustcurveMotors {
 	}
 
 	private static StringBuilder formatMotorMessage(TCMotor tcMotor) {
-		StringBuilder message = new StringBuilder();
-		message.append(tcMotor.getManufacturer_abbr());
-		message.append(" ");
-		message.append(tcMotor.getCommon_name());
-		message.append(" ");
-		message.append(tcMotor.getMotor_id());
-		return message;
+		return new StringBuilder("Starting async fetch (CompletableFuture) for motor: ")
+				.append(tcMotor.getManufacturer_abbr())
+				.append(" ")
+				.append(tcMotor.getCommon_name())
+				.append(" ")
+				.append(tcMotor.getMotor_id());
+
 	}
+
 	private static ThrustCurveMotor.Builder initThrustCurveMotorBuilder(TCMotor tcMotor, MotorBurnFile burnFile, Motor.Type type) {
 		ThrustCurveMotor.Builder builder = burnFile.getThrustCurveMotor();
 		if (builder == null) {
