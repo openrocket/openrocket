@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -84,113 +86,180 @@ public class SimulationTableCSVExport {
 	}
 
 	/**
-	 * Generate the CSV data from the simulation table
-	 * @param fieldSep The field separator to use in the CSV file.
-	 * @param precision The number of decimal places to use in the CSV file.
-	 * @param isExponentialNotation If true, use exponential notation for numbers.
-	 * @param onlySelected If true, only export the selected rows in the table.
-	 * @return The CSV data as one string block.
+	 * Generate CSV data from the simulation table
+	 *
+	 * @param fieldSep The field separator to use in the CSV file
+	 * @param precision The number of decimal places for numeric values
+	 * @param isExponentialNotation Whether to use exponential notation for numbers
+	 * @param onlySelected Whether to export only the selected rows
+	 * @return The CSV data as a single string
 	 */
-	public String generateCSVData(String fieldSep, int precision, boolean isExponentialNotation, boolean onlySelected) {
-		int modelColumnCount = simulationTableModel.getColumnCount();
-		int modelRowCount = simulationTableModel.getRowCount();
+	public String generateCSVData(String fieldSep, int precision,
+								  boolean isExponentialNotation, boolean onlySelected) {
+
+		// Initialize and populate column name to units mapping
 		populateColumnNameToUnitsHashTable();
 
-		String CSVSimResultString;
-		// Obtain the column titles for the first row of the CSV
-		ArrayList<String> rowColumnElement = new ArrayList<>();
-		for (int j = 1; j < modelColumnCount ; j++) {
+		// Build the header row
+		StringBuilder csvOutput = new StringBuilder();
+		List<String> headerColumns = buildHeaderRow();
+		csvOutput.append(String.join(fieldSep, headerColumns));
+
+		// Get row indices to process (either selected rows or all rows)
+		int[] rowsToProcess = getRowsToProcess(onlySelected);
+
+		// Process each row and append to output
+		String warningDelimiter = fieldSep.equals("|") ? " ; " : " | ";
+
+		for (int viewRowIndex : rowsToProcess) {
+			// Convert view row index to model row index (handles sorting)
+			int modelRowIndex = simulationTable.convertRowIndexToModel(viewRowIndex);
+
+			// Skip simulations without summary data
+			if (!document.getSimulation(modelRowIndex).hasSummaryData()) {
+				continue;
+			}
+
+			// Generate row data
+			List<String> rowData = buildRowData(modelRowIndex, precision,
+					isExponentialNotation, warningDelimiter);
+
+			// Skip rows with missing data
+			if (rowData.isEmpty()) {
+				continue;
+			}
+
+			// Append row to output
+			csvOutput.append("\n").append(String.join(fieldSep, rowData));
+		}
+
+		return csvOutput.toString();
+	}
+
+	/**
+	 * Builds the header row for the CSV file
+	 *
+	 * @return List of column headers with units
+	 */
+	private List<String> buildHeaderRow() {
+		List<String> headers = new ArrayList<>();
+
+		// Add columns starting from index 1 (skipping first column)
+		for (int j = 1; j < simulationTableModel.getColumnCount(); j++) {
 			String colName = simulationTable.getColumnName(j);
 
-			// Get the unit string and append to column that it applies to. Columns w/o units will remain unchanged.
+			// Append units to column names where applicable
 			if (valueColumnToUnitString.containsKey(colName)) {
 				String unitString = valueColumnToUnitString.get(colName);
 				colName += " (" + unitString + ")";
 			}
-			rowColumnElement.add(colName);
+			headers.add(colName);
 		}
 
-		CSVSimResultString = StringUtils.join(fieldSep, rowColumnElement);
+		return headers;
+	}
 
-		StringBuilder fullOutputResult = new StringBuilder(CSVSimResultString);
-
-		// Get relevant data and create the comma separated data from it.
-		int[] iterator;
+	/**
+	 * Gets the row indices to process based on selection preference
+	 *
+	 * @param onlySelected Whether to export only selected rows
+	 * @return Array of row indices to process
+	 */
+	private int[] getRowsToProcess(boolean onlySelected) {
 		if (onlySelected) {
-			iterator = simulationTable.getSelectedRows();
+			return simulationTable.getSelectedRows();
 		} else {
-			iterator = new int[modelRowCount];
-			for (int i = 0; i < modelRowCount; i++) {
-				iterator[i] = i;
+			int rowCount = simulationTableModel.getRowCount();
+			int[] allRows = new int[rowCount];
+			for (int i = 0; i < rowCount; i++) {
+				allRows[i] = i;
+			}
+			return allRows;
+		}
+	}
+
+	/**
+	 * Builds a row of data for the CSV file
+	 *
+	 * @param modelRowIndex Index of the row in the model
+	 * @param precision Decimal precision
+	 * @param isExponentialNotation Whether to use exponential notation
+	 * @param warningDelimiter Delimiter for warning messages
+	 * @return List of column values, or empty list if row has missing data
+	 */
+	private List<String> buildRowData(int modelRowIndex, int precision,
+									  boolean isExponentialNotation, String warningDelimiter) {
+
+		List<String> rowData = new ArrayList<>();
+
+		// Add warnings text
+		String warningsText = formatWarningsText(modelRowIndex, warningDelimiter);
+		rowData.add(warningsText);
+
+		// Process each column (starting from column 2, skipping warnings and name)
+		int nullCount = 0;
+		for (int j = 2; j < simulationTableModel.getColumnCount(); j++) {
+			Object cellValue = simulationTableModel.getValueAt(modelRowIndex, j);
+
+			if (cellValue != null) {
+				String formattedValue = formatCellValue(cellValue, precision, isExponentialNotation);
+				rowData.add(StringUtils.escapeCSV(formattedValue));
+			} else {
+				rowData.add("");
+				nullCount++;
 			}
 		}
-		for (int i : iterator) {
-			// Account for sorting... resulting CSV file will be in the same order as shown in the table thanks to this gem.
-			int idx = simulationTable.convertRowIndexToModel(i);
 
-			// Ignore empty simulation
-			if (!document.getSimulation(idx).hasSummaryData()) {
-				continue;
-			}
+		// Return empty list if any required data is missing
+		return nullCount > 0 ? Collections.emptyList() : rowData;
+	}
 
-			int nullCnt = 0;
-			rowColumnElement.clear();
-
-			// Choose a warning delimiter that doesn't conflict with the field separator
-			String warningDelimiter = " | ";
-			if (fieldSep.equals("|")) {
-				warningDelimiter = " ; ";
-			}
-
-			// Get the simulation's warning text if any. This bypasses the need to use
-			// the column 0 stuff which is kind of difficult to use!
-			WarningSet ws = document.getSimulation(idx).getSimulatedWarnings();
-			StringBuilder warningsText = new StringBuilder();
-			int warningIdx = 0;
-			for (Warning w : ws) {
-				String warning = w.toString();
-				if (warning != null) {
-					String escapedWarning = StringUtils.escapeCSV(warning);
-					warningsText.append(escapedWarning);
-					if (warningIdx < ws.size() - 1) {
-						warningsText.append(warningDelimiter);
-					}
-				}
-				warningIdx++;
-			}
-			rowColumnElement.add(warningsText.toString());
-
-			// Piece together the column data for the index-row, skipping any rows with null counts > 0!
-			for (int j = 2; j < modelColumnCount ; j++) { // start at the name column
-				Object o = simulationTableModel.getValueAt(idx, j);
-				if (o != null) {
-					final String valueString;
-					if (o instanceof Value) {
-						double value = ((Value) o).getUnitValue();
-						valueString = TextUtil.doubleToString(value, precision, isExponentialNotation);
-					} else {
-						valueString = o.toString();
-					}
-					rowColumnElement.add(StringUtils.escapeCSV(valueString));
-				} else {
-					rowColumnElement.add("");
-					nullCnt++;
-				}
-			}
-
-			// If there are any null columns, need to run the simulation before we can export it
-			if (nullCnt > 0) { // ignore rows that have null column fields 1 through 8...
-				continue;
-			}
-
-			// Create the column data comma separated string for the ith row...
-			CSVSimResultString = StringUtils.join(fieldSep, rowColumnElement);
-
-			// Piece together all rows into one big ginormous string, adding any warnings to the item
-			fullOutputResult.append("\n").append(CSVSimResultString);
+	/**
+	 * Formats warning text for a simulation
+	 *
+	 * @param modelRowIndex Index of the row in the model
+	 * @param warningDelimiter Delimiter for warnings
+	 * @return Formatted warning text
+	 */
+	private String formatWarningsText(int modelRowIndex, String warningDelimiter) {
+		WarningSet warnings = document.getSimulation(modelRowIndex).getSimulatedWarnings();
+		if (warnings.isEmpty()) {
+			return "";
 		}
 
-		return fullOutputResult.toString();
+		StringBuilder warningsText = new StringBuilder();
+		int warningIndex = 0;
+
+		for (Warning warning : warnings) {
+			if (warning != null) {
+				String escapedWarning = StringUtils.escapeCSV(warning.toString());
+				warningsText.append(escapedWarning);
+
+				if (warningIndex < warnings.size() - 1) {
+					warningsText.append(warningDelimiter);
+				}
+			}
+			warningIndex++;
+		}
+
+		return warningsText.toString();
+	}
+
+	/**
+	 * Formats a cell value based on its type
+	 *
+	 * @param cellValue The value to format
+	 * @param precision Decimal precision
+	 * @param isExponentialNotation Whether to use exponential notation
+	 * @return Formatted value as string
+	 */
+	private String formatCellValue(Object cellValue, int precision, boolean isExponentialNotation) {
+		if (cellValue instanceof Value) {
+			double value = ((Value) cellValue).getUnitValue();
+			return TextUtil.doubleToString(value, precision, isExponentialNotation);
+		} else {
+			return cellValue.toString();
+		}
 	}
 
 	/**
