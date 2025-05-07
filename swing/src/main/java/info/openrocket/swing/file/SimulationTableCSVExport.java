@@ -91,7 +91,7 @@ public class SimulationTableCSVExport {
 	 * @param onlySelected If true, only export the selected rows in the table.
 	 * @return The CSV data as one string block.
 	 */
-	public String generateCSVDate(String fieldSep, int precision, boolean isExponentialNotation, boolean onlySelected) {
+	public String generateCSVData(String fieldSep, int precision, boolean isExponentialNotation, boolean onlySelected) {
 		int modelColumnCount = simulationTableModel.getColumnCount();
 		int modelRowCount = simulationTableModel.getRowCount();
 		populateColumnNameToUnitsHashTable();
@@ -196,7 +196,7 @@ public class SimulationTableCSVExport {
 			return;
 		}
 
-		String CSVData = generateCSVDate(fieldSep, precision, isExponentialNotation, onlySelected);
+		String CSVData = generateCSVData(fieldSep, precision, isExponentialNotation, onlySelected);
 		this.dumpDataToFile(CSVData, file);
 		log.info("Simulation table data exported to " + file.getAbsolutePath());
 	}
