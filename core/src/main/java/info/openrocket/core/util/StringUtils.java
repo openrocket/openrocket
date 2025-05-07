@@ -105,6 +105,9 @@ public class StringUtils {
 	}
 
 	public static String removeHTMLTags(String input) {
+		if (input == null) {
+			return null;
+		}
 		return input.replaceAll("<[^>]*>", "");
 	}
 }
