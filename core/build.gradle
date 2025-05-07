@@ -12,6 +12,7 @@ java {
 }
 
 def buildProperties = new Properties()
+def threadUtilFraction = project.hasProperty('threadUtil') ? project.threadUtilFraction : 'Default'
 file('./src/main/resources/build.properties').withInputStream { buildProperties.load(it) }
 group = 'info.openrocket'
 version = buildProperties['build.version']
@@ -94,7 +95,11 @@ tasks.register('serializeEnginesExecute', JavaExec) {
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
-    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPath
+    args = [
+            '../../resources-src/datafiles/thrustcurves/',
+            '../.' + serializedEnginesPath,
+            threadUtilFraction
+    ]
     standardInput = System.in
 
     doFirst {

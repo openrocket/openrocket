@@ -11,7 +11,7 @@ import java.util.List;
 import info.openrocket.core.thrustcurve.*;
 import org.xml.sax.SAXException;
 
-import java.util.Scanner;
+import java.util.Objects;
 import java.util.concurrent.*;
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
@@ -52,20 +52,29 @@ public class SerializeThrustcurveMotors {
 
 	public static void main(String[] args) throws Exception {
 
-		if (args.length != 2) {
-			System.out.println("Usage:  java " + SerializeThrustcurveMotors.class.getCanonicalName()
-					+ " <input-dir> <output-file>");
+		double threadUtilFraction = 0.5;
+
+		if (args.length != 3) {
+			System.err.println("Usage: <inputDir> <outputDir> <threadUtilFraction>");
 			System.exit(1);
 		}
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Enter percentage of available processors to use (e.g., 75 for 75%): ");
-		double percent = 50;
-
-		try {
-			percent = Double.parseDouble(scanner.nextLine());
-		} catch (NumberFormatException e) {
-			System.out.println("Invalid input. Defaulting to 50%");
+		if (Objects.equals(args[2], "Default")) {
+			System.out.println("No threadUtil specified; using default value of 0.5");
 		}
+		else {
+			try {
+				threadUtilFraction = Double.parseDouble(args[2]);
+				if (threadUtilFraction <= 0 || threadUtilFraction > 1) {
+					System.err.println("Error: threadUtil must be > 0 and <= 1, but got " + threadUtilFraction);
+					System.exit(1);
+				}
+			} catch (NumberFormatException e) {
+				System.err.println("Error: Invalid threadUtil format: " + args[2]);
+				System.exit(1);
+			}
+		}
+
+
 		String inputDir = args[0];
 		String outputFile = args[1];
 
@@ -74,7 +83,7 @@ public class SerializeThrustcurveMotors {
 
 		loadFromLocalMotorFiles(allMotors, inputDir);
 
-		loadFromThrustCurve(allMotors, determineNumberOfThreads(percent));
+		loadFromThrustCurve(allMotors, determineNumberOfThreads(threadUtilFraction));
 
 		File outFile = new File(outputFile);
 
@@ -124,9 +133,9 @@ public class SerializeThrustcurveMotors {
 		}
 	}
 
-	private static int determineNumberOfThreads(double percent){
+	private static int determineNumberOfThreads(double threadUtilFraction){
 		int availableProcessors = Runtime.getRuntime().availableProcessors();
-		int threads = Math.max(1, (int) Math.floor((percent / 100.0) * availableProcessors));
+		int threads = Math.max(1, (int) Math.floor((threadUtilFraction) * availableProcessors));
 		System.out.println("Available threads: " + threads);
 		return threads;
 	}
