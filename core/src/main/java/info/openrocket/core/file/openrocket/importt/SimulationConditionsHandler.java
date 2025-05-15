@@ -63,6 +63,9 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setLaunchRodLength(d);
 				}
 			}
+			case "launchintowind" -> {
+				options.setLaunchIntoWind(Boolean.parseBoolean(content));
+			}
 			case "launchrodangle" -> {
 				if (Double.isNaN(d)) {
 					warnings.add("Illegal launch rod angle defined, ignoring.");
