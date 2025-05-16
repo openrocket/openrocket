@@ -22,36 +22,6 @@ import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.util.Pair;
 
 public class SerializeThrustcurveMotors {
-
-
-    //TODO implement fallback method using the legacy manufacturers array.
-    private static final String[] manufacturers = {
-            "AeroTech",
-            "Alpha",
-            "AMW",
-            "Apogee",
-            "Cesaroni",
-            "Contrail",
-            "Ellis",
-            "Estes",
-            "Gorilla",
-            "Hypertek",
-            "KBA",
-            "Kosdon",
-            "Loki",
-            "TSP",
-            "PP",
-            "PML",
-            "Quest",
-            "RATT",
-            "Klima",
-            "Roadrunner",
-            "RV",
-            "SkyR",
-            "SCR",
-            "WCH"
-    };
-
     public static void main(String[] args) throws Exception {
 
         double threadUtilFraction = 0.5;
@@ -119,8 +89,13 @@ public class SerializeThrustcurveMotors {
      *
      * @see <a href="https://www.thrustcurve.org/info/api.html">ThrustCurve API Documentation</a>
      */
-    public static void loadFromThrustCurves(List<Motor> allMotors, int threads) throws SAXException, IOException {
+    public static void loadFromThrustCurves(List<Motor> allMotors, int threads) throws SAXException, IOException, IllegalStateException {
         ExecutorService executor = Executors.newFixedThreadPool(threads);
+        String[] manufacturers = getManufacturers();
+
+        if(manufacturers.length == 0) {
+            throw new IllegalStateException("No manufacturers parsed from ThrustCurveAPI metadata");
+        }
 
         try {
             List<CompletableFuture<List<Motor>>> futureMotorLists = new ArrayList<>();

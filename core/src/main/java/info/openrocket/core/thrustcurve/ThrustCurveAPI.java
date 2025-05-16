@@ -37,7 +37,6 @@ public abstract class ThrustCurveAPI {
         return SearchResponseParser.parse(is);
 	}
 
-	//TODO might be ideal to have a fallback, incase there are issues with the ThrustCurveAPI metadata?
 	/**
 	 * Utilises the ThrustCurveAPI to get the Manufacturer abbreviations, for the purpose of being used to obtain the
 	 * rest of the Motor Data per manufacturer.
@@ -86,7 +85,7 @@ public abstract class ThrustCurveAPI {
 			// _wish to contribute to this class in the future. This could be subject to change in future versions of_
 			// _the ThrustCurveAPI.
 			int literalStringLength = 9;
-			int quoteStart = entry.indexOf("\"", literalStringLength + 9);
+			int quoteStart = entry.indexOf("\"", nameIndex + literalStringLength);
 			int quoteEnd = entry.indexOf("\"", quoteStart + 1);
 			if (quoteStart != -1 && quoteEnd != -1) {
 				String name = entry.substring(quoteStart + 1, quoteEnd);
