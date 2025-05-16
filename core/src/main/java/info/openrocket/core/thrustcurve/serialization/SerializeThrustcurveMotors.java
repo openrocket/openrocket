@@ -23,6 +23,8 @@ import info.openrocket.core.util.Pair;
 
 public class SerializeThrustcurveMotors {
 
+
+    //TODO implement fallback method using the legacy manufacturers array.
     private static final String[] manufacturers = {
             "AeroTech",
             "Alpha",
@@ -97,6 +99,15 @@ public class SerializeThrustcurveMotors {
 
     }
 
+    private static String[] getManufacturers(){
+        try{
+            return ThrustCurveAPI.downloadManufacturers();
+        }
+        catch (Exception e) {
+            return new String[]{};
+        }
+    }
+
     /**
      * Adds motors to the data to be serialized from any motors (per manufacturer) retrieved via the ThrustCurveAPI.
      * This method performs concurrent requests using the specified number of threads.
@@ -114,7 +125,7 @@ public class SerializeThrustcurveMotors {
         try {
             List<CompletableFuture<List<Motor>>> futureMotorLists = new ArrayList<>();
 
-            for (String manufacturer : manufacturers) {
+            for (String manufacturer : getManufacturers()) {
                 System.out.println("Motors for : " + manufacturer);
 
                 SearchRequest searchRequest = new SearchRequest();
