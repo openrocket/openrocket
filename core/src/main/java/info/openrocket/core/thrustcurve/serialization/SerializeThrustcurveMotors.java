@@ -8,9 +8,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import info.openrocket.core.thrustcurve.*;
-import org.xml.sax.SAXException;
-
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -24,6 +21,13 @@ import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.util.Pair;
+import info.openrocket.core.thrustcurve.SearchRequest;
+import info.openrocket.core.thrustcurve.SearchResponse;
+import info.openrocket.core.thrustcurve.TCMotor;
+import info.openrocket.core.thrustcurve.ThrustCurveAPI;
+import info.openrocket.core.thrustcurve.MotorBurnFile;
+
+import org.xml.sax.SAXException;
 
 public class SerializeThrustcurveMotors {
     public static void main(String[] args) throws Exception {
