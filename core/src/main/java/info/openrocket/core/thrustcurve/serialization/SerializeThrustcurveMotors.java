@@ -12,7 +12,11 @@ import info.openrocket.core.thrustcurve.*;
 import org.xml.sax.SAXException;
 
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
 import info.openrocket.core.file.motor.GeneralMotorLoader;
