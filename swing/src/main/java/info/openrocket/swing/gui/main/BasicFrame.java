@@ -50,6 +50,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.choosers.OptionChooser;
+import info.openrocket.swing.gui.choosers.StorageOptionChooser;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
@@ -82,7 +84,7 @@ import info.openrocket.core.util.MemoryManagement.MemoryData;
 import info.openrocket.core.util.Reflection;
 import info.openrocket.core.util.TestRockets;
 
-import info.openrocket.swing.file.wavefrontobj.OBJOptionChooser;
+import info.openrocket.swing.gui.choosers.OBJOptionChooser;
 import info.openrocket.swing.gui.configdialog.SaveDesignInfoPanel;
 import info.openrocket.swing.gui.dialogs.ErrorWarningDialog;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -1447,27 +1449,15 @@ public class BasicFrame extends JFrame {
 	 */
 	private File openFileSaveAsDialog(FileType fileType, List<RocketComponent> selectedComponents) {
 		final DesignFileSaveAsFileChooser chooser = DesignFileSaveAsFileChooser.build(document, fileType, selectedComponents);
-		OBJOptionChooser objChooser = null;
-		if (chooser.getAccessory() instanceof OBJOptionChooser) {
-			objChooser = (OBJOptionChooser) chooser.getAccessory();
-		}
+
 		int option = chooser.showSaveDialog(BasicFrame.this);
 
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return null;
 		}
-
-		// Store the OBJ options
-		if (objChooser != null) {
-			objChooser.storeOptions(document.getDefaultOBJOptions(), true);
-
-			// We need to separately store the preference options, because the export children option can be
-			// automatically selected based on whether only component assemblies are selected. We don't want to
-			// store that state in the preferences.
-			OBJExportOptions prefOptions = new OBJExportOptions(rocket);
-			objChooser.storeOptions(prefOptions, false);
-			prefs.saveOBJExportOptions(prefOptions);
+		if(chooser.getAccessory() instanceof OptionChooser optionChooser){
+			optionChooser.storeOptions(document,prefs);
 		}
 
 		File file = chooser.getSelectedFile();
