@@ -336,9 +336,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("configid", simulation.getId().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());
+		writeElement("launchintowind", cond.getLaunchIntoWind());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
-
+		
 		// TODO: remove once support for OR 23.09 and prior is dropped
 		writeElement("windaverage", cond.getAverageWindModel().getAverage());
 		writeElement("windturbulence", cond.getAverageWindModel().getTurbulenceIntensity());
