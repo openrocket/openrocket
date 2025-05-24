@@ -8,11 +8,12 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import info.openrocket.core.thrustcurve.*;
-import org.xml.sax.SAXException;
-
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
 import info.openrocket.core.file.motor.GeneralMotorLoader;
@@ -20,36 +21,15 @@ import info.openrocket.core.gui.util.SimpleFileFilter;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.util.Pair;
+import info.openrocket.core.thrustcurve.SearchRequest;
+import info.openrocket.core.thrustcurve.SearchResponse;
+import info.openrocket.core.thrustcurve.TCMotor;
+import info.openrocket.core.thrustcurve.ThrustCurveAPI;
+import info.openrocket.core.thrustcurve.MotorBurnFile;
+
+import org.xml.sax.SAXException;
 
 public class SerializeThrustcurveMotors {
-
-    private static final String[] manufacturers = {
-            "AeroTech",
-            "Alpha",
-            "AMW",
-            "Apogee",
-            "Cesaroni",
-            "Contrail",
-            "Ellis",
-            "Estes",
-            "Gorilla",
-            "Hypertek",
-            "KBA",
-            "Kosdon",
-            "Loki",
-            "TSP",
-            "PP",
-            "PML",
-            "Quest",
-            "RATT",
-            "Klima",
-            "Roadrunner",
-            "RV",
-            "SkyR",
-            "SCR",
-            "WCH"
-    };
-
     public static void main(String[] args) throws Exception {
 
         double threadUtilFraction = 0.5;
@@ -97,6 +77,15 @@ public class SerializeThrustcurveMotors {
 
     }
 
+    private static String[] getManufacturers(){
+        try{
+            return ThrustCurveAPI.downloadManufacturers();
+        }
+        catch (Exception e) {
+            return new String[]{};
+        }
+    }
+
     /**
      * Adds motors to the data to be serialized from any motors (per manufacturer) retrieved via the ThrustCurveAPI.
      * This method performs concurrent requests using the specified number of threads.
@@ -108,13 +97,18 @@ public class SerializeThrustcurveMotors {
      *
      * @see <a href="https://www.thrustcurve.org/info/api.html">ThrustCurve API Documentation</a>
      */
-    public static void loadFromThrustCurves(List<Motor> allMotors, int threads) throws SAXException, IOException {
+    public static void loadFromThrustCurves(List<Motor> allMotors, int threads) throws SAXException, IOException, IllegalStateException {
         ExecutorService executor = Executors.newFixedThreadPool(threads);
+        String[] manufacturers = getManufacturers();
+
+        if(manufacturers.length == 0) {
+            throw new IllegalStateException("No manufacturers parsed from ThrustCurveAPI metadata");
+        }
 
         try {
             List<CompletableFuture<List<Motor>>> futureMotorLists = new ArrayList<>();
 
-            for (String manufacturer : manufacturers) {
+            for (String manufacturer : getManufacturers()) {
                 System.out.println("Motors for : " + manufacturer);
 
                 SearchRequest searchRequest = new SearchRequest();
