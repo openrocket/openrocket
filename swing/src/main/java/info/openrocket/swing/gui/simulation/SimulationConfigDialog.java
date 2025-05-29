@@ -60,7 +60,7 @@ public class SimulationConfigDialog extends JDialog {
 	private static final ApplicationPreferences preferences = Application.getPreferences();
 
 
-	private final WindowListener applyChangesToSimsListener;
+	private final WindowListener windowCloseCancelListener;
 	private final Simulation initialSim;		// A copy of the first selected simulation before it was modified
 	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
 	private boolean isModified = false;			// Whether the simulation has been modified
@@ -214,13 +214,13 @@ public class SimulationConfigDialog extends JDialog {
 
 		this.setLocationByPlatform(true);
 
-		this.applyChangesToSimsListener = new WindowAdapter() {
+		this.windowCloseCancelListener = new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				copyChangesToAllSims();
+				cancelClose();
 			}
 		};
-		this.addWindowListener(applyChangesToSimsListener);
+		this.addWindowListener(windowCloseCancelListener);
 
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
@@ -317,13 +317,13 @@ public class SimulationConfigDialog extends JDialog {
 
 		String statusText = simulationList[0].getStatusDescription();
 		Color statusColor = GUIUtil.getUITheme().getStatusColor(simulationList[0].getStatus());
-	
+
 		JLabel simStatus = new JLabel("<html>" +
-									  ColorConversion.formatHTMLColor(statusColor, statusText) +
-									  "</html>"
-									  );
+				ColorConversion.formatHTMLColor(statusColor, statusText) +
+				"</html>"
+		);
 		topPanel.add(simStatus);
-		
+
 		topPanel.add(new JPanel(), "growx, wrap");
 
 		contentPanel.add(topPanel, "growx, height pref, wrap");
@@ -374,15 +374,7 @@ public class SimulationConfigDialog extends JDialog {
 		this.cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tabbedPane.getSelectedIndex() == LAUNCH_CONDITIONS_IDX ||
-						tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX) {
-					cancelSimEdit();
-				} else {
-					// Normal close action
-					closeDialog();
-				}
-
-				// TODO: include plot/export undo?
+				cancelClose();
 			}
 		});
 		bottomPanel.add(this.cancelButton, "split 2, tag ok, pushx, align right");
@@ -429,6 +421,18 @@ public class SimulationConfigDialog extends JDialog {
 		return bottomPanel;
 	}
 
+	private void cancelClose() {
+		if (tabbedPane.getSelectedIndex() == LAUNCH_CONDITIONS_IDX ||
+				tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX) {
+			cancelSimEdit();
+		} else {
+			// Normal close action
+			closeDialog();
+		}
+
+		// TODO: include plot/export undo?
+	}
+
 	private void copyChangesToAllSims() {
 		if (isMultiCompEdit()) {
 			for (int i = 1; i < simulationList.length; i++) {
@@ -459,7 +463,7 @@ public class SimulationConfigDialog extends JDialog {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				SimulationConfigDialog.this.removeWindowListener(applyChangesToSimsListener);
+				SimulationConfigDialog.this.removeWindowListener(windowCloseCancelListener);
 				SimulationConfigDialog.this.dispose();
 			}
 		});
