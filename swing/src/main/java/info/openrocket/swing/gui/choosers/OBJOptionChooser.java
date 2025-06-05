@@ -1,5 +1,7 @@
-package info.openrocket.swing.file.wavefrontobj;
+package info.openrocket.swing.gui.choosers;
 
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.file.wavefrontobj.export.OBJExportOptions;
 import info.openrocket.swing.gui.SpinnerEditor;
@@ -45,7 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class OBJOptionChooser extends JPanel {
+public class OBJOptionChooser extends JPanel implements OptionChooser {
     private static final Translator trans = Application.getTranslator();
     private final JComponent parent;
 
@@ -614,6 +616,15 @@ public class OBJOptionChooser extends JPanel {
                     trans.get("OBJOptionChooser.easterEgg.title"), JOptionPane.INFORMATION_MESSAGE);
             totallyNormalCounter = 0;
         }
+    }
+
+    @Override
+    public void storeOptions(OpenRocketDocument document, ApplicationPreferences preferences) {
+        this.storeOptions(document.getDefaultOBJOptions(),true);
+        OBJExportOptions prefOptions = new OBJExportOptions(document.getRocket());
+        storeOptions(prefOptions, false);
+        preferences.saveOBJExportOptions(prefOptions);
+
     }
 
     private static class TriangulationMethodRenderer extends DefaultListCellRenderer {
