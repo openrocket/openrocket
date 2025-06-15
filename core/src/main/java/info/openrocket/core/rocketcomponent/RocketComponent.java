@@ -97,7 +97,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected double axialOffset = 0;
 	
 	/**
-	 * Position of this component relative to it's parent.  
+	 * Position of this component relative to its parent.
 	 * In case (null == parent ): i.e. the Rocket/root component, the position is constrained to 0,0,0, and is the reference origin for the entire rocket.
 	 * Defaults to (0,0,0)
 	 */

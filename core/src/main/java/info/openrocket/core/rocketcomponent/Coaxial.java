@@ -7,7 +7,7 @@ package info.openrocket.core.rocketcomponent;
  * This interface defines the API for components that are axially
  * symmetric. It differs from RadialParent in that RadialParent applies
  * to axially symmetric components whose radius varies with position, while
- * this interface is for components that have a constant radius over it's
+ * this interface is for components that have a constant radius over its
  * length.
  */
 public interface Coaxial {
