@@ -50,13 +50,79 @@ The simplest way to initialize OpenRocket core is using the ``OpenRocketCore`` h
            // Initialize OpenRocket core
            OpenRocketCore.initialize();
            
-           // Now you can use OpenRocket functionality
-           var translator = Application.getTranslator();
-           var preferences = Application.getPreferences();
-           var motorDatabase = Application.getMotorSetDatabase();
-           
            // Your application logic here...
        }
+
+      // Example: Load a rocket from a file
+      private Rocket loadRocketFromFile(File file) {
+         try {
+            GeneralRocketLoader loader = new GeneralRocketLoader(file);
+            OpenRocketDocument document = loader.load();
+            return document.getRocket();
+         } catch (Exception e) {
+            System.err.println("Failed to load rocket from file: " + e.getMessage());
+            return null;
+         }
+      }
+
+      // Example: Save a rocket to a file
+      private void saveRocketToFile(OpenRocketDocument document, File file) {
+         try {
+               GeneralRocketSaver saver = new GeneralRocketSaver(file);
+               saver.save(rocket);
+         } catch (Exception e) {
+               System.err.println("Failed to save rocket to file: " + e.getMessage());
+         }
+      }
+
+      private OpenRocketDocument createNewRocket() {
+         // --- ROCKET ---
+         OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+         Rocket rocket = document.getRocket();
+         AxialStage stage = rocket.getStage(0);
+
+         // --- NOSE CONE ---
+         NoseCone noseCone = new NoseCone();
+         noseCone.setShapeType(Transition.Shape.OGIVE);
+         noseCone.setShapeParameter(1.0);
+         noseCone.setLength(0.15);
+         noseCone.setBaseRadius(0.025);
+         noseCone.setThickness(0.002);
+
+         stage.addChild(noseCone);
+
+         // --- BODY TUBE ---
+         BodyTube bodyTube = new BodyTube();
+         bodyTube.setLength(0.2);
+         bodyTube.setOuterRadius(0.025);
+         bodyTube.setThickness(0.002);
+
+         stage.addChild(bodyTube);
+
+         // --- TRANSITION ---
+         Transition transition = new Transition();
+         transition.setLength(0.1);
+         transition.setForeRadius(0.025);
+         transition.setAftRadius(0.01);
+         transition.setShapeType(Transition.Shape.OGIVE);
+         transition.setShapeParameter(1.0);
+
+         stage.addChild(transition);
+
+         // --- FIN SET ---
+         TrapezoidFinSet f = new TrapezoidFinSet();
+         f.setHeight(0.05);
+         f.setRootChord(0.08);
+         f.setSweep(0.05);
+         finSet.setFinCount(3);
+         finSet.setThickness(0.005);
+         finSet.setAxialMethod(AxialMethod.BOTTOM);
+         finSet.setAxialOffset(0);
+
+         bodyTube.addChild(finSet); // Attach fins to the parent
+
+         return document;
+      }
    }
 
 Advanced Usage with Custom Modules
