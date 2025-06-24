@@ -62,6 +62,7 @@ class WarningHandler extends AbstractElementHandler {
 		if (null == type) {
 			type = "Other";
 		}
+		
 		if (null == warningText) {
 			warningText = content.trim();
 		}
@@ -78,7 +79,7 @@ class WarningHandler extends AbstractElementHandler {
 		} else if (type.equals("EventAfterLanding")) {
 			warning = new Warning.EventAfterLanding(null);
 		} else {
-			warning = Warning.fromString(content.trim());
+			warning = Warning.fromString(warningText);
 		}
 
 		if (null != id) {
