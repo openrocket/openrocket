@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -444,7 +445,8 @@ public class OpenRocketSaver extends RocketSaver {
 
 				if (null != w.getSources()) {
 					for (RocketComponent c : w.getSources()) {
-						writeElement("source", c.getID());
+						// Save component ID if it's still in the tree, else nil UUID
+						writeElement("source", null != simulation.getRocket().findComponent(c.getID()) ? c.getID() : new UUID(0, 0));
 					}
 				}
 
