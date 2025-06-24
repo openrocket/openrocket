@@ -4,12 +4,16 @@ import java.lang.UnsupportedOperationException;
 import java.util.Arrays;
 import java.util.UUID;
 
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
 
 /**
  * Baseclass for logging messages (warnings, errors...)
  */
 public abstract class Message implements Cloneable {
+	private static final Translator trans = Application.getTranslator();
+	
 	/** Message ID **/
 	UUID id;
 	
@@ -48,7 +52,7 @@ public abstract class Message implements Cloneable {
 				sourceNames[i] =
 					(null != sources[i]) ?
 					("\"" + sources[i].getName() + "\"") :
-					("<i>&lt;component deleted&gt;</i>");
+					(trans.get("Message.SOURCE_REMOVED"));
 			}
 			return text + ":  " + String.join(", ", sourceNames);
 		}
