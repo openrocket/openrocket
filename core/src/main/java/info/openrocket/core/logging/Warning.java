@@ -175,19 +175,14 @@ public abstract class Warning extends Message {
 			this.event = event;
 		}
 
+		// Two EventAfterLanding warnings are only equal if they are in fact the same warning
 		@Override
 		public boolean equals(Object o) {
 			if ((null == o) || !(o instanceof EventAfterLanding)) {
 				return false;
 			}
 
-			EventAfterLanding e = (EventAfterLanding) o;
-			
-			if ((null == event) || (null == e.event)) {
-				return false;
-			}
-			
-			return super.equals(o) && event.equals(e.event);
+			return getID() == ((EventAfterLanding)o).getID();
 		}
 
 		@Override
