@@ -636,8 +636,9 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
-					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"";
+			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime()) + "\" "
+				+ "type=\"" + enumToXMLName(event.getType()) + "\" "
+				+ "id=\"" + event.getID().toString() + "\"";
 			
 			if (event.getSource() != null) {
 				eventStr += " source=\"" + TextUtil.escapeXML(event.getSource().getID()) + "\"";

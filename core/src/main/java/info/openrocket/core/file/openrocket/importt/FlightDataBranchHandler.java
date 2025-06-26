@@ -137,6 +137,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			Message data = null;
 			RocketComponent source = null;
 			String sourceID;
+			UUID id = null;
 
 			try {
 				time = DocumentConfig.stringToDouble(attributes.get("time"));
@@ -158,6 +159,11 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				source = rocket.findComponent(UUID.fromString(sourceID));
 			}
 
+			// Get the event's ID
+			if (null != attributes.get("id")) {
+				id = UUID.fromString(attributes.get("id"));
+			}
+
 			// For warning events, get the warning
 			if (type == FlightEvent.Type.SIM_WARN) {
 				String warnid = attributes.get("warnid");
@@ -174,7 +180,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 
 			FlightEvent event = null;
 			try {
-				event = new FlightEvent(type, time, source, data);
+				event = new FlightEvent(type, time, source, data, id);
 				branch.addEvent(event);
 			} catch (Exception e) {
 				warnings.add("Illegal parameters for FlightEvent: " + e.getMessage());
