@@ -328,12 +328,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			log.trace("Obtained event from queue:  " + event.toString());
 			log.trace("Remaining EventQueue = " + currentStatus.getEventQueue().toString());
 
-			// If I get an event other than ALTITUDE and SIMULATION_END after I'm on the ground, there's a problem
-			if (currentStatus.isLanded() &&
-				(event.getType() != FlightEvent.Type.ALTITUDE) &&
-				(event.getType() != FlightEvent.Type.SIMULATION_END))
-				currentStatus.addWarning(new Warning.EventAfterLanding(event));
-
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
 				if (state.testForIgnition(currentStatus.getConfiguration(), event)) {
@@ -654,7 +648,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				break;
 			}
-			
+
+			// If I get an event other than ALTITUDE and SIMULATION_END after I'm on the ground, there's a problem
+			if (currentStatus.isLanded() &&
+				(event.getType() != FlightEvent.Type.GROUND_HIT) &&
+				(event.getType() != FlightEvent.Type.ALTITUDE) &&
+				(event.getType() != FlightEvent.Type.SIMULATION_END))
+				currentStatus.addWarning(new Warning.EventAfterLanding(event));
 		}
 
 		if (currentStatus.getSimulationTime() >= simulationConditions.getMaxSimulationTime()) {
