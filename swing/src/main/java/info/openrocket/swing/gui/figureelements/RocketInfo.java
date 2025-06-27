@@ -570,7 +570,10 @@ public class RocketInfo implements FigureElement {
 	}
 	
 	private synchronized void updateFontSizes() {
-		float size = ((SwingPreferences) Application.getPreferences()).getRocketInfoFontSize();
+		float size = 11.0f;
+		if (preferences instanceof SwingPreferences swingPreferences) {
+			size = swingPreferences.getRocketInfoFontSize();
+		}
 		// No change necessary as the font is the same size, just use the existing version
 		if (font.getSize2D() == size) {
 			return;
