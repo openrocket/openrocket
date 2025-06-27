@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.main;
+package info.openrocket.swing.gui.choosers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 
+import info.openrocket.core.preferences.ApplicationPreferences;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.core.document.OpenRocketDocument;
@@ -23,7 +24,7 @@ import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.startup.Application;
 
 @SuppressWarnings("serial")
-public class StorageOptionChooser extends JPanel {
+public class StorageOptionChooser extends JPanel implements OptionChooser {
 	
 	public static final double DEFAULT_SAVE_TIME_SKIP = 0.20;
 
@@ -172,7 +173,7 @@ public class StorageOptionChooser extends JPanel {
 		
 		
 		StorageOptionChooser chooser = new StorageOptionChooser(document, options);
-		
+
 		//// Save options
 		if (JOptionPane.showConfirmDialog(parent, chooser, trans.get("StorageOptChooser.lbl.Saveopt"), 
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) !=
@@ -184,5 +185,9 @@ public class StorageOptionChooser extends JPanel {
 		chooser.storeOptions(options);
 		return true;
 	}
-	
+
+	@Override
+	public void storeOptions(OpenRocketDocument document, ApplicationPreferences preferences) {
+		this.storeOptions(document.getDefaultStorageOptions());
+	}
 }

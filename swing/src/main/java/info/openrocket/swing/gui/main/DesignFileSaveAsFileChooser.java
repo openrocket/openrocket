@@ -20,7 +20,8 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.FileUtils;
 
-import info.openrocket.swing.file.wavefrontobj.OBJOptionChooser;
+import info.openrocket.swing.gui.choosers.OBJOptionChooser;
+import info.openrocket.swing.gui.choosers.StorageOptionChooser;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
