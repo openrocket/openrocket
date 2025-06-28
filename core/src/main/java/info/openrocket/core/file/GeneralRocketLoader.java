@@ -83,7 +83,8 @@ public class GeneralRocketLoader {
 			load(stream, fileName);
 			return doc;
 
-		} catch (Exception e) {
+		} catch (IOException |
+				 IllegalArgumentException e ) {
 			throw new RocketLoadException("Exception loading file: " + baseFile + " , " + e.getMessage(), e);
 		} finally {
 			if (stream != null) {
@@ -101,7 +102,7 @@ public class GeneralRocketLoader {
 			loadStep1(source, fileName);
 			doc.getRocket().enableEvents();
 			return doc;
-		} catch (Exception e) {
+		} catch (IOException | IllegalArgumentException  e) {
 			throw new RocketLoadException("Exception loading stream: " + e.getMessage(), e);
 		}
 	}
