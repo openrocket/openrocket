@@ -138,7 +138,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			RocketComponent source = null;
 			String sourceID;
 			UUID id = null;
-
+			
 			try {
 				time = DocumentConfig.stringToDouble(attributes.get("time"));
 			} catch (NumberFormatException e) {
@@ -152,16 +152,16 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				return;
 			}
 
+			// Get the event ID
+			if (null != attributes.get("id")) {
+				id = UUID.fromString(attributes.get("id"));
+			}
+
 			// Get the event source
 			Rocket rocket = context.getOpenRocketDocument().getRocket();
 			sourceID = attributes.get("source");
 			if (sourceID != null) {
 				source = rocket.findComponent(UUID.fromString(sourceID));
-			}
-
-			// Get the event's ID
-			if (null != attributes.get("id")) {
-				id = UUID.fromString(attributes.get("id"));
 			}
 
 			// For warning events, get the warning
@@ -182,15 +182,18 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			try {
 				event = new FlightEvent(type, time, source, data, id);
 				branch.addEvent(event);
-			} catch (Exception e) {
+			} catch (IllegalStateException e) {
 				warnings.add("Illegal parameters for FlightEvent: " + e.getMessage());
 			}
 
-			// For EventAfterLanding warning events, hook the event up to the warning
+			// For EventAfterLanding warning events, hook the event up to the warning if possible
 			if ((type == FlightEvent.Type.SIM_WARN) &&
 				(null != data) &&
 				(data instanceof Warning.EventAfterLanding)) {
-				((Warning.EventAfterLanding) data).setEvent(event);
+				if (null != attributes.get("eventid")) {
+					UUID eventID = UUID.fromString(attributes.get("eventid"));
+					((Warning.EventAfterLanding) data).setEvent(branch.findEvent(eventID));
+				}
 			}
 			return;
 		}
