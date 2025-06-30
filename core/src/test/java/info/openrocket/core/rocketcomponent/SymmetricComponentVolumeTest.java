@@ -16,7 +16,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 	// project thickness onto yz plane to get height of frustrum wall
 	private double getHeight(double length, double foreRadius, double aftRadius, double thickness) {
-		final double angle = Math.atan((aftRadius - foreRadius) / length);
+		final double angle = Math.atan2(aftRadius - foreRadius, length);
 		return thickness / Math.cos(angle);
 	}
 
