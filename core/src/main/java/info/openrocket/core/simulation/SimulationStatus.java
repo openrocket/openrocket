@@ -620,7 +620,8 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		
 		Coordinate c = getRocketOrientationQuaternion().rotateZ();
 		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
-		double phi = Math.atan2(c.y, c.x);
+		//(x, y) instead of (y, x) because 0 is north
+		double phi = Math.atan2(c.x, c.y);
 		if (phi < -(Math.PI - 0.0001))
 			phi = Math.PI;
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
