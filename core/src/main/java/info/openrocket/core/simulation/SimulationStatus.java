@@ -609,7 +609,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 					  MathUtil.hypot(getRocketPosition().x, getRocketPosition().y));
 		// (x, y) instead of (y, x) because 0 is north
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					  Math.atan2(getRocketPosition().x, getRocketPosition().y));
+								  (Math.atan2(getRocketPosition().x, getRocketPosition().y) + (2.0 * Math.PI)) % (2.0 * Math.PI));
 
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
 					  MathUtil.hypot(getRocketVelocity().x, getRocketVelocity().y));
@@ -621,9 +621,8 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		Coordinate c = getRocketOrientationQuaternion().rotateZ();
 		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
 		//(x, y) instead of (y, x) because 0 is north
-		double phi = Math.atan2(c.x, c.y);
-		if (phi < -(Math.PI - 0.0001))
-			phi = Math.PI;
+		double phi = (Math.atan2(c.x, c.y)+ (2.0 * Math.PI)) % (2.0 * Math.PI);
+
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
 		flightDataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
