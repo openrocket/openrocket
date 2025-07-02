@@ -246,6 +246,24 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 			drawAxes(g2d, width, height, null, null, null, null);
 		}
 
+		private void drawWindArrow(Graphics2D g, int x, int y, double direction, boolean selected) {
+			int directionVectorLength = 15;
+			int dx = (int) (- directionVectorLength * Math.sin(direction));
+			int dy = (int) (- directionVectorLength * Math.cos(direction));
+			int arrowSize = 10;
+
+			g.setColor(selected ? SELECTED_DIRECTION_COLOR : DIRECTION_COLOR);
+
+			// Draw the main line
+			g.drawLine(x, y, x + dx, y - dy);
+
+			int dx_arrow = (int) (- (arrowSize-1) * Math.sin(direction));
+			int dy_arrow = (int) (- (arrowSize-1) * Math.cos(direction));
+
+			// Draw filled arrow head
+			drawFilledArrowHead(g, x + dx + dx_arrow, y - dy - dy_arrow, arrowSize, direction + Math.PI/2);
+		}
+
 		private void drawFilledArrowHead(Graphics2D g, int x, int y, int arrowSize, double angle) {
 			int[] xPoints = new int[3];
 			int[] yPoints = new int[3];
@@ -258,24 +276,6 @@ public class WindProfilePanel extends JPanel implements StateChangeListener {
 			yPoints[2] = y - (int) (arrowSize * Math.sin(angle + Math.PI / 6));
 
 			g.fillPolygon(xPoints, yPoints, 3);
-		}
-
-		private void drawWindArrow(Graphics2D g, int x, int y, double direction, boolean selected) {
-			int directionVectorLength = 15;
-			int dx = (int) (directionVectorLength * Math.sin(direction));
-			int dy = (int) (directionVectorLength * Math.cos(direction));
-			int arrowSize = 10;
-
-			g.setColor(selected ? SELECTED_DIRECTION_COLOR : DIRECTION_COLOR);
-
-			// Draw the main line
-			g.drawLine(x, y, x + dx, y - dy);
-
-			int dx_arrow = (int) ((arrowSize-1) * Math.sin(direction));
-			int dy_arrow = (int) ((arrowSize-1) * Math.cos(direction));
-
-			// Draw filled arrow head
-			drawFilledArrowHead(g, x + dx + dx_arrow, y - dy - dy_arrow, arrowSize, direction - Math.PI/2);
 		}
 
 		@Override

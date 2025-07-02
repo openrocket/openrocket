@@ -30,9 +30,6 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	private final List<StateChangeListener> listeners = new ArrayList<>();
-
-	private static final int REQUIRED_NR_OF_CSV_COLUMNS = 3;		// alt, speed, dir
-
 	private AltitudeReference altitudeReference;
 
 	public MultiLevelPinkNoiseWindModel() {
