@@ -220,7 +220,7 @@ public class CylinderExporter {
             //// We need special nx normal when the radius changes
             float nx;
             if (Float.compare(radius, nextRadius) != 0) {
-                final double slopeAngle = Math.atan(Math.abs(nextX - x) / (nextRadius - radius));
+                final double slopeAngle = Math.atan2(Math.abs(nextX - x), nextRadius - radius);
                 nx = (float) Math.cos(Math.PI - slopeAngle);
             } else {
                 nx = 0;

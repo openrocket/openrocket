@@ -114,10 +114,8 @@ public enum GeodeticComputationStrategy {
 				return new WorldCoordinate(location.getLatitudeDeg(), location.getLongitudeDeg(), newAlt);
 			}
 
-			double bearing = Math.atan(delta.x / delta.y);
-			if (delta.y < 0)
-				bearing = bearing + Math.PI;
-
+			double bearing = Math.atan2(delta.x, delta.y);
+			
 			// Calculate the new lat and lon
 			double newLat, newLon;
 			double[] ret = dirct1(location.getLatitudeRad(), location.getLongitudeRad(), bearing, d, 6378137,

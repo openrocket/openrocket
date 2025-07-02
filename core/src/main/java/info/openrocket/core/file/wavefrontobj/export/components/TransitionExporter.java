@@ -394,7 +394,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             //// We need special nx normal when the radius changes
             float nx;
             if (Double.compare(r, rNext) != 0) {
-                final double slopeAngle = Math.atan((xNext - x) / (rNext - r));
+                final double slopeAngle = Math.atan2(xNext - x, rNext - r);
                 if (rNext > r) {
                     nx = (float) -Math.cos(slopeAngle);
                 } else {
