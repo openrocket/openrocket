@@ -2,6 +2,7 @@ package info.openrocket.core.simulation;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -229,6 +230,21 @@ public class FlightDataBranch extends DataBranch<FlightDataType> {
 		return retval;
 	}
 
+	/**
+	 * Return the event with the given UUID
+	 * @param id
+	 * @return
+	 */
+	public FlightEvent findEvent(UUID id) {
+		for (FlightEvent e : getEvents()) {
+			if (id.equals(e.getID())) {
+				return e;
+			}
+		}
+
+		return null;
+	}
+	
 	/**
 	 * Return the time of the stage separation event.
 	 * @return the time of the stage separation event, or NaN if no separation event has occurred.

@@ -638,15 +638,22 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
-					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"";
+			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime()) + "\" "
+				+ "type=\"" + enumToXMLName(event.getType()) + "\" "
+				+ "id=\"" + event.getID().toString() + "\"";
 			
 			if (event.getSource() != null) {
 				eventStr += " source=\"" + TextUtil.escapeXML(event.getSource().getID()) + "\"";
 			}
 
 			if (event.getType() == FlightEvent.Type.SIM_WARN) {
-				eventStr += " warnid=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
+				Warning w = (Warning) event.getData();
+				eventStr += " warnid=\"" + TextUtil.escapeXML(w.getID()) + "\"";
+
+				if (w instanceof Warning.EventAfterLanding) {
+					Warning.EventAfterLanding e = (Warning.EventAfterLanding) w;
+					eventStr += " eventid=\"" + TextUtil.escapeXML(e.getEvent().getID()) + "\"";
+				}
 			}
 			
 			if (event.getType() == FlightEvent.Type.SIM_ABORT) {

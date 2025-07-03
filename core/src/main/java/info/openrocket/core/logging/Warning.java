@@ -170,24 +170,23 @@ public abstract class Warning extends Message {
 			setPriority(MessagePriority.HIGH);
 		}
 
+		public FlightEvent getEvent() {
+			return event;
+		}
+		
 		// this is only used for patching the data structure while reading the .ork file
 		public void setEvent(FlightEvent event) {
 			this.event = event;
 		}
 
+		// Two EventAfterLanding warnings are only equal if they are in fact the same warning
 		@Override
 		public boolean equals(Object o) {
 			if ((null == o) || !(o instanceof EventAfterLanding)) {
 				return false;
 			}
 
-			EventAfterLanding e = (EventAfterLanding) o;
-			
-			if ((null == event) || (null == e.event)) {
-				return false;
-			}
-			
-			return super.equals(o) && event.equals(e.event);
+			return getID() == ((EventAfterLanding)o).getID();
 		}
 
 		@Override
