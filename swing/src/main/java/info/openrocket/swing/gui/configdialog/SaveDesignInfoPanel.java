@@ -58,19 +58,6 @@ public class SaveDesignInfoPanel extends RocketConfig {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // Don't do anything on cancel if you are editing an existing component, and it is not modified
-                if (!isNewComponent && parent != null && (parent instanceof ComponentConfigDialog && !((ComponentConfigDialog) parent).isModified())) {
-                    disposeDialog();
-                    return;
-                }
-                // Apply the cancel operation if set to auto discard in preferences
-                if (!preferences.isShowDiscardConfirmation()) {
-                    ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
-                    disposeDialog();
-                    document.undo();
-                    return;
-                }
-
                 // Yes/No dialog: Are you sure you want to discard your changes?
                 JPanel msg = createCancelOperationContent();
                 int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
@@ -78,7 +65,6 @@ public class SaveDesignInfoPanel extends RocketConfig {
                 if (resultYesNo == JOptionPane.YES_OPTION) {
                     ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
                     disposeDialog();
-                    document.undo();
                 }
             }
         });

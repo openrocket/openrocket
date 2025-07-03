@@ -176,7 +176,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			try {
 				event = new FlightEvent(type, time, source, data);
 				branch.addEvent(event);
-			} catch (Exception e) {
+			} catch (IllegalStateException e) {
 				warnings.add("Illegal parameters for FlightEvent: " + e.getMessage());
 			}
 

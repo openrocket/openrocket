@@ -98,7 +98,7 @@ public class MotorExporter {
             final float z = (float) (innerRadius * Math.sin(angle));
             obj.addVertex(transformer.convertLoc(x, y, z));
 
-            final double slopeAngle = Math.atan(coneLength / innerRadius);
+            final double slopeAngle = Math.atan2(coneLength, innerRadius);
             final float nx = (float) Math.cos(slopeAngle);
             final float ny = (float) -Math.cos(angle);
             final float nz = (float) -Math.sin(angle);
