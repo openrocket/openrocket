@@ -57,7 +57,8 @@ public abstract class MotorFilterPanel extends JPanel {
 		}
 	}
 	private static final MotorDiameter[] motorDiameters = new MotorDiameter[] {
-		new MotorDiameter(0.0, 0.0),
+		new MotorDiameter(0, 0),
+		new MotorDiameter(0.006, 0.006),
 		new MotorDiameter(0.013, 0.013),
 		new MotorDiameter(0.018, 0.018),
 		new MotorDiameter(0.024, 0.024),
