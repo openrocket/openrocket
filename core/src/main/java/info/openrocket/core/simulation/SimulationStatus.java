@@ -564,7 +564,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	 */
 	public void copyProperties(SimulationStatus orig) {
 		this.position = orig.position.clone();
-		this.worldPosition = orig.worldPosition;
+		this.worldPosition = orig.worldPosition.clone();
 		this.velocity = orig.velocity.clone();
 		this.orientation = orig.orientation.clone();
 		this.rotationVelocity = orig.rotationVelocity.clone();
