@@ -305,4 +305,18 @@ public class Quaternion {
 		return String.format("Quaternion[%f,%f,%f,%f,norm=%f]", w, x, y, z, this.norm());
 	}
 
+
+	/**
+	 * Creates and returns a copy of this quaternion.
+	 * Being an immutable class, this method returns a new Quaternion instance
+	 * containing the same w, x, y, z component values as this quaternion.
+	 *
+	 * @return a new Quaternion instance with identical component values
+	 */
+	@Override
+    public Quaternion clone() {
+		return new Quaternion(w, x, y, z);
+	}
+
+
 }
