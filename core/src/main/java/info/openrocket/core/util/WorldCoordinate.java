@@ -63,6 +63,18 @@ public class WorldCoordinate {
 		return Math.toDegrees(this.lat);
 	}
 
+
+	/**
+	 * Creates and returns a copy of this WorldCoordinate object.
+	 *
+	 * @return A new WorldCoordinate instance with the same latitude, longitude and altitude values
+	 */
+	public WorldCoordinate clone() {
+		return new WorldCoordinate(getLatitudeDeg(), getLongitudeDeg(), getAltitude());
+	}
+	
+
+
 	@Override
 	public String toString() {
 		return "WorldCoordinate[lat=" + getLatitudeDeg() + ", lon=" + getLongitudeDeg() + ", alt=" + getAltitude()
