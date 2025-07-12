@@ -4,7 +4,7 @@ package info.openrocket.core.util;
  * A WorldCoordinate contains the latitude, longitude and altitude position of a
  * rocket.
  */
-public class WorldCoordinate {
+public class WorldCoordinate implements Cloneable {
 
 	/** Mean Earth radius */
 	public static final double REARTH = 6371000.0;

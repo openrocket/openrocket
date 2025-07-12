@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Quaternion {
+public class Quaternion implements Cloneable {
 	private static final Logger log = LoggerFactory.getLogger(Quaternion.class);
 
 	//////// Debug section
