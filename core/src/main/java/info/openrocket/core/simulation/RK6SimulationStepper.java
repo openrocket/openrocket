@@ -106,7 +106,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 		 * RK6 Coefficients from Mechee, M. S., & Rajihy, Y. (2017).
 		 * Generalized RK Integrators for Solving Ordinary Differential Equations:
 		 * A Survey & Comparison Study. Global Journal of Pure and Applied Mathematics, 13(7), 2923–2949.
-		 * https://doi.org/https://www.researchgate.net/publication/318284280_Generalized_RK_Integrators_for_Solving_Ordinary_Differential_Equations_A_Survey_Comparison_Study
+		 * https://www.researchgate.net/publication/318284280_Generalized_RK_Integrators_for_Solving_Ordinary_Differential_Equations_A_Survey_Comparison_Study
 		 * [Table 2]
 
 

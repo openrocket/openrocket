@@ -44,7 +44,7 @@ public enum RKStepperChoice {
 
 		@Override
 		public String getDescription() {
-			return getName();
+			return "6-DOF Runge-Kutta 6: Slower than RK4, but more accurate for some cases.";
 		}
 	};
 
