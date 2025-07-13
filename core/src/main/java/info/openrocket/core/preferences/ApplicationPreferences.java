@@ -31,14 +31,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.DegreeUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.BuildProperties;
-import info.openrocket.core.util.ChangeSource;
-import info.openrocket.core.util.ORColor;
-import info.openrocket.core.util.GeodeticComputationStrategy;
-import info.openrocket.core.util.LineStyle;
-import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.util.*;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
 	private static final String SPLIT_CHARACTER = "|";
@@ -145,6 +138,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
+	public static final String RK_CHOICE = "RKStepperChoice";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -581,6 +575,14 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public void setGeodeticComputation(GeodeticComputationStrategy gcs) {
 		this.putEnum(GEODETIC_COMPUTATION, gcs);
 	}
+
+	public RKStepperChoice getRKStepperChoice() {
+		return this.getEnum(RK_CHOICE, RKStepperChoice.RK4);
+	}
+	public void setRKStepperChoice(RKStepperChoice choice) {
+		this.putEnum(RK_CHOICE, choice);
+	}
+
 
 	public double getTimeStep() {
 		return this.getDouble(ApplicationPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
