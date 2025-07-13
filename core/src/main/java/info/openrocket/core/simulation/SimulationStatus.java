@@ -555,6 +555,30 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		}
 	}
 
+
+	/**
+	 * Copies simulation status data from the specified {@code SimulationStatus} object <code>orig</code>
+	 * to this instance, in particular the physical kinematics as well as boolean flags of <code>motorIgnited</code>, etc.
+	 *
+	 * @param orig the {@code SimulationStatus} object from which to copy data
+	 */
+	public void copyProperties(SimulationStatus orig) {
+		this.position = orig.position.clone();
+		this.worldPosition = orig.worldPosition.clone();
+		this.velocity = orig.velocity.clone();
+		this.orientation = orig.orientation.clone();
+		this.rotationVelocity = orig.rotationVelocity.clone();
+		// these are booleans, so no cloning (primitives).
+		this.motorIgnited = orig.motorIgnited;
+		this.liftoff = orig.liftoff;
+		this.launchRodCleared = orig.launchRodCleared;
+		this.apogeeReached = orig.apogeeReached;
+	}
+
+
+
+
+
 	@Override
 	public ModID getModID() {
 		return modID;
