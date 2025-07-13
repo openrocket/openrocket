@@ -10,7 +10,13 @@ import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.*;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.GeodeticComputationStrategy;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.util.WorldCoordinate;
+import info.openrocket.core.util.RKStepperChoice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

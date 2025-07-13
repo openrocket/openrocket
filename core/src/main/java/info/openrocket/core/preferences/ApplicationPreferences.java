@@ -31,7 +31,15 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.DegreeUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.*;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.BuildProperties;
+import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.ORColor;
+import info.openrocket.core.util.GeodeticComputationStrategy;
+import info.openrocket.core.util.LineStyle;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.util.RKStepperChoice;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
 	private static final String SPLIT_CHARACTER = "|";
