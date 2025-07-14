@@ -105,6 +105,7 @@ public class CSVImportSettingsDialog extends JDialog {
 		descriptionArea.setBackground(null);
 		descriptionArea.setOpaque(false);
 		descriptionArea.setFocusable(false);
+		descriptionArea.setBorder(null);
 		mainPanel.add(descriptionArea, "spanx, growx, wrap para");
 
 		// CSV settings section
@@ -120,6 +121,7 @@ public class CSVImportSettingsDialog extends JDialog {
 		columnMappingHelp.setBackground(null);
 		columnMappingHelp.setOpaque(false);
 		columnMappingHelp.setFocusable(false);
+		columnMappingHelp.setBorder(null);
 		columnMappingHelp.setFont(columnMappingHelp.getFont().deriveFont(columnMappingHelp.getFont().getSize() - 1f));
 		csvSettings.add(columnMappingHelp, "spanx, growx, wrap para");
 
@@ -251,6 +253,7 @@ public class CSVImportSettingsDialog extends JDialog {
 		previewHelp.setBackground(null);
 		previewHelp.setOpaque(false);
 		previewHelp.setFocusable(false);
+		previewHelp.setBorder(null);
 		previewHelp.setFont(previewHelp.getFont().deriveFont(previewHelp.getFont().getSize() - 1f));
 		previewPanel.add(previewHelp, "spanx, growx, wrap para");
 
