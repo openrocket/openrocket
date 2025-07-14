@@ -36,21 +36,40 @@ public class StageSelector extends JPanel implements StateChangeListener {
 		
 		updateButtons( this.rocket.getSelectedConfiguration() );
 	}
-	
+
 	private void updateButtons( final FlightConfiguration configuration ) {
 		buttons.clear();
 		this.removeAll();
 		List<ComponentAssembly> assemblies = configuration.getRocket().getAllChildAssemblies();
 
+		// First, count the number of stages that are currently active and can be toggled
+		int activeStageCount = 0;
 		for (RocketComponent stage : assemblies) {
-			if (!(stage instanceof AxialStage)) continue;
-			JToggleButton button = new JToggleButton(new StageAction((AxialStage) stage));
-			button.setSelected(configuration.isStageActive(stage.getStageNumber()));
+			if (stage instanceof AxialStage && configuration.isStageActive(stage.getStageNumber()) && ((AxialStage) stage).getChildCount() > 0) {
+				activeStageCount++;
+			}
+		}
+
+		for (RocketComponent component : assemblies) {
+			if (!(component instanceof AxialStage stage)) continue;
+
+			JToggleButton button = new JToggleButton(new StageAction(stage));
+			boolean isActive = configuration.isStageActive(stage.getStageNumber());
+			button.setSelected(isActive);
+
+			// If the stage is the only active one, disable its button to prevent deactivation.
+			// The button might already be disabled by the StageAction if the stage has no children.
+			if (button.isEnabled() && isActive && activeStageCount <= 1) {
+				button.setEnabled(false);
+				button.setToolTipText(trans.get("RocketPanel.btn.Stages.LastActive.ttip"));
+			}
+
 			this.add(button);
 			buttons.add(button);
 		}
-		
+
 		this.revalidate();
+		this.repaint(); // Ensure UI changes are painted immediately
 	}
 	
 	@Override
@@ -84,20 +103,12 @@ public class StageSelector extends JPanel implements StateChangeListener {
 			}
 			return super.getValue(key);
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// Don't toggle the state if the stage has no children (and is therefore inactive)
-			if (stage.getChildCount() == 0) {
-				putValue(SHORT_DESCRIPTION, trans.get("RocketPanel.btn.Stages.NoChildren.ttip"));
-				setEnabled(false);
-				return;
-			} else {
-				setEnabled(true);
-				putValue(SHORT_DESCRIPTION, trans.get("RocketPanel.btn.Stages.Toggle.ttip"));
-			}
 			FlightConfiguration config = rocket.getSelectedConfiguration();
 			config.toggleStage(stage.getStageNumber());
+
 			rocket.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE | ComponentChangeEvent.MOTOR_CHANGE,
 					config.getFlightConfigurationID());
 		}
