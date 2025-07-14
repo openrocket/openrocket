@@ -212,7 +212,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			// Map column indices
-			int altIndex = -1, speedIndex = -1, dirIndex = -1, stddevIndex = -1;
+			int altIndex, speedIndex, dirIndex, stddevIndex = -1;
 
 			if (hasHeaders) {
 				// Read the first line as a header
