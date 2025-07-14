@@ -2,12 +2,12 @@ package info.openrocket.swing.startup;
 
 import java.net.URL;
 
-import info.openrocket.swing.startup.jij.ClasspathUrlStreamHandler;
-import info.openrocket.swing.startup.jij.ConfigurableStreamHandlerFactory;
-import info.openrocket.swing.startup.jij.CurrentClasspathProvider;
-import info.openrocket.swing.startup.jij.JarInJarStarter;
-import info.openrocket.swing.startup.jij.ManifestClasspathProvider;
-import info.openrocket.swing.startup.jij.PluginClasspathProvider;
+import info.openrocket.core.startup.jij.ClasspathUrlStreamHandler;
+import info.openrocket.core.startup.jij.ConfigurableStreamHandlerFactory;
+import info.openrocket.core.startup.jij.CurrentClasspathProvider;
+import info.openrocket.core.startup.providers.JarInJarStarter;
+import info.openrocket.core.startup.jij.ManifestClasspathProvider;
+import info.openrocket.core.startup.jij.PluginClasspathProvider;
 
 /**
  * First step in the OpenRocket startup sequence, responsible for

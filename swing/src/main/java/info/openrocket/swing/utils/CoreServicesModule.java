@@ -5,7 +5,7 @@ import info.openrocket.core.formatting.RocketDescriptorImpl;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.swing.startup.providers.TranslatorProvider;
+import info.openrocket.core.startup.providers.TranslatorProvider;
 
 import com.google.inject.AbstractModule;
 

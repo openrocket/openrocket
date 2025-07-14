@@ -1,4 +1,4 @@
-package info.openrocket.swing.startup.providers;
+package info.openrocket.core.startup.providers;
 
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
