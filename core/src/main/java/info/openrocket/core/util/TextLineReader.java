@@ -66,7 +66,7 @@ public class TextLineReader implements Iterator<String> {
 	 * Retrieve the next non-blank, non-comment line.
 	 */
 	@Override
-	public String next() {
+	public String next() throws NoSuchElementException {
 		if (hasNext()) {
 			String ret = next;
 			next = null;
