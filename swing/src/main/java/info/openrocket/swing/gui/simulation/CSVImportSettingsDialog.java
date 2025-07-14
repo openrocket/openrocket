@@ -707,6 +707,9 @@ public class CSVImportSettingsDialog extends JDialog {
 		}
 
 		try {
+			doc.insertString(doc.getLength(), "# You can add comments with a hash", optionalStyle);
+			doc.insertString(doc.getLength(), "\n", optionalStyle);
+
 			// Create header row if CSV has a header
 			if (hasHeaderCheckBox.isSelected()) {
 				doc.insertString(doc.getLength(), getAltitudeColumn() + displaySeparator, normalStyle);
@@ -722,7 +725,7 @@ public class CSVImportSettingsDialog extends JDialog {
 			}
 			// If no header, add a comment showing which column is which
 			else {
-				doc.insertString(doc.getLength(), "# Column mapping: ", normalStyle);
+				doc.insertString(doc.getLength(), "# Column mapping: ", optionalStyle);
 				doc.insertString(doc.getLength(), getAltitudeColumn() + "=Altitude, ", indexStyle);
 				doc.insertString(doc.getLength(), getSpeedColumn() + "=Speed, ", indexStyle);
 				doc.insertString(doc.getLength(), getDirectionColumn() + "=Direction", indexStyle);
@@ -760,7 +763,7 @@ public class CSVImportSettingsDialog extends JDialog {
 			}
 
 			// Add ellipsis to indicate more data could follow
-			doc.insertString(doc.getLength(), "...", normalStyle);
+			doc.insertString(doc.getLength(), "\u2026", normalStyle);
 
 		} catch (BadLocationException e) {
 			// This shouldn't happen, but log it just in case
