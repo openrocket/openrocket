@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.help.tours;
+package info.openrocket.core.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,10 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import info.openrocket.core.util.BugException;
 
 /**
  * Read from a Reader object one line at a time, ignoring blank lines,
@@ -18,10 +17,7 @@ import info.openrocket.core.util.BugException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class TextLineReader implements Iterator<String> {
-	
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-	
-
+	private static final Charset UTF8 = StandardCharsets.UTF_8;
 
 	private final BufferedReader reader;
 	
@@ -94,7 +90,6 @@ public class TextLineReader implements Iterator<String> {
 	
 	
 	private String readLine() throws IOException {
-		
 		while (true) {
 			// Read the next line
 			String line = reader.readLine();
@@ -104,7 +99,7 @@ public class TextLineReader implements Iterator<String> {
 			
 			// Check whether to accept the line
 			line = line.trim();
-			if (line.length() > 0 && line.charAt(0) != '#') {
+			if (!line.isEmpty() && line.charAt(0) != '#') {
 				return line;
 			}
 		}
@@ -116,5 +111,4 @@ public class TextLineReader implements Iterator<String> {
 	public void remove() {
 		throw new UnsupportedOperationException("Remove not supported");
 	}
-	
 }

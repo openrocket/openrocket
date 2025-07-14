@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.TextLineReader;
 
 /**
  * Class that loads a slide set from a file.
