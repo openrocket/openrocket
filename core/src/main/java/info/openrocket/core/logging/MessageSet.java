@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
@@ -23,6 +26,8 @@ import info.openrocket.core.util.Mutable;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class MessageSet<E extends Message> extends AbstractSet<E> implements Cloneable, Monitorable {
+	private static final Logger log = LoggerFactory.getLogger(MessageSet.class);
+	
     /** the actual array of messages */
     protected ArrayList<E> messages = new ArrayList<>();
 
@@ -189,7 +194,9 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
 			if (m.id.equals(id))
 				return m;
 		}
-		throw new BugException("Message with id " + id + " not found");
+		
+		log.error("no Message with UUID " + id + "found");
+		return null;
 	}
 
     public void immute() {
