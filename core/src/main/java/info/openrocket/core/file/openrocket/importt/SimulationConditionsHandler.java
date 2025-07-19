@@ -12,6 +12,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.util.GeodeticComputationStrategy;
+import info.openrocket.core.util.RKStepperChoice;
 
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
@@ -137,6 +138,15 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setGeodeticComputation(gcs);
 				} else {
 					warnings.add("Unknown geodetic computation method '" + content + "'");
+				}
+			}
+			case "rungekuttamethod" -> {
+				RKStepperChoice rkchce = (RKStepperChoice) DocumentConfig.findEnum(content,
+						RKStepperChoice.class);
+				if (rkchce != null) {
+					options.setRKStepperChoice(rkchce);
+				} else {
+					warnings.add("Unknown RK Solver '" + content + "'");
 				}
 			}
 			case "atmosphere" -> atmosphereHandler.storeSettings(options, warnings);
