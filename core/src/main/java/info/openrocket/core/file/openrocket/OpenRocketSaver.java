@@ -374,7 +374,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
-		writeElement("rungekuttamethod", cond.getRKStepperChoice().name().toLowerCase(Locale.ENGLISH));
+		writeElement("simulationsteppermethod", cond.getRKStepperChoice().name().toLowerCase(Locale.ENGLISH));
 
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");

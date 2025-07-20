@@ -140,13 +140,13 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					warnings.add("Unknown geodetic computation method '" + content + "'");
 				}
 			}
-			case "rungekuttamethod" -> {
+			case "simulationsteppermethod" -> {
 				RKStepperChoice rkchce = (RKStepperChoice) DocumentConfig.findEnum(content,
 						RKStepperChoice.class);
 				if (rkchce != null) {
 					options.setRKStepperChoice(rkchce);
 				} else {
-					warnings.add("Unknown RK Solver '" + content + "'");
+					warnings.add("Unknown Simulation Stepper '" + content + "'");
 				}
 			}
 			case "atmosphere" -> atmosphereHandler.storeSettings(options, warnings);
