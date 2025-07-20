@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -30,6 +31,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import info.openrocket.core.util.Invalidatable;
+import info.openrocket.swing.gui.components.ColorChooserButton;
 import info.openrocket.swing.gui.widgets.PlaceholderTextField;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.appearance.Appearance;
@@ -87,6 +89,13 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	private Appearance previousUserSelectedAppearance = null;
 	private Appearance previousUserSelectedInsideAppearance = null;
 
+	// Store the chooser dialogs as static, so the recent colors can be used across dialog instances.
+	private static final JColorChooser paintColorChooser = new JColorChooser();
+	private static final JColorChooser figureColorChooser = new JColorChooser();
+
+	private final ColorChooserButton figureColorButton;
+	private final PropertyChangeListener figureColorButtonListener;
+
 	// We cache the default appearance for this component to make switching
 	// faster.
 	private Appearance defaultAppearance = null;
@@ -96,6 +105,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	private JCheckBox customInside = null;
 
 	private final List<Invalidatable> invalidatables = new ArrayList<>();
+	private final List<Runnable> cleanupTasks = new ArrayList<>();
 	private final List<Component> order;	// Component traversal order
 
 	/**
@@ -118,8 +128,6 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		};
 		TEXTURE_UNIT.addUnit(no_unit);
 	}
-
-	private static final JColorChooser colorChooser = new JColorChooser();
 
 	public void clearConfigListeners() {
 		if (ab != null) {
@@ -165,60 +173,6 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			} catch (Throwable e1) {
 				Application.getExceptionHandler().handleErrorCondition(e1);
 				return null;
-			}
-		}
-	}
-
-	private class ColorButtonActionListener extends ColorActionListener implements ActionListener {
-		ColorButtonActionListener(final Object o, final String valueName) {
-			super(o, valueName);
-		}
-
-		/**
-		 * Change the component's preview color upon a change in color pick. If the user clicks 'OK' in the
-		 * dialog window, the selected color is assigned to the component. If 'Cancel' was clicked, the component's
-		 * color will be reverted to its initial color (color before the appearance editor opened).
-		 */
-		@Override
-		public void actionPerformed(ActionEvent colorClickEvent) {
-			try {
-				ORColor c = getComponentColor();
-
-				Color awtColor = ColorConversion.toAwtColor(c);
-				colorChooser.setColor(awtColor);
-				colorChooser.updateUI();		// Needed for darklaf color chooser to update
-
-				// Bind a change of color selection to a change in the components color
-				ColorSelectionModel model = colorChooser.getSelectionModel();
-				ChangeListener changeListener = new ChangeListener() {
-					public void stateChanged(ChangeEvent changeEvent) {
-						Color selected = colorChooser.getColor();
-						setComponentColor(selected);
-					}
-				};
-				model.addChangeListener(changeListener);
-
-				JDialog d = JColorChooser.createDialog(AppearancePanel.this,
-						trans.get("RocketCompCfg.lbl.Choosecolor"), false,
-						colorChooser,
-						new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent okEvent) {
-								setComponentColor(colorChooser.getColor());
-								// Unbind listener to avoid the current component's appearance to change with other components
-								model.removeChangeListener(changeListener);
-							}
-						}, new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent cancelEvent) {
-								setComponentColor(awtColor);
-								// Unbind listener to avoid the current component's appearance to change with other components
-								model.removeChangeListener(changeListener);
-							}
-						});
-				d.setVisible(true);
-			} catch (Throwable e1) {
-				Application.getExceptionHandler().handleErrorCondition(e1);
 			}
 		}
 	}
@@ -317,8 +271,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		if (figureColor == null) {
 			figureColor = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 		}
-		final JButton figureColorButton = new JButton(
-				new ColorIcon(figureColor));
+		figureColorButton = new ColorChooserButton(ColorConversion.toAwtColor(figureColor), figureColorChooser);
 		PlaceholderTextField figureColorHexField = new PlaceholderTextField(7);
 		figureColorHexField.setPlaceholder(trans.get("AppearanceCfg.placeholder.HexColor"));
 		figureColorHexField.setToolTipText(trans.get("AppearanceCfg.ttip.HexColor"));
@@ -327,7 +280,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
-				figureColorButton.setIcon(new ColorIcon(c.getColor()));
+				figureColorButton.setSelectedColor(ColorConversion.toAwtColor(c.getColor()));
 				figureColorHexField.setText(ColorConversion.toHexColor(c.getColor()));
 			}
 		});
@@ -339,12 +292,18 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				if (col == null) {
 					col = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 				}
-				figureColorButton.setIcon(new ColorIcon(col));
+				figureColorButton.setSelectedColor(ColorConversion.toAwtColor(col));
 				figureColorHexField.setText(ColorConversion.toHexColor(col));
 			}
 		});
 
-		figureColorButton.addActionListener(new ColorButtonActionListener(c, "Color"));
+		figureColorButtonListener = event -> {
+			if (event.getNewValue() instanceof Color) {
+				new ColorActionListener(c, "Color") {
+				}.setComponentColor((Color) event.getNewValue());
+			}
+		};
+		figureColorButton.addColorPropertyChangeListener(figureColorButtonListener);
 		HexColorListener colorHexListener = new HexColorListener(c, "Color");
 		figureColorHexField.addActionListener(colorHexListener);
 		figureColorHexField.addFocusListener(colorHexListener);
@@ -595,13 +554,21 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			}
 		});
 
-		JButton colorButton = new JButton(new ColorIcon(builder.getPaint()));
+		final ColorChooserButton colorButton = new ColorChooserButton(ColorConversion.toAwtColor(builder.getPaint()), paintColorChooser);
 		PlaceholderTextField colorHexField = new PlaceholderTextField(7);
 		colorHexField.setPlaceholder(trans.get("AppearanceCfg.placeholder.HexColor"));
 		colorHexField.setToolTipText(trans.get("AppearanceCfg.ttip.HexColor"));
 		colorHexField.setText(ColorConversion.toHexColor(builder.getPaint()));
 
-		colorButton.addActionListener(new ColorButtonActionListener(builder, "Paint"));
+		PropertyChangeListener colorButtonListener = event -> {
+			if (event.getNewValue() instanceof Color) {
+				new ColorActionListener(builder, "Paint") {
+				}.setComponentColor((Color) event.getNewValue());
+			}
+		};
+		colorButton.addColorPropertyChangeListener(colorButtonListener);
+		cleanupTasks.add(() -> colorButton.removePropertyChangeListener(colorButtonListener));
+
 		HexColorListener colorHexListener = new HexColorListener(builder, "Paint");
 		colorHexField.addActionListener(colorHexListener);
 		colorHexField.addFocusListener(colorHexListener);
@@ -659,7 +626,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		p.add(textureDropDown, "grow");
 		panel.add(p, "spanx 3, growx, wrap");
 		order.add(textureDropDown);
-			
+
 		//// Edit button
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
 			JButton editBtn = new JButton(
@@ -826,7 +793,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			double lastOpacity = builder.getOpacity();
 			@Override
 			public void stateChanged(EventObject e) {
-				colorButton.setIcon(new ColorIcon(builder.getPaint()));
+				colorButton.setSelectedColor(ColorConversion.toAwtColor(builder.getPaint()));
 				colorHexField.setText(ColorConversion.toHexColor(builder.getPaint()));
 				if (lastOpacity != builder.getOpacity()) {
 					opacityModel.stateChanged(event);
@@ -866,5 +833,13 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		for (Invalidatable i : invalidatables) {
 			i.invalidateMe();
 		}
+
+		// Run all cleanup tasks, e.g. removing listeners from local components
+		for (Runnable task : cleanupTasks) {
+			task.run();
+		}
+		cleanupTasks.clear();
+
+		figureColorButton.removePropertyChangeListener(figureColorButtonListener);
 	}
 }

@@ -7,6 +7,7 @@ import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.startup.Application;
@@ -37,7 +38,7 @@ import info.openrocket.swing.gui.theme.UITheme;
 public class RocketInfo implements FigureElement {
 	
 	private static final Translator trans = Application.getTranslator();
-	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
+	private static final ApplicationPreferences preferences = Application.getPreferences();
 	// Margin around the figure edges, pixels
 	private static final int MARGIN = 8;
 
@@ -569,7 +570,10 @@ public class RocketInfo implements FigureElement {
 	}
 	
 	private synchronized void updateFontSizes() {
-		float size = ((SwingPreferences) Application.getPreferences()).getRocketInfoFontSize();
+		float size = 11.0f;
+		if (preferences instanceof SwingPreferences swingPreferences) {
+			size = swingPreferences.getRocketInfoFontSize();
+		}
 		// No change necessary as the font is the same size, just use the existing version
 		if (font.getSize2D() == size) {
 			return;

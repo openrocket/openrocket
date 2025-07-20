@@ -15,7 +15,7 @@ import info.openrocket.swing.gui.watcher.WatchService;
 import info.openrocket.swing.gui.watcher.WatchServiceImpl;
 import info.openrocket.swing.startup.providers.BlockingComponentPresetDatabaseProvider;
 import info.openrocket.swing.startup.providers.BlockingMotorDatabaseProvider;
-import info.openrocket.swing.startup.providers.TranslatorProvider;
+import info.openrocket.core.startup.providers.TranslatorProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

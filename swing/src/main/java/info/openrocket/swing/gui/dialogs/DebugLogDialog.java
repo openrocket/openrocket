@@ -28,10 +28,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
@@ -110,7 +113,9 @@ public class DebugLogDialog extends JDialog {
 	private final SelectableLabel locationLabel;
 	private final SelectableLabel messageLabel;
 	private final JTextArea stackTraceLabel;
-	
+
+	private JTextField searchField;
+
 	public DebugLogDialog(Window parent) {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));
@@ -144,9 +149,9 @@ public class DebugLogDialog extends JDialog {
 		this.add(split, "grow, pushy 200, growprioy 200");
 		
 		// Top panel
-		JPanel topPanel = new JPanel(new MigLayout("fill"));
+		JPanel topPanel = new JPanel(new MigLayout("fill, hidemode 3"));
 		split.add(topPanel);
-		
+
 		//// Display log lines:
 		topPanel.add(new JLabel(trans.get("debuglogdlg.Displayloglines")), "gapright para, split");
 		for (LogLevel l : LogLevel.values()) {
@@ -156,24 +161,46 @@ public class DebugLogDialog extends JDialog {
 			box.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					sorter.setRowFilter(new LogFilter());
+					updateFilters();
 				}
 			});
 			topPanel.add(box, "gapright unrel");
 			filterButtons.put(l, box);
 		}
 
-        //// Toggle Bottom Details Pane
-        JCheckBox toggleDetailsBox = new JCheckBox(trans.get("debuglogdlg.ToggleDetails"));
-        toggleDetailsBox.setSelected(true);
-        topPanel.add(toggleDetailsBox, "gapright unrel");
-        toggleDetailsBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean isActive = ((JCheckBox)e.getSource()).isSelected();
-                enableDetailsPanel( isActive);
-            }
-        });
+		//// Toggle Bottom Details Pane
+		JCheckBox toggleDetailsBox = new JCheckBox(trans.get("debuglogdlg.ToggleDetails"));
+		toggleDetailsBox.setSelected(true);
+		topPanel.add(toggleDetailsBox, "gapright unrel");
+		toggleDetailsBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean isActive = ((JCheckBox)e.getSource()).isSelected();
+				enableDetailsPanel( isActive);
+			}
+		});
+
+		// Search field
+		topPanel.add(new JLabel("Search:"), "gapleft para");
+		searchField = new JTextField(20);
+		topPanel.add(searchField, "wmin 100, growx");
+		searchField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateFilters();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateFilters();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateFilters();
+			}
+		});
+
 
 		//// Follow
 		followBox = new JCheckBox(trans.get("debuglogdlg.Follow"));
@@ -188,6 +215,7 @@ public class DebugLogDialog extends JDialog {
 				log.info(Markers.USER_MARKER, "Clearing log buffer");
 				buffer.clear();
 				queue.clear();
+				searchField.setText("");
 				model.fireTableDataChanged();
 			}
 		});
@@ -273,14 +301,14 @@ public class DebugLogDialog extends JDialog {
 						return 580;
 					}
 				}
-				
-				) {
-					@Override
-					public int getRowCount() {
-						return buffer.size();
-					}
-				};
-		
+
+		) {
+			@Override
+			public int getRowCount() {
+				return buffer.size();
+			}
+		};
+
 		table = new ColumnTable(model);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
@@ -304,9 +332,9 @@ public class DebugLogDialog extends JDialog {
 		sorter.setComparator(1, NumericComparator.INSTANCE);
 		sorter.setComparator(4, new LocationComparator());
 		table.setRowSorter(sorter);
-		sorter.setRowFilter(new LogFilter());
-		
-		
+		updateFilters();
+
+
 		topPanel.add(new JScrollPane(table), "span, grow, width " +
 				(Toolkit.getDefaultToolkit().getScreenSize().width * 8 / 10) +
 				"px, height 400px, growy, pushy 200, growprioy 200");
@@ -385,7 +413,24 @@ public class DebugLogDialog extends JDialog {
 		setLocationRelativeTo(parent);
 		followBox.requestFocus();
 	}
-	
+
+	// Combine log level and text search filters
+	private void updateFilters() {
+		List<RowFilter<TableModel, Integer>> filters = new ArrayList<>(2);
+
+		// Add the filter for the log level checkboxes
+		filters.add(new LogFilter());
+
+		// Add the filter for the search text field
+		String text = searchField.getText();
+		if (text != null && !text.isEmpty()) {
+			// Case-insensitive search on Location (col 4) and Message (col 5)
+			filters.add(RowFilter.regexFilter("(?i)" + Pattern.quote(text), 4, 5));
+		}
+
+		sorter.setRowFilter(RowFilter.andFilter(filters));
+	}
+
 	private void updateSelected(int row) {
 		if (row < 0) {
 			
@@ -496,7 +541,7 @@ public class DebugLogDialog extends JDialog {
 	private class Renderer extends JLabel implements TableCellRenderer {
 		@Override
 		public Component getTableCellRendererComponent(JTable table1, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
+													   int row, int column) {
 			Color fg, bg;
 			
 			row = sorter.convertRowIndexToModel(row);
