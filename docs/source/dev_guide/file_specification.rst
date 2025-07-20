@@ -807,6 +807,7 @@ The ``<simulations>`` section contains flight simulation data. Each simulation i
             <launchlatitude>45.0</launchlatitude>
             <launchlongitude>0.0</launchlongitude>
             <geodeticmethod>flat</geodeticmethod>
+            <rungekuttamethod>rk4</rungekuttamethod>
             <atmosphere model="isa"/>
             <timestep>0.05</timestep>
             <maxtime>1200.0</maxtime>
