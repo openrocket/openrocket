@@ -157,7 +157,7 @@ These release notes cover the entire 24.12 release. Changes since 24.12.RC.01 ar
   * Allow for comments (starting with "#") and blank lines in multi-level wind CSV import
 * Major improvements to error handling (fixes to #2777, #2785, #2800, #2804)
 * Miscellaneous
-  * Improve simulation edit dialog for low-res screens
+  * Reduce size of simulation edit and Component Analysis dialogs for low-res screens
   * Make lateral angle and lateral orientation use north 0 (fixes #2811)
   * Example design updates: Rename TARC example to ARC, rurn example sims without errors
   * Include super-parent angles in instance rotation to ensure correct display in rocket figure display (fixes #2776)
