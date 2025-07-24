@@ -31,6 +31,7 @@ public class SVGBuilder {
 	private double minY = Double.MAX_VALUE;
 	private double maxX = Double.MIN_VALUE;
 	private double maxY = Double.MIN_VALUE;
+	private double maxStrokeWidth = 0.0; // Track maximum stroke width
 
 	/**
 	 * Different stroke cap styles.
@@ -87,6 +88,11 @@ public class SVGBuilder {
 		final Element path = this.doc.createElement("path");
 		final StringBuilder dAttribute = new StringBuilder();
 
+		// Track maximum stroke width for bounds calculation
+		if (stroke != null && strokeWidth > maxStrokeWidth) {
+			maxStrokeWidth = strokeWidth;
+		}
+
 		for (int i = 0; i < coordinates.length; i++) {
 			final Coordinate coord = coordinates[i];
 			double x = (coord.x + xPos) * OR_UNIT_TO_SVG_UNIT;
@@ -96,10 +102,17 @@ public class SVGBuilder {
 			dAttribute.append(String.format(Locale.ENGLISH, "%s%.1f,%.1f ", command, x, y));		// Coordinates are in meters, SVG is in mm
 		}
 
+		// Close the path if it's the same start and end point
+		if (coordinates.length > 2 &&
+				Math.abs(coordinates[0].x - coordinates[coordinates.length-1].x) < 1e-10 &&
+				Math.abs(coordinates[0].y - coordinates[coordinates.length-1].y) < 1e-10) {
+			dAttribute.append("Z");
+		}
+
 		path.setAttribute("d", dAttribute.toString());
 		path.setAttribute("fill", colorToString(fill));
 		path.setAttribute("stroke", colorToString(stroke));
-		path.setAttribute("stroke-width", String.format(Locale.ENGLISH, "%.001f", strokeWidth));
+		path.setAttribute("stroke-width", String.format(Locale.ENGLISH, "%.3f", strokeWidth));
 		path.setAttribute("stroke-linecap", lineCap.getValue());
 		svgRoot.appendChild(path);
 	}
@@ -131,11 +144,21 @@ public class SVGBuilder {
 
 	/**
 	 * Finalizes the SVG document by setting the width, height and viewBox attributes.
+	 * Accounts for stroke width to ensure strokes are not clipped.
 	 */
 	public void finalizeSVG() {
-		svgRoot.setAttribute("width", (maxX - minX) + "mm");
-		svgRoot.setAttribute("height", (maxY - minY) + "mm");
-		svgRoot.setAttribute("viewBox", minX + " " + minY + " " + (maxX - minX) + " " + (maxY - minY));
+		// Expand bounds by half the maximum stroke width to account for stroke rendering
+		double strokeOffset = maxStrokeWidth / 2.0;
+
+		double finalMinX = minX - strokeOffset;
+		double finalMinY = minY - strokeOffset;
+		double finalWidth = (maxX - minX) + (2 * strokeOffset);
+		double finalHeight = (maxY - minY) + (2 * strokeOffset);
+
+		svgRoot.setAttribute("width", String.format(Locale.ENGLISH, "%.3fmm", finalWidth));
+		svgRoot.setAttribute("height", String.format(Locale.ENGLISH, "%.3fmm", finalHeight));
+		svgRoot.setAttribute("viewBox", String.format(Locale.ENGLISH, "%.3f %.3f %.3f %.3f",
+				finalMinX, finalMinY, finalWidth, finalHeight));
 	}
 
 	/**
@@ -176,6 +199,6 @@ public class SVGBuilder {
 				new Coordinate(0, 0)};
 
 		svgBuilder.addPath(coordinates, null, Color.BLACK, 0.1);
-		svgBuilder.writeToFile(new File("/Users/SiboVanGool/Downloads/shape.svg"));
+		svgBuilder.writeToFile(new File("<your_path_here>/test.svg"));
 	}
 }
