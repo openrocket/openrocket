@@ -18,7 +18,7 @@ Release Notes
 OpenRocket 24.12 (2025-07-XX)
 -------------------------------------
 
-These release notes cover the entire 24.12 release. Changes since RC1 are listed at the end.  Notable features and fixes shown in **bold**.
+These release notes cover the entire 24.12 release. Changes since 24.12.RC.01 are listed at the end.  Notable features and fixes shown in **bold**.
 
 ### RELEASE HIGHLIGHTS
 * **Enhanced Simulation tab UI**: This is the beginning of a multi-release effort to make it easier to manage simulations and interpret their results. Please let us know what you think so far.
@@ -28,13 +28,13 @@ These release notes cover the entire 24.12 release. Changes since RC1 are listed
 * **Window Ghosting Eliminated on Windows OS (!)**
 * **Extensive Improvements to error handling**: There should be far fewer instances of ORK files encountering errors or exceptions while loading.
 * **Expanded Platform Support**: We now offer installers for x86_64 and Arm64 on Windows, Mac, and Linux.
-* **Project documentation moved to Sphinx**: See it at https://openrocket.readthedocs.io/.
+* **Project documentation moved to Sphinx**: See it at [https://openrocket.readthedocs.io/](https://openrocket.readthedocs.io/).
 
 ### Simulation
 * **Overhauled Sim table GUI** (fixes #2456)
 * **Multi-level Wind Feature**
   * **Enter wind speed and direction at arbitrary set of altitudes for simulation** (fixes #922, #2060, #2558)
-  * **CSV Wind Data Import**: Import detailed wind profiles directly from CSV files. Comments and blank lines now allowed!
+  * **CSV Wind Data Import**: Import detailed wind profiles directly from CSV files.
   * Add "Wind Direction" flight data type
 * **Plotting**
   * **Organize axis plot types selector into categories and add search function** (fixes #2338)
@@ -78,6 +78,7 @@ These release notes cover the entire 24.12 release. Changes since RC1 are listed
 * Include enabled stages in calculations even if parent stage is disabled (fixes #2657)
 * Correctly handle "auto" mass object size when parent component is filled (fixes #2660)
 * Fix CP calculation error with tail cones (fixes #2751)
+* Clamp compressibility factor to avoid singularity at Mach 1 (fixes #2543)
 
 ### Component Analysis
 * **Plot and export component analysis parameter sweeps** (fixes #2525): See the new Plot/Export tab.
@@ -110,7 +111,7 @@ These release notes cover the entire 24.12 release. Changes since RC1 are listed
 ### User Interface
 * **Window Ghosting Eliminated on Windows OS**: @SiboVG finally squashed this vexing problem (fixes #1667)
 * **Change look-and-feel engine to FlatLaf for all UI themes**: after plenty of tweaking we think it's looking pretty good
-* **Add UI Customization**: You can now tweak the UI to your liking. Added "UI Scale", "Font Size", and "Character Spacing".  See the "UI" tab in app preferences.
+* **Add UI Customization**: You can now tweak the UI to your liking. Added "UI Scale", "Font Size", and "Character Spacing". See the "UI" tab in app preferences.
 * **Rotate 2D views by click-dragging** (fixes #2093)
 * **Show Flight Config in Design View**: This should make it easier to get all necessary information when screenshotting just the rocket figure display (fixes #2735)
 * **Improvements to Rotation Control in 2D Views**: You can now lock the angle so you don't accidentally rotate it with a click-drag; you can also enter the desired angle directly
@@ -149,10 +150,10 @@ These release notes cover the entire 24.12 release. Changes since RC1 are listed
 * Add Piotr Tendera Rocket Motors (TSP) and Raketenmodelbau Klima (Klima) motor manufacturers to motor database
 * Enhancements and fixes to motor length and diameter filters
 
-### Notable Changes since 24.12RC1
+### Notable Changes since 24.12.RC.01
 * Multi-level winds feature
   * Correct wind direction visualization
-  * Remove 10ms/max wind speed and 11 km altitude limit for wind levels (fixes #2767)
+  * Remove 10 m/s max wind speed and 11 km altitude limit for wind levels (fixes #2767)
   * Allow for comments (starting with "#") and blank lines in multi-level wind CSV import
 * Major improvements to error handling (fixes to #2777, #2785, #2800, #2804)
 * Miscellaneous
@@ -163,7 +164,7 @@ These release notes cover the entire 24.12 release. Changes since RC1 are listed
   * Save latitude and longitude in degrees
   * Save and restore launchintowind element in ORK file (fixes #2802)
 * Developer features
-  * Improve core startup for using OR in external Java app
+  * Improve core startup for using OR in external apps
   * Add clone helper methods to WorldCoordinate, Quaternion, and SimulationStatus
 
 _...and countless additional fixes and tweaks._
