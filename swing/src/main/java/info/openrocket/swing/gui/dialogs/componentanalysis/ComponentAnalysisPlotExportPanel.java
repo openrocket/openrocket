@@ -67,7 +67,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 	public ComponentAnalysisPlotExportPanel(ComponentAnalysisDialog parent, OpenRocketDocument document,
 											CAParameters parameters, AerodynamicCalculator aerodynamicCalculator,
 											Rocket rocket) {
-		super(new MigLayout("fill, height 700px!", "[]", "[grow]"));
+		super(new MigLayout("fill, height 500px!", "[]", "[grow]"));
 
 		this.parent = parent;
 		this.document = document;
@@ -123,7 +123,7 @@ public class ComponentAnalysisPlotExportPanel extends JPanel implements PlotPane
 	}
 
 	private void addTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("fill"));
+		JPanel topPanel = new JPanel(new MigLayout("fill, ins unrel unrel 0 unrel"));
 		TitledBorder border = BorderFactory.createTitledBorder(trans.get("CAPlotExportDialog.XAxisConfiguration"));
 		topPanel.setBorder(border);
 
