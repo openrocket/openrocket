@@ -54,7 +54,7 @@ public class MaterialPanel extends JPanel implements Invalidatable, Invalidating
         // Material selection combo box
         this.materialCombo = MaterialComboBox.createComboBox(document, mm);
         this.materialCombo.setToolTipText(trans.get("MaterialPanel.combo.ttip.ComponentMaterialAffects"));
-        this.add(this.materialCombo, "spanx 4, growx, wrap paragraph");
+        this.add(this.materialCombo, "spanx 4, growx, wmax 350lp, wrap paragraph");
         order.add(this.materialCombo);
 
         // No surface finish for internal components
