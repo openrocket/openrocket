@@ -7,14 +7,14 @@
       <variable name="KEY_ID" hidden="true" overrideMacos="true" valueMacos="6CY43KJL23" />
       <variable name="PRIVATE_API_KEY" hidden="true" overrideMacos="true" valueMacos="code_signing/AuthKey_6CY43KJL23.p8" />
       <variable name="JAR_FILE_LOCATION" value="../../build/libs/${compiler:JAR_NAME}" />
-      <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}.jar" />
+      <variable name="JAR_NAME" value="OpenRocket.jar" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="true" windowsPkcs12File="./code_signing/OpenRocket_Windows.pfx" macNotarize="true" macApiIssuer="${compiler:ISSUER_ID}" macApiKey="${compiler:KEY_ID}" macApiPrivateKey="${compiler:PRIVATE_API_KEY}">
       <macSearchedJars>
         <entry>jna-*</entry>
         <entry>swt-*</entry>
         <entry>javafx-*</entry>
-        <entry>${compiler:JAR_NAME}</entry>
+        <entry>OpenRocket.jar</entry>
       </macSearchedJars>
     </codeSigning>
     <jreBundles jdkProviderId="Liberica" release="17/latest">
