@@ -125,7 +125,7 @@ public class RailButtonConfig extends RocketComponentConfig {
 		panel.add(ip, "span, grow, wrap para");
 
 
-		primary.add(panel, "grow, gapright 40lp");
+		primary.add(panel, "grow, gapright 20lp");
 
 		// Right side panel
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::][]", ""));
