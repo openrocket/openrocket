@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="11.0.2" transformSequenceNumber="11">
   <directoryPresets config="../../build/libs/OpenRocket.jar" />
-  <application name="OpenRocket 24.12.RC.01" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="24.12.RC.01" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
+  <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="24.12" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
     <variables>
       <variable name="ISSUER_ID" hidden="true" overrideMacos="true" valueMacos="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" />
       <variable name="KEY_ID" hidden="true" overrideMacos="true" valueMacos="6CY43KJL23" />
@@ -32,7 +32,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 24.12.RC.01" id="59" icnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns">
+    <launcher name="OpenRocket 24.12" id="59" icnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="../../swing/build/resources/main/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
         <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2024 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
       </executable>
