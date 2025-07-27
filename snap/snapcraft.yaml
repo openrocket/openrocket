@@ -6,14 +6,14 @@ description: |
   OpenRocket is a free, fully featured model rocket simulator that allows you
   to design and simulate your rockets before actually building and flying them.
 
-  The main features include
+  The main features include:
 
     * Six-degree-of-freedom flight simulation
     * Automatic design optimization
     * Realtime simulated altitude, velocity and acceleration display
     * Staging and clustering support
     * Cross-platform (Java-based)
-    * Read more about it on the OpenRocket.info.
+    * Read more about it on OpenRocket.info
 license: GPL-3.0
 base: core18
 confinement: strict
@@ -28,10 +28,15 @@ plugs:
     write:
       - $HOME/.openrocket
 
+architectures:
+  - build-on: [amd64]
+  - build-on: [arm64]
+  - build-on: [armhf]
+  - build-on: [ppc64el]
+  - build-on: [s390x]
+
 apps:
   openrocket:
-    extensions:
-      - gnome-3-28
     command: bin/launcher
     plugs:
       - home
@@ -41,37 +46,24 @@ apps:
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
-      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-amd64"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAP_ARCH"
 
 parts:
   openrocket:
-    plugin: ant
+    plugin: gradle
     source: .
-    source-type: git
-    ant-build-targets:
-      - clean
-      - check
-      - unittest
-      - jar
+    build-packages:
+      - openjdk-17-jdk
     override-pull: |
-      # Override the pull in order to set the version and the grade.
-      # In the future, the releases can be annotated tags and snapcraft
-      # will use those for the version numbers.
-      #
-      # This can be extended to other parts of OpenRocket (to use the
-      # git describe --tags command) but the build should be updated at
-      # the same time so its consistent across all artifacts. Will defer
-      # that to a later pull request.
-      #
-      # Until then, just use the build.version value
-      snapcraftctl pull
-      VERSION=$(cat core/resources/build.properties | awk -F'=' '/build\.version/ { print $2 }')
-      snapcraftctl set-version "$VERSION"
+      craftctl default
+      version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
+      craftctl set version="$version"
     override-build: |
-      snapcraftctl build
-      mv swing/build/jar/OpenRocket.jar $SNAPCRAFT_PART_INSTALL/OpenRocket.jar
+      craftctl default
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
     stage-packages:
-      - openjdk-11-jre
+      - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
     prime:
@@ -82,6 +74,6 @@ parts:
   launcher:
     plugin: dump
     source: snap/local
+    source-type: local
     organize:
-      'launcher': 'bin/'
-
+      launcher: bin/launcher

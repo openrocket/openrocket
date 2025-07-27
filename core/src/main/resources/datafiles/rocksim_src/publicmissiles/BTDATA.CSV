@@ -1,0 +1,23 @@
+Mfg.,Part No.,Desc.,Units,ID,OD,Length,Material,Engine
+Public Missiles Ltd.,PML PT-1.145,Airframe tube,in.,1.145,1.269,36,Kraft phenolic,29
+Public Missiles Ltd.,PML PT-1.525,Airframe tube,in.,1.525,1.649,36,Kraft phenolic,38
+Public Missiles Ltd.,PML PT-2.152,Airframe tube,in.,2.152,2.276,36,Kraft phenolic,54
+Public Missiles Ltd.,PML PT-2.560,Airframe tube,in.,2.56,2.684,36,Kraft phenolic,
+Public Missiles Ltd.,PML PT-3.002,Airframe tube,in.,3.002,3.126,36,Kraft phenolic,75
+Public Missiles Ltd.,PML PT-3.900,Airframe tube,in.,3.9,4.024,36,Kraft phenolic,98
+Public Missiles Ltd.,PML PT-6.007,Airframe tube,in.,6.007,6.155,48,Kraft phenolic,
+Public Missiles Ltd.,PML PT-7.512,Airframe tube,in.,7.512,7.672,48,Kraft phenolic,
+Public Missiles Ltd.,PML PT-11.41,Airframe tube,in.,11.41,11.66,48,Kraft phenolic,
+Public Missiles Ltd.,PML PIS 1.5,Piston,in,1.401,1.525,1.5,Kraft phenolic,0
+Public Missiles Ltd.,PML PIS 2.1,Piston,in,2.028,2.152,2,Kraft phenolic,54
+Public Missiles Ltd.,PML PIS 2.5,Piston,in,2.436,2.56,2,Kraft phenolic,0
+Public Missiles Ltd.,PML PIS 3.0,Piston,in,2.878,3.002,2,Kraft phenolic,0
+Public Missiles Ltd.,PML PIS 3.9,Piston,in,3.776,3.9,2.5,Kraft phenolic,0
+Public Missiles Ltd.,PML PIS 6.0,Piston,in,5.859,6.007,4,Kraft phenolic,0
+Public Missiles Ltd.,PML PIS 7.5,Piston,in,7.352,7.512,4,Kraft phenolic,0
+Public Missiles Ltd.,PML KS-2.152,KS2000 54mm,in.,2.152,2.276,14.5,Kraft phenolic,29
+Public Missiles Ltd.,PML KS-1.525,KS2000 38mm,in.,1.525,1.649,14.5,Kraft phenolic,38
+Public Missiles Ltd.,PML KS-1.145,KS2000 29mm,in.,1.145,1.269,14.5,Kraft phenolic,54
+Public Missiles Ltd.,PML 29/38ADPTR,29>38mm Adapter,in,1.145,1.52,8,Kraft phenolic,29
+Public Missiles,PML 54/38 ADPTR,54>38mm Adapter,in.,1.525,2.15,9,Kraft phenolic,38
+Public Missiles,PML 54/29 ADPTR,54>29mm Adapter,in.,1.145,2.15,9,Kraft phenolic,29

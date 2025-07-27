@@ -1,0 +1,45 @@
+#
+# Your Crowdin credentials
+#
+"project_id": "711913"
+"api_token_env": "CROWDIN_API_TOKEN"
+"base_path": "."
+"base_url": "https://api.crowdin.com"
+
+#
+# Choose file structure in Crowdin
+# e.g. true or false
+#
+"preserve_hierarchy": true
+
+#
+# Files configuration
+#
+files: [
+  {
+    "source": "core/src/main/resources/l10n/messages.properties",
+    "dest": "core/src/main/resources/l10n/messages_%two_letters_code%.properties",
+    "translation": "core/src/main/resources/l10n/messages_%two_letters_code%.properties",
+
+    "type": "properties",
+
+    # 3 - escape single quote by another single quote only in strings containing variables ( {0} ).
+    "escape_quotes": 3,
+
+    # 0 - do not escape special characters
+    "escape_special_characters": 0
+  },
+  {
+    "source": "core/src/main/resources/l10n/messages.properties",
+    "dest": "core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
+    "translation": "core/src/main/resources/l10n/messages_%locale_with_underscore%.properties",
+
+    "type": "properties",
+
+    # 3 - escape single quote by another single quote only in strings containing variables ( {0} ).
+    "escape_quotes": 3,
+
+    # 0 - do not escape special characters
+    "escape_special_characters": 0
+  }
+]

@@ -1,0 +1,122 @@
+Mfg.,Part no,Desc,Units,Name,Type,Length,Material,Mass units,Mass,Mass,Mass,Mass,Mass,Mass,Mass,Mass,Mass,Mass
+Public Missiles,PML UBLT,Ubolt for FNCs,in,6/7.5/11in. FNC Ubolt,general,0,,oz.,2.7,,,,,,,,,
+Public Missiles,LilLunar nose,Bplate w/hdwe,in,Bulkplate with hardware  Little Lunar,general,0,,oz.,0.88,,,,,,,,,
+Public Missiles,PML 24in.,chute-T&L booster,in,Mass object,general,0,,oz.,1.6,,,,,,,,,
+Public Missiles,PML CPR 2.1 system,CPR2000,in,PML 2.1 CPR2k system,general,0,,oz.,8.2,,,,,,,,,
+Public Missiles,PML CPR 2.5 system,CPR2000,in,PML 2.5 CPR2k system,general,0,,oz.,8.4,,,,,,,,,
+Public Missiles,PML CPR 3.0 system,CPR2000,in,PML 3.0 CPR2k system,general,0,,oz.,8.6,,,,,,,,,
+Public Missiles,PML CPR 3.9 system,CPR2000,in,PML 3.9 CPR2k system,general,0,,oz.,9.3,,,,,,,,,
+Public Missiles,STRACPR,Stratus CPR parts,in,Mass object,general,0,,oz.,6.1,,,,,,,,,
+Public Missiles,PML PS-1.52,Piston assy,in.,Piston assy,general,,,oz.,1.9,,,,,,,,,
+Public Missiles,PML PS-2.15,Piston assy,in.,Piston assy,general,,,oz.,2.9,,,,,,,,,
+Public Missiles,PML PS-2.56,Piston assy,in.,Piston assy,general,,,oz.,3,,,,,,,,,
+Public Missiles,PML PS-3.00,Piston assy,in.,Piston assy,general,,,oz.,3.3,,,,,,,,,
+Public Missiles,PML PS-3.90,Piston assy,in.,Piston assy,general,,,oz.,4.1,,,,,,,,,
+Public Missiles,PML PS-6.00,Piston assy,in.,Piston assy,general,,,oz.,8.1,,,,,,,,,
+Public Missiles,PML PS-7.51,Piston assy,in.,Piston assy,general,,,oz.,12,,,,,,,,,
+Public Missiles,PML KL-01,Small KwikLink,,KwikLink small,general,,Steel,oz.,0.2
+Public Missiles,PML KL-02,Large KwikLink,,KwikLink large,general,,Steel,oz.,0.8
+Public Missiles,PML EB-01,1/8x24 eyebolt,,Eye Bolt,general,,Steel,oz.,0.2
+Public Missiles,PML NT-01,1/8x24 nut,,Nut,general,,Steel,oz.,0.1
+Public Missiles,PML,Eyblt/wshr/2nuts,in,PML eyebolt  washer  2 nuts,general,0,Steel,oz.,0.5
+Public Missiles,PML WA-01,eyebolt washer,,Washer,general,,Steel,oz.,0.2
+Public Missiles,PML DR-10,D ring,,D-ring,general,,Nylon,oz.,0.1
+Public Missiles,PML 98/54 KS-KIT,98 to 54mm MMT adapter,in.,98/54 KwikSwitch,,36,Kraft phenolic,oz.,26.7
+Public Missiles,PML P5,Altimeter,in.,Altimeter,general,3,Kraft phenolic,oz.,4
+Public Missiles,PML EC-LES,Ejection canister,,Ejection canister,,2,Aluminum,oz.,
+Public Missiles,PML ECH-01,Ejection canister holder,,Ejection canister holder,,,Urethane,oz.,
+Public Missiles,PML AG1-B,Single flashbulb,,Single flashbulb,,,Glass,oz.,0.1
+Public Missiles,PML CBA-1.52,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,3,,oz.,0.75
+Public Missiles,PML CBA-2.15,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,4,,oz.,1.5
+Public Missiles,PML CBA-2.56,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,5,,oz.,2
+Public Missiles,PML CBA-3.00,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,5,,oz.,2.4
+Public Missiles,PML CBA-3.90,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,7,,oz.,4
+Public Missiles,PML CBA-6.00,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,12,,oz.,9.4
+Public Missiles,PML CBA-7.51,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,12,,oz.,20.8
+Public Missiles,PML CBA-11.4,Coupler/bulkhead assy.,in.,Coupler/bulkhead assy.,general,16,,oz.,43.7
+Public Missiles,PML PSK-01,Payload section kit,in.,Payload section kit,general,9,,oz.,2.4
+Public Missiles,PML PSK-02,Payload section kit,in.,Payload section kit,general,12,,oz.,2.9
+Public Missiles,PML PSK-03,Payload section kit,in.,Payload section kit,general,18,,oz.,3.9
+Public Missiles,PML PSK-05,Payload section kit,in.,Payload section kit,general,9,,oz.,3.6
+Public Missiles,PML PSK-06,Payload section kit,in.,Payload section kit,general,12,,oz.,4.3
+Public Missiles,PML PSK-07,Payload section kit,in.,Payload section kit,general,18,,oz.,5.8
+Public Missiles,PML PSK-10,Payload section kit,in.,Payload section kit,general,9,,oz.,4.6
+Public Missiles,PML PSK-11,Payload section kit,in.,Payload section kit,general,12,,oz.,5.4
+Public Missiles,PML PSK-12,Payload section kit,in.,Payload section kit,general,18,,oz.,7.1
+Public Missiles,PML PSK-20,Payload section kit,in.,Payload section kit,general,9,,oz.,5.3
+Public Missiles,PML PSK-21,Payload section kit,in.,Payload section kit,general,12,,oz.,6.3
+Public Missiles,PML PSK-22,Payload section kit,in.,Payload section kit,general,18,,oz.,8.4
+Public Missiles,PML PSK-30,Payload section kit,in.,Payload section kit,general,9,,oz.,7.8
+Public Missiles,PML PSK-31,Payload section kit,in.,Payload section kit,general,12,,oz.,9.1
+Public Missiles,PML PSK-32,Payload section kit,in.,Payload section kit,general,18,,oz.,11.7
+Public Missiles,PML PSK-40,Payload section kit,in.,Payload section kit,general,12,,oz.,33.3
+Public Missiles,PML PSK-41,Payload section kit,in.,Payload section kit,general,16,,oz.,37.4
+Public Missiles,PML PSK-42,Payload section kit,in.,Payload section kit,general,24,,oz.,45.8
+Public Missiles,PML PSK-60,Payload section kit,in.,Payload section kit,general,12,,oz.,17.4
+Public Missiles,PML PSK-61,Payload section kit,in.,Payload section kit,general,16,,oz.,20.1
+Public Missiles,PML PSK-62,Payload section kit,in.,Payload section kit,general,24,,oz.,25.4
+Public Missiles,PML PSK-90,Payload section kit,in.,Payload section kit,general,12,,oz.,71.7
+Public Missiles,PML PSK-91,Payload section kit,in.,Payload section kit,general,16,,oz.,80.9
+Public Missiles,PML PSK-92,Payload section kit,in.,Payload section kit,general,24,,oz.,100
+Public Missiles,PML SC-.75,"3/4"" shock cord",in.,Elastic shock cord,Black,72,200 lb. elastic,oz.,1.2
+Public Missiles,PML SC-1.0,"1"" shock cord",in.,Elastic shock cord,White,72,260 lb. elastic,oz.,1.4
+Public Missiles,PML SC-1.5,"1.5"" shock cord",in.,Elastic shock cord,Black,72,400 lb. elastic,oz.,2.3
+Public Missiles,PML ST-1.0,"1"" nylon strap",in.,Nylon strap,Red,60,4000 lb. nylon,oz.,2
+Public Missiles,PML ST-1.0,"2"" nylon strap",in.,Nylon strap,Black,72,6000 lb. nylon,oz.,4.4
+Public Missiles,PML 38/29 ADPTR,Friction fit adapter,in.,Friction fit MMT adapter,,8,Kraft phenolic,oz.,2.3
+Public Missiles,PML 54/38 ADPTR,Friction fit adapter,in.,Friction fit MMT adapter,,9,Kraft phenolic,oz.,4.8
+Public Missiles,PML 54/29 ADPTR,Friction fit adapter,in.,Friction fit MMT adapter,,9,Kraft phenolic,oz.,4.5
+Public Missiles,PML FAM-CPR,CPR2000 fore altimeter mount,in.,CPR2000 component,,,Urethane,oz.,0.5
+Public Missiles,PML AAM-CPR,CPR2000 aft altimeter mount,in.,CPR2000 component,,,Urethane,oz.,0.3
+Public Missiles,PML LES-CPR,CPR2000 ejection canister mount,in.,CPR2000 component,,,Urethane,oz.,0.2
+Public Missiles,PML CPR-TS,CPR2000 threaded sleeve for coupler,in.,CPR2000 component,,,Urethane,oz.,0.2
+Public Missiles,PML 2.15-CPR-TAC,CPR2000 threaded airframe coupler,in.,CPR2000 component,,,Urethane,oz.,0.6
+Public Missiles,PML 2.56-CPR-TAC,CPR2000 threaded airframe coupler,in.,CPR2000 component,,,Urethane,oz.,0.8
+Public Missiles,PML 3.00-CPR-TAC,CPR2000 threaded airframe coupler,in.,CPR2000 component,,,Urethane,oz.,1
+Public Missiles,PML 3.90-CPR-TAC,CPR2000 threaded airframe coupler,in.,CPR2000 component,,,Urethane,oz.,1.7
+Public Missiles,PML PS-1.52,Fits PT-1.525,in.,Piston assy,,,,oz.,1.9
+Public Missiles,PML PS-2.15,Fits PT-2.152,in.,Piston assy,,,,oz.,2.9
+Public Missiles,PML PS-2.56,Fits PT-2.560,in.,Piston assy,,,,oz.,3
+Public Missiles,PML PS-3.00,Fits PT-3.002,in.,Piston assy,,,,oz.,3.3
+Public Missiles,PML PS-3.90,Fits PT-3.900,in.,Piston assy,,,,oz.,4.1
+Public Missiles,PML PS-6.00,Fits PT-6.007,in.,Piston assy,,,,oz.,8.1
+Public Missiles,PML PS-7.51,Fits PT-7.512,in.,Piston assy,,,,oz.,12
+Public Missiles,PML KL-01,small,,KwikLink,,,Steel,oz.,0.2
+Public Missiles,PML KL-02,large,,KwikLink,,,Steel,oz.,0.8
+Public Missiles,PML EB-01,1/8x24,,Eye Bolt,,,Steel,oz.,0.2
+Public Missiles,PML NT-01,1/8x24,,Nut,,,Steel,oz.,0.1
+Public Missiles,PML WA-01,For EB-01,,Washer,,,Steel,oz.,0.2
+Public Missiles,PML DR-10,1 inch,,D-ring,,,Nylon,oz.,0.1
+Public Missiles,PML ALTS-25,Altimeter,,Altimeter,,,,oz.,
+Public Missiles,PML CBA-1.52,Fits PT-1.525,in.,Coupler/bulkhead assy.,,3,,oz.,0.75
+Public Missiles,PML CBA-2.15,Fits PT-2.152,in.,Coupler/bulkhead assy.,,4,,oz.,1.5
+Public Missiles,PML CBA-2.56,Fits PT-2.560,in.,Coupler/bulkhead assy.,,5,,oz.,2
+Public Missiles,PML CBA-3.00,Fits PT-3.002,in.,Coupler/bulkhead assy.,,5,,oz.,2.4
+Public Missiles,PML CBA-3.90,Fits PT-3.900,in.,Coupler/bulkhead assy.,,7,,oz.,4
+Public Missiles,PML CBA-6.00,Fits PT-6.007,in.,Coupler/bulkhead assy.,,12,,oz.,9.4
+Public Missiles,PML CBA-7.51,Fits PT-7.512,in.,Coupler/bulkhead assy.,,12,,oz.,20.8
+Public Missiles,PML CBA-11.4,Fits PT-11.41,in.,Coupler/bulkhead assy.,,16,,oz.,43.7
+Public Missiles,PML PSK-01,Fits PT-1.525,in.,Payload section kit,,9,,oz.,2.4
+Public Missiles,PML PSK-02,Fits PT-1.525,in.,Payload section kit,,12,,oz.,2.9
+Public Missiles,PML PSK-03,Fits PT-1.525,in.,Payload section kit,,18,,oz.,3.9
+Public Missiles,PML PSK-05,Fits PT-2.152,in.,Payload section kit,,9,,oz.,3.6
+Public Missiles,PML PSK-06,Fits PT-2.152,in.,Payload section kit,,12,,oz.,4.3
+Public Missiles,PML PSK-07,Fits PT-2.152,in.,Payload section kit,,18,,oz.,5.8
+Public Missiles,PML PSK-10,Fits PT-2.560,in.,Payload section kit,,9,,oz.,4.6
+Public Missiles,PML PSK-11,Fits PT-2.560,in.,Payload section kit,,12,,oz.,5.4
+Public Missiles,PML PSK-12,Fits PT-2.560,in.,Payload section kit,,18,,oz.,7.1
+Public Missiles,PML PSK-20,Fits PT-3.002,in.,Payload section kit,,9,,oz.,5.3
+Public Missiles,PML PSK-21,Fits PT-3.002,in.,Payload section kit,,12,,oz.,6.3
+Public Missiles,PML PSK-22,Fits PT-3.002,in.,Payload section kit,,18,,oz.,8.4
+Public Missiles,PML PSK-30,Fits PT-3.900,in.,Payload section kit,,9,,oz.,7.8
+Public Missiles,PML PSK-31,Fits PT-3.900,in.,Payload section kit,,12,,oz.,9.1
+Public Missiles,PML PSK-32,Fits PT-3.900,in.,Payload section kit,,18,,oz.,11.7
+Public Missiles,PML PSK-40,Fits PT-7.512,in.,Payload section kit,,12,,oz.,33.3
+Public Missiles,PML PSK-41,Fits PT-7.512,in.,Payload section kit,,16,,oz.,37.4
+Public Missiles,PML PSK-42,Fits PT-7.512,in.,Payload section kit,,24,,oz.,45.8
+Public Missiles,PML PSK-60,Fits PT-6.007,in.,Payload section kit,,12,,oz.,17.4
+Public Missiles,PML PSK-61,Fits PT-6.007,in.,Payload section kit,,16,,oz.,20.1
+Public Missiles,PML PSK-62,Fits PT-6.007,in.,Payload section kit,,24,,oz.,25.4
+Public Missiles,PML PSK-90,Fits PT-11.41,in.,Payload section kit,,12,,oz.,71.7
+Public Missiles,PML PSK-91,Fits PT-11.41,in.,Payload section kit,,16,,oz.,80.9
+Public Missiles,PML PSK-92,Fits PT-11.41,in.,Payload section kit,,24,,oz.,100

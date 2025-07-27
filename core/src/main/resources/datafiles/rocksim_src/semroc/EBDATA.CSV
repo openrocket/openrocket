@@ -1,0 +1,12 @@
+Mfg.,Part No.,Desc.,Units,ID,OD,Length,Material,CG,Mass Units,Mass,AutoSize
+SEMROC Astronautics,TB-115,Thrust Block #115,in,1.000,1.140,0.250,Fiber,0.125,oz,0,0
+SEMROC Astronautics,TR-115,Thrust Ring #115,in,1.000,1.140,1.000,Fiber,0.500,oz,0,0
+SEMROC Astronautics,TB-5,Thrust Block #5,in,0.413,0.513,0.188,Fiber,0.094,oz,0,0
+SEMROC Astronautics,TR-5,Thrust Ring #5,in,0.413,0.513,0.375,Fiber,0.188,oz,0,0
+SEMROC Astronautics,TB-7,Thrust Block #7,in,0.575,0.713,0.188,Fiber,0.094,oz,0,0
+SEMROC Astronautics,TR-7,Thrust Ring #7,in,0.575,0.713,0.375,Fiber,0.188,oz,0,0
+SEMROC Astronautics,TR-9,Thrust Ring #9,in,0.761,0.948,0.250,Fiber,0.125,oz,0,0
+SEMROC Astronautics,TS-9,Thrust Spacer #9,in,0.865,0.948,1.000,Fiber,0.500,oz,0,0
+SEMROC Astronautics,EB-20A,Engine Block BT-20,in,0.517,0.708,0.250,Fiber,0.125,oz,0,0
+SEMROC Astronautics,EB-20B,Engine Block BT-20,in,0.517,0.708,0.125,Fiber,0.063,oz,0,0
+SEMROC Astronautics,EB-30,Engine Block BT-30,in,0.532,0.723,0.750,Fiber,0.375,oz,0,0
