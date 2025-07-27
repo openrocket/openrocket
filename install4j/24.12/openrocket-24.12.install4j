@@ -3,18 +3,18 @@
   <directoryPresets config="${compiler:JAR_FILE_LOCATION}" />
   <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="24.12" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
     <variables>
-      <variable name="ISSUER_ID" hidden="true" overrideMacos="true" valueMacos="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" />
-      <variable name="KEY_ID" hidden="true" overrideMacos="true" valueMacos="6CY43KJL23" />
-      <variable name="PRIVATE_API_KEY" hidden="true" overrideMacos="true" valueMacos="code_signing/AuthKey_6CY43KJL23.p8" />
+      <variable name="ISSUER_ID" value="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" hidden="true" />
+      <variable name="KEY_ID" value="6CY43KJL23" hidden="true" />
+      <variable name="PRIVATE_API_KEY" value="code_signing/AuthKey_6CY43KJL23.p8" hidden="true" />
       <variable name="JAR_FILE_LOCATION" value="../../build/libs/${compiler:JAR_NAME}" />
-      <variable name="JAR_NAME" value="OpenRocket.jar" />
+      <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}.jar" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="true" windowsPkcs12File="./code_signing/OpenRocket_Windows.pfx" macNotarize="true" macApiIssuer="${compiler:ISSUER_ID}" macApiKey="${compiler:KEY_ID}" macApiPrivateKey="${compiler:PRIVATE_API_KEY}">
       <macSearchedJars>
         <entry>jna-*</entry>
         <entry>swt-*</entry>
         <entry>javafx-*</entry>
-        <entry>OpenRocket.jar</entry>
+        <entry>OpenRocket-24.12.jar</entry>
       </macSearchedJars>
     </codeSigning>
     <jreBundles jdkProviderId="Liberica" release="17/latest">
