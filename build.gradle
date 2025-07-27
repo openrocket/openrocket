@@ -116,6 +116,7 @@ dependencies {
 }
 
 shadowJar {
+    dependsOn(':core:processResources')
     archiveBaseName.set('OpenRocket')
     archiveVersion.set(buildProperties['build.version'])
     archiveClassifier.set('')

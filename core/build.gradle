@@ -143,12 +143,10 @@ tasks.register('serializeEnginesValidate') {
 }
 
 tasks.register('copyReadmeMain', Copy) {
-    doLast {
-        from('../') {
-            include 'ReleaseNotes.md'
-        }
-        into './src/main/resources'
+    from('../') {
+        include 'ReleaseNotes.md'
     }
+    into './src/main/resources'
 }
 
 def externalComponentsPath = './src/main/resources/datafiles/components/database'
