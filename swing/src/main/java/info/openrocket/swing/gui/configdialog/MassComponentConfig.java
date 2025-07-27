@@ -142,7 +142,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 
 		//// Right side
 		JPanel panel2 = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
-		panel.add(panel2, "cell 4 0, gapleft 40lp, aligny 0%, spany");
+		panel.add(panel2, "cell 4 0, gapleft 20lp, aligny 0%, spany");
 
 		// Placement
 

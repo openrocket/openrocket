@@ -88,6 +88,10 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	private void loadSerializedMotorDatabase() {
 		log.info("Starting reading serialized motor database");
 		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY, new SimpleFileFilter("", false, "ser"));
+		if (iterator == null) {
+			log.error("Unable to read serialized motor database from " + THRUSTCURVE_DIRECTORY);
+			return;
+		}
 		while (iterator.hasNext()) {
 			Pair<File, InputStream> f = iterator.next();
 			loadSerialized(f);

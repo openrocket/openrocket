@@ -66,7 +66,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.LINE,
 				trans.get("ShockCordCfg.lbl.Shockcordmaterial"), null, "Material", order);
 		register(materialPanel);
-		panel.add(materialPanel, "spanx 4, wrap, gapright 40lp");
+		panel.add(materialPanel, "spanx 4, wrap, gapright 20lp");
 
 		/////  Right side
 		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
