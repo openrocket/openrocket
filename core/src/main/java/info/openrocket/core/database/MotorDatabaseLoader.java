@@ -70,6 +70,10 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		log.info("Starting reading user-defined motors");
 		for (File file : (Application.getPreferences()).getUserThrustCurveFiles()) {
 			if (file.isFile()) {
+				if (!fileFilter.accept(file)) {
+					log.warn("User-defined motor file " + file + " does not have a supported extension");
+					continue;
+				}
 				loadFile(loader, file);
 			} else if (file.isDirectory()) {
 				loadDirectory(loader, fileFilter, file);
