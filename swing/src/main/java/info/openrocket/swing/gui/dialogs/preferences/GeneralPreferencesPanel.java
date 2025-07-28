@@ -145,15 +145,11 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 						true, "zip"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				if (defaultDirectory != null) {
-					chooser.setCurrentDirectory(defaultDirectory);
-				}
 				
 				//// Add
 				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					log.info(Markers.USER_MARKER, "Adding user thrust curve: " + chooser.getSelectedFile());
-					defaultDirectory = chooser.getCurrentDirectory();
 					String text = field.getText().trim();
 					if (text.length() > 0) {
 						text += ";";
@@ -238,15 +234,11 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 						true, "orc"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				if (defaultDirectory != null) {
-					chooser.setCurrentDirectory(defaultDirectory);
-				}
 
 				//// Add
 				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					log.info(Markers.USER_MARKER, "Adding component preset file: " + chooser.getSelectedFile());
-					defaultDirectory = chooser.getCurrentDirectory();
 					String text = fieldCompPres.getText().trim();
 					if (text.length() > 0) {
 						text += ";";
