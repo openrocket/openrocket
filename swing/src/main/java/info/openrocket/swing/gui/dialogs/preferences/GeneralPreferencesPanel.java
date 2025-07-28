@@ -126,6 +126,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setAcceptAllFileFilterUsed(false);
 				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 				SimpleFileFilter filter =
 						new SimpleFileFilter(
@@ -226,6 +227,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+				chooser.setAcceptAllFileFilterUsed(false);
 				SimpleFileFilter filter =
 						new SimpleFileFilter(
 								trans.get("pref.dlg.AllComponentPresetfiles"),
