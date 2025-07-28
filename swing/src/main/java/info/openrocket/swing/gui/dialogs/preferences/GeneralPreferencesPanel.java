@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
@@ -125,6 +126,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 				SimpleFileFilter filter =
 						new SimpleFileFilter(
 								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
@@ -157,6 +159,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 					}
 					text += chooser.getSelectedFile().getAbsolutePath();
 					field.setText(text);
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 				}
 			}
 		});
@@ -222,6 +225,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 				SimpleFileFilter filter =
 						new SimpleFileFilter(
 								trans.get("pref.dlg.AllComponentPresetfiles"),
@@ -247,6 +251,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 					}
 					text += chooser.getSelectedFile().getAbsolutePath();
 					fieldCompPres.setText(text);
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 				}
 			}
 		});
