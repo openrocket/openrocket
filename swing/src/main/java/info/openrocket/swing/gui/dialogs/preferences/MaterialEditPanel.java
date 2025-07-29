@@ -25,6 +25,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.main.BasicFrame;
 import net.miginfocom.swing.MigLayout;
@@ -165,7 +166,7 @@ public class MaterialEditPanel extends JPanel {
 				Material mat = dialog.getMaterial();
 				mat.setDocumentMaterial(!dialog.isAddSelected());
 				addMaterial(mat);
-				model.fireTableDataChanged();
+				fireChange(model);
 				setButtonStates();
 			}
 		});
@@ -236,7 +237,7 @@ public class MaterialEditPanel extends JPanel {
 					addMaterial(mat);
 				}
 
-				model.fireTableDataChanged();
+				fireChange(model);
 				setButtonStates();
 			}
 		});
@@ -257,7 +258,7 @@ public class MaterialEditPanel extends JPanel {
 				if (!m.isUserDefined())
 					return;
 				removeMaterial(m, true);
-				model.fireTableDataChanged();
+				fireChange(model);
 				setButtonStates();
 			}
 		});
@@ -315,7 +316,7 @@ public class MaterialEditPanel extends JPanel {
 							iterator.remove();
 					}
 
-					model.fireTableDataChanged();
+					fireChange(model);
 					setButtonStates();
 				}
 			}
@@ -343,6 +344,11 @@ public class MaterialEditPanel extends JPanel {
 		this.add(new StyledLabel(trans.get("matedtpan.lbl.edtmaterials"), -2, Style.ITALIC), "span");
 		
 
+	}
+
+	private void fireChange(ColumnTableModel model) {
+		model.fireTableDataChanged();
+		document.getRocket().fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	private void addMaterial(Material m) {
