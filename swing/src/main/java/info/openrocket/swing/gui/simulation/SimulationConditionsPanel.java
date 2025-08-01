@@ -77,6 +77,7 @@ public class SimulationConditionsPanel extends JPanel {
 		String tip;
 		BasicSlider slider;
 		UnitSelector unit;
+		DoubleModel humidityModel;
 
 		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation, and direction
 		sub = new JPanel(new MigLayout("fill, ins 20 20 0 20", "[grow]", ""));
@@ -166,11 +167,38 @@ public class SimulationConditionsPanel extends JPanel {
 		sub.add(slider, "w 75lp, wrap");
 
 
+		// Humidity:
+		label = new JLabel(trans.get("simedtdlg.lbl.Humidity"));
+		////The humidity at the launch site.
+		tip = trans.get("simedtdlg.lbl.ttip.Humidity");
+		label.setToolTipText(tip);
+		isa.addEnableComponent(label, false);
+		sub.add(label);
+
+		humidityModel = new DoubleModel(target, "LaunchHumidity", UnitGroup.UNITS_NONE, 0);
+
+		spin = new JSpinner(humidityModel.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		isa.addEnableComponent(spin, false);
+		sub.add(spin, "growx");
+
+		unit = new UnitSelector(humidityModel);
+		unit.setToolTipText(tip);
+		isa.addEnableComponent(unit, false);
+		sub.add(unit, "growx");
+		slider = new BasicSlider(humidityModel.getSliderModel(0, 1));
+		slider.setToolTipText(tip);
+		isa.addEnableComponent(slider, false);
+		sub.add(slider, "w 75lp, wrap");
+
+
 		isa.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				temperatureModel.stateChanged(e);
 				pressureModel.stateChanged(e);
+				humidityModel.stateChanged(e);
 			}
 		});
 

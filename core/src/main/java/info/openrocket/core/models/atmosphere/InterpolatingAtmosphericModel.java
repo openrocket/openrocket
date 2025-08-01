@@ -62,7 +62,8 @@ public abstract class InterpolatingAtmosphericModel implements AtmosphericModel 
 
 		return new AtmosphericConditions(
 				interpolate(lower.getTemperature(), upper.getTemperature(), fraction),
-				interpolate(lower.getPressure(), upper.getPressure(), fraction)
+				interpolate(lower.getPressure(), upper.getPressure(), fraction),
+				interpolate(lower.getHumidity(), upper.getHumidity(), fraction)
 		);
 	}
 

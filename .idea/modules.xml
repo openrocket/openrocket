@@ -5,8 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/core/OpenRocket Core.iml" filepath="$PROJECT_DIR$/core/OpenRocket Core.iml" />
       <module fileurl="file://$PROJECT_DIR$/swing/OpenRocket Swing.iml" filepath="$PROJECT_DIR$/swing/OpenRocket Swing.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-test/OpenRocket Test Libraries.iml" filepath="$PROJECT_DIR$/lib-test/OpenRocket Test Libraries.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/info.openrocket.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/info.openrocket.core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/swing/info.openrocket.swing.iml" filepath="$PROJECT_DIR$/.idea/modules/swing/info.openrocket.swing.iml" />
     </modules>
   </component>
 </project>

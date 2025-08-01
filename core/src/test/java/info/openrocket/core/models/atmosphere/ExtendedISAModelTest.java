@@ -18,11 +18,11 @@ public class ExtendedISAModelTest {
 	@BeforeEach
 	void setUp() {
 		standardModel = new ExtendedISAModel();
-		customModel = new ExtendedISAModel(278.15, 100000.0); // Custom conditions
+		customModel = new ExtendedISAModel(278.15, 100000.0, 0); // Custom conditions
 		// Create model for a launch site at 1000m with specific conditions
-		altitudeModel = new ExtendedISAModel(1000.0, 281.15, 89876.0);
+		altitudeModel = new ExtendedISAModel(1000.0, 281.15, 89876.0, 0);
 		// Create model for a launch site at 2750m (between 2500m and 3000m layers)
-		interpolatedAltitudeModel = new ExtendedISAModel(2750.0, 271.15, 72500.0);
+		interpolatedAltitudeModel = new ExtendedISAModel(2750.0, 271.15, 72500.0, 0);
 	}
 
 	@Test
@@ -121,27 +121,27 @@ public class ExtendedISAModelTest {
 	void testEdgeCases() {
 		// Test negative altitude
 		assertDoesNotThrow(() ->
-				new ExtendedISAModel(-100.0, 288.15, 101325.0)
+				new ExtendedISAModel(-100.0, 288.15, 101325.0, 0.0)
 		);
 
 		// Test zero pressure
 		assertThrows(IllegalArgumentException.class, () ->
-				new ExtendedISAModel(1000.0, 288.15, 0.0)
+				new ExtendedISAModel(1000.0, 288.15, 0.0, 0.0)
 		);
 
 		// Test zero temperature
 		assertThrows(IllegalArgumentException.class, () ->
-				new ExtendedISAModel(1000.0, 0.0, 101325.0)
+				new ExtendedISAModel(1000.0, 0.0, 101325.0, 0.0)
 		);
 
 		// Test negative pressure
 		assertThrows(IllegalArgumentException.class, () ->
-				new ExtendedISAModel(1000.0, 288.15, -1000.0)
+				new ExtendedISAModel(1000.0, 288.15, -1000.0, 0.0)
 		);
 
 		// Test negative temperature
 		assertThrows(IllegalArgumentException.class, () ->
-				new ExtendedISAModel(1000.0, -273.15, 101325.0)
+				new ExtendedISAModel(1000.0, -273.15, 101325.0, 0.0)
 		);
 	}
 
@@ -149,7 +149,7 @@ public class ExtendedISAModelTest {
 	@DisplayName("Should throw exception for launch sites above 11km")
 	void testTooHighLaunchSite() {
 		assertThrows(IllegalArgumentException.class, () ->
-				new ExtendedISAModel(12000.0, 220.0, 25000.0)
+				new ExtendedISAModel(12000.0, 220.0, 25000.0, 0.0)
 		);
 	}
 
@@ -212,7 +212,7 @@ public class ExtendedISAModelTest {
 	})
 	@DisplayName("Should handle various launch site conditions correctly")
 	void testVariousLaunchSites(double altitude, double temperature, double pressure) {
-		ExtendedISAModel model = new ExtendedISAModel(altitude, temperature, pressure);
+		ExtendedISAModel model = new ExtendedISAModel(altitude, temperature, pressure, 0);
 		AtmosphericConditions conditions = model.getConditions(altitude);
 
 		assertEquals(temperature, conditions.getTemperature(), 0.01);
