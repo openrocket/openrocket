@@ -25,7 +25,6 @@ public abstract class PreferencesPanel extends JPanel {
 	
 	protected final List<DefaultUnitSelector> unitSelectors = new ArrayList<>();
 	
-	protected File defaultDirectory = null;
 	protected static final Translator trans = Application.getTranslator();
 	
 	protected final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();

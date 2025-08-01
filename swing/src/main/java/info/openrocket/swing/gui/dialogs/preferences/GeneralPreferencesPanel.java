@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
@@ -125,6 +126,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setAcceptAllFileFilterUsed(false);
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 				SimpleFileFilter filter =
 						new SimpleFileFilter(
 								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
@@ -142,21 +145,18 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 						true, "zip"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				if (defaultDirectory != null) {
-					chooser.setCurrentDirectory(defaultDirectory);
-				}
 				
 				//// Add
 				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					log.info(Markers.USER_MARKER, "Adding user thrust curve: " + chooser.getSelectedFile());
-					defaultDirectory = chooser.getCurrentDirectory();
 					String text = field.getText().trim();
 					if (text.length() > 0) {
 						text += ";";
 					}
 					text += chooser.getSelectedFile().getAbsolutePath();
 					field.setText(text);
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 				}
 			}
 		});
@@ -222,6 +222,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+				chooser.setAcceptAllFileFilterUsed(false);
 				SimpleFileFilter filter =
 						new SimpleFileFilter(
 								trans.get("pref.dlg.AllComponentPresetfiles"),
@@ -232,21 +234,18 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 						true, "orc"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-				if (defaultDirectory != null) {
-					chooser.setCurrentDirectory(defaultDirectory);
-				}
 
 				//// Add
 				int returnVal = chooser.showDialog(GeneralPreferencesPanel.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					log.info(Markers.USER_MARKER, "Adding component preset file: " + chooser.getSelectedFile());
-					defaultDirectory = chooser.getCurrentDirectory();
 					String text = fieldCompPres.getText().trim();
 					if (text.length() > 0) {
 						text += ";";
 					}
 					text += chooser.getSelectedFile().getAbsolutePath();
 					fieldCompPres.setText(text);
+					((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 				}
 			}
 		});

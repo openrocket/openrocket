@@ -67,7 +67,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 		SimpleFileFilter orcFilter = new SimpleFileFilter("", false, "orc");
 		int initialCount = presetCount;
 		for (File file : (Application.getPreferences()).getUserComponentPresetFiles()) {
-			if (file.isFile()) {
+			if (file.isFile() && orcFilter.accept(file)) {
 				try {
 					InputStream stream = new FileInputStream(file);
 					loadFile(file.getName(), stream);
