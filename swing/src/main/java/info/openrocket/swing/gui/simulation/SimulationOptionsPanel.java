@@ -36,6 +36,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
+import info.openrocket.core.util.RKStepperChoice;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -116,10 +117,26 @@ class SimulationOptionsPanel extends JPanel {
 		label = new JLabel(trans.get("simedtdlg.lbl.Simmethod"));
 		label.setToolTipText(tip);
 		subsub.add(label, "gapright para");
-		
-		label = new JLabel("6-DOF Runge-Kutta 4");
+
+
+		EnumModel<RKStepperChoice> rkchoice = new EnumModel<>(
+				conditions, "RKStepperChoice");
+		final JComboBox<RKStepperChoice> rkchoiceCombo = new JComboBox<>(rkchoice);
+		ActionListener rkchoiceComboTTipListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				RKStepperChoice rkchoiceSelected = (RKStepperChoice) rkchoiceCombo
+						.getSelectedItem();
+				rkchoiceCombo.setToolTipText(rkchoiceSelected.getDescription());
+			}
+		};
+		rkchoiceCombo.addActionListener(rkchoiceComboTTipListener);
+		rkchoiceComboTTipListener.actionPerformed(null);
+		subsub.add(rkchoiceCombo, "span 3, wrap para");
+
+		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, span 3, wrap");
+		subsub.add(label, "growx, span 3, wrap");*/
 		
 		// // Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));

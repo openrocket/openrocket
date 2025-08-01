@@ -6,6 +6,7 @@ import java.util.Deque;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
+import info.openrocket.core.util.RKStepperChoice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private final SimulationStepper flightStepper = new RK4SimulationStepper();
+	private       SimulationStepper flightStepper = new RK4SimulationStepper(); // cannot be final, since it is a choice.
 	private final SimulationStepper landingStepper = new BasicLandingStepper();
 	private final SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	private final SimulationStepper groundStepper = new GroundStepper();
@@ -62,6 +63,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Set up flight data
 		flightData = new FlightData();
+
+		// Choose which Runge Kutta Method to use according to the options.
+		RKStepperChoice RK_choice = simulationConditions.getSimulation().getOptions().getRKStepperChoice();
+		flightStepper = RK_choice.equals(RKStepperChoice.RK4) ? new RK4SimulationStepper() : new RK6SimulationStepper();
 			
 		try {
 			// Set up rocket configuration
