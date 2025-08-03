@@ -7,7 +7,6 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
-import info.openrocket.core.util.RKStepperChoice;
 import info.openrocket.core.util.TestRockets;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,7 +70,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.getActiveConfiguration()._setStageActive(0, false);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
-        simDisabled.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         simDisabled.simulate(); // the part that would use RK6.
 
@@ -87,7 +86,7 @@ public class DisableStageTest extends BaseTestCase {
         simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_0);
         simOriginal.getOptions().setISAAtmosphere(true);
         simOriginal.getOptions().setTimeStep(0.05);
-        simOriginal.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simOriginal.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         simDisabled.getActiveConfiguration().setAllStages(); // Re-enable all stages.
 
@@ -150,13 +149,13 @@ public class DisableStageTest extends BaseTestCase {
         simRemoved.setFlightConfigurationId(TestRockets.TEST_FCID_1);
         simRemoved.getOptions().setISAAtmosphere(true);
         simRemoved.getOptions().setTimeStep(0.05);
-        simRemoved.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simRemoved.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         Simulation simDisabled = new Simulation(rocketDisabled);
         simDisabled.setFlightConfigurationId(TestRockets.TEST_FCID_1);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
-        simDisabled.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         compareSims(simRemoved, simDisabled);
 
@@ -166,10 +165,10 @@ public class DisableStageTest extends BaseTestCase {
         simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_1);
         simOriginal.getOptions().setISAAtmosphere(true);
         simOriginal.getOptions().setTimeStep(0.05);
-        simOriginal.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simOriginal.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         simDisabled.getActiveConfiguration().setAllStages();
-        simDisabled.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         compareSims(simOriginal, simDisabled);
     }
@@ -353,7 +352,7 @@ public class DisableStageTest extends BaseTestCase {
         simRemoved.setFlightConfigurationId(fid);
         simRemoved.getOptions().setISAAtmosphere(true);
         simRemoved.getOptions().setTimeStep(0.05);
-        simRemoved.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simRemoved.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         try {
             simRemoved.simulate();
@@ -370,7 +369,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.setFlightConfigurationId(fid);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
-        simDisabled.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         //// Test re-enabling the stage.
         Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
@@ -380,7 +379,7 @@ public class DisableStageTest extends BaseTestCase {
         simOriginal.setFlightConfigurationId(fid);
         simOriginal.getOptions().setISAAtmosphere(true);
         simOriginal.getOptions().setTimeStep(0.05);
-        simOriginal.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simOriginal.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         simDisabled.getActiveConfiguration().setAllStages();
 
@@ -430,7 +429,7 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.setFlightConfigurationId(fid);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
-        simDisabled.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         //// Test only enabling the booster stage (test for GitHub issue #1848)
         simDisabled.getActiveConfiguration().setOnlyStage(2);

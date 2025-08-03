@@ -89,7 +89,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         status.storeData();
 
-        ////////  Perform RK4 integration:  ////////
+        ////////  Perform RK6 integration:  ////////
 
         SimulationStatus status2;
         RK6Parameters k1, k2, k3, k4, k5, k6, k7;
@@ -161,7 +161,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
          *  dt[7]:  1.50 times the previous time step
          *
          * The limits #5 and #6 are required since near the steady-state roll rate the roll rate
-         * may oscillate significantly even between the sub-steps of the RK4 integration.
+         * may oscillate significantly even between the sub-steps of the RK6 integration.
          *
          * The step is still at least 1/20th of the user-selected time step.
          */

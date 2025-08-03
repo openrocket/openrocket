@@ -16,7 +16,6 @@ import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.WorldCoordinate;
-import info.openrocket.core.util.RKStepperChoice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +85,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private PinkNoiseWindModel averageWindModel;
 	private MultiLevelPinkNoiseWindModel multiLevelPinkNoiseWindModel;
 
-	private RKStepperChoice RKChoice = RKStepperChoice.RK4;
+	private SimulationStepperMethod stepperMethodChoice = SimulationStepperMethod.RK4;
 
 	public SimulationOptions() {
 		averageWindModel = new PinkNoiseWindModel(randomSeed);
@@ -285,16 +284,16 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	}
 
 
-	public RKStepperChoice getRKStepperChoice() {
-		return this.RKChoice;
+	public SimulationStepperMethod getSimulationStepperMethodChoice() {
+		return this.stepperMethodChoice;
 	}
 
-	public void setRKStepperChoice(RKStepperChoice choice) {
+	public void setSimulationStepperMethodChoice(SimulationStepperMethod choice) {
 		if (choice == null) {
 			throw new IllegalArgumentException("choice cannot be null");
 		}
-		preferences.setRKStepperChoice(choice);
-		this.RKChoice = choice;
+		preferences.setSimulationStepperMethodChoice(choice);
+		this.stepperMethodChoice = choice;
 		fireChangeEvent();
 	}
 

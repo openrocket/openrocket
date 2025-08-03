@@ -39,7 +39,7 @@ import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.RKStepperChoice;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
 	private static final String SPLIT_CHARACTER = "|";
@@ -146,7 +146,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
-	public static final String RK_CHOICE = "RKStepperChoice";
+	public static final String SIMULATION_STEPPER_METHOD = "SimulationStepperMethod";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -584,11 +584,11 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putEnum(GEODETIC_COMPUTATION, gcs);
 	}
 
-	public RKStepperChoice getRKStepperChoice() {
-		return this.getEnum(RK_CHOICE, RKStepperChoice.RK4);
+	public SimulationStepperMethod getSimulationStepperMethodChoice() {
+		return this.getEnum(SIMULATION_STEPPER_METHOD, SimulationStepperMethod.RK4);
 	}
-	public void setRKStepperChoice(RKStepperChoice choice) {
-		this.putEnum(RK_CHOICE, choice);
+	public void setSimulationStepperMethodChoice(SimulationStepperMethod choice) {
+		this.putEnum(SIMULATION_STEPPER_METHOD, choice);
 	}
 
 

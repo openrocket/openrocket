@@ -67,7 +67,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
 
-import info.openrocket.core.util.RKStepperChoice;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
 import info.openrocket.swing.gui.simulation.SimulationConfigDialog;
@@ -1459,7 +1459,7 @@ public class SimulationPanel extends JPanel {
 
 					//// Simulation RK Solver
 					// TODO: add translation
-					new Column("RK Method") {
+					new Column("Sim. Stepper") {
 						@Override
 						public Object getValueAt(int row) {
 							if (row < 0 || row >= document.getSimulationCount()) {
@@ -1467,8 +1467,8 @@ public class SimulationPanel extends JPanel {
 							}
 
 							Rocket rkt = document.getRocket();
-							RKStepperChoice rk_choice = document.getSimulation(row).getOptions().getRKStepperChoice();
-							return rk_choice.getShortName();
+							SimulationStepperMethod simStepMethod = document.getSimulation(row).getOptions().getSimulationStepperMethodChoice();
+							return simStepMethod.getShortName();
 						}
 					},
 

@@ -12,7 +12,7 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.util.GeodeticComputationStrategy;
-import info.openrocket.core.util.RKStepperChoice;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
@@ -141,10 +141,10 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 				}
 			}
 			case "simulationsteppermethod" -> {
-				RKStepperChoice rkchce = (RKStepperChoice) DocumentConfig.findEnum(content,
-						RKStepperChoice.class);
+				SimulationStepperMethod rkchce = (SimulationStepperMethod) DocumentConfig.findEnum(content,
+						SimulationStepperMethod.class);
 				if (rkchce != null) {
-					options.setRKStepperChoice(rkchce);
+					options.setSimulationStepperMethodChoice(rkchce);
 				} else {
 					warnings.add("Unknown Simulation Stepper '" + content + "'");
 				}

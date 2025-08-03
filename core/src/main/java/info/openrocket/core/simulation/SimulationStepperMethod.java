@@ -1,14 +1,9 @@
-package info.openrocket.core.util;
-
-import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.startup.Application;
-
-import java.util.Locale;
+package info.openrocket.core.simulation;
 
 /**
  * Which RK stepper to use: 4, or 6.
  */
-public enum RKStepperChoice {
+public enum SimulationStepperMethod {
 
 	/**
 	 * Perform computations using an RK4 stepper.

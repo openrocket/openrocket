@@ -36,7 +36,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
-import info.openrocket.core.util.RKStepperChoice;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -119,20 +119,20 @@ class SimulationOptionsPanel extends JPanel {
 		subsub.add(label, "gapright para");
 
 
-		EnumModel<RKStepperChoice> rkchoice = new EnumModel<>(
-				conditions, "RKStepperChoice");
-		final JComboBox<RKStepperChoice> rkchoiceCombo = new JComboBox<>(rkchoice);
-		ActionListener rkchoiceComboTTipListener = new ActionListener() {
+		EnumModel<SimulationStepperMethod> simulationStepperMethodChoice = new EnumModel<>(
+				conditions, "SimulationStepperMethodChoice");
+		final JComboBox<SimulationStepperMethod> SimulationStepperMethodChoiceCombo = new JComboBox<>(simulationStepperMethodChoice);
+		ActionListener SimulationStepperMethodChoiceComboTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				RKStepperChoice rkchoiceSelected = (RKStepperChoice) rkchoiceCombo
+				SimulationStepperMethod SimulationStepperMethodChoiceSelected = (SimulationStepperMethod) SimulationStepperMethodChoiceCombo
 						.getSelectedItem();
-				rkchoiceCombo.setToolTipText(rkchoiceSelected.getDescription());
+				SimulationStepperMethodChoiceCombo.setToolTipText(SimulationStepperMethodChoiceSelected.getDescription());
 			}
 		};
-		rkchoiceCombo.addActionListener(rkchoiceComboTTipListener);
-		rkchoiceComboTTipListener.actionPerformed(null);
-		subsub.add(rkchoiceCombo, "span 3, wrap para");
+		SimulationStepperMethodChoiceCombo.addActionListener(SimulationStepperMethodChoiceComboTTipListener);
+		SimulationStepperMethodChoiceComboTTipListener.actionPerformed(null);
+		subsub.add(SimulationStepperMethodChoiceCombo, "span 3, wrap para");
 
 		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);

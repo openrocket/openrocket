@@ -12,7 +12,7 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
-import info.openrocket.core.util.RKStepperChoice;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.logging.SimulationAbort;
 
@@ -98,7 +98,7 @@ public class SimulationTest extends BaseTestCase {
 		// Create configuration without motors
 		FlightConfiguration config = rocket.getFlightConfiguration(TestRockets.TEST_FCID_0);
 		config.clearAllMotors();
-		simulation.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
 		simulation.simulate();
 
@@ -123,7 +123,7 @@ public class SimulationTest extends BaseTestCase {
 	}
 	@Test
 	public void testBasicSimulationExecution_RK6() throws SimulationException {
-		simulation.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 		simulation.simulate();
 
 		FlightData data = simulation.getSimulatedData();
@@ -200,7 +200,7 @@ public class SimulationTest extends BaseTestCase {
 	public void testAltitudeAboveSeaLevel_RK6() throws SimulationException {
 		double launchAltitude = 123;
 		simulation.getOptions().setLaunchAltitude(launchAltitude);
-		simulation.getOptions().setRKStepperChoice(RKStepperChoice.RK6);
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 		simulation.simulate();
 
 		FlightData flightData =  simulation.getSimulatedData();
