@@ -36,6 +36,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -116,10 +117,26 @@ class SimulationOptionsPanel extends JPanel {
 		label = new JLabel(trans.get("simedtdlg.lbl.Simmethod"));
 		label.setToolTipText(tip);
 		subsub.add(label, "gapright para");
-		
-		label = new JLabel("6-DOF Runge-Kutta 4");
+
+
+		EnumModel<SimulationStepperMethod> simulationStepperMethodChoice = new EnumModel<>(
+				conditions, "SimulationStepperMethodChoice");
+		final JComboBox<SimulationStepperMethod> SimulationStepperMethodChoiceCombo = new JComboBox<>(simulationStepperMethodChoice);
+		ActionListener SimulationStepperMethodChoiceComboTTipListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationStepperMethod SimulationStepperMethodChoiceSelected = (SimulationStepperMethod) SimulationStepperMethodChoiceCombo
+						.getSelectedItem();
+				SimulationStepperMethodChoiceCombo.setToolTipText(SimulationStepperMethodChoiceSelected.getDescription());
+			}
+		};
+		SimulationStepperMethodChoiceCombo.addActionListener(SimulationStepperMethodChoiceComboTTipListener);
+		SimulationStepperMethodChoiceComboTTipListener.actionPerformed(null);
+		subsub.add(SimulationStepperMethodChoiceCombo, "span 3, wrap para");
+
+		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, span 3, wrap");
+		subsub.add(label, "growx, span 3, wrap");*/
 		
 		// // Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));

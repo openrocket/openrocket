@@ -67,6 +67,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
 
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
 import info.openrocket.swing.gui.simulation.SimulationConfigDialog;
@@ -1453,6 +1454,19 @@ public class SimulationPanel extends JPanel {
 						@Override
 						public int getDefaultWidth() {
 							return 125;
+						}
+					},
+
+					//// Simulation RK Solver
+					new Column(trans.get("simpanel.col.SimStepper"), trans.get("simpanel.col.SimStepper.ttip")) {
+						@Override
+						public Object getValueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount()) {
+								return null;
+							}
+
+							SimulationStepperMethod simStepMethod = document.getSimulation(row).getOptions().getSimulationStepperMethodChoice();
+							return simStepMethod.getShortName();
 						}
 					},
 

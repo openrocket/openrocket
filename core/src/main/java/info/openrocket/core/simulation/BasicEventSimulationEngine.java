@@ -37,7 +37,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private final SimulationStepper flightStepper = new RK4SimulationStepper();
+	private       SimulationStepper flightStepper = new RK4SimulationStepper();
 	private final SimulationStepper landingStepper = new BasicLandingStepper();
 	private final SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	private final SimulationStepper groundStepper = new GroundStepper();
@@ -62,7 +62,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Set up flight data
 		flightData = new FlightData();
-			
+
+		// Choose which Runge Kutta Method to use according to the options.
+		SimulationStepperMethod stepperMethod = simulationConditions.getSimulation().getOptions().getSimulationStepperMethodChoice();
+		switch (stepperMethod) {
+			case RK4 -> flightStepper = new RK4SimulationStepper();
+			case RK6 -> flightStepper = new RK6SimulationStepper();
+			default -> throw new SimulationException("Unsupported simulation stepper method: " + stepperMethod);
+		}
+
 		try {
 			// Set up rocket configuration
 			this.fcid = simulationConditions.getFlightConfigurationID();

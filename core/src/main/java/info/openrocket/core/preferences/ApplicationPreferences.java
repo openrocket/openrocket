@@ -39,6 +39,7 @@ import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
 	private static final String SPLIT_CHARACTER = "|";
@@ -145,6 +146,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
 	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
+	public static final String SIMULATION_STEPPER_METHOD = "SimulationStepperMethod";
 
 	public static final String UI_THEME = "UITheme";
 
@@ -581,6 +583,14 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public void setGeodeticComputation(GeodeticComputationStrategy gcs) {
 		this.putEnum(GEODETIC_COMPUTATION, gcs);
 	}
+
+	public SimulationStepperMethod getSimulationStepperMethodChoice() {
+		return this.getEnum(SIMULATION_STEPPER_METHOD, SimulationStepperMethod.RK4);
+	}
+	public void setSimulationStepperMethodChoice(SimulationStepperMethod choice) {
+		this.putEnum(SIMULATION_STEPPER_METHOD, choice);
+	}
+
 
 	public double getTimeStep() {
 		return this.getDouble(ApplicationPreferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
