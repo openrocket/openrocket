@@ -141,10 +141,10 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 				}
 			}
 			case "simulationsteppermethod" -> {
-				SimulationStepperMethod rkchce = (SimulationStepperMethod) DocumentConfig.findEnum(content,
+				SimulationStepperMethod stepperMethod = (SimulationStepperMethod) DocumentConfig.findEnum(content,
 						SimulationStepperMethod.class);
-				if (rkchce != null) {
-					options.setSimulationStepperMethodChoice(rkchce);
+				if (stepperMethod != null) {
+					options.setSimulationStepperMethodChoice(stepperMethod);
 				} else {
 					warnings.add("Unknown Simulation Stepper '" + content + "'");
 				}

@@ -1,7 +1,10 @@
 package info.openrocket.core.simulation;
 
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
+
 /**
- * Which RK stepper to use: 4, or 6.
+ * Which simulation stepper to use.
  */
 public enum SimulationStepperMethod {
 
@@ -11,15 +14,17 @@ public enum SimulationStepperMethod {
 	RK4 {
 		@Override
 		public String getName() {
-			return "6-DOF Runge-Kutta 4";
+			return trans.get("SimulationStepperMethod.RK4.name");
 		}
+
 		@Override
 		public String getShortName() {
-			return "RK4";
+			return trans.get("SimulationStepperMethod.RK4.shortName");
 		}
+
 		@Override
 		public String getDescription() {
-			return getName();
+			return trans.get("SimulationStepperMethod.RK4.desc");
 		}
 	},
 
@@ -29,27 +34,24 @@ public enum SimulationStepperMethod {
 	RK6 {
 		@Override
 		public String getName() {
-			return "6-DOF Runge-Kutta 6";
+			return trans.get("SimulationStepperMethod.RK6.name");
 		}
 
 		@Override
 		public String getShortName() {
-			return "RK6";
+			return trans.get("SimulationStepperMethod.RK6.shortName");
 		}
 
 		@Override
 		public String getDescription() {
-			return "6-DOF Runge-Kutta 6: Slower than RK4, but more accurate for some cases.";
+			return trans.get("SimulationStepperMethod.RK6.desc");
 		}
 	};
 
-
-	// TODO: use translator.
-	//private static final Translator trans = Application.getTranslator();
+	private static final Translator trans = Application.getTranslator();
 
 	/**
-	 * Return the name of this geodetic computation method.
-	 * TODO: use translator.
+	 * Return the name of this simulation stepper method.
 	 */
 	public abstract String getName();
 
@@ -62,8 +64,7 @@ public enum SimulationStepperMethod {
 	public abstract String getShortName();
 
 	/**
-	 * Return a description of the geodetic computation methods.
-	 * TODO: use translator.
+	 * Return a description of the simulation stepper method.
 	 */
 	public abstract String getDescription();
 

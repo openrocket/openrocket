@@ -1458,15 +1458,13 @@ public class SimulationPanel extends JPanel {
 					},
 
 					//// Simulation RK Solver
-					// TODO: add translation
-					new Column("Sim. Stepper") {
+					new Column(trans.get("simpanel.col.SimStepper"), trans.get("simpanel.col.SimStepper.ttip")) {
 						@Override
 						public Object getValueAt(int row) {
 							if (row < 0 || row >= document.getSimulationCount()) {
 								return null;
 							}
 
-							Rocket rkt = document.getRocket();
 							SimulationStepperMethod simStepMethod = document.getSimulation(row).getOptions().getSimulationStepperMethodChoice();
 							return simStepMethod.getShortName();
 						}
