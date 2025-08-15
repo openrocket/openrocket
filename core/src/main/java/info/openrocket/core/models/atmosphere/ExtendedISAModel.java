@@ -232,6 +232,8 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	 * Calculate the relative humidity at any altitude.
 	 * Assumes relative humidity drops at a rate of 0,06/km
 	 * Assumes there is no more humidity after 16,5 km
+     * https://www.researchgate.net/publication/313086856_An_Analysis_of_Altitude_Wind_and_Humidity_based_on_Long-term_Radiosonde_Data
+	 * https://www.researchgate.net/publication/347618263_Urban_Heat_Island_Monitoring_with_Global_Navigation_Satellite_System_GNSS_Data
 	 */
 	private double calculateHumidity(double alt1, double alt2, double humidity1) {
 		if (alt2 > 16500) {
