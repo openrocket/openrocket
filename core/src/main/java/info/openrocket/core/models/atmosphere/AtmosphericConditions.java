@@ -109,7 +109,8 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	 * @return The saturation vapor pressure in Pa
 	 */
 	public double vaporPressureSaturation() {
-		return 611.3 * Math.exp(5423 * (1/273.15 - 1/getTemperature()));
+		// 611.3 * Math.exp(5423 * (1/273.15 - 1/getTemperature()));
+		return 611.3 * Math.exp(19.854 - 5423/getTemperature());
 	}
 
 	/**
@@ -120,13 +121,18 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
      * - RH is the relative humidity
      *
      * @return The gas constant of air in J/kg*K
+	 * @return R if humidity is 0
 	 */
     public double getGasConstant() {
-		double numerator = EPSILON * getHumidity() * vaporPressureSaturation();
-		double denominator = getPressure() - getHumidity() * vaporPressureSaturation() * (1 - EPSILON);
-		double scalingFactor = (1/EPSILON - 1);
-
-		return R * (1 + numerator*scalingFactor/denominator);
+		if (getHumidity() != 0) {
+			double numerator = EPSILON * getHumidity() * vaporPressureSaturation();
+			double denominator = getPressure() - getHumidity() * vaporPressureSaturation() * (1 - EPSILON);
+			double scalingFactor = (1/EPSILON - 1);
+		
+			return R * (1 + numerator*scalingFactor/denominator);
+		} else {
+			return R;
+		}
     }
 	/**
 	 * Calculate the current density of air using the ideal gas law for dry air.
