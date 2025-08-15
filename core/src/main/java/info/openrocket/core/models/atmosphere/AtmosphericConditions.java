@@ -5,8 +5,6 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.ModID;
 
-import java.security.PublicKey;
-
 /**
  * Represents atmospheric conditions at a specific point, containing fundamental
  * properties (temperature and pressure) and methods to calculate derived properties.
