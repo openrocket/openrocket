@@ -128,11 +128,13 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 			double numerator = EPSILON * getHumidity() * vaporPressureSaturation();
 			double denominator = getPressure() - getHumidity() * vaporPressureSaturation() * (1 - EPSILON);
 			double scalingFactor = (1/EPSILON - 1);
-		
+
 			return R * (1 + numerator*scalingFactor/denominator);
 		} else {
 			return R;
 		}
+
+
     }
 	/**
 	 * Calculate the current density of air using the ideal gas law for dry air.

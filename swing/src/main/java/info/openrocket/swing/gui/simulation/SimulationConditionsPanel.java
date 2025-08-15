@@ -175,7 +175,7 @@ public class SimulationConditionsPanel extends JPanel {
 		isa.addEnableComponent(label, false);
 		sub.add(label);
 
-		humidityModel = new DoubleModel(target, "LaunchHumidity", UnitGroup.UNITS_NONE, 0);
+		humidityModel = new DoubleModel(target, "LaunchHumidity", UnitGroup.UNITS_RELATIVE, 0);
 
 		spin = new JSpinner(humidityModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
