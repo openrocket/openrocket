@@ -10,6 +10,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 
 [![snap release](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
 ![Chocolatey release](https://img.shields.io/chocolatey/v/openrocket)
+[![Crowdin](https://badges.crowdin.net/openrocket/localized.svg)](https://crowdin.com/project/openrocket)
 [![Join our Discord server!](https://img.shields.io/discord/1073297014814691328?logo=discord)](https://discord.gg/qD2G5v2FAw)
 
 --------
