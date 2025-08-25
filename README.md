@@ -84,7 +84,7 @@ Dive into the essentials: adjust component dimensions, plot a simulation, swap o
 | [SpaceTeam/ORLEG](https://github.com/SpaceTeam/ORLEG)                | Engine modeling (Python) | Liquid-engine generator for OpenRocket |
 | [WPI-HPRC/ORBrake](https://github.com/WPI-HPRC/ORBrake) *(archived)* | Plugin (Java)            | Active drag control (air-brakes)       |
 
-## Wind & Atmospheric Data
+### Wind & Atmospheric Data
 | Project                                    | Type                     | Description                                                                          |
 |--------------------------------------------|--------------------------|--------------------------------------------------------------------------------------|
 | [ORWind](https://gpsdriftcast.com/orwind/) | Atmospheric data utility | Fetches/imports multi-level wind data for OpenRocket                                 |
