@@ -60,6 +60,51 @@ The easiest way to get familiar with OpenRocket is to open one of our in-program
 
 Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, ... Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
+---
+
+## 📐 OpenRocket-related Projects & Tools
+*Note: If you have an OpenRocket-related project you would like included in the list, you can file a new issue for it.*
+
+### Core Projects
+| Project                                                                               | Type             | Description                                                    |
+|---------------------------------------------------------------------------------------|------------------|----------------------------------------------------------------|
+| [openrocket/openrocket](https://github.com/openrocket/openrocket)                     | Core project     | Main simulator (Java)                                          |
+| [openrocket/openrocket.github.io](https://github.com/openrocket/openrocket.github.io) | Website source   | Website content (Jekyll)                                       |
+| [openrocket/openrocket-database](https://github.com/openrocket/openrocket-database)   | Data enhancement | Expanded parts catalog (originally [dbcook/openrocket-database](https://github.com/dbcook/openrocket-database)) |
+
+### Integration & Scripting
+| Project                                                                                 | Type                       | Description                                                                         |
+|-----------------------------------------------------------------------------------------|----------------------------|-------------------------------------------------------------------------------------|
+| [openrocket/orhelper](https://github.com/openrocket/orhelper)                           | Integration (Python)       | Python scripting/module for OpenRocket (via JPype) (forked from [SilentSys/orhelper](https://github.com/SilentSys/orhelper)) |
+| [RocketPy-Team/RocketSerializer](https://github.com/RocketPy-Team/RocketSerializer)     | Integration (Python)       | Convert `.ork` files to RocketPy-compatible formats                                 |
+| [SpaceTeam/ortools](https://github.com/SpaceTeam/ortools)                               | Integration Tools (Python) | Scripts like 6DOF landing scatter visualization                                     |
+| [schrum2/OpenRocketQD](https://github.com/schrum2/OpenRocketQD)                         | Optimization tool (Python) | Quality Diversity optimization for rocket designs                                   |
+| [waterloo-rocketry/or-monte-carlo](https://github.com/waterloo-rocketry/or-monte-carlo) | Simulation tool (Java)     | Monte Carlo simulation wrapper for OpenRocket                                       |
+
+### Engine & Aerodynamics Extensions
+| Project                                                              | Type                     | Description                            |
+|----------------------------------------------------------------------|--------------------------|----------------------------------------|
+| [SpaceTeam/ORLEG](https://github.com/SpaceTeam/ORLEG)                | Engine modeling (Python) | Liquid-engine generator for OpenRocket |
+| [WPI-HPRC/ORBrake](https://github.com/WPI-HPRC/ORBrake) *(archived)* | Plugin (Java)            | Active drag control (air-brakes)       |
+
+### Wind & Atmospheric Data
+| Project                                    | Type                     | Description                                                                          |
+|--------------------------------------------|--------------------------|--------------------------------------------------------------------------------------|
+| [ORWind](https://gpsdriftcast.com/orwind/) | Atmospheric data utility | Fetches/imports multi-level wind data for OpenRocket                                 |
+| [Aloft](https://aloft.onrender.com/)       | Weather data utility     | Retrieves weather/atmospheric profiles (winds, temp, pressure) for flight simulation |
+
+### Design & CAD Integration
+| Project                                                               | Type          | Description                                                                   |
+|-----------------------------------------------------------------------|---------------|-------------------------------------------------------------------------------|
+| [FreeCAD Rocket Workbench](https://github.com/davesrocketshop/Rocket) | CAD workbench | A rocket design workbench for FreeCAD that can import OpenRocket `.ork` files |
+
+### Example Designs / Showcase
+| Project                                                                           | Type            | Description             |
+|-----------------------------------------------------------------------------------|-----------------|-------------------------|
+| [TrinetraOne-OpenRocket](https://github.com/ChinmayBhattt/TrinetraOne-OpenRocket) | Example designs | Showcase rocket project |
+
+---
+
 ## 💪 Contribute
 
 Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](https://openrocket.info/contribute.html) and the [practicalities of contributing](CONTRIBUTING.md).
