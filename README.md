@@ -60,7 +60,9 @@ The easiest way to get familiar with OpenRocket is to open one of our in-program
 
 Dive into the essentials: adjust component dimensions, plot a simulation, swap out motors, ... Explore the impact of your changes and, most importantly, enjoy the process! 😊
 
-## 📐 OpenRocket – Related Projects & Tools
+---
+
+## 📐 OpenRocket-related Projects & Tools
 *Note: If you have an OpenRocket-related project you would like included in the list, you can file a new issue for it.*
 
 ### Core Projects
@@ -68,12 +70,12 @@ Dive into the essentials: adjust component dimensions, plot a simulation, swap o
 |---------------------------------------------------------------------------------------|------------------|----------------------------------------------------------------|
 | [openrocket/openrocket](https://github.com/openrocket/openrocket)                     | Core project     | Main simulator (Java)                                          |
 | [openrocket/openrocket.github.io](https://github.com/openrocket/openrocket.github.io) | Website source   | Website content (Jekyll)                                       |
-| [openrocket/openrocket-database](https://github.com/openrocket/openrocket-database)   | Data enhancement | Expanded parts catalog (originally dbcook/openrocket-database) |
+| [openrocket/openrocket-database](https://github.com/openrocket/openrocket-database)   | Data enhancement | Expanded parts catalog (originally [dbcook/openrocket-database](https://github.com/dbcook/openrocket-database)) |
 
 ### Integration & Scripting
 | Project                                                                                 | Type                       | Description                                                                         |
 |-----------------------------------------------------------------------------------------|----------------------------|-------------------------------------------------------------------------------------|
-| [openrocket/orhelper](https://github.com/openrocket/orhelper)                           | Integration (Python)       | Python scripting/module for OpenRocket (via JPype) (forked from SilentSys/orhelper) |
+| [openrocket/orhelper](https://github.com/openrocket/orhelper)                           | Integration (Python)       | Python scripting/module for OpenRocket (via JPype) (forked from [SilentSys/orhelper](https://github.com/SilentSys/orhelper)) |
 | [RocketPy-Team/RocketSerializer](https://github.com/RocketPy-Team/RocketSerializer)     | Integration (Python)       | Convert `.ork` files to RocketPy-compatible formats                                 |
 | [SpaceTeam/ortools](https://github.com/SpaceTeam/ortools)                               | Integration Tools (Python) | Scripts like 6DOF landing scatter visualization                                     |
 | [schrum2/OpenRocketQD](https://github.com/schrum2/OpenRocketQD)                         | Optimization tool (Python) | Quality Diversity optimization for rocket designs                                   |
@@ -100,6 +102,8 @@ Dive into the essentials: adjust component dimensions, plot a simulation, swap o
 | Project                                                                           | Type            | Description             |
 |-----------------------------------------------------------------------------------|-----------------|-------------------------|
 | [TrinetraOne-OpenRocket](https://github.com/ChinmayBhattt/TrinetraOne-OpenRocket) | Example designs | Showcase rocket project |
+
+---
 
 ## 💪 Contribute
 
