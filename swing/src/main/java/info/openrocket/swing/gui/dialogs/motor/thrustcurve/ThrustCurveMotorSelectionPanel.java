@@ -99,6 +99,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	private final JTextField searchField;
 
+	JTabbedPane rightSide;
+	
 	private final JLabel curveSelectionLabel;
 	private final JComboBox<MotorHolder> curveSelectionBox;
 	private final DefaultComboBoxModel<MotorHolder> curveSelectionModel;
@@ -395,7 +397,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		// Vertical split
 		this.add(new JSeparator(JSeparator.VERTICAL), "growy, gap para para");
 
-		JTabbedPane rightSide = new JTabbedPane();
+		rightSide = new JTabbedPane();
 		rightSide.add(trans.get("TCMotorSelPan.btn.filter"), motorFilterPanel);
 		rightSide.add(trans.get("TCMotorSelPan.btn.details"), motorInformationPanel);
 
@@ -554,9 +556,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			setDelays(false);
 			motorInformationPanel.clearData();
 			table.clearSelection();
+			rightSide.setSelectedIndex(0);
 			return;
 		}
 
+		rightSide.setSelectedIndex(1);
+		
 		ejectionChargeDelayLabel.setEnabled(true);
 		delayBox.setEnabled(true);
 
