@@ -118,8 +118,6 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	}
 
 	public void open() {
-		// Update the motor selection based on the motor table value that was already selected in a previous session.
-		selectionPanel.selectMotorFromTable();
 		setVisible(true);
 	}
 

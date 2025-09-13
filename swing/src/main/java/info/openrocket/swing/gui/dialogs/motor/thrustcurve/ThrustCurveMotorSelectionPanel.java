@@ -449,9 +449,13 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			
 			select(motorToSelect);
 
+		} else {
+			clearMotorSelection();
 		}
+		
 		motorFilterPanel.setMotorMount(mountToEdit);
 		scrollSelectionVisible();
+
 	}
 
 	@Override
@@ -497,8 +501,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		this.dialog = dialog;
 	}
 
-
-
+	/**
+	 * Clear the current motor selection
+	 */
+	public void clearMotorSelection() {
+		selectedMotor = null;
+		selectedMotorSet = null;
+		updateData();
+	}
+	
 	/**
 	 * Called when a different motor is selected from within the panel.
 	 */
@@ -532,6 +543,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel.setEnabled(false);
 			ejectionChargeDelayLabel.setEnabled(false);
 			delayBox.setEnabled(false);
+			setDelays(false);
 			motorInformationPanel.clearData();
 			table.clearSelection();
 			return;
