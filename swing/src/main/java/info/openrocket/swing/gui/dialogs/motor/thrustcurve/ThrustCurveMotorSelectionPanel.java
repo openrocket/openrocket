@@ -373,6 +373,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 				@Override
 				public void insertUpdate(DocumentEvent e) {
+					clearMotorSelection();
 					update();
 				}
 				@Override
@@ -508,6 +509,13 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		selectedMotor = null;
 		selectedMotorSet = null;
 		updateData();
+	}
+
+	/**
+	 * Clear the search field
+	 */
+	public void clearSearch() {
+		searchField.setText("");
 	}
 	
 	/**

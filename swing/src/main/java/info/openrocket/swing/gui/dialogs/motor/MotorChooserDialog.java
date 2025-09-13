@@ -118,6 +118,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	}
 
 	public void open() {
+		selectionPanel.clearSearch();
 		setVisible(true);
 	}
 
