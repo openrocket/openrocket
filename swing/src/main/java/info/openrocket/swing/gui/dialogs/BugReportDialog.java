@@ -229,6 +229,7 @@ public class BugReportDialog extends JDialog {
 		sbTemp.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sbTemp.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
 		sbTemp.append("User-defined thrust curves location: " + preferences.getUserThrustCurveFilesAsString() + "\n");
+		sbTemp.append("User-defined component presets location: " + preferences.getUserComponentPresetFilesAsString() + "\n");
 		sbTemp.append("LAF: " + UIManager.getLookAndFeel().getClass().getName() + "\n");
 		sbTemp.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
 		sbTemp.append("Current default locale: " + Locale.getDefault() + "\n");
