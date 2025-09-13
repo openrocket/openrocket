@@ -4,6 +4,7 @@ plugins {
     id 'checkstyle'
     id 'org.javamodularity.moduleplugin' version '1.8.15'
     id 'application'
+    id 'jacoco'
 }
 
 // Java settings
@@ -41,6 +42,11 @@ file('core/src/main/resources/build.properties').withInputStream { buildProperti
 group = 'info.openrocket'
 version = buildProperties['build.version']
 
+// JaCoCo configuration
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 // Common project configuration
 allprojects {
     repositories {
@@ -53,6 +59,7 @@ allprojects {
 subprojects {
     apply plugin: 'java'
     apply plugin: "org.javamodularity.moduleplugin"
+    apply plugin: 'jacoco'
 
     // Configure the gradle-modules-plugin
     modularity {
@@ -62,6 +69,7 @@ subprojects {
 
     test {
         useJUnitPlatform()
+        finalizedBy jacocoTestReport
 
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
@@ -70,6 +78,18 @@ subprojects {
             stackTraceFilters = []
         }
     }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            html.required = true
+            csv.required = false
+        }
+    }
+
+    // Verify code coverage before JAR packaging
+    jar.dependsOn jacocoTestCoverageVerification
 
     // Common dependencies
     dependencies {
@@ -135,6 +155,26 @@ shadowJar {
                 'JVM-Args': '-Dapple.awt.application.appearance=system -Dsun.java2d.noddraw=true -Dsun.java2d.d3d=false -Dsun.java2d.ddforcevram=true -Dsun.java2d.ddblit=false -Dswing.useflipBufferStrategy=True'
         )
     }
+}
+
+// jacoco aggregate report for all subprojects
+tasks.register('jacocoRootReport', JacocoReport) {
+    group = 'verification'
+    description = 'Generates an aggregate report from all subprojects'
+
+    dependsOn(subprojects.jacocoTestReport)
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    // Collect execution data from all subprojects
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    // Collect class directories from all subprojects
+    classDirectories.setFrom(subprojects.sourceSets.main.output.classesDirs)
 }
 
 // Package the application for distribution.

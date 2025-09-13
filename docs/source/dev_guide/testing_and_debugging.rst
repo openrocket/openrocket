@@ -77,6 +77,41 @@ When writing tests for OpenRocket, follow these guidelines:
 5. Test edge cases and error conditions
 6. Keep tests independent of each other
 
+Code Coverage
+=============
+
+OpenRocket uses the `JaCoCo <https://www.jacoco.org/>`_ plugin to track and enforce
+test coverage. Coverage verification is integrated into the build process to ensure
+code quality.
+
+- **Core module:** minimum 60% coverage threshold  
+- **Swing module:** threshold currently disabled (0%) due to limited test coverage  
+- **Aggregate reports:** generated via the ``jacocoRootReport`` task
+
+If coverage thresholds are not met, JAR packaging will fail. This prevents deployment
+of code that does not meet the required quality standards.
+
+Usage
+-----
+
+To generate coverage reports:
+
+.. code-block:: bash
+
+   ./gradlew test jacocoRootReport
+
+To build with coverage verification:
+
+.. code-block:: bash
+
+   ./gradlew build
+
+Coverage verification runs automatically during JAR packaging. Detailed HTML
+reports are available under ``build/reports/jacoco/`` for review. Additionally, 
+a GitHub Action publishes coverage reports for easier tracking in CI.
+
+
+
 Debugging
 =========
 
