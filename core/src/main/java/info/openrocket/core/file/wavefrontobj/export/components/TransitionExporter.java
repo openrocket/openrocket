@@ -49,6 +49,27 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
     private void generateMesh(InstanceContext context) {
         int startIdx = obj.getNumVertices();
+        final float length = (float) component.getLength();
+        final boolean hasThickness = Double.compare(component.getThickness(), 0) > 0;
+        final boolean zeroThickness = !hasThickness;
+        final boolean zeroLength = Float.compare(length, 0f) == 0;
+
+        if (zeroLength) {
+            if (!hasThickness && !component.isFilled()) {
+                return;
+            }
+
+            addZeroLengthTransitionMesh(hasThickness);
+
+            if (obj.getNumVertices() == startIdx) {
+                return;
+            }
+
+            int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
+            final Coordinate location = context.getLocation();
+            ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
+            return;
+        }
 
         final boolean hasForeShoulder = Double.compare(component.getForeShoulderLength(), 0) > 0
                 && component.getForeRadius() > 0;
@@ -94,9 +115,14 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
             float outerFore = (float) component.getForeRadius();
             float innerFore = isFilled ? 0 : (float) (Math.max(0, component.getForeRadius() - component.getThickness()));
 
-            TubeExporter.addTubeMesh(obj, transformer, null, outerFore, outerAft, innerFore, innerAft,
-                    (float) component.getLength(), this.nrOfSides,
-                    outsideForeRingVertices, outsideAftRingVertices, insideForeRingVertices, insideAftRingVertices);
+            if (zeroThickness) {
+                CylinderExporter.addCylinderMesh(obj, transformer, null, outerFore, outerAft, (float) component.getLength(),
+                        this.nrOfSides, false, true, outsideForeRingVertices, outsideAftRingVertices);
+            } else {
+                TubeExporter.addTubeMesh(obj, transformer, null, outerFore, outerAft, innerFore, innerAft,
+                        (float) component.getLength(), this.nrOfSides,
+                        outsideForeRingVertices, outsideAftRingVertices, insideForeRingVertices, insideAftRingVertices);
+            }
         }
         // Otherwise, use complex geometry
         else {
@@ -108,17 +134,17 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                     hasAftShoulder && isAftShoulderZeroThickness);
 
             // Draw inside
-            if (!isFilled) {
+            if (!isFilled && hasThickness) {
                 addTransitionMesh(this.nrOfSides, numStacks, -component.getThickness(), false,
                         insideForeRingVertices, insideAftRingVertices, hasForeShoulder && isForeShoulderZeroThickness,
                         hasAftShoulder && isAftShoulderZeroThickness);
             }
 
             // Draw bottom and top face if there's no shoulder, or it is a zero-thickness shoulder
-            if (!hasForeShoulder || isForeShoulderZeroThickness) {
+            if (!zeroThickness && (!hasForeShoulder || isForeShoulderZeroThickness)) {
                 closeFace(outsideForeRingVertices, insideForeRingVertices, true);
             }
-            if (!hasAftShoulder || isAftShoulderZeroThickness) {
+            if (!zeroThickness && (!hasAftShoulder || isAftShoulderZeroThickness)) {
                 closeFace(outsideAftRingVertices, insideAftRingVertices, false);
             }
 
@@ -126,13 +152,152 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
 
         // Add shoulders
         addShoulders(this.nrOfSides, outsideForeRingVertices, outsideAftRingVertices,
-                insideForeRingVertices, insideAftRingVertices, isFilled, hasForeShoulder, hasAftShoulder);
+                insideForeRingVertices, insideAftRingVertices, isFilled || zeroThickness, hasForeShoulder, hasAftShoulder);
 
         int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
 
         // Translate the mesh to the position in the rocket
         final Coordinate location = context.getLocation();
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
+    }
+
+    private void addZeroLengthTransitionMesh(boolean hasThickness) {
+        float foreRadius = (float) component.getForeRadius();
+        float aftRadius = (float) component.getAftRadius();
+        float thickness = (float) component.getThickness();
+        boolean isFilled = component.isFilled();
+
+        if (Float.compare(foreRadius, 0f) > 0 || Float.compare(aftRadius, 0f) > 0) {
+            if (Float.compare(foreRadius, aftRadius) == 0) {
+                addTransitionDiskMesh(foreRadius, thickness, hasThickness, isFilled, true, true);
+            } else {
+                addTransitionDiskMesh(foreRadius, thickness, hasThickness, isFilled, true, false);
+                addTransitionDiskMesh(aftRadius, thickness, hasThickness, isFilled, false, true);
+            }
+        }
+    }
+
+    private void addTransitionDiskMesh(float radius, float thickness, boolean hasThickness, boolean isFilled,
+                                       boolean addTopFace, boolean addBottomFace) {
+        if (Float.compare(radius, 0f) <= 0) {
+            return;
+        }
+
+        float innerRadius = (!hasThickness || isFilled) ? 0f : Math.max(0f, radius - thickness);
+        int numSides = LOD.getNrOfSides(radius);
+
+        List<Integer> outerVertices = new ArrayList<>(numSides);
+        List<Integer> innerVertices = null;
+        boolean canCreateHollowDisk = hasThickness && !isFilled && Float.compare(innerRadius, 0f) > 0
+                && Float.compare(innerRadius, radius) < 0;
+        if (canCreateHollowDisk) {
+            innerVertices = new ArrayList<>(numSides);
+        }
+
+        for (int i = 0; i < numSides; i++) {
+            final double angle = 2 * Math.PI * i / numSides;
+            final float y = radius * (float) Math.cos(angle);
+            final float z = radius * (float) Math.sin(angle);
+            obj.addVertex(transformer.convertLoc(0, y, z));
+            outerVertices.add(obj.getNumVertices() - 1);
+        }
+
+        if (innerVertices != null) {
+            for (int i = 0; i < numSides; i++) {
+                final double angle = 2 * Math.PI * i / numSides;
+                final float y = innerRadius * (float) Math.cos(angle);
+                final float z = innerRadius * (float) Math.sin(angle);
+                obj.addVertex(transformer.convertLoc(0, y, z));
+                innerVertices.add(obj.getNumVertices() - 1);
+            }
+        }
+
+        if (canCreateHollowDisk) {
+            if (addTopFace) {
+                DiskExporter.closeDiskMesh(obj, transformer, null, outerVertices, innerVertices, false, true);
+            }
+            if (addBottomFace) {
+                DiskExporter.closeDiskMesh(obj, transformer, null, outerVertices, innerVertices, false, false);
+            }
+        } else {
+            if (addTopFace) {
+                addZeroThicknessDiskFace(outerVertices, true);
+            }
+            if (addBottomFace) {
+                addZeroThicknessDiskFace(outerVertices, false);
+            }
+        }
+    }
+
+    private void addZeroThicknessDiskFace(List<Integer> vertexIndicesList, boolean isTopFace) {
+        if (vertexIndicesList.isEmpty()) {
+            return;
+        }
+
+        int count = vertexIndicesList.size();
+
+        // Compute bounds for texture coordinates
+        float minY = Float.MAX_VALUE;
+        float maxY = -Float.MAX_VALUE;
+        float minZ = Float.MAX_VALUE;
+        float maxZ = -Float.MAX_VALUE;
+        for (Integer vertexIdx : vertexIndicesList) {
+            FloatTuple vertex = obj.getVertex(vertexIdx);
+            float y = vertex.getY();
+            float z = vertex.getZ();
+            if (y < minY) {
+                minY = y;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+            if (z < minZ) {
+                minZ = z;
+            }
+            if (z > maxZ) {
+                maxZ = z;
+            }
+        }
+
+        final float invRangeY = (maxY - minY) == 0 ? 0 : 1f / (maxY - minY);
+        final float invRangeZ = (maxZ - minZ) == 0 ? 0 : 1f / (maxZ - minZ);
+
+        final int normalStartIdx = obj.getNumNormals();
+        obj.addNormal(transformer.convertLocWithoutOriginOffs(isTopFace ? -1 : 1, 0, 0));
+        obj.addNormal(transformer.convertLocWithoutOriginOffs(isTopFace ? 1 : -1, 0, 0));
+
+        final int texStartIdx = obj.getNumTexCoords();
+        for (Integer vertexIdx : vertexIndicesList) {
+            FloatTuple vertex = obj.getVertex(vertexIdx);
+            float u = (vertex.getY() - minY) * invRangeY;
+            float v = (vertex.getZ() - minZ) * invRangeZ;
+            obj.addTexCoord(1f - u, 1f - v);
+        }
+
+        int[] vertexIndices = new int[count];
+        int[] texIndices = new int[count];
+
+        for (int i = 0; i < count; i++) {
+            vertexIndices[i] = vertexIndicesList.get(count - 1 - i);
+            texIndices[i] = texStartIdx + (count - 1 - i);
+        }
+        int[] normalIndices = new int[count];
+        for (int i = 0; i < count; i++) {
+            normalIndices[i] = normalStartIdx;
+        }
+        obj.addFace(new DefaultObjFace(vertexIndices, texIndices, normalIndices));
+
+        vertexIndices = new int[count];
+        texIndices = new int[count];
+        for (int i = 0; i < count; i++) {
+            vertexIndices[i] = vertexIndicesList.get(i);
+            texIndices[i] = texStartIdx + i;
+        }
+        normalIndices = new int[count];
+        for (int i = 0; i < count; i++) {
+            normalIndices[i] = normalStartIdx + 1;
+        }
+        obj.addFace(new DefaultObjFace(vertexIndices, texIndices, normalIndices));
     }
 
     /**
