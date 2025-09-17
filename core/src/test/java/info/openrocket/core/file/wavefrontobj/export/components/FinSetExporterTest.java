@@ -81,6 +81,24 @@ class FinSetExporterTest {
     }
 
     @Test
+    void skipsDegeneratePolygonWithLessThanThreePointsWhenThick() {
+        TestFinSet finSet = createFin(0.004,
+                new Coordinate(0.0, 0.0, 0.0),
+                new Coordinate(0.03, 0.0, 0.0));
+
+        DefaultObj obj = new DefaultObj();
+        WarningSet warnings = new WarningSet();
+        FlightConfiguration config = prepareConfiguration(finSet);
+
+        newExporter(obj, config, finSet, warnings).addToObj();
+
+        assertEquals(0, obj.getNumVertices(), "Degenerate fin geometry should be ignored");
+        assertEquals(0, obj.getNumNormals(), "Degenerate fin geometry should not create normals");
+        assertEquals(0, obj.getNumFaces(), "Degenerate fin geometry should not create faces");
+        assertEquals(0, warnings.size(), "No warning expected for finite thickness degenerate fin");
+    }
+
+    @Test
     void extrudesConcaveFiniteThicknessFin() {
         TestFinSet finSet = createFin(0.004,
                 new Coordinate(0.0, 0.0, 0.0),

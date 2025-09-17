@@ -60,7 +60,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         // Generate the instance mesh
         if (isZeroThickness) {
             addZeroThicknessPolygonMesh(floatPoints);
-        } else {
+        } else if (floatPoints.getXCoords().length >= 3) {
             PolygonExporter.addPolygonMesh(obj, transformer, null,
                     floatPoints.getXCoords(), floatPoints.getYCoords(), thickness);
         }
@@ -69,7 +69,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
         if (hasTabs) {
             if (isZeroThickness) {
                 addZeroThicknessPolygonMesh(floatTabPoints);
-            } else {
+            } else if (floatTabPoints.getXCoords().length >= 3) {
                 PolygonExporter.addPolygonMesh(obj, transformer, null,
                         floatTabPoints.getXCoords(), floatTabPoints.getYCoords(), thickness);
             }
