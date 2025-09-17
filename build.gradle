@@ -88,8 +88,10 @@ subprojects {
         }
     }
 
-    // Verify code coverage before JAR packaging
-    jar.dependsOn jacocoTestCoverageVerification
+    // Always evaluate coverage as part of the verification lifecycle
+    tasks.named('check') {
+        dependsOn jacocoTestCoverageVerification
+    }
 
     // Common dependencies
     dependencies {
@@ -103,6 +105,10 @@ subprojects {
         testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
         testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
     }
+}
+
+tasks.named('check') {
+    dependsOn(subprojects.collect { it.tasks.named('check') })
 }
 
 //tasks.register('serializeEngines') {
@@ -180,7 +186,7 @@ tasks.register('jacocoRootReport', JacocoReport) {
 // Package the application for distribution.
 tasks.register('dist') {
     group = 'info.openrocket'
-    dependsOn 'shadowJar'
+    dependsOn 'check', 'shadowJar'
     doLast {
         println "Completed the deployable jar in './build/libs"
     }
