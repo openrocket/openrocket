@@ -133,7 +133,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
 
         final int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
         if (obj.getNumVertices() == startIdx) {
-            return;
+            return;		// TODO: maybe this shouldn't happen, as the rest could still generate
         }
         final int normalEndIdx = Math.max(obj.getNumNormals() - 1, normalStartIdx);
 

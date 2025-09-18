@@ -63,8 +63,7 @@ public class RingComponentExporter extends RocketComponentExporter<RingComponent
         if (obj.getNumVertices() == startIdx) {
             return;    // No geometry generated
         }
-
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
+        int endIdx = obj.getNumVertices() - 1;
 
         // Translate the mesh to the position in the rocket
         final Coordinate location = context.getLocation();

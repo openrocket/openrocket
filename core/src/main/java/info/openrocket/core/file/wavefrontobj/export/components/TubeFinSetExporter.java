@@ -43,8 +43,10 @@ public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
 
         // Generate the instance mesh
         TubeExporter.addTubeMesh(obj, transformer, null, outerRadius, innerRadius, length, LOD.getValue());
-
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);                  // Clamp in case no vertices were added
+        if (obj.getNumVertices() == startIdx) {
+            return;
+        }
+        int endIdx = obj.getNumVertices() - 1;
 
         // Translate the mesh to the position in the rocket
         //      We will create an offset location that has the same effect as the axial rotation of the launch lug

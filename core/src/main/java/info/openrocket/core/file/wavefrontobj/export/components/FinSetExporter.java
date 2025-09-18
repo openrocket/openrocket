@@ -79,7 +79,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
             return;    // No geometry generated
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);                  // Clamp in case no vertices were added
+        int endIdx = obj.getNumVertices() - 1;                  // Clamp in case no vertices were added
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);     // Clamp in case no normals were added
 
         // First rotate for the cant angle

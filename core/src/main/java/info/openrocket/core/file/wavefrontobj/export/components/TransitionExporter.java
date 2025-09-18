@@ -65,7 +65,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
                 return;
             }
 
-            int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
+            int endIdx = obj.getNumVertices() - 1;
             final Coordinate location = context.getLocation();
             ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
             return;
@@ -154,7 +154,10 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
         addShoulders(this.nrOfSides, outsideForeRingVertices, outsideAftRingVertices,
                 insideForeRingVertices, insideAftRingVertices, isFilled || zeroThickness, hasForeShoulder, hasAftShoulder);
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
+		if (obj.getNumVertices() == startIdx) {
+			return;    // No geometry generated
+		}
+        int endIdx = obj.getNumVertices() - 1;
 
         // Translate the mesh to the position in the rocket
         final Coordinate location = context.getLocation();

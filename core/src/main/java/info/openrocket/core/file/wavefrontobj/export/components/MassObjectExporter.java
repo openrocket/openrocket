@@ -97,10 +97,10 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
             }
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);        // Clamp in case no vertices were added
         if (obj.getNumVertices() == startIdx) {
             return;
         }
+		int endIdx = obj.getNumVertices() - 1;
 
         // Create top tip faces
         for (int i = 0; i < numSides; i++) {
