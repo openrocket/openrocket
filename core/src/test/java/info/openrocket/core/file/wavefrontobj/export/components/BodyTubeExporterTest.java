@@ -84,6 +84,21 @@ class BodyTubeExporterTest {
         assertEquals(1, warnings.size(), "Zero-thickness tube should emit warning");
     }
 
+    @Test
+    void skipsGeometryWhenOuterRadiusZeroButLengthPositive() {
+        BodyTube bodyTube = createBodyTube(0.0, 0.0, 0.05);
+
+        DefaultObj obj = new DefaultObj();
+        WarningSet warnings = new WarningSet();
+        FlightConfiguration config = prepareConfiguration(bodyTube);
+
+        newExporter(obj, config, bodyTube, warnings).addToObj();
+
+        assertEquals(0, obj.getNumVertices(), "Zero-diameter body tube should emit no vertices");
+        assertEquals(0, obj.getNumFaces(), "Zero-diameter body tube should emit no faces");
+        assertEquals(1, warnings.size(), "Zero-diameter body tube retains zero-thickness warning");
+    }
+
     private static BodyTubeExporter newExporter(DefaultObj obj, FlightConfiguration config, BodyTube bodyTube, WarningSet warnings) {
         CoordTransform transformer = CoordTransform.generateUsingAxialAndForwardAxes(Axis.X, Axis.Y, 0, 0, 0);
         return new BodyTubeExporter(obj, config, transformer, bodyTube, "bodyTubeGroup", ObjUtils.LevelOfDetail.NORMAL_QUALITY, true, warnings);
