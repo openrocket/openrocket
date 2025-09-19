@@ -37,6 +37,7 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -140,7 +141,8 @@ public class SimulationPanel extends JPanel {
 
 	private int[] previousSelection = null;
 
-	private static final String PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS = "simulation.table.hiddenColumns";
+private static final String PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS = "simulation.table.hiddenColumns";
+private static final String APP_PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS = "simulation.table.hiddenColumns.default";
 	private static final String COLUMN_ID_STATUS = "status";
 	private static final String COLUMN_ID_WARNINGS = "warnings";
 	private static final String COLUMN_ID_NAME = "name";
@@ -274,7 +276,8 @@ public class SimulationPanel extends JPanel {
 		pm.add(plotSimulationAction);
 		pm.add(selectedSimsExportAction);
 
-		columnVisibilityController = new ColumnVisibilityController(simulationTable, document.getDocumentPreferences());
+		ApplicationPreferences appPreferences = (ApplicationPreferences) Application.getPreferences();
+		columnVisibilityController = new ColumnVisibilityController(simulationTable, document.getDocumentPreferences(), appPreferences);
 
 		simulationTable.getTableHeader().addMouseListener(new MouseAdapter() {
 			@Override
@@ -1700,14 +1703,16 @@ public class SimulationPanel extends JPanel {
 
 	private static class ColumnVisibilityController {
 		private final ColumnTable table;
-		private final DocumentPreferences preferences;
+		private final DocumentPreferences documentPreferences;
+		private final ApplicationPreferences applicationPreferences;
 		private final List<ColumnDescriptor> descriptors = new ArrayList<>();
 		private final Map<String, ColumnDescriptor> descriptorById = new LinkedHashMap<>();
 		private final Set<String> hiddenColumnIds = new LinkedHashSet<>();
 
-		ColumnVisibilityController(ColumnTable table, DocumentPreferences preferences) {
+		ColumnVisibilityController(ColumnTable table, DocumentPreferences preferences, ApplicationPreferences applicationPreferences) {
 			this.table = table;
-			this.preferences = preferences;
+			this.documentPreferences = preferences;
+			this.applicationPreferences = applicationPreferences;
 			captureColumns();
 			loadHiddenColumnsPreference();
 			applyHiddenColumnsFromPreferences();
@@ -1744,7 +1749,11 @@ public class SimulationPanel extends JPanel {
 
 		private void loadHiddenColumnsPreference() {
 			hiddenColumnIds.clear();
-			String prefValue = preferences.getString(PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS, "");
+			String prefValue = documentPreferences.getString(PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS, "");
+
+			if (StringUtils.isEmpty(prefValue)) {
+				prefValue = applicationPreferences.getString(APP_PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS, "");
+			}
 
 			// Add default hidden columns if no preference is set
 			if (StringUtils.isEmpty(prefValue)) {
@@ -1795,6 +1804,11 @@ public class SimulationPanel extends JPanel {
 				});
 				menu.add(item);
 			}
+			menu.addSeparator();
+			JMenuItem saveDefaultItem = new JMenuItem(trans.get("simpanel.btn.SaveAsDefault"));
+			saveDefaultItem.setToolTipText(trans.get("simpanel.btn.SaveAsDefault.ttip"));
+			saveDefaultItem.addActionListener(actionEvent -> saveHiddenColumnsToApplicationPreferences());
+			menu.add(saveDefaultItem);
 			return menu;
 		}
 
@@ -1869,6 +1883,20 @@ public class SimulationPanel extends JPanel {
 		}
 
 		private void saveHiddenColumnsPreference() {
+			documentPreferences.putString(PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS, buildHiddenColumnsPreferenceValue());
+		}
+
+		private void refreshTable() {
+			table.getTableHeader().resizeAndRepaint();
+			table.revalidate();
+			table.repaint();
+		}
+
+		private void saveHiddenColumnsToApplicationPreferences() {
+			applicationPreferences.putString(APP_PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS, buildHiddenColumnsPreferenceValue());
+		}
+
+		private String buildHiddenColumnsPreferenceValue() {
 			StringBuilder builder = new StringBuilder();
 			for (String id : hiddenColumnIds) {
 				if (!descriptorById.containsKey(id)) {
@@ -1879,13 +1907,7 @@ public class SimulationPanel extends JPanel {
 				}
 				builder.append(id);
 			}
-			preferences.putString(PREF_KEY_SIMULATION_TABLE_HIDDEN_COLUMNS, builder.toString());
-		}
-
-		private void refreshTable() {
-			table.getTableHeader().resizeAndRepaint();
-			table.revalidate();
-			table.repaint();
+			return builder.toString();
 		}
 
 		private record ColumnDescriptor(String id, TableColumn column) {
