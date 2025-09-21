@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
@@ -85,7 +86,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	private static final ThrustCurveMotorComparator MOTOR_COMPARATOR = new ThrustCurveMotorComparator();
 
-	private List<ThrustCurveMotorSet> database;
+	private ThrustCurveMotorSetDatabase database;
 
 	private CloseableDialog dialog = null;
 
@@ -130,8 +131,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	public ThrustCurveMotorSelectionPanel() {
 		super(new MigLayout("fill", "[grow][]"));
 
-		// Construct the database (adding the current motor if not in the db already)
-		database = Application.getThrustCurveMotorSetDatabase().getMotorSets();
+		database = Application.getThrustCurveMotorSetDatabase();
 
 		model = new ThrustCurveMotorDatabaseModel(database);
 		rowFilter = new MotorRowFilter(model);
@@ -439,15 +439,13 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
+		// (it's not clear to me how this can ever happen here, but the code must be here for a reason)
 		if (motorToSelect != null) {
 			ThrustCurveMotorSet motorSetToSelect = null;
-			motorSetToSelect = findMotorSet(motorToSelect);
+			motorSetToSelect = database.findMotorSet(motorToSelect);
 			if (motorSetToSelect == null) {
-				database = new ArrayList<>(database);
-				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
-				extra.addMotor(motorToSelect);
-				database.add(extra);
-				Collections.sort(database);
+				database.addMotor(motorToSelect);
+				database.sort();
 			}
 			
 			select(motorToSelect);
@@ -486,7 +484,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		ThrustCurveMotor motor = (ThrustCurveMotor) motorSelection;
-		ThrustCurveMotorSet set = findMotorSet(motor);
+		ThrustCurveMotorSet set = database.findMotorSet(motor);
 		if (set == null) {
 			log.error("Could not find set for motor:" + motorSelection);
 			return;
@@ -527,7 +525,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		if (selectedMotor == motor || motor == null)
 			return;
 
-		ThrustCurveMotorSet set = findMotorSet(motor);
+		ThrustCurveMotorSet set = database.findMotorSet(motor);
 		if (set == null) {
 			throw new BugException("Could not find motor from database, motor=" + motor);
 		}
@@ -642,25 +640,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			return color.brighter().brighter();
 		}
 	}
-
-
-	/**
-	 * Find the ThrustCurveMotorSet that contains a motor.
-	 * 
-	 * @param motor		the motor to look for.
-	 * @return			the ThrustCurveMotorSet, or null if not found.
-	 */
-	private ThrustCurveMotorSet findMotorSet(ThrustCurveMotor motor) {
-		for (ThrustCurveMotorSet set : database) {
-			if (set.getMotors().contains(motor)) {
-				return set;
-			}
-		}
-
-		return null;
-	}
-
-
 
 	/**
 	 * Select the default motor from this ThrustCurveMotorSet.  This uses primarily motors

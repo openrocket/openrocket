@@ -1,7 +1,10 @@
 package info.openrocket.core.database.motor;
 
+import java.lang.Iterable;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,7 +19,7 @@ import info.openrocket.core.motor.ThrustCurveMotor;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class ThrustCurveMotorSetDatabase implements MotorDatabase {
+public class ThrustCurveMotorSetDatabase implements Iterable<ThrustCurveMotorSet>, MotorDatabase {
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorSetDatabase.class);
 
 	private final List<ThrustCurveMotorSet> motorSets = new ArrayList<>();
@@ -108,4 +111,71 @@ public class ThrustCurveMotorSetDatabase implements MotorDatabase {
 		motorSets.add(newSet);
 	}
 
+
+	/**
+	 * Find the ThrustCurveMotorSet that contains a motor.
+	 * 
+	 * @param motor		the motor to look for.
+	 * @return			the ThrustCurveMotorSet, or null if not found.
+	 */
+	public ThrustCurveMotorSet findMotorSet(ThrustCurveMotor motor) {
+		for (ThrustCurveMotorSet set : motorSets) {
+			if (set.getMotors().contains(motor)) {
+				return set;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Number of sets in database
+	 */
+	public int size() {
+		return motorSets.size();
+	}
+
+	/**
+	 * Set at particular index
+	 */
+	public ThrustCurveMotorSet get(int index) {
+		return motorSets.get(index);
+	}
+
+	/**
+	 * Index of a set
+	 */
+	public int indexOf(ThrustCurveMotorSet m) {
+		return motorSets.indexOf(m);
+	}
+
+	/**
+	 * sort the MotorSets
+	 */
+	public void sort() {
+		Collections.sort(motorSets);
+	}
+
+	/**
+	 * iterator
+	 */
+	public ThrustCurveMotorSetIterator iterator() {
+		return new ThrustCurveMotorSetIterator(this);
+	}
+
+	public class ThrustCurveMotorSetIterator implements Iterator<ThrustCurveMotorSet> {
+		private Iterator<ThrustCurveMotorSet> iter;
+		
+		public ThrustCurveMotorSetIterator(ThrustCurveMotorSetDatabase database) {
+			iter = database.motorSets.iterator();
+		}
+		
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+		
+		public ThrustCurveMotorSet next() {
+			return iter.next();
+		}
+	}
 }
