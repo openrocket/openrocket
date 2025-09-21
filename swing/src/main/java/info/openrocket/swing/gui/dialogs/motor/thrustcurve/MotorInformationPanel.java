@@ -88,6 +88,75 @@ class MotorInformationPanel extends JPanel {
 	public MotorInformationPanel() {
 		super(new MigLayout("fill"));
 		
+		// Thrust curve plot
+		{
+			chart = ChartFactory.createXYLineChart(
+					null, // title
+					null, // xAxisLabel
+					null, // yAxisLabel
+					null, // dataset
+					PlotOrientation.VERTICAL,
+					false, // legend
+					false, // tooltips
+					false // urls
+					);
+
+			// Add the data and formatting to the plot
+			XYPlot plot = chart.getXYPlot();
+
+			changeLabelFont(plot.getRangeAxis(), -2, textColor);
+			changeLabelFont(plot.getDomainAxis(), -2, textColor);
+
+			//// Thrust curve:
+			TextTitle title = new TextTitle(trans.get("TCMotorSelPan.title.Thrustcurve"), this.getFont());
+			title.setPaint(textColor);
+			chart.setTitle(title);
+			chart.setBackgroundPaint(this.getBackground());
+			plot.setBackgroundPaint(backgroundColor);
+			plot.setDomainGridlinePaint(gridColor);
+			plot.setRangeGridlinePaint(gridColor);
+
+			chartPanel = new ChartPanel(chart,
+					false, // properties
+					false, // save
+					false, // print
+					false, // zoom
+					false); // tooltips
+			chartPanel.setMouseZoomable(false);
+			chartPanel.setPopupMenu(null);
+			chartPanel.setMouseWheelEnabled(false);
+			chartPanel.setRangeZoomable(false);
+			chartPanel.setDomainZoomable(false);
+
+			chartPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			chartPanel.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (selectedMotor == null || selectedMotorSet == null)
+						return;
+					if (e.getButton() == MouseEvent.BUTTON1) {
+						// Open plot dialog
+						ThrustCurveMotorPlotDialog plotDialog = new ThrustCurveMotorPlotDialog(selectedMotorSet,
+								selectedMotorSet.indexOf(selectedMotor),
+								SwingUtilities.getWindowAncestor(MotorInformationPanel.this));
+						plotDialog.setVisible(true);
+					}
+				}
+			});
+
+			JLayeredPane layer = new CustomLayeredPane();
+
+			layer.setBorder(BorderFactory.createLineBorder(infoColor));
+
+			layer.add(chartPanel, (Integer) 0);
+
+			zoomIcon = new JLabel(Icons.ZOOM_IN);
+			zoomIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			layer.add(zoomIcon, (Integer) 1);
+
+			this.add(layer, "width 300:300:, height 180:180:, grow, spanx");
+		}
+		
 		// Thrust curve info
 		{
 			//// Designation
@@ -180,74 +249,6 @@ class MotorInformationPanel extends JPanel {
 			this.add(scrollpane, "spanx, grow, pushy, wrap para");
 		}
 
-		// Thrust curve plot
-		{
-			chart = ChartFactory.createXYLineChart(
-					null, // title
-					null, // xAxisLabel
-					null, // yAxisLabel
-					null, // dataset
-					PlotOrientation.VERTICAL,
-					false, // legend
-					false, // tooltips
-					false // urls
-					);
-
-			// Add the data and formatting to the plot
-			XYPlot plot = chart.getXYPlot();
-
-			changeLabelFont(plot.getRangeAxis(), -2, textColor);
-			changeLabelFont(plot.getDomainAxis(), -2, textColor);
-
-			//// Thrust curve:
-			TextTitle title = new TextTitle(trans.get("TCMotorSelPan.title.Thrustcurve"), this.getFont());
-			title.setPaint(textColor);
-			chart.setTitle(title);
-			chart.setBackgroundPaint(this.getBackground());
-			plot.setBackgroundPaint(backgroundColor);
-			plot.setDomainGridlinePaint(gridColor);
-			plot.setRangeGridlinePaint(gridColor);
-
-			chartPanel = new ChartPanel(chart,
-					false, // properties
-					false, // save
-					false, // print
-					false, // zoom
-					false); // tooltips
-			chartPanel.setMouseZoomable(false);
-			chartPanel.setPopupMenu(null);
-			chartPanel.setMouseWheelEnabled(false);
-			chartPanel.setRangeZoomable(false);
-			chartPanel.setDomainZoomable(false);
-
-			chartPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			chartPanel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if (selectedMotor == null || selectedMotorSet == null)
-						return;
-					if (e.getButton() == MouseEvent.BUTTON1) {
-						// Open plot dialog
-						ThrustCurveMotorPlotDialog plotDialog = new ThrustCurveMotorPlotDialog(selectedMotorSet,
-								selectedMotorSet.indexOf(selectedMotor),
-								SwingUtilities.getWindowAncestor(MotorInformationPanel.this));
-						plotDialog.setVisible(true);
-					}
-				}
-			});
-
-			JLayeredPane layer = new CustomLayeredPane();
-
-			layer.setBorder(BorderFactory.createLineBorder(infoColor));
-
-			layer.add(chartPanel, (Integer) 0);
-
-			zoomIcon = new JLabel(Icons.ZOOM_IN);
-			zoomIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-			layer.add(zoomIcon, (Integer) 1);
-
-			this.add(layer, "width 300:300:, height 180:180:, grow, spanx");
-		}
 	}
 
 	private static void initColors() {
