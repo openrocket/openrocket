@@ -53,7 +53,8 @@ import info.openrocket.core.util.Reflection;
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "1.10" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8",
+			"1.9", "1.10" , "1.11"};
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
