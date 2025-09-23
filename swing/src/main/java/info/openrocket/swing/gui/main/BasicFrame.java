@@ -1,6 +1,11 @@
 package info.openrocket.swing.gui.main;
 
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -140,6 +145,9 @@ public class BasicFrame extends JFrame {
 	public static final int FLIGHT_CONFIGURATION_TAB = 1;
 	public static final int SIMULATION_TAB = 2;
 	private int previousTab = DESIGN_TAB;
+
+	private static final int CASCADE_OFFSET_X = 30;
+	private static final int CASCADE_OFFSET_Y = 30;
 
 
 	/**
@@ -297,6 +305,7 @@ public class BasicFrame extends JFrame {
 
 		this.setLocationByPlatform(true);
 		GUIUtil.rememberWindowPosition(this);
+		positionRelativeToExistingFrames();
 
 		GUIUtil.setWindowIcons(this);
 
@@ -329,6 +338,59 @@ public class BasicFrame extends JFrame {
 			}
 		}
 		log.debug("BasicFrame instantiation complete");
+	}
+
+
+	/**
+	 * Cascade this frame relative to the previously opened frame while keeping it on-screen.
+	 */
+	private void positionRelativeToExistingFrames() {
+		if (frames.isEmpty()) {
+			return;
+		}
+
+		BasicFrame previousFrame = frames.get(frames.size() - 1);
+		Point baseLocation = previousFrame.getLocation();
+
+		GraphicsConfiguration targetConfiguration = previousFrame.getGraphicsConfiguration();
+		if (targetConfiguration == null) {
+			targetConfiguration = this.getGraphicsConfiguration();
+		}
+		if (targetConfiguration == null) {
+			targetConfiguration = GraphicsEnvironment.getLocalGraphicsEnvironment()
+				.getDefaultScreenDevice().getDefaultConfiguration();
+		}
+
+		Rectangle usableBounds = targetConfiguration.getBounds();
+		Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(targetConfiguration);
+
+		int minX = usableBounds.x + screenInsets.left;
+		int minY = usableBounds.y + screenInsets.top;
+		int maxX = usableBounds.x + usableBounds.width - screenInsets.right - this.getWidth();
+		int maxY = usableBounds.y + usableBounds.height - screenInsets.bottom - this.getHeight();
+
+		if (maxX < minX) {
+			maxX = minX;
+		}
+		if (maxY < minY) {
+			maxY = minY;
+		}
+
+		int x = baseLocation.x + CASCADE_OFFSET_X;
+		int y = baseLocation.y + CASCADE_OFFSET_Y;
+
+		if (x > maxX) {
+			x = minX;
+		}
+		if (y > maxY) {
+			y = minY;
+		}
+
+		x = Math.max(x, minX);
+		y = Math.max(y, minY);
+
+		this.setLocationByPlatform(false);
+		this.setLocation(x, y);
 	}
 
 
