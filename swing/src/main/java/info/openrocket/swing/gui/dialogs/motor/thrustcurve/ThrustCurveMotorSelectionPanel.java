@@ -175,7 +175,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				public void actionPerformed(ActionEvent e) {
 					MotorHolder value = (MotorHolder)curveSelectionBox.getSelectedItem();
 					if (value != null) {
-						select(((MotorHolder) value).getMotor());
+						// select(((MotorHolder) value).getMotor());
 					}
 				}
 			});
@@ -321,7 +321,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					selectMotorFromTable();
+					selectMotorSetFromTable();
 				}
 			});
 			table.addMouseListener(new MouseAdapter() {
@@ -375,7 +375,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 				@Override
 				public void insertUpdate(DocumentEvent e) {
-					clearMotorSelection();
+					clearMotorSetSelection();
 					update();
 				}
 				@Override
@@ -420,15 +420,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
 	}
 
-	public void setMotorMountAndConfig( final FlightConfigurationId _fcid,  MotorMount mountToEdit ) {
-		if ( null == _fcid ){
+	public void setMotorMountAndConfig( final FlightConfigurationId fcid,  MotorMount mountToEdit ) {
+		if ( null == fcid ){
 			throw new NullPointerException(" attempted to set mount with a null FCID. bug.  ");
 		}else if ( null == mountToEdit ){
 			throw new NullPointerException(" attempted to set mount with a null mount. bug. ");
 		}
 		motorFilterPanel.setMotorMount(mountToEdit);
 		
-		MotorConfiguration curMotorInstance = mountToEdit.getMotorConfig(_fcid);
+		MotorConfiguration curMotorInstance = mountToEdit.getMotorConfig(fcid);
 		selectedMotor = null;
 		selectedMotorSet = null;
 		selectedDelay = 0;
@@ -448,13 +448,13 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				database.sort();
 			}
 			
-			select(motorToSelect);
+			select(motorSetToSelect);
 
 		} else {
-			clearMotorSelection();
+			clearMotorSetSelection();
 		}
-		
-		motorFilterPanel.setMotorMount(mountToEdit);
+
+		motorInformationPanel.setMotorConfiguration(fcid);
 		scrollSelectionVisible();
 
 	}
@@ -503,9 +503,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 	/**
-	 * Clear the current motor selection
+	 * Clear the current motor set selection
 	 */
-	public void clearMotorSelection() {
+	public void clearMotorSetSelection() {
 		selectedMotor = null;
 		selectedMotorSet = null;
 		updateData();
@@ -519,25 +519,16 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 	
 	/**
-	 * Called when a different motor is selected from within the panel.
+	 * Called when a motor set is selected
 	 */
-	private void select(ThrustCurveMotor motor) {
-		if (selectedMotor == motor || motor == null)
+	private void select(ThrustCurveMotorSet motorSet) {
+		if (selectedMotorSet == motorSet || motorSet == null)
 			return;
 
-		ThrustCurveMotorSet set = database.findMotorSet(motor);
-		if (set == null) {
-			throw new BugException("Could not find motor from database, motor=" + motor);
-		}
-
-		boolean updateDelays = (selectedMotorSet != set);
-
-		selectedMotor = motor;
-		selectedMotorSet = set;
+		selectedMotorSet = motorSet;
 		updateData();
-		if (updateDelays) {
-			setDelays(true);
-		}
+		setDelays(true);
+
 		scrollSelectionVisible();
 	}
 
@@ -674,16 +665,16 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 	/**
-	 * Selects a new motor based on the selection in the motor table
+	 * Selects a new motor set based on the selection in the motor table
 	 */
-	public void selectMotorFromTable() {
+	public void selectMotorSetFromTable() {
 		int row = table.getSelectedRow();
 		if (row >= 0) {
 			row = table.convertRowIndexToModel(row);
 			ThrustCurveMotorSet motorSet = model.getMotorSet(row);
 			log.info(Markers.USER_MARKER, "Selected table row " + row + ": " + motorSet);
 			if (motorSet != selectedMotorSet) {
-				select(selectMotor(motorSet));
+				select(motorSet);
 			}
 		} else {
 			log.info(Markers.USER_MARKER, "Selected table row " + row + ", nothing selected");

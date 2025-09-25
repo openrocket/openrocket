@@ -34,6 +34,7 @@ import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.core.util.StringUtils;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.ThrustCurveMotor;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 
@@ -264,6 +265,10 @@ class MotorInformationPanel extends JPanel {
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 		gridColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
 		infoColor = GUIUtil.getUITheme().getCGColor();
+	}
+
+	public void setMotorConfiguration(final FlightConfigurationId fcid) {
+		
 	}
 	
 	public void clearData() {
