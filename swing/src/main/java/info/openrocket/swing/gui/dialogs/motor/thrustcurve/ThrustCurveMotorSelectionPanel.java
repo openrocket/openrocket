@@ -47,7 +47,6 @@ import javax.swing.table.TableRowSorter;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.swing.gui.plot.Util;
 import info.openrocket.swing.gui.theme.UITheme;
-import org.jfree.chart.ChartColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +63,6 @@ import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.utils.MotorCorrelation;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -80,12 +78,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 	private static final Translator trans = Application.getTranslator();
 
-	private static final double MOTOR_SIMILARITY_THRESHOLD = 0.95;
-
-	private static final Paint[] CURVE_COLORS = ChartColor.createDefaultPaintArray();
-
-	private static final ThrustCurveMotorComparator MOTOR_COMPARATOR = new ThrustCurveMotorComparator();
-
 	private ThrustCurveMotorSetDatabase database;
 
 	private CloseableDialog dialog = null;
@@ -94,27 +86,18 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final JTable table;
 	private final TableRowSorter<TableModel> sorter;
 	private final MotorRowFilter rowFilter;
-
-	private final JCheckBox hideSimilarBox;
 	private final JCheckBox hideUnavailableBox;
+	
+	private final JLabel nrOfMotorsLabel;
 
 	private final JTextField searchField;
 
 	JTabbedPane rightSide;
-	
-	private final JLabel curveSelectionLabel;
-	private final JComboBox<MotorHolder> curveSelectionBox;
-	private final DefaultComboBoxModel<MotorHolder> curveSelectionModel;
-	private final JLabel ejectionChargeDelayLabel;
-	private final JComboBox<String> delayBox;
-	private final JLabel nrOfMotorsLabel;
 
-	private final MotorInformationPanel motorInformationPanel;
 	private final MotorFilterPanel motorFilterPanel;
+	private final MotorInformationPanel motorInformationPanel;
 
-	private ThrustCurveMotor selectedMotor;
 	private ThrustCurveMotorSet selectedMotorSet;
-	private double selectedDelay;
 
 	private static Color dimTextColor;
 
@@ -159,77 +142,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		////  GUI
 		JPanel panel = new JPanel(new MigLayout("fill","[][grow]"));
-
-		//// Select thrust curve:
-		{
-			curveSelectionLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Selectthrustcurve"));
-			panel.add(curveSelectionLabel);
-
-			curveSelectionModel = new DefaultComboBoxModel<>();
-			curveSelectionBox = new JComboBox<>(curveSelectionModel);
-			@SuppressWarnings("unchecked")
-			ListCellRenderer<MotorHolder> lcr = (ListCellRenderer<MotorHolder>) curveSelectionBox.getRenderer(); 
-			curveSelectionBox.setRenderer(new CurveSelectionRenderer(lcr));
-			curveSelectionBox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					MotorHolder value = (MotorHolder)curveSelectionBox.getSelectedItem();
-					if (value != null) {
-						// select(((MotorHolder) value).getMotor());
-					}
-				}
-			});
-			panel.add(curveSelectionBox, "growx, wrap");
-		}
-
-		// Ejection charge delay:
-		{
-			ejectionChargeDelayLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay"));
-			panel.add(ejectionChargeDelayLabel);
-
-			delayBox = new JComboBox<>();
-			delayBox.setEditable(true);
-			delayBox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					String sel = (String) delayBox.getSelectedItem();
-					if (sel == null) {
-						log.debug("Selected charge delay is null");
-						return;
-					}
-					//// Plugged (or None)
-					if (sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.Plugged")) ||
-							sel.equalsIgnoreCase(trans.get("TCMotorSelPan.delayBox.PluggedNone"))) {
-						selectedDelay = Motor.PLUGGED_DELAY;
-					} else {
-						try {
-							selectedDelay = Double.parseDouble(sel);
-						} catch (NumberFormatException ignore) {
-						}
-					}
-					setDelays(false);
-				}
-			});
-			panel.add(delayBox, "growx,wrap");
-			//// (or type in desired delay in seconds)
-			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.Numberofseconds"), -3), "skip, wrap");
-			setDelays(false);
-		}
-
-		//// Hide very similar thrust curves
-		{
-			hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
-			GUIUtil.changeFontSize(hideSimilarBox, -1);
-			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(ApplicationPreferences.MOTOR_HIDE_SIMILAR, true));
-			hideSimilarBox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Application.getPreferences().putBoolean(ApplicationPreferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
-					updateData();
-				}
-			});
-			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap");
-		}
 		
 		//// Hide unavailable motors
 		{
@@ -265,8 +177,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					if (selectedRow >= 0) {
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 					}
-					curveSelectionBox.revalidate();
-					curveSelectionBox.repaint();
 				}
 			});
 			designation.addActionListener(new ActionListener() {
@@ -278,8 +188,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					if (selectedRow >= 0) {
 						table.setRowSelectionInterval(selectedRow, selectedRow);
 					}
-					curveSelectionBox.revalidate();
-					curveSelectionBox.repaint();
 				}
 			});
 
@@ -403,12 +311,10 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		this.add(rightSide, "growy");
 
+		hideUnavailableBox.getActionListeners()[0].actionPerformed(null);
+		
 		// Update the panel data
 		updateData();
-		setDelays(false);
-		hideUnavailableBox.getActionListeners()[0].actionPerformed(null);
-		hideSimilarBox.getActionListeners()[0].actionPerformed(null);
-
 	}
 
 	private static void initColors() {
@@ -429,45 +335,36 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		motorFilterPanel.setMotorMount(mountToEdit);
 		
 		MotorConfiguration curMotorInstance = mountToEdit.getMotorConfig(fcid);
-		selectedMotor = null;
-		selectedMotorSet = null;
-		selectedDelay = 0;
-		ThrustCurveMotor motorToSelect = null;
-		if ( curMotorInstance.hasMotor()){ 
-			motorToSelect = (ThrustCurveMotor) curMotorInstance.getMotor();
-			selectedDelay = curMotorInstance.getEjectionDelay();
-		}
 		
-		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
-		// (it's not clear to me how this can ever happen here, but the code must be here for a reason)
-		if (motorToSelect != null) {
-			ThrustCurveMotorSet motorSetToSelect = null;
+		ThrustCurveMotor motorToSelect = null;
+		double delay = 0;
+		ThrustCurveMotorSet motorSetToSelect = null;
+		
+		if (curMotorInstance.hasMotor()) {
+			motorToSelect = (ThrustCurveMotor) (curMotorInstance.getMotor());
 			motorSetToSelect = database.findMotorSet(motorToSelect);
-			if (motorSetToSelect == null) {
-				database.addMotor(motorToSelect);
-				database.sort();
-			}
-			
-			select(motorSetToSelect);
+			delay = curMotorInstance.getEjectionDelay();
 
+			motorInformationPanel.setMotor(motorSetToSelect, motorToSelect, delay);
+			setMotorSet(motorSetToSelect);
 		} else {
 			clearMotorSetSelection();
 		}
 
-		motorInformationPanel.setMotorConfiguration(fcid);
+
 		scrollSelectionVisible();
 
 	}
 
 	@Override
 	public Motor getSelectedMotor() {
-		return selectedMotor;
+		return motorInformationPanel.getSelectedMotor();
 	}
 
 
 	@Override
 	public double getSelectedDelay() {
-		return selectedDelay;
+		return motorInformationPanel.getSelectedDelay();
 	}
 
 
@@ -506,7 +403,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * Clear the current motor set selection
 	 */
 	public void clearMotorSetSelection() {
-		selectedMotor = null;
 		selectedMotorSet = null;
 		updateData();
 	}
@@ -521,83 +417,29 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	/**
 	 * Called when a motor set is selected
 	 */
-	private void select(ThrustCurveMotorSet motorSet) {
+	private void setMotorSet(ThrustCurveMotorSet motorSet) {
 		if (selectedMotorSet == motorSet || motorSet == null)
 			return;
 
 		selectedMotorSet = motorSet;
+		motorInformationPanel.setMotor(selectedMotorSet, null, 0);
 		updateData();
-		setDelays(true);
 
 		scrollSelectionVisible();
 	}
-
 
 	private void updateData() {
 
 		if (selectedMotorSet == null) {
 			// No motor selected
-			curveSelectionModel.removeAllElements();
-			curveSelectionBox.setEnabled(false);
-			curveSelectionLabel.setEnabled(false);
-			ejectionChargeDelayLabel.setEnabled(false);
-			delayBox.setEnabled(false);
-			setDelays(false);
 			motorInformationPanel.clearData();
 			table.clearSelection();
-			rightSide.setSelectedIndex(0);
+			rightSide.setSelectedComponent(motorFilterPanel);
 			return;
 		}
 
-		rightSide.setSelectedIndex(1);
-		
-		ejectionChargeDelayLabel.setEnabled(true);
-		delayBox.setEnabled(true);
-
-		// Check which thrust curves to display
-		List<ThrustCurveMotor> motors = getFilteredCurves();
-		final int index = motors.indexOf(selectedMotor);
-
-		// Update the thrust curve selection box
-		curveSelectionModel.removeAllElements();
-		for (int i = 0; i < motors.size(); i++) {
-			curveSelectionModel.addElement(new MotorHolder(motors.get(i), i));
-		}
-		curveSelectionBox.setSelectedIndex(index);
-
-		if (motors.size() > 1) {
-			curveSelectionBox.setEnabled(true);
-			curveSelectionLabel.setEnabled(true);
-		} else {
-			curveSelectionBox.setEnabled(false);
-			curveSelectionLabel.setEnabled(false);
-		}
-
-		motorInformationPanel.updateData(motors, selectedMotor);
-
-	}
-
-	List<ThrustCurveMotor> getFilteredCurves() {
-		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
-		if (hideSimilarBox.isSelected()  && selectedMotor != null) {
-			List<ThrustCurveMotor> filtered = new ArrayList<>(motors.size());
-			for (ThrustCurveMotor m : motors) {
-				if (m.equals(selectedMotor)) {
-					filtered.add(m);
-					continue;
-				}
-				double similarity = MotorCorrelation.similarity(selectedMotor, m);
-				log.debug("Motor similarity: " + similarity);
-				if (similarity < MOTOR_SIMILARITY_THRESHOLD) {
-					filtered.add(m);
-				}
-			}
-			motors = filtered;
-		}
-
-		motors.sort(MOTOR_COMPARATOR);
-
-		return motors;
+		motorInformationPanel.updateData();
+		rightSide.setSelectedComponent(motorInformationPanel);
 	}
 
 	private void updateNrOfMotors() {
@@ -623,47 +465,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 
-	public static Color getColor(int index) {
-		Color color = Util.getPlotColor(index);
-		if (UITheme.isLightTheme(GUIUtil.getUITheme())) {
-			return color;
-		} else {
-			return color.brighter().brighter();
-		}
-	}
-
-	/**
-	 * Select the default motor from this ThrustCurveMotorSet.  This uses primarily motors
-	 * that the user has previously used, and secondarily a heuristic method of selecting which
-	 * thrust curve seems to be better or more reliable.
-	 * 
-	 * @param set	the motor set
-	 * @return		the default motor in this set
-	 */
-	private ThrustCurveMotor selectMotor(ThrustCurveMotorSet set) {
-		if (set.getMotorCount() == 0) {
-			throw new BugException("Attempting to select motor from empty ThrustCurveMotorSet: " + set);
-		}
-		if (set.getMotorCount() == 1) {
-			return set.getMotors().get(0);
-		}
-
-
-		// Find which motor has been used the most recently
-		List<ThrustCurveMotor> list = set.getMotors();
-		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
-		for (ThrustCurveMotor m : list) {
-			String digest = m.getDigest();
-			if (prefs.getBoolean(digest, false)) {
-				return m;
-			}
-		}
-
-		// No motor has been used
-		list.sort(MOTOR_COMPARATOR);
-		return list.get(0);
-	}
-
 	/**
 	 * Selects a new motor set based on the selection in the motor table
 	 */
@@ -674,7 +475,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			ThrustCurveMotorSet motorSet = model.getMotorSet(row);
 			log.info(Markers.USER_MARKER, "Selected table row " + row + ": " + motorSet);
 			if (motorSet != selectedMotorSet) {
-				select(motorSet);
+				setMotorSet(motorSet);
 			}
 		} else {
 			log.info(Markers.USER_MARKER, "Selected table row " + row + ", nothing selected");
@@ -682,88 +483,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 
-	/**
-	 * Set the values in the delay combo box.  If <code>reset</code> is <code>true</code>
-	 * then sets the selected value as the value closest to selectedDelay, otherwise
-	 * leaves selection alone.
-	 */
-	private void setDelays(boolean reset) {
-		if (selectedMotor == null) {
-			//// Display nothing
-			delayBox.setModel(new DefaultComboBoxModel<>(new String[] {}));
-		} else {
-			List<Double> delays = selectedMotorSet.getDelays();
-			boolean containsPlugged = delays.contains(Motor.PLUGGED_DELAY);
-			int size = delays.size() + (containsPlugged ? 0 : 1);
-			String[] delayStrings = new String[size];
-			double currentDelay = selectedDelay; // Store current setting locally
-
-			for (int i = 0; i < delays.size(); i++) {
-				//// Plugged
-				delayStrings[i] = ThrustCurveMotor.getDelayString(delays.get(i), trans.get("TCMotorSelPan.delayBox.Plugged"));
-			}
-			// We always want the plugged option in the combobox, even if the motor doesn't have it
-			if (!containsPlugged) {
-				delayStrings[delayStrings.length - 1] = trans.get("TCMotorSelPan.delayBox.Plugged");
-			}
-			delayBox.setModel(new DefaultComboBoxModel<>(delayStrings));
-
-			if (reset) {
-				// Find and set the closest value
-				double closest = Double.NaN;
-				for (Double delay : delays) {
-					// if-condition to always become true for NaN
-					if (!(Math.abs(delay - currentDelay) > Math.abs(closest - currentDelay))) {
-						closest = delay;
-					}
-				}
-				if (!Double.isNaN(closest)) {
-					selectedDelay = closest;
-					delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(closest, trans.get("TCMotorSelPan.delayBox.Plugged")));
-				} else {
-					//// Plugged
-					delayBox.setSelectedItem(trans.get("TCMotorSelPan.delayBox.Plugged"));
-				}
-
-			} else {
-				selectedDelay = currentDelay;
-				delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(currentDelay, trans.get("TCMotorSelPan.delayBox.Plugged")));
-			}
-
-		}
-	}
-
 	//////////////////////
 
-
-	private class CurveSelectionRenderer implements ListCellRenderer<MotorHolder> {
-
-		private final ListCellRenderer<MotorHolder> renderer;
-
-		public CurveSelectionRenderer(ListCellRenderer<MotorHolder> renderer) {
-			this.renderer = renderer;
-		}
-
-		@Override
-		public Component getListCellRendererComponent(JList<? extends MotorHolder> list, MotorHolder value, int index,
-				boolean isSelected, boolean cellHasFocus) {
-
-			JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value != null) {
-				Color color = getColor(value.getIndex());
-				if (isSelected || cellHasFocus) {
-					label.setBackground(color);
-					label.setOpaque(true);
-					Color fg = list.getBackground();
-					fg = new Color(fg.getRed(), fg.getGreen(), fg.getBlue());		// List background changes for some reason, so clone the color
-					label.setForeground(fg);
-				} else {
-					label.setBackground(list.getBackground());
-					label.setForeground(color);
-				}
-			}
-
-			return label;
-		}
-	}
 }

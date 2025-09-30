@@ -84,7 +84,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 		if (selected >= 0) {
 			dataset.addSeries(generateSeries(motors.get(selected),0));
 			renderer.setSeriesStroke(n, new BasicStroke(1.5f));
-			renderer.setSeriesPaint(n, ThrustCurveMotorSelectionPanel.getColor(selected));
+			renderer.setSeriesPaint(n, MotorInformationPanel.getColor(selected));
 		}
 		n++;
 		
@@ -96,7 +96,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 			ThrustCurveMotor m = motors.get(i);
 			dataset.addSeries(generateSeries(m, n));
 			renderer.setSeriesStroke(n, new BasicStroke(1.5f));
-			renderer.setSeriesPaint(n, ThrustCurveMotorSelectionPanel.getColor(i));
+			renderer.setSeriesPaint(n, MotorInformationPanel.getColor(i));
 			renderer.setSeriesShape(n, new Rectangle());
 			n++;
 		}
