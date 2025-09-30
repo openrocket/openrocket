@@ -230,6 +230,17 @@ tasks.register('externalComponentsValidate') {
     }
 }
 
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.6
+            }
+        }
+    }
+}
+
 clean.dependsOn([externalComponentsDelete])
 //compileJava.dependsOn([externalComponentsCopy])
 processResources.dependsOn([externalComponentsCopy])

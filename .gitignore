@@ -92,6 +92,7 @@ crashlytics-build.properties
 fabric.properties
 
 openrocket.log
+**/hs_err_pid*.log
 
 *.snap
 

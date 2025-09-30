@@ -173,6 +173,11 @@ public class OBJExporterFactory {
             String filePath = entry.getKey();
             obj = entry.getValue();
 
+            if (obj.getNumVertices() == 0) {
+                log.debug("Skipping OBJ export for {} because no geometry was generated", filePath);
+                continue;
+            }
+
             // Triangulate mesh
             if (this.options.isTriangulate()) {
                 ObjUtils.TriangulationMethod triangulationMethod = this.options.getTriangulationMethod();

@@ -37,6 +37,13 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
         int startIdx = obj.getNumVertices();
         int texCoordsStartIdx = obj.getNumTexCoords();
         int normalsStartIdx = obj.getNumNormals();
+        if (Double.compare(component.getLength(), 0) == 0 || Double.compare(component.getRadius(), 0) == 0) {
+            return;
+        }
+
+        numStacks = Math.max(numStacks, 2);
+        numSides = Math.max(numSides, 3);
+
         double dx = component.getLength() / numStacks;
         double da = 2.0f * Math.PI / numSides;
 
@@ -90,7 +97,10 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
             }
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);        // Clamp in case no vertices were added
+        if (obj.getNumVertices() == startIdx) {
+            return;
+        }
+		int endIdx = obj.getNumVertices() - 1;
 
         // Create top tip faces
         for (int i = 0; i < numSides; i++) {

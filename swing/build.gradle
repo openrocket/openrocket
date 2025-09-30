@@ -93,3 +93,14 @@ dependencies {
 
     testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
 }
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.0
+            }
+        }
+    }
+}

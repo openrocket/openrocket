@@ -229,7 +229,7 @@ public class OpenRocketSaver extends RocketSaver {
 		/*
 		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
 		 */
-		return FILE_VERSION_DIVISOR + 10;
+		return FILE_VERSION_DIVISOR + 11;
 		
 	}
 	

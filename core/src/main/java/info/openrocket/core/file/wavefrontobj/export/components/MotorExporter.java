@@ -128,7 +128,10 @@ public class MotorExporter {
             obj.addTexCoord(u, 0.0f);
         }
 
-        int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);    // Clamp in case no vertices were added
+		if (obj.getNumVertices() == startIdx) {
+			return;    // No geometry generated
+		}
+        int endIdx = obj.getNumVertices() - 1;
         int normalsEndIdx = Math.max(obj.getNumNormals() - 1, normalsStartIdx);
 
         // Create the cone faces

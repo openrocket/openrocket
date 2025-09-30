@@ -58,6 +58,28 @@ public class TubeExporter {
         // Generate inside mesh
         boolean hasForeThickness = Float.compare(foreOuterRadius, foreInnerRadius) > 0 && Float.compare(foreInnerRadius, 0) > 0;
         boolean hasAftThickness = Float.compare(aftOuterRadius, aftInnerRadius) > 0  && Float.compare(aftInnerRadius, 0) > 0;
+        // A matching inner and outer radius means we want an uncapped, zero-thickness surface
+        boolean zeroThickness = Float.compare(foreOuterRadius, foreInnerRadius) == 0
+                && Float.compare(aftOuterRadius, aftInnerRadius) == 0;
+        boolean zeroLength = Float.compare(length, 0) == 0;
+
+        if (zeroLength) {
+            if (zeroThickness) {
+                return;
+            }
+
+            // Lengthless tube collapses to a flat ring representation drawn at the origin plane
+            float ringOuterRadius = (foreOuterRadius + aftOuterRadius) / 2f;
+            float ringInnerRadius = (foreInnerRadius + aftInnerRadius) / 2f;
+            addFlatRingMesh(obj, transformer, ringOuterRadius, ringInnerRadius, numSides,
+                    foreOuterVertices, aftOuterVertices, foreInnerVertices, aftInnerVertices);
+            return;
+        }
+
+        boolean hasOuterSurface = Float.compare(foreOuterRadius, 0f) > 0 || Float.compare(aftOuterRadius, 0f) > 0;
+        if (!hasOuterSurface) {
+            return;
+        }
         if (hasForeThickness || hasAftThickness) {
             CylinderExporter.addCylinderMesh(obj, transformer, null, foreInnerRadius, aftInnerRadius, length, numSides,
                     false, false, foreInnerVertices, aftInnerVertices);
@@ -65,7 +87,7 @@ public class TubeExporter {
 
         // Generate outside mesh
         CylinderExporter.addCylinderMesh(obj, transformer, null, foreOuterRadius, aftOuterRadius, length, numSides,
-                !hasForeThickness && !hasAftThickness, true, foreOuterVertices, aftOuterVertices);
+                !zeroThickness && !hasForeThickness && !hasAftThickness, true, foreOuterVertices, aftOuterVertices);
 
         // Close the mesh
         if (hasForeThickness) {
@@ -86,5 +108,53 @@ public class TubeExporter {
                                    float outerRadius, float innerRadius, float length, ObjUtils.LevelOfDetail LOD) {
         addTubeMesh(obj, transformer, groupName, outerRadius, outerRadius, innerRadius, innerRadius, length, LOD.getNrOfSides(outerRadius),
                 null, null, null, null);
+    }
+
+    private static void addFlatRingMesh(DefaultObj obj, CoordTransform transformer, float outerRadius, float innerRadius,
+                                        int numSides,
+                                        List<Integer> foreOuterVertices, List<Integer> aftOuterVertices,
+                                        List<Integer> foreInnerVertices, List<Integer> aftInnerVertices) {
+        if (Float.compare(outerRadius, 0f) <= 0) {
+            return;
+        }
+
+        List<Integer> ringOuter = new ArrayList<>(numSides);
+        createRingVertices(obj, transformer, outerRadius, numSides, ringOuter);
+
+        List<Integer> ringInner = null;
+        if (Float.compare(innerRadius, 0f) > 0 && Float.compare(innerRadius, outerRadius) < 0) {
+            ringInner = new ArrayList<>(numSides);
+            createRingVertices(obj, transformer, innerRadius, numSides, ringInner);
+        }
+
+        DiskExporter.closeDiskMesh(obj, transformer, null, ringOuter, ringInner, false, true);
+        DiskExporter.closeDiskMesh(obj, transformer, null, ringOuter, ringInner, false, false);
+
+        if (foreOuterVertices != null) {
+            foreOuterVertices.addAll(ringOuter);
+        }
+        if (aftOuterVertices != null) {
+            aftOuterVertices.addAll(ringOuter);
+        }
+
+        if (ringInner != null) {
+            if (foreInnerVertices != null) {
+                foreInnerVertices.addAll(ringInner);
+            }
+            if (aftInnerVertices != null) {
+                aftInnerVertices.addAll(ringInner);
+            }
+        }
+    }
+
+    private static void createRingVertices(DefaultObj obj, CoordTransform transformer, float radius, int numSides,
+                                           List<Integer> target) {
+        for (int i = 0; i < numSides; i++) {
+            double angle = 2 * Math.PI * i / numSides;
+            float y = radius * (float) Math.cos(angle);
+            float z = radius * (float) Math.sin(angle);
+            obj.addVertex(transformer.convertLoc(0, y, z));
+            target.add(obj.getNumVertices() - 1);
+        }
     }
 }

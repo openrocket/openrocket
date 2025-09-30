@@ -42,9 +42,15 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         final float flangeHeight = (float) component.getFlangeHeight();
         final float screwHeight = (float) component.getScrewHeight();
 
+        if (Float.compare(outerRadius, 0f) <= 0) {
+            return;
+        }
+
+        final float clampedInnerRadius = Math.max(0, Math.min(innerRadius, outerRadius));
+
         // Generate the mesh
         for (InstanceContext context : getInstanceContexts()) {
-            generateMesh(outerRadius, innerRadius, baseHeight, innerHeight, flangeHeight, screwHeight, context);
+            generateMesh(outerRadius, clampedInnerRadius, baseHeight, innerHeight, flangeHeight, screwHeight, context);
         }
     }
 
@@ -54,52 +60,81 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
         final int normalStartIdx = obj.getNumNormals();
         final int nrOfSides = LOD.getNrOfSides(outerRadius);
 
+        final boolean hasBase = Float.compare(baseHeight, 0f) > 0;
+        final boolean hasInner = Float.compare(innerRadius, 0f) > 0
+                && Float.compare(innerHeight, 0f) > 0
+                && Float.compare(outerRadius - innerRadius, 0f) > 0;
+        final boolean hasFlange = Float.compare(flangeHeight, 0f) > 0;
+        final boolean hasScrew = Float.compare(screwHeight, 0f) > 0;
+
+        if (!hasBase && !hasInner && !hasFlange && !hasScrew) {
+            return;
+        }
+
         // Generate base cylinder
         List<Integer> baseCylinderForeVertices = new ArrayList<>();
         List<Integer> baseCylinderAftVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, baseHeight, false, nrOfSides,
-                baseCylinderForeVertices, baseCylinderAftVertices);
+        if (hasBase) {
+            CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, baseHeight, false, nrOfSides,
+                    baseCylinderForeVertices, baseCylinderAftVertices);
+        }
 
         // Generate inner cylinder
         int tmpStartIdx = obj.getNumVertices();
         List<Integer> innerCylinderForeVertices = new ArrayList<>();
         List<Integer> innerCylinderAftVertices = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, transformer, null, innerRadius, innerHeight, false, nrOfSides,
-                innerCylinderForeVertices, innerCylinderAftVertices);
-        int tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
-        FloatTuple locOffs = transformer.convertLocWithoutOriginOffs(baseHeight, 0, 0);
-        ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
+        if (hasInner) {
+            CylinderExporter.addCylinderMesh(obj, transformer, null, innerRadius, innerHeight, false, nrOfSides,
+                    innerCylinderForeVertices, innerCylinderAftVertices);
+            int tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
+            FloatTuple locOffs = transformer.convertLocWithoutOriginOffs(baseHeight, 0, 0);
+            ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
+        }
 
         // Generate flange cylinder
         tmpStartIdx = obj.getNumVertices();
         List<Integer> flangeCylinderForeVertices = new ArrayList<>();
         List<Integer> flangeCylinderAftVertices = new ArrayList<>();
         List<Integer> flangeCylinderAftNormals = new ArrayList<>();
-        CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, outerRadius, flangeHeight, nrOfSides,
-                false, true, flangeCylinderForeVertices, flangeCylinderAftVertices, null, flangeCylinderAftNormals);
-        tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
-        locOffs = transformer.convertLocWithoutOriginOffs(baseHeight + innerHeight, 0, 0);
-        ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
+        if (hasFlange) {
+            CylinderExporter.addCylinderMesh(obj, transformer, null, outerRadius, outerRadius, flangeHeight, nrOfSides,
+                    false, true, flangeCylinderForeVertices, flangeCylinderAftVertices, null, flangeCylinderAftNormals);
+            int tmpEndIdx = Math.max(obj.getNumVertices() - 1, tmpStartIdx);
+            FloatTuple locOffs = transformer.convertLocWithoutOriginOffs(baseHeight + innerHeight, 0, 0);
+            ObjUtils.translateVertices(obj, tmpStartIdx, tmpEndIdx, locOffs.getX(), locOffs.getY(), locOffs.getZ());
+        }
 
         // Generate base disk
-        DiskExporter.closeDiskMesh(obj, transformer, null, baseCylinderForeVertices, false, true);
+        if (!baseCylinderForeVertices.isEmpty()) {
+            DiskExporter.closeDiskMesh(obj, transformer, null, baseCylinderForeVertices, false, true);
+        }
 
         // Generate base inner disk
-        DiskExporter.closeDiskMesh(obj, transformer, null, baseCylinderAftVertices, innerCylinderForeVertices, false, false);
+        if (!baseCylinderAftVertices.isEmpty()) {
+            DiskExporter.closeDiskMesh(obj, transformer, null, baseCylinderAftVertices,
+                    hasInner ? innerCylinderForeVertices : null, false, false);
+        }
 
         // Generate flange inner disk
-        DiskExporter.closeDiskMesh(obj, transformer, null, innerCylinderAftVertices, flangeCylinderForeVertices, true, true);
+        if (hasInner && hasFlange) {
+            DiskExporter.closeDiskMesh(obj, transformer, null, innerCylinderAftVertices, flangeCylinderForeVertices, true, true);
+        }
 
         // Generate flange disk/screw
-        if (Float.compare(screwHeight, 0) == 0) {
-            DiskExporter.closeDiskMesh(obj, transformer, null, flangeCylinderAftVertices, false, false);
-        } else {
-            addScrew(obj, baseHeight, innerHeight, flangeHeight, outerRadius, screwHeight, LOD,
-                    flangeCylinderAftVertices, flangeCylinderAftNormals);
+        if (hasFlange) {
+            if (!hasScrew) {
+                DiskExporter.closeDiskMesh(obj, transformer, null, flangeCylinderAftVertices, false, false);
+            } else {
+                addScrew(obj, baseHeight, innerHeight, flangeHeight, outerRadius, screwHeight, LOD,
+                        flangeCylinderAftVertices, flangeCylinderAftNormals);
+            }
         }
 
 
         final int endIdx = Math.max(obj.getNumVertices() - 1, startIdx);
+        if (obj.getNumVertices() == startIdx) {
+            return;		// TODO: maybe this shouldn't happen, as the rest could still generate
+        }
         final int normalEndIdx = Math.max(obj.getNumNormals() - 1, normalStartIdx);
 
         // First orient the rail button correctly (upwards, not in the longitudinal direction)
@@ -129,6 +164,10 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
     private void addScrew(DefaultObj obj, float baseHeight, float innerHeight, float flangeHeight, float outerRadius,
                           float screwHeight, ObjUtils.LevelOfDetail LOD,
                           List<Integer> flangeCylinderAftVertices, List<Integer> flangeCylinderAftNormals) {
+        if (flangeCylinderAftVertices.isEmpty() || Float.compare(screwHeight, 0f) <= 0) {
+            return;
+        }
+
         final int nrOfStacks = LOD.getValue() / 10;
         final int nrOfSlices = flangeCylinderAftVertices.size();
         final int startIdx = obj.getNumVertices();

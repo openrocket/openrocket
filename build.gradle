@@ -4,6 +4,7 @@ plugins {
     id 'checkstyle'
     id 'org.javamodularity.moduleplugin' version '1.8.15'
     id 'application'
+    id 'jacoco'
 }
 
 // Java settings
@@ -41,6 +42,11 @@ file('core/src/main/resources/build.properties').withInputStream { buildProperti
 group = 'info.openrocket'
 version = buildProperties['build.version']
 
+// JaCoCo configuration
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 // Common project configuration
 allprojects {
     repositories {
@@ -53,6 +59,7 @@ allprojects {
 subprojects {
     apply plugin: 'java'
     apply plugin: "org.javamodularity.moduleplugin"
+    apply plugin: 'jacoco'
 
     // Configure the gradle-modules-plugin
     modularity {
@@ -62,6 +69,7 @@ subprojects {
 
     test {
         useJUnitPlatform()
+        finalizedBy jacocoTestReport
 
         testLogging {
             events 'PASSED', 'FAILED', 'SKIPPED', 'STANDARD_OUT'
@@ -69,6 +77,20 @@ subprojects {
             showStackTraces = true
             stackTraceFilters = []
         }
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            html.required = true
+            csv.required = false
+        }
+    }
+
+    // Always evaluate coverage as part of the verification lifecycle
+    tasks.named('check') {
+        dependsOn jacocoTestCoverageVerification
     }
 
     // Common dependencies
@@ -83,6 +105,10 @@ subprojects {
         testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
         testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
     }
+}
+
+tasks.named('check') {
+    dependsOn(subprojects.collect { it.tasks.named('check') })
 }
 
 //tasks.register('serializeEngines') {
@@ -137,10 +163,30 @@ shadowJar {
     }
 }
 
+// jacoco aggregate report for all subprojects
+tasks.register('jacocoRootReport', JacocoReport) {
+    group = 'verification'
+    description = 'Generates an aggregate report from all subprojects'
+
+    dependsOn(subprojects.jacocoTestReport)
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    // Collect execution data from all subprojects
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    // Collect class directories from all subprojects
+    classDirectories.setFrom(subprojects.sourceSets.main.output.classesDirs)
+}
+
 // Package the application for distribution.
 tasks.register('dist') {
     group = 'info.openrocket'
-    dependsOn 'shadowJar'
+    dependsOn 'check', 'shadowJar'
     doLast {
         println "Completed the deployable jar in './build/libs"
     }
