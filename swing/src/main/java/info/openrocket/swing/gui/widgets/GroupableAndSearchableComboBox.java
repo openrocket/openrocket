@@ -5,10 +5,13 @@ import info.openrocket.core.util.Groupable;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
+import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -279,16 +282,33 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			};
 			List<T> itemsForGroup = itemGroupMap.get(group);
 
-			if (itemsForGroup != null) {
-				for (T item : itemsForGroup) {
-					JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
-					itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
-					itemMenu.addActionListener(e -> {
-						setSelectedItem(item);
-					});
-					groupMenu.add(itemMenu);
-				}
-			}
+      if (itemsForGroup != null) {
+
+        Map<String, List<T>> itemsByFirstWords = itemsForGroup.stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.groupingBy(item ->
+                getDisplayString(item).split(" ", 2)[0],
+                LinkedHashMap::new,
+                Collectors.toList()
+            ));
+
+        for (Map.Entry<String, List<T>> entry : itemsByFirstWords.entrySet()) {
+          String firstWord = entry.getKey();
+          List<T> groupedItems = entry.getValue();
+
+          JMenu itemCategory = new JMenu(firstWord);
+
+          for (T item : groupedItems) {
+            JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
+
+            itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
+            itemMenu.addActionListener(e -> setSelectedItem(item));
+
+            itemCategory.add(itemMenu);
+          }
+          groupMenu.add(itemCategory);
+        }
+      }
 
 			groupMenus.add(groupMenu);
 			menu.add(groupMenu);
