@@ -194,13 +194,14 @@ class MotorInformationPanel extends JPanel {
 			curveSelectionModel = new DefaultComboBoxModel<>();
 			curveSelectionBox = new JComboBox<>(curveSelectionModel);
 			@SuppressWarnings("unchecked")
-			ListCellRenderer<MotorHolder> lcr = (ListCellRenderer<MotorHolder>) curveSelectionBox.getRenderer(); 
+			ListCellRenderer<MotorHolder> lcr = (ListCellRenderer<MotorHolder>) curveSelectionBox.getRenderer();
 			curveSelectionBox.setRenderer(new CurveSelectionRenderer(lcr));
 			curveSelectionBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					MotorHolder value = (MotorHolder)curveSelectionBox.getSelectedItem();
 					if (value != null) {
+						curveSelectionBox.setForeground(getColor(value.getIndex()));
 						setMotor(selectedMotorSet, value.getMotor(), selectedDelay);
 					}
 					updateData();
