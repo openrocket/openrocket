@@ -5,6 +5,7 @@ import info.openrocket.core.util.Groupable;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
+import java.awt.PopupMenu;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import javax.swing.AbstractListModel;
@@ -283,30 +284,24 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			List<T> itemsForGroup = itemGroupMap.get(group);
 
       if (itemsForGroup != null) {
+        if (group.getName().equals("Threads and Lines")) {
+          Map<String, List<T>> itemsByFirstWord = itemsForGroup.stream()
+              .filter(Objects::nonNull)
+              .collect(Collectors.groupingBy(item ->
+                  getDisplayString(item).split(" ", 2)[0],
+                  LinkedHashMap::new,
+                  Collectors.toList()));
 
-        Map<String, List<T>> itemsByFirstWords = itemsForGroup.stream()
-            .filter(Objects::nonNull)
-            .collect(Collectors.groupingBy(item ->
-                getDisplayString(item).split(" ", 2)[0],
-                LinkedHashMap::new,
-                Collectors.toList()
-            ));
+          itemsByFirstWord.forEach((firstWord, groupedItems) -> {
+            JMenu itemCategory = new JMenu(firstWord);
+            groupedItems.forEach(item -> itemCategory.add(createMenuItem(item)));
+            groupMenu.add(itemCategory);
+          });
 
-        for (Map.Entry<String, List<T>> entry : itemsByFirstWords.entrySet()) {
-          String firstWord = entry.getKey();
-          List<T> groupedItems = entry.getValue();
-
-          JMenu itemCategory = new JMenu(firstWord);
-
-          for (T item : groupedItems) {
-            JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
-
-            itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
-            itemMenu.addActionListener(e -> setSelectedItem(item));
-
-            itemCategory.add(itemMenu);
-          }
-          groupMenu.add(itemCategory);
+        } else {
+          itemsForGroup.stream()
+              .filter(Objects::nonNull)
+              .forEach(item -> groupMenu.add(createMenuItem(item)));
         }
       }
 
@@ -325,6 +320,13 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 
 		return menu;
 	}
+
+  private JCheckBoxMenuItem createMenuItem(T item) {
+    JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
+    itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
+    itemMenu.addActionListener(e -> setSelectedItem(item));
+    return itemMenu;
+  }
 
 	private JPopupMenu createSearchPopup() {
 		final JPopupMenu menu = new JPopupMenu();
