@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.widgets;
 
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.util.Group;
 import info.openrocket.core.util.Groupable;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -284,24 +285,11 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			List<T> itemsForGroup = itemGroupMap.get(group);
 
       if (itemsForGroup != null) {
-        if (group.getName().equals("Threads and Lines")) {
-          Map<String, List<T>> itemsByFirstWord = itemsForGroup.stream()
-              .filter(Objects::nonNull)
-              .collect(Collectors.groupingBy(item ->
-                  getDisplayString(item).split(" ", 2)[0],
-                  LinkedHashMap::new,
-                  Collectors.toList()));
-
-          itemsByFirstWord.forEach((firstWord, groupedItems) -> {
-            JMenu itemCategory = new JMenu(firstWord);
-            groupedItems.forEach(item -> itemCategory.add(createMenuItem(item)));
-            groupMenu.add(itemCategory);
-          });
-
-        } else {
-          itemsForGroup.stream()
-              .filter(Objects::nonNull)
-              .forEach(item -> groupMenu.add(createMenuItem(item)));
+        for (T item : itemsForGroup) {
+          JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
+          itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
+          itemMenu.addActionListener(e -> setSelectedItem(item));
+          groupMenu.add(itemMenu);
         }
       }
 
@@ -320,13 +308,6 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 
 		return menu;
 	}
-
-  private JCheckBoxMenuItem createMenuItem(T item) {
-    JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
-    itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
-    itemMenu.addActionListener(e -> setSelectedItem(item));
-    return itemMenu;
-  }
 
 	private JPopupMenu createSearchPopup() {
 		final JPopupMenu menu = new JPopupMenu();
