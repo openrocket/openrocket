@@ -26,20 +26,12 @@ public enum MaterialGroupDTO {
 	COMPOSITES(MaterialGroup.COMPOSITES),
 	@XmlEnumValue("Fibers")
 	FIBERS(MaterialGroup.FIBERS),
-	@XmlEnumValue("Threads")
-	THREADS(MaterialGroup.THREADS),
   @XmlEnumValue("Elastics")
   ELASTICS(MaterialGroup.ELASTICS),
-  @XmlEnumValue("Braids")
-  BRAIDS(MaterialGroup.BRAIDS),
-  @XmlEnumValue("Tubulars")
-  TUBULAR(MaterialGroup.TUBULARS),
   @XmlEnumValue("Kevlars")
   KEVLARS(MaterialGroup.KEVLARS),
   @XmlEnumValue("Nylons")
   NYLONS(MaterialGroup.NYLONS),
-  @XmlEnumValue("Paralines")
-  PARALINES(MaterialGroup.PARALINES),
 	@XmlEnumValue("Other")
 	OTHER(MaterialGroup.OTHER),
 	@XmlEnumValue("Custom")

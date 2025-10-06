@@ -82,17 +82,17 @@ public class Databases {
 		SURFACE_MATERIAL.add(newMaterial(Type.SURFACE, "Cellophane", 0.018, MaterialGroup.PLASTICS));
 		SURFACE_MATERIAL.add(newMaterial(Type.SURFACE, "Cr\u00eape paper", 0.025, MaterialGroup.PAPER));
 		
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Thread (heavy-duty)", 0.0003, MaterialGroup.THREADS));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Thread (heavy-duty)", 0.0003, MaterialGroup.OTHER));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (round 2 mm, 1/16 in)", 0.0018, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 6 mm, 1/4 in)", 0.0043, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 12 mm, 1/2 in)", 0.008, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 19 mm, 3/4 in)", 0.0012, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 25 mm, 1 in)", 0.0016, MaterialGroup.ELASTICS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (2 mm, 1/16 in)", 0.001, MaterialGroup.BRAIDS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (3 mm, 1/8 in)", 0.0035, MaterialGroup.BRAIDS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (11 mm, 7/16 in)", 0.013, MaterialGroup.TUBULARS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (14 mm, 9/16 in)", 0.016, MaterialGroup.TUBULARS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (25 mm, 1 in)", 0.029, MaterialGroup.TUBULARS));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (2 mm, 1/16 in)", 0.001, MaterialGroup.OTHER));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (3 mm, 1/8 in)", 0.0035, MaterialGroup.OTHER));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (11 mm, 7/16 in)", 0.013, MaterialGroup.OTHER));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (14 mm, 9/16 in)", 0.016, MaterialGroup.OTHER));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (25 mm, 1 in)", 0.029, MaterialGroup.OTHER));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Kevlar thread 138  (0.4 mm, 1/64 in)", 0.00014808, MaterialGroup.KEVLARS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Kevlar thread 207  (0.5 mm, 1/64 in)", 0.00023622, MaterialGroup.KEVLARS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Kevlar thread 346  (0.7 mm, 1/32 in)", 0.00047243, MaterialGroup.KEVLARS));
@@ -114,7 +114,7 @@ public class Databases {
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Nylon flat webbing md. (16 mm, 5/8 in)", 0.01618548, MaterialGroup.NYLONS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Nylon flat webbing lg. (14 mm, 9/16 in)", 0.02723097, MaterialGroup.NYLONS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Nylon flat webbing lg. (25 mm, 1 in)", 0.03969816, MaterialGroup.NYLONS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Paraline small IIIA (6.4 mm, 1.4 in)", 0.00371829, MaterialGroup.PARALINES));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Paraline small IIIA (6.4 mm, 1.4 in)", 0.00371829, MaterialGroup.OTHER));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic rubber band (flat 3.2 mm, 1/8 in)", 0.00297638, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic rubber band (flat 6.4 mm, 1/4 in)", 0.00613107, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic braided cord (flat 3.2 mm, 1/8 in)", 0.00106, MaterialGroup.ELASTICS));

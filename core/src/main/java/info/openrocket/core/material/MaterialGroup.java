@@ -19,14 +19,10 @@ public class MaterialGroup implements Comparable<MaterialGroup>, Group {
 	public static final MaterialGroup FOAMS = new MaterialGroup(trans.get("MaterialGroup.Foams"), "Foams", 50, false);
 	public static final MaterialGroup COMPOSITES = new MaterialGroup(trans.get("MaterialGroup.Composites"), "Composites", 60, false);
 	public static final MaterialGroup FIBERS = new MaterialGroup(trans.get("MaterialGroup.Fibers"), "Fibers", 70, false);
-	public static final MaterialGroup THREADS = new MaterialGroup(trans.get("MaterialGroup.Threads"), "Threads", 80, false);
-  public static final MaterialGroup ELASTICS = new MaterialGroup(trans.get("MaterialGroup.Elastics"), "Elastics", 90, false);
-  public static final MaterialGroup BRAIDS = new MaterialGroup(trans.get("MaterialGroup.Braids"), "Braids", 100, false);
-  public static final MaterialGroup TUBULARS = new MaterialGroup(trans.get("MaterialGroup.Tubulars"), "Tubulars", 110, false);
-  public static final MaterialGroup KEVLARS = new MaterialGroup(trans.get("MaterialGroup.Kevlars"), "Kevlars", 120, false);
-  public static final MaterialGroup NYLONS = new MaterialGroup(trans.get("MaterialGroup.Nylons"), "Nylons", 130, false);
-  public static final MaterialGroup PARALINES = new MaterialGroup(trans.get("MaterialGroup.Paralines"), "Paralines", 140, false);
-	public static final MaterialGroup OTHER = new MaterialGroup(trans.get("MaterialGroup.Other"), "Other", 150, false);
+  public static final MaterialGroup ELASTICS = new MaterialGroup(trans.get("MaterialGroup.Elastics"), "Elastics", 80, false);
+  public static final MaterialGroup KEVLARS = new MaterialGroup(trans.get("MaterialGroup.Kevlars"), "Kevlars", 90, false);
+  public static final MaterialGroup NYLONS = new MaterialGroup(trans.get("MaterialGroup.Nylons"), "Nylons", 100, false);
+	public static final MaterialGroup OTHER = new MaterialGroup(trans.get("MaterialGroup.Other"), "Other", 110, false);
 
 	public static final MaterialGroup CUSTOM = new MaterialGroup(trans.get("MaterialGroup.Custom"), "Custom", 1000, true);
 
@@ -39,13 +35,9 @@ public class MaterialGroup implements Comparable<MaterialGroup>, Group {
 			FOAMS,
 			COMPOSITES,
 			FIBERS,
-      THREADS,
       ELASTICS,
-      BRAIDS,
-      TUBULARS,
-      NYLONS,
-      PARALINES,
       KEVLARS,
+      NYLONS,
 			OTHER,
 			CUSTOM
 	};
