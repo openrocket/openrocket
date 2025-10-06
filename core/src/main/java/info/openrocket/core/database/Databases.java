@@ -88,11 +88,11 @@ public class Databases {
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 12 mm, 1/2 in)", 0.008, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 19 mm, 3/4 in)", 0.0012, MaterialGroup.ELASTICS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Elastic cord (flat 25 mm, 1 in)", 0.0016, MaterialGroup.ELASTICS));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (2 mm, 1/16 in)", 0.001, MaterialGroup.OTHER));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (3 mm, 1/8 in)", 0.0035, MaterialGroup.OTHER));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (11 mm, 7/16 in)", 0.013, MaterialGroup.OTHER));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (14 mm, 9/16 in)", 0.016, MaterialGroup.OTHER));
-		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (25 mm, 1 in)", 0.029, MaterialGroup.OTHER));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (2 mm, 1/16 in)", 0.001, MaterialGroup.NYLONS));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Braided nylon (3 mm, 1/8 in)", 0.0035, MaterialGroup.NYLONS));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (11 mm, 7/16 in)", 0.013, MaterialGroup.NYLONS));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (14 mm, 9/16 in)", 0.016, MaterialGroup.NYLONS));
+		LINE_MATERIAL.add(newMaterial(Type.LINE, "Tubular nylon (25 mm, 1 in)", 0.029, MaterialGroup.NYLONS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Kevlar thread 138  (0.4 mm, 1/64 in)", 0.00014808, MaterialGroup.KEVLARS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Kevlar thread 207  (0.5 mm, 1/64 in)", 0.00023622, MaterialGroup.KEVLARS));
 		LINE_MATERIAL.add(newMaterial(Type.LINE, "Kevlar thread 346  (0.7 mm, 1/32 in)", 0.00047243, MaterialGroup.KEVLARS));
