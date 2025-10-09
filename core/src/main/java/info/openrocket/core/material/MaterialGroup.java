@@ -19,8 +19,10 @@ public class MaterialGroup implements Comparable<MaterialGroup>, Group {
 	public static final MaterialGroup FOAMS = new MaterialGroup(trans.get("MaterialGroup.Foams"), "Foams", 50, false);
 	public static final MaterialGroup COMPOSITES = new MaterialGroup(trans.get("MaterialGroup.Composites"), "Composites", 60, false);
 	public static final MaterialGroup FIBERS = new MaterialGroup(trans.get("MaterialGroup.Fibers"), "Fibers", 70, false);
-	public static final MaterialGroup THREADS_LINES = new MaterialGroup(trans.get("MaterialGroup.ThreadsLines"), "ThreadsLines", 80, false);
-	public static final MaterialGroup OTHER = new MaterialGroup(trans.get("MaterialGroup.Other"), "Other", 90, false);
+  public static final MaterialGroup ELASTICS = new MaterialGroup(trans.get("MaterialGroup.Elastics"), "Elastics", 80, false);
+  public static final MaterialGroup KEVLARS = new MaterialGroup(trans.get("MaterialGroup.Kevlars"), "Kevlars", 90, false);
+  public static final MaterialGroup NYLONS = new MaterialGroup(trans.get("MaterialGroup.Nylons"), "Nylons", 100, false);
+	public static final MaterialGroup OTHER = new MaterialGroup(trans.get("MaterialGroup.Other"), "Other", 110, false);
 
 	public static final MaterialGroup CUSTOM = new MaterialGroup(trans.get("MaterialGroup.Custom"), "Custom", 1000, true);
 
@@ -33,7 +35,9 @@ public class MaterialGroup implements Comparable<MaterialGroup>, Group {
 			FOAMS,
 			COMPOSITES,
 			FIBERS,
-			THREADS_LINES,
+      ELASTICS,
+      KEVLARS,
+      NYLONS,
 			OTHER,
 			CUSTOM
 	};

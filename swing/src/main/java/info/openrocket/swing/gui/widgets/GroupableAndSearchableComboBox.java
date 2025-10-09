@@ -1,14 +1,19 @@
 package info.openrocket.swing.gui.widgets;
 
+import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.util.Group;
 import info.openrocket.core.util.Groupable;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
+import java.awt.PopupMenu;
+import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -279,16 +284,14 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 			};
 			List<T> itemsForGroup = itemGroupMap.get(group);
 
-			if (itemsForGroup != null) {
-				for (T item : itemsForGroup) {
-					JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
-					itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
-					itemMenu.addActionListener(e -> {
-						setSelectedItem(item);
-					});
-					groupMenu.add(itemMenu);
-				}
-			}
+      if (itemsForGroup != null) {
+        for (T item : itemsForGroup) {
+          JCheckBoxMenuItem itemMenu = new JCheckBoxMenuItem(getDisplayString(item));
+          itemMenu.setSelected(item == GroupableAndSearchableComboBox.this.getSelectedItem());
+          itemMenu.addActionListener(e -> setSelectedItem(item));
+          groupMenu.add(itemMenu);
+        }
+      }
 
 			groupMenus.add(groupMenu);
 			menu.add(groupMenu);
