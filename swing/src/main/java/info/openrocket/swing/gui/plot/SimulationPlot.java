@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -14,14 +13,12 @@ import java.util.Set;
 
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.SimulationAbort;
-import info.openrocket.core.logging.Warning;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.util.LinearInterpolator;
 import info.openrocket.swing.gui.util.GUIUtil;
-import info.openrocket.swing.utils.DecimalFormatter;
 
 import org.jfree.chart.annotations.XYImageAnnotation;
 import org.jfree.chart.annotations.XYTitleAnnotation;
@@ -35,7 +32,6 @@ import org.jfree.chart.ui.VerticalAlignment;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.RectangleInsets;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 @SuppressWarnings("serial")
@@ -261,9 +257,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(branch);
 
-		final List<Double> time = dataBranch.getValuesView(FlightDataType.TYPE_TIME);
+		final List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
 		String tName = FlightDataType.TYPE_TIME.getName();
-		final List<Double> domain = dataBranch.getValuesView(config.getDomainAxisType());
+		final List<Double> domain = dataBranch.get(config.getDomainAxisType());
 		LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
 		String xName = config.getDomainAxisType().getName();
 
@@ -293,7 +289,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				int dataTypeIdx = series.getDataIdx();
 				FlightDataType type = config.getType(dataTypeIdx);
 				String yName = type.toString();
-				final List<Double> range = dataBranch.getValuesView(type);
+				final List<Double> range = dataBranch.get(type);
 				LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
 				
 				for (int i = 0; i < eventSets.size(); i++) {

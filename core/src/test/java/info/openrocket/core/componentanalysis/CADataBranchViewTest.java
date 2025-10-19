@@ -20,8 +20,8 @@ class CADataBranchViewTest extends BaseTestCase {
 		branch.setDomainValue(CADomainDataType.MACH, 0.1);
 		branch.setValue(CADataType.TOTAL_CD, component, 0.4);
 
-		List<Double> domainView = branch.getValuesView(CADomainDataType.MACH);
-		List<Double> componentView = branch.getValuesView(CADataType.TOTAL_CD, component);
+		List<Double> domainView = branch.get(CADomainDataType.MACH);
+		List<Double> componentView = branch.get(CADataType.TOTAL_CD, component);
 
 		assertEquals(0.1, domainView.get(0));
 		assertEquals(0.4, componentView.get(0));
@@ -44,7 +44,7 @@ class CADataBranchViewTest extends BaseTestCase {
 		branch.addPoint();
 		branch.setValue(CADataType.TOTAL_CD, component, 0.5);
 
-		List<Double> view = branch.getValuesView(CADataType.TOTAL_CD, component);
+		List<Double> view = branch.get(CADataType.TOTAL_CD, component);
 
 		assertThrows(UnsupportedOperationException.class, () -> view.add(0.6));
 	}
@@ -53,7 +53,7 @@ class CADataBranchViewTest extends BaseTestCase {
 	void componentValuesViewForMissingComponentIsEmptyAndUnmodifiable() {
 		CADataBranch branch = new CADataBranch("test", CADomainDataType.MACH, CADataType.TOTAL_CD);
 
-		List<Double> emptyView = branch.getValuesView(CADataType.TOTAL_CD, mock(RocketComponent.class));
+		List<Double> emptyView = branch.get(CADataType.TOTAL_CD, mock(RocketComponent.class));
 
 		assertTrue(emptyView.isEmpty());
 		assertThrows(UnsupportedOperationException.class, () -> emptyView.add(0.1));

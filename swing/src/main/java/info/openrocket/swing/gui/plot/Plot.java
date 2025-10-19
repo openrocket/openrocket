@@ -216,7 +216,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 						String nameT = FlightDataType.TYPE_TIME.getName();
 						double dataT = Double.NaN;
-						final List<Double> time = allBranches.get(ser.getBranchIdx()).getValuesView((T)FlightDataType.TYPE_TIME);
+						final List<Double> time = allBranches.get(ser.getBranchIdx()).get((T)FlightDataType.TYPE_TIME);
 						if (time != null) {
 							dataT = time.get(item);
 						}
@@ -305,8 +305,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		// Default implementation for regular DataBranch
 		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, dataIndex, unit.getUnit(), branchName, baseName);
 
-		List<Double> plotx = branch.getValuesView(filledConfig.getDomainAxisType());
-		List<Double> ploty = branch.getValuesView(type);
+		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
+		List<Double> ploty = branch.get(type);
 
 		int pointCount = plotx.size();
 		for (int j = 0; j < pointCount; j++) {

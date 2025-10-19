@@ -16,7 +16,7 @@ class DataBranchViewTest extends BaseTestCase {
 		branch.addPoint();
 		branch.setValue(FlightDataType.TYPE_TIME, 0.1);
 
-		List<Double> view = branch.getValuesView(FlightDataType.TYPE_TIME);
+		List<Double> view = branch.get(FlightDataType.TYPE_TIME);
 		assertEquals(1, view.size());
 		assertEquals(0.1, view.get(0));
 
@@ -33,7 +33,7 @@ class DataBranchViewTest extends BaseTestCase {
 		branch.addPoint();
 		branch.setValue(FlightDataType.TYPE_TIME, 1.0);
 
-		List<Double> view = branch.getValuesView(FlightDataType.TYPE_TIME);
+		List<Double> view = branch.get(FlightDataType.TYPE_TIME);
 
 		assertThrows(UnsupportedOperationException.class, () -> view.add(2.0));
 	}
@@ -42,7 +42,7 @@ class DataBranchViewTest extends BaseTestCase {
 	void valuesViewForMissingTypeIsEmptyAndUnmodifiable() {
 		FlightDataBranch branch = new FlightDataBranch("test", FlightDataType.TYPE_TIME);
 
-		List<Double> view = branch.getValuesView(FlightDataType.TYPE_VELOCITY_TOTAL);
+		List<Double> view = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
 		assertNull(view);
 	}
 }

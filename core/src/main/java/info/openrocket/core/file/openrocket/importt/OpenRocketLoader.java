@@ -73,7 +73,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			FlightDataBranch branch = s.getSimulatedData().getBranch(0);
 			if (branch == null)
 				continue;
-			List<Double> list = branch.get(FlightDataType.TYPE_TIME);
+			List<Double> list = branch.getClone(FlightDataType.TYPE_TIME);
 			if (list == null)
 				continue;
 
