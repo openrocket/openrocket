@@ -207,8 +207,8 @@ public class FlightData {
 		flightTime = branch.getLast(FlightDataType.TYPE_TIME);
 		
 		// Time to apogee
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
-		List<Double> altitude = branch.get(FlightDataType.TYPE_ALTITUDE);
+		final List<Double> time = branch.getValuesView(FlightDataType.TYPE_TIME);
+		final List<Double> altitude = branch.getValuesView(FlightDataType.TYPE_ALTITUDE);
 		
 		if (time == null || altitude == null) {
 			timeToApogee = Double.NaN;
@@ -235,21 +235,21 @@ public class FlightData {
 		for (FlightEvent event : branch.getEvents()) {
 			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
 				double t = event.getTime();
-				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
+				final List<Double> velocity = branch.getValuesView(FlightDataType.TYPE_VELOCITY_TOTAL);
 				launchRodVelocity = MathUtil.interpolate( time, velocity, t);
 			} else if ( event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
 				double t = event.getTime();
-				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
+				final List<Double> velocity = branch.getValuesView(FlightDataType.TYPE_VELOCITY_TOTAL);
 				deploymentVelocity = MathUtil.interpolate( time, velocity, t);
 			} else if (event.getType() == FlightEvent.Type.GROUND_HIT) {
 				double t = event.getTime();
-				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
+				final List<Double> velocity = branch.getValuesView(FlightDataType.TYPE_VELOCITY_TOTAL);
 				groundHitVelocity = MathUtil.interpolate( time,  velocity, t);
 			}
 		}
 		
 		// Max. acceleration (must be after apogee time)
-		if (branch.get(FlightDataType.TYPE_ACCELERATION_TOTAL) != null) {
+		if (branch.getValuesView(FlightDataType.TYPE_ACCELERATION_TOTAL) != null) {
 			maxAcceleration = calculateMaxAcceleration();
 		} else {
 			maxAcceleration = Double.NaN;
@@ -316,8 +316,8 @@ public class FlightData {
 			}
 		}
 		
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
-		List<Double> acceleration = branch.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
+		final List<Double> time = branch.getValuesView(FlightDataType.TYPE_TIME);
+		final List<Double> acceleration = branch.getValuesView(FlightDataType.TYPE_ACCELERATION_TOTAL);
 		
 		if (time == null || acceleration == null) {
 			return Double.NaN;

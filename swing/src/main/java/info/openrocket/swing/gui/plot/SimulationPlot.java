@@ -261,9 +261,9 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 
 		FlightDataBranch dataBranch = simulation.getSimulatedData().getBranch(branch);
 
-		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		final List<Double> time = dataBranch.getValuesView(FlightDataType.TYPE_TIME);
 		String tName = FlightDataType.TYPE_TIME.getName();
-		List<Double> domain = dataBranch.get(config.getDomainAxisType());
+		final List<Double> domain = dataBranch.getValuesView(config.getDomainAxisType());
 		LinearInterpolator domainInterpolator = new LinearInterpolator(time, domain);
 		String xName = config.getDomainAxisType().getName();
 
@@ -293,7 +293,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				int dataTypeIdx = series.getDataIdx();
 				FlightDataType type = config.getType(dataTypeIdx);
 				String yName = type.toString();
-				List<Double> range = dataBranch.get(type);
+				final List<Double> range = dataBranch.getValuesView(type);
 				LinearInterpolator rangeInterpolator = new LinearInterpolator(time, range);
 				
 				for (int i = 0; i < eventSets.size(); i++) {

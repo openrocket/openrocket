@@ -156,7 +156,7 @@ public class CSVExport {
 								  String fieldSeparator, int decimalPlaces, boolean isExponentialNotation,
 								  boolean eventComments, String commentStarter) {
 		// Time variable
-		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> time = branch.getValuesView(FlightDataType.TYPE_TIME);
 
 		// Number of data points
 		int n = time != null ? time.size() : branch.getLength();
@@ -169,7 +169,7 @@ public class CSVExport {
 		// List of field values
 		List<List<Double>> fieldValues = new ArrayList<>();
 		for (FlightDataType t : fields) {
-			List<Double> values = branch.get(t);
+			final List<Double> values = branch.getValuesView(t);
 			fieldValues.add(values);
 		}
 
@@ -218,7 +218,7 @@ public class CSVExport {
 	private static void writeData(PrintWriter writer, CADataBranch branch, CADomainDataType domainDataType,
 								  CADataType[] fields, Map<CADataType, List<RocketComponent>> components, Unit[] units,
 								  String fieldSeparator, int decimalPlaces, boolean isExponentialNotation) {
-		List<Double> domainValues = branch.get(domainDataType);
+		final List<Double> domainValues = branch.getValuesView(domainDataType);
 
 		int n = domainValues != null ? domainValues.size() : branch.getLength();
 

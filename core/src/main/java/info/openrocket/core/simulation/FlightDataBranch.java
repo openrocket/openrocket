@@ -262,7 +262,7 @@ public class FlightDataBranch extends DataBranch<FlightDataType> {
 		if (Double.isNaN(time)) {
 			return -1;
 		}
-		List<Double> times = get(FlightDataType.TYPE_TIME);
+		List<Double> times = getValuesView(FlightDataType.TYPE_TIME);
 		if (times == null) {
 			return -1;
 		}

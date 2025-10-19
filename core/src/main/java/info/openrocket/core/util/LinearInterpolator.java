@@ -32,7 +32,7 @@ public class LinearInterpolator implements Cloneable {
 		addPoints(x, y);
 	}
 
-	public LinearInterpolator(List<Double> x, List<Double> y) {
+	public LinearInterpolator(final List<Double> x, final List<Double> y) {
 		addPoints(x, y);
 	}
 
@@ -65,7 +65,7 @@ public class LinearInterpolator implements Cloneable {
 		}
 	}
 
-	public void addPoints(List<Double> x, List<Double> y) {
+	public void addPoints(final List<Double> x, final List<Double> y) {
 		if (x.size() != y.size()) {
 			throw new IllegalArgumentException("Array lengths do not match, x=" + x.size() +
 					" y=" + y.size());

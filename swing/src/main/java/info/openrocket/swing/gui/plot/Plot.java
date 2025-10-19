@@ -216,8 +216,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 
 						String nameT = FlightDataType.TYPE_TIME.getName();
 						double dataT = Double.NaN;
-						List<Double> time = allBranches.get(ser.getBranchIdx()).get((T)FlightDataType.TYPE_TIME);
-						if (null != time) {
+						final List<Double> time = allBranches.get(ser.getBranchIdx()).getValuesView((T)FlightDataType.TYPE_TIME);
+						if (time != null) {
 							dataT = time.get(item);
 						}
 						String unitT = FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString();

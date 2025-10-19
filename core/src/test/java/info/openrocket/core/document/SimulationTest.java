@@ -93,6 +93,7 @@ public class SimulationTest extends BaseTestCase {
 		assertEquals(SimulationAbort.Cause.NO_MOTORS_DEFINED,
 				((SimulationAbort)abort.getData()).getCause());
 	}
+
 	@Test
 	public void testSimulationWithNoMotors_RK6() throws SimulationException {
 		// Create configuration without motors
@@ -174,8 +175,8 @@ public class SimulationTest extends BaseTestCase {
 		FlightData flightData =  simulation.getSimulatedData();
 		FlightDataBranch branch = flightData.getBranch(0);
 
-		List<Double> altitudeData = branch.get(FlightDataType.TYPE_ALTITUDE);
-		List<Double> altitudeASLData = branch.get(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
+		List<Double> altitudeData = branch.getValuesView(FlightDataType.TYPE_ALTITUDE);
+		List<Double> altitudeASLData = branch.getValuesView(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
 
 		assertNotNull(altitudeData);
 		assertNotNull(altitudeASLData);
@@ -196,6 +197,7 @@ public class SimulationTest extends BaseTestCase {
 		assertEquals(maxAltitude + launchAltitude, maxAltitudeASL, 0.001,
 				"Maximum altitude above sea level should equal maximum altitude + launch altitude");
 	}
+
 	@Test
 	public void testAltitudeAboveSeaLevel_RK6() throws SimulationException {
 		double launchAltitude = 123;
@@ -206,8 +208,8 @@ public class SimulationTest extends BaseTestCase {
 		FlightData flightData =  simulation.getSimulatedData();
 		FlightDataBranch branch = flightData.getBranch(0);
 
-		List<Double> altitudeData = branch.get(FlightDataType.TYPE_ALTITUDE);
-		List<Double> altitudeASLData = branch.get(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
+		List<Double> altitudeData = branch.getValuesView(FlightDataType.TYPE_ALTITUDE);
+		List<Double> altitudeASLData = branch.getValuesView(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
 
 		assertNotNull(altitudeData);
 		assertNotNull(altitudeASLData);

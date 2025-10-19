@@ -688,7 +688,7 @@ public class OpenRocketSaver extends RocketSaver {
 		if (types.length == 0)
 			return 0;
 		
-		List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> timeData = branch.getValuesView(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
 			// If time data not available, store all points
 			return branch.getLength();
