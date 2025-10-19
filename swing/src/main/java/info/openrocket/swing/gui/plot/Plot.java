@@ -305,8 +305,8 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		// Default implementation for regular DataBranch
 		MetadataXYSeries series = new MetadataXYSeries(startIndex, false, true, branchIdx, dataIndex, unit.getUnit(), branchName, baseName);
 
-		List<Double> plotx = branch.get(filledConfig.getDomainAxisType());
-		List<Double> ploty = branch.get(type);
+		List<Double> plotx = branch.getValuesView(filledConfig.getDomainAxisType());
+		List<Double> ploty = branch.getValuesView(type);
 
 		int pointCount = plotx.size();
 		for (int j = 0; j < pointCount; j++) {

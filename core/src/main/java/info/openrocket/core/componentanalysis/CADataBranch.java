@@ -5,6 +5,7 @@ import info.openrocket.core.simulation.DataBranch;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.ModID;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,22 @@ public class CADataBranch extends DataBranch<CADataType> {
 		if (list == null) return null;
 
 		return list.clone();
+	}
+
+	public List<Double> getValuesView(CADataType type, RocketComponent component) {
+		if (type instanceof CADomainDataType) {
+			return super.getValuesView(type);
+		}
+
+		Map<RocketComponent, ArrayList<Double>> typeMap = componentValues.get(type);
+		if (typeMap == null) {
+			return Collections.emptyList();
+		}
+		ArrayList<Double> list = typeMap.get(component);
+		if (list == null) {
+			return Collections.emptyList();
+		}
+		return Collections.unmodifiableList(list);
 	}
 
 	public Double getByIndex(CADataType type, RocketComponent component, int index) {
