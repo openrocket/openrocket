@@ -146,13 +146,13 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 * Return an unmodifiable view of the values for the specified type without cloning the data.
 	 *
 	 * @param type	the variable type.
-	 * @return		an unmodifiable list backed by the internal storage, or an empty list if
+	 * @return		an unmodifiable list backed by the internal storage, or null if
 	 * 				the variable type hasn't been added to this branch.
 	 */
 	public List<Double> getValuesView(T type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null) {
-			return Collections.emptyList();
+			return null;
 		}
 		return Collections.unmodifiableList(list);
 	}
