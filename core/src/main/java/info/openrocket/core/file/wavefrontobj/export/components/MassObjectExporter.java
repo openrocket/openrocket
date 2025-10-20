@@ -10,6 +10,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.RocketComponentUtils;
 
 public class MassObjectExporter extends RocketComponentExporter<MassObject> {
@@ -192,9 +193,9 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
         // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
         final double radialPosition = component.getRadialPosition();
         final double radialDirection = component.getRadialDirection();
-        final double x = location.x;
-        final double y = location.y + radialPosition * Math.cos(radialDirection);
-        final double z = location.z + radialPosition * Math.sin(radialDirection);
-        return new Coordinate(x, y, z);
+        final double x = location.getX();
+        final double y = location.getY() + radialPosition * Math.cos(radialDirection);
+        final double z = location.getZ() + radialPosition * Math.sin(radialDirection);
+        return new ImmutableCoordinate(x, y, z);
     }
 }

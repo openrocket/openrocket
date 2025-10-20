@@ -1,6 +1,7 @@
 package info.openrocket.core.file.svg.export;
 
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -95,8 +96,8 @@ public class SVGBuilder {
 
 		for (int i = 0; i < coordinates.length; i++) {
 			final Coordinate coord = coordinates[i];
-			double x = (coord.x + xPos) * OR_UNIT_TO_SVG_UNIT;
-			double y = (coord.y+ yPos) * OR_UNIT_TO_SVG_UNIT;
+			double x = (coord.getX() + xPos) * OR_UNIT_TO_SVG_UNIT;
+			double y = (coord.getY()+ yPos) * OR_UNIT_TO_SVG_UNIT;
 			updateCanvasSize(x, y);
 			final String command = (i == 0) ? "M" : "L";
 			dAttribute.append(String.format(Locale.ENGLISH, "%s%.1f,%.1f ", command, x, y));		// Coordinates are in meters, SVG is in mm
@@ -104,8 +105,8 @@ public class SVGBuilder {
 
 		// Close the path if it's the same start and end point
 		if (coordinates.length > 2 &&
-				Math.abs(coordinates[0].x - coordinates[coordinates.length-1].x) < 1e-10 &&
-				Math.abs(coordinates[0].y - coordinates[coordinates.length-1].y) < 1e-10) {
+				Math.abs(coordinates[0].getX() - coordinates[coordinates.length-1].getX()) < 1e-10 &&
+				Math.abs(coordinates[0].getY() - coordinates[coordinates.length-1].getY()) < 1e-10) {
 			dAttribute.append("Z");
 		}
 
@@ -192,11 +193,11 @@ public class SVGBuilder {
 		SVGBuilder svgBuilder = new SVGBuilder();
 
 		Coordinate[] coordinates = {
-				new Coordinate(0, 0),
-				new Coordinate(0, 0.01),
-				new Coordinate(0.02, 0.02),
-				new Coordinate(0.01, 0),
-				new Coordinate(0, 0)};
+				new ImmutableCoordinate(0, 0),
+				new ImmutableCoordinate(0, 0.01),
+				new ImmutableCoordinate(0.02, 0.02),
+				new ImmutableCoordinate(0.01, 0),
+				new ImmutableCoordinate(0, 0)};
 
 		svgBuilder.addPath(coordinates, null, Color.BLACK, 0.1);
 		svgBuilder.writeToFile(new File("<your_path_here>/test.svg"));

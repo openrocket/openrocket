@@ -62,12 +62,12 @@ public class StabilityParameter implements OptimizableParameter {
 		final Coordinate cg = MassCalculator.calculateLaunch(configuration).getCM();
 
 		double cpx = Double.NaN;
-		if (cp.weight > 0.000001)
-			cpx = cp.x;
+		if (cp.getWeight() > 0.000001)
+			cpx = cp.getX();
 
 		double cgx = Double.NaN;
-		if (cg.weight > 0.000001)
-			cgx = cg.x;
+		if (cg.getWeight() > 0.000001)
+			cgx = cg.getX();
 
 		// Calculate the reference (absolute or relative)
 		final double stability_absolute = cpx - cgx;

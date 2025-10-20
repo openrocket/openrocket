@@ -135,8 +135,8 @@ public class ComponentRenderer {
 		gl.glBegin(GL.GL_LINES);
 		for (Coordinate cc : c.getComponentBounds()) {
 			for (Coordinate ccc : c.getComponentBounds()) {
-				gl.glVertex3d(cc.x, cc.y, cc.z);
-				gl.glVertex3d(ccc.x, ccc.y, ccc.z);
+				gl.glVertex3d(cc.getX(), cc.getY(), cc.getZ());
+				gl.glVertex3d(ccc.getX(), ccc.getY(), ccc.getZ());
 			}
 		}
 		gl.glEnd();

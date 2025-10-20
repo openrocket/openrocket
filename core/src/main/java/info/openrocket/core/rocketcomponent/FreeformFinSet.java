@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +29,10 @@ public class FreeformFinSet extends FinSet {
 	public static final double SNAP_LARGER_THAN = 2.5; // in meters
 
 	public FreeformFinSet() {
-		points.add(Coordinate.ZERO);
-		points.add(new Coordinate(0.025, 0.05));
-		points.add(new Coordinate(0.075, 0.05));
-		points.add(new Coordinate(0.05, 0));
+		points.add(ImmutableCoordinate.ZERO);
+		points.add(new ImmutableCoordinate(0.025, 0.05));
+		points.add(new ImmutableCoordinate(0.075, 0.05));
+		points.add(new ImmutableCoordinate(0.05, 0));
 		
 		this.length = 0.05;
 	}
@@ -189,7 +190,7 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		// new method: add new point at closest point
-		points.add(index, new Coordinate(location.x, location.y));
+		points.add(index, new ImmutableCoordinate(location.getX(), location.getY()));
 		
 		// adding a point within the segment affects neither mass nor aerodynamics
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
@@ -278,10 +279,10 @@ public class FreeformFinSet extends FinSet {
 
 		for (int i = 0; i < newPoints.size(); ++i) {
 			final Coordinate p = newPoints.get(i);
-			if (p.x > SNAP_LARGER_THAN) {
+			if (p.getX() > SNAP_LARGER_THAN) {
 				newPoints.set(i, p.setX(SNAP_LARGER_THAN));
 			}
-			if (p.y > SNAP_LARGER_THAN) {
+			if (p.getY() > SNAP_LARGER_THAN) {
 				newPoints.set(i, p.setY(SNAP_LARGER_THAN));
 			}
 		}
@@ -349,9 +350,9 @@ public class FreeformFinSet extends FinSet {
 		double yAccept = yRequest;
 		if(0 == index) {
 			final Coordinate cl = points.get(points.size() - 1);
-			double newLength = cl.x - xRequest;
+			double newLength = cl.getX() - xRequest;
 			if (newLength > SNAP_LARGER_THAN) {
-				xAccept = SNAP_LARGER_THAN - cl.x;
+				xAccept = SNAP_LARGER_THAN - cl.getX();
 			}
 		}else{
 			if (xAccept > SNAP_LARGER_THAN) {
@@ -364,16 +365,16 @@ public class FreeformFinSet extends FinSet {
 
 		final Coordinate revertPoint = points.get(index);
 
-		points.set(index, new Coordinate(xAccept, yAccept));
+		points.set(index, new ImmutableCoordinate(xAccept, yAccept));
 
-		if (IGNORE_SMALLER_THAN > Math.abs(revertPoint.x - xAccept)
-				&& IGNORE_SMALLER_THAN > Math.abs(revertPoint.y - yAccept)) {
+		if (IGNORE_SMALLER_THAN > Math.abs(revertPoint.getX() - xAccept)
+				&& IGNORE_SMALLER_THAN > Math.abs(revertPoint.getY() - yAccept)) {
 			// no-op. ignore
 			return;
 		}
 
 		if ((points.size() - 1) == index) {
-			clampLastPoint(xAccept - revertPoint.x);
+			clampLastPoint(xAccept - revertPoint.getX());
 		}
 
 		update();
@@ -389,7 +390,7 @@ public class FreeformFinSet extends FinSet {
 	
 	private void movePoints(final double delta_x, final double delta_y) {
 		// zero-out 0th index -- it's the local origin and is always (0,0)
-		points.set(0, Coordinate.ZERO);
+		points.set(0, ImmutableCoordinate.ZERO);
 
 		for (int index = 1; index < points.size(); ++index) {
 			final Coordinate oldPoint = this.points.get(index);
@@ -405,8 +406,8 @@ public class FreeformFinSet extends FinSet {
 		// Set the start and end fin points the same as the root points (necessary for canted fins)
 		final Coordinate[] rootPoints = getRootPoints();
 		if (rootPoints.length > 1) {
-			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
-			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
+			finPoints[0] = finPoints[0].setX(rootPoints[0].getX()).setY(rootPoints[0].getY());
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].getX()).setY(rootPoints[rootPoints.length - 1].getY());
 		}
 
 		return finPoints;
@@ -416,11 +417,11 @@ public class FreeformFinSet extends FinSet {
 	public double getSpan() {
 		double max = 0;
 		for (Coordinate c : points) {
-			if (c.y > max)
-				max = c.y;
+			if (c.getY() > max)
+				max = c.getY();
 		}
 
-		return max - Math.min(points.get(points.size() - 1).y, 0);
+		return max - Math.min(points.get(points.size() - 1).getY(), 0);
 	}
 	
 	@Override
@@ -445,7 +446,7 @@ public class FreeformFinSet extends FinSet {
 
 	public void update(boolean validateFinTab) {
 		final double oldLength = this.length;
-		this.length = points.get(points.size() -1).x - points.get(0).x;
+		this.length = points.get(points.size() -1).getX() - points.get(0).getX();
 		this.setAxialOffset(this.axialMethod, this.axialOffset);
 
 		if (this.getParent() != null) {
@@ -467,14 +468,14 @@ public class FreeformFinSet extends FinSet {
 		final SymmetricComponent body = (SymmetricComponent) getParent();
 
 		final Coordinate finFront = getFinFront();
-		final double xFinFront = finFront.x; // x of fin start, body-frame
-		final double yFinFront = finFront.y; // y of fin start, body-frame
+		final double xFinFront = finFront.getX(); // x of fin start, body-frame
+		final double yFinFront = finFront.getY(); // y of fin start, body-frame
 
 		final Coordinate p0 = points.get(0);
 		
-		if( ! Coordinate.ZERO.equals(p0)){
-			double xDelta = p0.x;
-			double xTrail = points.get(points.size() - 1).x;
+		if (!ImmutableCoordinate.ZERO.equals(p0)) {
+			double xDelta = p0.getX();
+			double xTrail = points.get(points.size() - 1).getX();
 			if(xDelta > xTrail){
 				xDelta = xTrail;
 			}
@@ -491,7 +492,7 @@ public class FreeformFinSet extends FinSet {
 		}
 
 	    final int lastIndex = points.size()-1;
-	    this.length = points.get(lastIndex).x;
+	    this.length = points.get(lastIndex).getX();
 
 	}
 
@@ -499,14 +500,14 @@ public class FreeformFinSet extends FinSet {
 		final SymmetricComponent sym = (SymmetricComponent) this.getParent();
 
 		final Coordinate finFront = getFinFront();
-		final double xFinFront = finFront.x; // x of fin start, body-frame
-		final double yFinFront = finFront.y; // y of fin start, body-frame
+		final double xFinFront = finFront.getX(); // x of fin start, body-frame
+		final double yFinFront = finFront.getY(); // y of fin start, body-frame
 
 		final double xBodyFront = -xFinFront;
 		final double xBodyBack = xBodyFront + sym.getLength();
 
-		final double xPrior = points.get(index).x;
-		final double yPrior = points.get(index).y;
+		final double xPrior = points.get(index).getX();
+		final double yPrior = points.get(index).getY();
 
 		if((xBodyFront <= xPrior ) && ( xPrior <= xBodyBack )) {
 			final double yBody = sym.getRadius(xPrior + xFinFront) - yFinFront;
@@ -527,23 +528,23 @@ public class FreeformFinSet extends FinSet {
 		final SymmetricComponent body = (SymmetricComponent) getParent();
 
 		final Coordinate finFront = getFinFront();
-		final double xFinStart = finFront.x; // x of fin start, body-frame
-		final double yFinStart = finFront.y; // y of fin start, body-frame
+		final double xFinStart = finFront.getX(); // x of fin start, body-frame
+		final double yFinStart = finFront.getY(); // y of fin start, body-frame
 
 		int lastIndex = points.size() - 1;
 		final Coordinate last = points.get(lastIndex);
 		
-		double yBody = body.getRadius(xFinStart + last.x) - yFinStart;
-		double yDelta = yBody - last.y;
+		double yBody = body.getRadius(xFinStart + last.getX()) - yFinStart;
+		double yDelta = yBody - last.getY();
 		if( IGNORE_SMALLER_THAN < Math.abs(yDelta)){
 			// i.e. if it delta is close enough above OR is inside the body.  In either case, snap it to the body.
 
 			// => set y-value to *exactly* match parent body:
-			points.set(lastIndex, new Coordinate(last.x, yBody));
+			points.set(lastIndex, new ImmutableCoordinate(last.getX(), yBody));
 		}
 
 		if( IGNORE_SMALLER_THAN < Math.abs(xDelta)) {
-			this.length = points.get(lastIndex).x;
+			this.length = points.get(lastIndex).getX();
 			if (AxialMethod.MIDDLE == getAxialMethod()) {
 				this.axialOffset = axialOffset + xDelta/2;
 			} else if (AxialMethod.BOTTOM == getAxialMethod()) {
@@ -578,8 +579,8 @@ public class FreeformFinSet extends FinSet {
 		}
 
 		// (pre-check the indices above.)
-		final Point2D.Double pt1 = new Point2D.Double(points.get(targetIndex).x, points.get(targetIndex).y);
-		final Point2D.Double pt2 = new Point2D.Double(points.get(targetIndex + 1).x, points.get(targetIndex + 1).y);
+		final Point2D.Double pt1 = new Point2D.Double(points.get(targetIndex).getX(), points.get(targetIndex).getY());
+		final Point2D.Double pt2 = new Point2D.Double(points.get(targetIndex + 1).getX(), points.get(targetIndex + 1).getY());
 		final Line2D.Double targetLine = new Line2D.Double(pt1, pt2);
 		
 		for (int comparisonIndex = targetIndex+1; comparisonIndex < (points.size() - 1); ++comparisonIndex) {
@@ -588,8 +589,8 @@ public class FreeformFinSet extends FinSet {
 				// nor can adjacent line segments intersect with each other, because they share a common endpoint.
 				continue;
 			}
-			final Point2D.Double pc1 = new Point2D.Double(points.get(comparisonIndex).x, points.get(comparisonIndex).y); // p1 
-			final Point2D.Double pc2 = new Point2D.Double(points.get(comparisonIndex + 1).x, points.get(comparisonIndex + 1).y); // p2
+			final Point2D.Double pc1 = new Point2D.Double(points.get(comparisonIndex).getX(), points.get(comparisonIndex).getY()); // p1 
+			final Point2D.Double pc2 = new Point2D.Double(points.get(comparisonIndex + 1).getX(), points.get(comparisonIndex + 1).getY()); // p2
 		
 			// special case for when the first and last points are co-located.
 			if((0==targetIndex)&&(points.size()==comparisonIndex+2)&&(IGNORE_SMALLER_THAN > Math.abs(pt1.distance(pc2)))){
@@ -599,8 +600,8 @@ public class FreeformFinSet extends FinSet {
 			final Line2D.Double comparisonLine = new Line2D.Double(pc1, pc2);
 			if (targetLine.intersectsLine(comparisonLine)) {
 				log.warn(String.format("Found intersection at %d-%d and %d-%d", targetIndex, targetIndex+1, comparisonIndex, comparisonIndex+1));
-				log.warn(String.format("                   between (%g, %g) => (%g, %g)", pt1.x, pt1.y, pt2.x, pt2.y));
-				log.warn(String.format("                       and (%g, %g) => (%g, %g)", pc1.x, pc1.y, pc2.x, pc2.y));
+				log.warn(String.format("                   between (%g, %g) => (%g, %g)", pt1.getX(), pt1.getY(), pt2.getX(), pt2.getY()));
+				log.warn(String.format("                       and (%g, %g) => (%g, %g)", pc1.getX(), pc1.getY(), pc2.getX(), pc2.getY()));
 				return true;
 			}
 		}

@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -389,7 +390,7 @@ public class Rocket extends ComponentAssembly {
 	@Override
 	public void setAxialOffset(final double requestOffset) {
 		this.axialOffset = 0.0;
-		this.position = Coordinate.ZERO;
+		this.position = ImmutableCoordinate.ZERO;
     }
 
 	public ReferenceType getReferenceType() {

@@ -13,6 +13,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.LinearInterpolator;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.PolyInterpolator;
@@ -136,13 +137,13 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		if (isTube) {
 			cp = getLiftCP(conditions, warnings);
 		} else {
-			cp = new Coordinate(cpCache, 0, 0, cnaCache * conditions.getSincAOA() /
+			cp = new ImmutableCoordinate(cpCache, 0, 0, cnaCache * conditions.getSincAOA() /
 					conditions.getRefArea()).average(getLiftCP(conditions, warnings));
 		}
 
 		forces.setCP(cp);
-		forces.setCN(forces.getCP().weight * conditions.getAOA());
-		forces.setCm(forces.getCN() * cp.x / conditions.getRefLength());
+		forces.setCN(forces.getCP().getWeight() * conditions.getAOA());
+		forces.setCm(forces.getCN() * cp.getX() / conditions.getRefLength());
 		forces.setCroll(0);
 		forces.setCrollDamp(0);
 		forces.setCrollForce(0);
@@ -175,7 +176,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			mul = pow2(conditions.getMach() / 0.05);
 		}
 
-		return new Coordinate(planformCenter, 0, 0, mul * BODY_LIFT_K * planformArea / conditions.getRefArea() *
+		return new ImmutableCoordinate(planformCenter, 0, 0, mul * BODY_LIFT_K * planformArea / conditions.getRefArea() *
 				conditions.getSinAOA() * conditions.getSincAOA()); // sin(aoa)^2 / aoa
 	}
 

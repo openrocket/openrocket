@@ -20,6 +20,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -137,10 +138,10 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         Coordinate[] points1 = freeformFinSet1.getFinPoints();
         Coordinate[] expectedPoints1 = new Coordinate[] {
-                new Coordinate(0.0, 0.0, 0.0),
-                new Coordinate(0.035, 0.03, 0.0),
-                new Coordinate(0.07250, 0.03, 0.0),
-                new Coordinate(0.07500, 0.01250, 0.0)
+                new ImmutableCoordinate(0.0, 0.0, 0.0),
+                new ImmutableCoordinate(0.035, 0.03, 0.0),
+                new ImmutableCoordinate(0.07250, 0.03, 0.0),
+                new ImmutableCoordinate(0.07500, 0.01250, 0.0)
         };
         assertArrayEquals(expectedPoints1, points1, " Fin set 1 fin points do not match");
         assertEquals(0.05, freeformFinSet1.getTabLength(),
@@ -152,10 +153,10 @@ public class RockSimLoaderTest extends BaseTestCase {
 
         Coordinate[] points2 = freeformFinSet2.getFinPoints();
         Coordinate[] expectedPoints2 = new Coordinate[] {
-                new Coordinate(0.0, 0.0, 0.0),
-                new Coordinate(0.025, 0.035, 0.0),
-                new Coordinate(0.05, 0.03, 0.0),
-                new Coordinate(0.06, -0.01, 0.0)
+                new ImmutableCoordinate(0.0, 0.0, 0.0),
+                new ImmutableCoordinate(0.025, 0.035, 0.0),
+                new ImmutableCoordinate(0.05, 0.03, 0.0),
+                new ImmutableCoordinate(0.06, -0.01, 0.0)
         };
         assertArrayEquals(expectedPoints2, points2, " Fin set 2 fin points do not match");
         assertEquals(0.03, freeformFinSet2.getTabLength(),
@@ -241,7 +242,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertTrue(stage1.isMassOverridden());
         assertEquals(0.185d, stage1.getOverrideMass(), 0.001);
         assertTrue(stage1.isCGOverridden());
-        assertEquals(0.3d, stage1.getOverrideCG().x, 0.001);
+        assertEquals(0.3d, stage1.getOverrideCG().getX(), 0.001);
         assertEquals(2, loader.getWarnings().size());
 
         NoseCone nc = (NoseCone) stage1.getChild(0);
@@ -283,7 +284,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertTrue(stage2.isMassOverridden());
         assertEquals(0.21d, stage2.getOverrideMass(), 0.001);
         assertTrue(stage2.isCGOverridden());
-        assertEquals(0.4d, stage2.getOverrideCG().x, 0.001);
+        assertEquals(0.4d, stage2.getOverrideCG().getX(), 0.001);
 
         BodyTube bt2 = (BodyTube) stage2.getChild(0);
         LaunchLug ll = (LaunchLug) bt2.getChild(6);
@@ -295,7 +296,7 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertTrue(stage2.isMassOverridden());
         assertEquals(0.33d, stage3.getOverrideMass(), 0.001);
         assertTrue(stage2.isCGOverridden());
-        assertEquals(0.5d, stage3.getOverrideCG().x, 0.001);
+        assertEquals(0.5d, stage3.getOverrideCG().getX(), 0.001);
     }
 
     @org.junit.jupiter.api.Test

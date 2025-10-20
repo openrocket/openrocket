@@ -16,6 +16,7 @@ import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.MotorDigest.DataType;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 
 public class RASPMotorLoader extends AbstractMotorLoader {
 
@@ -202,7 +203,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		for (int i = 0; i < time.size(); i++) {
 			timeArray[i] = time.get(i);
 			thrustArray[i] = thrust.get(i);
-			cgArray[i] = new Coordinate(length / 2, 0, 0, mass.get(i));
+			cgArray[i] = new ImmutableCoordinate(length / 2, 0, 0, mass.get(i));
 		}
 
 		if (removeDelayFromDesignation) {

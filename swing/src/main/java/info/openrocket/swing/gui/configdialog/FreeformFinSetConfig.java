@@ -503,7 +503,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		final FreeformFinSet finSet = (FreeformFinSet) component;
 		Coordinate currentPoint = finSet.getFinPoints()[currentPointIdx];
 		Coordinate nextPoint = finSet.getFinPoints()[currentPointIdx + 1];
-		Point2D.Double toAdd = new Point2D.Double((currentPoint.x + nextPoint.x) / 2, (currentPoint.y + nextPoint.y) / 2);
+		Point2D.Double toAdd = new Point2D.Double((currentPoint.getX() + nextPoint.getX()) / 2, (currentPoint.getY() + nextPoint.getY()) / 2);
 		finSet.addPoint(currentPointIdx + 1, toAdd);
 	}
 
@@ -535,7 +535,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		insertFinPointAction.updateEnabledState();
 		deleteFinPointAction.updateEnabledState();
 	}
-	
+
 	private class FinPointScrollPane extends ScaleScrollPane {
 
 		private static final int ANY_MASK = (MouseEvent.ALT_DOWN_MASK | MouseEvent.ALT_GRAPH_DOWN_MASK | MouseEvent.META_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK | MouseEvent.SHIFT_DOWN_MASK);
@@ -637,29 +637,29 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		private Point2D.Double snapPoint(Point2D.Double point, Coordinate lockPoint) {
 			Point2D.Double snappedPoint = new Point2D.Double(point.x, point.y);
 
-			double diffX = point.x - lockPoint.x;
-			double diffY = point.y - lockPoint.y;
+			double diffX = point.x - lockPoint.getX();
+			double diffY = point.y - lockPoint.getY();
 			double distanceX = Math.abs(diffX);
 			double distanceY = Math.abs(diffY);
 
 			// Calculate distance to 45 or 135 degree line
 			double a = 1;
 			double b = (Math.signum(diffX) == Math.signum(diffY)) ? -1 : 1;
-			double c = -(a * lockPoint.x + b * lockPoint.y);
+			double c = -(a * lockPoint.getX() + b * lockPoint.getY());
 			double distanceDiag = Math.abs(a * point.x + b * point.y + c) / Math.sqrt(2);
 
 			// Snap to the closest constraint
 			if (distanceX <= distanceY && distanceX <= distanceDiag) {
 				// Snap horizontal
-				snappedPoint.x = lockPoint.x;
+				snappedPoint.x = lockPoint.getX();
 			} else if (distanceY <= distanceX && distanceY <= distanceDiag) {
 				// Snap vertical
-				snappedPoint.y = lockPoint.y;
+				snappedPoint.y = lockPoint.getY();
 			} else {
 				// Snap diagonal (45 degrees)
 				double avgDist = (Math.abs(diffX) + Math.abs(diffY)) / 2;
-				snappedPoint.x = lockPoint.x + Math.signum(diffX) * avgDist;
-				snappedPoint.y = lockPoint.y + Math.signum(diffY) * avgDist;
+				snappedPoint.x = lockPoint.getX() + Math.signum(diffX) * avgDist;
+				snappedPoint.y = lockPoint.getY() + Math.signum(diffY) * avgDist;
 			}
 
 			return snappedPoint;
@@ -716,7 +716,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 			super.mouseReleased(event);
 		}
-		
+
 		@Override
 		public void mouseClicked(MouseEvent event) {
 			int mods = event.getModifiersEx();
@@ -735,47 +735,47 @@ public class FreeformFinSetConfig extends FinSetConfig {
             }
 			super.mouseClicked(event);
         }
-		
+
 		private int getPoint(MouseEvent event) {
 			Point p0 = event.getPoint();
 			Point p1 = this.getViewport().getViewPosition();
 			int x = p0.x + p1.x;
 			int y = p0.y + p1.y;
-			
+
 			return figure.getIndexByPoint(x, y);
 		}
-		
+
 		private int getSegment(MouseEvent event) {
 			Point p0 = event.getPoint();
 			Point p1 = this.getViewport().getViewPosition();
 			int x = p0.x + p1.x;
 			int y = p0.y + p1.y;
-			
+
 			return figure.getSegmentByPoint(x, y);
 		}
-		
+
 		private Point2D.Double getCoordinates(MouseEvent event) {
 			Point p0 = event.getPoint();
 			Point p1 = this.getViewport().getViewPosition();
 			int x = p0.x + p1.x;
 			int y = p0.y + p1.y;
-			
+
 			return figure.convertPoint(x, y);
 		}
-		
+
 	}
-	
-	
+
+
 	private enum Columns {
 		X {
 			@Override
 			public String toString() {
 				return "X / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().toString();
 			}
-			
+
 			@Override
 			public String getValue(FreeformFinSet finset, int row) {
-				return UnitGroup.UNITS_LENGTH.getDefaultUnit().toString(finset.getFinPoints()[row].x);
+				return UnitGroup.UNITS_LENGTH.getDefaultUnit().toString(finset.getFinPoints()[row].getX());
 			}
 		},
 		Y {
@@ -783,54 +783,54 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			public String toString() {
 				return "Y / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().toString();
 			}
-			
+
 			@Override
 			public String getValue(FreeformFinSet finset, int row) {
-				return UnitGroup.UNITS_LENGTH.getDefaultUnit().toString(finset.getFinPoints()[row].y);
+				return UnitGroup.UNITS_LENGTH.getDefaultUnit().toString(finset.getFinPoints()[row].getY());
 			}
 		};
-		
+
 		public abstract String getValue(FreeformFinSet finset, int row);
-		
+
 		@Override
 		public abstract String toString();
-		
+
 		public int getWidth() {
 			return 20;
 		}
 	}
-	
+
 	private class FinPointTableModel extends AbstractTableModel {
 
 		@Override
 		public int getColumnCount() {
 			return Columns.values().length;
 		}
-		
+
 		@Override
 		public int getRowCount() {
-			return ((FreeformFinSet)component).getPointCount(); 
+			return ((FreeformFinSet)component).getPointCount();
 		}
-		
+
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			return Columns.values()[columnIndex].getValue( (FreeformFinSet)component, rowIndex);
 		}
-		
+
 		@Override
 		public String getColumnName(int columnIndex) {
 			return Columns.values()[columnIndex].toString();
 		}
-		
+
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			if (rowIndex == 0 || rowIndex == getRowCount() - 1) {
 				return (columnIndex == Columns.X.ordinal());
 			}
-			
+
 			return (columnIndex == Columns.X.ordinal() || columnIndex == Columns.Y.ordinal());
 		}
-		
+
 		@Override
 		public void setValueAt(Object o, int rowIndex, int columnIndex) {
 			if (!(o instanceof String))
@@ -842,10 +842,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (rowIndex < 0 || rowIndex >= finset.getFinPoints().length || columnIndex < 0 || columnIndex >= Columns.values().length) {
 				throw new IllegalArgumentException("Index out of bounds, row=" + rowIndex + " column=" + columnIndex + " fin point count=" + finset.getFinPoints().length);
 			}
-			
+
 			String str = (String) o;
 			try {
-				
+
 				double value = UnitGroup.UNITS_LENGTH.fromString(str);
 				Coordinate c = finset.getFinPoints()[rowIndex];
 				if (columnIndex == Columns.X.ordinal()){
@@ -853,8 +853,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				}else{
 					c = c.setY(value);
 				}
-			
-				finset.setPoint(rowIndex, c.x, c.y);
+
+				finset.setPoint(rowIndex, c.getX(), c.getY());
 				
 				updateFields();
 			} catch (NumberFormatException ignore) {

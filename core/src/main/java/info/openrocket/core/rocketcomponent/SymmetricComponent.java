@@ -8,6 +8,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 import static info.openrocket.core.util.MathUtil.pow2;
@@ -45,11 +46,11 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox instanceBounds = new BoundingBox();
 
-		instanceBounds.update(new Coordinate(this.getLength(), 0, 0));
+		instanceBounds.update(new ImmutableCoordinate(this.getLength(), 0, 0));
 
 		final double r = Math.max(getForeRadius(), getAftRadius());
-		instanceBounds.update(new Coordinate(0, r, r));
-		instanceBounds.update(new Coordinate(0, -r, -r));
+		instanceBounds.update(new ImmutableCoordinate(0, r, r));
+		instanceBounds.update(new ImmutableCoordinate(0, -r, -r));
 
 		return instanceBounds;
 	}
@@ -337,7 +338,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			cg = l * (pow2(r1) + 2.0 * r1 * r2 + 3 * pow2(r2)) / (4.0 * (pow2(r1) + r1 * r2 + pow2(r2)));
 		}
 
-		return new Coordinate(cg, 0, 0, volume);
+		return new ImmutableCoordinate(cg, 0, 0, volume);
 	}
 
 	/**
@@ -398,18 +399,18 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		double moi;
 		if (Math.abs(r1 - r2) < MathUtil.EPSILON) {
 			// compute MOI of cylinder relative to CG of cylinder
-			moi = cg.weight * (3 * pow2(r1) + pow2(l)) / 12.0;
+			moi = cg.getWeight() * (3 * pow2(r1) + pow2(l)) / 12.0;
 
 			return moi;
 		}
 
 		// is the frustum "small end forward" or "small end aft"?
-		double shiftCG = cg.x;
+		double shiftCG = cg.getX();
 		if (r1 > r2) {
 			final double tmp = r1;
 			r1 = r2;
 			r2 = tmp;
-			shiftCG = l - cg.x;
+			shiftCG = l - cg.getX();
 		}
 
 		// Find the heights of the two cones. Note that the h1 and h2 being calculated here
@@ -424,7 +425,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		moi = moi2 - moi1;
 
 		// use parallel axis theorem to move MOI to be relative to CG of frustum.
-		moi = moi - pow2(h1 + shiftCG) * cg.weight;
+		moi = moi - pow2(h1 + shiftCG) * cg.getWeight();
 
 		return moi;
 	}
@@ -441,7 +442,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		volume = 0;
 		longitudinalUnitInertia = 0;
 		rotationalUnitInertia = 0;
-		cg = new Coordinate();
+		cg = new ImmutableCoordinate();
 
 		double cgx = 0;
 
@@ -489,9 +490,9 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			final Coordinate fullCG = calculateCG(l, r1o, r2o);
 			final Coordinate innerCG = calculateCG(l, r1i, r2i);
 
-			final double dFullV = fullCG.weight;
-			final double dV = fullCG.weight - innerCG.weight;
-			final double dCG = (fullCG.x * fullCG.weight - innerCG.x * innerCG.weight) / dV;
+			final double dFullV = fullCG.getWeight();
+			final double dV = fullCG.getWeight() - innerCG.getWeight();
+			final double dCG = (fullCG.getX() * fullCG.getWeight() - innerCG.getX() * innerCG.getWeight()) / dV;
 
 			// First moment, used later for CG calculation
 			final double dCGx = dV * (x1 + dCG);
@@ -499,7 +500,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 			// rotational moment of inertia
 			final double Ixxo = calculateUnitRotMOI(r1o, r2o);
 			final double Ixxi = calculateUnitRotMOI(r1i, r2i);
-			final double Ixx = Ixxo * fullCG.weight - Ixxi * innerCG.weight;
+			final double Ixx = Ixxo * fullCG.getWeight() - Ixxi * innerCG.getWeight();
 
 			// longitudinal moment of inertia -- axis through CG of division
 			double Iyy = calculateLongMOI(l, r1o, r2o, fullCG) - calculateLongMOI(l, r1i, r2i, innerCG);
@@ -540,12 +541,12 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 
 		if (volume < 0.0000000001) { // 0.1 mm^3
 			volume = 0;
-			cg = new Coordinate(getLength() / 2, 0, 0, 0);
+			cg = new ImmutableCoordinate(getLength() / 2, 0, 0, 0);
 		} else {
 			// the mass of this shape is the material density * volume.
 			// it cannot come from super.getComponentMass() since that
 			// includes the shoulders
-			cg = new Coordinate(cgx / volume, 0, 0, getMaterial().getDensity() * volume);
+			cg = new ImmutableCoordinate(cgx / volume, 0, 0, getMaterial().getDensity() * volume);
 		}
 
 		// a component so small it has no volume can't contribute to moment of inertia
@@ -556,7 +557,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		}
 
 		// Shift longitudinal inertia to CG
-		longitudinalUnitInertia = longitudinalUnitInertia - pow2(cg.x);
+		longitudinalUnitInertia = longitudinalUnitInertia - pow2(cg.getX());
 
 	}
 

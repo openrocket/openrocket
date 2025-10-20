@@ -2,6 +2,7 @@ package info.openrocket.core.simulation;
 
 import java.util.Collection;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,10 +63,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
 
 		// Lateral direction:
-		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
+		double len = MathUtil.hypot(airSpeed.getX(), airSpeed.getY());
 		if (len > 0.0001) {
-			store.thetaRotation = new Rotation2D(airSpeed.y / len, airSpeed.x / len);
-			store.flightConditions.setTheta(Math.atan2(airSpeed.y, airSpeed.x));
+			store.thetaRotation = new Rotation2D(airSpeed.getY() / len, airSpeed.getX() / len);
+			store.flightConditions.setTheta(Math.atan2(airSpeed.getY(), airSpeed.getX()));
 		} else {
 			store.thetaRotation = Rotation2D.ID;
 			store.flightConditions.setTheta(0);
@@ -76,7 +77,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		if (velocity > 0.01) {
 			// aoa must be calculated from the monotonous cosine
 			// sine can be calculated by a simple division
-			store.flightConditions.setAOA(Math.acos(airSpeed.z / velocity), len / velocity);
+			store.flightConditions.setAOA(Math.acos(airSpeed.getZ() / velocity), len / velocity);
 		} else {
 			store.flightConditions.setAOA(0);
 		}
@@ -85,16 +86,16 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		Coordinate rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
 		rot = store.thetaRotation.invRotateZ(rot);
 		
-		store.flightConditions.setRollRate(rot.z);
+		store.flightConditions.setRollRate(rot.getZ());
 		if (len < 0.001) {
 			store.flightConditions.setPitchRate(0);
 			store.flightConditions.setYawRate(0);
 			store.lateralPitchRate = 0;
 		} else {
-			store.flightConditions.setPitchRate(rot.y);
-			store.flightConditions.setYawRate(rot.x);
+			store.flightConditions.setPitchRate(rot.getY());
+			store.flightConditions.setYawRate(rot.getX());
 			// TODO: LOW: set this as power of two?
-			store.lateralPitchRate = MathUtil.hypot(rot.x, rot.y);
+			store.lateralPitchRate = MathUtil.hypot(rot.getX(), rot.getY());
 		}
 
 		// Call post listeners
@@ -125,7 +126,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Compute conditions
-		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
+		double altitude = status.getRocketPosition().getZ() + status.getSimulationConditions().getLaunchSite().getAltitude();
 		conditions = status.getSimulationConditions().getAtmosphericModel().getConditions(altitude);
 		
 		// Call post-listener
@@ -154,7 +155,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Compute conditions
-		double altitudeAGL = status.getRocketPosition().z;
+		double altitudeAGL = status.getRocketPosition().getZ();
 		double altitudeMSL = altitudeAGL + status.getSimulationConditions().getLaunchSite().getAltitude();
 		wind = status.getSimulationConditions().getWindModel().getWindVelocity(status.getSimulationTime(), altitudeMSL, altitudeAGL);
 
@@ -310,13 +311,13 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.gravity = modelGravity(status);
 		store.thrustForce = 0.0;
 		store.dragForce = 0.0;
-		store.coriolisAcceleration = Coordinate.ZERO;
+		store.coriolisAcceleration = ImmutableCoordinate.ZERO;
 		
-		store.accelerationData = new AccelerationData(Coordinate.ZERO, Coordinate.ZERO, null, null,
+		store.accelerationData = new AccelerationData(ImmutableCoordinate.ZERO, ImmutableCoordinate.ZERO, null, null,
 													  new Quaternion());
 
-		status.setRocketPosition(new Coordinate(status.getRocketPosition().x, status.getRocketPosition().y, 0));
-		status.setRocketVelocity(Coordinate.ZERO);
+		status.setRocketPosition(new ImmutableCoordinate(status.getRocketPosition().getX(), status.getRocketPosition().getY(), 0));
+		status.setRocketVelocity(ImmutableCoordinate.ZERO);
 	}
 		
 	/*
@@ -346,7 +347,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		// set by calculateFlightConditions and calculateAcceleration:
 		public AerodynamicForces forces;
-		public Coordinate windVelocity = new Coordinate(Double.NaN, Double.NaN, Double.NaN);
+		public Coordinate windVelocity = new ImmutableCoordinate(Double.NaN, Double.NaN, Double.NaN);
 		public double gravity = Double.NaN;
 		public double thrustForce = Double.NaN;
 		public double dragForce = Double.NaN;
@@ -372,16 +373,16 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			
 			if (null != accelerationData) {
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-									MathUtil.hypot(accelerationData.getLinearAccelerationWC().x, accelerationData.getLinearAccelerationWC().y));
+									MathUtil.hypot(accelerationData.getLinearAccelerationWC().getX(), accelerationData.getLinearAccelerationWC().getY()));
 				
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, accelerationData.getLinearAccelerationWC().length());
-				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().z);
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().getZ());
 			}
 			
 			if (null != rocketMass) {
 				double weight = rocketMass.getMass() * gravity;
 				dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
-				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().x);
+				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().getX());
 				dataBranch.setValue(FlightDataType.TYPE_MASS, rocketMass.getMass());
 				dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, rocketMass.getLongitudinalInertia());
 				dataBranch.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, rocketMass.getRotationalInertia());
@@ -425,7 +426,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			
 			if (status.isLaunchRodCleared() && null != forces) {
 				if (null != forces.getCP()) {
-					dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, forces.getCP().x);
+					dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, forces.getCP().getX());
 				}
 				dataBranch.setValue(FlightDataType.TYPE_NORMAL_FORCE_COEFF, forces.getCN());
 				dataBranch.setValue(FlightDataType.TYPE_SIDE_FORCE_COEFF, forces.getCside());
@@ -437,12 +438,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				if (null != rocketMass && null != flightConditions) {
 					if (null != forces.getCP()) {
 						dataBranch.setValue(FlightDataType.TYPE_STABILITY,
-											(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+											(forces.getCP().getX() - rocketMass.getCM().getX()) / flightConditions.getRefLength());
 					}
 					dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
-										forces.getCm() - forces.getCN() * rocketMass.getCM().x / flightConditions.getRefLength());
+										forces.getCm() - forces.getCN() * rocketMass.getCM().getX() / flightConditions.getRefLength());
 					dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
-										forces.getCyaw() - forces.getCside() * rocketMass.getCM().x / flightConditions.getRefLength());
+										forces.getCyaw() - forces.getCside() * rocketMass.getCM().getX() / flightConditions.getRefLength());
 				}
 			}
 		}
@@ -455,7 +456,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		private static double getWindDirection(Coordinate windVector) {
 			// Math.atan2(y, x) returns the angle in radians measured counterclockwise from the positive x-axis
 			// But we want the angle clockwise from North (positive y-axis)
-			double angle = Math.atan2(windVector.x, windVector.y);
+			double angle = Math.atan2(windVector.getX(), windVector.getY());
 			return MathUtil.reduce2Pi(angle);
 		}
 	}

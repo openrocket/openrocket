@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
@@ -397,11 +398,11 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		 * following does work though.
 		 */
 		double displayScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
-		AffineTransform cgTransform = AffineTransform.getTranslateInstance(((pCG.x / displayScale) - d), height - ((pCG.y / displayScale) + d));
-		AffineTransform cpTransform = AffineTransform.getTranslateInstance(((pCP.x / displayScale) - d), height - ((pCP.y / displayScale) + d));
+		AffineTransform cgTransform = AffineTransform.getTranslateInstance(((pCG.getX() / displayScale) - d), height - ((pCG.getY() / displayScale) + d));
+		AffineTransform cpTransform = AffineTransform.getTranslateInstance(((pCP.getX() / displayScale) - d), height - ((pCP.getY() / displayScale) + d));
 		
 		//z order the carets 
-		if (pCG.z < pCP.z) {
+		if (pCG.getZ() < pCP.getZ()) {
 			//Subtract half of the caret size, so they are centered ( The +/- d in each translate)
 			//Flip the sense of the Y coordinate from GL to normal (Y+ up/down)
 			og2d.drawRenderedImage(cpCaretRaster, cpTransform);
@@ -538,9 +539,9 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		// Calculate the distance needed to fit the bounds in both the X and Y
 		// direction
 		// Add 10% for space around it.
-		final double maxR = Math.max( Math.hypot(b.min.y, b.min.z),
-				Math.hypot(b.max.y, b.max.z));
-		final double dX = (b.span().x * 1.2 / 2.0)
+		final double maxR = Math.max( Math.hypot(b.min.getY(), b.min.getZ()),
+				Math.hypot(b.max.getY(), b.max.getZ()));
+		final double dX = (b.span().getX() * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovX / 2.0));
 		final double dY = (2*maxR * 1.2 / 2.0)
 				/ Math.tan(Math.toRadians(fovY / 2.0));
@@ -552,7 +553,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glRotated(roll * (180.0 / Math.PI), 1, 0, 0);
 		
 		// Center the rocket in the view.
-		gl.glTranslated(-b.min.x - b.span().x / 2.0, 0, 0);
+		gl.glTranslated(-b.min.getX() - b.span().getX() / 2.0, 0, 0);
 		
 		//Change to LEFT Handed coordinates
 		gl.glScaled(1, 1, -1);
@@ -632,15 +633,15 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glGetDoublev(GLMatrixFunc.GL_PROJECTION_MATRIX, projmatrix, 0);
 		
 		final double out[] = new double[4];
-		glu.gluProject(c.x, c.y, c.z, mvmatrix, 0, projmatrix, 0, viewport, 0,
+		glu.gluProject(c.getX(), c.getY(), c.getZ(), mvmatrix, 0, projmatrix, 0, viewport, 0,
 				out, 0);
 		
-		return new Coordinate(out[0], out[1], out[2]);
+		return new ImmutableCoordinate(out[0], out[1], out[2]);
 		
 	}
 	
-	private Coordinate cp = new Coordinate(0, 0, 0);
-	private Coordinate cg = new Coordinate(0, 0, 0);
+	private Coordinate cp = new ImmutableCoordinate(0, 0, 0);
+	private Coordinate cg = new ImmutableCoordinate(0, 0, 0);
 	
 	public void setCG(final Coordinate cg) {
 		this.cg = cg;

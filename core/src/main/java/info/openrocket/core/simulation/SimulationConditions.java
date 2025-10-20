@@ -15,6 +15,7 @@ import info.openrocket.core.simulation.listeners.SimulationListener;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.GeodeticComputationStrategy;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.WorldCoordinate;
@@ -42,9 +43,9 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
 	
 	// Launch location in simulation coordinates (normally always 0, air-start would override this)
-	private Coordinate launchPosition = Coordinate.NUL;
+	private Coordinate launchPosition = ImmutableCoordinate.NUL;
 
-	private Coordinate launchVelocity = Coordinate.NUL;
+	private Coordinate launchVelocity = ImmutableCoordinate.NUL;
 
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 

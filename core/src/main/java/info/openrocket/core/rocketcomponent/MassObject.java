@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -228,7 +229,7 @@ public abstract class MassObject extends InternalComponent {
 
 	@Override
 	public final Coordinate getComponentCG() {
-		return new Coordinate(getLength() / 2, shiftY, shiftZ, getComponentMass());
+		return new ImmutableCoordinate(getLength() / 2, shiftY, shiftZ, getComponentMass());
 	}
 
 	@Override

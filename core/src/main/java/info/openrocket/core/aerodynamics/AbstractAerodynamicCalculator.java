@@ -5,6 +5,7 @@ import java.util.Map;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Coordinate;
@@ -66,14 +67,14 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	public Coordinate getWorstCP(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings) {
 		FlightConditions cond = conditions.clone();
-		Coordinate worst = new Coordinate(Double.MAX_VALUE);
+		Coordinate worst = new ImmutableCoordinate(Double.MAX_VALUE);
 		Coordinate cp;
 		double theta = 0;
 
 		for (int i = 0; i < DIVISIONS; i++) {
 			cond.setTheta(2 * Math.PI * i / DIVISIONS);
 			cp = getCP(configuration, cond, warnings);
-			if ((cp.weight > MathUtil.EPSILON) && (cp.x < worst.x)) {
+			if ((cp.getWeight() > MathUtil.EPSILON) && (cp.getX() < worst.getX())) {
 				worst = cp;
 				theta = cond.getTheta();
 			}

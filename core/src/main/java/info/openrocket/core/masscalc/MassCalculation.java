@@ -12,6 +12,7 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -70,7 +71,7 @@ public class MassCalculation {
 	}
 	
 	public void addMass( final Coordinate pointMass ) {
-		if( MIN_MASS > this.centerOfMass.weight ){
+		if( MIN_MASS > this.centerOfMass.getWeight() ){
 		    this.centerOfMass = pointMass;
 		}else {
 			this.centerOfMass = this.centerOfMass.average( pointMass);
@@ -90,7 +91,7 @@ public class MassCalculation {
 	}
 	
 	public double getMass() {
-		return this.centerOfMass.weight;
+		return this.centerOfMass.getWeight();
 	}
 
 	public void setMass(double mass) {
@@ -143,7 +144,7 @@ public class MassCalculation {
 	}	
 
 	public void reset(){
-		centerOfMass = Coordinate.ZERO;
+		centerOfMass = ImmutableCoordinate.ZERO;
 		inertia = RigidBody.EMPTY;
 		bodies.clear();
 	}
@@ -153,7 +154,7 @@ public class MassCalculation {
 	}
 	
 	public String toCMDebug(){ 
-		return String.format("cm= %.6fg@[%.6f,%.6f,%.6f]", centerOfMass.weight, centerOfMass.x, centerOfMass.y, centerOfMass.z);
+		return String.format("cm= %.6fg@[%.6f,%.6f,%.6f]", centerOfMass.getWeight(), centerOfMass.getX(), centerOfMass.getY(), centerOfMass.getZ());
 	}
 
 //	public String toMOIDebug(){
@@ -179,7 +180,7 @@ public class MassCalculation {
 	final Type type;
 	
 	// center-of-mass only.
-	Coordinate centerOfMass = Coordinate.ZERO;
+	Coordinate centerOfMass = ImmutableCoordinate.ZERO;
 	
 	// center-of-mass AND moment-of-inertia data.
 	RigidBody inertia = RigidBody.EMPTY;
@@ -219,7 +220,7 @@ public class MassCalculation {
 			}
 		}
 
-		final double mountXPosition = root.getPosition().x;
+		final double mountXPosition = root.getPosition().getX();
 		
 		final int instanceCount = root.getInstanceCount();
 
@@ -249,7 +250,7 @@ public class MassCalculation {
 
 
 		// coordinates in rocket frame; Ir, It about CoM.
-		final Coordinate clusterLocalCM = new Coordinate( mountXPosition + motorXPosition + eachCMx, 0, 0, eachMass*instanceCount);
+		final Coordinate clusterLocalCM = new ImmutableCoordinate( mountXPosition + motorXPosition + eachCMx, 0, 0, eachMass*instanceCount);
 		
 		double clusterBaseIr = motorConfig.getUnitRotationalInertia()*instanceCount*eachMass;
 		
@@ -259,7 +260,7 @@ public class MassCalculation {
 		double clusterIr = clusterBaseIr; 
 		if( 1 < instanceCount ){
 			for( Coordinate coord : offsets ){
-				double distance = Math.hypot( coord.y, coord.z);
+				double distance = Math.hypot( coord.getY(), coord.getZ());
 				clusterIr += eachMass*Math.pow( distance, 2);
 			}
 		}
@@ -370,10 +371,10 @@ public class MassCalculation {
 			}
 
 			if (component.isCGOverridden()) {
-				compCM = compCM.setX( compZero.x + component.getOverrideCGX() );
+				compCM = compCM.setX( compZero.getX() + component.getOverrideCGX() );
 
 				if (component.isSubcomponentsOverriddenCG()) {
-					children.setCM(children.getCM().setX(compCM.x));
+					children.setCM(children.getCM().setX(compCM.getX()));
 				}
 			}
 			this.addMass(compCM);
@@ -386,17 +387,17 @@ public class MassCalculation {
 					entry.updateAverageCM(this.centerOfMass);
 				}else{
 					// For actual components, record the mass of the component, and disregard children
-					entry.updateEachMass(compCM.weight);
+					entry.updateEachMass(compCM.getWeight());
 					entry.updateAverageCM(compCM);
 				}
 			}
 			
-			final double compIx = component.getRotationalUnitInertia() * compCM.weight;
-			final double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+			final double compIx = component.getRotationalUnitInertia() * compCM.getWeight();
+			final double compIt = component.getLongitudinalUnitInertia() * compCM.getWeight();
 			final RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
 			this.addInertia( componentInertia );
 			// // vvv DEBUG
-			// if( 0 < compCM.weight ) {
+			// if( 0 < compCM.getWeight() ) {
 			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
 			// }
 		}

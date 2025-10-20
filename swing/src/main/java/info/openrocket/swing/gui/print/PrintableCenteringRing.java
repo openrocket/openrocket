@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.print;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.swing.gui.print.visitor.Dimension;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
@@ -84,7 +85,7 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
             else {
                 double y = it.getRadialShiftY();
                 double z = it.getRadialShiftZ();
-                Coordinate coordinate = new Coordinate(it.getOuterRadius(), y, z);
+                Coordinate coordinate = new ImmutableCoordinate(it.getOuterRadius(), y, z);
                 points.add(coordinate);
             }
         }
@@ -119,9 +120,9 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         float radius = (float) PrintUnit.METERS.toPoints(target.getOuterRadius());
         for (Coordinate coordinate : theCoords) {
             innerCenterPoints.add(new Dimension(
-                    (float) PrintUnit.METERS.toPoints(coordinate.y) + radius, //center point x
-                    (float) PrintUnit.METERS.toPoints(coordinate.z) + radius, //center point y
-                    (float) PrintUnit.METERS.toPoints(coordinate.x)));        //radius of motor mount
+                    (float) PrintUnit.METERS.toPoints(coordinate.getY()) + radius, //center point x
+                    (float) PrintUnit.METERS.toPoints(coordinate.getZ()) + radius, //center point y
+                    (float) PrintUnit.METERS.toPoints(coordinate.getX())));        //radius of motor mount
         }
     }
 

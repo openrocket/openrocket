@@ -26,12 +26,12 @@ public class FinRenderer {
 		gl.glPushMatrix();
 		// Mirror the right side fin texture to avoid e.g. mirrored decal text
 		if (which == Surface.INSIDE && ((InsideColorComponent) finSet).getInsideColorComponentHandler().isSeparateInsideOutside()) {
-			gl.glScaled(-1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+			gl.glScaled(-1 / (bounds.max.getX() - bounds.min.getX()), 1 / (bounds.max.getY() - bounds.min.getY()), 0);
 		}
 		else {
-			gl.glScaled(1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+			gl.glScaled(1 / (bounds.max.getX() - bounds.min.getX()), 1 / (bounds.max.getY() - bounds.min.getY()), 0);
 		}
-		gl.glTranslated(-bounds.min.x, -bounds.min.y - finSet.getBodyRadius(), 0);
+		gl.glTranslated(-bounds.min.getX(), -bounds.min.getY() - finSet.getBodyRadius(), 0);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
 		Coordinate[] finPoints = finSet.getFinPointsWithLowResRoot();
@@ -84,8 +84,8 @@ public class FinRenderer {
 				gl.glNormal3f(0, 0, 1);
 				for (int i = finPoints.length - 1; i >= 0; i--) {
 					Coordinate c = finPoints[i];
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0};
+					double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() + finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
 				}
 				GLU.gluTessEndContour(tess);
@@ -97,8 +97,8 @@ public class FinRenderer {
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
                 for (Coordinate c : tabPoints) {
-                    double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-                            c.z + finSet.getThickness() / 2.0};
+                    double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+                            c.getZ() + finSet.getThickness() / 2.0};
                     GLU.gluTessVertex(tess, p, 0, p);
                 }
 				GLU.gluTessEndContour(tess);
@@ -111,8 +111,8 @@ public class FinRenderer {
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
 				for (Coordinate c : finPoints) {
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0};
+					double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
 
 				}
@@ -126,8 +126,8 @@ public class FinRenderer {
 				gl.glNormal3f(0, 0, -1);
 				for (int i = tabPoints.length - 1; i >= 0; i--) {
 					Coordinate c = tabPoints[i];
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0};
+					double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
 
 				}
@@ -148,13 +148,13 @@ public class FinRenderer {
 					// if ( i > 1 ){
 					Coordinate c2 = finPoints[(i - 1 + finPoints.length)
 							% finPoints.length];
-					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
+					gl.glNormal3d(c2.getY() - c.getY(), c.getX() - c2.getX(), 0);
 					// }
-					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0);
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0);
+					gl.glTexCoord2d(c.getX(), c.getY() + finSet.getBodyRadius());
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0);
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() + finSet.getThickness() / 2.0);
 				}
 				gl.glEnd();
 			}
@@ -168,13 +168,13 @@ public class FinRenderer {
 					// if ( i > 1 ){
 					Coordinate c2 = tabPoints[(i - 1 + tabPoints.length)
 							% tabPoints.length];
-					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
+					gl.glNormal3d(c2.getY() - c.getY(), c.getX() - c2.getX(), 0);
 					// }
-					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0);
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0);
+					gl.glTexCoord2d(c.getX(), c.getY() + finSet.getBodyRadius());
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0);
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() + finSet.getThickness() / 2.0);
 				}
 				gl.glEnd();
 			}

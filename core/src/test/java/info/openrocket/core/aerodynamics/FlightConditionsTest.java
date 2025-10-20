@@ -12,6 +12,7 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -143,7 +144,7 @@ class FlightConditionsTest {
 
 	@Test
 	void testSetAndGetPitchCenter() {
-		Coordinate center = new Coordinate(1.0, 2.0, 3.0);
+		Coordinate center = new ImmutableCoordinate(1.0, 2.0, 3.0);
 		conditions.setPitchCenter(center);
 		assertEquals(center, conditions.getPitchCenter());
 	}

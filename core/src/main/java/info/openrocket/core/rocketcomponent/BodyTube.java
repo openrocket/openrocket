@@ -12,6 +12,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -303,7 +304,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	 */
 	@Override
 	public Coordinate getComponentCG() {
-		return new Coordinate(length / 2, 0, 0, getComponentMass());
+		return new ImmutableCoordinate(length / 2, 0, 0, getComponentMass());
 	}
 	
 	/**
@@ -351,11 +352,11 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox instanceBounds = new BoundingBox();
 
-		instanceBounds.update(new Coordinate(this.getLength(), 0, 0));
+		instanceBounds.update(new ImmutableCoordinate(this.getLength(), 0, 0));
 
 		final double r = getOuterRadius();
-		instanceBounds.update(new Coordinate(0, r, r));
-		instanceBounds.update(new Coordinate(0, -r, -r));
+		instanceBounds.update(new ImmutableCoordinate(0, r, r));
+		instanceBounds.update(new ImmutableCoordinate(0, -r, -r));
 
 		return instanceBounds;
 	}
@@ -517,7 +518,7 @@ public class BodyTube extends SymmetricComponent implements BoxBounded, MotorMou
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
 		
-		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
+		return new ImmutableCoordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 
 	@Override

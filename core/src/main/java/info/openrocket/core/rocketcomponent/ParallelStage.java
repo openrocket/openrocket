@@ -11,6 +11,7 @@ import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 public class ParallelStage extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
@@ -57,11 +58,11 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		Coordinate[] instanceLocations = this.getComponentLocations();
 		
 		for (Coordinate currentInstanceLocation : instanceLocations) {
-			if (x_min > (currentInstanceLocation.x)) {
-				x_min = currentInstanceLocation.x;
+			if (x_min > (currentInstanceLocation.getX())) {
+				x_min = currentInstanceLocation.getX();
 			}
-			if (x_max < (currentInstanceLocation.x + this.length)) {
-				x_max = currentInstanceLocation.x + this.length;
+			if (x_max < (currentInstanceLocation.getX() + this.length)) {
+				x_max = currentInstanceLocation.getX() + this.length;
 			}
 			if (r_max < (this.getRadiusOffset())) {
 				r_max = this.getRadiusOffset();
@@ -168,7 +169,7 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
 			final double curY = radius * Math.cos(angles[instanceNumber]);
 			final double curZ = radius * Math.sin(angles[instanceNumber]);
-			toReturn[instanceNumber] = new Coordinate(0, curY, curZ);
+			toReturn[instanceNumber] = new ImmutableCoordinate(0, curY, curZ);
 		}
 		
 		return toReturn;

@@ -115,7 +115,7 @@ public class TestRockets {
 				.setLength(0.07)
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 1, 0 })
-				.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+				.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
 				.setDigest("digestA")
 				.build();
 	}
@@ -135,8 +135,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 9, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.0164), new Coordinate(0.035, 0, 0, 0.0145),
-						new Coordinate(0.035, 0, 0, 0.0131) })
+						new ImmutableCoordinate(0.035, 0, 0, 0.0164), new ImmutableCoordinate(0.035, 0, 0, 0.0145),
+						new ImmutableCoordinate(0.035, 0, 0, 0.0131) })
 				.setDigest("digest A8 test")
 				.build();
 	}
@@ -155,11 +155,11 @@ public class TestRockets {
 			.setTimePoints(new double[] {0.0, 0.2, 0.3, 1.04, 1.05})
 			.setThrustPoints(new double[] {0.0, 10, 1, 1, 0})
 			.setCGPoints(new Coordinate[] {
-					new Coordinate(0.0225, 0, 0, 0.011),
-					new Coordinate(0.0225, 0, 0, 0.009),
-					new Coordinate(0.0225, 0, 0, 0.008),
-					new Coordinate(0.0225, 0, 0, 0.003),
-					new Coordinate(0.0225, 0, 0, 0.003)})
+					new ImmutableCoordinate(0.0225, 0, 0, 0.011),
+					new ImmutableCoordinate(0.0225, 0, 0, 0.009),
+					new ImmutableCoordinate(0.0225, 0, 0, 0.008),
+					new ImmutableCoordinate(0.0225, 0, 0, 0.003),
+					new ImmutableCoordinate(0.0225, 0, 0, 0.003)})
 			.setDigest("digest A10 test")
 			.build();
 	}
@@ -178,8 +178,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 11.4, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.0195), new Coordinate(0.035, 0, 0, 0.0155),
-						new Coordinate(0.035, 0, 0, 0.013) })
+						new ImmutableCoordinate(0.035, 0, 0, 0.0195), new ImmutableCoordinate(0.035, 0, 0, 0.0155),
+						new ImmutableCoordinate(0.035, 0, 0, 0.013) })
 				.setDigest("digest B4 test")
 				.build();
 	}
@@ -199,11 +199,11 @@ public class TestRockets {
 			.setTimePoints(new double[] { 0, 0.2, 0.4, 2.0, 2.1 })
 			.setThrustPoints(new double[] { 0, 12, 5, 5, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.0227),
-						new Coordinate(0.035, 0, 0, 0.0165),
-						new Coordinate(0.035, 0, 0, 0.0165),
-						new Coordinate(0.035, 0, 0, 0.013),
-						new Coordinate(0.035, 0, 0, 0.012) })
+						new ImmutableCoordinate(0.035, 0, 0, 0.0227),
+						new ImmutableCoordinate(0.035, 0, 0, 0.0165),
+						new ImmutableCoordinate(0.035, 0, 0, 0.0165),
+						new ImmutableCoordinate(0.035, 0, 0, 0.013),
+						new ImmutableCoordinate(0.035, 0, 0, 0.012) })
 				.setDigest("digest C6 test")
 				.build();
 	}
@@ -223,8 +223,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 32, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.035, 0, 0, 0.025), new Coordinate(0.035, 0, 0, 0.020),
-						new Coordinate(0.035, 0, 0, 0.0154) })
+						new ImmutableCoordinate(0.035, 0, 0, 0.025), new ImmutableCoordinate(0.035, 0, 0, 0.020),
+						new ImmutableCoordinate(0.035, 0, 0, 0.0154) })
 				.setDigest("digest D21 test")
 				.build();
 	}
@@ -244,8 +244,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 1357, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.311, 0, 0, 4.808), new Coordinate(0.311, 0, 0, 3.389),
-						new Coordinate(0.311, 0, 0, 1.970) })
+						new ImmutableCoordinate(0.311, 0, 0, 4.808), new ImmutableCoordinate(0.311, 0, 0, 3.389),
+						new ImmutableCoordinate(0.311, 0, 0, 1.970) })
 				.setDigest("digest M1350 test")
 				.build();
 	}
@@ -265,8 +265,8 @@ public class TestRockets {
 				.setTimePoints(new double[] { 0, 1, 2 })
 				.setThrustPoints(new double[] { 0, 20, 0 })
 				.setCGPoints(new Coordinate[] {
-						new Coordinate(0.062, 0, 0, 0.123), new Coordinate(0.062, 0, 0, 0.0935),
-						new Coordinate(0.062, 0, 0, 0.064) })
+						new ImmutableCoordinate(0.062, 0, 0, 0.123), new ImmutableCoordinate(0.062, 0, 0, 0.0935),
+						new ImmutableCoordinate(0.062, 0, 0, 0.064) })
 				.setDigest("digest G77 test")
 				.build();
 	}
@@ -745,11 +745,11 @@ public class TestRockets {
 
 		finset = new FreeformFinSet();
 		final Coordinate[] finPoints = {
-				new Coordinate(0, 0),
-				new Coordinate(0.115, 0.072),
-				new Coordinate(0.255, 0.072),
-				new Coordinate(0.255, 0.037),
-				new Coordinate(0.150, 0) };
+				new ImmutableCoordinate(0, 0),
+				new ImmutableCoordinate(0.115, 0.072),
+				new ImmutableCoordinate(0.255, 0.072),
+				new ImmutableCoordinate(0.255, 0.037),
+				new ImmutableCoordinate(0.150, 0) };
 		finset.setPoints(finPoints);
 
 		finset.setThickness(0.003);

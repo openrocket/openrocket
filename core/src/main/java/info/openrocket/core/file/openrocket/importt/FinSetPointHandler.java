@@ -3,6 +3,7 @@ package info.openrocket.core.file.openrocket.importt;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.xml.sax.SAXException;
 
 import info.openrocket.core.logging.Warning;
@@ -48,7 +49,7 @@ class FinSetPointHandler extends AbstractElementHandler {
 		try {
 			double x = Double.parseDouble(strx);
 			double y = Double.parseDouble(stry);
-			coordinates.add(new Coordinate(x, y));
+			coordinates.add(new ImmutableCoordinate(x, y));
 		} catch (NumberFormatException e) {
 			warnings.add(Warning.fromString("Illegal fin points specification, ignoring."));
 			return;

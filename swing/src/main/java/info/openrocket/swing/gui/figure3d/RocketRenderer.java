@@ -14,6 +14,7 @@ import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,12 +220,12 @@ public abstract class RocketRenderer {
 			}
 			double length = motor.getLength();
 		
-			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
+			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new ImmutableCoordinate(((RocketComponent) mount)
 					.getLength() + mount.getMotorOverhang() - length));
 
 			for (Coordinate coordinate : position) {
 				gl.glPushMatrix();
-				gl.glTranslated(coordinate.x, coordinate.y, coordinate.z);
+				gl.glTranslated(coordinate.getX(), coordinate.getY(), coordinate.getZ());
 				renderMotor(gl, motor);
 				gl.glPopMatrix();
 			}

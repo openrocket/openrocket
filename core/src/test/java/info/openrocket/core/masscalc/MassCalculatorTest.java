@@ -27,6 +27,7 @@ import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Motor;
@@ -48,15 +49,15 @@ public class MassCalculatorTest extends BaseTestCase {
 		FlightConfiguration config = rocket.getEmptyConfiguration();
 
 		final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-		final double actualRocketDryMass = actualStructure.cm.weight;
+		final double actualRocketDryMass = actualStructure.cm.getWeight();
 		final Coordinate actualRocketDryCM = actualStructure.cm;
 
 		assertEquals(0, actualRocketDryMass, 0, " Empty Rocket Empty Mass is incorrect: ");
 
-		Coordinate expCM = new Coordinate(0, 0, 0, 0);
-		assertEquals(expCM.x, actualRocketDryCM.x, 0, "Empty Rocket CM.x is incorrect: ");
-		assertEquals(expCM.y, actualRocketDryCM.y, 0, "Empty Rocket CM.y is incorrect: ");
-		assertEquals(expCM.z, actualRocketDryCM.z, 0, "Empty Rocket CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(0, 0, 0, 0);
+		assertEquals(expCM.getX(), actualRocketDryCM.getX(), 0, "Empty Rocket CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), actualRocketDryCM.getY(), 0, "Empty Rocket CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), actualRocketDryCM.getZ(), 0, "Empty Rocket CM.getZ() is incorrect: ");
 		assertEquals(expCM, actualRocketDryCM, "Empty Rocket CM is incorrect: ");
 
 		double actualMOIrot = actualStructure.getRotationalInertia();
@@ -91,41 +92,41 @@ public class MassCalculatorTest extends BaseTestCase {
 		// tube2.setAxialOffset(1.0);
 
 		RigidBody structure = MassCalculator.calculateStructure(config);
-		assertEquals(3.0, structure.cm.weight, EPSILON, "No overrides -- mass incorrect");
-		assertEquals(1.5, structure.cm.x, EPSILON, "No overrides -- CG incorrect");
+		assertEquals(3.0, structure.cm.getWeight(), EPSILON, "No overrides -- mass incorrect");
+		assertEquals(1.5, structure.cm.getX(), EPSILON, "No overrides -- CG incorrect");
 
 		stage.setMassOverridden(true);
 		stage.setOverrideMass(1.0);
 		structure = MassCalculator.calculateStructure(config);
-		assertEquals(4.0, structure.cm.weight, EPSILON, "Overrides: mass -- mass incorrect");
-		assertEquals(1.5, structure.cm.x, EPSILON, "Overrides: mass -- CG incorrect");
+		assertEquals(4.0, structure.cm.getWeight(), EPSILON, "Overrides: mass -- mass incorrect");
+		assertEquals(1.5, structure.cm.getX(), EPSILON, "Overrides: mass -- CG incorrect");
 
 		stage.setSubcomponentsOverriddenMass(true);
 		structure = MassCalculator.calculateStructure(config);
-		assertEquals(1.0, structure.cm.weight, EPSILON, "Overrides: mass, children mass --  mass incorrect");
-		assertEquals(1.5, structure.cm.x, EPSILON, "Overrides: mass, children mass -- CG incorrect");
+		assertEquals(1.0, structure.cm.getWeight(), EPSILON, "Overrides: mass, children mass --  mass incorrect");
+		assertEquals(1.5, structure.cm.getX(), EPSILON, "Overrides: mass, children mass -- CG incorrect");
 
 		stage.setCGOverridden(true);
 		stage.setOverrideCGX(1.0);
 		structure = MassCalculator.calculateStructure(config);
-		assertEquals(1.0, structure.cm.weight, EPSILON, "Overrides: mass, children mass, CG -- mass incorrect");
-		assertEquals(1.0, structure.cm.x, EPSILON, "Overrides: mass, children mass, CG -- CG incorrect");
+		assertEquals(1.0, structure.cm.getWeight(), EPSILON, "Overrides: mass, children mass, CG -- mass incorrect");
+		assertEquals(1.0, structure.cm.getX(), EPSILON, "Overrides: mass, children mass, CG -- CG incorrect");
 
 		stage.setSubcomponentsOverriddenCG(true);
 		structure = MassCalculator.calculateStructure(config);
-		assertEquals(1.0, structure.cm.weight,
+		assertEquals(1.0, structure.cm.getWeight(),
 				EPSILON, "Overrides: mass, children mass, CG, children CG -- mass incorrect");
-		assertEquals(1.0, structure.cm.x, EPSILON, "Overrides: mass, children mass, CG, children CG -- CG incorrect");
+		assertEquals(1.0, structure.cm.getX(), EPSILON, "Overrides: mass, children mass, CG, children CG -- CG incorrect");
 
 		stage.setSubcomponentsOverriddenMass(false);
 		structure = MassCalculator.calculateStructure(config);
-		assertEquals(4.0, structure.cm.weight, EPSILON, "Overrides: mass, CG, children CG -- mass incorrect");
-		assertEquals(1.0, structure.cm.x, EPSILON, "Overrides: mass, CG, children CG -- CG incorrect");
+		assertEquals(4.0, structure.cm.getWeight(), EPSILON, "Overrides: mass, CG, children CG -- mass incorrect");
+		assertEquals(1.0, structure.cm.getX(), EPSILON, "Overrides: mass, CG, children CG -- CG incorrect");
 
 		stage.setSubcomponentsOverriddenCG(false);
 		structure = MassCalculator.calculateStructure(config);
-		assertEquals(4.0, structure.cm.weight, EPSILON, "Overrides: mass, CG -- mass incorrect");
-		assertEquals(1.375, structure.cm.x, EPSILON, "Overrides: mass, CG -- CG incorrect");
+		assertEquals(4.0, structure.cm.getWeight(), EPSILON, "Overrides: mass, CG -- mass incorrect");
+		assertEquals(1.375, structure.cm.getX(), EPSILON, "Overrides: mass, CG -- CG incorrect");
 	}
 
 	@Test
@@ -138,7 +139,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		config.setAllStages();
 
 		final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-		final double actualRocketDryMass = actualStructure.cm.weight;
+		final double actualRocketDryMass = actualStructure.cm.getWeight();
 		final Coordinate actualRocketDryCM = actualStructure.cm;
 
 		double expRocketDryMass = 0.025268291846128787;
@@ -146,11 +147,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		double expCMx = 0.19176843580003;
 		double expCMy = -0.00031704007993248;		// Slight offset due to launch lug
-		Coordinate expCM = new Coordinate(expCMx, expCMy, 0, expRocketDryMass);
-		assertEquals(expCM.x, actualRocketDryCM.x, EPSILON, "Simple Rocket CM.x is incorrect: ");
-		assertEquals(expCM.y, actualRocketDryCM.y, EPSILON, "Simple Rocket CM.y is incorrect: ");
-		assertEquals(expCM.z, actualRocketDryCM.z, EPSILON, "Simple Rocket CM.z is incorrect: ");
-		assertEquals(expCM.weight, actualRocketDryCM.weight, EPSILON, "Simple Rocket CM.weight is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, expCMy, 0, expRocketDryMass);
+		assertEquals(expCM.getX(), actualRocketDryCM.getX(), EPSILON, "Simple Rocket CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), actualRocketDryCM.getY(), EPSILON, "Simple Rocket CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), actualRocketDryCM.getZ(), EPSILON, "Simple Rocket CM.getZ() is incorrect: ");
+		assertEquals(expCM.getWeight(), actualRocketDryCM.getWeight(), EPSILON, "Simple Rocket CM.getWeight() is incorrect: ");
 		assertEquals(expCM, actualRocketDryCM, "Simple Rocket CM is incorrect: ");
 
 		double expMOIrot = 1.888136072268211E-5;
@@ -200,11 +201,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		double expCMx = 0.20996446974544236;
 		double expCMy = -0.00019225797151073; // Slight offset due to launch lug
-		Coordinate expCM = new Coordinate(expCMx, expCMy, 0, expRocketLaunchMass);
-		assertEquals(expCM.x, actualRocketLaunchCM.x, EPSILON, "Simple Rocket CM.x is incorrect: ");
-		assertEquals(expCM.y, actualRocketLaunchCM.y, EPSILON, "Simple Rocket CM.y is incorrect: ");
-		assertEquals(expCM.z, actualRocketLaunchCM.z, EPSILON, "Simple Rocket CM.z is incorrect: ");
-		assertEquals(expCM.weight, actualRocketLaunchCM.weight, EPSILON, "Simple Rocket CM.weight is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, expCMy, 0, expRocketLaunchMass);
+		assertEquals(expCM.getX(), actualRocketLaunchCM.getX(), EPSILON, "Simple Rocket CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), actualRocketLaunchCM.getY(), EPSILON, "Simple Rocket CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), actualRocketLaunchCM.getZ(), EPSILON, "Simple Rocket CM.getZ() is incorrect: ");
+		assertEquals(expCM.getWeight(), actualRocketLaunchCM.getWeight(), EPSILON, "Simple Rocket CM.getWeight() is incorrect: ");
 		assertEquals(expCM, actualRocketLaunchCM, "Simple Rocket CM is incorrect: ");
 	}
 
@@ -227,10 +228,10 @@ public class MassCalculatorTest extends BaseTestCase {
 				" Motor Mass " + desig + " is incorrect: ");
 
 		double expCMx = 0.238;
-		Coordinate expCM = new Coordinate(expCMx, 0, 0, expMotorLaunchMass);
-		assertEquals(expCM.x, actualMotorData.cm.x, EPSILON, "Simple Rocket CM.x is incorrect: ");
-		assertEquals(expCM.y, actualMotorData.cm.y, EPSILON, "Simple Rocket CM.y is incorrect: ");
-		assertEquals(expCM.z, actualMotorData.cm.z, EPSILON, "Simple Rocket CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, 0, 0, expMotorLaunchMass);
+		assertEquals(expCM.getX(), actualMotorData.cm.getX(), EPSILON, "Simple Rocket CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), actualMotorData.cm.getY(), EPSILON, "Simple Rocket CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), actualMotorData.cm.getZ(), EPSILON, "Simple Rocket CM.getZ() is incorrect: ");
 		assertEquals(expCM, actualMotorData.cm, "Simple Rocket CM is incorrect: ");
 	}
 
@@ -286,24 +287,24 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		{ // [0] verify / document structure
 			final BodyTube sustainerBody = (BodyTube) sustainerStage.getChild(0);
-			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
+			assertEquals(0.0, sustainerBody.getPosition().getX(), EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			
 			final BodyTube boosterBody = (BodyTube) boosterStage.getChild(0);
-			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
+			assertEquals(0.10, boosterBody.getComponentLocations()[0].getX(), EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 		}
 		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.10;
-			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
+			assertEquals(expCMx, actualRocketDryCM.getX(), EPSILON);
 		}
 		
 		boosterStage.setSubcomponentsOverriddenCG(true);
@@ -313,13 +314,13 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.075;
-			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
+			assertEquals(expCMx, actualRocketDryCM.getX(), EPSILON);
 		}
 	}
 	
@@ -333,18 +334,18 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		final double expSingleBodyMass = 0.0040589377;
 		{ // [0] verify / document structure
-			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
+			assertEquals(0.0, sustainerBody.getPosition().getX(), EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getMass(), EPSILON);
 		}
 		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			assertEquals(expSingleBodyMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
-			assertEquals(0.05, actualRocketDryCM.x, EPSILON);
+			assertEquals(0.05, actualRocketDryCM.getX(), EPSILON);
 		}
 		
 		sustainerStage.setSubcomponentsOverriddenMass(true);
@@ -354,13 +355,13 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			final double expRocketDryMass = 0.001;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.05;
-			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
+			assertEquals(expCMx, actualRocketDryCM.getX(), EPSILON);
 		}
 	}
 
@@ -375,18 +376,18 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		final double expSingleBodyMass = 0.0040589377;
 		{ // [0] verify / document structure
-			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
+			assertEquals(0.0, sustainerBody.getPosition().getX(), EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getMass(), EPSILON);
-			assertEquals(0.0, boosterBody.getPosition().x, EPSILON);
+			assertEquals(0.0, boosterBody.getPosition().getX(), EPSILON);
 			assertEquals(0.1, boosterBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getMass(), EPSILON);
 		}
 		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
-			assertEquals(2 * expSingleBodyMass, actualStructure.cm.weight, EPSILON);
-			assertEquals(0.10, actualStructure.cm.x, EPSILON);
+			assertEquals(2 * expSingleBodyMass, actualStructure.cm.getWeight(), EPSILON);
+			assertEquals(0.10, actualStructure.cm.getX(), EPSILON);
 		}
 		
 		boosterStage.setSubcomponentsOverriddenMass(true);
@@ -396,11 +397,11 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			assertEquals(expSingleBodyMass + 0.001, actualRocketDryMass, EPSILON);
 
 			final Coordinate actualRocketDryCM = actualStructure.cm;
-			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
+			assertEquals(0.06976699, actualRocketDryCM.getX(), EPSILON);
 		}
 	}
 	
@@ -414,23 +415,23 @@ public class MassCalculatorTest extends BaseTestCase {
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
 		
 		{ // [0] verify / document structure
-			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
+			assertEquals(0.0, sustainerBody.getPosition().getX(), EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			
-			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
+			assertEquals(0.10, boosterBody.getComponentLocations()[0].getX(), EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 		}
 		
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.10;
-			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
+			assertEquals(expCMx, actualRocketDryCM.getX(), EPSILON);
 		}
 		
 		boosterBody.setSubcomponentsOverriddenCG(false);
@@ -440,13 +441,13 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.075;
-			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
+			assertEquals(expCMx, actualRocketDryCM.getX(), EPSILON);
 		}
 	}
 	
@@ -461,12 +462,12 @@ public class MassCalculatorTest extends BaseTestCase {
 		
 		final double expSingleBodyMass = 0.0040589377;
 		{ // [0] verify / document structure
-			assertEquals(0.0, sustainerBody.getPosition().x, EPSILON);
+			assertEquals(0.0, sustainerBody.getPosition().getX(), EPSILON);
 			assertEquals(0.1, sustainerBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getMass(), EPSILON);
 			assertEquals(expSingleBodyMass, sustainerBody.getSectionMass(), EPSILON);
 			
-			assertEquals(0.10, boosterBody.getComponentLocations()[0].x, EPSILON);
+			assertEquals(0.10, boosterBody.getComponentLocations()[0].getX(), EPSILON);
 			assertEquals(0.10, boosterBody.getLength(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getMass(), EPSILON);
 			assertEquals(expSingleBodyMass, boosterBody.getSectionMass(), EPSILON);
@@ -475,13 +476,13 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, before:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			final double expRocketDryMass = 0.0081178754;
 			assertEquals(expRocketDryMass, actualRocketDryMass, EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
 			final double expCMx = 0.10;
-			assertEquals(expCMx, actualRocketDryCM.x, EPSILON);
+			assertEquals(expCMx, actualRocketDryCM.getX(), EPSILON);
 		}
 		
 		boosterBody.setSubcomponentsOverriddenMass(false);
@@ -492,13 +493,13 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			assertEquals(expSingleBodyMass + newMass, actualRocketDryMass, EPSILON);
 			assertEquals(newMass, boosterBody.getMass(), EPSILON);
 			assertEquals(newMass, boosterBody.getSectionMass(), EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
-			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
+			assertEquals(0.06976699, actualRocketDryCM.getX(), EPSILON);
 		}
 
 		boosterBody.setSubcomponentsOverriddenMass(true); // change. Also, this body lacks subcomponents.
@@ -508,13 +509,13 @@ public class MassCalculatorTest extends BaseTestCase {
 		{ // [1] test Rocket CM, after:
 			final RigidBody actualStructure = MassCalculator.calculateStructure(config);
 			
-			final double actualRocketDryMass = actualStructure.cm.weight;
+			final double actualRocketDryMass = actualStructure.cm.getWeight();
 			assertEquals(expSingleBodyMass + newMass, actualRocketDryMass, EPSILON);
 			assertEquals(newMass, boosterBody.getMass(), EPSILON);
 			assertEquals(newMass, boosterBody.getSectionMass(), EPSILON);
 			
 			final Coordinate actualRocketDryCM = actualStructure.cm;
-			assertEquals(0.06976699, actualRocketDryCM.x, EPSILON);
+			assertEquals(0.06976699, actualRocketDryCM.getX(), EPSILON);
 		}
 	}
 	
@@ -616,38 +617,38 @@ public class MassCalculatorTest extends BaseTestCase {
 		{
 			expCMx = 0.08079767055284799;
 			NoseCone nc = (NoseCone) rkt.getChild(0).getChild(0);
-			actCMx = nc.getComponentCG().x;
+			actCMx = nc.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "P/L NoseCone CMx calculated incorrectly: ");
 
 			expCMx = 0.066;
 			BodyTube plbody = (BodyTube) rkt.getChild(0).getChild(1);
-			actCMx = plbody.getComponentCG().x;
+			actCMx = plbody.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "P/L Body CMx calculated incorrectly: ");
 
 			expCMx = 0.006640909510057012;
 			Transition tr = (Transition) rkt.getChild(0).getChild(2);
-			actCMx = tr.getComponentCG().x;
+			actCMx = tr.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "P/L Transition CMx calculated incorrectly: ");
 
 			expCMx = 0.09;
 			BodyTube upperBody = (BodyTube) rkt.getChild(0).getChild(3);
-			actCMx = upperBody.getComponentCG().x;
+			actCMx = upperBody.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "P/L Upper Stage Body CMx calculated incorrectly: ");
 			{
 				expCMx = 0.0125;
 				Parachute chute = (Parachute) rkt.getChild(0).getChild(3).getChild(0);
-				actCMx = chute.getComponentCG().x;
+				actCMx = chute.getComponentCG().getX();
 				assertEquals(expCMx, actCMx, EPSILON, "Parachute CMx calculated incorrectly: ");
 
 				expCMx = 0.0125;
 				ShockCord cord = (ShockCord) rkt.getChild(0).getChild(3).getChild(1);
-				actCMx = cord.getComponentCG().x;
+				actCMx = cord.getComponentCG().getX();
 				assertEquals(expCMx, actCMx, EPSILON, "Shock Cord CMx calculated incorrectly: ");
 			}
 
 			expCMx = 0.06;
 			BodyTube interstage = (BodyTube) rkt.getChild(0).getChild(4);
-			actCMx = interstage.getComponentCG().x;
+			actCMx = interstage.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "Interstage CMx calculated incorrectly: ");
 		}
 
@@ -657,7 +658,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		{
 			expCMx = 0.4;
 			BodyTube coreBody = (BodyTube) coreStage.getChild(0);
-			actCMx = coreBody.getComponentCG().x;
+			actCMx = coreBody.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "Core Body CMx calculated incorrectly: ");
 		}
 
@@ -668,22 +669,22 @@ public class MassCalculatorTest extends BaseTestCase {
 			expCMx = 0.05383295859557998;
 			// think of the casts as an assert that ( child instanceof NoseCone) == true
 			NoseCone nose = (NoseCone) boosters.getChild(0);
-			actCMx = nose.getComponentCG().x;
+			actCMx = nose.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "Booster Nose CMx calculated incorrectly: ");
 
 			expCMx = 0.4;
 			BodyTube body = (BodyTube) boosters.getChild(1);
-			actCMx = body.getComponentCG().x;
+			actCMx = body.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "BoosterBody CMx calculated incorrectly: ");
 
 			expCMx = 0.075;
 			InnerTube mmt = (InnerTube) boosters.getChild(1).getChild(0);
-			actCMx = mmt.getComponentCG().x;
+			actCMx = mmt.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, " Motor Mount Tube CMx calculated incorrectly: ");
 
 			expCMx = 0.19393939;
 			FinSet boosterFins = (FinSet) boosters.getChild(1).getChild(1);
-			actCMx = boosterFins.getComponentCG().x;
+			actCMx = boosterFins.getComponentCG().getX();
 			assertEquals(expCMx, actCMx, EPSILON, "Core Fins CMx calculated incorrectly: ");
 		}
 	}
@@ -841,11 +842,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		double expMass = 0.11628853296935873;
 		double expCMx = 0.2780673116227175;
-		assertEquals(expMass, actualCM.weight, EPSILON, "Upper Stage Mass is incorrect: ");
+		assertEquals(expMass, actualCM.getWeight(), EPSILON, "Upper Stage Mass is incorrect: ");
 
-		assertEquals(expCMx, actualCM.x, EPSILON, "Upper Stage CM.x is incorrect: ");
-		assertEquals(0.0f, actualCM.y, EPSILON, "Upper Stage CM.y is incorrect: ");
-		assertEquals(0.0f, actualCM.z, EPSILON, "Upper Stage CM.z is incorrect: ");
+		assertEquals(expCMx, actualCM.getX(), EPSILON, "Upper Stage CM.getX() is incorrect: ");
+		assertEquals(0.0f, actualCM.getY(), EPSILON, "Upper Stage CM.getY() is incorrect: ");
+		assertEquals(0.0f, actualCM.getZ(), EPSILON, "Upper Stage CM.getZ() is incorrect: ");
 	}
 
 	@Test
@@ -862,11 +863,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		double expMass = 0.12988600;
 		double expCMx = 0.964;
-		assertEquals(expMass, actualCM.weight, EPSILON, "Upper Stage Mass is incorrect: ");
+		assertEquals(expMass, actualCM.getWeight(), EPSILON, "Upper Stage Mass is incorrect: ");
 
-		assertEquals(expCMx, actualCM.x, EPSILON, "Upper Stage CM.x is incorrect: ");
-		assertEquals(0.0f, actualCM.y, EPSILON, "Upper Stage CM.y is incorrect: ");
-		assertEquals(0.0f, actualCM.z, EPSILON, "Upper Stage CM.z is incorrect: ");
+		assertEquals(expCMx, actualCM.getX(), EPSILON, "Upper Stage CM.getX() is incorrect: ");
+		assertEquals(0.0f, actualCM.getY(), EPSILON, "Upper Stage CM.getY() is incorrect: ");
+		assertEquals(0.0f, actualCM.getZ(), EPSILON, "Upper Stage CM.getZ() is incorrect: ");
 	}
 
 	@Test
@@ -890,15 +891,15 @@ public class MassCalculatorTest extends BaseTestCase {
 		final Coordinate actCM = actMotorData.cm;
 
 		final double expMotorMass = motor.getLaunchMass();
-		final Coordinate expCM = new Coordinate(1.053, 0, 0, expMotorMass);
+		final Coordinate expCM = new ImmutableCoordinate(1.053, 0, 0, expMotorMass);
 
 		assertEquals(expMotorMass, actMotorMass, EPSILON,
 				core.getName() + " => " + motorDesignation + " propellant mass is incorrect: ");
-		assertEquals(expCM.x, actCM.x, EPSILON,
+		assertEquals(expCM.getX(), actCM.getX(), EPSILON,
 				core.getName() + " => " + motorDesignation + " propellant CoM x is incorrect: ");
-		assertEquals(expCM.y, actCM.y, EPSILON,
+		assertEquals(expCM.getY(), actCM.getY(), EPSILON,
 				core.getName() + " => " + motorDesignation + " propellant CoM y is incorrect: ");
-		assertEquals(expCM.z, actCM.z, EPSILON,
+		assertEquals(expCM.getZ(), actCM.getZ(), EPSILON,
 				core.getName() + " => " + motorDesignation + " propellant CoM z is incorrect: ");
 	}
 
@@ -939,11 +940,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		double expMass = 0.6063587938961827;
 		double expCMx = 1.0750544407309763;
-		assertEquals(expMass, actualCM.weight, EPSILON, "Heavy Booster Mass is incorrect: ");
+		assertEquals(expMass, actualCM.getWeight(), EPSILON, "Heavy Booster Mass is incorrect: ");
 
-		assertEquals(expCMx, actualCM.x, EPSILON, "Heavy Booster CM.x is incorrect: ");
-		assertEquals(0.0f, actualCM.y, EPSILON, "Heavy Booster CM.y is incorrect: ");
-		assertEquals(0.0f, actualCM.z, EPSILON, "Heavy Booster CM.z is incorrect: ");
+		assertEquals(expCMx, actualCM.getX(), EPSILON, "Heavy Booster CM.getX() is incorrect: ");
+		assertEquals(0.0f, actualCM.getY(), EPSILON, "Heavy Booster CM.getY() is incorrect: ");
+		assertEquals(0.0f, actualCM.getZ(), EPSILON, "Heavy Booster CM.getZ() is incorrect: ");
 	}
 
 	@Test
@@ -963,10 +964,10 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		final Coordinate actualCM = actualBoosterLaunchData.getCM();
 		double expectedCMx = 1.223107189094683;
-		Coordinate expCM = new Coordinate(expectedCMx, 0, 0, expectedMass);
-		assertEquals(expCM.x, actualCM.x, EPSILON, " Booster Launch CM.x is incorrect: ");
-		assertEquals(expCM.y, actualCM.y, EPSILON, " Booster Launch CM.y is incorrect: ");
-		assertEquals(expCM.z, actualCM.z, EPSILON, " Booster Launch CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expectedCMx, 0, 0, expectedMass);
+		assertEquals(expCM.getX(), actualCM.getX(), EPSILON, " Booster Launch CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), actualCM.getY(), EPSILON, " Booster Launch CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), actualCM.getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, actualCM, " Booster Launch CM is incorrect: ");
 	}
 
@@ -985,11 +986,11 @@ public class MassCalculatorTest extends BaseTestCase {
 
 		double expSpentMass = 1.1183587938961828;
 		double expSpentCMx = 1.1846026528203366;
-		Coordinate expLaunchCM = new Coordinate(expSpentCMx, 0, 0, expSpentMass);
-		assertEquals(expLaunchCM.weight, spentCM.weight, EPSILON, " Booster Launch Mass is incorrect: ");
-		assertEquals(expLaunchCM.x, spentCM.x, EPSILON, " Booster Launch CM.x is incorrect: ");
-		assertEquals(expLaunchCM.y, spentCM.y, EPSILON, " Booster Launch CM.y is incorrect: ");
-		assertEquals(expLaunchCM.z, spentCM.z, EPSILON, " Booster Launch CM.z is incorrect: ");
+		Coordinate expLaunchCM = new ImmutableCoordinate(expSpentCMx, 0, 0, expSpentMass);
+		assertEquals(expLaunchCM.getWeight(), spentCM.getWeight(), EPSILON, " Booster Launch Mass is incorrect: ");
+		assertEquals(expLaunchCM.getX(), spentCM.getX(), EPSILON, " Booster Launch CM.getX() is incorrect: ");
+		assertEquals(expLaunchCM.getY(), spentCM.getY(), EPSILON, " Booster Launch CM.getY() is incorrect: ");
+		assertEquals(expLaunchCM.getZ(), spentCM.getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expLaunchCM, spentCM, " Booster Launch CM is incorrect: ");
 	}
 
@@ -1014,15 +1015,15 @@ public class MassCalculatorTest extends BaseTestCase {
 		final double boosterSetMotorCount = 8.0; /// use a double merely to prevent type-casting issues
 		final double expBoosterPropMass = expBoosterPropMassEach * boosterSetMotorCount;
 
-		final Coordinate expCM = new Coordinate(1.31434, 0, 0, expBoosterPropMass);
+		final Coordinate expCM = new ImmutableCoordinate(1.31434, 0, 0, expBoosterPropMass);
 
 		assertEquals(expBoosterPropMass, actualPropellant.getMass(), EPSILON,
 				boosters.getName() + " => " + boosterMotor.getDesignation() + " propellant mass is incorrect: ");
-		assertEquals(expCM.x, actCM.x, EPSILON,
+		assertEquals(expCM.getX(), actCM.getX(), EPSILON,
 				boosters.getName() + " => " + boosterMotor.getDesignation() + " propellant CoM x is incorrect: ");
-		assertEquals(expCM.y, actCM.y, EPSILON,
+		assertEquals(expCM.getY(), actCM.getY(), EPSILON,
 				boosters.getName() + " => " + boosterMotor.getDesignation() + " propellant CoM y is incorrect: ");
-		assertEquals(expCM.z, actCM.z, EPSILON,
+		assertEquals(expCM.getZ(), actCM.getZ(), EPSILON,
 				boosters.getName() + " => " + boosterMotor.getDesignation() + " propellant CoM z is incorrect: ");
 	}
 
@@ -1113,10 +1114,10 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expTotalMass, calcTotalMass, EPSILON, " Booster Launch Mass is incorrect: ");
 
 		double expCMx = 5.92;
-		Coordinate expCM = new Coordinate(expCMx, 0, 0, expTotalMass);
-		assertEquals(expCM.x, boosterSetCM.x, EPSILON, " Booster Launch CM.x is incorrect: ");
-		assertEquals(expCM.y, boosterSetCM.y, EPSILON, " Booster Launch CM.y is incorrect: ");
-		assertEquals(expCM.z, boosterSetCM.z, EPSILON, " Booster Launch CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, 0, 0, expTotalMass);
+		assertEquals(expCM.getX(), boosterSetCM.getX(), EPSILON, " Booster Launch CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), boosterSetCM.getY(), EPSILON, " Booster Launch CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), boosterSetCM.getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, boosterSetCM, " Booster Launch CM is incorrect: ");
 
 		// Validate MOI
@@ -1167,10 +1168,10 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expTotalMass, boosterData.getMass(), EPSILON, " Booster Launch Mass is incorrect: ");
 
 		double expCMx = 0.2827146624421746;
-		Coordinate expCM = new Coordinate(expCMx, 0, 0, expTotalMass);
-		assertEquals(expCM.x, boosterCM.x, EPSILON, " Booster Launch CM.x is incorrect: ");
-		assertEquals(expCM.y, boosterCM.y, EPSILON, " Booster Launch CM.y is incorrect: ");
-		assertEquals(expCM.z, boosterCM.z, EPSILON, " Booster Launch CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, 0, 0, expTotalMass);
+		assertEquals(expCM.getX(), boosterCM.getX(), EPSILON, " Booster Launch CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), boosterCM.getY(), EPSILON, " Booster Launch CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), boosterCM.getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, boosterCM, " Booster Launch CM is incorrect: ");
 
 		// Validate MOI
@@ -1213,10 +1214,10 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(expMass, calcTotalMass, EPSILON, " Booster Launch Mass is incorrect: ");
 
 		final double expCMx = 0.5567081598531745;
-		Coordinate expCM = new Coordinate(expCMx, 0, 0, expMass);
-		assertEquals(expCM.x, structure.getCM().x, EPSILON, " Booster Launch CM.x is incorrect: ");
-		assertEquals(expCM.y, structure.getCM().y, EPSILON, " Booster Launch CM.y is incorrect: ");
-		assertEquals(expCM.z, structure.getCM().z, EPSILON, " Booster Launch CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, 0, 0, expMass);
+		assertEquals(expCM.getX(), structure.getCM().getX(), EPSILON, " Booster Launch CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), structure.getCM().getY(), EPSILON, " Booster Launch CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), structure.getCM().getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, structure.getCM(), " Booster Launch CM is incorrect: ");
 
 		// Validate MOI
@@ -1289,10 +1290,10 @@ public class MassCalculatorTest extends BaseTestCase {
 		final double expCMx = 0.3039199615;
 		final double expCMy = 0.0;
 		final double expCMz = 0.0;
-		Coordinate expCM = new Coordinate(expCMx, expCMy, expCMz, expMass);
-		assertEquals(expCM.x, structure.getCM().x, EPSILON, " Booster Launch CM.x is incorrect: ");
-		assertEquals(expCM.y, structure.getCM().y, EPSILON, " Booster Launch CM.y is incorrect: ");
-		assertEquals(expCM.z, structure.getCM().z, EPSILON, " Booster Launch CM.z is incorrect: ");
+		Coordinate expCM = new ImmutableCoordinate(expCMx, expCMy, expCMz, expMass);
+		assertEquals(expCM.getX(), structure.getCM().getX(), EPSILON, " Booster Launch CM.getX() is incorrect: ");
+		assertEquals(expCM.getY(), structure.getCM().getY(), EPSILON, " Booster Launch CM.getY() is incorrect: ");
+		assertEquals(expCM.getZ(), structure.getCM().getZ(), EPSILON, " Booster Launch CM.getZ() is incorrect: ");
 		assertEquals(expCM, structure.getCM(), " Booster Launch CM is incorrect: ");
 
 	}
@@ -1304,7 +1305,7 @@ public class MassCalculatorTest extends BaseTestCase {
 		configRef.setAllStages();
 
 		final RigidBody structureRef = MassCalculator.calculateStructure(configRef);
-		final double rocketDryMassRef = structureRef.cm.weight;
+		final double rocketDryMassRef = structureRef.cm.getWeight();
 		final Coordinate rocketDryCMRef = structureRef.cm;
 
 		Rocket rocket = TestRockets.makeEstesAlphaIII();
@@ -1316,14 +1317,14 @@ public class MassCalculatorTest extends BaseTestCase {
 		config.setAllStages();
 
 		final RigidBody structure = MassCalculator.calculateStructure(config);
-		final double rocketDryMass = structure.cm.weight;
+		final double rocketDryMass = structure.cm.getWeight();
 		final Coordinate rocketDryCM = structure.cm;
 
 		assertEquals(rocketDryMassRef, rocketDryMass, EPSILON, " Empty Stages Rocket Empty Mass is incorrect: ");
 
-		assertEquals(rocketDryCMRef.x, rocketDryCM.x, EPSILON, "Empty Stages Rocket CM.x is incorrect: ");
-		assertEquals(rocketDryCMRef.y, rocketDryCM.y, EPSILON, "Empty Stages Rocket CM.y is incorrect: ");
-		assertEquals(rocketDryCMRef.z, rocketDryCM.z, EPSILON, "Empty Stages Rocket CM.z is incorrect: ");
+		assertEquals(rocketDryCMRef.getX(), rocketDryCM.getX(), EPSILON, "Empty Stages Rocket CM.getX() is incorrect: ");
+		assertEquals(rocketDryCMRef.getY(), rocketDryCM.getY(), EPSILON, "Empty Stages Rocket CM.getY() is incorrect: ");
+		assertEquals(rocketDryCMRef.getZ(), rocketDryCM.getZ(), EPSILON, "Empty Stages Rocket CM.getZ() is incorrect: ");
 		assertEquals(rocketDryCMRef, rocketDryCM, "Empty Stages Rocket CM is incorrect: ");
 
 		double MOIrotRef = structureRef.getRotationalInertia();

@@ -361,8 +361,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 				// Compute tab height
 				final Coordinate finFront = ((FinSet) component).getFinFront();
-				double finStart = finFront.x + ((FinSet) component).getTabFrontEdge();
-				double finEnd = finFront.x + ((FinSet) component).getTabTrailingEdge();
+				double finStart = finFront.getX() + ((FinSet) component).getTabFrontEdge();
+				double finEnd = finFront.getX() + ((FinSet) component).getTabTrailingEdge();
 				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(finStart),
 						((SymmetricComponent)parent).getRadius(finEnd));
 				double height = parentMinRadius - maxTubeRad;
@@ -661,7 +661,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			Coordinate[] tabPoints = finSet.getTabPointsWithRoot();
 			Coordinate finFront = finSet.getFinFront();
 			// Need to offset to the fin front because the tab points are relative to the fin front
-			builder.addPath(tabPoints, finFront.x, finFront.y, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
+			builder.addPath(tabPoints, finFront.getX(), finFront.getY(), null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
 		}
 
 		builder.writeToFile(file);

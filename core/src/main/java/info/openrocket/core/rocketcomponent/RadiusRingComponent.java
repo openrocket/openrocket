@@ -2,6 +2,7 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -37,8 +38,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public double getOuterRadius() {
 		if (outerRadiusAutomatic && getParent() instanceof RadialParent) {
-			double pos1 = this.toRelative(Coordinate.NUL, parent)[0].x;
-			double pos2 = this.toRelative(new Coordinate(getLength()), parent)[0].x;
+			double pos1 = this.toRelative(ImmutableCoordinate.NUL, parent)[0].getX();
+			double pos2 = this.toRelative(new ImmutableCoordinate(getLength()), parent)[0].getX();
 			pos1 = MathUtil.clamp(pos1, 0, parent.getLength());
 			pos2 = MathUtil.clamp(pos2, 0, parent.getLength());
 			outerRadius = Math.min(((RadialParent) parent).getInnerRadius(pos1),
@@ -151,7 +152,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	public Coordinate[] getInstanceOffsets() {
 		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
 		for (int index = 0; index < this.getInstanceCount(); index++) {
-			toReturn[index] = new Coordinate(index * this.instanceSeparation, 0, 0);
+			toReturn[index] = new ImmutableCoordinate(index * this.instanceSeparation, 0, 0);
 		}
 
 		return toReturn;

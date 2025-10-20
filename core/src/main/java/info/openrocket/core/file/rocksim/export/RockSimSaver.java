@@ -100,7 +100,7 @@ public class RockSimSaver extends RocketSaver {
 
 		final FlightConfiguration configuration = rocket.getEmptyConfiguration();
 		final RigidBody spentData = MassCalculator.calculateStructure(configuration);
-		final double cg = spentData.cm.x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+		final double cg = spentData.cm.getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
 
 		int stageCount = rocket.getChildCount();
 		if (stageCount == 3) {

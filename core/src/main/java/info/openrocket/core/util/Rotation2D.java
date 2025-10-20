@@ -16,27 +16,27 @@ public class Rotation2D {
 	}
 
 	public Coordinate rotateX(Coordinate c) {
-		return new Coordinate(c.x, cos * c.y - sin * c.z, cos * c.z + sin * c.y, c.weight);
+		return new ImmutableCoordinate(c.getX(), cos * c.getY() - sin * c.getZ(), cos * c.getZ() + sin * c.getY(), c.getWeight());
 	}
 
 	public Coordinate rotateY(Coordinate c) {
-		return new Coordinate(cos * c.x + sin * c.z, c.y, cos * c.z - sin * c.x, c.weight);
+		return new ImmutableCoordinate(cos * c.getX() + sin * c.getZ(), c.getY(), cos * c.getZ() - sin * c.getX(), c.getWeight());
 	}
 
 	public Coordinate rotateZ(Coordinate c) {
-		return new Coordinate(cos * c.x - sin * c.y, cos * c.y + sin * c.x, c.z, c.weight);
+		return new ImmutableCoordinate(cos * c.getX() - sin * c.getY(), cos * c.getY() + sin * c.getX(), c.getZ(), c.getWeight());
 	}
 
 	public Coordinate invRotateX(Coordinate c) {
-		return new Coordinate(c.x, cos * c.y + sin * c.z, cos * c.z - sin * c.y, c.weight);
+		return new ImmutableCoordinate(c.getX(), cos * c.getY() + sin * c.getZ(), cos * c.getZ() - sin * c.getY(), c.getWeight());
 	}
 
 	public Coordinate invRotateY(Coordinate c) {
-		return new Coordinate(cos * c.x - sin * c.z, c.y, cos * c.z + sin * c.x, c.weight);
+		return new ImmutableCoordinate(cos * c.getX() - sin * c.getZ(), c.getY(), cos * c.getZ() + sin * c.getX(), c.getWeight());
 	}
 
 	public Coordinate invRotateZ(Coordinate c) {
-		return new Coordinate(cos * c.x + sin * c.y, cos * c.y - sin * c.x, c.z, c.weight);
+		return new ImmutableCoordinate(cos * c.getX() + sin * c.getY(), cos * c.getY() - sin * c.getX(), c.getZ(), c.getWeight());
 	}
 
 }

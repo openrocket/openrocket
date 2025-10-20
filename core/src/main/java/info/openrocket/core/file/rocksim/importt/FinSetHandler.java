@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.xml.sax.SAXException;
 
 import info.openrocket.core.logging.WarningSet;
@@ -398,7 +399,7 @@ class FinSetHandler extends AbstractElementHandler {
 						continue;
 					}
 
-					Coordinate c = new Coordinate(
+					Coordinate c = new ImmutableCoordinate(
 							Double.parseDouble(aPoint[0]) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
 							Double.parseDouble(aPoint[1]) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 					if (result.size() == 0) {
@@ -407,7 +408,7 @@ class FinSetHandler extends AbstractElementHandler {
 					}
 					Coordinate lastCoord = result.get(result.size() - 1);
 					// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
-					if (!((lastCoord.x == 0) && (lastCoord.y == 0) && (c.x == 0) && (c.y == 0))) {
+					if (!((lastCoord.getX() == 0) && (lastCoord.getY() == 0) && (c.getX() == 0) && (c.getY() == 0))) {
 						result.add(c);
 					}
 				} catch (NumberFormatException nfe) {
@@ -419,7 +420,7 @@ class FinSetHandler extends AbstractElementHandler {
 				// trailing root chord in the
 				// Coordinate array.
 				Coordinate last = result.get(result.size() - 1);
-				if (last.x == 0 && last.y == 0) {
+				if (last.getX() == 0 && last.getY() == 0) {
 					Collections.reverse(result);
 				}
 			}

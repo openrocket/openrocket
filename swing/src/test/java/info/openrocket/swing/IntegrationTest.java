@@ -328,12 +328,12 @@ public class IntegrationTest {
 		FlightConfiguration config = document.getRocket().getFlightConfiguration(fcid);
 		final RigidBody launchData = MassCalculator.calculateLaunch(config);
 		final Coordinate cg = launchData.getCenterOfMass();
-		assertEquals(cgx, cg.x, 0.001);
-		assertEquals(mass, cg.weight, 0.0005);
+		assertEquals(cgx, cg.getX(), 0.001);
+		assertEquals(mass, cg.getWeight(), 0.0005);
 		
 		final Coordinate cp = aeroCalc.getWorstCP(config, conditions, null);
-		assertEquals(cpx, cp.x, 0.001);
-		assertEquals(cna, cp.weight, 0.1);
+		assertEquals(cpx, cp.getX(), 0.001);
+		assertEquals(cna, cp.getWeight(), 0.1);
 	}
 	
 	

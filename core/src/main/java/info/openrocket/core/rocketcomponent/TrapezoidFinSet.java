@@ -6,6 +6,7 @@ import java.util.List;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -194,20 +195,20 @@ public class TrapezoidFinSet extends FinSet {
 	public Coordinate[] getFinPoints() {
 		List<Coordinate> points = new ArrayList<>(4);
 
-		points.add(Coordinate.NUL);
-		points.add(new Coordinate(sweep, height));
+		points.add(ImmutableCoordinate.NUL);
+		points.add(new ImmutableCoordinate(sweep, height));
 		if (tipChord > 0.0001) {
-			points.add(new Coordinate(sweep + tipChord, height));
+			points.add(new ImmutableCoordinate(sweep + tipChord, height));
 		}
-		points.add(new Coordinate(MathUtil.max(length, 0.0001), 0));
+		points.add(new ImmutableCoordinate(MathUtil.max(length, 0.0001), 0));
 
 		Coordinate[] finPoints = points.toArray(new Coordinate[0]);
 
 		// Set the start and end fin points the same as the root points (necessary for canted fins)
 		final Coordinate[] rootPoints = getRootPoints();
 		if (rootPoints.length > 1) {
-			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
-			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
+			finPoints[0] = finPoints[0].setX(rootPoints[0].getX()).setY(rootPoints[0].getY());
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].getX()).setY(rootPoints[rootPoints.length - 1].getY());
 		}
 
 		return finPoints;

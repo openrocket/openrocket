@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
 
@@ -185,10 +186,10 @@ public class FinSetTest extends BaseTestCase {
 	@Test
 	public void testAreaCalculationsSingleIncrement() {
 		Coordinate[] basicPoints = {
-				new Coordinate(0.00, 0.0),
-				new Coordinate(0.06, 0.06),
-				new Coordinate(0.06, 0.0),
-				new Coordinate(0.00, 0.0) };
+				new ImmutableCoordinate(0.00, 0.0),
+				new ImmutableCoordinate(0.06, 0.06),
+				new ImmutableCoordinate(0.06, 0.0),
+				new ImmutableCoordinate(0.00, 0.0) };
 		//
 		// [1] +
 		// /|
@@ -199,18 +200,18 @@ public class FinSetTest extends BaseTestCase {
 
 		final double expArea = 0.06 * 0.06 * 0.5;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.04, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.02, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
+		assertEquals(expArea, actCentroid.getWeight(), EPSILON, " basic area doesn't match...");
+		assertEquals(0.04, actCentroid.getX(), 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.getY(), 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
 	public void testAreaCalculationsDoubleIncrement() {
 		Coordinate[] basicPoints = {
-				new Coordinate(0.00, 0.0),
-				new Coordinate(0.06, 0.06),
-				new Coordinate(0.12, 0.0),
-				new Coordinate(0.00, 0.0) };
+				new ImmutableCoordinate(0.00, 0.0),
+				new ImmutableCoordinate(0.06, 0.06),
+				new ImmutableCoordinate(0.12, 0.0),
+				new ImmutableCoordinate(0.00, 0.0) };
 		//
 		// [1] +
 		// / \
@@ -221,19 +222,19 @@ public class FinSetTest extends BaseTestCase {
 
 		final double expArea = 0.06 * 0.12 * 0.5;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.06, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.02, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
+		assertEquals(expArea, actCentroid.getWeight(), EPSILON, " basic area doesn't match...");
+		assertEquals(0.06, actCentroid.getX(), 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.getY(), 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
 	public void testAreaCalculations() {
 		Coordinate[] basicPoints = {
-				new Coordinate(0.00, 0.0),
-				new Coordinate(0.02, 0.05),
-				new Coordinate(0.04, 0.05),
-				new Coordinate(0.06, 0.0),
-				new Coordinate(0.00, 0.0) };
+				new ImmutableCoordinate(0.00, 0.0),
+				new ImmutableCoordinate(0.02, 0.05),
+				new ImmutableCoordinate(0.04, 0.05),
+				new ImmutableCoordinate(0.06, 0.0),
+				new ImmutableCoordinate(0.00, 0.0) };
 		/*
 		 * [1] +--+ [2]
 		 * / \
@@ -243,9 +244,9 @@ public class FinSetTest extends BaseTestCase {
 		 */
 		final double expArea = 0.04 * 0.05;
 		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.03000, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.020833333, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
+		assertEquals(expArea, actCentroid.getWeight(), EPSILON, " basic area doesn't match...");
+		assertEquals(0.03000, actCentroid.getX(), 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.020833333, actCentroid.getY(), 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -291,15 +292,15 @@ public class FinSetTest extends BaseTestCase {
 		}
 
 		int idx = finShape.length-2;
-		assertEquals(new Coordinate(0.04, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		assertEquals(new ImmutableCoordinate(0.04, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
 		idx++;
-		assertEquals(new Coordinate(0.04, -0.02), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		assertEquals(new ImmutableCoordinate(0.04, -0.02), finShapeContinuous[idx], "incorrect fin shape point " + idx);
 		idx++;
-		assertEquals(new Coordinate(0.02, -0.02), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		assertEquals(new ImmutableCoordinate(0.02, -0.02), finShapeContinuous[idx], "incorrect fin shape point " + idx);
 		idx++;
-		assertEquals(new Coordinate(0.02, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		assertEquals(new ImmutableCoordinate(0.02, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
 		idx++;
-		assertEquals(new Coordinate(0.0, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
+		assertEquals(new ImmutableCoordinate(0.0, 0.0), finShapeContinuous[idx], "incorrect fin shape point " + idx);
 
 		// TODO: test on transition parent...
 	}

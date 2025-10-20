@@ -11,6 +11,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 public class Transition extends SymmetricComponent implements InsideColorComponent {
@@ -682,7 +683,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			final Coordinate transCG = cg;
 
 			double foreCapVolume = 0.0;
-			Coordinate foreCapCG = Coordinate.ZERO;
+			Coordinate foreCapCG = ImmutableCoordinate.ZERO;
 			double foreCapLongMOI = 0.0;
 			double foreCapRotMOI = 0.0;
 			if (isForeShoulderCapped()) {
@@ -700,7 +701,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 
 			double foreShoulderVolume = 0.0;
-			Coordinate foreShoulderCG = Coordinate.ZERO;
+			Coordinate foreShoulderCG = ImmutableCoordinate.ZERO;
 			double foreShoulderLongMOI = 0.0;
 			double foreShoulderRotMOI = 0.0;
 			if (getForeShoulderLength() > MINFEATURE) {
@@ -718,7 +719,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 
 			double aftShoulderVolume = 0.0;
-			Coordinate aftShoulderCG = Coordinate.ZERO;
+			Coordinate aftShoulderCG = ImmutableCoordinate.ZERO;
 			double aftShoulderLongMOI = 0.0;
 			double aftShoulderRotMOI = 0.0;
 			if (getAftShoulderLength() > MINFEATURE) {
@@ -737,7 +738,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 
 			double aftCapVolume = 0.0;
-			Coordinate aftCapCG = Coordinate.ZERO;
+			Coordinate aftCapCG = ImmutableCoordinate.ZERO;
 			double aftCapLongMOI = 0.0;
 			double aftCapRotMOI = 0.0;
 			if (isAftShoulderCapped()) {
@@ -757,31 +758,31 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			// Combine results
 			volume = foreCapVolume + foreShoulderVolume + transVolume + aftShoulderVolume + aftCapVolume;
 
-			final double cgx = foreCapCG.x * foreCapCG.weight +
-				foreShoulderCG.x * foreShoulderCG.weight +
-				transCG.x * transCG.weight +
-				aftShoulderCG.x * aftShoulderCG.weight +
-				aftCapCG.x * aftCapCG.weight;
+			final double cgx = foreCapCG.getX() * foreCapCG.getWeight() +
+				foreShoulderCG.getX() * foreShoulderCG.getWeight() +
+				transCG.getX() * transCG.getWeight() +
+				aftShoulderCG.getX() * aftShoulderCG.getWeight() +
+				aftCapCG.getX() * aftCapCG.getWeight();
 
-			final double mass = foreCapCG.weight + foreShoulderCG.weight + transCG.weight + aftShoulderCG.weight + aftCapCG.weight;
+			final double mass = foreCapCG.getWeight() + foreShoulderCG.getWeight() + transCG.getWeight() + aftShoulderCG.getWeight() + aftCapCG.getWeight();
 			
 			// If the mass is 0, so are moments of inertia
 			if (mass < MathUtil.EPSILON) {
-				cg = new Coordinate(0, 0, 0, 0);
+				cg = new ImmutableCoordinate(0, 0, 0, 0);
 				longitudinalUnitInertia = 0.0;
 				rotationalUnitInertia = 0.0;
 
 				return;
 			}
 			
-			cg = new Coordinate(cgx / mass, 0, 0, mass);
+			cg = new ImmutableCoordinate(cgx / mass, 0, 0, mass);
 
 			// need to use parallel axis theorem to move longitudinal MOI to CG of component
-			foreCapLongMOI += pow2(cg.x - foreCapCG.x) * foreCapVolume;
-			foreShoulderLongMOI += pow2(cg.x - foreShoulderCG.x) * foreShoulderVolume;
-			transLongMOI += pow2(cg.x - transCG.x) * transVolume;
-			aftShoulderLongMOI += pow2(cg.x - aftShoulderCG.x) * aftShoulderVolume;
-			aftCapLongMOI += pow2(cg.x - aftCapCG.x) * aftCapVolume;
+			foreCapLongMOI += pow2(cg.getX() - foreCapCG.getX()) * foreCapVolume;
+			foreShoulderLongMOI += pow2(cg.getX() - foreShoulderCG.getX()) * foreShoulderVolume;
+			transLongMOI += pow2(cg.getX() - transCG.getX()) * transVolume;
+			aftShoulderLongMOI += pow2(cg.getX() - aftShoulderCG.getX()) * aftShoulderVolume;
+			aftCapLongMOI += pow2(cg.getX() - aftCapCG.getX()) * aftCapVolume;
 
 			final double longMOI = foreCapLongMOI + foreShoulderLongMOI + transLongMOI + aftShoulderLongMOI + aftCapLongMOI;
 			longitudinalUnitInertia = longMOI/volume;

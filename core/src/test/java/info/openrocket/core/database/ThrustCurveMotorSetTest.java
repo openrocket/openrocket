@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.junit.jupiter.api.Test;
 
 public class ThrustCurveMotorSetTest {
@@ -29,7 +31,7 @@ public class ThrustCurveMotorSetTest {
 			.setLength(0.07)
 			.setTimePoints(new double[] { 0, 1, 2 })
 			.setThrustPoints(new double[] { 0, 1, 0 })
-			.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+			.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
 			.setDigest("digestA")
 			.build();
 
@@ -44,7 +46,7 @@ public class ThrustCurveMotorSetTest {
 			.setLength(0.07)
 			.setTimePoints(new double[] { 0, 1, 2 })
 			.setThrustPoints(new double[] { 0, 1, 0 })
-			.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+			.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
 			.setDigest("digestB")
 			.build();
 
@@ -58,7 +60,7 @@ public class ThrustCurveMotorSetTest {
 			.setLength(0.07)
 			.setTimePoints(new double[] { 0, 1, 2 })
 			.setThrustPoints(new double[] { 0, 2, 0 })
-			.setCGPoints(new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
+			.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
 			.setDigest("digestD")
 			.build();
 

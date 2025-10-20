@@ -100,15 +100,15 @@ public class AppearanceExporter {
 
         // Texture scale
         final Coordinate scale = texture.getScale();
-        float scaleX = (float) scale.x;
-        float scaleY = (float) scale.y;
+        float scaleX = (float) scale.getX();
+        float scaleY = (float) scale.getY();
         textureOptions.setS(scaleX, scaleY, 1.0f);
 
         // Texture offset
         // Need an extra offset because the texture scale origin is different in OR
         final Coordinate origin = texture.getOffset();
-        float origX = (float) (scaleX*(-1 - origin.x) + 1);
-        float origY = (float) (scaleY*(-1 - origin.y) + 1);
+        float origX = (float) (scaleX*(-1 - origin.getX()) + 1);
+        float origY = (float) (scaleY*(-1 - origin.getY()) + 1);
 
         textureOptions.setO(origX, origY, 0.0f);
 

@@ -181,11 +181,11 @@ public class RocketComponentSaver {
 			EdgeMode edgeMode = decal.getEdgeMode();
 			elements.add(OpenRocketSaver.INDENT + "<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
 			Coordinate center = decal.getCenter();
-			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<center x=\"" + center.getX() + "\" y=\"" + center.getY() + "\"/>");
 			Coordinate offset = decal.getOffset();
-			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<offset x=\"" + offset.getX() + "\" y=\"" + offset.getY() + "\"/>");
 			Coordinate scale = decal.getScale();
-			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<scale x=\"" + scale.getX() + "\" y=\"" + scale.getY() + "\"/>");
 			elements.add(OpenRocketSaver.INDENT + "</decal>");
 		}
 	}

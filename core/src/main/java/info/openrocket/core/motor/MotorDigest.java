@@ -145,8 +145,8 @@ public class MotorDigest {
 		final double[] cgx = new double[cg.length];
 		final double[] mass = new double[cg.length];
 		for (int i = 0; i < cg.length; i++) {
-			cgx[i] = cg[i].x;
-			mass[i] = cg[i].weight;
+			cgx[i] = cg[i].getX();
+			mass[i] = cg[i].getWeight();
 		}
 
 		motorDigest.update(DataType.MASS_PER_TIME, mass);

@@ -9,6 +9,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -149,7 +150,7 @@ public class TubeFinSetCalc extends TubeCalc {
 		if (outerRadius < 0.001) {
 			forces.setCm(0);
 			forces.setCN(0);
-			forces.setCP(Coordinate.ZERO);
+			forces.setCP(ImmutableCoordinate.ZERO);
 			forces.setCroll(0);
 			forces.setCrollDamp(0);
 			forces.setCrollForce(0);
@@ -183,7 +184,7 @@ public class TubeFinSetCalc extends TubeCalc {
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 
 		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
-		forces.setCP(new Coordinate(x, 0, 0, cna));
+		forces.setCP(new ImmutableCoordinate(x, 0, 0, cna));
 		forces.setCm(forces.getCN() * x / conditions.getRefLength());
 
 		/*

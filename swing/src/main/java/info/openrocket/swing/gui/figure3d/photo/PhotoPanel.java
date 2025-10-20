@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -561,13 +562,13 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			final double length = motor.getLength();
 
 			Coordinate[] position = ((RocketComponent) mount)
-					.toAbsolute(new Coordinate(((RocketComponent) mount)
+					.toAbsolute(new ImmutableCoordinate(((RocketComponent) mount)
 							.getLength() + mount.getMotorOverhang() - length));
 
 			for (Coordinate coordinate : position) {
 				gl.glPushMatrix();
-				gl.glTranslated(coordinate.x + motor.getLength(),
-						coordinate.y, coordinate.z);
+				gl.glTranslated(coordinate.getX() + motor.getLength(),
+						coordinate.getY(), coordinate.getZ());
 				FlameRenderer.drawExhaust(gl, p, motor);
 				gl.glPopMatrix();
 			}
@@ -632,16 +633,16 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			final Bounds b = new Bounds();
 			final Collection<Coordinate> bounds = configuration.getBounds();
 			for (Coordinate c : bounds) {
-				b.xMax = Math.max(b.xMax, c.x);
-				b.xMin = Math.min(b.xMin, c.x);
+				b.xMax = Math.max(b.xMax, c.getX());
+				b.xMin = Math.min(b.xMin, c.getX());
 
-				b.yMax = Math.max(b.yMax, c.y);
-				b.yMin = Math.min(b.yMin, c.y);
+				b.yMax = Math.max(b.yMax, c.getY());
+				b.yMin = Math.min(b.yMin, c.getY());
 
-				b.zMax = Math.max(b.zMax, c.z);
-				b.zMin = Math.min(b.zMin, c.z);
+				b.zMax = Math.max(b.zMax, c.getZ());
+				b.zMin = Math.min(b.zMin, c.getZ());
 
-				double r = MathUtil.hypot(c.y, c.z);
+				double r = MathUtil.hypot(c.getY(), c.getZ());
 				b.rMax = Math.max(b.rMax, r);
 			}
 			b.xSize = b.xMax - b.xMin;

@@ -12,6 +12,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -209,7 +210,7 @@ public class FinSetHandlerTest {
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(4, result.length);
-        assertEquals(new Coordinate(0, 0), result[0]);
+        assertEquals(new ImmutableCoordinate(0, 0), result[0]);
         assertEquals(0, warnings.size());
         warnings.clear();
 
@@ -218,8 +219,8 @@ public class FinSetHandlerTest {
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(4, result.length);
-        assertEquals(new Coordinate(0, 0), result[0]);
-        assertEquals(new Coordinate(0.51816, 0), result[3]);
+        assertEquals(new ImmutableCoordinate(0, 0), result[0]);
+        assertEquals(new ImmutableCoordinate(0.51816, 0), result[3]);
         assertEquals(0, warnings.size());
         warnings.clear();
 
@@ -228,8 +229,8 @@ public class FinSetHandlerTest {
         result = (Coordinate[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(4, result.length);
-        assertEquals(new Coordinate(0, 0), result[0]);
-        assertEquals(new Coordinate(0.51816, 0), result[3]);
+        assertEquals(new ImmutableCoordinate(0, 0), result[0]);
+        assertEquals(new ImmutableCoordinate(0.51816, 0), result[3]);
         assertEquals(0, warnings.size());
         warnings.clear();
 

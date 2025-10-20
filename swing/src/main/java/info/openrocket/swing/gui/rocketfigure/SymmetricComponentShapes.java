@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.rocketfigure;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -40,33 +41,33 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		
 		ArrayList<Coordinate> points = new ArrayList<>();
 		x = delta;
-		points.add(new Coordinate(x, c.getRadius(x), 0));
+		points.add(new ImmutableCoordinate(x, c.getRadius(x), 0));
 		for (i = 1; i < MINPOINTS - 1; i++) {
 			x = c.getLength() * i / (MINPOINTS - 1);
-			points.add(new Coordinate(x, c.getRadius(x), 0));
+			points.add(new ImmutableCoordinate(x, c.getRadius(x), 0));
 			//System.out.println("Starting with x="+x);
 		}
 		x = c.getLength() - delta;
-		points.add(new Coordinate(x, c.getRadius(x), 0));
+		points.add(new ImmutableCoordinate(x, c.getRadius(x), 0));
 		
 
 		i = 0;
 		while (i < points.size() - 2) {
 			if (angleAcceptable(points.get(i), points.get(i + 1), points.get(i + 2)) ||
-					points.get(i + 1).x - points.get(i).x < 0.001) { // 1mm
+					points.get(i + 1).getX() - points.get(i).getX() < 0.001) { // 1mm
 				i++;
 				continue;
 			}
 			
 			// Split the longer of the areas
 			int n;
-			if (points.get(i + 2).x - points.get(i + 1).x > points.get(i + 1).x - points.get(i).x)
+			if (points.get(i + 2).getX() - points.get(i + 1).getX() > points.get(i + 1).getX() - points.get(i).getX())
 				n = i + 1;
 			else
 				n = i;
 			
-			x = (points.get(n).x + points.get(n + 1).x) / 2;
-			points.add(n + 1, new Coordinate(x, c.getRadius(x), 0));
+			x = (points.get(n).getX() + points.get(n + 1).getX()) / 2;
+			points.add(n + 1, new ImmutableCoordinate(x, c.getRadius(x), 0));
 		}
 		
 
@@ -81,25 +82,25 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		Shape[] s = new Shape[len+1];
 		final double d=0.001;
 		for (i=0; i<len; i++) {
-			s[i] = new Ellipse2D.Double(points.get(i).x()-d/2,points.get(i).y()-d/2,d,d);
+			s[i] = new Ellipse2D.Double(points.get(i).getX()()-d/2,points.get(i).getY()()-d/2,d,d);
 		}
 		*/
 
 		//System.out.println("here");
 		
 		final int len = points.size();
-		Coordinate nose = transformation.transform(Coordinate.ZERO);
+		Coordinate nose = transformation.transform(ImmutableCoordinate.ZERO);
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
+		path.moveTo((nose.getX() + points.get(len - 1).getX()) * scaleFactor, (nose.getY()+points.get(len - 1).getY()) * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y+points.get(i).y) * scaleFactor);
+			path.lineTo((nose.getX()+points.get(i).getX()) * scaleFactor, (nose.getY()+points.get(i).getY()) * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y-points.get(i).y) * scaleFactor);
+			path.lineTo((nose.getX()+points.get(i).getX()) * scaleFactor, (nose.getY()-points.get(i).getY()) * scaleFactor);
 		}
-		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor , (nose.y+points.get(len - 1).y) * scaleFactor);
+		path.lineTo((nose.getX()+points.get(len - 1).getX()) * scaleFactor , (nose.getY()+points.get(len - 1).getY()) * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;

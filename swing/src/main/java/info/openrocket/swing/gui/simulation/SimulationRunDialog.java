@@ -253,11 +253,11 @@ public class SimulationRunDialog extends JDialog {
 		timeLabel.setText(u.toStringUnit(simulationStatuses[index].getSimulationTime()));
 
 		u = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
-		altLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketPosition().z) + " (max. "
+		altLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketPosition().getZ()) + " (max. "
 				+ u.toStringUnit(simulationMaxAltitude[index]) + ")");
 
 		u = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
-		velLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketVelocity().z) + " (max. "
+		velLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketVelocity().getZ()) + " (max. "
 				+ u.toStringUnit(simulationMaxVelocity[index]) + ")");
 	}
 
@@ -348,10 +348,10 @@ public class SimulationRunDialog extends JDialog {
 			// whenever we see that the rocket is going upwards.  The last apogee found is the real one.
 			for (SimulationStatus s : chunks) {
 				if (s.getConfiguration().isStageActive(0) &&
-					((s.getRocketVelocity().z > 0) || (s.getRocketPosition().z > simulationMaxAltitude[index]))) {
-					log.debug("updating simulationMaxAltitude[" + index + "] to " + s.getRocketPosition().z);
-					simulationMaxAltitude[index] = s.getRocketPosition().z;
-					simulationMaxVelocity[index] = Math.max(simulationMaxVelocity[index], s.getRocketVelocity().z);
+					((s.getRocketVelocity().getZ() > 0) || (s.getRocketPosition().getZ() > simulationMaxAltitude[index]))) {
+					log.debug("updating simulationMaxAltitude[" + index + "] to " + s.getRocketPosition().getZ());
+					simulationMaxAltitude[index] = s.getRocketPosition().getZ();
+					simulationMaxVelocity[index] = Math.max(simulationMaxVelocity[index], s.getRocketVelocity().getZ());
 				}
 			}
 
@@ -371,21 +371,21 @@ public class SimulationRunDialog extends JDialog {
 			// Past burnout time estimate, switch to coast.
 			if (simulationStage == -2) {
 				simulationStage++;
-				burnoutVelocity = MathUtil.max(status.getRocketVelocity().z, 0.1);
+				burnoutVelocity = MathUtil.max(status.getRocketVelocity().getZ(), 0.1);
 				log.debug("CHANGING to simulationStage " + simulationStage + ", vel=" + burnoutVelocity);
 			}
 
 			// -1: Coast.  z-velocity from burnout velocity to zero
-			if (simulationStage == -1 && status.getRocketVelocity().z >= 0) {
-				log.debug("simulationStage coast:  vel=" + status.getRocketVelocity().z + " burnout=" + burnoutVelocity);
-				setSimulationProgress(MathUtil.map(status.getRocketVelocity().z, burnoutVelocity, 0, BURNOUT_PROGRESS,
+			if (simulationStage == -1 && status.getRocketVelocity().getZ() >= 0) {
+				log.debug("simulationStage coast:  vel=" + status.getRocketVelocity().getZ() + " burnout=" + burnoutVelocity);
+				setSimulationProgress(MathUtil.map(status.getRocketVelocity().getZ(), burnoutVelocity, 0, BURNOUT_PROGRESS,
 						APOGEE_PROGRESS));
 				updateProgress();
 				return;
 			}
 
 			// Past apogee, switch to landing
-			if (simulationStage == -1 && status.getRocketVelocity().z < 0) {
+			if (simulationStage == -1 && status.getRocketVelocity().getZ() < 0) {
 				simulationStage++;
 				apogeeAltitude = MathUtil.max(simulationMaxAltitude[index], 1);
 				log.debug("CHANGING to simulationStage " + simulationStage + ", apogee=" + apogeeAltitude);
@@ -393,8 +393,8 @@ public class SimulationRunDialog extends JDialog {
 
 			// >= 0 Landing. z-position from apogee to zero
 			// TODO: MEDIUM: several stages
-			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().z + "  apogee=" + apogeeAltitude);
-			setSimulationProgress(MathUtil.map(status.getRocketPosition().z, apogeeAltitude, 0, APOGEE_PROGRESS, 1.0));
+			log.debug("simulationStage landing (" + simulationStage + "):  alt=" + status.getRocketPosition().getZ() + "  apogee=" + apogeeAltitude);
+			setSimulationProgress(MathUtil.map(status.getRocketPosition().getZ(), apogeeAltitude, 0, APOGEE_PROGRESS, 1.0));
 			updateProgress();
 		}
 

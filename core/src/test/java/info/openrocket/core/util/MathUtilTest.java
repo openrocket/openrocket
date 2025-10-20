@@ -145,8 +145,8 @@ public class MathUtilTest {
 
 	@Test
 	public void mapCoordinateTest() {
-		assertEquals(new Coordinate(0.8, 2.0, 1.6, 4.0),
-				MathUtil.map(1.0, 0.0, 5.0, new Coordinate(0, 1, 2, 3), new Coordinate(4, 6, 0, 8)));
+		assertEquals(new ImmutableCoordinate(0.8, 2.0, 1.6, 4.0),
+				MathUtil.map(1.0, 0.0, 5.0, new ImmutableCoordinate(0, 1, 2, 3), new ImmutableCoordinate(4, 6, 0, 8)));
 	}
 
 	@Test

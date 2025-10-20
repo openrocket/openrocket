@@ -11,6 +11,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 
 public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
     public TubeFinSetExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
@@ -60,9 +61,9 @@ public class TubeFinSetExporter extends RocketComponentExporter<TubeFinSet> {
         // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
         final float dy = outerRadius * (float) Math.cos(rotX);
         final float dz = outerRadius * (float) Math.sin(rotX);
-        final double x = location.x;
-        final double y = location.y + dy;
-        final double z = location.z + dz;
-        return new Coordinate(x, y, z);
+        final double x = location.getX();
+        final double y = location.getY() + dy;
+        final double z = location.getZ() + dz;
+        return new ImmutableCoordinate(x, y, z);
     }
 }

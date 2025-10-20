@@ -3,6 +3,7 @@ package info.openrocket.core.masscalc;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 
 public class CMAnalysisEntry {
 
@@ -16,7 +17,7 @@ public class CMAnalysisEntry {
             name = null;
         }
         eachMass = Double.NaN;
-        totalCM = Coordinate.NaN;
+        totalCM = ImmutableCoordinate.NaN;
     }
 
     public String name;

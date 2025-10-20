@@ -21,7 +21,7 @@ class MutableCoordinateTest {
 	@Test
 		void addScaledMatchesExpectations() {
 		MutableCoordinate mutable = new MutableCoordinate().set(0, 0, 0);
-		Coordinate coord = new Coordinate(2, 4, -1, 0.25);
+		Coordinate coord = new ImmutableCoordinate(2, 4, -1, 0.25);
 
 		mutable.addScaled(coord, 0.5).addScaled(coord, 1.5);
 
@@ -34,13 +34,13 @@ class MutableCoordinateTest {
 	@Test
 	void toCoordinateCreatesIndependentImmutableInstance() {
 		MutableCoordinate mutable = new MutableCoordinate().set(1, 1, 1);
-		Coordinate first = mutable.toCoordinate();
+		Coordinate first = mutable.toImmutable();
 
 		mutable.add(1, 0, 0);
-		Coordinate second = mutable.toCoordinate();
+		Coordinate second = mutable.toImmutable();
 
 		assertNotSame(first, second);
-		assertEquals(1.0, first.x, 1e-9);
-		assertEquals(2.0, second.x, 1e-9);
+		assertEquals(1.0, first.getX(), 1e-9);
+		assertEquals(2.0, second.getX(), 1e-9);
 	}
 }

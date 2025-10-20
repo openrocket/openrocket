@@ -20,6 +20,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Transformation;
@@ -101,7 +102,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * In case (null == parent ): i.e. the Rocket/root component, the position is constrained to 0,0,0, and is the reference origin for the entire rocket.
 	 * Defaults to (0,0,0)
 	 */
-	protected Coordinate position = new Coordinate();
+	protected Coordinate position = new ImmutableCoordinate();
 
 	// ORColor of the component, null means to use the default color
 	private ORColor color = null;
@@ -656,7 +657,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final Coordinate getOverrideCG() {
 		mutex.verify();
 		if (!isCGOverridden()) {
-			overrideCGX = getComponentCG().x;
+			overrideCGX = getComponentCG().getX();
 		}
 		return getComponentCG().setX(overrideCGX);
 	}
@@ -669,7 +670,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public final double getOverrideCGX() {
 		mutex.verify();
 		if (!isCGOverridden()) {
-			overrideCGX = getComponentCG().x;
+			overrideCGX = getComponentCG().getX();
 		}
 		return overrideCGX;
 	}
@@ -724,7 +725,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		// If CG not overridden, set override CG to the component CG
 		if (!cgOverridden) {
-			overrideCGX = getComponentCG().x;
+			overrideCGX = getComponentCG().getX();
 		}
 
 		updateChildrenCGOverriddenBy();
@@ -1405,9 +1406,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 
 		if(AxialMethod.ABSOLUTE == asMethod){
-			return this.getComponentLocations()[0].x;
+			return this.getComponentLocations()[0].getX();
 		}else {
-			return asMethod.getAsOffset(this.position.x, getLength(), parentLength);
+			return asMethod.getAsOffset(this.position.getX(), getLength(), parentLength);
 		}
 	}
 	
@@ -1416,7 +1417,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 
 	public double getAxialFront(){
-	    return this.position.x;
+	    return this.position.getX();
     }
 
 	public double getRadiusOffset() {
@@ -1479,7 +1480,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			}
 
 			double refLength = referenceComponent.getLength();
-			double refRelX = referenceComponent.getPosition().x;
+			double refRelX = referenceComponent.getPosition().getX();
 
 			this.position = this.position.setX(refRelX + refLength);
 		}
@@ -1506,7 +1507,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			newX = requestedOffset;
 		} else if (AxialMethod.ABSOLUTE == requestedMethod) {
 			// in this case, this is simply the intended result
-			newX = requestedOffset - this.parent.getComponentLocations()[0].x;
+			newX = requestedOffset - this.parent.getComponentLocations()[0].getX();
 		} else if (this.isAfter()) {
 			this.setAfter();
 			return;
@@ -1578,7 +1579,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @returns returns an array of coordinates, relative to its parent's position
 	 */
 	public Coordinate[] getInstanceOffsets() {
-		return new Coordinate[] { Coordinate.ZERO };
+		return new Coordinate[] { ImmutableCoordinate.ZERO };
 	}
 	
 	/** 
@@ -1680,7 +1681,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private Coordinate[] axialRotToCoord(double[] angles) {
 		Coordinate[] coords = new Coordinate[angles.length];
 		for (int i = 0; i < angles.length; i++) {
-			coords[i] = new Coordinate(angles[i], 0, 0);
+			coords[i] = new ImmutableCoordinate(angles[i], 0, 0);
 		}
 		return coords;
 	}
@@ -2871,8 +2872,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Helper method to add two points on opposite corners of a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
 	 */
 	protected static final void addBoundingBox(Collection<Coordinate> bounds, double x_min, double x_max, double r) {
-		bounds.add(new Coordinate(x_min, -r, -r));
-		bounds.add(new Coordinate(x_max, r, r));
+		bounds.add(new ImmutableCoordinate(x_min, -r, -r));
+		bounds.add(new ImmutableCoordinate(x_max, r, r));
 	}
 	
 	/**
@@ -2881,16 +2882,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <code>r</code>.
 	 */
 	protected static final void addBound(Collection<Coordinate> bounds, double x, double r) {
-		bounds.add(new Coordinate(x, -r, -r));
-		bounds.add(new Coordinate(x, r, -r));
-		bounds.add(new Coordinate(x, r, r));
-		bounds.add(new Coordinate(x, -r, r));
+		bounds.add(new ImmutableCoordinate(x, -r, -r));
+		bounds.add(new ImmutableCoordinate(x, r, -r));
+		bounds.add(new ImmutableCoordinate(x, r, r));
+		bounds.add(new ImmutableCoordinate(x, -r, r));
 	}
 	
 	
 	protected static final Coordinate ringCG(double outerRadius, double innerRadius,
 			double x1, double x2, double density) {
-		return new Coordinate((x1 + x2) / 2, 0, 0,
+		return new ImmutableCoordinate((x1 + x2) / 2, 0, 0,
 				ringMass(outerRadius, innerRadius, x2 - x1, density));
 	}
 	
@@ -3119,7 +3120,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		buf.append(String.format(" >> Dumping Detailed Information from: %s\n", callingMethod));
 		buf.append(String.format("      At Component: %s, of class: %s \n", this.getName(), this.getClass().getSimpleName()));
-		buf.append(String.format("      position: %.6f    at offset: %.4f via: %s\n", this.position.x, this.axialOffset, this.axialMethod.name()));
+		buf.append(String.format("      position: %.6f    at offset: %.4f via: %s\n", this.position.getX(), this.axialOffset, this.axialMethod.name()));
 		buf.append(String.format("      length: %.4f\n", getLength() ));
 		return buf;
 	}
@@ -3200,9 +3201,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			buffer.append(String.format("%-40sThrust: %f N; \n",
 					indent + "  Mounted: " + curMotor.getDesignation(), curMotor.getMaxThrustEstimate()));
 
-			Coordinate motorRelativePosition = new Coordinate(motorOffset, 0, 0);
+			Coordinate motorRelativePosition = new ImmutableCoordinate(motorOffset, 0, 0);
 			Coordinate tubeAbs = absCoords[0];
-			Coordinate motorAbsolutePosition = new Coordinate(tubeAbs.x + motorOffset, tubeAbs.y, tubeAbs.z);
+			Coordinate motorAbsolutePosition = new ImmutableCoordinate(tubeAbs.getX() + motorOffset, tubeAbs.getY(), tubeAbs.getZ());
 			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", instancePrefix, curMotor.getLength(),
 					motorRelativePosition, motorAbsolutePosition));
 

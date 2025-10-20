@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -754,7 +755,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		// }
 
 		if (cachedBoundsAerodynamic.isEmpty())
-			cachedBoundsAerodynamic = new BoundingBox(Coordinate.ZERO, Coordinate.X_UNIT);
+			cachedBoundsAerodynamic = new BoundingBox(ImmutableCoordinate.ZERO, ImmutableCoordinate.X_UNIT);
 
 		return cachedBoundsAerodynamic;
 	}
@@ -770,7 +771,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		// }
 
 		if (cachedBounds.isEmpty())
-			cachedBounds = new BoundingBox(Coordinate.ZERO, Coordinate.X_UNIT);
+			cachedBounds = new BoundingBox(ImmutableCoordinate.ZERO, ImmutableCoordinate.X_UNIT);
 
 		return cachedBounds;
 	}
@@ -836,8 +837,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 
 		boundsModID = rocket.getModID();
-		cachedLengthAerodynamic = rocketBoundsAerodynamic.span().x;
-		cachedLength = rocketBounds.span().x;
+		cachedLengthAerodynamic = rocketBoundsAerodynamic.span().getX();
+		cachedLength = rocketBounds.span().getX();
 		/*
 		 * Special case for the scenario that all of the stages are removed and are
 		 * inactive. Its possible that this shouldn't be allowed, but it is currently

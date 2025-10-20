@@ -1,6 +1,7 @@
 package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.Transformation;
 
 /**
@@ -40,7 +41,7 @@ public class InstanceContext {
 	}
 
 	public Coordinate getLocation() {
-		return transform.transform(Coordinate.ZERO);
+		return transform.transform(ImmutableCoordinate.ZERO);
 	}
 
 	// =========== Instance Member Variables ========================

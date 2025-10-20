@@ -74,13 +74,13 @@ public class StabilityDomain implements SimulationDomain {
 		cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
 		cg = MassCalculator.calculateLaunch(configuration).getCM();
 
-		if (cp.weight > 0.000001)
-			cpx = cp.x;
+		if (cp.getWeight() > 0.000001)
+			cpx = cp.getX();
 		else
 			cpx = Double.NaN;
 
-		if (cg.weight > 0.000001)
-			cgx = cg.x;
+		if (cg.getWeight() > 0.000001)
+			cgx = cg.getX();
 		else
 			cgx = Double.NaN;
 

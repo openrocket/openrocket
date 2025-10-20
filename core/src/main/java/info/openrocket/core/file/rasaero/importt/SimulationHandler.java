@@ -424,7 +424,7 @@ public class SimulationHandler extends AbstractElementHandler {
 
         // ! this CG is relative to the front of the sustainer, we need it referenced to
         // the front of the booster
-        CG = CG - booster.getPosition().x;
+        CG = CG - booster.getPosition().getX();
 
         booster.setCGOverridden(true);
         booster.setSubcomponentsOverriddenCG(true);
@@ -465,7 +465,7 @@ public class SimulationHandler extends AbstractElementHandler {
 
         // ! this CG is relative to the front of the sustainer, we need it referenced to
         // the front of the booster
-        CG = CG - booster.getPosition().x;
+        CG = CG - booster.getPosition().getX();
 
         booster.setCGOverridden(true);
         booster.setSubcomponentsOverriddenCG(true);
@@ -512,10 +512,10 @@ public class SimulationHandler extends AbstractElementHandler {
 
         Coordinate[] CGPoints = motor.getCGPoints();
         if (CGPoints != null && CGPoints.length > 1) {
-            double motorPositionXRel = mount.getMotorPosition(fcid).x; // Motor position relative to the mount
-            double mountLocationX = mount.getComponentLocations()[0].x;
+            double motorPositionXRel = mount.getMotorPosition(fcid).getX(); // Motor position relative to the mount
+            double mountLocationX = mount.getComponentLocations()[0].getX();
             double motorLocationX = mountLocationX + motorPositionXRel; // Front location of the motor
-            double motorCG = motorLocationX + CGPoints[0].x;
+            double motorCG = motorLocationX + CGPoints[0].getX();
 
             return getCGFromCombinedCG(motorMass, stageMass, motorCG, combinedCG);
         }

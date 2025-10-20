@@ -635,7 +635,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 
 				double compLen = c.getLength();
 				if (c instanceof FinSet) {
-					compLen = ((FinSet) c).getInstanceBoundingBox().span().x;
+					compLen = ((FinSet) c).getInstanceBoundingBox().span().getX();
 				}
 				if (compPos + compLen > maxL) {
 					maxL = compPos + compLen;
@@ -643,7 +643,7 @@ public class RocketComponentConfig extends JPanel implements Invalidatable, Inva
 			}
 			length = new DoubleModel(maxL - minL);
 		} else if (component instanceof FinSet) {
-			double compLen = ((FinSet) component).getInstanceBoundingBox().span().x;
+			double compLen = ((FinSet) component).getInstanceBoundingBox().span().getX();
 			length = new DoubleModel(compLen);
 		} else {
 			length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);

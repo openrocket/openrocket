@@ -22,6 +22,7 @@ import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.TextLineReader;
@@ -116,7 +117,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	@Override
 	public Coordinate getWindVelocity(double time, double altitude) {
 		if (levels.isEmpty()) {
-			return Coordinate.ZERO;
+			return ImmutableCoordinate.ZERO;
 		}
 
 		int index = Collections.binarySearch(levels, new LevelWindModel(altitude, null),
@@ -149,7 +150,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 
 	public double getWindDirection(double time, double altitude) {
 		Coordinate velocity = getWindVelocity(time, altitude);
-		double direction = Math.atan2(velocity.x, velocity.y);
+		double direction = Math.atan2(velocity.getX(), velocity.getY());
 
 		// Normalize the result to be between 0 and 2*PI
 		return (direction + 2 * Math.PI) % (2 * Math.PI);

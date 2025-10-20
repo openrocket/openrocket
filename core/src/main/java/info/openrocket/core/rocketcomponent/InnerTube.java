@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,11 +152,11 @@ public class InnerTube extends ThicknessRingComponent
 	public BoundingBox getInstanceBoundingBox(){
 		BoundingBox instanceBounds = new BoundingBox();
 		
-		instanceBounds.update(new Coordinate(this.getLength(), 0,0));
+		instanceBounds.update(new ImmutableCoordinate(this.getLength(), 0,0));
 		
 		final double r = getOuterRadius();
-		instanceBounds.update(new Coordinate(0,r,r));
-		instanceBounds.update(new Coordinate(0,-r,-r));
+		instanceBounds.update(new ImmutableCoordinate(0,r,r));
+		instanceBounds.update(new ImmutableCoordinate(0,-r,-r));
 		
 		return instanceBounds;
 	}
@@ -267,7 +268,7 @@ public class InnerTube extends ThicknessRingComponent
 		double yOffset = this.radialPosition * Math.cos(this.radialDirection);
 		double zOffset = this.radialPosition * Math.sin(this.radialDirection);
 		for (int i = 0; i < points.size() / 2; i++) {
-			list.add(new Coordinate(0, points.get(2 * i) * separation + yOffset, points.get(2 * i + 1) * separation + zOffset));
+			list.add(new ImmutableCoordinate(0, points.get(2 * i) * separation + yOffset, points.get(2 * i + 1) * separation + zOffset));
 		}
 		return list;
 	}
@@ -429,7 +430,7 @@ public class InnerTube extends ThicknessRingComponent
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
 		
-		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
+		return new ImmutableCoordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 	
 	@Override
@@ -465,7 +466,7 @@ public class InnerTube extends ThicknessRingComponent
 		copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
 		copy.setClusterRotation(0.0);
 		copy.setClusterScale(1.0);
-		copy.setRadialShift(coord.y, coord.z);
+		copy.setRadialShift(coord.getY(), coord.getZ());
 		copy.setName(splitName);
 		return copy;
 	}

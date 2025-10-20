@@ -221,17 +221,17 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				if (c.isNaN()) {
 					throw new IllegalArgumentException("Invalid CG " + c);
 				}
-				if (c.x < 0) {
-					throw new IllegalArgumentException("Invalid CG position " + String.format("%f", c.x)
+				if (c.getX() < 0) {
+					throw new IllegalArgumentException("Invalid CG position " + String.format("%f", c.getX())
 							+ ": CG is below the start of the motor.");
 				}
-				if (c.x > motor.length) {
+				if (c.getX() > motor.length) {
 					throw new IllegalArgumentException(
-							"Invalid CG position: " + String.format("%f", c.x) + ": CG is above the end of the motor.");
+							"Invalid CG position: " + String.format("%f", c.getX()) + ": CG is above the end of the motor.");
 				}
-				if (c.weight < 0) {
+				if (c.getWeight() < 0) {
 					throw new IllegalArgumentException(
-							"Negative mass " + c.weight + "at time=" + motor.time[Arrays.asList(motor.cg).indexOf(c)]);
+							"Negative mass " + c.getWeight() + "at time=" + motor.time[Arrays.asList(motor.cg).indexOf(c)]);
 				}
 			}
 
@@ -354,7 +354,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@Override
 	public double getCMx(final double motorTime) {
 		double pseudoIndex = getPseudoIndex(motorTime);
-		return this.interpolateCenterOfMassAtIndex(pseudoIndex).x;
+		return this.interpolateCenterOfMassAtIndex(pseudoIndex).getX();
 	}
 
 	public String getCaseInfo() {
@@ -496,22 +496,22 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 
 	@Override
 	public double getLaunchCGx() {
-		return cg[0].x;// cgx[0];
+		return cg[0].getX();// cgx[0];
 	}
 
 	@Override
 	public double getBurnoutCGx() {
-		return cg[cg.length - 1].x;// cgx[ cg.length - 1];
+		return cg[cg.length - 1].getX();// cgx[ cg.length - 1];
 	}
 
 	@Override
 	public double getLaunchMass() {
-		return cg[0].weight;// mass[0];
+		return cg[0].getWeight();// mass[0];
 	}
 
 	@Override
 	public double getBurnoutMass() {
-		return cg[cg.length - 1].weight; // mass[mass.length - 1];
+		return cg[cg.length - 1].getWeight(); // mass[mass.length - 1];
 	}
 
 	@Override
@@ -560,7 +560,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@Override
 	public double getTotalMass(final double motorTime) {
 		final double pseudoIndex = getPseudoIndex(motorTime);
-		return interpolateCenterOfMassAtIndex(pseudoIndex).weight;
+		return interpolateCenterOfMassAtIndex(pseudoIndex).getWeight();
 	}
 
 	public double getPropellantMass() {
@@ -570,7 +570,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	@Override
 	public double getPropellantMass(final Double motorTime) {
 		final double pseudoIndex = getPseudoIndex(motorTime);
-		final double totalMass = interpolateCenterOfMassAtIndex(pseudoIndex).weight;
+		final double totalMass = interpolateCenterOfMassAtIndex(pseudoIndex).getWeight();
 		return totalMass - this.getBurnoutMass();
 	}
 

@@ -23,13 +23,13 @@ public class MassObjectTest extends BaseTestCase {
                                 String.format(" No auto %s incorrect radius", mo.getClass().getName()));
                         Assertions.assertEquals(0.1, mo.getLength(), MathUtil.EPSILON,
                                 String.format(" No auto %s incorrect length", mo.getClass().getName()));
-                        Assertions.assertEquals(0.05, mo.getComponentCG().x, MathUtil.EPSILON,
+                        Assertions.assertEquals(0.05, mo.getComponentCG().getX(), MathUtil.EPSILON,
                                 String.format(" No auto %s incorrect CG", mo.getClass().getName()));
 
                         mo.setLength(0.1);
                         Assertions.assertEquals(0.1, mo.getLength(), MathUtil.EPSILON,
                                 String.format(" No auto 2 %s incorrect length", mo.getClass().getName()));
-                        Assertions.assertEquals(0.05, mo.getComponentCG().x, MathUtil.EPSILON,
+                        Assertions.assertEquals(0.05, mo.getComponentCG().getX(), MathUtil.EPSILON,
                                 String.format(" No auto %s incorrect CG", mo.getClass().getName()));
 
                         // Test auto
@@ -42,7 +42,7 @@ public class MassObjectTest extends BaseTestCase {
                                 String.format(" Auto 1 %s incorrect radius", mo.getClass().getName()));
                         Assertions.assertEquals(0.4, mo.getLength(), MathUtil.EPSILON,
                                 String.format(" Auto 1 %s incorrect length", mo.getClass().getName()));
-                        Assertions.assertEquals(0.2, mo.getComponentCG().x, MathUtil.EPSILON,
+                        Assertions.assertEquals(0.2, mo.getComponentCG().getX(), MathUtil.EPSILON,
                                 String.format(" Auto 1 %s incorrect CG", mo.getClass().getName()));
 
                         parent.setOuterRadius(0.1);
@@ -51,7 +51,7 @@ public class MassObjectTest extends BaseTestCase {
                                 String.format(" Auto 2 %s incorrect radius", mo.getClass().getName()));
                         Assertions.assertEquals(0.1, mo.getLength(), MathUtil.EPSILON,
                                 String.format(" Auto 2 %s incorrect length", mo.getClass().getName()));
-                        Assertions.assertEquals(0.05, mo.getComponentCG().x, MathUtil.EPSILON,
+                        Assertions.assertEquals(0.05, mo.getComponentCG().getX(), MathUtil.EPSILON,
                                 String.format(" Auto 2 %s incorrect CG", mo.getClass().getName()));
 
                         parent.setOuterRadius(0.075);
@@ -61,7 +61,7 @@ public class MassObjectTest extends BaseTestCase {
                                 String.format(" Auto 3 %s incorrect radius", mo.getClass().getName()));
                         Assertions.assertEquals(0.075, mo.getLength(), MathUtil.EPSILON,
                                 String.format(" Auto 3 %s incorrect length", mo.getClass().getName()));
-                        Assertions.assertEquals(0.0375, mo.getComponentCG().x, MathUtil.EPSILON,
+                        Assertions.assertEquals(0.0375, mo.getComponentCG().getX(), MathUtil.EPSILON,
                                 String.format(" Auto 3 %s incorrect CG", mo.getClass().getName()));
 
                         mo.setLength(0.05);
@@ -69,7 +69,7 @@ public class MassObjectTest extends BaseTestCase {
                                 String.format(" Auto 4 %s incorrect radius", mo.getClass().getName()));
                         Assertions.assertEquals(0.05, mo.getLength(), 0.001,
                                 String.format(" Auto 4 %s incorrect length", mo.getClass().getName()));
-                        Assertions.assertEquals(0.025, mo.getComponentCG().x, MathUtil.EPSILON,
+                        Assertions.assertEquals(0.025, mo.getComponentCG().getX(), MathUtil.EPSILON,
                                 String.format(" Auto 4 %s incorrect CG", mo.getClass().getName()));
                 }
         }

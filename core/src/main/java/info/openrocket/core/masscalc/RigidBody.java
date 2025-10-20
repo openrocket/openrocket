@@ -4,6 +4,7 @@ import static info.openrocket.core.util.MathUtil.pow2;
 
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 // implements a simplified, diagonal MOI
@@ -13,7 +14,7 @@ public class RigidBody {
 	public final double Iyy;
 	public final double Izz;
 
-	public static final RigidBody EMPTY = new RigidBody(Coordinate.ZERO, 0.0, 0.0, 0.0);
+	public static final RigidBody EMPTY = new RigidBody(ImmutableCoordinate.ZERO, 0.0, 0.0, 0.0);
 
 	public RigidBody(Coordinate _cm, double I_axial, double I_long) {
 		this(_cm, I_axial, I_long, I_long);
@@ -67,7 +68,7 @@ public class RigidBody {
 	}
 
 	public double getMass() {
-		return this.cm.weight;
+		return this.cm.getWeight();
 	}
 
 	public double getRotationalInertia() {
@@ -108,9 +109,9 @@ public class RigidBody {
 	 */
 	public RigidBody rebase(final Coordinate newLocation) {
 		final Coordinate delta = this.cm.sub(newLocation).setWeight(0.0);
-		double x2 = pow2(delta.x);
-		double y2 = pow2(delta.y);
-		double z2 = pow2(delta.z);
+		double x2 = pow2(delta.getX());
+		double y2 = pow2(delta.getY());
+		double z2 = pow2(delta.getZ());
 
 		// final double radialDistanceSquared = (y2 + z2);
 		// final double axialDistanceSquared = x2;
@@ -125,9 +126,9 @@ public class RigidBody {
 		// See: Parallel Axis Theorem in the function comments.
 		// I = I + m L^2; L = sqrt( y^2 + z^2);
 		// ergo: I = I + m (y^2 + z^2);
-		double newIxx = this.Ixx + cm.weight * (y2 + z2);
-		double newIyy = this.Iyy + cm.weight * (x2 + z2);
-		double newIzz = this.Izz + cm.weight * (x2 + y2);
+		double newIxx = this.Ixx + cm.getWeight() * (y2 + z2);
+		double newIyy = this.Iyy + cm.getWeight() * (x2 + z2);
+		double newIzz = this.Izz + cm.getWeight() * (x2 + y2);
 
 		// MOI about the reference point
 		return new RigidBody(newLocation, newIxx, newIyy, newIzz);
@@ -139,7 +140,7 @@ public class RigidBody {
 	}
 
 	public String toCMString() {
-		return String.format("CoM: %.8fg @[%.8f,%.8f,%.8f]", cm.weight, cm.x, cm.y, cm.z);
+		return String.format("CoM: %.8fg @[%.8f,%.8f,%.8f]", cm.getWeight(), cm.getX(), cm.getY(), cm.getZ());
 	}
 
 	public String toMOIString() {

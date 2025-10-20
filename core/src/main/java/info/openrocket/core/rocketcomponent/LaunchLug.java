@@ -12,6 +12,7 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, LineInstanceable, InsideColorComponent {
@@ -164,7 +165,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		final double zOffset = Math.sin(angleOffsetRad) * (radialOffset);
 		
 		for ( int index=0; index < this.getInstanceCount(); index++){
-			toReturn[index] = new Coordinate(index*this.instanceSeparation, yOffset, zOffset);
+			toReturn[index] = new ImmutableCoordinate(index*this.instanceSeparation, yOffset, zOffset);
 		}
 		
 		return toReturn;
@@ -175,7 +176,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 //		array = super.shiftCoordinates(array);
 //		
 //		for (int i = 0; i < array.length; i++) {
-//			array[i] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
+//			array[i] = new ImmutableCoordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
 //			array[i] = array[i].add(0, shiftY, shiftZ);
 //		}
 //		
@@ -204,8 +205,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		} else {
 			SymmetricComponent s = (SymmetricComponent) body;
 			double x1, x2;
-			x1 = this.toRelative(Coordinate.NUL, body)[0].x;
-			x2 = this.toRelative(new Coordinate(length, 0, 0), body)[0].x;
+			x1 = this.toRelative(ImmutableCoordinate.NUL, body)[0].getX();
+			x2 = this.toRelative(new ImmutableCoordinate(length, 0, 0), body)[0].getX();
 			x1 = MathUtil.clamp(x1, 0, body.getLength());
 			x2 = MathUtil.clamp(x2, 0, body.getLength());
 			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
@@ -235,7 +236,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		final double CMx = length / 2 + (instanceSeparation * (instanceCount-1)) / 2;
 		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + getOuterRadius());
 		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + getOuterRadius());
-		return new Coordinate(CMx, CMy, CMz, getComponentMass());
+		return new ImmutableCoordinate(CMx, CMy, CMz, getComponentMass());
 	}
 	
 	@Override
@@ -311,11 +312,11 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox instanceBounds = new BoundingBox();
 		
-		instanceBounds.update(new Coordinate(this.getLength(), 0,0));
+		instanceBounds.update(new ImmutableCoordinate(this.getLength(), 0,0));
 		
 		final double r = getOuterRadius();
-		instanceBounds.update(new Coordinate(0,r,r));
-		instanceBounds.update(new Coordinate(0,-r,-r));
+		instanceBounds.update(new ImmutableCoordinate(0,r,r));
+		instanceBounds.update(new ImmutableCoordinate(0,-r,-r));
 		
 		return instanceBounds;
 	}

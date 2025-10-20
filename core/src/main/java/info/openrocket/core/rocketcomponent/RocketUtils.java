@@ -12,10 +12,10 @@ public abstract class RocketUtils {
 		if (!bounds.isEmpty()) {
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
 			for (Coordinate c : bounds) {
-				if (c.x < minX)
-					minX = c.x;
-				if (c.x > maxX)
-					maxX = c.x;
+				if (c.getX() < minX)
+					minX = c.getX();
+				if (c.getX() > maxX)
+					maxX = c.getX();
 			}
 			length = maxX - minX;
 		}

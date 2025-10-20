@@ -20,6 +20,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Coordinate;
 
@@ -44,9 +45,9 @@ public class DefaultAppearance {
 				new ORColor(1, 1, 1),
 				0,
 				new Decal(
-						new Coordinate(0, 0),
-						new Coordinate(0, 0),
-						new Coordinate(1, 1),
+						new ImmutableCoordinate(0, 0),
+						new ImmutableCoordinate(0, 0),
+						new ImmutableCoordinate(1, 1),
 						0,
 						new ResourceDecalImage(resource), EdgeMode.REPEAT));
 	}
@@ -64,9 +65,9 @@ public class DefaultAppearance {
 				base,
 				shine,
 				new Decal(
-						new Coordinate(0, 0),
-						new Coordinate(0, 0),
-						new Coordinate(1, 1),
+						new ImmutableCoordinate(0, 0),
+						new ImmutableCoordinate(0, 0),
+						new ImmutableCoordinate(1, 1),
 						0,
 						new ResourceDecalImage(resource), EdgeMode.REPEAT));
 	}

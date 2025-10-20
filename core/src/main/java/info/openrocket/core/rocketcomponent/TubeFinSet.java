@@ -14,6 +14,7 @@ import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -304,9 +305,9 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 		double halflength = length / 2;
 
 		if (fins == 1) {
-			return baseRotation.transform(new Coordinate(halflength, getOuterRadius() + getBodyRadius(), 0, mass));
+			return baseRotation.transform(new ImmutableCoordinate(halflength, getOuterRadius() + getBodyRadius(), 0, mass));
 		} else {
-			return baseRotation.transform(new Coordinate(halflength, 0, 0, mass));
+			return baseRotation.transform(new ImmutableCoordinate(halflength, 0, 0, mass));
 		}
 
 	}
@@ -372,8 +373,8 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	@Override
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox box = new BoundingBox();
-		box.update(new Coordinate(0, -getOuterRadius(), -getOuterRadius()));
-		box.update(new Coordinate(length, getOuterRadius(), getOuterRadius()));
+		box.update(new ImmutableCoordinate(0, -getOuterRadius(), -getOuterRadius()));
+		box.update(new ImmutableCoordinate(length, getOuterRadius(), getOuterRadius()));
 		return box;
 	}
 
@@ -388,7 +389,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 		RocketComponent s;
 
 		s = this.getParent();
-		double x = this.getPosition().x;
+		double x = this.getPosition().getX();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
 				return ((SymmetricComponent) s).getRadius(x);
@@ -504,7 +505,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 
 		Coordinate[] toReturn = new Coordinate[this.fins];
 		for (int instanceNumber = 0; instanceNumber < this.fins; instanceNumber++) {
-			final Coordinate raw = new Coordinate(0, bodyRadius, 0);
+			final Coordinate raw = new ImmutableCoordinate(0, bodyRadius, 0);
 			final Coordinate rotated = Transformation.getAxialRotation(angles[instanceNumber]).transform(raw);
 			toReturn[instanceNumber] = rotated;
 		}

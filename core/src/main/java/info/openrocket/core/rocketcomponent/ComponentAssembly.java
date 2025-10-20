@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 	 */
 	@Override
 	public Coordinate getComponentCG() {
-		return Coordinate.ZERO;
+		return ImmutableCoordinate.ZERO;
 	}
 
 	/**

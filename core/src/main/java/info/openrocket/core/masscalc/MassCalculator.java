@@ -169,7 +169,7 @@ public class MassCalculator implements Monitorable {
 
 		CMAnalysisEntry totals = new CMAnalysisEntry(config.getRocket());
 		totals.totalCM = calculation.centerOfMass;
-		totals.eachMass = calculation.centerOfMass.weight;
+		totals.eachMass = calculation.centerOfMass.getWeight();
 		analysisMap.put(config.getRocket().hashCode(), totals);
 
 		return analysisMap;

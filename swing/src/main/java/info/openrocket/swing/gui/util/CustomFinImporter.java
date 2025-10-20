@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import info.openrocket.core.l10n.LocalizedIOException;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 
 public class CustomFinImporter {
 	
@@ -37,7 +38,7 @@ public class CustomFinImporter {
 		}
 
 		// Load the fin
-		points.add(Coordinate.NUL);
+		points.add(ImmutableCoordinate.NUL);
 		loadFin(pic, points);
 
 		// Optimize the loaded fin
@@ -105,7 +106,7 @@ public class CustomFinImporter {
 			if (pixelIsFin(pic, currentX, currentY)) {
 				double x = (currentX - startX) * 0.001;
 				double y = (height - currentY - 1) * 0.001;
-				points.add(new Coordinate(x, y));
+				points.add(new ImmutableCoordinate(x, y));
 			}
 		} while ((!offBottom) || (currentY < height - 1 && currentY >= 0));
 	}

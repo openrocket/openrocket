@@ -27,7 +27,7 @@ public class FreeformFinSetSaver extends FinSetSaver {
 		FreeformFinSet fins = (FreeformFinSet) c;
 		elements.add("<finpoints>");
 		for (Coordinate p : fins.getFinPoints()) {
-			elements.add("  <point x=\"" + p.x + "\" y=\"" + p.y + "\"/>");
+			elements.add("  <point x=\"" + p.getX() + "\" y=\"" + p.getY() + "\"/>");
 		}
 		elements.add("</finpoints>");
 	}

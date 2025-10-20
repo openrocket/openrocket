@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import static info.openrocket.core.util.MathUtil.pow2;
 
@@ -28,7 +29,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double innerR = Math.max(0.0, outerR - thickness);
 		final double volume = Math.PI * length * (pow2(outerR) - pow2(innerR));
 
-		return new Coordinate(cg, 0, 0, volume);
+		return new ImmutableCoordinate(cg, 0, 0, volume);
 	}
 
 	// return Coordinate containing CG and volume of frustum
@@ -38,7 +39,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 				* (pow2(foreRadius) + 2.0 * foreRadius * aftRadius + 3.0 * pow2(aftRadius)) / 12.0;
 		final double volume = Math.PI * length * (pow2(foreRadius) + foreRadius * aftRadius + pow2(aftRadius)) / 3.0;
 
-		return new Coordinate(moment / volume, 0, 0, volume);
+		return new ImmutableCoordinate(moment / volume, 0, 0, volume);
 	}
 
 	// return Coordinate containing CG and volume of conical transition
@@ -72,36 +73,36 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 		// subtract inner from outer
 		final double offset = length - innerLen;
-		final double moment = fullCG.x * fullCG.weight - (innerCG.x + offset) * innerCG.weight;
-		final double volume = fullCG.weight - innerCG.weight;
+		final double moment = fullCG.getX() * fullCG.getWeight() - (innerCG.getX() + offset) * innerCG.getWeight();
+		final double volume = fullCG.getWeight() - innerCG.getWeight();
 
-		return new Coordinate(moment / volume, 0, 0, volume);
+		return new ImmutableCoordinate(moment / volume, 0, 0, volume);
 	}
 
 	// combine five CGs (typically forward shoulder cap, forward shoulder,
 	// transition, aft shoulder, and aft shoulder cap)
 	// Use Coordinate.ZERO as a CG to combine fewer than five
 	private Coordinate combineCG(Coordinate cg1, Coordinate cg2, Coordinate cg3, Coordinate cg4, Coordinate cg5) {
-		final double moment1 = cg1.x * cg1.weight;
-		final double moment2 = cg2.x * cg2.weight;
-		final double moment3 = cg3.x * cg3.weight;
-		final double moment4 = cg4.x * cg4.weight;
-		final double moment5 = cg5.x * cg5.weight;
+		final double moment1 = cg1.getX() * cg1.getWeight();
+		final double moment2 = cg2.getX() * cg2.getWeight();
+		final double moment3 = cg3.getX() * cg3.getWeight();
+		final double moment4 = cg4.getX() * cg4.getWeight();
+		final double moment5 = cg5.getX() * cg5.getWeight();
 
-		final double volume = cg1.weight + cg2.weight + cg3.weight + cg4.weight + cg5.weight;
-		return new Coordinate((moment1 + moment2 + moment3 + moment4 + moment5) / volume, 0, 0, volume);
+		final double volume = cg1.getWeight() + cg2.getWeight() + cg3.getWeight() + cg4.getWeight() + cg5.getWeight();
+		return new ImmutableCoordinate((moment1 + moment2 + moment3 + moment4 + moment5) / volume, 0, 0, volume);
 	}
 
 	// check CG, volume, mass
 	private void checkCG(Coordinate expectedCG, Transition nc) {
 
 		Coordinate cg = nc.getCG();
-		assertEquals(expectedCG.x, cg.x, EPSILON, "CG is incorrect");
-		assertEquals(expectedCG.weight, nc.getComponentVolume(), EPSILON, "Volume is incorrect");
+		assertEquals(expectedCG.getX(), cg.getX(), EPSILON, "CG is incorrect");
+		assertEquals(expectedCG.getWeight(), nc.getComponentVolume(), EPSILON, "Volume is incorrect");
 
-		final double mass = expectedCG.weight * nc.getMaterial().getDensity();
+		final double mass = expectedCG.getWeight() * nc.getMaterial().getDensity();
 		assertEquals(mass, nc.getMass(), EPSILON, "Mass is incorrect");
-		assertEquals(mass, cg.weight, EPSILON, "Mass (stored in cg.weight) is incorrect");
+		assertEquals(mass, cg.getWeight(), EPSILON, "Mass (stored in cg.getWeight()) is incorrect");
 	}
 
 	// calculate longitudinal moment of inertia of shoulder.
@@ -143,10 +144,10 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 		// use parallel axis theorem to move MOI to be relative to CG of frustum
 		final Coordinate cg = calculateFrustumCG(length, forwardRad, aftRad);
-		moi = moi - pow2(cg.x + h1) * cg.weight;
+		moi = moi - pow2(cg.getX() + h1) * cg.getWeight();
 
 		// move MOI to be relative to back surface of frustum
-		moi = moi + pow2(length - cg.x) * cg.weight;
+		moi = moi + pow2(length - cg.getX()) * cg.getWeight();
 
 		return moi;
 	}
@@ -185,10 +186,10 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		}
 
 		// use parallel axis theorem to move moi relative to CG
-		moi = moi - pow2(length - cg.x) * cg.weight;
+		moi = moi - pow2(length - cg.getX()) * cg.getWeight();
 
 		// now axis through component CG
-		return moi + cg.weight * pow2(cgShift);
+		return moi + cg.getWeight() * pow2(cgShift);
 	}
 
 	// calculate rotational moment of inertia of shoulder
@@ -268,12 +269,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double moi = calculateConicalTransitionLongitudinalMOI(length, 0, aftRadius, aftRadius, expectedCG, 0);
-		final double expectedLongUnitMOI = moi / expectedCG.weight;
+		final double expectedLongUnitMOI = moi / expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double expectedRotUnitMOI = calculateConicalTransitionRotationalMOI(length, 0, aftRadius, aftRadius)
-				/ expectedCG.weight;
+				/ expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(length, 0, aftRadius, nc);
@@ -304,16 +305,16 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		double transitionLongMOI = calculateConicalTransitionLongitudinalMOI(length, 0, aftRadius, aftRadius, coneCG,
-				expectedCG.x - coneCG.x);
+				expectedCG.getX() - coneCG.getX());
 		double shoulderLongMOI = calculateShoulderLongitudinalMOI(length, aftRadius, aftRadius,
-				expectedCG.x - shoulderCG.x);
+				expectedCG.getX() - shoulderCG.getX());
 
-		double moi = (shoulderLongMOI + transitionLongMOI) / expectedCG.weight;
+		double moi = (shoulderLongMOI + transitionLongMOI) / expectedCG.getWeight();
 		assertEquals(moi, nc.getLongitudinalUnitInertia(), EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double coneRotMOI = calculateConicalTransitionRotationalMOI(length, 0, aftRadius, aftRadius);
 		final double shoulderRotMOI = calculateShoulderRotationalMOI(length, aftRadius, aftRadius);
-		final double expectedRotUnitMOI = (coneRotMOI + shoulderRotMOI) / expectedCG.weight;
+		final double expectedRotUnitMOI = (coneRotMOI + shoulderRotMOI) / expectedCG.getWeight();
 
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
@@ -340,12 +341,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double expectedLongUnitMOI = calculateConicalTransitionLongitudinalMOI(length, 0, aftRadius, thickness,
-				expectedCG, 0.0) / expectedCG.weight;
+				expectedCG, 0.0) / expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double expectedRotUnitMOI = calculateConicalTransitionRotationalMOI(length, 0, aftRadius, thickness)
-				/ expectedCG.weight;
+				/ expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(length, 0, aftRadius, nc);
@@ -376,16 +377,16 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double coneLongMOI = calculateConicalTransitionLongitudinalMOI(length, 0.0, aftRadius, thickness, coneCG,
-				coneCG.x - expectedCG.x);
+				coneCG.getX() - expectedCG.getX());
 		final double shoulderLongMOI = calculateShoulderLongitudinalMOI(length, aftRadius, thickness,
-				shoulderCG.x - expectedCG.x);
+				shoulderCG.getX() - expectedCG.getX());
 
-		final double longUnitMOI = (coneLongMOI + shoulderLongMOI) / expectedCG.weight;
+		final double longUnitMOI = (coneLongMOI + shoulderLongMOI) / expectedCG.getWeight();
 		assertEquals(longUnitMOI, nc.getLongitudinalUnitInertia(), EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double coneRotMOI = calculateConicalTransitionRotationalMOI(length, 0, aftRadius, thickness);
 		final double shoulderRotMOI = calculateShoulderRotationalMOI(length, aftRadius, thickness);
-		final double expectedRotUnitMOI = (coneRotMOI + shoulderRotMOI) / expectedCG.weight;
+		final double expectedRotUnitMOI = (coneRotMOI + shoulderRotMOI) / expectedCG.getWeight();
 
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
@@ -413,12 +414,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double expectedLongUnitMOI = calculateConicalTransitionLongitudinalMOI(length, foreRadius, aftRadius,
-				aftRadius, expectedCG, 0.0) / expectedCG.weight;
+				aftRadius, expectedCG, 0.0) / expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double expectedRotUnitMOI = calculateConicalTransitionRotationalMOI(length, foreRadius, aftRadius,
-				aftRadius) / expectedCG.weight;
+				aftRadius) / expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(length, foreRadius, aftRadius, nc);
@@ -452,20 +453,20 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 				foreRadius);
 		final Coordinate transCG = calculateConicalTransitionCG(transLength, foreRadius, aftRadius, aftRadius);
 		final Coordinate aftShoulderCG = calculateShoulderCG(transLength, aftShoulderLength, aftRadius, aftRadius);
-		final Coordinate expectedCG = combineCG(Coordinate.ZERO, foreShoulderCG, transCG, aftShoulderCG,
-				Coordinate.ZERO);
+		final Coordinate expectedCG = combineCG(ImmutableCoordinate.ZERO, foreShoulderCG, transCG, aftShoulderCG,
+				ImmutableCoordinate.ZERO);
 
 		checkCG(expectedCG, nc);
 
 		final double foreShoulderLongMOI = calculateShoulderLongitudinalMOI(foreShoulderLength, foreRadius, foreRadius,
-				expectedCG.x - foreShoulderCG.x);
+				expectedCG.getX() - foreShoulderCG.getX());
 		final double transLongMOI = calculateConicalTransitionLongitudinalMOI(transLength, foreRadius, aftRadius,
-				aftRadius, transCG, expectedCG.x - transCG.x);
+				aftRadius, transCG, expectedCG.getX() - transCG.getX());
 		final double aftShoulderLongMOI = calculateShoulderLongitudinalMOI(aftShoulderLength, aftRadius, aftRadius,
-				expectedCG.x - aftShoulderCG.x);
+				expectedCG.getX() - aftShoulderCG.getX());
 
 		final double expectedLongUnitMOI = (foreShoulderLongMOI + transLongMOI + aftShoulderLongMOI)
-				/ expectedCG.weight;
+				/ expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal unit MOI is incorrect");
 
@@ -474,7 +475,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 				aftRadius);
 		final double aftShoulderRotMOI = calculateShoulderRotationalMOI(aftShoulderLength, aftRadius, aftRadius);
 
-		final double expectedRotUnitMOI = (foreShoulderRotMOI + coneRotMOI + aftShoulderRotMOI) / expectedCG.weight;
+		final double expectedRotUnitMOI = (foreShoulderRotMOI + coneRotMOI + aftShoulderRotMOI) / expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(transLength, foreRadius, aftRadius, nc);
@@ -501,12 +502,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double expectedLongUnitMOI = calculateConicalTransitionLongitudinalMOI(length, foreRadius, aftRadius,
-				thickness, expectedCG, 0.0) / expectedCG.weight;
+				thickness, expectedCG, 0.0) / expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double expectedRotUnitMOI = calculateConicalTransitionRotationalMOI(length, foreRadius, aftRadius,
-				thickness) / expectedCG.weight;
+				thickness) / expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(length, foreRadius, aftRadius, nc);
@@ -538,25 +539,25 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final Coordinate coneCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
 		final Coordinate aftShoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
 
-		final Coordinate expectedCG = combineCG(Coordinate.ZERO, foreShoulderCG, coneCG, aftShoulderCG,
-				Coordinate.ZERO);
+		final Coordinate expectedCG = combineCG(ImmutableCoordinate.ZERO, foreShoulderCG, coneCG, aftShoulderCG,
+				ImmutableCoordinate.ZERO);
 		checkCG(expectedCG, nc);
 
 		final double foreShoulderLongMOI = calculateShoulderLongitudinalMOI(length, foreRadius, thickness,
-				foreShoulderCG.x - expectedCG.x);
+				foreShoulderCG.getX() - expectedCG.getX());
 		final double coneLongMOI = calculateConicalTransitionLongitudinalMOI(length, foreRadius, aftRadius, thickness,
-				coneCG, coneCG.x - expectedCG.x);
+				coneCG, coneCG.getX() - expectedCG.getX());
 		final double aftShoulderLongMOI = calculateShoulderLongitudinalMOI(length, aftRadius, thickness,
-				aftShoulderCG.x - expectedCG.x);
+				aftShoulderCG.getX() - expectedCG.getX());
 
-		final double longUnitMOI = (foreShoulderLongMOI + coneLongMOI + aftShoulderLongMOI) / expectedCG.weight;
+		final double longUnitMOI = (foreShoulderLongMOI + coneLongMOI + aftShoulderLongMOI) / expectedCG.getWeight();
 		assertEquals(longUnitMOI, nc.getLongitudinalUnitInertia(), EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double foreShoulderRotMOI = calculateShoulderRotationalMOI(length, foreRadius, thickness);
 		final double coneRotMOI = calculateConicalTransitionRotationalMOI(length, foreRadius, aftRadius, thickness);
 		final double aftShoulderRotMOI = calculateShoulderRotationalMOI(length, aftRadius, thickness);
 
-		final double expectedRotUnitMOI = (foreShoulderRotMOI + coneRotMOI + aftShoulderRotMOI) / expectedCG.weight;
+		final double expectedRotUnitMOI = (foreShoulderRotMOI + coneRotMOI + aftShoulderRotMOI) / expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(length, foreRadius, aftRadius, nc);
@@ -583,12 +584,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double expectedLongUnitMOI = calculateConicalTransitionLongitudinalMOI(length, foreRadius, aftRadius,
-				thickness, expectedCG, 0.0) / expectedCG.weight;
+				thickness, expectedCG, 0.0) / expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal unit MOI is incorrect");
 
 		final double expectedRotUnitMOI = calculateConicalTransitionRotationalMOI(length, foreRadius, aftRadius,
-				thickness) / expectedCG.weight;
+				thickness) / expectedCG.getWeight();
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
 		checkConeSurface(length, foreRadius, aftRadius, nc);
@@ -630,18 +631,18 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		checkCG(expectedCG, nc);
 
 		final double foreCapLongMOI = calculateShoulderLongitudinalMOI(thickness, foreRadius - thickness, foreRadius,
-				foreCapCG.x - expectedCG.x);
+				foreCapCG.getX() - expectedCG.getX());
 		final double foreShoulderLongMOI = calculateShoulderLongitudinalMOI(length, foreRadius, thickness,
-				foreShoulderCG.x - expectedCG.x);
+				foreShoulderCG.getX() - expectedCG.getX());
 		final double coneLongMOI = calculateConicalTransitionLongitudinalMOI(length, foreRadius, aftRadius, thickness,
-				coneCG, coneCG.x - expectedCG.x);
+				coneCG, coneCG.getX() - expectedCG.getX());
 		final double aftShoulderLongMOI = calculateShoulderLongitudinalMOI(length, aftRadius, thickness,
-				aftShoulderCG.x - expectedCG.x);
+				aftShoulderCG.getX() - expectedCG.getX());
 		final double aftCapLongMOI = calculateShoulderLongitudinalMOI(thickness, aftRadius - thickness, aftRadius,
-				aftCapCG.x - expectedCG.x);
+				aftCapCG.getX() - expectedCG.getX());
 
 		final double expectedLongUnitMOI = (foreCapLongMOI + foreShoulderLongMOI + coneLongMOI + aftShoulderLongMOI
-				+ aftCapLongMOI) / expectedCG.weight;
+				+ aftCapLongMOI) / expectedCG.getWeight();
 		assertEquals(expectedLongUnitMOI, nc.getLongitudinalUnitInertia(),
 				EPSILON, "Longitudinal Unit MOI is incorrect");
 
@@ -652,7 +653,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double aftCapRotMOI = calculateShoulderRotationalMOI(thickness, aftRadius - thickness, aftRadius);
 
 		final double expectedRotUnitMOI = (foreCapRotMOI + foreShoulderRotMOI + coneRotMOI + aftShoulderRotMOI
-				+ aftCapRotMOI) / expectedCG.weight;
+				+ aftCapRotMOI) / expectedCG.getWeight();
 
 		assertEquals(expectedRotUnitMOI, nc.getRotationalUnitInertia(), EPSILON, "Rotational unit MOI is incorrect");
 
@@ -682,7 +683,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 				EPSILON, "Aft radius is incorrect");
 
 		assertEquals(bt1.getComponentVolume(), trans1.getComponentVolume(), EPSILON, "Volume is incorrect");
-		assertEquals(bt1.getComponentCG().x, trans1.getComponentCG().x, EPSILON, "CG is incorrect");
+		assertEquals(bt1.getComponentCG().getX(), trans1.getComponentCG().getX(), EPSILON, "CG is incorrect");
 
 		assertEquals(bt1.getLongitudinalUnitInertia(),
 				trans1.getLongitudinalUnitInertia(), EPSILON, "Longitudinal moment of inertia is incorrect");
@@ -714,7 +715,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		trans2.setThickness(radius - innerRadius, true);
 
 		assertEquals(bt2.getComponentVolume(), trans2.getComponentVolume(), EPSILON, "Volume is incorrect");
-		assertEquals(bt2.getComponentCG().x, trans2.getComponentCG().x, EPSILON, "CG is incorrect");
+		assertEquals(bt2.getComponentCG().getX(), trans2.getComponentCG().getX(), EPSILON, "CG is incorrect");
 		assertEquals(bt2.getLongitudinalUnitInertia(),
 				trans2.getLongitudinalUnitInertia(), EPSILON, "Longitudinal unit moment of inertia is incorrect");
 		assertEquals(bt2.getRotationalUnitInertia(),

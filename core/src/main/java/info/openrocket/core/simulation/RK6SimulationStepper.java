@@ -10,6 +10,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.MutableCoordinate;
 import info.openrocket.core.util.Quaternion;
@@ -78,7 +79,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         SimulationConditions sim = original.getSimulationConditions();
 
-        store.launchRodDirection = new Coordinate(
+        store.launchRodDirection = new ImmutableCoordinate(
                 Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
                 Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
                 Math.cos(sim.getLaunchRodAngle()));
@@ -179,10 +180,10 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         dt[1] = maxTimeStep;
         dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
         dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
-        dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.accelerationData.getRotationalAccelerationRC().z);
+        dt[4] = Math.abs(MAX_ROLL_RATE_CHANGE / store.accelerationData.getRotationalAccelerationRC().getZ());
         dt[5] = Math.abs(MAX_PITCH_YAW_CHANGE /
-                MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().x),
-                        Math.abs(store.accelerationData.getRotationalAccelerationRC().y)));
+                MathUtil.max(Math.abs(store.accelerationData.getRotationalAccelerationRC().getX()),
+                        Math.abs(store.accelerationData.getRotationalAccelerationRC().getY())));
         if (!status.isLaunchRodCleared()) {
             dt[0] /= 5.0;
             dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
@@ -226,17 +227,17 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 3);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k1.rv)
-                        .scale(store.timeStep * weightk1)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk1)
+                        .toImmutable())));
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
 
         k2 = computeParameters(status2, store);
 
@@ -247,17 +248,17 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep * 2/3);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k2.rv)
-                        .scale(store.timeStep * weightk2)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk2)
+                        .toImmutable())));
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
 
         k3 = computeParameters(status2, store);
 
@@ -270,46 +271,46 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep*1/3);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k1.rv)
-                        .scale(store.timeStep * weightk1)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk1)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k2.rv)
-                        .scale(store.timeStep * weightk2)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk2)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k3.rv)
-                        .scale(store.timeStep * weightk3)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk3)
+                        .toImmutable())));
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
 
         k4 = computeParameters(status2, store);
 
@@ -324,59 +325,59 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep*1/2);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k4.v, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k4.a, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k1.rv)
-                        .scale(store.timeStep * weightk1)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk1)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k2.rv)
-                        .scale(store.timeStep * weightk2)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk2)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k3.rv)
-                        .scale(store.timeStep * weightk3)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk3)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k4.rv)
-                        .scale(store.timeStep * weightk4)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk4)
+                        .toImmutable())));
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k4.ra, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
 
         k5 = computeParameters(status2, store);
 
@@ -392,59 +393,59 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep*1/2);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k4.v, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k5.v, store.timeStep * weightk5)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k4.a, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k5.a, store.timeStep * weightk5)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k2.rv)
-                        .scale(store.timeStep * weightk2)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk2)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k3.rv)
-                        .scale(store.timeStep * weightk3)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk3)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k4.rv)
-                        .scale(store.timeStep * weightk4)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk4)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k5.rv)
-                        .scale(store.timeStep * weightk5)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk5)
+                        .toImmutable())));
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k4.ra, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k5.ra, store.timeStep * weightk5)
-                .toCoordinate());
+                .toImmutable());
 
         k6 = computeParameters(status2, store);
 
@@ -460,72 +461,72 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k4.v, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k6.v, store.timeStep * weightk6)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k4.a, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k6.a, store.timeStep * weightk6)
-                .toCoordinate());
+                .toImmutable());
 
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k1.rv)
-                        .scale(store.timeStep * weightk1)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk1)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k2.rv)
-                        .scale(store.timeStep * weightk2)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk2)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k3.rv)
-                        .scale(store.timeStep * weightk3)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk3)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k4.rv)
-                        .scale(store.timeStep * weightk4)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk4)
+                        .toImmutable())));
         status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(mutableCoordB.set(k6.rv)
-                        .scale(store.timeStep * weightk6)
-                        .toCoordinate())));
+                        .multiply(store.timeStep * weightk6)
+                        .toImmutable())));
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k4.ra, store.timeStep * weightk4)
-                .toCoordinate());
+                .toImmutable());
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k6.ra, store.timeStep * weightk6)
-                .toCoordinate());
+                .toImmutable());
 
         k7 = computeParameters(status2, store);
 
@@ -538,8 +539,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .addScaled(k5.a, -4.0/15)
                 .addScaled(k6.a, -4.0/15)
                 .addScaled(k7.a, 11.0/120)
-                .scale(store.timeStep)
-                .toCoordinate();
+                .multiply(store.timeStep)
+                .toImmutable();
         Coordinate deltaPCoord = mutableCoordB.clear()
                 .addScaled(k1.v, 11.0/120)
                 .addScaled(k3.v, 27.0/40)
@@ -547,8 +548,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .addScaled(k5.v, -4.0/15)
                 .addScaled(k6.v, -4.0/15)
                 .addScaled(k7.v, 11.0/120)
-                .scale(store.timeStep)
-                .toCoordinate();
+                .multiply(store.timeStep)
+                .toImmutable();
         Coordinate deltaRCoord = mutableCoordC.clear()
                 .addScaled(k1.ra, 11.0/120)
                 .addScaled(k3.ra, 27.0/40)
@@ -556,8 +557,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .addScaled(k5.ra, -4.0/15)
                 .addScaled(k6.ra, -4.0/15)
                 .addScaled(k7.ra, 11.0/120)
-                .scale(store.timeStep)
-                .toCoordinate();
+                .multiply(store.timeStep)
+                .toImmutable();
         deltaO = mutableCoordA.clear()
                 .addScaled(k1.rv, 11.0/120)
                 .addScaled(k3.rv, 27.0/40)
@@ -565,18 +566,18 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .addScaled(k5.rv, -4.0/15)
                 .addScaled(k6.rv, -4.0/15)
                 .addScaled(k7.rv, 11.0/120)
-                .scale(store.timeStep)
-                .toCoordinate();
+                .multiply(store.timeStep)
+                .toImmutable();
 
         status.setRocketVelocity(mutableCoordB.set(status.getRocketVelocity())
                 .add(deltaVCoord)
-                .toCoordinate());
+                .toImmutable());
         status.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .add(deltaPCoord)
-                .toCoordinate());
+                .toImmutable());
         status.setRocketRotationVelocity(mutableCoordC.set(status.getRocketRotationVelocity())
                 .add(deltaRCoord)
-                .toCoordinate());
+                .toImmutable());
         status.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion()
                 .multiplyLeft(Quaternion.rotation(deltaO)).normalizeIfNecessary());
 
@@ -704,7 +705,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         store.thrustForce = calculateThrust(status, store);
         double forceZ =  store.thrustForce - store.dragForce;
 
-        linearAcceleration = new Coordinate(-fN / store.rocketMass.getMass(),
+        linearAcceleration = new ImmutableCoordinate(-fN / store.rocketMass.getMass(),
                 -fSide / store.rocketMass.getMass(),
                 forceZ / store.rocketMass.getMass());
 
@@ -724,9 +725,9 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         // If we haven't taken off yet, don't sink into the ground
         if (!status.isLiftoff()) {
-            angularAcceleration = Coordinate.NUL;
-            if (linearAcceleration.z < 0) {
-                linearAcceleration = Coordinate.ZERO;
+            angularAcceleration = ImmutableCoordinate.NUL;
+            if (linearAcceleration.getZ() < 0) {
+                linearAcceleration = ImmutableCoordinate.ZERO;
             }
         } else if (!status.isLaunchRodCleared()) {
 
@@ -734,13 +735,13 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
             // set angular acceleration to zero.
 
             linearAcceleration = store.launchRodDirection.multiply(linearAcceleration.dot(store.launchRodDirection));
-            angularAcceleration = Coordinate.NUL;
+            angularAcceleration = ImmutableCoordinate.NUL;
 
         } else {
 
             // Shift moments to CG
-            double Cm = store.forces.getCm() - store.forces.getCN() * store.rocketMass.getCM().x / refLength;
-            double Cyaw = store.forces.getCyaw() - store.forces.getCside() * store.rocketMass.getCM().x / refLength;
+            double Cm = store.forces.getCm() - store.forces.getCN() * store.rocketMass.getCM().getX() / refLength;
+            double Cyaw = store.forces.getCyaw() - store.forces.getCside() * store.rocketMass.getCM().getX() / refLength;
 
             // Compute moments
             double momX = -Cyaw * dynP * refArea * refLength;
@@ -748,7 +749,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
             double momZ = store.forces.getCroll() * dynP * refArea * refLength;
 
             // Compute angular acceleration in rocket coordinates
-            angularAcceleration = new Coordinate(momX / store.rocketMass.getLongitudinalInertia(),
+            angularAcceleration = new ImmutableCoordinate(momX / store.rocketMass.getLongitudinalInertia(),
                     momY / store.rocketMass.getLongitudinalInertia(),
                     momZ / store.rocketMass.getRotationalInertia());
 
@@ -792,7 +793,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
             // If this doesn't include the sustainer and either isn't stable or is about
             // to deploy a recovery device, don't store open airframe warnings
             boolean sustainer = status.getConfiguration().isStageActive(0);
-            boolean stable = store.rocketMass.getCM().x < store.forces.getCP().x;
+            boolean stable = store.rocketMass.getCM().getX() < store.forces.getCP().getX();
             boolean recoverySoon = false;
             for (FlightEvent e : status.getEventQueue()) {
                 if ((e.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) &&

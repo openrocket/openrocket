@@ -4,6 +4,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
@@ -17,7 +18,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	private RocketComponent component = null;
 
 	/** CP and CNa. */
-	private Coordinate cpCNa = Coordinate.ZERO;
+	private Coordinate cpCNa = ImmutableCoordinate.ZERO;
 
 	/** Normal force coefficient. */
 	private double CN = Double.NaN;
@@ -104,10 +105,10 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	 */
 	public void setCP(Coordinate cp) {
 		Coordinate newCpCNa;
-		if (MathUtil.equals(0, cp.weight)) {
-			newCpCNa = Coordinate.ZERO;
+		if (MathUtil.equals(0, cp.getWeight())) {
+			newCpCNa = ImmutableCoordinate.ZERO;
 		} else {
-			newCpCNa = new Coordinate(cp.x*cp.weight, cp.y*cp.weight, cp.z*cp.weight, cp.weight);
+			newCpCNa = new ImmutableCoordinate(cp.getX()*cp.getWeight(), cp.getY()*cp.getWeight(), cp.getZ()*cp.getWeight(), cp.getWeight());
 		}
 		
 		if ((this.cpCNa != null) && this.cpCNa.equals(newCpCNa))
@@ -118,11 +119,12 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	public Coordinate getCP() {
-		if (MathUtil.equals(0, cpCNa.weight)) {
-			return Coordinate.ZERO;
+		if (MathUtil.equals(0, cpCNa.getWeight())) {
+			return ImmutableCoordinate.ZERO;
 		} 
 				
-		return new Coordinate(cpCNa.x / cpCNa.weight, cpCNa.y / cpCNa.weight, cpCNa.z / cpCNa.weight, cpCNa.weight);
+		return new ImmutableCoordinate(cpCNa.getX() / cpCNa.getWeight(), cpCNa.getY() / cpCNa.getWeight(),
+				cpCNa.getZ() / cpCNa.getWeight(), cpCNa.getWeight());
 	}
 
 	public void setCN(double cN) {
@@ -365,13 +367,13 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	/**
-	 * Zero all values to 0 / Coordinate.NUL. Component is left as it was.
+	 * Zero all values to 0 / ImmutableCoordinate.NUL. Component is left as it was.
 	 */
 	public AerodynamicForces zero() {
 		// component untouched
 
 		setAxisymmetric(true);
-		setCP(Coordinate.NUL);
+		setCP(ImmutableCoordinate.NUL);
 		setCN(0);
 		setCm(0);
 		setCside(0);
@@ -423,7 +425,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 
 	@Override
 	public int hashCode() {
-		return (int) (1000 * (this.getCD() + this.getCDaxial() + this.getCP().weight)) + this.getCP().hashCode();
+		return (int) (1000 * (this.getCD() + this.getCDaxial() + this.getCP().getWeight())) + this.getCP().hashCode();
 	}
 
 	@Override

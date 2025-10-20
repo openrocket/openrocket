@@ -370,13 +370,13 @@ public class RocketFigure extends AbstractScaleFigure {
 				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView) {
-						s = new Rectangle2D.Double(curMotorLocation.x,
-								(curMotorLocation.y - motorRadius),
+						s = new Rectangle2D.Double(curMotorLocation.getX(),
+								(curMotorLocation.getY() - motorRadius),
 								motorLength,
 								2 * motorRadius);
 					} else {
-						s = new Ellipse2D.Double((curMotorLocation.z - motorRadius),
-								(curMotorLocation.y - motorRadius),
+						s = new Ellipse2D.Double((curMotorLocation.getZ() - motorRadius),
+								(curMotorLocation.getY() - motorRadius),
 								2 * motorRadius,
 								2 * motorRadius);
 					}
@@ -530,13 +530,13 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		final BoundingBox bounds = rocket.getSelectedConfiguration().getBoundingBox();
 		
-		final double maxR = Math.max( Math.hypot(bounds.min.y, bounds.min.z),
-									  Math.hypot(bounds.max.y, bounds.max.z));
+		final double maxR = Math.max( Math.hypot(bounds.min.getY(), bounds.min.getZ()),
+									  Math.hypot(bounds.max.getY(), bounds.max.getZ()));
 
 		switch (currentViewType) {
 			case SideView:
 			case TopView:
-				subjectBounds_m = new Rectangle2D.Double(bounds.min.x, -maxR, bounds.span().x, 2 * maxR);
+				subjectBounds_m = new Rectangle2D.Double(bounds.min.getX(), -maxR, bounds.span().getX(), 2 * maxR);
 				break;
 			case BackView:
 				subjectBounds_m = new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);

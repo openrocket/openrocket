@@ -40,8 +40,8 @@ public class CustomFinSetDTO extends FinSetDTO {
         // Reverse the order for RockSim
         for (int i = points.length - 1; i >= 0; i--) {
             Coordinate point = points[i];
-            sb.append(point.x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append(",")
-                    .append(point.y * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append("|");
+            sb.append(point.getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append(",")
+                    .append(point.getY() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append("|");
         }
         return sb.toString();
     }

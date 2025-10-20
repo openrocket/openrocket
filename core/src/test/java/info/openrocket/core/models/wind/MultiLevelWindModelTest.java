@@ -411,7 +411,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		for (int i = 0; i < SAMPLE_SIZE; i++) {
 			Coordinate velocity = model.getWindVelocity(i * DELTA_T, altitude);
 			speeds[i] = velocity.length();
-			directions[i] = Math.atan2(velocity.x, velocity.y);
+			directions[i] = Math.atan2(velocity.getX(), velocity.getY());
 		}
 
 		double avgSpeed = Arrays.stream(speeds, 0, SAMPLE_SIZE).average().orElse(0.0);

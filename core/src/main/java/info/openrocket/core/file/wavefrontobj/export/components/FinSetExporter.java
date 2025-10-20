@@ -129,8 +129,8 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
 
         // Fill the arrays with the x and y values of each coordinate
         for (int i = 0; i < targetLength; i++) {
-            xCoords[i] = (float) points[indices.get(i)].x;
-            yCoords[i] = (float) points[indices.get(i)].y;
+            xCoords[i] = (float) points[indices.get(i)].getX();
+            yCoords[i] = (float) points[indices.get(i)].getY();
         }
 
         return new FloatPoints(xCoords, yCoords);

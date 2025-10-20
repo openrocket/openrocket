@@ -1,6 +1,7 @@
 package info.openrocket.core.simulation;
 
 import info.openrocket.core.logging.SimulationAbort;
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,17 +95,17 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		// Note that it's virtually impossible for apogee to occur on the same
 		// step as either ground hit or descent rate inflection, and if we get a ground hit
 		// any descent rate inflection won't matter
-		final double a = linearAcceleration.z;
-		final double v = status.getRocketVelocity().z;
-		final double z = status.getRocketPosition().z;
+		final double a = linearAcceleration.getZ();
+		final double v = status.getRocketVelocity().getZ();
+		final double z = status.getRocketPosition().getZ();
 		double t = store.timeStep;
 		
-		if (newVals.pos.z < 0) {
+		if (newVals.pos.getZ() < 0) {
 			// If I've hit the ground, the new timestep is the solution of
 			// 1/2 at^2 + vt + z = 0
 			t = (-v - Math.sqrt(v*v - 2*a*z))/a;
 			log.trace("ground hit changes timeStep to " + t);
-		} else if (v * newVals.vel.z < 0) {
+		} else if (v * newVals.vel.getZ() < 0) {
 			// If I've got apogee, the new timestep is the solution of
 			// v + at = 0
 			t = Math.abs(v / a);
@@ -118,7 +119,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			final AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 			final Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
 			final double dFdV = CdA * atmosphericConditions.getDensity() * airSpeed.length();
-			Coordinate dAdV = Coordinate.ZERO;
+			Coordinate dAdV = ImmutableCoordinate.ZERO;
 			if (airSpeed.length() > MathUtil.EPSILON) {
 				dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
 			}
@@ -127,10 +128,10 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 
 			// If acceleration is appreciably different from 0, and changes sign during the time
 			// step, oscillation is building up.
-			if (newAcceleration.z * linearAcceleration.z < -MathUtil.EPSILON) {
+			if (newAcceleration.getZ() * linearAcceleration.getZ() < -MathUtil.EPSILON) {
 				// If acceleration oscillation is building up, the new timestep is the solution of
 				// a + j*t = 0
-				t = Math.abs(a / jerk.z);
+				t = Math.abs(a / jerk.getZ());
 				log.trace("oscillation avoidance changes timeStep to " + t);
 			}
 		}
@@ -149,7 +150,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, store.timeStep);
 
 			// If we just landed chop off rounding error
-			if (Math.abs(newVals.pos.z) < MathUtil.EPSILON) {
+			if (Math.abs(newVals.pos.getZ()) < MathUtil.EPSILON) {
 				newVals.pos = newVals.pos.setZ(0);
 			}
 		}
@@ -210,7 +211,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			atmosphericConditions.getKinematicViscosity();
 
 		// Compute drag acceleration
-		Coordinate linearAcceleration = Coordinate.ZERO;
+		Coordinate linearAcceleration = ImmutableCoordinate.ZERO;
 		if (airSpeed.length() > MathUtil.EPSILON) {
 			linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
 		}
@@ -224,7 +225,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 				status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
 
-		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
+		store.accelerationData = new AccelerationData(null, null, linearAcceleration, ImmutableCoordinate.NUL, status.getRocketOrientationQuaternion());
 	}
 
 	private static class EulerValues {

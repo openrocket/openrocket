@@ -132,8 +132,8 @@ A typical listener method (which is actually in the Air-start listener), would b
 .. code-block:: java
 
    public void startSimulation(SimulationStatus status) throws SimulationException {
-       status.setRocketPosition(new Coordinate(0, 0, getLaunchAltitude()));
-       status.setRocketVelocity(status.getRocketOrientationQuaternion().rotate(new Coordinate(0, 0, getLaunchVelocity())));
+       status.setRocketPosition(new ImmutableCoordinate(0, 0, getLaunchAltitude()));
+       status.setRocketVelocity(status.getRocketOrientationQuaternion().rotate(new ImmutableCoordinate(0, 0, getLaunchVelocity())));
    }
 
 This method is called when the simulation is first started. It obtains the desired launch altitude and velocity from its 
@@ -242,7 +242,7 @@ start velocity).
     
             @Override
             public void startSimulation(SimulationStatus status) throws SimulationException {
-                status.setRocketPosition(new Coordinate(0, 0, 1000.0));
+                status.setRocketPosition(new ImmutableCoordinate(0, 0, 1000.0));
             }
         }
     }
@@ -338,7 +338,7 @@ communicate with the extension. First, we'll modify the extension as follows:
     
             @Override
             public void startSimulation(SimulationStatus status) throws SimulationException {
-                status.setRocketPosition(new Coordinate(0, 0, getLaunchAltitude()));
+                status.setRocketPosition(new ImmutableCoordinate(0, 0, getLaunchAltitude()));
             }
         }
     }

@@ -157,7 +157,7 @@ public class CoordTransform {
      * @return the location coordinates in OBJ coordinates
      */
     public FloatTuple convertLoc(Coordinate coordinate) {
-        return convertLoc(coordinate.x, coordinate.y, coordinate.z);
+        return convertLoc(coordinate.getX(), coordinate.getY(), coordinate.getZ());
     }
 
     /**
@@ -180,7 +180,7 @@ public class CoordTransform {
     }
 
     public FloatTuple convertLocWithoutOriginOffs(Coordinate coordinate) {
-        return convertLoc(coordinate.x, coordinate.y, coordinate.z, 0, 0, 0);
+        return convertLoc(coordinate.getX(), coordinate.getY(), coordinate.getZ(), 0, 0, 0);
     }
 
     /**
