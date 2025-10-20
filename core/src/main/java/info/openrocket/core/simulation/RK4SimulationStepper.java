@@ -20,6 +20,7 @@ import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.MutableCoordinate;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
 import info.openrocket.core.util.WorldCoordinate;
@@ -64,8 +65,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private static final double MAX_ROLL_RATE_CHANGE = 2 * Math.PI / 180;
 	private static final double MAX_PITCH_YAW_CHANGE = 4 * Math.PI / 180;
 	
-	private Random random;
-	DataStore store = new DataStore();
+    private Random random;
+    DataStore store = new DataStore();
+
+    private final MutableCoordinate mutableCoordA = new MutableCoordinate();
+    private final MutableCoordinate mutableCoordB = new MutableCoordinate();
+    private final MutableCoordinate mutableCoordC = new MutableCoordinate();
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus original) {
@@ -189,52 +194,109 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 		//// Second position, k2 = f(t + h/2, y + k1*h/2)
 		
-		status2 = status.clone();
-		status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 2);
-		status2.setRocketPosition(status.getRocketPosition().add(k1.v.multiply(store.timeStep / 2)));
-		status2.setRocketVelocity(status.getRocketVelocity().add(k1.a.multiply(store.timeStep / 2)));
-		status2.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k1.rv.multiply(store.timeStep / 2))));
-		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k1.ra.multiply(store.timeStep / 2)));
+	status2 = status.clone();
+	status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 2);
+	status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
+		.addScaled(k1.v, store.timeStep / 2)
+		.toCoordinate());
+	status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
+		.addScaled(k1.a, store.timeStep / 2)
+		.toCoordinate());
+	status2.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion()
+		.multiplyLeft(Quaternion.rotation(mutableCoordB.set(k1.rv)
+			.scale(store.timeStep / 2)
+			.toCoordinate())));
+	status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
+		.addScaled(k1.ra, store.timeStep / 2)
+		.toCoordinate());
 		
 		k2 = computeParameters(status2, store);
 		
 
 		//// Third position, k3 = f(t + h/2, y + k2*h/2)
 		
-		status2 = status.clone();
-		status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 2);
-		status2.setRocketPosition(status.getRocketPosition().add(k2.v.multiply(store.timeStep / 2)));
-		status2.setRocketVelocity(status.getRocketVelocity().add(k2.a.multiply(store.timeStep / 2)));
-		status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k2.rv.multiply(store.timeStep / 2))));
-		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k2.ra.multiply(store.timeStep / 2)));
+	status2 = status.clone();
+	status2.setSimulationTime(status.getSimulationTime() + store.timeStep / 2);
+	status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
+		.addScaled(k2.v, store.timeStep / 2)
+		.toCoordinate());
+	status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
+		.addScaled(k2.a, store.timeStep / 2)
+		.toCoordinate());
+	status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
+		.multiplyLeft(Quaternion.rotation(mutableCoordB.set(k2.rv)
+			.scale(store.timeStep / 2)
+			.toCoordinate())));
+	status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
+		.addScaled(k2.ra, store.timeStep / 2)
+		.toCoordinate());
 		
 		k3 = computeParameters(status2, store);
 		
 
 		//// Fourth position, k4 = f(t + h, y + k3*h)
 		
-		status2 = status.clone();
-		status2.setSimulationTime(status.getSimulationTime() + store.timeStep);
-		status2.setRocketPosition(status.getRocketPosition().add(k3.v.multiply(store.timeStep)));
-		status2.setRocketVelocity(status.getRocketVelocity().add(k3.a.multiply(store.timeStep)));
-		status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(k3.rv.multiply(store.timeStep))));
-		status2.setRocketRotationVelocity(status.getRocketRotationVelocity().add(k3.ra.multiply(store.timeStep)));
+	status2 = status.clone();
+	status2.setSimulationTime(status.getSimulationTime() + store.timeStep);
+	status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
+		.addScaled(k3.v, store.timeStep)
+		.toCoordinate());
+	status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
+		.addScaled(k3.a, store.timeStep)
+		.toCoordinate());
+	status2.setRocketOrientationQuaternion(status2.getRocketOrientationQuaternion()
+		.multiplyLeft(Quaternion.rotation(mutableCoordB.set(k3.rv)
+			.scale(store.timeStep)
+			.toCoordinate())));
+	status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
+		.addScaled(k3.ra, store.timeStep)
+		.toCoordinate());
 		
 		k4 = computeParameters(status2, store);
 		
 
 		//// Sum all together,  y(n+1) = y(n) + h*(k1 + 2*k2 + 2*k3 + k4)/6
-		Coordinate deltaV, deltaP, deltaR, deltaO;
-		deltaV = k2.a.add(k3.a).multiply(2).add(k1.a).add(k4.a).multiply(store.timeStep / 6);
-		deltaP = k2.v.add(k3.v).multiply(2).add(k1.v).add(k4.v).multiply(store.timeStep / 6);
-		deltaR = k2.ra.add(k3.ra).multiply(2).add(k1.ra).add(k4.ra).multiply(store.timeStep / 6);
-		deltaO = k2.rv.add(k3.rv).multiply(2).add(k1.rv).add(k4.rv).multiply(store.timeStep / 6);
-		
+	Coordinate deltaO;
+	Coordinate deltaVCoord = mutableCoordA.clear()
+		.addScaled(k2.a, 2)
+		.addScaled(k3.a, 2)
+		.add(k1.a)
+		.add(k4.a)
+		.scale(store.timeStep / 6)
+		.toCoordinate();
+	Coordinate deltaPCoord = mutableCoordB.clear()
+		.addScaled(k2.v, 2)
+		.addScaled(k3.v, 2)
+		.add(k1.v)
+		.add(k4.v)
+		.scale(store.timeStep / 6)
+		.toCoordinate();
+	Coordinate deltaRCoord = mutableCoordC.clear()
+		.addScaled(k2.ra, 2)
+		.addScaled(k3.ra, 2)
+		.add(k1.ra)
+		.add(k4.ra)
+		.scale(store.timeStep / 6)
+		.toCoordinate();
+	deltaO = mutableCoordA.clear()
+		.addScaled(k2.rv, 2)
+		.addScaled(k3.rv, 2)
+		.add(k1.rv)
+		.add(k4.rv)
+		.scale(store.timeStep / 6)
+		.toCoordinate();
 
-		status.setRocketVelocity(status.getRocketVelocity().add(deltaV));
-		status.setRocketPosition(status.getRocketPosition().add(deltaP));
-		status.setRocketRotationVelocity(status.getRocketRotationVelocity().add(deltaR));
-		status.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(deltaO)).normalizeIfNecessary());
+	status.setRocketVelocity(mutableCoordB.set(status.getRocketVelocity())
+		.add(deltaVCoord)
+		.toCoordinate());
+	status.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
+		.add(deltaPCoord)
+		.toCoordinate());
+	status.setRocketRotationVelocity(mutableCoordC.set(status.getRocketRotationVelocity())
+		.add(deltaRCoord)
+		.toCoordinate());
+	status.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion()
+		.multiplyLeft(Quaternion.rotation(deltaO)).normalizeIfNecessary());
 		
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
