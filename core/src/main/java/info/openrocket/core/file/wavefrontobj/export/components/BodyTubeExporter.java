@@ -3,18 +3,13 @@ package info.openrocket.core.file.wavefrontobj.export.components;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
-import info.openrocket.core.file.wavefrontobj.export.shapes.CylinderExporter;
-import info.openrocket.core.file.wavefrontobj.export.shapes.DiskExporter;
 import info.openrocket.core.file.wavefrontobj.export.shapes.TubeExporter;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
-import info.openrocket.core.util.Coordinate;
-
-import java.util.ArrayList;
-import java.util.List;
+import info.openrocket.core.util.CoordinateIF;
 
 public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
     public BodyTubeExporter(DefaultObj obj, FlightConfiguration config, CoordTransform transformer, BodyTube component,
@@ -55,7 +50,7 @@ public class BodyTubeExporter extends RocketComponentExporter<BodyTube> {
 		int endIdx = obj.getNumVertices() - 1;    // Clamp in case no vertices were added
 
 		// Translate the mesh to the position in the rocket
-		Coordinate location = context.getLocation();
+		CoordinateIF location = context.getLocation();
 		ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
 	}
 }

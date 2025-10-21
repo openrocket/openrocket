@@ -7,7 +7,7 @@ import java.awt.geom.Rectangle2D;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Transformation;
 
 
@@ -37,7 +37,7 @@ public class TubeFinSetShapes extends RocketComponentShapes {
 		final TubeFinSet finSet = (TubeFinSet) component;
 		final double outerRadius = finSet.getOuterRadius();
 		final double length = finSet.getLength();
-		final Coordinate location = transformation.transform(new ImmutableCoordinate(0, outerRadius, 0));
+		final CoordinateIF location = transformation.transform(new Coordinate(0, outerRadius, 0));
 
 		final Shape[] shapes = new Shape[] {
 				new Rectangle2D.Double(location.getX(), (location.getY()-outerRadius), length, 2*outerRadius)
@@ -60,7 +60,7 @@ public class TubeFinSetShapes extends RocketComponentShapes {
 	public RocketComponentShapes[] getShapesBack(final RocketComponent component, final Transformation transformation) {
 		final TubeFinSet finSet = (TubeFinSet) component;
 		final double outerRadius = finSet.getOuterRadius();
-		final Coordinate location = transformation.transform(new ImmutableCoordinate(0, outerRadius, 0));
+		final CoordinateIF location = transformation.transform(new Coordinate(0, outerRadius, 0));
 
 		final Shape[] shapes = new Shape[] {
 				new Ellipse2D.Double((location.getZ() - outerRadius), (location.getY() - outerRadius), (2 * outerRadius), (2 * outerRadius))

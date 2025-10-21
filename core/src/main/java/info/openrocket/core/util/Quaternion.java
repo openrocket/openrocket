@@ -81,7 +81,7 @@ public class Quaternion implements Cloneable {
 	 * @param rotation the rotation vector
 	 * @return the quaternion corresponding to the rotation vector
 	 */
-	public static Quaternion rotation(Coordinate rotation) {
+	public static Quaternion rotation(CoordinateIF rotation) {
 		double length = rotation.length();
 		if (length < 0.000001) {
 			return new Quaternion(1, 0, 0, 0);
@@ -101,8 +101,8 @@ public class Quaternion implements Cloneable {
 	 * @param angle the rotation angle
 	 * @return the corresponding quaternion
 	 */
-	public static Quaternion rotation(Coordinate axis, double angle) {
-		Coordinate a = axis.normalize();
+	public static Quaternion rotation(CoordinateIF axis, double angle) {
+		CoordinateIF a = axis.normalize();
 		double sin = Math.sin(angle);
 		double cos = Math.cos(angle);
 		return new Quaternion(cos, sin * a.getX(), sin * a.getY(), sin * a.getZ());
@@ -228,7 +228,7 @@ public class Quaternion implements Cloneable {
 	 * @param coord the coordinate to rotate.
 	 * @return the rotated coordinate.
 	 */
-	public Coordinate rotate(Coordinate coord) {
+	public CoordinateIF rotate(CoordinateIF coord) {
 		double a, b, c, d;
 
 		assert (Math.abs(norm2() - 1) < 0.00001) : "Quaternion not unit length: " + this;
@@ -245,7 +245,7 @@ public class Quaternion implements Cloneable {
 		assert (Math.abs(a * w + b * x + c * y + d * z) <= coord.max() * MathUtil.EPSILON)
 				: ("Should be zero: " + (a * w + b * x + c * y + d * z) + " in " + this + " c=" + coord);
 
-		return new ImmutableCoordinate(
+		return new Coordinate(
 				-a * x + b * w - c * z + d * y,
 				-a * y + b * z + c * w - d * x,
 				-a * z - b * y + c * x + d * w,
@@ -288,7 +288,7 @@ public class Quaternion implements Cloneable {
 	 * @param coord the coordinate to rotate.
 	 * @return the rotated coordinate.
 	 */
-	public Coordinate invRotate(Coordinate coord) {
+	public CoordinateIF invRotate(CoordinateIF coord) {
 		double a, b, c, d;
 
 		assert (Math.abs(norm2() - 1) < 0.00001) : "Quaternion not unit length: " + this;
@@ -303,7 +303,7 @@ public class Quaternion implements Cloneable {
 		assert (Math.abs(a * w - b * x - c * y - d * z) < Math.max(coord.max(), 1) * MathUtil.EPSILON)
 				: ("Should be zero: " + (a * w - b * x - c * y - d * z) + " in " + this + " c=" + coord);
 
-		return new ImmutableCoordinate(
+		return new Coordinate(
 				a * x + b * w + c * z - d * y,
 				a * y - b * z + c * w + d * x,
 				a * z + b * y - c * x + d * w,
@@ -319,8 +319,8 @@ public class Quaternion implements Cloneable {
 	 * 
 	 * @return The coordinate (0,0,1) rotated using this quaternion.
 	 */
-	public Coordinate rotateZ() {
-		return new ImmutableCoordinate(
+	public CoordinateIF rotateZ() {
+		return new Coordinate(
 				2 * (w * y + x * z),
 				2 * (y * z - w * x),
 				w * w - x * x - y * y + z * z);

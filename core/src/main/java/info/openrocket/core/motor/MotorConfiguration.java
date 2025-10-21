@@ -7,8 +7,8 @@ import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.Inertia;
 import info.openrocket.core.util.ModID;
 
@@ -118,8 +118,8 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		}
 	}
 
-	public Coordinate getPosition() {
-		return new ImmutableCoordinate(getX(), 0, 0);
+	public CoordinateIF getPosition() {
+		return new Coordinate(getX(), 0, 0);
 	}
 
 	public double getX() {
@@ -174,10 +174,10 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 		}
 	}
 
-	public Coordinate getOffset() {
+	public CoordinateIF getOffset() {
 		RocketComponent comp = (RocketComponent) mount;
 		double delta_x = comp.getLength() + mount.getMotorOverhang() - this.motor.getLength();
-		return new ImmutableCoordinate(delta_x, 0, 0);
+		return new Coordinate(delta_x, 0, 0);
 	}
 
 	public double getUnitLongitudinalInertia() {

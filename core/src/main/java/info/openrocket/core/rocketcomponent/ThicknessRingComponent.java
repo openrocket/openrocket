@@ -2,7 +2,6 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -40,8 +39,8 @@ public abstract class ThicknessRingComponent extends RingComponent {
 	@Override
 	public double getOuterRadius() {
 		if (isOuterRadiusAutomatic() && getParent() instanceof RadialParent) {
-			double pos1 = this.toRelative(ImmutableCoordinate.NUL, parent)[0].getX();
-			double pos2 = this.toRelative(new ImmutableCoordinate(getLength()), parent)[0].getX();
+			double pos1 = this.toRelative(Coordinate.NUL, parent)[0].getX();
+			double pos2 = this.toRelative(new Coordinate(getLength()), parent)[0].getX();
 			pos1 = MathUtil.clamp(pos1, 0, parent.getLength());
 			pos2 = MathUtil.clamp(pos2, 0, parent.getLength());
 			outerRadius = Math.min(((RadialParent) parent).getInnerRadius(pos1),

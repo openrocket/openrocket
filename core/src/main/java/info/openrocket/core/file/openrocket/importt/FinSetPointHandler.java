@@ -3,7 +3,8 @@ package info.openrocket.core.file.openrocket.importt;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import org.xml.sax.SAXException;
 
 import info.openrocket.core.logging.Warning;
@@ -13,7 +14,6 @@ import info.openrocket.core.file.simplesax.AbstractElementHandler;
 import info.openrocket.core.file.simplesax.ElementHandler;
 import info.openrocket.core.file.simplesax.PlainTextHandler;
 import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.util.Coordinate;
 
 /**
  * A handler that reads the <point> specifications within the freeformfinset's
@@ -23,7 +23,7 @@ class FinSetPointHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final FreeformFinSet finset;
-	private final ArrayList<Coordinate> coordinates = new ArrayList<>();
+	private final ArrayList<CoordinateIF> coordinates = new ArrayList<>();
 
 	public FinSetPointHandler(FreeformFinSet finset, DocumentLoadingContext context) {
 		this.finset = finset;
@@ -49,7 +49,7 @@ class FinSetPointHandler extends AbstractElementHandler {
 		try {
 			double x = Double.parseDouble(strx);
 			double y = Double.parseDouble(stry);
-			coordinates.add(new ImmutableCoordinate(x, y));
+			coordinates.add(new Coordinate(x, y));
 		} catch (NumberFormatException e) {
 			warnings.add(Warning.fromString("Illegal fin points specification, ignoring."));
 			return;
@@ -61,7 +61,7 @@ class FinSetPointHandler extends AbstractElementHandler {
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-		finset.setPoints(coordinates.toArray(new Coordinate[0]));
+		finset.setPoints(coordinates.toArray(new CoordinateIF[0]));
 		// Update the tab position. This is because the tab position relies on the
 		// finset length, but because the
 		// <tabposition> tag comes before the <finpoints> tag in the .ork file, the tab

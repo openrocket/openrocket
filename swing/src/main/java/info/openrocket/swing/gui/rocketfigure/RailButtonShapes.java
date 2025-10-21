@@ -12,9 +12,9 @@ import java.util.Arrays;
 
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.ImmutableCoordinate;
-import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Transformation;
 
 
@@ -48,9 +48,9 @@ public class RailButtonShapes extends RocketComponentShapes {
 		final double innerRadius = innerDiameter/2;
 		
 		// instance absolute location
-		final Coordinate loc = transformation.transform(ImmutableCoordinate.ZERO);
+		final CoordinateIF loc = transformation.transform(Coordinate.ZERO);
 		
-		final Coordinate unitOrientation = transformation.transform(new ImmutableCoordinate(0,1,0));
+		final CoordinateIF unitOrientation = transformation.transform(new Coordinate(0,1,0));
 		final double view_rotation_rad = -Math.atan2(unitOrientation.getY(), unitOrientation.getZ()) + Math.PI/2;
 		final double angle_offset_rad = btn.getAngleOffset();
 		final double sinr = Math.abs(Math.sin(angle_offset_rad + view_rotation_rad));
@@ -175,9 +175,9 @@ public class RailButtonShapes extends RocketComponentShapes {
 		final double innerRadius = innerDiameter/2;
 		
 		// instance absolute location
-		final Coordinate loc = transformation.transform(ImmutableCoordinate.ZERO);
+		final CoordinateIF loc = transformation.transform(Coordinate.ZERO);
 		
-		final Coordinate unitOrientation = transformation.transform(new ImmutableCoordinate(0,1,0));
+		final CoordinateIF unitOrientation = transformation.transform(new Coordinate(0,1,0));
 		final double view_rotation_rad = -Math.atan2(unitOrientation.getY(), unitOrientation.getZ()) + Math.PI/2;
 		final double angle_offset_rad = btn.getAngleOffset();
 		final double combined_angle_rad = angle_offset_rad + view_rotation_rad;

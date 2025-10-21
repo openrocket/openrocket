@@ -13,7 +13,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.LinearInterpolator;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.PolyInterpolator;
@@ -131,13 +131,13 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			}
 		}
 
-		Coordinate cp;
+		CoordinateIF cp;
 
 		// If fore == aft, only body lift is encountered
 		if (isTube) {
 			cp = getLiftCP(conditions, warnings);
 		} else {
-			cp = new ImmutableCoordinate(cpCache, 0, 0, cnaCache * conditions.getSincAOA() /
+			cp = new Coordinate(cpCache, 0, 0, cnaCache * conditions.getSincAOA() /
 					conditions.getRefArea()).average(getLiftCP(conditions, warnings));
 		}
 
@@ -160,7 +160,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	/**
 	 * Calculate the body lift effect according to Galejs.
 	 */
-	protected Coordinate getLiftCP(FlightConditions conditions, WarningSet warnings) {
+	protected CoordinateIF getLiftCP(FlightConditions conditions, WarningSet warnings) {
 
 		/*
 		 * Without this extra multiplier the rocket may become unstable at apogee
@@ -176,7 +176,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			mul = pow2(conditions.getMach() / 0.05);
 		}
 
-		return new ImmutableCoordinate(planformCenter, 0, 0, mul * BODY_LIFT_K * planformArea / conditions.getRefArea() *
+		return new Coordinate(planformCenter, 0, 0, mul * BODY_LIFT_K * planformArea / conditions.getRefArea() *
 				conditions.getSinAOA() * conditions.getSincAOA()); // sin(aoa)^2 / aoa
 	}
 

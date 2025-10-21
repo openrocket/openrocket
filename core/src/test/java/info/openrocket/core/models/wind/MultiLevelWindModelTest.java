@@ -4,12 +4,12 @@ import info.openrocket.core.unit.DegreeUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 import org.junit.jupiter.api.io.TempDir;
@@ -409,7 +409,7 @@ class MultiLevelWindModelTest extends BaseTestCase {
 		double[] directions = new double[SAMPLE_SIZE];
 
 		for (int i = 0; i < SAMPLE_SIZE; i++) {
-			Coordinate velocity = model.getWindVelocity(i * DELTA_T, altitude);
+			CoordinateIF velocity = model.getWindVelocity(i * DELTA_T, altitude);
 			speeds[i] = velocity.length();
 			directions[i] = Math.atan2(velocity.getX(), velocity.getY());
 		}

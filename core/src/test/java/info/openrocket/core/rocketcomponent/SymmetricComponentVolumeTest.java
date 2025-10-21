@@ -3,8 +3,8 @@ package info.openrocket.core.rocketcomponent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.BaseTestCase;
-import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import static info.openrocket.core.util.MathUtil.pow2;
 
@@ -23,30 +23,30 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 	// return Coordinate containing CG and volume of (possibly hollow if thickness <
 	// outerR) shoulder
-	private Coordinate calculateShoulderCG(double x1, double length, double outerR, double thickness) {
+	private CoordinateIF calculateShoulderCG(double x1, double length, double outerR, double thickness) {
 		final double cg = x1 + length / 2.0;
 
 		final double innerR = Math.max(0.0, outerR - thickness);
 		final double volume = Math.PI * length * (pow2(outerR) - pow2(innerR));
 
-		return new ImmutableCoordinate(cg, 0, 0, volume);
+		return new Coordinate(cg, 0, 0, volume);
 	}
 
 	// return Coordinate containing CG and volume of frustum
 	// still OK if forward radius is 0 (ie a cone)
-	private Coordinate calculateFrustumCG(double length, double foreRadius, double aftRadius) {
+	private CoordinateIF calculateFrustumCG(double length, double foreRadius, double aftRadius) {
 		final double moment = Math.PI * pow2(length)
 				* (pow2(foreRadius) + 2.0 * foreRadius * aftRadius + 3.0 * pow2(aftRadius)) / 12.0;
 		final double volume = Math.PI * length * (pow2(foreRadius) + foreRadius * aftRadius + pow2(aftRadius)) / 3.0;
 
-		return new ImmutableCoordinate(moment / volume, 0, 0, volume);
+		return new Coordinate(moment / volume, 0, 0, volume);
 	}
 
 	// return Coordinate containing CG and volume of conical transition
-	private Coordinate calculateConicalTransitionCG(double length, double foreRadius, double aftRadius,
-													double thickness) {
+	private CoordinateIF calculateConicalTransitionCG(double length, double foreRadius, double aftRadius,
+													  double thickness) {
 		// get moment and volume of outer frustum
-		final Coordinate fullCG = calculateFrustumCG(length, foreRadius, aftRadius);
+		final CoordinateIF fullCG = calculateFrustumCG(length, foreRadius, aftRadius);
 
 		final double height = getHeight(length, foreRadius, aftRadius, thickness);
 
@@ -69,20 +69,20 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 			innerForeRad = 0;
 		}
 
-		final Coordinate innerCG = calculateFrustumCG(innerLen, innerForeRad, innerAftRad);
+		final CoordinateIF innerCG = calculateFrustumCG(innerLen, innerForeRad, innerAftRad);
 
 		// subtract inner from outer
 		final double offset = length - innerLen;
 		final double moment = fullCG.getX() * fullCG.getWeight() - (innerCG.getX() + offset) * innerCG.getWeight();
 		final double volume = fullCG.getWeight() - innerCG.getWeight();
 
-		return new ImmutableCoordinate(moment / volume, 0, 0, volume);
+		return new Coordinate(moment / volume, 0, 0, volume);
 	}
 
 	// combine five CGs (typically forward shoulder cap, forward shoulder,
 	// transition, aft shoulder, and aft shoulder cap)
 	// Use Coordinate.ZERO as a CG to combine fewer than five
-	private Coordinate combineCG(Coordinate cg1, Coordinate cg2, Coordinate cg3, Coordinate cg4, Coordinate cg5) {
+	private CoordinateIF combineCG(CoordinateIF cg1, CoordinateIF cg2, CoordinateIF cg3, CoordinateIF cg4, CoordinateIF cg5) {
 		final double moment1 = cg1.getX() * cg1.getWeight();
 		final double moment2 = cg2.getX() * cg2.getWeight();
 		final double moment3 = cg3.getX() * cg3.getWeight();
@@ -90,13 +90,13 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		final double moment5 = cg5.getX() * cg5.getWeight();
 
 		final double volume = cg1.getWeight() + cg2.getWeight() + cg3.getWeight() + cg4.getWeight() + cg5.getWeight();
-		return new ImmutableCoordinate((moment1 + moment2 + moment3 + moment4 + moment5) / volume, 0, 0, volume);
+		return new Coordinate((moment1 + moment2 + moment3 + moment4 + moment5) / volume, 0, 0, volume);
 	}
 
 	// check CG, volume, mass
-	private void checkCG(Coordinate expectedCG, Transition nc) {
+	private void checkCG(CoordinateIF expectedCG, Transition nc) {
 
-		Coordinate cg = nc.getCG();
+		CoordinateIF cg = nc.getCG();
 		assertEquals(expectedCG.getX(), cg.getX(), EPSILON, "CG is incorrect");
 		assertEquals(expectedCG.getWeight(), nc.getComponentVolume(), EPSILON, "Volume is incorrect");
 
@@ -143,7 +143,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		double moi = moi2 - moi1;
 
 		// use parallel axis theorem to move MOI to be relative to CG of frustum
-		final Coordinate cg = calculateFrustumCG(length, forwardRad, aftRad);
+		final CoordinateIF cg = calculateFrustumCG(length, forwardRad, aftRad);
 		moi = moi - pow2(cg.getX() + h1) * cg.getWeight();
 
 		// move MOI to be relative to back surface of frustum
@@ -156,7 +156,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 	// conical frustum.
 	// axis is through CG of frustrum
 	private double calculateConicalTransitionLongitudinalMOI(double length, double foreRadius, double aftRadius,
-															 double thickness, Coordinate cg, double cgShift) {
+															 double thickness, CoordinateIF cg, double cgShift) {
 
 		// get MOI of outer frustum, axis through base (aft end) of frustum
 		final double fullMOI = calculateFrustumLongMOI(length, foreRadius, aftRadius);
@@ -264,7 +264,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftRadius(aftRadius);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		Coordinate expectedCG = calculateConicalTransitionCG(length, 0, aftRadius, aftRadius);
+		CoordinateIF expectedCG = calculateConicalTransitionCG(length, 0, aftRadius, aftRadius);
 
 		checkCG(expectedCG, nc);
 
@@ -298,9 +298,9 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftShoulderThickness(aftRadius);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate coneCG = calculateConicalTransitionCG(length, 0, aftRadius, aftRadius);
-		final Coordinate shoulderCG = calculateShoulderCG(length, length, aftRadius, aftRadius);
-		final Coordinate expectedCG = coneCG.average(shoulderCG);
+		final CoordinateIF coneCG = calculateConicalTransitionCG(length, 0, aftRadius, aftRadius);
+		final CoordinateIF shoulderCG = calculateShoulderCG(length, length, aftRadius, aftRadius);
+		final CoordinateIF expectedCG = coneCG.average(shoulderCG);
 
 		checkCG(expectedCG, nc);
 
@@ -336,7 +336,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setShapeType(Transition.Shape.CONICAL);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		Coordinate expectedCG = calculateConicalTransitionCG(length, 0.0, aftRadius, thickness);
+		CoordinateIF expectedCG = calculateConicalTransitionCG(length, 0.0, aftRadius, thickness);
 
 		checkCG(expectedCG, nc);
 
@@ -370,9 +370,9 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftShoulderThickness(thickness);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate coneCG = calculateConicalTransitionCG(length, 0, aftRadius, thickness);
-		final Coordinate shoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
-		final Coordinate expectedCG = coneCG.average(shoulderCG);
+		final CoordinateIF coneCG = calculateConicalTransitionCG(length, 0, aftRadius, thickness);
+		final CoordinateIF shoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
+		final CoordinateIF expectedCG = coneCG.average(shoulderCG);
 
 		checkCG(expectedCG, nc);
 
@@ -409,7 +409,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftRadius(aftRadius);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate expectedCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, aftRadius);
+		final CoordinateIF expectedCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, aftRadius);
 
 		checkCG(expectedCG, nc);
 
@@ -449,12 +449,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeShoulderThickness(foreRadius);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate foreShoulderCG = calculateShoulderCG(-foreShoulderLength, foreShoulderLength, foreRadius,
+		final CoordinateIF foreShoulderCG = calculateShoulderCG(-foreShoulderLength, foreShoulderLength, foreRadius,
 				foreRadius);
-		final Coordinate transCG = calculateConicalTransitionCG(transLength, foreRadius, aftRadius, aftRadius);
-		final Coordinate aftShoulderCG = calculateShoulderCG(transLength, aftShoulderLength, aftRadius, aftRadius);
-		final Coordinate expectedCG = combineCG(ImmutableCoordinate.ZERO, foreShoulderCG, transCG, aftShoulderCG,
-				ImmutableCoordinate.ZERO);
+		final CoordinateIF transCG = calculateConicalTransitionCG(transLength, foreRadius, aftRadius, aftRadius);
+		final CoordinateIF aftShoulderCG = calculateShoulderCG(transLength, aftShoulderLength, aftRadius, aftRadius);
+		final CoordinateIF expectedCG = combineCG(Coordinate.ZERO, foreShoulderCG, transCG, aftShoulderCG,
+				Coordinate.ZERO);
 
 		checkCG(expectedCG, nc);
 
@@ -497,7 +497,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setThickness(thickness);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate expectedCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
+		final CoordinateIF expectedCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
 
 		checkCG(expectedCG, nc);
 
@@ -535,12 +535,12 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeShoulderThickness(thickness); // note this means fore shoulder is filled.
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate foreShoulderCG = calculateShoulderCG(-length, length, foreRadius, thickness);
-		final Coordinate coneCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
-		final Coordinate aftShoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
+		final CoordinateIF foreShoulderCG = calculateShoulderCG(-length, length, foreRadius, thickness);
+		final CoordinateIF coneCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
+		final CoordinateIF aftShoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
 
-		final Coordinate expectedCG = combineCG(ImmutableCoordinate.ZERO, foreShoulderCG, coneCG, aftShoulderCG,
-				ImmutableCoordinate.ZERO);
+		final CoordinateIF expectedCG = combineCG(Coordinate.ZERO, foreShoulderCG, coneCG, aftShoulderCG,
+				Coordinate.ZERO);
 		checkCG(expectedCG, nc);
 
 		final double foreShoulderLongMOI = calculateShoulderLongitudinalMOI(length, foreRadius, thickness,
@@ -580,7 +580,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setThickness(thickness);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate expectedCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
+		final CoordinateIF expectedCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
 		checkCG(expectedCG, nc);
 
 		final double expectedLongUnitMOI = calculateConicalTransitionLongitudinalMOI(length, foreRadius, aftRadius,
@@ -620,14 +620,14 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeShoulderCapped(true);
 		nc.setMaterial(Material.newMaterial(Material.Type.BULK, "test", density, true));
 
-		final Coordinate foreCapCG = calculateShoulderCG(-length, thickness, foreRadius - thickness, foreRadius);
-		final Coordinate foreShoulderCG = calculateShoulderCG(-length, length, foreRadius, thickness);
-		final Coordinate coneCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
-		final Coordinate aftShoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
-		final Coordinate aftCapCG = calculateShoulderCG(2.0 * length - thickness, thickness, aftRadius - thickness,
+		final CoordinateIF foreCapCG = calculateShoulderCG(-length, thickness, foreRadius - thickness, foreRadius);
+		final CoordinateIF foreShoulderCG = calculateShoulderCG(-length, length, foreRadius, thickness);
+		final CoordinateIF coneCG = calculateConicalTransitionCG(length, foreRadius, aftRadius, thickness);
+		final CoordinateIF aftShoulderCG = calculateShoulderCG(length, length, aftRadius, thickness);
+		final CoordinateIF aftCapCG = calculateShoulderCG(2.0 * length - thickness, thickness, aftRadius - thickness,
 				aftRadius);
 
-		final Coordinate expectedCG = combineCG(foreCapCG, foreShoulderCG, coneCG, aftShoulderCG, aftCapCG);
+		final CoordinateIF expectedCG = combineCG(foreCapCG, foreShoulderCG, coneCG, aftShoulderCG, aftCapCG);
 		checkCG(expectedCG, nc);
 
 		final double foreCapLongMOI = calculateShoulderLongitudinalMOI(thickness, foreRadius - thickness, foreRadius,

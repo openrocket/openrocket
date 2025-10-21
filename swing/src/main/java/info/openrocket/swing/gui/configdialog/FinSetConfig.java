@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,9 +22,8 @@ import javax.xml.transform.TransformerException;
 
 import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.components.SVGOptionPanel;
-import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
-import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
@@ -46,7 +44,6 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
 import info.openrocket.swing.gui.SpinnerEditor;
@@ -360,7 +357,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				}
 
 				// Compute tab height
-				final Coordinate finFront = ((FinSet) component).getFinFront();
+				final CoordinateIF finFront = ((FinSet) component).getFinFront();
 				double finStart = finFront.getX() + ((FinSet) component).getTabFrontEdge();
 				double finEnd = finFront.getX() + ((FinSet) component).getTabTrailingEdge();
 				double parentMinRadius = MathUtil.min(((SymmetricComponent)parent).getRadius(finStart),
@@ -651,15 +648,15 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	 * @throws Exception if there is an error writing the SVG file
 	 */
 	public static void writeSVGFile(FinSet finSet, File file, SVGOptionPanel svgOptions) throws ParserConfigurationException, TransformerException {
-		Coordinate[] points = finSet.generateContinuousFinAndTabShape();
+		CoordinateIF[] points = finSet.generateContinuousFinAndTabShape();
 
 		SVGBuilder builder = new SVGBuilder();
 		builder.addPath(points, null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
 
 		// Export fin tab separately if it's beyond the fin
 		if (finSet.isTabBeyondFin()) {
-			Coordinate[] tabPoints = finSet.getTabPointsWithRoot();
-			Coordinate finFront = finSet.getFinFront();
+			CoordinateIF[] tabPoints = finSet.getTabPointsWithRoot();
+			CoordinateIF finFront = finSet.getFinFront();
 			// Need to offset to the fin front because the tab points are relative to the fin front
 			builder.addPath(tabPoints, finFront.getX(), finFront.getY(), null, svgOptions.getStrokeColor(), svgOptions.getStrokeWidth());
 		}

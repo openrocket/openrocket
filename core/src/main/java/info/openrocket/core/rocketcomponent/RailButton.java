@@ -16,7 +16,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 /** 
@@ -251,25 +251,25 @@ public class RailButton extends ExternalComponent
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox instanceBounds = new BoundingBox();
 		
-		instanceBounds.update(new ImmutableCoordinate(0, this.totalHeight_m + this.screwHeight_m, 0));
-		instanceBounds.update(new ImmutableCoordinate(0, -this.totalHeight_m - this.screwHeight_m, 0));
+		instanceBounds.update(new Coordinate(0, this.totalHeight_m + this.screwHeight_m, 0));
+		instanceBounds.update(new Coordinate(0, -this.totalHeight_m - this.screwHeight_m, 0));
 		
 		final double r = this.getOuterDiameter() / 2;
-		instanceBounds.update(new ImmutableCoordinate(r, 0, r));
-		instanceBounds.update(new ImmutableCoordinate(-r, 0, -r));
+		instanceBounds.update(new Coordinate(r, 0, r));
+		instanceBounds.update(new Coordinate(-r, 0, -r));
 		
 		return instanceBounds;
 	}
 	
 	@Override
-	public Coordinate[] getInstanceOffsets() {
-		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
+	public CoordinateIF[] getInstanceOffsets() {
+		CoordinateIF[] toReturn = new CoordinateIF[this.getInstanceCount()];
 
 		final double yOffset = Math.cos(this.angleOffsetRad) * (this.radialDistance_m);
 		final double zOffset = Math.sin(this.angleOffsetRad) * (this.radialDistance_m);
 
 		for (int index = 0; index < this.getInstanceCount(); index++) {
-			toReturn[index] = new ImmutableCoordinate(index * this.instanceSeparation, yOffset, zOffset);
+			toReturn[index] = new Coordinate(index * this.instanceSeparation, yOffset, zOffset);
 		}
 		
 		return toReturn;
@@ -352,22 +352,22 @@ public class RailButton extends ExternalComponent
 	}
 
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
+	public Collection<CoordinateIF> getComponentBounds() {
 		final double r = outerDiameter_m / 2.0;
-		ArrayList<Coordinate> set = new ArrayList<>();
-		set.add(new ImmutableCoordinate(r, totalHeight_m, r));
-		set.add(new ImmutableCoordinate(r, totalHeight_m, -r));
-		set.add(new ImmutableCoordinate(r, 0, r));
-		set.add(new ImmutableCoordinate(r, 0, -r));
-		set.add(new ImmutableCoordinate(-r, 0, r));
-		set.add(new ImmutableCoordinate(-r, 0, -r));
-		set.add(new ImmutableCoordinate(-r, totalHeight_m, r));
-		set.add(new ImmutableCoordinate(-r, totalHeight_m, -r));
+		ArrayList<CoordinateIF> set = new ArrayList<>();
+		set.add(new Coordinate(r, totalHeight_m, r));
+		set.add(new Coordinate(r, totalHeight_m, -r));
+		set.add(new Coordinate(r, 0, r));
+		set.add(new Coordinate(r, 0, -r));
+		set.add(new Coordinate(-r, 0, r));
+		set.add(new Coordinate(-r, 0, -r));
+		set.add(new Coordinate(-r, totalHeight_m, r));
+		set.add(new Coordinate(-r, totalHeight_m, -r));
 		return set;
 	}
 	
 	@Override
-	public Coordinate getComponentCG() {
+	public CoordinateIF getComponentCG() {
 		// Math.PI and density are assumed constant through calculation, and thus may be factored out.
 		final double massBase = Math.pow(outerDiameter_m / 2, 2) * this.baseHeight_m;
 		final double massInner = Math.pow(innerDiameter_m / 2, 2)* getInnerHeight();
@@ -390,7 +390,7 @@ public class RailButton extends ExternalComponent
 		final double CMy = Math.cos(this.angleOffsetRad) * (parentRadius + heightCM);
 		final double CMz = Math.sin(this.angleOffsetRad) * (parentRadius + heightCM);
 		
-		return new ImmutableCoordinate( CMx, CMy, CMz, getComponentMass());
+		return new Coordinate( CMx, CMy, CMz, getComponentMass());
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package info.openrocket.core.masscalc;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public class CMAnalysisEntry {
 
@@ -17,13 +17,13 @@ public class CMAnalysisEntry {
             name = null;
         }
         eachMass = Double.NaN;
-        totalCM = ImmutableCoordinate.NaN;
+        totalCM = Coordinate.NaN;
     }
 
     public String name;
     public Object source;
     public double eachMass;
-    public Coordinate totalCM;
+    public CoordinateIF totalCM;
 
     public void updateEachMass(final double newMass) {
         if (Double.isNaN(eachMass)) {
@@ -31,7 +31,7 @@ public class CMAnalysisEntry {
         }
     }
 
-    public void updateAverageCM(final Coordinate newCM) {
+    public void updateAverageCM(final CoordinateIF newCM) {
         if (this.totalCM.isNaN()) {
             this.totalCM = newCM;
         } else {

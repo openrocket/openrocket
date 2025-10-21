@@ -16,7 +16,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -57,9 +57,9 @@ public class StabilityParameter implements OptimizableParameter {
 		conditions.setAOA(0);
 		conditions.setRollRate(0);
 
-		final Coordinate cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
+		final CoordinateIF cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
 		// the launch CM is the worst case CM
-		final Coordinate cg = MassCalculator.calculateLaunch(configuration).getCM();
+		final CoordinateIF cg = MassCalculator.calculateLaunch(configuration).getCM();
 
 		double cpx = Double.NaN;
 		if (cp.getWeight() > 0.000001)

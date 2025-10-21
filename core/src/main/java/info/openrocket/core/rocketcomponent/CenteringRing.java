@@ -5,7 +5,6 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 
 public class CenteringRing extends RadiusRingComponent {
 
@@ -34,8 +33,8 @@ public class CenteringRing extends RadiusRingComponent {
 					if (!(sibling instanceof InnerTube)) // Excludes itself
 						continue;
 
-					double pos1 = this.toRelative(ImmutableCoordinate.NUL, sibling)[0].getX();
-					double pos2 = this.toRelative(new ImmutableCoordinate(getLength()), sibling)[0].getX();
+					double pos1 = this.toRelative(Coordinate.NUL, sibling)[0].getX();
+					double pos2 = this.toRelative(new Coordinate(getLength()), sibling)[0].getX();
 					if (pos2 < 0 || pos1 > sibling.getLength())
 						continue;
 

@@ -10,6 +10,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,6 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 
@@ -70,7 +70,7 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditions = new FlightConditions(config);
 		WarningSet warnings = new WarningSet();
 
-		Coordinate cp_calc = calc.getCP(config, conditions, warnings);
+		CoordinateIF cp_calc = calc.getCP(config, conditions, warnings);
 
 		assertEquals(0.0, cp_calc.getWeight(), 0.0, " Empty rocket CNa value is incorrect:");
 		assertEquals(0.0, cp_calc.getX(), 0.0, " Empty rocket cp x value is incorrect:");
@@ -114,7 +114,7 @@ public class BarrowmanCalculatorTest {
 			exp_cpx = (cna_nose * cpx_nose + cna_body * cpx_body + cna_3fin * cpx_3fin + cna_lugs * cpx_lugs) / exp_cna;
 		}
 
-		Coordinate cp_calc = calc.getCP(config, conditions, warnings);
+		CoordinateIF cp_calc = calc.getCP(config, conditions, warnings);
 
 		assertEquals(exp_cna, cp_calc.getWeight(), EPSILON, " Estes Alpha III CNa value is incorrect:");
 		assertEquals(exp_cpx, cp_calc.getX(), EPSILON, " Estes Alpha III cp x value is incorrect:");
@@ -134,7 +134,7 @@ public class BarrowmanCalculatorTest {
 		// verified from the equations:
 		double expCPx = 0.2235154;
 		double exp_cna = 26.146933;
-		Coordinate calcCP = calc.getCP(config, conditions, warnings);
+		CoordinateIF calcCP = calc.getCP(config, conditions, warnings);
 
 		assertEquals(expCPx, calcCP.getX(), EPSILON, " Estes Alpha III cp x value is incorrect:");
 		assertEquals(exp_cna, calcCP.getWeight(), EPSILON, " Estes Alpha III CNa value is incorrect:");
@@ -154,7 +154,7 @@ public class BarrowmanCalculatorTest {
 
 		{
 			boosterFins.setFinCount(3);
-			final Coordinate cp_3fin = calc.getCP(config, conditions, warnings);
+			final CoordinateIF cp_3fin = calc.getCP(config, conditions, warnings);
 			assertEquals(16.51651439, cp_3fin.getWeight(), EPSILON, " Falcon 9 Heavy CNa value is incorrect:");
 			assertEquals(1.00667319, cp_3fin.getX(), EPSILON, " Falcon 9 Heavy CP x value is incorrect:");
 			assertEquals(0.0, cp_3fin.getY(), EPSILON, " Falcon 9 Heavy CP y value is incorrect:");
@@ -163,7 +163,7 @@ public class BarrowmanCalculatorTest {
 		{
 			boosterFins.setFinCount(2);
 			boosterFins.setAngleOffset(Math.PI / 4);
-			final Coordinate cp_2fin = calc.getCP(config, conditions, warnings);
+			final CoordinateIF cp_2fin = calc.getCP(config, conditions, warnings);
 			assertEquals(12.1073483560, cp_2fin.getWeight(), EPSILON, " Falcon 9 Heavy CNa value is incorrect:");
 			assertEquals(0.9440139181, cp_2fin.getX(), EPSILON, " Falcon 9 Heavy CP x value is incorrect:");
 			assertEquals(0.0, cp_2fin.getY(), EPSILON, " Falcon 9 Heavy CP y value is incorrect:");
@@ -171,7 +171,7 @@ public class BarrowmanCalculatorTest {
 		}
 		{
 			boosterFins.setFinCount(1);
-			final Coordinate cp_1fin = calc.getCP(config, conditions, warnings);
+			final CoordinateIF cp_1fin = calc.getCP(config, conditions, warnings);
 			assertEquals(7.6981823141, cp_1fin.getWeight(), EPSILON, " Falcon 9 Heavy CNa value is incorrect:");
 			assertEquals(0.8095779106, cp_1fin.getX(), EPSILON, " Falcon 9 Heavy CP x value is incorrect:");
 			assertEquals(0.0f, cp_1fin.getY(), EPSILON, " Falcon 9 Heavy CP y value is incorrect:");
@@ -189,25 +189,25 @@ public class BarrowmanCalculatorTest {
 		final FlightConditions conditions = new FlightConditions(config);
 		{
 			((FinSet) rocket.getChild(0).getChild(1).getChild(0)).setFinCount(4);
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(34.19591165, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.22724216, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
 		{
 			((FinSet) rocket.getChild(0).getChild(1).getChild(0)).setFinCount(3);
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(26.14693374, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.22351541, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
 		{
 			((FinSet) rocket.getChild(0).getChild(1).getChild(0)).setFinCount(2);
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(2.0, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.032356, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
 		{
 			((FinSet) rocket.getChild(0).getChild(1).getChild(0)).setFinCount(1);
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(2.0, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.032356, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
@@ -223,7 +223,7 @@ public class BarrowmanCalculatorTest {
 		final FlightConditions conditions = new FlightConditions(config);
 
 		{
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(26.14693374, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.22351541, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
@@ -233,7 +233,7 @@ public class BarrowmanCalculatorTest {
 			fins.setAngleOffset(0);
 			TestRockets.splitRocketFins(body, fins, 3);
 
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(26.14693374, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.22351541, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
@@ -250,7 +250,7 @@ public class BarrowmanCalculatorTest {
 
 		{
 			((FinSet) rocket.getChild(0).getChild(1).getChild(0)).setFinCount(4);
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(34.19591165, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.22724, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
@@ -259,7 +259,7 @@ public class BarrowmanCalculatorTest {
 			final TrapezoidFinSet fins = (TrapezoidFinSet) body.getChild(0);
 			TestRockets.splitRocketFins(body, fins, 4);
 
-			final Coordinate wholeRocketCP = calc.getCP(config, conditions, warnings);
+			final CoordinateIF wholeRocketCP = calc.getCP(config, conditions, warnings);
 			assertEquals(34.19591165, wholeRocketCP.getWeight(), EPSILON, "Split-Fin Rocket CNa value is incorrect:");
 			assertEquals(0.22724, wholeRocketCP.getX(), EPSILON, "Split-Fin Rocket CP x value is incorrect:");
 		}
@@ -277,7 +277,7 @@ public class BarrowmanCalculatorTest {
 		final FlightConditions conditions = new FlightConditions(config);
 		final WarningSet warnings = new WarningSet();
 
-		final Coordinate cp = calc.getCP(config, conditions, warnings);
+		final CoordinateIF cp = calc.getCP(config, conditions, warnings);
 		assertEquals(0.25461, cp.getX(), EPSILON, " Endplate rocket cp x value is incorrect:");
 		assertEquals(0.0, cp.getY(), EPSILON, " Endplate rocket cp y value is incorrect:");
 		assertEquals(0.0, cp.getZ(), EPSILON, " Endplate rocket cp z value is incorrect:");
@@ -396,8 +396,8 @@ public class BarrowmanCalculatorTest {
 		// cpNoPods (0.34125,0.00000,0.00000,w=16.20502) -- interference disabled
 		// cpNoPods (0.34797,0.00000,0.00000,w=19.34773) -- interference enabled
 
-		final Coordinate cpNoPods = calcNoPods.getCP(configNoPods, conditionsNoPods, warningsNoPods);
-		final Coordinate cpPods = calcPods.getCP(configPods, conditionsPods, warningsPods);
+		final CoordinateIF cpNoPods = calcNoPods.getCP(configNoPods, conditionsNoPods, warningsNoPods);
+		final CoordinateIF cpPods = calcPods.getCP(configPods, conditionsPods, warningsPods);
 		assertEquals(cpNoPods.getX() - 0.002788761352, cpPods.getX(),
 				EPSILON, " Alpha III With Pods rocket cp x value is incorrect:");
 		assertEquals(cpNoPods.getY(), cpPods.getY(), EPSILON, " Alpha III With Pods rocket cp y value is incorrect:");
@@ -418,7 +418,7 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditionsRef = new FlightConditions(configRef);
 		WarningSet warnings = new WarningSet();
 
-		Coordinate cp_calcRef = calcRef.getCP(configRef, conditionsRef, warnings);
+		CoordinateIF cp_calcRef = calcRef.getCP(configRef, conditionsRef, warnings);
 
 		// First test with adding an empty stage in the front of the design
 		Rocket rocketFront = TestRockets.makeEstesAlphaIII();
@@ -429,7 +429,7 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditionsFront = new FlightConditions(configFront);
 		warnings = new WarningSet();
 
-		Coordinate cp_calcFront = calcFront.getCP(configFront, conditionsFront, warnings);
+		CoordinateIF cp_calcFront = calcFront.getCP(configFront, conditionsFront, warnings);
 
 		assertEquals(cp_calcRef.getWeight(),
 				cp_calcFront.getWeight(), EPSILON, " Estes Alpha III with front empty stage CNa value is incorrect:");
@@ -449,7 +449,7 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditionsRear = new FlightConditions(configRear);
 		warnings = new WarningSet();
 
-		Coordinate cp_calcRear = calcRear.getCP(configRear, conditionsRear, warnings);
+		CoordinateIF cp_calcRear = calcRear.getCP(configRear, conditionsRear, warnings);
 
 		assertEquals(cp_calcRef.getWeight(),
 				cp_calcRear.getWeight(), EPSILON, " Estes Alpha III with rear empty stage CNa value is incorrect:");
@@ -469,7 +469,7 @@ public class BarrowmanCalculatorTest {
 		FlightConditions conditionsMulti = new FlightConditions(configMulti);
 		warnings = new WarningSet();
 
-		Coordinate cp_calcMulti = calcMulti.getCP(configMulti, conditionsMulti, warnings);
+		CoordinateIF cp_calcMulti = calcMulti.getCP(configMulti, conditionsMulti, warnings);
 
 		assertEquals(cp_calcRef.getWeight(),
 				cp_calcMulti.getWeight(), EPSILON, " Estes Alpha III with multiple empty stages CNa value is incorrect:");

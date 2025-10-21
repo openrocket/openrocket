@@ -3,7 +3,7 @@ package info.openrocket.swing.gui.rocketfigure;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Transformation;
 
 import java.awt.Shape;
@@ -30,13 +30,13 @@ public class TransitionShapes extends RocketComponentShapes {
 
 		Transition transition = (Transition)component;
 
-        final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+        final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         
 		RocketComponentShapes[] mainShapes;
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
 		if (transition.getShapeType() == Transition.Shape.CONICAL) {
-		    final Coordinate frontCenter = instanceAbsoluteLocation;
+		    final CoordinateIF frontCenter = instanceAbsoluteLocation;
 	        
 			double length = transition.getLength();
 			double r1 = transition.getForeRadius();
@@ -103,7 +103,7 @@ public class TransitionShapes extends RocketComponentShapes {
 		double r1 = transition.getForeRadius();
 		double r2 = transition.getAftRadius();
 
-		final Coordinate center = transformation.transform(ImmutableCoordinate.ZERO);
+		final CoordinateIF center = transformation.transform(Coordinate.ZERO);
 		
 		Shape[] s = new Shape[2];
 		s[0] = new Ellipse2D.Double((center.getZ()-r1),(center.getY()-r1),2*r1,2*r1);

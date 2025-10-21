@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public class FreeformFinSetSaver extends FinSetSaver {
 
@@ -26,7 +26,7 @@ public class FreeformFinSetSaver extends FinSetSaver {
 
 		FreeformFinSet fins = (FreeformFinSet) c;
 		elements.add("<finpoints>");
-		for (Coordinate p : fins.getFinPoints()) {
+		for (CoordinateIF p : fins.getFinPoints()) {
 			elements.add("  <point x=\"" + p.getX() + "\" y=\"" + p.getY() + "\"/>");
 		}
 		elements.add("</finpoints>");

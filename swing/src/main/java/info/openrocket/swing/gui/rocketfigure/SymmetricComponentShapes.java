@@ -3,7 +3,7 @@ package info.openrocket.swing.gui.rocketfigure;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -39,16 +39,16 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		final double delta = 0.0000001;
 		double x;
 		
-		ArrayList<Coordinate> points = new ArrayList<>();
+		ArrayList<CoordinateIF> points = new ArrayList<>();
 		x = delta;
-		points.add(new ImmutableCoordinate(x, c.getRadius(x), 0));
+		points.add(new Coordinate(x, c.getRadius(x), 0));
 		for (i = 1; i < MINPOINTS - 1; i++) {
 			x = c.getLength() * i / (MINPOINTS - 1);
-			points.add(new ImmutableCoordinate(x, c.getRadius(x), 0));
+			points.add(new Coordinate(x, c.getRadius(x), 0));
 			//System.out.println("Starting with x="+x);
 		}
 		x = c.getLength() - delta;
-		points.add(new ImmutableCoordinate(x, c.getRadius(x), 0));
+		points.add(new Coordinate(x, c.getRadius(x), 0));
 		
 
 		i = 0;
@@ -67,7 +67,7 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 				n = i;
 			
 			x = (points.get(n).getX() + points.get(n + 1).getX()) / 2;
-			points.add(n + 1, new ImmutableCoordinate(x, c.getRadius(x), 0));
+			points.add(n + 1, new Coordinate(x, c.getRadius(x), 0));
 		}
 		
 
@@ -89,7 +89,7 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		//System.out.println("here");
 		
 		final int len = points.size();
-		Coordinate nose = transformation.transform(ImmutableCoordinate.ZERO);
+		CoordinateIF nose = transformation.transform(Coordinate.ZERO);
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
@@ -108,17 +108,17 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		return new RocketComponentShapes[] { new RocketComponentShapes(path, component) };
 	}
 	
-	private static boolean angleAcceptable(Coordinate v1, Coordinate v2, Coordinate v3) {
+	private static boolean angleAcceptable(CoordinateIF v1, CoordinateIF v2, CoordinateIF v3) {
 		return (cosAngle(v1, v2, v3) > ACCEPTABLE_ANGLE);
 	}
 	
 	/*
 	 * cosAngle = v1.v2 / |v1|*|v2| = v1.v2 / sqrt(v1.v1*v2.v2)
 	 */
-	private static double cosAngle(Coordinate v1, Coordinate v2, Coordinate v3) {
+	private static double cosAngle(CoordinateIF v1, CoordinateIF v2, CoordinateIF v3) {
 		double cos;
 		double len;
-		cos = Coordinate.dot(v1.sub(v2), v2.sub(v3));
+		cos = CoordinateIF.dot(v1.sub(v2), v2.sub(v3));
 		len = MathUtil.safeSqrt(v1.sub(v2).length2() * v2.sub(v3).length2());
 		return cos / len;
 	}

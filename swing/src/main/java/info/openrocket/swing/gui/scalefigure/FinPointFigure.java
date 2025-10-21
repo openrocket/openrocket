@@ -15,7 +15,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.rocketcomponent.FreeformFinSet;
@@ -27,7 +28,6 @@ import info.openrocket.core.unit.Tick;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -253,10 +253,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private void paintFinShape(final Graphics2D g2){
 		// excludes fin tab points
-		final Coordinate[] drawPoints = finset.getFinPointsWithRoot();
+		final CoordinateIF[] drawPoints = finset.getFinPointsWithRoot();
 
 		Path2D.Double shape = new Path2D.Double();
-		Coordinate startPoint= drawPoints[0];
+		CoordinateIF startPoint= drawPoints[0];
 		shape.moveTo( startPoint.getX(), startPoint.getY());
 		for (int i = 1; i < drawPoints.length; i++) {
 			shape.lineTo( drawPoints[i].getX(), drawPoints[i].getY());
@@ -273,14 +273,14 @@ public class FinPointFigure extends AbstractScaleFigure {
 	 * @param g2 The graphics context to paint to.
 	 */
 	private void paintHighlight(final Graphics2D g2) {
-		final Coordinate[] points = finset.getFinPointsWithRoot();
+		final CoordinateIF[] points = finset.getFinPointsWithRoot();
 
 		if (highlightIndex < 0 || highlightIndex > points.length - 1) {
 			return;
 		}
 
-		Coordinate start = points[highlightIndex];
-		Coordinate end = points[highlightIndex+1];
+		CoordinateIF start = points[highlightIndex];
+		CoordinateIF end = points[highlightIndex+1];
 
 		final float highlightWidth_m = (float) (LINE_WIDTH_HIGHLIGHT_PIXELS / scale  );
 		g2.setStroke(new BasicStroke(highlightWidth_m));
@@ -290,7 +290,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 	
 	private void paintFinHandles(final Graphics2D g2) {
 		// Excludes fin tab points
-		final Coordinate[] drawPoints = finset.getFinPoints();
+		final CoordinateIF[] drawPoints = finset.getFinPoints();
 
 		// Fin point boxes
 		final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale );
@@ -302,7 +302,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		finPointHandles = new Rectangle2D.Double[ drawPoints.length];
 		for (int currentIndex = 0; currentIndex < drawPoints.length; currentIndex++) {
-			Coordinate c = drawPoints[currentIndex];
+			CoordinateIF c = drawPoints[currentIndex];
 
 			if( currentIndex == selectedIndex ) {
 				final float selBoxWidth = (float) (SELECTED_BOX_WIDTH_PIXELS / scale );
@@ -360,7 +360,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final double threshold = BOX_WIDTH_PIXELS / scale;
 		
-		Coordinate[] points = finset.getFinPoints();
+		CoordinateIF[] points = finset.getFinPoints();
 		for (int i = 1; i < points.length; i++) {
 			double x1 = points[i - 1].getX();
 			double y1 = points[i - 1].getY();
@@ -426,11 +426,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 		final double rParentMin = Math.min(parent.getForeRadius(), parent.getAftRadius());
 
 		mountBoundsMax_m = new BoundingBox()
-				.update(new ImmutableCoordinate(xParent, yParent, 0))
-				.update(new ImmutableCoordinate(xParent + parent.getLength(), yParent + rParentMax));
+				.update(new Coordinate(xParent, yParent, 0))
+				.update(new Coordinate(xParent + parent.getLength(), yParent + rParentMax));
 		mountBoundsMin_m = new BoundingBox()
-				.update(new ImmutableCoordinate(xParent, yParent, 0))
-				.update(new ImmutableCoordinate(xParent + parent.getLength(), yParent + rParentMin));
+				.update(new Coordinate(xParent, yParent, 0))
+				.update(new Coordinate(xParent + parent.getLength(), yParent + rParentMin));
 
 		final BoundingBox combinedBounds = new BoundingBox().update(finBounds_m).update(mountBoundsMax_m);
 

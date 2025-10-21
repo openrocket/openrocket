@@ -5,7 +5,8 @@ import static info.openrocket.core.util.MathUtil.pow2;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,6 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.PolyInterpolator;
@@ -88,8 +88,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	 * Calculate the CP according to the extended Barrowman method.
 	 */
 	@Override
-	public Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions,
-			WarningSet warnings) {
+	public CoordinateIF getCP(FlightConfiguration configuration, FlightConditions conditions,
+							  WarningSet warnings) {
 		checkCache(configuration);
 		AerodynamicForces forces = calculateNonAxialForces(configuration, conditions, warnings);
 		return forces.getCP();
@@ -132,7 +132,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			if (f.getCP().isNaN()) {
-				f.setCP(ImmutableCoordinate.ZERO);
+				f.setCP(Coordinate.ZERO);
 			}
 
 			if (Double.isNaN(f.getBaseCD()))
@@ -261,8 +261,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			AerodynamicForces instanceForces = new AerodynamicForces().zero();
 			calcObj.calculateNonaxialForces(conditions, context.transform, instanceForces, warnings);
 
-			Coordinate cp_inst = instanceForces.getCP();
-			Coordinate cp_abs = context.transform.transform(cp_inst);
+			CoordinateIF cp_inst = instanceForces.getCP();
+			CoordinateIF cp_abs = context.transform.transform(cp_inst);
 			cp_abs = cp_abs.setY(0.0).setZ(0.0);
 
 			instanceForces.setCP(cp_abs);
@@ -368,11 +368,11 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 						// as the case for radius, since we never actually display the absolute X
 						// position
 
-						double symXfore = sym.toAbsolute(ImmutableCoordinate.NUL)[0].getX();
-						double prevXfore = prevComp.toAbsolute(ImmutableCoordinate.NUL)[0].getX();
+						double symXfore = sym.toAbsolute(Coordinate.NUL)[0].getX();
+						double prevXfore = prevComp.toAbsolute(Coordinate.NUL)[0].getX();
 
-						double symXaft = sym.toAbsolute(new ImmutableCoordinate(comp.getLength(), 0, 0, 0))[0].getX();
-						double prevXaft = prevComp.toAbsolute(new ImmutableCoordinate(prevComp.getLength(), 0, 0, 0))[0].getX();
+						double symXaft = sym.toAbsolute(new Coordinate(comp.getLength(), 0, 0, 0))[0].getX();
+						double prevXaft = prevComp.toAbsolute(new Coordinate(prevComp.getLength(), 0, 0, 0))[0].getX();
 
 						if (!UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(symXfore)
 								.equals(UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(prevXaft))) {
@@ -394,7 +394,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 										firstComp = scout;
 										scout = scout.getPreviousSymmetricComponent();
 									}
-									double firstCompXfore = firstComp.toAbsolute(ImmutableCoordinate.NUL)[0].getX();
+									double firstCompXfore = firstComp.toAbsolute(Coordinate.NUL)[0].getX();
 
 									SymmetricComponent lastComp = sym;
 									scout = sym;
@@ -403,7 +403,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 										scout = scout.getNextSymmetricComponent();
 									}
 									double lastCompXaft = lastComp
-											.toAbsolute(new ImmutableCoordinate(lastComp.getLength(), 0, 0, 0))[0].getX();
+											.toAbsolute(new Coordinate(lastComp.getLength(), 0, 0, 0))[0].getX();
 
 									// completely forward vs. overlap
 									if (lastCompXaft <= firstCompXfore) {
@@ -1040,7 +1040,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			if (c instanceof FinSet) {
 				FinSet f = (FinSet) c;
 				mul += 0.6 * Math.min(f.getFinCount(), 4) * f.getPlanformArea() *
-						MathUtil.pow3(Math.abs(f.toAbsolute(new ImmutableCoordinate(
+						MathUtil.pow3(Math.abs(f.toAbsolute(new Coordinate(
 								((FinSetCalc) calcMap.get(f)).getMidchordPos()))[0].getX()
 								- cgx)) /
 						(conditions.getRefArea() * conditions.getRefLength());

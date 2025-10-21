@@ -27,7 +27,7 @@ public enum GeodeticComputationStrategy {
 		private static final double METERS_PER_DEGREE_LONGITUDE_EQUATOR = 111050;
 
 		@Override
-		public WorldCoordinate addCoordinate(WorldCoordinate location, Coordinate delta) {
+		public WorldCoordinate addCoordinate(WorldCoordinate location, CoordinateIF delta) {
 
 			double metersPerDegreeLongitude = METERS_PER_DEGREE_LONGITUDE_EQUATOR * Math.cos(location.getLatitudeRad());
 			// Limit to 1 meter per degree near poles
@@ -41,8 +41,8 @@ public enum GeodeticComputationStrategy {
 		}
 
 		@Override
-		public Coordinate getCoriolisAcceleration(WorldCoordinate location, Coordinate velocity) {
-			return ImmutableCoordinate.NUL;
+		public CoordinateIF getCoriolisAcceleration(WorldCoordinate location, CoordinateIF velocity) {
+			return Coordinate.NUL;
 		}
 	},
 
@@ -52,7 +52,7 @@ public enum GeodeticComputationStrategy {
 	SPHERICAL {
 
 		@Override
-		public WorldCoordinate addCoordinate(WorldCoordinate location, Coordinate delta) {
+		public WorldCoordinate addCoordinate(WorldCoordinate location, CoordinateIF delta) {
 			double newAlt = location.getAltitude() + delta.getZ();
 
 			// bearing (in radians, clockwise from north);
@@ -88,7 +88,7 @@ public enum GeodeticComputationStrategy {
 		}
 
 		@Override
-		public Coordinate getCoriolisAcceleration(WorldCoordinate location, Coordinate velocity) {
+		public CoordinateIF getCoriolisAcceleration(WorldCoordinate location, CoordinateIF velocity) {
 			return computeCoriolisAcceleration(location, velocity);
 		}
 
@@ -101,7 +101,7 @@ public enum GeodeticComputationStrategy {
 	WGS84 {
 
 		@Override
-		public WorldCoordinate addCoordinate(WorldCoordinate location, Coordinate delta) {
+		public WorldCoordinate addCoordinate(WorldCoordinate location, CoordinateIF delta) {
 			double newAlt = location.getAltitude() + delta.getZ();
 
 			// bearing (in radians, clockwise from north);
@@ -133,7 +133,7 @@ public enum GeodeticComputationStrategy {
 		}
 
 		@Override
-		public Coordinate getCoriolisAcceleration(WorldCoordinate location, Coordinate velocity) {
+		public CoordinateIF getCoriolisAcceleration(WorldCoordinate location, CoordinateIF velocity) {
 			return computeCoriolisAcceleration(location, velocity);
 		}
 	};
@@ -164,15 +164,15 @@ public enum GeodeticComputationStrategy {
 	/**
 	 * Add a cartesian movement coordinate to a WorldCoordinate.
 	 */
-	public abstract WorldCoordinate addCoordinate(WorldCoordinate location, Coordinate delta);
+	public abstract WorldCoordinate addCoordinate(WorldCoordinate location, CoordinateIF delta);
 
 	/**
 	 * Compute the coriolis acceleration at a specified WorldCoordinate and
 	 * velocity.
 	 */
-	public abstract Coordinate getCoriolisAcceleration(WorldCoordinate location, Coordinate velocity);
+	public abstract CoordinateIF getCoriolisAcceleration(WorldCoordinate location, CoordinateIF velocity);
 
-	private static Coordinate computeCoriolisAcceleration(WorldCoordinate latlon, Coordinate velocity) {
+	private static CoordinateIF computeCoriolisAcceleration(WorldCoordinate latlon, CoordinateIF velocity) {
 
 		double sinlat = Math.sin(latlon.getLatitudeRad());
 		double coslat = Math.cos(latlon.getLatitudeRad());
@@ -192,7 +192,7 @@ public enum GeodeticComputationStrategy {
 		// launch rod should be
 		// able to be set independently and in terms of bearing with north == +ve y.
 
-		Coordinate coriolis = new ImmutableCoordinate(2.0 * WorldCoordinate.EROT * (v_n * sinlat - v_u * coslat),
+		CoordinateIF coriolis = new Coordinate(2.0 * WorldCoordinate.EROT * (v_n * sinlat - v_u * coslat),
 				2.0 * WorldCoordinate.EROT * (-1.0 * v_e * sinlat),
 				2.0 * WorldCoordinate.EROT * (v_e * coslat));
 		return coriolis;

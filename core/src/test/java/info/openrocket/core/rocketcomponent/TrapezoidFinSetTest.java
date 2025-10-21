@@ -3,12 +3,12 @@ package info.openrocket.core.rocketcomponent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.material.Material;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.BaseTestCase;
 
 public class TrapezoidFinSetTest extends BaseTestCase {
@@ -97,13 +97,13 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		//        /      \
 		//   +---+--------+---+
 		//
-		Coordinate[] actPoints = fins.getFinPoints();
+		CoordinateIF[] actPoints = fins.getFinPoints();
 
-		Coordinate[] expPoints = { new ImmutableCoordinate(0.00, 0.0),
-				new ImmutableCoordinate(0.02, 0.05),
-				new ImmutableCoordinate(0.04, 0.05),
-				new ImmutableCoordinate(0.06, 0.0),
-				new ImmutableCoordinate(0.00, 0.0) };
+		CoordinateIF[] expPoints = { new Coordinate(0.00, 0.0),
+				new Coordinate(0.02, 0.05),
+				new Coordinate(0.04, 0.05),
+				new Coordinate(0.06, 0.0),
+				new Coordinate(0.00, 0.0) };
 
 		for (int index = 0; index < actPoints.length; ++index) {
 			assertEquals(expPoints[index].getX(), actPoints[index].getX(), EPSILON,
@@ -128,42 +128,42 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		//        /      \
 		//   +---+--------+---+
 		//
-		Coordinate[] actPoints = fins.getFinPoints();
-		Coordinate[] rootPoints = fins.getRootPoints();
+		CoordinateIF[] actPoints = fins.getFinPoints();
+		CoordinateIF[] rootPoints = fins.getRootPoints();
 
-		final Coordinate[] expPoints = new Coordinate[] {
-				new ImmutableCoordinate(0.00, -0.00030189855, 0.00),
-				new ImmutableCoordinate(0.02, 0.05, 0.00),
-				new ImmutableCoordinate(0.04, 0.05, 0.00),
-				new ImmutableCoordinate(0.06, -0.00030189855, 0.00)
+		final CoordinateIF[] expPoints = new CoordinateIF[] {
+				new Coordinate(0.00, -0.00030189855, 0.00),
+				new Coordinate(0.02, 0.05, 0.00),
+				new Coordinate(0.04, 0.05, 0.00),
+				new Coordinate(0.06, -0.00030189855, 0.00)
 		};
 
-		final Coordinate[] expRootPoints = new Coordinate[] {
-				new ImmutableCoordinate(0.0000, -0.000301899, 0.0000),
-				new ImmutableCoordinate(0.0025, -0.000253617, 0.0000),
-				new ImmutableCoordinate(0.0050, -0.000209555, 0.0000),
-				new ImmutableCoordinate(0.0075, -0.000169706, 0.0000),
-				new ImmutableCoordinate(0.0100, -0.000134064, 0.0000),
-				new ImmutableCoordinate(0.0125, -0.000102627, 0.0000),
-				new ImmutableCoordinate(0.0150, -0.000075389, 0.0000),
-				new ImmutableCoordinate(0.0175, -0.000052348, 0.0000),
-				new ImmutableCoordinate(0.0200, -0.000033499, 0.0000),
-				new ImmutableCoordinate(0.0225, -0.000018842, 0.0000),
-				new ImmutableCoordinate(0.0250, -0.000008374, 0.0000),
-				new ImmutableCoordinate(0.0275, -0.000002093, 0.0000),
-				new ImmutableCoordinate(0.0300, 0.0000, 0.0000),
-				new ImmutableCoordinate(0.0325, -0.000002093, 0.0000),
-				new ImmutableCoordinate(0.0350, -0.000008374, 0.0000),
-				new ImmutableCoordinate(0.0375, -0.000018842, 0.0000),
-				new ImmutableCoordinate(0.0400, -0.000033499, 0.0000),
-				new ImmutableCoordinate(0.0425, -0.000052348, 0.0000),
-				new ImmutableCoordinate(0.0450, -0.000075389, 0.0000),
-				new ImmutableCoordinate(0.0475, -0.000102627, 0.0000),
-				new ImmutableCoordinate(0.0500, -0.000134064, 0.0000),
-				new ImmutableCoordinate(0.0525, -0.000169706, 0.0000),
-				new ImmutableCoordinate(0.0550, -0.000209555, 0.0000),
-				new ImmutableCoordinate(0.0575, -0.000253617, 0.0000),
-				new ImmutableCoordinate(0.0600, -0.000301899, 0.0000)
+		final CoordinateIF[] expRootPoints = new CoordinateIF[] {
+				new Coordinate(0.0000, -0.000301899, 0.0000),
+				new Coordinate(0.0025, -0.000253617, 0.0000),
+				new Coordinate(0.0050, -0.000209555, 0.0000),
+				new Coordinate(0.0075, -0.000169706, 0.0000),
+				new Coordinate(0.0100, -0.000134064, 0.0000),
+				new Coordinate(0.0125, -0.000102627, 0.0000),
+				new Coordinate(0.0150, -0.000075389, 0.0000),
+				new Coordinate(0.0175, -0.000052348, 0.0000),
+				new Coordinate(0.0200, -0.000033499, 0.0000),
+				new Coordinate(0.0225, -0.000018842, 0.0000),
+				new Coordinate(0.0250, -0.000008374, 0.0000),
+				new Coordinate(0.0275, -0.000002093, 0.0000),
+				new Coordinate(0.0300, 0.0000, 0.0000),
+				new Coordinate(0.0325, -0.000002093, 0.0000),
+				new Coordinate(0.0350, -0.000008374, 0.0000),
+				new Coordinate(0.0375, -0.000018842, 0.0000),
+				new Coordinate(0.0400, -0.000033499, 0.0000),
+				new Coordinate(0.0425, -0.000052348, 0.0000),
+				new Coordinate(0.0450, -0.000075389, 0.0000),
+				new Coordinate(0.0475, -0.000102627, 0.0000),
+				new Coordinate(0.0500, -0.000134064, 0.0000),
+				new Coordinate(0.0525, -0.000169706, 0.0000),
+				new Coordinate(0.0550, -0.000209555, 0.0000),
+				new Coordinate(0.0575, -0.000253617, 0.0000),
+				new Coordinate(0.0600, -0.000301899, 0.0000)
 		};
 
 		assertEquals(expPoints.length, actPoints.length, "Canted fin number of points doesn't match! ");
@@ -192,7 +192,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		assertEquals(0.01, fins.getPlanformArea(), 0.00001, "area calculation doesn't match: ");
 
 		final double expSingleMass = 0.00005;
-		final Coordinate singleCG = fins.getComponentCG();
+		final CoordinateIF singleCG = fins.getComponentCG();
 		assertEquals(expSingleMass, singleCG.getWeight(), EPSILON, "Fin mass is wrong! ");
 		assertEquals(0.05, singleCG.getX(), EPSILON, "Centroid x coordinate is wrong! ");
 		assertEquals(0.15, singleCG.getY(), EPSILON, "Centroid y coordinate is wrong! ");
@@ -207,7 +207,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			// should still return a single-fin-planform area
 			assertEquals(0.01, fins.getPlanformArea(), 0.00001);
 
-			Coordinate doubleCG = fins.getComponentCG();
+			CoordinateIF doubleCG = fins.getComponentCG();
 			final double expDoubleMass = expSingleMass * 2;
 			assertEquals(expDoubleMass, doubleCG.getWeight(),
 					EPSILON, "Fin x2 mass does not change from single fin instance! ");
@@ -232,7 +232,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		final double actVol1 = fins.getComponentVolume();
 		assertEquals(expVol1, actVol1, EPSILON, " fin volume is incorrect");
 
-		Coordinate actCentroid1 = fins.getCG();
+		CoordinateIF actCentroid1 = fins.getCG();
 		assertEquals(0.03000, actCentroid1.getX(), EPSILON, " basic centroid x doesn't match: ");
 		assertEquals(0.11569444, actCentroid1.getY(), EPSILON, " basic centroid y doesn't match: ");
 
@@ -242,7 +242,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			final double actVol2 = fins.getComponentVolume();
 			assertEquals(expVol2, actVol2, EPSILON, " fin volume is incorrect");
 
-			Coordinate actCentroid2 = fins.getCG();
+			CoordinateIF actCentroid2 = fins.getCG();
 			// x coordinate will be the same....
 			assertEquals(0.0, actCentroid2.getY(), EPSILON, " basic centroid y doesn't match: ");
 		}
@@ -267,14 +267,14 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		assertEquals(0.06, fins.getLength(), EPSILON);
 		assertEquals(0.1, body.getOuterRadius(), EPSILON, "Body radius doesn't match: ");
 
-		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
+		final CoordinateIF actVolume = fins.calculateFilletVolumeCentroid();
 
 		assertEquals(5.973e-07, actVolume.getWeight(), EPSILON, "Fin volume doesn't match: ");
 		assertEquals(0.03, actVolume.getX(), EPSILON, "Fin mass center.getX() doesn't match: ");
 		assertEquals(0.101, actVolume.getY(), EPSILON, "Fin mass center.getY() doesn't match: ");
 
 		{ // and then, check that the fillet volume feeds into a correct overall CG:
-			Coordinate actCentroid = fins.getCG();
+			CoordinateIF actCentroid = fins.getCG();
 			assertEquals(0.03000, actCentroid.getX(), EPSILON, "Complete centroid x doesn't match: ");
 			assertEquals(0.11971548, actCentroid.getY(), EPSILON, "Complete centroid y doesn't match: ");
 		}
@@ -300,7 +300,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		assertEquals(0.1, transition.getForeRadius(), EPSILON, "Transition fore radius doesn't match: ");
 		assertEquals(0.3, transition.getAftRadius(), EPSILON, "Transition aft radius doesn't match: ");
 
-		final Coordinate actVolume = fins.calculateFilletVolumeCentroid();
+		final CoordinateIF actVolume = fins.calculateFilletVolumeCentroid();
 
 		assertEquals(5.973e-07, actVolume.getWeight(), EPSILON, "Fin volume doesn't match: ");
 		assertEquals(0.024393025, actVolume.getX(), EPSILON, "Fin mass center.getX() doesn't match: ");
@@ -315,7 +315,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			fins.setFinCount(1);
 			fins.setFinShape(1.0, 1.0, 0.0, 1.0, 0.005);
 
-			Coordinate coords = fins.getCG();
+			CoordinateIF coords = fins.getCG();
 			assertEquals(1.0, fins.getPlanformArea(), 0.001);
 			assertEquals(0.5, coords.getX(), 0.001);
 			assertEquals(0.5, coords.getY(), 0.001);
@@ -331,7 +331,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 			fins.setFinCount(1);
 			fins.setFinShape(1.0, 0.5, 0.0, 1.0, 0.005);
 
-			Coordinate coords = fins.getCG();
+			CoordinateIF coords = fins.getCG();
 			assertEquals(0.75, fins.getPlanformArea(), 0.001);
 			assertEquals(0.3889, coords.getX(), 0.001);
 			assertEquals(0.4444, coords.getY(), 0.001);
@@ -351,7 +351,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		assertEquals(0, mount.getInnerRadius(), 0.00001);
 
 		final TrapezoidFinSet fins = (TrapezoidFinSet) mount.getChild(0);
-		final Coordinate[] mountPoints = fins.getMountPoints();
+		final CoordinateIF[] mountPoints = fins.getMountPoints();
 
 		assertEquals(2, mountPoints.length);
 		assertEquals(0.00, mountPoints[0].getX(), 0.00001);
@@ -374,7 +374,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		assertEquals(0.08, mount.getInnerRadius(), 0.00001);
 
 		final TrapezoidFinSet fins = (TrapezoidFinSet) mount.getChild(0);
-		final Coordinate[] mountPoints = fins.getMountPoints();
+		final CoordinateIF[] mountPoints = fins.getMountPoints();
 
 		assertEquals(2, mountPoints.length);
 		assertEquals(0.0, mountPoints[0].getX(), 0.00001);
@@ -403,7 +403,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		assertEquals(0.06, fins.getRootChord(), 0.00001);
 		assertEquals(0.02, fins.getTipChord(), 0.00001);
 
-		final Coordinate coords = fins.getCG();
+		final CoordinateIF coords = fins.getCG();
 		assertEquals(0.002, fins.getPlanformArea(), 0.001);
 		assertEquals(0.03, coords.getX(), 0.001);
 		assertEquals(0.02, coords.getY(), 0.001);
@@ -420,7 +420,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		BodyTube body = new BodyTube(1.0, 0.05);
 		body.addChild(fins);
 
-		Coordinate[] points = fins.getInstanceOffsets();
+		CoordinateIF[] points = fins.getInstanceOffsets();
 
 		assertEquals(0, points[0].getX(), 0.00001);
 		assertEquals(0, points[0].getY(), 0.00001);
@@ -442,7 +442,7 @@ public class TrapezoidFinSetTest extends BaseTestCase {
 		BodyTube body = new BodyTube(1.0, 0.05);
 		body.addChild(fins);
 
-		Coordinate[] points = fins.getInstanceOffsets();
+		CoordinateIF[] points = fins.getInstanceOffsets();
 
 		assertEquals(0, points[0].getX(), 0.0001);
 		assertEquals(0.03535, points[0].getY(), 0.0001);

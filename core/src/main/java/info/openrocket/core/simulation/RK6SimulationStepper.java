@@ -10,7 +10,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.MutableCoordinate;
 import info.openrocket.core.util.Quaternion;
@@ -79,7 +79,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         SimulationConditions sim = original.getSimulationConditions();
 
-        store.launchRodDirection = new ImmutableCoordinate(
+        store.launchRodDirection = new Coordinate(
                 Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
                 Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
                 Math.cos(sim.getLaunchRodAngle()));
@@ -531,8 +531,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         k7 = computeParameters(status2, store);
 
         //// Sum all together,  y(n+1) = y(n) + dt*(11/120*k1 + 27/40*k3 + 27/40*k4 - 4/15*k5 - 4/15*k6 + 11/120*k7)
-        Coordinate deltaO;
-        Coordinate deltaVCoord = mutableCoordA.clear()
+        CoordinateIF deltaO;
+        CoordinateIF deltaVCoord = mutableCoordA.clear()
                 .addScaled(k1.a, 11.0/120)
                 .addScaled(k3.a, 27.0/40)
                 .addScaled(k4.a, 27.0/40)
@@ -541,7 +541,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .addScaled(k7.a, 11.0/120)
                 .multiply(store.timeStep)
                 .toImmutable();
-        Coordinate deltaPCoord = mutableCoordB.clear()
+        CoordinateIF deltaPCoord = mutableCoordB.clear()
                 .addScaled(k1.v, 11.0/120)
                 .addScaled(k3.v, 27.0/40)
                 .addScaled(k4.v, 27.0/40)
@@ -550,7 +550,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
                 .addScaled(k7.v, 11.0/120)
                 .multiply(store.timeStep)
                 .toImmutable();
-        Coordinate deltaRCoord = mutableCoordC.clear()
+        CoordinateIF deltaRCoord = mutableCoordC.clear()
                 .addScaled(k1.ra, 11.0/120)
                 .addScaled(k3.ra, 27.0/40)
                 .addScaled(k4.ra, 27.0/40)
@@ -735,7 +735,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
             // set angular acceleration to zero.
 
             double projection = linearAcceleration.dot(store.launchRodDirection);
-            Coordinate rodDirection = store.launchRodDirection;
+            CoordinateIF rodDirection = store.launchRodDirection;
             linearAcceleration.set(rodDirection.getX() * projection,
                     rodDirection.getY() * projection,
                     rodDirection.getZ() * projection,
@@ -827,13 +827,13 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
     private static class RK6Parameters {
         /** Linear acceleration */
-        public Coordinate a;
+        public CoordinateIF a;
         /** Linear velocity */
-        public Coordinate v;
+        public CoordinateIF v;
         /** Rotational acceleration */
-        public Coordinate ra;
+        public CoordinateIF ra;
         /** Rotational velocity */
-        public Coordinate rv;
+        public CoordinateIF rv;
 
 
         public String toString() {

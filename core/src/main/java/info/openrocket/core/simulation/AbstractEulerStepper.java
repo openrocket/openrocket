@@ -1,7 +1,8 @@
 package info.openrocket.core.simulation;
 
 import info.openrocket.core.logging.SimulationAbort;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,6 @@ import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.WorldCoordinate;
 
@@ -64,7 +64,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		store.timeStep = RECOVERY_TIME_STEP;
 
 		// adjust based on acceleration
-		Coordinate linearAcceleration = store.accelerationData.getLinearAccelerationWC();
+		CoordinateIF linearAcceleration = store.accelerationData.getLinearAccelerationWC();
 		final double absAccel = linearAcceleration.length();
 		if (absAccel > MathUtil.EPSILON) {
 			store.timeStep = Math.min(store.timeStep, 1.0/absAccel);
@@ -117,14 +117,14 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			// dA/dT = dA/dV * dV/dT
 			final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
 			final AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
-			final Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
+			final CoordinateIF airSpeed = status.getRocketVelocity().add(store.windVelocity);
 			final double dFdV = CdA * atmosphericConditions.getDensity() * airSpeed.length();
-			Coordinate dAdV = ImmutableCoordinate.ZERO;
+			CoordinateIF dAdV = Coordinate.ZERO;
 			if (airSpeed.length() > MathUtil.EPSILON) {
 				dAdV = airSpeed.normalize().multiply(dFdV / store.rocketMass.getMass());
 			}
-			final Coordinate jerk = linearAcceleration.multiply(dAdV);
-			final Coordinate newAcceleration = linearAcceleration.add(jerk.multiply(store.timeStep));
+			final CoordinateIF jerk = linearAcceleration.multiply(dAdV);
+			final CoordinateIF newAcceleration = linearAcceleration.add(jerk.multiply(store.timeStep));
 
 			// If acceleration is appreciably different from 0, and changes sign during the time
 			// step, oscillation is building up.
@@ -190,7 +190,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
 		//// airSpeed
-		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		CoordinateIF airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		
 		// Compute drag force
 		final double mach = airSpeed.length() / atmosphericConditions.getMachSpeed();
@@ -211,7 +211,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			atmosphericConditions.getKinematicViscosity();
 
 		// Compute drag acceleration
-		Coordinate linearAcceleration = ImmutableCoordinate.ZERO;
+		CoordinateIF linearAcceleration = Coordinate.ZERO;
 		if (airSpeed.length() > MathUtil.EPSILON) {
 			linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
 		}
@@ -225,17 +225,17 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 				status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
 
-		store.accelerationData = new AccelerationData(null, null, linearAcceleration, ImmutableCoordinate.NUL, status.getRocketOrientationQuaternion());
+		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
 	}
 
 	private static class EulerValues {
 		/** linear velocity */
-		public Coordinate vel;
+		public CoordinateIF vel;
 		/** position */
-		public Coordinate pos;
+		public CoordinateIF pos;
 	}
 
-	private EulerValues eulerIntegrate (Coordinate pos, Coordinate v, Coordinate a, double timeStep) {
+	private EulerValues eulerIntegrate (CoordinateIF pos, CoordinateIF v, CoordinateIF a, double timeStep) {
 		EulerValues result = new EulerValues();
 
 		result.vel = v.add(a.multiply(timeStep));

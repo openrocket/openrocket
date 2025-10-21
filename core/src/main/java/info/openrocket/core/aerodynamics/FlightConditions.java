@@ -10,7 +10,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Monitorable;
 import info.openrocket.core.util.StateChangeListener;
@@ -67,7 +67,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	/** Current yaw rate. */
 	private double yawRate = 0;
 
-	private Coordinate pitchCenter = ImmutableCoordinate.NUL;
+	private CoordinateIF pitchCenter = Coordinate.NUL;
 
 	private AtmosphericConditions atmosphericConditions = new AtmosphericConditions();
 
@@ -359,14 +359,14 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	/**
 	 * @return the pitchCenter
 	 */
-	public Coordinate getPitchCenter() {
+	public CoordinateIF getPitchCenter() {
 		return pitchCenter;
 	}
 
 	/**
 	 * @param pitchCenter the pitchCenter to set
 	 */
-	public void setPitchCenter(Coordinate pitchCenter) {
+	public void setPitchCenter(CoordinateIF pitchCenter) {
 		if (this.pitchCenter.equals(pitchCenter))
 			return;
 		this.pitchCenter = pitchCenter;

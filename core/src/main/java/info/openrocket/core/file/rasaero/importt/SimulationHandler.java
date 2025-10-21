@@ -19,7 +19,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.simulation.SimulationOptions;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.xml.sax.SAXException;
 
 import java.util.HashMap;
@@ -510,7 +510,7 @@ public class SimulationHandler extends AbstractElementHandler {
         double stageMass = stage.getMass(); // Should be overridden by now, so don't use getSectionMass()
         double motorMass = motor.getLaunchMass();
 
-        Coordinate[] CGPoints = motor.getCGPoints();
+        CoordinateIF[] CGPoints = motor.getCGPoints();
         if (CGPoints != null && CGPoints.length > 1) {
             double motorPositionXRel = mount.getMotorPosition(fcid).getX(); // Motor position relative to the mount
             double mountLocationX = mount.getComponentLocations()[0].getX();

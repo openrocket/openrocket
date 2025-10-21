@@ -1,6 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.Test;
 import info.openrocket.core.util.BaseTestCase;
@@ -20,7 +20,7 @@ public class RailButtonTest extends BaseTestCase {
         bodyTube.addChild(button);
 
         // Test normal CG
-        Coordinate CG = button.getCG();
+        CoordinateIF CG = button.getCG();
         assertEquals(0, CG.getX(), EPSILON, " RailButton CG has the wrong x value: ");
         assertEquals(-0.05, CG.getY(), EPSILON, " RailButton CG has the wrong y value: ");
         assertEquals(0, CG.getZ(), EPSILON, " RailButton CG has the wrong z value: ");
@@ -80,7 +80,7 @@ public class RailButtonTest extends BaseTestCase {
         bodyTube.addChild(button);
 
         // Test normal CG
-        Coordinate CG = button.getCG();
+        CoordinateIF CG = button.getCG();
         assertEquals(0.0123, CG.getX(), EPSILON, " RailButton CG has the wrong x value: ");
         assertEquals(-0.05, CG.getY(), EPSILON, " RailButton CG has the wrong y value: ");
         assertEquals(0, CG.getZ(), EPSILON, " RailButton CG has the wrong z value: ");
@@ -143,7 +143,7 @@ public class RailButtonTest extends BaseTestCase {
         bodyTube.addChild(button);
 
         // Test normal CG
-        Coordinate CG = button.getCG();
+        CoordinateIF CG = button.getCG();
         assertEquals(0.2, CG.getX(), EPSILON, " RailButton CG has the wrong x value: ");
         assertEquals(-0.05, CG.getY(), EPSILON, " RailButton CG has the wrong y value: ");
         assertEquals(0, CG.getZ(), EPSILON, " RailButton CG has the wrong z value: ");
@@ -207,7 +207,7 @@ public class RailButtonTest extends BaseTestCase {
         bodyTube.addChild(button);
 
         // Test normal CG
-        Coordinate CG = button.getCG();
+        CoordinateIF CG = button.getCG();
         assertEquals(0.0123, CG.getX(), EPSILON, " RailButton CG has the wrong x value: ");
         assertEquals(-0.05, CG.getY(), EPSILON, " RailButton CG has the wrong y value: ");
         assertEquals(0, CG.getZ(), EPSILON, " RailButton CG has the wrong z value: ");

@@ -2,10 +2,10 @@ package info.openrocket.core.rocketcomponent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
@@ -24,8 +24,8 @@ public class LaunchLugTest extends BaseTestCase {
 
 		double expX = 0.111 + body.getComponentLocations()[0].getX();
 		double expR = -(body.getOuterRadius() + lug.getOuterRadius());
-		Coordinate expPos = new ImmutableCoordinate(expX, expR, 0, 0);
-		Coordinate[] actPos = lug.getComponentLocations();
+		CoordinateIF expPos = new Coordinate(expX, expR, 0, 0);
+		CoordinateIF[] actPos = lug.getComponentLocations();
 		assertEquals(expPos.getX(), actPos[0].getX(), EPSILON, " LaunchLug has the wrong x value: ");
 		assertEquals(expPos.getY(), actPos[0].getY(), EPSILON, " LaunchLug has the wrong y value: ");
 		assertEquals(expPos.getZ(), actPos[0].getZ(), EPSILON, " LaunchLug has the wrong z value: ");
@@ -51,8 +51,8 @@ public class LaunchLugTest extends BaseTestCase {
 		double expR = 0.015;
 		double expY = Math.cos(startAngle) * expR;
 		double expZ = Math.sin(startAngle) * expR;
-		Coordinate expPos = new ImmutableCoordinate(expX, expY, expZ, 0);
-		Coordinate[] actPos = lug.getComponentLocations();
+		CoordinateIF expPos = new Coordinate(expX, expY, expZ, 0);
+		CoordinateIF[] actPos = lug.getComponentLocations();
 		assertEquals(expPos.getX(), actPos[0].getX(), EPSILON, " LaunchLug has the wrong x value: ");
 		assertEquals(expPos.getY(), actPos[0].getY(), EPSILON, " LaunchLug has the wrong y value: ");
 		assertEquals(expPos.getZ(), actPos[0].getZ(), EPSILON, " LaunchLug has the wrong z value: ");
@@ -75,7 +75,7 @@ public class LaunchLugTest extends BaseTestCase {
 		bodyTube.addChild(lug);
 
 		// Test normal CG
-		Coordinate CG = lug.getCG();
+		CoordinateIF CG = lug.getCG();
 		assertEquals(0.05, CG.getX(), EPSILON, " LaunchLug CG has the wrong x value: ");
 		assertEquals(-0.045, CG.getY(), EPSILON, " LaunchLug CG has the wrong y value: ");
 		assertEquals(0, CG.getZ(), EPSILON, " LaunchLug CG has the wrong z value: ");
@@ -135,7 +135,7 @@ public class LaunchLugTest extends BaseTestCase {
 		bodyTube.addChild(lug);
 
 		// Test normal CG
-		Coordinate CG = lug.getCG();
+		CoordinateIF CG = lug.getCG();
 		assertEquals(0.0123, CG.getX(), EPSILON, " LaunchLug CG has the wrong x value: ");
 		assertEquals(-0.045, CG.getY(), EPSILON, " LaunchLug CG has the wrong y value: ");
 		assertEquals(0, CG.getZ(), EPSILON, " LaunchLug CG has the wrong z value: ");
@@ -198,7 +198,7 @@ public class LaunchLugTest extends BaseTestCase {
 		bodyTube.addChild(lug);
 
 		// Test normal CG
-		Coordinate CG = lug.getCG();
+		CoordinateIF CG = lug.getCG();
 		assertEquals(0.25, CG.getX(), EPSILON, " LaunchLug CG has the wrong x value: ");
 		assertEquals(-0.045, CG.getY(), EPSILON, " LaunchLug CG has the wrong y value: ");
 		assertEquals(0, CG.getZ(), EPSILON, " LaunchLug CG has the wrong z value: ");
@@ -262,7 +262,7 @@ public class LaunchLugTest extends BaseTestCase {
 		bodyTube.addChild(lug);
 
 		// Test normal CG
-		Coordinate CG = lug.getCG();
+		CoordinateIF CG = lug.getCG();
 		assertEquals(0.0123, CG.getX(), EPSILON, " LaunchLug CG has the wrong x value: ");
 		assertEquals(-0.045, CG.getY(), EPSILON, " LaunchLug CG has the wrong y value: ");
 		assertEquals(0, CG.getZ(), EPSILON, " LaunchLug CG has the wrong z value: ");

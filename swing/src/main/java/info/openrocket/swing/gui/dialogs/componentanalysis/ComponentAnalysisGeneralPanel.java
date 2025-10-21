@@ -17,8 +17,8 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.adaptors.Column;
@@ -889,7 +889,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		public String name;
 		public Object source;
 		public double eachMass;
-		public Coordinate cm;
+		public CoordinateIF cm;
 		public double cpx;
 		public double cna;
 
@@ -897,7 +897,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 			name = _name;
 			source = _source;
 			eachMass = Double.NaN;
-			cm = ImmutableCoordinate.NaN;
+			cm = Coordinate.NaN;
 			cpx = Double.NaN;
 			cna = Double.NaN;
 		}

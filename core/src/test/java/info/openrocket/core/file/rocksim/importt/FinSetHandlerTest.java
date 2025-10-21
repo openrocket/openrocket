@@ -12,7 +12,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,6 @@ import info.openrocket.core.rocketcomponent.EllipticalFinSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -151,19 +151,19 @@ public class FinSetHandlerTest {
         WarningSet warnings = new WarningSet();
         // Null finlist
         String finlist = null;
-        Coordinate[] result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        CoordinateIF[] result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(0, result.length);
 
         // Empty string finlist
         finlist = "";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(0, result.length);
 
         // Invalid finlist (only x coordinate)
         finlist = "10.0";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(0, result.length);
         assertEquals(1, warnings.size());
@@ -171,7 +171,7 @@ public class FinSetHandlerTest {
 
         // Invalid finlist (non-numeric character)
         finlist = "10.0,asdf";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(0, result.length);
         assertEquals(1, warnings.size());
@@ -179,7 +179,7 @@ public class FinSetHandlerTest {
 
         // Invalid finlist (all delimiters)
         finlist = "||||||";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(0, result.length);
         assertEquals(0, warnings.size());
@@ -189,7 +189,7 @@ public class FinSetHandlerTest {
         // may not be, but that's outside
         // the scope of this test case
         finlist = "10.0,5.0";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(1, result.length);
         assertEquals(0, warnings.size());
@@ -199,7 +199,7 @@ public class FinSetHandlerTest {
         // may not be, but that's outside
         // the scope of this test case
         finlist = "10.0,5.0|3.3,4.4";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(2, result.length);
         assertEquals(0, warnings.size());
@@ -207,30 +207,30 @@ public class FinSetHandlerTest {
 
         // Normal four point finlist.
         finlist = "518.16,0|517.494,37.2145|1.31261,6.77283|0,0|";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(4, result.length);
-        assertEquals(new ImmutableCoordinate(0, 0), result[0]);
+        assertEquals(new Coordinate(0, 0), result[0]);
         assertEquals(0, warnings.size());
         warnings.clear();
 
         // Normal four point finlist with spaces.
         finlist = "518.16 , 0 | 517.494 , 37.2145 | 1.31261,6.77283|0,0|";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(4, result.length);
-        assertEquals(new ImmutableCoordinate(0, 0), result[0]);
-        assertEquals(new ImmutableCoordinate(0.51816, 0), result[3]);
+        assertEquals(new Coordinate(0, 0), result[0]);
+        assertEquals(new Coordinate(0.51816, 0), result[3]);
         assertEquals(0, warnings.size());
         warnings.clear();
 
         // Reversed Normal four point finlist.
         finlist = "0,0|1.31261,6.77283|517.494,37.2145|518.16,0|";
-        result = (Coordinate[]) method.invoke(holder, finlist, warnings);
+        result = (CoordinateIF[]) method.invoke(holder, finlist, warnings);
         assertNotNull(result);
 		assertEquals(4, result.length);
-        assertEquals(new ImmutableCoordinate(0, 0), result[0]);
-        assertEquals(new ImmutableCoordinate(0.51816, 0), result[3]);
+        assertEquals(new Coordinate(0, 0), result[0]);
+        assertEquals(new Coordinate(0.51816, 0), result[3]);
         assertEquals(0, warnings.size());
         warnings.clear();
 

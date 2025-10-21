@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -25,7 +26,6 @@ import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.MotorDigest.DataType;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.motor.ThrustCurveMotor.Builder;
-import info.openrocket.core.util.Coordinate;
 
 public class RockSimMotorLoader extends AbstractMotorLoader {
 
@@ -342,9 +342,9 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 
 			double[] timeArray = toArray(time);
 			double[] thrustArray = toArray(force);
-			Coordinate[] cgArray = new Coordinate[n];
+			CoordinateIF[] cgArray = new CoordinateIF[n];
 			for (int i = 0; i < n; i++) {
-				cgArray[i] = new ImmutableCoordinate(cg.get(i), 0, 0, mass.get(i));
+				cgArray[i] = new Coordinate(cg.get(i), 0, 0, mass.get(i));
 			}
 
 			// Create the motor digest from all data available in the file

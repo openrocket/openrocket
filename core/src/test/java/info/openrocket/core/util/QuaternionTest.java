@@ -20,9 +20,9 @@ public class QuaternionTest {
 		assertEquals(0.594872, q.getZ(), 0.00001);
 		assertEquals(1.0, q.norm(), 0.01);
 
-		Coordinate c = new ImmutableCoordinate(148578428.914, 8126778.954, -607.741);
+		CoordinateIF c = new Coordinate(148578428.914, 8126778.954, -607.741);
 
-		Coordinate r = q.rotate(c);
+		CoordinateIF r = q.rotate(c);
 
 		// System.out.println("Rotated: " + q.rotate(c));
 
@@ -30,8 +30,8 @@ public class QuaternionTest {
 		assertEquals(-48162747.551, r.getY(), 0.001);
 		assertEquals(134281904.197, r.getZ(), 0.001);
 
-		c = new ImmutableCoordinate(0, 1, 0);
-		Coordinate rot = new ImmutableCoordinate(Math.PI / 4, 0, 0);
+		c = new Coordinate(0, 1, 0);
+		CoordinateIF rot = new Coordinate(Math.PI / 4, 0, 0);
 
 		// System.out.println("Before: "+c);
 		c = Quaternion.rotation(rot).invRotate(c);

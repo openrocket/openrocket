@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.rocketcomponent.position.AxialPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -152,11 +152,11 @@ public class InnerTube extends ThicknessRingComponent
 	public BoundingBox getInstanceBoundingBox(){
 		BoundingBox instanceBounds = new BoundingBox();
 		
-		instanceBounds.update(new ImmutableCoordinate(this.getLength(), 0,0));
+		instanceBounds.update(new Coordinate(this.getLength(), 0,0));
 		
 		final double r = getOuterRadius();
-		instanceBounds.update(new ImmutableCoordinate(0,r,r));
-		instanceBounds.update(new ImmutableCoordinate(0,-r,-r));
+		instanceBounds.update(new Coordinate(0,r,r));
+		instanceBounds.update(new Coordinate(0,-r,-r));
 		
 		return instanceBounds;
 	}
@@ -261,22 +261,22 @@ public class InnerTube extends ThicknessRingComponent
 		return 2 * getOuterRadius() * clusterScale;
 	}
 	
-	public List<Coordinate> getClusterPoints() {
-		List<Coordinate> list = new ArrayList<>(getInstanceCount());
+	public List<CoordinateIF> getClusterPoints() {
+		List<CoordinateIF> list = new ArrayList<>(getInstanceCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
 		double yOffset = this.radialPosition * Math.cos(this.radialDirection);
 		double zOffset = this.radialPosition * Math.sin(this.radialDirection);
 		for (int i = 0; i < points.size() / 2; i++) {
-			list.add(new ImmutableCoordinate(0, points.get(2 * i) * separation + yOffset, points.get(2 * i + 1) * separation + zOffset));
+			list.add(new Coordinate(0, points.get(2 * i) * separation + yOffset, points.get(2 * i + 1) * separation + zOffset));
 		}
 		return list;
 	}
 	
 	@Override
-	public Coordinate[] getInstanceOffsets(){
-		List<Coordinate> points = getClusterPoints();
-		return points.toArray(new Coordinate[0]);
+	public CoordinateIF[] getInstanceOffsets(){
+		List<CoordinateIF> points = getClusterPoints();
+		return points.toArray(new CoordinateIF[0]);
 	}
 	
 //	@Override
@@ -424,13 +424,13 @@ public class InnerTube extends ThicknessRingComponent
 	}
 	
 	@Override
-	public Coordinate getMotorPosition(FlightConfigurationId id) {
+	public CoordinateIF getMotorPosition(FlightConfigurationId id) {
 		Motor motor = motors.get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
 		
-		return new ImmutableCoordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
+		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 	
 	@Override
@@ -460,7 +460,7 @@ public class InnerTube extends ThicknessRingComponent
 	 * @return an instance of an inner tube that represents ONE of the clustered tubes in the cluster represented
 	 *  by <code>theInnerTube</code>
 	 */
-	public static InnerTube makeIndividualClusterComponent(Coordinate coord, String splitName, RocketComponent theInnerTube) {
+	public static InnerTube makeIndividualClusterComponent(CoordinateIF coord, String splitName, RocketComponent theInnerTube) {
 		InnerTube copy = (InnerTube) theInnerTube.copy();
 		copy.clearConfigListeners();
 		copy.setClusterConfiguration(ClusterConfiguration.SINGLE);

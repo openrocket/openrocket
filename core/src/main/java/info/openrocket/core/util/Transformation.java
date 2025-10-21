@@ -33,14 +33,14 @@ public class Transformation implements java.io.Serializable {
 	private static final int Y = 1;
 	private static final int Z = 2;
 
-	private final Coordinate translate;
+	private final CoordinateIF translate;
 	private final double[][] rotation = new double[3][3];
 
 	static public Transformation getTranslationTransform(double x, double y, double z) {
-		return new Transformation(new ImmutableCoordinate(x, y, z));
+		return new Transformation(new Coordinate(x, y, z));
 	}
 
-	static public Transformation getTranslationTransform(final Coordinate translate) {
+	static public Transformation getTranslationTransform(final CoordinateIF translate) {
 		return new Transformation(translate);
 	}
 
@@ -51,7 +51,7 @@ public class Transformation implements java.io.Serializable {
 	 *                 0 deg around the y-axis,and 180 deg around the z-axis.
 	 * @return The transformation.
 	 */
-	static public Transformation getRotationTransform(final Coordinate rotation) {
+	static public Transformation getRotationTransform(final CoordinateIF rotation) {
 		Transformation transformation = new Transformation();
 
 		// Apply rotations in X-Y-Z order
@@ -77,7 +77,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param origin The point to rotate around
 	 * @return A transformation that rotates around the specified origin
 	 */
-	static public Transformation getRotationTransform(final Coordinate rotation, final Coordinate origin) {
+	static public Transformation getRotationTransform(final CoordinateIF rotation, final CoordinateIF origin) {
 		// 1. Translate to origin point
 		Transformation translateToOrigin = getTranslationTransform(-origin.getX(), -origin.getY(), -origin.getZ());
 
@@ -97,7 +97,7 @@ public class Transformation implements java.io.Serializable {
 	 * Create identity transformation.
 	 */
 	private Transformation() {
-		translate = new ImmutableCoordinate(0, 0, 0);
+		translate = new Coordinate(0, 0, 0);
 		rotation[X][X] = 1;
 		rotation[Y][Y] = 1;
 		rotation[Z][Z] = 1;
@@ -111,7 +111,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param z Translation in z-axis.
 	 */
 	public Transformation(double x, double y, double z) {
-		translate = new ImmutableCoordinate(x, y, z);
+		translate = new Coordinate(x, y, z);
 		rotation[X][X] = 1;
 		rotation[Y][Y] = 1;
 		rotation[Z][Z] = 1;
@@ -122,7 +122,7 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @param translation The translation term.
 	 */
-	public Transformation(Coordinate translation) {
+	public Transformation(CoordinateIF translation) {
 		this.translate = translation;
 		rotation[X][X] = 1;
 		rotation[Y][Y] = 1;
@@ -135,7 +135,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param rotation
 	 * @param translation
 	 */
-	public Transformation(double[][] rotation, Coordinate translation) {
+	public Transformation(double[][] rotation, CoordinateIF translation) {
 		for (int i = 0; i < 3; i++)
 			System.arraycopy(rotation[i], 0, this.rotation[i], 0, 3);
 		this.translate = translation;
@@ -149,7 +149,7 @@ public class Transformation implements java.io.Serializable {
 	public Transformation(double[][] rotation) {
 		for (int i = 0; i < 3; i++)
 			System.arraycopy(rotation[i], 0, this.rotation[i], 0, 3);
-		this.translate = ImmutableCoordinate.NUL;
+		this.translate = Coordinate.NUL;
 	}
 
 	/**
@@ -158,14 +158,14 @@ public class Transformation implements java.io.Serializable {
 	 * @param orig the coordinate to transform.
 	 * @return the result.
 	 */
-	public Coordinate transform(Coordinate orig) {
+	public CoordinateIF transform(CoordinateIF orig) {
 		final double x, y, z;
 
 		x = rotation[X][X] * orig.getX() + rotation[X][Y] * orig.getY() + rotation[X][Z] * orig.getZ() + translate.getX();
 		y = rotation[Y][X] * orig.getX() + rotation[Y][Y] * orig.getY() + rotation[Y][Z] * orig.getZ() + translate.getY();
 		z = rotation[Z][X] * orig.getX() + rotation[Z][Y] * orig.getY() + rotation[Z][Z] * orig.getZ() + translate.getZ();
 
-		return new ImmutableCoordinate(x, y, z, orig.getWeight());
+		return new Coordinate(x, y, z, orig.getWeight());
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param orig the coordinates to transform.
 	 * @return <code>orig</code>, with the coordinates transformed.
 	 */
-	public Coordinate[] transform(Coordinate[] orig) {
+	public CoordinateIF[] transform(CoordinateIF[] orig) {
 		for (int i = 0; i < orig.length; i++) {
 			orig[i] = transform(orig[i]);
 		}
@@ -191,9 +191,9 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @param set Collection of coordinates to transform.
 	 */
-	public void transform(Collection<Coordinate> set) {
-		ArrayList<Coordinate> temp = new ArrayList<>(set.size());
-		Iterator<Coordinate> iter = set.iterator();
+	public void transform(Collection<CoordinateIF> set) {
+		ArrayList<CoordinateIF> temp = new ArrayList<>(set.size());
+		Iterator<CoordinateIF> iter = set.iterator();
 		while (iter.hasNext())
 			temp.add(this.transform(iter.next()));
 		set.clear();
@@ -205,14 +205,14 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @param orig Coordinate to transform.
 	 */
-	public Coordinate linearTransform(Coordinate orig) {
+	public CoordinateIF linearTransform(CoordinateIF orig) {
 		final double x, y, z;
 
 		x = rotation[X][X] * orig.getX() + rotation[X][Y] * orig.getY() + rotation[X][Z] * orig.getZ();
 		y = rotation[Y][X] * orig.getX() + rotation[Y][Y] * orig.getY() + rotation[Y][Z] * orig.getZ();
 		z = rotation[Z][X] * orig.getX() + rotation[Z][Y] * orig.getY() + rotation[Z][Z] * orig.getZ();
 
-		return new ImmutableCoordinate(x, y, z, orig.getWeight());
+		return new Coordinate(x, y, z, orig.getWeight());
 	}
 
 	/**
@@ -362,7 +362,7 @@ public class Transformation implements java.io.Serializable {
 						(Math.cos(beta))
 				}
 		},
-				ImmutableCoordinate.ZERO);
+				Coordinate.ZERO);
 	}
 
 	@Override
@@ -419,7 +419,7 @@ public class Transformation implements java.io.Serializable {
 		return DoubleBuffer.wrap(data);
 	}
 
-	public Coordinate getTranslationVector() {
+	public CoordinateIF getTranslationVector() {
 		return this.translate;
 	}
 

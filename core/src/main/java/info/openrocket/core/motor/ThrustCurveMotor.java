@@ -7,11 +7,11 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Inertia;
 import info.openrocket.core.util.MathUtil;
 
@@ -46,7 +46,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private double length;
 	private double[] time = {};
 	private double[] thrust = {};
-	private Coordinate[] cg = {};
+	private CoordinateIF[] cg = {};
 
 	private String caseInfo = "";
 	private String propellantInfo = "";
@@ -70,7 +70,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			return this;
 		}
 
-		public Builder setCGPoints(Coordinate[] cg) {
+		public Builder setCGPoints(CoordinateIF[] cg) {
 			motor.cg = cg;
 			return this;
 		}
@@ -217,7 +217,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 					throw new IllegalArgumentException("Invalid thrust " + t);
 				}
 			}
-			for (Coordinate c : motor.cg) {
+			for (CoordinateIF c : motor.cg) {
 				if (c.isNaN()) {
 					throw new IllegalArgumentException("Invalid CG " + c);
 				}
@@ -398,7 +398,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	// return cgx;
 	// }
 
-	public Coordinate[] getCGPoints() {
+	public CoordinateIF[] getCGPoints() {
 		return cg;
 	}
 
@@ -574,7 +574,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return totalMass - this.getBurnoutMass();
 	}
 
-	protected Coordinate interpolateCenterOfMassAtIndex(final double pseudoIndex) {
+	protected CoordinateIF interpolateCenterOfMassAtIndex(final double pseudoIndex) {
 		final double SNAP_TOLERANCE = 0.0001;
 
 		final double upperFrac = pseudoIndex % 1;
@@ -590,8 +590,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		}
 
 		// return simple linear interpolation
-		final Coordinate lowerValue = cg[lowerIndex].multiply(lowerFrac);
-		final Coordinate upperValue = cg[upperIndex].multiply(upperFrac);
+		final CoordinateIF lowerValue = cg[lowerIndex].multiply(lowerFrac);
+		final CoordinateIF upperValue = cg[upperIndex].multiply(upperFrac);
 
 		return lowerValue.add(upperValue);
 	}

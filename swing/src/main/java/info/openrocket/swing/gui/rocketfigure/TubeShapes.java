@@ -6,8 +6,8 @@ import java.awt.geom.Rectangle2D;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Tube;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.Transformation;
 
 
@@ -23,7 +23,7 @@ public class TubeShapes extends RocketComponentShapes {
 	
 	public static Shape getShapesSide( final Transformation transformation, final double length, final double radius, final double scaleFactor ){
 	    
-		final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+		final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
 		
 	    return new Rectangle2D.Double((instanceAbsoluteLocation.getX()) * scaleFactor,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
 			(instanceAbsoluteLocation.getY()-radius) * scaleFactor, // y - the Y coordinate of the upper-left corner of the newly constructed Rectangle2D
@@ -33,7 +33,7 @@ public class TubeShapes extends RocketComponentShapes {
 	
 	public static Shape getShapesBack( final Transformation transformation, final double radius ) {
 		
-		final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+		final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
 		
 		return new Ellipse2D.Double((instanceAbsoluteLocation.getZ()-radius), (instanceAbsoluteLocation.getY()-radius), 2*radius, 2*radius);
 	}

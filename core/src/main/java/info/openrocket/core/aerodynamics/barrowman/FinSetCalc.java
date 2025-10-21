@@ -13,7 +13,7 @@ import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.LinearInterpolator;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.PolyInterpolator;
@@ -89,7 +89,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		if (finArea < MathUtil.EPSILON || macSpan < MathUtil.EPSILON) {
 			forces.setCm(0);
 			forces.setCN(0);
-			forces.setCP(ImmutableCoordinate.ZERO);
+			forces.setCP(Coordinate.ZERO);
 			forces.setCroll(0);
 			forces.setCrollDamp(0);
 			forces.setCrollForce(0);
@@ -180,7 +180,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 		
 		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
-		forces.setCP(new ImmutableCoordinate(x, 0, 0, cna));
+		forces.setCP(new Coordinate(x, 0, 0, cna));
 		forces.setCm(forces.getCN() * x / conditions.getRefLength());
 		
 		/*
@@ -232,7 +232,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		// Check geometry; don't consider points along fin root for this
 		// (doing so will cause spurious jagged fin warnings)
-		Coordinate[] points = component.getFinPoints();
+		CoordinateIF[] points = component.getFinPoints();
 		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
@@ -673,8 +673,8 @@ public class FinSetCalc extends RocketComponentCalc {
 			throw new IllegalStateException("fin set without parent component");
 		}
 		
-		double lead = component.toRelative(ImmutableCoordinate.NUL, parent)[0].getX();
-		double trail = component.toRelative(new ImmutableCoordinate(component.getLength()),
+		double lead = component.toRelative(Coordinate.NUL, parent)[0].getX();
+		double trail = component.toRelative(new Coordinate(component.getLength()),
 				parent)[0].getX();
 		
 		/*
@@ -687,8 +687,8 @@ public class FinSetCalc extends RocketComponentCalc {
 			interferenceFinCount = 0;
 			for (RocketComponent c : parent.getChildren()) {
 				if (c instanceof FinSet) {
-					double finLead = c.toRelative(ImmutableCoordinate.NUL, parent)[0].getX();
-					double finTrail = c.toRelative(new ImmutableCoordinate(c.getLength()), parent)[0].getX();
+					double finLead = c.toRelative(Coordinate.NUL, parent)[0].getX();
+					double finTrail = c.toRelative(new Coordinate(c.getLength()), parent)[0].getX();
 					
 					// Compute overlap of the fins
 					

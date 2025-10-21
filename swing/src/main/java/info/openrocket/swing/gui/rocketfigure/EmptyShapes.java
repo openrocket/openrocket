@@ -1,7 +1,7 @@
 package info.openrocket.swing.gui.rocketfigure;
 
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Transformation;
 
 import java.awt.Shape;
@@ -20,7 +20,7 @@ public class EmptyShapes extends RocketComponentShapes {
      * @param radius radius of the center square
      */
     public static Shape[] getShapesSide(final Transformation transformation, final double radius) {
-        final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+        final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         double x = instanceAbsoluteLocation.getX();
         double y = instanceAbsoluteLocation.getY();
 
@@ -47,7 +47,7 @@ public class EmptyShapes extends RocketComponentShapes {
      * @param radius radius of the center square
      */
     public static Shape[] getShapesSideWithSelectionSquare(final Transformation transformation, final double radius) {
-        final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+        final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         double x = instanceAbsoluteLocation.getX();
         double y = instanceAbsoluteLocation.getY();
 
@@ -71,7 +71,7 @@ public class EmptyShapes extends RocketComponentShapes {
      * @param radius radius of the center square
      */
     public static Shape[] getShapesBack(final Transformation transformation, final double radius) {
-        final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+        final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         double z = instanceAbsoluteLocation.getZ();
         double y = instanceAbsoluteLocation.getY();
 
@@ -98,7 +98,7 @@ public class EmptyShapes extends RocketComponentShapes {
      * @param radius radius of the center square
      */
     public static Shape[] getShapesBackWithSelectionSquare(final Transformation transformation, final double radius) {
-        final Coordinate instanceAbsoluteLocation = transformation.transform(ImmutableCoordinate.ZERO);
+        final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         double z = instanceAbsoluteLocation.getZ();
         double y = instanceAbsoluteLocation.getY();
 

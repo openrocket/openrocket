@@ -15,7 +15,6 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceMap;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

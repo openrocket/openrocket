@@ -1,6 +1,6 @@
 package info.openrocket.core.models.wind;
 
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -128,7 +128,7 @@ class PinkNoiseWindModelTest {
 		// Sample wind velocities over time
 		double[] speeds = new double[SAMPLE_SIZE];
 		for (int i = 0; i < SAMPLE_SIZE; i++) {
-			Coordinate velocity = model.getWindVelocity(i * DELTA_T, 0);
+			CoordinateIF velocity = model.getWindVelocity(i * DELTA_T, 0);
 			speeds[i] = velocity.length();
 		}
 
@@ -137,8 +137,8 @@ class PinkNoiseWindModelTest {
 		assertEquals(10.0, avgSpeed, 0.5); // Allow some deviation due to randomness
 
 		// Verify that reset works properly
-		Coordinate v1 = model.getWindVelocity(1.0, 0);
-		Coordinate v2 = model.getWindVelocity(0.5, 0);
+		CoordinateIF v1 = model.getWindVelocity(1.0, 0);
+		CoordinateIF v2 = model.getWindVelocity(0.5, 0);
 		assertNotEquals(v1, v2);
 	}
 

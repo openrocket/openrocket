@@ -42,7 +42,7 @@ import info.openrocket.core.simulation.extension.impl.ScriptingExtension;
 import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.TestRockets;
 
 import org.junit.jupiter.api.AfterEach;
@@ -428,7 +428,7 @@ public class OpenRocketSaverTest {
 					.setLength(0.07)
 					.setTimePoints(new double[] { 0, 1, 2 })
 					.setThrustPoints(new double[] { 0, 1, 0 })
-					.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
+					.setCGPoints(new CoordinateIF[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
 					.setDigest("digestA")
 					.build());
 

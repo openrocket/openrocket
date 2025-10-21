@@ -10,7 +10,7 @@ import java.util.List;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 import org.slf4j.Logger;
@@ -135,7 +135,7 @@ public abstract class FinSet extends ExternalComponent
 	// planform area of one side of a single fin 
 	private double singlePlanformArea = Double.NaN;
 	private double totalVolume = Double.NaN;
-	private Coordinate centerOfMass = ImmutableCoordinate.NaN;
+	private CoordinateIF centerOfMass = Coordinate.NaN;
 
 	private InsideColorComponentHandler insideColorComponentHandler = new InsideColorComponentHandler(this);
 	
@@ -476,7 +476,7 @@ public abstract class FinSet extends ExternalComponent
 	 */
 	public Double getParentFrontRadius(RocketComponent parent) {
 		if (parent instanceof SymmetricComponent) {
-			final Coordinate finFront = this.getFinFront();
+			final CoordinateIF finFront = this.getFinFront();
 
 			// pulls the parent-body radius at the fin-tab reference point.
 			final double xLead = this.getTabFrontEdge();
@@ -500,7 +500,7 @@ public abstract class FinSet extends ExternalComponent
 	 */
 	public Double getParentTrailingRadius(RocketComponent parent) {
 		if (parent instanceof SymmetricComponent) {
-			final Coordinate finFront = this.getFinFront();
+			final CoordinateIF finFront = this.getFinFront();
 
 			// pulls the parent-body radius at the fin-tab reference point.
 			final double xTrail = this.getTabTrailingEdge();
@@ -557,7 +557,7 @@ public abstract class FinSet extends ExternalComponent
 	 * @return  the Center-of-Mass coordinate of a single fin. 
 	 */	
 	@Override
-	public Coordinate getComponentCG() {
+	public CoordinateIF getComponentCG() {
 		if( centerOfMass.isNaN() ){
 			calculateCM();
 		}
@@ -565,7 +565,7 @@ public abstract class FinSet extends ExternalComponent
 		return centerOfMass;
 	}
 
-	private static Coordinate calculateFilletCrossSection(final double filletRadius, final double bodyRadius) {
+	private static CoordinateIF calculateFilletCrossSection(final double filletRadius, final double bodyRadius) {
 		final double hypotenuse = filletRadius + bodyRadius;
 		final double innerArcAngle = Math.asin(filletRadius / hypotenuse);
 		final double outerArcAngle = Math.acos(filletRadius / hypotenuse);
@@ -585,7 +585,7 @@ public abstract class FinSet extends ExternalComponent
 		// heuristic, relTo the body center
 		double yCentroid = bodyRadius + filletRadius / 5;
 
-		return new ImmutableCoordinate(0, yCentroid, 0, crossSectionArea);
+		return new Coordinate(0, yCentroid, 0, crossSectionArea);
 	}
 
 	/*
@@ -601,42 +601,42 @@ public abstract class FinSet extends ExternalComponent
 	 * 4. Multiply the remaining area by the length.
 	 * 5. Return twice that since there is a fillet on each side of the fin.
 	 */
-	protected Coordinate calculateFilletVolumeCentroid() {
+	protected CoordinateIF calculateFilletVolumeCentroid() {
 		if ((this.filletRadius == 0) || (this.parent == null) ||
 				(!SymmetricComponent.class.isAssignableFrom(this.parent.getClass()))) {
-			return ImmutableCoordinate.ZERO;
+			return Coordinate.ZERO;
 		}
-		Coordinate[] mountPoints = this.getRootPoints();
+		CoordinateIF[] mountPoints = this.getRootPoints();
 //		if( null == mountPoints ){
 //			return ImmutableCoordinate.ZERO;
 //		}
 
 		final SymmetricComponent sym = (SymmetricComponent) this.parent;
 
-		final Coordinate finLead = getFinFront();
+		final CoordinateIF finLead = getFinFront();
 		final double xFinEnd = finLead.getX() + getLength();
-		final Coordinate[] rootPoints = getMountPoints( finLead.getX(), xFinEnd, -finLead.getX(), -finLead.getY());
+		final CoordinateIF[] rootPoints = getMountPoints( finLead.getX(), xFinEnd, -finLead.getX(), -finLead.getY());
 		if (rootPoints.length == 0) {
-			return ImmutableCoordinate.ZERO;
+			return Coordinate.ZERO;
 		}
 		
-		Coordinate filletVolumeCentroid = ImmutableCoordinate.ZERO;
+		CoordinateIF filletVolumeCentroid = Coordinate.ZERO;
 
-		Coordinate prev = mountPoints[0];
+		CoordinateIF prev = mountPoints[0];
 		for (int index = 1; index < mountPoints.length; index++) {
-			final Coordinate cur = mountPoints[index];
+			final CoordinateIF cur = mountPoints[index];
 
 			// cross section at mid-segment
 			final double xAvg = (prev.getX() + cur.getX()) / 2;
 			final double bodyRadius = sym.getRadius(xAvg);
-			final Coordinate segmentCrossSection = calculateFilletCrossSection(this.filletRadius, bodyRadius).setX(xAvg);
+			final CoordinateIF segmentCrossSection = calculateFilletCrossSection(this.filletRadius, bodyRadius).setX(xAvg);
 			
 //			final double xCentroid = xAvg;
 //			final double yCentroid = segmentCrossSection.getY(); ///< heuristic, not exact
 			final double segmentLength = Point2D.Double.distance(prev.getX(), prev.getY(), cur.getX(), cur.getY());
 			final double segmentVolume = segmentLength * segmentCrossSection.getWeight();
 
-			final Coordinate segmentCentroid = segmentCrossSection.setWeight(segmentVolume);
+			final CoordinateIF segmentCentroid = segmentCrossSection.setWeight(segmentVolume);
 
 			filletVolumeCentroid = filletVolumeCentroid.average(segmentCentroid);
 
@@ -657,16 +657,16 @@ public abstract class FinSet extends ExternalComponent
 	 * @param points define a piece-wise line bounding the area.    
 	 * @return  x,y,z => centroid of the area; weight => magnitude of the area
 	 */
-	protected static Coordinate calculateCurveIntegral( final Coordinate[] points ){
-		Coordinate centroidSum = new ImmutableCoordinate(0);
+	protected static CoordinateIF calculateCurveIntegral(final CoordinateIF[] points ){
+		CoordinateIF centroidSum = new Coordinate(0);
 
 		if( 0 == points.length ){
 			return centroidSum;
 		}
 
-		Coordinate prev= points[0];
+		CoordinateIF prev= points[0];
 		for( int index = 1; index < points.length; index++){
-			Coordinate cur = points[index];
+			CoordinateIF cur = points[index];
 
 			// calculate marginal area
 			final double delta_x = (cur.getX() - prev.getX());
@@ -683,7 +683,7 @@ public abstract class FinSet extends ExternalComponent
 			final double x_ctr = common*(  prev.getX()*(2*prev.getY()+cur.getY()) + cur.getX()*(2*cur.getY()+prev.getY()));
 			final double y_ctr = common*( cur.getY()*prev.getY() + Math.pow( cur.getY(), 2) + Math.pow( prev.getY(), 2));
 
-			Coordinate centroid_increment = new ImmutableCoordinate( x_ctr, y_ctr, 0, area_increment);
+			CoordinateIF centroid_increment = new Coordinate( x_ctr, y_ctr, 0, area_increment);
 			centroidSum = centroidSum.average( centroid_increment );
 
             prev=cur;
@@ -691,7 +691,7 @@ public abstract class FinSet extends ExternalComponent
 
 		// Negative weight => make positive. TODO: This is NOT a correct solution, but at least it won't throw an exception...
 		if (centroidSum.getWeight() < 0) {
-			centroidSum = new ImmutableCoordinate(centroidSum.getX(), -centroidSum.getY(), centroidSum.getZ(), Math.abs(centroidSum.getWeight()));
+			centroidSum = new Coordinate(centroidSum.getX(), -centroidSum.getY(), centroidSum.getZ(), Math.abs(centroidSum.getWeight()));
 		}
 		
 		return centroidSum;
@@ -700,32 +700,32 @@ public abstract class FinSet extends ExternalComponent
 	/**
 	 *  calculates the planform area-centroid of a single fin's tab:
 	 */
-	private Coordinate calculateTabCentroid(){
+	private CoordinateIF calculateTabCentroid(){
 		RocketComponent comp = getParent();
 
 		if( !( comp instanceof SymmetricComponent) || isTabTrivial() ){
 			// if null or invalid type:
-			return ImmutableCoordinate.ZERO;
+			return Coordinate.ZERO;
 		}
 		// relto: fin
 		final double xTabFront_fin = getTabFrontEdge();
 		final double xTabTrail_fin = getTabTrailingEdge();
 
-		final Coordinate finFront = getFinFront();
+		final CoordinateIF finFront = getFinFront();
 		final double xFinFront_body = finFront.getX();
 		final double xTabFront_body = xFinFront_body + xTabFront_fin;
 		final double xTabTrail_body = xFinFront_body + xTabTrail_fin;
 				
 		// get body points, relTo fin front / centerline);
-		final Coordinate[] upperCurve = getMountPoints( xTabFront_body, xTabTrail_body, -xFinFront_body, 0);
-		final Coordinate[] lowerCurve = translateToCenterline( getTabPointsWithRoot());
-		final Coordinate[] tabPoints = combineCurves( upperCurve, lowerCurve);
+		final CoordinateIF[] upperCurve = getMountPoints( xTabFront_body, xTabTrail_body, -xFinFront_body, 0);
+		final CoordinateIF[] lowerCurve = translateToCenterline( getTabPointsWithRoot());
+		final CoordinateIF[] tabPoints = combineCurves( upperCurve, lowerCurve);
 
 		return calculateCurveIntegral( tabPoints );
 	}
 	
-	private Coordinate[] translateToCenterline( final Coordinate[] fromRoot) {
-		Coordinate finRoot = this.getFinFront();
+	private CoordinateIF[] translateToCenterline(final CoordinateIF[] fromRoot) {
+		CoordinateIF finRoot = this.getFinFront();
 		
 		// locate relative to fin/body centerline
 		return FinSet.translatePoints( fromRoot, 0.0d, finRoot.getY());
@@ -737,15 +737,15 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return area centroid coordinates (weight is the area)
 	 */
-	private Coordinate calculateSinglePlanformCentroid(){
-		final Coordinate finLead = getFinFront();
+	private CoordinateIF calculateSinglePlanformCentroid(){
+		final CoordinateIF finLead = getFinFront();
 		final double xFinTrail = finLead.getX()+getLength();
 
-		final Coordinate[] upperCurve = translatePoints(getFinPoints(), 0, finLead.getY());
-		final Coordinate[] lowerCurve = getMountPoints( finLead.getX(), xFinTrail, -finLead.getX(), 0);
-		final Coordinate[] totalCurve = combineCurves( upperCurve, lowerCurve);
+		final CoordinateIF[] upperCurve = translatePoints(getFinPoints(), 0, finLead.getY());
+		final CoordinateIF[] lowerCurve = getMountPoints( finLead.getX(), xFinTrail, -finLead.getX(), 0);
+		final CoordinateIF[] totalCurve = combineCurves( upperCurve, lowerCurve);
 
-		final Coordinate planformCentroid = calculateCurveIntegral( totalCurve );
+		final CoordinateIF planformCentroid = calculateCurveIntegral( totalCurve );
 
 		// return as a position relative to fin-root
 		return planformCentroid;
@@ -760,13 +760,13 @@ public abstract class FinSet extends ExternalComponent
 	 * @param c2  backward curve
 	 * @return combined curve
 	 */
-	private Coordinate[] combineCurves( final Coordinate[] c1, final Coordinate[] c2){
-		Coordinate[] combined = new Coordinate[ c1.length + c2.length];
+	private CoordinateIF[] combineCurves(final CoordinateIF[] c1, final CoordinateIF[] c2){
+		CoordinateIF[] combined = new CoordinateIF[ c1.length + c2.length];
 
 		// copy the first array to the start of the return array...
 		System.arraycopy(c1, 0, combined, 0, c1.length);
 
-		Coordinate[] revCurve = reverse( c2);
+		CoordinateIF[] revCurve = reverse( c2);
 		int writeIndex = c1.length; // start directly after previous array
 		int writeCount = revCurve.length;
 		System.arraycopy(revCurve, 0, combined, writeIndex, writeCount);
@@ -776,8 +776,8 @@ public abstract class FinSet extends ExternalComponent
 	
 	
 	// simply return a reversed copy of the source array
-	public Coordinate[] reverse( Coordinate[] source){
-		Coordinate[] reverse = new Coordinate[ source.length ];
+	public CoordinateIF[] reverse(CoordinateIF[] source){
+		CoordinateIF[] reverse = new CoordinateIF[ source.length ];
 		
 		int readIndex = 0;
 		int writeIndex = source.length-1;
@@ -889,8 +889,8 @@ public abstract class FinSet extends ExternalComponent
 
 		singleFinBounds.update(getFinPoints());
 
-		singleFinBounds.update(new ImmutableCoordinate( 0, 0, -this.thickness/2));
-		singleFinBounds.update(new ImmutableCoordinate( 0, 0,  this.thickness/2));
+		singleFinBounds.update(new Coordinate( 0, 0, -this.thickness/2));
+		singleFinBounds.update(new Coordinate( 0, 0,  this.thickness/2));
 
 		return singleFinBounds;
 	}
@@ -902,8 +902,8 @@ public abstract class FinSet extends ExternalComponent
 	 * Currently the points are simply a rectangular box around the body tube.
 	 */
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<>(8);
+	public Collection<CoordinateIF> getComponentBounds() {
+		Collection<CoordinateIF> bounds = new ArrayList<>(8);
 		
 		// should simply return this component's bounds in this component's body frame.
 		
@@ -911,7 +911,7 @@ public abstract class FinSet extends ExternalComponent
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0.0;
 		
-		for (Coordinate point : getFinPoints()) {
+		for (CoordinateIF point : getFinPoints()) {
 			double hypot = MathUtil.hypot(point.getY(), point.getZ());
 			double x_cur = point.getX();
 			if (x_min > x_cur) {
@@ -925,7 +925,7 @@ public abstract class FinSet extends ExternalComponent
 			}
 		}
 		
-		Coordinate location = this.getComponentLocations()[0];
+		CoordinateIF location = this.getComponentLocations()[0];
 		x_max += location.getX();
 		
 		if( parent instanceof SymmetricComponent){
@@ -940,7 +940,7 @@ public abstract class FinSet extends ExternalComponent
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isAerodynamicChange() || e.isMassChange()) {
 			this.singlePlanformArea = Double.NaN;
-			this.centerOfMass = ImmutableCoordinate.NaN;
+			this.centerOfMass = Coordinate.NaN;
 			this.totalVolume = Double.NaN;
 			this.cantRotation = null;
 		}
@@ -960,14 +960,14 @@ public abstract class FinSet extends ExternalComponent
 		return getFinFront().getY();
 	}
 
-	public Coordinate getFinFront() {
+	public CoordinateIF getFinFront() {
 		final double xFinFront = this.getAxialFront();
 		final SymmetricComponent symmetricParent = (SymmetricComponent)this.getParent();
 		if( null == symmetricParent){
-			return new ImmutableCoordinate( 0, 0);
+			return new Coordinate( 0, 0);
 		}else{
 			final double yFinFront = symmetricParent.getRadius( xFinFront );
-			return new ImmutableCoordinate(xFinFront, yFinFront);
+			return new Coordinate(xFinFront, yFinFront);
 		}
 	}
 	
@@ -1004,12 +1004,12 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return  List of XY-coordinates.
 	 */
-	protected static Coordinate[] translatePoints( final Coordinate[] inp, final double x_delta , final double y_delta){
-		Coordinate[] returnPoints = new Coordinate[inp.length];
+	protected static CoordinateIF[] translatePoints(final CoordinateIF[] inp, final double x_delta , final double y_delta){
+		CoordinateIF[] returnPoints = new CoordinateIF[inp.length];
 		for( int index=0; index < inp.length; ++index){
 			final double new_x = inp[index].getX() + x_delta;
 			final double new_y = inp[index].getY() + y_delta;
-			returnPoints[index] = new ImmutableCoordinate(new_x, new_y);
+			returnPoints[index] = new Coordinate(new_x, new_y);
 		}
 		return returnPoints;
 	}
@@ -1019,11 +1019,11 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return  List of XY-coordinates.
 	 */
-	protected static ArrayList<Coordinate> translatePoints( final ArrayList<Coordinate> inp, final Coordinate delta){
-		final ArrayList<Coordinate> returnPoints = new ArrayList<>();
+	protected static ArrayList<CoordinateIF> translatePoints(final ArrayList<CoordinateIF> inp, final CoordinateIF delta){
+		final ArrayList<CoordinateIF> returnPoints = new ArrayList<>();
 		returnPoints.ensureCapacity(inp.size());
 
-		for( Coordinate c: inp ){
+		for( CoordinateIF c: inp ){
 			returnPoints.add(c.add(delta));
 		}
 
@@ -1038,19 +1038,19 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return  List of XY-coordinates.
 	 */
-	public abstract Coordinate[] getFinPoints();
+	public abstract CoordinateIF[] getFinPoints();
 
 	/**
 	 * used to get body points for the profile design view
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
-	public Coordinate[] getRootPoints(final int maximumBodyDivisionCount) {
+	public CoordinateIF[] getRootPoints(final int maximumBodyDivisionCount) {
 		if (parent == null) {
-			return new Coordinate[]{ImmutableCoordinate.ZERO};
+			return new CoordinateIF[]{Coordinate.ZERO};
 		}
 
-		final Coordinate finLead = getFinFront();
+		final CoordinateIF finLead = getFinFront();
 		final double xFinEnd = finLead.getX() + getLength();
 
 		return getMountPoints(finLead.getX(), xFinEnd, -finLead.getX(), -finLead.getY(), maximumBodyDivisionCount);
@@ -1061,7 +1061,7 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
-	public Coordinate[] getRootPoints(){
+	public CoordinateIF[] getRootPoints(){
 		return getRootPoints(MAX_ROOT_DIVISIONS);
 	}
 
@@ -1070,7 +1070,7 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return points representing the fin-root points, relative to ( x: fin-front, y: centerline ) i.e. relto: fin Component reference point
 	 */
-	public Coordinate[] getMountPoints() {
+	public CoordinateIF[] getMountPoints() {
 		if( null == parent){
 			return null;
 		}
@@ -1088,10 +1088,10 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return points representing the mount's points
 	 */
-	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset,
-										final int maximumBodyDivisionCount) {
+	private CoordinateIF[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset,
+										  final int maximumBodyDivisionCount) {
 		if (parent == null) {
-			return new Coordinate[]{ImmutableCoordinate.ZERO};
+			return new CoordinateIF[]{Coordinate.ZERO};
 		}
 
 		// for a simple body, one increment is perfectly accurate.
@@ -1115,7 +1115,7 @@ public abstract class FinSet extends ExternalComponent
 
 		// Create the points: step through the radius of the parent
 		double xCurr = xStart;
-		List<Coordinate> points = new ArrayList<>();
+		List<CoordinateIF> points = new ArrayList<>();
 		for (int index = 0; index < divisionCount+1; index++) {
 			double yCurr = parent.getRadius(xCurr);
 
@@ -1123,7 +1123,7 @@ public abstract class FinSet extends ExternalComponent
 			final double dy = getFinCantYOffset(xStart, xEnd, xCurr);
 			yCurr += dy;
 
-			points.add(new ImmutableCoordinate(xCurr, yCurr));
+			points.add(new Coordinate(xCurr, yCurr));
 
 			xCurr += xIncrement;
 		}
@@ -1135,16 +1135,16 @@ public abstract class FinSet extends ExternalComponent
 		 */
 		// Front fin point is outside the parent's bounds and last point is beyond the parent's fore end
 		if (xStart < 0 && xEnd > 0) {
-			points.add(1, new ImmutableCoordinate(0, points.get(0).getY()));
+			points.add(1, new Coordinate(0, points.get(0).getY()));
 		}
 		// End fin point is beyond the parent's aft and first point is still before the parent's aft end
 		if (xEnd > parent.length && xStart < parent.length) {
 			final double x = parent.length;
 			final double y = points.get(points.size() - 1).getY();
-			points.add(points.size() - 1, new ImmutableCoordinate(x, y));
+			points.add(points.size() - 1, new Coordinate(x, y));
 		}
 
-		Coordinate[] rootPoints = points.toArray(new Coordinate[0]);
+		CoordinateIF[] rootPoints = points.toArray(new CoordinateIF[0]);
 
 		// correct last point, if beyond a rounding error from body's end.
 		final int lastIndex = rootPoints.length - 1;
@@ -1160,7 +1160,7 @@ public abstract class FinSet extends ExternalComponent
 		return rootPoints;
 	}
 
-	private Coordinate[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
+	private CoordinateIF[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {
 		return getMountPoints(xStart, xEnd, xOffset, yOffset, MAX_ROOT_DIVISIONS);
 	}
 
@@ -1212,7 +1212,7 @@ public abstract class FinSet extends ExternalComponent
 	/**
 	 * Return a list of coordinates defining the geometry of a single fin, including the parent's body points .
 	 */
-	public Coordinate[] getFinPointsWithRoot() {
+	public CoordinateIF[] getFinPointsWithRoot() {
 		return combineCurves(getFinPoints(), getRootPoints());
 	}
 
@@ -1222,7 +1222,7 @@ public abstract class FinSet extends ExternalComponent
 	 * This low res version is for 3D rendering, as a too high resolution would cause clipping and invisible fin faces.
 	 * This should at one point be solved by rendering the fin faces using triangulation, instead of how it's currently implemented.
 	 */
-	public Coordinate[] getFinPointsWithLowResRoot() {
+	public CoordinateIF[] getFinPointsWithLowResRoot() {
 		return combineCurves(getFinPoints(), getRootPoints(MAX_ROOT_DIVISIONS_LOW_RES));
 	}
 
@@ -1265,16 +1265,16 @@ public abstract class FinSet extends ExternalComponent
 	 * 
 	 * @return  List of XY-coordinates.
 	 */
-	public Coordinate[] getTabPointsWithRoot() {
+	public CoordinateIF[] getTabPointsWithRoot() {
 		if (!hasTab()) {
-			return new Coordinate[]{};
+			return new CoordinateIF[]{};
 		}
 
 		final double xTabFront = getTabFrontEdge();
 		final double xTabTrail = getTabTrailingEdge();
 
-		List<Coordinate> rootPoints = new ArrayList<>();
-		for (Coordinate point : getRootPoints()) {
+		List<CoordinateIF> rootPoints = new ArrayList<>();
+		for (CoordinateIF point : getRootPoints()) {
 			if (point.getX() > xTabFront && point.getX() < xTabTrail) {
 				rootPoints.add(point);
 			}
@@ -1296,21 +1296,21 @@ public abstract class FinSet extends ExternalComponent
 	 * @return Array of Coordinates representing the continuous shape combining fin and tab points.
 	 *         If the tab is not present or extends beyond the fin, returns only the fin points.
 	 */
-	public Coordinate[] generateContinuousFinAndTabShape() {
+	public CoordinateIF[] generateContinuousFinAndTabShape() {
 		if (!hasTab() || isTabBeyondFin()) {
 			return getFinPointsWithRoot();
 		}
 
-		final Coordinate[] finPoints = getFinPoints();
-		final Coordinate[] rootPoints = getRootPoints();
-		final Coordinate[] tabPoints = getTabPoints();
+		final CoordinateIF[] finPoints = getFinPoints();
+		final CoordinateIF[] rootPoints = getRootPoints();
+		final CoordinateIF[] tabPoints = getTabPoints();
 
 		final double finStart = finPoints[0].getX();
 
-		final List<Coordinate> uniformPoints = new LinkedList<>(Arrays.asList(finPoints));
+		final List<CoordinateIF> uniformPoints = new LinkedList<>(Arrays.asList(finPoints));
 
 		boolean tabAdded = false;
-		for (Coordinate rootPoint : rootPoints) {
+		for (CoordinateIF rootPoint : rootPoints) {
 			// If the tab is not yet added, we need to check whether we need to include root tabs before the tab.
 			if (!tabAdded) {
 				// Check if the root point is beyond the tab. If so, add it to the list.
@@ -1336,7 +1336,7 @@ public abstract class FinSet extends ExternalComponent
 			uniformPoints.add(finPoints[0]);
 		}
 
-		return uniformPoints.toArray(new Coordinate[0]);
+		return uniformPoints.toArray(new CoordinateIF[0]);
 	}
 
 	/**
@@ -1354,17 +1354,17 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return  List of XY-coordinates.
 	 */
-	public Coordinate[] getTabPointsWithRootLowRes() {
+	public CoordinateIF[] getTabPointsWithRootLowRes() {
 		if (MathUtil.equals(getTabHeight(), 0) ||
 				MathUtil.equals(getTabLength(), 0)){
-			return new Coordinate[]{};
+			return new CoordinateIF[]{};
 		}
 
 		final double xTabFront = getTabFrontEdge();
 		final double xTabTrail = getTabTrailingEdge();
 
-		List<Coordinate> rootPoints = new ArrayList<>();
-		for (Coordinate point : getRootPoints(MAX_ROOT_DIVISIONS_LOW_RES)) {
+		List<CoordinateIF> rootPoints = new ArrayList<>();
+		for (CoordinateIF point : getRootPoints(MAX_ROOT_DIVISIONS_LOW_RES)) {
 			if (point.getX() > xTabFront && point.getX() < xTabTrail) {
 				rootPoints.add(point);
 			}
@@ -1379,12 +1379,12 @@ public abstract class FinSet extends ExternalComponent
 	 * @param rootPoints A list of root points
 	 * @return An array of tab points with the root (relative to the fin front)
 	 */
-	private Coordinate[] generateTabPointsWithRoot(List<Coordinate> rootPoints) {
-		Coordinate[] tabPoints = getTabPoints();
+	private CoordinateIF[] generateTabPointsWithRoot(List<CoordinateIF> rootPoints) {
+		CoordinateIF[] tabPoints = getTabPoints();
 
-		rootPoints.add(0, new ImmutableCoordinate(tabPoints[0].getX(), tabPoints[0].getY()));
+		rootPoints.add(0, new Coordinate(tabPoints[0].getX(), tabPoints[0].getY()));
 
-		return combineCurves(tabPoints, rootPoints.toArray(new Coordinate[0]));
+		return combineCurves(tabPoints, rootPoints.toArray(new CoordinateIF[0]));
 	}
 
 	/**
@@ -1392,12 +1392,12 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return an array of Coordinate objects representing the points of a tab (relative to the fin front)
 	 */
-	public Coordinate[] getTabPoints() {
+	public CoordinateIF[] getTabPoints() {
 		final double xTabFront = getTabFrontEdge();
 		final double xTabTrail = getTabTrailingEdge();
 
-		Coordinate[] tabPoints = new Coordinate[4];
-		final Coordinate finFront = this.getFinFront();
+		CoordinateIF[] tabPoints = new CoordinateIF[4];
+		final CoordinateIF finFront = this.getFinFront();
 
 		final SymmetricComponent body = (SymmetricComponent) this.getParent();
 
@@ -1411,10 +1411,10 @@ public abstract class FinSet extends ExternalComponent
 			yTabBottom = MathUtil.min(yTabFront, yTabTrail) - tabHeight;
 		}
 
-		tabPoints[0] = new ImmutableCoordinate(xTabFront, yTabFront);
-		tabPoints[1] = new ImmutableCoordinate(xTabFront, yTabBottom);
-		tabPoints[2] = new ImmutableCoordinate(xTabTrail, yTabBottom);
-		tabPoints[3] = new ImmutableCoordinate(xTabTrail, yTabTrail);
+		tabPoints[0] = new Coordinate(xTabFront, yTabFront);
+		tabPoints[1] = new Coordinate(xTabFront, yTabBottom);
+		tabPoints[2] = new Coordinate(xTabTrail, yTabBottom);
+		tabPoints[3] = new Coordinate(xTabTrail, yTabTrail);
 
 		return tabPoints;
 	}
@@ -1612,17 +1612,17 @@ public abstract class FinSet extends ExternalComponent
 
 
 	// for debugging.  You can safely delete this method
-	public static String getPointDescr( final Coordinate[] points, final String name, final String indent){
+	public static String getPointDescr(final CoordinateIF[] points, final String name, final String indent){
 		return getPointDescr(Arrays.asList(points), name, indent);
 	}
 
 	// for debugging.  You can safely delete this method
-	public static String getPointDescr( final List<Coordinate> points, final String name, final String indent){
+	public static String getPointDescr(final List<CoordinateIF> points, final String name, final String indent){
 		StringBuilder buf = new StringBuilder();
 
 		buf.append(String.format("%s    >> %s: %d points\n", indent, name, points.size()));
 		int index =0;
-		for( Coordinate c : points ){
+		for( CoordinateIF c : points ){
 			buf.append( String.format( indent+"      ....[%2d] (%6.4g, %6.4g)\n", index, c.getX(), c.getY()));
 			index++;
 		}
@@ -1648,26 +1648,26 @@ public abstract class FinSet extends ExternalComponent
 	}
 
 	private void calculateCM(){
-		final Coordinate wettedCentroid = calculateSinglePlanformCentroid();
+		final CoordinateIF wettedCentroid = calculateSinglePlanformCentroid();
 		this.singlePlanformArea = wettedCentroid.getWeight();
 		final double wettedVolume = wettedCentroid.getWeight() * thickness * crossSection.getRelativeVolume();
 		final double finBulkMass = wettedVolume * material.getDensity();
-		final Coordinate wettedCM = wettedCentroid.setWeight(finBulkMass);
+		final CoordinateIF wettedCM = wettedCentroid.setWeight(finBulkMass);
 
-		final Coordinate tabCentroid = calculateTabCentroid();
+		final CoordinateIF tabCentroid = calculateTabCentroid();
 		final double tabVolume = tabCentroid.getWeight() * thickness;
 		final double tabMass = tabVolume * material.getDensity();
-		final Coordinate tabCM = tabCentroid.setWeight(tabMass);
+		final CoordinateIF tabCM = tabCentroid.setWeight(tabMass);
 		
-		Coordinate filletCentroid = calculateFilletVolumeCentroid();
+		CoordinateIF filletCentroid = calculateFilletVolumeCentroid();
 		double filletVolume = filletCentroid.getWeight();
 		double filletMass = filletVolume * filletMaterial.getDensity();
-		final Coordinate filletCM = filletCentroid.setWeight(filletMass);
+		final CoordinateIF filletCM = filletCentroid.setWeight(filletMass);
 
 		this.totalVolume = (wettedVolume + tabVolume + filletVolume) * finCount;
 
 		final double eachFinMass = finBulkMass + tabMass + filletMass;
-		final Coordinate eachFinCenterOfMass = wettedCM.average(tabCM).average(filletCM).setWeight(eachFinMass);
+		final CoordinateIF eachFinCenterOfMass = wettedCM.average(tabCM).average(filletCM).setWeight(eachFinMass);
 		
 		// ^^ per fin
 		// vv per component
@@ -1682,7 +1682,7 @@ public abstract class FinSet extends ExternalComponent
 	
 	// ============= Instanceable Interface Methods ===============
 	@Override
-	public Coordinate[] getInstanceOffsets(){
+	public CoordinateIF[] getInstanceOffsets(){
 		checkState();
 
 		final double bodyRadius = this.getBodyRadius();
@@ -1694,11 +1694,11 @@ public abstract class FinSet extends ExternalComponent
 													.applyTransformation(getCantRotation())
 													.applyTransformation(new Transformation(-length / 2, 0, 0));
 		
-		Coordinate[] toReturn = new Coordinate[finCount];
+		CoordinateIF[] toReturn = new CoordinateIF[finCount];
 		for (int instanceNumber = 0; instanceNumber < finCount; instanceNumber++) {
-			final Coordinate raw = new ImmutableCoordinate( 0, bodyRadius, 0);
-			final Coordinate canted = localCantRotation.transform(raw);
-			final Coordinate rotated = Transformation.rotate_x(angles[instanceNumber]).transform(canted);
+			final CoordinateIF raw = new Coordinate( 0, bodyRadius, 0);
+			final CoordinateIF canted = localCantRotation.transform(raw);
+			final CoordinateIF rotated = Transformation.rotate_x(angles[instanceNumber]).transform(canted);
 			toReturn[instanceNumber] = rotated;
 		}
 		

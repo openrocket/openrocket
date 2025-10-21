@@ -9,7 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import info.openrocket.core.rocketcomponent.Transition;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.xml.sax.SAXException;
 
 import info.openrocket.core.logging.WarningSet;
@@ -28,7 +29,6 @@ import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
-import info.openrocket.core.util.Coordinate;
 
 /**
  * A SAX handler for Rocksim fin sets. Because the type of fin may not be known
@@ -387,8 +387,8 @@ class FinSetHandler extends AbstractElementHandler {
 	 *
 	 * @return an array of OpenRocket Coordinates
 	 */
-	private Coordinate[] toCoordinates(String newPointList, WarningSet warnings) {
-		List<Coordinate> result = new LinkedList<>();
+	private CoordinateIF[] toCoordinates(String newPointList, WarningSet warnings) {
+		List<CoordinateIF> result = new LinkedList<>();
 		if (newPointList != null && newPointList.length() > 0) {
 			String[] points = newPointList.split("\\Q|\\E");
 			for (String point : points) {
@@ -399,14 +399,14 @@ class FinSetHandler extends AbstractElementHandler {
 						continue;
 					}
 
-					Coordinate c = new ImmutableCoordinate(
+					CoordinateIF c = new Coordinate(
 							Double.parseDouble(aPoint[0]) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH,
 							Double.parseDouble(aPoint[1]) / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 					if (result.size() == 0) {
 						result.add(c);
 						continue;
 					}
-					Coordinate lastCoord = result.get(result.size() - 1);
+					CoordinateIF lastCoord = result.get(result.size() - 1);
 					// RockSim sometimes saves a multitude of '0,0' coordinates, so ignore this
 					if (!((lastCoord.getX() == 0) && (lastCoord.getY() == 0) && (c.getX() == 0) && (c.getY() == 0))) {
 						result.add(c);
@@ -419,14 +419,14 @@ class FinSetHandler extends AbstractElementHandler {
 				// OpenRocket requires fin plan points be ordered from leading root chord to
 				// trailing root chord in the
 				// Coordinate array.
-				Coordinate last = result.get(result.size() - 1);
+				CoordinateIF last = result.get(result.size() - 1);
 				if (last.getX() == 0 && last.getY() == 0) {
 					Collections.reverse(result);
 				}
 			}
 		}
 
-		return result.toArray(new Coordinate[0]);
+		return result.toArray(new CoordinateIF[0]);
 	}
 
 	/**

@@ -12,7 +12,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.unit.Value;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
 
@@ -52,7 +52,7 @@ public class StabilityDomain implements SimulationDomain {
 
 	@Override
 	public Pair<Double, Value> getDistanceToDomain(Simulation simulation) {
-		Coordinate cp, cg;
+		CoordinateIF cp, cg;
 		double cpx, cgx;
 		double absolute;
 		double relative;

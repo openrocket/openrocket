@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import info.openrocket.core.util.ArrayList;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
@@ -66,30 +66,30 @@ public class RocketTest extends BaseTestCase {
 
 		final AxialStage stage = (AxialStage) rocket.getChild(0);
 
-		Coordinate expLoc;
-		Coordinate actLoc;
+		CoordinateIF expLoc;
+		CoordinateIF actLoc;
 		{
 			NoseCone nose = (NoseCone) stage.getChild(0);
-			expLoc = new ImmutableCoordinate(0, 0, 0);
+			expLoc = new Coordinate(0, 0, 0);
 			actLoc = nose.getComponentLocations()[0];
 			assertEquals(actLoc, expLoc, nose.getName() + " not positioned correctly: ");
 
 			BodyTube body = (BodyTube) stage.getChild(1);
-			expLoc = new ImmutableCoordinate(0.07, 0, 0);
+			expLoc = new Coordinate(0.07, 0, 0);
 			actLoc = body.getComponentLocations()[0];
 			assertEquals(actLoc, expLoc, body.getName() + " not positioned correctly: ");
 
 			{
 				FinSet fins = (FinSet) body.getChild(0);
-				Coordinate[] actLocs = fins.getComponentLocations();
+				CoordinateIF[] actLocs = fins.getComponentLocations();
 				assertEquals(fins.getInstanceCount(), 3, fins.getName() + " have incorrect count: ");
 				{ // fin #1
-					expLoc = new ImmutableCoordinate(0.22, 0.012, 0);
+					expLoc = new Coordinate(0.22, 0.012, 0);
 					assertEquals(actLocs[0], expLoc, fins.getName() + " not positioned correctly: ");
 				}
 
 				LaunchLug lugs = (LaunchLug) body.getChild(1);
-				expLoc = new ImmutableCoordinate(0.181, -0.015, 0);
+				expLoc = new Coordinate(0.181, -0.015, 0);
 				assertEquals(lugs.getInstanceCount(), 1, lugs.getName() + " have incorrect count: ");
 				actLocs = lugs.getComponentLocations();
 				{ // singular instance:
@@ -97,12 +97,12 @@ public class RocketTest extends BaseTestCase {
 				}
 
 				InnerTube mmt = (InnerTube) body.getChild(2);
-				expLoc = new ImmutableCoordinate(0.203, 0, 0);
+				expLoc = new Coordinate(0.203, 0, 0);
 				actLoc = mmt.getComponentLocations()[0];
 				assertEquals(actLoc, expLoc, mmt.getName() + " not positioned correctly: ");
 				{
 					EngineBlock block = (EngineBlock) mmt.getChild(0);
-					expLoc = new ImmutableCoordinate(0.203, 0, 0);
+					expLoc = new Coordinate(0.203, 0, 0);
 					actLoc = block.getComponentLocations()[0];
 					assertEquals(actLoc, expLoc, block.getName() + " not positioned correctly: ");
 				}
@@ -110,7 +110,7 @@ public class RocketTest extends BaseTestCase {
 			}
 
 			Parachute chute = (Parachute) body.getChild(3);
-			expLoc = new ImmutableCoordinate(0.098, 0, 0);
+			expLoc = new Coordinate(0.098, 0, 0);
 			actLoc = chute.getComponentLocations()[0];
 			assertEquals(actLoc, expLoc, chute.getName() + " not positioned correctly: ");
 
@@ -118,7 +118,7 @@ public class RocketTest extends BaseTestCase {
 			assertEquals(ring.getInstanceCount(), 2, ring.getName() + " not instanced correctly: ");
 			// singleton instances follow different code paths
 			ring.setInstanceCount(1);
-			expLoc = new ImmutableCoordinate(0.21, 0, 0);
+			expLoc = new Coordinate(0.21, 0, 0);
 			actLoc = ring.getComponentLocations()[0];
 			assertEquals(expLoc.getX(), actLoc.getX(), EPSILON, " position x fail: ");
 			assertEquals(expLoc.getY(), actLoc.getY(), EPSILON, " position y fail: ");
@@ -126,15 +126,15 @@ public class RocketTest extends BaseTestCase {
 			assertEquals(actLoc, expLoc, ring.getName() + " not positioned correctly: ");
 
 			ring.setInstanceCount(2);
-			Coordinate[] actLocs = ring.getComponentLocations();
+			CoordinateIF[] actLocs = ring.getComponentLocations();
 			{ // first instance
-				expLoc = new ImmutableCoordinate(0.21, 0, 0);
+				expLoc = new Coordinate(0.21, 0, 0);
 				actLoc = actLocs[0];
 				assertEquals(actLoc, expLoc, ring.getName() + " not positioned correctly: ");
 			}
 			{ // second instance
 				assertEquals(ring.getInstanceCount(), 2, ring.getName() + " not instanced correctly: ");
-				expLoc = new ImmutableCoordinate(0.245, 0, 0);
+				expLoc = new Coordinate(0.245, 0, 0);
 				actLoc = actLocs[1];
 				assertEquals(actLoc, expLoc, ring.getName() + " not positioned correctly: ");
 			}
@@ -179,8 +179,8 @@ public class RocketTest extends BaseTestCase {
 			assertEquals(0.20, body.getLength(), EPSILON, "incorrect body length:");
 			assertEquals(0.05, fins.getLength(), EPSILON, "incorrect fin length:");
 			{ // fin #1
-				final Coordinate expLoc = new ImmutableCoordinate(0.22, 0.012, 0);
-				final Coordinate[] actLocs = fins.getComponentLocations();
+				final CoordinateIF expLoc = new Coordinate(0.22, 0.012, 0);
+				final CoordinateIF[] actLocs = fins.getComponentLocations();
 				assertEquals(actLocs[0], expLoc, fins.getName() + " not positioned correctly: ");
 			}
 		}
@@ -222,7 +222,7 @@ public class RocketTest extends BaseTestCase {
 
 		{
 			BodyTube bodyPrior = (BodyTube) rocket.getChild(0).getChild(1);
-			Coordinate locPrior = bodyPrior.getComponentLocations()[0];
+			CoordinateIF locPrior = bodyPrior.getComponentLocations()[0];
 			assertEquals(locPrior.getX(), 0.07, EPSILON);
 		}
 
@@ -231,7 +231,7 @@ public class RocketTest extends BaseTestCase {
 
 		{
 			BodyTube tubePost = (BodyTube) rocket.getChild(0).getChild(0);
-			Coordinate locPost = tubePost.getComponentLocations()[0];
+			CoordinateIF locPost = tubePost.getComponentLocations()[0];
 			assertEquals(locPost.getX(), 0.0, EPSILON);
 		}
 	}
@@ -319,32 +319,32 @@ public class RocketTest extends BaseTestCase {
 
 		AxialStage boosterStage = (AxialStage) rocket.getChild(1);
 
-		Coordinate expLoc;
-		Coordinate actLoc;
-		Coordinate[] actLocs;
+		CoordinateIF expLoc;
+		CoordinateIF actLoc;
+		CoordinateIF[] actLocs;
 		{
 			BodyTube body = (BodyTube) boosterStage.getChild(0);
-			Coordinate[] bodyLocs = body.getComponentLocations();
-			expLoc = new ImmutableCoordinate(0.27, 0, 0);
+			CoordinateIF[] bodyLocs = body.getComponentLocations();
+			expLoc = new Coordinate(0.27, 0, 0);
 			assertEquals(bodyLocs[0], expLoc, body.getName() + " not positioned correctly: ");
 
 			{
 				TubeCoupler coupler = (TubeCoupler) body.getChild(0);
 				actLocs = coupler.getComponentLocations();
-				expLoc = new ImmutableCoordinate(0.255, 0, 0);
+				expLoc = new Coordinate(0.255, 0, 0);
 				assertEquals(actLocs[0], expLoc, coupler.getName() + " not positioned correctly: ");
 
 				FinSet fins = (FinSet) body.getChild(1);
 				actLocs = fins.getComponentLocations();
 				assertEquals(fins.getInstanceCount(), 3, fins.getName() + " have incorrect count: ");
 				{ // fin #1
-					expLoc = new ImmutableCoordinate(0.28, 0.012, 0);
+					expLoc = new Coordinate(0.28, 0.012, 0);
 					assertEquals(actLocs[0], expLoc, fins.getName() + " not positioned correctly: ");
 				}
 
 				InnerTube mmt = (InnerTube) body.getChild(2);
 				actLoc = mmt.getComponentLocations()[0];
-				expLoc = new ImmutableCoordinate(0.285, 0, 0);
+				expLoc = new Coordinate(0.285, 0, 0);
 				assertEquals(actLoc, expLoc, mmt.getName() + " not positioned correctly: ");
 			}
 		}
@@ -364,8 +364,8 @@ public class RocketTest extends BaseTestCase {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		rocket.setName("TestRocket." + Thread.currentThread().getStackTrace()[1].getMethodName());
 
-		Coordinate offset;
-		Coordinate loc;
+		CoordinateIF offset;
+		CoordinateIF loc;
 
 		// ====== Payload Stage ======
 		// ====== ====== ====== ======
@@ -431,12 +431,12 @@ public class RocketTest extends BaseTestCase {
 				assertEquals(RadiusMethod.SURFACE, boosters.getRadiusMethod());
 				assertEquals(AngleMethod.RELATIVE, boosters.getAngleMethod());
 
-				Coordinate boosterPosition = boosters.getPosition();
+				CoordinateIF boosterPosition = boosters.getPosition();
 				assertEquals(-0.08, boosterPosition.getX(), EPSILON, boosters.getName() + " position is incorrect: ");
 				assertEquals(0.0, boosterPosition.getY(), EPSILON, boosters.getName() + " position is incorrect: ");
 				assertEquals(0.0, boosterPosition.getZ(), EPSILON, boosters.getName() + " position is incorrect: ");
 
-				Coordinate[] boosterInstanceOffsets = boosters.getInstanceOffsets();
+				CoordinateIF[] boosterInstanceOffsets = boosters.getInstanceOffsets();
 				assertEquals(0.0, boosterInstanceOffsets[0].getX(),
 						EPSILON, boosters.getName() + " location is incorrect: ");
 				assertEquals(0.077, boosterInstanceOffsets[0].getY(),
@@ -446,7 +446,7 @@ public class RocketTest extends BaseTestCase {
 				assertEquals(0.0, boosterInstanceOffsets[0].getZ(),
 						EPSILON, boosters.getName() + " location is incorrect: ");
 
-				Coordinate[] boosterLocations = boosters.getComponentLocations();
+				CoordinateIF[] boosterLocations = boosters.getComponentLocations();
 				assertEquals(0.484, boosterLocations[0].getX(), EPSILON, boosters.getName() + " location is incorrect: ");
 				assertEquals(0.077, boosterLocations[0].getY(), EPSILON, boosters.getName() + " location is incorrect: ");
 				assertEquals(-0.077, boosterLocations[1].getY(), EPSILON, boosters.getName() + " location is incorrect: ");

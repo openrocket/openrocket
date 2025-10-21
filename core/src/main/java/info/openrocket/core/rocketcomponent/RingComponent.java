@@ -6,7 +6,7 @@ import java.util.List;
 
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -133,11 +133,11 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	public BoundingBox getInstanceBoundingBox() {
 		BoundingBox instanceBounds = new BoundingBox();
 
-		instanceBounds.update(new ImmutableCoordinate(this.getLength(), 0, 0));
+		instanceBounds.update(new Coordinate(this.getLength(), 0, 0));
 
 		final double r = getOuterRadius();
-		instanceBounds.update(new ImmutableCoordinate(0, r, r));
-		instanceBounds.update(new ImmutableCoordinate(0, -r, -r));
+		instanceBounds.update(new Coordinate(0, r, r));
+		instanceBounds.update(new Coordinate(0, -r, -r));
 
 		return instanceBounds;
 	}
@@ -203,24 +203,24 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	}
 
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<>();
+	public Collection<CoordinateIF> getComponentBounds() {
+		List<CoordinateIF> bounds = new ArrayList<>();
 		addBound(bounds, 0, getOuterRadius());
 		addBound(bounds, length, getOuterRadius());
 		return bounds;
 	}
 
 	@Override
-	public Coordinate getComponentCG() {
-		Coordinate cg = ImmutableCoordinate.ZERO;
+	public CoordinateIF getComponentCG() {
+		CoordinateIF cg = Coordinate.ZERO;
 		final int instanceCount = getInstanceCount();
 		final double instanceMass = ringMass(getOuterRadius(), getInnerRadius(), getLength(),
 				getMaterial().getDensity());
 
 		if (1 == instanceCount) {
-			cg = new ImmutableCoordinate(length / 2, 0, 0, instanceMass);
+			cg = new Coordinate(length / 2, 0, 0, instanceMass);
 		} else {
-			for (Coordinate c : getInstanceOffsets()) {
+			for (CoordinateIF c : getInstanceOffsets()) {
 				c = c.setWeight(instanceMass);
 				cg = cg.average(c);
 			}

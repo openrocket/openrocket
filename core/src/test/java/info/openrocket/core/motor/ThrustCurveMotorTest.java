@@ -3,10 +3,10 @@ package info.openrocket.core.motor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Pair;
 
 public class ThrustCurveMotorTest {
@@ -26,11 +26,11 @@ public class ThrustCurveMotorTest {
 			.setLength(length)
 			.setTimePoints(new double[] { 0, 1, 3, 4 })
 			.setThrustPoints(new double[] { 0, 2, 3, 0 })
-			.setCGPoints(new Coordinate[] {
-					new ImmutableCoordinate(0.02, 0, 0, 0.05),
-					new ImmutableCoordinate(0.02, 0, 0, 0.05),
-					new ImmutableCoordinate(0.02, 0, 0, 0.05),
-					new ImmutableCoordinate(0.03, 0, 0, 0.03) })
+			.setCGPoints(new CoordinateIF[] {
+					new Coordinate(0.02, 0, 0, 0.05),
+					new Coordinate(0.02, 0, 0, 0.05),
+					new Coordinate(0.02, 0, 0, 0.05),
+					new Coordinate(0.03, 0, 0, 0.03) })
 			.setDigest("digestA")
 			.build();
 
@@ -58,19 +58,19 @@ public class ThrustCurveMotorTest {
 					3.205, 2.884, 2.499, 2.371,
 					2.307, 2.371, 2.371, 2.243,
 					1.794, 1.153, 0.448, 0 })
-			.setCGPoints(new Coordinate[] {
-					new ImmutableCoordinate(0.0350, 0, 0, 0.016350), new ImmutableCoordinate(0.0352, 0, 0, 0.016335),
-					new ImmutableCoordinate(0.0354, 0, 0, 0.016255), new ImmutableCoordinate(0.0356, 0, 0, 0.016057),
-					new ImmutableCoordinate(0.0358, 0, 0, 0.015748), new ImmutableCoordinate(0.0360, 0, 0, 0.015463),
-					new ImmutableCoordinate(0.0362, 0, 0, 0.015285), new ImmutableCoordinate(0.0364, 0, 0, 0.015014),
-					new ImmutableCoordinate(0.0366, 0, 0, 0.014882), new ImmutableCoordinate(0.0368, 0, 0, 0.014757),
-					new ImmutableCoordinate(0.0370, 0, 0, 0.014635), new ImmutableCoordinate(0.0372, 0, 0, 0.014535),
-					new ImmutableCoordinate(0.0374, 0, 0, 0.014393), new ImmutableCoordinate(0.0376, 0, 0, 0.014198),
-					new ImmutableCoordinate(0.0378, 0, 0, 0.013991), new ImmutableCoordinate(0.0380, 0, 0, 0.013776),
-					new ImmutableCoordinate(0.0382, 0, 0, 0.013560), new ImmutableCoordinate(0.0384, 0, 0, 0.013370),
-					new ImmutableCoordinate(0.0386, 0, 0, 0.013225), new ImmutableCoordinate(0.0388, 0, 0, 0.013160),
-					new ImmutableCoordinate(0.0390, 0, 0, 0.013114), new ImmutableCoordinate(0.0392, 0, 0, 0.013080),
-					new ImmutableCoordinate(0.0394, 0, 0, 0.013059), new ImmutableCoordinate(0.0396, 0, 0, 0.013050) })
+			.setCGPoints(new CoordinateIF[] {
+					new Coordinate(0.0350, 0, 0, 0.016350), new Coordinate(0.0352, 0, 0, 0.016335),
+					new Coordinate(0.0354, 0, 0, 0.016255), new Coordinate(0.0356, 0, 0, 0.016057),
+					new Coordinate(0.0358, 0, 0, 0.015748), new Coordinate(0.0360, 0, 0, 0.015463),
+					new Coordinate(0.0362, 0, 0, 0.015285), new Coordinate(0.0364, 0, 0, 0.015014),
+					new Coordinate(0.0366, 0, 0, 0.014882), new Coordinate(0.0368, 0, 0, 0.014757),
+					new Coordinate(0.0370, 0, 0, 0.014635), new Coordinate(0.0372, 0, 0, 0.014535),
+					new Coordinate(0.0374, 0, 0, 0.014393), new Coordinate(0.0376, 0, 0, 0.014198),
+					new Coordinate(0.0378, 0, 0, 0.013991), new Coordinate(0.0380, 0, 0, 0.013776),
+					new Coordinate(0.0382, 0, 0, 0.013560), new Coordinate(0.0384, 0, 0, 0.013370),
+					new Coordinate(0.0386, 0, 0, 0.013225), new Coordinate(0.0388, 0, 0, 0.013160),
+					new Coordinate(0.0390, 0, 0, 0.013114), new Coordinate(0.0392, 0, 0, 0.013080),
+					new Coordinate(0.0394, 0, 0, 0.013059), new Coordinate(0.0396, 0, 0, 0.013050) })
 			.setDigest("digestA8-3")
 			.build();
 

@@ -4,7 +4,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
@@ -18,7 +18,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	private RocketComponent component = null;
 
 	/** CP and CNa. */
-	private Coordinate cpCNa = ImmutableCoordinate.ZERO;
+	private CoordinateIF cpCNa = Coordinate.ZERO;
 
 	/** Normal force coefficient. */
 	private double CN = Double.NaN;
@@ -103,12 +103,12 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	/**
 	 * set cpCNa as the moment defined by cp
 	 */
-	public void setCP(Coordinate cp) {
-		Coordinate newCpCNa;
+	public void setCP(CoordinateIF cp) {
+		CoordinateIF newCpCNa;
 		if (MathUtil.equals(0, cp.getWeight())) {
-			newCpCNa = ImmutableCoordinate.ZERO;
+			newCpCNa = Coordinate.ZERO;
 		} else {
-			newCpCNa = new ImmutableCoordinate(cp.getX()*cp.getWeight(), cp.getY()*cp.getWeight(), cp.getZ()*cp.getWeight(), cp.getWeight());
+			newCpCNa = new Coordinate(cp.getX()*cp.getWeight(), cp.getY()*cp.getWeight(), cp.getZ()*cp.getWeight(), cp.getWeight());
 		}
 		
 		if ((this.cpCNa != null) && this.cpCNa.equals(newCpCNa))
@@ -118,12 +118,12 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		modID = new ModID();
 	}
 
-	public Coordinate getCP() {
+	public CoordinateIF getCP() {
 		if (MathUtil.equals(0, cpCNa.getWeight())) {
-			return ImmutableCoordinate.ZERO;
+			return Coordinate.ZERO;
 		} 
 				
-		return new ImmutableCoordinate(cpCNa.getX() / cpCNa.getWeight(), cpCNa.getY() / cpCNa.getWeight(),
+		return new Coordinate(cpCNa.getX() / cpCNa.getWeight(), cpCNa.getY() / cpCNa.getWeight(),
 				cpCNa.getZ() / cpCNa.getWeight(), cpCNa.getWeight());
 	}
 
@@ -373,7 +373,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 		// component untouched
 
 		setAxisymmetric(true);
-		setCP(ImmutableCoordinate.NUL);
+		setCP(Coordinate.NUL);
 		setCN(0);
 		setCm(0);
 		setCside(0);

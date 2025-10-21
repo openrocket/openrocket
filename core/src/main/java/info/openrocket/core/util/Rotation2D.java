@@ -15,16 +15,16 @@ public class Rotation2D {
 		this.cos = cos;
 	}
 
-	public Coordinate rotateX(Coordinate c) {
-		return new ImmutableCoordinate(c.getX(), cos * c.getY() - sin * c.getZ(), cos * c.getZ() + sin * c.getY(), c.getWeight());
+	public CoordinateIF rotateX(CoordinateIF c) {
+		return new Coordinate(c.getX(), cos * c.getY() - sin * c.getZ(), cos * c.getZ() + sin * c.getY(), c.getWeight());
 	}
 
-	public Coordinate rotateY(Coordinate c) {
-		return new ImmutableCoordinate(cos * c.getX() + sin * c.getZ(), c.getY(), cos * c.getZ() - sin * c.getX(), c.getWeight());
+	public CoordinateIF rotateY(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() + sin * c.getZ(), c.getY(), cos * c.getZ() - sin * c.getX(), c.getWeight());
 	}
 
-	public Coordinate rotateZ(Coordinate c) {
-		return new ImmutableCoordinate(cos * c.getX() - sin * c.getY(), cos * c.getY() + sin * c.getX(), c.getZ(), c.getWeight());
+	public CoordinateIF rotateZ(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() - sin * c.getY(), cos * c.getY() + sin * c.getX(), c.getZ(), c.getWeight());
 	}
 
 	public MutableCoordinate rotateZInPlace(MutableCoordinate c) {
@@ -35,16 +35,16 @@ public class Rotation2D {
 		return c.set(newX, newY, c.getZ(), c.getWeight());
 	}
 
-	public Coordinate invRotateX(Coordinate c) {
-		return new ImmutableCoordinate(c.getX(), cos * c.getY() + sin * c.getZ(), cos * c.getZ() - sin * c.getY(), c.getWeight());
+	public CoordinateIF invRotateX(CoordinateIF c) {
+		return new Coordinate(c.getX(), cos * c.getY() + sin * c.getZ(), cos * c.getZ() - sin * c.getY(), c.getWeight());
 	}
 
-	public Coordinate invRotateY(Coordinate c) {
-		return new ImmutableCoordinate(cos * c.getX() - sin * c.getZ(), c.getY(), cos * c.getZ() + sin * c.getX(), c.getWeight());
+	public CoordinateIF invRotateY(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() - sin * c.getZ(), c.getY(), cos * c.getZ() + sin * c.getX(), c.getWeight());
 	}
 
-	public Coordinate invRotateZ(Coordinate c) {
-		return new ImmutableCoordinate(cos * c.getX() + sin * c.getY(), cos * c.getY() - sin * c.getX(), c.getZ(), c.getWeight());
+	public CoordinateIF invRotateZ(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() + sin * c.getY(), cos * c.getY() - sin * c.getX(), c.getZ(), c.getWeight());
 	}
 
 }

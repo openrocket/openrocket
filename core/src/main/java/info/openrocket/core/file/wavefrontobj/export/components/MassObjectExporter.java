@@ -10,7 +10,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.RocketComponentUtils;
 
 public class MassObjectExporter extends RocketComponentExporter<MassObject> {
@@ -184,18 +184,18 @@ public class MassObjectExporter extends RocketComponentExporter<MassObject> {
 
         // Translate the mesh to the position in the rocket
         //      We will create an offset location that has the same effect as the axial rotation of the mass object
-        final Coordinate location = context.getLocation();
-        Coordinate offsetLocation = getOffsetLocation(location);
+        final CoordinateIF location = context.getLocation();
+        CoordinateIF offsetLocation = getOffsetLocation(location);
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, offsetLocation);
     }
 
-    private Coordinate getOffsetLocation(Coordinate location) {
+    private CoordinateIF getOffsetLocation(CoordinateIF location) {
         // ! This is all still referenced to the OpenRocket coordinate system, not the OBJ one
         final double radialPosition = component.getRadialPosition();
         final double radialDirection = component.getRadialDirection();
         final double x = location.getX();
         final double y = location.getY() + radialPosition * Math.cos(radialDirection);
         final double z = location.getZ() + radialPosition * Math.sin(radialDirection);
-        return new ImmutableCoordinate(x, y, z);
+        return new Coordinate(x, y, z);
     }
 }

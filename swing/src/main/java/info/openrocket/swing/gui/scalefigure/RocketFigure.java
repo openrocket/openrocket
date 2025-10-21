@@ -36,7 +36,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
@@ -358,11 +358,11 @@ public class RocketFigure extends AbstractScaleFigure {
 
 			// <component>.getComponentLocations() will return all the parent instances of this owning component,  AND all of its own instances as well.
 			// so, just draw a motor once for each Coordinate returned...
-			Coordinate[] mountLocations = mount.getComponentLocations();
+			CoordinateIF[] mountLocations = mount.getComponentLocations();
 
-			Coordinate motorPosition = mount.getMotorPosition(config.getId());
-			for (Coordinate curMountLocation : mountLocations) {
-				Coordinate curMotorLocation = curMountLocation.add(motorPosition);
+			CoordinateIF motorPosition = mount.getMotorPosition(config.getId());
+			for (CoordinateIF curMountLocation : mountLocations) {
+				CoordinateIF curMotorLocation = curMountLocation.add(motorPosition);
 
 				// rotate by figure's axial rotation:
 				curMotorLocation = getFigureRotation().transform(curMotorLocation);

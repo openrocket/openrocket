@@ -5,22 +5,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BoundingBox {
-	public Coordinate min; // Top-left coordinate of the bounding box
-	public Coordinate max; // Bottom-right coordinate of the bounding box
+	public CoordinateIF min; // Top-left coordinate of the bounding box
+	public CoordinateIF max; // Bottom-right coordinate of the bounding box
 
 	public BoundingBox() {
 		clear();
 	}
 
-	public BoundingBox(Coordinate _min, Coordinate _max) {
+	public BoundingBox(CoordinateIF _min, CoordinateIF _max) {
 		this();
 		this.min = _min.clone();
 		this.max = _max.clone();
 	}
 
 	public void clear() {
-		min = ImmutableCoordinate.MAX.setWeight(0.0);
-		max = ImmutableCoordinate.MIN.setWeight(0.0);
+		min = Coordinate.MAX.setWeight(0.0);
+		max = Coordinate.MIN.setWeight(0.0);
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class BoundingBox {
 	 * @return a new box, transform by the given transform
 	 */
 	public BoundingBox transform(Transformation transform) {
-		final Coordinate p1 = transform.transform(this.min);
-		final Coordinate p2 = transform.transform(this.max);
+		final CoordinateIF p1 = transform.transform(this.min);
+		final CoordinateIF p2 = transform.transform(this.max);
 
 		final BoundingBox newBox = new BoundingBox();
 		newBox.update(p1);
@@ -95,7 +95,7 @@ public class BoundingBox {
 		return this;
 	}
 
-	public BoundingBox update(Coordinate c) {
+	public BoundingBox update(CoordinateIF c) {
 		update_x_min(c.getX());
 		update_y_min(c.getY());
 		update_z_min(c.getZ());
@@ -115,15 +115,15 @@ public class BoundingBox {
 		return this;
 	}
 
-	public BoundingBox update(final Coordinate[] list) {
-		for (Coordinate c : list) {
+	public BoundingBox update(final CoordinateIF[] list) {
+		for (CoordinateIF c : list) {
 			update(c);
 		}
 		return this;
 	}
 
-	public BoundingBox update(Collection<Coordinate> list) {
-		for (Coordinate c : list) {
+	public BoundingBox update(Collection<CoordinateIF> list) {
+		for (CoordinateIF c : list) {
 			update(c);
 		}
 		return this;
@@ -143,16 +143,16 @@ public class BoundingBox {
 		return this;
 	}
 
-	public Coordinate span() {
+	public CoordinateIF span() {
 		return max.sub(min);
 	}
 
-	public Coordinate[] toArray() {
-		return new Coordinate[] { this.min, this.max };
+	public CoordinateIF[] toArray() {
+		return new CoordinateIF[] { this.min, this.max };
 	}
 
-	public Collection<Coordinate> toCollection() {
-		Collection<Coordinate> toReturn = new ArrayList<>();
+	public Collection<CoordinateIF> toCollection() {
+		Collection<CoordinateIF> toReturn = new ArrayList<>();
 		toReturn.add(this.max);
 		toReturn.add(this.min);
 		return toReturn;

@@ -52,7 +52,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import info.openrocket.swing.gui.main.UndoRedoAction;
 import info.openrocket.swing.utils.CoreServicesModule;
@@ -327,11 +327,11 @@ public class IntegrationTest {
 	private void checkCgCp(double cgx, double mass, double cpx, double cna) {
 		FlightConfiguration config = document.getRocket().getFlightConfiguration(fcid);
 		final RigidBody launchData = MassCalculator.calculateLaunch(config);
-		final Coordinate cg = launchData.getCenterOfMass();
+		final CoordinateIF cg = launchData.getCenterOfMass();
 		assertEquals(cgx, cg.getX(), 0.001);
 		assertEquals(mass, cg.getWeight(), 0.0005);
 		
-		final Coordinate cp = aeroCalc.getWorstCP(config, conditions, null);
+		final CoordinateIF cp = aeroCalc.getWorstCP(config, conditions, null);
 		assertEquals(cpx, cp.getX(), 0.001);
 		assertEquals(cna, cp.getWeight(), 0.1);
 	}

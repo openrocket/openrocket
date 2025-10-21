@@ -1,8 +1,7 @@
 package info.openrocket.core.simulation;
 
-import java.util.Collection;
-
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +13,6 @@ import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
@@ -59,7 +56,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 		//// Local wind speed and direction
 		store.windVelocity = modelWindVelocity(status);
-		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		CoordinateIF airSpeed = status.getRocketVelocity().add(store.windVelocity);
 		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
 
 		// Lateral direction:
@@ -83,7 +80,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Roll, pitch and yaw rate
-		Coordinate rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
+		CoordinateIF rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
 		rot = store.thetaRotation.invRotateZ(rot);
 		
 		store.flightConditions.setRollRate(rot.getZ());
@@ -145,8 +142,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @return			the wind conditions to use
 	 * @throws SimulationException	if a listener throws SimulationException
 	 */
-	protected Coordinate modelWindVelocity(SimulationStatus status) throws SimulationException {
-		Coordinate wind;
+	protected CoordinateIF modelWindVelocity(SimulationStatus status) throws SimulationException {
+		CoordinateIF wind;
 
 		// Call pre-listener
 		wind = SimulationListenerHelper.firePreWindModel(status);
@@ -262,7 +259,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param c					the coordinate value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(Coordinate c, String var) {
+	protected void checkNaN(CoordinateIF c, String var) {
 		if (c.isNaN()) {
 			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug, c=" + c);
 		}
@@ -311,13 +308,13 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.gravity = modelGravity(status);
 		store.thrustForce = 0.0;
 		store.dragForce = 0.0;
-		store.coriolisAcceleration = ImmutableCoordinate.ZERO;
+		store.coriolisAcceleration = Coordinate.ZERO;
 		
-		store.accelerationData = new AccelerationData(ImmutableCoordinate.ZERO, ImmutableCoordinate.ZERO, null, null,
+		store.accelerationData = new AccelerationData(Coordinate.ZERO, Coordinate.ZERO, null, null,
 													  new Quaternion());
 
-		status.setRocketPosition(new ImmutableCoordinate(status.getRocketPosition().getX(), status.getRocketPosition().getY(), 0));
-		status.setRocketVelocity(ImmutableCoordinate.ZERO);
+		status.setRocketPosition(new Coordinate(status.getRocketPosition().getX(), status.getRocketPosition().getY(), 0));
+		status.setRocketVelocity(Coordinate.ZERO);
 	}
 		
 	/*
@@ -341,13 +338,13 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		public RigidBody motorMass;
 		
-		public Coordinate coriolisAcceleration;
+		public CoordinateIF coriolisAcceleration;
 
-		public Coordinate launchRodDirection = null;
+		public CoordinateIF launchRodDirection = null;
 		
 		// set by calculateFlightConditions and calculateAcceleration:
 		public AerodynamicForces forces;
-		public Coordinate windVelocity = new ImmutableCoordinate(Double.NaN, Double.NaN, Double.NaN);
+		public CoordinateIF windVelocity = new Coordinate(Double.NaN, Double.NaN, Double.NaN);
 		public double gravity = Double.NaN;
 		public double thrustForce = Double.NaN;
 		public double dragForce = Double.NaN;
@@ -453,7 +450,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * @param windVector The wind vector as a Coordinate object
 		 * @return The angle in radians, where 0 is North, Pi/2 is East, etc.
 		 */
-		private static double getWindDirection(Coordinate windVector) {
+		private static double getWindDirection(CoordinateIF windVector) {
 			// Math.atan2(y, x) returns the angle in radians measured counterclockwise from the positive x-axis
 			// But we want the angle clockwise from North (positive y-axis)
 			double angle = Math.atan2(windVector.getX(), windVector.getY());

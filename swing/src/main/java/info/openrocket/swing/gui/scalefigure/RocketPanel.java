@@ -28,7 +28,7 @@ import info.openrocket.core.simulation.listeners.system.InterruptListener;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -777,7 +777,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private WarningSet warnings = new WarningSet();
 
 	public void updateExtras() {
-		Coordinate cp, cg;
+		CoordinateIF cp, cg;
 		double cgx = Double.NaN;
 		double cgy = Double.NaN;
 		double cpx = Double.NaN;
@@ -865,8 +865,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure3d.setCG(cg);
 			figure3d.setCP(cp);
 		} else {
-			figure3d.setCG(new ImmutableCoordinate(Double.NaN, Double.NaN));
-			figure3d.setCP(new ImmutableCoordinate(Double.NaN, Double.NaN));
+			figure3d.setCG(new Coordinate(Double.NaN, Double.NaN));
+			figure3d.setCP(new Coordinate(Double.NaN, Double.NaN));
 		}
 
 		if (length > 0 &&

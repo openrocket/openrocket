@@ -1,25 +1,25 @@
 package info.openrocket.core.util;
 
 /**
- * A mutable counterpart to {@link Coordinate} intended strictly for hot-path computations
+ * A mutable counterpart to {@link CoordinateIF} intended strictly for hot-path computations
  * where reusing vector instances avoids excessive garbage. Unlike {@code Coordinate},
  * this class is stateful and <em>not</em> thread-safe. Callers must take care never to
  * expose a {@code MutableCoordinate} outside the scope where it is being mutated, and
- * should convert back to an immutable {@link Coordinate} before publishing values to
+ * should convert back to an immutable {@link CoordinateIF} before publishing values to
  * other parts of the system.
  */
-public final class MutableCoordinate implements Coordinate {
+public final class MutableCoordinate implements CoordinateIF {
 
-	public static final Coordinate ZERO = new MutableCoordinate(0, 0, 0, 0);
-	public static final Coordinate NUL = new MutableCoordinate(0, 0, 0, 0);
-	public static final Coordinate NaN = new MutableCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
-	public static final Coordinate MAX = new MutableCoordinate(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE,
+	public static final CoordinateIF ZERO = new MutableCoordinate(0, 0, 0, 0);
+	public static final CoordinateIF NUL = new MutableCoordinate(0, 0, 0, 0);
+	public static final CoordinateIF NaN = new MutableCoordinate(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+	public static final CoordinateIF MAX = new MutableCoordinate(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE,
 			Double.MAX_VALUE);
-	public static final Coordinate MIN = new MutableCoordinate(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE, 0.0);
+	public static final CoordinateIF MIN = new MutableCoordinate(-Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE, 0.0);
 
-	public static final Coordinate X_UNIT = new MutableCoordinate(1, 0, 0);
-	public static final Coordinate Y_UNIT = new MutableCoordinate(0, 1, 0);
-	public static final Coordinate Z_UNIT = new MutableCoordinate(0, 0, 1);
+	public static final CoordinateIF X_UNIT = new MutableCoordinate(1, 0, 0);
+	public static final CoordinateIF Y_UNIT = new MutableCoordinate(0, 1, 0);
+	public static final CoordinateIF Z_UNIT = new MutableCoordinate(0, 0, 1);
 
 	private double x;
 	private double y;
@@ -53,11 +53,11 @@ public final class MutableCoordinate implements Coordinate {
 		return this;
 	}
 
-	public Coordinate set(Coordinate coord) {
+	public CoordinateIF set(CoordinateIF coord) {
 		return set(coord.getX(), coord.getY(), coord.getZ(), coord.getWeight());
 	}
 
-	public Coordinate set(MutableCoordinate coord) {
+	public CoordinateIF set(MutableCoordinate coord) {
 		return set(coord.x, coord.y, coord.z, coord.weight);
 	}
 
@@ -67,7 +67,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate setX(double x) {
+	public CoordinateIF setX(double x) {
 		return null;
 	}
 
@@ -77,7 +77,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate setY(double y) {
+	public CoordinateIF setY(double y) {
 		return null;
 	}
 
@@ -87,7 +87,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate setZ(double z) {
+	public CoordinateIF setZ(double z) {
 		return null;
 	}
 
@@ -97,30 +97,30 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate setWeight(double weight) {
+	public CoordinateIF setWeight(double weight) {
 		this.weight = weight;
 		return this;
 	}
 
 	@Override
-	public Coordinate setXYZ(Coordinate c) {
+	public CoordinateIF setXYZ(CoordinateIF c) {
 		this.x = c.getX();
 		this.y = c.getY();
 		this.z = c.getZ();
 		return this;
 	}
 
-	public Coordinate clear() {
+	public CoordinateIF clear() {
 		return set(0, 0, 0, 0);
 	}
 
 	@Override
-	public Coordinate add(Coordinate coord) {
+	public CoordinateIF add(CoordinateIF coord) {
 		return add(coord.getX(), coord.getY(), coord.getZ(), coord.getWeight());
 	}
 
 	@Override
-	public Coordinate add(double dx, double dy, double dz) {
+	public CoordinateIF add(double dx, double dy, double dz) {
 		this.x += dx;
 		this.y += dy;
 		this.z += dz;
@@ -128,7 +128,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate add(double dx, double dy, double dz, double dWeight) {
+	public CoordinateIF add(double dx, double dy, double dz, double dWeight) {
 		this.x += dx;
 		this.y += dy;
 		this.z += dz;
@@ -137,7 +137,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate addScaled(Coordinate coord, double scale) {
+	public CoordinateIF addScaled(CoordinateIF coord, double scale) {
 		this.x += coord.getX() * scale;
 		this.y += coord.getY() * scale;
 		this.z += coord.getZ() * scale;
@@ -146,7 +146,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate sub(Coordinate other) {
+	public CoordinateIF sub(CoordinateIF other) {
 		this.x -= other.getX();
 		this.y -= other.getY();
 		this.z -= other.getZ();
@@ -155,7 +155,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate sub(double x1, double y1, double z1) {
+	public CoordinateIF sub(double x1, double y1, double z1) {
 		this.x -= x1;
 		this.y -= y1;
 		this.z -= z1;
@@ -163,7 +163,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate multiply(double m) {
+	public CoordinateIF multiply(double m) {
 		this.x *= m;
 		this.y *= m;
 		this.z *= m;
@@ -172,7 +172,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate multiply(Coordinate other) {
+	public CoordinateIF multiply(CoordinateIF other) {
 		this.x *= other.getX();
 		this.y *= other.getY();
 		this.z *= other.getZ();
@@ -181,7 +181,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate cross(Coordinate other) {
+	public CoordinateIF cross(CoordinateIF other) {
 		double newX = this.y * other.getZ() - this.z * other.getY();
 		double newY = this.z * other.getX() - this.x * other.getZ();
 		double newZ = this.x * other.getY() - this.y * other.getX();
@@ -195,14 +195,14 @@ public final class MutableCoordinate implements Coordinate {
 	/**
 	 * Cross product of two Coordinates taken as vectors
 	 */
-	public static Coordinate cross(Coordinate a, Coordinate b) {
+	public static CoordinateIF cross(CoordinateIF a, CoordinateIF b) {
 		// I know this isn't mutable, but I don't know which coordinate to modify
 		return new MutableCoordinate(a.getY() * b.getZ() - a.getZ() * b.getY(), a.getZ() * b.getX() -
 				a.getX() * b.getZ(), a.getX() * b.getY() - a.getY() * b.getX());
 	}
 
 	@Override
-	public Coordinate normalize() {
+	public CoordinateIF normalize() {
 		double l = length();
 		if (l < 0.0000001) {
 			throw new IllegalStateException("Cannot normalize zero coordinate");
@@ -214,7 +214,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate average(Coordinate other) {
+	public CoordinateIF average(CoordinateIF other) {
 		double x1, y1, z1, w1;
 
 		if (other == null)
@@ -239,7 +239,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate interpolate(Coordinate other, double fraction) {
+	public CoordinateIF interpolate(CoordinateIF other, double fraction) {
 		double x1 = this.x + (other.getX() - this.x) * fraction;
 		double y1 = this.y + (other.getY() - this.y) * fraction;
 		double z1 = this.z + (other.getZ() - this.z) * fraction;
@@ -251,7 +251,7 @@ public final class MutableCoordinate implements Coordinate {
 		return this;
 	}
 
-	public Coordinate scale(double scale) {
+	public CoordinateIF scale(double scale) {
 		this.x *= scale;
 		this.y *= scale;
 		this.z *= scale;
@@ -260,7 +260,7 @@ public final class MutableCoordinate implements Coordinate {
 	}
 
 	@Override
-	public Coordinate clone() {
+	public CoordinateIF clone() {
 		return new MutableCoordinate(this.x, this.y, this.z, this.weight);
 	}
 }

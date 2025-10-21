@@ -8,8 +8,8 @@ import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 import info.openrocket.core.util.MathUtil;
 
 public class PodSet extends ComponentAssembly implements RingInstanceable {
@@ -78,17 +78,17 @@ public class PodSet extends ComponentAssembly implements RingInstanceable {
 	}
 	
 	@Override
-	public Coordinate[] getInstanceOffsets() {
+	public CoordinateIF[] getInstanceOffsets() {
 		checkState();
 
 		final double radius = this.radiusMethod.getRadius(this.parent, this, radiusOffset_m);
 
-		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		CoordinateIF[] toReturn = new CoordinateIF[this.instanceCount];
 		final double[] angles = getInstanceAngles();
 		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
 			final double curY = radius * Math.cos(angles[instanceNumber]);
 			final double curZ = radius * Math.sin(angles[instanceNumber]);
-			toReturn[instanceNumber] = new ImmutableCoordinate(0, curY, curZ);
+			toReturn[instanceNumber] = new Coordinate(0, curY, curZ);
 		}
 		
 		return toReturn;

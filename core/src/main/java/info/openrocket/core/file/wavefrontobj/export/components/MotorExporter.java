@@ -13,7 +13,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -160,7 +160,7 @@ public class MotorExporter {
 
 
         // Translate the mesh to the position in the rocket
-        Coordinate location = context.getLocation();
+        CoordinateIF location = context.getLocation();
         final double xOffs = mount.getLength() + ((MotorMount) mount).getMotorOverhang() - length;
         location = location.add(xOffs, 0, 0);      // Motor starts at the aft end of the mount
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);

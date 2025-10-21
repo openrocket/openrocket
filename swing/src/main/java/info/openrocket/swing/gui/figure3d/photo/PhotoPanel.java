@@ -33,7 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,6 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -561,11 +561,11 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			final Motor motor = mount.getMotorConfig(motorID).getMotor();
 			final double length = motor.getLength();
 
-			Coordinate[] position = ((RocketComponent) mount)
-					.toAbsolute(new ImmutableCoordinate(((RocketComponent) mount)
+			CoordinateIF[] position = ((RocketComponent) mount)
+					.toAbsolute(new Coordinate(((RocketComponent) mount)
 							.getLength() + mount.getMotorOverhang() - length));
 
-			for (Coordinate coordinate : position) {
+			for (CoordinateIF coordinate : position) {
 				gl.glPushMatrix();
 				gl.glTranslated(coordinate.getX() + motor.getLength(),
 						coordinate.getY(), coordinate.getZ());
@@ -631,8 +631,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			return cachedBounds;
 		} else {
 			final Bounds b = new Bounds();
-			final Collection<Coordinate> bounds = configuration.getBounds();
-			for (Coordinate c : bounds) {
+			final Collection<CoordinateIF> bounds = configuration.getBounds();
+			for (CoordinateIF c : bounds) {
 				b.xMax = Math.max(b.xMax, c.getX());
 				b.xMin = Math.min(b.xMin, c.getX());
 

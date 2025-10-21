@@ -3,10 +3,10 @@ package info.openrocket.core.masscalc;
 //import junit.framework.TestCase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.BaseTestCase;
 
@@ -15,18 +15,18 @@ public class RigidBodyTest extends BaseTestCase {
 	// tolerance for compared double test results
 	protected final double EPSILON = MathUtil.EPSILON;
 
-	protected final Coordinate ZERO = new ImmutableCoordinate(0.0, 0.0, 0.0);
+	protected final CoordinateIF ZERO = new Coordinate(0.0, 0.0, 0.0);
 
 	@Test
 	public void testTwoPointInline() {
 		double m1 = 2.5;
-		Coordinate r1 = new ImmutableCoordinate(0, -40, 0, m1);
+		CoordinateIF r1 = new Coordinate(0, -40, 0, m1);
 		double I1ax = 28.7;
 		double I1t = I1ax / 2;
 		RigidBody body1 = new RigidBody(r1, I1ax, I1t);
 
 		double m2 = 5.7;
-		Coordinate r2 = new ImmutableCoordinate(0, 32, 0, m2);
+		CoordinateIF r2 = new Coordinate(0, 32, 0, m2);
 		double I2ax = 20;
 		double I2t = I2ax / 2;
 		RigidBody body2 = new RigidBody(r2, I2ax, I2t);
@@ -34,14 +34,14 @@ public class RigidBodyTest extends BaseTestCase {
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		RigidBody asbly3 = body1.add(body2);
 
-		Coordinate cm3_expected = r1.average(r2);
+		CoordinateIF cm3_expected = r1.average(r2);
 
 		assertEquals(cm3_expected, asbly3.getCM(), " Center of Mass calculated incorrectly: ");
 
 		// these are a bit of a hack, and depend upon all the bodies being along the
 		// y=0, z=0 line.
-		Coordinate delta13 = asbly3.getCM().sub(r1);
-		Coordinate delta23 = asbly3.getCM().sub(r2);
+		CoordinateIF delta13 = asbly3.getCM().sub(r1);
+		CoordinateIF delta23 = asbly3.getCM().sub(r2);
 
 		double y13 = delta13.getY();
 		double dy_13_2 = MathUtil.pow2(y13); // hack
@@ -67,13 +67,13 @@ public class RigidBodyTest extends BaseTestCase {
 	@Test
 	public void testTwoPointGeneral() {
 		double m1 = 2.5;
-		Coordinate r1 = new ImmutableCoordinate(0, -40, -10, m1);
+		CoordinateIF r1 = new Coordinate(0, -40, -10, m1);
 		double I1xx = 28.7;
 		double I1t = I1xx / 2;
 		RigidBody body1 = new RigidBody(r1, I1xx, I1t);
 
 		double m2 = 5.7;
-		Coordinate r2 = new ImmutableCoordinate(0, 32, 15, m2);
+		CoordinateIF r2 = new Coordinate(0, 32, 15, m2);
 		double I2xx = 20;
 		double I2t = I2xx / 2;
 		RigidBody body2 = new RigidBody(r2, I2xx, I2t);
@@ -81,13 +81,13 @@ public class RigidBodyTest extends BaseTestCase {
 		// point 3 is defined as the CM of bodies 1 and 2 combined.
 		RigidBody asbly3 = body1.add(body2);
 
-		Coordinate cm3_expected = r1.average(r2);
+		CoordinateIF cm3_expected = r1.average(r2);
 		assertEquals(cm3_expected, asbly3.getCM(), " Center of Mass calculated incorrectly: ");
 
 		// these are a bit of a hack, and depend upon all the bodies being along the
 		// y=0, z=0 line.
-		Coordinate delta13 = asbly3.getCM().sub(r1);
-		Coordinate delta23 = asbly3.getCM().sub(r2);
+		CoordinateIF delta13 = asbly3.getCM().sub(r1);
+		CoordinateIF delta23 = asbly3.getCM().sub(r2);
 		double x2, y2, z2;
 
 		x2 = MathUtil.pow2(delta13.getX());
@@ -117,19 +117,19 @@ public class RigidBodyTest extends BaseTestCase {
 	@Test
 	public void testRigidBodyCompoundCalculations() {
 		double m1 = 2.5;
-		Coordinate r1 = new ImmutableCoordinate(0, -40, 0, m1);
+		CoordinateIF r1 = new Coordinate(0, -40, 0, m1);
 		double I1ax = 28.7;
 		double I1t = I1ax / 2;
 		RigidBody body1 = new RigidBody(r1, I1ax, I1t);
 
 		double m2 = m1;
-		Coordinate r2 = new ImmutableCoordinate(0, -2, 0, m2);
+		CoordinateIF r2 = new Coordinate(0, -2, 0, m2);
 		double I2ax = 28.7;
 		double I2t = I2ax / 2;
 		RigidBody body2 = new RigidBody(r2, I2ax, I2t);
 
 		double m5 = 5.7;
-		Coordinate r5 = new ImmutableCoordinate(0, 32, 0, m5);
+		CoordinateIF r5 = new Coordinate(0, 32, 0, m5);
 		double I5ax = 20;
 		double I5t = I5ax / 2;
 		RigidBody body5 = new RigidBody(r5, I5ax, I5t);
@@ -139,10 +139,10 @@ public class RigidBodyTest extends BaseTestCase {
 
 		// point 4 is defined as the CM of bodies 1, 2 and 5 combined.
 		RigidBody asbly4_indirect = asbly3.add(body5);
-		Coordinate cm4_expected = r1.average(r2).average(r5);
+		CoordinateIF cm4_expected = r1.average(r2).average(r5);
 
 		assertEquals(cm4_expected,
-				new ImmutableCoordinate(0, 7.233644859813085, 0, m1 + m2 + m5), " Center of Mass calculated incorrectly: ");
+				new Coordinate(0, 7.233644859813085, 0, m1 + m2 + m5), " Center of Mass calculated incorrectly: ");
 
 		// these are a bit of a hack, and depend upon all the bodies being along the
 		// y=0, z=0 line.

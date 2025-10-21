@@ -3,9 +3,8 @@ package info.openrocket.core.appearance;
 import info.openrocket.core.appearance.Decal.EdgeMode;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.AbstractChangeSource;
-import info.openrocket.core.util.ImmutableCoordinate;
-import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ORColor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -129,9 +128,9 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		
 		if (image != null) {
 			t = new Decal( //
-					new ImmutableCoordinate(offsetU, offsetV), //
-					new ImmutableCoordinate(centerU, centerV), //
-					new ImmutableCoordinate(scaleU, scaleV), //
+					new Coordinate(offsetU, offsetV), //
+					new Coordinate(centerU, centerV), //
+					new Coordinate(scaleU, scaleV), //
 					rotation, //
 					image, //
 					edgeMode);

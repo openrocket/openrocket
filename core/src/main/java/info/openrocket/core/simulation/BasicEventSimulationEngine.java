@@ -6,7 +6,8 @@ import java.util.Deque;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,6 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.simulation.listeners.system.OptimumCoastListener;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
 
@@ -178,8 +178,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		double previousSimulationTime = currentStatus.getSimulationTime();
 		
 		// Get originating position (in case listener has modified launch position)
-		Coordinate origin = currentStatus.getRocketPosition();
-		Coordinate originVelocity = currentStatus.getRocketVelocity();
+		CoordinateIF origin = currentStatus.getRocketPosition();
+		CoordinateIF originVelocity = currentStatus.getRocketVelocity();
 		
 		try {
 
@@ -224,7 +224,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				
 				// Position relative to start location
-				Coordinate relativePosition = currentStatus.getRocketPosition().sub(origin);
+				CoordinateIF relativePosition = currentStatus.getRocketPosition().sub(origin);
 				
 				// Add appropriate events
 				if (!currentStatus.isLiftoff()) {
@@ -232,7 +232,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					// Avoid sinking into ground before liftoff
 					if (relativePosition.getZ() < 0) {
 						currentStatus.setRocketPosition(origin);
-						relativePosition = ImmutableCoordinate.ZERO;
+						relativePosition = Coordinate.ZERO;
 						currentStatus.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off

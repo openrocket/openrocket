@@ -8,7 +8,6 @@ import info.openrocket.core.simulation.extension.AbstractSimulationExtension;
 import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
 
 public class AirStart extends AbstractSimulationExtension {
 
@@ -56,9 +55,9 @@ public class AirStart extends AbstractSimulationExtension {
 	private class AirStartListener extends AbstractSimulationListener {
 		@Override
 		public void startSimulation(SimulationStatus status) throws SimulationException {
-			status.setRocketPosition(new ImmutableCoordinate(0, 0, getLaunchAltitude()));
+			status.setRocketPosition(new Coordinate(0, 0, getLaunchAltitude()));
 			status.setRocketVelocity(
-					status.getRocketOrientationQuaternion().rotate(new ImmutableCoordinate(0, 0, getLaunchVelocity())));
+					status.getRocketOrientationQuaternion().rotate(new Coordinate(0, 0, getLaunchVelocity())));
 		}
 	}
 }

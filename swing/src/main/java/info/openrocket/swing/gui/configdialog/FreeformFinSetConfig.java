@@ -5,7 +5,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -42,6 +41,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.adaptors.CustomFocusTraversalPolicy;
 import info.openrocket.swing.gui.util.Icons;
 import org.slf4j.Logger;
@@ -59,7 +59,6 @@ import info.openrocket.core.rocketcomponent.IllegalFinPointException;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
-import info.openrocket.core.util.Coordinate;
 
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -447,7 +446,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		if (option == JFileChooser.APPROVE_OPTION) {
 			try {
 				CustomFinImporter importer = new CustomFinImporter();
-				ArrayList<Coordinate> points = importer.getPoints(chooser.getSelectedFile());
+				ArrayList<CoordinateIF> points = importer.getPoints(chooser.getSelectedFile());
 				document.startUndo(trans.get("CustomFinImport.undo"));
 				finset.setPoints( points);
 			} catch (IOException e) {
@@ -501,8 +500,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			return;
 		}
 		final FreeformFinSet finSet = (FreeformFinSet) component;
-		Coordinate currentPoint = finSet.getFinPoints()[currentPointIdx];
-		Coordinate nextPoint = finSet.getFinPoints()[currentPointIdx + 1];
+		CoordinateIF currentPoint = finSet.getFinPoints()[currentPointIdx];
+		CoordinateIF nextPoint = finSet.getFinPoints()[currentPointIdx + 1];
 		Point2D.Double toAdd = new Point2D.Double((currentPoint.getX() + nextPoint.getX()) / 2, (currentPoint.getY() + nextPoint.getY()) / 2);
 		finSet.addPoint(currentPointIdx + 1, toAdd);
 	}
@@ -634,7 +633,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			return (lockIndex == dragIndex + 1) ? dragIndex : lockIndex;
 		}
 
-		private Point2D.Double snapPoint(Point2D.Double point, Coordinate lockPoint) {
+		private Point2D.Double snapPoint(Point2D.Double point, CoordinateIF lockPoint) {
 			Point2D.Double snappedPoint = new Point2D.Double(point.x, point.y);
 
 			double diffX = point.x - lockPoint.getX();
@@ -847,7 +846,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			try {
 
 				double value = UnitGroup.UNITS_LENGTH.fromString(str);
-				Coordinate c = finset.getFinPoints()[rowIndex];
+				CoordinateIF c = finset.getFinPoints()[rowIndex];
 				if (columnIndex == Columns.X.ordinal()){
 					c = c.setX(value);
 				}else{

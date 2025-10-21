@@ -36,7 +36,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.BoundingBox;
 
@@ -385,8 +385,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		caretOverlay.markDirty(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 		
 		// The existing relative Extras don't really work right for 3d.
-		Coordinate pCP = project(cp, gl, glu);
-		Coordinate pCG = project(cg, gl, glu);
+		CoordinateIF pCP = project(cp, gl, glu);
+		CoordinateIF pCG = project(cg, gl, glu);
 		
 		final int d = CARET_SIZE / 2;
 		double height = canvas.getHeight();
@@ -623,7 +623,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	// ///////////// Extra methods
 	
-	private Coordinate project(final Coordinate c, final GL2 gl, final GLU glu) {
+	private CoordinateIF project(final CoordinateIF c, final GL2 gl, final GLU glu) {
 		final double[] mvmatrix = new double[16];
 		final double[] projmatrix = new double[16];
 		final int[] viewport = new int[4];
@@ -636,19 +636,19 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		glu.gluProject(c.getX(), c.getY(), c.getZ(), mvmatrix, 0, projmatrix, 0, viewport, 0,
 				out, 0);
 		
-		return new ImmutableCoordinate(out[0], out[1], out[2]);
+		return new Coordinate(out[0], out[1], out[2]);
 		
 	}
 	
-	private Coordinate cp = new ImmutableCoordinate(0, 0, 0);
-	private Coordinate cg = new ImmutableCoordinate(0, 0, 0);
+	private CoordinateIF cp = new Coordinate(0, 0, 0);
+	private CoordinateIF cg = new Coordinate(0, 0, 0);
 	
-	public void setCG(final Coordinate cg) {
+	public void setCG(final CoordinateIF cg) {
 		this.cg = cg;
 		redrawExtras = true;
 	}
 	
-	public void setCP(final Coordinate cp) {
+	public void setCP(final CoordinateIF cp) {
 		this.cp = cp;
 		redrawExtras = true;
 	}

@@ -7,15 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;
-import info.openrocket.core.util.Coordinate;
-	
+
 public class MotorRowFilterTest {
 	// just "slightly" above or below limits; also accuracy of
 	// equality tests
@@ -173,18 +173,18 @@ public class MotorRowFilterTest {
 		// This is the Aerotech H123 from thrustcurve.org, motor ID 917
 		final ThrustCurveMotor fullMotor = new ThrustCurveMotor.Builder()
 			.setCaseInfo("Aerotech 38/240")
-			.setCGPoints(new Coordinate[] {new ImmutableCoordinate(0.077, 0, 0, 125.0),
-										   new ImmutableCoordinate(0.077, 0, 0, 109.93),
-										   new ImmutableCoordinate(0.077, 0, 0, 82.3872),
-										   new ImmutableCoordinate(0.077, 0, 0, 75.6278),
-										   new ImmutableCoordinate(0.077, 0, 0, 69.1235),
-										   new ImmutableCoordinate(0.077, 0, 0, 40.4295),
-										   new ImmutableCoordinate(0.077, 0, 0, 30.4827),
-										   new ImmutableCoordinate(0.077, 0, 0, 17.4757),
-										   new ImmutableCoordinate(0.077, 0, 0, 7.526),
-										   new ImmutableCoordinate(0.077, 0, 0, 4.84713),
-										   new ImmutableCoordinate(0.077, 0, 0, 2.67857),
-										   new ImmutableCoordinate(0.077, 0, 0, 2.6)})
+			.setCGPoints(new CoordinateIF[] {new Coordinate(0.077, 0, 0, 125.0),
+										   new Coordinate(0.077, 0, 0, 109.93),
+										   new Coordinate(0.077, 0, 0, 82.3872),
+										   new Coordinate(0.077, 0, 0, 75.6278),
+										   new Coordinate(0.077, 0, 0, 69.1235),
+										   new Coordinate(0.077, 0, 0, 40.4295),
+										   new Coordinate(0.077, 0, 0, 30.4827),
+										   new Coordinate(0.077, 0, 0, 17.4757),
+										   new Coordinate(0.077, 0, 0, 7.526),
+										   new Coordinate(0.077, 0, 0, 4.84713),
+										   new Coordinate(0.077, 0, 0, 2.67857),
+										   new Coordinate(0.077, 0, 0, 2.6)})
 			.setDescription("Description of H123")
 			.setDesignation("H123")
 			.setDiameter(0.038)
@@ -214,9 +214,9 @@ public class MotorRowFilterTest {
 			.setTimePoints(new double[] {0, 1})
 			.setThrustPoints(new double[] {0, 2})
 			.setLength(0.10)
-			.setCGPoints(new Coordinate[] {
-					new ImmutableCoordinate(0.05,0,0,0.05),
-					new ImmutableCoordinate(0.03,0,0,0.03)})
+			.setCGPoints(new CoordinateIF[] {
+					new Coordinate(0.05,0,0,0.05),
+					new Coordinate(0.03,0,0,0.03)})
 			.build();
 		
 		testMotor(emptyMotor, new ArrayList(), ImpulseClass.A, ImpulseClass.A, ImpulseClass.B);

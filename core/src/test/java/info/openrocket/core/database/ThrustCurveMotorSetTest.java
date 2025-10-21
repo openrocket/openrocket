@@ -7,7 +7,7 @@ import info.openrocket.core.database.motor.ThrustCurveMotorSet;
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.ThrustCurveMotor;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
 import org.junit.jupiter.api.Test;
 
 public class ThrustCurveMotorSetTest {
@@ -31,7 +31,7 @@ public class ThrustCurveMotorSetTest {
 			.setLength(0.07)
 			.setTimePoints(new double[] { 0, 1, 2 })
 			.setThrustPoints(new double[] { 0, 1, 0 })
-			.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
+			.setCGPoints(new CoordinateIF[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
 			.setDigest("digestA")
 			.build();
 
@@ -46,7 +46,7 @@ public class ThrustCurveMotorSetTest {
 			.setLength(0.07)
 			.setTimePoints(new double[] { 0, 1, 2 })
 			.setThrustPoints(new double[] { 0, 1, 0 })
-			.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
+			.setCGPoints(new CoordinateIF[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
 			.setDigest("digestB")
 			.build();
 
@@ -60,7 +60,7 @@ public class ThrustCurveMotorSetTest {
 			.setLength(0.07)
 			.setTimePoints(new double[] { 0, 1, 2 })
 			.setThrustPoints(new double[] { 0, 2, 0 })
-			.setCGPoints(new Coordinate[] { ImmutableCoordinate.NUL, ImmutableCoordinate.NUL, ImmutableCoordinate.NUL })
+			.setCGPoints(new CoordinateIF[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL })
 			.setDigest("digestD")
 			.build();
 

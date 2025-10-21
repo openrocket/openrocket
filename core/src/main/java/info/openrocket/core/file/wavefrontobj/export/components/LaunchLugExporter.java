@@ -10,7 +10,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.LaunchLug;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
     public LaunchLugExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
@@ -46,7 +46,7 @@ public class LaunchLugExporter extends RocketComponentExporter<LaunchLug> {
         int endIdx = obj.getNumVertices() - 1;
 
         // Translate the mesh to the position in the rocket
-        final Coordinate location = context.getLocation();
+        final CoordinateIF location = context.getLocation();
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 }

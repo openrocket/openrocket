@@ -22,7 +22,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
@@ -60,12 +60,12 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 	private double time;
 
-	private Coordinate position;
+	private CoordinateIF position;
 	private WorldCoordinate worldPosition;
-	private Coordinate velocity;
+	private CoordinateIF velocity;
 
 	private Quaternion orientation;
-	private Coordinate rotationVelocity;
+	private CoordinateIF rotationVelocity;
 
 	private double maxZVelocity = Double.NEGATIVE_INFINITY;
 	private double startWarningsTime = RK4SimulationStepper.RECOMMENDED_MAX_TIME;
@@ -127,14 +127,14 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		Quaternion o;
 		FlightConditions cond = new FlightConditions(this.configuration);
 		double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
-		o = Quaternion.rotation(new ImmutableCoordinate(0, 0, angle));
+		o = Quaternion.rotation(new Coordinate(0, 0, angle));
 
 		// Launch rod angle and direction
-		o = o.multiplyLeft(Quaternion.rotation(new ImmutableCoordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
-		o = o.multiplyLeft(Quaternion.rotation(new ImmutableCoordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
 		
 		this.orientation = o;
-		this.rotationVelocity = ImmutableCoordinate.NUL;
+		this.rotationVelocity = Coordinate.NUL;
 
 		/*
 		 * Calculate the effective launch rod length taking into account launch lugs.
@@ -144,7 +144,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		double lugPosition = Double.NaN;
 		for (RocketComponent c : this.configuration.getActiveComponents()) {
 			if (c instanceof LaunchLug) {
-				double pos = c.toAbsolute(new ImmutableCoordinate(c.getLength()))[0].getX();
+				double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].getX();
 				if (Double.isNaN(lugPosition) || pos > lugPosition) {
 					lugPosition = pos;
 				}
@@ -152,7 +152,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		}
 		if (!Double.isNaN(lugPosition)) {
 			double maxX = 0;
-			for (Coordinate c : this.configuration.getBounds()) {
+			for (CoordinateIF c : this.configuration.getBounds()) {
 				if (c.getX() > maxX)
 					maxX = c.getX();
 			}
@@ -279,7 +279,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	 * Set the rocket position relative to the launch site; at t = 0s, equals (0, 0, 0).
 	 * @param position the rocket position
 	 */
-	public void setRocketPosition(Coordinate position) {
+	public void setRocketPosition(CoordinateIF position) {
 		this.position = position;
 		modID = new ModID();
 	}
@@ -288,7 +288,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	 * Get the rocket position relative to the launch site; at t = 0s, equals (0, 0, 0).
 	 * @return the rocket position
 	 */
-	public Coordinate getRocketPosition() {
+	public CoordinateIF getRocketPosition() {
 		return position;
 	}
 
@@ -309,12 +309,12 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		return worldPosition;
 	}
 
-	public void setRocketVelocity(Coordinate velocity) {
+	public void setRocketVelocity(CoordinateIF velocity) {
 		this.velocity = velocity;
 		modID = new ModID();
 	}
 
-	public Coordinate getRocketVelocity() {
+	public CoordinateIF getRocketVelocity() {
 		return velocity;
 	}
 
@@ -334,11 +334,11 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		modID = new ModID();
 	}
 
-	public Coordinate getRocketRotationVelocity() {
+	public CoordinateIF getRocketRotationVelocity() {
 		return rotationVelocity;
 	}
 
-	public void setRocketRotationVelocity(Coordinate rotation) {
+	public void setRocketRotationVelocity(CoordinateIF rotation) {
 		this.rotationVelocity = rotation;
 	}
 
@@ -643,7 +643,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, getRocketVelocity().length());
 		
-		Coordinate c = getRocketOrientationQuaternion().rotateZ();
+		CoordinateIF c = getRocketOrientationQuaternion().rotateZ();
 		double theta = Math.atan2(c.getZ(), MathUtil.hypot(c.getX(), c.getY()));
 		//(x, y) instead of (y, x) because 0 is north
 		double phi = (Math.atan2(c.getX(), c.getY())+ (2.0 * Math.PI)) % (2.0 * Math.PI);

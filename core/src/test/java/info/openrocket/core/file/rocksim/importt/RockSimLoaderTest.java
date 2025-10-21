@@ -20,7 +20,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -136,12 +136,12 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(3, freeformFinSet1.getFinCount());
         assertEquals(3, freeformFinSet2.getFinCount());
 
-        Coordinate[] points1 = freeformFinSet1.getFinPoints();
-        Coordinate[] expectedPoints1 = new Coordinate[] {
-                new ImmutableCoordinate(0.0, 0.0, 0.0),
-                new ImmutableCoordinate(0.035, 0.03, 0.0),
-                new ImmutableCoordinate(0.07250, 0.03, 0.0),
-                new ImmutableCoordinate(0.07500, 0.01250, 0.0)
+        CoordinateIF[] points1 = freeformFinSet1.getFinPoints();
+        CoordinateIF[] expectedPoints1 = new CoordinateIF[] {
+                new Coordinate(0.0, 0.0, 0.0),
+                new Coordinate(0.035, 0.03, 0.0),
+                new Coordinate(0.07250, 0.03, 0.0),
+                new Coordinate(0.07500, 0.01250, 0.0)
         };
         assertArrayEquals(expectedPoints1, points1, " Fin set 1 fin points do not match");
         assertEquals(0.05, freeformFinSet1.getTabLength(),
@@ -151,12 +151,12 @@ public class RockSimLoaderTest extends BaseTestCase {
         assertEquals(0.01, freeformFinSet1.getTabOffset(),
                 MathUtil.EPSILON, " Fin set 1 fin tab offset does not match");
 
-        Coordinate[] points2 = freeformFinSet2.getFinPoints();
-        Coordinate[] expectedPoints2 = new Coordinate[] {
-                new ImmutableCoordinate(0.0, 0.0, 0.0),
-                new ImmutableCoordinate(0.025, 0.035, 0.0),
-                new ImmutableCoordinate(0.05, 0.03, 0.0),
-                new ImmutableCoordinate(0.06, -0.01, 0.0)
+        CoordinateIF[] points2 = freeformFinSet2.getFinPoints();
+        CoordinateIF[] expectedPoints2 = new CoordinateIF[] {
+                new Coordinate(0.0, 0.0, 0.0),
+                new Coordinate(0.025, 0.035, 0.0),
+                new Coordinate(0.05, 0.03, 0.0),
+                new Coordinate(0.06, -0.01, 0.0)
         };
         assertArrayEquals(expectedPoints2, points2, " Fin set 2 fin points do not match");
         assertEquals(0.03, freeformFinSet2.getTabLength(),

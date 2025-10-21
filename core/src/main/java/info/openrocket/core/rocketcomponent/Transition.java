@@ -11,7 +11,7 @@ import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 public class Transition extends SymmetricComponent implements InsideColorComponent {
@@ -658,8 +658,8 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 	}
 
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = super.getComponentBounds();
+	public Collection<CoordinateIF> getComponentBounds() {
+		Collection<CoordinateIF> bounds = super.getComponentBounds();
 		if (foreShoulderLength > MINFEATURE)
 			addBound(bounds, -foreShoulderLength, foreShoulderRadius);
 		if (aftShoulderLength > MINFEATURE)
@@ -680,10 +680,10 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			double transVolume = volume;
 			double transLongMOI = longitudinalUnitInertia * transVolume;
 			double transRotMOI = rotationalUnitInertia * transVolume;
-			final Coordinate transCG = cg;
+			final CoordinateIF transCG = cg;
 
 			double foreCapVolume = 0.0;
-			Coordinate foreCapCG = ImmutableCoordinate.ZERO;
+			CoordinateIF foreCapCG = Coordinate.ZERO;
 			double foreCapLongMOI = 0.0;
 			double foreCapRotMOI = 0.0;
 			if (isForeShoulderCapped()) {
@@ -701,7 +701,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 
 			double foreShoulderVolume = 0.0;
-			Coordinate foreShoulderCG = ImmutableCoordinate.ZERO;
+			CoordinateIF foreShoulderCG = Coordinate.ZERO;
 			double foreShoulderLongMOI = 0.0;
 			double foreShoulderRotMOI = 0.0;
 			if (getForeShoulderLength() > MINFEATURE) {
@@ -719,7 +719,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 
 			double aftShoulderVolume = 0.0;
-			Coordinate aftShoulderCG = ImmutableCoordinate.ZERO;
+			CoordinateIF aftShoulderCG = Coordinate.ZERO;
 			double aftShoulderLongMOI = 0.0;
 			double aftShoulderRotMOI = 0.0;
 			if (getAftShoulderLength() > MINFEATURE) {
@@ -738,7 +738,7 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			}
 
 			double aftCapVolume = 0.0;
-			Coordinate aftCapCG = ImmutableCoordinate.ZERO;
+			CoordinateIF aftCapCG = Coordinate.ZERO;
 			double aftCapLongMOI = 0.0;
 			double aftCapRotMOI = 0.0;
 			if (isAftShoulderCapped()) {
@@ -768,14 +768,14 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 			
 			// If the mass is 0, so are moments of inertia
 			if (mass < MathUtil.EPSILON) {
-				cg = new ImmutableCoordinate(0, 0, 0, 0);
+				cg = new Coordinate(0, 0, 0, 0);
 				longitudinalUnitInertia = 0.0;
 				rotationalUnitInertia = 0.0;
 
 				return;
 			}
 			
-			cg = new ImmutableCoordinate(cgx / mass, 0, 0, mass);
+			cg = new Coordinate(cgx / mass, 0, 0, mass);
 
 			// need to use parallel axis theorem to move longitudinal MOI to CG of component
 			foreCapLongMOI += pow2(cg.getX() - foreCapCG.getX()) * foreCapVolume;

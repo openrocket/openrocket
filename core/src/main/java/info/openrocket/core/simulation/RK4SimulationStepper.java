@@ -5,25 +5,22 @@ import java.util.Collection;
 import java.util.Random;
 
 import info.openrocket.core.logging.SimulationAbort;
-import info.openrocket.core.util.ImmutableCoordinate;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.masscalc.RigidBody;
-import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.MutableCoordinate;
 import info.openrocket.core.util.Quaternion;
-import info.openrocket.core.util.Rotation2D;
 import info.openrocket.core.util.WorldCoordinate;
 
 public class RK4SimulationStepper extends AbstractSimulationStepper {
@@ -82,7 +79,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		SimulationConditions sim = original.getSimulationConditions();
 
-		store.launchRodDirection = new ImmutableCoordinate(
+		store.launchRodDirection = new Coordinate(
 												  Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
 												  Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
 												  Math.cos(sim.getLaunchRodAngle()));
@@ -257,22 +254,22 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 
 		//// Sum all together,  y(n+1) = y(n) + h*(k1 + 2*k2 + 2*k3 + k4)/6
-	Coordinate deltaO;
-	Coordinate deltaVCoord = mutableCoordA.clear()
+	CoordinateIF deltaO;
+	CoordinateIF deltaVCoord = mutableCoordA.clear()
 		.addScaled(k2.a, 2)
 		.addScaled(k3.a, 2)
 		.add(k1.a)
 		.add(k4.a)
 		.multiply(store.timeStep / 6)
 		.toImmutable();
-	Coordinate deltaPCoord = mutableCoordB.clear()
+	CoordinateIF deltaPCoord = mutableCoordB.clear()
 		.addScaled(k2.v, 2)
 		.addScaled(k3.v, 2)
 		.add(k1.v)
 		.add(k4.v)
 		.multiply(store.timeStep / 6)
 		.toImmutable();
-	Coordinate deltaRCoord = mutableCoordC.clear()
+	CoordinateIF deltaRCoord = mutableCoordC.clear()
 		.addScaled(k2.ra, 2)
 		.addScaled(k3.ra, 2)
 		.add(k1.ra)
@@ -454,7 +451,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			// set angular acceleration to zero.
 			
 			double projection = linearAcceleration.dot(store.launchRodDirection);
-			Coordinate rodDirection = store.launchRodDirection;
+			CoordinateIF rodDirection = store.launchRodDirection;
 			linearAcceleration.set(rodDirection.getX() * projection,
 					rodDirection.getY() * projection,
 					rodDirection.getZ() * projection,
@@ -548,12 +545,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 	private static class RK4Parameters {
 		/** Linear acceleration */
-		public Coordinate a;
+		public CoordinateIF a;
 		/** Linear velocity */
-		public Coordinate v;
+		public CoordinateIF v;
 		/** Rotational acceleration */
-		public Coordinate ra;
+		public CoordinateIF ra;
 		/** Rotational velocity */
-		public Coordinate rv;
+		public CoordinateIF rv;
 	}
 }
