@@ -393,8 +393,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	 * @throws SimulationException 
 	 */
 	private AccelerationData computeAcceleration(SimulationStatus status, DataStore store) throws SimulationException {
-		Coordinate linearAcceleration;
-		Coordinate angularAcceleration;
+		MutableCoordinate linearAcceleration;
+		MutableCoordinate angularAcceleration;
 		
 		// Calculate mass data
 		RigidBody structureMassData = calculateStructureMass(status);
@@ -424,37 +424,42 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		store.thrustForce = calculateThrust(status, store);
 		double forceZ =  store.thrustForce - store.dragForce;
 		
-		linearAcceleration = new ImmutableCoordinate(-fN / store.rocketMass.getMass(),
-					-fSide / store.rocketMass.getMass(),
-					forceZ / store.rocketMass.getMass());
-		
-		linearAcceleration = store.thetaRotation.rotateZ(linearAcceleration);
-		
+		linearAcceleration = new MutableCoordinate(-fN / store.rocketMass.getMass(),
+				-fSide / store.rocketMass.getMass(),
+				forceZ / store.rocketMass.getMass());
+
+		store.thetaRotation.rotateZInPlace(linearAcceleration);
+
 		// Convert into rocket world coordinates
-		linearAcceleration = status.getRocketOrientationQuaternion().rotate(linearAcceleration);
-		
+		status.getRocketOrientationQuaternion().rotateInPlace(linearAcceleration);
+
 		// add effect of gravity
 		store.gravity = modelGravity(status);
-		linearAcceleration = linearAcceleration.sub(0, 0, store.gravity);
+		linearAcceleration.sub(0, 0, store.gravity);
 		
 		// add effect of Coriolis acceleration
 		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation()
 				.getCoriolisAcceleration(status.getRocketWorldPosition(), status.getRocketVelocity());
-		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
+		linearAcceleration.add(store.coriolisAcceleration);
 
 		// If we haven't taken off yet, don't sink into the ground
 		if (!status.isLiftoff()) {
-			angularAcceleration = ImmutableCoordinate.NUL;
+			angularAcceleration = new MutableCoordinate();
 			if (linearAcceleration.getZ() < 0) {
-				linearAcceleration = ImmutableCoordinate.ZERO;
+				linearAcceleration.clear();
 			}
 		} else if (!status.isLaunchRodCleared()) {
 
 			// If still on the launch rod, project acceleration onto launch rod direction and
 			// set angular acceleration to zero.
 			
-			linearAcceleration = store.launchRodDirection.multiply(linearAcceleration.dot(store.launchRodDirection));
-			angularAcceleration = ImmutableCoordinate.NUL;
+			double projection = linearAcceleration.dot(store.launchRodDirection);
+			Coordinate rodDirection = store.launchRodDirection;
+			linearAcceleration.set(rodDirection.getX() * projection,
+					rodDirection.getY() * projection,
+					rodDirection.getZ() * projection,
+					0.0);
+			angularAcceleration = new MutableCoordinate();
 			
 		} else {
 			
@@ -468,18 +473,19 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			double momZ = store.forces.getCroll() * dynP * refArea * refLength;
 			
 			// Compute angular acceleration in rocket coordinates
-			angularAcceleration = new ImmutableCoordinate(momX / store.rocketMass.getLongitudinalInertia(),
-						momY / store.rocketMass.getLongitudinalInertia(),
-						momZ / store.rocketMass.getRotationalInertia());
+			angularAcceleration = new MutableCoordinate(momX / store.rocketMass.getLongitudinalInertia(),
+					momY / store.rocketMass.getLongitudinalInertia(),
+					momZ / store.rocketMass.getRotationalInertia());
 			
-			angularAcceleration = store.thetaRotation.rotateZ(angularAcceleration);
-			
+			store.thetaRotation.rotateZInPlace(angularAcceleration);
+
 			// Convert to world coordinates
-			angularAcceleration = status.getRocketOrientationQuaternion().rotate(angularAcceleration);
+			status.getRocketOrientationQuaternion().rotateInPlace(angularAcceleration);
 		}
 
 		return new AccelerationData(null, null, linearAcceleration, angularAcceleration, status.getRocketOrientationQuaternion());
 	}
+
 	
 	
 	/**

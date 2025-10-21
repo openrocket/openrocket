@@ -27,6 +27,14 @@ public class Rotation2D {
 		return new ImmutableCoordinate(cos * c.getX() - sin * c.getY(), cos * c.getY() + sin * c.getX(), c.getZ(), c.getWeight());
 	}
 
+	public MutableCoordinate rotateZInPlace(MutableCoordinate c) {
+		double x = c.getX();
+		double y = c.getY();
+		double newX = cos * x - sin * y;
+		double newY = cos * y + sin * x;
+		return c.set(newX, newY, c.getZ(), c.getWeight());
+	}
+
 	public Coordinate invRotateX(Coordinate c) {
 		return new ImmutableCoordinate(c.getX(), cos * c.getY() + sin * c.getZ(), cos * c.getZ() - sin * c.getY(), c.getWeight());
 	}
