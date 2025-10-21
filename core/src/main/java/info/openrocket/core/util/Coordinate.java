@@ -264,7 +264,7 @@ public final class Coordinate implements CoordinateIF {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof CoordinateIF c))
+		if (!(other instanceof Coordinate c))
 			return false;
 
 		return (MathUtil.equals(this.x, c.getX()) &&

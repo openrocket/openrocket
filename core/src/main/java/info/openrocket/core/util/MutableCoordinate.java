@@ -68,7 +68,8 @@ public final class MutableCoordinate implements CoordinateIF {
 
 	@Override
 	public CoordinateIF setX(double x) {
-		return null;
+		this.x = x;
+		return this;
 	}
 
 	@Override
@@ -78,7 +79,8 @@ public final class MutableCoordinate implements CoordinateIF {
 
 	@Override
 	public CoordinateIF setY(double y) {
-		return null;
+		this.y = y;
+		return this;
 	}
 
 	@Override
@@ -88,7 +90,8 @@ public final class MutableCoordinate implements CoordinateIF {
 
 	@Override
 	public CoordinateIF setZ(double z) {
-		return null;
+		this.z = z;
+		return this;
 	}
 
 	@Override
@@ -251,12 +254,28 @@ public final class MutableCoordinate implements CoordinateIF {
 		return this;
 	}
 
-	public CoordinateIF scale(double scale) {
-		this.x *= scale;
-		this.y *= scale;
-		this.z *= scale;
-		this.weight *= scale;
-		return this;
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof MutableCoordinate c)) {
+			return false;
+		}
+		return MathUtil.equals(this.x, c.getX()) &&
+				MathUtil.equals(this.y, c.getY()) &&
+				MathUtil.equals(this.z, c.getZ()) &&
+				MathUtil.equals(this.weight, c.getWeight());
+	}
+
+	@Override
+	public String toString() {
+		if (isWeighted())
+			return String.format("(%.5f,%.5f,%.5f,w=%.5f)", x, y, z, weight);
+		else
+			return String.format("(%.5f,%.5f,%.5f)", x, y, z);
+	}
+
+	@Override
+	public int hashCode() {
+		return (int) ((x + y + z) * 100000);
 	}
 
 	@Override
