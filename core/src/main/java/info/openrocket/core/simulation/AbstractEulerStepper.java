@@ -190,10 +190,11 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
 		//// airSpeed
-		CoordinateIF airSpeed = status.getRocketVelocity().add(store.windVelocity);
+		CoordinateIF airSpeed = status.getRocketVelocity().toMutable().add(store.windVelocity);
+		double length = airSpeed.length();
 		
 		// Compute drag force
-		final double mach = airSpeed.length() / atmosphericConditions.getMachSpeed();
+		//final double mach = length / atmosphericConditions.getMachSpeed();
 		final double CdA = store.forces.getCD() * status.getConfiguration().getReferenceArea();
 
 		store.dragForce = 0.5 * CdA * atmosphericConditions.getDensity() * airSpeed.length2();
@@ -206,13 +207,13 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 			status.abortSimulation(SimulationAbort.Cause.ACTIVE_MASS_ZERO);
 		}
 
-		final double Re = airSpeed.length() *
-			status.getConfiguration().getLengthAerodynamic() /
-			atmosphericConditions.getKinematicViscosity();
+		//final double Re = length *
+		//	status.getConfiguration().getLengthAerodynamic() /
+		//	atmosphericConditions.getKinematicViscosity();
 
 		// Compute drag acceleration
 		CoordinateIF linearAcceleration = Coordinate.ZERO;
-		if (airSpeed.length() > MathUtil.EPSILON) {
+		if (length > MathUtil.EPSILON) {
 			linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
 		}
 		
@@ -235,7 +236,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		public CoordinateIF pos;
 	}
 
-	private EulerValues eulerIntegrate (CoordinateIF pos, CoordinateIF v, CoordinateIF a, double timeStep) {
+	private EulerValues eulerIntegrate(CoordinateIF pos, CoordinateIF v, CoordinateIF a, double timeStep) {
 		EulerValues result = new EulerValues();
 
 		result.vel = v.add(a.multiply(timeStep));
