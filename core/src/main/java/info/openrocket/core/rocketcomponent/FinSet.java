@@ -608,7 +608,7 @@ public abstract class FinSet extends ExternalComponent
 		}
 		CoordinateIF[] mountPoints = this.getRootPoints();
 //		if( null == mountPoints ){
-//			return ImmutableCoordinate.ZERO;
+//			return Coordinate.ZERO;
 //		}
 
 		final SymmetricComponent sym = (SymmetricComponent) this.parent;

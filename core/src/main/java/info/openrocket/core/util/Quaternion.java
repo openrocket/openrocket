@@ -339,7 +339,7 @@ public class Quaternion implements Cloneable {
 	/**
 	 * Rotate the coordinate (0,0,1) using this quaternion. The result is returned
 	 * as a Coordinate. This method is equivalent to calling
-	 * <code>q.rotate(new ImmutableCoordinate(0,0,1))</code> but requires only about half of
+	 * <code>q.rotate(new Coordinate(0,0,1))</code> but requires only about half of
 	 * the
 	 * multiplications.
 	 * 

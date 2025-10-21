@@ -297,10 +297,10 @@ public class BarrowmanCalculatorTest {
 		// Coordinate calcWorstCP = calc.getWorstCP(config, conditions, warnings);
 
 		// fail("Not yet implemented");
-		// Coordinate expBestCP = new ImmutableCoordinate( -1, 0,0,0);
+		// Coordinate expBestCP = new Coordinate( -1, 0,0,0);
 		// assertEquals(expBestCP.getX(),
 		// calcBestCP.getX(), EPSILON, " Falcon Heavy best CP x value is incorrect:");
-		// Coordinate expWorstCP = new ImmutableCoordinate( -1, 0,0,0);
+		// Coordinate expWorstCP = new Coordinate( -1, 0,0,0);
 		// assertEquals(expWorstCP.getX(),
 		// calcWorstCP.getX(), EPSILON, " Falcon Heavy Worst CP x value is incorrect:");
 	}

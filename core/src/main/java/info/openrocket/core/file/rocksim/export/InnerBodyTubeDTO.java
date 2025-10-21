@@ -112,7 +112,7 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 	private void handleCluster(InnerTube it, AttachableParts p) {
 
 		// old version - Oct, 19 2015
-		// Coordinate[] coords = { ImmutableCoordinate.NUL };
+		// Coordinate[] coords = { Coordinate.NUL };
 		// coords = it.shiftCoordinates(coords);
 
 		// new version

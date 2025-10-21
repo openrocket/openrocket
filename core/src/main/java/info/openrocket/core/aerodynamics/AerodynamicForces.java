@@ -367,7 +367,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
 	}
 
 	/**
-	 * Zero all values to 0 / ImmutableCoordinate.NUL. Component is left as it was.
+	 * Zero all values to 0 / Coordinate.NUL. Component is left as it was.
 	 */
 	public AerodynamicForces zero() {
 		// component untouched

@@ -176,7 +176,7 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 //		array = super.shiftCoordinates(array);
 //		
 //		for (int i = 0; i < array.length; i++) {
-//			array[i] = new ImmutableCoordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
+//			array[i] = new Coordinate(xOffset + index*this.instanceSeparation, yOffset, zOffset);
 //			array[i] = array[i].add(0, shiftY, shiftZ);
 //		}
 //		
