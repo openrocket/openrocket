@@ -311,6 +311,32 @@ public class Quaternion implements Cloneable {
 	}
 
 	/**
+	 * Perform an inverse coordinate rotation in place using this unit quaternion.
+	 *
+	 * @param coord the mutable coordinate to rotate; updated with the rotated components
+	 * @return the same instance for chaining
+	 */
+	public MutableCoordinate invRotateInPlace(MutableCoordinate coord) {
+		double cx = coord.getX();
+		double cy = coord.getY();
+		double cz = coord.getZ();
+
+		double a = x * cx + y * cy + z * cz;
+		double b = w * cx - y * cz + z * cy;
+		double c = w * cy + x * cz - z * cx;
+		double d = w * cz - x * cy + y * cx;
+
+		assert (Math.abs(a * w - b * x - c * y - d * z) < Math.max(coord.max(), 1) * MathUtil.EPSILON)
+				: ("Should be zero: " + (a * w - b * x - c * y - d * z) + " in " + this + " c=" + coord);
+
+		double newX = a * x + b * w + c * z - d * y;
+		double newY = a * y - b * z + c * w + d * x;
+		double newZ = a * z + b * y - c * x + d * w;
+
+		return coord.set(newX, newY, newZ, coord.getWeight());
+	}
+
+	/**
 	 * Rotate the coordinate (0,0,1) using this quaternion. The result is returned
 	 * as a Coordinate. This method is equivalent to calling
 	 * <code>q.rotate(new ImmutableCoordinate(0,0,1))</code> but requires only about half of

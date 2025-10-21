@@ -16,11 +16,15 @@ import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
+import info.openrocket.core.util.MutableCoordinate;
 
 public abstract class AbstractSimulationStepper implements SimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(AbstractSimulationStepper.class);
 
 	protected static final double MIN_TIME_STEP = 0.001;
+
+	private final MutableCoordinate tempVelocity = new MutableCoordinate();
+	private final MutableCoordinate tempRotation = new MutableCoordinate();
 	
 	/*
 	 * calculate acceleration at a given point in time
@@ -56,8 +60,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 		//// Local wind speed and direction
 		store.windVelocity = modelWindVelocity(status);
-		CoordinateIF airSpeed = status.getRocketVelocity().add(store.windVelocity);
-		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
+		MutableCoordinate airSpeed = tempVelocity;
+		airSpeed.set(status.getRocketVelocity());
+		airSpeed.add(store.windVelocity);
+		status.getRocketOrientationQuaternion().invRotateInPlace(airSpeed);
 
 		// Lateral direction:
 		double len = MathUtil.hypot(airSpeed.getX(), airSpeed.getY());
@@ -80,8 +86,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Roll, pitch and yaw rate
-		CoordinateIF rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
-		rot = store.thetaRotation.invRotateZ(rot);
+		MutableCoordinate rot = tempRotation;
+		rot.set(status.getRocketRotationVelocity());
+		status.getRocketOrientationQuaternion().invRotateInPlace(rot);
+		store.thetaRotation.invRotateZInPlace(rot);
 		
 		store.flightConditions.setRollRate(rot.getZ());
 		if (len < 0.001) {
