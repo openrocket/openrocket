@@ -227,6 +227,14 @@ public interface CoordinateIF extends Cloneable, Serializable {
 	}
 
 	/**
+	 * Convenience to obtain a mutable copy. Note that this always creates a new object.
+	 * @return a new MutableCoordinate with the same values as this CoordinateIF
+	 */
+	default MutableCoordinate toMutable() {
+		return new MutableCoordinate(getX(), getY(), getZ(), getWeight());
+	}
+
+	/**
 	 * High-precision output, for use with verifying calculations
  	 */
 	default String toPreciseString() {
