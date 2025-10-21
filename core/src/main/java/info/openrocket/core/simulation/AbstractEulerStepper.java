@@ -15,6 +15,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.WorldCoordinate;
+import info.openrocket.core.util.MutableCoordinate;
 
 public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(AbstractEulerStepper.class);
@@ -23,6 +24,8 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 	private static final double RECOVERY_TIME_STEP = 0.5;
 
 	DataStore store = new DataStore();
+	private final MutableCoordinate airSpeedScratch = new MutableCoordinate();
+	private final MutableCoordinate accelerationScratch = new MutableCoordinate();
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) {
@@ -190,7 +193,8 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		AtmosphericConditions atmosphericConditions = store.flightConditions.getAtmosphericConditions();
 		
 		//// airSpeed
-		CoordinateIF airSpeed = status.getRocketVelocity().toMutable().add(store.windVelocity);
+		CoordinateIF airSpeed = airSpeedScratch.set(status.getRocketVelocity());
+		airSpeed.add(store.windVelocity);
 		double length = airSpeed.length();
 		
 		// Compute drag force
@@ -212,19 +216,24 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		//	atmosphericConditions.getKinematicViscosity();
 
 		// Compute drag acceleration
-		CoordinateIF linearAcceleration = Coordinate.ZERO;
+		accelerationScratch.clear();
+		MutableCoordinate linearAccelerationMutable = accelerationScratch;
 		if (length > MathUtil.EPSILON) {
-			linearAcceleration = airSpeed.normalize().multiply(-store.dragForce / store.rocketMass.getMass());
+			linearAccelerationMutable.set(airSpeed)
+					.normalize()
+					.multiply(-store.dragForce / store.rocketMass.getMass());
 		}
 		
 		// Add effect of gravity
 		store.gravity = modelGravity(status);
-		linearAcceleration = linearAcceleration.sub(0, 0, store.gravity);
+		linearAccelerationMutable.sub(0, 0, store.gravity);
 
 		// Add coriolis acceleration
 		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
 				status.getRocketWorldPosition(), status.getRocketVelocity());
-		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
+		linearAccelerationMutable.add(store.coriolisAcceleration);
+
+		CoordinateIF linearAcceleration = linearAccelerationMutable.toImmutable();
 
 		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
 	}
