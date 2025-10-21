@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
+import info.openrocket.core.util.ImmutableCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +150,7 @@ public class ScriptingSimulationListener
 
 	@Override
 	public Coordinate preWindModel(SimulationStatus status) throws SimulationException {
-		return invoke(Coordinate.class, null, "preWindModel", status);
+		return invoke(ImmutableCoordinate.class, null, "preWindModel", status);
 	}
 
 	@Override
@@ -193,7 +194,7 @@ public class ScriptingSimulationListener
 
 	@Override
 	public Coordinate postWindModel(SimulationStatus status, Coordinate wind) throws SimulationException {
-		return invoke(Coordinate.class, null, "postWindModel", status, wind);
+		return invoke(ImmutableCoordinate.class, null, "postWindModel", status, wind);
 	}
 
 	@SuppressWarnings("unchecked")

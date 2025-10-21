@@ -1,5 +1,6 @@
 package info.openrocket.core.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ public final class ImmutableCoordinate implements Coordinate {
 	private static final Logger log = LoggerFactory.getLogger(ImmutableCoordinate.class);
 	
 	// Defined for backwards compatibility after adding clone().
+	@Serial
 	static final long serialVersionUID = 585574649794259293L;
 	
 	////////  Debug section
@@ -47,7 +49,7 @@ public final class ImmutableCoordinate implements Coordinate {
 	{
 		// Debug count
 		if (COUNT_DEBUG) {
-			synchronized (Coordinate.class) {
+			synchronized (ImmutableCoordinate.class) {
 				count++;
 				if ((count % COUNT_DIFF) == 0) {
 					log.debug("Coordinate instantiated " + count + " times.");
