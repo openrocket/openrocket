@@ -84,14 +84,17 @@ parts:
 
       # --- Ensure wrapper JVM starts without ZGC for armhf, ppc64el, and s390x ---
       ARCH="$(dpkg --print-architecture)"
-      if [ "$ARCH" = "armhf" ]; then
-        # If the project edited gradlew’s DEFAULT_JVM_OPTS to include ZGC, remove it.
-        sed -i 's/"-XX:+UseZGC"//g' ./gradlew || true
-        # Also neutralize env-provided JVM opts if any
-        unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS
-        # Force safe daemon opts
-        echo 'org.gradle.jvmargs=-Xmx1024m -XX:+UseG1GC' >> "$GRADLE_USER_HOME/gradle.properties"
-      fi
+      case "$ARCH" in
+        armhf|ppc64el|s390x)
+          # 1) ensure wrapper/daemon don’t request ZGC
+          sed -i 's/"-XX:+UseZGC"//g' ./gradlew || true
+          echo 'org.gradle.jvmargs=-Xmx1024m -XX:+UseG1GC' >> "$GRADLE_USER_HOME/gradle.properties"
+          # 2) scrub env-injected JVM opts (wrapper reads these)
+          [ -n "${JAVA_TOOL_OPTIONS:-}" ] && export JAVA_TOOL_OPTIONS="$(printf '%s' "$JAVA_TOOL_OPTIONS" | sed 's/-XX:+UseZGC//g')"
+          [ -n "${_JAVA_OPTIONS:-}" ]    && export _JAVA_OPTIONS="$(printf '%s' "$_JAVA_OPTIONS" | sed 's/-XX:+UseZGC//g')"
+          [ -n "${GRADLE_OPTS:-}" ]      && export GRADLE_OPTS="$(printf '%s' "$GRADLE_OPTS" | sed 's/-XX:+UseZGC//g')"
+          ;;
+      esac
 
       # Build
       ./gradlew --no-daemon -g "$GRADLE_USER_HOME" clean jar
