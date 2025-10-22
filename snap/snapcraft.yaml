@@ -1,39 +1,16 @@
 name: openrocket
-adopt-info: openrocket
+base: core22
 grade: stable
+confinement: strict
+adopt-info: openrocket
 summary: A free, fully featured model rocket simulator.
 description: |
-  OpenRocket is a free, fully featured model rocket simulator that allows you
-  to design and simulate your rockets before actually building and flying them.
-
-  The main features include:
-
-    * Six-degree-of-freedom flight simulation
-    * Automatic design optimization
-    * Realtime simulated altitude, velocity and acceleration display
-    * Staging and clustering support
-    * Cross-platform (Java-based)
-    * Read more about it on OpenRocket.info
-license: GPL-3.0
-base: core18
-confinement: strict
-
-plugs:
-  dot-java-user-prefs-openrocket:
-    interface: personal-files
-    read:
-      - $HOME/.java/.userPrefs/OpenRocket
-  dot-openrocket:
-    interface: personal-files
-    write:
-      - $HOME/.openrocket
+  OpenRocket is a free, fully featured model rocket simulator...
 
 architectures:
   - build-on: [amd64]
   - build-on: [arm64]
   - build-on: [armhf]
-  - build-on: [ppc64el]
-  - build-on: [s390x]
 
 apps:
   openrocket:
@@ -43,30 +20,57 @@ apps:
       - network
       - cups-control
       - opengl
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - gsettings
       - dot-java-user-prefs-openrocket
       - dot-openrocket
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAP_ARCH"
 
+plugs:
+  dot-java-user-prefs-openrocket:
+    interface: personal-files
+    write:
+      - $HOME/.java/.userPrefs/OpenRocket
+  dot-openrocket:
+    interface: personal-files
+    write:
+      - $HOME/.openrocket
+
 parts:
   openrocket:
-    plugin: gradle
+    plugin: nil
     source: .
     build-packages:
       - openjdk-17-jdk
-    override-pull: |
-      craftctl default
-      version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
-      craftctl set version="$version"
-    override-build: |
-      craftctl default
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
+      - ca-certificates
+      - ca-certificates-java
+      - unzip
     stage-packages:
       - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
+    override-build: |
+      set -eux
+
+      # Build jars
+      ./gradlew --no-daemon clean jar
+
+      # Pick the jar
+      JAR="$(ls -1 build/libs/OpenRocket-*.jar | head -n1)"
+      install -Dm644 "$JAR" "$CRAFT_PART_INSTALL/OpenRocket.jar"
+
+      # Derive a short version (no printVersion; ensure ≤32 chars)
+      VERSION="$(git describe --tags --abbrev=7 --always 2>/dev/null || true)"
+      [ -n "$VERSION" ] || VERSION="0.0.0"
+      VERSION="${VERSION#v}"                 # drop leading 'v' if present
+      VERSION="${VERSION:0:32}"              # hard cap
+      craftctl set version="$VERSION"
     prime:
+      # If you actually want to keep HTTPS working, delete these three lines:
       - -usr/lib/jvm/java-*/lib/security/cacerts
       - -usr/lib/jvm/java-*/jre/lib/security/cacerts
       - -usr/lib/jvm/java-*/lib/security/blacklisted.certs
