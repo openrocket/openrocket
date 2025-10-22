@@ -274,9 +274,12 @@ public abstract class RockSimComponentFileLoader {
 	protected static String toCamelCase(String target) {
 		StringBuilder sb = new StringBuilder();
 		String[] t = target.split("[ ]");
-		if (t != null && t.length > 0) {
+		if (t.length > 0) {
 			for (String aT : t) {
 				String s = aT;
+				if (s.isEmpty()) {
+					continue;
+				}
 				s = s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
 				sb.append(s).append(" ");
 			}
