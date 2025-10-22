@@ -11,6 +11,8 @@ architectures:
   - build-on: [amd64]
   - build-on: [arm64]
   - build-on: [armhf]
+  - build-on: [ppc64el]
+  - build-on: [s390x]
 
 apps:
   openrocket:
@@ -79,10 +81,9 @@ parts:
       : > "$GRADLE_USER_HOME/gradle.properties"
       write_proxy_props http
       write_proxy_props https
-      
-      ARCH="$(dpkg --print-architecture)"
 
-      # --- armhf: ensure wrapper JVM starts without ZGC ---
+      # --- Ensure wrapper JVM starts without ZGC for armhf, ppc64el, and s390x ---
+      ARCH="$(dpkg --print-architecture)"
       if [ "$ARCH" = "armhf" ]; then
         # If the project edited gradlew’s DEFAULT_JVM_OPTS to include ZGC, remove it.
         sed -i 's/"-XX:+UseZGC"//g' ./gradlew || true
