@@ -56,18 +56,40 @@ parts:
     override-build: |
       set -eux
 
-      # Build jars
-      ./gradlew --no-daemon clean jar
+      # Prepare local Gradle home (keeps cache inside the part)
+      export GRADLE_USER_HOME="$CRAFT_PART_BUILD/.gradle"
 
-      # Pick the jar
+      # If Launchpad provided proxies, map them to Gradle system properties
+      write_proxy_props() {
+        proto="$1" ; var="${proto}_proxy"
+        url="${!var:-}"
+        [ -z "$url" ] && return 0
+        # strip scheme, take host and port
+        host_port="$(printf %s "$url" | sed -E 's#^[a-z]+://##' | cut -d/ -f1)"
+        host="${host_port%%:*}"
+        port="${host_port##*:}"
+        {
+          echo "systemProp.${proto}.proxyHost=${host}"
+          echo "systemProp.${proto}.proxyPort=${port}"
+          # optional: bypass for common local nets
+          echo "systemProp.${proto}.nonProxyHosts=localhost|127.0.0.1|10.*|192.168.*|*.internal"
+        } >> "$GRADLE_USER_HOME/gradle.properties"
+      }
+      mkdir -p "$GRADLE_USER_HOME"
+      : > "$GRADLE_USER_HOME/gradle.properties"
+      write_proxy_props http
+      write_proxy_props https
+
+      # Build
+      ./gradlew --no-daemon -g "$GRADLE_USER_HOME" clean jar
+
+      # Pick jar
       JAR="$(ls -1 build/libs/OpenRocket-*.jar | head -n1)"
       install -Dm644 "$JAR" "$CRAFT_PART_INSTALL/OpenRocket.jar"
 
-      # Derive a short version (no printVersion; ensure ≤32 chars)
-      VERSION="$(git describe --tags --abbrev=7 --always 2>/dev/null || true)"
-      [ -n "$VERSION" ] || VERSION="0.0.0"
-      VERSION="${VERSION#v}"                 # drop leading 'v' if present
-      VERSION="${VERSION:0:32}"              # hard cap
+      # Short version (≤32 chars)
+      VERSION="$(git describe --tags --abbrev=7 --always 2>/dev/null || echo 0.0.0)"
+      VERSION="${VERSION#v}"; VERSION="${VERSION:0:32}"
       craftctl set version="$VERSION"
     prime:
       # If you actually want to keep HTTPS working, delete these three lines:
