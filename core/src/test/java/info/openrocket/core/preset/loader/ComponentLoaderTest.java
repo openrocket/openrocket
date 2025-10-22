@@ -24,7 +24,7 @@ class ComponentLoaderTest extends BaseTestCase {
 		BodyTubeLoader loader = new BodyTubeLoader(materials, new File("."));
 
 		String[] headers = { "Mfg.", "Part No.", "Desc.", "Units", "ID", "OD", "Length", "Material", "Engine" };
-		String[] data = { "Estes", "BT-20", "", "0", "1.0", "1.1", "10.0", "Paper (office)", "" };
+		String[] data = { "Estes", "BT-20", "Marlon", "0", "1.0", "1.1", "10.0", "Paper (office)", "" };
 
 		loader.parseHeaders(headers);
 		loader.parseData(data);
@@ -34,7 +34,8 @@ class ComponentLoaderTest extends BaseTestCase {
 		ComponentPreset preset = presets.get(0);
 
 		assertEquals(ComponentPreset.Type.BODY_TUBE, preset.get(ComponentPreset.TYPE));
-		assertEquals("BT-20", preset.get(ComponentPreset.DESCRIPTION));
+		assertEquals("BT-20", preset.get(ComponentPreset.PARTNO));
+		assertEquals("Marlon", preset.get(ComponentPreset.DESCRIPTION));
 		assertEquals(UnitGroup.UNITS_LENGTH.getUnit("in").fromUnit(10.0), preset.get(ComponentPreset.LENGTH), 1e-9);
 		assertEquals(UnitGroup.UNITS_LENGTH.getUnit("in").fromUnit(1.0),
 				preset.get(ComponentPreset.INNER_DIAMETER), 1e-9);
@@ -51,7 +52,7 @@ class ComponentLoaderTest extends BaseTestCase {
 		String[] headers = { "Mfg.", "Part No.", "Desc.", "Units", "Length", "Outer Dia", "L/D Ratio", "Insert Length",
 				"Insert OD", "Thickness", "Shape", "Config", "Material", "CG Loc", "Mass Units", "Mass",
 				"Base Ext. Len" };
-		String[] data = { "LOC/Precision", "NC-1", "", "1", "250.0", "50.0", "4.0", "25.0", "45.0", "0", "ogive", "",
+		String[] data = { "LOC/Precision", "NC-1", "Hello", "1", "250.0", "50.0", "4.0", "25.0", "45.0", "0", "ogive", "",
 				"Balsa", "", "", "", "" };
 
 		loader.parseHeaders(headers);
@@ -64,7 +65,8 @@ class ComponentLoaderTest extends BaseTestCase {
 		assertEquals(ComponentPreset.Type.NOSE_CONE, preset.get(ComponentPreset.TYPE));
 		assertTrue(preset.get(ComponentPreset.FILLED));
 		assertFalse(preset.has(ComponentPreset.THICKNESS));
-		assertEquals("NC-1", preset.get(ComponentPreset.DESCRIPTION));
+		assertEquals("NC-1", preset.get(ComponentPreset.PARTNO));
+		assertEquals("Hello", preset.get(ComponentPreset.DESCRIPTION));
 		assertEquals(UnitGroup.UNITS_LENGTH.getUnit("mm").fromUnit(250.0), preset.get(ComponentPreset.LENGTH), 1e-9);
 		assertEquals(UnitGroup.UNITS_LENGTH.getUnit("mm").fromUnit(50.0),
 				preset.get(ComponentPreset.AFT_OUTER_DIAMETER), 1e-9);
@@ -97,12 +99,9 @@ class ComponentLoaderTest extends BaseTestCase {
 		assertEquals(UnitGroup.UNITS_LENGTH.getUnit("mm").fromUnit(610.0),
 				preset.get(ComponentPreset.LINE_LENGTH), 1e-9);
 
-		double thickness = preset.get(ComponentPreset.THICKNESS);
-		String thicknessName = UnitGroup.UNITS_LENGTH.getUnit("mm").toString(thickness);
-
 		Material surface = preset.get(ComponentPreset.MATERIAL);
 		assertEquals(Material.Type.SURFACE, surface.getType());
-		assertEquals("BulkOnly(" + thicknessName + ")", surface.getName());
+		assertEquals("BulkOnly", surface.getName());
 		assertNotNull(preset.get(ComponentPreset.LINE_MATERIAL));
 	}
 }
