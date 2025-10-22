@@ -79,6 +79,18 @@ parts:
       : > "$GRADLE_USER_HOME/gradle.properties"
       write_proxy_props http
       write_proxy_props https
+      
+      ARCH="$(dpkg --print-architecture)"
+
+      # --- armhf: ensure wrapper JVM starts without ZGC ---
+      if [ "$ARCH" = "armhf" ]; then
+        # If the project edited gradlew’s DEFAULT_JVM_OPTS to include ZGC, remove it.
+        sed -i 's/"-XX:+UseZGC"//g' ./gradlew || true
+        # Also neutralize env-provided JVM opts if any
+        unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS
+        # Force safe daemon opts
+        echo 'org.gradle.jvmargs=-Xmx1024m -XX:+UseG1GC' >> "$GRADLE_USER_HOME/gradle.properties"
+      fi
 
       # Build
       ./gradlew --no-daemon -g "$GRADLE_USER_HOME" clean jar
