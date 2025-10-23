@@ -68,6 +68,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
 	public static final String DEFAULT_DIRECTORY = "defaultDirectory";
+	public static final String FILE_PREVIEW_VIEW_TYPE = "FilePreviewViewType";
 
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 

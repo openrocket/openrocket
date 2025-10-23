@@ -14,6 +14,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -89,7 +92,6 @@ import info.openrocket.core.util.MemoryManagement.MemoryData;
 import info.openrocket.core.util.Reflection;
 import info.openrocket.core.util.TestRockets;
 
-import info.openrocket.swing.gui.choosers.OBJOptionChooser;
 import info.openrocket.swing.gui.configdialog.SaveDesignInfoPanel;
 import info.openrocket.swing.gui.dialogs.ErrorWarningDialog;
 import info.openrocket.swing.gui.components.StyledLabel;
@@ -129,11 +131,14 @@ import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
 public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 948877655223365313L;
 
-	private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
+private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 
-	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
+private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
+private static final int PREVIEW_WIDTH = 1000;
+private static final int PREVIEW_MIN_HEIGHT = 600;
+private static final int PREVIEW_MAX_HEIGHT = 800;
 
-	private static final Translator trans = Application.getTranslator();
+private static final Translator trans = Application.getTranslator();
 	private static final ApplicationPreferences prefs = Application.getPreferences();
 
 	public static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
@@ -1853,6 +1858,14 @@ public class BasicFrame extends JFrame {
 			return false;
 		}
 
+		// Generate file preview image
+		byte[] previewImage = generatePreviewImage();
+		if (previewImage != null) {
+			document.getDefaultStorageOptions().setPreviewImage(previewImage);
+		} else {
+			document.getDefaultStorageOptions().clearPreviewImage();
+		}
+
 		document.getDefaultStorageOptions().setFileType(FileType.OPENROCKET);
 		SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
 
@@ -1900,6 +1913,36 @@ public class BasicFrame extends JFrame {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Generate a file preview image for saving in the design file.
+	 * @return the PNG image data, or null if no preview could be generated
+	 */
+	private byte[] generatePreviewImage() {
+		if (rocketpanel == null) {
+			return null;
+		}
+
+		String viewPreference = prefs.getString(ApplicationPreferences.FILE_PREVIEW_VIEW_TYPE,
+				RocketPanel.VIEW_TYPE.SideView.name());
+		RocketPanel.VIEW_TYPE previewView = RocketPanel.VIEW_TYPE.fromName(viewPreference);
+		if (previewView == null) {
+			previewView = RocketPanel.VIEW_TYPE.SideView;
+		}
+
+		BufferedImage preview = rocketpanel.capturePreviewImage(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
+		if (preview == null) {
+			return null;
+		}
+
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			ImageIO.write(preview, "png", output);
+			return output.toByteArray();
+		} catch (IOException e) {
+			log.warn("Unable to generate preview image for save.", e);
+			return null;
+		}
 	}
 
 
