@@ -1,32 +1,11 @@
 name: openrocket
-adopt-info: openrocket
+base: core22
 grade: stable
+confinement: strict
+adopt-info: openrocket
 summary: A free, fully featured model rocket simulator.
 description: |
-  OpenRocket is a free, fully featured model rocket simulator that allows you
-  to design and simulate your rockets before actually building and flying them.
-
-  The main features include:
-
-    * Six-degree-of-freedom flight simulation
-    * Automatic design optimization
-    * Realtime simulated altitude, velocity and acceleration display
-    * Staging and clustering support
-    * Cross-platform (Java-based)
-    * Read more about it on OpenRocket.info
-license: GPL-3.0
-base: core18
-confinement: strict
-
-plugs:
-  dot-java-user-prefs-openrocket:
-    interface: personal-files
-    read:
-      - $HOME/.java/.userPrefs/OpenRocket
-  dot-openrocket:
-    interface: personal-files
-    write:
-      - $HOME/.openrocket
+  OpenRocket is a free, fully featured model rocket simulator...
 
 architectures:
   - build-on: [amd64]
@@ -34,6 +13,7 @@ architectures:
   - build-on: [armhf]
   - build-on: [ppc64el]
   - build-on: [s390x]
+  - build-on: [riscv64]
 
 apps:
   openrocket:
@@ -43,30 +23,91 @@ apps:
       - network
       - cups-control
       - opengl
-      - dot-java-user-prefs-openrocket
-      - dot-openrocket
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - gsettings
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAP_ARCH"
 
 parts:
   openrocket:
-    plugin: gradle
+    plugin: nil
     source: .
     build-packages:
       - openjdk-17-jdk
-    override-pull: |
-      craftctl default
-      version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
-      craftctl set version="$version"
-    override-build: |
-      craftctl default
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
+      - ca-certificates
+      - ca-certificates-java
+      - unzip
     stage-packages:
       - openjdk-17-jre
       - ca-certificates
       - ca-certificates-java
+    override-build: |
+      set -eux
+
+      # Prepare local Gradle home (keeps cache inside the part)
+      export GRADLE_USER_HOME="$CRAFT_PART_BUILD/.gradle"
+
+      # If Launchpad provided proxies, map them to Gradle system properties
+      write_proxy_props() {
+        proto="$1" ; var="${proto}_proxy"
+        url="${!var:-}"
+        [ -z "$url" ] && return 0
+        # strip scheme, take host and port
+        host_port="$(printf %s "$url" | sed -E 's#^[a-z]+://##' | cut -d/ -f1)"
+        host="${host_port%%:*}"
+        port="${host_port##*:}"
+        {
+          echo "systemProp.${proto}.proxyHost=${host}"
+          echo "systemProp.${proto}.proxyPort=${port}"
+          # optional: bypass for common local nets
+          echo "systemProp.${proto}.nonProxyHosts=localhost|127.0.0.1|10.*|192.168.*|*.internal"
+        } >> "$GRADLE_USER_HOME/gradle.properties"
+      }
+      mkdir -p "$GRADLE_USER_HOME"
+      : > "$GRADLE_USER_HOME/gradle.properties"
+      write_proxy_props http
+      write_proxy_props https
+
+      # --- Ensure wrapper JVM starts without ZGC for armhf, ppc64el, and s390x ---
+      ARCH="$(dpkg --print-architecture)"
+      case "$ARCH" in
+        armhf|ppc64el|s390x|riscv64)
+          # 1) ensure wrapper/daemon don’t request ZGC
+          sed -i 's/"-XX:+UseZGC"//g' ./gradlew || true
+          echo 'org.gradle.jvmargs=-Xmx1024m -XX:+UseG1GC' >> "$GRADLE_USER_HOME/gradle.properties"
+          # 2) scrub env-injected JVM opts (wrapper reads these)
+          [ -n "${JAVA_TOOL_OPTIONS:-}" ] && export JAVA_TOOL_OPTIONS="$(printf '%s' "$JAVA_TOOL_OPTIONS" | sed 's/-XX:+UseZGC//g')"
+          [ -n "${_JAVA_OPTIONS:-}" ]    && export _JAVA_OPTIONS="$(printf '%s' "$_JAVA_OPTIONS" | sed 's/-XX:+UseZGC//g')"
+          [ -n "${GRADLE_OPTS:-}" ]      && export GRADLE_OPTS="$(printf '%s' "$GRADLE_OPTS" | sed 's/-XX:+UseZGC//g')"
+          ;;
+      esac
+
+      # Build
+      ./gradlew --no-daemon -g "$GRADLE_USER_HOME" clean jar
+
+      # Pick jar
+      JAR="$(ls -1 build/libs/OpenRocket-*.jar | head -n1)"
+      install -Dm644 "$JAR" "$CRAFT_PART_INSTALL/OpenRocket.jar"
+
+      # Set the version
+      BV="$(grep -E '^build\.version=' core/src/main/resources/build.properties | cut -d= -f2)"
+      HASH="$(git rev-parse --short=7 HEAD 2>/dev/null || echo 0000000)"
+      
+      if printf '%s' "$BV" | grep -q 'SNAPSHOT$'; then
+      VERSION="${BV%SNAPSHOT}-g${HASH}"     # e.g. 25.xx.-g1a2b3c4
+      else
+      VERSION="$BV"                         # e.g. 25.12
+      fi
+      
+      # trim and set (max 32 chars)
+      VERSION="${VERSION#v}"
+      VERSION="${VERSION:0:32}"
+      craftctl set version="$VERSION"
     prime:
+      # If you actually want to keep HTTPS working, delete these three lines:
       - -usr/lib/jvm/java-*/lib/security/cacerts
       - -usr/lib/jvm/java-*/jre/lib/security/cacerts
       - -usr/lib/jvm/java-*/lib/security/blacklisted.certs
