@@ -103,9 +103,19 @@ parts:
       JAR="$(ls -1 build/libs/OpenRocket-*.jar | head -n1)"
       install -Dm644 "$JAR" "$CRAFT_PART_INSTALL/OpenRocket.jar"
 
-      # Short version (≤32 chars)
-      VERSION="$(git describe --tags --abbrev=7 --always 2>/dev/null || echo 0.0.0)"
-      VERSION="${VERSION#v}"; VERSION="${VERSION:0:32}"
+      # Set the version
+      BV="$(grep -E '^build\.version=' core/src/main/resources/build.properties | cut -d= -f2)"
+      HASH="$(git rev-parse --short=7 HEAD 2>/dev/null || echo 0000000)"
+      
+      if printf '%s' "$BV" | grep -q 'SNAPSHOT$'; then
+      VERSION="${BV%SNAPSHOT}-g${HASH}"     # e.g. 25.xx.-g1a2b3c4
+      else
+      VERSION="$BV"                         # e.g. 25.12
+      fi
+      
+      # trim and set (max 32 chars)
+      VERSION="${VERSION#v}"
+      VERSION="${VERSION:0:32}"
       craftctl set version="$VERSION"
     prime:
       # If you actually want to keep HTTPS working, delete these three lines:
