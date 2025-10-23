@@ -27,20 +27,8 @@ apps:
       - desktop
       - desktop-legacy
       - gsettings
-      - dot-java-user-prefs-openrocket
-      - dot-openrocket
     environment:
       JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAP_ARCH"
-
-plugs:
-  dot-java-user-prefs-openrocket:
-    interface: personal-files
-    write:
-      - $HOME/.java/.userPrefs/OpenRocket
-  dot-openrocket:
-    interface: personal-files
-    write:
-      - $HOME/.openrocket
 
 parts:
   openrocket:
