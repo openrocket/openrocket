@@ -288,3 +288,29 @@ with the new results) to ensure that they are up-to-date with the latest changes
    The downloads page on SourceForge is still very actively used, so be sure to upload the new release there as well.
 
 15. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.
+
+Snap
+====
+
+The OpenRocket snap package is automatically updated using the `Snapcraft <https://snapcraft.io/>`__ build system.
+However, the snap package's 'latest/stable' release needs to be manually updated after a new OpenRocket release is
+published.
+
+On a Linux system with snap installed, run the following command to build the new snap package:
+
+.. code-block:: bash
+
+      snapcraft remote-build
+
+This will create a file named ``openrocket_<version>_<arch>.snap`` in the current directory.
+Note that it may take up to 30 minutes for each architecture to be built.
+To publish the new snap package, run the following command (separate commands for each ``<arch>``):
+
+.. code-block:: bash
+
+      snapcraft upload --release=stable openrocket_<version>_<arch>.snap
+
+A similar procedure can be used to publish release candidates or beta versions by changing the ``--release`` option to
+``candidate`` or ``beta``.
+
+For developers with access to the OpenRocket Snapcraft account, more information can be found at the `snapcraft.io page <https://snapcraft.io/openrocket/releases>`__.
