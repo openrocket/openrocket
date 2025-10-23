@@ -107,7 +107,8 @@ To build with coverage verification:
    ./gradlew build
 
 Coverage verification runs automatically during JAR packaging. Detailed HTML
-reports are available under ``build/reports/jacoco/`` for review. Additionally, 
+reports are available under ``build/reports/jacoco/`` (aggregate report), ``core/build/reports/jacoco/``, and
+``swing/build/reports/jacoco/`` for review. Additionally,
 a GitHub Action publishes coverage reports for easier tracking in CI.
 
 

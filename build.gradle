@@ -168,6 +168,7 @@ tasks.register('jacocoRootReport', JacocoReport) {
     group = 'verification'
     description = 'Generates an aggregate report from all subprojects'
 
+    dependsOn(tasks.named('test'))
     dependsOn(subprojects.jacocoTestReport)
 
     reports {

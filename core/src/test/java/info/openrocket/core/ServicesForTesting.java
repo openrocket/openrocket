@@ -42,14 +42,18 @@ public class ServicesForTesting extends AbstractModule {
 			if (oldTranslator != null) {
 				return oldTranslator;
 			}
-			
-			
-			Locale.setDefault(Locale.US);
+
+			boolean bogusLanguage = Locale.getDefault().getLanguage().equals("xx");
+
+			// Reset to US locale if using actual language
+			if (!bogusLanguage) {
+				Locale.setDefault(Locale.US);
+			}
 			
 			// Setup the translator
 			Translator newTranslator;
 			newTranslator = new ResourceBundleTranslator("l10n.messages");
-			if (Locale.getDefault().getLanguage().equals("xx")) {
+			if (bogusLanguage) {
 				newTranslator = new DebugTranslator(newTranslator);
 			}
 			
