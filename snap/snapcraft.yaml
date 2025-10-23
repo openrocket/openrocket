@@ -13,6 +13,7 @@ architectures:
   - build-on: [armhf]
   - build-on: [ppc64el]
   - build-on: [s390x]
+  - build-on: [riscv64]
 
 apps:
   openrocket:
@@ -73,7 +74,7 @@ parts:
       # --- Ensure wrapper JVM starts without ZGC for armhf, ppc64el, and s390x ---
       ARCH="$(dpkg --print-architecture)"
       case "$ARCH" in
-        armhf|ppc64el|s390x)
+        armhf|ppc64el|s390x|riscv64)
           # 1) ensure wrapper/daemon don’t request ZGC
           sed -i 's/"-XX:+UseZGC"//g' ./gradlew || true
           echo 'org.gradle.jvmargs=-Xmx1024m -XX:+UseG1GC' >> "$GRADLE_USER_HOME/gradle.properties"
