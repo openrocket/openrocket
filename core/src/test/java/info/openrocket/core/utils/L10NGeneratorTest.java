@@ -37,6 +37,13 @@ class L10NGeneratorTest {
 	}
 
 	@Test
+	void outputRemovesDiacriticsAndPrintsMapping() throws Exception {
+		invokeOutput('é');
+		String generated = captured.toString(StandardCharsets.UTF_8);
+		assertEquals("m.put('\\u00e9', \"e\");" + System.lineSeparator(), generated);
+	}
+
+	@Test
 	void outputMapsFractionSlashToForwardSlash() throws Exception {
 		invokeOutput(Chars.FRACTION);
 		String generated = captured.toString(StandardCharsets.UTF_8);
