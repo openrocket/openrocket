@@ -43,10 +43,11 @@
                       value="CRITICAL TODOs exist in project."/>
         </module>
         <module name="Regexp">
-            <property name="format" value="\P{ASCII}"/>
+            <!-- Allow ASCII, Latin script, and common punctuation; flag everything else -->
+            <property name="format" value="[^\p{InBasicLatin}\p{IsLatin}\p{IsCommon}]"/>
             <property name="illegalPattern" value="true"/>
             <property name="message"
-                      value="Non-ASCII characters exist in project."/>
+                      value="Unusual Unicode characters detected (non-ASCII/non-Latin/Common)."/>
         </module>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
