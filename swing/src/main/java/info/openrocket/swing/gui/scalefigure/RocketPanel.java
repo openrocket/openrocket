@@ -82,6 +82,9 @@ import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -92,6 +95,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 
 /**
@@ -1173,6 +1178,30 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		BufferedImage source = create2DPreviewFigure(viewType, targetWidth, minHeight, maxHeight);
 		return scaleForPreview(source, targetWidth, minHeight, maxHeight);
+	}
+
+	public byte[] createPreviewPng(VIEW_TYPE requestedView, int targetWidth, int minHeight, int maxHeight) {
+		BufferedImage image = capturePreviewImage(requestedView, targetWidth, minHeight, maxHeight);
+		if (image == null) {
+			return null;
+		}
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			ImageIO.write(image, "png", output);
+			return output.toByteArray();
+		} catch (IOException e) {
+			throw new UncheckedIOException("Failed to encode preview image", e);
+		}
+	}
+
+	public boolean attachPreviewToDocument(OpenRocketDocument doc, VIEW_TYPE requestedView, int targetWidth,
+										   int minHeight, int maxHeight) {
+		byte[] png = createPreviewPng(requestedView, targetWidth, minHeight, maxHeight);
+		if (png == null || png.length == 0) {
+			doc.getDefaultStorageOptions().clearPreviewImage();
+			return false;
+		}
+		doc.getDefaultStorageOptions().setPreviewImage(png);
+		return true;
 	}
 
 	/**

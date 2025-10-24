@@ -14,8 +14,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,7 +27,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -1931,18 +1928,11 @@ private static final Translator trans = Application.getTranslator();
 			previewView = RocketPanel.VIEW_TYPE.SideView;
 		}
 
-		BufferedImage preview = rocketpanel.capturePreviewImage(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
-		if (preview == null) {
+		byte[] previewBytes = rocketpanel.createPreviewPng(previewView, PREVIEW_WIDTH, PREVIEW_MIN_HEIGHT, PREVIEW_MAX_HEIGHT);
+		if (previewBytes == null || previewBytes.length == 0) {
 			return null;
 		}
-
-		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-			ImageIO.write(preview, "png", output);
-			return output.toByteArray();
-		} catch (IOException e) {
-			log.warn("Unable to generate preview image for save.", e);
-			return null;
-		}
+		return previewBytes;
 	}
 
 
