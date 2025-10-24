@@ -67,4 +67,12 @@ public interface SimulationOptionsInterface extends ChangeSource {
 	 */
 	void setLaunchPressure(double launchPressure);
 
+	double getLaunchHumidity();
+
+	/**
+	 * Set the launch humidity at the launch site.
+	 * @param launchHumidity the humidity
+	 */
+	void setLaunchHumidity(double launchHumidity);
+
 }

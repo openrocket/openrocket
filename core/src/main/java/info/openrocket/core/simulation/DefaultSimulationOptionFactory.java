@@ -18,6 +18,7 @@ public class DefaultSimulationOptionFactory {
 	public static final String SIMCONDITION_ATMOS_STD = "SimConditionsAtmosStd";
 	public static final String SIMCONDITION_ATMOS_TEMP = "SimConditionsAtmosTemp";
 	public static final String SIMCONDITION_ATMOS_PRESSURE = "SimConditionsAtmosPres";
+	public static final String SIMCONDITION_ATMOS_HUMIDITY = "SimConditionsAtmoHumi";
 	public static final String SIMCONDITION_ROD_INTO_WIND = "SimConditionsRodIntoWind";
 	public static final String SIMCONDITION_ROD_LENGTH = "SimConditionsRodLength";
 	public static final String SIMCONDITION_ROD_ANGLE = "SimConditionsRodAngle";
@@ -46,6 +47,7 @@ public class DefaultSimulationOptionFactory {
 			defaults.setISAAtmosphere(prefs.getBoolean(SIMCONDITION_ATMOS_STD, defaults.isISAAtmosphere()));
 			defaults.setLaunchTemperature(prefs.getDouble(SIMCONDITION_ATMOS_TEMP, defaults.getLaunchTemperature()));
 			defaults.setLaunchPressure(prefs.getDouble(SIMCONDITION_ATMOS_PRESSURE, defaults.getLaunchPressure()));
+			defaults.setLaunchHumidity(prefs.getDouble(SIMCONDITION_ATMOS_HUMIDITY, defaults.getLaunchHumidity()));
 
 			defaults.setLaunchIntoWind(prefs.getBoolean(SIMCONDITION_ROD_INTO_WIND, defaults.getLaunchIntoWind()));
 			defaults.setLaunchRodLength(prefs.getDouble(SIMCONDITION_ROD_LENGTH, defaults.getLaunchRodLength()));
@@ -68,6 +70,7 @@ public class DefaultSimulationOptionFactory {
 		prefs.putBoolean(SIMCONDITION_ATMOS_STD, newDefaults.isISAAtmosphere());
 		prefs.putDouble(SIMCONDITION_ATMOS_TEMP, newDefaults.getLaunchTemperature());
 		prefs.putDouble(SIMCONDITION_ATMOS_PRESSURE, newDefaults.getLaunchPressure());
+		prefs.putDouble(SIMCONDITION_ATMOS_HUMIDITY, newDefaults.getLaunchHumidity());
 
 		prefs.putBoolean(SIMCONDITION_ROD_INTO_WIND, newDefaults.getLaunchIntoWind());
 		prefs.putDouble(SIMCONDITION_ROD_LENGTH, newDefaults.getLaunchRodLength());

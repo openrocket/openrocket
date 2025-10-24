@@ -383,6 +383,7 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			writeElement("basetemperature", cond.getLaunchTemperature());
 			writeElement("basepressure", cond.getLaunchPressure());
+			writeElement("basehumidity", cond.getLaunchHumidity());
 			indent--;
 			writeln("</atmosphere>");
 		}
