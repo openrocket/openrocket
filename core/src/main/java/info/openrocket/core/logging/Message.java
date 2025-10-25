@@ -7,6 +7,7 @@ import java.util.UUID;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.BugException;
 
 /**
  * Baseclass for logging messages (warnings, errors...)
@@ -112,6 +113,13 @@ public abstract class Message implements Cloneable {
 	 * @param sources the rocket component(s) that are the source of this warning.
 	 */
 	public void setSources(RocketComponent[] sources) {
+		if (null != sources) {
+			for (RocketComponent s : sources) {
+				if (null == s) {
+					throw new BugException("Set Message source null");
+				}
+			}
+		}
 		this.sources = sources;
 	}
 
