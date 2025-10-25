@@ -182,8 +182,18 @@ public class Icons {
 		}
 
 		Image image = ((ImageIcon) icon).getImage();
-		int width = (int)(image.getWidth(null) * scale);
-		int height = (int)(image.getHeight(null) * scale);
+		if (image == null) {
+			return icon;
+		}
+		int sourceWidth = image.getWidth(null);
+		int sourceHeight = image.getHeight(null);
+
+		if (sourceWidth <= 0 || sourceHeight <= 0) {
+			return icon;
+		}
+
+		int width = Math.max(1, (int) Math.round(sourceWidth * scale));
+		int height = Math.max(1, (int) Math.round(sourceHeight * scale));
 
 		// Create a new scaled image
 		Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
