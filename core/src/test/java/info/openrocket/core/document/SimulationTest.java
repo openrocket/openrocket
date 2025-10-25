@@ -93,6 +93,7 @@ public class SimulationTest extends BaseTestCase {
 		assertEquals(SimulationAbort.Cause.NO_MOTORS_DEFINED,
 				((SimulationAbort)abort.getData()).getCause());
 	}
+
 	@Test
 	public void testSimulationWithNoMotors_RK6() throws SimulationException {
 		// Create configuration without motors
@@ -196,6 +197,7 @@ public class SimulationTest extends BaseTestCase {
 		assertEquals(maxAltitude + launchAltitude, maxAltitudeASL, 0.001,
 				"Maximum altitude above sea level should equal maximum altitude + launch altitude");
 	}
+
 	@Test
 	public void testAltitudeAboveSeaLevel_RK6() throws SimulationException {
 		double launchAltitude = 123;

@@ -82,8 +82,8 @@ public class RangeExpression extends CustomExpression {
 		// Otherwise there will be a type conflict when we get the new data.
 		FlightDataType type = FlightDataType.getType(null, getSymbol(), null);
 
-		List<Double> data = dataBranch.get(type);
-		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		List<Double> data = dataBranch.getClone(type);
+		List<Double> time = dataBranch.getClone(FlightDataType.TYPE_TIME);
 		LinearInterpolator interp = new LinearInterpolator(time, data);
 
 		// Evaluate the expression to get the start and end of the range

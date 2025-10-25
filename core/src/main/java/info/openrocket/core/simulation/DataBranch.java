@@ -7,6 +7,7 @@ import info.openrocket.core.util.Mutable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -134,11 +135,26 @@ public abstract class DataBranch<T extends DataType> implements Monitorable {
 	 * @return		a list of the variable values, or <code>null</code> if
 	 * 				the variable type hasn't been added to this branch.
 	 */
-	public List<Double> get(T type) {
+	public List<Double> getClone(T type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null)
 			return null;
 		return list.clone();
+	}
+
+	/**
+	 * Return an unmodifiable view of the values for the specified type without cloning the data.
+	 *
+	 * @param type	the variable type.
+	 * @return		an unmodifiable list backed by the internal storage, or null if
+	 * 				the variable type hasn't been added to this branch.
+	 */
+	public List<Double> get(T type) {
+		ArrayList<Double> list = values.get(type);
+		if (list == null) {
+			return null;
+		}
+		return Collections.unmodifiableList(list);
 	}
 
 	/**
