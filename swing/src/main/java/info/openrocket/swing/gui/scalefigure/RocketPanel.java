@@ -1238,7 +1238,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Create a temporary figure for rendering
 		RocketFigure previewFigure = new RocketFigure(document.getRocket());
 		previewFigure.setType(viewType);
-		previewFigure.setDrawCarets(false);
+		previewFigure.setDrawCarets(true);
 		previewFigure.addRelativeExtra(extraCP);
 		previewFigure.addRelativeExtra(extraCG);
 		previewFigure.addAbsoluteExtra(extraText);
