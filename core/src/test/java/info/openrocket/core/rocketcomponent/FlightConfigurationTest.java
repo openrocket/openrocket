@@ -13,10 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.CoordinateIF;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.util.MathUtil;
@@ -24,8 +26,14 @@ import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.ModID;
 
-public class FlightConfigurationTest extends BaseTestCase {
+public class FlightConfigurationTest {
 	private final static double EPSILON = MathUtil.EPSILON * 1.0E3;
+
+	@BeforeAll
+	public static void setup() throws Exception {
+		Locale.setDefault(new Locale("xx"));
+		BaseTestCase.setUp();
+	}
 
 	/**
 	 * Empty rocket (no components) specific configuration tests

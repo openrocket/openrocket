@@ -596,7 +596,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Retrieve the data from the branch
 		List<List<Double>> data = new ArrayList<>(types.length);
 		for (FlightDataType type : types) {
-			data.add(branch.get(type));
+			data.add(branch.getClone(type));
 		}
 		
 		// Build the <databranch> tag
@@ -688,7 +688,7 @@ public class OpenRocketSaver extends RocketSaver {
 		if (types.length == 0)
 			return 0;
 		
-		List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
+		final List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
 			// If time data not available, store all points
 			return branch.getLength();

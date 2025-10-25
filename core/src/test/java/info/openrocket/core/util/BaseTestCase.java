@@ -18,17 +18,8 @@ public class BaseTestCase {
 	@BeforeAll
 	public static void setUp() throws Exception {
 		Module applicationModule = new ServicesForTesting();
-		Module debugTranslator = new AbstractModule() {
-
-			@Override
-			protected void configure() {
-				bind(Translator.class).toInstance(new DebugTranslator(null));
-			}
-
-		};
 		Module pluginModule = new PluginModule();
-		Injector injector = Guice.createInjector(Modules.override(applicationModule).with(debugTranslator),
-				pluginModule);
+		Injector injector = Guice.createInjector(Modules.override(applicationModule).with(pluginModule));
 		Application.setInjector(injector);
 	}
 }

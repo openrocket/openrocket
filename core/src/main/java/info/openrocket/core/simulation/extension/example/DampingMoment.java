@@ -82,8 +82,8 @@ public class DampingMoment extends AbstractSimulationExtension {
 			// dm/dt = (thrust - ma)/v
 			FlightDataBranch dataBranch = status.getFlightDataBranch();
 
-			List<Double> mpAll = dataBranch.get(FlightDataType.TYPE_MOTOR_MASS);
-			List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+			List<Double> mpAll = dataBranch.getClone(FlightDataType.TYPE_MOTOR_MASS);
+			List<Double> time = dataBranch.getClone(FlightDataType.TYPE_TIME);
 			if (mpAll == null || time == null) {
 				return Double.NaN;
 			}
@@ -141,9 +141,8 @@ public class DampingMoment extends AbstractSimulationExtension {
 
 				double CNa = entry.getValue().getCP().getWeight(); // ?
 				double Cp = entry.getValue().getCP().length();
-				double z = comp.getAxialOffset();
 
-				aerodynamicPart += CNa * Math.pow(z - Cp, 2);
+				aerodynamicPart += CNa * Math.pow(Cp - cg, 2);
 			}
 
 			double v = flightConditions.getVelocity();

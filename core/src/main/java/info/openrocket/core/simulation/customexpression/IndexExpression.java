@@ -42,8 +42,8 @@ public class IndexExpression extends CustomExpression {
 		FlightDataType myType = FlightDataType.getType(null, getSymbol(), null);
 
 		FlightDataBranch dataBranch = status.getFlightDataBranch();
-		List<Double> data = dataBranch.get(myType);
-		List<Double> time = dataBranch.get(FlightDataType.TYPE_TIME);
+		List<Double> data = dataBranch.getClone(myType);
+		List<Double> time = dataBranch.getClone(FlightDataType.TYPE_TIME);
 		LinearInterpolator interp = new LinearInterpolator(time, data);
 
 		// Set the variables in the expression to evaluate

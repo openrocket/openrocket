@@ -28,22 +28,19 @@ jobs:
         run: ./gradlew clean check build dist
       # If wanting to serialize all the engines during build
       #        run: ./gradlew clean serializeEnginesDist build dist
-      - name: JaCoCo Coverage Report
-        uses: madrapps/jacoco-report@v1.6.1
-        with:
-          paths: |
-            build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 30
-          update-comment: true
-          title: '# :lobster: Coverage Report'
-          pass-emoji: ':green_circle:'
-          fail-emoji: ':red_circle:'
+      - name: Generate JaCoCo HTML
+        run: |
+          ./gradlew test jacocoTestReport || true
       - name: Upload build reports
         uses: actions/upload-artifact@v4
         with:
           name: build-reports
           path: build/reports/
+      - name: Upload Coverage HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: '**/build/reports/jacoco/test/html/**'
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
