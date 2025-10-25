@@ -35,6 +35,7 @@
 /swing/bin
 /swing/tmp
 /core/src/main/resources/datafiles/components
+/core/src/main/resources/ReleaseNotes.md
 
 # IntelliJ
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
@@ -100,7 +101,7 @@ openrocket.log
 docs/build
 
 # AI tools
-copilot.*.xml
-AGENTS.md
-CLAUDE.md
-GEMINI.md
+**/copilot.*.xml
+**/AGENTS.md
+**/CLAUDE.md
+**/GEMINI.md
