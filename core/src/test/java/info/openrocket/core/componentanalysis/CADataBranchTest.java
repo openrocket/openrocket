@@ -49,8 +49,8 @@ class CADataBranchTest {
 		branch.addPoint();
 		branch.setValue(CADataType.CP_X, component, 7.5);
 
-		List<Double> values = branch.get(CADataType.CP_X, component);
-		values.set(values.size() - 1, 99.0);
+		final List<Double> values = branch.get(CADataType.CP_X, component);
+		assertThrows(UnsupportedOperationException.class, () -> values.set(values.size() - 1, 99.0));
 
 		assertEquals(7.5, branch.getLast(CADataType.CP_X, component), EPSILON);
 	}
