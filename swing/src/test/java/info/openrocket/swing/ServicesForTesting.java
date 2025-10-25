@@ -11,6 +11,7 @@ import info.openrocket.core.material.Material;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.ComponentPreset.Type;
+import info.openrocket.swing.gui.util.SwingPreferences;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -59,7 +60,7 @@ public class ServicesForTesting extends AbstractModule {
 
 	}
 
-	public static class PreferencesForTesting extends ApplicationPreferences {
+	public static class PreferencesForTesting extends SwingPreferences {
 
 		private static java.util.prefs.Preferences root = null;
 

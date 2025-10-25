@@ -227,6 +227,15 @@ public class GeneralRocketSaver {
 			saveInternal(zos, document, options);
 			zos.closeEntry();
 
+			// Save the file preview image, if any.
+			byte[] previewImage = options.getPreviewImage();
+			if (previewImage != null && previewImage.length > 0) {
+				ZipEntry previewEntry = new ZipEntry("preview.png");
+				zos.putNextEntry(previewEntry);
+				zos.write(previewImage);
+				zos.closeEntry();
+			}
+
 			// Now we write out all the decal images files.
 			for (DecalImage image : decals) {
 				if (image.isIgnored()) {
@@ -248,6 +257,7 @@ public class GeneralRocketSaver {
 			}
 
 			zos.flush();
+			options.clearPreviewImage();
 		}
 
 	}

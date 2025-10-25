@@ -78,3 +78,4 @@ The following file format versions exist:
 1.11: Introduced with OpenRocket 25.XX.
       Added <simulationsteppermethod> to <simulation> element.
       Added simulation.table.hiddenColumns document preference for simulation table column visibility.
+      Include a file preview image of the 2D side view in the .ork zip file ('preview.png').

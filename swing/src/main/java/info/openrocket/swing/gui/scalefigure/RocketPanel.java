@@ -44,6 +44,7 @@ import info.openrocket.swing.gui.figureelements.RocketInfo;
 import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.swing.gui.simulation.SimulationWorker;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.CustomClickCountListener;
 import net.miginfocom.swing.MigLayout;
@@ -72,13 +73,19 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -89,6 +96,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 
 /**
@@ -131,6 +140,26 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		public static VIEW_TYPE getDefaultViewType() {
 			return SideView;
+		}
+
+		/**
+		 * Get VIEW_TYPE from its name (string).
+		 * @param name the name of the view type (as returned by name())
+		 * @return the VIEW_TYPE, or null if not found
+		 */
+		public static VIEW_TYPE fromName(String name) {
+			if (name == null) {
+				return null;
+			}
+			for (VIEW_TYPE value : VIEW_TYPE.values()) {
+				if (value == VIEW_TYPE.SEPARATOR) {
+					continue;
+				}
+				if (value.name().equalsIgnoreCase(name)) {
+					return value;
+				}
+			}
+			return null;
 		}
 
 	}
@@ -1132,6 +1161,194 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		//figure3d.addRelativeExtra(extraCG);
 		figure3d.addAbsoluteExtra(extraText);
 
+	}
+
+	/**
+	 * Capture a preview image of the rocket in the specified view type and size.
+	 * @param viewType the view type to capture
+	 * @param targetWidth the target width of the image
+	 * @param minHeight the minimum height of the image
+	 * @param maxHeight the maximum height of the image
+	 * @return the captured image, or null if 3D preview is requested
+	 */
+	public BufferedImage capturePreviewImage(VIEW_TYPE viewType, int targetWidth, int minHeight, int maxHeight) {
+		// TODO: implement 3D preview capture
+		if (viewType.is3d) {
+			return null;
+		}
+
+		BufferedImage source = create2DPreviewFigure(viewType, targetWidth, minHeight, maxHeight);
+		return scaleForPreview(source, targetWidth, minHeight, maxHeight);
+	}
+
+	public byte[] createPreviewPng(VIEW_TYPE requestedView, int targetWidth, int minHeight, int maxHeight) {
+		BufferedImage image = capturePreviewImage(requestedView, targetWidth, minHeight, maxHeight);
+		if (image == null) {
+			return null;
+		}
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			ImageIO.write(image, "png", output);
+			return output.toByteArray();
+		} catch (IOException e) {
+			throw new UncheckedIOException("Failed to encode preview image", e);
+		}
+	}
+
+	public boolean attachPreviewToDocument(OpenRocketDocument doc, VIEW_TYPE requestedView, int targetWidth,
+										   int minHeight, int maxHeight) {
+		byte[] png = createPreviewPng(requestedView, targetWidth, minHeight, maxHeight);
+		if (png == null || png.length == 0) {
+			doc.getDefaultStorageOptions().clearPreviewImage();
+			return false;
+		}
+		doc.getDefaultStorageOptions().setPreviewImage(png);
+		return true;
+	}
+
+	/**
+	 * Compute the height that should be used when rendering preview images.
+	 * <p>
+	 * The value is anchored to the currently visible design panel so previews match
+	 * what the user sees, yet it is clamped to any caller-specified {@code minHeight}
+	 * or {@code maxHeight} bounds.  A minimum of one pixel is always returned to
+	 * protect downstream scaling math.
+	 */
+	private int resolveRenderHeight(int minHeight, int maxHeight) {
+		int base = figureHolder != null && figureHolder.getHeight() > 0 ? figureHolder.getHeight() : 700;
+		if (maxHeight > 0) {
+			base = Math.min(base, maxHeight);
+		}
+		if (minHeight > 0) {
+			base = Math.max(base, minHeight);
+		}
+		return Math.max(base, 1);
+	}
+
+	/**
+	 * Render the current rocket in a temporary 2D figure for use as a preview image.
+	 * <p>
+	 * The method reuses the live CG/CP carets and {@link RocketInfo} overlay so the preview
+	 * carries the same annotations as the editor.  The figure is scaled to fit the supplied
+	 * width/height bounds and drawn into a translucent {@link BufferedImage}.
+	 */
+	private BufferedImage create2DPreviewFigure(VIEW_TYPE viewType, int targetWidth, int minHeight, int maxHeight) {
+		if (viewType == null || viewType.is3d) {
+			viewType = VIEW_TYPE.getDefaultViewType();
+		}
+
+		// Create a temporary figure for rendering
+		RocketFigure previewFigure = new RocketFigure(document.getRocket());
+		previewFigure.setType(viewType);
+		previewFigure.setDrawCarets(true);
+		previewFigure.addRelativeExtra(extraCP);
+		previewFigure.addRelativeExtra(extraCG);
+		previewFigure.addAbsoluteExtra(extraText);
+
+		// Scale and layout the figure
+		int renderHeight = resolveRenderHeight(minHeight, maxHeight);
+		Dimension renderBounds = new Dimension(targetWidth, renderHeight);
+		previewFigure.scaleTo(renderBounds);
+		previewFigure.updateFigure();
+
+		// Determine canvas size
+		Dimension canvasSize = previewFigure.getPreferredSize();
+		if (canvasSize.width <= 0 || canvasSize.height <= 0) {
+			canvasSize = new Dimension(targetWidth, renderHeight);
+		}
+
+		// Layout the figure at the final size
+		previewFigure.setSize(canvasSize);
+		previewFigure.doLayout();
+
+		// Render the figure into a BufferedImage
+		BufferedImage raw = new BufferedImage(canvasSize.width, canvasSize.height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = raw.createGraphics();
+		try {
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			previewFigure.paint(g2);
+		} finally {
+			g2.dispose();
+		}
+		return raw;
+	}
+
+	/**
+	 * Scale the rendered preview so it fits the requested target size while preserving aspect ratio,
+	 * adding letter-box style padding when needed.
+	 *
+	 * @param source      the raw preview image
+	 * @param targetWidth width the caller wishes to occupy
+	 * @param minHeight   optional minimum canvas height (0 disables)
+	 * @param maxHeight   optional maximum canvas height (0 disables)
+	 * @return an image ready to be embedded in the ORK archive
+	 */
+	private BufferedImage scaleForPreview(BufferedImage source, int targetWidth, int minHeight, int maxHeight) {
+		if (source == null || source.getWidth() <= 0 || source.getHeight() <= 0 || targetWidth <= 0) {
+			return source;
+		}
+
+		// Step 1: scale the image so its width matches the requested target while keeping aspect ratio.
+		double widthScale = targetWidth / (double) source.getWidth();
+		int scaledWidth = targetWidth;
+		int scaledHeight = (int) Math.round(source.getHeight() * widthScale);
+
+		// Step 2: if that height would exceed the allowed maximum, recompute using the max height instead.
+		if (maxHeight > 0 && scaledHeight > maxHeight) {
+			widthScale = maxHeight / (double) source.getHeight();
+			scaledWidth = (int) Math.round(source.getWidth() * widthScale);
+			scaledHeight = maxHeight;
+		}
+
+		if (scaledWidth <= 0) {
+			scaledWidth = 1;
+		}
+		if (scaledHeight <= 0) {
+			scaledHeight = 1;
+		}
+
+		// Perform the actual resampling with high-quality hints.
+		BufferedImage scaled = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = scaled.createGraphics();
+		try {
+			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.drawImage(source, 0, 0, scaledWidth, scaledHeight, null);
+		} finally {
+			g2.dispose();
+		}
+
+		// Step 3: determine the final canvas size, padding to meet minHeight/targetWidth when necessary.
+		int canvasWidth = targetWidth;
+		if (scaledWidth > canvasWidth) {
+			canvasWidth = scaledWidth;
+		}
+		int canvasHeight = scaledHeight;
+		if (minHeight > 0 && canvasHeight < minHeight) {
+			canvasHeight = minHeight;
+		}
+
+		if (maxHeight > 0 && canvasHeight > maxHeight) {
+			canvasHeight = maxHeight;
+		}
+
+		if (canvasWidth == scaledWidth && canvasHeight == scaledHeight) {
+			return scaled;
+		}
+
+		// Step 4: center the scaled image on a background tinted to the current UI theme.
+		BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D canvasGraphics = canvas.createGraphics();
+		try {
+			canvasGraphics.setColor(GUIUtil.getUITheme().getBackgroundColor());
+			canvasGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
+			int x = (canvasWidth - scaledWidth) / 2;
+			int y = (canvasHeight - scaledHeight) / 2;
+			canvasGraphics.drawImage(scaled, x, y, null);
+		} finally {
+			canvasGraphics.dispose();
+		}
+
+		return canvas;
 	}
 
 	/**

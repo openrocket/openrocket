@@ -16,6 +16,7 @@ public class StorageOptions implements Cloneable {
 	private boolean saveSimulationData = false;
 
 	private boolean explicitlySet = false;
+	private byte[] previewImage;		// File preview image data
 
 	public FileType getFileType() {
 		return fileType;
@@ -41,10 +42,37 @@ public class StorageOptions implements Cloneable {
 		this.explicitlySet = explicitlySet;
 	}
 
+	/**
+	 * Get the file preview image data.
+	 * @return byte array containing image data, or null if no preview image is set.
+	 */
+	public byte[] getPreviewImage() {
+		return previewImage;
+	}
+
+	/**
+	 * Set the file preview image data.
+	 * @param previewImage byte array containing image data.
+	 */
+	public void setPreviewImage(byte[] previewImage) {
+		this.previewImage = previewImage;
+	}
+
+	/**
+	 * Clear the file preview image data.
+	 */
+	public void clearPreviewImage() {
+		this.previewImage = null;
+	}
+
 	@Override
 	public StorageOptions clone() {
 		try {
-			return (StorageOptions) super.clone();
+			StorageOptions clone = (StorageOptions) super.clone();
+			if (this.previewImage != null) {
+				clone.previewImage = this.previewImage.clone();
+			}
+			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("CloneNotSupportedException?!?", e);
 		}
