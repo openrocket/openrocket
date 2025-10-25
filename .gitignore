@@ -98,3 +98,9 @@ openrocket.log
 
 # Sphinx documentation
 docs/build
+
+# AI tools
+copilot.*.xml
+AGENTS.md
+CLAUDE.md
+GEMINI.md
