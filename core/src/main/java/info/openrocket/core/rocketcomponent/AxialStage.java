@@ -3,7 +3,7 @@ package info.openrocket.core.rocketcomponent;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public class AxialStage extends ComponentAssembly implements FlightConfigurableComponent {
 	
@@ -197,8 +197,8 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	@Override
 	public void toDebugTreeNode(final StringBuilder buffer, final String indent) {
 		
-		Coordinate[] relCoords = this.getInstanceOffsets();
-		Coordinate[] absCoords = this.getComponentLocations();
+		CoordinateIF[] relCoords = this.getInstanceOffsets();
+		CoordinateIF[] absCoords = this.getComponentLocations();
 		if( 1 == getInstanceCount()){
 			buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;", indent+this.getName()+" (# "+this.getStageNumber()+")", 
 					this.getLength(), this.getPosition(), this.getComponentLocations()[0]));
@@ -206,8 +206,8 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		}else{
 			buffer.append(String.format("%-40s|(len: %6.4f )(offset: %4.1f via: %s)\n", (indent+this.getName()+"(# "+this.getStageNumber()+")"), this.getLength(), this.getAxialOffset(), this.axialMethod.name() ));
 			for (int instanceNumber = 0; instanceNumber < this.getInstanceCount(); instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+				CoordinateIF instanceRelativePosition = relCoords[instanceNumber];
+				CoordinateIF instanceAbsolutePosition = absCoords[instanceNumber];
 				final String prefix = String.format("%s    [%2d/%2d]", indent, instanceNumber+1, getInstanceCount()); 
 				buffer.append(String.format("%-40s|  %5.3f; %24s; %24s;\n", prefix, this.getLength(), instanceRelativePosition, instanceAbsolutePosition));
 			}

@@ -6,8 +6,8 @@ import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.core.file.wavefrontobj.DefaultMtl;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.DefaultTextureOptions;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.ORColor;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,16 +99,16 @@ public class AppearanceExporter {
         textureOptions.setFileName(decalFile.getAbsolutePath());
 
         // Texture scale
-        final Coordinate scale = texture.getScale();
-        float scaleX = (float) scale.x;
-        float scaleY = (float) scale.y;
+        final CoordinateIF scale = texture.getScale();
+        float scaleX = (float) scale.getX();
+        float scaleY = (float) scale.getY();
         textureOptions.setS(scaleX, scaleY, 1.0f);
 
         // Texture offset
         // Need an extra offset because the texture scale origin is different in OR
-        final Coordinate origin = texture.getOffset();
-        float origX = (float) (scaleX*(-1 - origin.x) + 1);
-        float origY = (float) (scaleY*(-1 - origin.y) + 1);
+        final CoordinateIF origin = texture.getOffset();
+        float origX = (float) (scaleX*(-1 - origin.getX()) + 1);
+        float origY = (float) (scaleY*(-1 - origin.getY()) + 1);
 
         textureOptions.setO(origX, origY, 0.0f);
 

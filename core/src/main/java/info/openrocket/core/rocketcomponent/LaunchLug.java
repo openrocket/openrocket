@@ -12,6 +12,7 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, LineInstanceable, InsideColorComponent {
@@ -157,8 +158,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	}
 	
 	@Override
-	public Coordinate[] getInstanceOffsets(){
-		Coordinate[] toReturn = new Coordinate[this.getInstanceCount()];
+	public CoordinateIF[] getInstanceOffsets(){
+		CoordinateIF[] toReturn = new CoordinateIF[this.getInstanceCount()];
 		
 		final double yOffset = Math.cos(angleOffsetRad) * (radialOffset);
 		final double zOffset = Math.sin(angleOffsetRad) * (radialOffset);
@@ -204,8 +205,8 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 		} else {
 			SymmetricComponent s = (SymmetricComponent) body;
 			double x1, x2;
-			x1 = this.toRelative(Coordinate.NUL, body)[0].x;
-			x2 = this.toRelative(new Coordinate(length, 0, 0), body)[0].x;
+			x1 = this.toRelative(Coordinate.NUL, body)[0].getX();
+			x2 = this.toRelative(new Coordinate(length, 0, 0), body)[0].getX();
 			x1 = MathUtil.clamp(x1, 0, body.getLength());
 			x2 = MathUtil.clamp(x2, 0, body.getLength());
 			parentRadius = Math.max(s.getRadius(x1), s.getRadius(x2));
@@ -220,15 +221,15 @@ public class LaunchLug extends Tube implements AnglePositionable, BoxBounded, Li
 	}
 	
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		ArrayList<Coordinate> set = new ArrayList<>();
+	public Collection<CoordinateIF> getComponentBounds() {
+		ArrayList<CoordinateIF> set = new ArrayList<>();
 		addBound(set, 0, radius);
 		addBound(set, length, radius);
 		return set;
 	}
 	
 	@Override
-	public Coordinate getComponentCG() {
+	public CoordinateIF getComponentCG() {
 		final double parentRadius = parent instanceof SymmetricComponent ?
 				((SymmetricComponent) parent).getRadius(getAxialOffset()) : 0;
 

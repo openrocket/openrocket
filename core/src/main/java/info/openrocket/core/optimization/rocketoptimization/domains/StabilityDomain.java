@@ -12,7 +12,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.unit.Value;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
 
@@ -52,7 +52,7 @@ public class StabilityDomain implements SimulationDomain {
 
 	@Override
 	public Pair<Double, Value> getDistanceToDomain(Simulation simulation) {
-		Coordinate cp, cg;
+		CoordinateIF cp, cg;
 		double cpx, cgx;
 		double absolute;
 		double relative;
@@ -74,13 +74,13 @@ public class StabilityDomain implements SimulationDomain {
 		cp = aerodynamicCalculator.getWorstCP(configuration, conditions, null);
 		cg = MassCalculator.calculateLaunch(configuration).getCM();
 
-		if (cp.weight > 0.000001)
-			cpx = cp.x;
+		if (cp.getWeight() > 0.000001)
+			cpx = cp.getX();
 		else
 			cpx = Double.NaN;
 
-		if (cg.weight > 0.000001)
-			cgx = cg.x;
+		if (cg.getWeight() > 0.000001)
+			cgx = cg.getX();
 		else
 			cgx = Double.NaN;
 

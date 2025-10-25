@@ -28,6 +28,7 @@ import info.openrocket.core.simulation.listeners.system.InterruptListener;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -776,7 +777,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private WarningSet warnings = new WarningSet();
 
 	public void updateExtras() {
-		Coordinate cp, cg;
+		CoordinateIF cp, cg;
 		double cgx = Double.NaN;
 		double cgy = Double.NaN;
 		double cpx = Double.NaN;
@@ -818,17 +819,17 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			cp = aerodynamicCalculator.getWorstCP(curConfig, conditions, warnings);
 		}
 		extraText.setTheta(cpTheta);
-		if (cp.weight > MathUtil.EPSILON){
-			cpx = cp.x;
+		if (cp.getWeight() > MathUtil.EPSILON){
+			cpx = cp.getX();
 			// map the 3D value into the 2D Display Panel
-			cpy = cp.y * Math.cos(rotation) + cp.z*Math.sin(rotation);
+			cpy = cp.getY() * Math.cos(rotation) + cp.getZ()*Math.sin(rotation);
 		}
 		
 		cg = MassCalculator.calculateLaunch( curConfig).getCM();
-		if (cg.weight > MassCalculator.MIN_MASS){
-			cgx = cg.x;
+		if (cg.getWeight() > MassCalculator.MIN_MASS){
+			cgx = cg.getX();
 			// map the 3D value into the 2D Display Panel
-			cgy = cg.y * Math.cos(rotation) + cg.z*Math.sin(rotation);
+			cgy = cg.getY() * Math.cos(rotation) + cg.getZ()*Math.sin(rotation);
 		}
 
 		// We need to flip the y coordinate if we are in top view
@@ -853,7 +854,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setCP(cpx);
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
-		extraText.setMassWithMotors(cg.weight);
+		extraText.setMassWithMotors(cg.getWeight());
 		extraText.setMassWithoutMotors( emptyInfo.getMass() );
 		extraText.setWarnings(warnings);
 		if (this.showWarnings != null) {

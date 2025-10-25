@@ -4,7 +4,7 @@
 package info.openrocket.swing.gui.print;
 
 import info.openrocket.core.rocketcomponent.FinSet;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
@@ -50,8 +50,8 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
      */
     protected void init (FinSet component) {
 
-        Coordinate[] points = component.getFinPointsWithRoot();
-        Coordinate[] tabPoints = component.getTabPointsWithRoot();
+        CoordinateIF[] points = component.getFinPointsWithRoot();
+        CoordinateIF[] tabPoints = component.getTabPointsWithRoot();
 
         finPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, points.length);
         finTabPolygon = new GeneralPath(GeneralPath.WIND_NON_ZERO, tabPoints.length);
@@ -62,8 +62,8 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
         int maxY = Integer.MIN_VALUE;
 
         for (int i = 0; i < points.length; i++) {
-            final float x = (float) PrintUnit.METERS.toPoints(points[i].x);
-            final float y = (float) PrintUnit.METERS.toPoints(points[i].y);
+            final float x = (float) PrintUnit.METERS.toPoints(points[i].getX());
+            final float y = (float) PrintUnit.METERS.toPoints(points[i].getY());
             minX = (int) Math.min(x, minX);
             minY = (int) Math.min(y, minY);
             maxX = (int) Math.max(x, maxX);
@@ -77,8 +77,8 @@ public class PrintableFinSet extends AbstractPrintable<FinSet> {
         finPolygon.closePath();
 
         for (int i = 0; i < tabPoints.length; i++) {
-            final float x = (float) PrintUnit.METERS.toPoints(tabPoints[i].x);
-            final float y = (float) PrintUnit.METERS.toPoints(tabPoints[i].y);
+            final float x = (float) PrintUnit.METERS.toPoints(tabPoints[i].getX());
+            final float y = (float) PrintUnit.METERS.toPoints(tabPoints[i].getY());
             minX = (int) Math.min(x, minX);
             minY = (int) Math.min(y, minY);
             maxX = (int) Math.max(x, maxX);

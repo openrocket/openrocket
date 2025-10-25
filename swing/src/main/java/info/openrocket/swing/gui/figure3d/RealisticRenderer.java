@@ -151,12 +151,12 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glMatrixMode(GL.GL_TEXTURE);
 			gl.glPushMatrix();
 			
-			gl.glTranslated(-t.getCenter().x, -t.getCenter().y, 0);
+			gl.glTranslated(-t.getCenter().getX(), -t.getCenter().getY(), 0);
 			gl.glRotated(57.2957795 * t.getRotation(), 0, 0, 1);
-			gl.glTranslated(t.getCenter().x, t.getCenter().y, 0);
+			gl.glTranslated(t.getCenter().getX(), t.getCenter().getY(), 0);
 			
-			gl.glScaled(t.getScale().x, t.getScale().y, 0);
-			gl.glTranslated(t.getOffset().x, t.getOffset().y, 0);
+			gl.glScaled(t.getScale().getX(), t.getScale().getY(), 0);
+			gl.glTranslated(t.getOffset().getX(), t.getOffset().getY(), 0);
 			
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, toEdgeMode(t.getEdgeMode()));
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));

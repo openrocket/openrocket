@@ -1,11 +1,12 @@
 package info.openrocket.swing.gui.print;
 
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.swing.gui.print.visitor.Dimension;
 import info.openrocket.core.rocketcomponent.CenteringRing;
 import info.openrocket.core.rocketcomponent.ClusterConfiguration;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.util.ArrayList;
-import info.openrocket.core.util.Coordinate;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -54,9 +55,9 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
                             (float) PrintUnit.METERS.toPoints((target.getInnerRadius()))));
         }
         else {
-            List<Coordinate> coords = theMotorMount.getClusterPoints();
-            List<Coordinate> points = new ArrayList<>();
-            for (Coordinate coordinate : coords) {
+            List<CoordinateIF> coords = theMotorMount.getClusterPoints();
+            List<CoordinateIF> points = new ArrayList<>();
+            for (CoordinateIF coordinate : coords) {
                 points.add(coordinate.setX(theMotorMount.getOuterRadius()));
             }
             populateCenterPoints(points);
@@ -72,19 +73,19 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
      */
     private PrintableCenteringRing(CenteringRing theRing, List<InnerTube> theMotorMounts) {
         super(theRing);
-        List<Coordinate> points = new ArrayList<>();
+        List<CoordinateIF> points = new ArrayList<>();
         //Transform the radial positions of the tubes.
         for (InnerTube it : theMotorMounts) {
             if (it.getInstanceCount() > 1) {
-                List<Coordinate> c = it.getClusterPoints();
-                for (Coordinate coordinate : c) {
+                List<CoordinateIF> c = it.getClusterPoints();
+                for (CoordinateIF coordinate : c) {
                     points.add(coordinate.setX(it.getOuterRadius()));
                 }
             }
             else {
                 double y = it.getRadialShiftY();
                 double z = it.getRadialShiftZ();
-                Coordinate coordinate = new Coordinate(it.getOuterRadius(), y, z);
+                CoordinateIF coordinate = new Coordinate(it.getOuterRadius(), y, z);
                 points.add(coordinate);
             }
         }
@@ -115,13 +116,13 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
      * @param theCoords the list of tube coordinates; each coordinate is in the OR units (meters) and must be
      *                  transformed to the printing (points) coordinate system
      */
-    private void populateCenterPoints(final List<Coordinate> theCoords) {
+    private void populateCenterPoints(final List<CoordinateIF> theCoords) {
         float radius = (float) PrintUnit.METERS.toPoints(target.getOuterRadius());
-        for (Coordinate coordinate : theCoords) {
+        for (CoordinateIF coordinate : theCoords) {
             innerCenterPoints.add(new Dimension(
-                    (float) PrintUnit.METERS.toPoints(coordinate.y) + radius, //center point x
-                    (float) PrintUnit.METERS.toPoints(coordinate.z) + radius, //center point y
-                    (float) PrintUnit.METERS.toPoints(coordinate.x)));        //radius of motor mount
+                    (float) PrintUnit.METERS.toPoints(coordinate.getY()) + radius, //center point x
+                    (float) PrintUnit.METERS.toPoints(coordinate.getZ()) + radius, //center point y
+                    (float) PrintUnit.METERS.toPoints(coordinate.getX())));        //radius of motor mount
         }
     }
 

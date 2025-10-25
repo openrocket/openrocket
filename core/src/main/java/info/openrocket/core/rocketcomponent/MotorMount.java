@@ -6,7 +6,7 @@ import java.util.UUID;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationSet;
 import info.openrocket.core.util.ChangeSource;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 
@@ -84,7 +84,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	public AxialStage getStage();
 
 	// duplicate of RocketComponent
-	public Coordinate[] getComponentLocations();
+	public CoordinateIF[] getComponentLocations();
 
 	/**
 	 * Returns the set of motors configured for flight/simulation in this motor
@@ -155,7 +155,7 @@ public interface MotorMount extends ChangeSource, FlightConfigurableComponent {
 	 * @throws IllegalArgumentException if a motor with the specified ID does not
 	 *                                  exist.
 	 */
-	public Coordinate getMotorPosition(FlightConfigurationId id);
+	public CoordinateIF getMotorPosition(FlightConfigurationId id);
 
 	/**
 	 * Development / Debug method.

@@ -2,6 +2,7 @@ package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
@@ -34,18 +35,18 @@ public class EllipticalFinSet extends FinSet {
 	
 	
 	@Override
-	public Coordinate[] getFinPoints() {
+	public CoordinateIF[] getFinPoints() {
 		double len = MathUtil.max(length, 0.0001);
-		Coordinate[] finPoints = new Coordinate[POINTS];
+		CoordinateIF[] finPoints = new CoordinateIF[POINTS];
 		for (int i = 0; i < POINTS; i++) {
 			finPoints[i] = new Coordinate(POINT_X[i] * len, POINT_Y[i] * height);
 		}
 
 		// Set the start and end fin points the same as the root points (necessary for canted fins)
-		final Coordinate[] rootPoints = getRootPoints();
+		final CoordinateIF[] rootPoints = getRootPoints();
 		if (rootPoints.length > 1) {
-			finPoints[0] = finPoints[0].setX(rootPoints[0].x).setY(rootPoints[0].y);
-			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].x).setY(rootPoints[rootPoints.length - 1].y);
+			finPoints[0] = finPoints[0].setX(rootPoints[0].getX()).setY(rootPoints[0].getY());
+			finPoints[finPoints.length - 1] = finPoints[finPoints.length - 1].setX(rootPoints[rootPoints.length - 1].getX()).setY(rootPoints[rootPoints.length - 1].getY());
 		}
 		return finPoints;
 	}

@@ -2,7 +2,6 @@ package info.openrocket.core.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -105,8 +104,8 @@ public class MathUtil {
 	 * @return the mapped value.
 	 * @throws IllegalArgumentException if fromMin == fromMax, but toMin != toMax.
 	 */
-	public static Coordinate map(double value, double fromMin, double fromMax,
-			Coordinate toMin, Coordinate toMax) {
+	public static CoordinateIF map(double value, double fromMin, double fromMax,
+								   CoordinateIF toMin, CoordinateIF toMax) {
 		if (toMin.equals(toMax))
 			return toMin;
 		if (equals(fromMin, fromMax)) {

@@ -12,7 +12,7 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +28,9 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
     public void addToObj() {
         obj.setActiveGroupNames(groupName);
 
-        final Coordinate[] points = component.getFinPointsWithRoot();
-        final Coordinate[] tabPoints = component.getTabPointsWithRoot();
-        final Coordinate[] tabPointsReversed = new Coordinate[tabPoints.length];        // We need clockwise points for the PolygonExporter
+        final CoordinateIF[] points = component.getFinPointsWithRoot();
+        final CoordinateIF[] tabPoints = component.getTabPointsWithRoot();
+        final CoordinateIF[] tabPointsReversed = new CoordinateIF[tabPoints.length];        // We need clockwise points for the PolygonExporter
         for (int i = 0; i < tabPoints.length; i++) {
             tabPointsReversed[i] = tabPoints[tabPoints.length - i - 1];
         }
@@ -104,7 +104,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
                 orig.getX(), orig.getY(), orig.getZ());
 
         // Translate the mesh to the position in the rocket
-        final Coordinate location = context.getLocation();
+        final CoordinateIF location = context.getLocation();
         ObjUtils.translateVerticesFromComponentLocation(obj, transformer, startIdx, endIdx, location);
     }
 
@@ -113,7 +113,7 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
      * @param points The fin points
      * @return The fin points as floats
      */
-    private FloatPoints getPointsAsFloat(Coordinate[] points) {
+    private FloatPoints getPointsAsFloat(CoordinateIF[] points) {
         // We first want to remove duplicate points, so we'll keep track of indices that are correct
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < points.length; i++) {
@@ -129,8 +129,8 @@ public class FinSetExporter extends RocketComponentExporter<FinSet> {
 
         // Fill the arrays with the x and y values of each coordinate
         for (int i = 0; i < targetLength; i++) {
-            xCoords[i] = (float) points[indices.get(i)].x;
-            yCoords[i] = (float) points[indices.get(i)].y;
+            xCoords[i] = (float) points[indices.get(i)].getX();
+            yCoords[i] = (float) points[indices.get(i)].getY();
         }
 
         return new FloatPoints(xCoords, yCoords);

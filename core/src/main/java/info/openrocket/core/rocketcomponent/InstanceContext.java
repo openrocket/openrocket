@@ -1,6 +1,7 @@
 package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Transformation;
 
 /**
@@ -39,7 +40,7 @@ public class InstanceContext {
 		return String.format("Context for %s #%d", component.toString(), instanceNumber);
 	}
 
-	public Coordinate getLocation() {
+	public CoordinateIF getLocation() {
 		return transform.transform(Coordinate.ZERO);
 	}
 

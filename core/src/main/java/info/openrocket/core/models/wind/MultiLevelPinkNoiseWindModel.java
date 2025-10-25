@@ -21,6 +21,7 @@ import info.openrocket.core.unit.DegreeUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -105,7 +106,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	}
 
 	@Override
-	public Coordinate getWindVelocity(double time, double altitudeMSL, double altitudeAGL) {
+	public CoordinateIF getWindVelocity(double time, double altitudeMSL, double altitudeAGL) {
 		if (altitudeReference == AltitudeReference.MSL) {
 			return getWindVelocity(time, altitudeMSL);
 		} else {
@@ -114,7 +115,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 	}
 
 	@Override
-	public Coordinate getWindVelocity(double time, double altitude) {
+	public CoordinateIF getWindVelocity(double time, double altitude) {
 		if (levels.isEmpty()) {
 			return Coordinate.ZERO;
 		}
@@ -141,15 +142,15 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		LevelWindModel upperLevel = levels.get(insertionPoint);
 		double fraction = (altitude - lowerLevel.altitude) / (upperLevel.altitude - lowerLevel.altitude);
 
-		Coordinate lowerVelocity = lowerLevel.model.getWindVelocity(time, altitude);
-		Coordinate upperVelocity = upperLevel.model.getWindVelocity(time, altitude);
+		CoordinateIF lowerVelocity = lowerLevel.model.getWindVelocity(time, altitude);
+		CoordinateIF upperVelocity = upperLevel.model.getWindVelocity(time, altitude);
 
 		return lowerVelocity.interpolate(upperVelocity, fraction);
 	}
 
 	public double getWindDirection(double time, double altitude) {
-		Coordinate velocity = getWindVelocity(time, altitude);
-		double direction = Math.atan2(velocity.x, velocity.y);
+		CoordinateIF velocity = getWindVelocity(time, altitude);
+		double direction = Math.atan2(velocity.getX(), velocity.getY());
 
 		// Normalize the result to be between 0 and 2*PI
 		return (direction + 2 * Math.PI) % (2 * Math.PI);

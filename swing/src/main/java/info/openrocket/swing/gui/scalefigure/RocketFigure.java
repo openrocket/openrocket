@@ -36,7 +36,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
@@ -358,11 +358,11 @@ public class RocketFigure extends AbstractScaleFigure {
 
 			// <component>.getComponentLocations() will return all the parent instances of this owning component,  AND all of its own instances as well.
 			// so, just draw a motor once for each Coordinate returned...
-			Coordinate[] mountLocations = mount.getComponentLocations();
+			CoordinateIF[] mountLocations = mount.getComponentLocations();
 
-			Coordinate motorPosition = mount.getMotorPosition(config.getId());
-			for (Coordinate curMountLocation : mountLocations) {
-				Coordinate curMotorLocation = curMountLocation.add(motorPosition);
+			CoordinateIF motorPosition = mount.getMotorPosition(config.getId());
+			for (CoordinateIF curMountLocation : mountLocations) {
+				CoordinateIF curMotorLocation = curMountLocation.add(motorPosition);
 
 				// rotate by figure's axial rotation:
 				curMotorLocation = getFigureRotation().transform(curMotorLocation);
@@ -370,13 +370,13 @@ public class RocketFigure extends AbstractScaleFigure {
 				{
 					Shape s;
 					if (currentViewType == RocketPanel.VIEW_TYPE.SideView || currentViewType == RocketPanel.VIEW_TYPE.TopView) {
-						s = new Rectangle2D.Double(curMotorLocation.x,
-								(curMotorLocation.y - motorRadius),
+						s = new Rectangle2D.Double(curMotorLocation.getX(),
+								(curMotorLocation.getY() - motorRadius),
 								motorLength,
 								2 * motorRadius);
 					} else {
-						s = new Ellipse2D.Double((curMotorLocation.z - motorRadius),
-								(curMotorLocation.y - motorRadius),
+						s = new Ellipse2D.Double((curMotorLocation.getZ() - motorRadius),
+								(curMotorLocation.getY() - motorRadius),
 								2 * motorRadius,
 								2 * motorRadius);
 					}
@@ -530,13 +530,13 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		final BoundingBox bounds = rocket.getSelectedConfiguration().getBoundingBox();
 		
-		final double maxR = Math.max( Math.hypot(bounds.min.y, bounds.min.z),
-									  Math.hypot(bounds.max.y, bounds.max.z));
+		final double maxR = Math.max( Math.hypot(bounds.min.getY(), bounds.min.getZ()),
+									  Math.hypot(bounds.max.getY(), bounds.max.getZ()));
 
 		switch (currentViewType) {
 			case SideView:
 			case TopView:
-				subjectBounds_m = new Rectangle2D.Double(bounds.min.x, -maxR, bounds.span().x, 2 * maxR);
+				subjectBounds_m = new Rectangle2D.Double(bounds.min.getX(), -maxR, bounds.span().getX(), 2 * maxR);
 				break;
 			case BackView:
 				subjectBounds_m = new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);

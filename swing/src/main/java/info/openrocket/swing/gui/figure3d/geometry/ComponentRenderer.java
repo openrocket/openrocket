@@ -8,6 +8,7 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 
 import info.openrocket.core.rocketcomponent.InnerTube;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,6 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.Transition.Shape;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 
 /*
@@ -133,10 +133,10 @@ public class ComponentRenderer {
 
 	private void renderOther(GL2 gl, RocketComponent c) {
 		gl.glBegin(GL.GL_LINES);
-		for (Coordinate cc : c.getComponentBounds()) {
-			for (Coordinate ccc : c.getComponentBounds()) {
-				gl.glVertex3d(cc.x, cc.y, cc.z);
-				gl.glVertex3d(ccc.x, ccc.y, ccc.z);
+		for (CoordinateIF cc : c.getComponentBounds()) {
+			for (CoordinateIF ccc : c.getComponentBounds()) {
+				gl.glVertex3d(cc.getX(), cc.getY(), cc.getZ());
+				gl.glVertex3d(ccc.getX(), ccc.getY(), ccc.getZ());
 			}
 		}
 		gl.glEnd();

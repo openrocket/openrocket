@@ -195,7 +195,7 @@ public class SimulationDTO {
                     setSustainerLaunchWt(sustainerMass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
 
                     // Set CG
-                    double sustainerCG = calc.getCM().x; // = sutainer CG with no motors
+                    double sustainerCG = calc.getCM().getX(); // = sutainer CG with no motors
                     sustainerCG = addMotorCGToStageCG(sustainerCG, calc.getMass(), mount, motor, fcid);
                     setSustainerCG(sustainerCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
 
@@ -220,7 +220,7 @@ public class SimulationDTO {
                     setBooster1LaunchWt(booster1Mass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
 
                     // Set CG
-                    totalCG = calc.getCM().x; // = sustainer + booster 1 CG with no sustainer & booster & motors
+                    totalCG = calc.getCM().getX(); // = sustainer + booster 1 CG with no sustainer & booster & motors
                     totalCG = addMotorCGToStageCG(totalCG, calc.getMass(), sustainerMount, sustainerMotor, fcid);
                     totalCG = addMotorCGToStageCG(totalCG, calc.getMass() + sustainerMotorMass, mount, motor, fcid);
                     setBooster1CG(totalCG * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_LENGTH);
@@ -263,7 +263,7 @@ public class SimulationDTO {
                     setBooster2LaunchWt(booster2Mass * RASAeroCommonConstants.OPENROCKET_TO_RASAERO_WEIGHT);
 
                     // Set CG
-                    totalCG = calc.getCM().x; // CG of sustainer + booster 1 + booster 2 combined, with no sustainer,
+                    totalCG = calc.getCM().getX(); // CG of sustainer + booster 1 + booster 2 combined, with no sustainer,
                                               // booster1 and booster2 motors!
                     totalCG = addMotorCGToStageCG(totalCG, calc.getMass(), sustainerMount, sustainerMotor, fcid);
                     totalCG = addMotorCGToStageCG(totalCG, calc.getMass() + sustainerMotorMass, booster1Mount,
@@ -302,10 +302,10 @@ public class SimulationDTO {
         }
 
         // Calculate the motor CG
-        double motorPositionXRel = mount.getMotorPosition(fcid).x; // Motor position relative to the mount
-        double mountLocationX = mount.getComponentLocations()[0].x;
+        double motorPositionXRel = mount.getMotorPosition(fcid).getX(); // Motor position relative to the mount
+        double mountLocationX = mount.getComponentLocations()[0].getX();
         double motorLocationX = mountLocationX + motorPositionXRel;
-        double motorCG = ((ThrustCurveMotor) motor).getCGPoints()[0].x + motorLocationX;
+        double motorCG = ((ThrustCurveMotor) motor).getCGPoints()[0].getX() + motorLocationX;
 
         double motorMass = motor.getLaunchMass();
 

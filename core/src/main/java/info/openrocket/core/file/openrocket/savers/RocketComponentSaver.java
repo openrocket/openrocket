@@ -36,8 +36,8 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.ORColor;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.TextUtil;
 
@@ -180,12 +180,12 @@ public class RocketComponentSaver {
 			double rotation = decal.getRotation();
 			EdgeMode edgeMode = decal.getEdgeMode();
 			elements.add(OpenRocketSaver.INDENT + "<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
-			Coordinate center = decal.getCenter();
-			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
-			Coordinate offset = decal.getOffset();
-			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
-			Coordinate scale = decal.getScale();
-			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
+			CoordinateIF center = decal.getCenter();
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<center x=\"" + center.getX() + "\" y=\"" + center.getY() + "\"/>");
+			CoordinateIF offset = decal.getOffset();
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<offset x=\"" + offset.getX() + "\" y=\"" + offset.getY() + "\"/>");
+			CoordinateIF scale = decal.getScale();
+			elements.add(OpenRocketSaver.INDENT.repeat(2) + "<scale x=\"" + scale.getX() + "\" y=\"" + scale.getY() + "\"/>");
 			elements.add(OpenRocketSaver.INDENT + "</decal>");
 		}
 	}

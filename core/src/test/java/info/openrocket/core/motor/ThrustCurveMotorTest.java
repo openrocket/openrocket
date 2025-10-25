@@ -3,9 +3,10 @@ package info.openrocket.core.motor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Pair;
 
 public class ThrustCurveMotorTest {
@@ -25,7 +26,7 @@ public class ThrustCurveMotorTest {
 			.setLength(length)
 			.setTimePoints(new double[] { 0, 1, 3, 4 })
 			.setThrustPoints(new double[] { 0, 2, 3, 0 })
-			.setCGPoints(new Coordinate[] {
+			.setCGPoints(new CoordinateIF[] {
 					new Coordinate(0.02, 0, 0, 0.05),
 					new Coordinate(0.02, 0, 0, 0.05),
 					new Coordinate(0.02, 0, 0, 0.05),
@@ -57,7 +58,7 @@ public class ThrustCurveMotorTest {
 					3.205, 2.884, 2.499, 2.371,
 					2.307, 2.371, 2.371, 2.243,
 					1.794, 1.153, 0.448, 0 })
-			.setCGPoints(new Coordinate[] {
+			.setCGPoints(new CoordinateIF[] {
 					new Coordinate(0.0350, 0, 0, 0.016350), new Coordinate(0.0352, 0, 0, 0.016335),
 					new Coordinate(0.0354, 0, 0, 0.016255), new Coordinate(0.0356, 0, 0, 0.016057),
 					new Coordinate(0.0358, 0, 0, 0.015748), new Coordinate(0.0360, 0, 0, 0.015463),

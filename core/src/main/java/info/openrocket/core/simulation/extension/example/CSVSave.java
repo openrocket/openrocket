@@ -35,37 +35,37 @@ public class CSVSave extends AbstractSimulationExtension {
 		POSITION_X {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getRocketPosition().x;
+				return status.getRocketPosition().getX();
 			}
 		},
 		POSITION_Y {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getRocketPosition().y;
+				return status.getRocketPosition().getY();
 			}
 		},
 		ALTITUDE {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getRocketPosition().z;
+				return status.getRocketPosition().getZ();
 			}
 		},
 		VELOCITY_X {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getRocketVelocity().x;
+				return status.getRocketVelocity().getX();
 			}
 		},
 		VELOCITY_Y {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getRocketVelocity().y;
+				return status.getRocketVelocity().getY();
 			}
 		},
 		VELOCITY_Z {
 			@Override
 			public double getValue(SimulationStatus status) {
-				return status.getRocketVelocity().z;
+				return status.getRocketVelocity().getZ();
 			}
 		},
 		THETA {

@@ -5,7 +5,7 @@ import java.util.Map;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Monitorable;
 
 /**
@@ -34,7 +34,7 @@ public interface AerodynamicCalculator extends Monitorable {
 	 * @param warnings      the set in which to place warnings, or <code>null</code>
 	 * @return the CP position in absolute coordinates
 	 */
-	public Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions, WarningSet warnings);
+	public CoordinateIF getCP(FlightConfiguration configuration, FlightConditions conditions, WarningSet warnings);
 
 	/**
 	 * Calculate the aerodynamic forces acting upon the rocket.
@@ -76,8 +76,8 @@ public interface AerodynamicCalculator extends Monitorable {
 	 *                      <code>null</code>.
 	 * @return the worst (foremost) CP position for any lateral wind angle.
 	 */
-	public Coordinate getWorstCP(FlightConfiguration configuration, FlightConditions conditions,
-			WarningSet warnings);
+	public CoordinateIF getWorstCP(FlightConfiguration configuration, FlightConditions conditions,
+								   WarningSet warnings);
 
 	/**
 	 * Return a new instance of this aerodynamic calculator type.

@@ -14,6 +14,7 @@ import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -299,7 +300,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	}
 
 	@Override
-	public Coordinate getComponentCG() {
+	public CoordinateIF getComponentCG() {
 		double mass = getComponentMass(); // safe
 		double halflength = length / 2;
 
@@ -359,8 +360,8 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	}
 
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<>();
+	public Collection<CoordinateIF> getComponentBounds() {
+		List<CoordinateIF> bounds = new ArrayList<>();
 		double r = getBodyRadius();
 
 		addBound(bounds, 0, 2 * getBoundingRadius());
@@ -388,7 +389,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 		RocketComponent s;
 
 		s = this.getParent();
-		double x = this.getPosition().x;
+		double x = this.getPosition().getX();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
 				return ((SymmetricComponent) s).getRadius(x);
@@ -494,7 +495,7 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 	}
 
 	@Override
-	public Coordinate[] getInstanceOffsets() {
+	public CoordinateIF[] getInstanceOffsets() {
 		checkState();
 
 		final double bodyRadius = this.getBodyRadius();
@@ -502,10 +503,10 @@ public class TubeFinSet extends Tube implements AxialPositionable, BoxBounded, R
 		// already includes the base rotation
 		final double[] angles = getInstanceAngles();
 
-		Coordinate[] toReturn = new Coordinate[this.fins];
+		CoordinateIF[] toReturn = new CoordinateIF[this.fins];
 		for (int instanceNumber = 0; instanceNumber < this.fins; instanceNumber++) {
-			final Coordinate raw = new Coordinate(0, bodyRadius, 0);
-			final Coordinate rotated = Transformation.getAxialRotation(angles[instanceNumber]).transform(raw);
+			final CoordinateIF raw = new Coordinate(0, bodyRadius, 0);
+			final CoordinateIF rotated = Transformation.getAxialRotation(angles[instanceNumber]).transform(raw);
 			toReturn[instanceNumber] = rotated;
 		}
 

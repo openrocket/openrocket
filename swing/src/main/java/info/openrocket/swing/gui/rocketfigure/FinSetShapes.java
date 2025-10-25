@@ -8,6 +8,7 @@ import java.util.Arrays;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -38,9 +39,9 @@ public class FinSetShapes extends RocketComponentShapes {
 
         final Transformation compositeTransform = transformation.applyTransformation(cantRotation);
 		
-		Coordinate[] finPoints = finset.getFinPoints();
-        Coordinate[] tabPoints = finset.getTabPointsWithRoot();
-        Coordinate[] rootPoints = finset.getRootPoints();
+		CoordinateIF[] finPoints = finset.getFinPoints();
+        CoordinateIF[] tabPoints = finset.getTabPointsWithRoot();
+        CoordinateIF[] rootPoints = finset.getRootPoints();
 
 		// Translate & rotate points into place
         finPoints = compositeTransform.transform( finPoints );
@@ -79,14 +80,14 @@ public class FinSetShapes extends RocketComponentShapes {
 		return RocketComponentShapes.toArray(toReturn, finset);
 	}
 
-	private static Path2D.Float generatePath(final Coordinate[] points){
+	private static Path2D.Float generatePath(final CoordinateIF[] points){
 		Path2D.Float finShape = new Path2D.Float();
 		for( int i = 0; i < points.length; i++){
-			Coordinate curPoint = points[i];
+			CoordinateIF curPoint = points[i];
 			if (i == 0)
-				finShape.moveTo(curPoint.x, curPoint.y);
+				finShape.moveTo(curPoint.getX(), curPoint.getY());
 			else
-				finShape.lineTo(curPoint.x, curPoint.y);
+				finShape.lineTo(curPoint.getX(), curPoint.getY());
 		}
 		return finShape;
 	}
@@ -99,24 +100,24 @@ public class FinSetShapes extends RocketComponentShapes {
 		double tabHeight = finset.getTabHeight();
 		
 		// Generate base coordinates for a single fin
-		Coordinate[] c = new Coordinate[4];
+		CoordinateIF[] c = new CoordinateIF[4];
 		c[0]=new Coordinate(0, 0,-thickness/2);
         c[1]=new Coordinate(0, 0,thickness/2);
         c[2]=new Coordinate(0,height,thickness/2);
         c[3]=new Coordinate(0,height,-thickness/2);
 
 		// Generate base coordinates for a single fin tab
-		Coordinate[] cTab = new Coordinate[4];
+		CoordinateIF[] cTab = new CoordinateIF[4];
 		cTab[0]=new Coordinate(0, 0,-thickness/2);
 		cTab[1]=new Coordinate(0, 0,thickness/2);
 		cTab[2]=new Coordinate(0, -tabHeight,thickness/2);
 		cTab[3]=new Coordinate(0, -tabHeight,-thickness/2);
 
 		// y translate the back view (if there is a fin point with non-zero y value)
-		Coordinate[] points = finset.getFinPoints();
+		CoordinateIF[] points = finset.getFinPoints();
 		double yOffset = Double.MAX_VALUE;
-		for (Coordinate point : points) {
-			yOffset = MathUtil.min(yOffset, point.y);
+		for (CoordinateIF point : points) {
+			yOffset = MathUtil.min(yOffset, point.getY());
 		}
 		final Transformation translateOffsetY = new Transformation(0, yOffset, 0);
 		final Transformation compositeTransform = transformation.applyTransformation(translateOffsetY);
@@ -153,23 +154,23 @@ public class FinSetShapes extends RocketComponentShapes {
 												Transformation transformation) {
 		double thickness = finset.getThickness();
 		
-		Coordinate[] sidePoints;
-		Coordinate[] backPoints;
+		CoordinateIF[] sidePoints;
+		CoordinateIF[] backPoints;
 		int maxIndex;
 
-		Coordinate[] points = finset.getFinPoints();
+		CoordinateIF[] points = finset.getFinPoints();
 		
 		// this loop finds the index @ max-y, as visible from the back
 		for (maxIndex = points.length-1; maxIndex > 0; maxIndex--) {
-			if (points[maxIndex-1].y < points[maxIndex].y)
+			if (points[maxIndex-1].getY() < points[maxIndex].getY())
 				break;
 		}
 		 
 		Transformation cantTransform = finset.getCantRotation();
 		final Transformation compositeTransform = transformation.applyTransformation(cantTransform);
 		
-		sidePoints = new Coordinate[points.length];
-		backPoints = new Coordinate[2*(points.length-maxIndex)];
+		sidePoints = new CoordinateIF[points.length];
+		backPoints = new CoordinateIF[2*(points.length-maxIndex)];
 		double sign = Math.copySign(1.0, finset.getCantAngle());
 
 		// Calculate points for the visible side panel
@@ -204,23 +205,23 @@ public class FinSetShapes extends RocketComponentShapes {
 											Transformation transformation) {
 		double thickness = finset.getThickness();
 
-		Coordinate[] sidePoints;
-		Coordinate[] backPoints;
+		CoordinateIF[] sidePoints;
+		CoordinateIF[] backPoints;
 		int minIndex;
 
-		Coordinate[] points = finset.getTabPointsWithRoot();
+		CoordinateIF[] points = finset.getTabPointsWithRoot();
 
 		// this loop finds the index @ min-y, as visible from the back
 		for (minIndex = points.length-1; minIndex > 0; minIndex--) {
-			if (points[minIndex-1].y > points[minIndex].y)
+			if (points[minIndex-1].getY() > points[minIndex].getY())
 				break;
 		}
 
 		Transformation cantTransform = finset.getCantRotation();
 		final Transformation compositeTransform = transformation.applyTransformation(cantTransform);
 
-		sidePoints = new Coordinate[points.length];
-		backPoints = new Coordinate[2*(points.length-minIndex)];
+		sidePoints = new CoordinateIF[points.length];
+		backPoints = new CoordinateIF[2*(points.length-minIndex)];
 		double sign = Math.copySign(1.0, finset.getCantAngle());
 
 		// Calculate points for the visible side panel
@@ -251,17 +252,17 @@ public class FinSetShapes extends RocketComponentShapes {
 		return s;
 	}
 	
-	private static Shape makePolygonBack(Coordinate[] array, final Transformation t) {
+	private static Shape makePolygonBack(CoordinateIF[] array, final Transformation t) {
 		Path2D.Float p;
 
 		// Make polygon
 		p = new Path2D.Float();
 		for (int i=0; i < array.length; i++) {
-			Coordinate a = t.transform(array[i] );
+			CoordinateIF a = t.transform(array[i] );
 			if (i==0)
-				p.moveTo(a.z, a.y);
+				p.moveTo(a.getZ(), a.getY());
 			else
-				p.lineTo(a.z, a.y);			
+				p.lineTo(a.getZ(), a.getY());			
 		}
 		p.closePath();
 		return p;

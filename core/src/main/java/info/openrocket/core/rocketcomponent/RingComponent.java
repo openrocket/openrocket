@@ -6,6 +6,7 @@ import java.util.List;
 
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 /**
@@ -202,16 +203,16 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 	}
 
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<>();
+	public Collection<CoordinateIF> getComponentBounds() {
+		List<CoordinateIF> bounds = new ArrayList<>();
 		addBound(bounds, 0, getOuterRadius());
 		addBound(bounds, length, getOuterRadius());
 		return bounds;
 	}
 
 	@Override
-	public Coordinate getComponentCG() {
-		Coordinate cg = Coordinate.ZERO;
+	public CoordinateIF getComponentCG() {
+		CoordinateIF cg = Coordinate.ZERO;
 		final int instanceCount = getInstanceCount();
 		final double instanceMass = ringMass(getOuterRadius(), getInnerRadius(), getLength(),
 				getMaterial().getDensity());
@@ -219,7 +220,7 @@ public abstract class RingComponent extends StructuralComponent implements BoxBo
 		if (1 == instanceCount) {
 			cg = new Coordinate(length / 2, 0, 0, instanceMass);
 		} else {
-			for (Coordinate c : getInstanceOffsets()) {
+			for (CoordinateIF c : getInstanceOffsets()) {
 				c = c.setWeight(instanceMass);
 				cg = cg.average(c);
 			}

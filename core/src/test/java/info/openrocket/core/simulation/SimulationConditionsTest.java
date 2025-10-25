@@ -16,7 +16,7 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.MockPreferences;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -88,7 +88,7 @@ public class SimulationConditionsTest {
 
         conditions.setWindModel(pinkNoiseModel);
 
-        Coordinate pinkNoiseVelocity = conditions.getWindModel().getWindVelocity(0, 100);
+        CoordinateIF pinkNoiseVelocity = conditions.getWindModel().getWindVelocity(0, 100);
         assertNotNull(pinkNoiseVelocity);
         assertTrue(pinkNoiseVelocity.length() > 0);
 
@@ -100,7 +100,7 @@ public class SimulationConditionsTest {
 
         conditions.setWindModel(multiLevelModel);
 
-        Coordinate multiLevelVelocity = conditions.getWindModel().getWindVelocity(0, 100);
+        CoordinateIF multiLevelVelocity = conditions.getWindModel().getWindVelocity(0, 100);
         assertNotNull(multiLevelVelocity);
         assertTrue(multiLevelVelocity.length() > 0);
 
@@ -119,8 +119,8 @@ public class SimulationConditionsTest {
 
         conditions.setWindModel(multiLevelModel);
 
-        Coordinate velocity1 = conditions.getWindModel().getWindVelocity(0, 500);
-        Coordinate velocity2 = conditions.getWindModel().getWindVelocity(0, 500);
+        CoordinateIF velocity1 = conditions.getWindModel().getWindVelocity(0, 500);
+        CoordinateIF velocity2 = conditions.getWindModel().getWindVelocity(0, 500);
 
         assertEquals(velocity1, velocity2);
     }
@@ -136,8 +136,8 @@ public class SimulationConditionsTest {
 
         conditions.setWindModel(pinkNoiseModel);
 
-        Coordinate velocity1 = conditions.getWindModel().getWindVelocity(0, 100);
-        Coordinate velocity2 = conditions.getWindModel().getWindVelocity(1, 100);
+        CoordinateIF velocity1 = conditions.getWindModel().getWindVelocity(0, 100);
+        CoordinateIF velocity2 = conditions.getWindModel().getWindVelocity(1, 100);
 
         assertNotEquals(velocity1, velocity2);
     }
@@ -153,9 +153,9 @@ public class SimulationConditionsTest {
 
         conditions.setWindModel(multiLevelModel);
 
-        Coordinate velocityLow = conditions.getWindModel().getWindVelocity(0, 0);
-        Coordinate velocityHigh = conditions.getWindModel().getWindVelocity(0, 1000);
-        Coordinate velocityMid = conditions.getWindModel().getWindVelocity(0, 500);
+        CoordinateIF velocityLow = conditions.getWindModel().getWindVelocity(0, 0);
+        CoordinateIF velocityHigh = conditions.getWindModel().getWindVelocity(0, 1000);
+        CoordinateIF velocityMid = conditions.getWindModel().getWindVelocity(0, 500);
 
         assertNotEquals(velocityLow, velocityHigh);
         assertTrue(velocityMid.length() > velocityLow.length() && velocityMid.length() < velocityHigh.length());

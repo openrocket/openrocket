@@ -1,20 +1,20 @@
 package info.openrocket.core.simulation;
 
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Quaternion;
 
 public final class AccelerationData {
 
-	private Coordinate linearAccelerationRC;
-	private Coordinate rotationalAccelerationRC;
-	private Coordinate linearAccelerationWC;
-	private Coordinate rotationalAccelerationWC;
+	private CoordinateIF linearAccelerationRC;
+	private CoordinateIF rotationalAccelerationRC;
+	private CoordinateIF linearAccelerationWC;
+	private CoordinateIF rotationalAccelerationWC;
 	// Rotates from rocket coordinates to world coordinates
 	private final Quaternion rotation;
 
-	public AccelerationData(Coordinate linearAccelerationRC, Coordinate rotationalAccelerationRC,
-			Coordinate linearAccelerationWC, Coordinate rotationalAccelerationWC,
-			Quaternion rotation) {
+	public AccelerationData(CoordinateIF linearAccelerationRC, CoordinateIF rotationalAccelerationRC,
+							CoordinateIF linearAccelerationWC, CoordinateIF rotationalAccelerationWC,
+							Quaternion rotation) {
 
 		if ((linearAccelerationRC == null && linearAccelerationWC == null) ||
 				(rotationalAccelerationRC == null && rotationalAccelerationWC == null) ||
@@ -33,28 +33,28 @@ public final class AccelerationData {
 		this.rotation = rotation;
 	}
 
-	public Coordinate getLinearAccelerationRC() {
+	public CoordinateIF getLinearAccelerationRC() {
 		if (linearAccelerationRC == null) {
 			linearAccelerationRC = rotation.invRotate(linearAccelerationWC);
 		}
 		return linearAccelerationRC;
 	}
 
-	public Coordinate getRotationalAccelerationRC() {
+	public CoordinateIF getRotationalAccelerationRC() {
 		if (rotationalAccelerationRC == null) {
 			rotationalAccelerationRC = rotation.invRotate(rotationalAccelerationWC);
 		}
 		return rotationalAccelerationRC;
 	}
 
-	public Coordinate getLinearAccelerationWC() {
+	public CoordinateIF getLinearAccelerationWC() {
 		if (linearAccelerationWC == null) {
 			linearAccelerationWC = rotation.rotate(linearAccelerationRC);
 		}
 		return linearAccelerationWC;
 	}
 
-	public Coordinate getRotationalAccelerationWC() {
+	public CoordinateIF getRotationalAccelerationWC() {
 		if (rotationalAccelerationWC == null) {
 			rotationalAccelerationWC = rotation.rotate(rotationalAccelerationRC);
 		}

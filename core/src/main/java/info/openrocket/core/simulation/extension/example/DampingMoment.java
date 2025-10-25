@@ -139,7 +139,7 @@ public class DampingMoment extends AbstractSimulationExtension {
 
 				// System.out.println(comp.toString());
 
-				double CNa = entry.getValue().getCP().weight; // ?
+				double CNa = entry.getValue().getCP().getWeight(); // ?
 				double Cp = entry.getValue().getCP().length();
 
 				aerodynamicPart += CNa * Math.pow(Cp - cg, 2);

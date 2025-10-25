@@ -16,6 +16,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.InstanceMap;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Transformation;
 import de.javagl.obj.FloatTuple;
 import org.junit.jupiter.api.BeforeAll;
@@ -136,41 +137,41 @@ class FinSetExporterTest {
         return config;
     }
 
-    private static TestFinSet createFin(double thickness, Coordinate... points) {
+    private static TestFinSet createFin(double thickness, CoordinateIF... points) {
         TestFinSet finSet = new TestFinSet(points);
         finSet.setThickness(thickness);
         return finSet;
     }
 
     private static final class TestFinSet extends FinSet {
-        private Coordinate[] finPoints;
+        private CoordinateIF[] finPoints;
 
-        private TestFinSet(Coordinate[] points) {
+        private TestFinSet(CoordinateIF[] points) {
             setFinPoints(points);
         }
 
-        private void setFinPoints(Coordinate[] points) {
+        private void setFinPoints(CoordinateIF[] points) {
             this.finPoints = Arrays.copyOf(points, points.length);
             if (this.finPoints.length > 0) {
-                this.length = this.finPoints[this.finPoints.length - 1].x;
+                this.length = this.finPoints[this.finPoints.length - 1].getX();
             } else {
                 this.length = 0;
             }
         }
 
         @Override
-        public Coordinate[] getFinPoints() {
+        public CoordinateIF[] getFinPoints() {
             return Arrays.copyOf(finPoints, finPoints.length);
         }
 
         @Override
-        public Coordinate[] getFinPointsWithRoot() {
+        public CoordinateIF[] getFinPointsWithRoot() {
             return getFinPoints();
         }
 
         @Override
-        public Coordinate[] getTabPointsWithRoot() {
-            return new Coordinate[0];
+        public CoordinateIF[] getTabPointsWithRoot() {
+            return new CoordinateIF[0];
         }
 
         @Override
@@ -178,11 +179,11 @@ class FinSetExporterTest {
             if (finPoints.length == 0) {
                 return 0;
             }
-            double minY = finPoints[0].y;
-            double maxY = finPoints[0].y;
-            for (Coordinate point : finPoints) {
-                minY = Math.min(minY, point.y);
-                maxY = Math.max(maxY, point.y);
+            double minY = finPoints[0].getY();
+            double maxY = finPoints[0].getY();
+            for (CoordinateIF point : finPoints) {
+                minY = Math.min(minY, point.getY());
+                maxY = Math.max(maxY, point.getY());
             }
             return maxY - minY;
         }

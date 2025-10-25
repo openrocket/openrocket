@@ -1,7 +1,7 @@
 package info.openrocket.core.models.wind;
 
 import info.openrocket.core.util.ChangeSource;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Monitorable;
 
 public interface WindModel extends Monitorable, Cloneable, ChangeSource {
@@ -22,7 +22,7 @@ public interface WindModel extends Monitorable, Cloneable, ChangeSource {
 	 * @param altitudeAGL The altitude above ground level in meters.
 	 * @return The wind velocity in meters per second.
 	 */
-	Coordinate getWindVelocity(double time, double altitudeMSL, double altitudeAGL);
+	CoordinateIF getWindVelocity(double time, double altitudeMSL, double altitudeAGL);
 
 	/**
 	 * Get the wind velocity at a given time and altitude.
@@ -30,7 +30,7 @@ public interface WindModel extends Monitorable, Cloneable, ChangeSource {
 	 * @param altitude The altitude in meters.
 	 * @return The wind velocity in meters per second.
 	 */
-	Coordinate getWindVelocity(double time, double altitude);
+	CoordinateIF getWindVelocity(double time, double altitude);
 
 	WindModel clone();
 }

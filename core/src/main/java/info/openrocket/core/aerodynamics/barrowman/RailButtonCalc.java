@@ -2,6 +2,7 @@ package info.openrocket.core.aerodynamics.barrowman;
 
 import java.util.List;
 
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,6 @@ import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -51,7 +51,7 @@ public class RailButtonCalc extends RocketComponentCalc {
 
 		// grab relevant button params
 		final int instanceCount = button.getInstanceCount();
-		final Coordinate[] instanceOffsets = button.getInstanceOffsets();
+		final CoordinateIF[] instanceOffsets = button.getInstanceOffsets();
 
 		// compute button reference area
 		final double buttonHt = button.getTotalHeight();
@@ -72,7 +72,7 @@ public class RailButtonCalc extends RocketComponentCalc {
 				// formula, e.g. https://aerospaceengineeringblog.com/boundary-layers/ simply
 				// says it's the
 				// "scientific consensus".
-				double x = (button.toAbsolute(instanceOffsets[i]))[0].x; // location of button
+				double x = (button.toAbsolute(instanceOffsets[i]))[0].getX(); // location of button
 				double rex = calculateReynoldsNumber(x, conditions); // Reynolds number of button location
 				double del = 0.37 * x / Math.pow(rex, 0.2); // Boundary layer thickness
 

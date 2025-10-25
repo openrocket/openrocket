@@ -1,7 +1,7 @@
 package info.openrocket.core.simulation;
 
-import java.util.Collection;
-
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,16 +13,18 @@ import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
+import info.openrocket.core.util.MutableCoordinate;
 
 public abstract class AbstractSimulationStepper implements SimulationStepper {
 	private static final Logger log = LoggerFactory.getLogger(AbstractSimulationStepper.class);
 
 	protected static final double MIN_TIME_STEP = 0.001;
+
+	private final MutableCoordinate tempVelocity = new MutableCoordinate();
+	private final MutableCoordinate tempRotation = new MutableCoordinate();
 	
 	/*
 	 * calculate acceleration at a given point in time
@@ -58,14 +60,16 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 		//// Local wind speed and direction
 		store.windVelocity = modelWindVelocity(status);
-		Coordinate airSpeed = status.getRocketVelocity().add(store.windVelocity);
-		airSpeed = status.getRocketOrientationQuaternion().invRotate(airSpeed);
+		MutableCoordinate airSpeed = tempVelocity;
+		airSpeed.set(status.getRocketVelocity());
+		airSpeed.add(store.windVelocity);
+		status.getRocketOrientationQuaternion().invRotateInPlace(airSpeed);
 
 		// Lateral direction:
-		double len = MathUtil.hypot(airSpeed.x, airSpeed.y);
+		double len = MathUtil.hypot(airSpeed.getX(), airSpeed.getY());
 		if (len > 0.0001) {
-			store.thetaRotation = new Rotation2D(airSpeed.y / len, airSpeed.x / len);
-			store.flightConditions.setTheta(Math.atan2(airSpeed.y, airSpeed.x));
+			store.thetaRotation = new Rotation2D(airSpeed.getY() / len, airSpeed.getX() / len);
+			store.flightConditions.setTheta(Math.atan2(airSpeed.getY(), airSpeed.getX()));
 		} else {
 			store.thetaRotation = Rotation2D.ID;
 			store.flightConditions.setTheta(0);
@@ -76,25 +80,27 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		if (velocity > 0.01) {
 			// aoa must be calculated from the monotonous cosine
 			// sine can be calculated by a simple division
-			store.flightConditions.setAOA(Math.acos(airSpeed.z / velocity), len / velocity);
+			store.flightConditions.setAOA(Math.acos(airSpeed.getZ() / velocity), len / velocity);
 		} else {
 			store.flightConditions.setAOA(0);
 		}
 
 		// Roll, pitch and yaw rate
-		Coordinate rot = status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
-		rot = store.thetaRotation.invRotateZ(rot);
+		MutableCoordinate rot = tempRotation;
+		rot.set(status.getRocketRotationVelocity());
+		status.getRocketOrientationQuaternion().invRotateInPlace(rot);
+		store.thetaRotation.invRotateZInPlace(rot);
 		
-		store.flightConditions.setRollRate(rot.z);
+		store.flightConditions.setRollRate(rot.getZ());
 		if (len < 0.001) {
 			store.flightConditions.setPitchRate(0);
 			store.flightConditions.setYawRate(0);
 			store.lateralPitchRate = 0;
 		} else {
-			store.flightConditions.setPitchRate(rot.y);
-			store.flightConditions.setYawRate(rot.x);
+			store.flightConditions.setPitchRate(rot.getY());
+			store.flightConditions.setYawRate(rot.getX());
 			// TODO: LOW: set this as power of two?
-			store.lateralPitchRate = MathUtil.hypot(rot.x, rot.y);
+			store.lateralPitchRate = MathUtil.hypot(rot.getX(), rot.getY());
 		}
 
 		// Call post listeners
@@ -125,7 +131,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Compute conditions
-		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
+		double altitude = status.getRocketPosition().getZ() + status.getSimulationConditions().getLaunchSite().getAltitude();
 		conditions = status.getSimulationConditions().getAtmosphericModel().getConditions(altitude);
 		
 		// Call post-listener
@@ -144,8 +150,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @return			the wind conditions to use
 	 * @throws SimulationException	if a listener throws SimulationException
 	 */
-	protected Coordinate modelWindVelocity(SimulationStatus status) throws SimulationException {
-		Coordinate wind;
+	protected CoordinateIF modelWindVelocity(SimulationStatus status) throws SimulationException {
+		CoordinateIF wind;
 
 		// Call pre-listener
 		wind = SimulationListenerHelper.firePreWindModel(status);
@@ -154,7 +160,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 
 		// Compute conditions
-		double altitudeAGL = status.getRocketPosition().z;
+		double altitudeAGL = status.getRocketPosition().getZ();
 		double altitudeMSL = altitudeAGL + status.getSimulationConditions().getLaunchSite().getAltitude();
 		wind = status.getSimulationConditions().getWindModel().getWindVelocity(status.getSimulationTime(), altitudeMSL, altitudeAGL);
 
@@ -261,7 +267,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 * @param c					the coordinate value to check.
 	 * @throws BugException		if the value is NaN.
 	 */
-	protected void checkNaN(Coordinate c, String var) {
+	protected void checkNaN(CoordinateIF c, String var) {
 		if (c.isNaN()) {
 			throw new BugException("Simulation resulted in not-a-number (NaN) value for " + var + ", please report a bug, c=" + c);
 		}
@@ -315,7 +321,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		store.accelerationData = new AccelerationData(Coordinate.ZERO, Coordinate.ZERO, null, null,
 													  new Quaternion());
 
-		status.setRocketPosition(new Coordinate(status.getRocketPosition().x, status.getRocketPosition().y, 0));
+		status.setRocketPosition(new Coordinate(status.getRocketPosition().getX(), status.getRocketPosition().getY(), 0));
 		status.setRocketVelocity(Coordinate.ZERO);
 	}
 		
@@ -340,13 +346,13 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		
 		public RigidBody motorMass;
 		
-		public Coordinate coriolisAcceleration;
+		public CoordinateIF coriolisAcceleration;
 
-		public Coordinate launchRodDirection = null;
+		public CoordinateIF launchRodDirection = null;
 		
 		// set by calculateFlightConditions and calculateAcceleration:
 		public AerodynamicForces forces;
-		public Coordinate windVelocity = new Coordinate(Double.NaN, Double.NaN, Double.NaN);
+		public CoordinateIF windVelocity = new Coordinate(Double.NaN, Double.NaN, Double.NaN);
 		public double gravity = Double.NaN;
 		public double thrustForce = Double.NaN;
 		public double dragForce = Double.NaN;
@@ -372,16 +378,16 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			
 			if (null != accelerationData) {
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_XY,
-									MathUtil.hypot(accelerationData.getLinearAccelerationWC().x, accelerationData.getLinearAccelerationWC().y));
+									MathUtil.hypot(accelerationData.getLinearAccelerationWC().getX(), accelerationData.getLinearAccelerationWC().getY()));
 				
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, accelerationData.getLinearAccelerationWC().length());
-				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().z);
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().getZ());
 			}
 			
 			if (null != rocketMass) {
 				double weight = rocketMass.getMass() * gravity;
 				dataBranch.setValue(FlightDataType.TYPE_THRUST_WEIGHT_RATIO, thrustForce / weight);
-				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().x);
+				dataBranch.setValue(FlightDataType.TYPE_CG_LOCATION, rocketMass.getCM().getX());
 				dataBranch.setValue(FlightDataType.TYPE_MASS, rocketMass.getMass());
 				dataBranch.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, rocketMass.getLongitudinalInertia());
 				dataBranch.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, rocketMass.getRotationalInertia());
@@ -425,7 +431,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			
 			if (status.isLaunchRodCleared() && null != forces) {
 				if (null != forces.getCP()) {
-					dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, forces.getCP().x);
+					dataBranch.setValue(FlightDataType.TYPE_CP_LOCATION, forces.getCP().getX());
 				}
 				dataBranch.setValue(FlightDataType.TYPE_NORMAL_FORCE_COEFF, forces.getCN());
 				dataBranch.setValue(FlightDataType.TYPE_SIDE_FORCE_COEFF, forces.getCside());
@@ -437,12 +443,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 				if (null != rocketMass && null != flightConditions) {
 					if (null != forces.getCP()) {
 						dataBranch.setValue(FlightDataType.TYPE_STABILITY,
-											(forces.getCP().x - rocketMass.getCM().x) / flightConditions.getRefLength());
+											(forces.getCP().getX() - rocketMass.getCM().getX()) / flightConditions.getRefLength());
 					}
 					dataBranch.setValue(FlightDataType.TYPE_PITCH_MOMENT_COEFF,
-										forces.getCm() - forces.getCN() * rocketMass.getCM().x / flightConditions.getRefLength());
+										forces.getCm() - forces.getCN() * rocketMass.getCM().getX() / flightConditions.getRefLength());
 					dataBranch.setValue(FlightDataType.TYPE_YAW_MOMENT_COEFF,
-										forces.getCyaw() - forces.getCside() * rocketMass.getCM().x / flightConditions.getRefLength());
+										forces.getCyaw() - forces.getCside() * rocketMass.getCM().getX() / flightConditions.getRefLength());
 				}
 			}
 		}
@@ -452,10 +458,10 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		 * @param windVector The wind vector as a Coordinate object
 		 * @return The angle in radians, where 0 is North, Pi/2 is East, etc.
 		 */
-		private static double getWindDirection(Coordinate windVector) {
+		private static double getWindDirection(CoordinateIF windVector) {
 			// Math.atan2(y, x) returns the angle in radians measured counterclockwise from the positive x-axis
 			// But we want the angle clockwise from North (positive y-axis)
-			double angle = Math.atan2(windVector.x, windVector.y);
+			double angle = Math.atan2(windVector.getX(), windVector.getY());
 			return MathUtil.reduce2Pi(angle);
 		}
 	}

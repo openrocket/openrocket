@@ -14,6 +14,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.simulation.listeners.SimulationListener;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
@@ -42,9 +43,9 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
 	
 	// Launch location in simulation coordinates (normally always 0, air-start would override this)
-	private Coordinate launchPosition = Coordinate.NUL;
+	private CoordinateIF launchPosition = Coordinate.NUL;
 
-	private Coordinate launchVelocity = Coordinate.NUL;
+	private CoordinateIF launchVelocity = Coordinate.NUL;
 
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 
@@ -137,22 +138,22 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		this.modID = new ModID();
 	}
 
-	public Coordinate getLaunchPosition() {
+	public CoordinateIF getLaunchPosition() {
 		return launchPosition;
 	}
 
-	public void setLaunchPosition(Coordinate launchPosition) {
+	public void setLaunchPosition(CoordinateIF launchPosition) {
 		if (this.launchPosition.equals(launchPosition))
 			return;
 		this.launchPosition = launchPosition;
 		this.modID = new ModID();
 	}
 
-	public Coordinate getLaunchVelocity() {
+	public CoordinateIF getLaunchVelocity() {
 		return launchVelocity;
 	}
 
-	public void setLaunchVelocity(Coordinate launchVelocity) {
+	public void setLaunchVelocity(CoordinateIF launchVelocity) {
 		if (this.launchVelocity.equals(launchVelocity))
 			return;
 		this.launchVelocity = launchVelocity;

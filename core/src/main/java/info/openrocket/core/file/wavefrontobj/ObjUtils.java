@@ -9,7 +9,7 @@ import de.javagl.obj.ReadableObj;
 import de.javagl.obj.WritableObj;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import java.util.HashMap;
 import java.util.List;
@@ -184,7 +184,7 @@ public class ObjUtils {
      * @param translation The translation coordinates to translate the component with (in OpenRocket coordinate system)
      */
     public static void translateVerticesFromComponentLocation(DefaultObj obj, CoordTransform transformer,
-                                                              int startIdx, int endIdx, Coordinate translation) {
+                                                              int startIdx, int endIdx, CoordinateIF translation) {
         FloatTuple translatedLoc = transformer.convertLocWithoutOriginOffs(translation);
         ObjUtils.translateVertices(obj, startIdx, endIdx, translatedLoc.getX(), translatedLoc.getY(), translatedLoc.getZ());
     }

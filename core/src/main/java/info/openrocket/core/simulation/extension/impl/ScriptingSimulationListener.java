@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
+import info.openrocket.core.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ import info.openrocket.core.simulation.listeners.SimulationComputationListener;
 import info.openrocket.core.simulation.listeners.SimulationEventListener;
 import info.openrocket.core.simulation.listeners.SimulationListener;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public class ScriptingSimulationListener
 		implements SimulationListener, SimulationComputationListener, SimulationEventListener, Cloneable {
@@ -148,7 +149,7 @@ public class ScriptingSimulationListener
 	}
 
 	@Override
-	public Coordinate preWindModel(SimulationStatus status) throws SimulationException {
+	public CoordinateIF preWindModel(SimulationStatus status) throws SimulationException {
 		return invoke(Coordinate.class, null, "preWindModel", status);
 	}
 
@@ -192,7 +193,7 @@ public class ScriptingSimulationListener
 	}
 
 	@Override
-	public Coordinate postWindModel(SimulationStatus status, Coordinate wind) throws SimulationException {
+	public CoordinateIF postWindModel(SimulationStatus status, CoordinateIF wind) throws SimulationException {
 		return invoke(Coordinate.class, null, "postWindModel", status, wind);
 	}
 

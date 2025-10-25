@@ -11,6 +11,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
@@ -69,8 +70,8 @@ public class MassCalculation {
 		this.bodies.add( data );
 	}
 	
-	public void addMass( final Coordinate pointMass ) {
-		if( MIN_MASS > this.centerOfMass.weight ){
+	public void addMass( final CoordinateIF pointMass ) {
+		if( MIN_MASS > this.centerOfMass.getWeight() ){
 		    this.centerOfMass = pointMass;
 		}else {
 			this.centerOfMass = this.centerOfMass.average( pointMass);
@@ -85,12 +86,12 @@ public class MassCalculation {
 		return new MassCalculation( this.type, this.config, this.simulationTime, this.activeMotorList, _root, _transform, this.analysisMap);
 	}
 		
-	public Coordinate getCM() {
+	public CoordinateIF getCM() {
 		return this.centerOfMass;
 	}
 	
 	public double getMass() {
-		return this.centerOfMass.weight;
+		return this.centerOfMass.getWeight();
 	}
 
 	public void setMass(double mass) {
@@ -138,7 +139,7 @@ public class MassCalculation {
 		reset();
 	}
 	
-	public void setCM( final Coordinate newCM ) {
+	public void setCM( final CoordinateIF newCM ) {
 		this.centerOfMass = newCM;
 	}	
 
@@ -153,7 +154,7 @@ public class MassCalculation {
 	}
 	
 	public String toCMDebug(){ 
-		return String.format("cm= %.6fg@[%.6f,%.6f,%.6f]", centerOfMass.weight, centerOfMass.x, centerOfMass.y, centerOfMass.z);
+		return String.format("cm= %.6fg@[%.6f,%.6f,%.6f]", centerOfMass.getWeight(), centerOfMass.getX(), centerOfMass.getY(), centerOfMass.getZ());
 	}
 
 //	public String toMOIDebug(){
@@ -179,7 +180,7 @@ public class MassCalculation {
 	final Type type;
 	
 	// center-of-mass only.
-	Coordinate centerOfMass = Coordinate.ZERO;
+	CoordinateIF centerOfMass = Coordinate.ZERO;
 	
 	// center-of-mass AND moment-of-inertia data.
 	RigidBody inertia = RigidBody.EMPTY;
@@ -219,12 +220,12 @@ public class MassCalculation {
 			}
 		}
 
-		final double mountXPosition = root.getPosition().x;
+		final double mountXPosition = root.getPosition().getX();
 		
 		final int instanceCount = root.getInstanceCount();
 
 		final double motorXPosition = motorConfig.getX();  // location of motor from mount
-		final Coordinate[] offsets = root.getInstanceOffsets();
+		final CoordinateIF[] offsets = root.getInstanceOffsets();
 		
 		double eachMass;
 		double eachCMx;  // CoM from beginning of motor
@@ -249,7 +250,7 @@ public class MassCalculation {
 
 
 		// coordinates in rocket frame; Ir, It about CoM.
-		final Coordinate clusterLocalCM = new Coordinate( mountXPosition + motorXPosition + eachCMx, 0, 0, eachMass*instanceCount);
+		final CoordinateIF clusterLocalCM = new Coordinate( mountXPosition + motorXPosition + eachCMx, 0, 0, eachMass*instanceCount);
 		
 		double clusterBaseIr = motorConfig.getUnitRotationalInertia()*instanceCount*eachMass;
 		
@@ -258,13 +259,13 @@ public class MassCalculation {
 		// if more than 1 motor => motors are not at the centerline => adjust via parallel-axis theorem
 		double clusterIr = clusterBaseIr; 
 		if( 1 < instanceCount ){
-			for( Coordinate coord : offsets ){
-				double distance = Math.hypot( coord.y, coord.z);
+			for( CoordinateIF coord : offsets ){
+				double distance = Math.hypot( coord.getY(), coord.getZ());
 				clusterIr += eachMass*Math.pow( distance, 2);
 			}
 		}
 		
-		final Coordinate clusterCM = transform.transform( clusterLocalCM  );
+		final CoordinateIF clusterCM = transform.transform( clusterLocalCM  );
 		addMass( clusterCM );
 
 		if(null != this.analysisMap) {
@@ -310,7 +311,7 @@ public class MassCalculation {
 		final RocketComponent component = this.root;
 		final Transformation parentTransform = this.transform;
 		final int instanceCount = component.getInstanceCount();
-		final Coordinate[] allInstanceOffsets = component.getInstanceLocations();
+		final CoordinateIF[] allInstanceOffsets = component.getInstanceLocations();
 		final double[] allInstanceAngles = component.getInstanceAngles();
 
 		// vvv DEBUG
@@ -328,7 +329,7 @@ public class MassCalculation {
 		// iterate over the aggregated instances for the whole tree.
 		MassCalculation children = this.copy(component, parentTransform );
 		for( int currentInstanceNumber = 0; currentInstanceNumber < instanceCount; ++currentInstanceNumber) {
-			final Coordinate currentInstanceOffset = allInstanceOffsets[currentInstanceNumber];
+			final CoordinateIF currentInstanceOffset = allInstanceOffsets[currentInstanceNumber];
 			final Transformation offsetTransform = Transformation.getTranslationTransform( currentInstanceOffset );
 
 			final double currentInstanceAngle = allInstanceAngles[currentInstanceNumber];
@@ -350,13 +351,13 @@ public class MassCalculation {
 		}
 		
 		if (this.config.isComponentActive(component) ){
-			Coordinate compCM = component.getComponentCG();
+			CoordinateIF compCM = component.getComponentCG();
 			
 			// mass data for *this component only* in the rocket-frame
 			compCM = parentTransform.transform( compCM.add(component.getPosition()) );
 
 			// setting zero as the CG position means the top of the component, which is component.getPosition()
-			final Coordinate compZero = parentTransform.transform( component.getPosition() );
+			final CoordinateIF compZero = parentTransform.transform( component.getPosition() );
 
 			if (component.isMassOverridden()) {
 				if (!component.isMassive()) {
@@ -370,10 +371,10 @@ public class MassCalculation {
 			}
 
 			if (component.isCGOverridden()) {
-				compCM = compCM.setX( compZero.x + component.getOverrideCGX() );
+				compCM = compCM.setX( compZero.getX() + component.getOverrideCGX() );
 
 				if (component.isSubcomponentsOverriddenCG()) {
-					children.setCM(children.getCM().setX(compCM.x));
+					children.setCM(children.getCM().setX(compCM.getX()));
 				}
 			}
 			this.addMass(compCM);
@@ -386,17 +387,17 @@ public class MassCalculation {
 					entry.updateAverageCM(this.centerOfMass);
 				}else{
 					// For actual components, record the mass of the component, and disregard children
-					entry.updateEachMass(compCM.weight);
+					entry.updateEachMass(compCM.getWeight());
 					entry.updateAverageCM(compCM);
 				}
 			}
 			
-			final double compIx = component.getRotationalUnitInertia() * compCM.weight;
-			final double compIt = component.getLongitudinalUnitInertia() * compCM.weight;
+			final double compIx = component.getRotationalUnitInertia() * compCM.getWeight();
+			final double compIt = component.getLongitudinalUnitInertia() * compCM.getWeight();
 			final RigidBody componentInertia = new RigidBody( compCM, compIx, compIt, compIt );
 			this.addInertia( componentInertia );
 			// // vvv DEBUG
-			// if( 0 < compCM.weight ) {
+			// if( 0 < compCM.getWeight() ) {
 			// 	System.err.println(String.format( "%s....componentData:            %s", prefix, compCM.toPreciseString() ));
 			// }
 		}
@@ -417,7 +418,7 @@ public class MassCalculation {
 		final Transformation parentTransform = this.transform;
 		
 		final int instanceCount = component.getInstanceCount();
-		Coordinate[] instanceLocations = component.getInstanceLocations();
+		CoordinateIF[] instanceLocations = component.getInstanceLocations();
 
 //		// vvv DEBUG
 //		if( this.config.isComponentActive(component) ){
@@ -441,7 +442,7 @@ public class MassCalculation {
 		// iterate over the aggregated instances for the whole tree.
 		MassCalculation children = this.copy(component, parentTransform );
 		for( int instanceNumber = 0; instanceNumber < instanceCount; ++instanceNumber) {
-			Coordinate currentLocation = instanceLocations[instanceNumber];
+			CoordinateIF currentLocation = instanceLocations[instanceNumber];
 			Transformation currentTransform = parentTransform.applyTransformation( Transformation.getTranslationTransform( currentLocation ));
 			
 			for (RocketComponent child : component.getChildren()) {

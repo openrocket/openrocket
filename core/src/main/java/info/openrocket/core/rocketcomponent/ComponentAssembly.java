@@ -4,13 +4,14 @@ import java.util.Collection;
 import java.util.Collections;
 
 import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.position.AxialPositionable;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 /**
  * A base of component assemblies.
@@ -50,7 +51,7 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 	 * Null method (ComponentAssembly has no bounds of itself).
 	 */
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
+	public Collection<CoordinateIF> getComponentBounds() {
 		return Collections.emptyList();
 	}
 
@@ -58,7 +59,7 @@ public abstract class ComponentAssembly extends RocketComponent implements Axial
 	 * Null method (ComponentAssembly has no mass of itself).
 	 */
 	@Override
-	public Coordinate getComponentCG() {
+	public CoordinateIF getComponentCG() {
 		return Coordinate.ZERO;
 	}
 

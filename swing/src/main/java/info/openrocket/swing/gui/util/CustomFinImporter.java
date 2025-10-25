@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import info.openrocket.core.l10n.LocalizedIOException;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public class CustomFinImporter {
 	
@@ -23,8 +24,8 @@ public class CustomFinImporter {
 	
 	
 	
-	public ArrayList<Coordinate> getPoints(File file) throws IOException {
-		ArrayList<Coordinate> points = new ArrayList<>();
+	public ArrayList<CoordinateIF> getPoints(File file) throws IOException {
+		ArrayList<CoordinateIF> points = new ArrayList<>();
 		
 		BufferedImage pic = ImageIO.read(file);
 		
@@ -81,7 +82,7 @@ public class CustomFinImporter {
 		return bottomEdgeFound;
 	}
 	
-	private void loadFin(BufferedImage pic, ArrayList<Coordinate> points) {
+	private void loadFin(BufferedImage pic, ArrayList<CoordinateIF> points) {
 		int height = pic.getHeight();
 		Boolean offBottom = false;
 		
@@ -211,10 +212,10 @@ public class CustomFinImporter {
 			facing = FacingDirections.RIGHT;
 	}
 	
-	private void optimizePoints(ArrayList<Coordinate> points) {
+	private void optimizePoints(ArrayList<CoordinateIF> points) {
 		int startIx;
-		ListIterator<Coordinate> start, entry, entry2;
-		Coordinate startPoint, endPoint, testPoint;
+		ListIterator<CoordinateIF> start, entry, entry2;
+		CoordinateIF startPoint, endPoint, testPoint;
 		Boolean removedSection;
 		
 		startIx = 0;
@@ -237,7 +238,7 @@ public class CustomFinImporter {
 					// Remove all but the first and last point
 					entry2 = points.listIterator(start.nextIndex());
 					int nextIx = entry2.nextIndex();
-					Coordinate check = entry2.next();
+					CoordinateIF check = entry2.next();
 					while ((entry2.nextIndex() != points.size()) && (check != endPoint)) {
 						entry2.remove();
 						nextIx = entry2.nextIndex();
@@ -258,14 +259,14 @@ public class CustomFinImporter {
 		}
 	}
 	
-	private double pointDistanceFromLine(Coordinate startPoint, Coordinate endPoint, Coordinate testPoint) {
-		Coordinate pt = closestPointOnSegment(startPoint, endPoint, testPoint);
+	private double pointDistanceFromLine(CoordinateIF startPoint, CoordinateIF endPoint, CoordinateIF testPoint) {
+		CoordinateIF pt = closestPointOnSegment(startPoint, endPoint, testPoint);
 		
 		return testPoint.sub(pt).length();
 	}
 	
-	private Coordinate closestPointOnSegment(Coordinate a, Coordinate b, Coordinate p) {
-		Coordinate D = b.sub(a);
+	private CoordinateIF closestPointOnSegment(CoordinateIF a, CoordinateIF b, CoordinateIF p) {
+		CoordinateIF D = b.sub(a);
 		double numer = p.sub(a).dot(D);
 		if (numer <= 0.0f)
 			return a;

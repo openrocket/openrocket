@@ -22,7 +22,7 @@ public class GeodeticComputationStrategyTest {
 		double range = 968.9 * 1000.0;
 		double bearing = (9.0 + 7 * arcmin + 11 * arcsec) * (Math.PI / 180.0);
 
-		Coordinate coord = new Coordinate(range * Math.sin(bearing), range * Math.cos(bearing), 1000.0);
+		CoordinateIF coord = new Coordinate(range * Math.sin(bearing), range * Math.cos(bearing), 1000.0);
 		WorldCoordinate wc = new WorldCoordinate(lat1, lon1, 0.0);
 		wc = GeodeticComputationStrategy.SPHERICAL.addCoordinate(wc, coord);
 
@@ -91,7 +91,7 @@ public class GeodeticComputationStrategyTest {
 		double deltaX = distance * Math.sin(bearing);
 		double deltaY = distance * Math.cos(bearing);
 
-		Coordinate coord = new Coordinate(deltaX, deltaY, 1000.0);
+		CoordinateIF coord = new Coordinate(deltaX, deltaY, 1000.0);
 		WorldCoordinate wc = new WorldCoordinate(initialLatitude, initialLongitude, 0.0);
 
 		// Test SPHERICAL
@@ -152,9 +152,9 @@ public class GeodeticComputationStrategyTest {
 
 		// For positive latitude and rotational velocity, a movement due east results in
 		// an acceleration due south
-		Coordinate velocity = new Coordinate(-1000, 0, 0);
+		CoordinateIF velocity = new Coordinate(-1000, 0, 0);
 		WorldCoordinate wc = new WorldCoordinate(45, 0, 0);
-		double north_accel = GeodeticComputationStrategy.SPHERICAL.getCoriolisAcceleration(wc, velocity).y;
+		double north_accel = GeodeticComputationStrategy.SPHERICAL.getCoriolisAcceleration(wc, velocity).getY();
 		// System.out.println("North accel " + north_accel);
 		assertTrue(north_accel < 0.0);
 

@@ -1,7 +1,7 @@
 package info.openrocket.core.appearance;
 
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 /**
  * A texture that can be applied by an Appearance. an object of this class is
@@ -32,7 +32,7 @@ public class Decal {
 		}
 	}
 
-	private final Coordinate offset, center, scale;
+	private final CoordinateIF offset, center, scale;
 	private final double rotation;
 	private final DecalImage image;
 	private final EdgeMode mode;
@@ -48,8 +48,8 @@ public class Decal {
 	 * @param image    The image itself
 	 * @param mode     The description of Edge behaviour
 	 */
-	public Decal(final Coordinate offset, final Coordinate center, final Coordinate scale, final double rotation,
-			final DecalImage image, final EdgeMode mode) {
+	public Decal(final CoordinateIF offset, final CoordinateIF center, final CoordinateIF scale, final double rotation,
+				 final DecalImage image, final EdgeMode mode) {
 		this.offset = offset;
 		this.center = center;
 		this.scale = scale;
@@ -63,7 +63,7 @@ public class Decal {
 	 * 
 	 * @return offset coordinates of the decal
 	 */
-	public Coordinate getOffset() {
+	public CoordinateIF getOffset() {
 		return offset;
 	}
 
@@ -72,7 +72,7 @@ public class Decal {
 	 * 
 	 * @return The center coordinates of the decal
 	 */
-	public Coordinate getCenter() {
+	public CoordinateIF getCenter() {
 		return center;
 	}
 
@@ -81,7 +81,7 @@ public class Decal {
 	 * 
 	 * @return the scale coordinates of the decal
 	 */
-	public Coordinate getScale() {
+	public CoordinateIF getScale() {
 		return scale;
 	}
 

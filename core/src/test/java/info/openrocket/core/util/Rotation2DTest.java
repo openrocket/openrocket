@@ -12,8 +12,8 @@ public class Rotation2DTest {
 		double rot60 = 0.5;
 		double rot30 = Math.sqrt(3) / 2;
 
-		Coordinate x = new Coordinate(1, 1, 0);
-		Coordinate y = new Coordinate(0, 1, 1);
+		CoordinateIF x = new Coordinate(1, 1, 0);
+		CoordinateIF y = new Coordinate(0, 1, 1);
 
 		Rotation2D rot = new Rotation2D(Math.PI / 3); // 60 deg
 

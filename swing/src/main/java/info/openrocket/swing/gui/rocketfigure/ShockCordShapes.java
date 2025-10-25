@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.rocketfigure;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.ShockCord;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Transformation;
 
@@ -27,12 +28,12 @@ public class ShockCordShapes extends RocketComponentShapes {
 		final double radialDistance = massObj.getRadialPosition();
 		final double radialAngleRadians = massObj.getRadialDirection();
 
-		final Coordinate localPosition = new Coordinate(0,
+		final CoordinateIF localPosition = new Coordinate(0,
 				radialDistance * Math.cos(radialAngleRadians),
 				radialDistance * Math.sin(radialAngleRadians));
-		final Coordinate renderPosition = transformation.transform(localPosition);
+		final CoordinateIF renderPosition = transformation.transform(localPosition);
 		Shape[] s = new Shape[1];
-		s[0] = new RoundRectangle2D.Double(renderPosition.x,(renderPosition.y-radius),
+		s[0] = new RoundRectangle2D.Double(renderPosition.getX(),(renderPosition.getY()-radius),
 					length,2*radius,arc,arc);
 		
 		return RocketComponentShapes.toArray(addSymbol(s), component);
@@ -47,14 +48,14 @@ public class ShockCordShapes extends RocketComponentShapes {
 		final double radialDistance = massObj.getRadialPosition();
 		final double radialAngleRadians = massObj.getRadialDirection();
 
-		final Coordinate localPosition = new Coordinate(0,
+		final CoordinateIF localPosition = new Coordinate(0,
 				radialDistance * Math.cos(radialAngleRadians),
 				radialDistance * Math.sin(radialAngleRadians));
-		final Coordinate renderPosition = transformation.transform(localPosition);
+		final CoordinateIF renderPosition = transformation.transform(localPosition);
 		
 		Shape[] s = new Shape[1];
 		
-		s[0] = new Ellipse2D.Double((renderPosition.z-or),(renderPosition.y-or),2*or,2*or);
+		s[0] = new Ellipse2D.Double((renderPosition.getZ()-or),(renderPosition.getY()-or),2*or,2*or);
 		
 //		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
 //

@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.DoubleBuffer;
 
 public class TestTransformation {
-	static final Coordinate x_unit = Coordinate.X_UNIT;
-	static final Coordinate y_unit = Coordinate.Y_UNIT;
-	static final Coordinate z_unit = Coordinate.Z_UNIT;
+	static final CoordinateIF x_unit = Coordinate.X_UNIT;
+	static final CoordinateIF y_unit = Coordinate.Y_UNIT;
+	static final CoordinateIF z_unit = Coordinate.Z_UNIT;
 
 	static final double M_PI = Math.PI;
 	static final double M_2PI = 2 * Math.PI;
@@ -131,19 +131,19 @@ public class TestTransformation {
 	public void testTransformSmallYRotation() {
 		Transformation t = Transformation.rotate_y(0.01);
 
-		Coordinate v1 = t.transform(x_unit);
+		CoordinateIF v1 = t.transform(x_unit);
 		// we need to test individual coordinates due to error.
-		assertEquals(1, v1.x, 0.001);
-		assertEquals(0, v1.y, 0.001);
-		assertEquals(-0.01, v1.z, 0.001);
+		assertEquals(1, v1.getX(), 0.001);
+		assertEquals(0, v1.getY(), 0.001);
+		assertEquals(-0.01, v1.getZ(), 0.001);
 
 		assertEquals(y_unit, t.transform(y_unit));
 
-		Coordinate v2 = t.transform(z_unit);
+		CoordinateIF v2 = t.transform(z_unit);
 		// we need to test individual coordinates due to error.
-		assertEquals(0.01, v2.x, 0.001);
-		assertEquals(0, v2.y, 0.001);
-		assertEquals(1, v2.z, 0.001);
+		assertEquals(0.01, v2.getX(), 0.001);
+		assertEquals(0, v2.getY(), 0.001);
+		assertEquals(1, v2.getZ(), 0.001);
 	}
 
 	@Test

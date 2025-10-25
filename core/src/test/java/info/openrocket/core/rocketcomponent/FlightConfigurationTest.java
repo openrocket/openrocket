@@ -17,10 +17,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.BaseTestCase;
@@ -391,10 +391,10 @@ public class FlightConfigurationTest {
 			assertEquals(coreStageContext.component.getID(), rocket.getChild(1).getID());
 			assertEquals(coreStageContext.component.getInstanceCount(), 1);
 
-			final Coordinate coreLocation = coreStageContext.getLocation();
-			assertEquals(coreLocation.x, 0.564, EPSILON);
-			assertEquals(coreLocation.y, 0.0, EPSILON);
-			assertEquals(coreLocation.z, 0.0, EPSILON);
+			final CoordinateIF coreLocation = coreStageContext.getLocation();
+			assertEquals(coreLocation.getX(), 0.564, EPSILON);
+			assertEquals(coreLocation.getY(), 0.0, EPSILON);
+			assertEquals(coreLocation.getZ(), 0.0, EPSILON);
 
 			// ... skip uninteresting component
 		}
@@ -408,10 +408,10 @@ public class FlightConfigurationTest {
 			assertEquals(boosterStage0Context.component.getID(), boosterStage.getID());
 			assertEquals(boosterStage0Context.instanceNumber, 0);
 			{
-				final Coordinate loc = boosterStage0Context.getLocation();
-				assertEquals(loc.x, 0.484, EPSILON);
-				assertEquals(loc.y, 0.077, EPSILON);
-				assertEquals(loc.z, 0.0, EPSILON);
+				final CoordinateIF loc = boosterStage0Context.getLocation();
+				assertEquals(loc.getX(), 0.484, EPSILON);
+				assertEquals(loc.getY(), 0.077, EPSILON);
+				assertEquals(loc.getZ(), 0.0, EPSILON);
 			}
 
 			final InstanceContext boosterStage1Context = boosterStageContextList.get(1);
@@ -419,10 +419,10 @@ public class FlightConfigurationTest {
 			assertEquals(boosterStage1Context.component.getID(), boosterStage.getID());
 			assertEquals(boosterStage1Context.instanceNumber, 1);
 			{
-				final Coordinate loc = boosterStage1Context.getLocation();
-				assertEquals(loc.x, 0.484, EPSILON);
-				assertEquals(loc.y, -0.077, EPSILON);
-				assertEquals(loc.z, 0.0, EPSILON);
+				final CoordinateIF loc = boosterStage1Context.getLocation();
+				assertEquals(loc.getX(), 0.484, EPSILON);
+				assertEquals(loc.getY(), -0.077, EPSILON);
+				assertEquals(loc.getZ(), 0.0, EPSILON);
 			}
 
 			{ // Booster Body:
@@ -437,10 +437,10 @@ public class FlightConfigurationTest {
 
 				assertSame(boosterBodyContext.component.getClass(), BodyTube.class);
 
-				final Coordinate bodyTubeLocation = boosterBodyContext.getLocation();
-				assertEquals(bodyTubeLocation.x, 0.564, EPSILON);
-				assertEquals(bodyTubeLocation.y, -0.077, EPSILON);
-				assertEquals(bodyTubeLocation.z, 0.0, EPSILON);
+				final CoordinateIF bodyTubeLocation = boosterBodyContext.getLocation();
+				assertEquals(bodyTubeLocation.getX(), 0.564, EPSILON);
+				assertEquals(bodyTubeLocation.getY(), -0.077, EPSILON);
+				assertEquals(bodyTubeLocation.getZ(), 0.0, EPSILON);
 
 				{ // Booster::Motor Tubes ( x2 x4)
 					final InnerTube boosterMMT = (InnerTube) boosterBody.getChild(0);
@@ -450,34 +450,34 @@ public class FlightConfigurationTest {
 					final InstanceContext motorTubeContext0 = mmtContextList.get(4);
 					assertSame(motorTubeContext0.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext0.instanceNumber, 0);
-					final Coordinate motorTube0Location = motorTubeContext0.getLocation();
-					assertEquals(motorTube0Location.x, 1.214, EPSILON);
-					assertEquals(motorTube0Location.y, -0.062, EPSILON);
-					assertEquals(motorTube0Location.z, -0.015, EPSILON);
+					final CoordinateIF motorTube0Location = motorTubeContext0.getLocation();
+					assertEquals(motorTube0Location.getX(), 1.214, EPSILON);
+					assertEquals(motorTube0Location.getY(), -0.062, EPSILON);
+					assertEquals(motorTube0Location.getZ(), -0.015, EPSILON);
 
 					final InstanceContext motorTubeContext1 = mmtContextList.get(5);
 					assertSame(motorTubeContext1.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext1.instanceNumber, 1);
-					final Coordinate motorTube1Location = motorTubeContext1.getLocation();
-					assertEquals(motorTube1Location.x, 1.214, EPSILON);
-					assertEquals(motorTube1Location.y, -0.092, EPSILON);
-					assertEquals(motorTube1Location.z, -0.015, EPSILON);
+					final CoordinateIF motorTube1Location = motorTubeContext1.getLocation();
+					assertEquals(motorTube1Location.getX(), 1.214, EPSILON);
+					assertEquals(motorTube1Location.getY(), -0.092, EPSILON);
+					assertEquals(motorTube1Location.getZ(), -0.015, EPSILON);
 
 					final InstanceContext motorTubeContext2 = mmtContextList.get(6);
 					assertSame(motorTubeContext2.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext2.instanceNumber, 2);
-					final Coordinate motorTube2Location = motorTubeContext2.getLocation();
-					assertEquals(motorTube2Location.x, 1.214, EPSILON);
-					assertEquals(motorTube2Location.y, -0.092, EPSILON);
-					assertEquals(motorTube2Location.z, 0.015, EPSILON);
+					final CoordinateIF motorTube2Location = motorTubeContext2.getLocation();
+					assertEquals(motorTube2Location.getX(), 1.214, EPSILON);
+					assertEquals(motorTube2Location.getY(), -0.092, EPSILON);
+					assertEquals(motorTube2Location.getZ(), 0.015, EPSILON);
 
 					final InstanceContext motorTubeContext3 = mmtContextList.get(7);
 					assertSame(motorTubeContext3.component.getClass(), InnerTube.class);
 					assertEquals(motorTubeContext3.instanceNumber, 3);
-					final Coordinate motorTube3Location = motorTubeContext3.getLocation();
-					assertEquals(motorTube3Location.x, 1.214, EPSILON);
-					assertEquals(motorTube3Location.y, -0.062, EPSILON);
-					assertEquals(motorTube3Location.z, 0.015, EPSILON);
+					final CoordinateIF motorTube3Location = motorTubeContext3.getLocation();
+					assertEquals(motorTube3Location.getX(), 1.214, EPSILON);
+					assertEquals(motorTube3Location.getY(), -0.062, EPSILON);
+					assertEquals(motorTube3Location.getZ(), 0.015, EPSILON);
 
 				}
 				{ // Booster::Fins::Instances ( x2 x3)
@@ -488,26 +488,26 @@ public class FlightConfigurationTest {
 					final InstanceContext boosterFinContext0 = finContextList.get(3);
 					assertSame(boosterFinContext0.component.getClass(), TrapezoidFinSet.class);
 					assertEquals(boosterFinContext0.instanceNumber, 0);
-					final Coordinate boosterFin0Location = boosterFinContext0.getLocation();
-					assertEquals(1.044, boosterFin0Location.x, EPSILON);
-					assertEquals(-0.1155, boosterFin0Location.y, EPSILON);
-					assertEquals(0.0, boosterFin0Location.z, EPSILON);
+					final CoordinateIF boosterFin0Location = boosterFinContext0.getLocation();
+					assertEquals(1.044, boosterFin0Location.getX(), EPSILON);
+					assertEquals(-0.1155, boosterFin0Location.getY(), EPSILON);
+					assertEquals(0.0, boosterFin0Location.getZ(), EPSILON);
 
 					final InstanceContext boosterFinContext1 = finContextList.get(4);
 					assertSame(boosterFinContext1.component.getClass(), TrapezoidFinSet.class);
 					assertEquals(boosterFinContext1.instanceNumber, 1);
-					final Coordinate boosterFin1Location = boosterFinContext1.getLocation();
-					assertEquals(1.044, boosterFin1Location.x, EPSILON);
-					assertEquals(-0.05775, boosterFin1Location.y, EPSILON);
-					assertEquals(-0.033341978, boosterFin1Location.z, EPSILON);
+					final CoordinateIF boosterFin1Location = boosterFinContext1.getLocation();
+					assertEquals(1.044, boosterFin1Location.getX(), EPSILON);
+					assertEquals(-0.05775, boosterFin1Location.getY(), EPSILON);
+					assertEquals(-0.033341978, boosterFin1Location.getZ(), EPSILON);
 
 					final InstanceContext boosterFinContext2 = finContextList.get(5);
 					assertSame(boosterFinContext2.component.getClass(), TrapezoidFinSet.class);
 					assertEquals(boosterFinContext2.instanceNumber, 2);
-					final Coordinate boosterFin2Location = boosterFinContext2.getLocation();
-					assertEquals(1.044, boosterFin2Location.x, EPSILON);
-					assertEquals(-0.05775, boosterFin2Location.y, EPSILON);
-					assertEquals(0.03334, boosterFin2Location.z, EPSILON);
+					final CoordinateIF boosterFin2Location = boosterFinContext2.getLocation();
+					assertEquals(1.044, boosterFin2Location.getX(), EPSILON);
+					assertEquals(-0.05775, boosterFin2Location.getY(), EPSILON);
+					assertEquals(0.03334, boosterFin2Location.getZ(), EPSILON);
 				}
 
 			}

@@ -15,6 +15,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.rocketcomponent.FreeformFinSet;
@@ -26,7 +28,6 @@ import info.openrocket.core.unit.Tick;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
@@ -134,10 +135,10 @@ public class FinPointFigure extends AbstractScaleFigure {
 	
 	public void paintBackgroundGrid( Graphics2D g2) {
 		Rectangle visible = g2.getClipBounds();
-		final double x0 = visible.x - 3;
-		final double x1 = visible.x + visible.width + 4;
-		final double y0 = visible.y - 3;
-		final double y1 = visible.y + visible.height + 4;
+		final double x0 = visible.getX() - 3;
+		final double x1 = visible.getX() + visible.width + 4;
+		final double y0 = visible.getY() - 3;
+		final double y1 = visible.getY() + visible.height + 4;
 
 		final float grid_line_width = (float)(GRID_LINE_BASE_WIDTH_PIXELS/this.scale);
 		g2.setStroke(new BasicStroke( grid_line_width,
@@ -220,7 +221,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 			cur.x = xOffset + xBody; // offset from origin (front of fin)
 			cur.y = yOffset + body.getRadius( xBody); // offset from origin ( fin-front-point )
 
-			bodyShape.lineTo( cur.x, cur.y);
+			bodyShape.lineTo(cur.getX(), cur.getY());
 		}
 
 		// draw end-cap
@@ -232,11 +233,11 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private void paintBodyTube( Graphics2D g2){
 		// in-figure left extent
-		final double xFore = mountBoundsMax_m.min.x;
+		final double xFore = mountBoundsMax_m.min.getX();
 		// in-figure right extent
-		final double xAft = mountBoundsMax_m.max.x;
+		final double xAft = mountBoundsMax_m.max.getX();
 		// in-figure right extent
-		final double yCenter = mountBoundsMax_m.min.y;
+		final double yCenter = mountBoundsMax_m.min.getY();
 
 		Path2D.Double shape = new Path2D.Double();
 		shape.moveTo( xFore, yCenter );
@@ -252,13 +253,13 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	private void paintFinShape(final Graphics2D g2){
 		// excludes fin tab points
-		final Coordinate[] drawPoints = finset.getFinPointsWithRoot();
+		final CoordinateIF[] drawPoints = finset.getFinPointsWithRoot();
 
 		Path2D.Double shape = new Path2D.Double();
-		Coordinate startPoint= drawPoints[0];
-		shape.moveTo( startPoint.x, startPoint.y);
+		CoordinateIF startPoint= drawPoints[0];
+		shape.moveTo( startPoint.getX(), startPoint.getY());
 		for (int i = 1; i < drawPoints.length; i++) {
-			shape.lineTo( drawPoints[i].x, drawPoints[i].y);
+			shape.lineTo( drawPoints[i].getX(), drawPoints[i].getY());
 		}
 
 		final float finEdgeWidth_m = (float) (LINE_WIDTH_FIN_PIXELS / scale  );
@@ -272,24 +273,24 @@ public class FinPointFigure extends AbstractScaleFigure {
 	 * @param g2 The graphics context to paint to.
 	 */
 	private void paintHighlight(final Graphics2D g2) {
-		final Coordinate[] points = finset.getFinPointsWithRoot();
+		final CoordinateIF[] points = finset.getFinPointsWithRoot();
 
 		if (highlightIndex < 0 || highlightIndex > points.length - 1) {
 			return;
 		}
 
-		Coordinate start = points[highlightIndex];
-		Coordinate end = points[highlightIndex+1];
+		CoordinateIF start = points[highlightIndex];
+		CoordinateIF end = points[highlightIndex+1];
 
 		final float highlightWidth_m = (float) (LINE_WIDTH_HIGHLIGHT_PIXELS / scale  );
 		g2.setStroke(new BasicStroke(highlightWidth_m));
 		g2.setColor(finPointSnapHighlightColor);
-		g2.draw(new Line2D.Double(start.x, start.y, end.x, end.y));
+		g2.draw(new Line2D.Double(start.getX(), start.getY(), end.getX(), end.getY()));
 	}
 	
 	private void paintFinHandles(final Graphics2D g2) {
 		// Excludes fin tab points
-		final Coordinate[] drawPoints = finset.getFinPoints();
+		final CoordinateIF[] drawPoints = finset.getFinPoints();
 
 		// Fin point boxes
 		final float boxWidth = (float) (BOX_WIDTH_PIXELS / scale );
@@ -301,13 +302,13 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		finPointHandles = new Rectangle2D.Double[ drawPoints.length];
 		for (int currentIndex = 0; currentIndex < drawPoints.length; currentIndex++) {
-			Coordinate c = drawPoints[currentIndex];
+			CoordinateIF c = drawPoints[currentIndex];
 
 			if( currentIndex == selectedIndex ) {
 				final float selBoxWidth = (float) (SELECTED_BOX_WIDTH_PIXELS / scale );
 				final float selBoxHalfWidth = selBoxWidth/2;
 
-				final Rectangle2D.Double selectedPointHighlight = new Rectangle2D.Double(c.x - selBoxHalfWidth, c.y - selBoxHalfWidth, selBoxWidth, selBoxWidth);
+				final Rectangle2D.Double selectedPointHighlight = new Rectangle2D.Double(c.getX() - selBoxHalfWidth, c.getY() - selBoxHalfWidth, selBoxWidth, selBoxWidth);
 
 				// Switch to the highlight color
 				g2.setColor(finPointSelectedPointColor);
@@ -318,7 +319,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 			}
 
 			// Normal boxes
-			finPointHandles[currentIndex] = new Rectangle2D.Double(c.x - boxHalfWidth, c.y - boxHalfWidth, boxWidth, boxWidth);
+			finPointHandles[currentIndex] = new Rectangle2D.Double(c.getX() - boxHalfWidth, c.getY() - boxHalfWidth, boxWidth, boxWidth);
 
 			g2.draw(finPointHandles[currentIndex]);
 		}
@@ -359,19 +360,19 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 		final double threshold = BOX_WIDTH_PIXELS / scale;
 		
-		Coordinate[] points = finset.getFinPoints();
+		CoordinateIF[] points = finset.getFinPoints();
 		for (int i = 1; i < points.length; i++) {
-			double x1 = points[i - 1].x;
-			double y1 = points[i - 1].y;
-			double x2 = points[i].x;
-			double y2 = points[i].y;
+			double x1 = points[i - 1].getX();
+			double y1 = points[i - 1].getY();
+			double x2 = points[i].getX();
+			double y2 = points[i].getY();
 			
 			final double segmentLength = MathUtil.hypot(x2 - x1, y2 - y1);
 
 			// Distance to an infinite line, defined by two points:
 			// (For a more in-depth explanation, see wikipedia: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line )
-			double x0 = p.x;
-			double y0 = p.y;
+			double x0 = p.getX();
+			double y0 = p.getY();
 			final double distanceToLine = Math.abs((y2 - y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)/segmentLength;
 
 			final double distanceToStart = MathUtil.hypot(x1-x0, y1-y0);
@@ -396,8 +397,8 @@ public class FinPointFigure extends AbstractScaleFigure {
 			return new Point2D.Double(0, 0);
 		}
 
-		p.x = MathUtil.clamp(p.x, -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
-		p.y = MathUtil.clamp(p.y, -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
+		p.x = MathUtil.clamp(p.getX(), -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
+		p.y = MathUtil.clamp(p.getY(), -FreeformFinSet.SNAP_LARGER_THAN, FreeformFinSet.SNAP_LARGER_THAN);
 
 		return p;
 	}
@@ -438,8 +439,8 @@ public class FinPointFigure extends AbstractScaleFigure {
 
 	@Override
 	protected void updateCanvasOrigin() {
-		final int finBottomPy = (int)(finBounds_m.max.y*scale);
-		final int mountHeight = (int)(mountBoundsMin_m.span().y*scale);
+		final int finBottomPy = (int)(finBounds_m.max.getY()*scale);
+		final int mountHeight = (int)(mountBoundsMin_m.span().getY()*scale);
 		// this is non-intuitive: it's an offset _from_ the origin(0,0) _to_ the lower-left of the content --
 		// because the canvas is drawn from that lower-left corner of the content, and the fin-front
 		// is fixed-- by definition-- to the origin.

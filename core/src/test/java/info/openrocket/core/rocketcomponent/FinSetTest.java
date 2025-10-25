@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.rocketcomponent.position.AngleMethod;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.TestRockets;
 import org.junit.jupiter.api.Test;
 
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.BaseTestCase;
 
 public class FinSetTest extends BaseTestCase {
@@ -184,7 +185,7 @@ public class FinSetTest extends BaseTestCase {
 
 	@Test
 	public void testAreaCalculationsSingleIncrement() {
-		Coordinate[] basicPoints = {
+		CoordinateIF[] basicPoints = {
 				new Coordinate(0.00, 0.0),
 				new Coordinate(0.06, 0.06),
 				new Coordinate(0.06, 0.0),
@@ -198,15 +199,15 @@ public class FinSetTest extends BaseTestCase {
 		//
 
 		final double expArea = 0.06 * 0.06 * 0.5;
-		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.04, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.02, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
+		final CoordinateIF actCentroid = FinSet.calculateCurveIntegral(basicPoints);
+		assertEquals(expArea, actCentroid.getWeight(), EPSILON, " basic area doesn't match...");
+		assertEquals(0.04, actCentroid.getX(), 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.getY(), 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
 	public void testAreaCalculationsDoubleIncrement() {
-		Coordinate[] basicPoints = {
+		CoordinateIF[] basicPoints = {
 				new Coordinate(0.00, 0.0),
 				new Coordinate(0.06, 0.06),
 				new Coordinate(0.12, 0.0),
@@ -220,15 +221,15 @@ public class FinSetTest extends BaseTestCase {
 		//
 
 		final double expArea = 0.06 * 0.12 * 0.5;
-		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.06, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.02, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
+		final CoordinateIF actCentroid = FinSet.calculateCurveIntegral(basicPoints);
+		assertEquals(expArea, actCentroid.getWeight(), EPSILON, " basic area doesn't match...");
+		assertEquals(0.06, actCentroid.getX(), 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.02, actCentroid.getY(), 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
 	public void testAreaCalculations() {
-		Coordinate[] basicPoints = {
+		CoordinateIF[] basicPoints = {
 				new Coordinate(0.00, 0.0),
 				new Coordinate(0.02, 0.05),
 				new Coordinate(0.04, 0.05),
@@ -242,10 +243,10 @@ public class FinSetTest extends BaseTestCase {
 		 * [4]
 		 */
 		final double expArea = 0.04 * 0.05;
-		final Coordinate actCentroid = FinSet.calculateCurveIntegral(basicPoints);
-		assertEquals(expArea, actCentroid.weight, EPSILON, " basic area doesn't match...");
-		assertEquals(0.03000, actCentroid.x, 1.0e-8, " basic centroid x doesn't match: ");
-		assertEquals(0.020833333, actCentroid.y, 1.0e-8, " basic centroid y doesn't match: ");
+		final CoordinateIF actCentroid = FinSet.calculateCurveIntegral(basicPoints);
+		assertEquals(expArea, actCentroid.getWeight(), EPSILON, " basic area doesn't match...");
+		assertEquals(0.03000, actCentroid.getX(), 1.0e-8, " basic centroid x doesn't match: ");
+		assertEquals(0.020833333, actCentroid.getY(), 1.0e-8, " basic centroid y doesn't match: ");
 	}
 
 	@Test
@@ -272,8 +273,8 @@ public class FinSetTest extends BaseTestCase {
 		final FinSet fins = FinSetTest.createSimpleFin();
 		fins.setCantAngle(0);
 		parent.addChild(fins);
-		Coordinate[] finShapeContinuous = fins.generateContinuousFinAndTabShape();
-		final Coordinate[] finShape = fins.getFinPointsWithRoot();
+		CoordinateIF[] finShapeContinuous = fins.generateContinuousFinAndTabShape();
+		final CoordinateIF[] finShape = fins.getFinPointsWithRoot();
 
 		assertEquals(finShape.length, finShapeContinuous.length, "incorrect fin shape length");
 

@@ -33,8 +33,8 @@ public class CenteringRing extends RadiusRingComponent {
 					if (!(sibling instanceof InnerTube)) // Excludes itself
 						continue;
 
-					double pos1 = this.toRelative(Coordinate.NUL, sibling)[0].x;
-					double pos2 = this.toRelative(new Coordinate(getLength()), sibling)[0].x;
+					double pos1 = this.toRelative(Coordinate.NUL, sibling)[0].getX();
+					double pos2 = this.toRelative(new Coordinate(getLength()), sibling)[0].getX();
 					if (pos2 < 0 || pos1 > sibling.getLength())
 						continue;
 

@@ -190,7 +190,7 @@ public class RingHandlerTest extends RockSimTestBase {
         Assertions.assertEquals(109.9 / 1000, child.getMass(), 0.001);
         Assertions.assertEquals(0, child.getAxialOffset(), 0.0);
         Assertions.assertEquals(AxialMethod.TOP, child.getAxialMethod());
-        Assertions.assertEquals(4.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getCG().x, 0.000001);
+        Assertions.assertEquals(4.0d / RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getCG().getX(), 0.000001);
 
     }
 

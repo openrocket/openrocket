@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +21,6 @@ import info.openrocket.core.motor.MotorConfigurationId;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.Monitorable;
@@ -443,7 +444,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 			final Transformation parentTransform) {
 
 		final int instanceCount = component.getInstanceCount();
-		final Coordinate[] allOffsets = component.getInstanceOffsets();
+		final CoordinateIF[] allOffsets = component.getInstanceOffsets();
 		final double[] allAngles = component.getInstanceAngles();
 
 		final Transformation compLocTransform = Transformation.getTranslationTransform(component.getPosition());
@@ -738,7 +739,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	 *             when practical.
 	 */
 	@Deprecated
-	public Collection<Coordinate> getBounds() {
+	public Collection<CoordinateIF> getBounds() {
 		return getBoundingBoxAerodynamic().toCollection();
 	}
 
@@ -808,7 +809,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				}
 			} else {
 				// Legacy Case: These components do not implement the BoxBounded Interface.
-				Collection<Coordinate> instanceCoordinates = component.getComponentBounds();
+				Collection<CoordinateIF> instanceCoordinates = component.getComponentBounds();
 				List<RocketComponent> parsedContexts = new ArrayList<>();
 				for (InstanceContext context : contexts) {
 					// Don't parse the same context component twice (e.g. multiple copies in a pod
@@ -816,11 +817,11 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 					if (parsedContexts.contains(context.component)) {
 						continue;
 					}
-					Collection<Coordinate> transformedCoords = new ArrayList<>(instanceCoordinates);
+					Collection<CoordinateIF> transformedCoords = new ArrayList<>(instanceCoordinates);
 					// mutating. Transforms coordinates in place.
 					context.transform.transform(instanceCoordinates);
 
-					for (Coordinate tc : transformedCoords) {
+					for (CoordinateIF tc : transformedCoords) {
 						if (component.isAerodynamic()) {
 							componentBoundsAerodynamic.update(tc);
 						}
@@ -836,8 +837,8 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		}
 
 		boundsModID = rocket.getModID();
-		cachedLengthAerodynamic = rocketBoundsAerodynamic.span().x;
-		cachedLength = rocketBounds.span().x;
+		cachedLengthAerodynamic = rocketBoundsAerodynamic.span().getX();
+		cachedLength = rocketBounds.span().getX();
 		/*
 		 * Special case for the scenario that all of the stages are removed and are
 		 * inactive. Its possible that this shouldn't be allowed, but it is currently

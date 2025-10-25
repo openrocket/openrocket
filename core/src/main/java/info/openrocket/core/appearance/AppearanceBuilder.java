@@ -3,8 +3,8 @@ package info.openrocket.core.appearance;
 import info.openrocket.core.appearance.Decal.EdgeMode;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.AbstractChangeSource;
-import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.ORColor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -106,9 +106,9 @@ public class AppearanceBuilder extends AbstractChangeSource {
 			listener.setDecal(d);
 		}
 		if (d != null) {
-			setOffset(d.getOffset().x, d.getOffset().y);
-			setCenter(d.getCenter().x, d.getCenter().y);
-			setScaleUV(d.getScale().x, d.getScale().y);
+			setOffset(d.getOffset().getX(), d.getOffset().getY());
+			setCenter(d.getCenter().getX(), d.getCenter().getY());
+			setScaleUV(d.getScale().getX(), d.getScale().getY());
 			setRotation(d.getRotation());
 			setEdgeMode(d.getEdgeMode());
 			setImage(d.getImage());

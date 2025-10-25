@@ -12,8 +12,9 @@ import java.util.Arrays;
 
 import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Transformation;
 
 
@@ -47,10 +48,10 @@ public class RailButtonShapes extends RocketComponentShapes {
 		final double innerRadius = innerDiameter/2;
 		
 		// instance absolute location
-		final Coordinate loc = transformation.transform(Coordinate.ZERO);
+		final CoordinateIF loc = transformation.transform(Coordinate.ZERO);
 		
-		final Coordinate unitOrientation = transformation.transform(new Coordinate(0,1,0));
-		final double view_rotation_rad = -Math.atan2(unitOrientation.y, unitOrientation.z) + Math.PI/2;
+		final CoordinateIF unitOrientation = transformation.transform(new Coordinate(0,1,0));
+		final double view_rotation_rad = -Math.atan2(unitOrientation.getY(), unitOrientation.getZ()) + Math.PI/2;
 		final double angle_offset_rad = btn.getAngleOffset();
 		final double sinr = Math.abs(Math.sin(angle_offset_rad + view_rotation_rad));
 		final double cosr = Math.cos(angle_offset_rad + view_rotation_rad);
@@ -72,76 +73,76 @@ public class RailButtonShapes extends RocketComponentShapes {
 			if (baseHeight > 0) {
 				final double drawWidth = outerDiameter;
 				final double drawHeight = outerDiameter * sinr;
-				final Point2D.Double center = new Point2D.Double(loc.x, loc.y);
-				Point2D.Double lowerLeft = new Point2D.Double(center.x - outerRadius, center.y - outerRadius * sinr);
-				path.append(new Ellipse2D.Double(lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
+				final Point2D.Double center = new Point2D.Double(loc.getX(), loc.getY());
+				Point2D.Double lowerLeft = new Point2D.Double(center.getX() - outerRadius, center.getY() - outerRadius * sinr);
+				path.append(new Ellipse2D.Double(lowerLeft.getX(), lowerLeft.getY(), drawWidth, drawHeight), false);
 
-				path.append(new Line2D.Double(lowerLeft.x, center.y, lowerLeft.x, (center.y + baseHeightcos)), false);
-				path.append(new Line2D.Double((center.x + outerRadius), center.y, (center.x + outerRadius), (center.y + baseHeightcos)), false);
+				path.append(new Line2D.Double(lowerLeft.getX(), center.getY(), lowerLeft.getX(), (center.getY() + baseHeightcos)), false);
+				path.append(new Line2D.Double((center.getX() + outerRadius), center.getY(), (center.getX() + outerRadius), (center.getY() + baseHeightcos)), false);
 
-				path.append(new Ellipse2D.Double(lowerLeft.x, (lowerLeft.y + baseHeightcos), drawWidth, drawHeight), false);
+				path.append(new Ellipse2D.Double(lowerLeft.getX(), (lowerLeft.getY() + baseHeightcos), drawWidth, drawHeight), false);
 
 				// Invisible rectangle
 				double y_invis;
 				if (baseHeightcos >= 0) {
-					y_invis = center.y;
+					y_invis = center.getY();
 				} else {
-					y_invis = center.y + baseHeightcos;
+					y_invis = center.getY() + baseHeightcos;
 				}
-				pathInvis.append(new Rectangle2D.Double(center.x - outerRadius, y_invis, drawWidth, Math.abs(baseHeightcos)), false);
+				pathInvis.append(new Rectangle2D.Double(center.getX() - outerRadius, y_invis, drawWidth, Math.abs(baseHeightcos)), false);
 			}
 		}
 		
 		{// inner cylinder
 			final double drawWidth = innerDiameter;
 			final double drawHeight = innerDiameter * sinr;
-			final Point2D.Double center = new Point2D.Double(loc.x, loc.y + baseHeightcos);
-			final Point2D.Double lowerLeft = new Point2D.Double(center.x - innerRadius, center.y - innerRadius * sinr);
-			path.append(new Ellipse2D.Double(lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
+			final Point2D.Double center = new Point2D.Double(loc.getX(), loc.getY() + baseHeightcos);
+			final Point2D.Double lowerLeft = new Point2D.Double(center.getX() - innerRadius, center.getY() - innerRadius * sinr);
+			path.append(new Ellipse2D.Double(lowerLeft.getX(), lowerLeft.getY(), drawWidth, drawHeight), false);
 
-			path.append(new Line2D.Double(lowerLeft.x, center.y, lowerLeft.x, (center.y + innerHeightcos)), false);
-			path.append(new Line2D.Double((center.x + innerRadius), center.y, (center.x + innerRadius), (center.y + innerHeightcos)), false);
+			path.append(new Line2D.Double(lowerLeft.getX(), center.getY(), lowerLeft.getX(), (center.getY() + innerHeightcos)), false);
+			path.append(new Line2D.Double((center.getX() + innerRadius), center.getY(), (center.getX() + innerRadius), (center.getY() + innerHeightcos)), false);
 
-			path.append(new Ellipse2D.Double(lowerLeft.x, (lowerLeft.y + innerHeightcos), drawWidth, drawHeight), false);
+			path.append(new Ellipse2D.Double(lowerLeft.getX(), (lowerLeft.getY() + innerHeightcos), drawWidth, drawHeight), false);
 
 			// Invisible rectangle
 			double y_invis;
 			if (innerHeightcos >= 0) {
-				y_invis = center.y;
+				y_invis = center.getY();
 			} else {
-				y_invis = center.y + innerHeightcos;
+				y_invis = center.getY() + innerHeightcos;
 			}
-			pathInvis.append(new Rectangle2D.Double(center.x - innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
+			pathInvis.append(new Rectangle2D.Double(center.getX() - innerRadius, y_invis, drawWidth, Math.abs(innerHeightcos)), false);
 		}
 		{// flange cylinder
 			if (flangeHeight > 0 || screwHeight > 0) {		// Also draw when there is a screw (= the bottom of the screw)
 				final double drawWidth = outerDiameter;
 				final double drawHeight = outerDiameter * sinr;
-				final Point2D.Double center = new Point2D.Double(loc.x, loc.y + baseHeightcos + innerHeightcos);
-				final Point2D.Double lowerLeft = new Point2D.Double(center.x - outerRadius, center.y - outerRadius * sinr);
-				path.append(new Ellipse2D.Double(lowerLeft.x, lowerLeft.y, drawWidth, drawHeight), false);
+				final Point2D.Double center = new Point2D.Double(loc.getX(), loc.getY() + baseHeightcos + innerHeightcos);
+				final Point2D.Double lowerLeft = new Point2D.Double(center.getX() - outerRadius, center.getY() - outerRadius * sinr);
+				path.append(new Ellipse2D.Double(lowerLeft.getX(), lowerLeft.getY(), drawWidth, drawHeight), false);
 
-				path.append(new Line2D.Double(lowerLeft.x, center.y, lowerLeft.x, (center.y + flangeHeightcos)), false);
-				path.append(new Line2D.Double((center.x + outerRadius), center.y, (center.x + outerRadius), (center.y + flangeHeightcos)), false);
+				path.append(new Line2D.Double(lowerLeft.getX(), center.getY(), lowerLeft.getX(), (center.getY() + flangeHeightcos)), false);
+				path.append(new Line2D.Double((center.getX() + outerRadius), center.getY(), (center.getX() + outerRadius), (center.getY() + flangeHeightcos)), false);
 
-				path.append(new Ellipse2D.Double(lowerLeft.x, (lowerLeft.y + flangeHeightcos), drawWidth, drawHeight), false);
+				path.append(new Ellipse2D.Double(lowerLeft.getX(), (lowerLeft.getY() + flangeHeightcos), drawWidth, drawHeight), false);
 
 				// Invisible rectangle
 				double y_invis;
 				if (flangeHeightcos >= 0) {
-					y_invis = center.y;
+					y_invis = center.getY();
 				} else {
-					y_invis = center.y + flangeHeightcos;
+					y_invis = center.getY() + flangeHeightcos;
 				}
-				pathInvis.append(new Rectangle2D.Double(center.x - outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
+				pathInvis.append(new Rectangle2D.Double(center.getX() - outerRadius, y_invis, drawWidth, Math.abs(flangeHeightcos)), false);
 			}
 		}
 		{// screw
 			if (screwHeight > 0) {
 				final double drawWidth = outerDiameter;
 				final double drawHeight = Math.abs(screwHeightcos) * 2;        // Times 2 because it is the full ellipse height
-				final Point2D.Double origin = new Point2D.Double(loc.x - outerRadius, loc.y + baseHeightcos + innerHeightcos + flangeHeightcos - Math.abs(screwHeightcos));
-				screwShape = new Arc2D.Double(origin.x, origin.y, drawWidth, drawHeight, 0, -Math.signum(screwHeightcos) * 180, Arc2D.OPEN);
+				final Point2D.Double origin = new Point2D.Double(loc.getX() - outerRadius, loc.getY() + baseHeightcos + innerHeightcos + flangeHeightcos - Math.abs(screwHeightcos));
+				screwShape = new Arc2D.Double(origin.getX(), origin.getY(), drawWidth, drawHeight, 0, -Math.signum(screwHeightcos) * 180, Arc2D.OPEN);
 			}
 		}
 
@@ -174,10 +175,10 @@ public class RailButtonShapes extends RocketComponentShapes {
 		final double innerRadius = innerDiameter/2;
 		
 		// instance absolute location
-		final Coordinate loc = transformation.transform(Coordinate.ZERO);
+		final CoordinateIF loc = transformation.transform(Coordinate.ZERO);
 		
-		final Coordinate unitOrientation = transformation.transform(new Coordinate(0,1,0));
-		final double view_rotation_rad = -Math.atan2(unitOrientation.y, unitOrientation.z) + Math.PI/2;
+		final CoordinateIF unitOrientation = transformation.transform(new Coordinate(0,1,0));
+		final double view_rotation_rad = -Math.atan2(unitOrientation.getY(), unitOrientation.getZ()) + Math.PI/2;
 		final double angle_offset_rad = btn.getAngleOffset();
 		final double combined_angle_rad = angle_offset_rad + view_rotation_rad;
 
@@ -189,21 +190,21 @@ public class RailButtonShapes extends RocketComponentShapes {
 
 		// base
 		if (baseHeight > 0) {
-			path.append(getRotatedRectangle(loc.z, loc.y, outerRadius, baseHeight, combined_angle_rad), false);
+			path.append(getRotatedRectangle(loc.getZ(), loc.getY(), outerRadius, baseHeight, combined_angle_rad), false);
 		}
 		
 		{// inner
 			final double delta_r = baseHeight;
 			final double delta_y = delta_r*cosr;
 			final double delta_z = delta_r*sinr;
-			path.append( getRotatedRectangle( loc.z+delta_z, loc.y+delta_y, innerRadius, innerHeight, combined_angle_rad), false);
+			path.append( getRotatedRectangle( loc.getZ()+delta_z, loc.getY()+delta_y, innerRadius, innerHeight, combined_angle_rad), false);
 		}
 		{// flange
 			if (flangeHeight > 0 || screwHeight > 0) {		// Also draw when there is a screw (= the bottom of the screw)
 				final double delta_r = baseHeight + innerHeight;
 				final double delta_y = delta_r * cosr;
 				final double delta_z = delta_r * sinr;
-				path.append(getRotatedRectangle(loc.z + delta_z, loc.y + delta_y, outerRadius, flangeHeight, combined_angle_rad), false);
+				path.append(getRotatedRectangle(loc.getZ() + delta_z, loc.getY() + delta_y, outerRadius, flangeHeight, combined_angle_rad), false);
 			}
 		}
 		{// screw
@@ -212,9 +213,9 @@ public class RailButtonShapes extends RocketComponentShapes {
 				final double drawHeight = 2*screwHeight;	// Times 2 because it is the full ellipse height
 				final double delta_y = baseHeight + innerHeight + flangeHeight - screwHeight;
 				final double delta_z = -outerRadius;
-				final Point2D.Double origin = new Point2D.Double(loc.z + delta_z, loc.y + delta_y);
-				screwShape = new Arc2D.Double(origin.x, origin.y, drawWidth, drawHeight, 0, -180, Arc2D.OPEN);
-				screwShape = getRotatedShape(screwShape, loc.z, loc.y, -combined_angle_rad);
+				final Point2D.Double origin = new Point2D.Double(loc.getZ() + delta_z, loc.getY() + delta_y);
+				screwShape = new Arc2D.Double(origin.getX(), origin.getY(), drawWidth, drawHeight, 0, -180, Arc2D.OPEN);
+				screwShape = getRotatedShape(screwShape, loc.getZ(), loc.getY(), -combined_angle_rad);
 			}
 		}
 

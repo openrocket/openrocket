@@ -81,7 +81,7 @@ public abstract class BasePartDTO {
      */
     protected BasePartDTO(RocketComponent ec) {
         serialNumber = currentSerialNumber++;
-        setCalcCG(ec.getCG().x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setCalcCG(ec.getCG().getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setCalcMass(ec.getComponentMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
         setKnownCG(ec.getOverrideCGX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setKnownMass(ec.getMass() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);

@@ -13,7 +13,7 @@ import info.openrocket.core.rocketcomponent.EllipticalFinSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
 import info.openrocket.core.util.BoundingBox;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.geometry.Geometry.Surface;
 
 public class FinRenderer {
@@ -26,16 +26,16 @@ public class FinRenderer {
 		gl.glPushMatrix();
 		// Mirror the right side fin texture to avoid e.g. mirrored decal text
 		if (which == Surface.INSIDE && ((InsideColorComponent) finSet).getInsideColorComponentHandler().isSeparateInsideOutside()) {
-			gl.glScaled(-1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+			gl.glScaled(-1 / (bounds.max.getX() - bounds.min.getX()), 1 / (bounds.max.getY() - bounds.min.getY()), 0);
 		}
 		else {
-			gl.glScaled(1 / (bounds.max.x - bounds.min.x), 1 / (bounds.max.y - bounds.min.y), 0);
+			gl.glScaled(1 / (bounds.max.getX() - bounds.min.getX()), 1 / (bounds.max.getY() - bounds.min.getY()), 0);
 		}
-		gl.glTranslated(-bounds.min.x, -bounds.min.y - finSet.getBodyRadius(), 0);
+		gl.glTranslated(-bounds.min.getX(), -bounds.min.getY() - finSet.getBodyRadius(), 0);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
-		Coordinate[] finPoints = finSet.getFinPointsWithLowResRoot();
-		Coordinate[] tabPoints = finSet.getTabPointsWithRootLowRes();
+		CoordinateIF[] finPoints = finSet.getFinPointsWithLowResRoot();
+		CoordinateIF[] tabPoints = finSet.getTabPointsWithRootLowRes();
 
 		{
 		    gl.glPushMatrix();
@@ -83,9 +83,9 @@ public class FinRenderer {
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
 				for (int i = finPoints.length - 1; i >= 0; i--) {
-					Coordinate c = finPoints[i];
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0};
+					CoordinateIF c = finPoints[i];
+					double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() + finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
 				}
 				GLU.gluTessEndContour(tess);
@@ -96,9 +96,9 @@ public class FinRenderer {
 				GLU.gluTessBeginPolygon(tess, null);
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
-                for (Coordinate c : tabPoints) {
-                    double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-                            c.z + finSet.getThickness() / 2.0};
+                for (CoordinateIF c : tabPoints) {
+                    double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+                            c.getZ() + finSet.getThickness() / 2.0};
                     GLU.gluTessVertex(tess, p, 0, p);
                 }
 				GLU.gluTessEndContour(tess);
@@ -110,9 +110,9 @@ public class FinRenderer {
 				GLU.gluTessBeginPolygon(tess, null);
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
-				for (Coordinate c : finPoints) {
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0};
+				for (CoordinateIF c : finPoints) {
+					double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
 
 				}
@@ -125,9 +125,9 @@ public class FinRenderer {
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
 				for (int i = tabPoints.length - 1; i >= 0; i--) {
-					Coordinate c = tabPoints[i];
-					double[] p = new double[]{c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0};
+					CoordinateIF c = tabPoints[i];
+					double[] p = new double[]{c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0};
 					GLU.gluTessVertex(tess, p, 0, p);
 
 				}
@@ -144,17 +144,17 @@ public class FinRenderer {
 					gl.glShadeModel(GLLightingFunc.GL_FLAT);
 				gl.glBegin(GL.GL_TRIANGLE_STRIP);
 				for (int i = 0; i <= finPoints.length; i++) {
-					Coordinate c = finPoints[i % finPoints.length];
+					CoordinateIF c = finPoints[i % finPoints.length];
 					// if ( i > 1 ){
-					Coordinate c2 = finPoints[(i - 1 + finPoints.length)
+					CoordinateIF c2 = finPoints[(i - 1 + finPoints.length)
 							% finPoints.length];
-					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
+					gl.glNormal3d(c2.getY() - c.getY(), c.getX() - c2.getX(), 0);
 					// }
-					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0);
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0);
+					gl.glTexCoord2d(c.getX(), c.getY() + finSet.getBodyRadius());
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0);
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() + finSet.getThickness() / 2.0);
 				}
 				gl.glEnd();
 			}
@@ -164,17 +164,17 @@ public class FinRenderer {
 					gl.glShadeModel(GLLightingFunc.GL_FLAT);
 				gl.glBegin(GL.GL_TRIANGLE_STRIP);
 				for (int i = tabPoints.length; i >= 0; i--) {
-					Coordinate c = tabPoints[i % tabPoints.length];
+					CoordinateIF c = tabPoints[i % tabPoints.length];
 					// if ( i > 1 ){
-					Coordinate c2 = tabPoints[(i - 1 + tabPoints.length)
+					CoordinateIF c2 = tabPoints[(i - 1 + tabPoints.length)
 							% tabPoints.length];
-					gl.glNormal3d(c2.y - c.y, c.x - c2.x, 0);
+					gl.glNormal3d(c2.getY() - c.getY(), c.getX() - c2.getX(), 0);
 					// }
-					gl.glTexCoord2d(c.x, c.y + finSet.getBodyRadius());
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z - finSet.getThickness() / 2.0);
-					gl.glVertex3d(c.x, c.y + finSet.getBodyRadius(),
-							c.z + finSet.getThickness() / 2.0);
+					gl.glTexCoord2d(c.getX(), c.getY() + finSet.getBodyRadius());
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() - finSet.getThickness() / 2.0);
+					gl.glVertex3d(c.getX(), c.getY() + finSet.getBodyRadius(),
+							c.getZ() + finSet.getThickness() / 2.0);
 				}
 				gl.glEnd();
 			}

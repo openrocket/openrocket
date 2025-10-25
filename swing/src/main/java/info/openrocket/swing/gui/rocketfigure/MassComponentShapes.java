@@ -12,6 +12,7 @@ import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
 
@@ -33,12 +34,12 @@ public class MassComponentShapes extends RocketComponentShapes {
 		final double radialDistance = massObj.getRadialPosition();
 		final double radialAngleRadians = massObj.getRadialDirection();
 		
-		final Coordinate localPosition = new Coordinate(0,
+		final CoordinateIF localPosition = new Coordinate(0,
 														radialDistance * Math.cos(radialAngleRadians),
 														radialDistance * Math.sin(radialAngleRadians));
-		final Coordinate renderPosition = transformation.transform(localPosition);
+		final CoordinateIF renderPosition = transformation.transform(localPosition);
 		
-		Shape[] s = {new RoundRectangle2D.Double(renderPosition.x, renderPosition.y - radius, length, 2*radius, arc, arc)};
+		Shape[] s = {new RoundRectangle2D.Double(renderPosition.getX(), renderPosition.getY() - radius, length, 2*radius, arc, arc)};
 		
 		final MassComponent.MassComponentType type = ((MassComponent)component).getMassComponentType();
 		switch (type) {
@@ -79,12 +80,12 @@ public class MassComponentShapes extends RocketComponentShapes {
 		final double radialDistance = massObj.getRadialPosition();
 		final double radialAngleRadians = massObj.getRadialDirection();
 		
-		final Coordinate localPosition = new Coordinate(0,
+		final CoordinateIF localPosition = new Coordinate(0,
 														radialDistance * Math.cos(radialAngleRadians),
 														radialDistance * Math.sin(radialAngleRadians));
-		final Coordinate renderPosition = transformation.transform(localPosition);
+		final CoordinateIF renderPosition = transformation.transform(localPosition);
 		
-		final Shape[] s = {new Ellipse2D.Double(renderPosition.z - radius, renderPosition.y - radius, diameter, diameter)};
+		final Shape[] s = {new Ellipse2D.Double(renderPosition.getZ() - radius, renderPosition.getY() - radius, diameter, diameter)};
 		
 		return RocketComponentShapes.toArray(s, component);
 	}

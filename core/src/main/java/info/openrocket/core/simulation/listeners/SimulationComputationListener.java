@@ -7,7 +7,7 @@ import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.AccelerationData;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 /**
  * An interface containing listener callbacks relating to different
@@ -32,9 +32,9 @@ public interface SimulationComputationListener extends SimulationListener {
 			AtmosphericConditions atmosphericConditions)
 			throws SimulationException;
 
-	public Coordinate preWindModel(SimulationStatus status) throws SimulationException;
+	public CoordinateIF preWindModel(SimulationStatus status) throws SimulationException;
 
-	public Coordinate postWindModel(SimulationStatus status, Coordinate wind) throws SimulationException;
+	public CoordinateIF postWindModel(SimulationStatus status, CoordinateIF wind) throws SimulationException;
 
 	public double preGravityModel(SimulationStatus status) throws SimulationException;
 

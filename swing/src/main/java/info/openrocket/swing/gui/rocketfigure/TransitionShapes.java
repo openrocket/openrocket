@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.rocketfigure;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Transformation;
 
 import java.awt.Shape;
@@ -29,23 +30,23 @@ public class TransitionShapes extends RocketComponentShapes {
 
 		Transition transition = (Transition)component;
 
-        final Coordinate instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
+        final CoordinateIF instanceAbsoluteLocation = transformation.transform(Coordinate.ZERO);
         
 		RocketComponentShapes[] mainShapes;
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
 		if (transition.getShapeType() == Transition.Shape.CONICAL) {
-		    final Coordinate frontCenter = instanceAbsoluteLocation;
+		    final CoordinateIF frontCenter = instanceAbsoluteLocation;
 	        
 			double length = transition.getLength();
 			double r1 = transition.getForeRadius();
 			double r2 = transition.getAftRadius();
 					
 			Path2D.Float path = new Path2D.Float();
-			path.moveTo( (frontCenter.x) * scaleFactor, (frontCenter.y+ r1) * scaleFactor);
-			path.lineTo( (frontCenter.x+length) * scaleFactor, (frontCenter.y+r2) * scaleFactor);
-			path.lineTo( (frontCenter.x+length) * scaleFactor, (frontCenter.y-r2) * scaleFactor);
-			path.lineTo( (frontCenter.x) * scaleFactor, (frontCenter.y-r1) * scaleFactor);
+			path.moveTo( (frontCenter.getX()) * scaleFactor, (frontCenter.getY()+ r1) * scaleFactor);
+			path.lineTo( (frontCenter.getX()+length) * scaleFactor, (frontCenter.getY()+r2) * scaleFactor);
+			path.lineTo( (frontCenter.getX()+length) * scaleFactor, (frontCenter.getY()-r2) * scaleFactor);
+			path.lineTo( (frontCenter.getX()) * scaleFactor, (frontCenter.getY()-r1) * scaleFactor);
 			path.closePath();
 			
 			mainShapes = new RocketComponentShapes[] { new RocketComponentShapes( path, component) };
@@ -102,11 +103,11 @@ public class TransitionShapes extends RocketComponentShapes {
 		double r1 = transition.getForeRadius();
 		double r2 = transition.getAftRadius();
 
-		final Coordinate center = transformation.transform(Coordinate.ZERO);
+		final CoordinateIF center = transformation.transform(Coordinate.ZERO);
 		
 		Shape[] s = new Shape[2];
-		s[0] = new Ellipse2D.Double((center.z-r1),(center.y-r1),2*r1,2*r1);
-		s[1] = new Ellipse2D.Double((center.z-r2),(center.y-r2),2*r2,2*r2);
+		s[0] = new Ellipse2D.Double((center.getZ()-r1),(center.getY()-r1),2*r1,2*r1);
+		s[1] = new Ellipse2D.Double((center.getZ()-r2),(center.getY()-r2),2*r2,2*r2);
 		return RocketComponentShapes.toArray(s, component);
 	}
 	

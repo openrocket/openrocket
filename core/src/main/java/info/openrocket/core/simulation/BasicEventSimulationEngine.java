@@ -6,6 +6,8 @@ import java.util.Deque;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,6 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.simulation.listeners.system.OptimumCoastListener;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
 
@@ -177,8 +178,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		double previousSimulationTime = currentStatus.getSimulationTime();
 		
 		// Get originating position (in case listener has modified launch position)
-		Coordinate origin = currentStatus.getRocketPosition();
-		Coordinate originVelocity = currentStatus.getRocketVelocity();
+		CoordinateIF origin = currentStatus.getRocketPosition();
+		CoordinateIF originVelocity = currentStatus.getRocketVelocity();
 		
 		try {
 
@@ -187,7 +188,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			// Start the simulation
 			while (handleEvents(simulationConditions)) {
 				// Take the step
-				double oldAlt = currentStatus.getRocketPosition().z;
+				double oldAlt = currentStatus.getRocketPosition().getZ();
 				
 				if (SimulationListenerHelper.firePreStep(currentStatus)) {
 					// Step at most to the next event
@@ -216,33 +217,33 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				if (!currentStatus.isLanded())
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
 											 currentStatus.getConfiguration().getRocket(),
-							new Pair<>(oldAlt, currentStatus.getRocketPosition().z)));
+							new Pair<>(oldAlt, currentStatus.getRocketPosition().getZ())));
 				
-				if (currentStatus.getRocketPosition().z > currentStatus.getMaxAlt()) {
-					currentStatus.setMaxAlt(currentStatus.getRocketPosition().z);
+				if (currentStatus.getRocketPosition().getZ() > currentStatus.getMaxAlt()) {
+					currentStatus.setMaxAlt(currentStatus.getRocketPosition().getZ());
 				}
 				
 				// Position relative to start location
-				Coordinate relativePosition = currentStatus.getRocketPosition().sub(origin);
+				CoordinateIF relativePosition = currentStatus.getRocketPosition().sub(origin);
 				
 				// Add appropriate events
 				if (!currentStatus.isLiftoff()) {
 					
 					// Avoid sinking into ground before liftoff
-					if (relativePosition.z < 0) {
+					if (relativePosition.getZ() < 0) {
 						currentStatus.setRocketPosition(origin);
 						relativePosition = Coordinate.ZERO;
 						currentStatus.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off
-					if (relativePosition.z > 0.02) {
+					if (relativePosition.getZ() > 0.02) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
 					}
 					
 				} else {
 					
 					// Check ground hit after liftoff
-					if ((currentStatus.getRocketPosition().z < MathUtil.EPSILON) && !currentStatus.isLanded()) {
+					if ((currentStatus.getRocketPosition().getZ() < MathUtil.EPSILON) && !currentStatus.isLanded()) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
 
 						// currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
@@ -259,7 +260,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				
 				// Check for apogee
-				if (!currentStatus.isApogeeReached() && currentStatus.getRocketPosition().z < currentStatus.getMaxAlt() - 0.01) {
+				if (!currentStatus.isApogeeReached() && currentStatus.getRocketPosition().getZ() < currentStatus.getMaxAlt() - 0.01) {
 					currentStatus.setMaxAltTime(previousSimulationTime);
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, previousSimulationTime,
 							currentStatus.getConfiguration().getRocket()));
@@ -732,7 +733,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
 			.getCP(currentStatus.getConfiguration(),
 				   new FlightConditions(currentStatus.getConfiguration()),
-				   new WarningSet()).weight < MathUtil.EPSILON) {
+				   new WarningSet()).getWeight() < MathUtil.EPSILON) {
 			if (currentStatus.getConfiguration().isStageActive(0)) {
 				currentStatus.abortSimulation(SimulationAbort.Cause.NO_CP);
 			} else {

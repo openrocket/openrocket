@@ -7,14 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;
-import info.openrocket.core.util.Coordinate;
-	
+
 public class MotorRowFilterTest {
 	// just "slightly" above or below limits; also accuracy of
 	// equality tests
@@ -172,7 +173,7 @@ public class MotorRowFilterTest {
 		// This is the Aerotech H123 from thrustcurve.org, motor ID 917
 		final ThrustCurveMotor fullMotor = new ThrustCurveMotor.Builder()
 			.setCaseInfo("Aerotech 38/240")
-			.setCGPoints(new Coordinate[] {new Coordinate(0.077, 0, 0, 125.0),
+			.setCGPoints(new CoordinateIF[] {new Coordinate(0.077, 0, 0, 125.0),
 										   new Coordinate(0.077, 0, 0, 109.93),
 										   new Coordinate(0.077, 0, 0, 82.3872),
 										   new Coordinate(0.077, 0, 0, 75.6278),
@@ -213,7 +214,7 @@ public class MotorRowFilterTest {
 			.setTimePoints(new double[] {0, 1})
 			.setThrustPoints(new double[] {0, 2})
 			.setLength(0.10)
-			.setCGPoints(new Coordinate[] {
+			.setCGPoints(new CoordinateIF[] {
 					new Coordinate(0.05,0,0,0.05),
 					new Coordinate(0.03,0,0,0.03)})
 			.build();

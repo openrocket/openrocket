@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation.listeners;
 
+import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,6 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
-import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 
@@ -273,9 +273,9 @@ public class SimulationListenerHelper {
 	 * 
 	 * @return <code>null</code> normally, or overriding wind.
 	 */
-	public static Coordinate firePreWindModel(SimulationStatus status)
+	public static CoordinateIF firePreWindModel(SimulationStatus status)
 			throws SimulationException {
-		Coordinate wind;
+		CoordinateIF wind;
 		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {
@@ -299,8 +299,8 @@ public class SimulationListenerHelper {
 	 * 
 	 * @return the wind to use.
 	 */
-	public static Coordinate firePostWindModel(SimulationStatus status, Coordinate wind) throws SimulationException {
-		Coordinate w;
+	public static CoordinateIF firePostWindModel(SimulationStatus status, CoordinateIF wind) throws SimulationException {
+		CoordinateIF w;
 		ModID modID = status.getModID();
 
 		for (SimulationListener l : status.getSimulationConditions().getSimulationListenerList()) {

@@ -51,8 +51,8 @@ public class Sleeve extends RingComponent {
 	public double getInnerRadius() {
 		// Implement parent inner radius automation
 		if (isInnerRadiusAutomatic() && getParent() instanceof RadialParent) {
-			double pos1 = this.toRelative(Coordinate.NUL, parent)[0].x;
-			double pos2 = this.toRelative(new Coordinate(getLength()), parent)[0].x;
+			double pos1 = this.toRelative(Coordinate.NUL, parent)[0].getX();
+			double pos2 = this.toRelative(new Coordinate(getLength()), parent)[0].getX();
 			pos1 = MathUtil.clamp(pos1, 0, parent.getLength());
 			pos2 = MathUtil.clamp(pos2, 0, parent.getLength());
 			innerRadius = Math.max(((RadialParent) parent).getOuterRadius(pos1),

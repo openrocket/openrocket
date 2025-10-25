@@ -17,6 +17,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
@@ -237,7 +238,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toUnit(stabData.get(row).cm.weight);
+						return unit.toUnit(stabData.get(row).cm.getWeight());
 					}
 				},
 				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CG") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
@@ -245,7 +246,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toUnit(stabData.get(row).cm.x);
+						return unit.toUnit(stabData.get(row).cm.getX());
 					}
 				},
 				new Column(trans.get("ComponentAnalysisGeneralTab.TabStability.Col.CP") + " (" + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit() + ")") {
@@ -617,12 +618,12 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 
 			if (forces.getCP() != null) {
 				if ((comp instanceof Rocket) &&
-						(forces.getCP().weight < MathUtil.EPSILON)) {
+						(forces.getCP().getWeight() < MathUtil.EPSILON)) {
 					row.cpx = Double.NaN;
 				} else {
-					row.cpx = forces.getCP().x;
+					row.cpx = forces.getCP().getX();
 				}
-				row.cna = forces.getCP().weight;
+				row.cna = forces.getCP().getWeight();
 			}
 
 			if (!Double.isNaN(forces.getCD())) {
@@ -888,7 +889,7 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		public String name;
 		public Object source;
 		public double eachMass;
-		public Coordinate cm;
+		public CoordinateIF cm;
 		public double cpx;
 		public double cna;
 

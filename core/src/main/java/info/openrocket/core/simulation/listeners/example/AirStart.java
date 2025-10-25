@@ -3,7 +3,7 @@ package info.openrocket.core.simulation.listeners.example;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 /**
  * Simulation listener that launches a rocket from a specific altitude.
@@ -29,7 +29,7 @@ public class AirStart extends AbstractSimulationListener {
 		}
 
 		// Modify launch position
-		Coordinate position = status.getRocketPosition();
+		CoordinateIF position = status.getRocketPosition();
 		position = position.add(0, 0, altitude);
 		status.setRocketPosition(position);
 

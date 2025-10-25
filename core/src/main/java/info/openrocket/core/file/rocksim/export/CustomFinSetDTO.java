@@ -2,7 +2,7 @@ package info.openrocket.core.file.rocksim.export;
 
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -34,14 +34,14 @@ public class CustomFinSetDTO extends FinSetDTO {
         setPointList(convertFreeFormPoints(ec.getFinPoints()));
     }
 
-    private String convertFreeFormPoints(Coordinate[] points) {
+    private String convertFreeFormPoints(CoordinateIF[] points) {
         StringBuilder sb = new StringBuilder();
 
         // Reverse the order for RockSim
         for (int i = points.length - 1; i >= 0; i--) {
-            Coordinate point = points[i];
-            sb.append(point.x * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append(",")
-                    .append(point.y * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append("|");
+            CoordinateIF point = points[i];
+            sb.append(point.getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append(",")
+                    .append(point.getY() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH).append("|");
         }
         return sb.toString();
     }

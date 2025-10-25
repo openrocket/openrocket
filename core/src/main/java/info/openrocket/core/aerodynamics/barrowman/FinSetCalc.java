@@ -13,6 +13,7 @@ import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.LinearInterpolator;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.PolyInterpolator;
@@ -231,15 +232,15 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		// Check geometry; don't consider points along fin root for this
 		// (doing so will cause spurious jagged fin warnings)
-		Coordinate[] points = component.getFinPoints();
+		CoordinateIF[] points = component.getFinPoints();
 		geometryWarnings.clear();
 		boolean down = false;
 		for (int i = 1; i < points.length; i++) {
-			if ((points[i].y > points[i - 1].y + 0.001) && down) {
+			if ((points[i].getY() > points[i - 1].getY() + 0.001) && down) {
 				geometryWarnings.add(Warning.JAGGED_EDGED_FIN, component);
 				break;
 			}
-			if (points[i].y < points[i - 1].y - 0.001) {
+			if (points[i].getY() < points[i - 1].getY() - 0.001) {
 				down = true;
 			}
 		}
@@ -257,10 +258,10 @@ public class FinSetCalc extends RocketComponentCalc {
 		Arrays.fill(chordLength, 0);
 		
 		for (int point = 1; point < points.length; point++) {
-			double x1 = points[point - 1].x;
-			double y1 = points[point - 1].y;
-			double x2 = points[point].x;
-			double y2 = points[point].y;
+			double x1 = points[point - 1].getX();
+			double y1 = points[point - 1].getY();
+			double x2 = points[point].getX();
+			double y2 = points[point].getY();
 			
 			// Don't use the default EPSILON since it is too small
 			// and causes too much numerical instability in the computation of x below
@@ -332,7 +333,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		cosGammaLead = 0;
 		rollSum = 0;
 		double area = 0;
-		double radius = component.getFinFront().y;
+		double radius = component.getFinFront().getY();
 		
 		final double dy = span / (DIVISIONS - 1);
 		for (int i = 0; i < DIVISIONS; i++) {
@@ -672,9 +673,9 @@ public class FinSetCalc extends RocketComponentCalc {
 			throw new IllegalStateException("fin set without parent component");
 		}
 		
-		double lead = component.toRelative(Coordinate.NUL, parent)[0].x;
+		double lead = component.toRelative(Coordinate.NUL, parent)[0].getX();
 		double trail = component.toRelative(new Coordinate(component.getLength()),
-				parent)[0].x;
+				parent)[0].getX();
 		
 		/*
 		 * The counting fails if the fin root chord is very small, in that case assume
@@ -686,8 +687,8 @@ public class FinSetCalc extends RocketComponentCalc {
 			interferenceFinCount = 0;
 			for (RocketComponent c : parent.getChildren()) {
 				if (c instanceof FinSet) {
-					double finLead = c.toRelative(Coordinate.NUL, parent)[0].x;
-					double finTrail = c.toRelative(new Coordinate(c.getLength()), parent)[0].x;
+					double finLead = c.toRelative(Coordinate.NUL, parent)[0].getX();
+					double finTrail = c.toRelative(new Coordinate(c.getLength()), parent)[0].getX();
 					
 					// Compute overlap of the fins
 					

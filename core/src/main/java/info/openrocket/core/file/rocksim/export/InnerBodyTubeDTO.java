@@ -2,6 +2,7 @@ package info.openrocket.core.file.rocksim.export;
 
 import java.util.List;
 
+import info.openrocket.core.util.CoordinateIF;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -18,7 +19,6 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Streamer;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
-import info.openrocket.core.util.Coordinate;
 
 /**
  * This class models the XML element for a Rocksim inside tube.
@@ -116,7 +116,7 @@ public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 		// coords = it.shiftCoordinates(coords);
 
 		// new version
-		Coordinate[] coords = it.getComponentLocations();
+		CoordinateIF[] coords = it.getComponentLocations();
 
 		for (int x = 0; x < coords.length; x++) {
 			InnerTube partialClone = InnerTube.makeIndividualClusterComponent(coords[x], it.getName() + " #" + (x + 1),

@@ -81,7 +81,7 @@ public class Quaternion implements Cloneable {
 	 * @param rotation the rotation vector
 	 * @return the quaternion corresponding to the rotation vector
 	 */
-	public static Quaternion rotation(Coordinate rotation) {
+	public static Quaternion rotation(CoordinateIF rotation) {
 		double length = rotation.length();
 		if (length < 0.000001) {
 			return new Quaternion(1, 0, 0, 0);
@@ -89,7 +89,7 @@ public class Quaternion implements Cloneable {
 		double sin = Math.sin(length / 2);
 		double cos = Math.cos(length / 2);
 		return new Quaternion(cos,
-				sin * rotation.x / length, sin * rotation.y / length, sin * rotation.z / length);
+				sin * rotation.getX() / length, sin * rotation.getY() / length, sin * rotation.getZ() / length);
 	}
 
 	/**
@@ -101,11 +101,11 @@ public class Quaternion implements Cloneable {
 	 * @param angle the rotation angle
 	 * @return the corresponding quaternion
 	 */
-	public static Quaternion rotation(Coordinate axis, double angle) {
-		Coordinate a = axis.normalize();
+	public static Quaternion rotation(CoordinateIF axis, double angle) {
+		CoordinateIF a = axis.normalize();
 		double sin = Math.sin(angle);
 		double cos = Math.cos(angle);
-		return new Quaternion(cos, sin * a.x, sin * a.y, sin * a.z);
+		return new Quaternion(cos, sin * a.getX(), sin * a.getY(), sin * a.getZ());
 	}
 
 	public double getW() {
@@ -141,10 +141,10 @@ public class Quaternion implements Cloneable {
 	 * @return this quaternion.
 	 */
 	public Quaternion multiplyRight(Quaternion other) {
-		double newW = (this.w * other.w - this.x * other.x - this.y * other.y - this.z * other.z);
-		double newX = (this.w * other.x + this.x * other.w + this.y * other.z - this.z * other.y);
-		double newY = (this.w * other.y + this.y * other.w + this.z * other.x - this.x * other.z);
-		double newZ = (this.w * other.z + this.z * other.w + this.x * other.y - this.y * other.x);
+		double newW = (this.w * other.w - this.getX() * other.getX() - this.getY() * other.getY() - this.getZ() * other.getZ());
+		double newX = (this.w * other.getX() + this.getX() * other.w + this.getY() * other.getZ() - this.getZ() * other.getY());
+		double newY = (this.w * other.getY() + this.getY() * other.w + this.getZ() * other.getX() - this.getX() * other.getZ());
+		double newZ = (this.w * other.getZ() + this.getZ() * other.w + this.getX() * other.getY() - this.getY() * other.getX());
 
 		return new Quaternion(newW, newX, newY, newZ);
 	}
@@ -159,10 +159,10 @@ public class Quaternion implements Cloneable {
 	public Quaternion multiplyLeft(Quaternion other) {
 		/* other(abcd) * this(wxyz) */
 
-		double newW = (other.w * this.w - other.x * this.x - other.y * this.y - other.z * this.z);
-		double newX = (other.w * this.x + other.x * this.w + other.y * this.z - other.z * this.y);
-		double newY = (other.w * this.y + other.y * this.w + other.z * this.x - other.x * this.z);
-		double newZ = (other.w * this.z + other.z * this.w + other.x * this.y - other.y * this.x);
+		double newW = (other.w * this.w - other.getX() * this.getX() - other.getY() * this.getY() - other.getZ() * this.getZ());
+		double newX = (other.w * this.getX() + other.getX() * this.w + other.getY() * this.getZ() - other.getZ() * this.getY());
+		double newY = (other.w * this.getY() + other.getY() * this.w + other.getZ() * this.getX() - other.getX() * this.getZ());
+		double newZ = (other.w * this.getZ() + other.getZ() * this.w + other.getX() * this.getY() - other.getY() * this.getX());
 
 		return new Quaternion(newW, newX, newY, newZ);
 	}
@@ -228,16 +228,16 @@ public class Quaternion implements Cloneable {
 	 * @param coord the coordinate to rotate.
 	 * @return the rotated coordinate.
 	 */
-	public Coordinate rotate(Coordinate coord) {
+	public CoordinateIF rotate(CoordinateIF coord) {
 		double a, b, c, d;
 
 		assert (Math.abs(norm2() - 1) < 0.00001) : "Quaternion not unit length: " + this;
 
 		// (a,b,c,d) = this * coord = (w,x,y,z) * (0,cx,cy,cz)
-		a = -x * coord.x - y * coord.y - z * coord.z; // w
-		b = w * coord.x + y * coord.z - z * coord.y; // x i
-		c = w * coord.y - x * coord.z + z * coord.x; // y j
-		d = w * coord.z + x * coord.y - y * coord.x; // z k
+		a = -x * coord.getX() - y * coord.getY() - z * coord.getZ(); // w
+		b = w * coord.getX() + y * coord.getZ() - z * coord.getY(); // x i
+		c = w * coord.getY() - x * coord.getZ() + z * coord.getX(); // y j
+		d = w * coord.getZ() + x * coord.getY() - y * coord.getX(); // z k
 
 		// return = (a,b,c,d) * (this)^-1 = (a,b,c,d) * (w,-x,-y,-z)
 
@@ -249,7 +249,33 @@ public class Quaternion implements Cloneable {
 				-a * x + b * w - c * z + d * y,
 				-a * y + b * z + c * w - d * x,
 				-a * z - b * y + c * x + d * w,
-				coord.weight);
+				coord.getWeight());
+	}
+
+	/**
+	 * Rotate the provided {@link MutableCoordinate} in place using this quaternion.
+	 *
+	 * @param coord the mutable coordinate to rotate; updated with the rotated components
+	 * @return the same instance for chaining
+	 */
+	public MutableCoordinate rotateInPlace(MutableCoordinate coord) {
+		double cx = coord.getX();
+		double cy = coord.getY();
+		double cz = coord.getZ();
+
+		double a = -x * cx - y * cy - z * cz;
+		double b = w * cx + y * cz - z * cy;
+		double c = w * cy - x * cz + z * cx;
+		double d = w * cz + x * cy - y * cx;
+
+		assert (Math.abs(a * w + b * x + c * y + d * z) <= coord.max() * MathUtil.EPSILON)
+				: ("Should be zero: " + (a * w + b * x + c * y + d * z) + " in " + this + " c=" + coord);
+
+		double newX = -a * x + b * w - c * z + d * y;
+		double newY = -a * y + b * z + c * w - d * x;
+		double newZ = -a * z - b * y + c * x + d * w;
+
+		return coord.set(newX, newY, newZ, coord.getWeight());
 	}
 
 	/**
@@ -262,16 +288,16 @@ public class Quaternion implements Cloneable {
 	 * @param coord the coordinate to rotate.
 	 * @return the rotated coordinate.
 	 */
-	public Coordinate invRotate(Coordinate coord) {
+	public CoordinateIF invRotate(CoordinateIF coord) {
 		double a, b, c, d;
 
 		assert (Math.abs(norm2() - 1) < 0.00001) : "Quaternion not unit length: " + this;
 
 		// (a,b,c,d) = (this)^-1 * coord = (w,-x,-y,-z) * (0,cx,cy,cz)
-		a = x * coord.x + y * coord.y + z * coord.z;
-		b = w * coord.x - y * coord.z + z * coord.y;
-		c = w * coord.y + x * coord.z - z * coord.x;
-		d = w * coord.z - x * coord.y + y * coord.x;
+		a = x * coord.getX() + y * coord.getY() + z * coord.getZ();
+		b = w * coord.getX() - y * coord.getZ() + z * coord.getY();
+		c = w * coord.getY() + x * coord.getZ() - z * coord.getX();
+		d = w * coord.getZ() - x * coord.getY() + y * coord.getX();
 
 		// return = (a,b,c,d) * this = (a,b,c,d) * (w,x,y,z)
 		assert (Math.abs(a * w - b * x - c * y - d * z) < Math.max(coord.max(), 1) * MathUtil.EPSILON)
@@ -281,7 +307,33 @@ public class Quaternion implements Cloneable {
 				a * x + b * w + c * z - d * y,
 				a * y - b * z + c * w + d * x,
 				a * z + b * y - c * x + d * w,
-				coord.weight);
+				coord.getWeight());
+	}
+
+	/**
+	 * Perform an inverse coordinate rotation in place using this unit quaternion.
+	 *
+	 * @param coord the mutable coordinate to rotate; updated with the rotated components
+	 * @return the same instance for chaining
+	 */
+	public MutableCoordinate invRotateInPlace(MutableCoordinate coord) {
+		double cx = coord.getX();
+		double cy = coord.getY();
+		double cz = coord.getZ();
+
+		double a = x * cx + y * cy + z * cz;
+		double b = w * cx - y * cz + z * cy;
+		double c = w * cy + x * cz - z * cx;
+		double d = w * cz - x * cy + y * cx;
+
+		assert (Math.abs(a * w - b * x - c * y - d * z) < Math.max(coord.max(), 1) * MathUtil.EPSILON)
+				: ("Should be zero: " + (a * w - b * x - c * y - d * z) + " in " + this + " c=" + coord);
+
+		double newX = a * x + b * w + c * z - d * y;
+		double newY = a * y - b * z + c * w + d * x;
+		double newZ = a * z + b * y - c * x + d * w;
+
+		return coord.set(newX, newY, newZ, coord.getWeight());
 	}
 
 	/**
@@ -293,7 +345,7 @@ public class Quaternion implements Cloneable {
 	 * 
 	 * @return The coordinate (0,0,1) rotated using this quaternion.
 	 */
-	public Coordinate rotateZ() {
+	public CoordinateIF rotateZ() {
 		return new Coordinate(
 				2 * (w * y + x * z),
 				2 * (y * z - w * x),

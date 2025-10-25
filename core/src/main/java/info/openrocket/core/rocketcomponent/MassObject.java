@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 
@@ -227,7 +228,7 @@ public abstract class MassObject extends InternalComponent {
 	// }
 
 	@Override
-	public final Coordinate getComponentCG() {
+	public final CoordinateIF getComponentCG() {
 		return new Coordinate(getLength() / 2, shiftY, shiftZ, getComponentMass());
 	}
 
@@ -242,8 +243,8 @@ public abstract class MassObject extends InternalComponent {
 	}
 
 	@Override
-	public final Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> c = new ArrayList<>();
+	public final Collection<CoordinateIF> getComponentBounds() {
+		Collection<CoordinateIF> c = new ArrayList<>();
 		addBound(c, 0, getRadius());
 		addBound(c, getLength(), getRadius());
 		return c;

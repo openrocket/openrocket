@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BoundingBox {
-	public Coordinate min; // Top-left coordinate of the bounding box
-	public Coordinate max; // Bottom-right coordinate of the bounding box
+	public CoordinateIF min; // Top-left coordinate of the bounding box
+	public CoordinateIF max; // Bottom-right coordinate of the bounding box
 
 	public BoundingBox() {
 		clear();
 	}
 
-	public BoundingBox(Coordinate _min, Coordinate _max) {
+	public BoundingBox(CoordinateIF _min, CoordinateIF _max) {
 		this();
 		this.min = _min.clone();
 		this.max = _max.clone();
@@ -29,9 +29,9 @@ public class BoundingBox {
 	}
 
 	public boolean isEmpty() {
-		return (min.x > max.x) ||
-				(min.y > max.y) ||
-				(min.z > max.z);
+		return (min.getX() > max.getX()) ||
+				(min.getY() > max.getY()) ||
+				(min.getZ() > max.getZ());
 	}
 
 	/**
@@ -44,8 +44,8 @@ public class BoundingBox {
 	 * @return a new box, transform by the given transform
 	 */
 	public BoundingBox transform(Transformation transform) {
-		final Coordinate p1 = transform.transform(this.min);
-		final Coordinate p2 = transform.transform(this.max);
+		final CoordinateIF p1 = transform.transform(this.min);
+		final CoordinateIF p2 = transform.transform(this.max);
 
 		final BoundingBox newBox = new BoundingBox();
 		newBox.update(p1);
@@ -55,32 +55,32 @@ public class BoundingBox {
 	}
 
 	private void update_x_min(final double xVal) {
-		if (min.x > xVal)
+		if (min.getX() > xVal)
 			min = min.setX(xVal);
 	}
 
 	private void update_y_min(final double yVal) {
-		if (min.y > yVal)
+		if (min.getY() > yVal)
 			min = min.setY(yVal);
 	}
 
 	private void update_z_min(final double zVal) {
-		if (min.z > zVal)
+		if (min.getZ() > zVal)
 			min = min.setZ(zVal);
 	}
 
 	private void update_x_max(final double xVal) {
-		if (max.x < xVal)
+		if (max.getX() < xVal)
 			max = max.setX(xVal);
 	}
 
 	private void update_y_max(final double yVal) {
-		if (max.y < yVal)
+		if (max.getY() < yVal)
 			max = max.setY(yVal);
 	}
 
 	private void update_z_max(final double zVal) {
-		if (max.z < zVal)
+		if (max.getZ() < zVal)
 			max = max.setZ(zVal);
 	}
 
@@ -95,14 +95,14 @@ public class BoundingBox {
 		return this;
 	}
 
-	public BoundingBox update(Coordinate c) {
-		update_x_min(c.x);
-		update_y_min(c.y);
-		update_z_min(c.z);
+	public BoundingBox update(CoordinateIF c) {
+		update_x_min(c.getX());
+		update_y_min(c.getY());
+		update_z_min(c.getZ());
 
-		update_x_max(c.x);
-		update_y_max(c.y);
-		update_z_max(c.z);
+		update_x_max(c.getX());
+		update_y_max(c.getY());
+		update_z_max(c.getZ());
 
 		return this;
 	}
@@ -115,15 +115,15 @@ public class BoundingBox {
 		return this;
 	}
 
-	public BoundingBox update(final Coordinate[] list) {
-		for (Coordinate c : list) {
+	public BoundingBox update(final CoordinateIF[] list) {
+		for (CoordinateIF c : list) {
 			update(c);
 		}
 		return this;
 	}
 
-	public BoundingBox update(Collection<Coordinate> list) {
-		for (Coordinate c : list) {
+	public BoundingBox update(Collection<CoordinateIF> list) {
+		for (CoordinateIF c : list) {
 			update(c);
 		}
 		return this;
@@ -133,40 +133,40 @@ public class BoundingBox {
 		if (other.isEmpty()) {
 			return this;
 		}
-		update_x_min(other.min.x);
-		update_y_min(other.min.y);
-		update_z_min(other.min.z);
+		update_x_min(other.min.getX());
+		update_y_min(other.min.getY());
+		update_z_min(other.min.getZ());
 
-		update_x_max(other.max.x);
-		update_y_max(other.max.y);
-		update_z_max(other.max.z);
+		update_x_max(other.max.getX());
+		update_y_max(other.max.getY());
+		update_z_max(other.max.getZ());
 		return this;
 	}
 
-	public Coordinate span() {
+	public CoordinateIF span() {
 		return max.sub(min);
 	}
 
-	public Coordinate[] toArray() {
-		return new Coordinate[] { this.min, this.max };
+	public CoordinateIF[] toArray() {
+		return new CoordinateIF[] { this.min, this.max };
 	}
 
-	public Collection<Coordinate> toCollection() {
-		Collection<Coordinate> toReturn = new ArrayList<>();
+	public Collection<CoordinateIF> toCollection() {
+		Collection<CoordinateIF> toReturn = new ArrayList<>();
 		toReturn.add(this.max);
 		toReturn.add(this.min);
 		return toReturn;
 	}
 
 	public Rectangle2D toRectangle() {
-		return new Rectangle2D.Double(min.x, min.y, (max.x - min.x), (max.y - min.y));
+		return new Rectangle2D.Double(min.getX(), min.getY(), (max.getX() - min.getX()), (max.getY() - min.getY()));
 	}
 
 	@Override
 	public String toString() {
 		return String.format("[( %g, %g, %g) < ( %g, %g, %g)]",
-				min.x, min.y, min.z,
-				max.x, max.y, max.z);
+				min.getX(), min.getY(), min.getZ(),
+				max.getX(), max.getY(), max.getZ());
 	}
 
 	@Override

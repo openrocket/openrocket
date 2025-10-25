@@ -15,28 +15,44 @@ public class Rotation2D {
 		this.cos = cos;
 	}
 
-	public Coordinate rotateX(Coordinate c) {
-		return new Coordinate(c.x, cos * c.y - sin * c.z, cos * c.z + sin * c.y, c.weight);
+	public CoordinateIF rotateX(CoordinateIF c) {
+		return new Coordinate(c.getX(), cos * c.getY() - sin * c.getZ(), cos * c.getZ() + sin * c.getY(), c.getWeight());
 	}
 
-	public Coordinate rotateY(Coordinate c) {
-		return new Coordinate(cos * c.x + sin * c.z, c.y, cos * c.z - sin * c.x, c.weight);
+	public CoordinateIF rotateY(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() + sin * c.getZ(), c.getY(), cos * c.getZ() - sin * c.getX(), c.getWeight());
 	}
 
-	public Coordinate rotateZ(Coordinate c) {
-		return new Coordinate(cos * c.x - sin * c.y, cos * c.y + sin * c.x, c.z, c.weight);
+	public CoordinateIF rotateZ(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() - sin * c.getY(), cos * c.getY() + sin * c.getX(), c.getZ(), c.getWeight());
 	}
 
-	public Coordinate invRotateX(Coordinate c) {
-		return new Coordinate(c.x, cos * c.y + sin * c.z, cos * c.z - sin * c.y, c.weight);
+	public MutableCoordinate rotateZInPlace(MutableCoordinate c) {
+		double x = c.getX();
+		double y = c.getY();
+		double newX = cos * x - sin * y;
+		double newY = cos * y + sin * x;
+		return c.set(newX, newY, c.getZ(), c.getWeight());
 	}
 
-	public Coordinate invRotateY(Coordinate c) {
-		return new Coordinate(cos * c.x - sin * c.z, c.y, cos * c.z + sin * c.x, c.weight);
+	public CoordinateIF invRotateX(CoordinateIF c) {
+		return new Coordinate(c.getX(), cos * c.getY() + sin * c.getZ(), cos * c.getZ() - sin * c.getY(), c.getWeight());
 	}
 
-	public Coordinate invRotateZ(Coordinate c) {
-		return new Coordinate(cos * c.x + sin * c.y, cos * c.y - sin * c.x, c.z, c.weight);
+	public CoordinateIF invRotateY(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() - sin * c.getZ(), c.getY(), cos * c.getZ() + sin * c.getX(), c.getWeight());
+	}
+
+	public CoordinateIF invRotateZ(CoordinateIF c) {
+		return new Coordinate(cos * c.getX() + sin * c.getY(), cos * c.getY() - sin * c.getX(), c.getZ(), c.getWeight());
+	}
+
+	public MutableCoordinate invRotateZInPlace(MutableCoordinate c) {
+		double x = c.getX();
+		double y = c.getY();
+		double newX = cos * x + sin * y;
+		double newY = cos * y - sin * x;
+		return c.set(newX, newY, c.getZ(), c.getWeight());
 	}
 
 }

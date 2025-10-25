@@ -13,6 +13,7 @@ import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.LinearInterpolator;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.PolyInterpolator;
@@ -130,7 +131,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			}
 		}
 
-		Coordinate cp;
+		CoordinateIF cp;
 
 		// If fore == aft, only body lift is encountered
 		if (isTube) {
@@ -141,8 +142,8 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		}
 
 		forces.setCP(cp);
-		forces.setCN(forces.getCP().weight * conditions.getAOA());
-		forces.setCm(forces.getCN() * cp.x / conditions.getRefLength());
+		forces.setCN(forces.getCP().getWeight() * conditions.getAOA());
+		forces.setCm(forces.getCN() * cp.getX() / conditions.getRefLength());
 		forces.setCroll(0);
 		forces.setCrollDamp(0);
 		forces.setCrollForce(0);
@@ -159,7 +160,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	/**
 	 * Calculate the body lift effect according to Galejs.
 	 */
-	protected Coordinate getLiftCP(FlightConditions conditions, WarningSet warnings) {
+	protected CoordinateIF getLiftCP(FlightConditions conditions, WarningSet warnings) {
 
 		/*
 		 * Without this extra multiplier the rocket may become unstable at apogee

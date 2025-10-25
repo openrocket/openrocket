@@ -2,7 +2,7 @@ package info.openrocket.core.file.wavefrontobj;
 
 import com.sun.istack.NotNull;
 import de.javagl.obj.FloatTuple;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 /**
  * Interface for classes that can convert location and rotation coordinates from the OpenRocket coordinate system
@@ -156,8 +156,8 @@ public class CoordTransform {
      * @param coordinate OpenRocket coordinate
      * @return the location coordinates in OBJ coordinates
      */
-    public FloatTuple convertLoc(Coordinate coordinate) {
-        return convertLoc(coordinate.x, coordinate.y, coordinate.z);
+    public FloatTuple convertLoc(CoordinateIF coordinate) {
+        return convertLoc(coordinate.getX(), coordinate.getY(), coordinate.getZ());
     }
 
     /**
@@ -179,8 +179,8 @@ public class CoordTransform {
         return convertLoc(x, y, z, 0, 0, 0);
     }
 
-    public FloatTuple convertLocWithoutOriginOffs(Coordinate coordinate) {
-        return convertLoc(coordinate.x, coordinate.y, coordinate.z, 0, 0, 0);
+    public FloatTuple convertLocWithoutOriginOffs(CoordinateIF coordinate) {
+        return convertLoc(coordinate.getX(), coordinate.getY(), coordinate.getZ(), 0, 0, 0);
     }
 
     /**

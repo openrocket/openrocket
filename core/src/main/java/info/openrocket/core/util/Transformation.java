@@ -33,14 +33,14 @@ public class Transformation implements java.io.Serializable {
 	private static final int Y = 1;
 	private static final int Z = 2;
 
-	private final Coordinate translate;
+	private final CoordinateIF translate;
 	private final double[][] rotation = new double[3][3];
 
 	static public Transformation getTranslationTransform(double x, double y, double z) {
 		return new Transformation(new Coordinate(x, y, z));
 	}
 
-	static public Transformation getTranslationTransform(final Coordinate translate) {
+	static public Transformation getTranslationTransform(final CoordinateIF translate) {
 		return new Transformation(translate);
 	}
 
@@ -51,20 +51,20 @@ public class Transformation implements java.io.Serializable {
 	 *                 0 deg around the y-axis,and 180 deg around the z-axis.
 	 * @return The transformation.
 	 */
-	static public Transformation getRotationTransform(final Coordinate rotation) {
+	static public Transformation getRotationTransform(final CoordinateIF rotation) {
 		Transformation transformation = new Transformation();
 
 		// Apply rotations in X-Y-Z order
-		if (Math.abs(rotation.x) > ANGLE_EPSILON) {
-			transformation = transformation.applyTransformation(rotate_x(rotation.x));
+		if (Math.abs(rotation.getX()) > ANGLE_EPSILON) {
+			transformation = transformation.applyTransformation(rotate_x(rotation.getX()));
 		}
 
-		if (Math.abs(rotation.y) > ANGLE_EPSILON) {
-			transformation = transformation.applyTransformation(rotate_y(rotation.y));
+		if (Math.abs(rotation.getY()) > ANGLE_EPSILON) {
+			transformation = transformation.applyTransformation(rotate_y(rotation.getY()));
 		}
 
-		if (Math.abs(rotation.z) > ANGLE_EPSILON) {
-			transformation = transformation.applyTransformation(rotate_z(rotation.z));
+		if (Math.abs(rotation.getZ()) > ANGLE_EPSILON) {
+			transformation = transformation.applyTransformation(rotate_z(rotation.getZ()));
 		}
 
 		return transformation;
@@ -77,9 +77,9 @@ public class Transformation implements java.io.Serializable {
 	 * @param origin The point to rotate around
 	 * @return A transformation that rotates around the specified origin
 	 */
-	static public Transformation getRotationTransform(final Coordinate rotation, final Coordinate origin) {
+	static public Transformation getRotationTransform(final CoordinateIF rotation, final CoordinateIF origin) {
 		// 1. Translate to origin point
-		Transformation translateToOrigin = getTranslationTransform(-origin.x, -origin.y, -origin.z);
+		Transformation translateToOrigin = getTranslationTransform(-origin.getX(), -origin.getY(), -origin.getZ());
 
 		// 2. Apply the rotations
 		Transformation rotateTransform = getRotationTransform(rotation);
@@ -122,7 +122,7 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @param translation The translation term.
 	 */
-	public Transformation(Coordinate translation) {
+	public Transformation(CoordinateIF translation) {
 		this.translate = translation;
 		rotation[X][X] = 1;
 		rotation[Y][Y] = 1;
@@ -135,7 +135,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param rotation
 	 * @param translation
 	 */
-	public Transformation(double[][] rotation, Coordinate translation) {
+	public Transformation(double[][] rotation, CoordinateIF translation) {
 		for (int i = 0; i < 3; i++)
 			System.arraycopy(rotation[i], 0, this.rotation[i], 0, 3);
 		this.translate = translation;
@@ -158,14 +158,14 @@ public class Transformation implements java.io.Serializable {
 	 * @param orig the coordinate to transform.
 	 * @return the result.
 	 */
-	public Coordinate transform(Coordinate orig) {
+	public CoordinateIF transform(CoordinateIF orig) {
 		final double x, y, z;
 
-		x = rotation[X][X] * orig.x + rotation[X][Y] * orig.y + rotation[X][Z] * orig.z + translate.x;
-		y = rotation[Y][X] * orig.x + rotation[Y][Y] * orig.y + rotation[Y][Z] * orig.z + translate.y;
-		z = rotation[Z][X] * orig.x + rotation[Z][Y] * orig.y + rotation[Z][Z] * orig.z + translate.z;
+		x = rotation[X][X] * orig.getX() + rotation[X][Y] * orig.getY() + rotation[X][Z] * orig.getZ() + translate.getX();
+		y = rotation[Y][X] * orig.getX() + rotation[Y][Y] * orig.getY() + rotation[Y][Z] * orig.getZ() + translate.getY();
+		z = rotation[Z][X] * orig.getX() + rotation[Z][Y] * orig.getY() + rotation[Z][Z] * orig.getZ() + translate.getZ();
 
-		return new Coordinate(x, y, z, orig.weight);
+		return new Coordinate(x, y, z, orig.getWeight());
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class Transformation implements java.io.Serializable {
 	 * @param orig the coordinates to transform.
 	 * @return <code>orig</code>, with the coordinates transformed.
 	 */
-	public Coordinate[] transform(Coordinate[] orig) {
+	public CoordinateIF[] transform(CoordinateIF[] orig) {
 		for (int i = 0; i < orig.length; i++) {
 			orig[i] = transform(orig[i]);
 		}
@@ -191,9 +191,9 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @param set Collection of coordinates to transform.
 	 */
-	public void transform(Collection<Coordinate> set) {
-		ArrayList<Coordinate> temp = new ArrayList<>(set.size());
-		Iterator<Coordinate> iter = set.iterator();
+	public void transform(Collection<CoordinateIF> set) {
+		ArrayList<CoordinateIF> temp = new ArrayList<>(set.size());
+		Iterator<CoordinateIF> iter = set.iterator();
 		while (iter.hasNext())
 			temp.add(this.transform(iter.next()));
 		set.clear();
@@ -205,14 +205,14 @@ public class Transformation implements java.io.Serializable {
 	 * 
 	 * @param orig Coordinate to transform.
 	 */
-	public Coordinate linearTransform(Coordinate orig) {
+	public CoordinateIF linearTransform(CoordinateIF orig) {
 		final double x, y, z;
 
-		x = rotation[X][X] * orig.x + rotation[X][Y] * orig.y + rotation[X][Z] * orig.z;
-		y = rotation[Y][X] * orig.x + rotation[Y][Y] * orig.y + rotation[Y][Z] * orig.z;
-		z = rotation[Z][X] * orig.x + rotation[Z][Y] * orig.y + rotation[Z][Z] * orig.z;
+		x = rotation[X][X] * orig.getX() + rotation[X][Y] * orig.getY() + rotation[X][Z] * orig.getZ();
+		y = rotation[Y][X] * orig.getX() + rotation[Y][Y] * orig.getY() + rotation[Y][Z] * orig.getZ();
+		z = rotation[Z][X] * orig.getX() + rotation[Z][Y] * orig.getY() + rotation[Z][Z] * orig.getZ();
 
-		return new Coordinate(x, y, z, orig.weight);
+		return new Coordinate(x, y, z, orig.getWeight());
 	}
 
 	/**
@@ -314,11 +314,11 @@ public class Transformation implements java.io.Serializable {
 			System.out.println(s);
 		}
 		System.out.printf("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
-				rotation[X][X], rotation[X][Y], rotation[X][Z], translate.x);
+				rotation[X][X], rotation[X][Y], rotation[X][Z], translate.getX());
 		System.out.printf("[%3.2f %3.2f %3.2f] + [%3.2f]\n",
-				rotation[Y][X], rotation[Y][Y], rotation[Y][Z], translate.y);
+				rotation[Y][X], rotation[Y][Y], rotation[Y][Z], translate.getY());
 		System.out.printf("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
-				rotation[Z][X], rotation[Z][Y], rotation[Z][Z], translate.z);
+				rotation[Z][X], rotation[Z][Y], rotation[Z][Z], translate.getZ());
 		System.out.println();
 	}
 
@@ -327,11 +327,11 @@ public class Transformation implements java.io.Serializable {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append(String.format("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
-				rotation[X][X], rotation[X][Y], rotation[X][Z], translate.x));
+				rotation[X][X], rotation[X][Y], rotation[X][Z], translate.getX()));
 		sb.append(String.format("[%3.2f %3.2f %3.2f] + [%3.2f]\n",
-				rotation[Y][X], rotation[Y][Y], rotation[Y][Z], translate.y));
+				rotation[Y][X], rotation[Y][Y], rotation[Y][Z], translate.getY()));
 		sb.append(String.format("[%3.2f %3.2f %3.2f]   [%3.2f]\n",
-				rotation[Z][X], rotation[Z][Y], rotation[Z][Z], translate.z));
+				rotation[Z][X], rotation[Z][Y], rotation[Z][Z], translate.getZ()));
 		return sb.toString();
 	}
 
@@ -405,21 +405,21 @@ public class Transformation implements java.io.Serializable {
 		double[] data = new double[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1 };
 
 		// output array is in column-major order
-		// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glLoadMatrix.xml
+		// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glLoadMatrix.getX()ml
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 3; ++j) {
 				data[i + j * 4] = this.rotation[i][j];
 			}
 		}
 
-		data[12] = this.translate.x;
-		data[13] = this.translate.y;
-		data[14] = this.translate.z;
+		data[12] = this.translate.getX();
+		data[13] = this.translate.getY();
+		data[14] = this.translate.getZ();
 
 		return DoubleBuffer.wrap(data);
 	}
 
-	public Coordinate getTranslationVector() {
+	public CoordinateIF getTranslationVector() {
 		return this.translate;
 	}
 

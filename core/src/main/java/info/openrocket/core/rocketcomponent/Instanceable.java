@@ -1,6 +1,6 @@
 package info.openrocket.core.rocketcomponent;
 
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 
 public interface Instanceable {
 	
@@ -13,7 +13,7 @@ public interface Instanceable {
 	 * 
 	 * @return coordinates location of each instance relative to component's parent
 	 */
-	Coordinate[] getInstanceLocations();
+	CoordinateIF[] getInstanceLocations();
 	
 	/**
 	 * Returns vector coordinates of each instance of this component relative to this component's reference point (typically front center)
@@ -24,7 +24,7 @@ public interface Instanceable {
 	 * 
 	 * @return coordinates location of each instance relative to <b>this</b> component's reference point.
 	 */
-	Coordinate[] getInstanceOffsets();
+	CoordinateIF[] getInstanceOffsets();
 	
 	/** 
 	 * How many instances of this component are represented.  This should generally be editable.

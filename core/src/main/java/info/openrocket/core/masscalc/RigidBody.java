@@ -4,22 +4,23 @@ import static info.openrocket.core.util.MathUtil.pow2;
 
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 // implements a simplified, diagonal MOI
 public class RigidBody {
-	public final Coordinate cm;
+	public final CoordinateIF cm;
 	public final double Ixx;
 	public final double Iyy;
 	public final double Izz;
 
 	public static final RigidBody EMPTY = new RigidBody(Coordinate.ZERO, 0.0, 0.0, 0.0);
 
-	public RigidBody(Coordinate _cm, double I_axial, double I_long) {
+	public RigidBody(CoordinateIF _cm, double I_axial, double I_long) {
 		this(_cm, I_axial, I_long, I_long);
 	}
 
-	public RigidBody(Coordinate _cm, double Ixx, double Iyy, double Izz) {
+	public RigidBody(CoordinateIF _cm, double Ixx, double Iyy, double Izz) {
 		if ((0 > Ixx) || (0 > Iyy) || (0 > Izz)) {
 			throw new BugException("  attempted to initialize an InertiaMatrix with a negative inertia value.");
 		}
@@ -30,7 +31,7 @@ public class RigidBody {
 	}
 
 	public RigidBody add(RigidBody that) {
-		final Coordinate newCM = this.cm.average(that.cm);
+		final CoordinateIF newCM = this.cm.average(that.cm);
 
 		RigidBody movedThis = this.rebase(newCM);
 		RigidBody movedThat = that.rebase(newCM);
@@ -42,11 +43,11 @@ public class RigidBody {
 		return new RigidBody(newCM, newIxx, newIyy, newIzz);
 	}
 
-	public Coordinate getCenterOfMass() {
+	public CoordinateIF getCenterOfMass() {
 		return cm;
 	}
 
-	public Coordinate getCM() {
+	public CoordinateIF getCM() {
 		return cm;
 	}
 
@@ -67,7 +68,7 @@ public class RigidBody {
 	}
 
 	public double getMass() {
-		return this.cm.weight;
+		return this.cm.getWeight();
 	}
 
 	public double getRotationalInertia() {
@@ -106,11 +107,11 @@ public class RigidBody {
 	 * @param newLocation new moment of inertia reference system
 	 * @return RigidBody with rebased moment of inertia
 	 */
-	public RigidBody rebase(final Coordinate newLocation) {
-		final Coordinate delta = this.cm.sub(newLocation).setWeight(0.0);
-		double x2 = pow2(delta.x);
-		double y2 = pow2(delta.y);
-		double z2 = pow2(delta.z);
+	public RigidBody rebase(final CoordinateIF newLocation) {
+		final CoordinateIF delta = this.cm.sub(newLocation).setWeight(0.0);
+		double x2 = pow2(delta.getX());
+		double y2 = pow2(delta.getY());
+		double z2 = pow2(delta.getZ());
 
 		// final double radialDistanceSquared = (y2 + z2);
 		// final double axialDistanceSquared = x2;
@@ -125,9 +126,9 @@ public class RigidBody {
 		// See: Parallel Axis Theorem in the function comments.
 		// I = I + m L^2; L = sqrt( y^2 + z^2);
 		// ergo: I = I + m (y^2 + z^2);
-		double newIxx = this.Ixx + cm.weight * (y2 + z2);
-		double newIyy = this.Iyy + cm.weight * (x2 + z2);
-		double newIzz = this.Izz + cm.weight * (x2 + y2);
+		double newIxx = this.Ixx + cm.getWeight() * (y2 + z2);
+		double newIyy = this.Iyy + cm.getWeight() * (x2 + z2);
+		double newIzz = this.Izz + cm.getWeight() * (x2 + y2);
 
 		// MOI about the reference point
 		return new RigidBody(newLocation, newIxx, newIyy, newIzz);
@@ -139,7 +140,7 @@ public class RigidBody {
 	}
 
 	public String toCMString() {
-		return String.format("CoM: %.8fg @[%.8f,%.8f,%.8f]", cm.weight, cm.x, cm.y, cm.z);
+		return String.format("CoM: %.8fg @[%.8f,%.8f,%.8f]", cm.getWeight(), cm.getX(), cm.getY(), cm.getZ());
 	}
 
 	public String toMOIString() {
@@ -167,8 +168,8 @@ public class RigidBody {
 	 * 
 	 * @return MassData the new MassData instance
 	 */
-	public RigidBody translateInertia(final Coordinate delta) {
-		final Coordinate newLocation = this.cm.add(delta);
+	public RigidBody translateInertia(final CoordinateIF delta) {
+		final CoordinateIF newLocation = this.cm.add(delta);
 		return rebase(newLocation);
 	}
 

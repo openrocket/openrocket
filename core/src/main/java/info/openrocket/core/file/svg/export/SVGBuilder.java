@@ -1,6 +1,7 @@
 package info.openrocket.core.file.svg.export;
 
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -83,7 +84,7 @@ public class SVGBuilder {
 	 * @param strokeWidth the width of the path stroke (in millimeters)
 	 * @param lineCap      the line cap style of the path
 	 */
-	public void addPath(Coordinate[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth,
+	public void addPath(CoordinateIF[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth,
 						LineCap lineCap) {
 		final Element path = this.doc.createElement("path");
 		final StringBuilder dAttribute = new StringBuilder();
@@ -94,9 +95,9 @@ public class SVGBuilder {
 		}
 
 		for (int i = 0; i < coordinates.length; i++) {
-			final Coordinate coord = coordinates[i];
-			double x = (coord.x + xPos) * OR_UNIT_TO_SVG_UNIT;
-			double y = (coord.y+ yPos) * OR_UNIT_TO_SVG_UNIT;
+			final CoordinateIF coord = coordinates[i];
+			double x = (coord.getX() + xPos) * OR_UNIT_TO_SVG_UNIT;
+			double y = (coord.getY()+ yPos) * OR_UNIT_TO_SVG_UNIT;
 			updateCanvasSize(x, y);
 			final String command = (i == 0) ? "M" : "L";
 			dAttribute.append(String.format(Locale.ENGLISH, "%s%.1f,%.1f ", command, x, y));		// Coordinates are in meters, SVG is in mm
@@ -104,8 +105,8 @@ public class SVGBuilder {
 
 		// Close the path if it's the same start and end point
 		if (coordinates.length > 2 &&
-				Math.abs(coordinates[0].x - coordinates[coordinates.length-1].x) < 1e-10 &&
-				Math.abs(coordinates[0].y - coordinates[coordinates.length-1].y) < 1e-10) {
+				Math.abs(coordinates[0].getX() - coordinates[coordinates.length-1].getX()) < 1e-10 &&
+				Math.abs(coordinates[0].getY() - coordinates[coordinates.length-1].getY()) < 1e-10) {
 			dAttribute.append("Z");
 		}
 
@@ -117,15 +118,15 @@ public class SVGBuilder {
 		svgRoot.appendChild(path);
 	}
 
-	public void addPath(Coordinate[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth) {
+	public void addPath(CoordinateIF[] coordinates, double xPos, double yPos, Color fill, Color stroke, double strokeWidth) {
 		addPath(coordinates, xPos, yPos, fill, stroke, strokeWidth, LineCap.SQUARE);
 	}
 
-	public void addPath(Coordinate[] coordinates, Color fill, Color stroke, double strokeWidth, LineCap lineCap) {
+	public void addPath(CoordinateIF[] coordinates, Color fill, Color stroke, double strokeWidth, LineCap lineCap) {
 		addPath(coordinates, 0, 0, fill, stroke, strokeWidth, lineCap);
 	}
 
-	public void addPath(Coordinate[] coordinates, Color fill, Color stroke, double strokeWidth) {
+	public void addPath(CoordinateIF[] coordinates, Color fill, Color stroke, double strokeWidth) {
 		addPath(coordinates, fill, stroke, strokeWidth, LineCap.SQUARE);
 	}
 
@@ -191,7 +192,7 @@ public class SVGBuilder {
 	public static void main(String[] args) throws ParserConfigurationException, TransformerException {
 		SVGBuilder svgBuilder = new SVGBuilder();
 
-		Coordinate[] coordinates = {
+		CoordinateIF[] coordinates = {
 				new Coordinate(0, 0),
 				new Coordinate(0, 0.01),
 				new Coordinate(0.02, 0.02),

@@ -12,12 +12,13 @@ import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.util.Coordinate;
 
 class FlightConditionsTest {
 	private FlightConditions conditions;
@@ -143,7 +144,7 @@ class FlightConditionsTest {
 
 	@Test
 	void testSetAndGetPitchCenter() {
-		Coordinate center = new Coordinate(1.0, 2.0, 3.0);
+		CoordinateIF center = new Coordinate(1.0, 2.0, 3.0);
 		conditions.setPitchCenter(center);
 		assertEquals(center, conditions.getPitchCenter());
 	}

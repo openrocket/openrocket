@@ -46,7 +46,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.StateChangeListener;
 
 import info.openrocket.swing.gui.Resettable;
@@ -439,7 +439,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 						if (tube.getInstanceCount() <= 1)
 							return;
 
-						Coordinate[] coords = component.getComponentLocations();
+						CoordinateIF[] coords = component.getComponentLocations();
 						parent.removeChild(index);
 						for (int i = 0; i < coords.length; i++) {
 							InnerTube copy = InnerTube.makeIndividualClusterComponent(coords[i], component.getName() + " #" + (i + 1), component);

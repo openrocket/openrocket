@@ -11,6 +11,7 @@ import info.openrocket.core.rocketcomponent.position.RadiusMethod;
 import info.openrocket.core.rocketcomponent.position.RadiusPositionable;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 
 public class ParallelStage extends AxialStage implements FlightConfigurableComponent, RingInstanceable {
@@ -48,20 +49,20 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
 	@Override
-	public Collection<Coordinate> getComponentBounds() {
-		Collection<Coordinate> bounds = new ArrayList<>(8);
+	public Collection<CoordinateIF> getComponentBounds() {
+		Collection<CoordinateIF> bounds = new ArrayList<>(8);
 		double x_min = Double.MAX_VALUE;
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
 		
-		Coordinate[] instanceLocations = this.getComponentLocations();
+		CoordinateIF[] instanceLocations = this.getComponentLocations();
 		
-		for (Coordinate currentInstanceLocation : instanceLocations) {
-			if (x_min > (currentInstanceLocation.x)) {
-				x_min = currentInstanceLocation.x;
+		for (CoordinateIF currentInstanceLocation : instanceLocations) {
+			if (x_min > (currentInstanceLocation.getX())) {
+				x_min = currentInstanceLocation.getX();
 			}
-			if (x_max < (currentInstanceLocation.x + this.length)) {
-				x_max = currentInstanceLocation.x + this.length;
+			if (x_max < (currentInstanceLocation.getX() + this.length)) {
+				x_max = currentInstanceLocation.getX() + this.length;
 			}
 			if (r_max < (this.getRadiusOffset())) {
 				r_max = this.getRadiusOffset();
@@ -158,12 +159,12 @@ public class ParallelStage extends AxialStage implements FlightConfigurableCompo
 	}
 
 	@Override
-	public Coordinate[] getInstanceOffsets() {
+	public CoordinateIF[] getInstanceOffsets() {
 		checkState();
 
 		final double radius = this.radiusMethod.getRadius(this.parent, this, radiusOffset_m);
 
-		Coordinate[] toReturn = new Coordinate[this.instanceCount];
+		CoordinateIF[] toReturn = new CoordinateIF[this.instanceCount];
 		final double[] angles = getInstanceAngles();
 		for (int instanceNumber = 0; instanceNumber < this.instanceCount; instanceNumber++) {
 			final double curY = radius * Math.cos(angles[instanceNumber]);
