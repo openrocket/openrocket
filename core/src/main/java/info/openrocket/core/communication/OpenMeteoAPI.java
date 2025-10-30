@@ -3,6 +3,9 @@ package info.openrocket.core.communication;
 import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.startup.Application;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +53,13 @@ public final class OpenMeteoAPI {
      *         or {@code Double.NaN} if the request fails or no valid data is available
      */
     public static CompletableFuture<Double> getElevation(double latitude, double longitude) {
-        var cached = getCachedElevation(latitude, longitude);
+        double cached = getCachedElevation(latitude, longitude);
 
         if (!Double.isNaN(cached)) {
             return CompletableFuture.completedFuture(cached);
         }
-        var url = String.format("https://api.open-meteo.com/v1/elevation?latitude=%f&longitude=%f", latitude, longitude);
-        var request = HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(5)).GET().build();
+        String url = String.format("https://api.open-meteo.com/v1/elevation?latitude=%f&longitude=%f", latitude, longitude);
+        HttpRequest request = HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(5)).GET().build();
         return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build()
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
@@ -89,14 +92,14 @@ public final class OpenMeteoAPI {
      * @return the parsed elevation value in meters, or {@code Double.NaN} if unavailable
      */
     private static double parseElevationJson(String response, double latitude, double longitude) {
-        try (var reader = Json.createReader(new StringReader(Objects.requireNonNull(response)))) {
-            var json = reader.readObject();
+        try (JsonReader reader = Json.createReader(new StringReader(Objects.requireNonNull(response)))) {
+            JsonObject json = reader.readObject();
 
             if (json.containsKey("elevation")) {
-                var array = json.getJsonArray("elevation");
+                JsonArray array = json.getJsonArray("elevation");
 
                 if (!array.isEmpty()) {
-                    var value = array.getJsonNumber(0).doubleValue();
+                    double value = array.getJsonNumber(0).doubleValue();
                     LOGGER.atInfo().log("Elevation ({}, {}) = {}", latitude, longitude, value);
                     return value;
                 }

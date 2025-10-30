@@ -197,7 +197,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		m = new DoubleModel(target, "LaunchLatitude", UnitGroup.UNITS_LATITUDE, -90, 90);
 
-		var latitudeSpinner = new JSpinner(m.getSpinnerModel());
+		JSpinner latitudeSpinner = new JSpinner(m.getSpinnerModel());
 		latitudeSpinner.setEditor(new SpinnerEditor(latitudeSpinner));
 		latitudeSpinner.setToolTipText(tip);
 		sub.add(latitudeSpinner, "growx");
@@ -218,7 +218,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		m = new DoubleModel(target, "LaunchLongitude", UnitGroup.UNITS_LONGITUDE, -180, 180);
 
-		var longitudeSpinner = new JSpinner(m.getSpinnerModel());
+		JSpinner longitudeSpinner = new JSpinner(m.getSpinnerModel());
 		longitudeSpinner.setEditor(new SpinnerEditor(longitudeSpinner));
 		longitudeSpinner.setToolTipText(tip);
 		sub.add(longitudeSpinner, "growx");
@@ -230,30 +230,30 @@ public class SimulationConditionsPanel extends JPanel {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 
-		var altitudeModel = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0, ExtendedISAModel.getMaximumAllowedAltitude());
+		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0, ExtendedISAModel.getMaximumAllowedAltitude());
 		// Altitude:
-		var altitudeLabel = new JLabel(trans.get("simedtdlg.lbl.Altitude"));
+		label = new JLabel(trans.get("simedtdlg.lbl.Altitude"));
 		//// <html>The launch altitude above mean sea level.<br>
 		//// This affects the position of the rocket in the atmospheric model.
-		var altitudeTip = trans.get("simedtdlg.lbl.ttip.Altitude");
-		altitudeLabel.setToolTipText(altitudeTip);
+		tip = trans.get("simedtdlg.lbl.ttip.Altitude");
+		label.setToolTipText(tip);
 
-		var altitudeSpinner = new JSpinner(altitudeModel.getSpinnerModel());
+		JSpinner altitudeSpinner = new JSpinner(m.getSpinnerModel());
 		altitudeSpinner.setEditor(new SpinnerEditor(altitudeSpinner));
-		altitudeSpinner.setToolTipText(altitudeTip);
+		altitudeSpinner.setToolTipText(tip);
 
-		var altitudeUnit = new UnitSelector(altitudeModel);
+		UnitSelector altitudeUnit = new UnitSelector(m);
 		altitudeUnit.setToolTipText(tip);
-		var altitudeSlider = new BasicSlider(altitudeModel.getSliderModel(0, 250, 1000));
-		altitudeSlider.setToolTipText(tip);
+		slider = new BasicSlider(m.getSliderModel(0, 250, 1000));
+		slider.setToolTipText(tip);
 
-		var openMeteoButton = new JButton();
+		JButton openMeteoButton = new JButton();
 		openMeteoButton.setIcon(Icons.OPEN_METEO);
 		openMeteoButton.setToolTipText(trans.get("simedtdlg.but.openMeteo"));
 		openMeteoButton.addActionListener(e -> {
 			altitudeSpinner.setEnabled(false);
-			var latitude = Double.parseDouble((String) latitudeSpinner.getValue());
-			var longitude = Double.parseDouble((String) longitudeSpinner.getValue());
+			double latitude = Double.parseDouble((String) latitudeSpinner.getValue());
+			double longitude = Double.parseDouble((String) longitudeSpinner.getValue());
 
 			OpenMeteoAPI.getElevation(latitude, longitude).whenComplete((elevation, ex) -> {
 				SwingUtilities.invokeLater(() -> {
@@ -266,10 +266,10 @@ public class SimulationConditionsPanel extends JPanel {
 				});
 			});
 		});
-		sub.add(altitudeLabel);
+		sub.add(label);
 		sub.add(altitudeSpinner, "growx");
 		sub.add(altitudeUnit, "growx");
-		sub.add(altitudeSlider, "w 75lp");
+		sub.add(slider, "w 75lp");
 		sub.add(openMeteoButton, "w 21lp!, h 21lp!, wrap");
 
 
