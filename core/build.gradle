@@ -38,6 +38,7 @@ configurations {
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
     failOnMissingModuleInfo.set(false)
+    skipLocalJars.set(true)
     automaticModule('obj-0.4.0.jar', 'de.javagl.obj')
 }
 
