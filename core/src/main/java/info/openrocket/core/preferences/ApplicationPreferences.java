@@ -105,6 +105,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "PreferredThrustCurveMotors";
+	public static final String OPEN_METEO_ELEVATION_NODE = "OpenMeteoElevation";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AutoOpenLastDesign";
 	private static final String OPEN_LEFTMOST_DESIGN_TAB = "OpenLeftmostDesignTab";
 	private static final String SHOW_DISCARD_CONFIRMATION = "IgnoreDiscardEditingWarning";

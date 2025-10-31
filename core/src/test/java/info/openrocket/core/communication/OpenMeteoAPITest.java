@@ -26,7 +26,7 @@ public class OpenMeteoAPITest extends BaseTestCase {
 	public void cleanupCache() {
 		ApplicationPreferences prefs = Application.getPreferences();
 		try {
-			prefs.getNode("/OpenRocket/open-meteo/elevation").clear();
+			prefs.getNode(ApplicationPreferences.OPEN_METEO_ELEVATION_NODE).clear();
 		} catch (Exception e) {
 			// Ignore cleanup errors
 		}
@@ -90,9 +90,9 @@ public class OpenMeteoAPITest extends BaseTestCase {
 		String testKey = "test-51.5074,-0.1278";
 		double testElevation = 35.0;
 
-		prefs.getNode("/OpenRocket/open-meteo/elevation").putDouble(testKey, testElevation);
+		prefs.getNode(ApplicationPreferences.OPEN_METEO_ELEVATION_NODE).putDouble(testKey, testElevation);
 
-		double retrieved = prefs.getNode("/OpenRocket/open-meteo/elevation")
+		double retrieved = prefs.getNode(ApplicationPreferences.OPEN_METEO_ELEVATION_NODE)
 				.getDouble(testKey, Double.NaN);
 		assertEquals(testElevation, retrieved, EPSILON);
 	}

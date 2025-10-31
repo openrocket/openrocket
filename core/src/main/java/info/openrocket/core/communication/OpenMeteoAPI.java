@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 public final class OpenMeteoAPI {
     private static final Logger log = LoggerFactory.getLogger(OpenMeteoAPI.class);
     private static final ApplicationPreferences prefs = Application.getPreferences();
-    private static final String OPEN_METEO_ELEVATION = "/OpenRocket/open-meteo/elevation";
     
     // API configuration constants
     private static final String ELEVATION_API_BASE_URL = "https://api.open-meteo.com/v1/elevation";
@@ -223,7 +222,7 @@ public final class OpenMeteoAPI {
      * @return the cached elevation in meters above sea level, or {@code Double.NaN} if no cached value exists
      */
     private static double getCachedElevation(double latitude, double longitude) {
-        return prefs.getNode(OPEN_METEO_ELEVATION).getDouble(getCachedElevationKey(latitude, longitude), Double.NaN);
+        return prefs.getNode(ApplicationPreferences.OPEN_METEO_ELEVATION_NODE).getDouble(getCachedElevationKey(latitude, longitude), Double.NaN);
     }
 
     /**
@@ -248,7 +247,7 @@ public final class OpenMeteoAPI {
         
         // Only cache if not already present
         if (Double.isNaN(getCachedElevation(latitude, longitude))) {
-            prefs.getNode(OPEN_METEO_ELEVATION)
+            prefs.getNode(ApplicationPreferences.OPEN_METEO_ELEVATION_NODE)
                     .putDouble(getCachedElevationKey(latitude, longitude), elevation);
             log.atDebug().log("Cached elevation {} m for coordinates ({}, {})",
                     elevation, latitude, longitude);
