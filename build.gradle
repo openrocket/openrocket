@@ -42,6 +42,15 @@ file('core/src/main/resources/build.properties').withInputStream { buildProperti
 group = 'info.openrocket'
 version = buildProperties['build.version']
 
+def baseManifestAttributes = [
+        'Description'          : 'Model-rocketry aerodynamics and trajectory simulation software',
+        'SplashScreen-Image'   : 'pix/splashscreen.png',
+        'Implementation-Version': buildProperties['build.version'],
+        'Implementation-Vendor': 'OpenRocket',
+        'Implementation-Vendor-Id': 'info.openrocket',
+        'Implementation-URL'   : 'https://openrocket.info/',
+]
+
 // JaCoCo configuration
 jacoco {
     toolVersion = "0.8.11"
@@ -120,18 +129,7 @@ jar {
     archiveBaseName.set('OpenRocket')
 
     manifest {
-        attributes (
-            'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
-            'SplashScreen-Image': 'pix/splashscreen.png',
-
-            // Versioning
-            'Implementation-Version': buildProperties['build.version'],
-
-            // Vendor Details
-            'Implementation-Vendor': 'OpenRocket',
-            'Implementation-Vendor-Id': 'info.openrocket',
-            'Implementation-URL': 'https://openrocket.info/',
-        )
+        attributes(baseManifestAttributes)
     }
 }
 
@@ -149,14 +147,8 @@ shadowJar {
     dependsOn(distTar, distZip)
 
     manifest {
-        from jar.manifest
+        attributes(baseManifestAttributes)
         attributes(
-                'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
-                'SplashScreen-Image': 'pix/splashscreen.png',
-                'Implementation-Version': buildProperties['build.version'],
-                'Implementation-Vendor': 'OpenRocket',
-                'Implementation-Vendor-Id': 'info.openrocket',
-                'Implementation-URL': 'https://openrocket.info/',
                 'Add-Exports': 'java.base/java.lang=ALL-UNNAMED java.desktop/sun.awt=ALL-UNNAMED java.desktop/sun.java2d=ALL-UNNAMED',
                 'JVM-Args': '-Dapple.awt.application.appearance=system -Dsun.java2d.noddraw=true -Dsun.java2d.d3d=false -Dsun.java2d.ddforcevram=true -Dsun.java2d.ddblit=false -Dswing.useflipBufferStrategy=True'
         )
