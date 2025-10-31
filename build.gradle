@@ -147,7 +147,6 @@ shadowJar {
     dependsOn(distTar, distZip)
 
     manifest {
-        from jar.manifest
         attributes(baseManifestAttributes)
         attributes(
                 'Add-Exports': 'java.base/java.lang=ALL-UNNAMED java.desktop/sun.awt=ALL-UNNAMED java.desktop/sun.java2d=ALL-UNNAMED',
