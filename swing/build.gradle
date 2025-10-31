@@ -1,9 +1,9 @@
 plugins {
     id 'com.gradleup.shadow'
     id 'java'
-    id 'com.adarshr.test-logger' version '3.2.0'
+    id 'com.adarshr.test-logger' version '4.0.0'
     id 'checkstyle'
-    id 'org.gradlex.extra-java-module-info' version '1.8'
+    id 'org.gradlex.extra-java-module-info' version '1.13.1'
 }
 
 java {
