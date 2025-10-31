@@ -42,30 +42,30 @@ extraJavaModuleInfo {
 }
 
 dependencies {
-    implementation group: 'org.commonmark', name: 'commonmark', version: '0.21.0'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-    implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
-    implementation group: 'com.opencsv', name: 'opencsv', version: '5.7.1'
-    implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '23.0.3'
-    implementation group: 'org.graalvm.js', name: 'js-scriptengine', version: '23.0.3'
-    implementation group: 'org.graalvm.js', name: 'js', version: '23.0.3'
-    implementation group: 'org.graalvm.truffle', name: 'truffle-api', version: '23.0.3'
-    implementation group: 'com.ibm.icu', name: 'icu4j', version: '71.2'
+    implementation 'org.commonmark:commonmark:0.21.0'
+    implementation 'org.slf4j:slf4j-api:2.0.12'
+    implementation 'ch.qos.logback:logback-classic:1.5.0'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.google.inject:guice:7.0.0'
+    implementation 'com.opencsv:opencsv:5.7.1'
+    implementation 'org.graalvm.sdk:graal-sdk:23.0.3'
+    implementation 'org.graalvm.js:js-scriptengine:23.0.3'
+    implementation 'org.graalvm.js:js:23.0.3'
+    implementation 'org.graalvm.truffle:truffle-api:23.0.3'
+    implementation 'com.ibm.icu:icu4j:71.2'
     implementation files('libs/script-api-1.0.jar')
-    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.165'
-    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.19.0'
+    implementation 'io.github.classgraph:classgraph:4.8.165'
+    implementation 'org.locationtech.jts:jts-core:1.19.0'
 
     implementation 'de.javagl:obj:0.4.0'
 
-    implementation group: 'org.ow2.asm', name: 'asm', version: '9.7.1'
-    implementation group: 'org.ow2.asm', name: 'asm-commons', version: '9.7.1'
+    implementation 'org.ow2.asm:asm:9.7.1'
+    implementation 'org.ow2.asm:asm-commons:9.7.1'
 
-    implementation group: 'jakarta.activation', name: 'jakarta.activation-api', version: '2.1.2'
-    implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '4.0.5'
-    implementation group: 'org.glassfish', name: 'jakarta.json', version: '2.0.1'
-    implementation group: 'org.eclipse', name: 'yasson', version: '2.0.1'
+    implementation 'jakarta.activation:jakarta.activation-api:2.1.2'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.5'
+    implementation 'org.glassfish:jakarta.json:2.0.1'
+    implementation 'org.eclipse:yasson:2.0.1'
 }
 
 def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'

@@ -67,31 +67,31 @@ dependencies {
 
     implementation 'de.javagl:obj:0.4.0'
 
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
+    implementation 'org.slf4j:slf4j-api:2.0.12'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation group: 'org.commonmark', name: 'commonmark', version: '0.21.0'
-    implementation group: 'com.google.inject', name: 'guice', version: '7.0.0'
-    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.3'
-    implementation group: 'org.jfree', name: 'jcommon', version: '1.0.24'
-    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.4'
-    implementation group: 'com.miglayout', name: 'miglayout-core', version: '11.0'
-    implementation group: 'com.miglayout', name: 'miglayout-swing', version: '11.0'
-    implementation group: 'com.fifesoft', name: 'rsyntaxtextarea', version: '3.4.0'
+    implementation 'org.commonmark:commonmark:0.21.0'
+    implementation 'com.google.inject:guice:7.0.0'
+    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+    implementation 'org.jfree:jcommon:1.0.24'
+    implementation 'org.jfree:jfreechart:1.5.4'
+    implementation 'com.miglayout:miglayout-core:11.0'
+    implementation 'com.miglayout:miglayout-swing:11.0'
+    implementation 'com.fifesoft:rsyntaxtextarea:3.4.0'
 
-    implementation group: 'io.github.g00fy2', name: 'versioncompare', version: '1.5.0'
+    implementation 'io.github.g00fy2:versioncompare:1.5.0'
     implementation 'com.github.Dansoftowner:jSystemThemeDetector:3.8'
 
-    implementation group: 'com.formdev', name: 'flatlaf', version: '3.6.1'
-    implementation group: 'com.formdev', name: 'flatlaf-extras', version: '3.6.1'
-    implementation group: 'com.formdev', name: 'flatlaf-intellij-themes', version: '3.6.1'
+    implementation 'com.formdev:flatlaf:3.6.1'
+    implementation 'com.formdev:flatlaf-extras:3.6.1'
+    implementation 'com.formdev:flatlaf-intellij-themes:3.6.1'
 
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.0'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
+    implementation 'ch.qos.logback:logback-core:1.5.0'
+    implementation 'ch.qos.logback:logback-classic:1.5.0'
 
-    implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt-main', version:'2.5.0'
-    implementation group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.5.0'
+    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.5.0'
+    implementation 'org.jogamp.jogl:jogl-all-main:2.5.0'
 
-    testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.0'
 }
 
 jacocoTestCoverageVerification {

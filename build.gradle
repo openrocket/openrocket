@@ -104,15 +104,15 @@ subprojects {
 
     // Common dependencies
     dependencies {
-        implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '4.0.2'
+        implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
 
-        testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.10.2'
-        testImplementation group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.10.2'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
-        testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.10.0'
-        testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.10.0'
-        testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.10.0'
+        testImplementation 'org.junit.platform:junit-platform-runner:1.10.2'
+        testImplementation 'org.junit.platform:junit-platform-launcher:1.10.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.0'
+        testImplementation 'org.mockito:mockito-core:5.10.0'
+        testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
     }
 }
 
