@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id("com.gradleup.shadow") version "9.2.2"
+        id 'com.gradleup.shadow' version '9.2.2'
     }
 }
 rootProject.name = 'info.openrocket'
