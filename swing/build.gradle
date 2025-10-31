@@ -95,6 +95,12 @@ dependencies {
     testImplementation 'ch.qos.logback:logback-classic:1.5.0'
 }
 
+// Ensure core jar is built before shadowJar resolves dependencies
+// This prevents the extraJavaModuleInfo plugin from trying to transform a non-existent jar
+tasks.named('shadowJar') {
+    dependsOn(':core:jar')
+}
+
 jacocoTestCoverageVerification {
     dependsOn jacocoTestReport
     violationRules {
