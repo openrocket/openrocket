@@ -37,8 +37,8 @@ configurations {
 
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
-    failOnMissingModuleInfo.set(false)
-    skipLocalJars.set(true)
+    failOnMissingModuleInfo = false
+    skipLocalJars = true
     automaticModule('slf4j-api-1.7.25.jar', 'org.slf4j.api')
     automaticModule('slf4j-api-1.7.32.jar', 'org.slf4j.api')
     automaticModule('versioncompare-1.5.0.jar', 'versioncompare')
