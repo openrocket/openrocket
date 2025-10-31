@@ -18,11 +18,17 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	/** Specific heat ratio of air (dimensionless). */
 	public static final double GAMMA = 1.4;
 
+	/** Ratio of the molar masse of water vapor and dry air */
+	public static final double EPSILON = 0.622;
+
 	/** The standard air pressure (Pa). */
 	public static final double STANDARD_PRESSURE = 101325.0;
 
 	/** The standard air temperature (K). */
 	public static final double STANDARD_TEMPERATURE = 293.15;
+
+	/** The standard air humidity. */
+	public static final double STANDARD_HUMIDITY = 0;
 
 	/** Air pressure, in Pascals. */
 	private double pressure;
@@ -30,13 +36,23 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	/** Air temperature, in Kelvins. */
 	private double temperature;
 
+	/** Relative air humidity. */
+	private double humidity;
+
 	private ModID modID;
 
 	/**
 	 * Construct standard atmospheric conditions.
 	 */
 	public AtmosphericConditions() {
-		this(STANDARD_TEMPERATURE, STANDARD_PRESSURE);
+		this(STANDARD_TEMPERATURE, STANDARD_PRESSURE, STANDARD_HUMIDITY);
+	}
+
+	public AtmosphericConditions(double temperature, double pressure) {
+		this.setTemperature(temperature);
+		this.setPressure(pressure);
+		this.setHumidity(STANDARD_HUMIDITY);
+		this.modID = new ModID();
 	}
 
 	/**
@@ -45,9 +61,10 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 	 * @param temperature the temperature in Kelvins.
 	 * @param pressure    the pressure in Pascals.
 	 */
-	public AtmosphericConditions(double temperature, double pressure) {
+	public AtmosphericConditions(double temperature, double pressure, double humidity) {
 		this.setTemperature(temperature);
 		this.setPressure(pressure);
+		this.setHumidity(humidity);
 		this.modID = new ModID();
 	}
 
@@ -75,18 +92,62 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 		this.modID = new ModID();
 	}
 
+	public double getHumidity() {
+		return humidity;
+	}
+
+	public void setHumidity(double humidity) {
+		if (humidity < 0 || humidity > 1) {
+			throw new IllegalArgumentException("Humidity must be between 0 and 1");
+		}
+		this.humidity = humidity;
+		this.modID = new ModID();
+	}
+
+	/**
+	 * Calculate the saturation water pressure using the Clausius-Clapeyron equation.
+	 * @return The saturation vapor pressure in Pa
+	 */
+	public double vaporPressureSaturation() {
+		// 611.3 * Math.exp(5423 * (1/273.15 - 1/getTemperature()));
+		return 611.3 * Math.exp(19.854 - 5423/getTemperature());
+	}
+
+	/**
+	 * Calculate the gas constant of humid air.
+     * - EPSILON is the ratio of the molar masse of water vapor and dry air
+     * - R is the gas constant of dry air
+     * - e_s(T) is the temperature-dependent saturation vapor pressure
+     * - RH is the relative humidity
+     *
+     * @return The gas constant of air in J/kg*K
+	 * @return R if humidity is 0
+	 */
+    public double getGasConstant() {
+		if (getHumidity() != 0) {
+			double numerator = EPSILON * getHumidity() * vaporPressureSaturation();
+			double denominator = getPressure() - getHumidity() * vaporPressureSaturation() * (1 - EPSILON);
+			double scalingFactor = (1/EPSILON - 1);
+
+			return R * (1 + numerator*scalingFactor/denominator);
+		} else {
+			return R;
+		}
+
+
+    }
 	/**
 	 * Calculate the current density of air using the ideal gas law for dry air.
 	 * The formula used is rho = P/(R*T) where:
 	 * - rho is the density in kg/m3
 	 * - P is the pressure in Pa
-	 * - R is the specific gas constant for dry air
+	 * - R is the gas constant for air
 	 * - T is the temperature in Kelvin
 	 *
 	 * @return The current air density in kg/m3
 	 */
 	public double getDensity() {
-		return getPressure() / (R * getTemperature());
+		return getPressure() / (getGasConstant() * getTemperature());
 	}
 
 	/**

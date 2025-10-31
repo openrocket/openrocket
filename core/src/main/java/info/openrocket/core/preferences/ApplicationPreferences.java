@@ -143,6 +143,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String LAUNCH_LONGITUDE = "LaunchLongitude";
 	public static final String LAUNCH_TEMPERATURE = "LaunchTemperature";
 	public static final String LAUNCH_PRESSURE = "LaunchPressure";
+	public static final String LAUNCH_HUMIDITY = "LaunchHumidity";
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
@@ -456,6 +457,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isISAAtmosphere()) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getHumidity());
 		}
 
 		fireChangeEvent();
@@ -541,8 +543,23 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putDouble(LAUNCH_PRESSURE, launchPressure);
 		fireChangeEvent();
 	}
-	
-	
+
+
+
+	public double getLaunchHumidity() {
+		return this.getDouble(LAUNCH_HUMIDITY, ExtendedISAModel.STANDARD_HUMIDITY);
+	}
+
+
+
+	public void setLaunchHumidity(double launchHumidity) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_HUMIDITY, ExtendedISAModel.STANDARD_HUMIDITY), launchHumidity))
+			return;
+		this.putDouble(LAUNCH_HUMIDITY, launchHumidity);
+		fireChangeEvent();
+	}
+
+
 	public boolean isISAAtmosphere() {
 		return this.getBoolean(LAUNCH_USE_ISA, true);
 	}
@@ -557,6 +574,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isa) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchHumidity()).getHumidity());
 		}
 
 		fireChangeEvent();
@@ -574,7 +592,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		}
 		return new ExtendedISAModel(getLaunchAltitude(),
 				this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE),
-				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE));
+				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE),
+				this.getDouble(LAUNCH_HUMIDITY, ExtendedISAModel.STANDARD_HUMIDITY));
 	}
 
 	public GeodeticComputationStrategy getGeodeticComputation() {

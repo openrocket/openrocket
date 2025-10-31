@@ -43,6 +43,9 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	/** Standard sea level pressure in Pascal */
 	public static final double STANDARD_PRESSURE = 101325;
 
+	/** Standard air Humidity */
+	public static final double STANDARD_HUMIDITY = 0;
+
 	/** Gravitational acceleration in m/s2 */
 	private static final double G = 9.80665;
 
@@ -60,27 +63,41 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	// The actual layer and temperature arrays used by this model
 	private final double[] layer;
 	private final double[] baseTemperature;
-
 	/**
 	 * Base pressures for each layer, computed based on the temperature profile and the barometric formula.
 	 */
 	private final double[] basePressure;
-
+	/**
+	 * Base humidity for each layer.
+	 */
+	private final double[] baseHumidity;
 	/**
 	 * Construct the standard ISA model.
 	 */
 	public ExtendedISAModel() {
-		this(STANDARD_TEMPERATURE, STANDARD_PRESSURE);
+		this(STANDARD_TEMPERATURE, STANDARD_PRESSURE, STANDARD_HUMIDITY);
 	}
 
 	/**
-	 * Construct an extended model with the given temperature and pressure at MSL.
-	 * 
+	 * Construct an extended model with the given temperature and pressure at MSL
+	 *
 	 * @param temperature the temperature at MSL.
 	 * @param pressure    the pressure at MSL.
 	 */
+
 	public ExtendedISAModel(double temperature, double pressure) {
-		this(0, temperature, pressure);
+		this(0, temperature, pressure, 0);
+	}
+
+	/**
+	 * Construct an extended model with the given temperature, pressure, and humidity at MSL.
+	 * 
+	 * @param temperature the temperature at MSL.
+	 * @param pressure    the pressure at MSL.
+	 * @param humidity    the humidity at MSL.
+	 */
+	public ExtendedISAModel(double temperature, double pressure, double humidity) {
+		this(0, temperature, pressure, humidity);
 	}
 
 	/**
@@ -93,9 +110,10 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	 * @param altitude    the altitude of the measurements.
 	 * @param temperature the temperature.
 	 * @param pressure    the pressure.
+	 * @param humidity    the relative humidity.
 	 * @throws IllegalArgumentException if the altitude exceeds the second layer boundary of the ISA model (over 11km).
 	 */
-	public ExtendedISAModel(double altitude, double temperature, double pressure) {
+	public ExtendedISAModel(double altitude, double temperature, double pressure, double humidity) {
 		if (altitude >= STANDARD_LAYERS[1]) {
 			throw new IllegalArgumentException("Too high first altitude: " + altitude);
 		}
@@ -105,6 +123,9 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		if (pressure <= 0) {
 			throw new IllegalArgumentException("Pressure must be positive (Pascals)");
 		}
+		if (humidity < 0 || humidity > 1 ) {
+			throw new IllegalArgumentException("Relative humidity must be between 0 and 1");
+		}
 
 		// If altitude is not 0, we need to create a new layer structure
 		if (altitude > 0) {
@@ -113,6 +134,7 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			layer = new double[newSize];
 			baseTemperature = new double[newSize];
 			basePressure = new double[newSize];
+			baseHumidity = new double[newSize];
 
 			// Standard second layer values (11km)
 			double layer1Alt = STANDARD_LAYERS[1];
@@ -131,6 +153,8 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			baseTemperature[1] = temperature;
 			basePressure[0] = calculatePressure(0, seaLevelTemp, altitude, temperature, pressure);
 			basePressure[1] = pressure;
+			baseHumidity[0] = calculateHumidity(altitude, 0, humidity);
+			baseHumidity[1] = humidity;
 
 			// Copy remaining standard layers
 			for (int i = 2; i < layer.length; i++) {
@@ -141,14 +165,17 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			layer = STANDARD_LAYERS.clone();
 			baseTemperature = STANDARD_TEMPERATURES.clone();
 			basePressure = new double[layer.length];
+			baseHumidity = new double[layer.length];
 			layer[0] = 0;
 			baseTemperature[0] = temperature;
 			basePressure[0] = pressure;
+			baseHumidity[0] = humidity;
 		}
 
-		// Calculate pressures for all remaining layers
+		// Calculate pressures and relative humidity for all remaining layers
 		for (int i = (altitude > 0 ? 2 : 1); i < basePressure.length; i++) {
 			basePressure[i] = getExactConditions(layer[i] - 1).getPressure();
+			baseHumidity[i] = getExactConditions(layer[i] - 1).getHumidity();
 		}
 	}
 
@@ -180,8 +207,10 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		double temp = startTemp + altDiff * tempRate;
 		double startPress = basePressure[startLayer];
 		double press = calculatePressure(altitude, temp, layer[startLayer], startTemp, startPress);
+		double startHumid =baseHumidity[startLayer];
+		double humid = calculateHumidity(altitude, layer[startLayer], startHumid);
 
-		return new AtmosphericConditions(temp, press);
+		return new AtmosphericConditions(temp, press, humid);
 	}
 
 	/**
@@ -196,6 +225,21 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		} else {
 			// Isothermal case
 			return press2 / Math.exp(-(alt2 - alt1) * G / (R * temp1));
+		}
+	}
+
+	/**
+	 * Calculate the relative humidity at any altitude.
+	 * Assumes relative humidity drops at a rate of 0,06/km
+	 * Assumes there is no more humidity after 16,5 km
+     * https://www.researchgate.net/publication/313086856_An_Analysis_of_Altitude_Wind_and_Humidity_based_on_Long-term_Radiosonde_Data
+	 * https://www.researchgate.net/publication/347618263_Urban_Heat_Island_Monitoring_with_Global_Navigation_Satellite_System_GNSS_Data
+	 */
+	private double calculateHumidity(double alt1, double alt2, double humidity1) {
+		if (alt2 > 16500) {
+			return 0;
+		} else {
+			return MathUtil.clamp(humidity1 - 0.0006 * (alt2-alt1), 0, 1);
 		}
 	}
 
@@ -214,7 +258,7 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 
 	public static void main(String[] foo) {
 		ExtendedISAModel model1 = new ExtendedISAModel();
-		ExtendedISAModel model2 = new ExtendedISAModel(278.15, 100000);
+		ExtendedISAModel model2 = new ExtendedISAModel(0, 278.15, 100000, 0);
 
 		for (double alt = 0; alt < 80000; alt += 500) {
 			AtmosphericConditions cond1 = model1.getConditions(alt);

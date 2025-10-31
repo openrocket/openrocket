@@ -61,6 +61,7 @@ public class SimulationConditionsTest {
         assertTrue(options.isISAAtmosphere());
         assertEquals(288.15, options.getLaunchTemperature(), EPSILON);
         assertEquals(101325, options.getLaunchPressure(), EPSILON);
+        assertEquals(0, options.getLaunchHumidity(), EPSILON);
         assertEquals(1.0, options.getLaunchRodLength(), EPSILON);
         assertEquals(Math.PI / 2, options.getLaunchRodDirection(), EPSILON);
         assertEquals(0.0, options.getLaunchRodAngle(), EPSILON);
