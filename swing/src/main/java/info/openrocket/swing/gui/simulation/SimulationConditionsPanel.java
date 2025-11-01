@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import info.openrocket.core.communication.OpenMeteoAPI;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
@@ -44,9 +45,12 @@ import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.UnitSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimulationConditionsPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(SimulationConditionsPanel.class);
 
 
 	SimulationConditionsPanel(final Simulation simulation) {
@@ -177,7 +181,7 @@ public class SimulationConditionsPanel extends JPanel {
 
 		//// Launch site conditions
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][90lp!][30lp!][75lp!]", ""));
+				"[grow][90lp!][30lp!][75lp!][21lp!]", ""));
 		//// Launch site
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Launchsite")));
 		parent.add(sub, "growx, split 2, aligny 0, flowy");
@@ -193,10 +197,10 @@ public class SimulationConditionsPanel extends JPanel {
 
 		m = new DoubleModel(target, "LaunchLatitude", UnitGroup.UNITS_LATITUDE, -90, 90);
 
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(tip);
-		sub.add(spin, "growx");
+		JSpinner latitudeSpinner = new JSpinner(m.getSpinnerModel());
+		latitudeSpinner.setEditor(new SpinnerEditor(latitudeSpinner));
+		latitudeSpinner.setToolTipText(tip);
+		sub.add(latitudeSpinner, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -214,10 +218,10 @@ public class SimulationConditionsPanel extends JPanel {
 
 		m = new DoubleModel(target, "LaunchLongitude", UnitGroup.UNITS_LONGITUDE, -180, 180);
 
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(tip);
-		sub.add(spin, "growx");
+		JSpinner longitudeSpinner = new JSpinner(m.getSpinnerModel());
+		longitudeSpinner.setEditor(new SpinnerEditor(longitudeSpinner));
+		longitudeSpinner.setToolTipText(tip);
+		sub.add(longitudeSpinner, "growx");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
@@ -226,28 +230,47 @@ public class SimulationConditionsPanel extends JPanel {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 
-
+		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0, ExtendedISAModel.getMaximumAllowedAltitude());
 		// Altitude:
 		label = new JLabel(trans.get("simedtdlg.lbl.Altitude"));
 		//// <html>The launch altitude above mean sea level.<br>
 		//// This affects the position of the rocket in the atmospheric model.
 		tip = trans.get("simedtdlg.lbl.ttip.Altitude");
 		label.setToolTipText(tip);
-		sub.add(label);
 
-		m = new DoubleModel(target, "LaunchAltitude", UnitGroup.UNITS_DISTANCE, 0, ExtendedISAModel.getMaximumAllowedAltitude());
+		JSpinner altitudeSpinner = new JSpinner(m.getSpinnerModel());
+		altitudeSpinner.setEditor(new SpinnerEditor(altitudeSpinner));
+		altitudeSpinner.setToolTipText(tip);
 
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(tip);
-		sub.add(spin, "growx");
-
-		unit = new UnitSelector(m);
-		unit.setToolTipText(tip);
-		sub.add(unit, "growx");
+		UnitSelector altitudeUnit = new UnitSelector(m);
+		altitudeUnit.setToolTipText(tip);
 		slider = new BasicSlider(m.getSliderModel(0, 250, 1000));
 		slider.setToolTipText(tip);
-		sub.add(slider, "w 75lp, wrap");
+
+		JButton openMeteoButton = new JButton();
+		openMeteoButton.setIcon(Icons.OPEN_METEO);
+		openMeteoButton.setToolTipText(trans.get("simedtdlg.but.openMeteo"));
+		openMeteoButton.addActionListener(e -> {
+			altitudeSpinner.setEnabled(false);
+			double latitude = Double.parseDouble((String) latitudeSpinner.getValue());
+			double longitude = Double.parseDouble((String) longitudeSpinner.getValue());
+
+			OpenMeteoAPI.getElevation(latitude, longitude).whenComplete((elevation, ex) -> {
+				SwingUtilities.invokeLater(() -> {
+					altitudeSpinner.setEnabled(true);
+
+					if (!Double.isNaN(elevation)) {
+						// Set the altitude to the user's preferred units
+						altitudeSpinner.setValue(altitudeUnit.getSelectedUnit().toUnit(elevation));
+					}
+				});
+			});
+		});
+		sub.add(label);
+		sub.add(altitudeSpinner, "growx");
+		sub.add(altitudeUnit, "growx");
+		sub.add(slider, "w 75lp");
+		sub.add(openMeteoButton, "w 21lp!, h 21lp!, wrap");
 
 
 		//// Launch rod

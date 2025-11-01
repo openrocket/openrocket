@@ -80,6 +80,9 @@ lib-test/OpenRocket Library Test.iml
 **/build/
 **/.gradle
 
+# VSCode
+**/.vscode/
+
 # mpeltonen/sbt-idea plugin
 **/.idea_modules/
 

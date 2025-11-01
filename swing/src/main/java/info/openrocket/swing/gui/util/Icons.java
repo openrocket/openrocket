@@ -142,6 +142,8 @@ public class Icons {
 	public static final Icon RASAERO = loadImageIcon("pix/icons/RASAero_16.png", "RASAero Icon");
 	public static final Icon ROCKSIM = loadImageIcon("pix/icons/Rocksim_16.png", "Rocksim Icon");
 
+	public static final Icon OPEN_METEO = loadImageIcon("pix/icons/open-meteo.png", "Open-Meteo");
+
 
 	static {
 		log.debug("Icons loaded");

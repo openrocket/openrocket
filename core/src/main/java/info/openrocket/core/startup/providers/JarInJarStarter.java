@@ -32,7 +32,10 @@ public class JarInJarStarter {
 		}
 		
 		URL[] urlArray = urls.toArray(new URL[0]);
-		ClassLoader loader = new URLClassLoader(urlArray, null);
+		// Use platform classloader as parent (Java 9+) to ensure access to JDK modules
+		// like java.net.http.
+		ClassLoader parentLoader = ClassLoader.getPlatformClassLoader();
+		ClassLoader loader = new URLClassLoader(urlArray, parentLoader);
 		try {
 			Thread.currentThread().setContextClassLoader(loader);
 			Class<?> c = Class.forName(mainClass, true, loader);
