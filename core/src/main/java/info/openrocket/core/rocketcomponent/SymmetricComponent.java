@@ -9,7 +9,6 @@ import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
-import org.checkerframework.checker.units.qual.C;
 
 import static info.openrocket.core.util.MathUtil.pow2;
 
@@ -447,7 +446,7 @@ public abstract class SymmetricComponent extends BodyComponent implements BoxBou
 		double cgx = 0;
 
 		// Check length > 0
-		if (getLength() <= 0) {
+		if (getLength() < MathUtil.EPSILON) {
 			return;
 		}
 

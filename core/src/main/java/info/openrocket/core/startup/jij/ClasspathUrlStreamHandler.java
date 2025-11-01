@@ -1,4 +1,4 @@
-package info.openrocket.swing.startup.jij;
+package info.openrocket.core.startup.jij;
 
 import java.io.IOException;
 import java.net.URL;

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -336,9 +337,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("configid", simulation.getId().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());
+		writeElement("launchintowind", cond.getLaunchIntoWind());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
-
+		
 		// TODO: remove once support for OR 23.09 and prior is dropped
 		writeElement("windaverage", cond.getAverageWindModel().getAverage());
 		writeElement("windturbulence", cond.getAverageWindModel().getTurbulenceIntensity());
@@ -372,7 +374,8 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
-		
+		writeElement("simulationsteppermethod", cond.getSimulationStepperMethodChoice().name().toLowerCase(Locale.ENGLISH));
+
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");
 		} else {
@@ -443,7 +446,8 @@ public class OpenRocketSaver extends RocketSaver {
 
 				if (null != w.getSources()) {
 					for (RocketComponent c : w.getSources()) {
-						writeElement("source", c.getID());
+						// Save component ID if it's still in the tree, else nil UUID
+						writeElement("source", null != simulation.getRocket().findComponent(c.getID()) ? c.getID() : new UUID(0, 0));
 					}
 				}
 
@@ -635,15 +639,22 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
-					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"";
+			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime()) + "\" "
+				+ "type=\"" + enumToXMLName(event.getType()) + "\" "
+				+ "id=\"" + event.getID().toString() + "\"";
 			
 			if (event.getSource() != null) {
 				eventStr += " source=\"" + TextUtil.escapeXML(event.getSource().getID()) + "\"";
 			}
 
 			if (event.getType() == FlightEvent.Type.SIM_WARN) {
-				eventStr += " warnid=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
+				Warning w = (Warning) event.getData();
+				eventStr += " warnid=\"" + TextUtil.escapeXML(w.getID()) + "\"";
+
+				if (w instanceof Warning.EventAfterLanding) {
+					Warning.EventAfterLanding e = (Warning.EventAfterLanding) w;
+					eventStr += " eventid=\"" + TextUtil.escapeXML(e.getEvent().getID()) + "\"";
+				}
 			}
 			
 			if (event.getType() == FlightEvent.Type.SIM_ABORT) {

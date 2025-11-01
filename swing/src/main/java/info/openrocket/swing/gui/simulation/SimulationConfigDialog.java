@@ -32,6 +32,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Window;
@@ -59,7 +60,7 @@ public class SimulationConfigDialog extends JDialog {
 	private static final ApplicationPreferences preferences = Application.getPreferences();
 
 
-	private final WindowListener applyChangesToSimsListener;
+	private final WindowListener windowCloseCancelListener;
 	private final Simulation initialSim;		// A copy of the first selected simulation before it was modified
 	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
 	private boolean isModified = false;			// Whether the simulation has been modified
@@ -99,6 +100,8 @@ public class SimulationConfigDialog extends JDialog {
 			}
 		});
 
+		this.setLayout(new BorderLayout());
+
 		final JPanel contentPanel = new JPanel(new MigLayout("fill"));
 
 		// ======== Top panel ========
@@ -120,7 +123,7 @@ public class SimulationConfigDialog extends JDialog {
 		warningsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		warningsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		Dimension d = warningsScrollPane.getPreferredSize();
-		warningsScrollPane.setPreferredSize(new Dimension(d.width, 500));
+		warningsScrollPane.setPreferredSize(new Dimension(d.width, 200));
 		tabbedPane.addTab(trans.get("SimulationConfigDialog.tab.Warnings"), warningsScrollPane);
 
 		if (isMultiCompEdit()) {
@@ -155,12 +158,16 @@ public class SimulationConfigDialog extends JDialog {
 			tabbedPane.setToolTipTextAt(EXPORT_IDX, ttip);
 		}
 
-		contentPanel.add(tabbedPane, "grow, wrap");
+		contentPanel.add(tabbedPane, "grow, push, wrap");
 
+		// Create a scroll pane for the content
+		JScrollPane scrollPane = new JScrollPane(contentPanel);
+		scrollPane.setBorder(null);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		// ======== Bottom panel ========
-		addBottomPanel(contentPanel);
-
+		JPanel bottomPanel = generateBottomPanel();
 
 		tabbedPane.addChangeListener(new ChangeListener() {
 
@@ -200,22 +207,24 @@ public class SimulationConfigDialog extends JDialog {
 
 		});
 
-		this.add(contentPanel);
+		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(bottomPanel, BorderLayout.SOUTH);
 		this.validate();
 		this.pack();
 
 		this.setLocationByPlatform(true);
 
-		this.applyChangesToSimsListener = new WindowAdapter() {
+		this.windowCloseCancelListener = new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				copyChangesToAllSims();
+				cancelClose();
 			}
 		};
-		this.addWindowListener(applyChangesToSimsListener);
+		this.addWindowListener(windowCloseCancelListener);
 
 		GUIUtil.setDisposableDialogOptions(this, null);
 		GUIUtil.rememberWindowPosition(this);
+		GUIUtil.rememberWindowSize(this);
 	}
 
 	private static void initColors() {
@@ -308,20 +317,20 @@ public class SimulationConfigDialog extends JDialog {
 
 		String statusText = simulationList[0].getStatusDescription();
 		Color statusColor = GUIUtil.getUITheme().getStatusColor(simulationList[0].getStatus());
-	
+
 		JLabel simStatus = new JLabel("<html>" +
-									  ColorConversion.formatHTMLColor(statusColor, statusText) +
-									  "</html>"
-									  );
+				ColorConversion.formatHTMLColor(statusColor, statusText) +
+				"</html>"
+		);
 		topPanel.add(simStatus);
-		
+
 		topPanel.add(new JPanel(), "growx, wrap");
 
-		contentPanel.add(topPanel, "growx, wrap");
+		contentPanel.add(topPanel, "growx, height pref, wrap");
 	}
 
-	private void addBottomPanel(JPanel contentPanel) {
-		final JPanel bottomPanel = new JPanel(new MigLayout("fill, ins 0"));
+	private JPanel generateBottomPanel() {
+		final JPanel bottomPanel = new JPanel(new MigLayout("fill, ins 0 n n n"));
 
 		//// Multi-simulation edit
 		if (isMultiCompEdit()) {
@@ -365,18 +374,10 @@ public class SimulationConfigDialog extends JDialog {
 		this.cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (tabbedPane.getSelectedIndex() == LAUNCH_CONDITIONS_IDX ||
-						tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX) {
-					cancelSimEdit();
-				} else {
-					// Normal close action
-					closeDialog();
-				}
-
-				// TODO: include plot/export undo?
+				cancelClose();
 			}
 		});
-		bottomPanel.add(this.cancelButton, "split 2, tag ok");
+		bottomPanel.add(this.cancelButton, "split 2, tag ok, pushx, align right");
 
 		//// Ok button
 		this.okButton = new JButton(trans.get("dlg.but.ok"));
@@ -417,7 +418,19 @@ public class SimulationConfigDialog extends JDialog {
 		});
 		bottomPanel.add(this.okButton, "tag ok");
 
-		contentPanel.add(bottomPanel, "growx, wrap");
+		return bottomPanel;
+	}
+
+	private void cancelClose() {
+		if (tabbedPane.getSelectedIndex() == LAUNCH_CONDITIONS_IDX ||
+				tabbedPane.getSelectedIndex() == SIMULATION_OPTIONS_IDX) {
+			cancelSimEdit();
+		} else {
+			// Normal close action
+			closeDialog();
+		}
+
+		// TODO: include plot/export undo?
 	}
 
 	private void copyChangesToAllSims() {
@@ -450,7 +463,7 @@ public class SimulationConfigDialog extends JDialog {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				SimulationConfigDialog.this.removeWindowListener(applyChangesToSimsListener);
+				SimulationConfigDialog.this.removeWindowListener(windowCloseCancelListener);
 				SimulationConfigDialog.this.dispose();
 			}
 		});

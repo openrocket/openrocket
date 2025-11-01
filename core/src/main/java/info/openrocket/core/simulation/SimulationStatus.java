@@ -555,6 +555,30 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		}
 	}
 
+
+	/**
+	 * Copies simulation status data from the specified {@code SimulationStatus} object <code>orig</code>
+	 * to this instance, in particular the physical kinematics as well as boolean flags of <code>motorIgnited</code>, etc.
+	 *
+	 * @param orig the {@code SimulationStatus} object from which to copy data
+	 */
+	public void copyProperties(SimulationStatus orig) {
+		this.position = orig.position.clone();
+		this.worldPosition = orig.worldPosition.clone();
+		this.velocity = orig.velocity.clone();
+		this.orientation = orig.orientation.clone();
+		this.rotationVelocity = orig.rotationVelocity.clone();
+		// these are booleans, so no cloning (primitives).
+		this.motorIgnited = orig.motorIgnited;
+		this.liftoff = orig.liftoff;
+		this.launchRodCleared = orig.launchRodCleared;
+		this.apogeeReached = orig.apogeeReached;
+	}
+
+
+
+
+
 	@Override
 	public ModID getModID() {
 		return modID;
@@ -602,13 +626,14 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_X, getRocketPosition().x);
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_Y, getRocketPosition().y);
 		
-		flightDataBranch.setValue(FlightDataType.TYPE_LATITUDE, getRocketWorldPosition().getLatitudeRad());
-		flightDataBranch.setValue(FlightDataType.TYPE_LONGITUDE, getRocketWorldPosition().getLongitudeRad());
+		flightDataBranch.setValue(FlightDataType.TYPE_LATITUDE, getRocketWorldPosition().getLatitudeDeg());
+		flightDataBranch.setValue(FlightDataType.TYPE_LONGITUDE, getRocketWorldPosition().getLongitudeDeg());
 		
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_XY,
 					  MathUtil.hypot(getRocketPosition().x, getRocketPosition().y));
+		// (x, y) instead of (y, x) because 0 is north
 		flightDataBranch.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
-					  Math.atan2(getRocketPosition().y, getRocketPosition().x));
+								  (Math.atan2(getRocketPosition().x, getRocketPosition().y) + (2.0 * Math.PI)) % (2.0 * Math.PI));
 
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
 					  MathUtil.hypot(getRocketVelocity().x, getRocketVelocity().y));
@@ -619,9 +644,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		
 		Coordinate c = getRocketOrientationQuaternion().rotateZ();
 		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
-		double phi = Math.atan2(c.y, c.x);
-		if (phi < -(Math.PI - 0.0001))
-			phi = Math.PI;
+		//(x, y) instead of (y, x) because 0 is north
+		double phi = (Math.atan2(c.x, c.y)+ (2.0 * Math.PI)) % (2.0 * Math.PI);
+
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
 		flightDataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,

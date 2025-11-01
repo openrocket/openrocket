@@ -37,7 +37,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private final SimulationStepper flightStepper = new RK4SimulationStepper();
+	private       SimulationStepper flightStepper = new RK4SimulationStepper();
 	private final SimulationStepper landingStepper = new BasicLandingStepper();
 	private final SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	private final SimulationStepper groundStepper = new GroundStepper();
@@ -62,7 +62,15 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Set up flight data
 		flightData = new FlightData();
-			
+
+		// Choose which Runge Kutta Method to use according to the options.
+		SimulationStepperMethod stepperMethod = simulationConditions.getSimulation().getOptions().getSimulationStepperMethodChoice();
+		switch (stepperMethod) {
+			case RK4 -> flightStepper = new RK4SimulationStepper();
+			case RK6 -> flightStepper = new RK6SimulationStepper();
+			default -> throw new SimulationException("Unsupported simulation stepper method: " + stepperMethod);
+		}
+
 		try {
 			// Set up rocket configuration
 			this.fcid = simulationConditions.getFlightConfigurationID();
@@ -80,6 +88,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				branchName = trans.get("BasicEventSimulationEngine.nullBranchName");
 			}
 			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
+			currentStatus.setWarnings(flightData.getWarningSet());
 			currentStatus.setFlightDataBranch(initialBranch);
 			
 			// Sanity checks on design and configuration
@@ -115,6 +124,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				currentStatus.setWarnings(flightData.getWarningSet());
 				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
 				flightData.addBranch(dataBranch);
+
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 				simulateLoop(simulationConditions);
 				
@@ -325,12 +335,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		for (event = nextEvent(); event != null; event = nextEvent()) {
 			log.trace("Obtained event from queue:  " + event.toString());
 			log.trace("Remaining EventQueue = " + currentStatus.getEventQueue().toString());
-
-			// If I get an event other than ALTITUDE and SIMULATION_END after I'm on the ground, there's a problem
-			if (currentStatus.isLanded() &&
-				(event.getType() != FlightEvent.Type.ALTITUDE) &&
-				(event.getType() != FlightEvent.Type.SIMULATION_END))
-				currentStatus.addWarning(new Warning.EventAfterLanding(event));
 
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorClusterState state : currentStatus.getActiveMotors() ){
@@ -652,7 +656,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				break;
 			}
-			
+
+			// If I get an event other than ALTITUDE and SIMULATION_END after I'm on the ground, there's a problem
+			if (currentStatus.isLanded() &&
+				(event.getType() != FlightEvent.Type.GROUND_HIT) &&
+				(event.getType() != FlightEvent.Type.ALTITUDE) &&
+				(event.getType() != FlightEvent.Type.SIMULATION_END))
+				currentStatus.addWarning(new Warning.EventAfterLanding(event));
 		}
 
 		if (currentStatus.getSimulationTime() >= simulationConditions.getMaxSimulationTime()) {

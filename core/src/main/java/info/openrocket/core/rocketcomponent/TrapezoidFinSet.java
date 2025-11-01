@@ -144,7 +144,7 @@ public class TrapezoidFinSet extends FinSet {
 				return -Math.PI / 2;
 			return 0;
 		}
-		return Math.atan(sweep / height);
+		return Math.atan2(sweep, height);
 	}
 
 	/**

@@ -62,7 +62,7 @@ public class PlotPanel<T extends DataType & Groupable<G>,
 
 	public PlotPanel(T[] typesX, T[] typesY, C customConfiguration, C[] presets,
 					 C defaultConfiguration, Component[] extraWidgetsX, Component[] extraWidgetsY) {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fill, ins n n 0 n"));
 
 		this.customConfiguration = customConfiguration;
 		this.presetArray = presets;

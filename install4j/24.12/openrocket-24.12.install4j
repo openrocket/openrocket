@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="11.0.2" transformSequenceNumber="11">
-  <directoryPresets config="../../build/libs/OpenRocket.jar" />
-  <application name="OpenRocket 24.12.RC.01" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="24.12.RC.01" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
+<install4j version="11.0.4" transformSequenceNumber="11">
+  <directoryPresets config="${compiler:JAR_FILE_LOCATION}" />
+  <application name="OpenRocket" applicationId="8434-9327-1469-6373" mediaDir="media" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}" shortName="OpenRocket" publisher="OpenRocket" publisherWeb="http://openrocket.info" version="24.12" allPathsRelative="true" convertDotsToUnderscores="false" macVolumeId="5f58a2be20d8e22f" javaMinVersion="17" javaMaxVersion="17" jdkMode="jdk" jdkName="JDK 17.0">
     <variables>
-      <variable name="ISSUER_ID" hidden="true" overrideMacos="true" valueMacos="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" />
-      <variable name="KEY_ID" hidden="true" overrideMacos="true" valueMacos="6CY43KJL23" />
-      <variable name="PRIVATE_API_KEY" hidden="true" overrideMacos="true" valueMacos="code_signing/AuthKey_6CY43KJL23.p8" />
-      <variable name="JAR_FILE_LOCATION" value="../../build/libs/OpenRocket.jar" />
+      <variable name="ISSUER_ID" value="8177d3a7-3edd-476c-b4fd-9d2bf8fbac50" hidden="true" />
+      <variable name="KEY_ID" value="6CY43KJL23" hidden="true" />
+      <variable name="PRIVATE_API_KEY" value="code_signing/AuthKey_6CY43KJL23.p8" hidden="true" />
+      <variable name="JAR_FILE_LOCATION" value="../../build/libs/${compiler:JAR_NAME}" />
+      <variable name="JAR_NAME" value="OpenRocket-${compiler:sys.version}.jar" />
     </variables>
     <codeSigning macEnabled="true" macPkcs12File="./code_signing/OpenRocket_macOS.p12" windowsEnabled="true" windowsPkcs12File="./code_signing/OpenRocket_Windows.pfx" macNotarize="true" macApiIssuer="${compiler:ISSUER_ID}" macApiKey="${compiler:KEY_ID}" macApiPrivateKey="${compiler:PRIVATE_API_KEY}">
       <macSearchedJars>
         <entry>jna-*</entry>
         <entry>swt-*</entry>
         <entry>javafx-*</entry>
-        <entry>OpenRocket.jar</entry>
+        <entry>OpenRocket-24.12.jar</entry>
       </macSearchedJars>
     </codeSigning>
     <jreBundles jdkProviderId="Liberica" release="17/latest">
@@ -32,7 +33,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 24.12.RC.01" id="59" icnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns">
+    <launcher name="OpenRocket 24.12" id="59" icnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="../../swing/build/resources/main/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
         <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2024 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
       </executable>
@@ -44,7 +45,7 @@
       </splashScreen>
       <java mainClass="info.openrocket.swing.startup.OpenRocket" vmParameters="-Dapple.awt.application.appearance=&quot;system&quot; -Dsun.java2d.noddraw=true -Dsun.java2d.d3d=false -Dsun.java2d.ddforcevram=true -Dsun.java2d.ddblit=false -Dswing.useflipBufferStrategy=True --add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED">
         <classPath>
-          <archive location="jar/OpenRocket.jar" failOnError="false" />
+          <archive location="jar/${compiler:JAR_NAME}" failOnError="false" />
         </classPath>
       </java>
       <iconImageFiles>

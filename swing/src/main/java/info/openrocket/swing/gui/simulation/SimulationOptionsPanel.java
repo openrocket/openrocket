@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.simulation;
 
 import java.awt.Color;
 import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
@@ -72,7 +74,7 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	SimulationOptionsPanel(OpenRocketDocument document, final Simulation simulation) {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fill, ins n n 0 n"));
 		this.document = document;
 		this.simulation = simulation;
 
@@ -115,10 +117,26 @@ class SimulationOptionsPanel extends JPanel {
 		label = new JLabel(trans.get("simedtdlg.lbl.Simmethod"));
 		label.setToolTipText(tip);
 		subsub.add(label, "gapright para");
-		
-		label = new JLabel("6-DOF Runge-Kutta 4");
+
+
+		EnumModel<SimulationStepperMethod> simulationStepperMethodChoice = new EnumModel<>(
+				conditions, "SimulationStepperMethodChoice");
+		final JComboBox<SimulationStepperMethod> SimulationStepperMethodChoiceCombo = new JComboBox<>(simulationStepperMethodChoice);
+		ActionListener SimulationStepperMethodChoiceComboTTipListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationStepperMethod SimulationStepperMethodChoiceSelected = (SimulationStepperMethod) SimulationStepperMethodChoiceCombo
+						.getSelectedItem();
+				SimulationStepperMethodChoiceCombo.setToolTipText(SimulationStepperMethodChoiceSelected.getDescription());
+			}
+		};
+		SimulationStepperMethodChoiceCombo.addActionListener(SimulationStepperMethodChoiceComboTTipListener);
+		SimulationStepperMethodChoiceComboTTipListener.actionPerformed(null);
+		subsub.add(SimulationStepperMethodChoiceCombo, "span 3, wrap para");
+
+		/*label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, span 3, wrap");
+		subsub.add(label, "growx, span 3, wrap");*/
 		
 		// // Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));
@@ -251,8 +269,9 @@ class SimulationOptionsPanel extends JPanel {
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
 		scroll.setForeground(textColor);
+		scroll.setPreferredSize(new Dimension(scroll.getPreferredSize().width, 200));
 		//  &#$%! scroll pane will not honor "growy"...
-		sub.add(scroll, "growx, growy, h 100%");
+		sub.add(scroll, "growx");
 		
 		updateCurrentExtensions();
 		

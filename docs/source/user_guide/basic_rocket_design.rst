@@ -414,8 +414,7 @@ discussed earlier) prevents loss of the nose cone upon deployment of the recover
 dashed rounded-rectangle in the same general area as the parachute. The other black, dashed rounded-rectangle box is the
 *Wadding*, which is a mass component and is used here to bring the centre of gravity forward towards the nose.
 
-We have now looked through the components used within the simple model rocket example. If you would like to see other
-available components, see **Appendix A**. Now that we are familiar with what makes up the rocket we will go ahead and
+We have now looked through the components used within the simple model rocket example. Now that we are familiar with what makes up the rocket we will go ahead and
 build one from scratch!
 
 ----

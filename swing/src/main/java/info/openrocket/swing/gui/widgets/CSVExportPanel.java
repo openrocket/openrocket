@@ -47,7 +47,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 
 	public CSVExportPanel(T[] types, boolean[] selected, CsvOptionPanel csvOptions, boolean separateRowForOptions,
 						  Component... extraComponents) {
-		super(new MigLayout("fill, wrap 2", "[grow,fill][]", "[grow,fill][]"));
+		super(new MigLayout("fill, ins n n 0 n, wrap 2", "[grow,fill][]", "[grow,fill][]"));
 
 		this.types = types;
 		this.selected = selected;
@@ -62,7 +62,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 
 		boolean addExtras = createExtraComponent(types[0], 0) != null;
 		JPanel contentPanel = new JPanel(new GridBagLayout());
-		contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(0, 0, 0, 0);		// No padding
 		c.fill = GridBagConstraints.BOTH;
@@ -100,8 +100,8 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		JScrollPane scrollPane = new JScrollPane(contentPanel);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setPreferredSize(new Dimension(300, 400));
-		exportPanel.add(scrollPane, "grow, wrap");
+		scrollPane.setPreferredSize(new Dimension(200, 200));
+		exportPanel.add(scrollPane, "grow, push, wrap");
 
 		// Select all/none buttons
 		JPanel buttonPanel = new JPanel(new MigLayout("insets 0"));
@@ -113,12 +113,12 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 		selectNoneButton.addActionListener(e -> selectNone());
 		buttonPanel.add(selectNoneButton, "growx");
 
-		exportPanel.add(buttonPanel, "growx, wrap");
-
 		// Selected count label
 		selectedCountLabel = new JLabel();
 		updateSelectedCount();
-		exportPanel.add(selectedCountLabel, "growx");
+		buttonPanel.add(selectedCountLabel, "gapleft para, growx");
+
+		exportPanel.add(buttonPanel, "growx, wrap");
 		add(exportPanel, "grow, gapright para" + (separateRowForOptions ? ", spanx, wrap" : ""));
 
 		// CSV options and extra components
@@ -149,7 +149,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	private void addHeaderRowLabel(JPanel contentPanel, String lblKey, GridBagConstraints c, int x) {
 		c.gridx = x;
 
-		JPanel panel = new JPanel(new MigLayout("fill, ins 4 5 4 5"));
+		JPanel panel = new JPanel(new MigLayout("fill, ins 2 3 2 3"));
 		panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIManager.getColor("Table.gridColor")));
 		panel.add(new JLabel("<html><b>" + trans.get(lblKey) + "</b></html>"), "growx");
 		contentPanel.add(panel, c);
@@ -158,7 +158,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	private void addDataRowWidget(JPanel contentPanel, Component widget, GridBagConstraints c, Color bgColor, int x) {
 		c.gridx = x;
 
-		JPanel panel = new JPanel(new MigLayout("fill, ins 4 5 4 5"));
+		JPanel panel = new JPanel(new MigLayout("fill, ins 2 3 2 3"));
 		panel.setBackground(bgColor);
 		if (widget instanceof JPanel) {
 			widget.setBackground(bgColor);

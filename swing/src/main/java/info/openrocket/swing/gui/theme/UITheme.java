@@ -138,6 +138,8 @@ public class UITheme {
         Icon getVisibilityHiddenIcon();
         Icon getVisibilityShowingIcon();
 
+        Icon getDisabledIcon();
+
         Border getBorder();
         Border getMarginBorder();
         Border getUnitSelectorBorder();
@@ -491,6 +493,11 @@ public class UITheme {
             @Override
             public Icon getVisibilityShowingIcon() {
                 return Icons.COMPONENT_SHOWING_LIGHT;
+            }
+
+            @Override
+            public Icon getDisabledIcon() {
+                return Icons.COMPONENT_DISABLED_LIGHT;
             }
 
             @Override
@@ -910,6 +917,11 @@ public class UITheme {
             }
 
             @Override
+            public Icon getDisabledIcon() {
+                return Icons.COMPONENT_DISABLED_DARK;
+            }
+
+            @Override
             public Border getBorder() {
                 return new FlatBorder();
             }
@@ -1323,6 +1335,11 @@ public class UITheme {
             @Override
             public Icon getVisibilityShowingIcon() {
                 return Icons.COMPONENT_SHOWING_DARK;
+            }
+
+            @Override
+            public Icon getDisabledIcon() {
+                return Icons.COMPONENT_DISABLED_DARK;
             }
 
             @Override
@@ -1757,6 +1774,11 @@ public class UITheme {
 
             @Override
             public Icon getVisibilityShowingIcon() {
+                return getCurrentTheme().getVisibilityHiddenIcon();
+            }
+
+            @Override
+            public Icon getDisabledIcon() {
                 return getCurrentTheme().getVisibilityHiddenIcon();
             }
 

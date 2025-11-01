@@ -132,6 +132,9 @@ public class Icons {
 	public static final Icon COMPONENT_SHOWING_DARK = loadImageIcon("pix/icons/component-showing_dark.png", "Component Showing");
 	public static final Icon COMPONENT_SHOWING_LIGHT = loadImageIcon("pix/icons/component-showing_light.png", "Component Showing");
 
+	public static final Icon COMPONENT_DISABLED_DARK = loadImageIcon("pix/icons/component-disabled_dark.png", "Component Disabled");
+	public static final Icon COMPONENT_DISABLED_LIGHT = loadImageIcon("pix/icons/component-disabled_light.png", "Component Disabled");
+
 	public static final Icon LOCKED = loadImageIcon("pix/icons/locked.png", "Locked");
 	public static final Icon UNLOCKED = loadImageIcon("pix/icons/unlocked.png", "Unlocked");
 

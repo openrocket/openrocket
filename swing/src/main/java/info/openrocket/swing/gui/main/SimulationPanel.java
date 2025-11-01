@@ -67,6 +67,8 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.AlphanumComparator;
 
+import info.openrocket.core.simulation.SimulationStepperMethod;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.CsvOptionPanel;
 import info.openrocket.swing.gui.simulation.SimulationConfigDialog;
 import info.openrocket.swing.gui.util.ColorConversion;
@@ -102,7 +104,6 @@ public class SimulationPanel extends JPanel {
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 
-	private final Window parent;
 	private final OpenRocketDocument document;
 
 	private final ColumnTableModel simulationTableModel;
@@ -141,7 +142,6 @@ public class SimulationPanel extends JPanel {
 	public SimulationPanel(Window parent, OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
 
-		this.parent = parent;
 		this.document = doc;
 
 
@@ -615,14 +615,13 @@ public class SimulationPanel extends JPanel {
 		}
 
 		OpenRocketClipboard.setClipboard(simsCopy);
-		copySimulationValues();
+		copySimulationValues(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
 	}
 
 	/**
 	 * Only copy the simulation table values to the clipboard. (not actual Simulation copying)
 	 */
-	public void copySimulationValues() {
-		int numCols = simulationTable.getColumnCount();
+	public void copySimulationValues(String separator) {
 		int numRows = simulationTable.getSelectedRowCount();
 		int[] rowsSelected = simulationTable.getSelectedRows();
 
@@ -632,34 +631,54 @@ public class SimulationPanel extends JPanel {
 			return;
 		}
 
-		StringBuilder valuesStr = new StringBuilder();
+		// Create a CSV exporter
+		SimulationTableCSVExport exporter = new SimulationTableCSVExport(document, simulationTable, simulationTableModel);
 
-		// Copy the column names
-		valuesStr.append(trans.get("simpanel.col.Status")).append("\t");
-		for (int i = 1; i < numCols; i++) {
-			valuesStr.append(simulationTable.getColumnName(i));
-			if (i < numCols-1) {
-				valuesStr.append("\t");
-			}
-		}
-		valuesStr.append("\n");
+		// Get precision and notation settings from preferences
+		int precision = 6; // Default value - could be obtained from preferences
+		boolean isExponentialNotation = false; // Default value - could be obtained from preferences
 
-		// Copy the values
-		for (int i = 0; i < numRows; i++) {
-			for (int j = 0; j < numCols; j++) {
-				Object value = simulationTable.getValueAt(rowsSelected[i], j);
-				valuesStr.append(value == null ? "" : value.toString());
-				if (j < numCols-1) {
-					valuesStr.append("\t");
-				}
-			}
-			valuesStr.append("\n");
-		}
+		// Generate CSV data only for selected rows
+		String clipboardText = exporter.generateCSVData(separator, precision, isExponentialNotation, true);
 
-		StringSelection sel = new StringSelection(valuesStr.toString());
+		// Add the Status column which is missing from the exporter output
+		clipboardText = addStatusColumn(clipboardText, rowsSelected, separator);
 
+		// Copy to clipboard
+		StringSelection sel = new StringSelection(clipboardText);
 		Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
 		cb.setContents(sel, sel);
+	}
+
+
+	/**
+	 * Adds the Status column to the CSV output, which is not included by default in the exporter.
+	 *
+	 * @param csvText The CSV text without Status column
+	 * @param selectedRows The selected rows in the table
+	 * @param separator The separator used in the  text
+	 * @return CSV text with Status column added
+	 */
+	private String addStatusColumn(String csvText, int[] selectedRows, String separator) {
+		// Split into lines
+		String[] lines = csvText.split("\n");
+
+		// First add Status column to header line
+		StringBuilder result = new StringBuilder(trans.get("simpanel.col.Status") + separator + lines[0]);
+
+		// For each data row, prepend the simulation status
+		for (int i = 0; i < selectedRows.length && i < lines.length - 1; i++) {
+			int modelRow = simulationTable.convertRowIndexToModel(selectedRows[i]);
+			Simulation simulation = document.getSimulation(modelRow);
+
+			// Get status text
+			String statusText = StringUtils.removeHTMLTags(simulation.getStatusDescription());
+
+			// Add status column and original line
+			result.append("\n").append(statusText).append(separator).append(lines[i + 1]);
+		}
+
+		return result.toString();
 	}
 
 	private void pasteSimulationsAction() {
@@ -1435,6 +1454,19 @@ public class SimulationPanel extends JPanel {
 						@Override
 						public int getDefaultWidth() {
 							return 125;
+						}
+					},
+
+					//// Simulation RK Solver
+					new Column(trans.get("simpanel.col.SimStepper"), trans.get("simpanel.col.SimStepper.ttip")) {
+						@Override
+						public Object getValueAt(int row) {
+							if (row < 0 || row >= document.getSimulationCount()) {
+								return null;
+							}
+
+							SimulationStepperMethod simStepMethod = document.getSimulation(row).getOptions().getSimulationStepperMethodChoice();
+							return simStepMethod.getShortName();
 						}
 					},
 

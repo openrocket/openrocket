@@ -135,7 +135,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
 		}
 
-		primary.add(panel, "grow, gapright 40lp");
+		primary.add(panel, "grow, gapright 20lp");
 
 		// Right side panel
 		JPanel rightSide = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));

@@ -74,3 +74,6 @@ The following file format versions exist:
       Added warning flight events
       Added <maxtime> attribute to simulation conditions.
       Added <designtype> and  <kitname> to <rocket> element.
+
+1.11: Introduced with OpenRocket 25.XX.
+      Added <simulationsteppermethod> to <simulation> element.

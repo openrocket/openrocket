@@ -36,7 +36,7 @@ public abstract class MaterialComboBox extends JComboBox<Material> {
 				public void run() {
 					for (BasicFrame frame : BasicFrame.getAllFrames()) {
 						if (frame.getRocketPanel().getDocument() == document) {
-							PreferencesDialog.showPreferences(frame, 5);
+							PreferencesDialog.showPreferences(frame, PreferencesDialog.TAB_MATERIALS);
 							return;
 						}
 					}

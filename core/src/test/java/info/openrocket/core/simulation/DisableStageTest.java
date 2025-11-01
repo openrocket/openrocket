@@ -58,6 +58,42 @@ public class DisableStageTest extends BaseTestCase {
     }
 
     /**
+     * Tests that the simulation results are correct when a single stage is deactivated and re-activated, using the RK6 stepper.
+     */
+    @Test
+    public void testSingleStage_RK6() throws SimulationException {
+        //// Test disabling the stage
+        Rocket rocket = TestRockets.makeEstesAlphaIII();
+
+        Simulation simDisabled = new Simulation(rocket);
+        simDisabled.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+        simDisabled.getActiveConfiguration()._setStageActive(0, false);
+        simDisabled.getOptions().setISAAtmosphere(true);
+        simDisabled.getOptions().setTimeStep(0.05);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        simDisabled.simulate(); // the part that would use RK6.
+
+        // Since there are no stages, the simulation should abort
+        FlightEvent abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+        assertNotNull(abort, "Empty simulation failed to abort");
+        assertEquals(SimulationAbort.Cause.NO_ACTIVE_STAGES, ((SimulationAbort)(abort.getData())).getCause(), "Abort cause did not match");
+
+        //// Test re-enabling the stage.
+        Rocket rocketOriginal = TestRockets.makeEstesAlphaIII();
+
+        Simulation simOriginal = new Simulation(rocketOriginal);
+        simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_0);
+        simOriginal.getOptions().setISAAtmosphere(true);
+        simOriginal.getOptions().setTimeStep(0.05);
+        simOriginal.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        simDisabled.getActiveConfiguration().setAllStages(); // Re-enable all stages.
+
+        compareSims(simOriginal, simDisabled);
+    }
+
+    /**
      * Tests that the simulation results are correct when the last stage of a multi-stage rocket is deactivated and re-activated.
      */
     @Test
@@ -91,6 +127,48 @@ public class DisableStageTest extends BaseTestCase {
         simOriginal.getOptions().setTimeStep(0.05);
         
         simDisabled.getActiveConfiguration().setAllStages();
+
+        compareSims(simOriginal, simDisabled);
+    }
+
+    /**
+     * Tests that the simulation results are correct when the last stage of a multi-stage rocket is deactivated and re-activated, but with the RK6 stepper.
+     */
+    @Test
+    public void testMultiStageLastDisabled_RK6() {
+        //// Test disabling the stage
+        Rocket rocketRemoved = TestRockets.makeBeta();      // Rocket with the last stage removed
+        Rocket rocketDisabled = TestRockets.makeBeta();     // Rocket with the last stage disabled
+
+        int stageNr = rocketRemoved.getChildCount() - 1;
+        rocketRemoved.removeChild(stageNr);
+        FlightConfiguration fc = rocketDisabled.getFlightConfiguration(TestRockets.TEST_FCID_1);
+        fc._setStageActive(stageNr, false);
+
+        Simulation simRemoved = new Simulation(rocketRemoved);
+        simRemoved.setFlightConfigurationId(TestRockets.TEST_FCID_1);
+        simRemoved.getOptions().setISAAtmosphere(true);
+        simRemoved.getOptions().setTimeStep(0.05);
+        simRemoved.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        Simulation simDisabled = new Simulation(rocketDisabled);
+        simDisabled.setFlightConfigurationId(TestRockets.TEST_FCID_1);
+        simDisabled.getOptions().setISAAtmosphere(true);
+        simDisabled.getOptions().setTimeStep(0.05);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        compareSims(simRemoved, simDisabled);
+
+        //// Test re-enabling the stage.
+        Rocket rocketOriginal = TestRockets.makeBeta();
+        Simulation simOriginal = new Simulation(rocketOriginal);
+        simOriginal.setFlightConfigurationId(TestRockets.TEST_FCID_1);
+        simOriginal.getOptions().setISAAtmosphere(true);
+        simOriginal.getOptions().setTimeStep(0.05);
+        simOriginal.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        simDisabled.getActiveConfiguration().setAllStages();
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         compareSims(simOriginal, simDisabled);
     }
@@ -253,6 +331,62 @@ public class DisableStageTest extends BaseTestCase {
     }
 
     /**
+     * Tests that the simulation results are correct when the parent stage of a booster stage is deactivated and re-activated, but using the RK6 stepper.
+     */
+    @Test
+    public void testBooster2_RK6() {
+        //// Test disabling the stage
+        Rocket rocketRemoved = TestRockets.makeFalcon9Heavy(); // Rocket with the last stage removed
+        TestRockets.addCoreFins(rocketRemoved);
+
+        Rocket rocketDisabled = TestRockets.makeFalcon9Heavy(); // Rocket with the last stage disabled
+        TestRockets.addCoreFins(rocketDisabled);
+
+        FlightConfigurationId fid = new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
+        int stageNr = 1; // Stage 1 is the Parallel Booster Stage's parent stage
+        rocketRemoved.getChild(1).removeChild(0); // Remove the Parallel Booster Stage's parent stage
+        FlightConfiguration fc = rocketDisabled.getFlightConfiguration(fid);
+        fc._setStageActive(stageNr, false);
+
+        Simulation simRemoved = new Simulation(rocketRemoved);
+        simRemoved.setFlightConfigurationId(fid);
+        simRemoved.getOptions().setISAAtmosphere(true);
+        simRemoved.getOptions().setTimeStep(0.05);
+        simRemoved.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        try {
+            simRemoved.simulate();
+        } catch(Exception e) {
+            fail("unexpected exception " + e);
+        }
+
+        // There should be no motors left at this point, so we should abort on no motors
+        FlightEvent abort = simRemoved.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+        assertNotNull(abort, "Empty simulation failed to abort");
+        assertEquals(SimulationAbort.Cause.NO_MOTORS_DEFINED, ((SimulationAbort)(abort.getData())).getCause(), "Abort cause did not match");
+
+        Simulation simDisabled = new Simulation(rocketDisabled);
+        simDisabled.setFlightConfigurationId(fid);
+        simDisabled.getOptions().setISAAtmosphere(true);
+        simDisabled.getOptions().setTimeStep(0.05);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        //// Test re-enabling the stage.
+        Rocket rocketOriginal = TestRockets.makeFalcon9Heavy();
+        TestRockets.addCoreFins(rocketOriginal);
+
+        Simulation simOriginal = new Simulation(rocketOriginal);
+        simOriginal.setFlightConfigurationId(fid);
+        simOriginal.getOptions().setISAAtmosphere(true);
+        simOriginal.getOptions().setTimeStep(0.05);
+        simOriginal.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+        simDisabled.getActiveConfiguration().setAllStages();
+
+        compareSims(simOriginal, simDisabled);
+    }
+
+    /**
      * Test whether the simulations run when only the booster stage is active.
      */
     @Test
@@ -264,6 +398,38 @@ public class DisableStageTest extends BaseTestCase {
         simDisabled.setFlightConfigurationId(fid);
         simDisabled.getOptions().setISAAtmosphere(true);
         simDisabled.getOptions().setTimeStep(0.05);
+
+        //// Test only enabling the booster stage (test for GitHub issue #1848)
+        simDisabled.getActiveConfiguration().setOnlyStage(2);
+
+        //// Test that the top stage is the booster stage
+        assertEquals(rocketDisabled.getTopmostStage(simDisabled.getActiveConfiguration()), rocketDisabled.getStage(2));
+
+        try {
+            simDisabled.simulate();
+        } catch(Exception e) {
+            fail("unexpected exception " + e);
+        }
+
+        // Sim will tumble under
+        FlightEvent abort = simDisabled.getSimulatedData().getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+        assertNotNull(abort, "Unstable booster failed to abort");
+        assertEquals(SimulationAbort.Cause.TUMBLE_UNDER_THRUST, ((SimulationAbort)(abort.getData())).getCause(), "Abort cause did not match");
+    }
+
+    /**
+     * Test whether the simulations run when only the booster stage is active, but using the RK6 stepper.
+     */
+    @Test
+    public void testBooster3_RK6() {
+        Rocket rocketDisabled = TestRockets.makeFalcon9Heavy();
+
+        FlightConfigurationId fid =  new FlightConfigurationId(TestRockets.FALCON_9H_FCID_1);
+        Simulation simDisabled = new Simulation(rocketDisabled);
+        simDisabled.setFlightConfigurationId(fid);
+        simDisabled.getOptions().setISAAtmosphere(true);
+        simDisabled.getOptions().setTimeStep(0.05);
+        simDisabled.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 
         //// Test only enabling the booster stage (test for GitHub issue #1848)
         simDisabled.getActiveConfiguration().setOnlyStage(2);

@@ -47,6 +47,15 @@ public class PreferencesDialog extends JDialog {
 	private boolean storePreferences = true;
 	private File initPrefsFile = null;
 
+	public final static int TAB_GENERAL = 0;
+	public final static int TAB_UI = 1;
+	public final static int TAB_DESIGN = 2;
+	public final static int TAB_SIMULATION = 3;
+	public final static int TAB_LAUNCH = 4;
+	public final static int TAB_UNITS = 5;
+	public final static int TAB_MATERIALS = 6;
+	public final static int TAB_GRAPHICS = 7;
+
 	private PreferencesDialog(BasicFrame parent, int selectedTab) {
 		// // Preferences
 		super(parent, trans.get("pref.dlg.title.Preferences"),
@@ -64,34 +73,35 @@ public class PreferencesDialog extends JDialog {
 		panel.add(tabbedPane, "grow, wrap");
 
 		// General options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.General"), null,
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.General"), null,
 				new GeneralPreferencesPanel(this),
-				trans.get("pref.dlg.tab.General.ttip"));
+				trans.get("pref.dlg.tab.General.ttip"), TAB_GENERAL);
 		// UI options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.UI"), null,
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.UI"), null,
 				new UIPreferencesPanel(this),
-				trans.get("pref.dlg.tab.UI.ttip"));
+				trans.get("pref.dlg.tab.UI.ttip"), TAB_UI);
 		// Designer options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Design"), null,
-				new DesignPreferencesPanel(), trans.get("pref.dlg.tab.Design"));
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Design"), null,
+				new DesignPreferencesPanel(), trans.get("pref.dlg.tab.Design"), TAB_DESIGN);
 		// Simulation options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Simulation"), null,
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Simulation"), null,
 				new SimulationPreferencesPanel(),
-				trans.get("pref.dlg.tab.Design"));
+				trans.get("pref.dlg.tab.Simulation"), TAB_SIMULATION);
 		// Launch options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Launch"), null,
-				new LaunchPreferencesPanel(), trans.get("pref.dlg.tab.Launch"));
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Launch"), null,
+				new LaunchPreferencesPanel(), trans.get("pref.dlg.tab.Launch"), TAB_LAUNCH);
 		// Units and Default units
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null,
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Units"), null,
 				new UnitsPreferencesPanel(this),
-				trans.get("pref.dlg.tab.Defaultunits"));
+				trans.get("pref.dlg.tab.Defaultunits"), TAB_UNITS);
 		// Materials and Custom materials
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Materials"), null,
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Materials"), null,
 				new MaterialEditPanel(parent.getRocketPanel().getDocument()),
-				trans.get("pref.dlg.tab.Custommaterials"));
-		// Decal Editor selection
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Graphics"),
-				new GraphicsPreferencesPanel(this));
+				trans.get("pref.dlg.tab.Custommaterials"), TAB_MATERIALS);
+		// Graphics selection
+		tabbedPane.insertTab(trans.get("pref.dlg.tab.Graphics"), null,
+				new GraphicsPreferencesPanel(this),
+				trans.get("pref.dlg.tab.Graphics"), TAB_GRAPHICS);
 
 		// Default Colors Preferences
 		// tabbedPane.addTab(trans.get("pref.dlg.tab.Colors"),
@@ -254,7 +264,7 @@ public class PreferencesDialog extends JDialog {
 	}
 
 	public static void showPreferences(BasicFrame parent) {
-		showPreferences(parent, 0);
+		showPreferences(parent, TAB_GENERAL);
 	}
 
 }

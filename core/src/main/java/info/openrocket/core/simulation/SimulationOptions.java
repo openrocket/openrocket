@@ -10,6 +10,12 @@ import info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel;
 import info.openrocket.core.models.wind.WindModel;
 import info.openrocket.core.models.wind.WindModelType;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.util.BugException;
+import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.GeodeticComputationStrategy;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.util.WorldCoordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +27,6 @@ import info.openrocket.core.models.gravity.GravityModel;
 import info.openrocket.core.models.gravity.WGSGravityModel;
 import info.openrocket.core.models.wind.PinkNoiseWindModel;
 import info.openrocket.core.startup.Application;
-import info.openrocket.core.util.BugException;
-import info.openrocket.core.util.ChangeSource;
-import info.openrocket.core.util.GeodeticComputationStrategy;
-import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.StateChangeListener;
-import info.openrocket.core.util.WorldCoordinate;
 
 /**
  * A class holding simulation options in basic parameter form and which functions
@@ -84,6 +84,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private WindModelType windModelType = WindModelType.AVERAGE;
 	private PinkNoiseWindModel averageWindModel;
 	private MultiLevelPinkNoiseWindModel multiLevelPinkNoiseWindModel;
+
+	private SimulationStepperMethod stepperMethodChoice = SimulationStepperMethod.RK4;
 
 	public SimulationOptions() {
 		averageWindModel = new PinkNoiseWindModel(randomSeed);
@@ -278,6 +280,20 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			throw new IllegalArgumentException("strategy cannot be null");
 		}
 		this.geodeticComputation = geodeticComputation;
+		fireChangeEvent();
+	}
+
+
+	public SimulationStepperMethod getSimulationStepperMethodChoice() {
+		return this.stepperMethodChoice;
+	}
+
+	public void setSimulationStepperMethodChoice(SimulationStepperMethod choice) {
+		if (choice == null) {
+			throw new IllegalArgumentException("choice cannot be null");
+		}
+		preferences.setSimulationStepperMethodChoice(choice);
+		this.stepperMethodChoice = choice;
 		fireChangeEvent();
 	}
 

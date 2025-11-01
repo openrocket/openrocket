@@ -65,7 +65,8 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.AltitudeMSL"), trans.get("MultiLevelWindTable.col.AltitudeMSL.ttip"),
 					100, UnitGroup.UNITS_DISTANCE),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Speed"), 100, UnitGroup.UNITS_WINDSPEED),
-			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), 90, UnitGroup.UNITS_ANGLE),
+			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Direction"), trans.get("MultiLevelWindTable.col.Direction.ttip"),
+					90, UnitGroup.UNITS_ANGLE),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.StandardDeviation"), 100, UnitGroup.UNITS_WINDSPEED),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Turbulence"), 90, UnitGroup.UNITS_RELATIVE),
 			new ColumnDefinition(trans.get("MultiLevelWindTable.col.Intensity"), 85, null),
@@ -273,7 +274,10 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 		Dimension size = new Dimension(width, comp.getPreferredSize().height + CELL_PADDING);
 		panel.setPreferredSize(size);
 		panel.setMinimumSize(size);
-		panel.setMaximumSize(size);
+
+		// Allow horizontal resizing
+		panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, size.height));
+
 		return panel;
 	}
 
@@ -820,20 +824,9 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			add(createVerticalSeparator());
 			add(deleteCell);
 
-			// Calculate the total width
-			int totalWidth = 0;
-			for (ColumnDefinition col : COLUMNS) {
-				totalWidth += col.width();
-			}
-			// Add some extra width for separators
-			totalWidth += (COLUMNS.length - 1); // 1px for each separator
-
-			// Update dimensions with fixed width and height 
+			// Set size constraints
 			Dimension currentSize = getPreferredSize();
-			Dimension size = new Dimension(totalWidth, currentSize.height);
-			setPreferredSize(size);
-			setMinimumSize(size);
-			setMaximumSize(size); // Fixed height to ensure consistent row heights
+			setMaximumSize(new Dimension(Integer.MAX_VALUE, currentSize.height));
 
 			// Install right-click context menu
 			installContextMenu();
@@ -853,13 +846,15 @@ public class MultiLevelWindTable extends JPanel implements ChangeSource {
 			panel.setOpaque(false);
 			panel.add(spinner, BorderLayout.CENTER);
 			panel.setBorder(BorderFactory.createEmptyBorder(0, CELL_PADDING, 0, CELL_PADDING));
-			
+
 			// Fixed width
 			Dimension size = new Dimension(width, spinner.getPreferredSize().height);
 			panel.setPreferredSize(size);
 			panel.setMinimumSize(size);
-			panel.setMaximumSize(size);
-			
+
+			// Allow horizontal resizing
+			panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, size.height));
+
 			return panel;
 		}
 		

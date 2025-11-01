@@ -764,7 +764,16 @@ public class Transition extends SymmetricComponent implements InsideColorCompone
 				aftCapCG.x * aftCapCG.weight;
 
 			final double mass = foreCapCG.weight + foreShoulderCG.weight + transCG.weight + aftShoulderCG.weight + aftCapCG.weight;
+			
+			// If the mass is 0, so are moments of inertia
+			if (mass < MathUtil.EPSILON) {
+				cg = new Coordinate(0, 0, 0, 0);
+				longitudinalUnitInertia = 0.0;
+				rotationalUnitInertia = 0.0;
 
+				return;
+			}
+			
 			cg = new Coordinate(cgx / mass, 0, 0, mass);
 
 			// need to use parallel axis theorem to move longitudinal MOI to CG of component

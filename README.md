@@ -51,7 +51,9 @@ You can find our documentation on [ReadTheDocs](https://openrocket.readthedocs.i
 
 ## 🚀 Getting started
 
-The easiest way to get started is to open one of our in-program example designs:
+**Check out [our documentation](https://openrocket.readthedocs.io/en/latest/setup/getting_started.html) for a detailled guide on how to get started.**
+
+The easiest way to get familiar with OpenRocket is to open one of our in-program example designs:
 
 ![Get started with the example designs](.github/getting-started.png)
 
@@ -59,7 +61,7 @@ Dive into the essentials: adjust component dimensions, plot a simulation, swap o
 
 ## 💪 Contribute
 
-Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](http://openrocket.sourceforge.net/getinvolved.html) and the [practicalities of contributing](CONTRIBUTING.md).
+Help us soar higher! Whether it's implementing features, writing documentation, or creating design examples, every contribution matters. Interested? Check out [how to get involved](https://openrocket.info/contribute.html) and the [practicalities of contributing](CONTRIBUTING.md).
 
 ### ✨ Contributors
 - [Sampo Niskanen](https://github.com/plaa) - Original developer

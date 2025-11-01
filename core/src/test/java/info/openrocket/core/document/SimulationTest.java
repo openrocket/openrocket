@@ -12,6 +12,7 @@ import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.BaseTestCase;
+import info.openrocket.core.simulation.SimulationStepperMethod;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.logging.SimulationAbort;
 
@@ -92,9 +93,37 @@ public class SimulationTest extends BaseTestCase {
 		assertEquals(SimulationAbort.Cause.NO_MOTORS_DEFINED,
 				((SimulationAbort)abort.getData()).getCause());
 	}
+	@Test
+	public void testSimulationWithNoMotors_RK6() throws SimulationException {
+		// Create configuration without motors
+		FlightConfiguration config = rocket.getFlightConfiguration(TestRockets.TEST_FCID_0);
+		config.clearAllMotors();
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
+
+		simulation.simulate();
+
+		// Verify simulation aborted due to no motors
+		FlightData data = simulation.getSimulatedData();
+		FlightEvent abort = data.getBranch(0).getLastEvent(FlightEvent.Type.SIM_ABORT);
+		assertNotNull(abort, "Simulation without motors should abort");
+		assertEquals(SimulationAbort.Cause.NO_MOTORS_DEFINED,
+				((SimulationAbort)abort.getData()).getCause());
+	}
 
 	@Test
 	public void testBasicSimulationExecution() throws SimulationException {
+		simulation.simulate();
+
+		FlightData data = simulation.getSimulatedData();
+		assertNotNull(data, "Simulation data should not be null");
+		assertTrue(data.getMaxAltitude() > 0, "Max altitude should be positive");
+		assertTrue(data.getMaxVelocity() > 0, "Max velocity should be positive");
+		assertTrue(data.getFlightTime() > 0, "Flight time should be positive");
+		assertEquals(Simulation.Status.UPTODATE, simulation.getStatus());
+	}
+	@Test
+	public void testBasicSimulationExecution_RK6() throws SimulationException {
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 		simulation.simulate();
 
 		FlightData data = simulation.getSimulatedData();
@@ -140,6 +169,38 @@ public class SimulationTest extends BaseTestCase {
 		double launchAltitude = 123;
 		simulation.getOptions().setLaunchAltitude(launchAltitude);
 
+		simulation.simulate();
+
+		FlightData flightData =  simulation.getSimulatedData();
+		FlightDataBranch branch = flightData.getBranch(0);
+
+		List<Double> altitudeData = branch.get(FlightDataType.TYPE_ALTITUDE);
+		List<Double> altitudeASLData = branch.get(FlightDataType.TYPE_ALTITUDE_ABOVE_SEA);
+
+		assertNotNull(altitudeData);
+		assertNotNull(altitudeASLData);
+		assertEquals(altitudeData.size(), altitudeASLData.size());
+		assertFalse(altitudeData.isEmpty());
+
+		// Verify that altitude above sea level = altitude + launch altitude for each data point
+		for (int i = 0; i < altitudeData.size(); i++) {
+			double altitude = altitudeData.get(i);
+			double altitudeASL = altitudeASLData.get(i);
+			assertEquals(altitude + launchAltitude, altitudeASL, 0.001,
+					"Altitude above sea level should equal altitude + launch altitude at index " + i);
+		}
+
+		// Additionally verify max altitudes
+		double maxAltitude = Collections.max(altitudeData);
+		double maxAltitudeASL = Collections.max(altitudeASLData);
+		assertEquals(maxAltitude + launchAltitude, maxAltitudeASL, 0.001,
+				"Maximum altitude above sea level should equal maximum altitude + launch altitude");
+	}
+	@Test
+	public void testAltitudeAboveSeaLevel_RK6() throws SimulationException {
+		double launchAltitude = 123;
+		simulation.getOptions().setLaunchAltitude(launchAltitude);
+		simulation.getOptions().setSimulationStepperMethodChoice(SimulationStepperMethod.RK6);
 		simulation.simulate();
 
 		FlightData flightData =  simulation.getSimulatedData();

@@ -1,4 +1,6 @@
-package info.openrocket.swing.startup.jij;
+package info.openrocket.core.startup.providers;
+
+import info.openrocket.core.startup.jij.ClasspathProvider;
 
 import java.lang.reflect.Method;
 import java.net.URL;

@@ -21,6 +21,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 	private String name = null;
 	private boolean inNameElement = false;
 	private HashMap<Integer, Boolean> stageActiveness = new HashMap<>();
+	private boolean hasActiveStage = false;
 
 	public MotorConfigurationHandler(Rocket rocket, DocumentLoadingContext context) {
 		this.rocket = rocket;
@@ -50,6 +51,7 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		} else if (element.equals("stage")) {
 			int stageNr = Integer.parseInt(attributes.get("number"));
 			boolean isActive = Boolean.parseBoolean(attributes.get("active"));
+			hasActiveStage = hasActiveStage || isActive;
 			stageActiveness.put(stageNr, isActive);
 		}
 	}
@@ -66,8 +68,13 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 
 		rocket.createFlightConfiguration(fcid);
 
-		if (name != null && name.trim().length() > 0) {
+		if (name != null && !name.trim().isEmpty()) {
 			rocket.getFlightConfiguration(fcid).setName(name);
+		}
+
+		// Ensure there's always at least one stage active
+		if (!hasActiveStage && !stageActiveness.isEmpty()) {
+			stageActiveness.put(0, true);
 		}
 
 		for (Map.Entry<Integer, Boolean> entry : stageActiveness.entrySet()) {

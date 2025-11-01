@@ -116,7 +116,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		//// Material
 		MaterialPanel materialPanel = new MaterialPanel(component, document, Material.Type.BULK, order);
 		register(materialPanel);
-		panel.add(materialPanel, "cell 4 0, gapleft 40lp, aligny 0%, spany");
+		panel.add(materialPanel, "cell 4 0, gapleft 20lp, aligny 0%, spany");
 
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.General"), null, panel,

@@ -1,11 +1,14 @@
 package info.openrocket.core.thrustcurve;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,10 +38,68 @@ public abstract class ThrustCurveAPI {
 
 		InputStream is = conn.getInputStream();
 
-		SearchResponse result = SearchResponseParser.parse(is);
-
-		return result;
+        return SearchResponseParser.parse(is);
 	}
+
+	/**
+	 * Utilises the ThrustCurveAPI to get the Manufacturer abbreviations, for the purpose of being used to obtain the
+	 * rest of the Motor Data per manufacturer.
+	 * @return Array of Motor Manufacturer abbreviations.
+	 */
+	public static String[] downloadManufacturers() throws IOException {
+		URL url = new URL("https", "www.thrustcurve.org", "/api/v1/metadata.json");
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+		conn.setRequestProperty("Accept", "application/json");
+
+		StringBuilder response = new StringBuilder();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				response.append(line);
+			}
+		} finally {
+			conn.disconnect();
+		}
+
+		String jsonString = response.toString();
+		return parseManufacturerAbbreviations(jsonString);
+	}
+
+	/**
+	 * Parses the manufacturer abbreviations from the metadata JSON of the ThrustCurveAPI.
+	 * @param jsonString The String representation of the ThrustCurveAPI metadata.
+	 * @return Array of Motor Abbreviations.
+	 */
+	private static String[] parseManufacturerAbbreviations(String jsonString){
+		int start = jsonString.indexOf("\"manufacturers\":");
+		if (start == -1) return new String[0];
+
+		start = jsonString.indexOf("[", start);
+		int end = jsonString.indexOf("]", start);
+		if (start == -1 || end == -1) return new String[0];
+
+		String manufacturersArray = jsonString.substring(start + 1, end);
+
+		List<String> names = new ArrayList<>();
+		for (String entry : manufacturersArray.split("\\{")) {
+			int nameIndex = entry.indexOf("\"abbrev\":");
+			if (nameIndex == -1) continue;
+			// Developer Note (Jordan Senft): Added the "9" as its own declared value to avoid confusion if others_
+			// _wish to contribute to this class in the future. This could be subject to change in future versions of_
+			// _the ThrustCurveAPI.
+			int literalStringLength = 9;
+			int quoteStart = entry.indexOf("\"", nameIndex + literalStringLength);
+			int quoteEnd = entry.indexOf("\"", quoteStart + 1);
+			if (quoteStart != -1 && quoteEnd != -1) {
+				String name = entry.substring(quoteStart + 1, quoteEnd);
+				names.add(name);
+			}
+		}
+
+		return names.toArray(new String[0]);
+	}
+
 
 	public static List<MotorBurnFile> downloadData(Integer motor_id, String format) throws IOException, SAXException {
 
