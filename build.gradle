@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'com.gradleup.shadow' version '9.2.2'
     id 'java'
@@ -126,7 +128,7 @@ tasks.named('check') {
 
 // JAR config
 jar {
-    archiveBaseName.set('OpenRocket')
+    archiveBaseName = 'OpenRocket'
 
     manifest {
         attributes(baseManifestAttributes)
@@ -139,11 +141,11 @@ dependencies {
     implementation(project(path: ":swing", configuration: "default"))
 }
 
-shadowJar {
+tasks.named('shadowJar', ShadowJar) {
     dependsOn(':core:processResources')
-    archiveBaseName.set('OpenRocket')
-    archiveVersion.set(buildProperties['build.version'])
-    archiveClassifier.set('')
+    archiveBaseName = 'OpenRocket'
+    archiveVersion = '' + version
+    archiveClassifier = ''
     dependsOn(distTar, distZip)
 
     manifest {

@@ -1,5 +1,4 @@
 plugins {
-    id 'com.gradleup.shadow'
     id 'java'
     id 'com.adarshr.test-logger' version '4.0.0'
     id 'checkstyle'
@@ -93,12 +92,6 @@ dependencies {
     implementation 'org.jogamp.jogl:jogl-all-main:2.5.0'
 
     testImplementation 'ch.qos.logback:logback-classic:1.5.0'
-}
-
-// Ensure core jar is built before shadowJar resolves dependencies
-// This prevents the extraJavaModuleInfo plugin from trying to transform a non-existent jar
-tasks.named('shadowJar') {
-    dependsOn(':core:jar')
 }
 
 jacocoTestCoverageVerification {
