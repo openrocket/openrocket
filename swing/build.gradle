@@ -41,11 +41,11 @@ extraJavaModuleInfo {
     automaticModule('slf4j-api-1.7.25.jar', 'org.slf4j.api')
     automaticModule('slf4j-api-1.7.32.jar', 'org.slf4j.api')
     automaticModule('versioncompare-1.5.0.jar', 'versioncompare')
-    module('gluegen-rt-2.5.0.jar', 'org.jogamp.gluegen.rt', '2.5.0') {
+    module('gluegen-rt-2.6.0.jar', 'org.jogamp.gluegen.rt', '2.6.0') {
         requires('java.desktop')
         exportAllPackages()
     }
-    module('jogl-all-2.5.0.jar', 'org.jogamp.jogl.all', '2.5.0') {
+    module('jogl-all-2.6.0.jar', 'org.jogamp.jogl.all', '2.6.0') {
         requires('java.desktop')
         requires('org.jogamp.gluegen.rt')
         exportAllPackages()
@@ -88,8 +88,8 @@ dependencies {
     implementation 'ch.qos.logback:logback-core:1.5.0'
     implementation 'ch.qos.logback:logback-classic:1.5.0'
 
-    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.5.0'
-    implementation 'org.jogamp.jogl:jogl-all-main:2.5.0'
+    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.6.0'
+    implementation 'org.jogamp.jogl:jogl-all-main:2.6.0'
 
     testImplementation 'ch.qos.logback:logback-classic:1.5.0'
 }
