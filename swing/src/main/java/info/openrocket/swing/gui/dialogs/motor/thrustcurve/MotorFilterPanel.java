@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -71,26 +73,6 @@ public abstract class MotorFilterPanel extends JPanel {
 		new MotorDiameter(1.000, 1.000)
 	};
 
-	/**
-	 * updates: motorDiameters, diameterLabels
-	 */
-	private static void scaleDiameterLabels(){
-		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
-		for( int i = 0; i < motorDiameters.length; i++ ) {
-			// Round the labels, because for imperial units, the labels can otherwise overlap
-			double diam = unit.toUnit(motorDiameters[i].nominal);
-			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
-			diam = unit.fromUnit(diamRounded);
-			String formatted = unit.toString(diam);
-			// Remove the leading zero for numbers between 0 and 1
-			if (diamRounded > 0 && diamRounded < 1) {
-				formatted = formatted.substring(1);
-			}
-			diameterLabels.put( i, new JLabel(formatted));
-		}
-		diameterLabels.get( motorDiameters.length-1).setText("+");
-	}
-
 	final private static Hashtable<Integer,JLabel> impulseLabels = new Hashtable<>();
 	static {
 		int i =0;
@@ -126,18 +108,21 @@ public abstract class MotorFilterPanel extends JPanel {
 	private final MultiSlider lengthSlider;
 	private final MultiSlider diameterSlider;
 
+	private JPanel contentPanel;
+
 
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
-		super(new MigLayout("fill", "[grow]"));
+		super(new BorderLayout());
 		this.filter = filter;
+		this.contentPanel = new JPanel(new MigLayout("fill, ins n 0 0 0", "[grow]", "[][grow][][][]"));
 
 		scaleDiameterLabels();
 
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
 
-		limitByLength = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitLength", false);
-		limitDiameter = ((SwingPreferences) Application.getPreferences()).getBoolean("motorFilterLimitDiameter", false);
+		limitByLength = Application.getPreferences().getBoolean("motorFilterLimitLength", false);
+		limitDiameter = Application.getPreferences().getBoolean("motorFilterLimitDiameter", false);
 		
 		//// Hide used motor files
 		{
@@ -150,11 +135,11 @@ public abstract class MotorFilterPanel extends JPanel {
 					onSelectionChanged();
 				}
 			});
-			this.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
+			contentPanel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
 		}
 
 		// Manufacturer selection
-		JPanel sub = new JPanel(new MigLayout("fill"));
+		JPanel sub = new JPanel(new MigLayout("fill, ins rel rel rel rel"));
 		TitledBorder border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.MANUFACTURER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
@@ -192,11 +177,13 @@ public abstract class MotorFilterPanel extends JPanel {
 			}
 		});
 
-		JScrollPane scrollPane = new JScrollPane(manufacturerCheckList.getList());
-		sub.add(scrollPane, "grow, pushy, wrap");
+		JScrollPane manufacturerScrollPane = new JScrollPane(manufacturerCheckList.getList());
+		//manufacturerScrollPane.setMinimumSize(new Dimension(20, 10));
+		manufacturerScrollPane.setMinimumSize(new Dimension(0, 0));
+		sub.add(manufacturerScrollPane, "grow, pushy, growprio 200, hmin 1, wrap");
 
 		JButton clearMotors = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
-		clearMotors.addActionListener( new ActionListener() {
+		clearMotors.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				MotorFilterPanel.this.manufacturerCheckList.clearAll();
@@ -217,11 +204,11 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		sub.add(selectMotors,"wrap");
 
-		this.add(sub,"grow, wrap");
+		contentPanel.add(sub,"grow, pushy, wrap");
 
 		// Total Impulse selection
 		{
-			sub = new JPanel(new MigLayout("fill"));
+			sub = new JPanel(new MigLayout("fill, ins n n 0 n"));
 			border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
 			GUIUtil.changeFontStyle(border, Font.BOLD);
 			sub.setBorder(border);
@@ -244,11 +231,11 @@ public abstract class MotorFilterPanel extends JPanel {
 			});
 			sub.add( impulseSlider, "growx, wrap");
 		}
-		this.add(sub,"grow, wrap");
+		contentPanel.add(sub,"grow, wrap");
 
 
 		// Motor Dimensions
-		sub = new JPanel(new MigLayout("fill"));
+		sub = new JPanel(new MigLayout("fill, ins n n 0 n"));
 		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCMotorSelPan.MotorSize"));
 		GUIUtil.changeFontStyle(diameterTitleBorder, Font.BOLD);
 		sub.setBorder(diameterTitleBorder);
@@ -401,8 +388,36 @@ public abstract class MotorFilterPanel extends JPanel {
 			limitByLengthModel.addEnableComponent(lengthSlider,false);
 			
 		}
-		this.add(sub, "grow,wrap");
+		contentPanel.add(sub, "grow,wrap");
 
+		// Main scroll pane
+		contentPanel.setMinimumSize(new Dimension(0, 0));
+		JScrollPane mainScrollPane = new JScrollPane(contentPanel);
+		mainScrollPane.setMinimumSize(new Dimension(0, 0));
+		mainScrollPane.setBorder(null);
+		mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		this.add(mainScrollPane, BorderLayout.CENTER);
+	}
+
+	/**
+	 * updates: motorDiameters, diameterLabels
+	 */
+	private static void scaleDiameterLabels(){
+		Unit unit = UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit();
+		for (int i = 0; i < motorDiameters.length; i++) {
+			// Round the labels, because for imperial units, the labels can otherwise overlap
+			double diam = unit.toUnit(motorDiameters[i].nominal);
+			double diamRounded = unit.round(diam * 10) / 10;	// 10 multiplication for 2-decimal precision
+			diam = unit.fromUnit(diamRounded);
+			String formatted = unit.toString(diam);
+			// Remove the leading zero for numbers between 0 and 1
+			if (diamRounded > 0 && diamRounded < 1) {
+				formatted = formatted.substring(1);
+			}
+			diameterLabels.put( i, new JLabel(formatted));
+		}
+		diameterLabels.get( motorDiameters.length-1).setText("+");
 	}
 
 	public void setMotorMount( MotorMount mount ) {

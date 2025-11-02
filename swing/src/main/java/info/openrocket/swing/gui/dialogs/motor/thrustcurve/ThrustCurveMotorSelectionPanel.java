@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -156,7 +157,13 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		////  GUI
-		JPanel panel = new JPanel(new MigLayout("fill","[][grow]"));
+		JPanel panel = new JPanel(new MigLayout("fill", "[][grow]"));
+		panel.setMinimumSize(new Dimension(0, 0));
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.setMinimumSize(new Dimension(0, 0));
+		scrollPane.setBorder(null);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		//// Select thrust curve:
 		{
@@ -293,6 +300,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		//// Motor selection table
 		{
 			table = new JTable(model);
+			table.setFillsViewportHeight(true);
+			table.setMinimumSize(new Dimension(0, 0));
 
 			// Set comparators and widths
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -333,9 +342,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 			});
 
-			JScrollPane scrollpane = new JScrollPane();
-			scrollpane.setViewportView(table);
-			panel.add(scrollpane, "grow, width :500:, spanx, push, wrap");
+			JScrollPane scrollpane = new JScrollPane(table);
+			scrollpane.setMinimumSize(new Dimension(0, 0));
+			panel.add(scrollpane, "grow, pushx, pushy, width :500:, spanx, wrap");
 
 		}
 
@@ -389,16 +398,17 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			});
 			panel.add(searchField, "span, growx");
 		}
-		this.add(panel, "grow");
+	this.add(scrollPane, "grow, pushx, pushy");
 
 		// Vertical split
 		this.add(new JSeparator(JSeparator.VERTICAL), "growy, gap para para");
 
 		JTabbedPane rightSide = new JTabbedPane();
+		rightSide.setMinimumSize(new Dimension(0, 0));
 		rightSide.add(trans.get("TCMotorSelPan.btn.filter"), motorFilterPanel);
 		rightSide.add(trans.get("TCMotorSelPan.btn.details"), motorInformationPanel);
 
-		this.add(rightSide, "growy");
+	this.add(rightSide, "grow, pushx, pushy");
 
 		// Update the panel data
 		updateData();
