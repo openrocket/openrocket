@@ -1,6 +1,6 @@
 package info.openrocket.swing.file.photo;
 
-import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
+import info.openrocket.swing.gui.figure3d_old.photo.PhotoSettings;
 import info.openrocket.core.util.ORColor;
 
 import java.util.HashMap;

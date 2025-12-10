@@ -36,7 +36,7 @@ import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StageSelector;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
-import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.figure3d_old.RocketFigure3d;
 import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.figureelements.Caret;
@@ -1157,8 +1157,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure.addAbsoluteExtra(extraText);
 
 		figure3d.clearRelativeExtra();
-		//figure3d.addRelativeExtra(extraCP);
-		//figure3d.addRelativeExtra(extraCG);
+		//figure3d_old.addRelativeExtra(extraCP);
+		//figure3d_old.addRelativeExtra(extraCG);
 		figure3d.addAbsoluteExtra(extraText);
 
 	}

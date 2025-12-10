@@ -1,15 +1,15 @@
 package info.openrocket.swing.file.photo;
 
 import info.openrocket.core.file.openrocket.importt.OpenRocketHandler;
-import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
-import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
+import info.openrocket.swing.gui.figure3d_old.photo.PhotoSettings;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.Sky;
 import info.openrocket.core.util.ORColor;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Lake;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Meadow;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Miramar;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
-import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Lake;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Meadow;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Miramar;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Mountains;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Orbit;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Storm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
