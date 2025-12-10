@@ -16,8 +16,17 @@ open module info.openrocket.swing {
 	requires org.jogamp.gluegen.rt;
 	requires org.jogamp.jogl.all;
 	requires java.scripting;
+	requires java.net.http;
 	requires org.fife.RSyntaxTextArea;
 	requires jakarta.xml.bind;
+	requires org.lwjgl;
+	requires org.lwjgl.glfw;
+	requires org.lwjgl.opengl;
+	requires org.lwjgl.stb;
+	requires org.lwjgl.jawt;
+	requires org.lwjglx.lwjgl3.awt;
+	requires org.joml;
+	requires org.locationtech.jts;
 	requires jcommon;
 	requires java.prefs;
 	requires com.jthemedetector;
