@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -33,8 +35,10 @@ public final class GLSceneWindow {
 	private final JFrame frame;
 	private final GLScenePanel canvas;
 	private final ScheduledExecutorService renderExecutor;
+	private final CountDownLatch cleanupLatch = new CountDownLatch(1);
 	private volatile boolean disposed = false;
 	private int consecutiveRenderErrors = 0;
+	private volatile Thread renderThread;
 
 	private GLSceneWindow(String title, int width, int height, int x, int y, Rocket rocket) {
 		this.frame = new JFrame(title);
@@ -87,73 +91,73 @@ public final class GLSceneWindow {
 
 	private void startRenderLoop(String title) {
 		renderExecutor.execute(() -> {
-			// Wait for the AWT peer to exist and have a real size before the first render
-			long deadline = System.currentTimeMillis() + 5_000;
-			while (System.currentTimeMillis() < deadline) {
-				if (disposed) {
-					return;
-				}
-				if (canvas.isDisplayable() && canvas.getWidth() > 0 && canvas.getHeight() > 0) {
-					break;
-				}
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException ignored) {
-					Thread.currentThread().interrupt();
-					return;
-				}
-			}
-
-			if (disposed) {
-				return;
-			}
-
-			// Kick off initialization; this triggers initGL once the context is available.
+			renderThread = Thread.currentThread();
 			try {
-				canvas.render();
-			} catch (Exception e) {
-				log.error("Initial render failed for {}", title, e);
-			}
-
-			boolean initialized = canvas.awaitInitialized(3_000) && !canvas.glInitFailed;
-			if (!initialized) {
-				log.error("GL context did not initialize for {} within timeout", title);
-				renderExecutor.shutdownNow();
-				dispose();
-				return;
-			}
-
-			while (!disposed) {
-				if (!canvas.isDisplayable()) {
-					renderExecutor.shutdownNow();
-					return;
-				}
-				if (canvas.glInitFailed) {
-					log.error("GL init failed for {}", title);
-					renderExecutor.shutdownNow();
-					dispose();
-					return;
-				}
-				try {
-					canvas.render();
-					consecutiveRenderErrors = 0; // Reset on successful render
-				} catch (Exception ex) {
-					consecutiveRenderErrors++;
-					log.warn("Render error ({})", consecutiveRenderErrors, ex);
-					if (consecutiveRenderErrors >= MAX_CONSECUTIVE_ERRORS) {
-						log.error("Too many consecutive render errors, disposing window");
-						renderExecutor.shutdownNow();
-						dispose();
+				// Wait for the AWT peer to exist and have a real size before the first render
+				long deadline = System.currentTimeMillis() + 5_000;
+				while (System.currentTimeMillis() < deadline) {
+					if (disposed) {
+						return;
+					}
+					if (canvas.isDisplayable() && canvas.getWidth() > 0 && canvas.getHeight() > 0) {
+						break;
+					}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException ignored) {
+						Thread.currentThread().interrupt();
 						return;
 					}
 				}
 
-				try {
-					Thread.sleep(FRAME_INTERVAL_MS);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
+				if (disposed) {
 					return;
 				}
+
+				// Kick off initialization; this triggers initGL once the context is available.
+				try {
+					canvas.render();
+				} catch (Exception e) {
+					log.error("Initial render failed for {}", title, e);
+				}
+
+				boolean initialized = canvas.awaitInitialized(3_000) && !canvas.glInitFailed;
+				if (!initialized) {
+					log.error("GL context did not initialize for {} within timeout", title);
+					disposed = true;
+				}
+
+				while (!disposed) {
+					if (!canvas.isDisplayable()) {
+						break;
+					}
+					if (canvas.glInitFailed) {
+						log.error("GL init failed for {}", title);
+						disposed = true;
+						break;
+					}
+					try {
+						canvas.render();
+						consecutiveRenderErrors = 0; // Reset on successful render
+					} catch (Exception ex) {
+						consecutiveRenderErrors++;
+						log.warn("Render error ({})", consecutiveRenderErrors, ex);
+						if (consecutiveRenderErrors >= MAX_CONSECUTIVE_ERRORS) {
+							log.error("Too many consecutive render errors, disposing window");
+							disposed = true;
+							break;
+						}
+					}
+
+					try {
+						Thread.sleep(FRAME_INTERVAL_MS);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						break;
+					}
+				}
+			} finally {
+				cleanupOnRenderThread();
 			}
 		});
 	}
@@ -185,17 +189,42 @@ public final class GLSceneWindow {
 
 		log.debug("Disposing GLSceneWindow: {}", frame.getTitle());
 
-		// Stop render thread first to prevent further GL operations
+		// Interrupt the render thread to exit sleep/waits quickly
 		renderExecutor.shutdownNow();
 
-		// Clean up GL resources
+		// Avoid waiting on the render thread from itself to prevent deadlocks
+		if (Thread.currentThread() != renderThread) {
+			try {
+				if (!cleanupLatch.await(2, TimeUnit.SECONDS)) {
+					log.debug("Cleanup did not finish within timeout for {}", frame.getTitle());
+					SwingUtilities.invokeLater(frame::dispose);
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
+	private void cleanupOnRenderThread() {
+		// Clear interrupt status during GL teardown to avoid AWTGLCanvas skipping work
+		boolean wasInterrupted = Thread.interrupted();
 		try {
 			canvas.cleanup();
 		} catch (Exception e) {
 			log.warn("Error during canvas cleanup: {}", e.getMessage());
+		} finally {
+			renderExecutor.shutdown();
+			cleanupLatch.countDown();
+			SwingUtilities.invokeLater(() -> {
+				try {
+					frame.dispose();
+				} catch (Exception e) {
+					log.debug("Frame dispose failed: {}", e.getMessage());
+				}
+			});
+			if (wasInterrupted) {
+				Thread.currentThread().interrupt();
+			}
 		}
-
-		// Finally dispose the frame
-		frame.dispose();
 	}
 }
