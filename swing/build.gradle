@@ -62,6 +62,7 @@ extraJavaModuleInfo {
     }
 
     automaticModule('obj-0.4.0.jar', 'de.javagl.obj')
+    automaticModule("lwjgl3-awt-0.2.3.jar", 'lwjgl3.awt')
 }
 
 ext {
@@ -94,6 +95,14 @@ ext {
                     : "natives-windows-x86"
             break
     }
+}
+
+tasks.withType(JavaExec).configureEach {
+    systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
+}
+
+tasks.withType(Test).configureEach {
+    systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
 }
 
 dependencies {
