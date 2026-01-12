@@ -4,6 +4,7 @@ import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.scene.controllers.LightController;
+import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 
 import java.util.List;
 
@@ -47,6 +48,16 @@ public interface SceneView {
 	 * @param isMultiSelect Whether to add to existing selection (true) or replace it (false).
 	 */
 	void updateSelection(Raycaster raycaster, boolean isMultiSelect);
+
+	/**
+	 * Programmatically set the current selection to the given components.
+	 * @param components components to select (null or empty clears selection)
+	 */
+	void setSelection(List<SceneObject> components);
+
+	void addSelectionListener(SelectionListener listener);
+
+	void removeSelectionListener(SelectionListener listener);
 
 	/**
 	 * Gets all particle emitters currently active in the scene.

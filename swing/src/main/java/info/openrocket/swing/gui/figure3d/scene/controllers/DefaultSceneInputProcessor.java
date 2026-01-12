@@ -34,6 +34,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
     private final Raycaster raycaster;
     private final SceneView scene;
     private final CameraControls cameraController;
+    private final InputState.DragDelta dragDelta = new InputState.DragDelta();
     
     // Viewport dimensions for coordinate conversion
     private ViewportDimensions viewport;
@@ -92,9 +93,9 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
      * Handles mouse wheel events to control camera dolly (zoom in/out).
      */
     private void processScrollInput() {
-        if (inputState.scrollDelta != 0) {
-            cameraController.handleScroll(inputState.scrollDelta);
-            inputState.scrollDelta = 0;
+        float scrollDelta = inputState.consumeScrollDelta();
+        if (scrollDelta != 0f) {
+            cameraController.handleScroll(scrollDelta);
         }
     }
     
@@ -103,16 +104,15 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
      * Handles different drag modes: orbit (default), pan (with modifier), and light dragging.
      */
     private void processMouseDragInput() {
-        if (inputState.dx != 0 || inputState.dy != 0) {
+        inputState.consumeDragDelta(dragDelta);
+        if (dragDelta.dx != 0f || dragDelta.dy != 0f) {
             if (inputState.isLightDragging) {
-                updateMainLightRadialAngle(inputState.dx, inputState.dy);
+                updateMainLightRadialAngle(dragDelta.dx, dragDelta.dy);
             } else if (inputState.isPanning) {
-                cameraController.handlePan(inputState.dx, inputState.dy);
+                cameraController.handlePan(dragDelta.dx, dragDelta.dy);
             } else {
-                cameraController.handleOrbit(inputState.dx, inputState.dy);
+                cameraController.handleOrbit(dragDelta.dx, dragDelta.dy);
             }
-            inputState.dx = 0;
-            inputState.dy = 0;
         }
     }
     

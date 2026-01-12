@@ -9,9 +9,18 @@ import java.util.concurrent.atomic.AtomicReference;
  * and the Scene3DOrchestrator consumes it once per frame.
  */
 public class InputState {
+	/**
+	 * Thread-safe container for drag deltas to avoid allocations.
+	 */
+	public static final class DragDelta {
+		public float dx;
+		public float dy;
+	}
+
 	// Deltas are accumulated over a frame and reset after consumption.
-	public volatile float dx, dy;
-	public volatile float scrollDelta;
+	private float dx;
+	private float dy;
+	private float scrollDelta;
 
 	// State flags
 	public volatile boolean isPanning;
@@ -23,4 +32,39 @@ public class InputState {
 
 	// Add a new state for double-clicks
 	public final AtomicReference<Point> doubleClickPoint = new AtomicReference<>();
+
+	/**
+	 * Accumulates drag deltas in a thread-safe manner.
+	 */
+	public synchronized void addDrag(float deltaX, float deltaY) {
+		dx += deltaX;
+		dy += deltaY;
+	}
+
+	/**
+	 * Consumes and resets the accumulated drag deltas.
+	 */
+	public synchronized DragDelta consumeDragDelta(DragDelta out) {
+		out.dx = dx;
+		out.dy = dy;
+		dx = 0f;
+		dy = 0f;
+		return out;
+	}
+
+	/**
+	 * Accumulates scroll deltas in a thread-safe manner.
+	 */
+	public synchronized void addScroll(float delta) {
+		scrollDelta += delta;
+	}
+
+	/**
+	 * Consumes and resets the accumulated scroll delta.
+	 */
+	public synchronized float consumeScrollDelta() {
+		float delta = scrollDelta;
+		scrollDelta = 0f;
+		return delta;
+	}
 }

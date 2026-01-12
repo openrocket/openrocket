@@ -170,6 +170,7 @@ public class Standalone3DEngine implements Runnable {
 
 	private void cleanup() {
 		if (scene3DOrchestrator != null) {
+			scene3DOrchestrator.shutdown();
 			if (scene3DOrchestrator.getScene() != null) scene3DOrchestrator.getScene().cleanup();
 			if (scene3DOrchestrator.getRenderer() != null) scene3DOrchestrator.getRenderer().cleanup();
 		}

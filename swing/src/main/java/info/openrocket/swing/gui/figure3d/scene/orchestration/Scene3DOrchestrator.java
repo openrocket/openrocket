@@ -20,9 +20,13 @@ import info.openrocket.swing.gui.figure3d.scene.events.ExportListener;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Orchestrates all components of the 3D scene rendering pipeline.
@@ -68,12 +72,17 @@ import java.util.List;
  */
 public class Scene3DOrchestrator {
 
+	private static final Logger log = LoggerFactory.getLogger(Scene3DOrchestrator.class);
+
     public final SceneView scene;
     private final Renderer renderer;
 	private final RenderingConfiguration renderingConfiguration;
 	private final ViewportDimensions viewport;
     private final CameraControls cameraController;
     private final SceneInputProcessor inputHandler;
+	private final ConcurrentLinkedQueue<Runnable> glTaskQueue = new ConcurrentLinkedQueue<>();
+	private final AtomicBoolean shutdown = new AtomicBoolean(false);
+	private final RocketSceneSynchronizer rocketSynchronizer;
 
     private volatile boolean exportRequested = false;
     private volatile boolean exportTransparent = false;
@@ -132,6 +141,7 @@ public class Scene3DOrchestrator {
 	 * <p><b>Note:</b> This method should be called before rendering each frame.</p>
 	 */
 	public void update() {
+		runPendingGlTasks();
 		long currentFrameTime = System.nanoTime();
 		float deltaTime = (currentFrameTime - lastFrameTime) / 1e9f;
 		lastFrameTime = currentFrameTime;
@@ -237,6 +247,40 @@ public class Scene3DOrchestrator {
     public Renderer getRenderer() {
         return renderer;
     }
+
+	/**
+	 * Enqueues work that must run on the GL/render thread.
+	 */
+	public void enqueueGlTask(Runnable task) {
+		if (task == null || shutdown.get()) {
+			return;
+		}
+		glTaskQueue.add(task);
+	}
+
+	private void runPendingGlTasks() {
+		Runnable task;
+		while ((task = glTaskQueue.poll()) != null) {
+			try {
+				task.run();
+			} catch (Exception e) {
+				log.warn("GL task failed", e);
+			}
+		}
+	}
+
+	/**
+	 * Detaches listeners and stops accepting new tasks.
+	 */
+	public void shutdown() {
+		if (!shutdown.compareAndSet(false, true)) {
+			return;
+		}
+		glTaskQueue.clear();
+		if (rocketSynchronizer != null) {
+			rocketSynchronizer.dispose();
+		}
+	}
 
 	/**
 	 * Gets the camera controller for external access to camera operations.
@@ -472,7 +516,7 @@ public class Scene3DOrchestrator {
         this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController);
         this.inputHandler.updateDimensions(viewport);
 
-		new RocketSceneSynchronizer(this, this.scene, rocket);
+		this.rocketSynchronizer = new RocketSceneSynchronizer(this, this.scene, rocket);
 		this.lastFrameTime = System.nanoTime();
 	}
 

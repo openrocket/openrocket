@@ -114,8 +114,7 @@ public class MouseInputHandler implements InputHandler {
 
             // If we are in a drag state, update the deltas for camera movement
             if (isDragging) {
-                inputState.dx += (float) (xpos - lastX);
-                inputState.dy += (float) (ypos - lastY);
+                inputState.addDrag((float) (xpos - lastX), (float) (ypos - lastY));
                 // Check key states for different drag modes
                 inputState.isPanning = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_CONTROL);
                 inputState.isLightDragging = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_ALT);
@@ -124,8 +123,7 @@ public class MouseInputHandler implements InputHandler {
         
         // Process middle mouse button movement for panning
         if (isMiddleMousePressed) {
-            inputState.dx += (float) (xpos - lastX);
-            inputState.dy += (float) (ypos - lastY);
+            inputState.addDrag((float) (xpos - lastX), (float) (ypos - lastY));
             inputState.isPanning = true; // Middle mouse is always panning
         }
         
@@ -136,6 +134,6 @@ public class MouseInputHandler implements InputHandler {
 
     @Override
     public void handleScroll(double xoffset, double yoffset) {
-        inputState.scrollDelta += (float) yoffset * -1.0f;
+        inputState.addScroll((float) yoffset * -1.0f);
     }
 }

@@ -10,7 +10,9 @@ import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.rendering.Renderer;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
@@ -24,8 +26,10 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -43,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Semaphore;
@@ -145,6 +150,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private final Rocket rocket;
 	private static final ExecutorService EXPORT_EXECUTOR;
+	// Captures the AWT mouse event that triggered the most recent click-based selection update.
+	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 
 	static {
 		ThreadFactory exportThreadFactory = r -> {
@@ -161,25 +168,28 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		this.rocket = rocket;
 		this.hudPanel = hudPanel;
 		this.keyboardHandler = new KeyboardHandler();
+		setFocusable(true);
+		setFocusTraversalKeysEnabled(false);
+		setIgnoreRepaint(true);
 
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
-			public void componentResized(ComponentEvent e) {
-				if (!isDisplayable()) {
-					return;
+				public void componentResized(ComponentEvent e) {
+					if (!isDisplayable()) {
+						return;
+					}
+					int width = Math.max(1, getWidth());
+					int height = Math.max(1, getHeight());
+					pendingWinWidth = width;
+					pendingWinHeight = height;
+					int[] fbSize = computeFramebufferSize(width, height);
+					pendingFbWidth = fbSize[0];
+					pendingFbHeight = fbSize[1];
+					resizeRequested = true;
+					hudNeedsUpdate = true;
 				}
-				int width = Math.max(1, getWidth());
-				int height = Math.max(1, getHeight());
-				pendingWinWidth = width;
-				pendingWinHeight = height;
-				// Defer framebuffer queries to the GL thread to avoid touching the context on the EDT
-				pendingFbWidth = -1;
-				pendingFbHeight = -1;
-				resizeRequested = true;
-				hudNeedsUpdate = true;
-			}
-		});
-	}
+			});
+		}
 
 	private void addInputListeners() {
 		if (scene3DOrchestrator == null) return;
@@ -190,12 +200,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			private boolean isDragging;
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					// Use Swing's built-in click count to detect double-clicks.
-					if (e.getClickCount() == 2) {
-						scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
-					}
+				public void mousePressed(MouseEvent e) {
+					if (SwingUtilities.isLeftMouseButton(e)) {
+						// Track modifier state for multi-selection.
+						scene3DOrchestrator.getInputHandler().getInputState().isShiftPressed = e.isShiftDown();
+						// Use Swing's built-in click count to detect double-clicks.
+						if (e.getClickCount() == 2) {
+							scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
+						}
 					pressPoint = e.getPoint();
 					lastPoint = e.getPoint();
 					isDragging = false;
@@ -204,16 +216,20 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					// We check for !isDragging to differentiate a click from a drag-release.
-					// A double-click will also fire this event for the second click.
-					if (!isDragging && pressPoint != null) {
-						scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
-					}
-					pressPoint = null;
-					isDragging = false;
-					cameraIsMoving = false; // Stop tracking camera movement
+				public void mouseReleased(MouseEvent e) {
+					if (SwingUtilities.isLeftMouseButton(e)) {
+						// We check for !isDragging to differentiate a click from a drag-release.
+						// A double-click will also fire this event for the second click.
+						if (!isDragging && pressPoint != null) {
+							// Update modifier state and capture the click event for selection listeners.
+							var inputState = scene3DOrchestrator.getInputHandler().getInputState();
+							inputState.isShiftPressed = e.isShiftDown();
+							scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
+							pendingSelectionClickEvent.set(e);
+						}
+						pressPoint = null;
+						isDragging = false;
+						cameraIsMoving = false; // Stop tracking camera movement
 				}
 			}
 
@@ -237,8 +253,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						// Always update the drag delta
 						float deltaX = e.getX() - lastPoint.x;
 						float deltaY = e.getY() - lastPoint.y;
-						inputState.dx += deltaX;
-						inputState.dy += deltaY;
+						inputState.addDrag(deltaX, deltaY);
 					}
 					lastPoint = e.getPoint();
 				}
@@ -246,7 +261,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				scene3DOrchestrator.getInputHandler().getInputState().scrollDelta += e.getWheelRotation() * -1.0f;
+				scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f);
 				hudNeedsUpdate = true; // Mark HUD for update on zoom
 			}
 		};
@@ -273,6 +288,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		data.majorVersion = 3;
 		data.minorVersion = 3;
 		data.profile = GLData.Profile.CORE;
+		data.doubleBuffer = true;
 		data.samples = 4;
 		data.sRGB = true;
 		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
@@ -280,24 +296,47 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		return data;
 	}
 
-	@Override
-	public void initGL() {
-		INIT_SEMAPHORE.acquireUninterruptibly();
-		try {
+		/**
+		 * Computes framebuffer size without calling AWT native peer methods.
+		 * On macOS, querying AWTGLCanvas.getFramebufferWidth/Height off the EDT can crash.
+		 */
+		private int[] computeFramebufferSize(int windowWidth, int windowHeight) {
+			double scaleX = 1.0;
+			double scaleY = 1.0;
+			GraphicsConfiguration gc = getGraphicsConfiguration();
+			if (gc != null) {
+				AffineTransform tx = gc.getDefaultTransform();
+				scaleX = tx.getScaleX();
+				scaleY = tx.getScaleY();
+			}
+			int fbWidth = (int) Math.round(windowWidth * scaleX);
+			int fbHeight = (int) Math.round(windowHeight * scaleY);
+			return new int[] { Math.max(1, fbWidth), Math.max(1, fbHeight) };
+		}
+
+		private int[] computeFramebufferSize() {
+			return computeFramebufferSize(Math.max(1, getWidth()), Math.max(1, getHeight()));
+		}
+
+		@Override
+		public void initGL() {
+			INIT_SEMAPHORE.acquireUninterruptibly();
+			try {
 			GL.createCapabilities();
 			GLDebug.enableIfRequested("AWT-canvas");
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_FRAMEBUFFER_SRGB);
 
-			int winWidth = Math.max(1, getWidth());
-			int winHeight = Math.max(1, getHeight());
-			int fbWidth = Math.max(1, getFramebufferWidth());
-			int fbHeight = Math.max(1, getFramebufferHeight());
+				int winWidth = Math.max(1, getWidth());
+				int winHeight = Math.max(1, getHeight());
+				int[] fbSize = computeFramebufferSize(winWidth, winHeight);
+				int fbWidth = fbSize[0];
+				int fbHeight = fbSize[1];
 
-			scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
-					.build();
-				SceneView scene = scene3DOrchestrator.getScene();
+				scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
+						.build();
+					SceneView scene = scene3DOrchestrator.getScene();
 
 				// Create the scene mesh
 				RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
@@ -313,16 +352,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 
 			// --- Initialize HUD rendering objects ---
-			hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
+				hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
 
-			// Set initial dimensions
-			lastFramebufferWidth = getFramebufferWidth();
-			lastFramebufferHeight = getFramebufferHeight();
+				// Set initial dimensions
+				lastFramebufferWidth = fbWidth;
+				lastFramebufferHeight = fbHeight;
 
-			initHudTexture();
-			initHudVao();
+				initHudTexture();
+				initHudVao();
 
-			addInputListeners();
+				addInputListeners();
 			DemoFactory.setupDemoKeyboardHandling(this.keyboardHandler, scene3DOrchestrator.getScene(), scene3DOrchestrator);
 
 			// Mark initialization complete - allows resize/render operations to proceed
@@ -337,18 +376,33 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
+	@Override
+	public void render() {
+		if (glInitFailed) {
+			return;
+		}
+		try {
+			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
+			super.render();
+		} catch (Throwable t) {
+			glInitFailed = true;
+			t.printStackTrace();
+		}
+	}
+
 	/**
 	 * Cleans up old resources and creates new ones with current framebuffer dimensions.
 	 * IMPORTANT: Creates textures directly for THIS context - does not use shared pool.
-	 */
-	private void initHudTexture() {
-		int fbWidth = getFramebufferWidth();
-		int fbHeight = getFramebufferHeight();
+		 */
+		private void initHudTexture() {
+			int[] fbSize = computeFramebufferSize();
+			int fbWidth = fbSize[0];
+			int fbHeight = fbSize[1];
 
-		if (fbWidth <= 0 || fbHeight <= 0) {
-			cleanupHudResources();
-			return;
-		}
+			if (fbWidth <= 0 || fbHeight <= 0) {
+				cleanupHudResources();
+				return;
+			}
 
 		// Check if we can reuse existing resources with padding
 		if (hudImage != null && hudImageBuffer != null) {
@@ -438,75 +492,80 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void paintGL() {
-		if (!glInitialized || !isDisplayable()) return;
+		if (!glInitialized || !isDisplayable()) {
+			return;
+		}
 
+		boolean shouldSwap = false;
 		try {
-			runInContext(() -> {
-				// Null safety checks for critical objects
-				if (scene3DOrchestrator == null) {
-					return;
-				}
+			// Null safety checks for critical objects
+			if (scene3DOrchestrator == null) {
+				return;
+			}
 
-				handlePendingResize();
+			handlePendingResize();
 
-				Renderer renderer = scene3DOrchestrator.getRenderer();
-				SceneView sceneView = scene3DOrchestrator.getScene();
+			Renderer renderer = scene3DOrchestrator.getRenderer();
+			SceneView sceneView = scene3DOrchestrator.getScene();
 
-				if (renderer == null || sceneView == null) {
-					log.debug("Skipping render - renderer or scene not available");
-					return;
-				}
+			if (renderer == null || sceneView == null) {
+				log.debug("Skipping render - renderer or scene not available");
+				return;
+			}
 
-				// --- 3D Scene Rendering & Export Logic ---
-				handleKeyboardEvents();
-				glViewport(0, 0, getFramebufferWidth(), getFramebufferHeight());
-				scene3DOrchestrator.update();
+			// --- 3D Scene Rendering & Export Logic ---
+			handleKeyboardEvents();
+			int[] fbSize = computeFramebufferSize();
+			glViewport(0, 0, fbSize[0], fbSize[1]);
+			scene3DOrchestrator.update();
 
-				if (cameraIsMoving) {
-					hudNeedsUpdate = true;
-				}
+			if (cameraIsMoving) {
+				hudNeedsUpdate = true;
+			}
 
-				// Check for an export request before the main render
-				if (scene3DOrchestrator.isExportRequested()) {
-					handleExport(sceneView, renderer);
-					return;
-				}
+			// Check for an export request before the main render
+			if (scene3DOrchestrator.isExportRequested()) {
+				handleExport(sceneView, renderer);
+				shouldSwap = true;
+				return;
+			}
 
-				// --- Main Display Rendering (if not exporting) --
-				renderer.render(sceneView, null, true);
-				renderer.presentResolvedToCurrentFramebuffer();
+			// --- Main Display Rendering (if not exporting) --
+			renderer.render(sceneView, null, true);
+			renderer.presentResolvedToCurrentFramebuffer();
 
-				// --- 2D HUD Rendering - only update texture if needed ---
-				if (hudNeedsUpdate || (hudPanel != null && hudPanel.needsRepaint())) {
-					updateHudTexture();
-					hudNeedsUpdate = false;
-				}
+			// --- 2D HUD Rendering - only update texture if needed ---
+			if (hudNeedsUpdate || (hudPanel != null && hudPanel.needsRepaint())) {
+				updateHudTexture();
+				hudNeedsUpdate = false;
+			}
 
-				if (hudTexture != null && hudShader != null) {
-					// Set GL state for 2D rendering
-					glDisable(GL_DEPTH_TEST);
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			if (hudTexture != null && hudShader != null) {
+				// Set GL state for 2D rendering
+				glDisable(GL_DEPTH_TEST);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-					hudShader.use();
+				hudShader.use();
 
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, hudTexture.getId());
 
-					glBindVertexArray(hudVao);
-					glDrawArrays(GL_TRIANGLES, 0, 6);
-					glBindVertexArray(0);
+				glBindVertexArray(hudVao);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+				glBindVertexArray(0);
 
-					// Restore GL state
-					glEnable(GL_DEPTH_TEST);
-					glDisable(GL_BLEND);
-				}
-
-				// --- Final Swap for display ---
-				swapBuffers();
-			});
+				// Restore GL state
+				glEnable(GL_DEPTH_TEST);
+				glDisable(GL_BLEND);
+			}
+			shouldSwap = true;
 		} catch (Exception ex) {
-			log.debug("Skipping render - GL context not available");
+			log.debug("Skipping render - GL context not available", ex);
+		} finally {
+			if (shouldSwap) {
+				swapBuffers();
+			}
 		}
 	}
 
@@ -521,12 +580,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		ByteBuffer exportBuffer = captureResolvedFramebuffer(renderer, exportWidth, exportHeight);
 		scene3DOrchestrator.clearExportRequest();
 
-		renderer.presentResolvedToCurrentFramebuffer();
-		swapBuffers();
+			renderer.presentResolvedToCurrentFramebuffer();
 
-		if (exportBuffer == null) {
-			log.warn("Export skipped: no framebuffer data available");
-			return;
+			if (exportBuffer == null) {
+				log.warn("Export skipped: no framebuffer data available");
+				return;
 		}
 
 		EXPORT_EXECUTOR.submit(() -> writePng(exportBuffer, exportWidth, exportHeight, filePath));
@@ -541,13 +599,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// The panel works in logical window coordinates
 			int windowWidth = getWidth();
 			int windowHeight = getHeight();
-			if (windowHeight == 0) {
-				return;
-			}
-			double dpiScale = (double) getFramebufferHeight() / (double) windowHeight;
+				if (windowHeight == 0) {
+					return;
+				}
+				int[] fbSize = computeFramebufferSize(windowWidth, windowHeight);
+				double dpiScale = (double) fbSize[1] / (double) windowHeight;
 
-			hudGraphics.setTransform(hudGraphics.getDeviceConfiguration().getDefaultTransform());
-			hudGraphics.scale(dpiScale, dpiScale);
+				hudGraphics.setTransform(hudGraphics.getDeviceConfiguration().getDefaultTransform());
+				hudGraphics.scale(dpiScale, dpiScale);
 
 			// Clear with transparent background
 			hudGraphics.setBackground(new Color(0, 0, 0, 0));
@@ -584,7 +643,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void handlePendingResize() {
-		if (!resizeRequested || !glInitialized) {
+		if (!glInitialized || scene3DOrchestrator == null) {
 			return;
 		}
 
@@ -593,11 +652,31 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		int fbWidth = pendingFbWidth;
 		int fbHeight = pendingFbHeight;
 
+		if (!resizeRequested) {
+			int currentWidth = Math.max(1, getWidth());
+			int currentHeight = Math.max(1, getHeight());
+			int[] fbSize = computeFramebufferSize(currentWidth, currentHeight);
+			int currentFbWidth = fbSize[0];
+			int currentFbHeight = fbSize[1];
+			ViewportDimensions viewport = scene3DOrchestrator.getViewport();
+			if (viewport.getWindowWidth() == currentWidth
+					&& viewport.getWindowHeight() == currentHeight
+					&& viewport.getFramebufferWidth() == currentFbWidth
+					&& viewport.getFramebufferHeight() == currentFbHeight) {
+				return;
+			}
+			width = currentWidth;
+			height = currentHeight;
+			fbWidth = currentFbWidth;
+			fbHeight = currentFbHeight;
+		}
+
 		// If the framebuffer size wasn't captured on resize (EDT), query it now while the context is current
 		if (fbWidth <= 0 || fbHeight <= 0) {
-			fbWidth = Math.max(1, getFramebufferWidth());
-			fbHeight = Math.max(1, getFramebufferHeight());
-		}
+			int[] fbSize = computeFramebufferSize(width, height);
+				fbWidth = fbSize[0];
+				fbHeight = fbSize[1];
+			}
 
 		glViewport(0, 0, fbWidth, fbHeight);
 		scene3DOrchestrator.resize(width, height, fbWidth, fbHeight);
@@ -683,9 +762,35 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		hudNeedsUpdate = true;
 	}
 
+		public void addSceneSelectionListener(SelectionListener listener) {
+			if (scene3DOrchestrator == null) {
+				return;
+			}
+			scene3DOrchestrator.enqueueGlTask(() -> {
+				if (scene3DOrchestrator.getScene() != null) {
+					scene3DOrchestrator.getScene().addSelectionListener(listener);
+				}
+			});
+		}
+
+		/**
+		 * Returns and clears the most recent click event that triggered a selection change.
+		 * If the selection changed programmatically (e.g., via setSelection), this returns null.
+		 */
+		public MouseEvent consumePendingSelectionClickEvent() {
+			return pendingSelectionClickEvent.getAndSet(null);
+		}
+
+	public Scene3DOrchestrator getScene3DOrchestrator() {
+		return scene3DOrchestrator;
+	}
+
 	public void cleanup() {
 		// Prevent any further rendering/resize operations
 		glInitialized = false;
+		if (scene3DOrchestrator != null) {
+			scene3DOrchestrator.shutdown();
+		}
 
 		// Try to clean up GL resources within context
 		try {

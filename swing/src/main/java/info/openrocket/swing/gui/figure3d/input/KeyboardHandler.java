@@ -1,9 +1,8 @@
 package info.openrocket.swing.gui.figure3d.input;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
@@ -14,10 +13,10 @@ import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
  */
 public class KeyboardHandler implements KeyboardListener, KeyBindings {
 
-	private final Set<Integer> pressedKeys = new HashSet<>();
-	private final Map<Integer, Runnable> singlePressActions = new HashMap<>();
-	private final Map<Integer, Runnable> pressAndHoldActions = new HashMap<>();
-	private final Set<Integer> singlePressHandled = new HashSet<>();
+	private final Set<Integer> pressedKeys = ConcurrentHashMap.newKeySet();
+	private final Map<Integer, Runnable> singlePressActions = new ConcurrentHashMap<>();
+	private final Map<Integer, Runnable> pressAndHoldActions = new ConcurrentHashMap<>();
+	private final Set<Integer> singlePressHandled = ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Processes raw GLFW key events and updates internal key state.

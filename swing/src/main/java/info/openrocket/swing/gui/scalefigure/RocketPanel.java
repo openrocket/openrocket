@@ -36,7 +36,7 @@ import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StageSelector;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
-import info.openrocket.swing.gui.figure3d_old.RocketFigure3d;
+import info.openrocket.swing.gui.figure3d.RocketFigure3d;
 import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.figureelements.Caret;
@@ -64,6 +64,7 @@ import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.RepaintManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -71,6 +72,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -171,6 +173,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private final ScaleScrollPane scrollPane;
 
 	private final JPanel figureHolder;
+	private final CardLayout figureCardLayout = new CardLayout();
+	private Boolean previousDoubleBufferSetting = null;
 
 	private JLabel infoMessage;
 	private JCheckBox showWarnings;
@@ -248,7 +252,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure = new RocketFigure(rkt);
 		figure3d = new RocketFigure3d(document);
 
-		figureHolder = new JPanel(new BorderLayout());
+		figureHolder = new JPanel(figureCardLayout);
 
 		scrollPane = new ScaleScrollPane(figure) {
 			private static final long serialVersionUID = 1L;
@@ -277,6 +281,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		};
 		scrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
 		scrollPane.setFitting(true);
+
+		figureHolder.add(scrollPane, "2d");
+		figureHolder.add(figure3d, "3d");
+
+		System.out.println("RocketPanel: initialized figureHolder, scrollPane size=" + scrollPane.getWidth() + "x" + scrollPane.getHeight() +
+				" figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight());
 
 		createPanel();
 
@@ -336,30 +346,55 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		if (is3d)
 			return;
 		is3d = true;
-		figureHolder.remove(scrollPane);
-		figureHolder.add(figure3d, BorderLayout.CENTER);
+		figureCardLayout.show(figureHolder, "3d");
+		figure3d.startRendering();
+		disableDoubleBuffering();
 		rotationControl.setEnabled(false);
 		scaleSelector.setEnabled(false);
 
+		System.out.println("RocketPanel: switched to 3D view, figureHolder size=" + figureHolder.getWidth() + "x" + figureHolder.getHeight());
+		System.out.println("RocketPanel: figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight() +
+				" visible=" + figure3d.isVisible() + " displayable=" + figure3d.isDisplayable());
+
 		revalidate();
 		figureHolder.revalidate();
+		figureHolder.repaint();
+		figure3d.requestFocusInWindow();
 
 		figure3d.repaint();
 	}
 
 	private void go2D() {
-		if (!is3d)
+		if (!is3d) {
 			return;
+		}
 		is3d = false;
-		figureHolder.remove(figure3d);
-		figureHolder.add(scrollPane, BorderLayout.CENTER);
+		figureCardLayout.show(figureHolder, "2d");
+		figure3d.stopRendering();
+		restoreDoubleBuffering();
 		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
+
+		System.out.println("RocketPanel: switched to 2D view, figureHolder size=" + figureHolder.getWidth() + "x" + figureHolder.getHeight());
 		scrollPane.revalidate();
 		scrollPane.repaint();
 		revalidate();
 		figureHolder.revalidate();
 		figure.repaint();
+	}
+
+	private void disableDoubleBuffering() {
+		RepaintManager mgr = RepaintManager.currentManager(this);
+		if (previousDoubleBufferSetting == null) {
+			previousDoubleBufferSetting = mgr.isDoubleBufferingEnabled();
+		}
+		mgr.setDoubleBufferingEnabled(false);
+	}
+
+	private void restoreDoubleBuffering() {
+		if (previousDoubleBufferSetting != null) {
+			RepaintManager.currentManager(this).setDoubleBufferingEnabled(previousDoubleBufferSetting);
+		}
 	}
 
 	/**

@@ -255,17 +255,37 @@ public class Scene implements SceneView {
 	}
 
 	@Override
-	public void cleanup() {
-		objects.forEach(SceneObject::cleanup);
+	public void setSelection(List<SceneObject> newSelection) {
+		// Clear current selections
+		for (SceneObject obj : selectedObjects) {
+			obj.setSelected(false);
+		}
+		selectedObjects.clear();
+
+		if (newSelection != null) {
+			for (SceneObject obj : newSelection) {
+				if (obj != null) {
+					obj.setSelected(true);
+					selectedObjects.add(obj);
+				}
+			}
+		}
+		notifySelectionChanged();
 	}
 
-	// --- Selection listeners ---
+	@Override
 	public void addSelectionListener(SelectionListener listener) {
 		if (listener != null) selectionListeners.add(listener);
 	}
 
+	@Override
 	public void removeSelectionListener(SelectionListener listener) {
 		selectionListeners.remove(listener);
+	}
+
+	@Override
+	public void cleanup() {
+		objects.forEach(SceneObject::cleanup);
 	}
 
 	private void notifySelectionChanged() {

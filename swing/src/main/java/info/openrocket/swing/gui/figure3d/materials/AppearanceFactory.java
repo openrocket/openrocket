@@ -68,27 +68,33 @@ public abstract class AppearanceFactory {
 		Decal orDecal = orAppearance.getTexture();
 		if (orDecal != null && orDecal.getImage() != null) {
 			ByteBuffer buffer = null;
-			try (InputStream is = orDecal.getImage().getBytes()) {
-				byte[] bytes = is.readAllBytes();
-				buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
-				Texture engineTexture = new Texture(buffer);
+			try {
+				try (InputStream stream = orDecal.getImage().getBytes()) {
+					if (stream == null) {
+						log.warn("Decal image stream missing for {}", orDecal.getImage().getName());
+					} else {
+						byte[] bytes = stream.readAllBytes();
+						buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
+						Texture engineTexture = new Texture(buffer);
 
-				// Set the wrapping mode based on the OpenRocket decal's setting
-				if (orDecal.getEdgeMode() == Decal.EdgeMode.REPEAT) {
-					engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT_BOTH);
-				} else {
-					engineAppearance.setTextureMode(Appearance3D.TextureMode.STRETCH);
+						// Set the wrapping mode based on the OpenRocket decal's setting
+						if (orDecal.getEdgeMode() == Decal.EdgeMode.REPEAT) {
+							engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT_BOTH);
+						} else {
+							engineAppearance.setTextureMode(Appearance3D.TextureMode.STRETCH);
+						}
+
+						// If an appearance has a texture, treat it as the main texture and set the render style accordingly.
+						engineAppearance.setTexture(engineTexture);
+						engineAppearance.setRenderStyle(Appearance3D.RenderStyle.TEXTURED);
+
+						// Map the transformation from the OpenRocket Decal to our TextureTransform
+						TextureTransform transform = engineAppearance.getTextureTransform();
+						transform.scale.set((float) orDecal.getScale().getX(), (float) orDecal.getScale().getY());
+						transform.offset.set((float) orDecal.getOffset().getX(), (float) orDecal.getOffset().getY());
+						transform.rotation = (float) orDecal.getRotation();
+					}
 				}
-
-				// If an appearance has a texture, treat it as the main texture and set the render style accordingly.
-				engineAppearance.setTexture(engineTexture);
-				engineAppearance.setRenderStyle(Appearance3D.RenderStyle.TEXTURED);
-
-				// Map the transformation from the OpenRocket Decal to our TextureTransform
-				TextureTransform transform = engineAppearance.getTextureTransform();
-				transform.scale.set((float) orDecal.getScale().getX(), (float) orDecal.getScale().getY());
-				transform.offset.set((float) orDecal.getOffset().getX(), (float) orDecal.getOffset().getY());
-				transform.rotation = (float) orDecal.getRotation();
 			} catch (Exception e) {
 				log.error("Failed to load decal image from OpenRocket component.", e);
 			} finally {

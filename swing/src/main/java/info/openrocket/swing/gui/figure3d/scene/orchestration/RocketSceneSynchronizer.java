@@ -12,6 +12,8 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Manages real-time synchronization between the OpenRocket data model and the 3D scene visualization.
@@ -39,6 +41,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final Scene3DOrchestrator scene3DOrchestrator;
 	private final SceneView scene;
 	private final Rocket rocket;
+	private final ConcurrentLinkedQueue<RocketComponent> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
+	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
+	private final AtomicBoolean rebuildQueued = new AtomicBoolean(false);
 
 	/**
 	 * Constructs a new RocketSceneSynchronizer and registers it with the rocket model.
@@ -72,12 +77,64 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		// Check for changes that only affect appearance and not geometry/structure.
 		// These can be handled with a lightweight update.
 		if (type == ComponentChangeEvent.NONFUNCTIONAL_CHANGE || type == ComponentChangeEvent.GRAPHIC_CHANGE) {
-			updateComponentAppearance(e.getSource());
+			queueAppearanceUpdate(e.getSource());
 		} else {
 			// For any other more significant change (geometry, tree structure, mass, etc.),
 			// the safest and simplest approach is a full rebuild of the rocket objects.
-			rebuildRocketScene();
+			queueRebuild();
 		}
+	}
+
+	/**
+	 * Detaches this synchronizer from the rocket model.
+	 */
+	public void dispose() {
+		rocket.removeComponentChangeListener(this);
+		pendingAppearanceUpdates.clear();
+	}
+
+	private void queueAppearanceUpdate(RocketComponent component) {
+		if (component == null || rebuildQueued.get()) {
+			return;
+		}
+		pendingAppearanceUpdates.add(component);
+		if (appearanceQueued.compareAndSet(false, true)) {
+			scene3DOrchestrator.enqueueGlTask(this::flushAppearanceUpdates);
+		}
+	}
+
+	private void flushAppearanceUpdates() {
+		try {
+			if (rebuildQueued.get()) {
+				pendingAppearanceUpdates.clear();
+				return;
+			}
+			RocketComponent component;
+			while ((component = pendingAppearanceUpdates.poll()) != null) {
+				updateComponentAppearance(component);
+			}
+		} finally {
+			appearanceQueued.set(false);
+			if (!pendingAppearanceUpdates.isEmpty() && !rebuildQueued.get()) {
+				if (appearanceQueued.compareAndSet(false, true)) {
+					scene3DOrchestrator.enqueueGlTask(this::flushAppearanceUpdates);
+				}
+			}
+		}
+	}
+
+	private void queueRebuild() {
+		if (!rebuildQueued.compareAndSet(false, true)) {
+			return;
+		}
+		scene3DOrchestrator.enqueueGlTask(() -> {
+			try {
+				pendingAppearanceUpdates.clear();
+				rebuildRocketScene();
+			} finally {
+				rebuildQueued.set(false);
+			}
+		});
 	}
 
 	/**
