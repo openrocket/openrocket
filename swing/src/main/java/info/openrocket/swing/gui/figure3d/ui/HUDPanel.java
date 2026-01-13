@@ -20,7 +20,7 @@ public class HUDPanel extends JPanel {
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final RocketInfo rocketInfo;
 
-	private boolean needsRepaint = true;
+	private volatile boolean needsRepaint = true;
 
 	// Rate limiting for change events
 	private long lastRepaintTime = 0;

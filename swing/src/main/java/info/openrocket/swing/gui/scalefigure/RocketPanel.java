@@ -34,14 +34,15 @@ import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StageSelector;
-import info.openrocket.swing.gui.components.StyledLabel;
-import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
-import info.openrocket.swing.gui.figure3d.RocketFigure3d;
-import info.openrocket.swing.gui.figureelements.CGCaret;
-import info.openrocket.swing.gui.figureelements.CPCaret;
-import info.openrocket.swing.gui.figureelements.Caret;
-import info.openrocket.swing.gui.figureelements.RocketInfo;
-import info.openrocket.swing.gui.main.BasicFrame;
+	import info.openrocket.swing.gui.components.StyledLabel;
+	import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
+	import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+	import info.openrocket.swing.gui.figure3d.utils.Figure3dDebug;
+	import info.openrocket.swing.gui.figureelements.CGCaret;
+	import info.openrocket.swing.gui.figureelements.CPCaret;
+	import info.openrocket.swing.gui.figureelements.Caret;
+	import info.openrocket.swing.gui.figureelements.RocketInfo;
+	import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.swing.gui.simulation.SimulationWorker;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -109,12 +110,12 @@ import javax.imageio.ImageIO;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 @SuppressWarnings("serial")
-public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource, CAParameters.CAParametersListener {
-
-	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
-
-	private static final String VIEW_TYPE_SEPARATOR = "__SEPARATOR__";		// Dummy string to indicate a horizontal separator item in the view type combobox
+	public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource, CAParameters.CAParametersListener {
+	
+		private static final Translator trans = Application.getTranslator();
+		private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
+	
+		private static final String VIEW_TYPE_SEPARATOR = "__SEPARATOR__";		// Dummy string to indicate a horizontal separator item in the view type combobox
 	public enum VIEW_TYPE {
 		TopView(false, RocketFigure.VIEW_TOP),
 		SideView(false, RocketFigure.VIEW_SIDE),
@@ -285,8 +286,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder.add(scrollPane, "2d");
 		figureHolder.add(figure3d, "3d");
 
-		System.out.println("RocketPanel: initialized figureHolder, scrollPane size=" + scrollPane.getWidth() + "x" + scrollPane.getHeight() +
-				" figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight());
+			Figure3dDebug.println("RocketPanel: initialized figureHolder, scrollPane size=" + scrollPane.getWidth() + "x"
+					+ scrollPane.getHeight() + " figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight());
 
 		createPanel();
 
@@ -342,46 +343,72 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		scrollPane.repaint();
 	}
 
-	private void go3D() {
-		if (is3d)
-			return;
-		is3d = true;
-		figureCardLayout.show(figureHolder, "3d");
-		figure3d.startRendering();
-		disableDoubleBuffering();
-		rotationControl.setEnabled(false);
-		scaleSelector.setEnabled(false);
+		private void go3D() {
+			if (is3d)
+				return;
+			is3d = true;
+			debugFigure3dLayout("go3D.beforeShow");
+			figureCardLayout.show(figureHolder, "3d");
+			figure3d.startRendering();
+			disableDoubleBuffering();
+			rotationControl.setEnabled(false);
+			scaleSelector.setEnabled(false);
 
-		System.out.println("RocketPanel: switched to 3D view, figureHolder size=" + figureHolder.getWidth() + "x" + figureHolder.getHeight());
-		System.out.println("RocketPanel: figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight() +
-				" visible=" + figure3d.isVisible() + " displayable=" + figure3d.isDisplayable());
+			Figure3dDebug.println("RocketPanel: switched to 3D view, figureHolder size=" + figureHolder.getWidth() + "x"
+					+ figureHolder.getHeight());
+			Figure3dDebug.println("RocketPanel: figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight()
+					+ " visible=" + figure3d.isVisible() + " displayable=" + figure3d.isDisplayable());
 
-		revalidate();
-		figureHolder.revalidate();
-		figureHolder.repaint();
-		figure3d.requestFocusInWindow();
+			revalidate();
+			figureHolder.revalidate();
+			figureHolder.repaint();
+			figure3d.requestFocusInWindow();
 
-		figure3d.repaint();
-	}
-
-	private void go2D() {
-		if (!is3d) {
-			return;
+			figure3d.repaint();
+			SwingUtilities.invokeLater(() -> debugFigure3dLayout("go3D.afterLayout"));
 		}
-		is3d = false;
-		figureCardLayout.show(figureHolder, "2d");
-		figure3d.stopRendering();
-		restoreDoubleBuffering();
-		rotationControl.setEnabled(true);
+
+		private void go2D() {
+			if (!is3d) {
+				return;
+			}
+			is3d = false;
+			debugFigure3dLayout("go2D.beforeShow");
+			figureCardLayout.show(figureHolder, "2d");
+			figure3d.stopRendering();
+			restoreDoubleBuffering();
+			rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
 
-		System.out.println("RocketPanel: switched to 2D view, figureHolder size=" + figureHolder.getWidth() + "x" + figureHolder.getHeight());
-		scrollPane.revalidate();
-		scrollPane.repaint();
-		revalidate();
-		figureHolder.revalidate();
-		figure.repaint();
-	}
+			Figure3dDebug.println("RocketPanel: switched to 2D view, figureHolder size=" + figureHolder.getWidth() + "x"
+					+ figureHolder.getHeight());
+			scrollPane.revalidate();
+			scrollPane.repaint();
+			revalidate();
+			figureHolder.revalidate();
+			figure.repaint();
+			SwingUtilities.invokeLater(() -> debugFigure3dLayout("go2D.afterLayout"));
+		}
+
+		private void debugFigure3dLayout(String stage) {
+			if (!Figure3dDebug.isEnabled()) {
+				return;
+			}
+			Point screen = null;
+			try {
+				if (isShowing()) {
+					screen = getLocationOnScreen();
+				}
+			} catch (Exception ignored) {
+				// ignore
+			}
+			Figure3dDebug.println("[RocketPanel] " + stage
+					+ " rocketPanel.bounds=" + getBounds()
+					+ " rocketPanel.loc=" + getLocation()
+					+ " rocketPanel.screen=" + screen
+					+ " figureHolder.bounds=" + (figureHolder != null ? figureHolder.getBounds() : null)
+					+ " figure3d.bounds=" + (figure3d != null ? figure3d.getBounds() : null));
+		}
 
 	private void disableDoubleBuffering() {
 		RepaintManager mgr = RepaintManager.currentManager(this);
