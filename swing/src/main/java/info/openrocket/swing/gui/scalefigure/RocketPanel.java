@@ -37,7 +37,6 @@ import info.openrocket.swing.gui.components.StageSelector;
 	import info.openrocket.swing.gui.components.StyledLabel;
 	import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
 	import info.openrocket.swing.gui.figure3d.RocketFigure3d;
-	import info.openrocket.swing.gui.figure3d.utils.Figure3dDebug;
 	import info.openrocket.swing.gui.figureelements.CGCaret;
 	import info.openrocket.swing.gui.figureelements.CPCaret;
 	import info.openrocket.swing.gui.figureelements.Caret;
@@ -170,12 +169,16 @@ import javax.imageio.ImageIO;
 	private boolean is3d;
 	private final RocketFigure figure;
 	private final RocketFigure3d figure3d;
+	private static final boolean FIGURE3D_DEBUG = isFigure3dDebugEnabled();
 
 	private final ScaleScrollPane scrollPane;
 
 	private final JPanel figureHolder;
 	private final CardLayout figureCardLayout = new CardLayout();
-	private Boolean previousDoubleBufferSetting = null;
+	private static final Object DOUBLE_BUFFER_LOCK = new Object();
+	private static int doubleBufferDisableCount = 0;
+	private static Boolean savedDoubleBufferSetting = null;
+	private boolean doubleBufferDisabledFor3d = false;
 
 	private JLabel infoMessage;
 	private JCheckBox showWarnings;
@@ -286,9 +289,6 @@ import javax.imageio.ImageIO;
 		figureHolder.add(scrollPane, "2d");
 		figureHolder.add(figure3d, "3d");
 
-			Figure3dDebug.println("RocketPanel: initialized figureHolder, scrollPane size=" + scrollPane.getWidth() + "x"
-					+ scrollPane.getHeight() + " figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight());
-
 		createPanel();
 
 		is3d = true;
@@ -343,21 +343,19 @@ import javax.imageio.ImageIO;
 		scrollPane.repaint();
 	}
 
-		private void go3D() {
-			if (is3d)
-				return;
-			is3d = true;
-			debugFigure3dLayout("go3D.beforeShow");
-			figureCardLayout.show(figureHolder, "3d");
-			figure3d.startRendering();
+			private void go3D() {
+				if (is3d)
+					return;
+				if (FIGURE3D_DEBUG) {
+					System.out.println("[RocketPanel][" + Thread.currentThread().getName() + "] go3D: showing=" + isShowing()
+							+ " bounds=" + getBounds() + " figureHolder=" + figureHolder.getBounds());
+				}
+				is3d = true;
+				figureCardLayout.show(figureHolder, "3d");
+				figure3d.startRendering();
 			disableDoubleBuffering();
 			rotationControl.setEnabled(false);
 			scaleSelector.setEnabled(false);
-
-			Figure3dDebug.println("RocketPanel: switched to 3D view, figureHolder size=" + figureHolder.getWidth() + "x"
-					+ figureHolder.getHeight());
-			Figure3dDebug.println("RocketPanel: figure3d size=" + figure3d.getWidth() + "x" + figure3d.getHeight()
-					+ " visible=" + figure3d.isVisible() + " displayable=" + figure3d.isDisplayable());
 
 			revalidate();
 			figureHolder.revalidate();
@@ -365,63 +363,82 @@ import javax.imageio.ImageIO;
 			figure3d.requestFocusInWindow();
 
 			figure3d.repaint();
-			SwingUtilities.invokeLater(() -> debugFigure3dLayout("go3D.afterLayout"));
 		}
 
-		private void go2D() {
-			if (!is3d) {
-				return;
-			}
-			is3d = false;
-			debugFigure3dLayout("go2D.beforeShow");
-			figureCardLayout.show(figureHolder, "2d");
-			figure3d.stopRendering();
+			private void go2D() {
+				if (!is3d) {
+					return;
+				}
+				if (FIGURE3D_DEBUG) {
+					System.out.println("[RocketPanel][" + Thread.currentThread().getName() + "] go2D: showing=" + isShowing()
+							+ " bounds=" + getBounds() + " figureHolder=" + figureHolder.getBounds());
+				}
+				is3d = false;
+				figureCardLayout.show(figureHolder, "2d");
+				figure3d.stopRendering();
 			restoreDoubleBuffering();
 			rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
-
-			Figure3dDebug.println("RocketPanel: switched to 2D view, figureHolder size=" + figureHolder.getWidth() + "x"
-					+ figureHolder.getHeight());
 			scrollPane.revalidate();
 			scrollPane.repaint();
 			revalidate();
 			figureHolder.revalidate();
 			figure.repaint();
-			SwingUtilities.invokeLater(() -> debugFigure3dLayout("go2D.afterLayout"));
-		}
-
-		private void debugFigure3dLayout(String stage) {
-			if (!Figure3dDebug.isEnabled()) {
-				return;
-			}
-			Point screen = null;
-			try {
-				if (isShowing()) {
-					screen = getLocationOnScreen();
-				}
-			} catch (Exception ignored) {
-				// ignore
-			}
-			Figure3dDebug.println("[RocketPanel] " + stage
-					+ " rocketPanel.bounds=" + getBounds()
-					+ " rocketPanel.loc=" + getLocation()
-					+ " rocketPanel.screen=" + screen
-					+ " figureHolder.bounds=" + (figureHolder != null ? figureHolder.getBounds() : null)
-					+ " figure3d.bounds=" + (figure3d != null ? figure3d.getBounds() : null));
 		}
 
 	private void disableDoubleBuffering() {
-		RepaintManager mgr = RepaintManager.currentManager(this);
-		if (previousDoubleBufferSetting == null) {
-			previousDoubleBufferSetting = mgr.isDoubleBufferingEnabled();
+		synchronized (DOUBLE_BUFFER_LOCK) {
+			if (doubleBufferDisabledFor3d) {
+				return;
+			}
+			RepaintManager mgr = RepaintManager.currentManager(this);
+			if (doubleBufferDisableCount == 0) {
+				savedDoubleBufferSetting = mgr.isDoubleBufferingEnabled();
+				mgr.setDoubleBufferingEnabled(false);
+			} else {
+				mgr.setDoubleBufferingEnabled(false);
+			}
+			doubleBufferDisableCount++;
+			doubleBufferDisabledFor3d = true;
 		}
-		mgr.setDoubleBufferingEnabled(false);
 	}
 
 	private void restoreDoubleBuffering() {
-		if (previousDoubleBufferSetting != null) {
-			RepaintManager.currentManager(this).setDoubleBufferingEnabled(previousDoubleBufferSetting);
+		synchronized (DOUBLE_BUFFER_LOCK) {
+			if (!doubleBufferDisabledFor3d) {
+				return;
+			}
+			doubleBufferDisabledFor3d = false;
+			if (doubleBufferDisableCount > 0) {
+				doubleBufferDisableCount--;
+			}
+			if (doubleBufferDisableCount == 0 && savedDoubleBufferSetting != null) {
+				RepaintManager.currentManager(this).setDoubleBufferingEnabled(savedDoubleBufferSetting);
+				savedDoubleBufferSetting = null;
+			}
 		}
+	}
+
+	private static boolean isFigure3dDebugEnabled() {
+		String value = System.getProperty("openrocket.figure3d.debug");
+		if (value == null) {
+			value = System.getenv("OPENROCKET_FIGURE3D_DEBUG");
+		}
+		if (value == null) {
+			return false;
+		}
+		value = value.trim();
+		if (value.isEmpty()) {
+			return true;
+		}
+		return Boolean.parseBoolean(value);
+	}
+
+	@Override
+	public void removeNotify() {
+		// If the window is closed while in 3D mode, ensure we don't leave Swing double buffering disabled globally.
+		restoreDoubleBuffering();
+		super.removeNotify();
 	}
 
 	/**

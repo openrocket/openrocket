@@ -13,9 +13,9 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
-import info.openrocket.swing.gui.figure3d.utils.Figure3dDebug;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,11 +114,19 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
  * </ul>
  * <p>Both paths converge on the same SceneInputProcessor so the interaction model is consistent.</p>
  */
-	public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
-	
-		private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-		private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
-				System.getProperty("os.name", "").toLowerCase().contains("mac");
+public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
+
+			private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
+			private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
+					System.getProperty("os.name", "").toLowerCase().contains("mac");
+		private static final boolean DEBUG = isDebugEnabled();
+		private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
+		private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
+		private final AtomicInteger renderCallCount = new AtomicInteger(0);
+		private final AtomicInteger paintCallCount = new AtomicInteger(0);
+		private final AtomicInteger swapCallCount = new AtomicInteger(0);
+		private volatile long lastPaintSkipDebugMs = 0;
+		private volatile long lastStatusDebugMs = 0;
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -165,11 +173,15 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 	private volatile boolean glInitialized = false;
 	public volatile boolean glInitFailed = false;
 	private static final Semaphore INIT_SEMAPHORE = new Semaphore(1, true);
+	private static final Semaphore RENDER_SEMAPHORE = new Semaphore(1, true);
+	// LWJGL capabilities are thread-local; store per-canvas so we can render multiple canvases on one thread.
+	private volatile GLCapabilities glCapabilities;
 
 	private final Rocket rocket;
 	private static final ExecutorService EXPORT_EXECUTOR;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
+	private volatile Runnable renderActivityCallback;
 
 	static {
 		// Ensure Swing popups render above the heavyweight AWTGLCanvas (notably on macOS).
@@ -192,6 +204,7 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		setIgnoreRepaint(true);
+		debug("ctor: showing=" + isShowing() + " displayable=" + isDisplayable() + " bounds=" + getBounds());
 
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
@@ -201,7 +214,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 				addHierarchyListener(e -> {
 					if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
 						peerBoundsSyncAttempts.set(0);
-						debugBounds("SHOWING_CHANGED");
 						if (isShowing()) {
 							requestPeerBoundsSync();
 						}
@@ -216,7 +228,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 							return;
 						}
 						peerBoundsSyncAttempts.set(0);
-						debugBounds("ancestorMoved");
 						requestPeerBoundsSync();
 					}
 
@@ -226,7 +237,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 							return;
 						}
 						peerBoundsSyncAttempts.set(0);
-						debugBounds("ancestorResized");
 						requestPeerBoundsSync();
 					}
 				});
@@ -238,7 +248,7 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 					if (!isDisplayable()) {
 						return;
 					}
-					debugBounds("componentResized");
+					markRenderActivity();
 					int width = Math.max(1, getWidth());
 					int height = Math.max(1, getHeight());
 					pendingWinWidth = width;
@@ -250,18 +260,34 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 						hudNeedsUpdate = true;
 					}
 			});
-		debugBounds("ctor");
 		}
+
+	/**
+	 * Registers a callback that is invoked when the user interacts with the canvas (mouse/keyboard/resize).
+	 * Used by the macOS render scheduler to prioritize recently active 3D views.
+	 */
+	public void setRenderActivityCallback(Runnable callback) {
+		this.renderActivityCallback = callback;
+	}
+
+	private void markRenderActivity() {
+		Runnable callback = renderActivityCallback;
+		if (callback != null) {
+			callback.run();
+		}
+	}
 
 		@Override
 		public void addNotify() {
 			super.addNotify();
-			debugBounds("addNotify");
+			debug("addNotify: showing=" + isShowing() + " displayable=" + isDisplayable() + " bounds=" + getBounds());
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				peerBoundsSyncAttempts.set(0);
 				schedulePeerBoundsSyncRetry(0);
 				schedulePeerBoundsSyncRetry(50);
 				schedulePeerBoundsSyncRetry(200);
+				schedulePeerBoundsSyncRetry(500);
+				schedulePeerBoundsSyncRetry(1000);
 			}
 		}
 
@@ -277,6 +303,8 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			requestPeerBoundsSync();
 			schedulePeerBoundsSyncRetry(50);
 			schedulePeerBoundsSyncRetry(200);
+			schedulePeerBoundsSyncRetry(500);
+			schedulePeerBoundsSyncRetry(1000);
 		}
 
 		private void requestPeerBoundsSync() {
@@ -296,10 +324,20 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 				int attempt = peerBoundsSyncAttempts.incrementAndGet();
 				if (attempt > MAX_PEER_BOUNDS_SYNC_ATTEMPTS) {
 					peerBoundsSyncAttempts.set(0);
-					debugBounds("peerBoundsSync.giveUp#" + attempt);
 					return;
 				}
-				debugBounds("peerBoundsSync.invokeLater#" + attempt);
+				if (DEBUG && (attempt == 1 || attempt % 5 == 0)) {
+					Point expected = computeExpectedLocationOnScreen();
+					Point actual = null;
+					try {
+						actual = getLocationOnScreen();
+					} catch (Exception ignored) {
+						// ignore
+					}
+					debug("peerBoundsSync: attempt=" + attempt + " bounds=" + getBounds()
+							+ " expectedOnScreen=" + (expected != null ? expected.x + "," + expected.y : "n/a")
+							+ " actualOnScreen=" + (actual != null ? actual.x + "," + actual.y : "n/a"));
+				}
 				syncPeerBounds();
 				if (isPeerMispositioned()) {
 					schedulePeerBoundsSyncRetry(PEER_BOUNDS_SYNC_RETRY_DELAY_MS);
@@ -323,7 +361,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			return;
 		}
 		try {
-			debugBounds("syncPeerBounds.before");
 			int x = getX();
 			int y = getY();
 				int width = getWidth();
@@ -339,7 +376,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 				if (parent != null) {
 					parent.validate();
 				}
-				debugBounds("syncPeerBounds.after");
 			} finally {
 				peerBoundsSyncInProgress.set(false);
 			}
@@ -378,58 +414,21 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			return new Point(parentOnScreen.x + local.x, parentOnScreen.y + local.y);
 		}
 
-		private void debugBounds(String stage) {
-			if (!Figure3dDebug.isEnabled()) {
-				return;
-			}
-			try {
-				String scale = "n/a";
-				GraphicsConfiguration gc = getGraphicsConfiguration();
-				if (gc != null) {
-				AffineTransform tx = gc.getDefaultTransform();
-				scale = tx.getScaleX() + "x" + tx.getScaleY();
-			}
-				Point screen = null;
-				try {
-					if (isShowing()) {
-						screen = getLocationOnScreen();
-					}
-				} catch (Exception ignored) {
-					// getLocationOnScreen can throw if the peer isn't fully realized yet.
-				}
-				Point expected = computeExpectedLocationOnScreen();
-				String delta = "n/a";
-				if (screen != null && expected != null) {
-					delta = (screen.x - expected.x) + "," + (screen.y - expected.y);
-				}
-				Figure3dDebug.println("[GLScenePanel] " + stage
-						+ " bounds=" + getBounds()
-						+ " loc=" + getLocation()
-						+ " screen=" + screen
-						+ " expected=" + expected
-						+ " delta=" + delta
-						+ " showing=" + isShowing()
-						+ " displayable=" + isDisplayable()
-						+ " scale=" + scale);
-			} catch (Exception e) {
-				Figure3dDebug.println("[GLScenePanel] " + stage + " debugBounds failed: " + e.getMessage());
-			}
-		}
-
 	private void addInputListeners() {
 		if (scene3DOrchestrator == null) return;
 
-		MouseAdapter mouseAdapter = new MouseAdapter() {
-			private Point pressPoint;
-			private Point lastPoint;
-			private boolean isDragging;
+			MouseAdapter mouseAdapter = new MouseAdapter() {
+				private Point pressPoint;
+				private Point lastPoint;
+				private boolean isDragging;
 
-			@Override
-				public void mousePressed(MouseEvent e) {
-					if (SwingUtilities.isLeftMouseButton(e)) {
-						// Track modifier state for multi-selection.
-						scene3DOrchestrator.getInputHandler().getInputState().isShiftPressed = e.isShiftDown() || e.isMetaDown();
-						// Use Swing's built-in click count to detect double-clicks.
+				@Override
+					public void mousePressed(MouseEvent e) {
+						markRenderActivity();
+						if (SwingUtilities.isLeftMouseButton(e)) {
+							// Track modifier state for multi-selection.
+							scene3DOrchestrator.getInputHandler().getInputState().isShiftPressed = e.isShiftDown() || e.isMetaDown();
+							// Use Swing's built-in click count to detect double-clicks.
 						if (e.getClickCount() == 2) {
 							scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
 						}
@@ -440,12 +439,13 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 				}
 			}
 
-			@Override
-				public void mouseReleased(MouseEvent e) {
-					if (SwingUtilities.isLeftMouseButton(e)) {
-						// We check for !isDragging to differentiate a click from a drag-release.
-						// A double-click will also fire this event for the second click.
-						if (!isDragging && pressPoint != null) {
+				@Override
+					public void mouseReleased(MouseEvent e) {
+						markRenderActivity();
+						if (SwingUtilities.isLeftMouseButton(e)) {
+							// We check for !isDragging to differentiate a click from a drag-release.
+							// A double-click will also fire this event for the second click.
+							if (!isDragging && pressPoint != null) {
 							// Update modifier state and capture the click event for selection listeners.
 							var inputState = scene3DOrchestrator.getInputHandler().getInputState();
 							inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
@@ -458,12 +458,13 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 				}
 			}
 
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e) && pressPoint != null) {
-					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
-						isDragging = true;
-					}
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					markRenderActivity();
+					if (SwingUtilities.isLeftMouseButton(e) && pressPoint != null) {
+						if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
+							isDragging = true;
+						}
 
 					if (isDragging) {
 						// Check for modifier keys
@@ -484,42 +485,60 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 				}
 			}
 
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f);
-				hudNeedsUpdate = true; // Mark HUD for update on zoom
-			}
-		};
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) {
+					markRenderActivity();
+					scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f);
+					hudNeedsUpdate = true; // Mark HUD for update on zoom
+				}
+			};
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
 
 		setFocusable(true);
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				keyboardHandler.handleKeyEvent(e.getKeyCode(), 1);
-			}
+			addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					markRenderActivity();
+					keyboardHandler.handleKeyEvent(e.getKeyCode(), 1);
+				}
 
-			@Override
-			public void keyReleased(KeyEvent e) {
-				keyboardHandler.handleKeyEvent(e.getKeyCode(), 0);
-			}
-		});
-	}
+				@Override
+				public void keyReleased(KeyEvent e) {
+					markRenderActivity();
+					keyboardHandler.handleKeyEvent(e.getKeyCode(), 0);
+				}
+			});
+		}
 
-	private static GLData createGLData() {
-		GLData data = new GLData();
-		data.majorVersion = 3;
-		data.minorVersion = 3;
-		data.profile = GLData.Profile.CORE;
-		data.doubleBuffer = true;
-		data.samples = 4;
-		data.sRGB = true;
-		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
-		data.swapInterval = 0;
-		return data;
-	}
+		private static GLData createGLData() {
+			GLData data = new GLData();
+			data.majorVersion = 3;
+			data.minorVersion = 3;
+			data.profile = GLData.Profile.CORE;
+			data.doubleBuffer = true;
+			// On macOS, requesting a multisampled default framebuffer has proven to be less reliable
+			// when multiple canvases/windows are active. We rely on post-processing AA (FXAA) anyway.
+			data.samples = getRequestedSampleCount();
+			data.sRGB = true;
+			// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
+			data.swapInterval = 0;
+			return data;
+		}
+
+		private static int getRequestedSampleCount() {
+			String override = System.getProperty("openrocket.figure3d.samples");
+			if (override != null) {
+				try {
+					return Math.max(0, Integer.parseInt(override.trim()));
+				} catch (NumberFormatException ignored) {
+					// fall through
+				}
+			}
+			// Default: disable MSAA on macOS for multi-window stability.
+			return NEEDS_PEER_BOUNDS_SYNC_WORKAROUND ? 0 : 4;
+		}
 
 		/**
 		 * Computes framebuffer size without calling AWT native peer methods.
@@ -543,11 +562,34 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			return computeFramebufferSize(Math.max(1, getWidth()), Math.max(1, getHeight()));
 		}
 
-		@Override
-		public void initGL() {
-			INIT_SEMAPHORE.acquireUninterruptibly();
-			try {
-			GL.createCapabilities();
+	@Override
+	protected void beforeRender() {
+		super.beforeRender();
+		// When multiple AWTGLCanvas instances are rendered from the same thread (e.g. on macOS),
+		// the active OpenGL context changes between calls. LWJGL requires updating the
+		// thread-local capabilities to match the current context.
+		GLCapabilities caps = glCapabilities;
+		if (caps != null) {
+			GL.setCapabilities(caps);
+		}
+	}
+
+	@Override
+	protected void afterRender() {
+		try {
+			super.afterRender();
+		} finally {
+			// Avoid leaving stale capabilities set when no context is current.
+			GL.setCapabilities(null);
+		}
+	}
+
+	@Override
+	public void initGL() {
+		debug("initGL: enter, thread=" + Thread.currentThread().getName() + " bounds=" + getBounds());
+		INIT_SEMAPHORE.acquireUninterruptibly();
+		try {
+			glCapabilities = GL.createCapabilities();
 			GLDebug.enableIfRequested("AWT-canvas");
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
@@ -593,9 +635,11 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			// Mark initialization complete - allows resize/render operations to proceed
 			glInitialized = true;
 			glInitLatch.countDown();
+			debug("initGL: success");
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
+			debug("initGL: FAILED: " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException("Failed to initialize renderer", e);
 		} finally {
 			INIT_SEMAPHORE.release();
@@ -604,15 +648,45 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 
 	@Override
 	public void render() {
+		int count = renderCallCount.incrementAndGet();
+		maybeDebugStatus("render.enter", count);
 		if (glInitFailed) {
+			if (count == 1) {
+				debug("render: skipped (glInitFailed)");
+			}
+			return;
+		}
+		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
+			if (count == 1) {
+				debug("render: skipped (displayable=" + isDisplayable() + " showing=" + isShowing()
+						+ " size=" + getWidth() + "x" + getHeight() + ")");
+			}
 			return;
 		}
 		try {
+			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+				RENDER_SEMAPHORE.acquireUninterruptibly();
+			}
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
+			if (count == 1) {
+				debug("render: first call (showing=" + isShowing() + " displayable=" + isDisplayable()
+						+ " bounds=" + getBounds() + ")");
+			}
 			super.render();
+			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && count == 1) {
+				// The native NSOpenGLView is created during the first render; schedule another bounds sync
+				// afterwards to catch late layout adjustments in Swing.
+				requestPeerBoundsSyncNow();
+			}
 		} catch (Throwable t) {
 			glInitFailed = true;
+			debug("render: FAILED: " + t.getClass().getSimpleName() + ": " + t.getMessage());
 			t.printStackTrace();
+		} finally {
+			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+				RENDER_SEMAPHORE.release();
+			}
+			maybeDebugStatus("render.exit", count);
 		}
 	}
 
@@ -721,7 +795,17 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 
 	@Override
 	public void paintGL() {
+		paintCallCount.incrementAndGet();
 		if (!glInitialized || !isDisplayable()) {
+			if (DEBUG) {
+				long now = System.currentTimeMillis();
+				if (now - lastPaintSkipDebugMs > 500) {
+					lastPaintSkipDebugMs = now;
+					debug("paintGL: skipped (glInitialized=" + glInitialized + " displayable=" + isDisplayable()
+							+ " showing=" + isShowing() + " bounds=" + getBounds()
+							+ " renderCalls=" + renderCallCount.get() + " paintCalls=" + paintCallCount.get() + ")");
+				}
+			}
 			return;
 		}
 
@@ -729,6 +813,7 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 		try {
 			// Null safety checks for critical objects
 			if (scene3DOrchestrator == null) {
+				debug("paintGL: scene3DOrchestrator=null");
 				return;
 			}
 
@@ -738,7 +823,7 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			SceneView sceneView = scene3DOrchestrator.getScene();
 
 			if (renderer == null || sceneView == null) {
-				log.debug("Skipping render - renderer or scene not available");
+				debug("paintGL: renderer or scene not available");
 				return;
 			}
 
@@ -795,13 +880,80 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 			}
 			shouldSwap = true;
 		} catch (Exception ex) {
-			log.debug("Skipping render - GL context not available", ex);
+			debug("paintGL: exception: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 		} finally {
 			if (shouldSwap) {
+				swapCallCount.incrementAndGet();
 				swapBuffers();
 			}
 		}
 	}
+
+		private void maybeDebugStatus(String phase, int renderCount) {
+			if (!DEBUG) {
+				return;
+			}
+			long now = System.currentTimeMillis();
+			if (now - lastStatusDebugMs < 1000) {
+				return;
+			}
+			lastStatusDebugMs = now;
+
+			String window = "n/a";
+			try {
+				var w = SwingUtilities.getWindowAncestor(this);
+				if (w instanceof javax.swing.JFrame jf) {
+					window = jf.getTitle();
+				} else if (w != null) {
+					window = w.getClass().getSimpleName();
+				}
+			} catch (Exception ignored) {
+				// ignore
+			}
+
+			Point actual = null;
+			try {
+				if (isShowing()) {
+					actual = getLocationOnScreen();
+				}
+			} catch (Exception ignored) {
+				// ignore
+			}
+			Point expected = computeExpectedLocationOnScreen();
+
+			System.out.println("[GLScenePanel#" + instanceId + "][" + Thread.currentThread().getName() + "][window=" + window + "] status@" + phase
+					+ ": renderCalls=" + renderCount
+					+ " paintCalls=" + paintCallCount.get()
+					+ " swaps=" + swapCallCount.get()
+					+ " showing=" + isShowing()
+					+ " displayable=" + isDisplayable()
+					+ " bounds=" + getBounds()
+					+ " onScreen=" + (actual != null ? actual.x + "," + actual.y : "n/a")
+					+ " expectedOnScreen=" + (expected != null ? expected.x + "," + expected.y : "n/a")
+					+ " rootPane=" + (SwingUtilities.getRootPane(this) != null));
+		}
+
+		private void debug(String msg) {
+			if (!DEBUG) {
+				return;
+			}
+			System.out.println("[GLScenePanel#" + instanceId + "][" + Thread.currentThread().getName() + "] " + msg);
+		}
+
+		private static boolean isDebugEnabled() {
+			String value = System.getProperty("openrocket.figure3d.debug");
+			if (value == null) {
+				value = System.getenv("OPENROCKET_FIGURE3D_DEBUG");
+			}
+			if (value == null) {
+				return false;
+			}
+			value = value.trim();
+			if (value.isEmpty()) {
+				return true;
+			}
+			return Boolean.parseBoolean(value);
+		}
 
 	private void handleExport(SceneView sceneView, Renderer renderer) {
 		boolean renderBackground = !scene3DOrchestrator.isExportTransparent();

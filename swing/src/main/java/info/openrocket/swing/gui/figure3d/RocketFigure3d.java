@@ -8,7 +8,6 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
-import info.openrocket.swing.gui.figure3d.utils.Figure3dDebug;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 
 import javax.swing.JPanel;
@@ -17,13 +16,18 @@ import javax.swing.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +36,14 @@ import java.util.stream.Collectors;
  * old JOGL RocketFigure3d so RocketPanel can toggle between 2D/3D without broader
  * refactors yet.
  */
-public class RocketFigure3d extends JPanel {
+	public class RocketFigure3d extends JPanel {
 
-	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
+		private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
+		private static final boolean DEBUG = isDebugEnabled();
+		private static final boolean MAC_OS = System.getProperty("os.name", "").toLowerCase().contains("mac");
+		private static final MacEdtRenderScheduler MAC_RENDER_SCHEDULER = MAC_OS ? new MacEdtRenderScheduler() : null;
+		private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
+		private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -56,13 +65,16 @@ public class RocketFigure3d extends JPanel {
 	private static final int FRAME_INTERVAL_MS = 16;
 	private static final int MAX_CONSECUTIVE_RENDER_ERRORS = 5;
 	private static final int CANVAS_INIT_RETRY_DELAY_MS = 50;
-	private static final int MAX_CANVAS_INIT_ATTEMPTS = 40; // ~2 seconds
+	// Keep retrying canvas creation for longer when multiple windows are opening/validating.
+	private static final int MAX_CANVAS_INIT_ATTEMPTS = 400; // ~20 seconds
 
 	private ScheduledExecutorService renderExecutor;
 	private volatile Thread renderThread;
 	private int consecutiveRenderErrors = 0;
 	private volatile boolean disposed = false;
 	private volatile boolean renderingEnabled = false;
+	private final AtomicLong lastRenderActivityMs = new AtomicLong(System.currentTimeMillis());
+	private volatile long lastRenderFrameSkipDebugMs = 0;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -70,19 +82,62 @@ public class RocketFigure3d extends JPanel {
 
 		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
 		this.hudPanel = new HUDPanel(document.getRocket(), rocketInfo);
+
+		debug("ctor");
 	}
+
+		private void debug(String msg) {
+			if (!DEBUG) {
+				return;
+			}
+			String window = "n/a";
+		try {
+			var w = SwingUtilities.getWindowAncestor(this);
+			if (w instanceof javax.swing.JFrame jf) {
+				window = jf.getTitle();
+			} else if (w != null) {
+				window = w.getClass().getSimpleName();
+			}
+		} catch (Exception ignored) {
+			// ignore
+		}
+			System.out.println("[Figure3D#" + instanceId + "][" + Thread.currentThread().getName() + "][window=" + window + "] " + msg);
+		}
+
+		private static boolean isDebugEnabled() {
+			String value = System.getProperty("openrocket.figure3d.debug");
+			if (value == null) {
+				value = System.getenv("OPENROCKET_FIGURE3D_DEBUG");
+			}
+			if (value == null) {
+				return false;
+			}
+			value = value.trim();
+			if (value.isEmpty()) {
+				return true;
+			}
+			return Boolean.parseBoolean(value);
+		}
 
 	private void ensureCanvasCreatedOnEdt() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("ensureCanvasCreatedOnEdt must run on EDT");
 		}
 		if (glScenePanel != null) {
+			debug("ensureCanvasCreatedOnEdt: already created");
 			return;
 		}
-		Figure3dDebug.println("[RocketFigure3d] creating GLScenePanel (lazy)");
+		debug("ensureCanvasCreatedOnEdt: creating GLScenePanel");
 		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
+		panel.setRenderActivityCallback(this::markRenderActivity);
 		this.glScenePanel = panel;
 		add(panel, BorderLayout.CENTER);
+		// Ensure heavyweight peer is validated inside its toplevel window before first render.
+		var window = SwingUtilities.getWindowAncestor(this);
+		if (window != null) {
+			window.invalidate();
+			window.validate();
+		}
 		selectionBridgeInstalled = false;
 		int generation = canvasGeneration.incrementAndGet();
 		hookSelectionBridge(panel, generation);
@@ -97,17 +152,24 @@ public class RocketFigure3d extends JPanel {
 			return;
 		}
 		if (!renderingEnabled || disposed) {
+			debug("ensureCanvasCreatedWhenReadyOnEdt: abort (renderingEnabled=" + renderingEnabled + " disposed=" + disposed + ")");
 			return;
 		}
 		if (glScenePanel != null) {
+			debug("ensureCanvasCreatedWhenReadyOnEdt: canvas exists, starting render loop");
 			startRenderLoop();
 			return;
 		}
 		if (attempt >= MAX_CANVAS_INIT_ATTEMPTS) {
-			Figure3dDebug.println("[RocketFigure3d] giving up on GLScenePanel creation after " + attempt + " attempts");
+			debug("ensureCanvasCreatedWhenReadyOnEdt: giving up after " + attempt + " attempts (showing=" + isShowing()
+					+ " size=" + getWidth() + "x" + getHeight() + ")");
 			return;
 		}
 		if (!isShowing() || getWidth() <= 0 || getHeight() <= 0) {
+			if (attempt == 0 || attempt % 20 == 0) {
+				debug("ensureCanvasCreatedWhenReadyOnEdt: not ready (showing=" + isShowing()
+						+ " size=" + getWidth() + "x" + getHeight() + "), attempt=" + attempt);
+			}
 			Timer timer = new Timer(CANVAS_INIT_RETRY_DELAY_MS, e -> ensureCanvasCreatedWhenReadyOnEdt(attempt + 1));
 			timer.setRepeats(false);
 			timer.start();
@@ -116,12 +178,16 @@ public class RocketFigure3d extends JPanel {
 		try {
 			getLocationOnScreen();
 		} catch (Exception ignored) {
+			if (attempt == 0 || attempt % 20 == 0) {
+				debug("ensureCanvasCreatedWhenReadyOnEdt: getLocationOnScreen failed, attempt=" + attempt);
+			}
 			Timer timer = new Timer(CANVAS_INIT_RETRY_DELAY_MS, e -> ensureCanvasCreatedWhenReadyOnEdt(attempt + 1));
 			timer.setRepeats(false);
 			timer.start();
 			return;
 		}
 
+		debug("ensureCanvasCreatedWhenReadyOnEdt: ready, creating canvas");
 		ensureCanvasCreatedOnEdt();
 		startRenderLoop();
 	}
@@ -129,10 +195,30 @@ public class RocketFigure3d extends JPanel {
 	private void renderFrame() {
 		GLScenePanel panel = glScenePanel;
 		if (panel == null || !renderingEnabled || disposed || panel.glInitFailed) {
+			if (DEBUG) {
+				long now = System.currentTimeMillis();
+				if (now - lastRenderFrameSkipDebugMs > 1000) {
+					lastRenderFrameSkipDebugMs = now;
+					debug("renderFrame: skipped (panel=" + (panel != null)
+							+ " renderingEnabled=" + renderingEnabled
+							+ " disposed=" + disposed
+							+ " glInitFailed=" + (panel != null && panel.glInitFailed) + ")");
+				}
+			}
 			return;
 		}
 		// Wait until the canvas has a real peer and size.
-		if (!panel.isDisplayable() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+		if (!panel.isDisplayable() || !panel.isShowing() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			if (DEBUG) {
+				long now = System.currentTimeMillis();
+				if (now - lastRenderFrameSkipDebugMs > 1000) {
+					lastRenderFrameSkipDebugMs = now;
+					debug("renderFrame: skipped (displayable=" + panel.isDisplayable()
+							+ " showing=" + panel.isShowing()
+							+ " size=" + panel.getWidth() + "x" + panel.getHeight()
+							+ " bounds=" + panel.getBounds() + ")");
+				}
+			}
 			return;
 		}
 		panel.render();
@@ -143,7 +229,9 @@ public class RocketFigure3d extends JPanel {
 	 */
 	public void startRendering() {
 		renderingEnabled = true;
+		markRenderActivity();
 		consecutiveRenderErrors = 0;
+		debug("startRendering: enabled, showing=" + isShowing() + " size=" + getWidth() + "x" + getHeight());
 		// On macOS, heavyweight GL canvases can appear at an incorrect on-screen position
 		// immediately after a CardLayout/JSplitPane switch until the window is validated.
 		// Defer starting the render loop until after the EDT has processed layout.
@@ -152,6 +240,11 @@ public class RocketFigure3d extends JPanel {
 				return;
 			}
 			var window = SwingUtilities.getWindowAncestor(this);
+			if (window == null) {
+				debug("startRendering.invokeLater: windowAncestor=null");
+			} else {
+				debug("startRendering.invokeLater: windowAncestor=" + window.getClass().getSimpleName());
+			}
 			if (window != null) {
 				window.invalidate();
 				window.validate();
@@ -166,6 +259,10 @@ public class RocketFigure3d extends JPanel {
 	 */
 	public void stopRendering() {
 		renderingEnabled = false;
+		debug("stopRendering");
+		if (MAC_RENDER_SCHEDULER != null) {
+			MAC_RENDER_SCHEDULER.unregister(this);
+		}
 		if (renderExecutor != null) {
 			renderExecutor.shutdownNow();
 			renderExecutor = null;
@@ -173,16 +270,24 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void startRenderLoop() {
+		if (MAC_RENDER_SCHEDULER != null) {
+			debug("startRenderLoop: macOS EDT scheduler");
+			MAC_RENDER_SCHEDULER.register(this);
+			return;
+		}
 		if (renderExecutor != null && !renderExecutor.isShutdown()) {
+			debug("startRenderLoop: already running");
 			return;
 		}
 		GLScenePanel panel = glScenePanel;
 		if (panel == null) {
 			// Shouldn't happen; startRendering ensures creation on EDT before calling this.
+			debug("startRenderLoop: panel=null");
 			return;
 		}
+		debug("startRenderLoop: starting thread");
 		ThreadFactory renderThreadFactory = r -> {
-			Thread t = new Thread(r, "gl-render-rocket");
+			Thread t = new Thread(r, "gl-render-rocket-" + instanceId);
 			t.setDaemon(true);
 			return t;
 		};
@@ -191,15 +296,17 @@ public class RocketFigure3d extends JPanel {
 			renderThread = Thread.currentThread();
 			try {
 				long deadline = System.currentTimeMillis() + 5_000;
-				while (System.currentTimeMillis() < deadline) {
-					if (disposed || !renderingEnabled) {
-						return;
-					}
-					if (panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0) {
-						break;
-					}
-					try {
-						Thread.sleep(50);
+					while (System.currentTimeMillis() < deadline) {
+						if (disposed || !renderingEnabled) {
+							debug("renderThread: abort before first render (disposed=" + disposed + " renderingEnabled=" + renderingEnabled + ")");
+							return;
+						}
+						if (panel.isShowing() && panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0) {
+							debug("renderThread: panel displayable, size=" + panel.getWidth() + "x" + panel.getHeight());
+							break;
+						}
+						try {
+							Thread.sleep(50);
 					} catch (InterruptedException ignored) {
 						Thread.currentThread().interrupt();
 						return;
@@ -207,27 +314,25 @@ public class RocketFigure3d extends JPanel {
 				}
 
 				if (disposed || !renderingEnabled) {
+					debug("renderThread: abort after wait (disposed=" + disposed + " renderingEnabled=" + renderingEnabled + ")");
 					return;
-				}
+					}
 
-				try {
-					panel.render();
-				} catch (Exception e) {
-					log.warn("Initial render failed", e);
-				}
+					try {
+						debug("renderThread: initial render()");
+						renderFrame();
+					} catch (Exception e) {
+						log.warn("Initial render failed", e);
+					}
 
-				boolean initialized = panel.awaitInitialized(3_000) && !panel.glInitFailed;
-				if (!initialized) {
-					log.error("GL context did not initialize for RocketFigure3d");
-					return;
-				}
-
-				while (renderingEnabled && !disposed) {
-					if (!panel.isDisplayable()) {
-						break;
+					while (renderingEnabled && !disposed) {
+						if (!panel.isDisplayable()) {
+							debug("renderThread: panel not displayable, exiting loop");
+							break;
 					}
 					if (panel.glInitFailed) {
 						log.error("GL init failed for RocketFigure3d");
+						debug("renderThread: glInitFailed=true, exiting loop");
 						break;
 					}
 					try {
@@ -249,10 +354,118 @@ public class RocketFigure3d extends JPanel {
 						break;
 					}
 				}
-			} finally {
-				renderThread = null;
+				} finally {
+					renderThread = null;
+				}
+			});
+		}
+
+	private static final class MacEdtRenderScheduler implements ActionListener {
+		private static final int MAX_ACTIVE_CANVASES = Math.max(1,
+				Integer.getInteger("openrocket.figure3d.mac.maxActiveCanvases", 2));
+
+		private final ArrayList<RocketFigure3d> active = new ArrayList<>();
+		private final Timer timer;
+		private int index = 0;
+		private long lastSelectionDebugMs = 0;
+
+		private MacEdtRenderScheduler() {
+			timer = new Timer(FRAME_INTERVAL_MS, this);
+			timer.setRepeats(true);
+			timer.setCoalesce(true);
+		}
+
+		private void register(RocketFigure3d figure) {
+			if (!SwingUtilities.isEventDispatchThread()) {
+				SwingUtilities.invokeLater(() -> register(figure));
+				return;
 			}
-		});
+			if (active.contains(figure)) {
+				return;
+			}
+			active.add(figure);
+			if (index >= active.size()) {
+				index = 0;
+			}
+			if (!timer.isRunning()) {
+				timer.start();
+			}
+			figure.debug("macScheduler: registered (active=" + active.size() + ")");
+		}
+
+		private void unregister(RocketFigure3d figure) {
+			if (!SwingUtilities.isEventDispatchThread()) {
+				SwingUtilities.invokeLater(() -> unregister(figure));
+				return;
+			}
+			int idx = active.indexOf(figure);
+			if (idx < 0) {
+				return;
+			}
+			active.remove(idx);
+			if (index > idx) {
+				index--;
+			}
+			if (active.isEmpty()) {
+				timer.stop();
+				index = 0;
+			} else if (index >= active.size()) {
+				index = 0;
+			}
+			figure.debug("macScheduler: unregistered (active=" + active.size() + ")");
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// Prune inactive entries.
+			for (int i = active.size() - 1; i >= 0; i--) {
+				RocketFigure3d figure = active.get(i);
+				if (!figure.renderingEnabled || figure.disposed) {
+					active.remove(i);
+					if (index > i) {
+						index--;
+					}
+				}
+			}
+			if (active.isEmpty()) {
+				timer.stop();
+				index = 0;
+				return;
+			}
+
+			List<RocketFigure3d> candidates = active;
+			if (active.size() > MAX_ACTIVE_CANVASES) {
+				candidates = new ArrayList<>(active);
+				candidates.sort(Comparator.comparingLong(RocketFigure3d::getLastRenderActivityMs).reversed());
+				candidates = candidates.subList(0, MAX_ACTIVE_CANVASES);
+				if (DEBUG) {
+					long now = System.currentTimeMillis();
+					if (now - lastSelectionDebugMs > 1000) {
+						lastSelectionDebugMs = now;
+						String selectedIds = candidates.stream()
+								.map(f -> "#" + f.instanceId)
+								.collect(Collectors.joining(","));
+						System.out.println("[Figure3D][AWT-EventQueue-0] macScheduler: limiting active renders to "
+								+ MAX_ACTIVE_CANVASES + " (selected=" + selectedIds + ")");
+					}
+				}
+			}
+
+			if (index >= candidates.size()) {
+				index = 0;
+			}
+			RocketFigure3d figure = candidates.get(index);
+			index = (index + 1) % candidates.size();
+			figure.renderFrame();
+		}
+	}
+
+	private void markRenderActivity() {
+		lastRenderActivityMs.set(System.currentTimeMillis());
+	}
+
+	private long getLastRenderActivityMs() {
+		return lastRenderActivityMs.get();
 	}
 
 	private void hookSelectionBridge(GLScenePanel panel, int generation) {
@@ -399,6 +612,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void cleanup() {
+		debug("cleanup");
 		stopRendering();
 		disposed = true;
 		GLScenePanel panel = glScenePanel;
