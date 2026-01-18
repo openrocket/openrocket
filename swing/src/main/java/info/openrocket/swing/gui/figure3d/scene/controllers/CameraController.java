@@ -65,22 +65,34 @@ public class CameraController implements CameraControls {
      * the entire rocket within the viewport.
      */
     @Override
-    public void focusOnRocket() {
-        if (rocket == null) {
-            return;
-        }
+	public void focusOnRocket() {
+		if (rocket == null) {
+			return;
+		}
 
         BoundingBox bounds = rocket.getBoundingBox();
-		CoordinateIF maxBounds = bounds.max;
-        maxBounds = maxBounds.multiply(RocketMeshBuilder.WORLD_SCALE);
+		if (bounds == null || bounds.isEmpty()) {
+			return;
+		}
+		CoordinateIF minBounds = bounds.min.multiply(RocketMeshBuilder.WORLD_SCALE);
+		CoordinateIF maxBounds = bounds.max.multiply(RocketMeshBuilder.WORLD_SCALE);
 
         // 1. Center of Interest
-        Vector3f rocketCenter = new Vector3f((float)maxBounds.getX() / 2, 0, 0);
-        camera.setCenterOfInterest(rocketCenter);
+        Vector3f rocketCenter = new Vector3f(
+				(float) ((minBounds.getX() + maxBounds.getX()) / 2.0),
+				(float) ((minBounds.getY() + maxBounds.getY()) / 2.0),
+				(float) ((minBounds.getZ() + maxBounds.getZ()) / 2.0)
+		);
+		camera.setCenterOfInterest(rocketCenter);
 
         // 2. Calculate distance
         // TODO: this doesn't always work well with fin sets....
-        camera.fitBounds(VectorUtils.coordinateToVector3f(maxBounds));
+		Vector3f dimensions = new Vector3f(
+				(float) (maxBounds.getX() - minBounds.getX()),
+				(float) (maxBounds.getY() - minBounds.getY()),
+				(float) (maxBounds.getZ() - minBounds.getZ())
+		);
+        camera.fitBounds(dimensions);
     }
     
     /**
