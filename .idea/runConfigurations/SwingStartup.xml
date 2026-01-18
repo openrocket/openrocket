@@ -2,6 +2,7 @@
   <configuration default="false" name="SwingStartup" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="info.openrocket.swing.startup.SwingStartup" />
     <module name="info.openrocket.swing.main" />
+    <option name="VM_PARAMETERS" value="-Dopenrocket.figure3d.debug=true" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="info.openrocket.swing.startup.*" />

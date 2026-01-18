@@ -5,6 +5,7 @@ import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.util.Coordinate;
@@ -68,6 +69,8 @@ public class CaretsPass implements RenderPass {
     private Vector3f cgPosition = new Vector3f();
     private Vector3f cpPosition = new Vector3f();
     private static final float FIXED_SCREEN_SCALE = 0.06f;
+    private boolean cgValid = false;
+    private boolean cpValid = false;
 
     /**
      * Creates a new carets pass for the given scene and configuration.
@@ -106,17 +109,26 @@ public class CaretsPass implements RenderPass {
     private void updatePositions() {
         FlightConfiguration config = rocket.getSelectedConfiguration();
         if (config == null) {
+            cgValid = false;
+            cpValid = false;
             return;
         }
 
         // Calculate and cache CG position
-        CoordinateIF cgCoord = MassCalculator.calculateLaunch(config).getCM();
-        this.cgPosition = VectorUtils.coordinateToVector3f(cgCoord).mul(RocketMeshBuilder.WORLD_SCALE);
+        RigidBody cgBody = MassCalculator.calculateLaunch(config);
+        CoordinateIF cgCoord = cgBody.getCM();
+        cgValid = cgBody.getMass() > MassCalculator.MIN_MASS;
+        if (cgValid) {
+            this.cgPosition = VectorUtils.coordinateToVector3f(cgCoord).mul(RocketMeshBuilder.WORLD_SCALE);
+        }
 
         // Calculate and cache CP position
         FlightConditions conditions = new FlightConditions(config);
 		CoordinateIF cpCoord = aerodynamicCalculator.getWorstCP(config, conditions, new WarningSet());
-        this.cpPosition = VectorUtils.coordinateToVector3f(cpCoord).mul(RocketMeshBuilder.WORLD_SCALE);
+        cpValid = cpCoord != null;
+        if (cpValid) {
+            this.cpPosition = VectorUtils.coordinateToVector3f(cpCoord).mul(RocketMeshBuilder.WORLD_SCALE);
+        }
     }
 
     @Override
@@ -128,15 +140,19 @@ public class CaretsPass implements RenderPass {
         shader.setUniform("scaleWithView", config.getVisualEffects().isCaretScaleWithView() ? 1.0f : 0.0f);
         shader.setUniform("fixedScaleFactor", FIXED_SCREEN_SCALE);
 
-        // Render CG
-        shader.setUniform("center", cgPosition);
-        shader.setUniform("color", cgColor);
-        cgMesh.render();
+        if (cgValid) {
+            // Render CG
+            shader.setUniform("center", cgPosition);
+            shader.setUniform("color", cgColor);
+            cgMesh.render();
+        }
 
-        // Render CP
-        shader.setUniform("center", cpPosition);
-        shader.setUniform("color", cpColor);
-        cpMesh.render();
+        if (cpValid) {
+            // Render CP
+            shader.setUniform("center", cpPosition);
+            shader.setUniform("color", cpColor);
+            cpMesh.render();
+        }
 
         glEnable(GL_DEPTH_TEST);
     }
