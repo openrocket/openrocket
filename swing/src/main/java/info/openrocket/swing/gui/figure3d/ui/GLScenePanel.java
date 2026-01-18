@@ -119,7 +119,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
 			private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
 					System.getProperty("os.name", "").toLowerCase().contains("mac");
-		private static final boolean DEBUG = isDebugEnabled();
 		private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
 		private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 		private final AtomicInteger renderCallCount = new AtomicInteger(0);
@@ -204,7 +203,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		setIgnoreRepaint(true);
-		debug("ctor: showing=" + isShowing() + " displayable=" + isDisplayable() + " bounds=" + getBounds());
 
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
@@ -280,7 +278,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		@Override
 		public void addNotify() {
 			super.addNotify();
-			debug("addNotify: showing=" + isShowing() + " displayable=" + isDisplayable() + " bounds=" + getBounds());
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				peerBoundsSyncAttempts.set(0);
 				schedulePeerBoundsSyncRetry(0);
@@ -325,18 +322,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				if (attempt > MAX_PEER_BOUNDS_SYNC_ATTEMPTS) {
 					peerBoundsSyncAttempts.set(0);
 					return;
-				}
-				if (DEBUG && (attempt == 1 || attempt % 5 == 0)) {
-					Point expected = computeExpectedLocationOnScreen();
-					Point actual = null;
-					try {
-						actual = getLocationOnScreen();
-					} catch (Exception ignored) {
-						// ignore
-					}
-					debug("peerBoundsSync: attempt=" + attempt + " bounds=" + getBounds()
-							+ " expectedOnScreen=" + (expected != null ? expected.x + "," + expected.y : "n/a")
-							+ " actualOnScreen=" + (actual != null ? actual.x + "," + actual.y : "n/a"));
 				}
 				syncPeerBounds();
 				if (isPeerMispositioned()) {
@@ -586,7 +571,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void initGL() {
-		debug("initGL: enter, thread=" + Thread.currentThread().getName() + " bounds=" + getBounds());
 		INIT_SEMAPHORE.acquireUninterruptibly();
 		try {
 			glCapabilities = GL.createCapabilities();
@@ -635,11 +619,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Mark initialization complete - allows resize/render operations to proceed
 			glInitialized = true;
 			glInitLatch.countDown();
-			debug("initGL: success");
 		} catch (Exception e) {
 			glInitFailed = true;
 			glInitLatch.countDown();
-			debug("initGL: FAILED: " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException("Failed to initialize renderer", e);
 		} finally {
 			INIT_SEMAPHORE.release();
@@ -649,18 +631,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	public void render() {
 		int count = renderCallCount.incrementAndGet();
-		maybeDebugStatus("render.enter", count);
 		if (glInitFailed) {
-			if (count == 1) {
-				debug("render: skipped (glInitFailed)");
-			}
 			return;
 		}
 		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
-			if (count == 1) {
-				debug("render: skipped (displayable=" + isDisplayable() + " showing=" + isShowing()
-						+ " size=" + getWidth() + "x" + getHeight() + ")");
-			}
 			return;
 		}
 		try {
@@ -668,10 +642,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				RENDER_SEMAPHORE.acquireUninterruptibly();
 			}
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
-			if (count == 1) {
-				debug("render: first call (showing=" + isShowing() + " displayable=" + isDisplayable()
-						+ " bounds=" + getBounds() + ")");
-			}
 			super.render();
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && count == 1) {
 				// The native NSOpenGLView is created during the first render; schedule another bounds sync
@@ -680,13 +650,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 		} catch (Throwable t) {
 			glInitFailed = true;
-			debug("render: FAILED: " + t.getClass().getSimpleName() + ": " + t.getMessage());
-			t.printStackTrace();
+			log.error("Rendering failed: " + t.getClass().getSimpleName() + ": " + t.getMessage(), t);
 		} finally {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				RENDER_SEMAPHORE.release();
 			}
-			maybeDebugStatus("render.exit", count);
 		}
 	}
 
@@ -797,23 +765,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	public void paintGL() {
 		paintCallCount.incrementAndGet();
 		if (!glInitialized || !isDisplayable()) {
-			if (DEBUG) {
-				long now = System.currentTimeMillis();
-				if (now - lastPaintSkipDebugMs > 500) {
-					lastPaintSkipDebugMs = now;
-					debug("paintGL: skipped (glInitialized=" + glInitialized + " displayable=" + isDisplayable()
-							+ " showing=" + isShowing() + " bounds=" + getBounds()
-							+ " renderCalls=" + renderCallCount.get() + " paintCalls=" + paintCallCount.get() + ")");
-				}
-			}
 			return;
 		}
 
 		boolean shouldSwap = false;
 		try {
-			// Null safety checks for critical objects
 			if (scene3DOrchestrator == null) {
-				debug("paintGL: scene3DOrchestrator=null");
 				return;
 			}
 
@@ -823,7 +780,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			SceneView sceneView = scene3DOrchestrator.getScene();
 
 			if (renderer == null || sceneView == null) {
-				debug("paintGL: renderer or scene not available");
 				return;
 			}
 
@@ -880,7 +836,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			shouldSwap = true;
 		} catch (Exception ex) {
-			debug("paintGL: exception: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+			log.error("Error during paintGL", ex);
 		} finally {
 			if (shouldSwap) {
 				swapCallCount.incrementAndGet();
@@ -888,72 +844,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 		}
 	}
-
-		private void maybeDebugStatus(String phase, int renderCount) {
-			if (!DEBUG) {
-				return;
-			}
-			long now = System.currentTimeMillis();
-			if (now - lastStatusDebugMs < 1000) {
-				return;
-			}
-			lastStatusDebugMs = now;
-
-			String window = "n/a";
-			try {
-				var w = SwingUtilities.getWindowAncestor(this);
-				if (w instanceof javax.swing.JFrame jf) {
-					window = jf.getTitle();
-				} else if (w != null) {
-					window = w.getClass().getSimpleName();
-				}
-			} catch (Exception ignored) {
-				// ignore
-			}
-
-			Point actual = null;
-			try {
-				if (isShowing()) {
-					actual = getLocationOnScreen();
-				}
-			} catch (Exception ignored) {
-				// ignore
-			}
-			Point expected = computeExpectedLocationOnScreen();
-
-			System.out.println("[GLScenePanel#" + instanceId + "][" + Thread.currentThread().getName() + "][window=" + window + "] status@" + phase
-					+ ": renderCalls=" + renderCount
-					+ " paintCalls=" + paintCallCount.get()
-					+ " swaps=" + swapCallCount.get()
-					+ " showing=" + isShowing()
-					+ " displayable=" + isDisplayable()
-					+ " bounds=" + getBounds()
-					+ " onScreen=" + (actual != null ? actual.x + "," + actual.y : "n/a")
-					+ " expectedOnScreen=" + (expected != null ? expected.x + "," + expected.y : "n/a")
-					+ " rootPane=" + (SwingUtilities.getRootPane(this) != null));
-		}
-
-		private void debug(String msg) {
-			if (!DEBUG) {
-				return;
-			}
-			System.out.println("[GLScenePanel#" + instanceId + "][" + Thread.currentThread().getName() + "] " + msg);
-		}
-
-		private static boolean isDebugEnabled() {
-			String value = System.getProperty("openrocket.figure3d.debug");
-			if (value == null) {
-				value = System.getenv("OPENROCKET_FIGURE3D_DEBUG");
-			}
-			if (value == null) {
-				return false;
-			}
-			value = value.trim();
-			if (value.isEmpty()) {
-				return true;
-			}
-			return Boolean.parseBoolean(value);
-		}
 
 	private void handleExport(SceneView sceneView, Renderer renderer) {
 		boolean renderBackground = !scene3DOrchestrator.isExportTransparent();

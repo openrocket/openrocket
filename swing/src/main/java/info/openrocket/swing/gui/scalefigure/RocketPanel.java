@@ -172,7 +172,6 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	private boolean is3d;
 	private final RocketFigure figure;
 	private final RocketFigure3d figure3d;
-	private static final boolean FIGURE3D_DEBUG = isFigure3dDebugEnabled();
 
 	private final ScaleScrollPane scrollPane;
 
@@ -381,10 +380,6 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 			private void go3D() {
 				if (is3d)
 					return;
-				if (FIGURE3D_DEBUG) {
-					System.out.println("[RocketPanel][" + Thread.currentThread().getName() + "] go3D: showing=" + isShowing()
-							+ " bounds=" + getBounds() + " figureHolder=" + figureHolder.getBounds());
-				}
 				is3d = true;
 				figureCardLayout.show(figureHolder, "3d");
 				figure3d.startRendering();
@@ -403,10 +398,6 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 			private void go2D() {
 				if (!is3d) {
 					return;
-				}
-				if (FIGURE3D_DEBUG) {
-					System.out.println("[RocketPanel][" + Thread.currentThread().getName() + "] go2D: showing=" + isShowing()
-							+ " bounds=" + getBounds() + " figureHolder=" + figureHolder.getBounds());
 				}
 				is3d = false;
 				figureCardLayout.show(figureHolder, "2d");
@@ -452,21 +443,6 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 				savedDoubleBufferSetting = null;
 			}
 		}
-	}
-
-	private static boolean isFigure3dDebugEnabled() {
-		String value = System.getProperty("openrocket.figure3d.debug");
-		if (value == null) {
-			value = System.getenv("OPENROCKET_FIGURE3D_DEBUG");
-		}
-		if (value == null) {
-			return false;
-		}
-		value = value.trim();
-		if (value.isEmpty()) {
-			return true;
-		}
-		return Boolean.parseBoolean(value);
 	}
 
 	@Override

@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 	public class RocketFigure3d extends JPanel {
 
 		private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-		private static final boolean DEBUG = isDebugEnabled();
 		private static final boolean MAC_OS = System.getProperty("os.name", "").toLowerCase().contains("mac");
 		private static final MacEdtRenderScheduler MAC_RENDER_SCHEDULER = MAC_OS ? new MacEdtRenderScheduler() : null;
 		private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
@@ -82,52 +81,15 @@ import java.util.stream.Collectors;
 
 		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
 		this.hudPanel = new HUDPanel(document.getRocket(), rocketInfo);
-
-		debug("ctor");
 	}
-
-		private void debug(String msg) {
-			if (!DEBUG) {
-				return;
-			}
-			String window = "n/a";
-		try {
-			var w = SwingUtilities.getWindowAncestor(this);
-			if (w instanceof javax.swing.JFrame jf) {
-				window = jf.getTitle();
-			} else if (w != null) {
-				window = w.getClass().getSimpleName();
-			}
-		} catch (Exception ignored) {
-			// ignore
-		}
-			System.out.println("[Figure3D#" + instanceId + "][" + Thread.currentThread().getName() + "][window=" + window + "] " + msg);
-		}
-
-		private static boolean isDebugEnabled() {
-			String value = System.getProperty("openrocket.figure3d.debug");
-			if (value == null) {
-				value = System.getenv("OPENROCKET_FIGURE3D_DEBUG");
-			}
-			if (value == null) {
-				return false;
-			}
-			value = value.trim();
-			if (value.isEmpty()) {
-				return true;
-			}
-			return Boolean.parseBoolean(value);
-		}
 
 	private void ensureCanvasCreatedOnEdt() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("ensureCanvasCreatedOnEdt must run on EDT");
 		}
 		if (glScenePanel != null) {
-			debug("ensureCanvasCreatedOnEdt: already created");
 			return;
 		}
-		debug("ensureCanvasCreatedOnEdt: creating GLScenePanel");
 		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
 		panel.setRenderActivityCallback(this::markRenderActivity);
 		this.glScenePanel = panel;
@@ -152,24 +114,16 @@ import java.util.stream.Collectors;
 			return;
 		}
 		if (!renderingEnabled || disposed) {
-			debug("ensureCanvasCreatedWhenReadyOnEdt: abort (renderingEnabled=" + renderingEnabled + " disposed=" + disposed + ")");
 			return;
 		}
 		if (glScenePanel != null) {
-			debug("ensureCanvasCreatedWhenReadyOnEdt: canvas exists, starting render loop");
 			startRenderLoop();
 			return;
 		}
 		if (attempt >= MAX_CANVAS_INIT_ATTEMPTS) {
-			debug("ensureCanvasCreatedWhenReadyOnEdt: giving up after " + attempt + " attempts (showing=" + isShowing()
-					+ " size=" + getWidth() + "x" + getHeight() + ")");
 			return;
 		}
 		if (!isShowing() || getWidth() <= 0 || getHeight() <= 0) {
-			if (attempt == 0 || attempt % 20 == 0) {
-				debug("ensureCanvasCreatedWhenReadyOnEdt: not ready (showing=" + isShowing()
-						+ " size=" + getWidth() + "x" + getHeight() + "), attempt=" + attempt);
-			}
 			Timer timer = new Timer(CANVAS_INIT_RETRY_DELAY_MS, e -> ensureCanvasCreatedWhenReadyOnEdt(attempt + 1));
 			timer.setRepeats(false);
 			timer.start();
@@ -178,16 +132,12 @@ import java.util.stream.Collectors;
 		try {
 			getLocationOnScreen();
 		} catch (Exception ignored) {
-			if (attempt == 0 || attempt % 20 == 0) {
-				debug("ensureCanvasCreatedWhenReadyOnEdt: getLocationOnScreen failed, attempt=" + attempt);
-			}
 			Timer timer = new Timer(CANVAS_INIT_RETRY_DELAY_MS, e -> ensureCanvasCreatedWhenReadyOnEdt(attempt + 1));
 			timer.setRepeats(false);
 			timer.start();
 			return;
 		}
 
-		debug("ensureCanvasCreatedWhenReadyOnEdt: ready, creating canvas");
 		ensureCanvasCreatedOnEdt();
 		startRenderLoop();
 	}
@@ -195,30 +145,10 @@ import java.util.stream.Collectors;
 	private void renderFrame() {
 		GLScenePanel panel = glScenePanel;
 		if (panel == null || !renderingEnabled || disposed || panel.glInitFailed) {
-			if (DEBUG) {
-				long now = System.currentTimeMillis();
-				if (now - lastRenderFrameSkipDebugMs > 1000) {
-					lastRenderFrameSkipDebugMs = now;
-					debug("renderFrame: skipped (panel=" + (panel != null)
-							+ " renderingEnabled=" + renderingEnabled
-							+ " disposed=" + disposed
-							+ " glInitFailed=" + (panel != null && panel.glInitFailed) + ")");
-				}
-			}
 			return;
 		}
 		// Wait until the canvas has a real peer and size.
 		if (!panel.isDisplayable() || !panel.isShowing() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
-			if (DEBUG) {
-				long now = System.currentTimeMillis();
-				if (now - lastRenderFrameSkipDebugMs > 1000) {
-					lastRenderFrameSkipDebugMs = now;
-					debug("renderFrame: skipped (displayable=" + panel.isDisplayable()
-							+ " showing=" + panel.isShowing()
-							+ " size=" + panel.getWidth() + "x" + panel.getHeight()
-							+ " bounds=" + panel.getBounds() + ")");
-				}
-			}
 			return;
 		}
 		panel.render();
@@ -231,7 +161,6 @@ import java.util.stream.Collectors;
 		renderingEnabled = true;
 		markRenderActivity();
 		consecutiveRenderErrors = 0;
-		debug("startRendering: enabled, showing=" + isShowing() + " size=" + getWidth() + "x" + getHeight());
 		// On macOS, heavyweight GL canvases can appear at an incorrect on-screen position
 		// immediately after a CardLayout/JSplitPane switch until the window is validated.
 		// Defer starting the render loop until after the EDT has processed layout.
@@ -240,11 +169,6 @@ import java.util.stream.Collectors;
 				return;
 			}
 			var window = SwingUtilities.getWindowAncestor(this);
-			if (window == null) {
-				debug("startRendering.invokeLater: windowAncestor=null");
-			} else {
-				debug("startRendering.invokeLater: windowAncestor=" + window.getClass().getSimpleName());
-			}
 			if (window != null) {
 				window.invalidate();
 				window.validate();
@@ -259,7 +183,6 @@ import java.util.stream.Collectors;
 	 */
 	public void stopRendering() {
 		renderingEnabled = false;
-		debug("stopRendering");
 		if (MAC_RENDER_SCHEDULER != null) {
 			MAC_RENDER_SCHEDULER.unregister(this);
 		}
@@ -271,21 +194,17 @@ import java.util.stream.Collectors;
 
 	private void startRenderLoop() {
 		if (MAC_RENDER_SCHEDULER != null) {
-			debug("startRenderLoop: macOS EDT scheduler");
 			MAC_RENDER_SCHEDULER.register(this);
 			return;
 		}
 		if (renderExecutor != null && !renderExecutor.isShutdown()) {
-			debug("startRenderLoop: already running");
 			return;
 		}
 		GLScenePanel panel = glScenePanel;
 		if (panel == null) {
 			// Shouldn't happen; startRendering ensures creation on EDT before calling this.
-			debug("startRenderLoop: panel=null");
 			return;
 		}
-		debug("startRenderLoop: starting thread");
 		ThreadFactory renderThreadFactory = r -> {
 			Thread t = new Thread(r, "gl-render-rocket-" + instanceId);
 			t.setDaemon(true);
@@ -298,11 +217,9 @@ import java.util.stream.Collectors;
 				long deadline = System.currentTimeMillis() + 5_000;
 					while (System.currentTimeMillis() < deadline) {
 						if (disposed || !renderingEnabled) {
-							debug("renderThread: abort before first render (disposed=" + disposed + " renderingEnabled=" + renderingEnabled + ")");
 							return;
 						}
 						if (panel.isShowing() && panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0) {
-							debug("renderThread: panel displayable, size=" + panel.getWidth() + "x" + panel.getHeight());
 							break;
 						}
 						try {
@@ -314,12 +231,10 @@ import java.util.stream.Collectors;
 				}
 
 				if (disposed || !renderingEnabled) {
-					debug("renderThread: abort after wait (disposed=" + disposed + " renderingEnabled=" + renderingEnabled + ")");
 					return;
 					}
 
 					try {
-						debug("renderThread: initial render()");
 						renderFrame();
 					} catch (Exception e) {
 						log.warn("Initial render failed", e);
@@ -327,12 +242,10 @@ import java.util.stream.Collectors;
 
 					while (renderingEnabled && !disposed) {
 						if (!panel.isDisplayable()) {
-							debug("renderThread: panel not displayable, exiting loop");
 							break;
 					}
 					if (panel.glInitFailed) {
 						log.error("GL init failed for RocketFigure3d");
-						debug("renderThread: glInitFailed=true, exiting loop");
 						break;
 					}
 					try {
@@ -390,7 +303,6 @@ import java.util.stream.Collectors;
 			if (!timer.isRunning()) {
 				timer.start();
 			}
-			figure.debug("macScheduler: registered (active=" + active.size() + ")");
 		}
 
 		private void unregister(RocketFigure3d figure) {
@@ -412,7 +324,6 @@ import java.util.stream.Collectors;
 			} else if (index >= active.size()) {
 				index = 0;
 			}
-			figure.debug("macScheduler: unregistered (active=" + active.size() + ")");
 		}
 
 		@Override
@@ -438,17 +349,6 @@ import java.util.stream.Collectors;
 				candidates = new ArrayList<>(active);
 				candidates.sort(Comparator.comparingLong(RocketFigure3d::getLastRenderActivityMs).reversed());
 				candidates = candidates.subList(0, MAX_ACTIVE_CANVASES);
-				if (DEBUG) {
-					long now = System.currentTimeMillis();
-					if (now - lastSelectionDebugMs > 1000) {
-						lastSelectionDebugMs = now;
-						String selectedIds = candidates.stream()
-								.map(f -> "#" + f.instanceId)
-								.collect(Collectors.joining(","));
-						System.out.println("[Figure3D][AWT-EventQueue-0] macScheduler: limiting active renders to "
-								+ MAX_ACTIVE_CANVASES + " (selected=" + selectedIds + ")");
-					}
-				}
 			}
 
 			if (index >= candidates.size()) {
@@ -612,7 +512,6 @@ import java.util.stream.Collectors;
 	}
 
 	public void cleanup() {
-		debug("cleanup");
 		stopRendering();
 		disposed = true;
 		GLScenePanel panel = glScenePanel;
