@@ -196,7 +196,7 @@ void main()
     if (renderStyle == 2) { // 2 is the ordinal for WIREFRAME
         vec4 finalColor = vec4(objectColor, opacity);
         if (isSelected) {
-            finalColor = mix(finalColor, selectionColor, 0.5);
+            finalColor = mix(finalColor, selectionColor, 0.1);
         }
         FragColor = finalColor;
         return; // Exit immediately
@@ -303,7 +303,7 @@ void main()
 
     // 4. Apply selection
     if (isSelected) {
-        finalColorRGBA = mix(finalColorRGBA, selectionColor, 0.5);
+        finalColorRGBA = mix(finalColorRGBA, selectionColor, 0);
     }
 
     // 5. Apply fog
