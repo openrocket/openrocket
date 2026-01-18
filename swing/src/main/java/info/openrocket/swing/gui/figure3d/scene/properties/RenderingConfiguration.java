@@ -185,6 +185,7 @@ public class RenderingConfiguration {
         private boolean motionBlurEnabled = false;
         private float motionBlurFactor = 5.0f;
         private boolean originAxesVisible = false;
+        private boolean caretScaleWithView = false;
         private boolean staticParticles = true;
         private float particleTime = 10.0f;
         private boolean sparkParticlesEnabled = true;
@@ -324,6 +325,16 @@ public class RenderingConfiguration {
             this.originAxesVisible = visible;
             return this;
         }
+
+        /**
+         * Sets whether CG/CP carets scale with the camera view (zoom).
+         * @param scaleWithView true to scale with view, false for fixed size
+         * @return This builder instance
+         */
+        public Builder withCaretScaleWithView(boolean scaleWithView) {
+            this.caretScaleWithView = scaleWithView;
+            return this;
+        }
         
         /**
          * Configures particle timing.
@@ -390,6 +401,7 @@ public class RenderingConfiguration {
             config.getVisualEffects().setMotionBlurEnabled(motionBlurEnabled);
             config.getVisualEffects().setMotionBlurFactor(motionBlurFactor);
             config.getVisualEffects().setOriginAxesVisible(originAxesVisible);
+            config.getVisualEffects().setCaretScaleWithView(caretScaleWithView);
             config.getVisualEffects().setStaticParticles(staticParticles);
             config.getVisualEffects().setParticleTime(particleTime);
             config.getVisualEffects().setSparkParticlesEnabled(sparkParticlesEnabled);

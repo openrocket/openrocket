@@ -29,6 +29,7 @@ public class VisualEffectsSettings {
     
     // Display elements
     private boolean originAxesVisible = false;
+    private boolean caretScaleWithView = false;
     
     // Global particle settings
     private boolean particleEffectsEnabled = true;
@@ -102,6 +103,21 @@ public class VisualEffectsSettings {
      */
     public void setOriginAxesVisible(boolean originAxesVisible) {
         this.originAxesVisible = originAxesVisible;
+    }
+
+    /**
+     * @return true if CG/CP carets scale with the camera view (zoom)
+     */
+    public boolean isCaretScaleWithView() {
+        return caretScaleWithView;
+    }
+
+    /**
+     * Sets whether CG/CP carets scale with the camera view (zoom).
+     * @param caretScaleWithView true to scale with view, false for fixed size
+     */
+    public void setCaretScaleWithView(boolean caretScaleWithView) {
+        this.caretScaleWithView = caretScaleWithView;
     }
 
     // Global Particle Settings

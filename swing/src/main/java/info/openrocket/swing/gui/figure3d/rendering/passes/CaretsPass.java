@@ -62,10 +62,12 @@ public class CaretsPass implements RenderPass {
     private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f); // Blue
     private final Vector3f cpColor = new Vector3f(1.0f, 0.0f, 0.0f); // Red
     private final AerodynamicCalculator aerodynamicCalculator;
+    private final RenderingConfiguration config;
 
     private final Rocket rocket;
     private Vector3f cgPosition = new Vector3f();
     private Vector3f cpPosition = new Vector3f();
+    private static final float FIXED_SCREEN_SCALE = 0.06f;
 
     /**
      * Creates a new carets pass for the given scene and configuration.
@@ -78,6 +80,7 @@ public class CaretsPass implements RenderPass {
      */
     public CaretsPass(Rocket rocket, RenderingConfiguration config) {
         this.rocket = rocket;
+        this.config = config;
         try {
             shader = new Shader("/shaders/billboard_vertex.glsl", "/shaders/billboard_fragment.glsl");
         } catch (Exception e) {
@@ -122,6 +125,8 @@ public class CaretsPass implements RenderPass {
         shader.use();
         shader.setUniform("projectionMatrix", projectionMatrix);
         shader.setUniform("viewMatrix", viewMatrix);
+        shader.setUniform("scaleWithView", config.getVisualEffects().isCaretScaleWithView() ? 1.0f : 0.0f);
+        shader.setUniform("fixedScaleFactor", FIXED_SCREEN_SCALE);
 
         // Render CG
         shader.setUniform("center", cgPosition);
