@@ -184,7 +184,7 @@ public class RenderingConfiguration {
         private boolean particleEffectsEnabled = true;
         private boolean motionBlurEnabled = false;
         private float motionBlurFactor = 5.0f;
-        private boolean originAxesVisible = true;
+        private boolean originAxesVisible = false;
         private boolean staticParticles = true;
         private float particleTime = 10.0f;
         private boolean sparkParticlesEnabled = true;
