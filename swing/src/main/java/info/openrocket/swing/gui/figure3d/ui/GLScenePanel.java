@@ -24,16 +24,16 @@ import org.lwjgl.opengl.awt.GLData;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
-	import javax.swing.JPopupMenu;
-	import javax.swing.SwingUtilities;
-	import javax.swing.Timer;
-	import java.awt.Color;
-	import java.awt.Container;
-	import java.awt.Graphics2D;
-	import java.awt.GraphicsConfiguration;
-	import java.awt.Point;
-	import java.awt.RenderingHints;
-	import java.awt.geom.AffineTransform;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.HierarchyEvent;
@@ -50,13 +50,13 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-	import java.util.concurrent.ThreadFactory;
-	import java.util.concurrent.atomic.AtomicBoolean;
-	import java.util.concurrent.atomic.AtomicInteger;
-	import java.util.concurrent.atomic.AtomicReference;
-	import java.util.concurrent.CountDownLatch;
-	import java.util.concurrent.TimeUnit;
-	import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -116,16 +116,16 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
  */
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
-			private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-			private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
-					System.getProperty("os.name", "").toLowerCase().contains("mac");
-		private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
-		private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
-		private final AtomicInteger renderCallCount = new AtomicInteger(0);
-		private final AtomicInteger paintCallCount = new AtomicInteger(0);
-		private final AtomicInteger swapCallCount = new AtomicInteger(0);
-		private volatile long lastPaintSkipDebugMs = 0;
-		private volatile long lastStatusDebugMs = 0;
+	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
+	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
+			System.getProperty("os.name", "").toLowerCase().contains("mac");
+	private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
+	private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
+	private final AtomicInteger renderCallCount = new AtomicInteger(0);
+	private final AtomicInteger paintCallCount = new AtomicInteger(0);
+	private final AtomicInteger swapCallCount = new AtomicInteger(0);
+	private volatile long lastPaintSkipDebugMs = 0;
+	private volatile long lastStatusDebugMs = 0;
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -143,15 +143,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private IntBuffer hudIntBuffer; // Direct IntBuffer view for efficiency
 	private Graphics2D hudGraphics; // Reusable Graphics2D context
 	private final CountDownLatch glInitLatch = new CountDownLatch(1);
-		private final AtomicBoolean hudPaintScheduled = new AtomicBoolean(false);
-		private final AtomicBoolean hudBufferReady = new AtomicBoolean(false);
-		private volatile long lastHudPaintTimeMs = 0;
-		private static final long MIN_HUD_PAINT_INTERVAL_MS = 33; // ~30 FPS max for EDT HUD painting
-		private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
-		private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
-		private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
-		private static final int MAX_PEER_BOUNDS_SYNC_ATTEMPTS = 20;
-		private static final int PEER_BOUNDS_SYNC_RETRY_DELAY_MS = 50;
+	private final AtomicBoolean hudPaintScheduled = new AtomicBoolean(false);
+	private final AtomicBoolean hudBufferReady = new AtomicBoolean(false);
+	private volatile long lastHudPaintTimeMs = 0;
+	private static final long MIN_HUD_PAINT_INTERVAL_MS = 33; // ~30 FPS max for EDT HUD painting
+	private final AtomicBoolean peerBoundsSyncQueued = new AtomicBoolean(false);
+	private final AtomicBoolean peerBoundsSyncInProgress = new AtomicBoolean(false);
+	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
+	private static final int MAX_PEER_BOUNDS_SYNC_ATTEMPTS = 20;
+	private static final int PEER_BOUNDS_SYNC_RETRY_DELAY_MS = 50;
 
 	// Track dimensions to detect actual size changes
 	private int lastFramebufferWidth = -1;
@@ -204,61 +204,61 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setFocusTraversalKeysEnabled(false);
 		setIgnoreRepaint(true);
 
-			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
-				// components without changing their local bounds. On macOS this can leave the
-				// native peer at an incorrect location until the next real resize. Force a peer
-				// bounds sync when the canvas becomes showing.
-				addHierarchyListener(e -> {
-					if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-						peerBoundsSyncAttempts.set(0);
-						if (isShowing()) {
-							requestPeerBoundsSync();
-						}
-					}
-				});
-				// If an ancestor moves (e.g., JSplitPane divider/layout), Swing won't necessarily resize this
-				// canvas, but the native peer still needs an updated on-screen location.
-				addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
-					@Override
-					public void ancestorMoved(HierarchyEvent e) {
-						if (!isShowing()) {
-							return;
-						}
-						peerBoundsSyncAttempts.set(0);
+		if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+			// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
+			// components without changing their local bounds. On macOS this can leave the
+			// native peer at an incorrect location until the next real resize. Force a peer
+			// bounds sync when the canvas becomes showing.
+			addHierarchyListener(e -> {
+				if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+					peerBoundsSyncAttempts.set(0);
+					if (isShowing()) {
 						requestPeerBoundsSync();
 					}
+				}
+			});
+			// If an ancestor moves (e.g., JSplitPane divider/layout), Swing won't necessarily resize this
+			// canvas, but the native peer still needs an updated on-screen location.
+			addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
+				@Override
+				public void ancestorMoved(HierarchyEvent e) {
+					if (!isShowing()) {
+						return;
+					}
+					peerBoundsSyncAttempts.set(0);
+					requestPeerBoundsSync();
+				}
 
-					@Override
-					public void ancestorResized(HierarchyEvent e) {
-						if (!isShowing()) {
-							return;
-						}
-						peerBoundsSyncAttempts.set(0);
-						requestPeerBoundsSync();
+				@Override
+				public void ancestorResized(HierarchyEvent e) {
+					if (!isShowing()) {
+						return;
 					}
-				});
-			}
+					peerBoundsSyncAttempts.set(0);
+					requestPeerBoundsSync();
+				}
+			});
+		}
 
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
-				public void componentResized(ComponentEvent e) {
-					if (!isDisplayable()) {
-						return;
-					}
-					markRenderActivity();
-					int width = Math.max(1, getWidth());
-					int height = Math.max(1, getHeight());
-					pendingWinWidth = width;
-					pendingWinHeight = height;
-					int[] fbSize = computeFramebufferSize(width, height);
-					pendingFbWidth = fbSize[0];
-					pendingFbHeight = fbSize[1];
-						resizeRequested = true;
-						hudNeedsUpdate = true;
-					}
-			});
-		}
+			public void componentResized(ComponentEvent e) {
+				if (!isDisplayable()) {
+					return;
+				}
+				markRenderActivity();
+				int width = Math.max(1, getWidth());
+				int height = Math.max(1, getHeight());
+				pendingWinWidth = width;
+				pendingWinHeight = height;
+				int[] fbSize = computeFramebufferSize(width, height);
+				pendingFbWidth = fbSize[0];
+				pendingFbHeight = fbSize[1];
+				resizeRequested = true;
+				hudNeedsUpdate = true;
+			}
+		});
+	}
 
 	/**
 	 * Registers a callback that is invoked when the user interacts with the canvas (mouse/keyboard/resize).
@@ -275,62 +275,62 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-		@Override
-		public void addNotify() {
-			super.addNotify();
-			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				peerBoundsSyncAttempts.set(0);
-				schedulePeerBoundsSyncRetry(0);
-				schedulePeerBoundsSyncRetry(50);
-				schedulePeerBoundsSyncRetry(200);
-				schedulePeerBoundsSyncRetry(500);
-				schedulePeerBoundsSyncRetry(1000);
-			}
-		}
-
-		/**
-		 * Explicitly retries the macOS native-peer bounds sync workaround.
-		 * Useful when embedding in layouts where SHOWING_CHANGED is unreliable.
-		 */
-		public void requestPeerBoundsSyncNow() {
-			if (!NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				return;
-			}
+	@Override
+	public void addNotify() {
+		super.addNotify();
+		if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 			peerBoundsSyncAttempts.set(0);
-			requestPeerBoundsSync();
+			schedulePeerBoundsSyncRetry(0);
 			schedulePeerBoundsSyncRetry(50);
 			schedulePeerBoundsSyncRetry(200);
 			schedulePeerBoundsSyncRetry(500);
 			schedulePeerBoundsSyncRetry(1000);
 		}
+	}
 
-		private void requestPeerBoundsSync() {
+	/**
+	 * Explicitly retries the macOS native-peer bounds sync workaround.
+	 * Useful when embedding in layouts where SHOWING_CHANGED is unreliable.
+	 */
+	public void requestPeerBoundsSyncNow() {
+		if (!NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+			return;
+		}
+		peerBoundsSyncAttempts.set(0);
+		requestPeerBoundsSync();
+		schedulePeerBoundsSyncRetry(50);
+		schedulePeerBoundsSyncRetry(200);
+		schedulePeerBoundsSyncRetry(500);
+		schedulePeerBoundsSyncRetry(1000);
+	}
+
+	private void requestPeerBoundsSync() {
+		if (!isDisplayable() || !isShowing()) {
+			peerBoundsSyncAttempts.set(0);
+			return;
+		}
+		if (!peerBoundsSyncQueued.compareAndSet(false, true)) {
+			return;
+		}
+		SwingUtilities.invokeLater(() -> {
+			peerBoundsSyncQueued.set(false);
 			if (!isDisplayable() || !isShowing()) {
 				peerBoundsSyncAttempts.set(0);
 				return;
 			}
-			if (!peerBoundsSyncQueued.compareAndSet(false, true)) {
+			int attempt = peerBoundsSyncAttempts.incrementAndGet();
+			if (attempt > MAX_PEER_BOUNDS_SYNC_ATTEMPTS) {
+				peerBoundsSyncAttempts.set(0);
 				return;
 			}
-			SwingUtilities.invokeLater(() -> {
-				peerBoundsSyncQueued.set(false);
-				if (!isDisplayable() || !isShowing()) {
-					peerBoundsSyncAttempts.set(0);
-					return;
-				}
-				int attempt = peerBoundsSyncAttempts.incrementAndGet();
-				if (attempt > MAX_PEER_BOUNDS_SYNC_ATTEMPTS) {
-					peerBoundsSyncAttempts.set(0);
-					return;
-				}
-				syncPeerBounds();
-				if (isPeerMispositioned()) {
-					schedulePeerBoundsSyncRetry(PEER_BOUNDS_SYNC_RETRY_DELAY_MS);
-				} else {
-					peerBoundsSyncAttempts.set(0);
-				}
-			});
-		}
+			syncPeerBounds();
+			if (isPeerMispositioned()) {
+				schedulePeerBoundsSyncRetry(PEER_BOUNDS_SYNC_RETRY_DELAY_MS);
+			} else {
+				peerBoundsSyncAttempts.set(0);
+			}
+		});
+	}
 
 	private void schedulePeerBoundsSyncRetry(int delayMs) {
 		Timer timer = new Timer(delayMs, e -> requestPeerBoundsSync());
@@ -338,85 +338,85 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		timer.start();
 	}
 
-		private void syncPeerBounds() {
-			if (!isDisplayable() || !isShowing()) {
-				return;
-			}
+	private void syncPeerBounds() {
+		if (!isDisplayable() || !isShowing()) {
+			return;
+		}
 		if (!peerBoundsSyncInProgress.compareAndSet(false, true)) {
 			return;
 		}
 		try {
 			int x = getX();
 			int y = getY();
-				int width = getWidth();
-				int height = getHeight();
-				if (width <= 0 || height <= 0) {
-					return;
-				}
-				// Nudge the peer size by 1px and back to force native bounds recomputation.
-				// On macOS, a real resize often "snaps" the canvas back to the correct location.
-				setBounds(x, y, width, height + 1);
-				setBounds(x, y, width, height);
-				Container parent = getParent();
-				if (parent != null) {
-					parent.validate();
-				}
-			} finally {
-				peerBoundsSyncInProgress.set(false);
+			int width = getWidth();
+			int height = getHeight();
+			if (width <= 0 || height <= 0) {
+				return;
 			}
-		}
-
-		private boolean isPeerMispositioned() {
-			Point expected = computeExpectedLocationOnScreen();
-			Point actual = null;
-			try {
-				if (isShowing()) {
-					actual = getLocationOnScreen();
-				}
-			} catch (Exception ignored) {
-				// Ignore and treat as mispositioned to allow retries.
-			}
-			if (expected == null || actual == null) {
-				return true;
-			}
-			int dx = expected.x - actual.x;
-			int dy = expected.y - actual.y;
-			return Math.abs(dx) > 2 || Math.abs(dy) > 2;
-		}
-
-		private Point computeExpectedLocationOnScreen() {
+			// Nudge the peer size by 1px and back to force native bounds recomputation.
+			// On macOS, a real resize often "snaps" the canvas back to the correct location.
+			setBounds(x, y, width, height + 1);
+			setBounds(x, y, width, height);
 			Container parent = getParent();
-			if (parent == null || !parent.isShowing()) {
-				return null;
+			if (parent != null) {
+				parent.validate();
 			}
-			Point parentOnScreen;
-			try {
-				parentOnScreen = parent.getLocationOnScreen();
-			} catch (Exception ignored) {
-				return null;
-			}
-			Point local = getLocation();
-			return new Point(parentOnScreen.x + local.x, parentOnScreen.y + local.y);
+		} finally {
+			peerBoundsSyncInProgress.set(false);
 		}
+	}
+
+	private boolean isPeerMispositioned() {
+		Point expected = computeExpectedLocationOnScreen();
+		Point actual = null;
+		try {
+			if (isShowing()) {
+				actual = getLocationOnScreen();
+			}
+		} catch (Exception ignored) {
+			// Ignore and treat as mispositioned to allow retries.
+		}
+		if (expected == null || actual == null) {
+			return true;
+		}
+		int dx = expected.x - actual.x;
+		int dy = expected.y - actual.y;
+		return Math.abs(dx) > 2 || Math.abs(dy) > 2;
+	}
+
+	private Point computeExpectedLocationOnScreen() {
+		Container parent = getParent();
+		if (parent == null || !parent.isShowing()) {
+			return null;
+		}
+		Point parentOnScreen;
+		try {
+			parentOnScreen = parent.getLocationOnScreen();
+		} catch (Exception ignored) {
+			return null;
+		}
+		Point local = getLocation();
+		return new Point(parentOnScreen.x + local.x, parentOnScreen.y + local.y);
+	}
 
 	private void addInputListeners() {
 		if (scene3DOrchestrator == null) return;
 
-			MouseAdapter mouseAdapter = new MouseAdapter() {
-				private Point pressPoint;
-				private Point lastPoint;
-				private boolean isDragging;
+		MouseAdapter mouseAdapter = new MouseAdapter() {
+			private Point pressPoint;
+			private Point lastPoint;
+			private boolean isDragging;
 
-				@Override
-					public void mousePressed(MouseEvent e) {
-						markRenderActivity();
-						if (SwingUtilities.isLeftMouseButton(e)) {
-							// Track modifier state for multi-selection.
-							scene3DOrchestrator.getInputHandler().getInputState().isShiftPressed = e.isShiftDown() || e.isMetaDown();
-							// Use Swing's built-in click count to detect double-clicks.
-						if (e.getClickCount() == 2) {
-							scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
-						}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				markRenderActivity();
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					// Track modifier state for multi-selection.
+					scene3DOrchestrator.getInputHandler().getInputState().isShiftPressed = e.isShiftDown() || e.isMetaDown();
+					// Use Swing's built-in click count to detect double-clicks.
+					if (e.getClickCount() == 2) {
+						scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
+					}
 					pressPoint = e.getPoint();
 					lastPoint = e.getPoint();
 					isDragging = false;
@@ -424,32 +424,32 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 			}
 
-				@Override
-					public void mouseReleased(MouseEvent e) {
-						markRenderActivity();
-						if (SwingUtilities.isLeftMouseButton(e)) {
-							// We check for !isDragging to differentiate a click from a drag-release.
-							// A double-click will also fire this event for the second click.
-							if (!isDragging && pressPoint != null) {
-							// Update modifier state and capture the click event for selection listeners.
-							var inputState = scene3DOrchestrator.getInputHandler().getInputState();
-							inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
-							scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
-							pendingSelectionClickEvent.set(e);
-						}
-						pressPoint = null;
-						isDragging = false;
-						cameraIsMoving = false; // Stop tracking camera movement
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				markRenderActivity();
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					// We check for !isDragging to differentiate a click from a drag-release.
+					// A double-click will also fire this event for the second click.
+					if (!isDragging && pressPoint != null) {
+						// Update modifier state and capture the click event for selection listeners.
+						var inputState = scene3DOrchestrator.getInputHandler().getInputState();
+						inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
+						scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
+						pendingSelectionClickEvent.set(e);
+					}
+					pressPoint = null;
+					isDragging = false;
+					cameraIsMoving = false; // Stop tracking camera movement
 				}
 			}
 
-				@Override
-				public void mouseDragged(MouseEvent e) {
-					markRenderActivity();
-					if (SwingUtilities.isLeftMouseButton(e) && pressPoint != null) {
-						if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
-							isDragging = true;
-						}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				markRenderActivity();
+				if (SwingUtilities.isLeftMouseButton(e) && pressPoint != null) {
+					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
+						isDragging = true;
+					}
 
 					if (isDragging) {
 						// Check for modifier keys
@@ -470,82 +470,82 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				}
 			}
 
-				@Override
-				public void mouseWheelMoved(MouseWheelEvent e) {
-					markRenderActivity();
-					scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f);
-					hudNeedsUpdate = true; // Mark HUD for update on zoom
-				}
-			};
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				markRenderActivity();
+				scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f);
+				hudNeedsUpdate = true; // Mark HUD for update on zoom
+			}
+		};
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
 
 		setFocusable(true);
-			addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					markRenderActivity();
-					keyboardHandler.handleKeyEvent(e.getKeyCode(), 1);
-				}
-
-				@Override
-				public void keyReleased(KeyEvent e) {
-					markRenderActivity();
-					keyboardHandler.handleKeyEvent(e.getKeyCode(), 0);
-				}
-			});
-		}
-
-		private static GLData createGLData() {
-			GLData data = new GLData();
-			data.majorVersion = 3;
-			data.minorVersion = 3;
-			data.profile = GLData.Profile.CORE;
-			data.doubleBuffer = true;
-			// On macOS, requesting a multisampled default framebuffer has proven to be less reliable
-			// when multiple canvases/windows are active. We rely on post-processing AA (FXAA) anyway.
-			data.samples = getRequestedSampleCount();
-			data.sRGB = true;
-			// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
-			data.swapInterval = 0;
-			return data;
-		}
-
-		private static int getRequestedSampleCount() {
-			String override = System.getProperty("openrocket.figure3d.samples");
-			if (override != null) {
-				try {
-					return Math.max(0, Integer.parseInt(override.trim()));
-				} catch (NumberFormatException ignored) {
-					// fall through
-				}
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				markRenderActivity();
+				keyboardHandler.handleKeyEvent(e.getKeyCode(), 1);
 			}
-			// Default: disable MSAA on macOS for multi-window stability.
-			return NEEDS_PEER_BOUNDS_SYNC_WORKAROUND ? 0 : 4;
-		}
 
-		/**
-		 * Computes framebuffer size without calling AWT native peer methods.
-		 * On macOS, querying AWTGLCanvas.getFramebufferWidth/Height off the EDT can crash.
-		 */
-		private int[] computeFramebufferSize(int windowWidth, int windowHeight) {
-			double scaleX = 1.0;
-			double scaleY = 1.0;
-			GraphicsConfiguration gc = getGraphicsConfiguration();
-			if (gc != null) {
-				AffineTransform tx = gc.getDefaultTransform();
-				scaleX = tx.getScaleX();
-				scaleY = tx.getScaleY();
+			@Override
+			public void keyReleased(KeyEvent e) {
+				markRenderActivity();
+				keyboardHandler.handleKeyEvent(e.getKeyCode(), 0);
 			}
-			int fbWidth = (int) Math.round(windowWidth * scaleX);
-			int fbHeight = (int) Math.round(windowHeight * scaleY);
-			return new int[] { Math.max(1, fbWidth), Math.max(1, fbHeight) };
-		}
+		});
+	}
 
-		private int[] computeFramebufferSize() {
-			return computeFramebufferSize(Math.max(1, getWidth()), Math.max(1, getHeight()));
+	private static GLData createGLData() {
+		GLData data = new GLData();
+		data.majorVersion = 3;
+		data.minorVersion = 3;
+		data.profile = GLData.Profile.CORE;
+		data.doubleBuffer = true;
+		// On macOS, requesting a multisampled default framebuffer has proven to be less reliable
+		// when multiple canvases/windows are active. We rely on post-processing AA (FXAA) anyway.
+		data.samples = getRequestedSampleCount();
+		data.sRGB = true;
+		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
+		data.swapInterval = 0;
+		return data;
+	}
+
+	private static int getRequestedSampleCount() {
+		String override = System.getProperty("openrocket.figure3d.samples");
+		if (override != null) {
+			try {
+				return Math.max(0, Integer.parseInt(override.trim()));
+			} catch (NumberFormatException ignored) {
+				// fall through
+			}
 		}
+		// Default: disable MSAA on macOS for multi-window stability.
+		return NEEDS_PEER_BOUNDS_SYNC_WORKAROUND ? 0 : 4;
+	}
+
+	/**
+	 * Computes framebuffer size without calling AWT native peer methods.
+	 * On macOS, querying AWTGLCanvas.getFramebufferWidth/Height off the EDT can crash.
+	 */
+	private int[] computeFramebufferSize(int windowWidth, int windowHeight) {
+		double scaleX = 1.0;
+		double scaleY = 1.0;
+		GraphicsConfiguration gc = getGraphicsConfiguration();
+		if (gc != null) {
+			AffineTransform tx = gc.getDefaultTransform();
+			scaleX = tx.getScaleX();
+			scaleY = tx.getScaleY();
+		}
+		int fbWidth = (int) Math.round(windowWidth * scaleX);
+		int fbHeight = (int) Math.round(windowHeight * scaleY);
+		return new int[]{Math.max(1, fbWidth), Math.max(1, fbHeight)};
+	}
+
+	private int[] computeFramebufferSize() {
+		return computeFramebufferSize(Math.max(1, getWidth()), Math.max(1, getHeight()));
+	}
 
 	@Override
 	protected void beforeRender() {
@@ -579,18 +579,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_FRAMEBUFFER_SRGB);
 
-				int winWidth = Math.max(1, getWidth());
-				int winHeight = Math.max(1, getHeight());
-				int[] fbSize = computeFramebufferSize(winWidth, winHeight);
-				int fbWidth = fbSize[0];
-				int fbHeight = fbSize[1];
+			int winWidth = Math.max(1, getWidth());
+			int winHeight = Math.max(1, getHeight());
+			int[] fbSize = computeFramebufferSize(winWidth, winHeight);
+			int fbWidth = fbSize[0];
+			int fbHeight = fbSize[1];
 
-				scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
-						.build();
-					SceneView scene = scene3DOrchestrator.getScene();
+			scene3DOrchestrator = Scene3DOrchestrator.builder(rocket, winWidth, winHeight, fbWidth, fbHeight)
+					.build();
+			SceneView scene = scene3DOrchestrator.getScene();
 
-				// Create the scene mesh
-				RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
+			// Create the scene mesh
+			RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
 			//RocketMeshBuilder.createOriginAxes(scene, true, true);
 			scene.setBackground(new SolidColorBackground(0.4f, 0.4f, 0.4f));
 
@@ -603,17 +603,17 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 
 			// --- Initialize HUD rendering objects ---
-				hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
+			hudShader = new Shader("/shaders/ui/hud_vertex.glsl", "/shaders/ui/hud_fragment.glsl");
 
-				// Set initial dimensions
-				lastFramebufferWidth = fbWidth;
-				lastFramebufferHeight = fbHeight;
+			// Set initial dimensions
+			lastFramebufferWidth = fbWidth;
+			lastFramebufferHeight = fbHeight;
 
-				initHudTexture();
-				initHudVao();
-				requestHudRepaint(true);
+			initHudTexture();
+			initHudVao();
+			requestHudRepaint(true);
 
-				addInputListeners();
+			addInputListeners();
 			DemoFactory.setupDemoKeyboardHandling(this.keyboardHandler, scene3DOrchestrator.getScene(), scene3DOrchestrator);
 
 			// Mark initialization complete - allows resize/render operations to proceed
@@ -661,10 +661,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	/**
 	 * Cleans up old resources and creates new ones with current framebuffer dimensions.
 	 * IMPORTANT: Creates textures directly for THIS context - does not use shared pool.
-		 */
-		private void initHudTexture() {
-			synchronized (hudLock) {
-				hudBufferReady.set(false);
+	 */
+	private void initHudTexture() {
+		synchronized (hudLock) {
+			hudBufferReady.set(false);
 			int[] fbSize = computeFramebufferSize();
 			int fbWidth = fbSize[0];
 			int fbHeight = fbSize[1];
@@ -674,48 +674,48 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				return;
 			}
 
-		// Check if we can reuse existing resources with padding
-		if (hudImage != null && hudImageBuffer != null) {
-			int currentCapacity = hudImageBuffer.capacity();
-			int requiredCapacity = fbWidth * fbHeight * 4;
+			// Check if we can reuse existing resources with padding
+			if (hudImage != null && hudImageBuffer != null) {
+				int currentCapacity = hudImageBuffer.capacity();
+				int requiredCapacity = fbWidth * fbHeight * 4;
 
-			if (currentCapacity >= requiredCapacity && currentCapacity <= requiredCapacity * 1.25) {
-				// Cleanup old texture and create new one for THIS context
-				if (hudTexture != null) {
-					hudTexture.cleanup();
+				if (currentCapacity >= requiredCapacity && currentCapacity <= requiredCapacity * 1.25) {
+					// Cleanup old texture and create new one for THIS context
+					if (hudTexture != null) {
+						hudTexture.cleanup();
+					}
+					hudTexture = new Texture(fbWidth, fbHeight, true);
+
+					// Recreate BufferedImage with new size but keep buffer
+					if (hudGraphics != null) {
+						hudGraphics.dispose();
+					}
+					hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
+					hudGraphics = hudImage.createGraphics();
+					hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+					return;
 				}
-				hudTexture = new Texture(fbWidth, fbHeight, true);
-
-				// Recreate BufferedImage with new size but keep buffer
-				if (hudGraphics != null) {
-					hudGraphics.dispose();
-				}
-				hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
-				hudGraphics = hudImage.createGraphics();
-				hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-				return;
 			}
+
+			// Full cleanup and recreation needed
+			cleanupHudResources();
+
+			// Allocate with some padding to reduce future reallocations
+			int paddedSize = (int) (fbWidth * fbHeight * 4 * 1.1);    // 10% padding
+
+			hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
+			hudImageBuffer = MemoryUtil.memAlloc(paddedSize);
+			hudIntBuffer = hudImageBuffer.asIntBuffer();
+
+			hudGraphics = hudImage.createGraphics();
+			hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+			// Create texture directly for THIS context - don't use shared pool
+			hudTexture = new Texture(fbWidth, fbHeight, true);
 		}
-
-		// Full cleanup and recreation needed
-		cleanupHudResources();
-
-		// Allocate with some padding to reduce future reallocations
-		int paddedSize = (int)(fbWidth * fbHeight * 4 * 1.1);	// 10% padding
-
-		hudImage = new BufferedImage(fbWidth, fbHeight, BufferedImage.TYPE_INT_ARGB);
-		hudImageBuffer = MemoryUtil.memAlloc(paddedSize);
-		hudIntBuffer = hudImageBuffer.asIntBuffer();
-
-		hudGraphics = hudImage.createGraphics();
-		hudGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		hudGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-		// Create texture directly for THIS context - don't use shared pool
-		hudTexture = new Texture(fbWidth, fbHeight, true);
-			}
 	}
 
 	private void cleanupHudResources() {
@@ -739,13 +739,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private void initHudVao() {
 		float[] quadVertices = {
 				// positions   // texCoords (V coordinates are flipped)
-				-1.0f,  1.0f,  0.0f, 0.0f,  // Top-left vertex maps to V=0.0
-				-1.0f, -1.0f,  0.0f, 1.0f,  // Bottom-left vertex maps to V=1.0
-				1.0f, -1.0f,  1.0f, 1.0f,  // Bottom-right vertex maps to V=1.0
+				-1.0f, 1.0f, 0.0f, 0.0f,  // Top-left vertex maps to V=0.0
+				-1.0f, -1.0f, 0.0f, 1.0f,  // Bottom-left vertex maps to V=1.0
+				1.0f, -1.0f, 1.0f, 1.0f,  // Bottom-right vertex maps to V=1.0
 
-				-1.0f,  1.0f,  0.0f, 0.0f,  // Top-left vertex maps to V=0.0
-				1.0f, -1.0f,  1.0f, 1.0f,  // Bottom-right vertex maps to V=1.0
-				1.0f,  1.0f,  1.0f, 0.0f   // Top-right vertex maps to V=0.0
+				-1.0f, 1.0f, 0.0f, 0.0f,  // Top-left vertex maps to V=0.0
+				1.0f, -1.0f, 1.0f, 1.0f,  // Bottom-right vertex maps to V=1.0
+				1.0f, 1.0f, 1.0f, 0.0f   // Top-right vertex maps to V=0.0
 		};
 		hudVao = glGenVertexArrays();
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.VERTEX_ARRAY, hudVao, "HUD vao");
@@ -856,11 +856,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		ByteBuffer exportBuffer = captureResolvedFramebuffer(renderer, exportWidth, exportHeight);
 		scene3DOrchestrator.clearExportRequest();
 
-			renderer.presentResolvedToCurrentFramebuffer();
+		renderer.presentResolvedToCurrentFramebuffer();
 
-			if (exportBuffer == null) {
-				log.warn("Export skipped: no framebuffer data available");
-				return;
+		if (exportBuffer == null) {
+			log.warn("Export skipped: no framebuffer data available");
+			return;
 		}
 
 		EXPORT_EXECUTOR.submit(() -> writePng(exportBuffer, exportWidth, exportHeight, filePath));
@@ -976,9 +976,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// If the framebuffer size wasn't captured on resize (EDT), query it now while the context is current
 		if (fbWidth <= 0 || fbHeight <= 0) {
 			int[] fbSize = computeFramebufferSize(width, height);
-				fbWidth = fbSize[0];
-				fbHeight = fbSize[1];
-			}
+			fbWidth = fbSize[0];
+			fbHeight = fbSize[1];
+		}
 
 		glViewport(0, 0, fbWidth, fbHeight);
 		scene3DOrchestrator.resize(width, height, fbWidth, fbHeight);
@@ -1047,6 +1047,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	/**
 	 * Waits for the GL context to finish initialization.
+	 *
 	 * @param timeoutMs how long to wait in milliseconds
 	 * @return true if initialized before timeout, false otherwise
 	 */
@@ -1065,24 +1066,24 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		hudNeedsUpdate = true;
 	}
 
-		public void addSceneSelectionListener(SelectionListener listener) {
-			if (scene3DOrchestrator == null) {
-				return;
+	public void addSceneSelectionListener(SelectionListener listener) {
+		if (scene3DOrchestrator == null) {
+			return;
+		}
+		scene3DOrchestrator.enqueueGlTask(() -> {
+			if (scene3DOrchestrator.getScene() != null) {
+				scene3DOrchestrator.getScene().addSelectionListener(listener);
 			}
-			scene3DOrchestrator.enqueueGlTask(() -> {
-				if (scene3DOrchestrator.getScene() != null) {
-					scene3DOrchestrator.getScene().addSelectionListener(listener);
-				}
-			});
-		}
+		});
+	}
 
-		/**
-		 * Returns and clears the most recent click event that triggered a selection change.
-		 * If the selection changed programmatically (e.g., via setSelection), this returns null.
-		 */
-		public MouseEvent consumePendingSelectionClickEvent() {
-			return pendingSelectionClickEvent.getAndSet(null);
-		}
+	/**
+	 * Returns and clears the most recent click event that triggered a selection change.
+	 * If the selection changed programmatically (e.g., via setSelection), this returns null.
+	 */
+	public MouseEvent consumePendingSelectionClickEvent() {
+		return pendingSelectionClickEvent.getAndSet(null);
+	}
 
 	public Scene3DOrchestrator getScene3DOrchestrator() {
 		return scene3DOrchestrator;

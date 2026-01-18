@@ -13,8 +13,10 @@ import info.openrocket.swing.gui.figureelements.RocketInfo;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,13 +38,13 @@ import java.util.stream.Collectors;
  * old JOGL RocketFigure3d so RocketPanel can toggle between 2D/3D without broader
  * refactors yet.
  */
-	public class RocketFigure3d extends JPanel {
+public class RocketFigure3d extends JPanel {
 
-		private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-		private static final boolean MAC_OS = System.getProperty("os.name", "").toLowerCase().contains("mac");
-		private static final MacEdtRenderScheduler MAC_RENDER_SCHEDULER = MAC_OS ? new MacEdtRenderScheduler() : null;
-		private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
-		private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
+	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
+	private static final boolean MAC_OS = System.getProperty("os.name", "").toLowerCase().contains("mac");
+	private static final MacEdtRenderScheduler MAC_RENDER_SCHEDULER = MAC_OS ? new MacEdtRenderScheduler() : null;
+	private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
+	private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -215,15 +217,15 @@ import java.util.stream.Collectors;
 			renderThread = Thread.currentThread();
 			try {
 				long deadline = System.currentTimeMillis() + 5_000;
-					while (System.currentTimeMillis() < deadline) {
-						if (disposed || !renderingEnabled) {
-							return;
-						}
-						if (panel.isShowing() && panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0) {
-							break;
-						}
-						try {
-							Thread.sleep(50);
+				while (System.currentTimeMillis() < deadline) {
+					if (disposed || !renderingEnabled) {
+						return;
+					}
+					if (panel.isShowing() && panel.isDisplayable() && panel.getWidth() > 0 && panel.getHeight() > 0) {
+						break;
+					}
+					try {
+						Thread.sleep(50);
 					} catch (InterruptedException ignored) {
 						Thread.currentThread().interrupt();
 						return;
@@ -232,17 +234,17 @@ import java.util.stream.Collectors;
 
 				if (disposed || !renderingEnabled) {
 					return;
-					}
+				}
 
-					try {
-						renderFrame();
-					} catch (Exception e) {
-						log.warn("Initial render failed", e);
-					}
+				try {
+					renderFrame();
+				} catch (Exception e) {
+					log.warn("Initial render failed", e);
+				}
 
-					while (renderingEnabled && !disposed) {
-						if (!panel.isDisplayable()) {
-							break;
+				while (renderingEnabled && !disposed) {
+					if (!panel.isDisplayable()) {
+						break;
 					}
 					if (panel.glInitFailed) {
 						log.error("GL init failed for RocketFigure3d");
@@ -267,11 +269,11 @@ import java.util.stream.Collectors;
 						break;
 					}
 				}
-				} finally {
-					renderThread = null;
-				}
-			});
-		}
+			} finally {
+				renderThread = null;
+			}
+		});
+	}
 
 	private static final class MacEdtRenderScheduler implements ActionListener {
 		private static final int MAX_ACTIVE_CANVASES = Math.max(1,

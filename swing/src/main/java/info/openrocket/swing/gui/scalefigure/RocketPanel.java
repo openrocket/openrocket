@@ -34,14 +34,14 @@ import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StageSelector;
-	import info.openrocket.swing.gui.components.StyledLabel;
-	import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
-	import info.openrocket.swing.gui.figure3d.RocketFigure3d;
-	import info.openrocket.swing.gui.figureelements.CGCaret;
-	import info.openrocket.swing.gui.figureelements.CPCaret;
-	import info.openrocket.swing.gui.figureelements.Caret;
-	import info.openrocket.swing.gui.figureelements.RocketInfo;
-	import info.openrocket.swing.gui.main.BasicFrame;
+import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
+import info.openrocket.swing.gui.figure3d.RocketFigure3d;
+import info.openrocket.swing.gui.figureelements.CGCaret;
+import info.openrocket.swing.gui.figureelements.CPCaret;
+import info.openrocket.swing.gui.figureelements.Caret;
+import info.openrocket.swing.gui.figureelements.RocketInfo;
+import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.swing.gui.simulation.SimulationWorker;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -100,6 +100,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+
 import info.openrocket.swing.gui.theme.UITheme;
 
 import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WARNINGS;
@@ -112,17 +113,18 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 @SuppressWarnings("serial")
-	public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource, CAParameters.CAParametersListener {
-	
-		private static final Translator trans = Application.getTranslator();
-		private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
-	
-		private static final String VIEW_TYPE_SEPARATOR = "__SEPARATOR__";		// Dummy string to indicate a horizontal separator item in the view type combobox
+public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource, CAParameters.CAParametersListener {
+
+	private static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(RocketPanel.class);
+
+	private static final String VIEW_TYPE_SEPARATOR = "__SEPARATOR__";        // Dummy string to indicate a horizontal separator item in the view type combobox
+
 	public enum VIEW_TYPE {
 		TopView(false, RocketFigure.VIEW_TOP),
 		SideView(false, RocketFigure.VIEW_SIDE),
 		BackView(false, RocketFigure.VIEW_BACK),
-		SEPARATOR(false, -248),		// Horizontal combobox separator dummy item
+		SEPARATOR(false, -248),        // Horizontal combobox separator dummy item
 		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
 		Unfinished(true, RocketFigure3d.TYPE_UNFINISHED),
 		Finished(true, RocketFigure3d.TYPE_FINISHED);
@@ -133,7 +135,9 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		VIEW_TYPE(final boolean is3d, final int type) {
 			this.is3d = is3d;
 			this.type = type;
-		};
+		}
+
+		;
 
 		@Override
 		public String toString() {
@@ -149,6 +153,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 
 		/**
 		 * Get VIEW_TYPE from its name (string).
+		 *
 		 * @param name the name of the view type (as returned by name())
 		 * @return the VIEW_TYPE, or null if not found
 		 */
@@ -206,7 +211,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 
 	// The functional ID of the rocket that was simulated
 	private ModID flightDataFunctionalID = ModID.INVALID;
-    private FlightConfigurationId flightDataMotorID = null;
+	private FlightConfigurationId flightDataMotorID = null;
 
 	private SimulationWorker backgroundSimulationWorker = null;
 
@@ -222,22 +227,23 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	 * with all threads in daemon mode and with minimum priority.
 	 */
 	private static final ExecutorService backgroundSimulationExecutor;
+
 	static {
 		backgroundSimulationExecutor = Executors.newFixedThreadPool(SwingPreferences.getMaxThreadCount(),
 				new ThreadFactory() {
-										private ThreadFactory factory = Executors.defaultThreadFactory();
+					private ThreadFactory factory = Executors.defaultThreadFactory();
 
-										@Override
-										public Thread newThread(Runnable r) {
-												Thread t = factory.newThread(r);
-												t.setDaemon(true);
-												t.setPriority(Thread.MIN_PRIORITY);
-												return t;
-										}
-								});
+					@Override
+					public Thread newThread(Runnable r) {
+						Thread t = factory.newThread(r);
+						t.setDaemon(true);
+						t.setPriority(Thread.MIN_PRIORITY);
+						return t;
+					}
+				});
 	}
 
-	public OpenRocketDocument getDocument(){
+	public OpenRocketDocument getDocument() {
 		return this.document;
 	}
 
@@ -249,11 +255,11 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		this.document = document;
 		this.basicFrame = basicFrame;
 		Rocket rkt = document.getRocket();
-		
-		
+
+
 		// TODO: FUTURE: calculator selection
 		aerodynamicCalculator = new BarrowmanCalculator();
-		
+
 		// Create figure and custom scroll pane
 		figure = new RocketFigure(rkt);
 		figure3d = new RocketFigure3d(document);
@@ -333,7 +339,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 			public void stateChanged(EventObject e) {
 				updateExtras();
 				updateFigures();
-				scrollPane.componentResized(null);	// Triggers a resize so that when the rocket becomes smaller, the scrollPane updates its size
+				scrollPane.componentResized(null);    // Triggers a resize so that when the rocket becomes smaller, the scrollPane updates its size
 			}
 		});
 
@@ -377,40 +383,40 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		scrollPane.repaint();
 	}
 
-			private void go3D() {
-				if (is3d)
-					return;
-				is3d = true;
-				figureCardLayout.show(figureHolder, "3d");
-				figure3d.startRendering();
-			disableDoubleBuffering();
-			rotationControl.setEnabled(false);
-			scaleSelector.setEnabled(false);
+	private void go3D() {
+		if (is3d)
+			return;
+		is3d = true;
+		figureCardLayout.show(figureHolder, "3d");
+		figure3d.startRendering();
+		disableDoubleBuffering();
+		rotationControl.setEnabled(false);
+		scaleSelector.setEnabled(false);
 
-			revalidate();
-			figureHolder.revalidate();
-			figureHolder.repaint();
-			figure3d.requestFocusInWindow();
+		revalidate();
+		figureHolder.revalidate();
+		figureHolder.repaint();
+		figure3d.requestFocusInWindow();
 
-			figure3d.repaint();
+		figure3d.repaint();
+	}
+
+	private void go2D() {
+		if (!is3d) {
+			return;
 		}
-
-			private void go2D() {
-				if (!is3d) {
-					return;
-				}
-				is3d = false;
-				figureCardLayout.show(figureHolder, "2d");
-				figure3d.stopRendering();
-			restoreDoubleBuffering();
-			rotationControl.setEnabled(true);
+		is3d = false;
+		figureCardLayout.show(figureHolder, "2d");
+		figure3d.stopRendering();
+		restoreDoubleBuffering();
+		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
-			scrollPane.revalidate();
-			scrollPane.repaint();
-			revalidate();
-			figureHolder.revalidate();
-			figure.repaint();
-		}
+		scrollPane.revalidate();
+		scrollPane.repaint();
+		revalidate();
+		figureHolder.revalidate();
+		figure.repaint();
+	}
 
 	private void disableDoubleBuffering() {
 		synchronized (DOUBLE_BUFFER_LOCK) {
@@ -458,7 +464,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	private void createPanel() {
 		final Rocket rkt = document.getRocket();
 
-		rkt.addChangeListener(new StateChangeListener(){
+		rkt.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject eo) {
 				updateExtras();
@@ -539,7 +545,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		ribbon.add(sep, "cell 5 0, spany 2, gapleft para, gapright para");
 
 		// Stage selector
-		StageSelector stageSelector = new StageSelector( rkt );
+		StageSelector stageSelector = new StageSelector(rkt);
 		rkt.addChangeListener(stageSelector);
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Stages")), "cell 6 0, pushx");
 		ribbon.add(stageSelector, "cell 6 1, pushx");
@@ -654,7 +660,8 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	/**
 	 * Return the angle of attack used in CP calculation.  NaN signifies the default value
 	 * of zero.
-	 * @return   the angle of attack used, or NaN.
+	 *
+	 * @return the angle of attack used, or NaN.
 	 */
 	public double getCPAOA() {
 		return cpAOA;
@@ -663,7 +670,8 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	/**
 	 * Set the angle of attack to be used in CP calculation.  A value of NaN signifies that
 	 * the default AOA (zero) should be used.
-	 * @param aoa	the angle of attack to use, or NaN
+	 *
+	 * @param aoa the angle of attack to use, or NaN
 	 */
 	public void setCPAOA(double aoa) {
 		if (MathUtil.equals(aoa, cpAOA) ||
@@ -740,7 +748,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 
 	/**
 	 * Handle clicking on figure shapes.  The functioning is the following:
-	 *
+	 * <p>
 	 * Get the components clicked.
 	 * If no component is clicked, do nothing.
 	 * If the currently selected component is in the set, keep it,
@@ -896,12 +904,12 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		double newRotation = originalRotation - rotationOffset;
 		// Ensure the rotation is within the range [0, 2*PI]
 		newRotation = (newRotation + 2 * Math.PI) % (2 * Math.PI);
-		
+
 		// Apply snapping if Shift key is pressed
 		if (event.isShiftDown()) {
 			newRotation = ViewRotationControl.snapRotation(newRotation);
 		}
-		
+
 		figure.setRotation(newRotation);
 	}
 
@@ -954,17 +962,17 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 			cp = aerodynamicCalculator.getWorstCP(curConfig, conditions, warnings);
 		}
 		extraText.setTheta(cpTheta);
-		if (cp.getWeight() > MathUtil.EPSILON){
+		if (cp.getWeight() > MathUtil.EPSILON) {
 			cpx = cp.getX();
 			// map the 3D value into the 2D Display Panel
-			cpy = cp.getY() * Math.cos(rotation) + cp.getZ()*Math.sin(rotation);
+			cpy = cp.getY() * Math.cos(rotation) + cp.getZ() * Math.sin(rotation);
 		}
-		
-		cg = MassCalculator.calculateLaunch( curConfig).getCM();
-		if (cg.getWeight() > MassCalculator.MIN_MASS){
+
+		cg = MassCalculator.calculateLaunch(curConfig).getCM();
+		if (cg.getWeight() > MassCalculator.MIN_MASS) {
 			cgx = cg.getX();
 			// map the 3D value into the 2D Display Panel
-			cgy = cg.getY() * Math.cos(rotation) + cg.getZ()*Math.sin(rotation);
+			cgy = cg.getY() * Math.cos(rotation) + cg.getZ() * Math.sin(rotation);
 		}
 
 		// We need to flip the y coordinate if we are in top view
@@ -973,7 +981,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		}
 
 		double length = curConfig.getLength();
-		
+
 		double diameter = Double.NaN;
 		for (RocketComponent c : curConfig.getCoreComponents()) {
 			if (c instanceof SymmetricComponent) {
@@ -983,14 +991,14 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 			}
 		}
 
-		RigidBody emptyInfo = MassCalculator.calculateStructure( curConfig );
-		
+		RigidBody emptyInfo = MassCalculator.calculateStructure(curConfig);
+
 		extraText.setCG(cgx);
 		extraText.setCP(cpx);
 		extraText.setLength(length);
 		extraText.setDiameter(diameter);
 		extraText.setMassWithMotors(cg.getWeight());
-		extraText.setMassWithoutMotors( emptyInfo.getMass() );
+		extraText.setMassWithoutMotors(emptyInfo.getMass());
 		extraText.setWarnings(warnings);
 		if (this.showWarnings != null) {
 			extraText.setShowWarnings(showWarnings.isSelected());
@@ -1047,8 +1055,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		if (Application.getPreferences().getAutoRunSimulations()) {
 			// Update only current flight config simulation when you are not in the simulations tab
 			updateSims(this.basicFrame != null && this.basicFrame.getSelectedTab() == BasicFrame.SIMULATION_TAB);
-		}
-		else {
+		} else {
 			// Always update the simulation of the current configuration
 			updateSims(false);
 		}
@@ -1083,7 +1090,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 
 		FlightConfigurationId curID = document.getSelectedConfiguration().getFlightConfigurationID();
 		extraText.setCalculatingData(true);
-		Rocket duplicate = (Rocket)document.getRocket().copy();
+		Rocket duplicate = (Rocket) document.getRocket().copy();
 
 		// Re-run the present simulation(s)
 		List<Simulation> sims = new LinkedList<>();
@@ -1098,8 +1105,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 					sims.add(sim);
 					break;
 				}
-			}
-			else {
+			} else {
 				sims.add(sim);
 			}
 		}
@@ -1109,6 +1115,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	/**
 	 * Update the flight data text with the data of {sim}. Only update if sim is the simulation of the current flight
 	 * configuration.
+	 *
 	 * @param sim: simulation from which the flight data is taken
 	 * @return true if the flight data was updated, false if not
 	 */
@@ -1126,7 +1133,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 	 * in the background.
 	 *
 	 * @param sims simulations which should be run
-	 * @param rkt rocket for which the simulations are run
+	 * @param rkt  rocket for which the simulations are run
 	 */
 	private void runBackgroundSimulations(List<Simulation> sims, Rocket rkt) {
 		if (sims.size() == 0) {
@@ -1223,10 +1230,10 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 
 		@Override
 		protected SimulationListener[] getExtraListeners() {
-			return new SimulationListener[] {
+			return new SimulationListener[]{
 					InterruptListener.INSTANCE,
 					GroundHitListener.INSTANCE,
-					exprListener };
+					exprListener};
 
 		}
 
@@ -1254,7 +1261,7 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 		extraCG = new CGCaret(0, 0);
 		extraCP = new CPCaret(0, 0);
 		extraText = new RocketInfo(curConfig);
-		
+
 		updateExtras();
 
 		figure.clearRelativeExtra();
@@ -1271,10 +1278,11 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 
 	/**
 	 * Capture a preview image of the rocket in the specified view type and size.
-	 * @param viewType the view type to capture
+	 *
+	 * @param viewType    the view type to capture
 	 * @param targetWidth the target width of the image
-	 * @param minHeight the minimum height of the image
-	 * @param maxHeight the maximum height of the image
+	 * @param minHeight   the minimum height of the image
+	 * @param maxHeight   the maximum height of the image
 	 * @return the captured image, or null if 3D preview is requested
 	 */
 	public BufferedImage capturePreviewImage(VIEW_TYPE viewType, int targetWidth, int minHeight, int maxHeight) {
@@ -1523,7 +1531,8 @@ import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WAR
 			String str = (value == null) ? "" : value.toString();
 			if (VIEW_TYPE_SEPARATOR.equals(str)) {
 				return separator;
-			};
+			}
+			;
 			return defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		}
 	}
