@@ -14,6 +14,7 @@ import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
@@ -119,6 +120,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
 	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
 			System.getProperty("os.name", "").toLowerCase().contains("mac");
+	private static final float MAC_BACKGROUND_GAMMA = 1.8f;
 	private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
 	private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
@@ -181,6 +183,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
 	private volatile Runnable renderActivityCallback;
+	private volatile Runnable uiThemeListener;
 
 	static {
 		// Ensure Swing popups render above the heavyweight AWTGLCanvas (notably on macOS).
@@ -592,7 +595,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// Create the scene mesh
 			RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
 			//RocketMeshBuilder.createOriginAxes(scene, true, true);
-			scene.setBackground(new SolidColorBackground(0.4f, 0.4f, 0.4f));
+			applyThemeBackground(scene);
+			installThemeListener();
 
 			// Focus on the rocket
 			scene3DOrchestrator.focusOnRocket();
@@ -1096,6 +1100,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		glInitialized = false;
 		hudPaintScheduled.set(false);
 		hudBufferReady.set(false);
+		uninstallThemeListener();
 		if (scene3DOrchestrator != null) {
 			scene3DOrchestrator.shutdown();
 		}
@@ -1162,5 +1167,42 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		GpuResourceTracker.logLiveResources("Swing canvas cleanup (other canvases may still be active)", false);
+	}
+
+	private void applyThemeBackground(SceneView scene) {
+		if (scene == null) {
+			return;
+		}
+		Color color = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		float srgbR = color.getRed() / 255.0f;
+		float srgbG = color.getGreen() / 255.0f;
+		float srgbB = color.getBlue() / 255.0f;
+		float alpha = color.getAlpha() / 255.0f;
+		if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+			srgbR = (float) Math.pow(srgbR, MAC_BACKGROUND_GAMMA);
+			srgbG = (float) Math.pow(srgbG, MAC_BACKGROUND_GAMMA);
+			srgbB = (float) Math.pow(srgbB, MAC_BACKGROUND_GAMMA);
+		}
+		scene.setBackground(new SolidColorBackground(srgbR, srgbG, srgbB, alpha));
+	}
+	private void installThemeListener() {
+		if (uiThemeListener != null) {
+			return;
+		}
+		uiThemeListener = () -> {
+			Scene3DOrchestrator orchestrator = scene3DOrchestrator;
+			if (orchestrator == null) {
+				return;
+			}
+			orchestrator.enqueueGlTask(() -> applyThemeBackground(orchestrator.getScene()));
+		};
+		UITheme.Theme.addUIThemeChangeListener(uiThemeListener);
+	}
+
+	private void uninstallThemeListener() {
+		if (uiThemeListener != null) {
+			UITheme.Theme.removeUIThemeChangeListener(uiThemeListener);
+			uiThemeListener = null;
+		}
 	}
 }

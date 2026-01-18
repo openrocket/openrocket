@@ -21,8 +21,11 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.VectorUtils;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+
+import java.awt.Color;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -60,8 +63,8 @@ public class CaretsPass implements RenderPass {
     private final ShaderProgram shader;
     private final Renderable cgMesh;
     private final Renderable cpMesh;
-    private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f); // Blue
-    private final Vector3f cpColor = new Vector3f(1.0f, 0.0f, 0.0f); // Red
+    private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f);
+    private final Vector3f cpColor = new Vector3f(1.0f, 0.0f, 0.0f);
     private final AerodynamicCalculator aerodynamicCalculator;
     private final RenderingConfiguration config;
 
@@ -71,6 +74,7 @@ public class CaretsPass implements RenderPass {
     private static final float FIXED_SCREEN_SCALE = 0.06f;
     private boolean cgValid = false;
     private boolean cpValid = false;
+    private final Runnable uiThemeListener;
 
     /**
      * Creates a new carets pass for the given scene and configuration.
@@ -92,6 +96,9 @@ public class CaretsPass implements RenderPass {
         this.aerodynamicCalculator = new BarrowmanCalculator();
         this.cgMesh = new RenderableMesh(CGCaretGenerator.create(config.getQuality().getQuality()));
         this.cpMesh = new RenderableMesh(CPCaretGenerator.create(config.getQuality().getQuality()));
+        updateColorsFromTheme();
+        this.uiThemeListener = this::updateColorsFromTheme;
+        UITheme.Theme.addUIThemeChangeListener(uiThemeListener);
 
         // Add a listener to update positions when the rocket changes
         this.rocket.addChangeListener(e -> updatePositions());
@@ -167,5 +174,17 @@ public class CaretsPass implements RenderPass {
         shader.cleanup();
         cgMesh.cleanup();
         cpMesh.cleanup();
+        UITheme.Theme.removeUIThemeChangeListener(uiThemeListener);
+    }
+
+    private void updateColorsFromTheme() {
+        Color cgTheme = UITheme.getColor(UITheme.Keys.CG);
+        Color cpTheme = UITheme.getColor(UITheme.Keys.CP);
+        if (cgTheme != null) {
+            cgColor.set(cgTheme.getRed() / 255.0f, cgTheme.getGreen() / 255.0f, cgTheme.getBlue() / 255.0f);
+        }
+        if (cpTheme != null) {
+            cpColor.set(cpTheme.getRed() / 255.0f, cpTheme.getGreen() / 255.0f, cpTheme.getBlue() / 255.0f);
+        }
     }
 }
