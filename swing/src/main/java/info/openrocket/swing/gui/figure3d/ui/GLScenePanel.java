@@ -834,6 +834,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				glEnable(GL_DEPTH_TEST);
 				glDisable(GL_BLEND);
 			}
+			// HUD rendering binds textures directly; reset cached state before next 3D frame.
+			renderer.resetTextureState();
 			shouldSwap = true;
 		} catch (Exception ex) {
 			log.error("Error during paintGL", ex);

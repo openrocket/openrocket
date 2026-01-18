@@ -62,6 +62,13 @@ public interface Renderer {
 	void resize(int width, int height);
 
 	/**
+	 * Resets any cached OpenGL texture binding state.
+	 *
+	 * Useful when external code binds textures outside the renderer's control.
+	 */
+	void resetTextureState();
+
+	/**
 	 * Cleans up all rendering resources and releases GPU memory.
 	 * 
 	 * This method should be called when the renderer is no longer needed.

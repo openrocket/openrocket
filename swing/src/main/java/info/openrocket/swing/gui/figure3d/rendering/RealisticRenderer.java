@@ -504,6 +504,7 @@ public class RealisticRenderer implements Renderer {
 	 * @param width New viewport width in pixels
 	 * @param height New viewport height in pixels
 	 */
+	@Override
 	public void resize(int width, int height) {
 		this.screenWidth = width;
 		this.screenHeight = height;
@@ -522,6 +523,10 @@ public class RealisticRenderer implements Renderer {
 		caretsPass.resize(width, height);
 	}
 
+	@Override
+	public void resetTextureState() {
+		textureStateManager.reset();
+	}
 
 	@Override
 	public void cleanup() {
