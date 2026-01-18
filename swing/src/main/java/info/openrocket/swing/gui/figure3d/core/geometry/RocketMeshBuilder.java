@@ -116,6 +116,10 @@ public abstract class RocketMeshBuilder {
 		}
 
 		Appearance3D appearance = AppearanceFactory.createFrom(component);
+		if (component instanceof FinSet) {
+			appearance.getTextureTransform().setScaleFromTop(false);
+			appearance.getDecalTransform().setScaleFromTop(false);
+		}
 		CoordinateIF[] locations = component.getComponentLocations();
 		CoordinateIF[] angles = component.getComponentAngles();
 

@@ -88,7 +88,7 @@ public abstract class AppearanceFactory {
 						engineAppearance.setTexture(engineTexture);
 						engineAppearance.setRenderStyle(Appearance3D.RenderStyle.TEXTURED);
 
-						// Map the transformation from the OpenRocket Decal to our TextureTransform
+						// Map the transformation from the OpenRocket Decal to our TextureTransform.
 						TextureTransform transform = engineAppearance.getTextureTransform();
 						transform.scale.set((float) orDecal.getScale().getX(), (float) orDecal.getScale().getY());
 						transform.offset.set((float) orDecal.getOffset().getX(), (float) orDecal.getOffset().getY());
