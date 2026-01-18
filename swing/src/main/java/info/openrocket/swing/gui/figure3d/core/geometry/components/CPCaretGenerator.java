@@ -12,7 +12,7 @@ import java.util.List;
 
 public class CPCaretGenerator {
 
-    private static final float RADIUS = 0.08f;
+    private static final float RADIUS = 0.06f;
 
     public static Mesh create(GraphicsQualitySettings.RenderQuality renderQuality) {
         List<Vertex> vertices = new ArrayList<>();

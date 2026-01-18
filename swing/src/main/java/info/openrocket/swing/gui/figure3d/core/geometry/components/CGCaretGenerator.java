@@ -12,7 +12,7 @@ import java.util.List;
 
 public class CGCaretGenerator {
 
-    private static final float RADIUS = 0.08f;
+    private static final float RADIUS = 0.06f;
     private static final float BORDER_THICKNESS_RATIO = 0.1f; // 10% of radius
 
     public static Mesh create(GraphicsQualitySettings.RenderQuality renderQuality) {
