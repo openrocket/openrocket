@@ -21,6 +21,8 @@ public class Parachute extends RecoveryDevice {
 	private int lineCount;
 	private final double DEFAULT_LINE_LENGTH = 0.3;
 	private double lineLength;
+	private boolean lineLengthAutomatic = true;
+	private static final double AUTO_LINE_LENGTH_RATIO = 1.5;
 
 	public Parachute() {
 		this.diameter = DEFAULT_DIAMETER;
@@ -97,6 +99,9 @@ public class Parachute extends RecoveryDevice {
 	}
 
 	public final double getLineLength() {
+		if (lineLengthAutomatic) {
+			lineLength = getAutoLineLength();
+		}
 		return lineLength;
 	}
 
@@ -106,12 +111,41 @@ public class Parachute extends RecoveryDevice {
 				((Parachute) listener).setLineLength(length);
 			}
 		}
-		if (MathUtil.equals(this.lineLength, length))
+		if (MathUtil.equals(this.lineLength, length) && !lineLengthAutomatic)
 			return;
 		this.lineLength = length;
+		this.lineLengthAutomatic = false;
 		if (getLineCount() != 0) {
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 			clearPreset();
+		} else {
+			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		}
+	}
+
+	private double getAutoLineLength() {
+		return diameter * AUTO_LINE_LENGTH_RATIO;
+	}
+
+	public boolean isLineLengthAutomatic() {
+		return lineLengthAutomatic;
+	}
+
+	public void setLineLengthAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof Parachute) {
+				((Parachute) listener).setLineLengthAutomatic(auto);
+			}
+		}
+
+		if (lineLengthAutomatic == auto)
+			return;
+		lineLengthAutomatic = auto;
+		if (lineLengthAutomatic) {
+			lineLength = getAutoLineLength();
+		}
+		if (getLineCount() != 0) {
+			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		} else {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
@@ -217,8 +251,10 @@ public class Parachute extends RecoveryDevice {
 		//	//	Set preset parachute line length
 		if ((preset.has(ComponentPreset.LINE_LENGTH)) && preset.get(ComponentPreset.LINE_LENGTH) > 0) {
 			this.lineLength = preset.get(ComponentPreset.LINE_LENGTH);
+			this.lineLengthAutomatic = false;
 		} else {
 			this.lineLength = DEFAULT_LINE_LENGTH;
+			this.lineLengthAutomatic = false;
 		}
 		//	//	Set preset parachute line material
 		//	NEED a better way to set preset if field is empty ----

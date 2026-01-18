@@ -64,13 +64,15 @@ dependencies {
 
     implementation 'jakarta.activation:jakarta.activation-api:2.1.4'
     implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.6'
-    implementation 'org.glassfish:jakarta.json:2.0.1'
     implementation 'org.eclipse:yasson:2.0.1'
+    implementation 'com.google.code.gson:gson:2.13.2'
+
+    implementation 'org.xerial:sqlite-jdbc:3.51.1.0'
 }
 
-def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.ser'
-def serializedEnginesPathDist = './build/resources/main/datafiles/thrustcurves/thrustcurves.ser'
-// Executes the serialization of engines from ThrustCurve for a build.
+def serializedEnginesPath = './src/main/resources/datafiles/thrustcurves/thrustcurves.db'
+def serializedEnginesPathDist = './build/resources/main/datafiles/thrustcurves/thrustcurves.db'
+// Executes the motor database export from ThrustCurve for a build.
 tasks.register('serializeEngines') {
     dependsOn serializeEnginesDelete
     dependsOn serializeEnginesExecute
@@ -89,7 +91,7 @@ tasks.register('serializeEnginesDelete', Delete) {
         println "...serializeEnginesDelete Completed"
     }
 }
-// Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
+// Executes the database generation program to fetch ThrustCurve rocket data and store it in SQLite.
 tasks.register('serializeEnginesExecute', JavaExec) {
     dependsOn serializeEnginesDelete
     workingDir  new File(projectDir, 'build/tmp')
@@ -110,7 +112,7 @@ tasks.register('serializeEnginesExecute', JavaExec) {
         println "...serializeEnginesExecute Completed"
     }
 }
-// Executes the Java serialization program to fetch ThrustCurve rocket data and serialize it.
+// Executes the database generation program to fetch ThrustCurve rocket data and store it in SQLite.
 // TODO: Shouldn't need a seperate task, but the args are not changing when dynamically updating
 // the variable.
 tasks.register('serializeEnginesExecuteDist', JavaExec) {
@@ -118,7 +120,7 @@ tasks.register('serializeEnginesExecuteDist', JavaExec) {
     workingDir  new File(projectDir, 'build/tmp')
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
-    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist
+    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist, threadUtilFraction
     standardInput = System.in
     doFirst {
         println "Starting serializeEnginesExecuteDist..."
@@ -127,17 +129,17 @@ tasks.register('serializeEnginesExecuteDist', JavaExec) {
         println "...serializeEnginesExecuteDist Completed"
     }
 }
-// Validates that the serialize engines file exists.
+// Validates that the motor database file exists.
 tasks.register('serializeEnginesValidate') {
     if (!project.file(serializedEnginesPath).exists()) {
-        def message = "The serialized engine file does not exist at the following location:\n${project.file(serializedEnginesPath)}.\n" +
-                "You will need to run the following from the command line in order to generate the serialized engine file:\n"
+        def message = "The SQLite motor database does not exist at the following location:\n${project.file(serializedEnginesPath)}.\n" +
+                "You will need to run the following from the command line in order to generate the SQLite motor database:\n"
                 "% ./gradlew serializeEngines\n" +
                 "\n";
             println message
-            throw new GradleException('Invalid serialized engine file.')
+            throw new GradleException('Invalid motor database file.')
     } else {
-        def message = "Serialized engine file found.\n\n";
+        def message = "SQLite motor database found.\n\n";
         println message
     }
 }
@@ -153,27 +155,18 @@ def externalComponentsPath = './src/main/resources/datafiles/components/database
 def externalResourceComponents = './resources-src/datafiles/openrocket-database'
 
 // Initializes the submodules in Git.
-tasks.register('submoduleInit') {
-    doLast {
-        exec {
-            workingDir "../"
-            executable 'git'
-            args 'submodule', 'init'
-        }
-        println "Executed submoduleInit!"
-    }
+
+// Initializes the submodules in Git.
+tasks.register("submoduleInit", Exec) {
+    workingDir = "../"
+    commandLine("git", "submodule", "init")
 }
+
 // Updates the initialized submodules in Git.
-tasks.register('subModuleUpdate') {
+tasks.register("subModuleUpdate", Exec) {
     dependsOn 'submoduleInit'
-    doLast {
-        exec {
-            workingDir "../"
-            executable 'git'
-            args 'submodule', 'update', '--remote'
-        }
-        println "Executed subModuleUpdate!"
-    }
+    workingDir = "../"
+    commandLine("git", "submodule", "update", "--remote")
 }
 
 // Copies the external components to the Core resource folder.

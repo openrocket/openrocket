@@ -17,10 +17,15 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.plaf.basic.BasicSpinnerUI;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 /**
  * An enhanced version of the rotation control component for the RocketPanel.
@@ -37,6 +42,7 @@ public class ViewRotationControl extends JPanel {
 	private final BasicSlider rotationSlider;
 	private final JToggleButton lockButton;
 	private boolean dragRotationLocked = false;
+	private boolean shiftKeyPressed = false;
 
 	/**
 	 * Creates a new enhanced rotation control panel
@@ -100,11 +106,82 @@ public class ViewRotationControl extends JPanel {
 
 		rotationSlider = new BasicSlider(rotationModel.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true);
 		rotationSlider.setToolTipText(trans.get("RocketPanel.ttip.Rotation"));
+		
+		// Track Shift key state via mouse events
+		rotationSlider.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				shiftKeyPressed = e.isShiftDown();
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				shiftKeyPressed = false;
+			}
+		});
+		
+		// Track Shift key state during mouse motion (for when shift is pressed/released during drag)
+		rotationSlider.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				shiftKeyPressed = e.isShiftDown();
+			}
+		});
+		
+		// Add change listener to apply snapping when Shift is pressed
+		rotationSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (rotationSlider.getValueIsAdjusting() && shiftKeyPressed) {
+					double currentRotation = rotationModel.getValue();
+					double snappedRotation = snapRotation(currentRotation);
+					// Only update if the snapped value is different to avoid loops
+					if (Math.abs(currentRotation - snappedRotation) > 0.001) {
+						rotationModel.setValue(snappedRotation);
+					}
+				}
+			}
+		});
 
 		// Add components to this panel
 		add(controlsPanel, "growx, wrap");
 		add(rotationSlider, "ax 50%, growy, pushy, wrap");
 		add(lockButton, "ax 50%");
+	}
+	
+	/**
+	 * Snaps an angle (in radians) to the nearest multiple of 30 or 45 degrees.
+	 * Returns whichever snap point (30° or 45° multiple) is closer to the input angle.
+	 * 
+	 * @param angle the angle in radians to snap
+	 * @return the snapped angle in radians
+	 */
+	public static double snapRotation(double angle) {
+		// Convert to degrees for easier calculation
+		double angleDeg = Math.toDegrees(angle);
+		
+		// Calculate nearest multiples
+		double nearest30 = Math.round(angleDeg / 30.0) * 30.0;
+		double nearest45 = Math.round(angleDeg / 45.0) * 45.0;
+		
+		// Normalize to [0, 360)
+		nearest30 = ((nearest30 % 360) + 360) % 360;
+		nearest45 = ((nearest45 % 360) + 360) % 360;
+		
+		// Find which is closer
+		double dist30 = Math.min(Math.abs(angleDeg - nearest30), 
+		                         Math.min(Math.abs(angleDeg - (nearest30 - 360)), 
+		                                 Math.abs(angleDeg - (nearest30 + 360))));
+		double dist45 = Math.min(Math.abs(angleDeg - nearest45),
+		                         Math.min(Math.abs(angleDeg - (nearest45 - 360)),
+		                                 Math.abs(angleDeg - (nearest45 + 360))));
+		
+		// Return whichever is closer, converted back to radians
+		if (dist30 <= dist45) {
+			return Math.toRadians(nearest30);
+		} else {
+			return Math.toRadians(nearest45);
+		}
 	}
 
 	/**

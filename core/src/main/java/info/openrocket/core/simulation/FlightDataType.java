@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.util.Chars;
 import info.openrocket.core.util.StringUtils;
 
 /**
@@ -170,6 +171,14 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType TYPE_STABILITY = newType(trans.get("FlightDataType.TYPE_STABILITY"), "S",
 			UnitGroup.UNITS_COEFFICIENT,
 			FlightDataTypeGroup.STABILITY, 2);
+	//// Damping ratio
+	public static final FlightDataType TYPE_DAMPING_RATIO = newType(
+			trans.get("FlightDataType.TYPE_DAMPING_RATIO"), "\u03b6", UnitGroup.UNITS_COEFFICIENT,
+			FlightDataTypeGroup.STABILITY, 3);
+	//// Natural frequency
+	public static final FlightDataType TYPE_NATURAL_FREQUENCY = newType(
+			trans.get("FlightDataType.TYPE_NATURAL_FREQUENCY"), "\u03c9n", UnitGroup.UNITS_ROLL,
+			FlightDataTypeGroup.STABILITY, 4);
 
 	// Characteristic numbers
 	//// Mach number
@@ -220,38 +229,60 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF = newType(
 			trans.get("FlightDataType.TYPE_NORMAL_FORCE_COEFF"), "Cn", UnitGroup.UNITS_COEFFICIENT,
 			FlightDataTypeGroup.COEFFICIENTS, 0);
+	//// CP weight (CNa)
+	public static final FlightDataType TYPE_CNA = newType(
+			trans.get("FlightDataType.TYPE_CNA"), "CN" + Chars.ALPHA, UnitGroup.UNITS_COEFFICIENT,
+			FlightDataTypeGroup.COEFFICIENTS, 1);
 	//// Pitch moment coefficient
 	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF = newType(
 			trans.get("FlightDataType.TYPE_PITCH_MOMENT_COEFF"), "C\u03b8", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 1);
+			FlightDataTypeGroup.COEFFICIENTS, 2);
 	//// Yaw moment coefficient
 	public static final FlightDataType TYPE_YAW_MOMENT_COEFF = newType(
 			trans.get("FlightDataType.TYPE_YAW_MOMENT_COEFF"), "C\u03c4\u03a8", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 2);
+			FlightDataTypeGroup.COEFFICIENTS, 3);
 	//// Side force coefficient
 	public static final FlightDataType TYPE_SIDE_FORCE_COEFF = newType(
 			trans.get("FlightDataType.TYPE_SIDE_FORCE_COEFF"), "C\u03c4s", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 3);
+			FlightDataTypeGroup.COEFFICIENTS, 4);
 	//// Roll moment coefficient
 	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF = newType(
 			trans.get("FlightDataType.TYPE_ROLL_MOMENT_COEFF"), "C\u03c4\u03a6", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 4);
+			FlightDataTypeGroup.COEFFICIENTS, 5);
 	//// Roll forcing coefficient
 	public static final FlightDataType TYPE_ROLL_FORCING_COEFF = newType(
 			trans.get("FlightDataType.TYPE_ROLL_FORCING_COEFF"), "Cf\u03a6", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 5);
+			FlightDataTypeGroup.COEFFICIENTS, 6);
 	//// Roll damping coefficient
 	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF = newType(
 			trans.get("FlightDataType.TYPE_ROLL_DAMPING_COEFF"), "C\u03b6\u03a6", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 6);
+			FlightDataTypeGroup.COEFFICIENTS, 7);
 	//// Pitch damping coefficient
 	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF = newType(
 			trans.get("FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF"), "C\u03b6\u03b8", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 7);
+			FlightDataTypeGroup.COEFFICIENTS, 8);
 	//// Yaw damping coefficient
 	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType(
 			trans.get("FlightDataType.TYPE_YAW_DAMPING_MOMENT_COEFF"), "C\u03b6\u03a8", UnitGroup.UNITS_COEFFICIENT,
-			FlightDataTypeGroup.COEFFICIENTS, 8);
+			FlightDataTypeGroup.COEFFICIENTS, 9);
+	//// Damping moment coefficient
+	public static final FlightDataType TYPE_DAMPING_MOMENT_COEFF = newType(
+			trans.get("FlightDataType.TYPE_DAMPING_MOMENT_COEFF"), "Cdm", UnitGroup.UNITS_ANGULAR_MOMENTUM,
+			FlightDataTypeGroup.COEFFICIENTS, 10);
+	//// Damping moment coefficient (aerodynamic part)
+	public static final FlightDataType TYPE_DAMPING_MOMENT_COEFF_AERODYNAMIC = newType(
+			trans.get("FlightDataType.TYPE_DAMPING_MOMENT_COEFF_AERODYNAMIC"), "Cdm_aero",
+			UnitGroup.UNITS_ANGULAR_MOMENTUM,
+			FlightDataTypeGroup.COEFFICIENTS, 11);
+	//// Damping moment coefficient (propulsive part)
+	public static final FlightDataType TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE = newType(
+			trans.get("FlightDataType.TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE"), "Cdm_prop",
+			UnitGroup.UNITS_ANGULAR_MOMENTUM,
+			FlightDataTypeGroup.COEFFICIENTS, 12);
+	//// Corrective moment coefficient
+	public static final FlightDataType TYPE_CORRECTIVE_MOMENT_COEFF = newType(
+			trans.get("FlightDataType.TYPE_CORRECTIVE_MOMENT_COEFF"), "Ccm", UnitGroup.UNITS_MOMENT,
+			FlightDataTypeGroup.COEFFICIENTS, 13);
 
 	//// Coriolis acceleration
 	public static final FlightDataType TYPE_CORIOLIS_ACCELERATION = newType(
@@ -343,6 +374,7 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			TYPE_PRESSURE_DRAG_COEFF,
 			TYPE_BASE_DRAG_COEFF,
 			TYPE_NORMAL_FORCE_COEFF,
+			TYPE_CNA,
 			TYPE_PITCH_MOMENT_COEFF,
 			TYPE_YAW_MOMENT_COEFF,
 			TYPE_SIDE_FORCE_COEFF,
@@ -351,6 +383,12 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			TYPE_ROLL_DAMPING_COEFF,
 			TYPE_PITCH_DAMPING_MOMENT_COEFF,
 			TYPE_YAW_DAMPING_MOMENT_COEFF,
+			TYPE_DAMPING_MOMENT_COEFF,
+			TYPE_DAMPING_MOMENT_COEFF_AERODYNAMIC,
+			TYPE_DAMPING_MOMENT_COEFF_PROPULSIVE,
+			TYPE_CORRECTIVE_MOMENT_COEFF,
+			TYPE_DAMPING_RATIO,
+			TYPE_NATURAL_FREQUENCY,
 			TYPE_CORIOLIS_ACCELERATION,
 			TYPE_REFERENCE_LENGTH,
 			TYPE_REFERENCE_AREA,

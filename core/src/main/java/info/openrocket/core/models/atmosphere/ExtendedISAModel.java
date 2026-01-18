@@ -8,14 +8,15 @@ import info.openrocket.core.util.ModID;
  * An atmospheric model based on the International Standard Atmosphere (ISA)
  * with extensions for custom launch site conditions. This model divides the
  * atmosphere into distinct layers based on the ISA standard, each with its
- * own temperature and pressure characteristics.
- *
+ * own temperature and pressure characteristics. It is based on geopotential
+ * altitudes.
+ * <p>
  * Key Features:
  * 1. Implements standard ISA model by default
  * 2. Supports custom launch site conditions
  * 3. Maintains ISA behavior above launch site
  * 4. Uses interpolation for efficient computation
- *
+ * <p>
  * Layer Structure:
  * - 0-11km (Troposphere): Temperature decreases linearly (288.15K -> 216.65K, -6.5 degC/km)
  * - 11-20km (Tropopause): Temperature constant (216.65K)
@@ -25,12 +26,12 @@ import info.openrocket.core.util.ModID;
  * - 51-71km (Mesosphere 1): Temperature decreases linearly (270.65K -> 214.65K, -2.8 degC/km)
  * - 71-84.852km (Mesosphere 2): Temperature decreases linearly (214.65K -> 186.95K, -2.0 degC/km)
  * - > 84.852km (Mesopause): Temperature constant (186.95K)
- *
+ * <p>
  * Usage:
  * 1. Standard ISA: new ExtendedISAModel()
  * 2. Custom sea level: new ExtendedISAModel(temperature, pressure)
  * 3. Custom altitude: new ExtendedISAModel(altitude, temperature, pressure)
- *
+ * <p>
  *
  * TODO: LOW: Values at altitudes over 32km differ from standard results by ~5%.
  *
@@ -43,12 +44,18 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	/** Standard sea level pressure in Pascal */
 	public static final double STANDARD_PRESSURE = 101325;
 
+	/** Standard relative air humidity */
+	public static final double STANDARD_RELATIVE_HUMIDITY = 0;
+
 	/** Gravitational acceleration in m/s2 */
 	private static final double G = 9.80665;
 
+	/** ISA reference Earth radius in meters for geopotential altitude conversion */
+	private static final double ISA_EARTH_RADIUS = 6356766.0;
+
 	/**
 	 * ISA atmospheric layers.
-	 * Each element represents the altitude in meters where a new layer begins.
+	 * Each element represents the geopotential altitude in meters where a new layer begins.
 	 */
 	private static final double[] STANDARD_LAYERS = { 0, 11000, 20000, 32000, 47000, 51000, 71000, 84852 };
 	/**
@@ -60,43 +67,59 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 	// The actual layer and temperature arrays used by this model
 	private final double[] layer;
 	private final double[] baseTemperature;
-
 	/**
 	 * Base pressures for each layer, computed based on the temperature profile and the barometric formula.
 	 */
 	private final double[] basePressure;
-
+	/**
+	 * Base relative humidity for each layer.
+	 */
+	private final double[] baseRelativeHumidity;
 	/**
 	 * Construct the standard ISA model.
 	 */
 	public ExtendedISAModel() {
-		this(STANDARD_TEMPERATURE, STANDARD_PRESSURE);
+		this(STANDARD_TEMPERATURE, STANDARD_PRESSURE, STANDARD_RELATIVE_HUMIDITY);
 	}
 
 	/**
-	 * Construct an extended model with the given temperature and pressure at MSL.
-	 * 
+	 * Construct an extended model with the given temperature and pressure at MSL
+	 *
 	 * @param temperature the temperature at MSL.
 	 * @param pressure    the pressure at MSL.
 	 */
+
 	public ExtendedISAModel(double temperature, double pressure) {
-		this(0, temperature, pressure);
+		this(0, temperature, pressure, 0);
+	}
+
+	/**
+	 * Construct an extended model with the given temperature, pressure, and relative humidity at MSL.
+	 * 
+	 * @param temperature the temperature at MSL.
+	 * @param pressure    the pressure at MSL.
+	 * @param relativeHumidity    the relative humidity at MSL.
+	 */
+	public ExtendedISAModel(double temperature, double pressure, double relativeHumidity) {
+		this(0, temperature, pressure, relativeHumidity);
 	}
 
 	/**
 	 * Construct an extended model with the given temperature and pressure at the
-	 * specified altitude. Conditions below the given altitude cannot be calculated,
+	 * specified geometric altitude. Conditions below the given altitude cannot be calculated,
 	 * and the values at the specified altitude will be returned instead. The
 	 * altitude
 	 * must be lower than the altitude of the next ISA standard layer (below 11km).
 	 * 
-	 * @param altitude    the altitude of the measurements.
+	 * @param altitude    the geometric altitude of the measurements.
 	 * @param temperature the temperature.
 	 * @param pressure    the pressure.
+	 * @param relativeHumidity    the relative humidity.
 	 * @throws IllegalArgumentException if the altitude exceeds the second layer boundary of the ISA model (over 11km).
 	 */
-	public ExtendedISAModel(double altitude, double temperature, double pressure) {
-		if (altitude >= STANDARD_LAYERS[1]) {
+	public ExtendedISAModel(double altitude, double temperature, double pressure, double relativeHumidity) {
+		double geopotentialAltitude = geometricToGeopotential(altitude);
+		if (geopotentialAltitude >= STANDARD_LAYERS[1]) {
 			throw new IllegalArgumentException("Too high first altitude: " + altitude);
 		}
 		if (temperature <= 0) {
@@ -104,6 +127,9 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		}
 		if (pressure <= 0) {
 			throw new IllegalArgumentException("Pressure must be positive (Pascals)");
+		}
+		if (relativeHumidity < 0 || relativeHumidity > 1) {
+			throw new IllegalArgumentException("Relative humidity must be between 0 and 1");
 		}
 
 		// If altitude is not 0, we need to create a new layer structure
@@ -113,24 +139,27 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			layer = new double[newSize];
 			baseTemperature = new double[newSize];
 			basePressure = new double[newSize];
+			baseRelativeHumidity = new double[newSize];
 
 			// Standard second layer values (11km)
 			double layer1Alt = STANDARD_LAYERS[1];
 			double layer1Temp = STANDARD_TEMPERATURES[1];
 
 			// Calculate temperature lapse rate between altitude and 11km
-			double tempRate = (layer1Temp - temperature) / (layer1Alt - altitude);
+			double tempRate = (layer1Temp - temperature) / (layer1Alt - geopotentialAltitude);
 
 			// Back-calculate sea level temperature using the same lapse rate
-			double seaLevelTemp = temperature - tempRate * altitude;
+			double seaLevelTemp = temperature - tempRate * geopotentialAltitude;
 
 			// Set up the layers
 			layer[0] = 0;                  // Sea level
-			layer[1] = altitude;           // Custom altitude
+			layer[1] = geopotentialAltitude;           // Custom altitude
 			baseTemperature[0] = seaLevelTemp;
 			baseTemperature[1] = temperature;
-			basePressure[0] = calculatePressure(0, seaLevelTemp, altitude, temperature, pressure);
+			basePressure[0] = calculatePressure(0, seaLevelTemp, geopotentialAltitude, temperature, pressure);
 			basePressure[1] = pressure;
+			baseRelativeHumidity[0] = calculateRelativeHumidity(geopotentialAltitude, 0, relativeHumidity);
+			baseRelativeHumidity[1] = relativeHumidity;
 
 			// Copy remaining standard layers
 			for (int i = 2; i < layer.length; i++) {
@@ -141,37 +170,42 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			layer = STANDARD_LAYERS.clone();
 			baseTemperature = STANDARD_TEMPERATURES.clone();
 			basePressure = new double[layer.length];
+			baseRelativeHumidity = new double[layer.length];
 			layer[0] = 0;
 			baseTemperature[0] = temperature;
 			basePressure[0] = pressure;
+			baseRelativeHumidity[0] = relativeHumidity;
 		}
 
-		// Calculate pressures for all remaining layers
+		// Calculate pressures and relative relativeHumidity for all remaining layers
 		for (int i = (altitude > 0 ? 2 : 1); i < basePressure.length; i++) {
-			basePressure[i] = getExactConditions(layer[i] - 1).getPressure();
+			double sampleAltitude = geopotentialToGeometric(layer[i] - 1);
+			basePressure[i] = getExactConditions(sampleAltitude).getPressure();
+			baseRelativeHumidity[i] = getExactConditions(sampleAltitude).getRelativeHumidity();
 		}
 	}
 
 	/**
-	 * Calculates exact atmospheric conditions at the specified altitude by interpolating between ISA layers.
+	 * Calculates exact atmospheric conditions at the specified geometric altitude by interpolating between ISA layers.
 	 * The pressure is calculated using the barometric formula, and the temperature is interpolated linearly.
-	 * @param altitude The altitude in meters
+	 * @param altitude The geometric altitude in meters
 	 * @return Atmospheric conditions at the specified altitude
 	 */
 	@Override
 	protected AtmosphericConditions getExactConditions(double altitude) {
+		double geopotentialAltitude = geometricToGeopotential(altitude);
 		// Clamp altitude to be within defined layers
-		altitude = MathUtil.clamp(altitude, layer[0], layer[layer.length - 1]);
+		geopotentialAltitude = MathUtil.clamp(geopotentialAltitude, layer[0], layer[layer.length - 1]);
 
 		// Find the correct layer
 		int startLayer;
 		for (startLayer = 0; startLayer < layer.length - 1; startLayer++) {
-			if (layer[startLayer + 1] > altitude) {
+			if (layer[startLayer + 1] > geopotentialAltitude) {
 				break;
 			}
 		}
 
-		double altDiff = altitude - layer[startLayer];
+		double altDiff = geopotentialAltitude - layer[startLayer];
 
 		double startTemp = baseTemperature[startLayer];
 		// Temperature lapse rate
@@ -179,13 +213,15 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 
 		double temp = startTemp + altDiff * tempRate;
 		double startPress = basePressure[startLayer];
-		double press = calculatePressure(altitude, temp, layer[startLayer], startTemp, startPress);
+		double press = calculatePressure(geopotentialAltitude, temp, layer[startLayer], startTemp, startPress);
+		double startHumid = baseRelativeHumidity[startLayer];
+		double humid = calculateRelativeHumidity(geopotentialAltitude, layer[startLayer], startHumid);
 
-		return new AtmosphericConditions(temp, press);
+		return new AtmosphericConditions(temp, press, humid);
 	}
 
 	/**
-	 * Calculate pressure at sea level given conditions at altitude.
+	 * Calculate pressure at sea level given conditions at geopotential altitude.
 	 * Uses the barometric formula (<a href="https://en.wikipedia.org/wiki/Barometric_formula">source</a>).
 	 */
 	private double calculatePressure(double alt1, double temp1, double alt2, double temp2, double press2) {
@@ -199,22 +235,42 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 		}
 	}
 
+	/**
+	 * Calculate relative humidity at a different geopotential altitude.
+	 * @param altSource Source geopotential altitude
+	 * @param altTarget Target geopotential altitude
+	 * @param relativeHumiditySource Relative humidity at the source altitude
+	 * @return the relative humidity at the target geopotential altitude
+	 */
+	private double calculateRelativeHumidity(double altSource, double altTarget, double relativeHumiditySource) {
+        // TODO: Implement changing humidity based on altitude.
+		return relativeHumiditySource;
+	}
+
 	@Override
 	protected double getMaxAltitude() {
-		return layer[layer.length - 1];
+		return geopotentialToGeometric(layer[layer.length - 1]);
 	}
 
 	/**
 	 * Get the maximum allowed launch site altitude where the model is valid.
-	 * @return The maximum altitude in meters
+	 * @return The maximum geometric altitude in meters
 	 */
 	public static double getMaximumAllowedAltitude() {
-		return STANDARD_LAYERS[1] - 1;
+		return geopotentialToGeometric(STANDARD_LAYERS[1] - 1);
+	}
+
+	private static double geometricToGeopotential(double geometricAltitude) {
+		return ISA_EARTH_RADIUS * geometricAltitude / (ISA_EARTH_RADIUS + geometricAltitude);
+	}
+
+	private static double geopotentialToGeometric(double geopotentialAltitude) {
+		return ISA_EARTH_RADIUS * geopotentialAltitude / (ISA_EARTH_RADIUS - geopotentialAltitude);
 	}
 
 	public static void main(String[] foo) {
 		ExtendedISAModel model1 = new ExtendedISAModel();
-		ExtendedISAModel model2 = new ExtendedISAModel(278.15, 100000);
+		ExtendedISAModel model2 = new ExtendedISAModel(0, 278.15, 100000, 0);
 
 		for (double alt = 0; alt < 80000; alt += 500) {
 			AtmosphericConditions cond1 = model1.getConditions(alt);

@@ -7,12 +7,10 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -71,6 +69,8 @@ public class SwingPreferences extends ApplicationPreferences {
 	public static final String UI_FONT_TRACKING = "UIFontTracking";
 	public static final String UPDATE_PLATFORM = "UpdatePlatform";
 	public static final String LOCK_CLICK_DRAG_ROTATION = "LockClickDragRotation";
+	public static final String AUTO_OPEN_PARTS_LIBRARY = "AutoOpenPartsLibrary";
+	public static final String UPDATE_ROCKET_WHILE_DRAGGING_POINT = "UpdateRocketWhileDraggingPoint";
 	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
@@ -82,8 +82,6 @@ public class SwingPreferences extends ApplicationPreferences {
 		list.add(new Locale("uk", "UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
-
-	private final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<>();
 	
 	
 	/**
@@ -121,19 +119,20 @@ public class SwingPreferences extends ApplicationPreferences {
 		}
 		PREFNODE = root.node(NODENAME);
 		fillDefaultComponentColors();
+		UITheme.Theme.addUIThemeChangeListener(this::updateColors);
 	}
 
 	private void fillDefaultComponentColors() {
-		DEFAULT_COLORS.put(BodyComponent.class, getUIThemeAsTheme().getDefaultBodyComponentColor());
-		DEFAULT_COLORS.put(TubeFinSet.class, getUIThemeAsTheme().getDefaultTubeFinSetColor());
-		DEFAULT_COLORS.put(FinSet.class, getUIThemeAsTheme().getDefaultFinSetColor());
-		DEFAULT_COLORS.put(LaunchLug.class, getUIThemeAsTheme().getDefaultLaunchLugColor());
-		DEFAULT_COLORS.put(RailButton.class, getUIThemeAsTheme().getDefaultRailButtonColor());
-		DEFAULT_COLORS.put(InternalComponent.class, getUIThemeAsTheme().getDefaultInternalComponentColor());
-		DEFAULT_COLORS.put(MassObject.class, getUIThemeAsTheme().getDefaultMassObjectColor());
-		DEFAULT_COLORS.put(RecoveryDevice.class, getUIThemeAsTheme().getDefaultRecoveryDeviceColor());
-		DEFAULT_COLORS.put(PodSet.class, getUIThemeAsTheme().getDefaultPodSetColor());
-		DEFAULT_COLORS.put(ParallelStage.class, getUIThemeAsTheme().getDefaultParallelStageColor());
+		DEFAULT_COLORS.put(BodyComponent.class, UITheme.getString(UITheme.Keys.DEFAULT_BODY_COMPONENT_COLOR, UITheme.Themes.LIGHT.getDefaultBodyComponentColor()));
+		DEFAULT_COLORS.put(TubeFinSet.class, UITheme.getString(UITheme.Keys.DEFAULT_TUBE_FIN_SET_COLOR, UITheme.Themes.LIGHT.getDefaultTubeFinSetColor()));
+		DEFAULT_COLORS.put(FinSet.class, UITheme.getString(UITheme.Keys.DEFAULT_FIN_SET_COLOR, UITheme.Themes.LIGHT.getDefaultFinSetColor()));
+		DEFAULT_COLORS.put(LaunchLug.class, UITheme.getString(UITheme.Keys.DEFAULT_LAUNCH_LUG_COLOR, UITheme.Themes.LIGHT.getDefaultLaunchLugColor()));
+		DEFAULT_COLORS.put(RailButton.class, UITheme.getString(UITheme.Keys.DEFAULT_RAIL_BUTTON_COLOR, UITheme.Themes.LIGHT.getDefaultRailButtonColor()));
+		DEFAULT_COLORS.put(InternalComponent.class, UITheme.getString(UITheme.Keys.DEFAULT_INTERNAL_COMPONENT_COLOR, UITheme.Themes.LIGHT.getDefaultInternalComponentColor()));
+		DEFAULT_COLORS.put(MassObject.class, UITheme.getString(UITheme.Keys.DEFAULT_MASS_OBJECT_COLOR, UITheme.Themes.LIGHT.getDefaultMassObjectColor()));
+		DEFAULT_COLORS.put(RecoveryDevice.class, UITheme.getString(UITheme.Keys.DEFAULT_RECOVERY_DEVICE_COLOR, UITheme.Themes.LIGHT.getDefaultRecoveryDeviceColor()));
+		DEFAULT_COLORS.put(PodSet.class, UITheme.getString(UITheme.Keys.DEFAULT_POD_SET_COLOR, UITheme.Themes.LIGHT.getDefaultPodSetColor()));
+		DEFAULT_COLORS.put(ParallelStage.class, UITheme.getString(UITheme.Keys.DEFAULT_PARALLEL_STAGE_COLOR, UITheme.Themes.LIGHT.getDefaultParallelStageColor()));
 	}
 
 	public void updateColors() {
@@ -494,18 +493,23 @@ public class SwingPreferences extends ApplicationPreferences {
 		putBoolean(LOCK_CLICK_DRAG_ROTATION, lock);
 	}
 
-	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, DEFAULT_COLORS);
-		if (color == null)
-			return ORColor.fromAWTColor(getUIThemeAsTheme().getTextColor());
-
-		ORColor clr = parseColor(color);
-		if (clr != null) {
-			return clr;
-		} else {
-			return ORColor.fromAWTColor(getUIThemeAsTheme().getTextColor());
-		}
+	/**
+	 * Get whether to update the rocket figure while dragging fin points.
+	 * @return true if the rocket should be updated during dragging, false if it should be frozen
+	 */
+	public boolean isUpdateRocketWhileDraggingPoint() {
+		return getBoolean(UPDATE_ROCKET_WHILE_DRAGGING_POINT, false);
 	}
+
+	/**
+	 * Set whether to update the rocket figure while dragging fin points.
+	 * @param update true to update the rocket during dragging, false to freeze it (better performance)
+	 */
+	public void setUpdateRocketWhileDraggingPoint(boolean update) {
+		putBoolean(UPDATE_ROCKET_WHILE_DRAGGING_POINT, update);
+	}
+
+	// getDefaultColor is in ApplicationPreferences
 
 	public final void setDefaultColor(Class<? extends RocketComponent> c, ORColor color) {
 		if (color == null)
@@ -653,6 +657,14 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	public void setTableColumnWidth(Class<?> c, int columnIdx, Integer width) {
 		setTableColumnWidth(c.getCanonicalName(), columnIdx, width);
+	}
+
+	public void setAutoOpenPartsLibrary(boolean check) {
+		putBoolean(AUTO_OPEN_PARTS_LIBRARY, check);
+	}
+
+	public boolean isAutoOpenPartsLibrary() {
+		return getBoolean(AUTO_OPEN_PARTS_LIBRARY, true);
 	}
 	
 	/**

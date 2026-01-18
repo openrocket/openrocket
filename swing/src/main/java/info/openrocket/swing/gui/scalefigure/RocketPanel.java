@@ -100,6 +100,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import info.openrocket.swing.gui.theme.UITheme;
+
+import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WARNINGS;
 
 
 /**
@@ -263,6 +266,8 @@ import javax.imageio.ImageIO;
 			final CustomClickCountListener clickCountListener = new CustomClickCountListener();
 			private Point mousePressedLoc = null;
 			private double originalFigureRotation = 0;
+			private boolean dragPanning = false;
+			private boolean dragRotating = false;
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -274,13 +279,43 @@ import javax.imageio.ImageIO;
 				if (is3d) {
 					return;
 				}
-				mousePressedLoc = e.getPoint();
-				originalFigureRotation = figure.getRotation();
+				dragPanning = shouldPanOnDrag(e);
+				dragRotating = shouldRotateOnDrag(e);
+				mousePressedLoc = dragRotating ? e.getPoint() : null;
+				originalFigureRotation = dragRotating ? figure.getRotation() : 0;
+				if (dragPanning) {
+					super.mousePressed(e);
+				}
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				handleMouseDragged(e, mousePressedLoc, originalFigureRotation);
+				if (dragPanning) {
+					super.mouseDragged(e);
+					return;
+				}
+				if (dragRotating) {
+					handleMouseDragged(e, mousePressedLoc, originalFigureRotation);
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+				dragPanning = false;
+				dragRotating = false;
+				mousePressedLoc = null;
+			}
+
+			private boolean shouldPanOnDrag(MouseEvent e) {
+				if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
+					return true;
+				}
+				return SwingUtilities.isLeftMouseButton(e) && rotationControl.isDragRotationLocked();
+			}
+
+			private boolean shouldRotateOnDrag(MouseEvent e) {
+				return SwingUtilities.isLeftMouseButton(e) && !rotationControl.isDragRotationLocked();
 			}
 		};
 		scrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
@@ -492,10 +527,12 @@ import javax.imageio.ImageIO;
 		JButton zoomOutButton = scaleSelector.getZoomOutButton();
 		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
 		JButton zoomInButton = scaleSelector.getZoomInButton();
+		JButton zoomFitButton = scaleSelector.getZoomFitButton();
 		ribbon.add(zoomOutButton, "gapleft para, cell 1 1");
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 2 0, spanx 2");
 		ribbon.add(scaleSelectorCombo, "cell 2 1");
-		ribbon.add(zoomInButton, "cell 3 1");
+		ribbon.add(zoomInButton, "cell 3 1, split 2");
+		ribbon.add(zoomFitButton, "cell 3 1");
 
 		// Show CG/CP
 		JCheckBox showCGCP = new JCheckBox();
@@ -564,12 +601,13 @@ import javax.imageio.ImageIO;
 
 		//// Show warnings
 		this.showWarnings = new JCheckBox(trans.get("RocketPanel.check.showWarnings"));
-		showWarnings.setSelected(true);
+		showWarnings.setSelected(document.getDocumentPreferences().getBoolean(PREF_SHOW_WARNINGS, true));
 		showWarnings.setToolTipText(trans.get("RocketPanel.check.showWarnings.ttip"));
 		bottomRow.add(showWarnings, "pushx, right");
 		showWarnings.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				document.getDocumentPreferences().putBoolean(PREF_SHOW_WARNINGS, showWarnings.isSelected());
 				updateExtras();
 				updateFigures();
 			}
@@ -747,7 +785,6 @@ import javax.imageio.ImageIO;
 		// If no component is clicked, do nothing
 		if (clicked.length == 0) {
 			selectionModel.setSelectionPath(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
@@ -783,83 +820,91 @@ import javax.imageio.ImageIO;
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
 		// Check for double-click.
 		// If the shift/meta key is not pressed and the component was not already selected, ignore the double click and treat it as a single click
-		if (clickCount == 2) {
-			if (!selectedComponents.isEmpty() && (event.isShiftDown() || event.isMetaDown())) {
-				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-				RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
-				component.clearConfigListeners();
+		if (clickCount >= 2) {
+			handleDoubleComponentClick(clicked, event, selectedComponents);
+		} else if (clickCount == 1) {
+			handleSingleComponentClick(clicked, event, selectedComponents);
+		}
+	}
 
-				// Make sure the clicked component is selected
-				for (RocketComponent c : clicked) {
-					if (!selectedComponents.contains(c)) {
-						TreePath path = ComponentTreeModel.makeTreePath(c);
-						paths.add(path);
-						selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
-						selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
-								.map(c1 -> (RocketComponent) c1.getLastPathComponent()).toList();
-						component = c;
-						break;
-					}
-				}
+	private void handleDoubleComponentClick(RocketComponent[] clicked, MouseEvent event, List<RocketComponent> selectedComponents) {
+		// Multi-component edit if shift/meta key is pressed
+		if (!selectedComponents.isEmpty() && (event.isShiftDown() || event.isMetaDown())) {
+			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
+			RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
+			component.clearConfigListeners();
 
-				// Multi-component edit if shift/meta key is pressed
-				for (RocketComponent c : selectedComponents) {
-					if (c == component) continue;
-					c.clearConfigListeners();
-					component.addConfigListener(c);
+			// Make sure the clicked component is selected
+			for (RocketComponent c : clicked) {
+				if (!selectedComponents.contains(c)) {
+					TreePath path = ComponentTreeModel.makeTreePath(c);
+					paths.add(path);
+					selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
+					selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
+							.map(c1 -> (RocketComponent) c1.getLastPathComponent()).toList();
+					component = c;
+					break;
 				}
-				ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this), document, component);
 			}
-			// Normal double click (no shift or meta key)
-			else {
-				if (!selectedComponents.contains(clicked[0])) {
-					clickCount = 1;
-				} else {
-					TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
-					selectionModel.setSelectionPath(path);        // Revert to single selection
-					RocketComponent component = (RocketComponent) path.getLastPathComponent();
 
-					ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this),
-							document, component);
-					return;
-				}
+			// Multi-component edit if shift/meta key is pressed
+			for (RocketComponent c : selectedComponents) {
+				if (c == component) continue;
+				c.clearConfigListeners();
+				component.addConfigListener(c);
+			}
+			ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this), document, component);
+		}
+		// Normal double click (no shift or meta key)
+		else {
+			// If the clicked component is not in the selection, treat it as a single click
+			if (!selectedComponents.contains(clicked[0])) {
+				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+				selectionModel.setSelectionPath(path);
+			}
+			// Open the configuration dialog for the first clicked component
+			else {
+				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+				selectionModel.setSelectionPath(path);        // Revert to single selection
+				RocketComponent component = (RocketComponent) path.getLastPathComponent();
+
+				ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this),
+						document, component);
 			}
 		}
+	}
 
-
-		if (clickCount == 1) {
-			// If the shift-button is held, add a newly clicked component to the selection path
-			if (event.isShiftDown() || event.isMetaDown()) {
-				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-				for (int i = 0; i < clicked.length; i++) {
-					if (!selectedComponents.contains(clicked[i])) {
-						TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
-						paths.add(path);
-						break;
-					}
-					// If all the clicked components are already in the selection, then deselect an object
-					if (i == clicked.length - 1) {
-						paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
-					}
+	private void handleSingleComponentClick(RocketComponent[] clicked, MouseEvent event, List<RocketComponent> selectedComponents) {
+		// If the shift-button is held, add a newly clicked component to the selection path
+		if (event.isShiftDown() || event.isMetaDown()) {
+			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
+			for (int i = 0; i < clicked.length; i++) {
+				if (!selectedComponents.contains(clicked[i])) {
+					TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
+					paths.add(path);
+					break;
 				}
-				try {
-					selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
-				} catch (Exception e) {
-					System.out.println(e);
+				// If all the clicked components are already in the selection, then deselect an object
+				if (i == clicked.length - 1) {
+					paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
 				}
 			}
-			// Single click, so set the selection to the first clicked component
-			else {
-				if (!selectedComponents.contains(clicked[0])) {
-					TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
-					selectionModel.setSelectionPath(path);
-				}
+			try {
+				selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+		// Single click, so set the selection to the first clicked component
+		else {
+			if (!selectedComponents.contains(clicked[0])) {
+				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+				selectionModel.setSelectionPath(path);
 			}
 		}
 	}
@@ -875,6 +920,12 @@ import javax.imageio.ImageIO;
 		double newRotation = originalRotation - rotationOffset;
 		// Ensure the rotation is within the range [0, 2*PI]
 		newRotation = (newRotation + 2 * Math.PI) % (2 * Math.PI);
+		
+		// Apply snapping if Shift key is pressed
+		if (event.isShiftDown()) {
+			newRotation = ViewRotationControl.snapRotation(newRotation);
+		}
+		
 		figure.setRotation(newRotation);
 	}
 
@@ -1418,7 +1469,7 @@ import javax.imageio.ImageIO;
 		BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D canvasGraphics = canvas.createGraphics();
 		try {
-			canvasGraphics.setColor(GUIUtil.getUITheme().getBackgroundColor());
+			canvasGraphics.setColor(UITheme.getColor(UITheme.Keys.BACKGROUND));
 			canvasGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
 			int x = (canvasWidth - scaledWidth) / 2;
 			int y = (canvasHeight - scaledHeight) / 2;
@@ -1440,7 +1491,6 @@ import javax.imageio.ImageIO;
 		if (paths == null || paths.length == 0) {
 			figure.setSelection(null);
 			figure3d.setSelection(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 

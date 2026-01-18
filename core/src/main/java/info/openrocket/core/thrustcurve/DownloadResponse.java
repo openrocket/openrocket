@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class DownloadResponse {
 
-	private final Map<Integer, List<MotorBurnFile>> data = new HashMap<>();
+	private final Map<String, List<MotorBurnFile>> data = new HashMap<>();
 
 	private String error = null;
 
@@ -16,7 +16,7 @@ public class DownloadResponse {
 		currentData.add(mbd);
 	}
 
-	public List<MotorBurnFile> getData(Integer motor_id) {
+	public List<MotorBurnFile> getData(String motor_id) {
 		return data.get(motor_id);
 	}
 

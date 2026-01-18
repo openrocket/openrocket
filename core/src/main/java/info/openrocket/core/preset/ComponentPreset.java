@@ -481,6 +481,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 		String type;
 		boolean userDefined;
 		Double density;
+		Double inPlaneShearModulus;
 		String group;
 	}
 
@@ -499,6 +500,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				m.name = material.getName();
 				m.type = material.getType().name();
 				m.density = material.getDensity();
+				m.inPlaneShearModulus = material.getInPlaneShearModulus();
 				m.userDefined = material.isUserDefined();
 				m.group = material.getGroup().getDatabaseString();
 				value = m;
@@ -527,8 +529,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				MaterialSerializationProxy m = (MaterialSerializationProxy) value;
 				MaterialGroup group = MaterialGroup.loadFromDatabaseStringWithBackwardCompatibility(
 						m.group, Material.Type.valueOf(m.type), m.name, m.density);
+				double shearModulus = m.inPlaneShearModulus != null ? m.inPlaneShearModulus : 0.0;
 				value = Material.newMaterial(Material.Type.valueOf(m.type), m.name, m.density,
-						group, m.userDefined, true);
+						shearModulus, group, m.userDefined, true);
 			}
 			if (TYPE.getName().equals(keyName)) {
 				this.properties.put(TYPE, (ComponentPreset.Type) value);

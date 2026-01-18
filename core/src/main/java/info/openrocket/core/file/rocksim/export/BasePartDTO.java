@@ -5,18 +5,32 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.rocksim.RockSimDensityType;
 import info.openrocket.core.file.rocksim.RockSimFinishCode;
 import info.openrocket.core.file.rocksim.RockSimLocationMode;
 import info.openrocket.core.file.rocksim.importt.BaseHandler;
+import info.openrocket.core.rocketcomponent.BodyComponent;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.InternalComponent;
+import info.openrocket.core.rocketcomponent.LaunchLug;
+import info.openrocket.core.rocketcomponent.MassObject;
+import info.openrocket.core.rocketcomponent.PodSet;
+import info.openrocket.core.rocketcomponent.ParallelStage;
+import info.openrocket.core.rocketcomponent.RailButton;
 import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.rocketcomponent.RingComponent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.StructuralComponent;
+import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
+import info.openrocket.core.util.ORColor;
+
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * The base class for all OpenRocket to RockSim conversions.
@@ -57,6 +71,14 @@ public abstract class BasePartDTO {
     private double radialLoc = 0;
     @XmlElement(name = RockSimCommonConstants.RADIAL_ANGLE)
     private double radialAngle = 0;
+    @XmlElement(name = RockSimCommonConstants.OPACITY)
+    private double opacity = 1;
+    @XmlElement(name = RockSimCommonConstants.DIFFUSE_COLOR)
+    private String diffuseColor;
+    @XmlElement(name = RockSimCommonConstants.AMBIENT_COLOR)
+    private String ambientColor;
+    @XmlElement(name = RockSimCommonConstants.USE_SINGLE_COLOR)
+    private int useSingleColor = 1;
     @XmlElement(name = RockSimCommonConstants.LOCATION_MODE)
     private int locationMode = 0;
     @XmlElement(name = RockSimCommonConstants.LEN, required = false, nillable = false)
@@ -65,6 +87,23 @@ public abstract class BasePartDTO {
     private int finishCode = 0;
     @XmlElement(name = RockSimCommonConstants.SERIAL_NUMBER)
     private int serialNumber = -1;
+    @XmlElement(name = RockSimCommonConstants.COLOR)
+    private String color;
+
+    private static final Map<Class<? extends RocketComponent>, ORColor> DEFAULT_FIGURE_COLORS = new LinkedHashMap<>();
+
+    static {
+        DEFAULT_FIGURE_COLORS.put(BodyComponent.class, parseDefaultColor("0,0,240"));
+        DEFAULT_FIGURE_COLORS.put(TubeFinSet.class, parseDefaultColor("0,0,200"));
+        DEFAULT_FIGURE_COLORS.put(FinSet.class, parseDefaultColor("0,0,200"));
+        DEFAULT_FIGURE_COLORS.put(LaunchLug.class, parseDefaultColor("0,0,180"));
+        DEFAULT_FIGURE_COLORS.put(RailButton.class, parseDefaultColor("0,0,180"));
+        DEFAULT_FIGURE_COLORS.put(InternalComponent.class, parseDefaultColor("170,0,100"));
+        DEFAULT_FIGURE_COLORS.put(MassObject.class, parseDefaultColor("0,0,0"));
+        DEFAULT_FIGURE_COLORS.put(RecoveryDevice.class, parseDefaultColor("255,0,0"));
+        DEFAULT_FIGURE_COLORS.put(PodSet.class, parseDefaultColor("160,160,215"));
+        DEFAULT_FIGURE_COLORS.put(ParallelStage.class, parseDefaultColor("198,163,184"));
+    }
 
     /**
      * Default constructor.
@@ -147,6 +186,30 @@ public abstract class BasePartDTO {
             RingComponent rc = (RingComponent) ec;
             setRadialAngle(rc.getRadialDirection());
             setRadialLoc(rc.getRadialPosition() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        }
+
+        ORColor figureColor = ec.getColor();
+        if (figureColor == null) {
+            figureColor = getDefaultFigureColor(ec);
+        }
+        if (figureColor != null) {
+            setColor(formatRgb(figureColor));
+        }
+
+        Appearance appearance = ec.getAppearance();
+        ORColor appearanceColor = null;
+        if (appearance != null) {
+            appearanceColor = appearance.getPaint();
+        }
+        if (appearanceColor != null) {
+            setDiffuseColor(formatRgb(appearanceColor));
+            setAmbientColor(formatRgb(appearanceColor));
+            setOpacity(appearanceColor.getAlpha() / 255.0);
+        } else if (figureColor != null) {
+            setDiffuseColor(formatRgb(figureColor));
+            setOpacity(figureColor.getAlpha() / 255.0);
+        } else {
+            setOpacity(1.0);
         }
     }
 
@@ -254,6 +317,38 @@ public abstract class BasePartDTO {
         locationMode = theLocationMode;
     }
 
+    public double getOpacity() {
+        return opacity;
+    }
+
+    public void setOpacity(double theOpacity) {
+        opacity = theOpacity;
+    }
+
+    public String getDiffuseColor() {
+        return diffuseColor;
+    }
+
+    public void setDiffuseColor(String theDiffuseColor) {
+        diffuseColor = theDiffuseColor;
+    }
+
+    public String getAmbientColor() {
+        return ambientColor;
+    }
+
+    public void setAmbientColor(String theAmbientColor) {
+        ambientColor = theAmbientColor;
+    }
+
+    public int getUseSingleColor() {
+        return useSingleColor;
+    }
+
+    public void setUseSingleColor(int theUseSingleColor) {
+        useSingleColor = theUseSingleColor;
+    }
+
     public double getLen() {
         return len;
     }
@@ -270,6 +365,14 @@ public abstract class BasePartDTO {
         finishCode = theFinishCode;
     }
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String theColor) {
+        color = theColor;
+    }
+
     public static int getCurrentSerialNumber() {
         return currentSerialNumber - 1;
     }
@@ -279,5 +382,23 @@ public abstract class BasePartDTO {
      */
     public static void resetCurrentSerialNumber() {
         currentSerialNumber = 0;
+    }
+
+    private static String formatRgb(ORColor color) {
+        return String.format(Locale.US, "rgb(%d,%d,%d)", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    private static ORColor getDefaultFigureColor(RocketComponent component) {
+        for (Map.Entry<Class<? extends RocketComponent>, ORColor> entry : DEFAULT_FIGURE_COLORS.entrySet()) {
+            if (entry.getKey().isInstance(component)) {
+                return entry.getValue();
+            }
+        }
+        return ORColor.BLACK;
+    }
+
+    private static ORColor parseDefaultColor(String rgb) {
+        String[] parts = rgb.split(",");
+        return new ORColor(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     }
 }

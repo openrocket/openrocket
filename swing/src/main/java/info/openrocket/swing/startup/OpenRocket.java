@@ -8,6 +8,8 @@ import info.openrocket.core.startup.jij.CurrentClasspathProvider;
 import info.openrocket.core.startup.providers.JarInJarStarter;
 import info.openrocket.core.startup.jij.ManifestClasspathProvider;
 import info.openrocket.core.startup.jij.PluginClasspathProvider;
+import info.openrocket.core.arch.SystemInfo;
+import info.openrocket.core.arch.SystemInfo.Platform;
 
 /**
  * First step in the OpenRocket startup sequence, responsible for
@@ -29,7 +31,9 @@ public class OpenRocket {
 	
 	public static void main(String[] args) {
 		// Set OSX-specific properties
-		OSXSetup.setupOSXProperties();
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
+			OSXSetup.setupOSXProperties();
+		}
 
 		// This property works around some fundamental bugs in TimSort in the java library which has had known issues
 		// since it was introduced in JDK 1.7.  In OpenRocket it manifests when you sort the motors in the motor chooser dialog

@@ -99,6 +99,12 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 			if (RockSimCommonConstants.DENSITY_TYPE.equals(element)) {
 				densityType = RockSimDensityType.fromCode(Integer.parseInt(content));
 			}
+			if (RockSimCommonConstants.COLOR.equals(element)) {
+				String trimmed = content.trim();
+				if (!trimmed.isEmpty()) {
+					component.setColor(RockSimAppearanceBuilder.parseColor(trimmed));
+				}
+			}
 
 			appearanceBuilder.processElement(element, content, warnings);
 		} catch (NumberFormatException nfe) {

@@ -90,6 +90,12 @@ public class RockSimCommonConstants {
     public static final String TEXTURE = "Texture";
     public static final String TUBE_COUNT = "TubeCount";
     public static final String MAX_TUBES_ALLOWED = "MaxTubesAllowed";
+    public static final String COLOR = "Color";
+    public static final String DIFFUSE_COLOR = "DiffuseColor";
+    public static final String AMBIENT_COLOR = "AbientColor";       // This is not a typo! This is how RockSim spells it.
+    public static final String SPECULAR_COLOR = "SpecularColor";
+    public static final String USE_SINGLE_COLOR = "UseSingleColor";
+    public static final String OPACITY = "Opacity";
 
     /**
      * Length conversion. RockSim is in millimeters, OpenRocket in meters.

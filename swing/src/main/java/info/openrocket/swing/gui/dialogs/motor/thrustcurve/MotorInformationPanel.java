@@ -256,13 +256,13 @@ class MotorInformationPanel extends JPanel {
 	}
 
 	public static void updateColors() {
-		NO_COMMENT_COLOR = GUIUtil.getUITheme().getDimTextColor();
-		WITH_COMMENT_COLOR = GUIUtil.getUITheme().getTextColor();
-		textColor = GUIUtil.getUITheme().getTextColor();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
-		gridColor = GUIUtil.getUITheme().getFinPointGridMajorLineColor();
-		infoColor = GUIUtil.getUITheme().getCGColor();
+		NO_COMMENT_COLOR = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		WITH_COMMENT_COLOR = UITheme.getColor(UITheme.Keys.TEXT);
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		gridColor = UITheme.getColor(UITheme.Keys.FIN_GRID_MAJOR);
+		infoColor = UITheme.getColor(UITheme.Keys.CG);
 	}
 	
 	public void clearData() {

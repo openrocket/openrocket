@@ -144,7 +144,7 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 				}
 			}
 		});
-		this.add(showMarkers, "wrap para, growx, spanx");
+		this.add(showMarkers, "wrap, growx, spanx");
 
 		// // File preview view type
 		// TODO: uncomment this once 3D preview export is functional (in RocketPanel - capturePreviewImage)

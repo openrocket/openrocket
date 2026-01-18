@@ -350,7 +350,7 @@ public class OBJOptionChooser extends JPanel implements OptionChooser {
     }
 
     public static void updateColors() {
-        darkWarningColor = GUIUtil.getUITheme().getDarkErrorColor();
+        darkWarningColor = UITheme.getColor(UITheme.Keys.DARK_ERROR);
     }
 
     /**

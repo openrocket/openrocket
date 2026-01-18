@@ -76,11 +76,11 @@ public class SimulationModifierTree extends BasicTree {
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		disabledTextColor = GUIUtil.getUITheme().getDisabledTextColor();
-		textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
-		textSelectionBackgroundColor = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		disabledTextColor = UITheme.getColor(UITheme.Keys.TEXT_DISABLED);
+		textSelectionForegroundColor = UITheme.getColor(UITheme.Keys.TEXT_SELECTION_FOREGROUND);
+		textSelectionBackgroundColor = UITheme.getColor(UITheme.Keys.TEXT_SELECTION_BACKGROUND);
 	}
 	
 	

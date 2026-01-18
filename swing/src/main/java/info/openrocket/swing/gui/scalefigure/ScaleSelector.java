@@ -16,9 +16,12 @@ import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.IconButton;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.startup.Application;
 
 @SuppressWarnings("serial")
 public class ScaleSelector {
+	private static final Translator trans = Application.getTranslator();
     
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
@@ -37,12 +40,14 @@ public class ScaleSelector {
 	private final JComboBox<String> scaleSelectorCombo;
 	private final JButton zoomOutButton;
 	private final JButton zoomInButton;
+	private final JButton zoomFitButton;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
 		this.scrollPane = scroll;
 
 		// Zoom out button
 		zoomOutButton = new IconButton(Icons.ZOOM_OUT);
+		zoomOutButton.setToolTipText(trans.get("ScaleSelector.btn.ZoomOut.ttip"));
 		zoomOutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -105,6 +110,7 @@ public class ScaleSelector {
 
 		// Zoom in button
 		zoomInButton = new IconButton(Icons.ZOOM_IN);
+		zoomInButton.setToolTipText(trans.get("ScaleSelector.btn.ZoomIn.ttip"));
 		zoomInButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -114,13 +120,25 @@ public class ScaleSelector {
 				update();
 			}
 		});
+
+		// Zoom fit button
+		zoomFitButton = new IconButton(Icons.ZOOM_RESET);
+		zoomFitButton.setToolTipText(trans.get("ScaleSelector.btn.ZoomFit.ttip"));
+		zoomFitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				scrollPane.setFitting(true);
+				update();
+			}
+		});
 	}
 
 	public JPanel getAsPanel() {
-		JPanel panel = new JPanel(new MigLayout("insets 0"));
+		JPanel panel = new JPanel(new MigLayout("insets 0", "[][]0[]0[]", "[]"));
 		panel.add(zoomOutButton);
-		panel.add(scaleSelectorCombo);
+		panel.add(scaleSelectorCombo, "wmin 120lp, growx");
 		panel.add(zoomInButton);
+		panel.add(zoomFitButton);
 
 		return panel;
 	}
@@ -135,6 +153,10 @@ public class ScaleSelector {
 
 	public JButton getZoomInButton() {
 		return zoomInButton;
+	}
+
+	public JButton getZoomFitButton() {
+		return zoomFitButton;
 	}
 
 	private void setZoomText() {
@@ -179,6 +201,7 @@ public class ScaleSelector {
 		zoomInButton.setEnabled(b);
 		scaleSelectorCombo.setEnabled(b);
 		zoomOutButton.setEnabled(b);
+		zoomFitButton.setEnabled(b);
 	}
 
 	public void update(){

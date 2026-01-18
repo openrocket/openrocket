@@ -14,6 +14,7 @@ import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
  */
 public abstract class RocketRenderer {
 	protected static final Logger log = LoggerFactory.getLogger(RocketRenderer.class);
+	private static final boolean isMacOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	
 	final ComponentRenderer cr = new DisplayListComponentRenderer();
 	
@@ -73,6 +75,17 @@ public abstract class RocketRenderer {
 	 * @return optional (nullable) component selection result
 	 */
 	public RocketComponent pick(GLAutoDrawable drawable, FlightConfiguration configuration, Point p, Set<RocketComponent> ignore) {
+		if (isMacOS) {
+			return pickMacOS(drawable, configuration, p, ignore);
+		} else {
+			return pickNormal(drawable, configuration, p, ignore);
+		}
+	}
+
+	/**
+	 * Pick implementation for non-Mac platforms.
+	 */
+	private RocketComponent pickNormal(GLAutoDrawable drawable, FlightConfiguration configuration, Point p, Set<RocketComponent> ignore) {
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL.GL_DEPTH_TEST);
 
@@ -86,14 +99,14 @@ public abstract class RocketRenderer {
 				continue;
 
 			final int hashCode = comp.hashCode();
-			
+
 			selectionMap.put(hashCode, comp);
-			
+
 			gl.glColor4ub((byte) ((hashCode >> 24) & 0xFF),  // red channel (LSB)
-						  (byte) ((hashCode >> 16) & 0xFF),  // green channel
-						  (byte) ((hashCode >> 8) & 0xFF),  // blue channel
-						  (byte) ((hashCode) & 0xFF));  // alpha channel (MSB)
-			
+					(byte) ((hashCode >> 16) & 0xFF),  // green channel
+					(byte) ((hashCode >> 8) & 0xFF),  // blue channel
+					(byte) ((hashCode) & 0xFF));  // alpha channel (MSB)
+
 			if (isDrawnTransparent(comp)) {
 				geom.render(gl, Surface.INSIDE);
 			} else {
@@ -106,13 +119,149 @@ public abstract class RocketRenderer {
 
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(4);
 		gl.glReadPixels(p.x, p.y, // coordinates of "first" pixel to read
-						1, 1, // width, height of rectangle to read
-						GL.GL_RGBA, GL.GL_UNSIGNED_BYTE,
-						buffer);  // output buffer
+				1, 1, // width, height of rectangle to read
+				GL.GL_RGBA, GL.GL_UNSIGNED_BYTE,
+				buffer);  // output buffer
 		final int pixelValue = buffer.getInt();
-		final RocketComponent selected = selectionMap.get(pixelValue);
 
-		return selected;
+		return selectionMap.get(pixelValue);
+	}
+
+	/**
+	 * Pick implementation for macOS platforms.
+	 *
+	 * Differs from {@link #pickNormal(GLAutoDrawable, FlightConfiguration, Point, Set)} in two key ways:
+	 * - HiDPI GLJPanel on macOS often renders into a multisampled draw FBO and resolves into a separate read FBO.
+	 *   This method detects separate draw/read bindings and, when needed, blits (resolves) the color buffer so
+	 *   {@code glReadPixels} reads the actual pick-render result.
+	 * - It also resets relevant GL state (lighting, blending, textures, etc.) and clears the buffer before the
+	 *   color-ID pass to ensure a deterministic readback independent of prior rendering state.
+	 */
+	private RocketComponent pickMacOS(GLAutoDrawable drawable, FlightConfiguration configuration, Point p, Set<RocketComponent> ignore) {
+		final GL2 gl = drawable.getGL().getGL2();
+		final int[] framebufferBinding = new int[1];
+		final int[] drawFramebufferBinding = new int[] { -1 };
+		final int[] readFramebufferBinding = new int[] { -1 };
+		gl.glGetIntegerv(GL2.GL_FRAMEBUFFER_BINDING, framebufferBinding, 0);
+
+		// Drain any previous GL error state so we can detect unsupported queries below.
+		// glGetError() clears one error at a time; cap iterations as a safety net against driver bugs.
+		for (int i = 0; i < 16; i++) {
+			if (gl.glGetError() == GL.GL_NO_ERROR) {
+				break;
+			}
+		}
+
+		// GLJPanel commonly uses separate read/draw FBO bindings internally (e.g. MSAA resolve),
+		// and glReadPixels() reads from the READ binding. Try to capture both when available.
+		gl.glGetIntegerv(GL2GL3.GL_DRAW_FRAMEBUFFER_BINDING, drawFramebufferBinding, 0);
+		gl.glGetIntegerv(GL2GL3.GL_READ_FRAMEBUFFER_BINDING, readFramebufferBinding, 0);
+		final boolean hasSeparateFramebufferBindings = (gl.glGetError() == GL.GL_NO_ERROR)
+				&& drawFramebufferBinding[0] >= 0
+				&& readFramebufferBinding[0] >= 0;
+
+		final int pickDrawFramebuffer = drawFramebufferBinding[0] > 0 ? drawFramebufferBinding[0] : framebufferBinding[0];
+		final int pickReadFramebuffer = readFramebufferBinding[0] > 0 ? readFramebufferBinding[0] : pickDrawFramebuffer;
+		final boolean needsResolve = hasSeparateFramebufferBindings
+				&& pickDrawFramebuffer > 0
+				&& pickReadFramebuffer > 0
+				&& pickDrawFramebuffer != pickReadFramebuffer;
+
+		// Ensure predictable output for color-based picking by overriding any state
+		// left behind by the main render pass (textures, blending, etc.).
+		gl.glPushAttrib(GL2.GL_ALL_ATTRIB_BITS);
+		try {
+			// Force drawing to the draw framebuffer used by GLJPanel. If it is multisampled, we
+			// may need to blit/resolve into the read framebuffer before glReadPixels().
+			gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, pickDrawFramebuffer);
+
+			gl.glDisable(GLLightingFunc.GL_LIGHTING);
+			gl.glDisable(GL.GL_BLEND);
+			gl.glDisable(GL.GL_DITHER);
+			gl.glDisable(GL.GL_MULTISAMPLE);
+			gl.glDisable(GL.GL_CULL_FACE);
+			gl.glDisable(GL2GL3.GL_SCISSOR_TEST);
+			gl.glDisable(GL2.GL_COLOR_MATERIAL);
+			gl.glDisable(GL2.GL_ALPHA_TEST);
+			gl.glDisable(GL2.GL_TEXTURE_2D);
+			gl.glEnable(GL.GL_DEPTH_TEST);
+			gl.glDepthMask(true);
+			gl.glColorMask(true, true, true, true);
+
+			// Use a known background color that does not collide with any id (ids start at 1).
+			gl.glClearColor(0, 0, 0, 0);
+			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+
+			// Store a vector of pickable parts.
+			final Map<Integer, RocketComponent> selectionMap = new HashMap<>();
+
+			int id = 1;
+			Collection<Geometry> geometryList = getTreeGeometry(configuration);
+			for (Geometry geom : geometryList) {
+				final RocketComponent comp = geom.getComponent();
+				if (ignore != null && ignore.contains(comp)) {
+					continue;
+				}
+
+				selectionMap.put(id, comp);
+
+				gl.glColor4ub(
+						(byte) ((id >> 16) & 0xFF),
+						(byte) ((id >> 8) & 0xFF),
+						(byte) (id & 0xFF),
+						(byte) 0xFF);
+
+				if (isDrawnTransparent(comp)) {
+					geom.render(gl, Surface.INSIDE);
+				} else {
+					geom.render(gl, Surface.ALL);
+				}
+				id++;
+			}
+
+			if (p == null) {
+				return null; //Allow pick to be called without a point for debugging
+			}
+
+			final int[] viewport = new int[4];
+			gl.glGetIntegerv(GL.GL_VIEWPORT, viewport, 0);
+			final int[] drawBuffer = new int[1];
+			gl.glGetIntegerv(GL2.GL_DRAW_BUFFER, drawBuffer, 0);
+
+			if (needsResolve) {
+				// Resolve (blit) the rendered colors into the read framebuffer which is what GLJPanel
+				// typically uses for presentation and readback.
+				gl.glBindFramebuffer(GL2GL3.GL_READ_FRAMEBUFFER, pickDrawFramebuffer);
+				gl.glBindFramebuffer(GL2GL3.GL_DRAW_FRAMEBUFFER, pickReadFramebuffer);
+				gl.glReadBuffer(drawBuffer[0]);
+				gl.glDrawBuffer(drawBuffer[0]);
+				gl.glBlitFramebuffer(0, 0, viewport[2], viewport[3],
+						0, 0, viewport[2], viewport[3],
+						GL.GL_COLOR_BUFFER_BIT, GL.GL_NEAREST);
+			}
+
+			// Read from the resolved framebuffer if needed (common with GLJPanel MSAA).
+			gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, needsResolve ? pickReadFramebuffer : pickDrawFramebuffer);
+			gl.glReadBuffer(drawBuffer[0]);
+
+			final ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+			gl.glReadPixels(p.x, p.y, 1, 1, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, buffer);
+
+			final int r = buffer.get(0) & 0xFF;
+			final int g = buffer.get(1) & 0xFF;
+			final int b = buffer.get(2) & 0xFF;
+			final int pickedId = (r << 16) | (g << 8) | b;
+			return selectionMap.get(pickedId);
+		} finally {
+			gl.glPopAttrib();
+			// Restore GLJPanel FBO bindings if we managed to query them; otherwise restore the single binding.
+			if (hasSeparateFramebufferBindings) {
+				gl.glBindFramebuffer(GL2GL3.GL_DRAW_FRAMEBUFFER, Math.max(0, drawFramebufferBinding[0]));
+				gl.glBindFramebuffer(GL2GL3.GL_READ_FRAMEBUFFER, Math.max(0, readFramebufferBinding[0]));
+			} else {
+				gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, framebufferBinding[0]);
+			}
+		}
 	}
 	
 	public void render(GLAutoDrawable drawable, FlightConfiguration configuration, Set<RocketComponent> selection) {

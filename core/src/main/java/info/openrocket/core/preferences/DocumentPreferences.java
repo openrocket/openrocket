@@ -30,6 +30,8 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 */
 	private final Database<Material> LINE_MATERIAL = new Database<>();
 
+	public static final String PREF_SHOW_WARNINGS = "RocketPanel.showWarnings";
+
 
 	@Override
 	public void addChangeListener(StateChangeListener listener) {

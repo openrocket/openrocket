@@ -1135,13 +1135,13 @@ public abstract class FinSet extends ExternalComponent
 		 */
 		// Front fin point is outside the parent's bounds and last point is beyond the parent's fore end
 		if (xStart < 0 && xEnd > 0) {
-			points.add(1, new Coordinate(0, points.get(0).getY()));
+			insertPointByX(points, 0, points.get(0).getY());
 		}
 		// End fin point is beyond the parent's aft and first point is still before the parent's aft end
 		if (xEnd > parent.length && xStart < parent.length) {
 			final double x = parent.length;
 			final double y = points.get(points.size() - 1).getY();
-			points.add(points.size() - 1, new Coordinate(x, y));
+			insertPointByX(points, x, y);
 		}
 
 		CoordinateIF[] rootPoints = points.toArray(new CoordinateIF[0]);
@@ -1158,6 +1158,21 @@ public abstract class FinSet extends ExternalComponent
 		}
 
 		return rootPoints;
+	}
+
+	private static void insertPointByX(List<CoordinateIF> points, double x, double y) {
+		for (CoordinateIF point : points) {
+			if (Math.abs(point.getX() - x) < MathUtil.EPSILON) {
+				return;
+			}
+		}
+
+		int insertIndex = 0;
+		while (insertIndex < points.size() && points.get(insertIndex).getX() < x) {
+			insertIndex++;
+		}
+
+		points.add(insertIndex, new Coordinate(x, y));
 	}
 
 	private CoordinateIF[] getMountPoints(final double xStart, final double xEnd, final double xOffset, final double yOffset) {

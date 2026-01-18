@@ -425,7 +425,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 	public static void updateColors() {
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
 	}
 
 	public void setMotorMountAndConfig( final FlightConfigurationId _fcid,  MotorMount mountToEdit ) {

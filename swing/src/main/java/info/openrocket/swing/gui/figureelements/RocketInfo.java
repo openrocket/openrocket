@@ -95,11 +95,11 @@ public class RocketInfo implements FigureElement {
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		darkErrorColor = GUIUtil.getUITheme().getErrorColor();
-		flightDataTextActiveColor = GUIUtil.getUITheme().getFlightDataTextActiveColor();
-		flightDataTextInactiveColor = GUIUtil.getUITheme().getFlightDataTextInactiveColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		darkErrorColor = UITheme.getColor(UITheme.Keys.ERROR);
+		flightDataTextActiveColor = UITheme.getColor(UITheme.Keys.FLIGHTDATA_TEXT_ACTIVE);
+		flightDataTextInactiveColor = UITheme.getColor(UITheme.Keys.FLIGHTDATA_TEXT_INACTIVE);
 	}
 	
 	
@@ -543,7 +543,7 @@ public class RocketInfo implements FigureElement {
 			Color oldColor = g2.getColor();
 			
 			GlyphVector statusVector = createBoldText(status);
-			g2.setColor(GUIUtil.getUITheme().getStatusColor(simulation.getStatus()));
+			g2.setColor(UITheme.getStatusColor(simulation.getStatus()));
 			g2.drawGlyphVector(statusVector, x1, y2-4*line);
 			
 			g2.setColor(oldColor);

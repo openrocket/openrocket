@@ -87,7 +87,15 @@ public abstract class AbstractScaleFigure extends JPanel {
 	}
 
 	public static void updateColors() {
-		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+	}
+
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		// Refresh the background when the LaF changes so theme switches are reflected.
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		setBackground(backgroundColor);
 	}
 
 	public int getBorderHeight(){ return borderThickness_px.height; }

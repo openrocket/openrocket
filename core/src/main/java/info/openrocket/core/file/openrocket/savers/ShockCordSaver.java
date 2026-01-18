@@ -25,7 +25,11 @@ public class ShockCordSaver extends MassObjectSaver {
 
 		ShockCord mass = (ShockCord) c;
 
-		elements.add("<cordlength>" + mass.getCordLength() + "</cordlength>");
+		if (mass.isCordLengthAutomatic()) {
+			elements.add("<cordlength>auto</cordlength>");
+		} else {
+			elements.add("<cordlength>" + mass.getCordLength() + "</cordlength>");
+		}
 		elements.add(materialParam(mass.getMaterial()));
 	}
 

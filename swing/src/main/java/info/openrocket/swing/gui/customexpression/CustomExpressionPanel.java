@@ -183,7 +183,7 @@ public class CustomExpressionPanel extends JPanel {
 		}
 
 		public static void updateColors() {
-			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+			backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
 		}
 
 		// Convenience method to make the labels consistent
@@ -212,7 +212,7 @@ public class CustomExpressionPanel extends JPanel {
 			UnitSelector unitSelector = new UnitSelector(expression.getType().getUnitGroup());
 			//JLabel unitSelector = new JLabel ( expression.getUnit() );
 			//unitSelector = setLabelStyle(unitSelector);
-			//unitSelector.setBackground(GUIUtil.getUITheme().getBackgroundColor());
+			//unitSelector.setBackground(UITheme.getColor(UITheme.Keys.BACKGROUND));
 			
 			JButton editButton = new JButton(Icons.EDIT_EDIT);
 			editButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Edit"));
