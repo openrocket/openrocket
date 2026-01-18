@@ -28,7 +28,7 @@ public class VisualEffectsSettings {
     private float motionBlurFactor = 5.0f;
     
     // Display elements
-    private boolean originAxesVisible = true;
+    private boolean originAxesVisible = false;
     
     // Global particle settings
     private boolean particleEffectsEnabled = true;

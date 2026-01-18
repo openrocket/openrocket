@@ -137,7 +137,7 @@ public class RenderingConfiguration {
         // Visual Effects defaults
         visualEffects.setMotionBlurEnabled(false);
         visualEffects.setMotionBlurFactor(5.0f);
-        visualEffects.setOriginAxesVisible(true);
+        visualEffects.setOriginAxesVisible(false);
         visualEffects.setParticleEffectsEnabled(true);
         visualEffects.setStaticParticles(true);
         visualEffects.setParticleTime(10.0f);
