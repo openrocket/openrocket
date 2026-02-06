@@ -5,6 +5,8 @@ import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.core.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
@@ -207,6 +209,17 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			scene.getObjects().remove(obj);
 			obj.cleanup(); // Important: Frees up GPU resources
 		}
+
+		// Particle emitters are also rocket-derived state and must be rebuilt from scratch.
+		// If not cleared here, toggling smoke/flame/sparks can leave stale emitters behind.
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (emitter instanceof FlameEmitter flameEmitter) {
+				if (flameEmitter.getFlameLight() != null) {
+					scene.getLightController().removeLight(flameEmitter.getFlameLight());
+				}
+			}
+		}
+		scene.getParticleEmitters().clear();
 
 		// Finally, tell the RocketMeshBuilder to recreate the rocket objects from the current rocket state.
 		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
