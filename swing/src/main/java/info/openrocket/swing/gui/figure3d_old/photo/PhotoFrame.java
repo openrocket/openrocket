@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.EventObject;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -66,6 +67,8 @@ public class PhotoFrame extends JFrame {
 
 	private final PhotoPanel photoPanel;
 	private final JDialog settings;
+	private final AtomicBoolean resourcesReleased = new AtomicBoolean(false);
+	private volatile OpenRocketDocument currentDocument;
 
 	public PhotoFrame(OpenRocketDocument document, Window parent) {
 		this(false, document);
@@ -81,6 +84,7 @@ public class PhotoFrame extends JFrame {
 	}
 
 	public PhotoFrame(boolean app, OpenRocketDocument document) {
+		this.currentDocument = document;
 		PhotoSettings p = new PhotoStudioGetter(document.getPhotoSettings()).getPhotoSettings();
 
 		// Send the new PhotoSetting to the core module
@@ -88,14 +92,16 @@ public class PhotoFrame extends JFrame {
 			@Override
 			public void stateChanged(EventObject e) {
 				Map<String, String> par = PhotoStudioSetter.getPhotoSettings(p);
-				document.setPhotoSettings(par);
+				OpenRocketDocument doc = currentDocument;
+				if (doc != null) {
+					doc.setPhotoSettings(par);
+				}
 			}
 		});
 
 		this.setMinimumSize(new Dimension(160, 150));
 		this.setSize(1024, 768);
 		photoPanel = new PhotoPanel(document, p);
-		photoPanel.setDoc(document);
 		setJMenuBar(getMenu(app));
 		setContentPane(photoPanel);
 
@@ -104,8 +110,13 @@ public class PhotoFrame extends JFrame {
 		
 		addWindowListener(new WindowAdapter() {
 			@Override
+			public void windowOpened(WindowEvent e) {
+				attachCurrentDocumentIfReady();
+			}
+
+			@Override
 			public void windowClosing(WindowEvent e) {
-				closeAction();
+				releaseResources();
 			}
 		});
 
@@ -164,14 +175,15 @@ public class PhotoFrame extends JFrame {
 
 					chooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
 					int option = chooser.showOpenDialog(PhotoFrame.this);
-					if (option == JFileChooser.APPROVE_OPTION) {
-						File file = chooser.getSelectedFile();
-						log.debug("Opening File " + file.getAbsolutePath());
-						Application.getPreferences().setDefaultDirectory(chooser
-								.getCurrentDirectory());
-						GeneralRocketLoader grl = new GeneralRocketLoader(file);
-						try {
-							OpenRocketDocument doc = grl.load();
+						if (option == JFileChooser.APPROVE_OPTION) {
+							File file = chooser.getSelectedFile();
+							log.debug("Opening File " + file.getAbsolutePath());
+							Application.getPreferences().setDefaultDirectory(chooser
+									.getCurrentDirectory());
+							GeneralRocketLoader grl = new GeneralRocketLoader(file);
+							try {
+								OpenRocketDocument doc = grl.load();
+								currentDocument = doc;
 							photoPanel.setDoc(doc);
 						} catch (RocketLoadException e1) {
 							e1.printStackTrace();
@@ -345,9 +357,38 @@ public class PhotoFrame extends JFrame {
 
 	}
 
-	private boolean closeAction() {
+	private void releaseResources() {
+		if (!resourcesReleased.compareAndSet(false, true)) {
+			return;
+		}
+		currentDocument = null;
 		photoPanel.clearDoc();
-		return true;
+		settings.dispose();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			SwingUtilities.invokeLater(this::attachCurrentDocumentIfReady);
+		}
+	}
+
+	private void attachCurrentDocumentIfReady() {
+		if (resourcesReleased.get() || !isShowing()) {
+			return;
+		}
+		OpenRocketDocument doc = currentDocument;
+		if (doc == null) {
+			return;
+		}
+		photoPanel.setDoc(doc);
+	}
+
+	@Override
+	public void dispose() {
+		releaseResources();
+		super.dispose();
 	}
 	
 	public static void main(String args[]) throws Exception {

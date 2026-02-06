@@ -42,6 +42,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
         GL33.glUniform1f(uniforms.shine, appearance.getShine());
         GL33.glUniform1f(uniforms.roughnessScale, appearance.getRoughnessScale());
         GL33.glUniform1f(uniforms.roughnessStrength, appearance.getRoughnessStrength());
+        GL33.glUniform1i(uniforms.hideInnerSurfaces, config.getDisplay().isRenderInternalSurfaces() ? 0 : 1);
 
         boolean isXray = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
                 obj.getRocketComponent() instanceof BodyComponent;
@@ -84,4 +85,3 @@ public class DefaultMaterialBinder implements MaterialBinder {
         }
     }
 }
-

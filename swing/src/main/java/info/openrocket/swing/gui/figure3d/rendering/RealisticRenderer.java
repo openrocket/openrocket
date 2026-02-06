@@ -133,6 +133,7 @@ public class RealisticRenderer implements Renderer {
 		public final int decalSurfaceMask;
 		public final int forceWhite;
 		public final int enableRoughnessBump;
+		public final int hideInnerSurfaces;
 
 		/**
 		 * Creates a new uniform location cache for the given shader.
@@ -173,6 +174,7 @@ public class RealisticRenderer implements Renderer {
 			this.decalSurfaceMask = shader.getUniformLocation("decalSurfaceMask");
 			this.forceWhite = shader.getUniformLocation("forceWhite");
 			this.enableRoughnessBump = shader.getUniformLocation("enableRoughnessBump");
+			this.hideInnerSurfaces = shader.getUniformLocation("hideInnerSurfaces");
 		}
 	}
 

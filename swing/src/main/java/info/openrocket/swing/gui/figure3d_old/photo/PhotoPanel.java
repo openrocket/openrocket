@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d_old.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.rocketcomponent.BodyComponent;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
@@ -11,6 +12,7 @@ import info.openrocket.swing.gui.figure3d.scene.core.Light;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
@@ -28,17 +30,12 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PhotoPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
 	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
-	private static final boolean MAC_OS = System.getProperty("os.name", "").toLowerCase().contains("mac");
 
 	private final PhotoSettings settings;
 	private OpenRocketDocument document;
@@ -46,7 +43,6 @@ public class PhotoPanel extends JPanel {
 	private final List<ImageCallback> imageCallbacks = new ArrayList<>();
 	private final AtomicBoolean captureQueued = new AtomicBoolean(false);
 	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
-	private final AtomicBoolean initWaitQueued = new AtomicBoolean(false);
 	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
 	private final Map<SceneObject, Matrix4f> baseTransforms = new IdentityHashMap<>();
 	private final Map<ParticleEmitter, EmitterBase> baseEmitters = new IdentityHashMap<>();
@@ -54,10 +50,10 @@ public class PhotoPanel extends JPanel {
 	private boolean lastSmoke;
 	private boolean lastSparks;
 	private boolean lastParticlesEnabled;
-	private ScheduledExecutorService renderExecutor;
-	private volatile Thread renderThread;
+	private volatile long earliestRenderAtMs;
 	private Timer renderTimer;
 	private static final int FRAME_INTERVAL_MS = 16;
+	private static final int STARTUP_RENDER_DELAY_MS = 120;
 
 	private static final class EmitterBase {
 		private final Vector3f position;
@@ -101,8 +97,8 @@ public class PhotoPanel extends JPanel {
 		}
 		this.document = doc;
 		pendingApply.set(true);
-		glPanel = new GLScenePanel(doc.getRocket(), null);
-		glPanel.requestPeerBoundsSyncNow();
+		glPanel = new GLScenePanel(doc.getRocket(), null, false);
+		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		add(glPanel, BorderLayout.CENTER);
 		revalidate();
 		repaint();
@@ -119,6 +115,10 @@ public class PhotoPanel extends JPanel {
 			glPanel.cleanup();
 			glPanel = null;
 		}
+		imageCallbacks.clear();
+		captureQueued.set(false);
+		settingsApplyQueued.set(false);
+		pendingApply.set(false);
 		document = null;
 	}
 
@@ -163,7 +163,6 @@ public class PhotoPanel extends JPanel {
 		if (orchestrator == null) {
 			pendingApply.set(true);
 			debug("applySettings: orchestrator not ready");
-			queueApplyWhenReady(panel);
 			return;
 		}
 		pendingApply.set(false);
@@ -185,35 +184,27 @@ public class PhotoPanel extends JPanel {
 	}
 
 	private void startRenderLoop() {
-		if (renderExecutor != null || renderTimer != null) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(this::startRenderLoop);
 			return;
 		}
-		if (MAC_OS) {
-			renderTimer = new Timer(FRAME_INTERVAL_MS, e -> renderFrame());
-			renderTimer.setRepeats(true);
-			renderTimer.setCoalesce(true);
-			renderTimer.start();
+		if (renderTimer != null) {
 			return;
 		}
-		ThreadFactory threadFactory = runnable -> {
-			Thread thread = new Thread(runnable, "photo-render");
-			thread.setDaemon(true);
-			renderThread = thread;
-			return thread;
-		};
-		renderExecutor = Executors.newSingleThreadScheduledExecutor(threadFactory);
-		renderExecutor.scheduleAtFixedRate(this::renderFrame, 0, FRAME_INTERVAL_MS, TimeUnit.MILLISECONDS);
+		renderTimer = new Timer(FRAME_INTERVAL_MS, e -> renderFrame());
+		renderTimer.setRepeats(true);
+		renderTimer.setCoalesce(true);
+		renderTimer.start();
 	}
 
 	private void stopRenderLoop() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(this::stopRenderLoop);
+			return;
+		}
 		if (renderTimer != null) {
 			renderTimer.stop();
 			renderTimer = null;
-		}
-		if (renderExecutor != null) {
-			renderExecutor.shutdownNow();
-			renderExecutor = null;
-			renderThread = null;
 		}
 	}
 
@@ -225,8 +216,8 @@ public class PhotoPanel extends JPanel {
 		if (panel.glInitFailed) {
 			return;
 		}
-		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
-			applySettings();
+		if (System.currentTimeMillis() < earliestRenderAtMs) {
+			return;
 		}
 		if (!panel.isDisplayable() || !panel.isShowing()) {
 			return;
@@ -234,25 +225,13 @@ public class PhotoPanel extends JPanel {
 		if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
 			return;
 		}
-		panel.render();
-	}
-
-	private void queueApplyWhenReady(GLScenePanel panel) {
-		if (!initWaitQueued.compareAndSet(false, true)) {
-			return;
-		}
-		Thread worker = new Thread(() -> {
-			try {
-				boolean ready = panel.awaitInitialized(2000);
-				debug("awaitInitialized=" + ready);
-			} finally {
-				initWaitQueued.set(false);
-			}
-			debug("queueApplyWhenReady: enqueue after init");
+		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
 			applySettings();
-		}, "photo-settings-apply");
-		worker.setDaemon(true);
-		worker.start();
+		}
+		panel.render();
+		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
+			applySettings();
+		}
 	}
 
 	private void applySettingsOnGlThread(Scene3DOrchestrator orchestrator) {
@@ -262,21 +241,38 @@ public class PhotoPanel extends JPanel {
 			debug("applySettingsOnGlThread: no scene");
 			return;
 		}
+		RenderingConfiguration config = orchestrator.getRenderingConfiguration();
+		// PhotoStudio should render as a solid, production-style preview.
+		config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
+		config.getDisplay().setRenderInternalSurfaces(true);
+		config.getQuality().setBackfaceCullingEnabled(true);
 
-		boolean rebuild = applyEffects(orchestrator.getRenderingConfiguration());
+		boolean rebuild = applyEffects(config);
 		if (rebuild) {
 			orchestrator.rebuildRocketScene();
 			baseTransforms.clear();
 			baseEmitters.clear();
 		}
 
+		enforceOpaqueBodyComponents(scene);
 		applyBackground(scene);
 		applyLighting(scene);
 		applyCamera(scene.getCamera());
-		applyRocketTransform(scene, orchestrator.getRenderingConfiguration());
+		applyRocketTransform(scene, config);
+	}
+
+	private void enforceOpaqueBodyComponents(SceneView scene) {
+		for (SceneObject obj : scene.getObjects()) {
+			if (obj.getRocketComponent() instanceof BodyComponent) {
+				obj.getAppearance().setOpacity(1.0f);
+			}
+		}
 	}
 
 	private void applyCamera(Camera camera) {
+		// PhotoStudio model transforms already recenter the rocket around world origin.
+		// Keep camera orbit pivot locked to origin to match legacy JOGL behavior.
+		camera.setCenterOfInterest(new Vector3f(0.0f, 0.0f, 0.0f));
 		camera.setAngleX((float) Math.toDegrees(settings.getViewAz()));
 		camera.setAngleY((float) Math.toDegrees(settings.getViewAlt()));
 		camera.setFieldOfView(settings.getFov());

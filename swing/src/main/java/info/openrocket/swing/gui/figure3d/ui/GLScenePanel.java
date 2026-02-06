@@ -59,6 +59,7 @@ import java.util.function.Consumer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -176,11 +177,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile boolean glInitialized = false;
 	public volatile boolean glInitFailed = false;
 	private static final Semaphore INIT_SEMAPHORE = new Semaphore(1, true);
-	private static final Semaphore RENDER_SEMAPHORE = new Semaphore(1, true);
+	private static final ReentrantLock RENDER_LOCK = new ReentrantLock(true);
 	// LWJGL capabilities are thread-local; store per-canvas so we can render multiple canvases on one thread.
 	private volatile GLCapabilities glCapabilities;
 
 	private final Rocket rocket;
+	private final boolean peerBoundsSyncEnabled;
 	private static final ExecutorService EXPORT_EXECUTOR;
 	// Captures the AWT mouse event that triggered the most recent click-based selection update.
 	private final AtomicReference<MouseEvent> pendingSelectionClickEvent = new AtomicReference<>();
@@ -211,17 +213,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	public GLScenePanel(Rocket rocket, HUDPanel hudPanel) {
+		this(rocket, hudPanel, true);
+	}
+
+	public GLScenePanel(Rocket rocket, HUDPanel hudPanel, boolean enablePeerBoundsSync) {
 		super(createGLData());
 
 		this.rocket = rocket;
 		this.hudPanel = hudPanel;
 		this.hudEnabled = hudPanel != null;
+		this.peerBoundsSyncEnabled = NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && enablePeerBoundsSync;
 		this.keyboardHandler = new KeyboardHandler();
 		setFocusable(true);
 		setFocusTraversalKeysEnabled(false);
 		setIgnoreRepaint(true);
 
-		if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+		if (peerBoundsSyncEnabled) {
 			// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
 			// components without changing their local bounds. On macOS this can leave the
 			// native peer at an incorrect location until the next real resize. Force a peer
@@ -295,7 +302,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	@Override
 	public void addNotify() {
 		super.addNotify();
-		if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+		if (peerBoundsSyncEnabled) {
 			peerBoundsSyncAttempts.set(0);
 			schedulePeerBoundsSyncRetry(0);
 			schedulePeerBoundsSyncRetry(50);
@@ -310,7 +317,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 * Useful when embedding in layouts where SHOWING_CHANGED is unreliable.
 	 */
 	public void requestPeerBoundsSyncNow() {
-		if (!NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
+		if (!peerBoundsSyncEnabled) {
 			return;
 		}
 		peerBoundsSyncAttempts.set(0);
@@ -322,6 +329,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void requestPeerBoundsSync() {
+		if (!peerBoundsSyncEnabled) {
+			return;
+		}
 		if (!isDisplayable() || !isShowing()) {
 			peerBoundsSyncAttempts.set(0);
 			return;
@@ -665,11 +675,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 		try {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				RENDER_SEMAPHORE.acquireUninterruptibly();
+				RENDER_LOCK.lock();
 			}
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
 			super.render();
-			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND && count == 1) {
+			if (peerBoundsSyncEnabled && count == 1) {
 				// The native NSOpenGLView is created during the first render; schedule another bounds sync
 				// afterwards to catch late layout adjustments in Swing.
 				requestPeerBoundsSyncNow();
@@ -679,7 +689,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			log.error("Rendering failed: " + t.getClass().getSimpleName() + ": " + t.getMessage(), t);
 		} finally {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-				RENDER_SEMAPHORE.release();
+				RENDER_LOCK.unlock();
 			}
 		}
 	}

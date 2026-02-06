@@ -61,6 +61,7 @@ uniform bool fogEnabled;
 
 uniform bool forceWhite;
 uniform bool enableRoughnessBump;
+uniform bool hideInnerSurfaces;
 uniform sampler2D shadowMap;
 uniform bool shadowsEnabled;
 uniform int shadowLightIndex;
@@ -200,6 +201,11 @@ void main()
         }
         FragColor = finalColor;
         return; // Exit immediately
+    }
+
+    // 2 = DECAL_SURFACE_INSIDE (RenderingConstants.DECAL_SURFACE_INSIDE)
+    if (hideInnerSurfaces && v_surfaceID == 2) {
+        discard;
     }
     // ----------------------------------------------------------------
 

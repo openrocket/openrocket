@@ -206,12 +206,8 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         List<SceneObject> selectedObjects = scene.getSelectedObjects();
         hasSelection = !selectedObjects.isEmpty();
 
-        if (!hasSelection) {
-            // No objects selected, so we don't need to do anything in this pass.
-            // The output texture will be the same as the input texture.
-            return;
-        }
-
+        // Always composite through the outline FBO so selected and non-selected frames
+        // follow the same presentation path.
         // 1. Bind the outline FBO to draw the final result of this pass
         glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
         glViewport(0, 0, screenWidth, screenHeight);
@@ -220,29 +216,31 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         // 2. Draw the input texture (the scene from the previous pass) into our FBO
         drawScreenTexture(inputTexture);
 
-        // 3. Render the outlines on top
-        // Bind the mask FBO
-        glBindFramebuffer(GL_FRAMEBUFFER, maskFBO);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (hasSelection) {
+            // 3. Render the outlines on top
+            // Bind the mask FBO
+            glBindFramebuffer(GL_FRAMEBUFFER, maskFBO);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Render selected objects in white into the mask texture
-        mainShader.use();
-        mainShader.setUniform(mainShaderUniforms.projection, projectionMatrix);
-        mainShader.setUniform(mainShaderUniforms.view, viewMatrix);
-        glUniform1i(mainShaderUniforms.forceWhite, 1);
-        glEnable(GL_DEPTH_TEST);
+            // Render selected objects in white into the mask texture
+            mainShader.use();
+            mainShader.setUniform(mainShaderUniforms.projection, projectionMatrix);
+            mainShader.setUniform(mainShaderUniforms.view, viewMatrix);
+            glUniform1i(mainShaderUniforms.forceWhite, 1);
+            glEnable(GL_DEPTH_TEST);
 
-        for (SceneObject obj : selectedObjects) {
-            mainShader.setUniform(mainShaderUniforms.model, obj.getModelMatrix());
-            obj.getRenderableMesh().render();
+            for (SceneObject obj : selectedObjects) {
+                mainShader.setUniform(mainShaderUniforms.model, obj.getModelMatrix());
+                obj.getRenderableMesh().render();
+            }
+
+            glUniform1i(mainShaderUniforms.forceWhite, 0);
+
+            // Now, blend the outlines onto our main FBO
+            glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
+            renderOutlinePostProcess(screenWidth, screenHeight, maskTexture);
         }
-
-        glUniform1i(mainShaderUniforms.forceWhite, 0);
-
-        // Now, blend the outlines onto our main FBO
-        glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
-        renderOutlinePostProcess(screenWidth, screenHeight, maskTexture);
 
         // Unbind FBO, ready for the next pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -263,7 +261,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
 
     @Override
     public int getOutputTexture() {
-        return hasSelection ? outlineColorTexture : inputTexture;
+        return outlineColorTexture;
     }
 
     /**

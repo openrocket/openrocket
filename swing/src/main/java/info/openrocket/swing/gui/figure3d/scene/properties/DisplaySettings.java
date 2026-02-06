@@ -40,6 +40,8 @@ public class DisplaySettings {
     }
 
     private RenderMode mode = RenderMode.FINISHED;
+    // Whether surfaces tagged as "inside" should be rendered (used for hollow geometry).
+    private boolean renderInternalSurfaces = true;
 
     /**
      * Gets the current rendering mode.
@@ -58,6 +60,24 @@ public class DisplaySettings {
      */
     public void setMode(RenderMode mode) {
         this.mode = mode;
+    }
+
+    /**
+     * Checks whether inside surfaces of hollow components should be rendered.
+     *
+     * @return true if internal surfaces should be drawn
+     */
+    public boolean isRenderInternalSurfaces() {
+        return renderInternalSurfaces;
+    }
+
+    /**
+     * Enables or disables rendering of inside surfaces on hollow geometry.
+     *
+     * @param renderInternalSurfaces true to render internal surfaces, false to suppress them
+     */
+    public void setRenderInternalSurfaces(boolean renderInternalSurfaces) {
+        this.renderInternalSurfaces = renderInternalSurfaces;
     }
 
     /**
