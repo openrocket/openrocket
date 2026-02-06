@@ -34,6 +34,7 @@ public class Camera {
 	private float distance;
 	private float angleX; // Yaw
 	private float angleY; // Pitch
+	private boolean pitchClampingEnabled = true;
 
 	private float minZoom; // Minimum zoom distance
 	private float maxZoom; // Maximum zoom distance
@@ -277,7 +278,9 @@ public class Camera {
 	public void orbit(float dx, float dy) {
 		angleX += dx * CameraConstants.ROTATION_SENSITIVITY;
 		angleY += dy * CameraConstants.ROTATION_SENSITIVITY;
-		angleY = Math.max(CameraConstants.MIN_PITCH_ANGLE, Math.min(CameraConstants.MAX_PITCH_ANGLE, angleY)); // Clamp pitch
+		if (pitchClampingEnabled) {
+			angleY = Math.max(CameraConstants.MIN_PITCH_ANGLE, Math.min(CameraConstants.MAX_PITCH_ANGLE, angleY)); // Clamp pitch
+		}
 	}
 
 
@@ -340,6 +343,37 @@ public class Camera {
 	}
 
 	/**
+	 * Sets zoom distance constraints for dolly/setDistance operations.
+	 *
+	 * @param minZoom minimum allowed distance (must be >= 0)
+	 * @param maxZoom maximum allowed distance (must be > minZoom)
+	 */
+	public void setZoomLimits(float minZoom, float maxZoom) {
+		if (minZoom < 0.0f) {
+			throw new IllegalArgumentException("minZoom must be >= 0");
+		}
+		if (maxZoom <= minZoom) {
+			throw new IllegalArgumentException("maxZoom must be > minZoom");
+		}
+		this.minZoom = minZoom;
+		this.maxZoom = maxZoom;
+		this.distance = Math.max(minZoom, Math.min(maxZoom, distance));
+		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
+			updateProjectionMatrix();
+		}
+		updateViewMatrix();
+	}
+
+	/**
+	 * Enables or disables pitch clamping during orbit controls.
+	 *
+	 * @param enabled true to clamp pitch, false for unrestricted pitch
+	 */
+	public void setPitchClampingEnabled(boolean enabled) {
+		this.pitchClampingEnabled = enabled;
+	}
+
+	/**
 	 * Moves the camera and its target point left or right.
 	 *
 	 * @param amount The distance to move. Positive is right, negative is left.
@@ -398,6 +432,15 @@ public class Camera {
 	 */
 	public Matrix4f getViewMatrix() {
 		return viewMatrix;
+	}
+
+	/**
+	 * Gets the current center-of-interest (look-at target) in world space.
+	 *
+	 * @return a copy of the center-of-interest vector
+	 */
+	public Vector3f getCenterOfInterest() {
+		return new Vector3f(centerOfInterest);
 	}
 
 	/**

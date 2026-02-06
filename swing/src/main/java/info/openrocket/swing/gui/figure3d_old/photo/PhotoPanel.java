@@ -36,6 +36,7 @@ public class PhotoPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
 	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
+	private static final double CAMERA_SETTINGS_EPSILON = 1.0e-6;
 
 	private final PhotoSettings settings;
 	private OpenRocketDocument document;
@@ -50,6 +51,11 @@ public class PhotoPanel extends JPanel {
 	private boolean lastSmoke;
 	private boolean lastSparks;
 	private boolean lastParticlesEnabled;
+	private boolean cameraSettingsTracked;
+	private double lastViewAz;
+	private double lastViewAlt;
+	private double lastViewDistance;
+	private double lastFov;
 	private volatile long earliestRenderAtMs;
 	private Timer renderTimer;
 	private static final int FRAME_INTERVAL_MS = 16;
@@ -62,6 +68,22 @@ public class PhotoPanel extends JPanel {
 		private EmitterBase(Vector3f position, Vector3f direction) {
 			this.position = new Vector3f(position);
 			this.direction = new Vector3f(direction);
+		}
+	}
+
+	private static final class CameraState {
+		private final float angleX;
+		private final float angleY;
+		private final float distance;
+		private final float fieldOfView;
+		private final Vector3f centerOfInterest;
+
+		private CameraState(Camera camera) {
+			this.angleX = camera.getAngleX();
+			this.angleY = camera.getAngleY();
+			this.distance = camera.getDistance();
+			this.fieldOfView = camera.getFieldOfView();
+			this.centerOfInterest = camera.getCenterOfInterest();
 		}
 	}
 
@@ -119,6 +141,7 @@ public class PhotoPanel extends JPanel {
 		captureQueued.set(false);
 		settingsApplyQueued.set(false);
 		pendingApply.set(false);
+		cameraSettingsTracked = false;
 		document = null;
 	}
 
@@ -241,6 +264,10 @@ public class PhotoPanel extends JPanel {
 			debug("applySettingsOnGlThread: no scene");
 			return;
 		}
+		Camera camera = scene.getCamera();
+		CameraState currentCameraState = camera != null ? new CameraState(camera) : null;
+		boolean cameraSettingsChanged = isCameraSettingsChanged();
+
 		RenderingConfiguration config = orchestrator.getRenderingConfiguration();
 		// PhotoStudio should render as a solid, production-style preview.
 		config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
@@ -252,12 +279,25 @@ public class PhotoPanel extends JPanel {
 			orchestrator.rebuildRocketScene();
 			baseTransforms.clear();
 			baseEmitters.clear();
+			scene = orchestrator.getScene();
+			if (scene == null) {
+				debug("applySettingsOnGlThread: scene lost after rebuild");
+				return;
+			}
+			camera = scene.getCamera();
 		}
 
 		enforceOpaqueBodyComponents(scene);
 		applyBackground(scene);
 		applyLighting(scene);
-		applyCamera(scene.getCamera());
+		if (camera != null) {
+			if (cameraSettingsChanged) {
+				applyCamera(camera);
+				rememberCameraSettings();
+			} else if (currentCameraState != null) {
+				restoreCamera(camera, currentCameraState);
+			}
+		}
 		applyRocketTransform(scene, config);
 	}
 
@@ -270,6 +310,7 @@ public class PhotoPanel extends JPanel {
 	}
 
 	private void applyCamera(Camera camera) {
+		configurePhotoCamera(camera);
 		// PhotoStudio model transforms already recenter the rocket around world origin.
 		// Keep camera orbit pivot locked to origin to match legacy JOGL behavior.
 		camera.setCenterOfInterest(new Vector3f(0.0f, 0.0f, 0.0f));
@@ -278,6 +319,22 @@ public class PhotoPanel extends JPanel {
 		camera.setFieldOfView(settings.getFov());
 		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
 		camera.update();
+	}
+
+	private void restoreCamera(Camera camera, CameraState state) {
+		configurePhotoCamera(camera);
+		camera.setCenterOfInterest(state.centerOfInterest);
+		camera.setAngleX(state.angleX);
+		camera.setAngleY(state.angleY);
+		camera.setFieldOfView(state.fieldOfView);
+		camera.setDistance(state.distance);
+		camera.update();
+	}
+
+	private void configurePhotoCamera(Camera camera) {
+		// PhotoStudio should not constrain orbit pitch or zoom as tightly as editor views.
+		camera.setPitchClampingEnabled(false);
+		camera.setZoomLimits(0.01f, 10000.0f);
 	}
 
 	private void applyBackground(SceneView scene) {
@@ -413,5 +470,27 @@ public class PhotoPanel extends JPanel {
 		lastSparks = settings.isSparks();
 
 		return rebuild;
+	}
+
+	private boolean isCameraSettingsChanged() {
+		if (!cameraSettingsTracked) {
+			return true;
+		}
+		return !approximatelyEqual(settings.getViewAz(), lastViewAz)
+				|| !approximatelyEqual(settings.getViewAlt(), lastViewAlt)
+				|| !approximatelyEqual(settings.getViewDistance(), lastViewDistance)
+				|| !approximatelyEqual(settings.getFov(), lastFov);
+	}
+
+	private void rememberCameraSettings() {
+		lastViewAz = settings.getViewAz();
+		lastViewAlt = settings.getViewAlt();
+		lastViewDistance = settings.getViewDistance();
+		lastFov = settings.getFov();
+		cameraSettingsTracked = true;
+	}
+
+	private static boolean approximatelyEqual(double a, double b) {
+		return Math.abs(a - b) <= CAMERA_SETTINGS_EPSILON;
 	}
 }
