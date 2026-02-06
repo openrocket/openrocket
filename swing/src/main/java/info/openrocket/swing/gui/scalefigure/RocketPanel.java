@@ -64,7 +64,6 @@ import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.RepaintManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -182,10 +181,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private final JPanel figureHolder;
 	private final CardLayout figureCardLayout = new CardLayout();
-	private static final Object DOUBLE_BUFFER_LOCK = new Object();
-	private static int doubleBufferDisableCount = 0;
-	private static Boolean savedDoubleBufferSetting = null;
-	private boolean doubleBufferDisabledFor3d = false;
 
 	private JLabel infoMessage;
 	private JCheckBox showWarnings;
@@ -389,7 +384,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		is3d = true;
 		figureCardLayout.show(figureHolder, "3d");
 		figure3d.startRendering();
-		disableDoubleBuffering();
 		rotationControl.setEnabled(false);
 		scaleSelector.setEnabled(false);
 
@@ -408,7 +402,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		is3d = false;
 		figureCardLayout.show(figureHolder, "2d");
 		figure3d.stopRendering();
-		restoreDoubleBuffering();
 		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
 		scrollPane.revalidate();
@@ -416,46 +409,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		revalidate();
 		figureHolder.revalidate();
 		figure.repaint();
-	}
-
-	private void disableDoubleBuffering() {
-		synchronized (DOUBLE_BUFFER_LOCK) {
-			if (doubleBufferDisabledFor3d) {
-				return;
-			}
-			RepaintManager mgr = RepaintManager.currentManager(this);
-			if (doubleBufferDisableCount == 0) {
-				savedDoubleBufferSetting = mgr.isDoubleBufferingEnabled();
-				mgr.setDoubleBufferingEnabled(false);
-			} else {
-				mgr.setDoubleBufferingEnabled(false);
-			}
-			doubleBufferDisableCount++;
-			doubleBufferDisabledFor3d = true;
-		}
-	}
-
-	private void restoreDoubleBuffering() {
-		synchronized (DOUBLE_BUFFER_LOCK) {
-			if (!doubleBufferDisabledFor3d) {
-				return;
-			}
-			doubleBufferDisabledFor3d = false;
-			if (doubleBufferDisableCount > 0) {
-				doubleBufferDisableCount--;
-			}
-			if (doubleBufferDisableCount == 0 && savedDoubleBufferSetting != null) {
-				RepaintManager.currentManager(this).setDoubleBufferingEnabled(savedDoubleBufferSetting);
-				savedDoubleBufferSetting = null;
-			}
-		}
-	}
-
-	@Override
-	public void removeNotify() {
-		// If the window is closed while in 3D mode, ensure we don't leave Swing double buffering disabled globally.
-		restoreDoubleBuffering();
-		super.removeNotify();
 	}
 
 	/**

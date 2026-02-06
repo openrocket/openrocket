@@ -89,6 +89,14 @@ public abstract class ParticleEmitter {
     public Vector3f getDirection() {
         return direction;
     }
+
+    public void setEmitterPosition(Vector3f position) {
+        this.emitterPosition.set(position);
+    }
+
+    public void setDirection(Vector3f direction) {
+        this.direction.set(direction);
+    }
     
     /**
      * Captures a static snapshot of particles at a specific time for performance.

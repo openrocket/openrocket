@@ -128,6 +128,13 @@ public class Scene3DOrchestrator {
 	}
 
 	/**
+	 * Rebuilds the rocket scene geometry using the current rendering configuration.
+	 */
+	public void rebuildRocketScene() {
+		rocketSynchronizer.rebuildRocketScene();
+	}
+
+	/**
 	 * Performs per-frame updates for all orchestrated components.
 	 * 
 	 * <p>This method should be called once per frame and handles:</p>

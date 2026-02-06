@@ -388,8 +388,6 @@ public class PhotoFrame extends JFrame {
 		pa.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pa.setTitle("OpenRocket - Photo Studio Alpha");
 		pa.setVisible(true);
-
-		pa.photoPanel.setDoc(doc);
 	}
 
 }

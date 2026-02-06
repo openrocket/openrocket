@@ -1,695 +1,421 @@
 package info.openrocket.swing.gui.figure3d_old.photo;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Rectangle;
-import java.awt.SplashScreen;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.EventObject;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.GLRunnable;
-import com.jogamp.opengl.awt.GLCanvas;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.fixedfunc.GLLightingFunc;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
-import com.jogamp.opengl.glu.GLU;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.event.MouseInputAdapter;
-
-import info.openrocket.core.util.Coordinate;
-import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.ORColor;
+import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
+import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
+import info.openrocket.swing.gui.figure3d.scene.core.Camera;
+import info.openrocket.swing.gui.figure3d.scene.core.Light;
+import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
+import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
+import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import info.openrocket.core.util.ORColor;
-import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.document.events.DocumentChangeEvent;
-import info.openrocket.core.document.events.DocumentChangeListener;
-import info.openrocket.core.motor.Motor;
-import info.openrocket.core.motor.MotorConfiguration;
-import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
-import info.openrocket.core.rocketcomponent.ComponentChangeListener;
-import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.FlightConfigurationId;
-import info.openrocket.core.rocketcomponent.MotorMount;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.startup.Application;
-import info.openrocket.core.preferences.ApplicationPreferences;
-import info.openrocket.core.util.MathUtil;
-import info.openrocket.core.util.StateChangeListener;
-
-import info.openrocket.swing.gui.figure3d_old.RealisticRenderer;
-import info.openrocket.swing.gui.figure3d_old.RocketRenderer;
-import info.openrocket.swing.gui.figure3d_old.TextureCache;
-import info.openrocket.swing.gui.figure3d_old.photo.exhaust.FlameRenderer;
-import info.openrocket.swing.gui.main.Splash;
-
-public class PhotoPanel extends JPanel implements GLEventListener {
+public class PhotoPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
+	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
+	private static final boolean MAC_OS = System.getProperty("os.name", "").toLowerCase().contains("mac");
 
-	static {
-		// this allows the GL canvas and things like the motor selection
-		// drop down to z-order themselves.
-		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-	}
-
-	private FlightConfiguration configuration;
-	private Component canvas;
-	private TextureCache textureCache = new TextureCache();
-	private double ratio;
-	private boolean needUpdate = false;
-
-	private List<ImageCallback> imageCallbacks = new java.util.Vector<>();
-
-	private RocketRenderer rr;
-	private PhotoSettings p;
+	private final PhotoSettings settings;
 	private OpenRocketDocument document;
-	private DocumentChangeListener changeListener;
-	private ComponentChangeListener componentChangeListener;
+	private GLScenePanel glPanel;
+	private final List<ImageCallback> imageCallbacks = new ArrayList<>();
+	private final AtomicBoolean captureQueued = new AtomicBoolean(false);
+	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
+	private final AtomicBoolean initWaitQueued = new AtomicBoolean(false);
+	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
+	private final Map<SceneObject, Matrix4f> baseTransforms = new IdentityHashMap<>();
+	private final Map<ParticleEmitter, EmitterBase> baseEmitters = new IdentityHashMap<>();
+	private boolean lastFlame;
+	private boolean lastSmoke;
+	private boolean lastSparks;
+	private boolean lastParticlesEnabled;
+	private ScheduledExecutorService renderExecutor;
+	private volatile Thread renderThread;
+	private Timer renderTimer;
+	private static final int FRAME_INTERVAL_MS = 16;
+
+	private static final class EmitterBase {
+		private final Vector3f position;
+		private final Vector3f direction;
+
+		private EmitterBase(Vector3f position, Vector3f direction) {
+			this.position = new Vector3f(position);
+			this.direction = new Vector3f(direction);
+		}
+	}
 
 	interface ImageCallback {
-		public void performAction(BufferedImage i);
+		void performAction(BufferedImage i);
 	}
 
-	void addImageCallback(ImageCallback a) {
-		imageCallbacks.add(a);
+	PhotoPanel(OpenRocketDocument document, PhotoSettings settings) {
+		this.settings = settings;
+		setLayout(new BorderLayout());
+		debug("PhotoPanel ctor");
+		settings.addChangeListener(e -> applySettings());
+	}
+
+	void addImageCallback(ImageCallback callback) {
+		if (callback == null) {
+			return;
+		}
+		imageCallbacks.add(callback);
+		requestImageCapture();
+	}
+
+	void setDoc(OpenRocketDocument doc) {
+		debug("setDoc start");
+		if (doc != null && doc == this.document && glPanel != null) {
+			debug("setDoc: already set");
+			return;
+		}
+		clearDoc();
+		if (doc == null) {
+			debug("setDoc: doc=null");
+			return;
+		}
+		this.document = doc;
+		pendingApply.set(true);
+		glPanel = new GLScenePanel(doc.getRocket(), null);
+		glPanel.requestPeerBoundsSyncNow();
+		add(glPanel, BorderLayout.CENTER);
+		revalidate();
 		repaint();
-	}
-
-	void setDoc(final OpenRocketDocument doc) {
-		document = doc;
-		cachedBounds = null;
-		this.configuration = doc.getSelectedConfiguration();
-
-		changeListener = new DocumentChangeListener() {
-			@Override
-			public void documentChanged(DocumentChangeEvent event) {
-				log.debug("Repainting on document change");
-				configuration = doc.getSelectedConfiguration();
-				needUpdate = true;
-				PhotoPanel.this.repaint();
-			}
-		};
-		document.addDocumentChangeListener(changeListener);
-		componentChangeListener = new ComponentChangeListener() {
-			@Override
-			public void componentChanged(ComponentChangeEvent e) {
-				if (e.isTextureChange()) {
-					flushRendererTextureCache();
-				}
-			}
-		};
-		document.getRocket().addComponentChangeListener(componentChangeListener);
-
-		((GLAutoDrawable) canvas).invoke(false, new GLRunnable() {
-			@Override
-			public boolean run(final GLAutoDrawable drawable) {
-				rr = new RealisticRenderer(doc);
-				rr.init(drawable);
-
-				return false;
-			}
-		});
+		startRenderLoop();
+		applySettings();
+		debug("setDoc done");
 	}
 
 	void clearDoc() {
-		document.removeDocumentChangeListener(changeListener);
-		if (componentChangeListener != null) {
-			document.getRocket().removeComponentChangeListener(componentChangeListener);
-			componentChangeListener = null;
+		debug("clearDoc");
+		stopRenderLoop();
+		if (glPanel != null) {
+			remove(glPanel);
+			glPanel.cleanup();
+			glPanel = null;
 		}
-		changeListener = null;
 		document = null;
 	}
 
 	PhotoSettings getSettings() {
-		return p;
+		return settings;
 	}
 
-	PhotoPanel(OpenRocketDocument document, PhotoSettings p) {
-    	this.p = p;
-		this.setLayout(new BorderLayout());
-		PhotoPanel.this.configuration = document.getSelectedConfiguration();
-
-		// Fixes a linux / X bug: Splash must be closed before GL Init
-		SplashScreen splash = Splash.getSplashScreen();
-		if (splash != null && splash.isVisible())
-			splash.close();
-
-		initGLCanvas();
-		setupMouseListeners();
-
-		p.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				log.debug("Repainting on settings state change");
-				PhotoPanel.this.repaint();
-			}
-		});
-
-	}
-
-	private void initGLCanvas() {
-		try {
-			log.debug("Setting up GL capabilities...");
-			final GLProfile glp = GLProfile.get(GLProfile.GL2);
-
-			final GLCapabilities caps = new GLCapabilities(glp);
-			caps.setBackgroundOpaque(false);
-
-			if (Application.getPreferences().getBoolean(
-					ApplicationPreferences.OPENGL_ENABLE_AA, true)) {
-				caps.setSampleBuffers(true);
-				caps.setNumSamples(6);
-			} else {
-				log.trace("GL - Not enabling AA by user pref");
-			}
-
-			if (Application.getPreferences().getBoolean(
-					ApplicationPreferences.OPENGL_USE_FBO, false)) {
-				log.trace("GL - Creating GLJPanel");
-				canvas = new GLJPanel(caps);
-				((GLJPanel) canvas).setOpaque(false);
-			} else {
-				log.trace("GL - Creating GLCanvas");
-				canvas = new GLCanvas(caps);
-			}
-			canvas.setBackground(new java.awt.Color(0, 0, 0, 0));
-
-			((GLAutoDrawable) canvas).addGLEventListener(this);
-			this.add(canvas, BorderLayout.CENTER);
-		} catch (Throwable t) {
-			log.error("An error occurred creating 3d View", t);
-			canvas = null;
-			this.add(new JLabel("Unable to load 3d Libraries: "
-					+ t.getMessage()));
+	private void requestImageCapture() {
+		GLScenePanel panel = glPanel;
+		if (panel == null) {
+			debug("requestImageCapture: no panel");
+			captureQueued.set(false);
+			return;
 		}
-	}
-
-	private void setupMouseListeners() {
-		MouseInputAdapter a = new MouseInputAdapter() {
-			int lastX;
-			int lastY;
-			MouseEvent pressEvent;
-
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				lastX = e.getX();
-				lastY = e.getY();
-				pressEvent = e;
-			}
-
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				p.setViewDistance(p.getViewDistance() + 0.1
-						* e.getWheelRotation());
-			}
-
-			@Override
-			public void mouseDragged(final MouseEvent e) {
-				// You can get a drag without a press while a modal dialog is
-				// shown
-				if (pressEvent == null)
-					return;
-
-				final double height = canvas.getHeight();
-				final double width = canvas.getWidth();
-				final double x1 = (width - 2 * lastX) / width;
-				final double y1 = (2 * lastY - height) / height;
-				final double x2 = (width - 2 * e.getX()) / width;
-				final double y2 = (2 * e.getY() - height) / height;
-
-				p.setViewAltAz(p.getViewAlt() - (y1 - y2), p.getViewAz()
-						+ (x1 - x2));
-
-				lastX = e.getX();
-				lastY = e.getY();
-			}
-		};
-
-		canvas.addMouseWheelListener(a);
-		canvas.addMouseMotionListener(a);
-		canvas.addMouseListener(a);
-	}
-
-	@Override
-	public void paintImmediately(Rectangle r) {
-		super.paintImmediately(r);
-		if (canvas != null)
-			((GLAutoDrawable) canvas).display();
-	}
-
-	@Override
-	public void paintImmediately(int x, int y, int w, int h) {
-		super.paintImmediately(x, y, w, h);
-		if (canvas != null)
-			((GLAutoDrawable) canvas).display();
-	}
-
-	/*
-	 * @Override public void repaint() { if (canvas != null) ((GLAutoDrawable)
-	 * canvas).display(); super.repaint(); }
-	 */
-	@Override
-	public void display(final GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
-
-		if (needUpdate)
-			rr.updateFigure(drawable);
-		needUpdate = false;
-
-		draw(drawable, 0, true);
-
-		if (p.isMotionBlurred()) {
-			Bounds b = calculateBounds();
-
-			float m = 0.6f;
-			int c = 10;
-			float d = (float) b.xSize / 25.0f;
-
-			gl.glAccum(GL2.GL_LOAD, m);
-
-			for (int i = 1; i <= c; i++) {
-				draw(drawable, d / c * i, true);
-				gl.glAccum(GL2.GL_ACCUM, (1.0f - m) / c);
-			}
-
-			gl.glAccum(GL2.GL_RETURN, 1.0f);
+		if (!captureQueued.compareAndSet(false, true)) {
+			return;
 		}
-
-		if (!imageCallbacks.isEmpty()) {
-			final BufferedImage i;
-			// If off-screen rendering is disabled, and the sky color is transparent, we need to redraw the scene
-			// in an off-screen framebuffer object (FBO), otherwise the fake transparency rendering will cause the
-			// exported image to have a fully white background.
-			if (!Application.getPreferences().getBoolean(
-					ApplicationPreferences.OPENGL_USE_FBO, false) && p.getSkyColorOpacity() < 100) {
-				i = drawToBufferedImage(drawable);
-			} else {
-				i = (new AWTGLReadBufferUtil(
-						GLProfile.get(GLProfile.GL2), true)) // Set the second parameter to true
-						.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
-								drawable.getSurfaceWidth(), drawable.getSurfaceHeight(), true);
-			}
-			final Vector<ImageCallback> cbs = new Vector<>(
-					imageCallbacks);
+		boolean transparent = settings.getSkyColorOpacity() < 1.0;
+		panel.requestImageCapture(transparent, image -> {
+			List<ImageCallback> callbacks = new ArrayList<>(imageCallbacks);
 			imageCallbacks.clear();
-			for (ImageCallback ia : cbs) {
-				try {
-					ia.performAction(i);
-				} catch (Throwable t) {
-					log.error("Image Callback {} threw", i, t);
+			captureQueued.set(false);
+			SwingUtilities.invokeLater(() -> {
+				for (ImageCallback cb : callbacks) {
+					try {
+						cb.performAction(image);
+					} catch (Throwable t) {
+						log.error("Image callback failed", t);
+					}
+				}
+			});
+		});
+	}
+
+	private void applySettings() {
+		GLScenePanel panel = glPanel;
+		if (panel == null) {
+			debug("applySettings: no panel");
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			pendingApply.set(true);
+			debug("applySettings: orchestrator not ready");
+			queueApplyWhenReady(panel);
+			return;
+		}
+		pendingApply.set(false);
+		if (!settingsApplyQueued.compareAndSet(false, true)) {
+			pendingApply.set(true);
+			return;
+		}
+		debug("applySettings: enqueue");
+		orchestrator.enqueueGlTask(() -> {
+			try {
+				applySettingsOnGlThread(orchestrator);
+			} finally {
+				settingsApplyQueued.set(false);
+				if (pendingApply.getAndSet(false)) {
+					applySettings();
 				}
 			}
-		}
-	}
-
-	/**
-	 * Draws the scene with fake transparency rendering disabled to an off-screen framebuffer object (FBO) and
-	 * returns the result as a BufferedImage.
-	 * @param drawable The GLAutoDrawable to draw to
-	 * @return The rendered image
-	 */
-	private BufferedImage drawToBufferedImage(final GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
-		int width = drawable.getSurfaceWidth();
-		int height = drawable.getSurfaceHeight();
-
-		// Create a new framebuffer object (FBO)
-		int[] fboId = new int[1];
-		gl.glGenFramebuffers(1, fboId, 0);
-		gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, fboId[0]);
-
-		// Create a texture to store the rendered image
-		int[] textureId = new int[1];
-		gl.glGenTextures(1, textureId, 0);
-		gl.glBindTexture(GL.GL_TEXTURE_2D, textureId[0]);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null);
-
-		// Attach the texture to the FBO
-		gl.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, textureId[0], 0);
-
-		// Create a renderbuffer for depth and attach it to the FBO
-		int[] depthRenderbuffer = new int[1];
-		gl.glGenRenderbuffers(1, depthRenderbuffer, 0);
-		gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, depthRenderbuffer[0]);
-		gl.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL2.GL_DEPTH_COMPONENT, width, height);
-		gl.glFramebufferRenderbuffer(GL2.GL_FRAMEBUFFER, GL2.GL_DEPTH_ATTACHMENT, GL.GL_RENDERBUFFER, depthRenderbuffer[0]);
-
-		// Check if the FBO is complete
-		int status = gl.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER);
-		if (status != GL2.GL_FRAMEBUFFER_COMPLETE) {
-			throw new RuntimeException("Framebuffer not complete");
-		}
-
-		// Draw the scene with useFakeTransparencyRendering set to false
-		draw(drawable, 0, false);
-
-		// Read the pixels from the FBO
-		ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
-		gl.glReadPixels(0, 0, width, height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, buffer);
-
-		// Unbind the FBO and delete resources
-		gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
-		gl.glDeleteFramebuffers(1, fboId, 0);
-		gl.glDeleteTextures(1, textureId, 0);
-		gl.glDeleteRenderbuffers(1, depthRenderbuffer, 0);
-
-		// Convert the ByteBuffer to a BufferedImage
-		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				int i = (y * width + x) * 4;
-				int r = buffer.get(i) & 0xFF;
-				int g = buffer.get(i + 1) & 0xFF;
-				int b = buffer.get(i + 2) & 0xFF;
-				int a = buffer.get(i + 3) & 0xFF;
-				image.setRGB(x, height - y - 1, (a << 24) | (r << 16) | (g << 8) | b);
-			}
-		}
-		return image;
-	}
-
-	private static void convertColor(ORColor color, float[] out) {
-		if (color == null) {
-			out[0] = 1;
-			out[1] = 1;
-			out[2] = 0;
-			out[3] = 1;
-		} else {
-			out[0] = (float) color.getRed() / 255.0f;
-			out[1] = (float) color.getGreen() / 255.0f;
-			out[2] = (float) color.getBlue() / 255.0f;
-			out[3] = (float) color.getAlpha() / 255.0f;
-		}
-	}
-
-	/**
-	 * Blend two colors
-	 * @param color1 first color to blend
-	 * @param color2 second color to blend
-	 * @param ratio blend ratio. 0 = full color 1, 0.5 = mid-blend, 1 = full color 2
-	 * @return blended color
-	 */
-	private static ORColor blendColors(ORColor color1, ORColor color2, double ratio) {
-		if (ratio < 0 || ratio > 1) {
-			throw new IllegalArgumentException("Blend ratio must be between 0 and 1");
-		}
-
-		double inverseRatio = 1 - ratio;
-
-		int r = (int) ((color1.getRed() * inverseRatio) + (color2.getRed() * ratio));
-		int g = (int) ((color1.getGreen() * inverseRatio) + (color2.getGreen() * ratio));
-		int b = (int) ((color1.getBlue() * inverseRatio) + (color2.getBlue() * ratio));
-		int a = (int) ((color1.getAlpha() * inverseRatio) + (color2.getAlpha() * ratio));
-
-		return new ORColor(r, g, b, a);
-	}
-
-	private void draw(final GLAutoDrawable drawable, float dx, boolean useFakeTransparencyRendering) {
-		GL2 gl = drawable.getGL().getGL2();
-		GLU glu = new GLU();
-
-		float[] color = new float[4];
-
-		gl.glEnable(GL.GL_MULTISAMPLE);
-
-		convertColor(p.getSunlight(), color);
-		float amb = (float) p.getAmbiance();
-		float dif = 1.0f - amb;
-		float spc = 1.0f;
-		gl.glLightfv(
-				GLLightingFunc.GL_LIGHT1,
-				GLLightingFunc.GL_AMBIENT,
-				new float[] { amb * color[0], amb * color[1], amb * color[2], 1 },
-				0);
-		gl.glLightfv(
-				GLLightingFunc.GL_LIGHT1,
-				GLLightingFunc.GL_DIFFUSE,
-				new float[] { dif * color[0], dif * color[1], dif * color[2], 1 },
-				0);
-		gl.glLightfv(
-				GLLightingFunc.GL_LIGHT1,
-				GLLightingFunc.GL_SPECULAR,
-				new float[] { spc * color[0], spc * color[1], spc * color[2], 1 },
-				0);
-
-		// Machines that don't use off-screen rendering can't render transparent background, so we create it
-		// artificially by blending the sky color with white (= color that is rendered as transparent background)
-		if (useFakeTransparencyRendering && !Application.getPreferences().getBoolean(
-				ApplicationPreferences.OPENGL_USE_FBO, false)) {
-			convertColor(blendColors(p.getSkyColor(), new ORColor(255, 255, 255, 0), 1-p.getSkyColorOpacity()),
-					color);
-		} else {
-			convertColor(p.getSkyColor(), color);
-		}
-		gl.glClearColor(color[0], color[1], color[2], color[3]);
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
-		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
-		gl.glLoadIdentity();
-		glu.gluPerspective(p.getFov() * (180.0 / Math.PI), ratio, 0.1f, 50.0f);
-		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-
-		// Flip textures for LEFT handed coords
-		gl.glMatrixMode(GL.GL_TEXTURE);
-		gl.glLoadIdentity();
-		gl.glScaled(-1, 1, 1);
-		gl.glTranslated(-1, 0, 0);
-
-		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-		gl.glLoadIdentity();
-
-		gl.glEnable(GL.GL_CULL_FACE);
-		gl.glCullFace(GL.GL_BACK);
-		gl.glFrontFace(GL.GL_CCW);
-
-		// Draw the sky
-		gl.glPushMatrix();
-		gl.glDisable(GLLightingFunc.GL_LIGHTING);
-		gl.glDepthMask(false);
-		gl.glRotated(p.getViewAlt() * (180.0 / Math.PI), 1, 0, 0);
-		gl.glRotated(p.getViewAz() * (180.0 / Math.PI), 0, 1, 0);
-		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-		if (p.getSky() != null) {
-			p.getSky().draw(gl, textureCache);
-		}
-		gl.glDepthMask(true);
-		gl.glEnable(GLLightingFunc.GL_LIGHTING);
-		gl.glPopMatrix();
-
-		if (rr == null)
-			return;
-
-		glu.gluLookAt(0, 0, p.getViewDistance(), 0, 0, 0, 0, 1, 0);
-		gl.glRotated(p.getViewAlt() * (180.0 / Math.PI), 1, 0, 0);
-		gl.glRotated(p.getViewAz() * (180.0 / Math.PI), 0, 1, 0);
-
-		float[] lightPosition = new float[] {
-				(float) Math.cos(p.getLightAlt())
-						* (float) Math.sin(p.getLightAz()),//
-				(float) Math.sin(p.getLightAlt()),//
-				(float) Math.cos(p.getLightAlt())
-						* (float) Math.cos(p.getLightAz()), //
-				0 };
-
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION,
-				lightPosition, 0);
-
-		// Change to LEFT Handed coordinates
-		gl.glScaled(1, 1, -1);
-		gl.glFrontFace(GL.GL_CW);
-		setupModel(gl);
-
-		gl.glTranslated(dx - p.getAdvance(), 0, 0);
-
-		if (p.isFlame() && configuration.hasMotors()) {
-			convertColor(p.getFlameColor(), color);
-
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_AMBIENT,
-					new float[] { 0, 0, 0, 1 }, 0);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE,
-					new float[] { color[0], color[1], color[2], 1 }, 0);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_SPECULAR,
-					new float[] { color[0], color[1], color[2], 1 }, 0);
-
-			Bounds b = calculateBounds();
-			gl.glLightf(GLLightingFunc.GL_LIGHT2,
-					GLLightingFunc.GL_QUADRATIC_ATTENUATION, 20.0f);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_POSITION,
-					new float[] { (float) (b.xMax + 0.1f), 0, 0, 1 }, 0);
-			gl.glEnable(GLLightingFunc.GL_LIGHT2);
-		} else {
-			gl.glDisable(GLLightingFunc.GL_LIGHT2);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE,
-					new float[] { 0, 0, 0, 1 }, 0);
-		}
-
-		rr.render(drawable, configuration, new HashSet<>());
-
-		//Figure out the lowest stage shown
-
-		AxialStage bottomStage = configuration.getBottomStage();
-		int bottomStageNumber = 0;
-		if (bottomStage != null)
-			bottomStageNumber = bottomStage.getStageNumber();
-		//final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
-		//final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild( bottomStageNumber);
-
-		final FlightConfigurationId motorID = configuration.getFlightConfigurationID();
-
-
-
-		final Iterator<MotorConfiguration> iter = configuration.getActiveMotors().iterator();
-		while( iter.hasNext()){
-			MotorConfiguration curConfig = iter.next();
-			final MotorMount mount = curConfig.getMount();
-			int curStageNumber = ((RocketComponent)mount).getStageNumber();
-
-			//If this mount is not in currentStage continue on to the next one.
-			if( curStageNumber != bottomStageNumber ){
-				continue;
-			}
-
-			final Motor motor = mount.getMotorConfig(motorID).getMotor();
-			final double length = motor.getLength();
-
-			CoordinateIF[] position = ((RocketComponent) mount)
-					.toAbsolute(new Coordinate(((RocketComponent) mount)
-							.getLength() + mount.getMotorOverhang() - length));
-
-			for (CoordinateIF coordinate : position) {
-				gl.glPushMatrix();
-				gl.glTranslated(coordinate.getX() + motor.getLength(),
-						coordinate.getY(), coordinate.getZ());
-				FlameRenderer.drawExhaust(gl, p, motor);
-				gl.glPopMatrix();
-			}
-		}
-
-		gl.glDisable(GL.GL_BLEND);
-		gl.glFrontFace(GL.GL_CCW);
-	}
-
-	@Override
-	public void dispose(final GLAutoDrawable drawable) {
-		log.trace("GL - dispose() called");
-		if (rr != null)
-			rr.dispose(drawable);
-		textureCache.dispose(drawable);
-	}
-
-	@Override
-	public void init(final GLAutoDrawable drawable) {
-		log.trace("GL - init()");
-		//drawable.setGL(new DebugGL2(drawable.getGL().getGL2()));
-
-		final GL2 gl = drawable.getGL().getGL2();
-
-		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
-		gl.glDepthFunc(GL.GL_LESS); // the type of depth test to do
-
-		textureCache.init(drawable);
-
-		// gl.glDisable(GLLightingFunc.GL_LIGHT1);
-
-		FlameRenderer.init(gl);
-
-	}
-
-	private void flushRendererTextureCache() {
-		if (!(canvas instanceof GLAutoDrawable) || rr == null) {
-			return;
-		}
-		((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
-			@Override
-			public boolean run(GLAutoDrawable drawable) {
-				rr.flushTextureCache(drawable);
-				return false;
-			}
 		});
 	}
 
-	@Override
-	public void reshape(final GLAutoDrawable drawable, final int x,
-			final int y, final int w, final int h) {
-		log.trace("GL - reshape()");
-		ratio = (double) w / (double) h;
+	private void startRenderLoop() {
+		if (renderExecutor != null || renderTimer != null) {
+			return;
+		}
+		if (MAC_OS) {
+			renderTimer = new Timer(FRAME_INTERVAL_MS, e -> renderFrame());
+			renderTimer.setRepeats(true);
+			renderTimer.setCoalesce(true);
+			renderTimer.start();
+			return;
+		}
+		ThreadFactory threadFactory = runnable -> {
+			Thread thread = new Thread(runnable, "photo-render");
+			thread.setDaemon(true);
+			renderThread = thread;
+			return thread;
+		};
+		renderExecutor = Executors.newSingleThreadScheduledExecutor(threadFactory);
+		renderExecutor.scheduleAtFixedRate(this::renderFrame, 0, FRAME_INTERVAL_MS, TimeUnit.MILLISECONDS);
 	}
 
-	@SuppressWarnings("unused")
-	private static class Bounds {
-		double xMin, xMax, xSize;
-		double yMin, yMax, ySize;
-		double zMin, zMax, zSize;
-		double rMax;
-	}
-
-	private Bounds cachedBounds = null;
-
-	/**
-	 * Calculates the bounds for the current configuration
-	 * 
-	 * @return
-	 */
-	private Bounds calculateBounds() {
-		if (cachedBounds != null) {
-			return cachedBounds;
-		} else {
-			final Bounds b = new Bounds();
-			final Collection<CoordinateIF> bounds = configuration.getBounds();
-			for (CoordinateIF c : bounds) {
-				b.xMax = Math.max(b.xMax, c.getX());
-				b.xMin = Math.min(b.xMin, c.getX());
-
-				b.yMax = Math.max(b.yMax, c.getY());
-				b.yMin = Math.min(b.yMin, c.getY());
-
-				b.zMax = Math.max(b.zMax, c.getZ());
-				b.zMin = Math.min(b.zMin, c.getZ());
-
-				double r = MathUtil.hypot(c.getY(), c.getZ());
-				b.rMax = Math.max(b.rMax, r);
-			}
-			b.xSize = b.xMax - b.xMin;
-			b.ySize = b.yMax - b.yMin;
-			b.zSize = b.zMax - b.zMin;
-			cachedBounds = b;
-			return b;
+	private void stopRenderLoop() {
+		if (renderTimer != null) {
+			renderTimer.stop();
+			renderTimer = null;
+		}
+		if (renderExecutor != null) {
+			renderExecutor.shutdownNow();
+			renderExecutor = null;
+			renderThread = null;
 		}
 	}
 
-	private void setupModel(final GL2 gl) {
-		// Get the bounds
-		final Bounds b = calculateBounds();
-		gl.glRotated(-p.getPitch() * (180.0 / Math.PI), 0, 0, 1);
-		gl.glRotated(p.getYaw() * (180.0 / Math.PI), 0, 1, 0);
-		gl.glRotated(p.getRoll() * (180.0 / Math.PI), 1, 0, 0);
-		// Center the rocket in the view.
-		gl.glTranslated(-b.xMin - b.xSize / 2.0, 0, 0);
+	private void renderFrame() {
+		GLScenePanel panel = glPanel;
+		if (panel == null) {
+			return;
+		}
+		if (panel.glInitFailed) {
+			return;
+		}
+		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
+			applySettings();
+		}
+		if (!panel.isDisplayable() || !panel.isShowing()) {
+			return;
+		}
+		if (panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			return;
+		}
+		panel.render();
 	}
 
+	private void queueApplyWhenReady(GLScenePanel panel) {
+		if (!initWaitQueued.compareAndSet(false, true)) {
+			return;
+		}
+		Thread worker = new Thread(() -> {
+			try {
+				boolean ready = panel.awaitInitialized(2000);
+				debug("awaitInitialized=" + ready);
+			} finally {
+				initWaitQueued.set(false);
+			}
+			debug("queueApplyWhenReady: enqueue after init");
+			applySettings();
+		}, "photo-settings-apply");
+		worker.setDaemon(true);
+		worker.start();
+	}
+
+	private void applySettingsOnGlThread(Scene3DOrchestrator orchestrator) {
+		debug("applySettingsOnGlThread");
+		SceneView scene = orchestrator.getScene();
+		if (scene == null) {
+			debug("applySettingsOnGlThread: no scene");
+			return;
+		}
+
+		boolean rebuild = applyEffects(orchestrator.getRenderingConfiguration());
+		if (rebuild) {
+			orchestrator.rebuildRocketScene();
+			baseTransforms.clear();
+			baseEmitters.clear();
+		}
+
+		applyBackground(scene);
+		applyLighting(scene);
+		applyCamera(scene.getCamera());
+		applyRocketTransform(scene, orchestrator.getRenderingConfiguration());
+	}
+
+	private void applyCamera(Camera camera) {
+		camera.setAngleX((float) Math.toDegrees(settings.getViewAz()));
+		camera.setAngleY((float) Math.toDegrees(settings.getViewAlt()));
+		camera.setFieldOfView(settings.getFov());
+		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
+		camera.update();
+	}
+
+	private void applyBackground(SceneView scene) {
+		ORColor sky = settings.getSkyColor();
+		if (sky == null) {
+			sky = new ORColor(0, 0, 0);
+		}
+		float alpha = (float) settings.getSkyColorOpacity();
+		scene.setBackground(new SolidColorBackground(
+				sky.getRed() / 255.0f,
+				sky.getGreen() / 255.0f,
+				sky.getBlue() / 255.0f,
+				alpha));
+	}
+
+	private void applyLighting(SceneView scene) {
+		if (scene.getLightController().getLights().isEmpty()) {
+			return;
+		}
+		Light light = scene.getLightController().getLight(0);
+		ORColor sun = settings.getSunlight();
+		if (sun != null) {
+			light.setColor(sun.getRed() / 255.0f, sun.getGreen() / 255.0f, sun.getBlue() / 255.0f);
+		}
+		float alt = (float) settings.getLightAlt();
+		float az = (float) settings.getLightAz();
+		float x = (float) (Math.cos(alt) * Math.sin(az));
+		float y = (float) Math.sin(alt);
+		float z = (float) (Math.cos(alt) * Math.cos(az));
+		light.setDirection(x, y, -z);
+	}
+
+	private void applyRocketTransform(SceneView scene, RenderingConfiguration config) {
+		if (document == null) {
+			debug("applyRocketTransform: no document");
+			return;
+		}
+		BoundingBox bounds = document.getRocket().getBoundingBox();
+		if (bounds == null || bounds.isEmpty()) {
+			debug("applyRocketTransform: empty bounds");
+			return;
+		}
+		double centerX = (bounds.min.getX() + bounds.max.getX()) / 2.0;
+		double advance = settings.getAdvance();
+		float translateX = (float) (-(centerX + advance) * RenderingConstants.WORLD_SCALE);
+
+		Matrix4f globalTransform = new Matrix4f()
+				.rotateZ((float) -settings.getPitch())
+				.rotateY((float) settings.getYaw())
+				.rotateX((float) settings.getRoll())
+				.translate(translateX, 0.0f, 0.0f);
+
+		boolean resetBases = false;
+		for (SceneObject obj : scene.getObjects()) {
+			if (obj.getRocketComponent() != null && !baseTransforms.containsKey(obj)) {
+				resetBases = true;
+				break;
+			}
+		}
+		if (resetBases) {
+			baseTransforms.clear();
+		}
+
+		for (SceneObject obj : scene.getObjects()) {
+			if (obj.getRocketComponent() == null) {
+				continue;
+			}
+			Matrix4f base = baseTransforms.computeIfAbsent(obj, key -> new Matrix4f(obj.getModelMatrix()));
+			globalTransform.mul(base, obj.getModelMatrix());
+		}
+
+		applyParticleTransform(scene, config, globalTransform);
+	}
+
+	private void applyParticleTransform(SceneView scene, RenderingConfiguration config, Matrix4f globalTransform) {
+		boolean resetBases = false;
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			if (!baseEmitters.containsKey(emitter)) {
+				resetBases = true;
+				break;
+			}
+		}
+		if (resetBases) {
+			baseEmitters.clear();
+		}
+
+		VisualEffectsSettings effects = config.getVisualEffects();
+		for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+			EmitterBase base = baseEmitters.computeIfAbsent(emitter,
+					key -> new EmitterBase(emitter.getEmitterPosition(), emitter.getDirection()));
+
+			Vector3f position = new Vector3f(base.position);
+			Vector3f direction = new Vector3f(base.direction);
+			globalTransform.transformPosition(position);
+			globalTransform.transformDirection(direction).normalize();
+
+			emitter.setEmitterPosition(position);
+			emitter.setDirection(direction);
+
+			if (effects.areStaticParticles()) {
+				emitter.captureStaticParticles(effects.getParticleTime());
+			} else {
+				emitter.setStaticMode(false);
+				emitter.getParticles().clear();
+			}
+		}
+	}
+
+	private static void debug(String message) {
+		if (!DEBUG) {
+			return;
+		}
+		System.out.println("[PhotoPanel][" + Thread.currentThread().getName() + "] " + message);
+	}
+
+	private boolean applyEffects(RenderingConfiguration config) {
+		VisualEffectsSettings effects = config.getVisualEffects();
+		effects.setMotionBlurEnabled(settings.isMotionBlurred());
+		boolean particlesEnabled = settings.isFlame() || settings.isSmoke() || settings.isSparks();
+		effects.setParticleEffectsEnabled(particlesEnabled);
+		effects.setFlameParticlesEnabled(settings.isFlame());
+		effects.setSmokeParticlesEnabled(settings.isSmoke());
+		effects.setSparkParticlesEnabled(settings.isSparks());
+
+		boolean rebuild = particlesEnabled != lastParticlesEnabled
+				|| settings.isFlame() != lastFlame
+				|| settings.isSmoke() != lastSmoke
+				|| settings.isSparks() != lastSparks;
+
+		lastParticlesEnabled = particlesEnabled;
+		lastFlame = settings.isFlame();
+		lastSmoke = settings.isSmoke();
+		lastSparks = settings.isSparks();
+
+		return rebuild;
+	}
 }

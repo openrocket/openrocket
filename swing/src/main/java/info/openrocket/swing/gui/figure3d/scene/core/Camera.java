@@ -42,7 +42,7 @@ public class Camera {
 	private final Matrix4f viewMatrix = new Matrix4f();
 
 	// Store original projection values
-	private final float fov;
+	private float fov;
 	private float aspectRatio;
 	private final float zNear;
 	private final float zFar;
@@ -110,6 +110,25 @@ public class Camera {
 	 */
 	public void setAspectRatio(float aspectRatio) {
 		this.aspectRatio = aspectRatio;
+		updateProjectionMatrix();
+	}
+
+	/**
+	 * Gets the current field of view in radians.
+	 *
+	 * @return the field of view in radians
+	 */
+	public float getFieldOfView() {
+		return fov;
+	}
+
+	/**
+	 * Sets the field of view in radians.
+	 *
+	 * @param fov the field of view in radians
+	 */
+	public void setFieldOfView(double fov) {
+		this.fov = (float) fov;
 		updateProjectionMatrix();
 	}
 	
@@ -296,6 +315,28 @@ public class Camera {
 		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
 			updateProjectionMatrix();
 		}
+	}
+
+	/**
+	 * Sets the camera distance from the center of interest.
+	 *
+	 * @param distance the new distance
+	 */
+	public void setDistance(float distance) {
+		this.distance = Math.max(minZoom, Math.min(maxZoom, distance));
+		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
+			updateProjectionMatrix();
+		}
+		updateViewMatrix();
+	}
+
+	/**
+	 * Gets the camera distance from the center of interest.
+	 *
+	 * @return the current distance
+	 */
+	public float getDistance() {
+		return distance;
 	}
 
 	/**
