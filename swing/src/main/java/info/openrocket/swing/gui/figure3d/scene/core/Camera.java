@@ -417,12 +417,27 @@ public class Camera {
 	}
 
 	private void updateViewMatrix() {
-		float camX = (float) (distance * Math.sin(Math.toRadians(angleX)) * Math.cos(Math.toRadians(angleY)));
-		float camY = (float) (distance * Math.sin(Math.toRadians(angleY)));
-		float camZ = (float) (distance * Math.cos(Math.toRadians(angleX)) * Math.cos(Math.toRadians(angleY)));
+		float yawRad = (float) Math.toRadians(angleX);
+		float pitchRad = (float) Math.toRadians(angleY);
+		float sinYaw = (float) Math.sin(yawRad);
+		float cosYaw = (float) Math.cos(yawRad);
+		float sinPitch = (float) Math.sin(pitchRad);
+		float cosPitch = (float) Math.cos(pitchRad);
+
+		float camX = distance * sinYaw * cosPitch;
+		float camY = distance * sinPitch;
+		float camZ = distance * cosYaw * cosPitch;
 		position.set(centerOfInterest.x + camX, centerOfInterest.y + camY, centerOfInterest.z + camZ);
 
-		viewMatrix.identity().lookAt(position, centerOfInterest, new Vector3f(0.0f, 1.0f, 0.0f));
+		// Build an orbit up vector from yaw/pitch so crossing +/-90° pitch stays continuous
+		// (no snapping or inverted controls when pitch clamping is disabled).
+		Vector3f orbitUp = new Vector3f(
+				-sinYaw * sinPitch,
+				cosPitch,
+				-cosYaw * sinPitch
+		).normalize();
+
+		viewMatrix.identity().lookAt(position, centerOfInterest, orbitUp);
 	}
 
 	/**

@@ -1,7 +1,9 @@
 package info.openrocket.swing.gui.figure3d_old.photo;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
@@ -19,6 +21,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -104,7 +107,9 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				};
 				model.addChangeListener(changeListener);
 
-				JDialog d = JColorChooser.createDialog(PhotoSettingsConfig.this,
+				Window owner = SwingUtilities.getWindowAncestor(PhotoSettingsConfig.this);
+				Component parentComponent = owner != null ? owner : PhotoSettingsConfig.this;
+				JDialog d = JColorChooser.createDialog(parentComponent,
 						trans.get("PhotoSettingsConfig.colorChooser.title"), true, colorChooser, new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent okEvent) {
@@ -120,6 +125,10 @@ public class PhotoSettingsConfig extends JTabbedPane {
 								model.removeChangeListener(changeListener);
 							}
 						});
+				if (owner != null) {
+					d.setLocationRelativeTo(owner);
+					d.toFront();
+				}
 				d.setVisible(true);
 			} catch (Throwable e1) {
 				Application.getExceptionHandler().handleErrorCondition(e1);

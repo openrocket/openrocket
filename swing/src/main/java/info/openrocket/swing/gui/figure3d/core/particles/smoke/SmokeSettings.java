@@ -10,6 +10,8 @@ public class SmokeSettings extends ParticleSettings {
     public final float noiseSpeed;
     public final float lightSensitivity;
 	private static final Vector3f GRAVITY = new Vector3f(0, 0.4f, 0); // Upwards force
+	private static final Vector3f DEFAULT_MEDIUM_MIN_COLOR = new Vector3f(0.6f, 0.6f, 0.6f);
+	private static final Vector3f DEFAULT_MEDIUM_MAX_COLOR = new Vector3f(0.9f, 0.9f, 0.9f);
 
     public SmokeSettings(float velocity, float creationRate, float minLife, float maxLife, float minSize, float maxSize,
                          float spread, boolean burst, Vector3f gravity, Vector3f minColor, Vector3f maxColor,
@@ -40,13 +42,28 @@ public class SmokeSettings extends ParticleSettings {
      * Settings for medium smoke, like from a campfire.
      */
     public static SmokeSettings medium(RenderingConfiguration config) {
+		return medium(config, null);
+    }
+
+	/**
+	 * Settings for medium smoke, tinted with the provided base color.
+	 */
+	public static SmokeSettings medium(RenderingConfiguration config, Vector3f smokeColor) {
+		Vector3f minColor = new Vector3f(DEFAULT_MEDIUM_MIN_COLOR);
+		Vector3f maxColor = new Vector3f(DEFAULT_MEDIUM_MAX_COLOR);
+		if (smokeColor != null) {
+			Vector3f clamped = clampColor(smokeColor);
+			minColor = clampColor(new Vector3f(clamped).mul(0.70f));
+			maxColor = clampColor(new Vector3f(clamped).mul(0.95f).add(0.05f, 0.05f, 0.05f));
+		}
+
         return new SmokeSettings(10f, 300,  // Velocity and creation rate
                 4.0f, 7.0f,     // Life span
                 0.1f, 0.25f,    // Size range
                 1.2f,           // Spread factor
                 false,          // Burst
 				GRAVITY,  // Gravity
-                new Vector3f(0.6f, 0.6f, 0.6f), new Vector3f(0.9f, 0.9f, 0.9f),     // Color range
+                minColor, maxColor,     // Color range
                 2.0f, 1.0f, 0.6f,   // Noise scale, speed, and light sensitivity
                 config);
     }
@@ -80,4 +97,12 @@ public class SmokeSettings extends ParticleSettings {
                 2.5f, 1.5f, 0.6f,   // Noise scale, speed, and light sensitivity
                 config);
     }
+
+	private static Vector3f clampColor(Vector3f color) {
+		return new Vector3f(
+				Math.max(0.0f, Math.min(1.0f, color.x)),
+				Math.max(0.0f, Math.min(1.0f, color.y)),
+				Math.max(0.0f, Math.min(1.0f, color.z))
+		);
+	}
 }

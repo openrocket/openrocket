@@ -106,13 +106,11 @@ public class FlameEmitter extends ParticleEmitter {
         if (shouldHaveLight) {
             Vector3f position = calculateLightPosition();
             
-            // Create bright orange flame color with intensity baked in
+            // Color the dynamic light from the configured flame particle color range.
             float lightIntensity = Math.min(intensity * 8.0f, 3.0f); // Cap at 3.0 for bright but not overwhelming
-            Vector3f flameColor = new Vector3f(
-                1.0f * lightIntensity,  // Bright red component
-                0.5f * lightIntensity,  // Medium green component  
-                0.1f * lightIntensity   // Low blue component
-            );
+            Vector3f baseColor = new Vector3f(settings.maxColor).mul(0.65f)
+                    .add(new Vector3f(settings.minColor).mul(0.35f));
+            Vector3f flameColor = new Vector3f(baseColor).mul(lightIntensity);
             
             if (flameLight == null) {
                 // Create new light

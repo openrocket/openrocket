@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import org.joml.Vector3f;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +42,8 @@ public class VisualEffectsSettings {
     private boolean sparkParticlesEnabled = true;
     private boolean smokeParticlesEnabled = true;
     private boolean flameParticlesEnabled = true;
+    private Vector3f smokeColor = new Vector3f(0.9f, 0.9f, 0.9f);
+    private Vector3f flameColor = new Vector3f(1.0f, 0.4f, 0.2f);
     
     // Per-motor particle control (motor component ID -> enabled state)
     private final Map<String, Boolean> perMotorParticleEnabled = new HashMap<>();
@@ -237,6 +241,48 @@ public class VisualEffectsSettings {
      */
     public void setFlameParticlesEnabled(boolean flameParticlesEnabled) {
         this.flameParticlesEnabled = flameParticlesEnabled;
+    }
+
+    /**
+     * Gets the base smoke color used for smoke particle generation.
+     *
+     * @return RGB smoke color in 0..1 space
+     */
+    public Vector3f getSmokeColor() {
+        return new Vector3f(smokeColor);
+    }
+
+    /**
+     * Sets the base smoke color used for smoke particle generation.
+     *
+     * @param smokeColor RGB smoke color in 0..1 space
+     */
+    public void setSmokeColor(Vector3f smokeColor) {
+        if (smokeColor == null) {
+            throw new IllegalArgumentException("smokeColor must not be null");
+        }
+        this.smokeColor = new Vector3f(smokeColor);
+    }
+
+    /**
+     * Gets the base flame color used for flame particle generation.
+     *
+     * @return RGB flame color in 0..1 space
+     */
+    public Vector3f getFlameColor() {
+        return new Vector3f(flameColor);
+    }
+
+    /**
+     * Sets the base flame color used for flame particle generation.
+     *
+     * @param flameColor RGB flame color in 0..1 space
+     */
+    public void setFlameColor(Vector3f flameColor) {
+        if (flameColor == null) {
+            throw new IllegalArgumentException("flameColor must not be null");
+        }
+        this.flameColor = new Vector3f(flameColor);
     }
 
     // Per-Motor Particle Control

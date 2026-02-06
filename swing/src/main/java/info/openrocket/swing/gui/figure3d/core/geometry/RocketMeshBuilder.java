@@ -248,7 +248,7 @@ public abstract class RocketMeshBuilder {
 			// Position smoke emitter slightly behind flame for more realistic interaction
 			Vector3f smokePosition = new Vector3f(emitterPosition).sub(new Vector3f(exhaustDirection).mul(0.2f));
 			ParticleEmitter smokeEmitter = new SmokeEmitter(smokePosition, new Vector3f(exhaustDirection),
-					SmokeSettings.medium(config));
+					SmokeSettings.medium(config, settings.getSmokeColor()));
 			if (time != null) {
 				smokeEmitter.captureStaticParticles(time);
 			}
@@ -258,7 +258,7 @@ public abstract class RocketMeshBuilder {
 		// Add flame particles if enabled
 		if (settings.areFlameParticlesEnabled()) {
 			ParticleEmitter flameEmitter = new FlameEmitter(emitterPosition, new Vector3f(exhaustDirection),
-					FlameSettings.normal(config));
+					FlameSettings.normal(config, settings.getFlameColor()));
 			if (time != null) {
 				flameEmitter.captureStaticParticles(time);
 			}

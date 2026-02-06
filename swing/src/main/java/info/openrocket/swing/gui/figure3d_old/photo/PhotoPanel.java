@@ -51,6 +51,8 @@ public class PhotoPanel extends JPanel {
 	private boolean lastSmoke;
 	private boolean lastSparks;
 	private boolean lastParticlesEnabled;
+	private ORColor lastFlameColor;
+	private ORColor lastSmokeColor;
 	private boolean cameraSettingsTracked;
 	private double lastViewAz;
 	private double lastViewAlt;
@@ -141,6 +143,8 @@ public class PhotoPanel extends JPanel {
 		captureQueued.set(false);
 		settingsApplyQueued.set(false);
 		pendingApply.set(false);
+		lastFlameColor = null;
+		lastSmokeColor = null;
 		cameraSettingsTracked = false;
 		document = null;
 	}
@@ -458,16 +462,27 @@ public class PhotoPanel extends JPanel {
 		effects.setFlameParticlesEnabled(settings.isFlame());
 		effects.setSmokeParticlesEnabled(settings.isSmoke());
 		effects.setSparkParticlesEnabled(settings.isSparks());
+		ORColor flameColor = colorOrDefault(settings.getFlameColor(), new ORColor(255, 100, 50));
+		ORColor smokeColor = colorOrDefault(settings.getSmokeColor(), new ORColor(230, 230, 230));
+		effects.setFlameColor(toColorVector(flameColor));
+		effects.setSmokeColor(toColorVector(smokeColor));
+
+		boolean flameColorChanged = !sameColor(flameColor, lastFlameColor);
+		boolean smokeColorChanged = !sameColor(smokeColor, lastSmokeColor);
 
 		boolean rebuild = particlesEnabled != lastParticlesEnabled
 				|| settings.isFlame() != lastFlame
 				|| settings.isSmoke() != lastSmoke
-				|| settings.isSparks() != lastSparks;
+				|| settings.isSparks() != lastSparks
+				|| flameColorChanged
+				|| smokeColorChanged;
 
 		lastParticlesEnabled = particlesEnabled;
 		lastFlame = settings.isFlame();
 		lastSmoke = settings.isSmoke();
 		lastSparks = settings.isSparks();
+		lastFlameColor = copyColor(flameColor);
+		lastSmokeColor = copyColor(smokeColor);
 
 		return rebuild;
 	}
@@ -492,5 +507,34 @@ public class PhotoPanel extends JPanel {
 
 	private static boolean approximatelyEqual(double a, double b) {
 		return Math.abs(a - b) <= CAMERA_SETTINGS_EPSILON;
+	}
+
+	private static ORColor colorOrDefault(ORColor color, ORColor fallback) {
+		return color != null ? color : fallback;
+	}
+
+	private static ORColor copyColor(ORColor color) {
+		if (color == null) {
+			return null;
+		}
+		return new ORColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+	}
+
+	private static boolean sameColor(ORColor a, ORColor b) {
+		if (a == b) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		return a.equals(b);
+	}
+
+	private static Vector3f toColorVector(ORColor color) {
+		return new Vector3f(
+				color.getRed() / 255.0f,
+				color.getGreen() / 255.0f,
+				color.getBlue() / 255.0f
+		);
 	}
 }
