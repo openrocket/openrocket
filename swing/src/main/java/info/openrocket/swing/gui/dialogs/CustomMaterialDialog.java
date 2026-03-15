@@ -22,6 +22,8 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.Unit;
+import info.openrocket.core.unit.UnitGroup;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
@@ -43,6 +45,9 @@ public class CustomMaterialDialog extends JDialog {
 	private DoubleModel density;
 	private final JSpinner densitySpinner;
 	private final UnitSelector densityUnit;
+	private DoubleModel shearModulus;
+	private final JSpinner shearModulusSpinner;
+	private final UnitSelector shearModulusUnit;
 	private JComboBox<MaterialGroup> groupBox;
 	private JCheckBox addBox;
 
@@ -112,6 +117,7 @@ public class CustomMaterialDialog extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					updateDensityModel();
+					updateShearModulusModel();
 				}
 			});
 			panel.add(typeBox, "span, growx, wrap");
@@ -128,6 +134,16 @@ public class CustomMaterialDialog extends JDialog {
 		panel.add(densityUnit, "w 30lp");
 		panel.add(new JPanel(), "growx, wrap");
 		updateDensityModel();
+
+
+		// In-Plane Shear Modulus (only for BULK materials):
+		panel.add(new JLabel(trans.get("custmatdlg.lbl.ShearModulus")));
+		shearModulusSpinner = new JSpinner();
+		panel.add(shearModulusSpinner, "w 70lp");
+		shearModulusUnit = new UnitSelector((DoubleModel) null);
+		panel.add(shearModulusUnit, "w 30lp");
+		panel.add(new JPanel(), "growx, wrap");
+		updateShearModulusModel();
 
 
 		// Material group
@@ -198,6 +214,7 @@ public class CustomMaterialDialog extends JDialog {
 		Material.Type type;
 		String name;
 		double materialDensity;
+		double materialShearModulus;
 		MaterialGroup group;
 		
 		if (typeBox != null) {
@@ -208,9 +225,10 @@ public class CustomMaterialDialog extends JDialog {
 		
 		name = nameField.getText().trim();
 		materialDensity = this.density.getValue();
+		materialShearModulus = this.shearModulus != null ? this.shearModulus.getValue() : 0.0;
 		group = (MaterialGroup) groupBox.getSelectedItem();
 		
-		return Databases.findMaterial(type, name, materialDensity, group);
+		return Databases.findMaterial(type, name, materialDensity, materialShearModulus, group);
 	}
 	
 	
@@ -230,6 +248,35 @@ public class CustomMaterialDialog extends JDialog {
 			densitySpinner.setModel(density.getSpinnerModel());
 			densitySpinner.setEditor(new SpinnerEditor(densitySpinner));
 			densityUnit.setModel(density);
+		}
+	}
+
+	private void updateShearModulusModel() {
+		// Find GPa unit index for shear modulus (default to GPa for input)
+		int gpaUnitIndex = 0;
+		try {
+			Unit gpaUnit = UnitGroup.UNITS_SHEAR_MODULUS.getUnit("GPa");
+			gpaUnitIndex = UnitGroup.UNITS_SHEAR_MODULUS.getUnitIndex(gpaUnit);
+		} catch (IllegalArgumentException e) {
+			// GPa unit not found, use default index 0 (Pa)
+		}
+		
+		if (originalMaterial != null) {
+			if (shearModulus == null) {
+				double shearModulusValue = onlyCopyTypeFromMaterial ? 0 : originalMaterial.getInPlaneShearModulus();
+				// Use the shear modulus unit group with GPa as the default for input
+				shearModulus = new DoubleModel(shearModulusValue,
+						UnitGroup.UNITS_SHEAR_MODULUS, gpaUnitIndex);
+				shearModulusSpinner.setModel(shearModulus.getSpinnerModel());
+				shearModulusSpinner.setEditor(new SpinnerEditor(shearModulusSpinner));
+				shearModulusUnit.setModel(shearModulus);
+			}
+		} else {
+			// Use the shear modulus unit group with GPa as the default for input
+			shearModulus = new DoubleModel(0, UnitGroup.UNITS_SHEAR_MODULUS, gpaUnitIndex);
+			shearModulusSpinner.setModel(shearModulus.getSpinnerModel());
+			shearModulusSpinner.setEditor(new SpinnerEditor(shearModulusSpinner));
+			shearModulusUnit.setModel(shearModulus);
 		}
 	}
 }

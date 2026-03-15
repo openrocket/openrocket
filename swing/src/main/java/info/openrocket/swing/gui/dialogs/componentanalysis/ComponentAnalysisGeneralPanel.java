@@ -701,8 +701,8 @@ public class ComponentAnalysisGeneralPanel extends JPanel implements StateChange
 		}
 
 		public static void updateColors() {
-			backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
-			foregroundColor = GUIUtil.getUITheme().getTextColor();
+			backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+			foregroundColor = UITheme.getColor(UITheme.Keys.TEXT);
 		}
 
 		@Override

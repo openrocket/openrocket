@@ -1420,4 +1420,51 @@ public class MassCalculatorTest extends BaseTestCase {
 		assertEquals(0.02, tubeFinSet.getMass(), EPSILON);
 	}
 
+	@Test
+	public void testDisabledStageMassAndCG() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getEmptyConfiguration();
+		config.setAllStages();
+
+		// Baseline: all stages active
+		RigidBody allActive = MassCalculator.calculateStructure(config);
+		double massAll = allActive.getMass();
+		double cmxAll = allActive.getCM().getX();
+
+		// Disable booster (also disable core since it is a child stage)
+		config._setStageActive(TestRockets.FALCON_9H_CORE_STAGE_NUMBER, false);
+		config._setStageActive(TestRockets.FALCON_9H_BOOSTER_STAGE_NUMBER, false);
+
+		// All hardcoded values are pulled from testFalcon9HPayloadStructureCM
+		RigidBody noBooster = MassCalculator.calculateStructure(config);
+		double expMassNoBooster = 0.11628853296935873; // payload only
+		assertEquals(expMassNoBooster, noBooster.getMass(), EPSILON,
+				"Mass with core+booster disabled should equal payload mass only");
+
+		// CG must shift toward nose when heavy rear booster is removed
+		double expCMxNoBooster = 0.2780673116227175; // payload only
+		assertEquals(expCMxNoBooster, noBooster.getCM().getX(), EPSILON,
+        "CG with core+booster disabled should match standalone payload CG");
+
+		// Disable core stage too (only payload remains)
+		config._setStageActive(TestRockets.FALCON_9H_CORE_STAGE_NUMBER, false);
+
+		RigidBody payloadOnly = MassCalculator.calculateStructure(config);
+		double expMassPayloadOnly = 0.11628853296935873;
+		assertEquals(expMassPayloadOnly, payloadOnly.getMass(), EPSILON,
+				"Mass with core+booster disabled should equal payload mass only");
+
+		double expCMxPayloadOnly = 0.2780673116227175;
+		assertEquals(expCMxPayloadOnly, payloadOnly.getCM().getX(), EPSILON,
+				"CG with core+booster disabled should match standalone payload CG");
+
+		// Re-enable all stages and verify full restoration
+		config.setAllStages();
+
+		RigidBody restored = MassCalculator.calculateStructure(config);
+		assertEquals(massAll, restored.getMass(), EPSILON,
+				"Mass should be fully restored after re-enabling all stages");
+		assertEquals(cmxAll, restored.getCM().getX(), EPSILON,
+				"CG should be fully restored after re-enabling all stages");
+	}
 }

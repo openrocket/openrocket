@@ -30,6 +30,7 @@ open module info.openrocket.swing {
 	requires com.formdev.flatlaf;
 	requires com.formdev.flatlaf.extras;
 	requires com.formdev.flatlaf.intellijthemes;
+	requires com.github.weisj.jsvg;
 	requires org.checkerframework.checker.qual;
 	requires org.apache.commons.lang3;
 	requires java.management;

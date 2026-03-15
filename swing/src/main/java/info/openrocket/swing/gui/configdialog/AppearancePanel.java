@@ -7,10 +7,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Locale;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -26,10 +34,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
-import javax.swing.colorchooser.ColorSelectionModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.SpinnerNumberModel;
 
+import info.openrocket.core.document.Attachment;
 import info.openrocket.core.util.Invalidatable;
 import info.openrocket.swing.gui.components.ColorChooserButton;
 import info.openrocket.swing.gui.util.Icons;
@@ -43,6 +50,7 @@ import info.openrocket.core.appearance.defaults.DefaultAppearance;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.file.FileSystemAttachmentFactory;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.FinSet;
@@ -54,6 +62,7 @@ import info.openrocket.core.unit.GeneralUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.LineStyle;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -63,7 +72,6 @@ import info.openrocket.swing.gui.adaptors.DecalModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.components.BasicSlider;
-import info.openrocket.swing.gui.components.ColorIcon;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
 import info.openrocket.swing.gui.components.UnitSelector;
@@ -72,6 +80,9 @@ import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.swing.gui.util.EditDecalHelper;
 import info.openrocket.swing.gui.util.EditDecalHelper.EditDecalHelperException;
 import info.openrocket.swing.gui.util.SwingPreferences;
+import info.openrocket.swing.gui.util.TextureCreationService;
+import info.openrocket.swing.gui.util.TextureCreationService.TextureGenerationException;
+import info.openrocket.swing.gui.util.TextureCreationService.TextureGenerationResult;
 
 public class AppearancePanel extends JPanel implements Invalidatable, InvalidatingWidget {
 	private static final long serialVersionUID = 2709187552673202019L;
@@ -109,6 +120,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 	private final List<Invalidatable> invalidatables = new ArrayList<>();
 	private final List<Runnable> cleanupTasks = new ArrayList<>();
 	private final List<Component> order;	// Component traversal order
+	private final Map<AppearanceBuilder, TextureTransformControls> transformControlMap = new HashMap<>();
 
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for values that are
@@ -325,9 +337,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 					} else {
 						c.setColor(((SwingPreferences) Application
 								.getPreferences()).getDefaultColor(c.getClass()));
-						c.setLineStyle(((SwingPreferences) Application
-								.getPreferences()).getDefaultLineStyle(c
-								.getClass()));
+						c.setLineStyle(UITheme.getDefaultLineStyle(c.getClass()));
 					}
 				}
 			});
@@ -611,27 +621,27 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][][pref!]"));
 		mDefault.addEnableComponent(textureDropDown, false);
 		p.add(textureDropDown, "growx, top");
+		order.add(textureDropDown);
+
+		JPanel textureButtonsPanel = new JPanel(new MigLayout("fill, ins 0, gapy 4", "[fill]"));
+		p.add(textureButtonsPanel, "top");
 
 		//// Select file button
 		JButton chooseTextureBtn = new JButton(trans.get("DecalModel.lbl.choose"));
-		chooseTextureBtn.setIcon(Icons.FILE_OPEN);
+		chooseTextureBtn.setIcon(Icons.IMAGE_OPEN);
+		chooseTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		chooseTextureBtn.addActionListener(e -> decalModel.promptForFileSelection());
 		mDefault.addEnableComponent(chooseTextureBtn, false);
-		p.add(chooseTextureBtn, "top");
+		textureButtonsPanel.add(chooseTextureBtn);
 
-		JPanel actionPanel = new JPanel(new MigLayout("fill, ins 0, gapy 4", "[fill]"));
-		p.add(actionPanel, "top");
 		panel.add(p, "spanx 3, growx, wrap");
-		order.add(textureDropDown);
 		order.add(chooseTextureBtn);
-
-		JPanel editDeletePanel = new JPanel(new MigLayout("fill, ins 0, gapy 4", "[fill]"));
 
 		//// Edit button
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
-			JButton editBtn = new JButton(
-					trans.get("AppearanceCfg.but.edit"));
-			editBtn.setIcon(Icons.EDIT_EDIT);
+			JButton editBtn = new JButton(Icons.IMAGE_EDIT);
+			editBtn.setToolTipText(trans.get("AppearanceCfg.but.edit"));
+			editBtn.setHorizontalAlignment(SwingConstants.LEFT);
 			// Enable the editBtn only when the appearance builder has an Image
 			// assigned to it.
 			editBtn.setEnabled(!materialDefault.isSelected() && builder.getImage() != null);
@@ -651,34 +661,35 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 			editBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					try {
-						DecalImage newImage = editDecalHelper.editDecal(
-								SwingUtilities
-										.getWindowAncestor(panel),
-								document, c, builder.getImage(), insideBuilder);
-						builder.setImage(newImage);
-					} catch (EditDecalHelperException ex) {
-						JOptionPane.showMessageDialog(panel,
-								ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
-					}
+					editButtonAction(panel, document, c, builder, insideBuilder);
 				}
 			});
-			editDeletePanel.add(editBtn, "growx, wrap");
+			textureButtonsPanel.add(editBtn);
 			order.add(editBtn);
 		}
 
+		//// Create texture button
+		JButton createTextureBtn = new JButton(Icons.IMAGE_NEW);
+		createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
+		createTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		createTextureBtn.addActionListener(e -> handleCreateTexture(panel, document, c, decalModel,
+				insideBuilder, builder));
+		mDefault.addEnableComponent(createTextureBtn, false);
+		textureButtonsPanel.add(createTextureBtn);
+		order.add(createTextureBtn);
+
 		//// Delete button
-		JButton deleteTextureBtn = new JButton(trans.get("DecalModel.but.delete"));
-		deleteTextureBtn.setIcon(Icons.EDIT_DELETE);
+		JButton deleteTextureBtn = new JButton(Icons.EDIT_DELETE);
+		deleteTextureBtn.setToolTipText(trans.get("DecalModel.but.delete"));
+		deleteTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		Runnable refreshDeleteButtonState = () -> deleteTextureBtn.setEnabled(decalModel.getActiveDecal() != null);
 		deleteTextureBtn.addActionListener(e -> handleDeleteTexture(panel, decalModel, refreshDeleteButtonState));
 		textureDropDown.addActionListener(e -> refreshDeleteButtonState.run());
 		refreshDeleteButtonState.run();
 		mDefault.addEnableComponent(deleteTextureBtn, false);
-		editDeletePanel.add(deleteTextureBtn, "growx");
+		textureButtonsPanel.add(deleteTextureBtn, "gapleft unrel");
 		order.add(deleteTextureBtn);
 
-		actionPanel.add(editDeletePanel, "growx");
 
 		// TODO: move the separate columns in two separate panels instead of adding them in a zig-zag way
 		// Color
@@ -697,18 +708,18 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")), "gapleft para");
 
 		panel.add(new JLabel("x:"), "split 4");
-		m = new DoubleModel(builder, "ScaleX", TEXTURE_UNIT);
-		register(m);
-		JSpinner scaleU = new JSpinner(m.getSpinnerModel());
+		DoubleModel scaleXModel = new DoubleModel(builder, "ScaleX", TEXTURE_UNIT);
+		register(scaleXModel);
+		JSpinner scaleU = new JSpinner(scaleXModel.getSpinnerModel());
 		scaleU.setEditor(new SpinnerEditor(scaleU));
 		mDefault.addEnableComponent(scaleU, false);
 		panel.add(scaleU, "w 50lp");
 		order.add(((SpinnerEditor) scaleU.getEditor()).getTextField());
 
 		panel.add(new JLabel("y:"));
-		m = new DoubleModel(builder, "ScaleY", TEXTURE_UNIT);
-		register(m);
-		JSpinner scaleV = new JSpinner(m.getSpinnerModel());
+		DoubleModel scaleYModel = new DoubleModel(builder, "ScaleY", TEXTURE_UNIT);
+		register(scaleYModel);
+		JSpinner scaleV = new JSpinner(scaleYModel.getSpinnerModel());
 		scaleV.setEditor(new SpinnerEditor(scaleV));
 		mDefault.addEnableComponent(scaleV, false);
 		panel.add(scaleV, "wrap, w 50lp");
@@ -739,18 +750,18 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")), "gapleft para");
 
 		panel.add(new JLabel("x:"), "split 4");
-		m = new DoubleModel(builder, "OffsetU", TEXTURE_UNIT);
-		register(m);
-		JSpinner offsetU = new JSpinner(m.getSpinnerModel());
+		DoubleModel offsetUModel = new DoubleModel(builder, "OffsetU", TEXTURE_UNIT);
+		register(offsetUModel);
+		JSpinner offsetU = new JSpinner(offsetUModel.getSpinnerModel());
 		offsetU.setEditor(new SpinnerEditor(offsetU));
 		mDefault.addEnableComponent(offsetU, false);
 		panel.add(offsetU, "w 50lp");
 		order.add(((SpinnerEditor) offsetU.getEditor()).getTextField());
 
 		panel.add(new JLabel("y:"));
-		m = new DoubleModel(builder, "OffsetV", TEXTURE_UNIT);
-		register(m);
-		JSpinner offsetV = new JSpinner(m.getSpinnerModel());
+		DoubleModel offsetVModel = new DoubleModel(builder, "OffsetV", TEXTURE_UNIT);
+		register(offsetVModel);
+		JSpinner offsetV = new JSpinner(offsetVModel.getSpinnerModel());
 		offsetV.setEditor(new SpinnerEditor(offsetV));
 		mDefault.addEnableComponent(offsetV, false);
 		panel.add(offsetV, "wrap, w 50lp");
@@ -790,6 +801,9 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				-Math.PI, Math.PI));
 		mDefault.addEnableComponent(bs, false);
 		panel.add(bs, "w 100lp, wrap");
+
+		transformControlMap.put(builder, new TextureTransformControls(
+				scaleXModel, scaleYModel, offsetUModel, offsetVModel, rotationModel));
 
 		// Repeat
 		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2, gapleft para");
@@ -835,6 +849,98 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 				decalModel.refresh();
 			}
 		});
+	}
+
+	/**
+	 * Handle the edit texture action
+	 * @param parent the parent component
+	 * @param document the current document
+	 * @param c the rocket component
+	 * @param builder the appearance builder
+	 * @param insideBuilder flag to check whether you are on the inside builder (true) or outside builder
+	 */
+	private void editButtonAction(Component parent, OpenRocketDocument document, RocketComponent c, AppearanceBuilder builder, boolean insideBuilder) {
+		try {
+			DecalImage newImage = editDecalHelper.editDecal(
+					SwingUtilities
+							.getWindowAncestor(parent),
+					document, c, builder.getImage(), insideBuilder);
+			builder.setImage(newImage);
+		} catch (EditDecalHelperException ex) {
+			JOptionPane.showMessageDialog(parent,
+					ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void handleCreateTexture(Component parent, OpenRocketDocument document, RocketComponent component,
+									 DecalModel decalModel, boolean insideBuilder, AppearanceBuilder builder) {
+		TextureCreationDialog.TextureCreationParameters parameters = promptForTextureParameters(parent, component);
+		if (parameters == null) {
+			return;
+		}
+
+		// Set up the texture generator
+		TextureCreationService textureCreationService = new TextureCreationService();
+		boolean mirrorFinOutline = insideBuilder && (component instanceof FinSet);
+		TextureGenerationResult generationResult;
+		try {
+			generationResult = textureCreationService.generateTextureImage(
+					component, insideBuilder, parameters.dpi(), parameters.drawFinOutline(),
+					parameters.outlineWidthPx(), mirrorFinOutline, parameters.outlineColor());
+		} catch (TextureGenerationException ex) {
+			showCreateTextureError(parent,
+					trans.get("AppearanceCfg.createTexture.msg.generateFailed", ex.getMessage()));
+			return;
+		}
+
+		// Generate the texture
+		File tempFile;
+		try {
+			Path tempDir = Files.createTempDirectory("OR_texture_");
+			tempDir.toFile().deleteOnExit();
+			tempFile = tempDir.resolve(parameters.fileName() + ".png").toFile();
+			textureCreationService.writeTexture(tempFile, generationResult);
+			tempFile.deleteOnExit();
+		} catch (IOException ioex) {
+			showCreateTextureError(parent,
+					trans.get("AppearanceCfg.createTexture.msg.writeFailed", ioex.getMessage()));
+			return;
+		}
+
+		// Create an attachment for the texture
+		Attachment a = (new FileSystemAttachmentFactory().getAttachment(tempFile));
+		decalModel.setSelectedItem(document.getDecalImage(a));
+
+		if (parameters.resetTransforms()) {
+			resetTextureTransforms(builder);
+		}
+
+		// Edit the texture
+		editButtonAction(parent, document, component, builder, insideBuilder);
+	}
+
+	private TextureCreationDialog.TextureCreationParameters promptForTextureParameters(Component parent, RocketComponent component) {
+		return new TextureCreationDialog(parent, component).showDialog();
+	}
+
+	public static void showCreateTextureError(Component parent, String message) {
+		JOptionPane.showMessageDialog(parent,
+				message,
+				trans.get("AppearanceCfg.createTexture.dialog.title"),
+				JOptionPane.ERROR_MESSAGE);
+	}
+
+	private void resetTextureTransforms(AppearanceBuilder builder) {
+		TextureTransformControls controls = transformControlMap.get(builder);
+		if (controls != null) {
+			controls.reset();
+			return;
+		}
+		builder.setScaleU(1);
+		builder.setScaleV(1);
+		builder.setOffsetU(0);
+		builder.setOffsetV(0);
+		builder.setRotation(0);
 	}
 
 	private void handleDeleteTexture(Component parent, DecalModel decalModel, Runnable onUpdateState) {
@@ -883,5 +989,31 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		cleanupTasks.clear();
 
 		figureColorButton.removePropertyChangeListener(figureColorButtonListener);
+	}
+
+	private static class TextureTransformControls {
+		private final DoubleModel scaleXModel;
+		private final DoubleModel scaleYModel;
+		private final DoubleModel offsetUModel;
+		private final DoubleModel offsetVModel;
+		private final DoubleModel rotationModel;
+
+		private TextureTransformControls(DoubleModel scaleXModel, DoubleModel scaleYModel,
+										 DoubleModel offsetUModel, DoubleModel offsetVModel,
+										 DoubleModel rotationModel) {
+			this.scaleXModel = scaleXModel;
+			this.scaleYModel = scaleYModel;
+			this.offsetUModel = offsetUModel;
+			this.offsetVModel = offsetVModel;
+			this.rotationModel = rotationModel;
+		}
+
+		private void reset() {
+			scaleXModel.setValue(1);
+			scaleYModel.setValue(1);
+			offsetUModel.setValue(0);
+			offsetVModel.setValue(0);
+			rotationModel.setValue(0);
+		}
 	}
 }

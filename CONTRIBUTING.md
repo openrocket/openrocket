@@ -69,7 +69,7 @@ You can take a look at example PR [#979](https://github.com/openrocket/openrocke
 ## Translation
 Both the OpenRocket software and the end-user documentation site are multilingual. The job of a translator is to maintain the existing languages, or to make a new translation of an unlisted language. During the development sometimes new translation keys get added in the English language that are not simultaneously translated to other languages. The translator must therefore check which translation keys are still missing in his/her/their language.
 
-How you can make/edit a translation can be found on [this site](http://openrocket.trans.free.fr/index.php?lang=en) or the [GitHub wiki](https://github.com/openrocket/openrocket/wiki/Instructions-for-translators).
+How you can make/edit a translation can be found in the [Developer's Guide](https://openrocket.readthedocs.io/en/latest/dev_guide/contributing_to_translations.html).
 
 ## Documentation
 Our documentation is hosted on [ReadTheDocs](https://openrocket.readthedocs.io/en/latest/index.html).

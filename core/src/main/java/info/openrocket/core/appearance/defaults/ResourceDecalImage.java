@@ -44,7 +44,12 @@ public class ResourceDecalImage implements DecalImage {
 	
 	@Override
 	public InputStream getBytes() throws IOException {
-		return this.getClass().getResourceAsStream(resource);
+		// Use the context classloader to access resources from any module (e.g., swing)
+		// rather than this.getClass() which only looks in the core module.
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		// ClassLoader.getResourceAsStream() expects paths without leading slash
+		String path = resource.startsWith("/") ? resource.substring(1) : resource;
+		return classLoader.getResourceAsStream(path);
 	}
 	
 	@Override

@@ -34,10 +34,10 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 	public TrapezoidFinSetConfig(OpenRocketDocument d, final RocketComponent component, JDialog parent) {
 		super(d, component, parent);
 
-		JPanel mainPanel = new JPanel(new MigLayout());
+		JPanel mainPanel = new JPanel(new MigLayout("fillx, ins n n 0 n"));
 
 		// Left side
-		JPanel panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
+		JPanel panel = new JPanel(new MigLayout("fillx, gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 
 		////  Number of fins:
 		JLabel label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Nbroffins"));
@@ -182,10 +182,10 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(new BasicSlider(thicknessModel.getSliderModel(0, 0.01)), "w 100lp, wrap para");
 		}
 
-		mainPanel.add(panel, "aligny 0, gapright 40lp");
+		mainPanel.add(panel, "grow, aligny 0, gapright 40lp");
 
 		// Right side panel
-		panel = new JPanel(new MigLayout("gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
+        panel = new JPanel(new MigLayout("fillx, gap rel unrel, ins 0", "[][65lp::][30lp::]", ""));
 
 		{//// -------- Placement -------
 			// Position relative to:
@@ -222,7 +222,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 			panel.add(filletMaterialPanel(), "span, grow, wrap");
 		}
 
-		mainPanel.add(panel, "aligny 0");
+		mainPanel.add(panel, "grow, aligny 0");
 
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("TrapezoidFinSetCfg.tab.General"), null, mainPanel,

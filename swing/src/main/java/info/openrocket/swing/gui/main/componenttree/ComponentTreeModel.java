@@ -2,9 +2,11 @@ package info.openrocket.swing.gui.main.componenttree;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.swing.JTree;
@@ -100,6 +102,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	private void fireTreeStructureChanged(RocketComponent source) {
 		Object[] path = { root };
 		
+		List<List<UUID>> selectedPathIds = getSelectedPathIds();
 
 		// Get currently expanded path IDs
 		Enumeration<TreePath> enumer = tree.getExpandedDescendants(new TreePath(path));
@@ -116,10 +119,12 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		Object[] l = listeners.toArray();
 		for (Object o : l) ((TreeModelListener) o).treeStructureChanged(e);
 		
+		restoreSelection(selectedPathIds);
+
 		// Re-expand the paths
 		for (UUID id : expanded) {
 			RocketComponent c = root.findComponent(id);
-			if (c == null)
+			if (c == RocketComponent.REMOVED)
 				continue;
 			tree.expandPath(makeTreePath(c));
 		}
@@ -128,6 +133,93 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 			tree.makeVisible(p);
 			tree.expandPath(p);
 		}
+	}
+
+	private List<List<UUID>> getSelectedPathIds() {
+		TreePath[] selectedPaths = tree.getSelectionPaths();
+		if (selectedPaths == null || selectedPaths.length == 0) {
+			return List.of();
+		}
+
+		List<List<UUID>> selectedPathIds = new ArrayList<>(selectedPaths.length);
+		for (TreePath path : selectedPaths) {
+			Object[] components = path.getPath();
+			List<UUID> ids = new ArrayList<>(components.length);
+			for (Object obj : components) {
+				if (obj instanceof RocketComponent) {
+					ids.add(((RocketComponent) obj).getID());
+				}
+			}
+			if (!ids.isEmpty()) {
+				selectedPathIds.add(ids);
+			}
+		}
+		return selectedPathIds;
+	}
+
+	private void restoreSelection(List<List<UUID>> selectedPathIds) {
+		if (selectedPathIds.isEmpty()) {
+			return;
+		}
+
+		// Restore selection; if a component was removed (e.g. undo add), select the nearest
+		// existing ancestor instead.
+		List<RocketComponent> desiredSelection = new ArrayList<>(selectedPathIds.size());
+		for (List<UUID> ids : selectedPathIds) {
+			RocketComponent component = findNearestExistingComponent(ids);
+			if (component != null) {
+				desiredSelection.add(component);
+			}
+		}
+
+		if (desiredSelection.isEmpty() || isCurrentSelection(desiredSelection)) {
+			return;
+		}
+
+		List<TreePath> restored = new ArrayList<>(desiredSelection.size());
+		for (RocketComponent component : desiredSelection) {
+			restored.add(makeTreePath(component));
+		}
+
+		tree.setSelectionPaths(restored.toArray(new TreePath[0]));
+	}
+
+	private boolean isCurrentSelection(List<RocketComponent> desiredSelection) {
+		TreePath[] current = tree.getSelectionPaths();
+		if (current == null || current.length == 0) {
+			return false;
+		}
+
+		// Compare by ID (not instance) because undo can replace component instances.
+		Set<UUID> desiredIds = new HashSet<>(desiredSelection.size());
+		for (RocketComponent c : desiredSelection) {
+			desiredIds.add(c.getID());
+		}
+
+		Set<UUID> currentIds = new HashSet<>(current.length);
+		for (TreePath path : current) {
+			Object last = path.getLastPathComponent();
+			if (!(last instanceof RocketComponent)) {
+				continue;
+			}
+			UUID id = ((RocketComponent) last).getID();
+			RocketComponent live = root.findComponent(id);
+			if (live != RocketComponent.REMOVED) {
+				currentIds.add(live.getID());
+			}
+		}
+
+		return currentIds.equals(desiredIds);
+	}
+
+	private RocketComponent findNearestExistingComponent(List<UUID> pathIds) {
+		for (int i = pathIds.size() - 1; i >= 0; i--) {
+			RocketComponent c = root.findComponent(pathIds.get(i));
+			if (c != RocketComponent.REMOVED) {
+				return c;
+			}
+		}
+		return null;
 	}
 	
 	@Override

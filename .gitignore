@@ -78,7 +78,7 @@ lib-test/OpenRocket Library Test.iml
 # IntelliJ
 **/out/
 **/build/
-**/.gradle
+**/.gradle**
 
 # IntelliJ run configurations (keep some default configs though)
 !/.idea/runConfigurations/SwingStartup.xml

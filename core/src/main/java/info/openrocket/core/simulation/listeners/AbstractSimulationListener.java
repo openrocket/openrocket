@@ -41,6 +41,16 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 
 	@Override
+	public void startSimulationBranch(SimulationStatus status) throws SimulationException {
+		// No-op
+	}
+
+	@Override
+	public void endSimulationBranch(SimulationStatus status, SimulationException exception) {
+		// No-op
+	}
+
+	@Override
 	public boolean preStep(SimulationStatus status) throws SimulationException {
 		return true;
 	}

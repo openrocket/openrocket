@@ -175,19 +175,136 @@ guide's purpose.
 
    The Simulation options in the simulation configuration window
 
+Aerodynamic lookup tables
+--------------------------
+
+OpenRocket normally uses the Extended Barrowman method to calculate aerodynamic forces (drag and stability) based on
+your rocket's geometry. However, you can override these calculations by providing custom aerodynamic data from wind
+tunnel tests, CFD simulations, or other sources using CSV lookup tables.
+
+To configure lookup tables, edit a simulation and navigate to the :guilabel:`Simulation options`.
+Then, under the :guilabel:`Aerodynamic data` section, click the :guilabel:`Configure...`.
+
+Drag lookup tables
+~~~~~~~~~~~~~~~~~~~
+
+Drag lookup tables allow you to specify custom drag coefficients (Cd) as a function of Mach number and optionally angle
+of attack (AoA). The CSV file must include:
+
+- A **Mach** column (required) - Mach number values
+- An **AoA** column (optional) - Angle of attack in degrees
+- A **Cd** column (required) - Drag coefficient values
+
+Example drag lookup table:
+
+.. code-block:: text
+
+   Mach,AoA,Cd
+   0.0,0,0.25
+   0.0,5,0.30
+   0.0,10,0.35
+   0.5,0,0.30
+   0.5,5,0.36
+   0.5,10,0.42
+   1.0,0,0.35
+   1.0,5,0.40
+   1.0,10,0.45
+
+If you don't include an AoA column, the table will only interpolate based on Mach number:
+
+.. code-block:: text
+
+   Mach,Cd
+   0.0,0.25
+   0.5,0.30
+   1.0,0.35
+
+Stability lookup tables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Stability lookup tables allow you to specify custom stability coefficients as a function of Mach number and optionally
+angle of attack. The CSV file must include:
+
+- A **Mach** column (required) - Mach number values
+- An **AoA** column (optional) - Angle of attack in degrees
+- A **Cn** column (required) - Normal force coefficient
+- A **Cm** column (required) - Pitching moment coefficient
+- A **Cp** column (required) - Center of pressure position (in meters from the nose)
+
+Example stability lookup table:
+
+.. code-block:: text
+
+   Mach,AoA,Cn,Cm,Cp
+   0.0,0,0.10,0.01,0.50
+   0.0,5,0.15,0.02,0.52
+   0.0,10,0.20,0.03,0.55
+   0.5,0,0.12,0.015,0.51
+   0.5,5,0.18,0.025,0.53
+   0.5,10,0.25,0.035,0.56
+   1.0,0,0.15,0.02,0.52
+   1.0,5,0.22,0.03,0.54
+   1.0,10,0.30,0.04,0.58
+
+CSV file format
+~~~~~~~~~~~~~~~
+
+- **Header row**: The first non-empty, non-comment line must contain column names
+- **Column names**: Case-insensitive, spaces and underscores are ignored. "Angle of Attack" or "AoA" both work
+- **Comments**: Lines starting with ``#`` are preserved in the file but ignored during parsing
+- **Blank lines**: Empty lines are preserved in the file but ignored during parsing
+- **Separator**: Comma (``,``) is the default separator, but you can configure semicolon, tab, or space separators
+- **Interpolation**: Values are linearly interpolated between table points in both Mach and AoA dimensions
+- **Clamping**: Values outside the table range are clamped to the nearest edge value
+
+Editing lookup table data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once you've loaded a CSV file, you can edit the data directly in the configuration dialog. The text area shows the loaded data, which you can modify as needed. Your edits are automatically saved to the `.ork` file when you click :guilabel:`OK`.
+
+**Important features:**
+
+- **Data embedding**: The CSV data is embedded directly in the `.ork` file, so your rocket design is self-contained and portable
+- **Edit preservation**: Any edits you make are preserved when you close and reopen the dialog or simulation window
+- **Comment preservation**: Comment lines (starting with ``#``) are preserved in your edits
+- **Refresh button**: Use the refresh button (↻) next to :guilabel:`Load from file...` to reload the original CSV file if it still exists on disk
+- **Field separator**: You can change the CSV field separator (comma, semicolon, tab, or space) - the example format updates automatically
+
+When lookup tables are used:
+
+- Individual component forces are set to zero (only total forces are calculated from the table)
+- The axial drag conversion uses the same polynomial as the Barrowman method
+- Stall margin is calculated from the maximum AoA in the stability table (if AoA data is present)
+- Damping moments are set to zero
+
+When to use lookup tables
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Lookup tables are useful when:
+
+- You have wind tunnel test data for your specific rocket design
+- You have CFD simulation results that you want to use in OpenRocket
+- You want to validate OpenRocket's Barrowman calculations against experimental data
+- Your rocket has complex aerodynamic behavior not well-captured by the Barrowman method
+- You need angle-of-attack dependent coefficients beyond what Barrowman provides
+
+Note that when lookup tables are configured, they completely replace the Barrowman calculations for drag and/or stability.
+You cannot mix lookup table data with Barrowman calculations.
+
 ----
 
 Exporting Data
 ==============
 
-Located on the :guilabel:`Plot / export panel`, the :guilabel:`Export Data tab` (shown below) helps you set up a Comma-Separated Value (.csv)
-formatted file to export data from your simulations. You can export any or all of over 50 values (generally speaking,
-the list of parameters above, plus **Coriolis acceleration**). Optional **Comments** sections list any flight events
-(**Apogee**, for example) you selected for your simulation, as well as description and field descriptions.
+Located on the :guilabel:`Plot / export panel`, the :guilabel:`Export Data tab` (shown below) helps you set up a
+Comma-Separated Value (.csv) formatted file to export data from your simulations. You can export any or all of over
+50 values (generally speaking, the list of parameters above, plus **Coriolis acceleration**). Optional **Comments**
+sections list any flight events (**Apogee**, for example) you selected for your simulation, as well as description and
+field descriptions.
 
 You can choose separators other than comma, if you prefer semicolon, space, or TAB-delimited data. Once you have your
-data choices set up, clicking the :guilabel:`Export` button brings up a file dialog to choose a filename and location for your
-exported data.
+data choices set up, clicking the :guilabel:`Export` button brings up a file dialog to choose a filename and location
+for your exported data.
 
 .. figure:: /img/user_guide/advanced_flight_simulation/ExportData.png
    :width: 800 px

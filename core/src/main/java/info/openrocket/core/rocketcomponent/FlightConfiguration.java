@@ -706,14 +706,22 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	}
 
 	/**
-	 * Return true if rocket has a RecoveryDevice
+	 * Return true if rocket has a RecoveryDevice in an
+	 * active stage
 	 */
 	public boolean hasRecoveryDevice() {
 		if (fcid.hasError()) {
 			return false;
 		}
 
-		return this.getRocket().hasRecoveryDevice();
+		for (AxialStage stage : getRocket().getStageList()) {
+			if (this.isStageActive(stage.getStageNumber()) &&
+				stage.hasRecoveryDevice()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/////////////// Helper methods ///////////////

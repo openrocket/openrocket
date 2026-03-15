@@ -196,11 +196,26 @@ public abstract class BaseComponentDTO {
 
 		// Don't have one, first check OR's database
 		Material m = Databases.findMaterial(dto.getORMaterialType(), dto.material);
+		double materialDensity = 0.0;
 		if (m != null) {
-			return m;
+			materialDensity = m.getDensity();
+			// If the material was found and has a group in ELASTICS/KEVLARS/NYLONS,
+			// and the original group was ThreadsLines, use the found material's group
+			if (dto.materialGroup != null && "ThreadsLines".equals(dto.materialGroup)) {
+				MaterialGroup foundGroup = m.getGroup();
+				if (foundGroup == MaterialGroup.ELASTICS || foundGroup == MaterialGroup.KEVLARS || foundGroup == MaterialGroup.NYLONS) {
+					return m;
+				}
+			} else if (dto.materialGroup == null || !"ThreadsLines".equals(dto.materialGroup)) {
+				// If not ThreadsLines, return the found material
+				return m;
+			}
 		}
 
-		return Databases.findMaterial(dto.getORMaterialType(), dto.material, 0.0, MaterialGroup.loadFromDatabaseString(dto.materialGroup));
+		// Use backward compatibility helper for the group
+		MaterialGroup group = MaterialGroup.loadFromDatabaseStringWithBackwardCompatibility(
+				dto.materialGroup, dto.getORMaterialType(), dto.material, materialDensity);
+		return Databases.findMaterial(dto.getORMaterialType(), dto.material, 0.0, group);
 
 	}
 

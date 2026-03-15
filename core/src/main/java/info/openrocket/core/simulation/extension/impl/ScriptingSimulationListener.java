@@ -78,6 +78,19 @@ public class ScriptingSimulationListener
 	}
 
 	@Override
+	public void startSimulationBranch(SimulationStatus status) throws SimulationException {
+		invoke(Void.class, null, "startSimulationBranch", status);
+	}
+
+	@Override
+	public void endSimulationBranch(SimulationStatus status, SimulationException exception) {
+		try {
+			invoke(Void.class, null, "endSimulationBranch", status, exception);
+		} catch (SimulationException e) {
+		}
+	}
+
+	@Override
 	public boolean preStep(SimulationStatus status) throws SimulationException {
 		return invoke(Boolean.class, true, "preStep", status);
 	}

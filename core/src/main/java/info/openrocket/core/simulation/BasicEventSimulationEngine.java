@@ -127,7 +127,20 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				flightData.addBranch(dataBranch);
 
 				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
-				simulateLoop(simulationConditions);
+				
+				SimulationException branchException = null;
+				try {
+					SimulationListenerHelper.fireStartSimulationBranch(currentStatus);
+					simulateLoop(simulationConditions);
+				} catch (SimulationException e) {
+					branchException = e;
+					// Exception will propagate after finally block executes
+				} finally {
+					SimulationListenerHelper.fireEndSimulationBranch(currentStatus, branchException);
+					if (branchException != null) {
+						throw branchException;
+					}
+				}
 				
 				dataBranch.immute();
 				log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
@@ -716,14 +729,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	// stages in a simulation branch when the branch starts executing, and
 	// whenever a stage separation occurs
 	private void checkGeometry(SimulationStatus currentStatus) throws SimulationException {
+
+		FlightConfiguration configuration = currentStatus.getConfiguration();
 		
 		// Active stages have total length of 0.
-		if (currentStatus.getConfiguration().getLengthAerodynamic() < MathUtil.EPSILON) {
+		if (configuration.getLengthAerodynamic() < MathUtil.EPSILON) {
 			currentStatus.abortSimulation(SimulationAbort.Cause.ACTIVE_LENGTH_ZERO);
 		}
 
 		// test -- force an exception if we aren't the sustainer
-		// if (currentStatus.getConfiguration().isStageActive(0)) {
+		// if (configuration.isStageActive(0)) {
 		//    throw new SimulationCalculationException("test", currentStatus.getFlightDataBranch());
 		// }
 
@@ -731,15 +746,18 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		// we'll just transition to tumbling (if it's a booster and under thrust code elsewhere
 		// will abort).
 		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
-			.getCP(currentStatus.getConfiguration(),
-				   new FlightConditions(currentStatus.getConfiguration()),
+			.getCP(configuration,
+				   new FlightConditions(configuration),
 				   new WarningSet()).getWeight() < MathUtil.EPSILON) {
-			if (currentStatus.getConfiguration().isStageActive(0)) {
+			if (configuration.isStageActive(0)) {
 				currentStatus.abortSimulation(SimulationAbort.Cause.NO_CP);
 			} else {
 				currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
 			}
 		}
+
+		// see what the aero calculators have to say
+		currentStatus.getSimulationConditions().getAerodynamicCalculator().checkGeometry(configuration, configuration.getRocket(), currentStatus.getWarnings());
 	}
 	
 	private void checkNaN() throws SimulationException {
@@ -768,6 +786,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private FlightData computeCoastTime() throws SimulationException {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
+			// Clear user listeners - nested simulation should only use system listeners
+			// to avoid triggering user listeners twice (once for main sim, once for nested)
+			conds.getSimulationListenerList().removeIf(listener -> !listener.isSystemListener());
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			BasicEventSimulationEngine coastEngine = new BasicEventSimulationEngine();
 		

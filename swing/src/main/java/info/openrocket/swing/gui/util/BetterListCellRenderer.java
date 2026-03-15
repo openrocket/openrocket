@@ -76,9 +76,9 @@ public class BetterListCellRenderer extends DefaultListCellRenderer {
     }
 
     public static void updateColors() {
-        rowBackgroundDarkerColor = GUIUtil.getUITheme().getRowBackgroundDarkerColor();
-        rowBackgroundLighterColor = GUIUtil.getUITheme().getRowBackgroundLighterColor();
-        textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
-        textColor = GUIUtil.getUITheme().getTextColor();
+        rowBackgroundDarkerColor = UITheme.getColor(UITheme.Keys.ROW_DARKER);
+        rowBackgroundLighterColor = UITheme.getColor(UITheme.Keys.ROW_LIGHTER);
+        textSelectionForegroundColor = UITheme.getColor(UITheme.Keys.TEXT_SELECTION_FOREGROUND);
+        textColor = UITheme.getColor(UITheme.Keys.TEXT);
     }
 }

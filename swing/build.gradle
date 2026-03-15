@@ -84,6 +84,7 @@ dependencies {
     implementation 'com.formdev:flatlaf:3.6.2'
     implementation 'com.formdev:flatlaf-extras:3.6.2'
     implementation 'com.formdev:flatlaf-intellij-themes:3.6.2'
+    implementation 'com.github.weisj:jsvg:2.0.0'
 
     implementation 'ch.qos.logback:logback-core:1.5.20'
     implementation 'ch.qos.logback:logback-classic:1.5.20'

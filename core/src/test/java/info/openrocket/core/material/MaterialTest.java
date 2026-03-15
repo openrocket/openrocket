@@ -75,7 +75,7 @@ public class MaterialTest extends BaseTestCase {
 
 		// Test storable string
 		String storable = m.toStorableString();
-		assertEquals("BULK|Test Material|1.0|Woods", storable);
+		assertEquals("BULK|Test Material|1.0|0.0|Woods", storable);
 	}
 
 	@Test

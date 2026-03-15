@@ -33,6 +33,29 @@ public interface SimulationListener {
 	public void endSimulation(SimulationStatus status, SimulationException exception);
 
 	/**
+	 * Called when starting a simulation branch. This is called for each branch
+	 * that is simulated, including the initial sustainer branch and any booster
+	 * branches created during stage separation.
+	 * 
+	 * @param status the simulation status.
+	 */
+	public void startSimulationBranch(SimulationStatus status) throws SimulationException;
+
+	/**
+	 * Called when ending a simulation branch. This is called when a branch
+	 * completes normally or when a SimulationException is thrown during branch
+	 * execution.
+	 * <p>
+	 * This method cannot throw a SimulationException, since the branch is
+	 * already being ended.
+	 * 
+	 * @param status    the simulation status.
+	 * @param exception the exception that caused ending the branch, or
+	 *                  <code>null</code> if ending normally.
+	 */
+	public void endSimulationBranch(SimulationStatus status, SimulationException exception);
+
+	/**
 	 * Called before a simulation step is taken. This method may also prevent the
 	 * normal
 	 * stepping method from being called.

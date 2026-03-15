@@ -12,6 +12,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
 import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.util.Icons;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.AxialStage;
@@ -75,7 +76,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 				button.setIcon(null);
 			} else {
 				if (!button.isSelected()) {
-					button.setIcon(GUIUtil.getUITheme().getDisabledIcon());
+					button.setIcon(Icons.COMPONENT_DISABLED);
 				} else {
 					button.setIcon(null);
 				}

@@ -3,7 +3,6 @@ package info.openrocket.core.file.openrocket.importt;
 import java.util.HashMap;
 import java.util.Locale;
 
-import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.database.Databases;
@@ -50,6 +49,18 @@ class MaterialSetter implements Setter {
 			return;
 		}
 
+		// Parse shear modulus (optional; only use when explicitly provided)
+		Double shearModulus = null;
+		str = attributes.remove("shearModulus");
+		if (str != null) {
+			try {
+				shearModulus = Double.parseDouble(str);
+			} catch (NumberFormatException e) {
+				warnings.add(Warning.fromString("Illegal shear modulus value, using 0.0."));
+				shearModulus = 0.0;
+			}
+		}
+
 		// Parse thickness
 		// double thickness = 0;
 		// str = attributes.remove("thickness");
@@ -74,13 +85,17 @@ class MaterialSetter implements Setter {
 		MaterialGroup group = null;
 		if (str != null) {
 			try {
-				group = MaterialGroup.loadFromDatabaseString(str);
+				group = MaterialGroup.loadFromDatabaseStringWithBackwardCompatibility(str, type, name, density);
 			} catch (IllegalArgumentException e) {
 				warnings.add(Warning.fromString("Illegal material group specified, ignoring."));
 			}
 		}
 
-		mat = Databases.findMaterial(type, name, density, group);
+		if (shearModulus == null) {
+			mat = Databases.findMaterial(type, name, density, group);
+		} else {
+			mat = Databases.findMaterial(type, name, density, shearModulus, group);
+		}
 
 		setMethod.invoke(c, mat);
 	}

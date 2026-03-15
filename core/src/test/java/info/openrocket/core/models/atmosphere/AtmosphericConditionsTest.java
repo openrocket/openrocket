@@ -50,4 +50,47 @@ public class AtmosphericConditionsTest {
 		conditions.setTemperature(tempK);
 		assertEquals(expectedSpeed, conditions.getMachSpeed(), 1.0);
 	}
+
+	@Test
+	@DisplayName("Gas constant should equal dry-air R when RH is zero")
+	void testGasConstantDryAir() {
+		AtmosphericConditions conditions = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		assertEquals(AtmosphericConditions.R, conditions.getGasConstant(), 0.0);
+	}
+
+	@Test
+	@DisplayName("Gas constant should increase with relative humidity")
+	void testGasConstantIncreasesWithHumidity() {
+		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions mid = new AtmosphericConditions(288.15, 101325.0, 0.5);
+		AtmosphericConditions wet = new AtmosphericConditions(288.15, 101325.0, 1.0);
+
+		assertTrue(mid.getGasConstant() > dry.getGasConstant());
+		assertTrue(wet.getGasConstant() > mid.getGasConstant());
+	}
+
+	@Test
+	@DisplayName("Density should decrease with relative humidity at fixed pressure and temperature")
+	void testDensityDecreasesWithHumidity() {
+		AtmosphericConditions dry = new AtmosphericConditions(288.15, 101325.0, 0.0);
+		AtmosphericConditions wet = new AtmosphericConditions(288.15, 101325.0, 1.0);
+		assertTrue(wet.getDensity() < dry.getDensity());
+	}
+
+	@Test
+	@DisplayName("Saturation vapor pressure should increase with temperature")
+	void testVaporPressureSaturationMonotonicWithTemperature() {
+		AtmosphericConditions cold = new AtmosphericConditions(260.0, 101325.0, 0.5);
+		AtmosphericConditions warm = new AtmosphericConditions(300.0, 101325.0, 0.5);
+
+		assertTrue(cold.vaporPressureSaturation() > 0);
+		assertTrue(warm.vaporPressureSaturation() > cold.vaporPressureSaturation());
+	}
+
+	@Test
+	@DisplayName("Relative humidity should be restricted to [0,1]")
+	void testRelativeHumidityBounds() {
+		assertThrows(IllegalArgumentException.class, () -> new AtmosphericConditions(288.15, 101325.0, -0.01));
+		assertThrows(IllegalArgumentException.class, () -> new AtmosphericConditions(288.15, 101325.0, 1.01));
+	}
 }

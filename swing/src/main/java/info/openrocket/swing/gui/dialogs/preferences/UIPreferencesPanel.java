@@ -145,7 +145,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 
 		// Restart warning label
 		this.lblRestartOR = new JLabel();
-		this.lblRestartOR.setForeground(GUIUtil.getUITheme().getDarkErrorColor());
+		this.lblRestartOR.setForeground(UITheme.getColor(UITheme.Keys.DARK_ERROR));
 		this.add(lblRestartOR, "spanx, wrap, growx");
 
 
@@ -162,15 +162,8 @@ public class UIPreferencesPanel extends PreferencesPanel {
 				Named<UITheme.Theme> selection = (Named<UITheme.Theme>) themesCombo.getSelectedItem();
 				if (selection == null) return;
 				UITheme.Theme t = selection.get();
-				if (t == currentTheme) {
-					lblRestartOR.setText("");
-					return;
-				}
 				preferences.setUITheme(t);
-				// TODO: re-enable once you have figured out how to update custom UITheme Colors (from UITheme.java)
-				//  t.applyTheme();
-				//  previewPanel.updateTheme(t);
-				updateRestartLabel(lblRestartOR);
+				t.applyTheme();
 			}
 		});
 
@@ -190,6 +183,7 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		});
 
 		updatePreview();
+		updateRestartLabel(lblRestartOR);
 	}
 
 	private void updateRestartLabel(JLabel label) {
@@ -199,10 +193,10 @@ public class UIPreferencesPanel extends PreferencesPanel {
 		needsRestart |= preferences.getUIScale() != currentUIScale;
 		needsRestart |= preferences.getUIFontSize() != currentFontSize;
 		needsRestart |= !preferences.getUIFontStyle().equals(currentFontStyle);
-		needsRestart |= !GUIUtil.getUITheme().equals(currentTheme);
 
 		if (needsRestart) {
 			label.setText(trans.get("generalprefs.lbl.themeRestartOR"));
+			label.setForeground(UITheme.getColor(UITheme.Keys.DARK_ERROR));
 		} else {
 			label.setText("");
 		}

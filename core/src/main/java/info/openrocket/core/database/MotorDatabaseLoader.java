@@ -7,13 +7,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import info.openrocket.core.l10n.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.openrocket.core.database.motor.ThrustCurveMotorSQLiteDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.file.iterator.DirectoryIterator;
 import info.openrocket.core.file.iterator.FileIterator;
@@ -55,7 +60,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	
 	@Override
 	protected void loadDatabase() {
-		loadSerializedMotorDatabase();
+		loadInternalMotorDatabase();
 		loadUserDefinedMotors();
 	}
 
@@ -66,7 +71,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	private void loadUserDefinedMotors() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		SimpleFileFilter fileFilter = new SimpleFileFilter("", loader.getSupportedExtensions());
+		SimpleFileFilter fileFilter = new SimpleFileFilter("", buildUserMotorExtensions(loader));
 		log.info("Starting reading user-defined motors");
 		for (File file : (Application.getPreferences()).getUserThrustCurveFiles()) {
 			if (file.isFile()) {
@@ -86,12 +91,24 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 
 
 	/**
-	 * Loads the default, with established serialized manufacturing and data
-	 * uses directory "datafiles/thrustcurves" for data  
+	 * Loads the default database from SQLite, with a legacy fallback to serialized data.
+	 * Uses directory "datafiles/thrustcurves" for data.
 	 */
-	private void loadSerializedMotorDatabase() {
-		log.info("Starting reading serialized motor database");
-		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY, new SimpleFileFilter("", false, "ser"));
+	private void loadInternalMotorDatabase() {
+		log.info("Starting reading internal motor database");
+		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
+				new SimpleFileFilter("", false, "db"));
+		if (iterator != null) {
+			while (iterator.hasNext()) {
+				Pair<File, InputStream> f = iterator.next();
+				loadSqlite(f);
+			}
+			log.info("Ending reading SQLite motor database, motorCount=" + motorCount);
+			return;
+		}
+
+		log.warn("No SQLite motor database found in " + THRUSTCURVE_DIRECTORY + ", falling back to serialized motors");
+		iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY, new SimpleFileFilter("", false, "ser"));
 		if (iterator == null) {
 			log.error("Unable to read serialized motor database from " + THRUSTCURVE_DIRECTORY);
 			return;
@@ -105,7 +122,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	
 	
 	/**
-	 * loads a serailized motor data from an stream
+	 * loads a serailized motor data from a stream
 	 * 
 	 * @param f	the pair of a File (for logging) and the input stream
 	 */
@@ -118,6 +135,56 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		} catch (Exception ex) {
 			throw new BugException(ex);
 		}
+	}
+
+	private void loadSqlite(Pair<File, InputStream> f) {
+		SqliteFile sqliteFile = null;
+		try {
+			sqliteFile = materializeSqliteFile(f);
+			log.debug("Reading motors from SQLite database " + sqliteFile.file.getPath());
+			List<ThrustCurveMotor> motors = ThrustCurveMotorSQLiteDatabase.readDatabase(sqliteFile.file);
+			addMotors(motors);
+		} catch (Exception ex) {
+			throw new BugException(ex);
+		} finally {
+			if (sqliteFile != null && sqliteFile.temporary && !sqliteFile.file.delete()) {
+				log.debug("Unable to delete temporary SQLite database " + sqliteFile.file.getAbsolutePath());
+			}
+		}
+	}
+
+	private SqliteFile materializeSqliteFile(Pair<File, InputStream> f) throws IOException {
+		File file = f.getU();
+		if (file != null && file.isFile()) {
+			try {
+				f.getV().close();
+			} catch (IOException e) {
+				log.debug("Unable to close SQLite input stream for " + file.getPath(), e);
+			}
+			return new SqliteFile(file, false);
+		}
+
+		File tempFile = File.createTempFile("openrocket-thrustcurves", ".db");
+		tempFile.deleteOnExit();
+		try (InputStream stream = f.getV()) {
+			Files.copy(stream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		return new SqliteFile(tempFile, true);
+	}
+
+	private static String[] buildUserMotorExtensions(GeneralMotorLoader loader) {
+		String[] supported = loader.getSupportedExtensions();
+		String[] extensions = Arrays.copyOf(supported, supported.length + 1);
+		extensions[supported.length] = "db";
+		return extensions;
+	}
+
+	private static boolean isSqliteFile(File file) {
+		if (file == null) {
+			return false;
+		}
+		String name = file.getName().toLowerCase(Locale.ENGLISH);
+		return name.endsWith(".db");
 	}
 	
 	/**
@@ -147,15 +214,19 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	private void loadFile(GeneralMotorLoader loader, Pair<File, InputStream> f) {
 		try {
+			if (isSqliteFile(f.getU())) {
+				loadSqlite(f);
+				return;
+			}
+
 			try {
 				List<ThrustCurveMotor.Builder> motors = loader.load(f.getV(), f.getU().getName());
 				addMotorsFromBuilders(motors);
-			}
-			catch (IllegalArgumentException | IOException e) {
+			} catch (IllegalArgumentException | IOException e) {
 				Translator trans = Application.getTranslator();
 				String fullPath = f.getU().getPath();
 				String message = "<html><body><p style='width: 400px;'><i>" + e.getMessage() +
-						"</i>.<br><br>" + MessageFormat.format( trans.get("MotorDbLoaderDlg.message1"), fullPath) +
+						"</i>.<br><br>" + MessageFormat.format(trans.get("MotorDbLoaderDlg.message1"), fullPath) +
 						"<br>" + trans.get("MotorDbLoaderDlg.message2") + "</p></body></html>";
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
@@ -172,7 +243,9 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 		} catch (Exception e) {
 			log.warn("Exception while loading file " + f.getU() + ": " + e, e);
 			try {
-				f.getV().close();
+				if (f.getV() != null) {
+					f.getV().close();
+				}
 			} catch (IOException e1) {
 			}
 		}
@@ -233,5 +306,15 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	public ThrustCurveMotorSetDatabase getDatabase() {
 		blockUntilLoaded();
 		return database;
+	}
+
+	private static class SqliteFile {
+		private final File file;
+		private final boolean temporary;
+
+		private SqliteFile(File file, boolean temporary) {
+			this.file = file;
+			this.temporary = temporary;
+		}
 	}
 }

@@ -30,7 +30,7 @@ public class CsvOptionPanel extends JPanel {
 	
 	private final String baseClassName;
 	
-	private final JComboBox<String> fieldSeparator;
+	private final FieldSeparatorComboBox fieldSeparator;
 	private final JSpinner decimalPlacesSpinner;
 	private final JCheckBox exponentialNotationCheckbox;
 	private final JCheckBox[] options;
@@ -65,9 +65,8 @@ public class CsvOptionPanel extends JPanel {
 		label.setToolTipText(tip);
 		panel.add(label, "gapright unrel");
 		
-		fieldSeparator = new JComboBox<>(new String[]{",", ";", SPACE, TAB});
-		fieldSeparator.setEditable(true);
-		fieldSeparator.setSelectedItem(Application.getPreferences().getString(ApplicationPreferences.EXPORT_FIELD_SEPARATOR, ","));
+		fieldSeparator = new FieldSeparatorComboBox();
+		fieldSeparator.loadFromExportPreferences();
 		fieldSeparator.setToolTipText(tip);
 		panel.add(fieldSeparator, "growx, wrap");
 
@@ -138,7 +137,7 @@ public class CsvOptionPanel extends JPanel {
 	
 	
 	public String getFieldSeparator() {
-		return fieldSeparator.getSelectedItem().toString();
+		return fieldSeparator.getSeparatorString();
 	}
 
 	public int getDecimalPlaces() {

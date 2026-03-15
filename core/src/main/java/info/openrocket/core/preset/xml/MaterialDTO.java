@@ -28,6 +28,8 @@ public class MaterialDTO {
 	private MaterialTypeDTO type;
 	@XmlAttribute(name = "UnitsOfMeasure")
 	private String uom;
+	@XmlElement(name = "ShearModulus")
+	private Double inPlaneShearModulus;
 	@XmlElement(name = "Group")
 	private MaterialGroupDTO group;
 
@@ -38,15 +40,22 @@ public class MaterialDTO {
 	}
 
 	public MaterialDTO(final Material theMaterial) {
-		this(theMaterial.getName(), theMaterial.getDensity(), MaterialTypeDTO.asDTO(theMaterial.getType()),
+		this(theMaterial.getName(), theMaterial.getDensity(), theMaterial.getInPlaneShearModulus(),
+				MaterialTypeDTO.asDTO(theMaterial.getType()),
 				theMaterial.getType().getUnitGroup().getDefaultUnit().toString(),
 				MaterialGroupDTO.asDTO(theMaterial.getGroup()));
 	}
 
 	public MaterialDTO(final String theName, final double theDensity, final MaterialTypeDTO theType,
 			final String theUom, final MaterialGroupDTO theGroup) {
+		this(theName, theDensity, null, theType, theUom, theGroup);
+	}
+
+	public MaterialDTO(final String theName, final double theDensity, final Double theInPlaneShearModulus,
+			final MaterialTypeDTO theType, final String theUom, final MaterialGroupDTO theGroup) {
 		name = theName;
 		density = theDensity;
+		inPlaneShearModulus = theInPlaneShearModulus;
 		type = theType;
 		uom = theUom;
 		group = theGroup;
@@ -87,6 +96,14 @@ public class MaterialDTO {
 		uom = theUom;
 	}
 
+	public Double getInPlaneShearModulus() {
+		return inPlaneShearModulus;
+	}
+
+	public void setInPlaneShearModulus(final Double theInPlaneShearModulus) {
+		inPlaneShearModulus = theInPlaneShearModulus;
+	}
+
 	public MaterialGroupDTO getGroup() {
 		return group;
 	}
@@ -99,7 +116,11 @@ public class MaterialDTO {
 		if (group == null) {
 			group = MaterialGroupDTO.OTHER;
 		}
-		return Databases.findMaterial(type.getORMaterialType(), name, density, group.getORMaterialGroup());
+		if (inPlaneShearModulus == null) {
+			return Databases.findMaterial(type.getORMaterialType(), name, density, group.getORMaterialGroup());
+		}
+		return Databases.findMaterial(type.getORMaterialType(), name, density, inPlaneShearModulus,
+				group.getORMaterialGroup());
 	}
 
 	/**

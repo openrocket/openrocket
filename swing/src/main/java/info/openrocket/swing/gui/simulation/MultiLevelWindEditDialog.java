@@ -157,7 +157,7 @@ public class MultiLevelWindEditDialog extends JDialog {
 		//// Import Levels
 		JButton importButton = new JButton(trans.get("WindProfileEditorDlg.but.importLevels"));
 		importButton.setToolTipText(trans.get("WindProfileEditorDlg.but.importLevels.ttip"));
-		importButton.setIcon(Icons.IMPORT);
+		importButton.setIcon(Icons.FILE_IMPORT);
 		importButton.addActionListener(e -> {
 			importLevels(model);
 		});

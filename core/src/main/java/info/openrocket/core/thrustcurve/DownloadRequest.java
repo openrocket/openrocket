@@ -2,13 +2,18 @@ package info.openrocket.core.thrustcurve;
 
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 class DownloadRequest {
 
-	private final ArrayList<Integer> motorIds = new ArrayList<>();
+	private static final Gson GSON = new Gson();
+	private final ArrayList<String> motorIds = new ArrayList<>();
 
 	private String format = null;
 
-	public void add(Integer motorId) {
+	public void add(String motorId) {
 		this.motorIds.add(motorId);
 	}
 
@@ -18,26 +23,16 @@ class DownloadRequest {
 
 	@Override
 	public String toString() {
-		StringBuilder w = new StringBuilder();
-
-		w.append("<?xml version=\"1.0\" encoding=\"ascii\"?>\n");
-		w.append("<download-request\n");
-		w.append(" xmlns=\"http://www.thrustcurve.org/2008/DownloadRequest\"\n");
-		w.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
-		w.append(
-				" xsi:schemaLocation=\"http://www.thrustcurve.org/2008/DownloadRequest http://www.thrustcurve.org/2008/download-request.xsd\">\n");
-
+		JsonObject json = new JsonObject();
+		JsonArray ids = new JsonArray();
+		for (String motorId : motorIds) {
+			ids.add(motorId);
+		}
+		json.add("motorIds", ids);
 		if (format != null) {
-			w.append("  <format>").append(format).append("</format>\n");
+			json.addProperty("format", format);
 		}
-
-		w.append("  <motor-ids>\n");
-		for (Integer i : motorIds) {
-			w.append("      <id>").append(i).append("</id>\n");
-		}
-		w.append("  </motor-ids>\n");
-		w.append("</download-request>\n");
-		return w.toString();
+		return GSON.toJson(json);
 	}
 
 }

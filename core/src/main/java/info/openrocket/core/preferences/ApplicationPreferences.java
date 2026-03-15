@@ -145,6 +145,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String LAUNCH_LONGITUDE = "LaunchLongitude";
 	public static final String LAUNCH_TEMPERATURE = "LaunchTemperature";
 	public static final String LAUNCH_PRESSURE = "LaunchPressure";
+	public static final String LAUNCH_RELATIVE_HUMIDITY = "LaunchRelativeHumidity";
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
 	public static final String SIMULATION_MAX_TIME = "SimulationMaxTime";
@@ -180,16 +181,27 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// SVG export options
 	public static final String SVG_STROKE_COLOR = "SVGStrokeColor";
 	public static final String SVG_STROKE_WIDTH = "SVGStrokeWidth";
-	public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
+  public static final String SVG_DRAW_CROSSHAIR = "SVGDrawCrosshair";
 	public static final String SVG_CROSSHAIR_COLOR = "SVGCrosshairColor";
 	public static final String SVG_CROSSHAIR_SIZE = "SVGCrosshairSize";
 	public static final String SVG_SHOW_LABELS = "SVGShowLabels";
 	public static final String SVG_LABEL_COLOR = "SVGLabelColor";
 	public static final String SVG_PART_SPACING = "SVGPartSpacing";
-	
+
+	// Texture generation options
+	public static final String TEXTURE_GENERATION_DPI = "TextureGenerationDPI";
+	public static final String TEXTURE_GENERATION_DRAW_OUTLINE = "TextureGenerationDrawOutline";
+	public static final String TEXTURE_GENERATION_OUTLINE_PX = "TextureGenerationOutlinePx";
+	public static final String TEXTURE_GENERATION_RESET_TRANSFORMS = "TextureGenerationResetTransforms";
+	public static final String TEXTURE_GENERATION_OUTLINE_COLOR = "TextureGenerationOutlineColor";
+
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 
 	private PinkNoiseWindModel averageWindModel = null;
+
+	// Default component colors. This is filled by SwingPreferences, but defined here so it can be used by code
+	// in the core module.
+	protected final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<>();
 
 
 	/*
@@ -428,10 +440,13 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	
 	public double getLaunchRodDirection() {
-		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
-			this.setLaunchRodDirection(this.getDouble(WIND_DIRECTION, Math.PI / 2));
+		if (this.getBoolean(LAUNCH_INTO_WIND, false)) {
+			// When launching into wind, sync the launch rod direction with wind direction
+			double windDirection = this.getDouble(WIND_DIRECTION, Math.PI / 2);
+			this.setLaunchRodDirection(windDirection);
+			return windDirection;
 		}
-		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
+		return this.getDouble(LAUNCH_ROD_DIRECTION, Math.PI / 2);
 	}
 	
 	public void setLaunchRodDirection(double launchRodDirection) {
@@ -483,6 +498,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isISAAtmosphere()) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
@@ -568,8 +584,27 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		this.putDouble(LAUNCH_PRESSURE, launchPressure);
 		fireChangeEvent();
 	}
-	
-	
+
+	/**
+	 * Returns the relative humidity at the launch site.
+	 * @return the launch site relative humidity (0 to 1)
+	 */
+	public double getLaunchRelativeHumidity() {
+		return this.getDouble(LAUNCH_RELATIVE_HUMIDITY, ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY);
+	}
+
+	/**
+	 * Sets the relative humidity at the launch site.
+	 * @param launchHumidity the launch site relative humidity (0 to 1)
+	 */
+	public void setLaunchRelativeHumidity(double launchHumidity) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_RELATIVE_HUMIDITY, ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY), launchHumidity))
+			return;
+		this.putDouble(LAUNCH_RELATIVE_HUMIDITY, launchHumidity);
+		fireChangeEvent();
+	}
+
+
 	public boolean isISAAtmosphere() {
 		return this.getBoolean(LAUNCH_USE_ISA, true);
 	}
@@ -584,6 +619,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		if (isa) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchRelativeHumidity()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
@@ -601,7 +637,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		}
 		return new ExtendedISAModel(getLaunchAltitude(),
 				this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE),
-				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE));
+				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE),
+				this.getDouble(LAUNCH_RELATIVE_HUMIDITY, ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY));
 	}
 
 	public GeodeticComputationStrategy getGeodeticComputation() {
@@ -991,7 +1028,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @param defaultValue
 	 * @return
 	 */
-	public final ORColor getColor(String key, ORColor defaultValue) {
+	public final ORColor getORColor(String key, ORColor defaultValue) {
 		ORColor c = parseColor(getString(key, null));
 		if (c == null) {
 			return defaultValue;
@@ -1042,8 +1079,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return
 	 */
 	protected static String stringifyColor(ORColor color) {
-		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
-		return string;
+		return color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 	}
 
 	/**
@@ -1360,7 +1396,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the stroke color for the SVG
 	 */
 	public Color getSVGStrokeColor() {
-		return getColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+		return getORColor(SVG_STROKE_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
 	}
 
 	/**
@@ -1391,7 +1427,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	}
 
 	/**
-	 * Returns whether SVG exports should include crosshairs (used for centering rings/bulkheads).
+  * Returns whether SVG exports should include crosshairs (used for centering rings/bulkheads).
 	 *
 	 * @return true if crosshairs should be drawn
 	 */
@@ -1414,7 +1450,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the crosshair color
 	 */
 	public Color getSVGCrosshairColor() {
-		return getColor(SVG_CROSSHAIR_COLOR, ORColor.fromAWTColor(Color.GRAY)).toAWTColor();
+		return getORColor(SVG_CROSSHAIR_COLOR, ORColor.fromAWTColor(Color.GRAY)).toAWTColor();
 	}
 
 	/**
@@ -1470,7 +1506,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 * @return the label color
 	 */
 	public Color getSVGLabelColor() {
-		return getColor(SVG_LABEL_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
+		return getORColor(SVG_LABEL_COLOR, ORColor.fromAWTColor(Color.BLACK)).toAWTColor();
 	}
 
 	/**
@@ -1498,6 +1534,74 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	 */
 	public void setSVGPartSpacing(double spacing) {
 		putDouble(SVG_PART_SPACING, spacing);
+  }
+
+  /**
+	 * Returns the texture generation DPI resolution setting.
+	 * @return the texture generation DPI
+	 */
+	public double getTextureGenerationDPI() {
+		return getDouble(TEXTURE_GENERATION_DPI, 300);
+	}
+
+	/**
+	 * Sets the texture generation DPI resolution setting.
+	 * @param dpi the texture generation DPI (dots per inch)
+	 */
+	public void setTextureGenerationDPI(double dpi) {
+		putDouble(TEXTURE_GENERATION_DPI, dpi);
+	}
+
+	/**
+	 * Returns whether to draw component outlines in texture generation.
+	 * @return true to draw outlines, false otherwise
+	 */
+	public boolean isTextureGenerationDrawOutline() {
+		return getBoolean(TEXTURE_GENERATION_DRAW_OUTLINE, true);
+	}
+
+	/**
+	 * Sets whether to draw component outlines in texture generation.
+	 * @param drawOutline true to draw outlines, false otherwise
+	 */
+	public void setTextureGenerationDrawOutline(boolean drawOutline) {
+		putBoolean(TEXTURE_GENERATION_DRAW_OUTLINE, drawOutline);
+	}
+
+	/**
+	 * Returns the preferred outline thickness for fin textures (in pixels).
+	 */
+	public int getTextureGenerationOutlinePx() {
+		return getInt(TEXTURE_GENERATION_OUTLINE_PX, 1);
+	}
+
+	/**
+	 * Sets the preferred outline thickness for fin textures (in pixels).
+	 */
+	public void setTextureGenerationOutlinePx(int outlinePx) {
+		putInt(TEXTURE_GENERATION_OUTLINE_PX, Math.max(0, outlinePx));
+	}
+
+	/**
+	 * Returns whether texture transforms should be reset when creating a new texture.
+	 */
+	public boolean isTextureGenerationResetTransforms() {
+		return getBoolean(TEXTURE_GENERATION_RESET_TRANSFORMS, true);
+	}
+
+	/**
+	 * Sets whether texture transforms should be reset when creating a new texture.
+	 */
+	public void setTextureGenerationResetTransforms(boolean reset) {
+		putBoolean(TEXTURE_GENERATION_RESET_TRANSFORMS, reset);
+	}
+
+	public Color getTextureGenerationOutlineColor() {
+		return getORColor(TEXTURE_GENERATION_OUTLINE_COLOR, new ORColor(0, 0, 0)).toAWTColor();
+	}
+
+	public void setTextureGenerationOutlineColor(Color color) {
+		putColor(TEXTURE_GENERATION_OUTLINE_COLOR, ORColor.fromAWTColor(color));
 	}
 
 	/**
@@ -1744,6 +1848,19 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 		static {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
+		}
+	}
+
+	public ORColor getDefaultColor(Class<? extends RocketComponent> c) {
+		String color = get("componentColors", c, DEFAULT_COLORS);
+		if (color == null)
+			return ORColor.fromAWTColor(Color.BLACK);
+
+		ORColor clr = parseColor(color);
+		if (clr != null) {
+			return clr;
+		} else {
+			return ORColor.fromAWTColor(Color.BLACK);
 		}
 	}
 	

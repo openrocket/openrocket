@@ -38,6 +38,10 @@ Explore the following sections to learn more about OpenRocket's development:
   |br_no_pad|
   *A detailed guide to the codebase of OpenRocket.*
 
+- :doc:`Icons </dev_guide/icons>`
+  |br_no_pad|
+  *How to add and customize icons in OpenRocket.*
+
 - :doc:`Development Guidelines </dev_guide/development_guidelines>`
   |br_no_pad|
   *Guidelines for contributing to OpenRocket.*

@@ -1,6 +1,7 @@
 package info.openrocket.core.preset.xml;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
@@ -14,14 +15,13 @@ import org.slf4j.LoggerFactory;
 import info.openrocket.core.file.Loader;
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.InvalidComponentPresetException;
-import info.openrocket.core.util.BugException;
 
 public class OpenRocketComponentLoader implements Loader<ComponentPreset> {
 
 	private static final Logger log = LoggerFactory.getLogger(OpenRocketComponentLoader.class);
 
 	@Override
-	public Collection<ComponentPreset> load(InputStream stream, String filename) {
+	public Collection<ComponentPreset> load(InputStream stream, String filename) throws IOException {
 
 		log.debug("Loading presets from file " + filename);
 
@@ -30,13 +30,17 @@ public class OpenRocketComponentLoader implements Loader<ComponentPreset> {
 		}
 
 		try {
-			List<ComponentPreset> presets;
-			presets = (new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new InputStreamReader(stream)))
-					.asComponentPresets();
+			OpenRocketComponentDTO dto = new OpenRocketComponentSaver()
+					.unmarshalFromOpenRocketComponent(new InputStreamReader(stream));
+			if (dto == null) {
+				throw new IOException("Unable to parse component preset file: " + filename + 
+						" (invalid format or corrupted file)");
+			}
+			List<ComponentPreset> presets = dto.asComponentPresets();
 			log.debug("ComponentPreset file " + filename + " contained " + presets.size() + " presets");
 			return presets;
 		} catch (JAXBException | InvalidComponentPresetException e) {
-			throw new BugException("Unable to parse file: " + filename, e);
+			throw new IOException("Unable to parse component preset file: " + filename, e);
 		}
 
 	}

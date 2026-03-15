@@ -61,7 +61,6 @@ public class SimulationConfigDialog extends JDialog {
 
 
 	private final WindowListener windowCloseCancelListener;
-	private final Simulation initialSim;		// A copy of the first selected simulation before it was modified
 	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
 	private boolean isModified = false;			// Whether the simulation has been modified
 	private final boolean isNewSimulation;		// Whether you are editing a new simulation, or an existing one
@@ -87,16 +86,21 @@ public class SimulationConfigDialog extends JDialog {
 		this.document = document;
 		this.parentWindow = parent;
 		this.simulationList = sims;
-		this.initialSim = simulationList[0].clone();
 		this.initialIsSaved = document.isSaved();
 		this.isNewSimulation = isNewSimulation;
+
+		if (simulationList.length == 1) {
+			document.addUndoPosition("Edit " + simulationList[0].getName());
+		} else {
+			document.addUndoPosition("Edit simulations");
+		}
 
 		simulationList[0].addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				isModified = true;
 				setTitle("* " + getTitle());			// Add component changed indicator to the title
-				simulationList[0].removeChangeListener(this);
+				simulationList[0].removeChangeListener(this);	// Only do this once
 			}
 		});
 
@@ -233,7 +237,7 @@ public class SimulationConfigDialog extends JDialog {
 	}
 
 	public static void updateColors() {
-		multiCompEditColor = GUIUtil.getUITheme().getMultiCompEditColor();
+		multiCompEditColor = UITheme.getColor(UITheme.Keys.MULTI_COMP_EDIT);
 	}
 
 	public void switchToSettingsTab() {
@@ -282,14 +286,14 @@ public class SimulationConfigDialog extends JDialog {
 
 			}
 		});
-		topPanel.add(field, "growx, wrap");
+		topPanel.add(field, "growx, pushx");
 
 		//// Flight selector
 		//// Flight configuration:
 		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
 		//// Select the motor configuration to use.
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
-		topPanel.add(label, "growx 0, gapright para");
+		topPanel.add(label, "gapleft para, growx 0, gapright para");
 
 		final Rocket rkt = document.getRocket();
 		final FlightConfiguration config = rkt.getFlightConfiguration(simulationList[0].getFlightConfigurationId());
@@ -307,7 +311,7 @@ public class SimulationConfigDialog extends JDialog {
 				simulationList[0].setFlightConfigurationId( id );
 			}
 		});
-		topPanel.add(configComboBox, "span");
+		topPanel.add(configComboBox, "growx, pushx, wrap");
 
 		//// Display current simulation status
 		JLabel statusLabel = new JLabel(trans.get("simpanel.col.Status") + ":");
@@ -316,15 +320,13 @@ public class SimulationConfigDialog extends JDialog {
 		StringBuilder statusBuilder = new StringBuilder("<html>");
 
 		String statusText = simulationList[0].getStatusDescription();
-		Color statusColor = GUIUtil.getUITheme().getStatusColor(simulationList[0].getStatus());
+		Color statusColor = UITheme.getStatusColor(simulationList[0].getStatus());
 
 		JLabel simStatus = new JLabel("<html>" +
 				ColorConversion.formatHTMLColor(statusColor, statusText) +
 				"</html>"
 		);
-		topPanel.add(simStatus);
-
-		topPanel.add(new JPanel(), "growx, wrap");
+		topPanel.add(simStatus, "span 3, wrap");
 
 		contentPanel.add(topPanel, "growx, height pref, wrap");
 	}
@@ -515,21 +517,12 @@ public class SimulationConfigDialog extends JDialog {
 	}
 
 	private void discardChanges() {
-		if (isNewSimulation) {
-			document.removeSimulation(simulationList[0]);
-		} else {
-			undoSimulationChanges();
-		}
-		document.setSaved(this.initialIsSaved);			// Restore the saved state of the document
-		document.fireDocumentChangeEvent(new DocumentChangeEvent(this));
+			if (document.isUndoAvailable()) {
+				document.undo();
+			}
+			document.setSaved(this.initialIsSaved);			// Restore the saved state of the document
+			document.fireDocumentChangeEvent(new DocumentChangeEvent(this));
 
-		closeDialog();
-	}
-
-	private void undoSimulationChanges() {
-		if (simulationList == null || simulationList.length == 0) {
-			return;
+			closeDialog();
 		}
-		simulationList[0].loadFrom(initialSim);
 	}
-}

@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import info.openrocket.core.file.openrocket.savers.PhotoStudioSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -384,6 +385,7 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			writeElement("basetemperature", cond.getLaunchTemperature());
 			writeElement("basepressure", cond.getLaunchPressure());
+			writeElement("baserelativehumidity", cond.getLaunchRelativeHumidity());
 			indent--;
 			writeln("</atmosphere>");
 		}
@@ -401,6 +403,12 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
+		if (cond.getDragLookupCsvPath() != null || cond.getDragLookupTable() != null) {
+			writeCsvLookup("draglookup", cond.getDragLookupCsvPath(), cond.getDragLookupCsvRows());
+		}
+		if (cond.getStabilityLookupCsvPath() != null || cond.getStabilityLookupTable() != null) {
+			writeCsvLookup("stabilitylookup", cond.getStabilityLookupCsvPath(), cond.getStabilityLookupCsvRows());
+		}
 		
 		indent--;
 		writeln("</conditions>");
@@ -456,10 +464,13 @@ public class OpenRocketSaver extends RocketSaver {
 				writeElement("description", w.getMessageDescription());
 				writeElement("priority", w.getPriority());
 
-				if (null != w.getSources()) {
-					for (RocketComponent c : w.getSources()) {
-						// Save component ID if it's still in the tree, else nil UUID
-						writeElement("source", null != simulation.getRocket().findComponent(c.getID()) ? c.getID() : new UUID(0, 0));
+				RocketComponent[] sources = w.getSources();
+				if (null != sources) {
+					for (RocketComponent c : sources) {
+						if (c != null) {
+							// Save component ID if it's still in the tree, else RemovedComponent UUID
+							writeElement("source", simulation.getRocket().findComponent(c.getID()).getID());
+						}
 					}
 				}
 
@@ -743,7 +754,58 @@ public class OpenRocketSaver extends RocketSaver {
 		String s = INDENT.repeat(Math.max(0, indent)) + str + "\n";
 		dest.write(s);
 	}
-	
+
+	/**
+	 * Write a CSV lookup table element with embedded row data.
+	 * Format:
+	 * <element file="path/to/file.csv">
+	 *   <row>Mach,AoA,Cd</row>
+	 *   <row>0.30,0,0.35</row>
+	 * </element>
+	 */
+	private void writeCsvLookup(String element, Path csvPath) throws IOException {
+		writeCsvLookup(element, csvPath, null);
+	}
+
+	/**
+	 * Write a CSV lookup table element with embedded row data.
+	 * If csvRows is provided, use those instead of reading from file.
+	 */
+	private void writeCsvLookup(String element, Path csvPath, List<String> csvRows) throws IOException {
+		String fileAttr = "";
+		if (csvPath != null) {
+			fileAttr = " file=\"" + TextUtil.escapeXML(csvPath.toString()) + "\"";
+		}
+
+		writeln("<" + element + fileAttr + ">");
+		indent++;
+
+		// Use stored CSV rows if available, otherwise read from file
+		if (csvRows != null && !csvRows.isEmpty()) {
+			// Write stored edited rows
+			for (String line : csvRows) {
+				if (!line.trim().isEmpty()) {
+					writeElement("row", line);
+				}
+			}
+		} else if (csvPath != null && Files.exists(csvPath)) {
+			// Fall back to reading from file
+			try {
+				List<String> lines = Files.readAllLines(csvPath);
+				for (String line : lines) {
+					if (!line.trim().isEmpty()) {
+						writeElement("row", line);
+					}
+				}
+			} catch (IOException ex) {
+				// If we can't read the file, just save the path reference
+				log.warn("Could not read CSV file for embedding: " + csvPath, ex);
+			}
+		}
+
+		indent--;
+		writeln("</" + element + ">");
+	}
 	
 	
 	

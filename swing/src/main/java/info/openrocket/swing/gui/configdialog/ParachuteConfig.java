@@ -151,15 +151,21 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Line length:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Linelength")));
 		
-		m = new DoubleModel(component, "LineLength", UnitGroup.UNITS_LENGTH, 0);
-		register(m);
+		final DoubleModel lineLengthModel = new DoubleModel(component, "LineLength", UnitGroup.UNITS_LENGTH, 0);
+		register(lineLengthModel);
 		
-		spin = new JSpinner(m.getSpinnerModel());
+		spin = new JSpinner(lineLengthModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		shroudPanel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		shroudPanel.add(new UnitSelector(m), "growx");
-		shroudPanel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 150lp, wrap");
+		shroudPanel.add(new UnitSelector(lineLengthModel), "growx");
+		shroudPanel.add(new BasicSlider(lineLengthModel.getSliderModel(0, 0.4, 1.5)), "w 150lp, wrap");
+
+		final JCheckBox checkAutoLineLength = new JCheckBox(lineLengthModel.getAutomaticAction());
+		checkAutoLineLength.setText(trans.get("ParachuteCfg.checkbox.AutomaticLineLength"));
+		checkAutoLineLength.setToolTipText(trans.get("ParachuteCfg.checkbox.AutomaticLineLength.ttip"));
+		shroudPanel.add(checkAutoLineLength, "skip, span, wrap");
+		order.add(checkAutoLineLength);
 		
 		//// Material:
 		shroudPanel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")), "spanx, wrap rel");

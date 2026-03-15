@@ -116,15 +116,26 @@ Here are some of the most important Gradle tasks for OpenRocket:
 
    *  - core
       - ``serializeEngines``
-      - Fetch the latest thrust curves from ThrustCurve.org and serialize them to the OpenRocket format. The resulting serialized file is saved in the ``src`` dir so it can be used for a build.
+      - Fetch the latest thrust curves from ThrustCurve.org and store them in the OpenRocket SQLite motor database. The resulting ``.db`` file is saved in the ``src`` dir so it can be used for a build.
 
    *  - core
       - ``serializeEnginesDist``
-      - Same as ``serializeEngines``, but loads the serialized file to the distribution directory (:file:`openrocket/build`) so it can be used in the final build.
+      - Same as ``serializeEngines``, but loads the SQLite database file to the distribution directory (:file:`openrocket/build`) so it can be used in the final build.
 
    *  - core
       - ``submoduleUpdate``
       - Updates the submodule dependencies of the *core* module.
+
+Thrust Curve Motor Database
+===========================
+
+The internal thrust curve motor database is stored as a SQLite file at
+:file:`core/src/main/resources/datafiles/thrustcurves/thrustcurves.db`.
+The ``serializeEngines`` task rebuilds this file by downloading motor data from
+ThrustCurve.org. At runtime OpenRocket prefers the ``.db`` file and will fall
+back to the legacy ``.ser`` file if no SQLite database is found. User-defined
+motor directories can also include ``.db`` files; these are validated for the
+expected schema before loading.
 
 You can run these tasks from the command line using the Gradle Wrapper scripts. For example for the task ``run``, run the
 following command in the root directory of the OpenRocket repository:

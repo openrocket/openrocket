@@ -43,36 +43,36 @@ public class IconButton extends JButton {
     public void setIcon(Icon defaultIcon) {
         super.setIcon(defaultIcon);
         // There is a bug where the normal override of the pressed icon does not work, so we have to assign it here.
-        setPressedIcon(Icons.getScaledIcon(defaultIcon, ICON_SCALE));
+        setPressedIcon(Icons.deriveScaledIcon(defaultIcon, (float) ICON_SCALE));
     }
 
     @Override
     public Icon getIcon() {
-        return Icons.getScaledIcon(super.getIcon(), IconButton.ICON_SCALE);
+        return Icons.deriveScaledIcon(super.getIcon(), (float) ICON_SCALE);
     }
 
     @Override
     public Icon getSelectedIcon() {
-        return Icons.getScaledIcon(super.getSelectedIcon(), IconButton.ICON_SCALE);
+        return Icons.deriveScaledIcon(super.getSelectedIcon(), (float) ICON_SCALE);
     }
 
     @Override
     public Icon getDisabledIcon() {
-        return Icons.getScaledIcon(super.getDisabledIcon(), IconButton.ICON_SCALE);
+        return Icons.deriveScaledIcon(super.getDisabledIcon(), (float) ICON_SCALE);
     }
 
     @Override
     public Icon getDisabledSelectedIcon() {
-        return Icons.getScaledIcon(super.getDisabledSelectedIcon(), IconButton.ICON_SCALE);
+        return Icons.deriveScaledIcon(super.getDisabledSelectedIcon(), (float) ICON_SCALE);
     }
 
     @Override
     public Icon getRolloverIcon() {
-        return Icons.getScaledIcon(super.getRolloverIcon(), IconButton.ICON_SCALE);
+        return Icons.deriveScaledIcon(super.getRolloverIcon(), (float) ICON_SCALE);
     }
 
     @Override
     public Icon getRolloverSelectedIcon() {
-        return Icons.getScaledIcon(super.getRolloverSelectedIcon(), IconButton.ICON_SCALE);
+        return Icons.deriveScaledIcon(super.getRolloverSelectedIcon(), (float) ICON_SCALE);
     }
 }

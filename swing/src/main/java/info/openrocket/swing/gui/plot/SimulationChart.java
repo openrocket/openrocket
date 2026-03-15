@@ -2,13 +2,22 @@ package info.openrocket.swing.gui.plot;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.BasicStroke;
+import java.awt.Stroke;
 import java.io.Serializable;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 
@@ -20,6 +29,12 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.Zoomable;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.entity.LegendItemEntity;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import com.jogamp.newt.event.InputEvent;
 
@@ -47,6 +62,12 @@ public class SimulationChart extends ChartPanel {
 	private Interaction interaction = null;
 	
 	private MouseWheelHandler mouseWheelHandler = null;
+
+    private String hoveredLegendLabel = null;
+
+    private final Set<String> selectedLegendLabels = new HashSet<>();
+
+    private final Map<String, Stroke> baseStrokes = new HashMap<>();
 	
 	public SimulationChart(JFreeChart chart) {
 		super(chart,
@@ -158,9 +179,123 @@ public class SimulationChart extends ChartPanel {
 		}
 		interaction = null;
 	}
-	
-	
-	/**
+
+    /**
+     * Called whenever the mouse moves.
+     *
+     * Gets an entity at the location of the mouse, if this entity is a LegendItemEntity, calls updateHighlightingSet.
+     */
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        super.mouseMoved(e);
+        String legendLabel = null;
+        ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(e.getX(), e.getY());
+
+        if (entity instanceof LegendItemEntity) {
+            legendLabel = entity.getToolTipText();
+        }
+
+        if ((legendLabel == null && hoveredLegendLabel != null)||(legendLabel != null && !legendLabel.equals(hoveredLegendLabel))) {
+            hoveredLegendLabel = legendLabel;
+            updateHighlightingSet();
+        }
+    }
+
+    /**
+     * Responsible for adding and removing labels from the selectedLegendLabels set before calling updateHighlightingSet.
+     */
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        super.mouseClicked(e);
+        if (e.getButton() != MouseEvent.BUTTON1) return;
+        ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(e.getX(), e.getY());
+
+        if (entity instanceof LegendItemEntity) {
+            String label = entity.getToolTipText();
+            if (selectedLegendLabels.contains(label)) {
+                selectedLegendLabels.remove(label);
+            }
+            else selectedLegendLabels.add(label);
+            updateHighlightingSet();
+        }
+    }
+    /**
+     * Draw a border around swatches of legend items that are currently highlighted.
+     */
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Set<String> labelsToHighlight = new HashSet<>(selectedLegendLabels);
+        EntityCollection entities = getChartRenderingInfo().getEntityCollection();
+        Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            g2.setColor(Color.black);
+            g2.setStroke(new BasicStroke(4.0f));
+            for (int i = 0; i < entities.getEntityCount(); i++) {
+                ChartEntity entity = entities.getEntity(i);
+                if (entity instanceof LegendItemEntity) {
+                    String label = entity.getToolTipText();
+                    if (label != null && labelsToHighlight.contains(label)) {
+                        Rectangle2D swatchBorder = getRectangle2D(entity);
+                        g2.draw(swatchBorder);
+                    }
+                }
+            }
+        } finally {
+            g2.dispose();
+        }
+    }
+
+    private static Rectangle2D getRectangle2D(ChartEntity entity) {
+        Rectangle2D area = entity.getArea().getBounds2D();
+        double h = area.getHeight();
+
+        double swatchSize = 0.6 * h;
+        double swatch_centerX = area.getX() + 0.5 * h; //center of the swatch
+        double swatchX = swatch_centerX - 0.75 * swatchSize; // X coordinate for the top left corner of the swatch
+        double swatchY = area.getY() + 0.5 * (h - swatchSize);// Y coordinate for the top left corner of the swatch
+
+        return new Rectangle2D.Double(
+                swatchX,
+                swatchY,
+                swatchSize,
+                swatchSize
+        );
+    }
+
+    private void updateHighlightingSet() {
+        Set<String> labelsToHighlight = new HashSet<>(selectedLegendLabels);
+        if (hoveredLegendLabel != null) {
+            labelsToHighlight.add(hoveredLegendLabel);
+        }
+        applyLegendHighlight(labelsToHighlight);
+    }
+
+    private void applyLegendHighlight(Set<String> labelsToHighlight) {
+        XYPlot plot = getChart().getXYPlot();
+        boolean hasHighlight = labelsToHighlight != null;
+
+        for (int r = 0; r < plot.getRendererCount(); r++) {
+            XYItemRenderer renderer = plot.getRenderer(r);
+            XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset(r);
+
+            for (int s = 0; s < dataset.getSeriesCount(); s++) {
+                String key = r + ":" + s;
+                int finalS = s;
+
+                //Stores the original stroke in the baseStrokes set so it can be recovered later to remove highlighting.
+                BasicStroke base = (BasicStroke) baseStrokes.computeIfAbsent(key, k -> renderer.getSeriesStroke(finalS));
+
+                BasicStroke stroke = base;
+                if (hasHighlight && labelsToHighlight.contains(dataset.getSeries(s).getDescription())) {
+                    stroke = new BasicStroke(base.getLineWidth() * 3.0f, base.getEndCap(), base.getLineJoin(), base.getMiterLimit(), base.getDashArray(), base.getDashPhase());
+                }
+
+                renderer.setSeriesStroke(s, stroke);
+            }
+        }
+    }
+    /**
 	 * 
 	 * Hacked up copy of MouseWheelHandler from JFreechart.  This version
 	 * has the special ability to only zoom on the domain if the alt key is pressed.
@@ -262,7 +397,5 @@ public class SimulationChart extends ChartPanel {
 			}
 			plot.setNotify(notifyState); // this generates the change event too
 		}
-		
 	}
-	
 }

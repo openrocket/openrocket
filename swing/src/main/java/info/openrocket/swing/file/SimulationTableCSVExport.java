@@ -49,14 +49,21 @@ public class SimulationTableCSVExport {
 		if (simulationTableModel == null) {
 			return;
 		}
-		for (int i = 0; i < simulationTableModel.getColumnCount(); i++) {
-			Column c = simulationTableModel.getColumn(i);
-			if (c instanceof ValueColumn) {
-				// Only value columns seem to have units that are not zero length strings... These are
-				// the ones we actually want in our lookup table.
-				valueColumnToUnitString.put(c.toString(), c.getUnits().getDefaultUnit().getUnit());
+		// Capture column count once to avoid issues if it changes during iteration
+		int columnCount = simulationTableModel.getColumnCount();
+		for (int i = 0; i < columnCount; i++) {
+			try {
+				Column c = simulationTableModel.getColumn(i);
+				if (c instanceof ValueColumn) {
+					// Only value columns seem to have units that are not zero length strings... These are
+					// the ones we actually want in our lookup table.
+					valueColumnToUnitString.put(c.toString(), c.getUnits().getDefaultUnit().getUnit());
+				}
+			} catch (IndexOutOfBoundsException e) {
+				// Handle case where column count changed during iteration or index is invalid
+				log.warn("Skipping column {} in populateColumnNameToUnitsHashTable due to index out of bounds (column count: {})", i, columnCount, e);
+				break;
 			}
-			
 		}
 	}
 	/**
@@ -144,16 +151,30 @@ public class SimulationTableCSVExport {
 	private List<String> buildHeaderRow() {
 		List<String> headers = new ArrayList<>();
 
-		// Add columns starting from index 1 (skipping first column)
-		for (int j = 1; j < simulationTableModel.getColumnCount(); j++) {
-			String colName = simulationTable.getColumnName(j);
+		if (simulationTableModel == null) {
+			return headers;
+		}
 
-			// Append units to column names where applicable
-			if (valueColumnToUnitString.containsKey(colName)) {
-				String unitString = valueColumnToUnitString.get(colName);
-				colName += " (" + unitString + ")";
+		// Add columns starting from index 1 (skipping first column)
+		// Use model column count and get column names from model to handle hidden columns correctly
+		// Capture column count once to avoid issues if it changes during iteration
+		int columnCount = simulationTableModel.getColumnCount();
+		for (int j = 1; j < columnCount; j++) {
+			try {
+				// Get column name from model to avoid index mismatch when columns are hidden
+				String colName = simulationTableModel.getColumnName(j);
+
+				// Append units to column names where applicable
+				if (valueColumnToUnitString.containsKey(colName)) {
+					String unitString = valueColumnToUnitString.get(colName);
+					colName += " (" + unitString + ")";
+				}
+				headers.add(colName);
+			} catch (IndexOutOfBoundsException e) {
+				// Handle case where column count changed during iteration or index is invalid
+				log.warn("Skipping column {} due to index out of bounds (column count: {})", j, columnCount, e);
+				break;
 			}
-			headers.add(colName);
 		}
 
 		return headers;
@@ -197,16 +218,24 @@ public class SimulationTableCSVExport {
 		rowData.add(warningsText);
 
 		// Process each column (starting from column 2, skipping warnings and name)
+		// Capture column count once to avoid issues if it changes during iteration
+		int columnCount = simulationTableModel.getColumnCount();
 		int nullCount = 0;
-		for (int j = 2; j < simulationTableModel.getColumnCount(); j++) {
-			Object cellValue = simulationTableModel.getValueAt(modelRowIndex, j);
+		for (int j = 2; j < columnCount; j++) {
+			try {
+				Object cellValue = simulationTableModel.getValueAt(modelRowIndex, j);
 
-			if (cellValue != null) {
-				String formattedValue = formatCellValue(cellValue, precision, isExponentialNotation);
-				rowData.add(StringUtils.escapeCSV(formattedValue));
-			} else {
-				rowData.add("");
-				nullCount++;
+				if (cellValue != null) {
+					String formattedValue = formatCellValue(cellValue, precision, isExponentialNotation);
+					rowData.add(StringUtils.escapeCSV(formattedValue));
+				} else {
+					rowData.add("");
+					nullCount++;
+				}
+			} catch (IndexOutOfBoundsException e) {
+				// Handle case where column count changed during iteration or index is invalid
+				log.warn("Skipping column {} in row {} due to index out of bounds (column count: {})", j, modelRowIndex, columnCount, e);
+				break;
 			}
 		}
 

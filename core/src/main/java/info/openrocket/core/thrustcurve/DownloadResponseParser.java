@@ -1,80 +1,106 @@
 package info.openrocket.core.thrustcurve;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 
-import info.openrocket.core.logging.WarningSet;
-import info.openrocket.core.file.simplesax.ElementHandler;
-import info.openrocket.core.file.simplesax.SimpleSAX;
+public class DownloadResponseParser {
 
-public class DownloadResponseParser implements ElementHandler {
+	public static DownloadResponse parse(InputStream in) throws IOException {
+		DownloadResponse response = new DownloadResponse();
 
-	private static final String thrustcurveURI = "http://www.thrustcurve.org/2009/DownloadResponse";
+		// 1. Read InputStream to String
+		String jsonString = readStream(in);
 
-	private static final String root_tag = "download-response";
-	private static final String results_tag = "results";
-	private static final String result_tag = "result";
-	private static final String motor_id_tag = "motor-id";
-	private static final String simfile_id_tag = "simfile-id";
-	private static final String format_tag = "format";
-	private static final String source_tag = "source";
-	private static final String license_tag = "license";
-	private static final String data_tag = "data";
-	private static final String error_tag = "error";
-
-	private final DownloadResponse response = new DownloadResponse();
-
-	private MotorBurnFile motorBurnFile;
-
-	private DownloadResponseParser() {
-	}
-
-	public static DownloadResponse parse(InputStream in) throws IOException, SAXException {
-
-		DownloadResponseParser handler = new DownloadResponseParser();
-		WarningSet warnings = new WarningSet();
-		SimpleSAX.readXML(new InputSource(in), handler, warnings);
-
-		return handler.response;
-
-	}
-
-	@Override
-	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
-			throws SAXException {
-		if (result_tag.equals(element)) {
-			motorBurnFile = new MotorBurnFile();
+		// 2. Parse JSON
+		JsonObject rootObj;
+		try {
+			JsonElement root = JsonParser.parseString(jsonString);
+			if (!root.isJsonObject()) {
+				return response;
+			}
+			rootObj = root.getAsJsonObject();
+		} catch (JsonParseException ex) {
+			throw new RuntimeException("Unable to parse JSON response: " + ex.getMessage(), ex);
 		}
-		return this;
-	}
 
-	@Override
-	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
-			throws SAXException {
-		if (result_tag.equals(element)) {
-			response.add(motorBurnFile);
-		} else if (motor_id_tag.equals(element)) {
-			motorBurnFile.setMotorId(Integer.parseInt(content));
-		} else if (simfile_id_tag.equals(element)) {
-			motorBurnFile.setSimfileId(Integer.parseInt(content));
-		} else if (format_tag.equals(element)) {
-			motorBurnFile.setFiletype(content);
-		} else if (data_tag.equals(element)) {
-			try {
-				motorBurnFile.decodeFile(content);
-			} catch (IOException e) {
-				throw new SAXException(e);
+		// 3. Extract Results
+		JsonArray results = rootObj.getAsJsonArray("results");
+		if (results != null) {
+			for (JsonElement item : results) {
+				if (item.isJsonObject()) {
+					JsonObject resultObj = item.getAsJsonObject();
+
+					MotorBurnFile mbf = new MotorBurnFile();
+					mbf.init();
+
+					// Parse String ID
+					String motorId = getString(resultObj, "motorId");
+					if (motorId != null) {
+						mbf.setMotorId(motorId);
+					}
+
+					String simfileId = getString(resultObj, "simfileId");
+					if (simfileId != null) {
+						mbf.setSimfileId(simfileId);
+					}
+
+					String fileType = getString(resultObj, "format");
+					if (fileType != null) {
+						mbf.setFiletype(fileType);
+					}
+
+					// Handle Data (Usually Base64 in V1 Download response)
+					String dataContent = getString(resultObj, "data");
+					if (dataContent != null) {
+						// MotorBurnFile.decodeFile expects Base64
+						mbf.decodeFile(dataContent);
+					}
+
+					response.add(mbf);
+				}
 			}
 		}
+
+		// 4. Handle Error (if any)
+		String error = getString(rootObj, "error");
+		if (error != null) {
+			response.setError(error);
+		}
+
+		return response;
 	}
 
-	@Override
-	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
-			throws SAXException {
+	private static String getString(JsonObject obj, String key) {
+		JsonElement val = getElement(obj, key);
+		if (val == null) return null;
+		if (val.isJsonPrimitive()) {
+			return val.getAsString();
+		}
+		return val.toString();
 	}
 
+	private static JsonElement getElement(JsonObject obj, String key) {
+		if (obj == null || key == null) return null;
+		JsonElement val = obj.get(key);
+		if (val == null || val.isJsonNull()) return null;
+		return val;
+	}
+
+	private static String readStream(InputStream in) throws IOException {
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length;
+		while ((length = in.read(buffer)) != -1) {
+			result.write(buffer, 0, length);
+		}
+		return result.toString(StandardCharsets.UTF_8);
+	}
 }

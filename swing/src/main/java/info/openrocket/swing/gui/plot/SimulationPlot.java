@@ -33,6 +33,7 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.xy.XYSeriesCollection;
+import info.openrocket.swing.gui.theme.UITheme;
 
 @SuppressWarnings("serial")
 public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, SimulationPlotConfiguration> {
@@ -435,12 +436,12 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 			if (!abortString.toString().isEmpty()) {
 				TextTitle abortsTitle = new TextTitle(abortString.toString(),
 													  new Font(Font.SANS_SERIF, Font.BOLD, 14),
-													  GUIUtil.getUITheme().getErrorColor(),
+													  UITheme.getColor(UITheme.Keys.ERROR),
 													  RectangleEdge.TOP,
 													  HorizontalAlignment.LEFT, VerticalAlignment.TOP,
 													  new RectangleInsets(5, 5, 5, 5));
 				abortsTitle.setBackgroundPaint(Color.WHITE);
-				BlockBorder abortsBorder = new BlockBorder(GUIUtil.getUITheme().getErrorColor());
+				BlockBorder abortsBorder = new BlockBorder(UITheme.getColor(UITheme.Keys.ERROR));
 				abortsTitle.setFrame(abortsBorder);
 
 				return new XYTitleAnnotation(0.01, 0.01, abortsTitle, RectangleAnchor.BOTTOM_LEFT);
