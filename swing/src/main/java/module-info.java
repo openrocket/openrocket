@@ -34,8 +34,7 @@ open module info.openrocket.swing {
 	requires org.checkerframework.checker.qual;
 	requires org.apache.commons.lang3;
 	requires java.management;
-
-	// Service providers
+    // Service providers
 	// Also edit swing/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service
 	// copying, see https://github.com/java9-modularity/gradle-modules-plugin/issues/85)
 	provides info.openrocket.swing.gui.rocketfigure.RocketComponentShapeService with

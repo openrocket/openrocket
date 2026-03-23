@@ -61,7 +61,6 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_DENSITY_LINE;
 	public static final UnitGroup UNITS_FORCE;
 	public static final UnitGroup UNITS_IMPULSE;
-
 	/** Time in the order of less than a second (time step etc). */
 	public static final UnitGroup UNITS_TIME_STEP;
 

@@ -168,7 +168,10 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.LINE_MATERIAL,
 				ComponentPreset.CD,
 				ComponentPreset.PACKED_DIAMETER,
-				ComponentPreset.PACKED_LENGTH });
+				ComponentPreset.PACKED_LENGTH,
+                ComponentPreset.MASS,
+                ComponentPreset.CD_AREA
+               });
 
 		TypedKey<?>[] displayedColumns;
 
@@ -240,9 +243,11 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	public final static TypedKey<Double> SPILL_DIA = new TypedKey<>("SpillDia", Double.class,
 			UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> SURFACE_AREA = new TypedKey<>("SurfaceArea", Double.class,
-			UnitGroup.UNITS_LENGTH);
+			UnitGroup.UNITS_AREA);
+    public final static TypedKey<Double> CD_AREA = new TypedKey<>("CdArea", Double.class,
+            UnitGroup.UNITS_AREA);
 
-	// Parachute canopy material declaration see: MATERIAL
+    // Parachute canopy material declaration see: MATERIAL
 	public final static TypedKey<Integer> SIDES = new TypedKey<>("Sides", Integer.class);
 	public final static TypedKey<Integer> LINE_COUNT = new TypedKey<>("LineCount", Integer.class);
 	public final static TypedKey<Double> LINE_LENGTH = new TypedKey<>("LineLength", Double.class,
@@ -252,7 +257,6 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> PACKED_DIAMETER = new TypedKey<>("PackedDiameter", Double.class,
 			UnitGroup.UNITS_LENGTH);
-	// Parachute Mass declaration see: MASS
 
 	public final static List<TypedKey<?>> ORDERED_KEY_LIST = Collections.unmodifiableList(Arrays.asList(
 			// DO NOT add to this list without redefining "table.column"
@@ -285,7 +289,12 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			SCREW_MASS,
 			NUT_MASS,
 			FINISH,
-			MATERIAL));
+			MATERIAL,
+            CD,
+            SURFACE_AREA,
+            PACKED_LENGTH,
+            PACKED_DIAMETER,
+            CD_AREA));
 
 	// package scope constructor to encourage use of factory.
 	ComponentPreset() {

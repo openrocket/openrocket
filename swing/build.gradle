@@ -64,7 +64,6 @@ extraJavaModuleInfo {
 
 dependencies {
     implementation(project(path: ':core', configuration: 'default'))
-
     implementation 'de.javagl:obj:0.4.0'
 
     implementation 'org.slf4j:slf4j-api:2.0.17'
@@ -89,6 +88,12 @@ dependencies {
     implementation 'ch.qos.logback:logback-core:1.5.20'
     implementation 'ch.qos.logback:logback-classic:1.5.20'
 
+    implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt-main', version:'2.5.0'
+    implementation group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.5.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     implementation 'org.jogamp.gluegen:gluegen-rt-main:2.6.0'
     implementation 'org.jogamp.jogl:jogl-all-main:2.6.0'
 
@@ -96,6 +101,9 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.26.3'
 }
 
+test {
+    useJUnitPlatform()
+}
 jacocoTestCoverageVerification {
     dependsOn jacocoTestReport
     violationRules {

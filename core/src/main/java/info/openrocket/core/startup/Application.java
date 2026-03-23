@@ -18,7 +18,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class Application {
-	
+
 	private static ExceptionHandler exceptionHandler;
 	
 	private static Injector injector;
@@ -59,9 +59,12 @@ public final class Application {
 	/**
 	 * @return the preferences
 	 */
-	public static ApplicationPreferences getPreferences() {
-		return injector.getInstance(ApplicationPreferences.class);
-	}
+    public static ApplicationPreferences getPreferences() {
+        if (testPreferences != null) {
+            return testPreferences;
+        }
+        return injector.getInstance(ApplicationPreferences.class);
+    }
 	
 	
 	/**
@@ -112,5 +115,12 @@ public final class Application {
 	public static void setInjector(Injector injector) {
 		Application.injector = injector;
 	}
+
+    // --- TEST HOOK (ne fait rien si non utilisé) ---
+    private static ApplicationPreferences testPreferences = null;
+
+    public static void setTestPreferences(ApplicationPreferences prefs) {
+        testPreferences = prefs;
+    }
 
 }

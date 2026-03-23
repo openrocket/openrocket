@@ -30,7 +30,7 @@ open module info.openrocket.core {
 	requires java.management;
 	requires java.sql;
 
-	// TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
+    // TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;
 	exports info.openrocket.core.aerodynamics.barrowman;
 	exports info.openrocket.core.appearance;
