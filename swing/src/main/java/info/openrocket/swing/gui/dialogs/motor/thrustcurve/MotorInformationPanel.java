@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.dialogs.motor.thrustcurve;
 
 import java.awt.BasicStroke;
+import java.awt.ButtonGroup;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -8,8 +9,9 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.JRadioButton;
 import java.awt.Paint;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -745,7 +747,7 @@ class MotorInformationPanel extends JPanel {
 	private class EjectionChargeDelaySelector extends JPanel {
 		ButtonGroup delayButtons;
 			
-		DelayChargeSelector() {
+		EjectionChargeDelaySelector() {
 			super(new MigLayout("inset 0, fill"));
 			setBorder(BorderFactory.createTitledBorder(
 					BorderFactory.createEtchedBorder(),
@@ -756,14 +758,17 @@ class MotorInformationPanel extends JPanel {
 		}
 
 		void setDelays(ThrustCurveMotorSet motorSet) {
-			>>> remove all current delays from panel and from buttongroup
+			// >>> remove all current delays from panel and from buttongroup
 			for (double delay : motorSet.getDelays()) {
 				if (delay != Motor.PLUGGED_DELAY) {
 					JRadioButton button = new JRadioButton((int) (delay + 0.5));
 					add(button);
 					delayButtons.add(button);
 				}
-				>>> go to next line
-				>>> add plugged
-				>>> add custom
+				// >>> go to next line
+				// >>> add plugged
+				// >>> add custom
+			}
+		}
+	}
 }
