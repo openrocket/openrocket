@@ -165,6 +165,8 @@ public class MaterialModel extends AbstractListModel<Material> implements
 
 	@Override
 	public void invalidateMe() {
+		applicationDatabase.removeChangeListener(this);
+		documentDatabase.removeChangeListener(this);
 		modelInvalidator.invalidateMe();
 	}
 

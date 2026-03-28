@@ -373,9 +373,9 @@ class SimulationOptionsPanel extends JPanel {
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
-		dimTextColor = GUIUtil.getUITheme().getDimTextColor();
-		infoTextColor = GUIUtil.getUITheme().getInformationColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		dimTextColor = UITheme.getColor(UITheme.Keys.TEXT_DIM);
+		infoTextColor = UITheme.getColor(UITheme.Keys.INFO);
 	}
 	
 	private JPopupMenu getExtensionMenu() {

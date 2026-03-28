@@ -25,18 +25,23 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Execute Gradle build
-        run: ./gradlew clean check build dist
+        run: ./gradlew check build dist
       # If wanting to serialize all the engines during build
-      #        run: ./gradlew clean serializeEnginesDist build dist
-      - name: Generate JaCoCo HTML
-        run: |
-          ./gradlew test jacocoTestReport || true
+      #        run: ./gradlew serializeEnginesDist build dist
       - name: Upload build reports
+        if: always()
         uses: actions/upload-artifact@v5
         with:
           name: build-reports
           path: build/reports/
+      - name: Upload SpotBugs reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: spotbugs-reports
+          path: '**/build/reports/spotbugs/**'
       - name: Upload Coverage HTML
+        if: always()
         uses: actions/upload-artifact@v5
         with:
           name: coverage-html

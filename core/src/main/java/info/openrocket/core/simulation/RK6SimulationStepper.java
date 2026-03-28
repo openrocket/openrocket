@@ -269,23 +269,16 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         double weightk3 = -1.0/12;
         status2 = status.clone();
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep*1/3);
+        // Chain addScaled calls so all k-values are accumulated (not overwritten)
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
                 .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
                 .toImmutable());
 
@@ -304,11 +297,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
                 .toImmutable());
 
@@ -325,27 +314,15 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep*1/2);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k4.v, store.timeStep * weightk4)
                 .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k4.a, store.timeStep * weightk4)
                 .toImmutable());
 
@@ -368,14 +345,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k4.ra, store.timeStep * weightk4)
                 .toImmutable());
 
@@ -393,27 +364,15 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep*1/2);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k4.v, store.timeStep * weightk4)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k5.v, store.timeStep * weightk5)
                 .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k4.a, store.timeStep * weightk4)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k5.a, store.timeStep * weightk5)
                 .toImmutable());
 
@@ -436,14 +395,8 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k4.ra, store.timeStep * weightk4)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k5.ra, store.timeStep * weightk5)
                 .toImmutable());
 
@@ -461,33 +414,17 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         status2.setSimulationTime(status.getSimulationTime() + store.timeStep);
         status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k1.v, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k2.v, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k3.v, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k4.v, store.timeStep * weightk4)
-                .toImmutable());
-        status2.setRocketPosition(mutableCoordA.set(status.getRocketPosition())
                 .addScaled(k6.v, store.timeStep * weightk6)
                 .toImmutable());
 
         status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k1.a, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k2.a, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k3.a, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k4.a, store.timeStep * weightk4)
-                .toImmutable());
-        status2.setRocketVelocity(mutableCoordA.set(status.getRocketVelocity())
                 .addScaled(k6.a, store.timeStep * weightk6)
                 .toImmutable());
 
@@ -514,17 +451,9 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
 
         status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k1.ra, store.timeStep * weightk1)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k2.ra, store.timeStep * weightk2)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k3.ra, store.timeStep * weightk3)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k4.ra, store.timeStep * weightk4)
-                .toImmutable());
-        status2.setRocketRotationVelocity(mutableCoordA.set(status.getRocketRotationVelocity())
                 .addScaled(k6.ra, store.timeStep * weightk6)
                 .toImmutable());
 
@@ -792,26 +721,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         // Calculate aerodynamic forces
         store.forces = status.getSimulationConditions().getAerodynamicCalculator()
                 .getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
-
-        if (null != warnings) {
-            // If this doesn't include the sustainer and either isn't stable or is about
-            // to deploy a recovery device, don't store open airframe warnings
-            boolean sustainer = status.getConfiguration().isStageActive(0);
-            boolean stable = store.rocketMass.getCM().getX() < store.forces.getCP().getX();
-            boolean recoverySoon = false;
-            for (FlightEvent e : status.getEventQueue()) {
-                if ((e.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) &&
-                        (e.getTime() < status.getSimulationTime() + 0.5)) {
-                    recoverySoon = true;
-                }
-            }
-
-            if (!sustainer && (!stable || recoverySoon)) {
-                warnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
-            }
-
-            status.addWarnings(warnings);
-        }
+		status.addWarnings(warnings);
 
         // Add very small randomization to yaw & pitch moments to prevent over-perfect flight
         // TODO: HIGH: This should rather be performed as a listener

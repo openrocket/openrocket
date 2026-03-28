@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Objects;
 
 import info.openrocket.core.simulation.FlightEvent;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.Config;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.SafetyMutex;
 import info.openrocket.core.util.StateChangeListener;
@@ -636,7 +638,56 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 
 	public Simulation clone() {
+		return clone(true);
+	}
+
+	public Simulation clone(boolean includeSimulatedDate) {
 		mutex.lock("clone");
+		try {
+			Simulation clone = (Simulation) super.clone();
+
+			clone.mutex = SafetyMutex.newInstance();
+			clone.name = this.name;
+			clone.configId = this.configId;
+			clone.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
+			clone.simulatedConfigurationModID = this.simulatedConfigurationModID;
+			clone.options = this.options.clone();
+			clone.listeners = new ArrayList<>();
+			clone.options.addChangeListener(clone.new ConditionListener());
+			if (this.simulatedConditions != null) {
+				clone.simulatedConditions = this.simulatedConditions.clone();
+			} else {
+				clone.simulatedConditions = null;
+			}
+			clone.simulationExtensions = new ArrayList<>();
+			for (SimulationExtension c : this.simulationExtensions) {
+				clone.simulationExtensions.add(c.clone());
+			}
+			clone.status = this.status;
+			if (includeSimulatedDate) {
+				clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			} else {
+				clone.simulatedData = null;
+			}
+			clone.simulationStepperClass = this.simulationStepperClass;
+			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new BugException("Clone not supported, BUG", e);
+		} finally {
+			mutex.unlock("clone");
+		}
+	}
+
+	/**
+	 * Create a duplicate of this simulation suitable for use in document undo history.
+	 * <p>
+	 * The returned simulation has deep-copied settings but the simulated flight data is
+	 * copied by reference (i.e. it is not cloned).
+	 */
+	Simulation cloneForUndo() {
+		mutex.lock("cloneForUndo");
 		try {
 			Simulation clone = (Simulation) super.clone();
 
@@ -657,7 +708,7 @@ public class Simulation implements ChangeSource, Cloneable {
 				clone.simulationExtensions.add(c.clone());
 			}
 			clone.status = this.status;
-			clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			clone.simulatedData = this.simulatedData;
 			clone.simulationStepperClass = this.simulationStepperClass;
 			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 
@@ -665,7 +716,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("Clone not supported, BUG", e);
 		} finally {
-			mutex.unlock("clone");
+			mutex.unlock("cloneForUndo");
 		}
 	}
 
@@ -683,12 +734,17 @@ public class Simulation implements ChangeSource, Cloneable {
 			this.options.copyConditionsFrom(simulation.options);
 			if (simulation.simulatedConditions == null) {
 				this.simulatedConditions = null;
+			} else if (this.simulatedConditions == null) {
+				this.simulatedConditions = simulation.simulatedConditions.clone();
 			} else {
 				this.simulatedConditions.copyConditionsFrom(simulation.simulatedConditions);
 			}
 			copyExtensionsFrom(simulation.getSimulationExtensions());
 			this.status = simulation.status;
 			this.simulatedData = simulation.simulatedData;
+			if (isStatusUpToDate(this.status) && !this.configId.hasError()) {
+				this.simulatedConfigurationModID = getActiveConfiguration().getModID();
+			}
 			this.simulationStepperClass = simulation.simulationStepperClass;
 			this.aerodynamicCalculatorClass = simulation.aerodynamicCalculatorClass;
 		} finally {
@@ -751,6 +807,81 @@ public class Simulation implements ChangeSource, Cloneable {
 				((StateChangeListener) l).stateChanged(e);
 			}
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Simulation other)) {
+			return false;
+		}
+
+		mutex.verify();
+		other.mutex.verify();
+
+		return Objects.equals(this.name, other.name) &&
+				Objects.equals(this.configId, other.configId) &&
+				Objects.equals(this.options, other.options) &&
+				Objects.equals(this.simulationEngineClass, other.simulationEngineClass) &&
+				Objects.equals(this.simulationStepperClass, other.simulationStepperClass) &&
+				Objects.equals(this.aerodynamicCalculatorClass, other.aerodynamicCalculatorClass) &&
+				simulationExtensionsEqual(this.simulationExtensions, other.simulationExtensions);
+	}
+
+	@Override
+	public int hashCode() {
+		return 0;
+	}
+
+	private static boolean simulationExtensionsEqual(List<SimulationExtension> a, List<SimulationExtension> b) {
+		if (a == b) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		if (a.size() != b.size()) {
+			return false;
+		}
+
+		for (int i = 0; i < a.size(); i++) {
+			SimulationExtension extA = a.get(i);
+			SimulationExtension extB = b.get(i);
+			if (extA == extB) {
+				continue;
+			}
+			if (extA == null || extB == null) {
+				return false;
+			}
+			if (!Objects.equals(extA.getId(), extB.getId())) {
+				return false;
+			}
+			if (!configEqual(extA.getConfig(), extB.getConfig())) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static boolean configEqual(Config a, Config b) {
+		if (a == b) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		if (!a.keySet().equals(b.keySet())) {
+			return false;
+		}
+		for (String key : a.keySet()) {
+			if (!Objects.equals(a.get(key, null), b.get(key, null))) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	

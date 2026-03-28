@@ -1,6 +1,7 @@
 package info.openrocket.swing.startup;
 
 import info.openrocket.core.database.ComponentPresetDao;
+import info.openrocket.core.database.MotorDatabaseInitializer;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.formatting.RocketDescriptor;
@@ -55,14 +56,10 @@ public class GuiModule extends AbstractModule {
 		BlockingComponentPresetDatabaseProvider componentDatabaseProvider = new BlockingComponentPresetDatabaseProvider(presetLoader);
 		bind(ComponentPresetDao.class).toProvider(componentDatabaseProvider).in(Scopes.SINGLETON);
 		
-		BlockingMotorDatabaseProvider motorDatabaseProvider = new BlockingMotorDatabaseProvider(motorLoader);
-		bind(ThrustCurveMotorSetDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
-		bind(MotorDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
-
-		if (System.getProperty("openrocket.debug") != null) {
-
+			BlockingMotorDatabaseProvider motorDatabaseProvider = new BlockingMotorDatabaseProvider(motorLoader);
+			bind(ThrustCurveMotorSetDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
+			bind(MotorDatabase.class).to(ThrustCurveMotorSetDatabase.class).in(Scopes.SINGLETON);
 		}
-	}
 	
 	/**
 	 * startLoader must be called after the Injector created with this module is registered
@@ -79,6 +76,10 @@ public class GuiModule extends AbstractModule {
 			presetLoader.markAsLoaded();
 		}
 		if (!bypassMotors) {
+			// Initialize the motor database before loading
+			MotorDatabaseInitializer.initialize();
+			// Check for a newer remote database and optionally install it before loading
+			MotorDatabaseUpdateChecker.checkForUpdatesAndInstallIfRequested();
 			motorLoader.startLoading();
 		} else {
 			motorLoader.markAsLoaded();

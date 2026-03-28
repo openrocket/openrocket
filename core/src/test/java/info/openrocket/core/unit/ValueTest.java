@@ -2,9 +2,18 @@ package info.openrocket.core.unit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
+
 public class ValueTest {
+
+	@BeforeAll
+	public static void setUp() {
+		// Set locale to ensure consistent formatting
+		Locale.setDefault(Locale.US);
+	}
 
 	@Test
 	public void testValues() {

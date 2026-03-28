@@ -24,6 +24,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.startup.MotorDatabaseUpdateChecker;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
@@ -41,6 +42,7 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.util.PreferencesExporter;
 import info.openrocket.swing.gui.util.PreferencesImporter;
+import info.openrocket.swing.gui.theme.UITheme;
 
 
 @SuppressWarnings("serial")
@@ -132,7 +134,7 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 						new SimpleFileFilter(
 								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
 								trans.get("pref.dlg.Allthrustcurvefiles"),
-								true, "eng", "rse", "zip");
+								true, "eng", "rse", "zip", "db");
 				chooser.addChoosableFileFilter(filter);
 				//// RASP motor files (*.eng)
 				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RASPfiles"),
@@ -177,8 +179,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		
 		//// Add directories, RASP motor files (*.eng), RockSim engine files (*.rse) or ZIP archives separated by a semicolon (;) to load external thrust curves.  Changes will take effect the next time you start OpenRocket.
 		DescriptionArea desc = new DescriptionArea(trans.get("pref.dlg.DescriptionArea.Adddirectories"), 3, -1.5f, false);
-		desc.setBackground(GUIUtil.getUITheme().getBackgroundColor());
-		desc.setForeground(GUIUtil.getUITheme().getTextColor());
+		desc.setBackground(UITheme.getColor(UITheme.Keys.BACKGROUND));
+		desc.setForeground(UITheme.getColor(UITheme.Keys.TEXT));
 		this.add(desc, "spanx, growx, wrap unrel");
 
 		//// User-defined component presets:
@@ -302,6 +304,29 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(betaUpdateBox, "gapleft para, wrap");
+
+		//// Check for motor database updates at startup
+		final JCheckBox motorDatabaseUpdateBox = new JCheckBox(trans.get("pref.dlg.checkbox.CheckMotorDbUpdates"));
+		motorDatabaseUpdateBox.setToolTipText(trans.get("pref.dlg.checkbox.CheckMotorDbUpdates.ttip"));
+		motorDatabaseUpdateBox.setSelected(preferences.getCheckMotorDatabaseUpdates());
+		motorDatabaseUpdateBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setCheckMotorDatabaseUpdates(motorDatabaseUpdateBox.isSelected());
+			}
+		});
+		this.add(motorDatabaseUpdateBox);
+
+		//// Check now button (motor database)
+		button = new JButton(trans.get("pref.dlg.but.checknow"));
+		button.setToolTipText(trans.get("pref.dlg.ttip.CheckMotorDbUpdatesNow"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MotorDatabaseUpdateChecker.checkForUpdatesNowAndInstallIfRequested(parentDialog);
+			}
+		});
+		this.add(button, "right, wrap");
 		
 		//// Open most recent file on startup
 		final JCheckBox openRecentOnStartupBox = new JCheckBox(trans.get("pref.dlg.but.openlast"));
@@ -346,6 +371,18 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(prefsDiscardBox,"spanx, wrap");
+
+        //// Auto-open parts library
+        final JCheckBox partsLibraryAutoOpenBox = new JCheckBox(trans.get("pref.dlg.checkbox.AutoOpenPartsLibrary"));
+        partsLibraryAutoOpenBox.setToolTipText(trans.get("pref.dlg.checkbox.AutoOpenPartsLibrary.ttip"));
+		partsLibraryAutoOpenBox.setSelected(preferences.isAutoOpenPartsLibrary());
+        partsLibraryAutoOpenBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                preferences.setAutoOpenPartsLibrary(e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        this.add(partsLibraryAutoOpenBox, "spanx, wrap");
 
 		// Preference buttons
 		JPanel buttonPanel = new JPanel(new MigLayout("fillx, ins 0"));

@@ -398,7 +398,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 			for (String s : lineLabels) {
 				String label = s;
 				String description = s;
-				String toolTipText = null;
+				String toolTipText = s;
 				String urlText = null;
 				boolean shapeIsVisible = false;
 				Shape shape = pointShapes.get(i);

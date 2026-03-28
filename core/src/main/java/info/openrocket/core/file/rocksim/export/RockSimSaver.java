@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
+import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.MemoryManagement;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
@@ -54,7 +55,7 @@ public class RockSimSaver extends RocketSaver {
 			marshaller.marshal(toRockSimDocumentDTO(doc), sw);
 			return sw.toString();
 		} catch (Exception e) {
-			log.error("Could not marshall a design to RockSim format. " + e.getMessage());
+			log.error("Could not marshal a design to RockSim format.", e);
 		}
 		
 		return null;
@@ -65,13 +66,26 @@ public class RockSimSaver extends RocketSaver {
 		log.info("Saving .rkt file");
 
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
-		writer.write(marshalToRockSim(doc));
+		String payload = marshalToRockSim(doc);
+		if (payload == null) {
+			// Surface the export failure to callers instead of failing later on a null write.
+			String message = "Could not export RockSim file.";
+			if (errors != null) {
+				errors.add(message);
+			}
+			throw new BugException(message);
+		}
+		writer.write(payload);
 		writer.flush();
 	}
 
 	@Override
 	public long estimateFileSize(OpenRocketDocument doc, StorageOptions options) {
-		return marshalToRockSim(doc).length();
+		String payload = marshalToRockSim(doc);
+		if (payload == null) {
+			return 0;
+		}
+		return payload.length();
 	}
 
 	/**

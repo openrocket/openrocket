@@ -1,5 +1,7 @@
 package info.openrocket.core.rocketcomponent;
 
+import java.util.Iterator;
+
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
@@ -137,6 +139,21 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	public boolean isLaunchStage(FlightConfiguration config) {
 		return (getRocket().getBottomCoreStage(config).equals(this));
+	}
+ 
+	/**
+	 * Return true if this stage has a recovery device
+	 */
+	public boolean hasRecoveryDevice() {
+		Iterator<RocketComponent> iterator = this.iterator();
+		while (iterator.hasNext()) {
+			RocketComponent child = iterator.next();
+			if ((child.getStage() == this) &&
+				(child instanceof RecoveryDevice)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

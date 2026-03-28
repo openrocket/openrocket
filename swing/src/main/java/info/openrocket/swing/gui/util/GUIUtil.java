@@ -551,15 +551,6 @@ public class GUIUtil {
 		for (MouseListener l : c.getMouseListeners()) {
 			c.removeMouseListener(l);
 		}
-		for (PropertyChangeListener l : c.getPropertyChangeListeners()) {
-			c.removePropertyChangeListener(l);
-		}
-		for (PropertyChangeListener l : c.getPropertyChangeListeners("model")) {
-			c.removePropertyChangeListener("model", l);
-		}
-		for (PropertyChangeListener l : c.getPropertyChangeListeners("action")) {
-			c.removePropertyChangeListener("action", l);
-		}
 		
 		// Remove models for known components
 		//  Why the FSCK must this be so hard?!?!?
@@ -658,6 +649,16 @@ public class GUIUtil {
 			
 			((Resettable) c).resetModel();
 			
+		}
+
+		for (PropertyChangeListener l : c.getPropertyChangeListeners()) {
+			c.removePropertyChangeListener(l);
+		}
+		for (PropertyChangeListener l : c.getPropertyChangeListeners("model")) {
+			c.removePropertyChangeListener("model", l);
+		}
+		for (PropertyChangeListener l : c.getPropertyChangeListeners("action")) {
+			c.removePropertyChangeListener("action", l);
 		}
 		
 		// Recurse the component

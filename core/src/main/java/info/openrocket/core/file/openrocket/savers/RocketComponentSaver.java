@@ -214,11 +214,29 @@ public class RocketComponentSaver {
 		
 		String baseName = trans.getBaseText("material", mat.getName());
 		
-		return str + " density=\"" + mat.getDensity() + "\" group=\"" + mat.getGroup().getDatabaseString() + "\">" +
+		String result = str + " density=\"" + mat.getDensity() + "\"";
+		
+		// Add shear modulus when defined or explicitly set for a user-defined material.
+		double shearModulus = mat.getInPlaneShearModulus();
+		if (shearModulus != 0.0 || mat.isUserDefined()) {
+			result += " shearModulus=\"" + shearModulus + "\"";
+		}
+		
+		result += " group=\"" + mat.getGroup().getDatabaseString() + "\">" +
 				TextUtil.escapeXML(baseName) + "</" + tag + ">";
+		return result;
 	}
 	
 	
+	/**
+	 * Serialize motor mount configuration for a component acting as a motor mount.
+	 * <p>
+	 * For {@link info.openrocket.core.motor.ThrustCurveMotor} instances this also embeds the thrust curve data so the
+	 * resulting .ork file can be shared and re-opened without requiring the receiver to have the same motor database.
+	 *
+	 * @param mount motor mount component
+	 * @return XML element lines (empty if not a motor mount)
+	 */
 	protected final List<String> motorMountParams(MotorMount mount) {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
@@ -258,6 +276,39 @@ public class RocketComponentSaver {
 				elements.add("    <manufacturer>" + TextUtil.escapeXML(m.getManufacturer().getSimpleName()) +
 						"</manufacturer>");
 				elements.add("    <digest>" + m.getDigest() + "</digest>");
+
+				// Embed thrust curve data
+				// Standard delays are a comma-separated list; "none" represents a plugged/no-ejection-charge delay.
+				double[] standardDelays = m.getStandardDelays();
+				if (standardDelays != null && standardDelays.length > 0) {
+					StringBuilder delayString = new StringBuilder();
+					for (int i = 0; i < standardDelays.length; i++) {
+						if (i > 0) {
+							delayString.append(',');
+						}
+						// Use "none" for Motor.PLUGGED_DELAY so it round-trips via <delay>none</delay>.
+						delayString.append(ThrustCurveMotor.getDelayString(standardDelays[i], "none"));
+					}
+					elements.add("    <standarddelays>" + delayString + "</standarddelays>");
+				}
+
+				// Thrust curve points are stored as "time,thrust,cg_x,mass" with units:
+				//   time: seconds, thrust: N, cg_x: m, mass: kg
+				double[] timePoints = m.getTimePoints();
+				double[] thrustPoints = m.getThrustPoints();
+				CoordinateIF[] cgPoints = m.getCGPoints();
+				int pointCount = Math.min(timePoints.length, Math.min(thrustPoints.length, cgPoints.length));
+				for (int i = 0; i < pointCount; i++) {
+					CoordinateIF cgPoint = cgPoints[i];
+					if (cgPoint == null) {
+						continue;
+					}
+					String point = TextUtil.doubleToString(timePoints[i]) + "," +
+							TextUtil.doubleToString(thrustPoints[i]) + "," +
+							TextUtil.doubleToString(cgPoint.getX()) + "," +
+							TextUtil.doubleToString(cgPoint.getWeight());
+					elements.add("    <thrustcurvepoint>" + point + "</thrustcurvepoint>");
+				}
 			}
 			elements.add("    <designation>" + TextUtil.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");

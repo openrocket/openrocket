@@ -84,6 +84,51 @@ public class ComponentIcons {
 	private static final HashMap<MassComponentType, ImageIcon> MASS_COMPONENT_SMALL_ICONS = new HashMap<>();
 	static {
 		initColors();
+		reloadIcons();
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(ComponentIcons::updateColors);
+	}
+
+	private static void updateColors() {
+		noseCone = GUIUtil.getUITheme().getComponentIconNoseCone();
+		bodyTube = GUIUtil.getUITheme().getComponentIconBodyTube();
+		transition = GUIUtil.getUITheme().getComponentIconTransition();
+		trapezoidFinSet = GUIUtil.getUITheme().getComponentIconTrapezoidFinSet();
+		ellipticalFinSet = GUIUtil.getUITheme().getComponentIconEllipticalFinSet();
+		freeformFinSet = GUIUtil.getUITheme().getComponentIconFreeformFinSet();
+		tubeFinSet = GUIUtil.getUITheme().getComponentIconTubeFinSet();
+		launchLug = GUIUtil.getUITheme().getComponentIconLaunchLug();
+		railButton = GUIUtil.getUITheme().getComponentIconRailButton();
+		innerTube = GUIUtil.getUITheme().getComponentIconInnerTube();
+		tubeCoupler = GUIUtil.getUITheme().getComponentIconTubeCoupler();
+		centeringRing = GUIUtil.getUITheme().getComponentIconCenteringRing();
+		bulkhead = GUIUtil.getUITheme().getComponentIconBulkhead();
+		engineBlock = GUIUtil.getUITheme().getComponentIconEngineBlock();
+		parachute = GUIUtil.getUITheme().getComponentIconParachute();
+		streamer = GUIUtil.getUITheme().getComponentIconStreamer();
+		shockCord = GUIUtil.getUITheme().getComponentIconShockCord();
+		mass = GUIUtil.getUITheme().getComponentIconMass();
+		stage = GUIUtil.getUITheme().getComponentIconStage();
+		boosters = GUIUtil.getUITheme().getComponentIconBoosters();
+		pods = GUIUtil.getUITheme().getComponentIconPods();
+		mass_altimeter = GUIUtil.getUITheme().getComponentIconMassAltimeter();
+		mass_battery = GUIUtil.getUITheme().getComponentIconMassBattery();
+		mass_deployment_charge = GUIUtil.getUITheme().getComponentIconMassDeploymentCharge();
+		mass_payload = GUIUtil.getUITheme().getComponentIconMassPayload();
+		mass_flight_comp = GUIUtil.getUITheme().getComponentIconMassFlightComp();
+		mass_recovery_hardware = GUIUtil.getUITheme().getComponentIconMassRecoveryHardware();
+		mass_tracker = GUIUtil.getUITheme().getComponentIconMassTracker();
+		reloadIcons();
+	}
+
+	private static void reloadIcons() {
+		SMALL_ICONS.clear();
+		LARGE_ICONS.clear();
+		DISABLED_ICONS.clear();
+		MASS_COMPONENT_SMALL_ICONS.clear();
 
 		// // Nose cone
 		load(noseCone, trans.get("ComponentIcons.Nosecone"), NoseCone.class);
@@ -143,42 +188,6 @@ public class ComponentIcons {
 		loadMassTypeIcon(mass_recovery_hardware,
 				trans.get("ComponentIcons.Recoveryhardware"), MassComponentType.RECOVERYHARDWARE);
 		loadMassTypeIcon(mass_tracker, trans.get("ComponentIcons.Tracker"), MassComponentType.TRACKER);
-	}
-
-	private static void initColors() {
-		updateColors();
-		UITheme.Theme.addUIThemeChangeListener(ComponentIcons::updateColors);
-	}
-
-	public static void updateColors() {
-		noseCone = GUIUtil.getUITheme().getComponentIconNoseCone();
-		bodyTube = GUIUtil.getUITheme().getComponentIconBodyTube();
-		transition = GUIUtil.getUITheme().getComponentIconTransition();
-		trapezoidFinSet = GUIUtil.getUITheme().getComponentIconTrapezoidFinSet();
-		ellipticalFinSet = GUIUtil.getUITheme().getComponentIconEllipticalFinSet();
-		freeformFinSet = GUIUtil.getUITheme().getComponentIconFreeformFinSet();
-		tubeFinSet = GUIUtil.getUITheme().getComponentIconTubeFinSet();
-		launchLug = GUIUtil.getUITheme().getComponentIconLaunchLug();
-		railButton = GUIUtil.getUITheme().getComponentIconRailButton();
-		innerTube = GUIUtil.getUITheme().getComponentIconInnerTube();
-		tubeCoupler = GUIUtil.getUITheme().getComponentIconTubeCoupler();
-		centeringRing = GUIUtil.getUITheme().getComponentIconCenteringRing();
-		bulkhead = GUIUtil.getUITheme().getComponentIconBulkhead();
-		engineBlock = GUIUtil.getUITheme().getComponentIconEngineBlock();
-		parachute = GUIUtil.getUITheme().getComponentIconParachute();
-		streamer = GUIUtil.getUITheme().getComponentIconStreamer();
-		shockCord = GUIUtil.getUITheme().getComponentIconShockCord();
-		mass = GUIUtil.getUITheme().getComponentIconMass();
-		stage = GUIUtil.getUITheme().getComponentIconStage();
-		boosters = GUIUtil.getUITheme().getComponentIconBoosters();
-		pods = GUIUtil.getUITheme().getComponentIconPods();
-		mass_altimeter = GUIUtil.getUITheme().getComponentIconMassAltimeter();
-		mass_battery = GUIUtil.getUITheme().getComponentIconMassBattery();
-		mass_deployment_charge = GUIUtil.getUITheme().getComponentIconMassDeploymentCharge();
-		mass_payload = GUIUtil.getUITheme().getComponentIconMassPayload();
-		mass_flight_comp = GUIUtil.getUITheme().getComponentIconMassFlightComp();
-		mass_recovery_hardware = GUIUtil.getUITheme().getComponentIconMassRecoveryHardware();
-		mass_tracker = GUIUtil.getUITheme().getComponentIconMassTracker();
 	}
 
 	private static void load(String filename, String name,

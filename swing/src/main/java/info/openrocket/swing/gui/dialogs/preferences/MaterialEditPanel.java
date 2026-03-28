@@ -34,6 +34,7 @@ import info.openrocket.core.database.Databases;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.unit.Value;
 
@@ -106,6 +107,36 @@ public class MaterialEditPanel extends JPanel {
 					@Override
 					public Class<?> getColumnClass() {
 						return Value.class;
+					}
+				},
+				//// Shear Modulus
+				new Column(trans.get("matedtpan.col.ShearModulus")) {
+					@Override
+					public Object getValueAt(int row) {
+						Material m = getMaterial(row);
+						double g = m.getInPlaneShearModulus();
+						// Only show shear modulus for bulk materials
+						if (m.getType() == Material.Type.BULK && g > 0) {
+							// Use GPa for display in the table
+							try {
+								Unit gpaUnit = UnitGroup.UNITS_SHEAR_MODULUS.getUnit("GPa");
+								return gpaUnit.toValue(g);
+							} catch (IllegalArgumentException e) {
+								// Fallback to default unit if GPa is not found
+								return UnitGroup.UNITS_SHEAR_MODULUS.toValue(g);
+							}
+						}
+						return "";
+					}
+					
+					@Override
+					public int getDefaultWidth() {
+						return 15;
+					}
+					
+					@Override
+					public Class<?> getColumnClass() {
+						return Object.class;
 					}
 				},
 				//// Group

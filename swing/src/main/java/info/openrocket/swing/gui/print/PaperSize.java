@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.print;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -123,7 +124,7 @@ public enum PaperSize {
 		try {
 			
 			String str;
-			in = new BufferedReader(new FileReader(file));
+			in = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
 			while ((str = in.readLine()) != null) {
 				if (str.matches("^\\s*(#.*|$)")) {
 					continue;

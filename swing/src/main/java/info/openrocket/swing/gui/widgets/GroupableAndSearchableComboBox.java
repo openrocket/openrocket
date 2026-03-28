@@ -131,7 +131,7 @@ public class GroupableAndSearchableComboBox<G extends Group, T extends Groupable
 	}
 
 	public static void updateColors() {
-		textSelectionBackground = GUIUtil.getUITheme().getTextSelectionBackgroundColor();
+		textSelectionBackground = UITheme.getColor(UITheme.Keys.TEXT_SELECTION_BACKGROUND);
 	}
 
 	private Map<G, List<T>> constructItemGroupMapFromList(List<T> items) {

@@ -4,6 +4,7 @@ package info.openrocket.swing.gui.scalefigure;
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.componentanalysis.CAParameters;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
@@ -32,10 +33,12 @@ import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.swing.gui.components.ConfigurationComboBox;
 import info.openrocket.swing.gui.components.StageSelector;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.configdialog.ComponentConfigDialog;
+import info.openrocket.swing.gui.dialogs.DisplaySettingsDialog;
 import info.openrocket.swing.gui.figure3d.RocketFigure3d;
 import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
@@ -44,7 +47,8 @@ import info.openrocket.swing.gui.figureelements.RocketInfo;
 import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.swing.gui.simulation.SimulationWorker;
-import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.utils.CustomClickCountListener;
 import net.miginfocom.swing.MigLayout;
@@ -56,8 +60,11 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JViewport;
@@ -71,11 +78,18 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -84,6 +98,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
@@ -98,6 +113,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import info.openrocket.swing.gui.theme.UITheme;
+
+import static info.openrocket.core.preferences.DocumentPreferences.PREF_SHOW_WARNINGS;
 
 
 /**
@@ -167,6 +185,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private boolean is3d;
 	private final RocketFigure figure;
 	private final RocketFigure3d figure3d;
+	private VIEW_TYPE currentViewType = VIEW_TYPE.getDefaultViewType();
 
 	private final ScaleScrollPane scrollPane;
 
@@ -248,6 +267,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure = new RocketFigure(rkt);
 		figure3d = new RocketFigure3d(document);
 
+		// Set document-specific background colors if available
+		updateBackgroundColors();
+
 		figureHolder = new JPanel(new BorderLayout());
 
 		scrollPane = new ScaleScrollPane(figure) {
@@ -255,6 +277,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			final CustomClickCountListener clickCountListener = new CustomClickCountListener();
 			private Point mousePressedLoc = null;
 			private double originalFigureRotation = 0;
+			private boolean dragPanning = false;
+			private boolean dragRotating = false;
 
 			@Override
 			public void mouseClicked(MouseEvent event) {
@@ -266,13 +290,43 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				if (is3d) {
 					return;
 				}
-				mousePressedLoc = e.getPoint();
-				originalFigureRotation = figure.getRotation();
+				dragPanning = shouldPanOnDrag(e);
+				dragRotating = shouldRotateOnDrag(e);
+				mousePressedLoc = dragRotating ? e.getPoint() : null;
+				originalFigureRotation = dragRotating ? figure.getRotation() : 0;
+				if (dragPanning) {
+					super.mousePressed(e);
+				}
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				handleMouseDragged(e, mousePressedLoc, originalFigureRotation);
+				if (dragPanning) {
+					super.mouseDragged(e);
+					return;
+				}
+				if (dragRotating) {
+					handleMouseDragged(e, mousePressedLoc, originalFigureRotation);
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+				dragPanning = false;
+				dragRotating = false;
+				mousePressedLoc = null;
+			}
+
+			private boolean shouldPanOnDrag(MouseEvent e) {
+				if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
+					return true;
+				}
+				return SwingUtilities.isLeftMouseButton(e) && rotationControl.isDragRotationLocked();
+			}
+
+			private boolean shouldRotateOnDrag(MouseEvent e) {
+				return SwingUtilities.isLeftMouseButton(e) && !rotationControl.isDragRotationLocked();
 			}
 		};
 		scrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
@@ -340,6 +394,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder.add(figure3d, BorderLayout.CENTER);
 		rotationControl.setEnabled(false);
 		scaleSelector.setEnabled(false);
+		
+		// Update text colors for 3D view
+		updateTextColors();
 
 		revalidate();
 		figureHolder.revalidate();
@@ -355,6 +412,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureHolder.add(scrollPane, BorderLayout.CENTER);
 		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
+		
+		// Re-apply the current L&F to the scroll pane (rulers, etc.) which missed
+		// FlatLaf.updateUI() while detached from the component hierarchy in 3D mode.
+		SwingUtilities.updateComponentTreeUI(scrollPane);
+
+		// Update background and text colors for 2D view
+		updateBackgroundColors();
+		updateTextColors();
+
 		scrollPane.revalidate();
 		scrollPane.repaint();
 		revalidate();
@@ -393,6 +459,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				}
 
 				super.setSelectedItem(o);
+				currentViewType = v;
 				if (v.is3d) {
 					figure3d.setType(v.type);
 					go3D();
@@ -413,10 +480,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JButton zoomOutButton = scaleSelector.getZoomOutButton();
 		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
 		JButton zoomInButton = scaleSelector.getZoomInButton();
+		JButton zoomFitButton = scaleSelector.getZoomFitButton();
 		ribbon.add(zoomOutButton, "gapleft para, cell 1 1");
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 2 0, spanx 2");
 		ribbon.add(scaleSelectorCombo, "cell 2 1");
-		ribbon.add(zoomInButton, "cell 3 1");
+		ribbon.add(zoomInButton, "cell 3 1, split 2");
+		ribbon.add(zoomFitButton, "cell 3 1");
 
 		// Show CG/CP
 		JCheckBox showCGCP = new JCheckBox();
@@ -483,14 +552,27 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		infoMessage = new StyledLabel(trans.get("RocketPanel.lbl.infoMessage"), -3);
 		bottomRow.add(infoMessage);
 
+		//// Configure display button
+		JButton configureDisplayButton = new JButton(Icons.CONFIGURE_DISPLAY);
+		configureDisplayButton.setToolTipText(trans.get("RocketPanel.btn.configureDisplay.ttip"));
+		configureDisplayButton.addActionListener(e -> showDisplaySettingsDialog());
+		bottomRow.add(configureDisplayButton, "pushx, right, gapright unrel");
+
+		//// Screenshot button
+		JButton screenshotButton = new JButton(Icons.SCREENSHOT);
+		screenshotButton.setToolTipText(trans.get("RocketPanel.btn.captureDesignView.ttip"));
+		screenshotButton.addActionListener(e -> showCaptureDesignViewDialog());
+		bottomRow.add(screenshotButton, "right, gapright unrel");
+
 		//// Show warnings
 		this.showWarnings = new JCheckBox(trans.get("RocketPanel.check.showWarnings"));
-		showWarnings.setSelected(true);
+		showWarnings.setSelected(document.getDocumentPreferences().getBoolean(PREF_SHOW_WARNINGS, true));
 		showWarnings.setToolTipText(trans.get("RocketPanel.check.showWarnings.ttip"));
-		bottomRow.add(showWarnings, "pushx, right");
+		bottomRow.add(showWarnings);
 		showWarnings.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				document.getDocumentPreferences().putBoolean(PREF_SHOW_WARNINGS, showWarnings.isSelected());
 				updateExtras();
 				updateFigures();
 			}
@@ -668,7 +750,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// If no component is clicked, do nothing
 		if (clicked.length == 0) {
 			selectionModel.setSelectionPath(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
@@ -704,83 +785,91 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 
 		// Check for double-click.
 		// If the shift/meta key is not pressed and the component was not already selected, ignore the double click and treat it as a single click
-		if (clickCount == 2) {
-			if (!selectedComponents.isEmpty() && (event.isShiftDown() || event.isMetaDown())) {
-				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-				RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
-				component.clearConfigListeners();
+		if (clickCount >= 2) {
+			handleDoubleComponentClick(clicked, event, selectedComponents);
+		} else if (clickCount == 1) {
+			handleSingleComponentClick(clicked, event, selectedComponents);
+		}
+	}
 
-				// Make sure the clicked component is selected
-				for (RocketComponent c : clicked) {
-					if (!selectedComponents.contains(c)) {
-						TreePath path = ComponentTreeModel.makeTreePath(c);
-						paths.add(path);
-						selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
-						selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
-								.map(c1 -> (RocketComponent) c1.getLastPathComponent()).toList();
-						component = c;
-						break;
-					}
-				}
+	private void handleDoubleComponentClick(RocketComponent[] clicked, MouseEvent event, List<RocketComponent> selectedComponents) {
+		// Multi-component edit if shift/meta key is pressed
+		if (!selectedComponents.isEmpty() && (event.isShiftDown() || event.isMetaDown())) {
+			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
+			RocketComponent component = selectedComponents.get(selectedComponents.size() - 1);
+			component.clearConfigListeners();
 
-				// Multi-component edit if shift/meta key is pressed
-				for (RocketComponent c : selectedComponents) {
-					if (c == component) continue;
-					c.clearConfigListeners();
-					component.addConfigListener(c);
+			// Make sure the clicked component is selected
+			for (RocketComponent c : clicked) {
+				if (!selectedComponents.contains(c)) {
+					TreePath path = ComponentTreeModel.makeTreePath(c);
+					paths.add(path);
+					selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
+					selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
+							.map(c1 -> (RocketComponent) c1.getLastPathComponent()).toList();
+					component = c;
+					break;
 				}
-				ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this), document, component);
 			}
-			// Normal double click (no shift or meta key)
-			else {
-				if (!selectedComponents.contains(clicked[0])) {
-					clickCount = 1;
-				} else {
-					TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
-					selectionModel.setSelectionPath(path);        // Revert to single selection
-					RocketComponent component = (RocketComponent) path.getLastPathComponent();
 
-					ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this),
-							document, component);
-					return;
-				}
+			// Multi-component edit if shift/meta key is pressed
+			for (RocketComponent c : selectedComponents) {
+				if (c == component) continue;
+				c.clearConfigListeners();
+				component.addConfigListener(c);
+			}
+			ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this), document, component);
+		}
+		// Normal double click (no shift or meta key)
+		else {
+			// If the clicked component is not in the selection, treat it as a single click
+			if (!selectedComponents.contains(clicked[0])) {
+				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+				selectionModel.setSelectionPath(path);
+			}
+			// Open the configuration dialog for the first clicked component
+			else {
+				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+				selectionModel.setSelectionPath(path);        // Revert to single selection
+				RocketComponent component = (RocketComponent) path.getLastPathComponent();
+
+				ComponentConfigDialog.showDialog(SwingUtilities.getWindowAncestor(this),
+						document, component);
 			}
 		}
+	}
 
-
-		if (clickCount == 1) {
-			// If the shift-button is held, add a newly clicked component to the selection path
-			if (event.isShiftDown() || event.isMetaDown()) {
-				List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
-				for (int i = 0; i < clicked.length; i++) {
-					if (!selectedComponents.contains(clicked[i])) {
-						TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
-						paths.add(path);
-						break;
-					}
-					// If all the clicked components are already in the selection, then deselect an object
-					if (i == clicked.length - 1) {
-						paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
-					}
+	private void handleSingleComponentClick(RocketComponent[] clicked, MouseEvent event, List<RocketComponent> selectedComponents) {
+		// If the shift-button is held, add a newly clicked component to the selection path
+		if (event.isShiftDown() || event.isMetaDown()) {
+			List<TreePath> paths = new ArrayList<>(Arrays.asList(selectionModel.getSelectionPaths()));
+			for (int i = 0; i < clicked.length; i++) {
+				if (!selectedComponents.contains(clicked[i])) {
+					TreePath path = ComponentTreeModel.makeTreePath(clicked[i]);
+					paths.add(path);
+					break;
 				}
-				try {
-					selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
-				} catch (Exception e) {
-					System.out.println(e);
+				// If all the clicked components are already in the selection, then deselect an object
+				if (i == clicked.length - 1) {
+					paths.removeIf(path -> path.getLastPathComponent() == clicked[0]);
 				}
 			}
-			// Single click, so set the selection to the first clicked component
-			else {
-				if (!selectedComponents.contains(clicked[0])) {
-					TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
-					selectionModel.setSelectionPath(path);
-				}
+			try {
+				selectionModel.setSelectionPaths(paths.toArray(new TreePath[0]));
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+		// Single click, so set the selection to the first clicked component
+		else {
+			if (!selectedComponents.contains(clicked[0])) {
+				TreePath path = ComponentTreeModel.makeTreePath(clicked[0]);
+				selectionModel.setSelectionPath(path);
 			}
 		}
 	}
@@ -796,6 +885,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		double newRotation = originalRotation - rotationOffset;
 		// Ensure the rotation is within the range [0, 2*PI]
 		newRotation = (newRotation + 2 * Math.PI) % (2 * Math.PI);
+		
+		// Apply snapping if Shift key is pressed
+		if (event.isShiftDown()) {
+			newRotation = ViewRotationControl.snapRotation(newRotation);
+		}
+		
 		figure.setRotation(newRotation);
 	}
 
@@ -1149,6 +1244,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraCP = new CPCaret(0, 0);
 		extraText = new RocketInfo(curConfig);
 		
+		// Set document-specific text colors if available
+		updateTextColors();
+		
 		updateExtras();
 
 		figure.clearRelativeExtra();
@@ -1172,12 +1270,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * @return the captured image, or null if 3D preview is requested
 	 */
 	public BufferedImage capturePreviewImage(VIEW_TYPE viewType, int targetWidth, int minHeight, int maxHeight) {
-		// TODO: implement 3D preview capture
-		if (viewType.is3d) {
-			return null;
-		}
+		final BufferedImage source;
 
-		BufferedImage source = create2DPreviewFigure(viewType, targetWidth, minHeight, maxHeight);
+		if (viewType.is3d) {
+			source = create3DPreviewFigure(viewType, targetWidth, minHeight, maxHeight);
+		} else {
+			source = create2DPreviewFigure(viewType, targetWidth, minHeight, maxHeight);
+		}
 		return scaleForPreview(source, targetWidth, minHeight, maxHeight);
 	}
 
@@ -1203,6 +1302,251 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		doc.getDefaultStorageOptions().setPreviewImage(png);
 		return true;
+	}
+
+	/**
+	 * Updates the background colors of the 2D and 3D figures from document preferences or defaults.
+	 * Uses document preference if set, otherwise falls back to SwingPreferences default, otherwise theme default.
+	 */
+	public void updateBackgroundColors() {
+		DocumentPreferences docPrefs = document.getDocumentPreferences();
+		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+		
+		// Update 2D view background: document preference -> SwingPreferences default -> theme default (null)
+		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
+		Color defaultColor2D = swingPrefs.getDefault2DBackgroundColor();
+		Color color2D = docColor2D != null ? docColor2D : 
+			(defaultColor2D != null ? defaultColor2D : null);
+		if (figure != null) {
+			figure.setCustomBackgroundColor(color2D); // null means use theme default
+		}
+		
+		// Update 3D view background: document preference -> SwingPreferences default -> theme default (null)
+		Color docColor3D = docPrefs.getColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, null);
+		Color defaultColor3D = swingPrefs.getDefault3DBackgroundColor();
+		Color color3D = docColor3D != null ? docColor3D : 
+			(defaultColor3D != null ? defaultColor3D : null);
+		if (figure3d != null) {
+			figure3d.setCustomBackgroundColor(color3D); // null means use theme default
+		}
+	}
+	
+	/**
+	 * Updates the text colors of the design view from document preferences or defaults.
+	 * Uses document preference if set, otherwise falls back to SwingPreferences default, otherwise theme default.
+	 */
+	public void updateTextColors() {
+		DocumentPreferences docPrefs = document.getDocumentPreferences();
+		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+		
+		if (extraText != null) {
+			// Get 2D text color: document preference -> SwingPreferences default -> theme default (null)
+			Color doc2DTextColor = docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
+			Color default2DTextColor = swingPrefs.getDefault2DTextColor();
+			Color textColor2D = doc2DTextColor != null ? doc2DTextColor : 
+				(default2DTextColor != null ? default2DTextColor : null);
+			
+			// Get 3D text color: document preference -> SwingPreferences default -> theme default (null)
+			Color doc3DTextColor = docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
+			Color default3DTextColor = swingPrefs.getDefault3DTextColor();
+			Color textColor3D = doc3DTextColor != null ? doc3DTextColor : 
+				(default3DTextColor != null ? default3DTextColor : null);
+			
+			// Set the custom text colors (when set, applies to all text types)
+			extraText.setCustomTextColors(textColor2D, textColor3D);
+			
+			// Set the current view type
+			extraText.set3DView(is3d);
+		}
+	}
+
+	/**
+	 * Shows a dialog for configuring display settings (background colors, etc.).
+	 */
+	private void showDisplaySettingsDialog() {
+		DisplaySettingsDialog dialog = new DisplaySettingsDialog(SwingUtilities.getWindowAncestor(this), document);
+		dialog.setVisible(true);
+		// Update colors after dialog is closed
+		updateBackgroundColors();
+		updateTextColors();
+		updateFigures();
+	}
+
+	/**
+	 * Shows a dialog asking the user where to save the design view screenshot.
+	 */
+	private void showCaptureDesignViewDialog() {
+		JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this),
+				trans.get("RocketPanel.dlg.captureDesignView.title"), Dialog.ModalityType.APPLICATION_MODAL);
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+		JPanel panel = new JPanel(new MigLayout("fill, ins 15", "[grow]", "[]15[]"));
+
+		// Where would you like to save the design view screenshot to?
+		JLabel messageLabel = new JLabel(trans.get("RocketPanel.dlg.captureDesignView.message"));
+		panel.add(messageLabel, "wrap");
+
+		JPanel buttonPanel = new JPanel(new MigLayout("ins 0", "[grow][grow]", "[]"));
+
+		// Save to file
+		JButton saveToFileButton = new JButton(trans.get("RocketPanel.btn.saveToFile"), Icons.FILE_SAVE);
+		saveToFileButton.addActionListener(e -> {
+			dialog.dispose();
+			saveDesignViewToFile();
+		});
+		buttonPanel.add(saveToFileButton, "grow");
+
+		// Copy to clipboard
+		JButton copyToClipboardButton = new JButton(trans.get("RocketPanel.btn.copyToClipboard"), Icons.EDIT_COPY);
+		copyToClipboardButton.addActionListener(e -> {
+			dialog.dispose();
+			copyDesignViewToClipboard();
+		});
+		buttonPanel.add(copyToClipboardButton, "grow");
+
+		panel.add(buttonPanel, "growx");
+
+		dialog.add(panel);
+		dialog.pack();
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
+	}
+
+	private BufferedImage captureViewScreenshot() {
+		int width = figureHolder.getWidth();
+		int height = figureHolder.getHeight();
+		BufferedImage image = capturePreviewImage(currentViewType, width, height, height);
+		if (image == null) {
+			JOptionPane.showMessageDialog(this,
+					"Failed to capture design view image.",
+					"Error",
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+
+		return image;
+	}
+
+	/**
+	 * Saves the current design view to a file selected by the user.
+	 */
+	private void saveDesignViewToFile() {
+		BufferedImage image = captureViewScreenshot();
+		if (image == null) {
+			return;
+		}
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle(trans.get("RocketPanel.dlg.captureDesignView.title"));
+		fileChooser.setFileFilter(FileHelper.PNG_FILTER);
+		fileChooser.setCurrentDirectory(Application.getPreferences().getDefaultDirectory());
+		
+		// Suggest a default filename based on the rocket name and view type
+		String rocketName = document.getRocket().getName();
+		if (rocketName == null || rocketName.isEmpty()) {
+			rocketName = "rocket";
+		}
+
+		// Sanitize filename
+		rocketName = rocketName.replaceAll("[^a-zA-Z0-9.-]", "_");
+		String viewTypeSuffix = "_" + currentViewType.toString();
+		viewTypeSuffix = viewTypeSuffix.replaceAll("[^a-zA-Z0-9.-]", "_");
+		fileChooser.setSelectedFile(new File(rocketName + viewTypeSuffix + ".png"));
+
+		int result = fileChooser.showSaveDialog(this);
+		if (result != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		// Save the image
+		File file = fileChooser.getSelectedFile();
+		file = FileHelper.forceExtension(file, "png");
+		if (FileHelper.confirmWrite(file, RocketPanel.this)) {
+			Application.getPreferences().setDefaultDirectory(fileChooser.getCurrentDirectory());
+			try {
+				ImageIO.write(image, "png", file);
+			} catch (IOException ex) {
+				log.error("Failed to save design view image", ex);
+				JOptionPane.showMessageDialog(this,
+						"Failed to save image: " + ex.getMessage(),
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	/**
+	 * Copies the current design view to the system clipboard on macOS in native PNG format.
+	 */
+	private void copyDesignViewToClipboardMacOS(BufferedImage image) {
+		try {
+			// Save to temporary file
+			File tempFile = File.createTempFile("clipboard_", ".png");
+			ImageIO.write(image, "png", tempFile);
+
+			// Use AppleScript to copy to clipboard in native format
+			String script = String.format(
+					"set the clipboard to (read (POSIX file \"%s\") as «class PNGf»)",
+					tempFile.getAbsolutePath()
+			);
+
+			ProcessBuilder pb = new ProcessBuilder("osascript", "-e", script);
+			Process process = pb.start();
+			process.waitFor();
+
+			// Clean up
+			tempFile.deleteOnExit();
+
+		} catch (IOException | InterruptedException e) {
+			log.error("Failed to copy design view to clipboard", e);
+		}
+	}
+
+	/**
+	 * Copies the current design view to the system clipboard.
+	 */
+	private void copyDesignViewToClipboard() {
+		BufferedImage image = captureViewScreenshot();
+		if (image == null) {
+			return;
+		}
+
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			copyDesignViewToClipboardMacOS(image);
+		} else {
+			TransferableImage transferableImage = new TransferableImage(image);
+			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			clipboard.setContents(transferableImage, null);
+		}
+	}
+
+	/**
+	 * A Transferable implementation for copying images to the clipboard.
+	 */
+	private static class TransferableImage implements Transferable {
+		private final BufferedImage image;
+
+		public TransferableImage(BufferedImage image) {
+			this.image = image;
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[] { DataFlavor.imageFlavor };
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+			return DataFlavor.imageFlavor.equals(flavor);
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+			if (!isDataFlavorSupported(flavor)) {
+				throw new UnsupportedFlavorException(flavor);
+			}
+			return image;
+		}
 	}
 
 	/**
@@ -1240,6 +1584,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		RocketFigure previewFigure = new RocketFigure(document.getRocket());
 		previewFigure.setType(viewType);
 		previewFigure.setDrawCarets(true);
+		
+		// Apply custom background color to preview figure
+		DocumentPreferences docPrefs = document.getDocumentPreferences();
+		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+		Color docColor2D = docPrefs.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
+		Color defaultColor2D = swingPrefs.getDefault2DBackgroundColor();
+		Color color2D = docColor2D != null ? docColor2D : 
+			(defaultColor2D != null ? defaultColor2D : null);
+		previewFigure.setCustomBackgroundColor(color2D); // null means use theme default
+		
+		// Ensure text colors are correct for 2D view
+		if (extraText != null) {
+			extraText.set3DView(false); // 2D view
+		}
+		
 		previewFigure.addRelativeExtra(extraCP);
 		previewFigure.addRelativeExtra(extraCG);
 		previewFigure.addAbsoluteExtra(extraText);
@@ -1270,6 +1629,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			g2.dispose();
 		}
 		return raw;
+	}
+
+	private BufferedImage create3DPreviewFigure(VIEW_TYPE viewType, int targetWidth, int minHeight, int maxHeight) {
+		// Only capture if we're currently in 3D mode
+		if (currentViewType != viewType) {
+			return null;
+		}
+
+		// Ensure text colors are correct for 3D view before capture
+		if (extraText != null) {
+			extraText.set3DView(true); // 3D view
+		}
+
+		// Capture the current 3D view
+		return figure3d.captureImage();
 	}
 
 	/**
@@ -1339,7 +1713,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D canvasGraphics = canvas.createGraphics();
 		try {
-			canvasGraphics.setColor(GUIUtil.getUITheme().getBackgroundColor());
+			canvasGraphics.setColor(UITheme.getColor(UITheme.Keys.BACKGROUND));
 			canvasGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
 			int x = (canvasWidth - scaledWidth) / 2;
 			int y = (canvasHeight - scaledHeight) / 2;
@@ -1361,7 +1735,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		if (paths == null || paths.length == 0) {
 			figure.setSelection(null);
 			figure3d.setSelection(null);
-			ComponentConfigDialog.disposeDialog();
 			return;
 		}
 

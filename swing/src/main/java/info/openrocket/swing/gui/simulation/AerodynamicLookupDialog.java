@@ -5,6 +5,7 @@ import info.openrocket.core.aerodynamics.lookup.MachAoALookup;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.StringUtils;
 import info.openrocket.swing.gui.components.FieldSeparatorComboBox;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
@@ -106,8 +107,8 @@ class AerodynamicLookupDialog extends JDialog {
 	}
 
 	public static void updateColors() {
-		textColor = GUIUtil.getUITheme().getTextColor();
-		infoTextColor = GUIUtil.getUITheme().getInformationColor();
+		textColor = UITheme.getColor(UITheme.Keys.TEXT);
+		infoTextColor = UITheme.getColor(UITheme.Keys.INFO);
 	}
 
 	private void initUI() {
@@ -582,7 +583,7 @@ class AerodynamicLookupDialog extends JDialog {
 		String fileName = csvPath.getFileName() != null ? csvPath.getFileName().toString() : csvPath.toString();
 		String detail = formatLookupSummary(trans, table);
 		String fullText = fileName + " - " + detail;
-		String escapedText = fullText.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+		String escapedText = StringUtils.escapeHtml(fullText);
 		
 		if (modified) {
 			escapedText += " <i>(modified)</i>";

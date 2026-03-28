@@ -41,8 +41,8 @@ public abstract class ErrorWarningDialog {
     }
 
     public static void updateColors() {
-		darkErrorColor = GUIUtil.getUITheme().getDarkErrorColor();
-        textSelectionForegroundColor = GUIUtil.getUITheme().getTextSelectionForegroundColor();
+		darkErrorColor = UITheme.getColor(UITheme.Keys.DARK_ERROR);
+        textSelectionForegroundColor = UITheme.getColor(UITheme.Keys.TEXT_SELECTION_FOREGROUND);
     }
 
     public static void showErrorsAndWarnings(Component parent, Object message, String title, ErrorSet errors, WarningSet warnings) {

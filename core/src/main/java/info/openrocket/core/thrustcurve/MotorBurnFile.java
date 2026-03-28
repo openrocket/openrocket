@@ -10,8 +10,8 @@ import info.openrocket.core.motor.ThrustCurveMotor;
 
 public class MotorBurnFile {
 
-	private Integer motorId;
-	private Integer simfileId;
+	private String motorId;
+	private String simfileId;
 	private String filetype;
 	private ThrustCurveMotor.Builder thrustCurveMotor;
 	private String data;
@@ -50,30 +50,30 @@ public class MotorBurnFile {
 	}
 
 	/**
-	 * @return the motor id
+	 * @return the motor id as a MongoDB Hex String
 	 */
-	public Integer getMotorId() {
+	public String getMotorId() {
 		return motorId;
 	}
 
 	/**
-	 * @param motorId the motor id to set
+	 * @param motorId the motor id to set as a MongoDB Hex String
 	 */
-	public void setMotorId(Integer motorId) {
+	public void setMotorId(String motorId) {
 		this.motorId = motorId;
 	}
 
 	/**
-	 * @return the simfile id
+	 * @return the simfile id as a MongoDB Hex String
 	 */
-	public Integer getSimfileId() {
+	public String getSimfileId() {
 		return simfileId;
 	}
 
 	/**
-	 * @param simfileId the simfileId to set
+	 * @param simfileId the simfileId to set as a MongoDB Hex String
 	 */
-	public void setSimfileId(Integer simfileId) {
+	public void setSimfileId(String simfileId) {
 		this.simfileId = simfileId;
 	}
 

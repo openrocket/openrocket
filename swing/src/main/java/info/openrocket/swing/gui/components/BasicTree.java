@@ -11,6 +11,8 @@ import java.awt.Graphics2D;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
+import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -18,6 +20,8 @@ import javax.swing.tree.TreePath;
 @SuppressWarnings("serial")
 public class BasicTree extends JTree {
 	private static Color backgroundColor;
+	private static Color toggleBackgroundColor;
+	private static Color toggleStrokeColor;
 
 	static {
 		initColors();
@@ -37,7 +41,7 @@ public class BasicTree extends JTree {
 	private void setDefaultOptions() {
 		this.setToggleClickCount(0);
 		
-		javax.swing.plaf.basic.BasicTreeUI plainUI = new javax.swing.plaf.basic.BasicTreeUI();
+		BasicTreeUI plainUI = new BasicTreeUI();
 		this.setUI(plainUI);
 		plainUI.setExpandedIcon(TreeIcon.MINUS);
 		plainUI.setCollapsedIcon(TreeIcon.PLUS);
@@ -55,6 +59,21 @@ public class BasicTree extends JTree {
 
 	public static void updateColors() {
 		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
+		toggleBackgroundColor = UIManager.getColor("Tree.icon.background");
+		if (toggleBackgroundColor == null) {
+			toggleBackgroundColor = backgroundColor;
+		}
+		toggleStrokeColor = UIManager.getColor("Tree.icon.foreground");
+		if (toggleStrokeColor == null) {
+			toggleStrokeColor = GUIUtil.getUITheme().getTextColor();
+		}
+	}
+	
+	@Override
+	public void updateUI() {
+		super.updateUI();
+		updateColors();
+		setDefaultOptions();
 	}
 	
 	/**
@@ -129,11 +148,11 @@ public class BasicTree extends JTree {
 			Graphics2D g2 = (Graphics2D) g.create();
 			
 			// Background
-			g2.setColor(Color.WHITE);
+			g2.setColor(toggleBackgroundColor);
 			g2.fillRect(x, y, width, height);
 			
 			// Border
-			g2.setColor(Color.DARK_GRAY);
+			g2.setColor(toggleStrokeColor);
 			g2.drawRect(x, y, width, height);
 			
 			// Horizontal stroke

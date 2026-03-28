@@ -22,6 +22,7 @@ import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.core.document.attachments.FileSystemAttachment;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.ChangeSource;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.core.util.FileUtils;
@@ -133,9 +134,11 @@ public class DecalRegistry {
 
 		private String name;
 		private File decalFile;
-		private final Translator trans = Application.getTranslator();
 		// Flag to check whether this DecalImage should be ignored for saving
 		private boolean ignored = false;
+
+		/** Independent change source so that clones do not share listeners with the original. */
+		private final AbstractChangeSource changeSource = new AbstractChangeSource();
 
 		private DecalImageImpl(String name, Attachment delegate) {
 			this.name = name;
@@ -153,7 +156,7 @@ public class DecalRegistry {
 
 		@Override
 		public void fireChangeEvent(Object source) {
-			delegate.fireChangeEvent(source);
+			changeSource.fireChangeEvent(source);
 		}
 
 		/**
@@ -240,12 +243,12 @@ public class DecalRegistry {
 
 		@Override
 		public void addChangeListener(StateChangeListener listener) {
-			delegate.addChangeListener(listener);
+			changeSource.addChangeListener(listener);
 		}
 
 		@Override
 		public void removeChangeListener(StateChangeListener listener) {
-			delegate.removeChangeListener(listener);
+			changeSource.removeChangeListener(listener);
 		}
 
 	}

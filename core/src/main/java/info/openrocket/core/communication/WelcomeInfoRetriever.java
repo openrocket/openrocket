@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -51,7 +52,7 @@ public abstract class WelcomeInfoRetriever {
             }
         }
 
-        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             InputSource source = new InputSource(reader);
             ReleaseNotesHandler handler = new ReleaseNotesHandler(version);
             WarningSet warnings = new WarningSet();

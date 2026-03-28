@@ -753,7 +753,7 @@ public class ScaleDialog extends JDialog {
 			// to prevent the fore/aft shoulder radius from becoming larger than the fore/aft radius
 			if (multiplier >= 1) {
 				addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", scalers);
-				addScaler(Transition.class, "AftRadius", "isForeRadiusAutomatic", scalers);
+				addScaler(Transition.class, "AftRadius", "isAftRadiusAutomatic", scalers);
 				addScaler(Transition.class, "ForeShoulderRadius", scalers, false);
 				addScaler(Transition.class, "AftShoulderRadius", scalers, false);
 			}
@@ -763,7 +763,7 @@ public class ScaleDialog extends JDialog {
 				addScaler(Transition.class, "ForeShoulderRadius", scalers, false);
 				addScaler(Transition.class, "AftShoulderRadius", scalers, false);
 				addScaler(Transition.class, "ForeRadius", "isForeRadiusAutomatic", scalers);
-				addScaler(Transition.class, "AftRadius", "isForeRadiusAutomatic", scalers);
+				addScaler(Transition.class, "AftRadius", "isAftRadiusAutomatic", scalers);
 			}
 
 			performIterativeScaling(scalers, component, multiplier, scaleMass);

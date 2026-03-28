@@ -2,6 +2,7 @@ name: Bug report
 description: Help us make OpenRocket better
 title: '[Bug] REPLACE WITH YOUR TITLE HERE'
 labels: bug
+type: bug
 body:
 - type: markdown
   attributes:

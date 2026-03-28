@@ -17,6 +17,7 @@ class AtmosphereHandler extends AbstractElementHandler {
 	private final String model;
 	private double temperature = Double.NaN;
 	private double pressure = Double.NaN;
+	private double humidity = Double.NaN;
 
 	public AtmosphereHandler(String model, DocumentLoadingContext context) {
 		this.model = model;
@@ -48,7 +49,15 @@ class AtmosphereHandler extends AbstractElementHandler {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal base pressure specified, ignoring.");
 			}
-			pressure = d;
+			pressure = Math.max(d, 0.001); // Prevent zero or negative pressures.
+		} else if (element.equals("baserelativehumidity")) {
+			if (Double.isNaN(d)) {
+				warnings.add("Illegal base humidity specified, ignoring");
+			} else if (d < 0 || d > 1) {
+				warnings.add("Illegal base humidity specified, ignoring");
+			} else {
+				humidity = d;
+			}
 		} else {
 			super.closeElement(element, attributes, content, warnings);
 		}
@@ -60,6 +69,9 @@ class AtmosphereHandler extends AbstractElementHandler {
 		}
 		if (!Double.isNaN(temperature)) {
 			cond.setLaunchTemperature(temperature);
+		}
+		if (!Double.isNaN(humidity)) {
+			cond.setLaunchRelativeHumidity(humidity);
 		}
 
 		if ("isa".equals(model)) {

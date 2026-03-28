@@ -1,0 +1,44 @@
+{
+  "matches": 2,
+  "results": [
+    {
+      "motorId": "507f1f77bcf86cd799439011",
+      "manufacturer": "AeroTech",
+      "manufacturerAbbrev": "AT",
+      "designation": "D13",
+      "brandName": "D13",
+      "commonName": "D13",
+      "impulseClass": "D",
+      "diameter": 24.0,
+      "length": 70.0,
+      "type": "reload",
+      "certOrg": "NAR",
+      "avgThrustN": 13.0,
+      "maxThrustN": 20.0,
+      "totImpulseNs": 20.0,
+      "burnTimeS": 1.6,
+      "dataFiles": 2,
+      "infoUrl": "https://www.thrustcurve.org/motorsearch.jsp?id=abcd",
+      "totalWeightG": 45.5,
+      "propWeightG": 20.0,
+      "delays": "7,10",
+      "caseInfo": "RMS-24/40",
+      "propInfo": "White Lightning",
+      "updatedOn": "2023-08-01",
+      "availability": "regular"
+    },
+    {
+      "motorId": "000000000000000000000002",
+      "manufacturer": "Estes",
+      "manufacturerAbbrev": "Estes",
+      "designation": "A8",
+      "commonName": "A8",
+      "impulseClass": "A",
+      "diameter": 18,
+      "length": 70,
+      "type": "SU",
+      "dataFiles": 1,
+      "updatedOn": "2023-08-02"
+    }
+  ]
+}

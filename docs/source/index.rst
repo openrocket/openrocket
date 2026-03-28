@@ -47,8 +47,11 @@ Welcome to OpenRocket's documentation!
    dev_guide/using_openrocket_core
    /dev_guide/architecture
    /dev_guide/codebase_walkthrough
+   /dev_guide/icons
    /dev_guide/development_guidelines
    /dev_guide/testing_and_debugging
+   /dev_guide/motor_database_updates
+   /dev_guide/motor_database_schema
    /dev_guide/file_specification
    /dev_guide/api_documentation
    /dev_guide/command_line_arguments

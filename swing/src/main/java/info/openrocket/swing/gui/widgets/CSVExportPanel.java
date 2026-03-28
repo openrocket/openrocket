@@ -143,7 +143,7 @@ public class CSVExportPanel<T extends UnitValue> extends JPanel {
 	}
 
 	public static void updateColors() {
-		ALTERNATE_ROW_COLOR = GUIUtil.getUITheme().getRowBackgroundLighterColor();
+		ALTERNATE_ROW_COLOR = UITheme.getColor(UITheme.Keys.ROW_LIGHTER);
 	}
 
 	private void addHeaderRowLabel(JPanel contentPanel, String lblKey, GridBagConstraints c, int x) {

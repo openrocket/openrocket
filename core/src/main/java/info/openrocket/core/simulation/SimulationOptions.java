@@ -85,7 +85,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private boolean useISA = preferences.isISAAtmosphere();
 	private double launchTemperature = preferences.getLaunchTemperature();	// In Kelvin
 	private double launchPressure = preferences.getLaunchPressure();		// In Pascal
-	
+	private double launchRelativeHumidity = preferences.getLaunchRelativeHumidity();		//
+
 	private double timeStep = preferences.getTimeStep();
 	private double maxSimulationTime = preferences.getMaxSimulationTime();
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
@@ -159,7 +160,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			} else {
 				windDirection = multiLevelPinkNoiseWindModel.getWindDirection(0, launchAltitude);
 			}
-			this.setLaunchRodDirection(windDirection);
+			return MathUtil.reduce2Pi(windDirection);
 		}
 		return launchRodDirection;
 	}
@@ -281,10 +282,11 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			return;
 		this.launchAltitude = MathUtil.min(altitude, ExtendedISAModel.getMaximumAllowedAltitude());
 
-		// Update the launch temperature and pressure if using ISA
+		// Update the launch temperature, pressure and humidity if using ISA
 		if (useISA) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
@@ -351,10 +353,11 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			return;
 		useISA = isa;
 
-		// Update the launch temperature and pressure
+		// Update the launch temperature, pressure and humidity
 		if (isa) {
 			setLaunchTemperature(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getTemperature());
 			setLaunchPressure(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getPressure());
+			setLaunchRelativeHumidity(ISA_ATMOSPHERIC_MODEL.getConditions(getLaunchAltitude()).getRelativeHumidity());
 		}
 
 		fireChangeEvent();
@@ -382,6 +385,17 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		fireChangeEvent();
 	}
 
+	public double getLaunchRelativeHumidity() {
+		return launchRelativeHumidity;
+	}
+
+	public void setLaunchRelativeHumidity(double launchHumidity) {
+		if (MathUtil.equals(this.launchRelativeHumidity, launchHumidity))
+			return;
+		this.launchRelativeHumidity = launchHumidity;
+		fireChangeEvent();
+	}
+
 	/**
 	 * Returns an atmospheric model corresponding to the launch conditions. The
 	 * atmospheric models may be shared between different calls.
@@ -392,7 +406,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (useISA) {
 			return ISA_ATMOSPHERIC_MODEL;
 		}
-		return new ExtendedISAModel(getLaunchAltitude(), launchTemperature, launchPressure);
+		return new ExtendedISAModel(getLaunchAltitude(), launchTemperature, launchPressure, launchRelativeHumidity);
 	}
 
 	public double getTimeStep() {
@@ -652,6 +666,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.launchPressure = src.launchPressure;
 		}
+		if (this.launchRelativeHumidity != src.launchRelativeHumidity) {
+			isChanged = true;
+			this.launchRelativeHumidity = src.launchRelativeHumidity;
+		}
 		if (this.maximumAngle != src.maximumAngle) {
 			isChanged = true;
 			this.maximumAngle = src.maximumAngle;
@@ -704,6 +722,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&
+				MathUtil.equals(this.launchRelativeHumidity, o.launchRelativeHumidity) &&
 				MathUtil.equals(this.launchRodAngle, o.launchRodAngle) &&
 				MathUtil.equals(this.launchRodDirection, o.launchRodDirection) &&
 				MathUtil.equals(this.launchRodLength, o.launchRodLength) &&
@@ -809,6 +828,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    useISA:  %b\n", useISA))
 				.concat(String.format("    launchTemperature:  %f\n", launchTemperature))
 				.concat(String.format("    launchPressure:  %f\n", launchPressure))
+				.concat(String.format("    launchHumidity:  %f\n", launchRelativeHumidity))
 				.concat(String.format("    timeStep:  %f\n", timeStep))
 				.concat(String.format("    maxTime:  %f\n", maxSimulationTime))
 				.concat(String.format("    maximumAngle:  %f\n", maximumAngle))

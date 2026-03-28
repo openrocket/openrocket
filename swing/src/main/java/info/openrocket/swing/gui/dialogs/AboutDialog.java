@@ -71,6 +71,8 @@ public class AboutDialog extends JDialog {
 		"exp4j" + href("http://projects.congrace.de/exp4j/index.html", true, true) + "<br>" +
 		"JOGL" + href("http://jogamp.org/jogl/www", true, true) + "<br>" +
 		"Guava" + href("https://github.com/google/guava", true, true) + "<br>" +
+		"Gson" + href("https://github.com/google/gson", true, true) + "<br>" +
+		"SQLite JDBC" + href("https://github.com/xerial/sqlite-jdbc", true, true) + "<br>" +
 		"Opencsv" + href("http://opencsv.sourceforge.net", true, true) + "<br>" +
 		"Simple Logging Facade for Java" + href("http://www.slf4j.org", true, true) + "<br>" +
 		"Java library for parsing and rendering CommonMark" + href("https://github.com/commonmark/commonmark-java", true, true) + "<br>" +
@@ -81,6 +83,7 @@ public class AboutDialog extends JDialog {
 			"JTS" + href("https://github.com/locationtech/jts", true, true) + "<br>" +
 		"ClassGraph" + href("https://github.com/classgraph/classgraph", true, true) + "<br>" +
 		"Gradle Modules Plugin" + href("https://github.com/java9-modularity/gradle-modules-plugin", true, true) + "<br>" +
+		"Lucide Icons" + href("https://lucide.dev", true, true) + "<br>" +
 		"<br>" +
 		"<b>OpenRocket gratefully acknowledges our use of the following databases:</b><br>" +
 		"<br>" +

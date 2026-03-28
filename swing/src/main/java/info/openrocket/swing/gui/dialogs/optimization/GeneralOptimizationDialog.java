@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1184,7 +1185,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				", commentCharacter=" + commentCharacter + ", includeHeader=" + includeHeader);
 		
 		try {
-			Writer writer = new BufferedWriter(new FileWriter(file));
+			Writer writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8));
 			
 			// Write header
 			if (includeHeader) {

@@ -4,16 +4,23 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import info.openrocket.core.ServicesForTesting;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.file.wavefrontobj.Axis;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
 import info.openrocket.core.file.wavefrontobj.ObjUtils;
+import info.openrocket.core.file.wavefrontobj.TriangulationHelper;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.FreeformFinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.InstanceMap;
+import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -124,7 +131,47 @@ class FinSetExporterTest {
         assertEquals(0, warnings.size(), "Finite thickness fin should not emit zero-thickness warning");
     }
 
-    private static FinSetExporter newExporter(DefaultObj obj, FlightConfiguration config, TestFinSet finSet, WarningSet warnings) {
+    @Test
+    void gitHubIssue2865() {
+        OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+        Rocket rocket = document.getRocket();
+        AxialStage stage = rocket.getStage(0);
+
+        FlightConfiguration config = rocket.getSelectedConfiguration();
+
+        Transition transition = new Transition();
+        transition.setShapeParameter(1);
+        transition.setShapeType(Transition.Shape.OGIVE);
+        transition.setLength(0.425);
+        transition.setForeRadius(0.0975);
+        transition.setAftRadius(0.052);
+        transition.setThickness(0.00317);
+
+        stage.addChild(transition);
+
+        FreeformFinSet finSet = new FreeformFinSet();
+        finSet.setPoints(new Coordinate[] {
+                new Coordinate(0.0, 0.0, 0.0),
+                new Coordinate(0.17, 0.10, 0.0),
+                new Coordinate(0.47, 0.12, 0.0),
+                new Coordinate(0.47, 0.045, 0.0),
+                new Coordinate(0.445, -0.0449, 0.0),
+        }, false);
+
+        transition.addChild(finSet);
+        finSet.setAxialMethod(AxialMethod.BOTTOM);
+        finSet.setAxialOffset(0.07);
+
+        DefaultObj obj = new DefaultObj();
+        WarningSet warnings = new WarningSet();
+
+        newExporter(obj, config, finSet, warnings).addToObj();
+
+        // Triangulate
+        TriangulationHelper.constrainedDelaunayTriangulate(obj);
+    }
+
+    private static FinSetExporter newExporter(DefaultObj obj, FlightConfiguration config, FinSet finSet, WarningSet warnings) {
         CoordTransform transformer = CoordTransform.generateUsingAxialAndForwardAxes(Axis.X, Axis.Y, 0, 0, 0);
         return new FinSetExporter(obj, config, transformer, finSet, "testGroup", ObjUtils.LevelOfDetail.NORMAL_QUALITY, true, warnings);
     }

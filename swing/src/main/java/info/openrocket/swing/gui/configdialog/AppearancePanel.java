@@ -62,6 +62,7 @@ import info.openrocket.core.unit.GeneralUnit;
 import info.openrocket.core.unit.Unit;
 import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.LineStyle;
+import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.StateChangeListener;
 
@@ -336,9 +337,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 					} else {
 						c.setColor(((SwingPreferences) Application
 								.getPreferences()).getDefaultColor(c.getClass()));
-						c.setLineStyle(((SwingPreferences) Application
-								.getPreferences()).getDefaultLineStyle(c
-								.getClass()));
+						c.setLineStyle(UITheme.getDefaultLineStyle(c.getClass()));
 					}
 				}
 			});
@@ -578,13 +577,14 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		materialDefault.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (builder == null) {
+					return;
+				}
 				if (materialDefault.isSelected()) {
 					if (!insideBuilder) {
-						previousUserSelectedAppearance = (builder == null) ? null
-								: builder.getAppearance();
+						previousUserSelectedAppearance = builder.getAppearance();
 					} else {
-						previousUserSelectedInsideAppearance = (builder == null) ? null
-								: builder.getAppearance();
+						previousUserSelectedInsideAppearance = builder.getAppearance();
 					}
 
 					// Set the listeners' appearance to the default appearance
@@ -629,7 +629,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 
 		//// Select file button
 		JButton chooseTextureBtn = new JButton(trans.get("DecalModel.lbl.choose"));
-		chooseTextureBtn.setIcon(Icons.FILE_OPEN);
+		chooseTextureBtn.setIcon(Icons.IMAGE_OPEN);
 		chooseTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		chooseTextureBtn.addActionListener(e -> decalModel.promptForFileSelection());
 		mDefault.addEnableComponent(chooseTextureBtn, false);
@@ -640,7 +640,7 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 
 		//// Edit button
 		if ((SystemInfo.getPlatform() != Platform.UNIX) || !SystemInfo.isConfined()) {
-			JButton editBtn = new JButton(Icons.EDIT_EDIT);
+			JButton editBtn = new JButton(Icons.IMAGE_EDIT);
 			editBtn.setToolTipText(trans.get("AppearanceCfg.but.edit"));
 			editBtn.setHorizontalAlignment(SwingConstants.LEFT);
 			// Enable the editBtn only when the appearance builder has an Image
@@ -670,12 +670,17 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		}
 
 		//// Create texture button
-		JButton createTextureBtn = new JButton(Icons.FILE_NEW);
-		createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
+		JButton createTextureBtn = new JButton(Icons.IMAGE_NEW);
 		createTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		createTextureBtn.addActionListener(e -> handleCreateTexture(panel, document, c, decalModel,
 				insideBuilder, builder));
-		mDefault.addEnableComponent(createTextureBtn, false);
+		if (TextureCreationService.isComponentSupported(c)) {
+			createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
+			mDefault.addEnableComponent(createTextureBtn, false);
+		} else {
+			createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture.ttip.unsupported"));
+			createTextureBtn.setEnabled(false);
+		}
 		textureButtonsPanel.add(createTextureBtn);
 		order.add(createTextureBtn);
 

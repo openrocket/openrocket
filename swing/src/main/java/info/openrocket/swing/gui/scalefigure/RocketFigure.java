@@ -129,8 +129,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 
 	public static void updateColors() {
-		motorFillColor = GUIUtil.getUITheme().getMotorFillColor();
-		motorBorderColor = GUIUtil.getUITheme().getMotorBorderColor();
+		motorFillColor = UITheme.getColor(UITheme.Keys.MOTOR_FILL);
+		motorBorderColor = UITheme.getColor(UITheme.Keys.MOTOR_BORDER);
 	}
 
 	public Point getAutoZoomPoint(){
@@ -293,7 +293,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			
 			LineStyle style = rcs.lineStyle;
 			if (style == null)
-				style = Application.getPreferences().getDefaultLineStyle(c.getClass());
+				style = UITheme.getDefaultLineStyle(c.getClass());
 			
 			float[] dashes = style.getDashes();
 			for (int j = 0; j < dashes.length; j++) {

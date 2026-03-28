@@ -436,15 +436,9 @@ public class InnerTube extends ThicknessRingComponent
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		InnerTube copy = (InnerTube) super.copyWithOriginalID();
-		if( copy == this ){
-			new IllegalArgumentException(" copyWithOriginalID should return a different instance! ");
-		}
-		if( copy.motors == this.motors ){
-			new IllegalArgumentException(" copyWithOriginalID should produce different motorSet instances! ");
-		}
-		
+		assert copy != this : "copyWithOriginalID should return a different instance!";
 		copy.motors = new MotorConfigurationSet( this.motors, copy );
-		
+		assert copy.motors != this.motors : "copyWithOriginalID should produce different motorSet instances!";
 		return copy;
 	}
 

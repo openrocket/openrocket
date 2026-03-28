@@ -103,6 +103,9 @@ public class ServicesForTesting extends AbstractModule {
 			if (key.equals(ApplicationPreferences.LAUNCH_PRESSURE) || key.equals(DefaultSimulationOptionFactory.SIMCONDITION_ATMOS_PRESSURE)) {
 				return ExtendedISAModel.STANDARD_PRESSURE;
 			}
+			if (key.equals(ApplicationPreferences.LAUNCH_RELATIVE_HUMIDITY) || key.equals(DefaultSimulationOptionFactory.SIMCONDITION_ATMOS_RELATIVE_HUMIDITY)) {
+				return ExtendedISAModel.STANDARD_RELATIVE_HUMIDITY;
+      }
 			if (key.equals(ApplicationPreferences.CONSTANT_GRAVITY_VALUE)) {
 				return 9.807;
 			}

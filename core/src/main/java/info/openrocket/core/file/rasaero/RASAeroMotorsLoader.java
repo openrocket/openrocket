@@ -1,14 +1,11 @@
 package info.openrocket.core.file.rasaero;
 
-import info.openrocket.core.file.motor.RASPMotorLoader;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.database.motor.ThrustCurveMotorSet;
 import info.openrocket.core.file.motor.AbstractMotorLoader;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.startup.Application;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,44 +62,38 @@ public abstract class RASAeroMotorsLoader {
     // It's probably also better to load OR-native motors.
     // But I'll leave this in, in case it's needed in the future.
     /**
-     * Loads all original RASAero motors.
+     * Loads all motors available for RASAero export.
+     * <p>
+     * Historically this loaded motors from a bundled {@code RASAero_Motors.eng} file. That file is no longer shipped;
+     * these motors are now part of the normal OpenRocket motor database.
      * 
      * @param warnings The warning set to add import warnings to.
      * @return the loaded motors
-     * @throws RuntimeException If the RASAero motors file could not be found.
      */
-    public static List<ThrustCurveMotor> loadAllRASAeroMotors(WarningSet warnings) throws RuntimeException {
-        List<ThrustCurveMotor> RASAeroMotors = new ArrayList<>();
-
-        RASPMotorLoader loader = new RASPMotorLoader();
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        String fileName = "RASAero_Motors.eng";
-        InputStream is = classloader.getResourceAsStream("datafiles/thrustcurves/RASAero/" + fileName);
-        if (is == null) {
-            throw new RuntimeException("Could not find " + fileName);
-        }
-        try {
-            List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName, false);
-            for (ThrustCurveMotor.Builder builder : motors) {
-                RASAeroMotors.add(builder.build());
-            }
-        } catch (IOException e) {
-            warnings.add("Error during motor loading: " + e.getMessage());
-        }
-
-        return RASAeroMotors;
+    public static List<ThrustCurveMotor> loadAllRASAeroMotors(WarningSet warnings) {
+        return loadMotorsFromOpenRocketDatabase(warnings);
     }
 
     /**
      * Loads the OpenRocket motors database.
      */
     private static void loadAllMotors(WarningSet warnings) {
-        allMotors = new ArrayList<>();
-        List<ThrustCurveMotorSet> database = Application.getThrustCurveMotorSetDatabase().getMotorSets();
-        for (ThrustCurveMotorSet set : database) {
-            allMotors.addAll(set.getMotors());
+        allMotors = loadMotorsFromOpenRocketDatabase(warnings);
+    }
+
+    private static List<ThrustCurveMotor> loadMotorsFromOpenRocketDatabase(WarningSet warnings) {
+        List<ThrustCurveMotor> motors = new ArrayList<>();
+        try {
+            List<ThrustCurveMotorSet> database = Application.getThrustCurveMotorSetDatabase().getMotorSets();
+            for (ThrustCurveMotorSet set : database) {
+                motors.addAll(set.getMotors());
+            }
+        } catch (Exception e) {
+            if (warnings != null) {
+                warnings.add("Unable to load motors from the OpenRocket motor database: " + e.getMessage());
+            }
         }
-        // allMotors.addAll(loadAllRASAeroMotors(warnings));
+        return motors;
     }
 
 }

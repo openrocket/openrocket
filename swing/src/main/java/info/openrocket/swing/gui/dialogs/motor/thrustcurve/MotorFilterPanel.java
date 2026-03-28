@@ -444,7 +444,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		maxLengthUnitSelect.setSelectedUnit(UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit());
 
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitByLength);
-		if ( mountLength != null  & limitByLength ) {
+		if ( mountLength != null && limitByLength ) {
 			lengthSlider.setValueAt(1, (int) Math.min(1000,Math.round(1000*mountLength)));
 			maxLengthModel.setValue(mountLength);
 		}

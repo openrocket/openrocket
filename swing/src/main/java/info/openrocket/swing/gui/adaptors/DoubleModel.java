@@ -18,6 +18,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -727,11 +728,13 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		} else {
 			this.maxValue = Double.POSITIVE_INFINITY;
 		}
-		
-		if (RocketComponent.class.isAssignableFrom(source.getClass())) {
-		    ((RocketComponent)source).addChangeListener(this);
-		}
-		
+
+        if (source instanceof RocketComponent rc) {
+            rc.addChangeListener(this);
+        } else if (source instanceof PhotoSettings ps) {
+            ps.addChangeListener(this);
+        }
+
 		try {
 			getMethod = source.getClass().getMethod("get" + valueName);
 		} catch (NoSuchMethodException e) {

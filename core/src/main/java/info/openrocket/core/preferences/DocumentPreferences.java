@@ -3,6 +3,7 @@ package info.openrocket.core.preferences;
 import info.openrocket.core.database.Database;
 import info.openrocket.core.material.Material;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,12 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 * A database of linear material (with length densities).
 	 */
 	private final Database<Material> LINE_MATERIAL = new Database<>();
+
+	public static final String PREF_SHOW_WARNINGS = "RocketPanel.showWarnings";
+	public static final String PREF_2D_BACKGROUND_COLOR = "RocketPanel.2DBackgroundColor";
+	public static final String PREF_3D_BACKGROUND_COLOR = "RocketPanel.3DBackgroundColor";
+	public static final String PREF_2D_TEXT_COLOR = "RocketPanel.2DTextColor";
+	public static final String PREF_3D_TEXT_COLOR = "RocketPanel.3DTextColor";
 
 
 	@Override
@@ -83,6 +90,73 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	@Override
 	public void putString(String key, String value) {
 		preferencesMap.put(key, new DocumentPreference(value));
+	}
+
+	/**
+	 * Get a Color preference value. Colors are stored as comma-separated R,G,B strings (e.g., "255,128,64").
+	 * @param key the preference key
+	 * @param defaultValue the default color if not set (can be null)
+	 * @return the color, or defaultValue if not set
+	 */
+	public java.awt.Color getColor(String key, java.awt.Color defaultValue) {
+		DocumentPreference pref = preferencesMap.get(key);
+		if (pref != null && pref.getValue() instanceof String) {
+			java.awt.Color color = parseColor((String) pref.getValue());
+			if (color != null) {
+				return color;
+			}
+		}
+		return defaultValue;
+	}
+
+	/**
+	 * Set a Color preference value. Colors are stored as comma-separated R,G,B strings (e.g., "255,128,64").
+	 * @param key the preference key
+	 * @param value the color to store (null to remove the preference)
+	 */
+	public void putColor(String key, java.awt.Color value) {
+		if (value == null) {
+			preferencesMap.remove(key);
+		} else {
+			String colorString = stringifyColor(value);
+			preferencesMap.put(key, new DocumentPreference(colorString));
+		}
+	}
+	
+	/**
+	 * Helper function to convert a string representation into a java.awt.Color object.
+	 * Expects format "R,G,B" where R, G, B are integers between 0 and 255.
+	 * 
+	 * @param color the color string (e.g., "255,128,64")
+	 * @return the Color object, or null if parsing fails
+	 */
+	private static java.awt.Color parseColor(String color) {
+		if (color == null) {
+			return null;
+		}
+
+		String[] rgb = color.split(",");
+		if (rgb.length == 3) {
+			try {
+				int red = MathUtil.clamp(Integer.parseInt(rgb[0].trim()), 0, 255);
+				int green = MathUtil.clamp(Integer.parseInt(rgb[1].trim()), 0, 255);
+				int blue = MathUtil.clamp(Integer.parseInt(rgb[2].trim()), 0, 255);
+				return new java.awt.Color(red, green, blue);
+			} catch (NumberFormatException ignore) {
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Helper function to convert a java.awt.Color object into a string before storing in a preference.
+	 * Returns format "R,G,B" where R, G, B are integers between 0 and 255.
+	 * 
+	 * @param color the Color object
+	 * @return the string representation (e.g., "255,128,64")
+	 */
+	private static String stringifyColor(java.awt.Color color) {
+		return color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 	}
 
 	/**

@@ -14,6 +14,8 @@ public class ShockCord extends MassObject {
 
 	private Material material;
 	private double cordLength;
+	private boolean cordLengthAutomatic = true;
+	private static final double AUTO_CORD_LENGTH_RATIO = 3.0;
 
 	public ShockCord() {
 		material = Application.getPreferences().getDefaultComponentMaterial(ShockCord.class, Material.Type.LINE);
@@ -50,6 +52,9 @@ public class ShockCord extends MassObject {
 	}
 
 	public double getCordLength() {
+		if (cordLengthAutomatic) {
+			cordLength = getAutoCordLength();
+		}
 		return cordLength;
 	}
 
@@ -61,15 +66,45 @@ public class ShockCord extends MassObject {
 		}
 
 		length = MathUtil.max(length, 0);
-		if (MathUtil.equals(length, this.length))
+		if (MathUtil.equals(length, this.cordLength) && !cordLengthAutomatic)
 			return;
 		this.cordLength = length;
+		this.cordLengthAutomatic = false;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+	private double getAutoCordLength() {
+		RocketComponent root = getRoot();
+		if (!(root instanceof Rocket)) {
+			return cordLength;
+		}
+		double rocketLength = ((Rocket) root).getLength();
+		return rocketLength * AUTO_CORD_LENGTH_RATIO;
+	}
+
+	public boolean isCordLengthAutomatic() {
+		return cordLengthAutomatic;
+	}
+
+	public void setCordLengthAutomatic(boolean auto) {
+		for (RocketComponent listener : configListeners) {
+			if (listener instanceof ShockCord) {
+				((ShockCord) listener).setCordLengthAutomatic(auto);
+			}
+		}
+
+		if (cordLengthAutomatic == auto)
+			return;
+		cordLengthAutomatic = auto;
+		if (cordLengthAutomatic) {
+			cordLength = getAutoCordLength();
+		}
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
 	@Override
 	public double getComponentMass() {
-		return material.getDensity() * cordLength;
+		return material.getDensity() * getCordLength();
 	}
 
 	@Override

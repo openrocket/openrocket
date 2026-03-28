@@ -16,7 +16,7 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	
 	boolean preventSeam = false;
 	boolean repeat = false;
-	
+
 	private final DocumentLoadingContext context;
 	
 	public RockSimAppearanceBuilder(DocumentLoadingContext context) {
@@ -33,10 +33,13 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 				//ignored
 			} else if ("Specular".equals(element)) {
 				//ignored
+			} else if ("Opacity".equals(element)) {
+				double opacity = Double.parseDouble(content);
+				setOpacity(opacity);
 			} else if ("AbientColor".equals(element)) {
-				setPaint(parseColor(content));
-			} else if ("DiffuseColor".equals(element)) {
 				//ignored
+			} else if ("DiffuseColor".equals(element)) {
+				setPaint(parseColor(content));
 			} else if ("SpecularColor".equals(element)) {
 				//Ignored
 			} else if ("UseSingleColor".equals(element) || "SimpleColorModel".equals(element)) {

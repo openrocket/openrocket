@@ -12,11 +12,8 @@ import info.openrocket.core.util.BaseTestCase;
 
 import org.junit.jupiter.api.Test;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class UpdateInfoTest extends BaseTestCase {
 
@@ -346,20 +343,20 @@ public class UpdateInfoTest extends BaseTestCase {
 		assertNull(latestObj);
 
 		// Generate a dummy json array, containing GitHub release info
-		JsonArrayBuilder builder = Json.createArrayBuilder();
-		JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
-		objectBuilder.add("tag_name", "release-22.02");
-		objectBuilder.add("body", "Release notes");
-		objectBuilder.add("html_url", "localhost");
-		JsonArrayBuilder assetsBuilder = Json.createArrayBuilder();
-		JsonObjectBuilder assetObject = Json.createObjectBuilder();
-		assetObject.add("name", "OpenRocket-22.02-macOS.dmg");
-		assetObject.add("browser_download_url",
+		JsonArray builder = new JsonArray();
+		JsonObject objectBuilder = new JsonObject();
+		objectBuilder.addProperty("tag_name", "release-22.02");
+		objectBuilder.addProperty("body", "Release notes");
+		objectBuilder.addProperty("html_url", "localhost");
+		JsonArray assetsBuilder = new JsonArray();
+		JsonObject assetObject = new JsonObject();
+		assetObject.addProperty("name", "OpenRocket-22.02-macOS.dmg");
+		assetObject.addProperty("browser_download_url",
 				"https://github.com/openrocket/openrocket/releases/download/release-22.02/OpenRocket-22.02-macOS.dmg");
-		assetsBuilder.add(assetObject.build());
-		objectBuilder.add("assets", assetsBuilder.build());
-		builder.add(objectBuilder.build());
-		jsonArr = builder.build();
+		assetsBuilder.add(assetObject);
+		objectBuilder.add("assets", assetsBuilder);
+		builder.add(objectBuilder);
+		jsonArr = builder;
 
 		latestObj = UpdateInfoRetriever.UpdateInfoFetcher.getLatestReleaseJSON(jsonArr, null, null, false);
 		ReleaseInfo release = new ReleaseInfo(latestObj);
@@ -381,20 +378,20 @@ public class UpdateInfoTest extends BaseTestCase {
 		} catch (NullPointerException ignore) {
 		}
 
-		jsonArr = Json.createArrayBuilder().build();
+		jsonArr = new JsonArray();
 		latestObj = UpdateInfoRetriever.UpdateInfoFetcher.getLatestReleaseJSON(jsonArr, null, null, false);
 		assertNull(latestObj);
 
-		builder = Json.createArrayBuilder();
-		builder.add(Json.createObjectBuilder().build());
-		jsonArr = builder.build();
+		builder = new JsonArray();
+		builder.add(new JsonObject());
+		jsonArr = builder;
 		try {
 			UpdateInfoRetriever.UpdateInfoFetcher.getLatestReleaseJSON(jsonArr, null, null, false);
 			fail("Should have thrown NullPointerException");
 		} catch (NullPointerException ignore) {
 		}
 
-		release = new ReleaseInfo(Json.createObjectBuilder().build());
+		release = new ReleaseInfo(new JsonObject());
 		try {
 			release.getReleaseName();
 			fail("Should have thrown NullPointerException");

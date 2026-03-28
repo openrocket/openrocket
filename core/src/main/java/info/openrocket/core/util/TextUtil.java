@@ -193,4 +193,17 @@ public class TextUtil {
 		return sb.toString();
 	}
 
+	/**
+	 * Convert a byte array to a hexadecimal string.
+	 * @param bytes the byte array
+	 * @return the hexadecimal string
+	 */
+	public static String bytesToHex(byte[] bytes) {
+		StringBuilder sb = new StringBuilder(bytes.length * 2);
+		for (byte b : bytes) {
+			sb.append(String.format("%02x", b));
+		}
+		return sb.toString();
+	}
+
 }
