@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import info.openrocket.core.motor.Manufacturer;
 import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorDigest;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
@@ -36,6 +37,8 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 				.setCommonName("T100")
 				.setDesignation("T100")
 				.setDescription("Test motor A")
+				.setDataSource("manual")
+				.setUpdatedOn("2025-01-01")
 				.setMotorType(Motor.Type.SINGLE)
 				.setStandardDelays(new double[] { 3, 5 })
 				.setDiameter(0.03)
@@ -50,7 +53,6 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 				.setCaseInfo("Case A")
 				.setPropellantInfo("Prop A")
 				.setInitialMass(0.10)
-				.setDigest("digest-1")
 				.build();
 
 		ThrustCurveMotor motorB = new ThrustCurveMotor.Builder()
@@ -59,6 +61,7 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 				.setCommonName("R200")
 				.setDesignation("R200")
 				.setDescription("Test motor B")
+				.setDataSource("thrustcurve.org")
 				.setMotorType(Motor.Type.RELOAD)
 				.setStandardDelays(new double[] {})
 				.setDiameter(0.05)
@@ -73,8 +76,6 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 				.setCaseInfo("Case B")
 				.setPropellantInfo("Prop B")
 				.setInitialMass(0.20)
-				.setDigest("digest-2")
-				.setAvailability(false)
 				.build();
 
 		File dbFile = tempDir.resolve("motors.db").toFile();
@@ -89,29 +90,34 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 		assertEquals("T100", loadedA.getCommonName());
 		assertEquals("T100", loadedA.getDesignation());
 		assertEquals("Test motor A", loadedA.getDescription());
+		assertEquals("manual", loadedA.getDataSource());
+		assertEquals("2025-01-01", loadedA.getUpdatedOn());
 		assertEquals(Motor.Type.SINGLE, loadedA.getMotorType());
 		assertEquals(0.03, loadedA.getDiameter(), 1.0e-9);
 		assertEquals(0.12, loadedA.getLength(), 1.0e-9);
 		assertEquals("Case A", loadedA.getCaseInfo());
 		assertEquals("Prop A", loadedA.getPropellantInfo());
 		assertEquals(0.10, loadedA.getInitialMass(), 1.0e-9);
-		assertEquals("digest-1", loadedA.getDigest());
+		assertEquals(MotorDigest.digestMotor(loadedA), loadedA.getDigest());
 		assertTrue(loadedA.isAvailable());
 		assertArrayEquals(new double[] { 3, 5 }, loadedA.getStandardDelays(), 0.0);
 		assertArrayEquals(new double[] { 0.0, 0.5, 1.0 }, loadedA.getTimePoints(), 0.0);
 		assertArrayEquals(new double[] { 0.0, 10.0, 0.0 }, loadedA.getThrustPoints(), 0.0);
-		assertCoordinatesMatch(loadedA.getCGPoints(), new double[] { 0.05, 0.05, 0.05 },
+		// CG is reconstructed by the database loader (center of motor).
+		assertCoordinatesMatch(loadedA.getCGPoints(), new double[] { 0.06, 0.06, 0.06 },
 				new double[] { 0.10, 0.09, 0.08 });
 
 		ThrustCurveMotor loadedB = findByDesignation(loaded, "R200");
 		assertEquals("AnotherCo", loadedB.getManufacturer().getDisplayName());
 		assertEquals(Motor.Type.RELOAD, loadedB.getMotorType());
-		assertFalse(loadedB.isAvailable());
+		assertTrue(loadedB.isAvailable());
+		assertEquals("thrustcurve.org", loadedB.getDataSource());
+		assertEquals(MotorDigest.digestMotor(loadedB), loadedB.getDigest());
 		assertArrayEquals(new double[] {}, loadedB.getStandardDelays(), 0.0);
 		assertArrayEquals(new double[] { 0.0, 0.3, 0.9 }, loadedB.getTimePoints(), 0.0);
 		assertArrayEquals(new double[] { 0.0, 25.0, 0.0 }, loadedB.getThrustPoints(), 0.0);
-		assertCoordinatesMatch(loadedB.getCGPoints(), new double[] { 0.07, 0.07, 0.07 },
-				new double[] { 0.20, 0.18, 0.16 });
+		assertCoordinatesMatch(loadedB.getCGPoints(), new double[] { 0.10, 0.10, 0.10 },
+				new double[] { 0.20, 0.18666666666666668, 0.16 });
 	}
 
 	@Test
@@ -121,13 +127,69 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 		try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 				Statement stmt = connection.createStatement()) {
 			stmt.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
-			stmt.execute("INSERT INTO meta (key, value) VALUES ('schema_version', '1')");
+			stmt.execute("INSERT INTO meta (key, value) VALUES ('schema_version', '3')");
 			stmt.execute("CREATE TABLE motors (id INTEGER PRIMARY KEY)");
+			stmt.execute("CREATE TABLE manufacturers (id INTEGER PRIMARY KEY)");
+			stmt.execute("CREATE TABLE thrust_curves (id INTEGER PRIMARY KEY)");
+			stmt.execute("CREATE TABLE thrust_data (id INTEGER PRIMARY KEY)");
 		}
 
 		SQLException exception = assertThrows(SQLException.class,
 				() -> ThrustCurveMotorSQLiteDatabase.validateDatabase(dbFile));
 		assertTrue(exception.getMessage().contains("missing required columns"));
+	}
+
+	@Test
+	public void testValidateDatabaseSchemaV2AllColumns() throws Exception {
+		Class.forName("org.sqlite.JDBC");
+		File dbFile = tempDir.resolve("v2.db").toFile();
+		try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+				Statement stmt = connection.createStatement()) {
+			stmt.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
+			stmt.execute("INSERT INTO meta (key, value) VALUES ('schema_version', '2')");
+			stmt.execute("CREATE TABLE manufacturers (id INTEGER PRIMARY KEY, name TEXT, abbrev TEXT)");
+			stmt.execute("CREATE TABLE motors (" +
+					"id INTEGER PRIMARY KEY, manufacturer_id INTEGER, tc_motor_id TEXT, designation TEXT, " +
+					"common_name TEXT, impulse_class TEXT, diameter REAL, length REAL, total_impulse REAL, " +
+					"avg_thrust REAL, max_thrust REAL, burn_time REAL, propellant_weight REAL, " +
+					"total_weight REAL, type TEXT, delays TEXT, case_info TEXT, prop_info TEXT, " +
+					"sparky INTEGER, info_url TEXT, data_files TEXT, updated_on TEXT)");
+			stmt.execute("CREATE TABLE thrust_curves (" +
+					"id INTEGER PRIMARY KEY, motor_id INTEGER, tc_simfile_id TEXT, source TEXT, " +
+					"format TEXT, license TEXT, info_url TEXT, data_url TEXT, " +
+					"total_impulse REAL, avg_thrust REAL, max_thrust REAL, burn_time REAL)");
+			stmt.execute("CREATE TABLE thrust_data (" +
+					"id INTEGER PRIMARY KEY, curve_id INTEGER, time_seconds REAL, force_newtons REAL)");
+		}
+
+		ThrustCurveMotorSQLiteDatabase.validateDatabase(dbFile);
+	}
+
+	@Test
+	public void testValidateDatabaseSchemaV3AllColumns() throws Exception {
+		Class.forName("org.sqlite.JDBC");
+		File dbFile = tempDir.resolve("v3.db").toFile();
+		try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+				Statement stmt = connection.createStatement()) {
+			stmt.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
+			stmt.execute("INSERT INTO meta (key, value) VALUES ('schema_version', '3')");
+			stmt.execute("CREATE TABLE manufacturers (id INTEGER PRIMARY KEY, name TEXT, abbrev TEXT)");
+			stmt.execute("CREATE TABLE motors (" +
+					"id INTEGER PRIMARY KEY, manufacturer_id INTEGER, tc_motor_id TEXT, designation TEXT, " +
+					"common_name TEXT, impulse_class TEXT, diameter REAL, length REAL, total_impulse REAL, " +
+					"avg_thrust REAL, max_thrust REAL, burn_time REAL, propellant_weight REAL, " +
+					"total_weight REAL, type TEXT, delays TEXT, case_info TEXT, prop_info TEXT, " +
+					"sparky INTEGER, info_url TEXT, data_files TEXT, updated_on TEXT, " +
+					"description TEXT, source TEXT)");
+			stmt.execute("CREATE TABLE thrust_curves (" +
+					"id INTEGER PRIMARY KEY, motor_id INTEGER, tc_simfile_id TEXT, source TEXT, " +
+					"format TEXT, license TEXT, info_url TEXT, data_url TEXT, " +
+					"total_impulse REAL, avg_thrust REAL, max_thrust REAL, burn_time REAL)");
+			stmt.execute("CREATE TABLE thrust_data (" +
+					"id INTEGER PRIMARY KEY, curve_id INTEGER, time_seconds REAL, force_newtons REAL)");
+		}
+
+		ThrustCurveMotorSQLiteDatabase.validateDatabase(dbFile);
 	}
 
 	private ThrustCurveMotor findByDesignation(List<ThrustCurveMotor> motors, String designation) {
@@ -150,4 +212,5 @@ public class ThrustCurveMotorSQLiteDatabaseTest {
 			assertEquals(masses[i], coordinates[i].getWeight(), 1.0e-9);
 		}
 	}
+
 }

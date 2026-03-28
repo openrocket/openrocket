@@ -1,6 +1,7 @@
 package info.openrocket.core.startup;
 
 import info.openrocket.core.database.ComponentPresetDatabase;
+import info.openrocket.core.database.MotorDatabaseInitializer;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.formatting.RocketDescriptor;
@@ -68,6 +69,8 @@ public class CoreModule extends AbstractModule {
 			presetLoader.markAsLoaded();
 		}
 		if (!bypassMotors) {
+			// Initialize the motor database before loading
+			MotorDatabaseInitializer.initialize();
 			motorLoader.startLoading();
 		} else {
 			motorLoader.markAsLoaded();

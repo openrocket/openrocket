@@ -112,7 +112,9 @@ public class ComponentChangeEvent extends EventObject {
 	}
 
 	public boolean isNonFunctionalChange() {
-		return (TYPE.NON_FUNCTIONAL.matches(this.type));
+		// Texture and graphic changes are also non-functional (visual only, no simulation impact)
+		int nonFunctionalMask = TYPE.NON_FUNCTIONAL.value | TYPE.TEXTURE.value | TYPE.GRAPHIC.value;
+		return (this.type & ~nonFunctionalMask) == 0;
 	}
 
 	public boolean isMassChange() {

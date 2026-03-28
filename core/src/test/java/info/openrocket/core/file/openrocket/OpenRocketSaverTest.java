@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import info.openrocket.core.ServicesForTesting;
 import info.openrocket.core.database.ComponentPresetDao;
@@ -25,6 +26,7 @@ import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.GeneralRocketLoader;
+import info.openrocket.core.file.GeneralRocketSaver;
 import info.openrocket.core.file.RocketLoadException;
 import info.openrocket.core.file.motor.GeneralMotorLoader;
 import info.openrocket.core.l10n.DebugTranslator;
@@ -368,7 +370,7 @@ public class OpenRocketSaverTest {
 	}
 
 	@Test
-	public void testCustomMotorThrustCurveEmbeddedInOrk() {
+	public void testCustomMotorEmbeddedAsRseInOrk() throws IOException {
 		Rocket rocket = new Rocket();
 		rocket.setName("embedded_motor_test");
 
@@ -411,9 +413,27 @@ public class OpenRocketSaverTest {
 		StorageOptions options = new StorageOptions();
 		options.setSaveSimulationData(false);
 
-		File file = saveRocket(rocketDoc, options);
-		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		// Use GeneralRocketSaver to get a proper zip file with thrustcurves/ directory
+		File file = saveRocketAsZip(rocketDoc, options);
 
+		// Verify the .ork zip contains a thrustcurves/<digest>.rse entry
+		boolean foundRseEntry = false;
+		try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file)) {
+			java.util.zip.ZipEntry rseEntry = zipFile.getEntry("thrustcurves/digestA.rse");
+			assertNotNull(rseEntry, "Expected thrustcurves/digestA.rse entry in .ork zip");
+			foundRseEntry = true;
+
+			// Verify the .rse file is parseable
+			try (InputStream rseStream = zipFile.getInputStream(rseEntry)) {
+				GeneralMotorLoader loader = new GeneralMotorLoader();
+				List<ThrustCurveMotor.Builder> motors = loader.load(rseStream, "digestA.rse");
+				assertFalse(motors.isEmpty(), "Expected at least one motor from .rse file");
+			}
+		}
+		assertTrue(foundRseEntry);
+
+		// Verify the motor round-trips through save/load
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
 		Rocket loadedRocket = rocketDocLoaded.getRocket();
 		FlightConfigurationId loadedFcid = loadedRocket.getSelectedConfiguration().getFlightConfigurationID();
 
@@ -430,9 +450,13 @@ public class OpenRocketSaverTest {
 		MotorConfiguration loadedMotorConfig = motorMount.getMotorConfig(loadedFcid);
 		assertNotNull(loadedMotorConfig);
 		Motor loadedMotor = loadedMotorConfig.getMotor();
-		assertNotNull(loadedMotor, "Expected motor to be loaded from embedded thrust curve data");
+		assertNotNull(loadedMotor, "Expected motor to be loaded from embedded .rse file");
 		assertTrue(loadedMotor instanceof ThrustCurveMotor);
-		assertEquals("digestA", loadedMotor.getDigest());
+
+		// Verify thrust curve data round-tripped correctly
+		ThrustCurveMotor loadedTCM = (ThrustCurveMotor) loadedMotor;
+		assertEquals(motor.getDesignation(), loadedTCM.getDesignation());
+		assertEquals(3, loadedTCM.getTimePoints().length);
 	}
 	
 
@@ -458,6 +482,18 @@ public class OpenRocketSaverTest {
 		return rocketDoc;
 	}
 	
+	private File saveRocketAsZip(OpenRocketDocument rocketDoc, StorageOptions options) {
+		File file = null;
+		try {
+			file = File.createTempFile(TMP_DIR.getName(), ".ork");
+			GeneralRocketSaver generalSaver = new GeneralRocketSaver();
+			generalSaver.save(file, rocketDoc, options);
+		} catch (Exception e) {
+			fail("Exception saving temp zip file: " + e.getMessage());
+		}
+		return file;
+	}
+
 	private File saveRocket(OpenRocketDocument rocketDoc, StorageOptions options) {
 		File file = null;
 		OutputStream out = null;

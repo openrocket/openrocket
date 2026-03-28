@@ -13,7 +13,7 @@ public abstract class BaseUnitColumnParser extends BaseColumnParser {
 	protected int unitIndex;
 	protected boolean unitConfigured;
 
-	protected static Map<String, Unit> rocksimUnits;
+	protected static final Map<String, Unit> rocksimUnits;
 
 	static {
 		rocksimUnits = new HashMap<>();

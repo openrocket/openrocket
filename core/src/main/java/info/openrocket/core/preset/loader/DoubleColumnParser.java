@@ -14,7 +14,7 @@ public class DoubleColumnParser extends BaseColumnParser {
 
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
-		double value = Double.valueOf(columnData);
+		double value = Double.parseDouble(columnData);
 		props.put(propKey, value);
 	}
 

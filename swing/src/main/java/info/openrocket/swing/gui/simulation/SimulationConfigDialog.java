@@ -317,8 +317,6 @@ public class SimulationConfigDialog extends JDialog {
 		JLabel statusLabel = new JLabel(trans.get("simpanel.col.Status") + ":");
 		topPanel.add(statusLabel, "growx 0, gapright para");
 
-		StringBuilder statusBuilder = new StringBuilder("<html>");
-
 		String statusText = simulationList[0].getStatusDescription();
 		Color statusColor = UITheme.getStatusColor(simulationList[0].getStatus());
 

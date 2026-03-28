@@ -118,6 +118,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.IntBuffer;
 import java.util.Random;
 
@@ -332,7 +333,7 @@ public final class FlameRenderer {
 
 			int f = gl.glCreateShader(GL2.GL_FRAGMENT_SHADER);
 			BufferedReader brf = new BufferedReader(new InputStreamReader(
-					FlameRenderer.class.getResourceAsStream("/datafiles/flame/smokeShader.glsl")));
+					FlameRenderer.class.getResourceAsStream("/datafiles/flame/smokeShader.glsl"), StandardCharsets.UTF_8));
 			String fsrc = "";
 			while ((line = brf.readLine()) != null) {
 				fsrc += line + "\n";
@@ -349,7 +350,7 @@ public final class FlameRenderer {
 				gl.glGetShaderInfoLog(f, infoLogLenght[0], null, infoLog);
 				byte[] infoBytes = new byte[infoLogLenght[0]];
 				infoLog.get(infoBytes);
-				String out = new String(infoBytes);
+				String out = new String(infoBytes, StandardCharsets.UTF_8);
 				System.err.println("Fragment shader error:\n" + out);
 			}
 

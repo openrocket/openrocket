@@ -229,5 +229,9 @@ public class DescriptionArea extends JScrollPane {
 		StyleConstants.setForeground(attributeSet, color);
 		styledDocument.setCharacterAttributes(0, styledDocument.getLength(), attributeSet, false);
 	}
-	
+
+	public void scrollToTop() {
+		if (editorPane == null) return;
+		editorPane.setCaretPosition(0);
+	}
 }

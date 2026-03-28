@@ -305,7 +305,7 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 		for (RocketComponent c : rocket) {
 			if (hasDecal(c, img))
 				count++;
-			else if (hasDecalInside(c, img))
+			if (hasDecalInside(c, img))
 				count++;
 		}
 		return count;

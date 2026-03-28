@@ -51,6 +51,10 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 												  boolean sel, boolean expanded, boolean leaf, int row,
 												  boolean hasFocus1) {
+		if (tree == null) {
+			return this;
+		}
+
 		BorderLayout layout = new BorderLayout();
 		layout.setHgap(4);
 		JPanel panel = new JPanel(layout);
@@ -67,10 +71,6 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		} else {
 			label.setOpaque(false);
 			label.setForeground(new Color(UIManager.getColor("Tree.textForeground").getRGB()));
-		}
-
-		if (tree == null) {
-			return label;
 		}
 
 		TreePath[] paths = tree.getSelectionPaths();

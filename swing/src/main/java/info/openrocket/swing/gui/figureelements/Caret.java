@@ -25,6 +25,20 @@ public abstract class Caret implements FigureElement {
 		this.x = x;
 		this.y = y;
 	}
+	
+	/**
+	 * Gets the X position of the caret.
+	 */
+	public double getX() {
+		return x;
+	}
+	
+	/**
+	 * Gets the Y position of the caret.
+	 */
+	public double getY() {
+		return y;
+	}
 
 	/**
 	 * Paints the caret to the Graphics2D element.
@@ -42,7 +56,8 @@ public abstract class Caret implements FigureElement {
 	
 	@Override
 	public void paint(Graphics2D g2, double scale, Rectangle visible) {
-		throw new UnsupportedOperationException("paint() with rectangle unsupported.");
+		// Carets don't need the visible rectangle, just call the single-parameter version
+		paint(g2, scale);
 	}
 
 	/**

@@ -106,7 +106,13 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		popupMenuFull.add(deleteConfigAction);
 		popupMenuFull.add(duplicateConfigAction);
 
-		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
+		String txt = trans.get("MotorConfigurationPanel.lbl.nomotors");
+		final JLabel helpText;
+		if (txt.contains("%s")) {
+			helpText = new JLabel(String.format(txt, trans.get("BasicFrame.tab.Rocketdesign")));
+		} else {
+			helpText = new JLabel(txt);
+		}
 		cards.add(helpText, HELP_LABEL );
 
 		JPanel configurationPanel = new JPanel(new MigLayout("fill, insets n n 5px n"));

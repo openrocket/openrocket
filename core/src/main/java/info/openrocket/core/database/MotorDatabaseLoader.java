@@ -18,6 +18,7 @@ import info.openrocket.core.l10n.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.motor.ThrustCurveMotorSQLiteDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.file.iterator.DirectoryIterator;
@@ -91,11 +92,35 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 
 
 	/**
-	 * Loads the default database from SQLite, with a legacy fallback to serialized data.
-	 * Uses directory "datafiles/thrustcurves" for data.
+	 * Loads the default database from SQLite.
+	 * First checks the motor library directory for motors.db (managed by MotorDatabaseInitializer),
+	 * then falls back to bundled resources if not found.
 	 */
 	private void loadInternalMotorDatabase() {
 		log.info("Starting reading internal motor database");
+		
+		// First, try to load from the motor library directory (where MotorDatabaseInitializer copies it)
+		File motorLibraryDir = SystemInfo.getOpenRocketMotorLibraryDirectory();
+		if (motorLibraryDir != null) {
+			File motorsDb = new File(motorLibraryDir, "motors.db");
+			if (motorsDb.isFile()) {
+				log.info("Loading motor database from motor library directory: {}", motorsDb.getAbsolutePath());
+				try {
+					List<ThrustCurveMotor> motors = ThrustCurveMotorSQLiteDatabase.readDatabase(motorsDb);
+					addMotors(motors);
+					log.info("Ending reading SQLite motor database, motorCount=" + motorCount);
+					return;
+				} catch (Exception ex) {
+					log.warn("Failed to read motor database from {}: {}", motorsDb.getAbsolutePath(), ex.getMessage());
+					// Fall through to try bundled resources
+				}
+			} else {
+				log.debug("No motors.db found in motor library directory: {}", motorLibraryDir.getAbsolutePath());
+			}
+		}
+
+		// Fall back to bundled resources
+		log.info("Falling back to bundled motor database from resources");
 		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
 				new SimpleFileFilter("", false, "db"));
 		if (iterator != null) {

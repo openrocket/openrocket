@@ -35,7 +35,7 @@ public class Icons {
 	private static final String SVG_DEFAULT_COLOR_KEY = "OR.icons.default";
 	// Multiplier to scale icons relative to font height (icons are typically slightly larger than text)
 	private static final double ICON_FONT_SIZE_MULTIPLIER = 1.25;
-	
+
 	static {
 		log.debug("Starting to load icons");
 	}
@@ -102,7 +102,7 @@ public class Icons {
 
 	// Note: most of these icons are from famfamicons Silk set
 	// For SVG icons, we use Lucide icons (https://lucide.dev/) where possible.
-	
+
 	public static final Icon FILE_NEW = loadIcon(
 			"pix/icons/lucide/file-plus-corner.svg",
 			"pix/icons/document-new.png",
@@ -297,7 +297,7 @@ public class Icons {
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
 					0x006cb6, "OR.icons.plot"
 			));
-	
+
 	public static final Icon HELP_ABOUT = loadIcon(
 			"pix/icons/lucide/info.svg",
 			"pix/icons/help-about.png",
@@ -352,7 +352,31 @@ public class Icons {
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
 					0x2d2dbd, "OR.icons.zoomFit"
 			));
-	
+
+	public static final Icon RULER = loadIcon(
+			"pix/icons/lucide/ruler-dimension-line.svg",
+			"pix/icons/ruler.png",
+			"Ruler",
+			Map.of(
+					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
+					0xFAC132, "OR.colors.ruler"
+			));
+	public static final Icon SNAP_CLICK = loadIcon(
+			"pix/icons/lucide/magnet-click.svg",
+			"pix/icons/snap-click.png",
+			"Snap",
+			Map.of(
+					0xE86B55, "OR.icons.magnet.red",
+					0xE1E3E2, "OR.icons.magnet.white"
+			));
+	public static final Icon SNAP = loadSvgIcon(
+			"pix/icons/lucide/magnet-filled.svg",
+			"Snap",
+			Map.of(
+					0xE86B55, "OR.icons.magnet.red",
+					0xE1E3E2, "OR.icons.magnet.white"
+			));
+
 	public static final Icon PREFERENCES = loadIcon(
 			"pix/icons/lucide/cog.svg",
 			"pix/icons/preferences.png",
@@ -391,7 +415,7 @@ public class Icons {
 	public static final Icon RESET = loadSvgIcon(
 			"pix/icons/lucide/rotate-cw.svg",
 			"Reset");
-	
+
 	public static final Icon NOT_FAVORITE = loadIcon(
 			"pix/icons/lucide/star-off.svg",
 			"pix/icons/star_silver.png",
@@ -645,7 +669,7 @@ public class Icons {
 
 		// Get the target height based on font size
 		int targetHeight = (int) Math.round(prefs.getUIFontSize() * ICON_FONT_SIZE_MULTIPLIER * scaleMultiplier);
-		
+
 		// First, create a temporary icon to get the original aspect ratio
 		FlatSVGIcon icon = new FlatSVGIcon(file, Icons.class.getClassLoader());
 		icon.setDescription(name);
@@ -656,19 +680,19 @@ public class Icons {
 		if (colorFilter != null) {
 			icon.setColorFilter(colorFilter);
 		}
-		
+
 		// If dimensions are invalid, return the icon as is
 		if (originalWidth <= 0 || originalHeight <= 0) {
 			return icon;
 		}
-		
+
 		// Calculate target width maintaining aspect ratio
 		double scale = (double) targetHeight / originalHeight;
 		int targetWidth = Math.max(1, (int) Math.round(originalWidth * scale));
-		
+
 		// Create the icon with the target dimensions
 		icon = icon.derive(targetWidth, targetHeight);
-		
+
 		return icon;
 	}
 

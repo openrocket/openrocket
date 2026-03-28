@@ -22,7 +22,7 @@ public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 			if (StringUtils.isEmpty(columnData)) {
 				return;
 			}
-			double value = Double.valueOf(columnData);
+			double value = Double.parseDouble(columnData);
 
 			if (unitConfigured) {
 				String unitName = data[unitIndex];

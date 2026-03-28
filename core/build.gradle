@@ -77,6 +77,7 @@ tasks.register('serializeEngines') {
     dependsOn serializeEnginesDelete
     dependsOn serializeEnginesExecute
 }
+// Runs serializeEnginesExecute targeting the dist output path.
 tasks.register('serializeEnginesDist') {
     dependsOn serializeEnginesExecuteDist
 }
@@ -91,43 +92,29 @@ tasks.register('serializeEnginesDelete', Delete) {
         println "...serializeEnginesDelete Completed"
     }
 }
+
+// Shared configuration for the serialize engines JavaExec tasks.
+def configureSerializeTask = { JavaExec task, String outputPath ->
+    task.dependsOn serializeEnginesDelete
+    task.workingDir new File(projectDir, 'build/tmp')
+    task.classpath = sourceSets.main.runtimeClasspath
+    task.mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
+    task.args = ['../../resources-src/datafiles/thrustcurves/', '../.' + outputPath, threadUtilFraction]
+    task.standardInput = System.in
+}
+
 // Executes the database generation program to fetch ThrustCurve rocket data and store it in SQLite.
 tasks.register('serializeEnginesExecute', JavaExec) {
-    dependsOn serializeEnginesDelete
-    workingDir  new File(projectDir, 'build/tmp')
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
-    args = [
-            '../../resources-src/datafiles/thrustcurves/',
-            '../.' + serializedEnginesPath,
-            threadUtilFraction
-    ]
-    standardInput = System.in
-
-    doFirst {
-        println "Starting serializeEnginesExecute..."
-//        println "${serializedEnginesPath}"
-    }
-    doLast {
-        println "...serializeEnginesExecute Completed"
-    }
+    configureSerializeTask(it, serializedEnginesPath)
+    doFirst { println "Starting serializeEnginesExecute..." }
+    doLast  { println "...serializeEnginesExecute Completed" }
 }
-// Executes the database generation program to fetch ThrustCurve rocket data and store it in SQLite.
-// TODO: Shouldn't need a seperate task, but the args are not changing when dynamically updating
-// the variable.
+
+// Same as serializeEnginesExecute but writes to the build resources path for distribution.
 tasks.register('serializeEnginesExecuteDist', JavaExec) {
-    dependsOn serializeEnginesDelete
-    workingDir  new File(projectDir, 'build/tmp')
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass.set('info.openrocket.core.thrustcurve.serialization.SerializeThrustcurveMotors')
-    args '../../resources-src/datafiles/thrustcurves/', '../.' + serializedEnginesPathDist, threadUtilFraction
-    standardInput = System.in
-    doFirst {
-        println "Starting serializeEnginesExecuteDist..."
-    }
-    doLast {
-        println "...serializeEnginesExecuteDist Completed"
-    }
+    configureSerializeTask(it, serializedEnginesPathDist)
+    doFirst { println "Starting serializeEnginesExecuteDist..." }
+    doLast  { println "...serializeEnginesExecuteDist Completed" }
 }
 // Validates that the motor database file exists.
 tasks.register('serializeEnginesValidate') {
@@ -229,6 +216,25 @@ jacocoTestCoverageVerification {
         rule {
             limit {
                 minimum = 0.6
+            }
+        }
+    }
+}
+
+// Get the short git commit hash to append to SNAPSHOT versions
+def gitCommitHash = 'unknown'
+try {
+    gitCommitHash = 'git rev-parse --short HEAD'.execute([], rootDir).text.trim()
+} catch (ignored) {}
+
+processResources {
+    inputs.property('gitCommitHash', gitCommitHash)
+    filesMatching('build.properties') {
+        filter { line ->
+            if (line.startsWith('build.version=') && line.contains('SNAPSHOT')) {
+                "${line}-${gitCommitHash}"
+            } else {
+                line
             }
         }
     }

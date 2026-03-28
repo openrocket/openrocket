@@ -146,6 +146,21 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 		});
 		this.add(showMarkers, "wrap, growx, spanx");
 
+		// // Open caliper tool in minimized mode
+		final JCheckBox caliperOpenMinimized = new JCheckBox(
+				trans.get("pref.dlg.checkbox.CaliperOpenMinimized"));
+		caliperOpenMinimized.setToolTipText(trans.get("pref.dlg.checkbox.CaliperOpenMinimized.ttip"));
+		caliperOpenMinimized.setSelected(preferences.getBoolean(
+				ApplicationPreferences.CALIPER_OPEN_MINIMIZED, false));
+		caliperOpenMinimized.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				preferences.putBoolean(ApplicationPreferences.CALIPER_OPEN_MINIMIZED,
+						e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		this.add(caliperOpenMinimized, "wrap para, growx, spanx");
+
 		// // File preview view type
 		// TODO: uncomment this once 3D preview export is functional (in RocketPanel - capturePreviewImage)
 		/*add(new JLabel(trans.get("pref.dlg.lbl.previewSource")), "growx");

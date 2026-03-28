@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -356,7 +357,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			List<ComponentPreset> presets = null;
 			
 			if (file.getName().toLowerCase().endsWith(".orc")) {
-				OpenRocketComponentDTO fileContents = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new FileReader(file));
+				OpenRocketComponentDTO fileContents = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new FileReader(file, StandardCharsets.UTF_8));
 				editContext.setMaterialsLoaded(new MaterialHolder(fileContents.asMaterialList()));
 				presets = fileContents.asComponentPresets();
 			}

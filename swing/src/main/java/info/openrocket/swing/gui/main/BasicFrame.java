@@ -502,7 +502,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// 	Save
 		item = new JMenuItem(trans.get("main.menu.file.save"), KeyEvent.VK_S);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, GUIUtil.getMenuShortcutKeyMask()));
 		//// Save the current rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.save.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_SAVE));
@@ -518,7 +518,7 @@ private static final Translator trans = Application.getTranslator();
 		//// 	Save as...
 		item = new JMenuItem(trans.get("main.menu.file.saveAs"), KeyEvent.VK_A);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				InputEvent.SHIFT_DOWN_MASK | InputEvent.META_DOWN_MASK));
+				InputEvent.SHIFT_DOWN_MASK | GUIUtil.getMenuShortcutKeyMask()));
 		//// Save the current rocket design to a new file
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.saveAs.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_SAVE_AS));
@@ -619,7 +619,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// 	Print design info...
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, GUIUtil.getMenuShortcutKeyMask()));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.print.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_PRINT));
 		item.addActionListener(new ActionListener() {
@@ -645,7 +645,7 @@ private static final Translator trans = Application.getTranslator();
 		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_I);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.properties.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.CONFIGURE));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, GUIUtil.getMenuShortcutKeyMask()));
 		item.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -657,7 +657,7 @@ private static final Translator trans = Application.getTranslator();
 
 		////	Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, GUIUtil.getMenuShortcutKeyMask()));
 		//// Close the current rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.close.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_CLOSE));
@@ -675,7 +675,7 @@ private static final Translator trans = Application.getTranslator();
 
 		////	Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, GUIUtil.getMenuShortcutKeyMask()));
 		//// Quit the program
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.quit.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_QUIT));
@@ -698,7 +698,7 @@ private static final Translator trans = Application.getTranslator();
 
 		Action action = UndoRedoAction.newUndoAction(document);
 		item = createMenuItemFromAction(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, GUIUtil.getMenuShortcutKeyMask()));
 		item.setMnemonic(KeyEvent.VK_U);
 
 		////	Undo the previous operation
@@ -708,7 +708,7 @@ private static final Translator trans = Application.getTranslator();
 
 		action = UndoRedoAction.newRedoAction(document);
 		item = createMenuItemFromAction(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, GUIUtil.getMenuShortcutKeyMask()));
 		item.setMnemonic(KeyEvent.VK_R);
 
 		////	Redo the previously undone operation
@@ -1085,7 +1085,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// New
 		item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, GUIUtil.getMenuShortcutKeyMask()));
 		item.setMnemonic(KeyEvent.VK_N);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_NEW));
@@ -1103,7 +1103,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// 	Open...
 		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, GUIUtil.getMenuShortcutKeyMask()));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.open.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_OPEN));
 		item.addActionListener(new ActionListener() {
@@ -1657,6 +1657,20 @@ private static final Translator trans = Application.getTranslator();
 
 
 	/**
+	 * Restore focus to this frame after a dialog chain completes.
+	 * On some platforms (notably macOS), when a chain of modal dialogs opens and closes
+	 * (e.g. file chooser followed by overwrite confirmation), the parent frame may not
+	 * automatically regain focus, leaving the application menu bar disabled.
+	 * Using invokeLater ensures the focus request happens after all dialog-related events are processed.
+	 */
+	private void restoreFocus() {
+		SwingUtilities.invokeLater(() -> {
+			toFront();
+			requestFocus();
+		});
+	}
+
+	/**
 	 * "Save" action.  If the design is new, then this is identical to "Save As", with a default file filter for .ork.
 	 * If the rocket being edited previously was opened from a .ork file, then it will be saved immediately to the same
 	 * file.  But clicking on 'Save' for an existing design file with a RockSim or RASAero file will bring up a confirmation
@@ -1666,15 +1680,19 @@ private static final Translator trans = Application.getTranslator();
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAction() {
-		document.fireDocumentSavingEvent(new DocumentChangeEvent(this));
-		File file = document.getFile();
-		if (file == null || document.getDefaultStorageOptions().getFileType().equals(FileType.ROCKSIM)
-				|| document.getDefaultStorageOptions().getFileType().equals(FileType.RASAERO)) {
-			log.info("Document does not contain file, opening save as dialog instead");
-			return saveAsAction();
+		try {
+			document.fireDocumentSavingEvent(new DocumentChangeEvent(this));
+			File file = document.getFile();
+			if (file == null || document.getDefaultStorageOptions().getFileType().equals(FileType.ROCKSIM)
+					|| document.getDefaultStorageOptions().getFileType().equals(FileType.RASAERO)) {
+				log.info("Document does not contain file, opening save as dialog instead");
+				return saveAsAction();
+			}
+			log.info("Saving document to " + file);
+			return saveAsOpenRocket(file);
+		} finally {
+			restoreFocus();
 		}
-		log.info("Saving document to " + file);
-		return saveAsOpenRocket(file);
 	}
 
 	/**
@@ -1726,20 +1744,24 @@ private static final Translator trans = Application.getTranslator();
 
 
 	public boolean exportRASAeroAction() {
-		File file = openFileSaveAsDialog(FileType.RASAERO);
-		if (file == null) {
-			return false;
-		}
-
-		file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
-		if (FileHelper.confirmWrite(file, BasicFrame.this)) {
-			boolean result = saveAsRASAero(file);
-			if (!result) {
-				file.delete();
+		try {
+			File file = openFileSaveAsDialog(FileType.RASAERO);
+			if (file == null) {
+				return false;
 			}
-			return result;
+
+			file = FileHelper.forceExtension(file, RASAeroCommonConstants.FILE_EXTENSION);
+			if (FileHelper.confirmWrite(file, BasicFrame.this)) {
+				boolean result = saveAsRASAero(file);
+				if (!result) {
+					file.delete();
+				}
+				return result;
+			}
+			return false;
+		} finally {
+			restoreFocus();
 		}
-		return false;
 	}
 
 	/**
@@ -1837,16 +1859,20 @@ private static final Translator trans = Application.getTranslator();
 	* @return true if the file was saved, false otherwise
 	*/
 	public boolean exportRockSimAction() {
-		File file = openFileSaveAsDialog(FileType.ROCKSIM);
-		if (file == null) {
-			return false;
-		}
+		try {
+			File file = openFileSaveAsDialog(FileType.ROCKSIM);
+			if (file == null) {
+				return false;
+			}
 
-		file = FileHelper.forceExtension(file, "rkt");
-		if (FileHelper.confirmWrite(file, BasicFrame.this) ) {
-			return saveAsRockSim(file);
+			file = FileHelper.forceExtension(file, "rkt");
+			if (FileHelper.confirmWrite(file, BasicFrame.this)) {
+				return saveAsRockSim(file);
+			}
+			return false;
+		} finally {
+			restoreFocus();
 		}
-		return false;
 	}
 
 	/**
@@ -1922,18 +1948,22 @@ private static final Translator trans = Application.getTranslator();
 	 * @return true if the file was saved, false otherwise
 	 */
 	public boolean exportWavefrontOBJAction() {
-		File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
-		if (file == null) {
-			return false;
-		}
+		try {
+			File file = openFileSaveAsDialog(FileType.WAVEFRONT_OBJ, getSelectedComponents());
+			if (file == null) {
+				return false;
+			}
 
-		file = FileHelper.forceExtension(file, "obj");
-		OBJExportOptions options = document.getDefaultOBJOptions();
-		boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
-		if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
-			return saveAsWavefrontOBJ(file);
+			file = FileHelper.forceExtension(file, "obj");
+			OBJExportOptions options = document.getDefaultOBJOptions();
+			boolean isExportAsSeparateFiles = options.isExportAsSeparateFiles();
+			if (isExportAsSeparateFiles || FileHelper.confirmWrite(file, BasicFrame.this)) {		// No overwrite warning for separate files
+				return saveAsWavefrontOBJ(file);
+			}
+			return false;
+		} finally {
+			restoreFocus();
 		}
-		return false;
 	}
 
 	private boolean saveAsWavefrontOBJ(File file) {
@@ -1973,119 +2003,123 @@ private static final Translator trans = Application.getTranslator();
 	 * @param components Components to export, or null to export all from document
 	 */
 	private void exportSvgProfilesAction(List<RocketComponent> components) {
-		// Get currently selected components from design (if components parameter is null)
-		List<RocketComponent> initiallySelected = components;
-		if (initiallySelected == null) {
-			initiallySelected = getSelectedComponents();
+		try {
+			// Get currently selected components from design (if components parameter is null)
+			List<RocketComponent> initiallySelected = components;
 			if (initiallySelected == null) {
-				initiallySelected = new ArrayList<>();
+				initiallySelected = getSelectedComponents();
+				if (initiallySelected == null) {
+					initiallySelected = new ArrayList<>();
+				}
 			}
-		}
-		
-		// Show SVG options dialog first
-		SvgOptionsDialog optionsDialog = new SvgOptionsDialog(BasicFrame.this, document, initiallySelected);
-		optionsDialog.setFromPreferences(prefs);
-		if (!optionsDialog.showDialog()) {
-			return; // User cancelled
-		}
 
-		// Get the selected tab to determine export type
-		int selectedTab = optionsDialog.getSelectedTab();
-		
-		// Get options from dialog (includes spacing)
-		SVGExportOptions options = optionsDialog.getExportOptions();
+			// Show SVG options dialog first
+			SvgOptionsDialog optionsDialog = new SvgOptionsDialog(BasicFrame.this, document, initiallySelected);
+			optionsDialog.setFromPreferences(prefs);
+			if (!optionsDialog.showDialog()) {
+				return; // User cancelled
+			}
 
-		// Now show file chooser
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(FileHelper.SVG_FILTER);
+			// Get the selected tab to determine export type
+			int selectedTab = optionsDialog.getSelectedTab();
 
-		SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
-		File defaultDir = swingPrefs.getDefaultDirectory();
-		if (defaultDir != null) {
-			chooser.setCurrentDirectory(defaultDir);
-		}
+			// Get options from dialog (includes spacing)
+			SVGExportOptions options = optionsDialog.getExportOptions();
 
-		// Determine default filename based on selected tab
-		String defaultName;
-		String fileSuffix;
-		if (selectedTab == SvgOptionsDialog.COMPONENTS_TAB) {
-			// Components tab
-			if (components != null && !components.isEmpty()) {
-				if (components.size() == 1) {
-					defaultName = components.get(0).getName();
-					if (defaultName == null || defaultName.isBlank()) {
-						defaultName = components.get(0).getComponentName();
+			// Now show file chooser
+			JFileChooser chooser = new JFileChooser();
+			chooser.setFileFilter(FileHelper.SVG_FILTER);
+
+			SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+			File defaultDir = swingPrefs.getDefaultDirectory();
+			if (defaultDir != null) {
+				chooser.setCurrentDirectory(defaultDir);
+			}
+
+			// Determine default filename based on selected tab
+			String defaultName;
+			String fileSuffix;
+			if (selectedTab == SvgOptionsDialog.COMPONENTS_TAB) {
+				// Components tab
+				if (components != null && !components.isEmpty()) {
+					if (components.size() == 1) {
+						defaultName = components.get(0).getName();
+						if (defaultName == null || defaultName.isBlank()) {
+							defaultName = components.get(0).getComponentName();
+						}
+					} else {
+						defaultName = "components";
 					}
 				} else {
-					defaultName = "components";
+					defaultName = document.getRocket().getName();
+					if (defaultName == null || defaultName.isBlank()) {
+						defaultName = "rocket";
+					}
 				}
+				fileSuffix = "-profile.svg";
 			} else {
+				// Fin Guides tab
 				defaultName = document.getRocket().getName();
 				if (defaultName == null || defaultName.isBlank()) {
 					defaultName = "rocket";
 				}
+				fileSuffix = "-finguides.svg";
 			}
-			fileSuffix = "-profile.svg";
-		} else {
-			// Fin Guides tab
-			defaultName = document.getRocket().getName();
-			if (defaultName == null || defaultName.isBlank()) {
-				defaultName = "rocket";
+			File parentDir = defaultDir != null ? defaultDir : new File(System.getProperty("user.home", "."));
+			chooser.setSelectedFile(new File(parentDir, defaultName + fileSuffix));
+
+			if (chooser.showSaveDialog(BasicFrame.this) != JFileChooser.APPROVE_OPTION) {
+				return;
 			}
-			fileSuffix = "-finguides.svg";
-		}
-		File parentDir = defaultDir != null ? defaultDir : new File(System.getProperty("user.home", "."));
-		chooser.setSelectedFile(new File(parentDir, defaultName + fileSuffix));
 
-		if (chooser.showSaveDialog(BasicFrame.this) != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
+			File target = FileHelper.forceExtension(chooser.getSelectedFile(), "svg");
+			if (!FileHelper.confirmWrite(target, BasicFrame.this)) {
+				return;
+			}
 
-		File target = FileHelper.forceExtension(chooser.getSelectedFile(), "svg");
-		if (!FileHelper.confirmWrite(target, BasicFrame.this)) {
-			return;
-		}
+			swingPrefs.setDefaultDirectory(chooser.getCurrentDirectory());
 
-		swingPrefs.setDefaultDirectory(chooser.getCurrentDirectory());
+			// Save SVG preferences
+			prefs.setSVGStrokeColor(optionsDialog.getStrokeColor());
+			prefs.setSVGStrokeWidth(optionsDialog.getStrokeWidth());
+			prefs.setSVGDrawCrosshair(optionsDialog.isDrawCrosshair());
+			prefs.setSVGCrosshairColor(optionsDialog.getCrosshairColor());
+			prefs.setSVGCrosshairSize(optionsDialog.getCrosshairSize());
+			prefs.setSVGShowLabels(optionsDialog.isShowLabels());
+			prefs.setSVGLabelColor(optionsDialog.getLabelColor());
 
-		// Save SVG preferences
-		prefs.setSVGStrokeColor(optionsDialog.getStrokeColor());
-		prefs.setSVGStrokeWidth(optionsDialog.getStrokeWidth());
-		prefs.setSVGDrawCrosshair(optionsDialog.isDrawCrosshair());
-		prefs.setSVGCrosshairColor(optionsDialog.getCrosshairColor());
-		prefs.setSVGCrosshairSize(optionsDialog.getCrosshairSize());
-		prefs.setSVGShowLabels(optionsDialog.isShowLabels());
-		prefs.setSVGLabelColor(optionsDialog.getLabelColor());
-
-		try {
-			if (selectedTab == SvgOptionsDialog.COMPONENTS_TAB) {
-				// Export components
-				List<RocketComponent> selectedComponents = optionsDialog.getSelectedComponents();
-				if (!selectedComponents.isEmpty()) {
-					new SVGRocketPartsExporter().export(selectedComponents, target, options);
-				} else {
-					new SVGRocketPartsExporter().export(document, target, options);
+			try {
+				if (selectedTab == SvgOptionsDialog.COMPONENTS_TAB) {
+					// Export components
+					List<RocketComponent> selectedComponents = optionsDialog.getSelectedComponents();
+					if (!selectedComponents.isEmpty()) {
+						new SVGRocketPartsExporter().export(selectedComponents, target, options);
+					} else {
+						new SVGRocketPartsExporter().export(document, target, options);
+					}
+					log.info(Markers.USER_MARKER, "Exported SVG profiles to {}", target.getAbsolutePath());
 				}
-				log.info(Markers.USER_MARKER, "Exported SVG profiles to {}", target.getAbsolutePath());
+				// TODO: other tabs here (e.g. fin guides)
+			} catch (UnsupportedOperationException ex) {
+				log.warn("Fin guide export not implemented", ex);
+				JOptionPane.showMessageDialog(BasicFrame.this,
+						trans.get("SVGOptionPanel.finGuides.notImplemented"),
+						trans.get("SVGOptionPanel.finGuides.notImplemented.title"),
+						JOptionPane.INFORMATION_MESSAGE);
+			} catch (IllegalStateException noParts) {
+				JOptionPane.showMessageDialog(BasicFrame.this,
+						trans.get("main.menu.file.exportAs.SVGProfiles.empty"),
+						trans.get("main.menu.file.exportAs.SVGProfiles.title"),
+						JOptionPane.INFORMATION_MESSAGE);
+			} catch (Exception ex) {
+				log.warn("Failed to export SVG", ex);
+				JOptionPane.showMessageDialog(BasicFrame.this,
+						String.format(trans.get("main.menu.file.exportAs.SVGProfiles.error"), ex.getMessage()),
+						trans.get("main.menu.file.exportAs.SVGProfiles.title"),
+						JOptionPane.ERROR_MESSAGE);
 			}
-			// TODO: other tabs here (e.g. fin guides)
-		} catch (UnsupportedOperationException ex) {
-			log.warn("Fin guide export not implemented", ex);
-			JOptionPane.showMessageDialog(BasicFrame.this,
-					trans.get("SVGOptionPanel.finGuides.notImplemented"),
-					trans.get("SVGOptionPanel.finGuides.notImplemented.title"),
-					JOptionPane.INFORMATION_MESSAGE);
-		} catch (IllegalStateException noParts) {
-			JOptionPane.showMessageDialog(BasicFrame.this,
-					trans.get("main.menu.file.exportAs.SVGProfiles.empty"),
-					trans.get("main.menu.file.exportAs.SVGProfiles.title"),
-					JOptionPane.INFORMATION_MESSAGE);
-		} catch (Exception ex) {
-			log.warn("Failed to export SVG", ex);
-			JOptionPane.showMessageDialog(BasicFrame.this,
-					String.format(trans.get("main.menu.file.exportAs.SVGProfiles.error"), ex.getMessage()),
-					trans.get("main.menu.file.exportAs.SVGProfiles.title"),
-					JOptionPane.ERROR_MESSAGE);
+		} finally {
+			restoreFocus();
 		}
 	}
 
@@ -2114,21 +2148,25 @@ private static final Translator trans = Application.getTranslator();
 	 * @return true if the file was saved, false otherwise
 	 */
 	private boolean saveAsAction() {
-		// Open dialog for saving rocket info
-		showSaveRocketInfoDialog();
+		try {
+			// Open dialog for saving rocket info
+			showSaveRocketInfoDialog();
 
-		File file = openFileSaveAsDialog(FileType.OPENROCKET);
-		if (file == null) {
-			return false;
-		}
+			File file = openFileSaveAsDialog(FileType.OPENROCKET);
+			if (file == null) {
+				return false;
+			}
 
-		file = FileHelper.forceExtension(file, "ork");
-		boolean result = FileHelper.confirmWrite(file, BasicFrame.this) && saveAsOpenRocket(file);
-		if (result) {
-			MRUDesignFile opts = MRUDesignFile.getInstance();
-			opts.addFile(file.getAbsolutePath());
+			file = FileHelper.forceExtension(file, "ork");
+			boolean result = FileHelper.confirmWrite(file, BasicFrame.this) && saveAsOpenRocket(file);
+			if (result) {
+				MRUDesignFile opts = MRUDesignFile.getInstance();
+				opts.addFile(file.getAbsolutePath());
+			}
+			return result;
+		} finally {
+			restoreFocus();
 		}
-		return result;
 	}
 
 	private void showSaveRocketInfoDialog() {

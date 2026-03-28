@@ -16,6 +16,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -134,6 +138,8 @@ class MotorInformationPanel extends JPanel {
 	private final JLabel dataPointsLabel;
 	private final JLabel compatibleCasesLabel;
 	private final JLabel digestLabel;
+	private final JLabel lastUpdatedOnLabel;
+	private final JLabel sourceLabel;
 
 	private final JTextArea comment;
 	private final Font noCommentFont;
@@ -377,6 +383,27 @@ class MotorInformationPanel extends JPanel {
 			} else {
 				digestLabel = null;
 			}
+
+			//// Last updated on:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.LastUpdatedOn")));
+			lastUpdatedOnLabel = new JLabel();
+			this.add(lastUpdatedOnLabel, "wrap");
+
+			//// Source:
+			this.add(new JLabel(trans.get("TCMotorSelPan.lbl.Source")));
+			sourceLabel = new JLabel();
+			this.add(sourceLabel, "wrap");
+
+
+			comment = new JTextArea(5, 5);
+			GUIUtil.changeFontSize(comment, -2);
+			withCommentFont = comment.getFont();
+			noCommentFont = withCommentFont.deriveFont(Font.ITALIC);
+			comment.setLineWrap(true);
+			comment.setWrapStyleWord(true);
+			comment.setEditable(false);
+			JScrollPane scrollpane = new JScrollPane(comment);
+			this.add(scrollpane, "spanx, grow, pushy, wrap para");
 		}
 
 		hideSimilarBox.getActionListeners()[0].actionPerformed(null);
@@ -441,6 +468,8 @@ class MotorInformationPanel extends JPanel {
 		if (digestLabel != null) {
 			digestLabel.setText("");
 		}
+		lastUpdatedOnLabel.setText("");
+		sourceLabel.setText("");
 		setComment("");
 		chart.getXYPlot().setDataset(new XYSeriesCollection());
 	}
@@ -505,6 +534,9 @@ class MotorInformationPanel extends JPanel {
 			digestLabel.setText(selectedMotor.getDigest());
 		}
 
+		lastUpdatedOnLabel.setText(formatUpdatedOn(selectedMotor.getUpdatedOn()));
+		sourceLabel.setText(formatSource(selectedMotor.getDataSource()));
+
 		setComment(selectedMotor.getDescription());
 
 		// Update the plot
@@ -533,6 +565,36 @@ class MotorInformationPanel extends JPanel {
 		plot.setDataset(dataset);
 
 		invalidate();
+	}
+
+	private static String formatUpdatedOn(String updatedOn) {
+		if (updatedOn == null) {
+			return "";
+		}
+		String v = updatedOn.trim();
+		if (v.isEmpty()) {
+			return "";
+		}
+		try {
+			LocalDate date = Instant.parse(v).atZone(ZoneId.systemDefault()).toLocalDate();
+			return date.toString();
+		} catch (DateTimeParseException ignored) {
+		}
+		return v;
+	}
+
+	private static String formatSource(String source) {
+		if (source == null) {
+			return "";
+		}
+		String v = source.trim();
+		if (v.isEmpty()) {
+			return "";
+		}
+		if ("thrustcurve.org".equalsIgnoreCase(v)) {
+			return "ThrustCurve.org";
+		}
+		return v;
 	}
 	
 	private void setComment(String s) {

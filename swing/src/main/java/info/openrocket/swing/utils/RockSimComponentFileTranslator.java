@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import info.openrocket.core.material.Material;
@@ -60,7 +61,7 @@ public class RockSimComponentFileTranslator {
 
         LOGGER.println("\tWriting to file " + args[1]);
         File outfile = new File(args[1]);
-        FileWriter fos = new FileWriter(outfile);
+        FileWriter fos = new FileWriter(outfile, StandardCharsets.UTF_8);
         fos.write(xml);
         fos.flush();
         fos.close();

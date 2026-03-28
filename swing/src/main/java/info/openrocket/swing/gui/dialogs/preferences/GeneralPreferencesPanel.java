@@ -24,6 +24,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.startup.MotorDatabaseUpdateChecker;
 import info.openrocket.swing.gui.util.UpdateInfoRunner;
 import net.miginfocom.swing.MigLayout;
 
@@ -303,6 +304,29 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 			}
 		});
 		this.add(betaUpdateBox, "gapleft para, wrap");
+
+		//// Check for motor database updates at startup
+		final JCheckBox motorDatabaseUpdateBox = new JCheckBox(trans.get("pref.dlg.checkbox.CheckMotorDbUpdates"));
+		motorDatabaseUpdateBox.setToolTipText(trans.get("pref.dlg.checkbox.CheckMotorDbUpdates.ttip"));
+		motorDatabaseUpdateBox.setSelected(preferences.getCheckMotorDatabaseUpdates());
+		motorDatabaseUpdateBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setCheckMotorDatabaseUpdates(motorDatabaseUpdateBox.isSelected());
+			}
+		});
+		this.add(motorDatabaseUpdateBox);
+
+		//// Check now button (motor database)
+		button = new JButton(trans.get("pref.dlg.but.checknow"));
+		button.setToolTipText(trans.get("pref.dlg.ttip.CheckMotorDbUpdatesNow"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MotorDatabaseUpdateChecker.checkForUpdatesNowAndInstallIfRequested(parentDialog);
+			}
+		});
+		this.add(button, "right, wrap");
 		
 		//// Open most recent file on startup
 		final JCheckBox openRecentOnStartupBox = new JCheckBox(trans.get("pref.dlg.but.openlast"));

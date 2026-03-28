@@ -46,7 +46,10 @@ public class DesignationComparator implements Comparator<String> {
 		m1 = pattern.matcher(o1);
 		m2 = pattern.matcher(o2);
 
-		if (m1.find() && m2.find()) {
+		boolean matched1 = m1.find();
+		boolean matched2 = m2.find();
+
+		if (matched1 && matched2) {
 
 			String o1Class = m1.group(3);
 			int o1Thrust = Integer.parseInt(m1.group(4).replaceAll(",", ""));
@@ -83,10 +86,16 @@ public class DesignationComparator implements Comparator<String> {
 			// 3. Extra modifier
 			return COLLATOR.compare(o1Extra, o2Extra);
 
+		} else if (!matched1 && !matched2) {
+
+			// Neither matches the designation pattern, simply compare strings
+			return COLLATOR.compare(o1, o2);
+
 		} else {
 
-			// Not understandable designation, simply compare strings
-			return COLLATOR.compare(o1, o2);
+			// One matches and one doesn't — sort non-matching designations after
+			// matching ones to maintain transitivity of the comparison
+			return matched1 ? -1 : 1;
 		}
 	}
 }

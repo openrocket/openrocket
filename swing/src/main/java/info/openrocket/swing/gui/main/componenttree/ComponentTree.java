@@ -5,6 +5,7 @@ import javax.swing.ToolTipManager;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.swing.gui.components.BasicTree;
+import info.openrocket.swing.gui.util.GUIUtil;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -23,7 +24,7 @@ public class ComponentTree extends BasicTree {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if ((e.getKeyCode() == KeyEvent.VK_A) && ((e.getModifiersEx() & KeyEvent.META_DOWN_MASK) != 0)) {
+				if ((e.getKeyCode() == KeyEvent.VK_A) && ((e.getModifiersEx() & GUIUtil.getMenuShortcutKeyMask()) != 0)) {
 					setSelectionInterval(1, getRowCount());		// Don't select the rocket (row 0)
 				}
 			}

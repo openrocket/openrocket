@@ -7,6 +7,9 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -18,12 +21,19 @@ import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.document.StorageOptions.FileType;
+import info.openrocket.core.file.motor.RockSimMotorWriter;
 import info.openrocket.core.file.openrocket.OpenRocketSaver;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver;
 import info.openrocket.core.file.rocksim.export.RockSimSaver;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.motor.Motor;
+import info.openrocket.core.motor.MotorConfiguration;
+import info.openrocket.core.motor.ThrustCurveMotor;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.MotorMount;
+import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.DecalNotFoundException;
 import info.openrocket.core.util.MathUtil;
@@ -256,10 +266,49 @@ public class GeneralRocketSaver {
 				zos.closeEntry();
 			}
 
+			// Write embedded thrust curve motor files.
+			Map<String, ThrustCurveMotor> uniqueMotors = collectUniqueMotors(document);
+			if (!uniqueMotors.isEmpty()) {
+				RockSimMotorWriter motorWriter = new RockSimMotorWriter();
+				for (Map.Entry<String, ThrustCurveMotor> entry : uniqueMotors.entrySet()) {
+					String entryName = "thrustcurves/" + entry.getKey() + ".rse";
+					ZipEntry motorEntry = new ZipEntry(entryName);
+					zos.putNextEntry(motorEntry);
+					zos.write(motorWriter.write(entry.getValue()).getBytes(StandardCharsets.UTF_8));
+					zos.closeEntry();
+				}
+			}
+
 			zos.flush();
 			options.clearPreviewImage();
 		}
 
+	}
+
+	/**
+	 * Collect all unique {@link ThrustCurveMotor} instances from the document, keyed by digest.
+	 */
+	private Map<String, ThrustCurveMotor> collectUniqueMotors(OpenRocketDocument document) {
+		Map<String, ThrustCurveMotor> motors = new LinkedHashMap<>();
+		Rocket rocket = document.getRocket();
+		for (RocketComponent c : rocket) {
+			if (c instanceof MotorMount mount && mount.isMotorMount()) {
+				for (FlightConfigurationId fcid : rocket.getIds()) {
+					MotorConfiguration motorConfig = mount.getMotorConfig(fcid);
+					if (motorConfig.isEmpty()) {
+						continue;
+					}
+					Motor motor = motorConfig.getMotor();
+					if (motor instanceof ThrustCurveMotor tcm) {
+						String digest = tcm.getDigest();
+						if (digest != null && !digest.isEmpty()) {
+							motors.putIfAbsent(digest, tcm);
+						}
+					}
+				}
+			}
+		}
+		return motors;
 	}
 
 	// package scope for testing.

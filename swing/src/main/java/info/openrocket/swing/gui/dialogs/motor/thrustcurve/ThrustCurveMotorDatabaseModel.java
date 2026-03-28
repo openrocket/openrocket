@@ -8,10 +8,19 @@ import info.openrocket.core.database.motor.ThrustCurveMotorSet;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 
 public class ThrustCurveMotorDatabaseModel extends AbstractTableModel {
+
 	private final ThrustCurveMotorSetDatabase database;
 	
 	public ThrustCurveMotorDatabaseModel(ThrustCurveMotorSetDatabase database) {
 		this.database = database;
+	}
+
+	/**
+	 * Replace the backing database list and notify listeners.
+	 */
+	public void setDatabase(List<ThrustCurveMotorSet> database) {
+		this.database = database;
+		fireTableDataChanged();
 	}
 	
 	@Override

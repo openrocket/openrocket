@@ -101,7 +101,8 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.0
+                // TODO: we should really increase this...
+                minimum = 0.05
             }
         }
     }
