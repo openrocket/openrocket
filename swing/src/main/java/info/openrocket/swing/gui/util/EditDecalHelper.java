@@ -127,10 +127,11 @@ public class EditDecalHelper {
 		}
 		
 		if (dialog.isEditOne()) {
-			if (insideApp)
-				decal = makeDecalUnique(doc, component, decal);
-			else
+			if (insideApp) {
 				decal = makeDecalUniqueInside(doc, component, decal);
+			} else {
+				decal = makeDecalUnique(doc, component, decal);
+			}
 		}
 		
 		launchEditor(parent, useSystemEditor, commandLine, decal);

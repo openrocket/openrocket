@@ -91,6 +91,7 @@ import info.openrocket.core.file.rasaero.RASAeroCommonConstants;
 import info.openrocket.core.file.svg.export.SVGExportOptions;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
+import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -203,6 +204,7 @@ private static final Translator trans = Application.getTranslator();
 
 	public static BasicFrame lastFrameInstance = null;		// Latest BasicFrame that was created
 	private static boolean quitCalled = false;				// Keeps track whether the quit action has been called
+	private static boolean reopenInProgress = false;		// Guards against re-entrant reopen() calls from EDT event pumping
 
 
 	/**
@@ -285,11 +287,26 @@ private static final Translator trans = Application.getTranslator();
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getScaleAction());
-			popupMenu.add(actions.getToggleVisibilityAction());
+			popupMenu.add(actions.getToggleVisibilityContextMenuAction());
+			JMenuItem toggleStageActiveItem = popupMenu.add(actions.getToggleActiveAction());
 
 			popupMenu.addSeparator();
 			popupMenu.add(actions.getExportOBJAction());
 			popupMenu.add(actions.getExportSVGAction());
+
+			popupMenu.addPopupMenuListener(new PopupMenuListener() {
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+					List<RocketComponent> selected = selectionModel.getSelectedComponents();
+					boolean onlyStages = !selected.isEmpty() &&
+							selected.stream().allMatch(AxialStage.class::isInstance);
+					toggleStageActiveItem.setVisible(onlyStages);
+				}
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent e) {}
+			});
 		}
 
 		installBananaAltKeyTracker();
@@ -502,7 +519,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// 	Save
 		item = new JMenuItem(trans.get("main.menu.file.save"), KeyEvent.VK_S);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, GUIUtil.getMenuShortcutKeyMask()));
 		//// Save the current rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.save.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_SAVE));
@@ -518,7 +535,7 @@ private static final Translator trans = Application.getTranslator();
 		//// 	Save as...
 		item = new JMenuItem(trans.get("main.menu.file.saveAs"), KeyEvent.VK_A);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				InputEvent.SHIFT_DOWN_MASK | InputEvent.META_DOWN_MASK));
+				InputEvent.SHIFT_DOWN_MASK | GUIUtil.getMenuShortcutKeyMask()));
 		//// Save the current rocket design to a new file
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.saveAs.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_SAVE_AS));
@@ -619,7 +636,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// 	Print design info...
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, GUIUtil.getMenuShortcutKeyMask()));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.print.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_PRINT));
 		item.addActionListener(new ActionListener() {
@@ -645,7 +662,7 @@ private static final Translator trans = Application.getTranslator();
 		item = new JMenuItem(trans.get("main.menu.file.properties"), KeyEvent.VK_I);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.properties.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.CONFIGURE));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, GUIUtil.getMenuShortcutKeyMask()));
 		item.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -657,7 +674,7 @@ private static final Translator trans = Application.getTranslator();
 
 		////	Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, GUIUtil.getMenuShortcutKeyMask()));
 		//// Close the current rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.close.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_CLOSE));
@@ -675,7 +692,7 @@ private static final Translator trans = Application.getTranslator();
 
 		////	Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, GUIUtil.getMenuShortcutKeyMask()));
 		//// Quit the program
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.quit.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_QUIT));
@@ -698,7 +715,7 @@ private static final Translator trans = Application.getTranslator();
 
 		Action action = UndoRedoAction.newUndoAction(document);
 		item = createMenuItemFromAction(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, GUIUtil.getMenuShortcutKeyMask()));
 		item.setMnemonic(KeyEvent.VK_U);
 
 		////	Undo the previous operation
@@ -708,7 +725,7 @@ private static final Translator trans = Application.getTranslator();
 
 		action = UndoRedoAction.newRedoAction(document);
 		item = createMenuItemFromAction(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, GUIUtil.getMenuShortcutKeyMask()));
 		item.setMnemonic(KeyEvent.VK_R);
 
 		////	Redo the previously undone operation
@@ -1085,7 +1102,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// New
 		item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, GUIUtil.getMenuShortcutKeyMask()));
 		item.setMnemonic(KeyEvent.VK_N);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_NEW));
@@ -1103,7 +1120,7 @@ private static final Translator trans = Application.getTranslator();
 
 		//// 	Open...
 		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, GUIUtil.getMenuShortcutKeyMask()));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.open.desc"));
 		item.setIcon(Icons.deriveMenuIcon(Icons.FILE_OPEN));
 		item.addActionListener(new ActionListener() {
@@ -2350,25 +2367,34 @@ private static final Translator trans = Application.getTranslator();
 	 * @return the BasicFrame that was created
 	 */
 	public static BasicFrame reopen() {
-		if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
-			return BasicFrame.newAction();
-		} else {
-			String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
-			if (lastFile != null) {
-				log.info("Opening last design file: " + lastFile);
-				BasicFrame frame = BasicFrame.open(new File(lastFile), null);
-				if (frame == null) {
-					MRUDesignFile.getInstance().removeFile(lastFile);
+		// Guard against re-entrant calls caused by modal dialogs pumping the EDT
+		// (e.g. MotorDatabaseUpdateChecker or BlockingMotorDatabaseProvider showing progress dialogs)
+		if (reopenInProgress) {
+			log.debug("Reopen already in progress, ignoring re-entrant call");
+			return null;
+		}
+		reopenInProgress = true;
+		try {
+			if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
+				return BasicFrame.newAction();
+			} else {
+				String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
+				if (lastFile != null) {
+					log.info("Opening last design file: " + lastFile);
+					BasicFrame frame = BasicFrame.open(new File(lastFile), null);
+					if (frame == null) {
+						MRUDesignFile.getInstance().removeFile(lastFile);
+						return BasicFrame.newAction();
+					} else {
+						MRUDesignFile.getInstance().addFile(lastFile);
+						return frame;
+					}
+				} else {
 					return BasicFrame.newAction();
 				}
-				else {
-					MRUDesignFile.getInstance().addFile(lastFile);
-					return frame;
-				}
 			}
-			else {
-				return BasicFrame.newAction();
-			}
+		} finally {
+			reopenInProgress = false;
 		}
 	}
 

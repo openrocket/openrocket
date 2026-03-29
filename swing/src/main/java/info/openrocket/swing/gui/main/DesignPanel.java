@@ -31,7 +31,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -61,13 +60,13 @@ public class DesignPanel extends JSplitPane {
 
         // Remove JTree key events that interfere with menu accelerators
         InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.META_DOWN_MASK), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.META_DOWN_MASK), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.META_DOWN_MASK), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.META_DOWN_MASK), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_DOWN_MASK), "none");
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_DOWN_MASK), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, GUIUtil.getMenuShortcutKeyMask()), "none");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, GUIUtil.getMenuShortcutKeyMask()), "none");
 
         // Highlight all child components of a stage/rocket/podset when it is selected
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
@@ -108,7 +107,7 @@ public class DesignPanel extends JSplitPane {
                         component.clearConfigListeners();
 
                         // Multi-component edit if shift/meta key is pressed
-                        if ((e.isShiftDown() || e.isMetaDown()) && tree.getSelectionPaths() != null) {
+                        if ((e.isShiftDown() || GUIUtil.isMenuShortcutDown(e)) && tree.getSelectionPaths() != null) {
                             // Add the other selected components as listeners to the last selected component
                             for (TreePath p : tree.getSelectionPaths()) {
                                 if (p != null) {

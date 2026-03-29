@@ -43,10 +43,10 @@ public abstract class RocketComponentCalc {
 	public abstract double calculateFrictionCD(FlightConditions conditions, double componentCf, WarningSet warnings);
 
 	/**
-	 * Calculates the pressure drag of the component. This component does NOT
-	 * include
-	 * the effect of discontinuities in the rocket body.
-	 * 
+	 * Calculates the pressure drag of the component. This does NOT include
+	 * the effect of discontinuities in the rocket body, nor trailing edge
+	 * (base) drag — see {@link #calculateComponentBaseCD}.
+	 *
 	 * @param conditions   the flight conditions.
 	 * @param stagnationCD the current stagnation drag coefficient
 	 * @param baseCD       the current base drag coefficient
@@ -55,6 +55,21 @@ public abstract class RocketComponentCalc {
 	 */
 	public abstract double calculatePressureCD(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings);
+
+	/**
+	 * Calculates the base (trailing edge) drag of the component.
+	 * The default implementation returns 0; subclasses with meaningful
+	 * base drag (e.g. fins) should override.
+	 *
+	 * @param conditions the flight conditions.
+	 * @param baseCD     the current base drag coefficient
+	 * @param warnings   set in which to store possible warnings
+	 * @return the base drag coefficient of the component
+	 */
+	public double calculateComponentBaseCD(FlightConditions conditions,
+			double baseCD, WarningSet warnings) {
+		return 0;
+	}
 
 	/**
 	 * Calculation of Reynolds Number

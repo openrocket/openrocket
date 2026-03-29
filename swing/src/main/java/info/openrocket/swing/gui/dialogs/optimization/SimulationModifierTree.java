@@ -174,6 +174,10 @@ public class SimulationModifierTree extends BasicTree {
 			
 			Object object = ((DefaultMutableTreeNode) value).getUserObject();
 			
+			if (object == null) {
+				return this;
+			}
+
 			// Set icon (for rocket components, null for others)
 			setIcon(ComponentIcons.getSmallIcon(object.getClass()));
 

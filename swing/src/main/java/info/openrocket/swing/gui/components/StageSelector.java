@@ -127,7 +127,7 @@ public class StageSelector extends JPanel implements StateChangeListener {
 			FlightConfiguration config = rocket.getSelectedConfiguration();
 			config.toggleStage(stage.getStageNumber());
 
-			rocket.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE | ComponentChangeEvent.MOTOR_CHANGE,
+			rocket.fireComponentChangeEvent(ComponentChangeEvent.AEROMASS_CHANGE | ComponentChangeEvent.MOTOR_CHANGE | ComponentChangeEvent.TREE_CHANGE_CHILDREN,
 					config.getFlightConfigurationID());
 		}
 		

@@ -35,14 +35,19 @@ import info.openrocket.core.unit.UnitGroup;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.core.util.ChangeSource;
+import info.openrocket.core.util.FileUtils;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.GeodeticComputationStrategy;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.simulation.SimulationStepperMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ApplicationPreferences implements ChangeSource, ORPreferences, SimulationOptionsInterface, StateChangeListener {
+	private static final Logger log = LoggerFactory.getLogger(ApplicationPreferences.class);
+
 	private static final String SPLIT_CHARACTER = "|";
 
 	/*
@@ -73,6 +78,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
     public static final String PLOT_SHOW_EVENTS = "ShowPlotEvents";
+    
+    public static final String CALIPER_OPEN_MINIMIZED = "CaliperOpenMinimized";
 
 	private static final String IGNORE_WELCOME = "IgnoreWelcome";
 
@@ -80,6 +87,8 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
+	private static final String CHECK_MOTOR_DATABASE_UPDATES = "CheckMotorDatabaseUpdates";
+	private static final String IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS = "IgnoreMotorDatabaseUpdateVersions";
 
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
@@ -305,6 +314,22 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public final void setCheckBetaUpdates(boolean check) {
 		this.putBoolean(CHECK_BETA_UPDATES, check);
+	}
+
+	public final boolean getCheckMotorDatabaseUpdates() {
+		return this.getBoolean(CHECK_MOTOR_DATABASE_UPDATES, true);
+	}
+
+	public final void setCheckMotorDatabaseUpdates(boolean check) {
+		this.putBoolean(CHECK_MOTOR_DATABASE_UPDATES, check);
+	}
+
+	public final List<String> getIgnoreMotorDatabaseUpdateVersions() {
+		return List.of(this.getString(IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS, "").split("\n"));
+	}
+
+	public final void setIgnoreMotorDatabaseUpdateVersions(List<String> versions) {
+		this.putString(IGNORE_MOTOR_DATABASE_UPDATE_VERSIONS, String.join("\n", versions));
 	}
 
 
@@ -1173,18 +1198,12 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public File getDefaultUserComponentFile() {
 		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
-
-		if (!compdir.isDirectory()) {
-			compdir.mkdirs();
-		}
-
-		if (!compdir.isDirectory()) {
+		try {
+			return FileUtils.makeDirectoryIfNotExists(compdir);
+		} catch (Exception e) {
+			log.warn("Could not create library directory: {}", compdir.getAbsolutePath(), e);
 			return null;
 		}
-		if (!compdir.canRead()) {
-			return null;
-		}
-		return compdir;
 	}
 
 	/**

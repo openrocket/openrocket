@@ -14,6 +14,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
+import java.awt.event.InputEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusListener;
@@ -116,6 +117,21 @@ public class GUIUtil {
 		} catch (IOException ignore) {
 			ignore.printStackTrace();
 		}
+	}
+
+	/**
+	 * Returns the modifier mask for the platform's menu shortcut key:
+	 * {@link InputEvent#META_DOWN_MASK} on macOS, {@link InputEvent#CTRL_DOWN_MASK} on Windows and Linux.
+	 */
+	public static int getMenuShortcutKeyMask() {
+		return Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+	}
+
+	/**
+	 * Returns true if the platform's menu shortcut key (Cmd on macOS, Ctrl on Windows/Linux) is held down.
+	 */
+	public static boolean isMenuShortcutDown(InputEvent e) {
+		return (e.getModifiersEx() & getMenuShortcutKeyMask()) != 0;
 	}
 
 	public static void loadCustomFonts() {

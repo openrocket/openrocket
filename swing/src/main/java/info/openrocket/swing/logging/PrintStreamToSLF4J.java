@@ -3,6 +3,7 @@ package info.openrocket.swing.logging;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 import info.openrocket.core.logging.Markers;
 import org.slf4j.Logger;
@@ -10,14 +11,14 @@ import org.slf4j.LoggerFactory;
 
 
 public class PrintStreamToSLF4J {
-	
+
 	public static PrintStream getPrintStream(String category, PrintStream original) {
-		
+
 		final Logger logger = LoggerFactory.getLogger(category);
-		
-		return new PrintStream(new OutputStream() {
+
+		OutputStream sink = new OutputStream() {
 			StringBuilder currentLine = new StringBuilder();
-			
+
 			@Override
 			public synchronized void write(int b) throws IOException {
 				if (b == '\r' || b == '\n') {
@@ -36,7 +37,8 @@ public class PrintStreamToSLF4J {
 					currentLine.append((char) b);
 				}
 			}
-		});
-		
+		};
+		return new PrintStream(sink, true, StandardCharsets.UTF_8);
+
 	}
 }

@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.main.componenttree;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,8 +22,11 @@ import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.rocketcomponent.AxialStage;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.MassComponent.MassComponentType;
+import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
@@ -51,10 +55,15 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 												  boolean sel, boolean expanded, boolean leaf, int row,
 												  boolean hasFocus1) {
+		if (tree == null) {
+			return this;
+		}
+
 		BorderLayout layout = new BorderLayout();
 		layout.setHgap(4);
 		JPanel panel = new JPanel(layout);
 		JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+		Font defaultFont = label.getFont().deriveFont(Font.PLAIN);
 		label.setIcon(null);
 		panel.add(label, BorderLayout.CENTER);
 
@@ -69,10 +78,6 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 			label.setForeground(new Color(UIManager.getColor("Tree.textForeground").getRGB()));
 		}
 
-		if (tree == null) {
-			return label;
-		}
-
 		TreePath[] paths = tree.getSelectionPaths();
 		List<RocketComponent> components = null;
 		if (paths != null && paths.length > 0) {
@@ -83,9 +88,31 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		RocketComponent c = (RocketComponent) value;
 		applyToolTipText(components, c, panel);
 
+		// Check if component is in an inactive stage
+		boolean isInactiveStage = false;
+		RocketComponent root = c.getRoot();
+		if (root instanceof Rocket rkt) {
+			FlightConfiguration config = rkt.getSelectedConfiguration();
+			// isStageActive() returns false for stages with no children, so exclude those
+			// getStage() throws if called on components without an AxialStage ancestor (e.g. Rocket)
+			if (!(c instanceof Rocket)) {
+				AxialStage stage = c.getStage();
+				isInactiveStage = !config.isComponentActive(c) && stage != null && stage.getChildCount() > 0;
+			}
+		}
+
+		// Reset font to tree default (DefaultTreeCellRenderer reuses itself, so italic may persist)
+		label.setFont(defaultFont);
+
 		// Set the cell text color if component is hidden
 		if (!c.isVisible() && !sel) {
 			label.setForeground(visibilityHiddenForegroundColor);
+		}
+
+		// Set italic + muted text for components in inactive stages
+		if (isInactiveStage && !sel) {
+			label.setForeground(visibilityHiddenForegroundColor);
+			label.setFont(defaultFont.deriveFont(Font.ITALIC));
 		}
 
 		// Set the tree icon
@@ -99,11 +126,11 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 
 		panel.add(new JLabel(treeIcon), BorderLayout.WEST);
 
-		// Add mass/CG/CD overridden and component hidden icons
+		// Add mass/CG/CD overridden, component hidden, and stage inactive icons
 		if (c.isMassOverridden() || c.getMassOverriddenBy() != null ||
 				c.isCGOverridden() || c.getCGOverriddenBy() != null ||
 				c.isCDOverridden() || c.getCDOverriddenBy() != null ||
-				!c.isVisible()) {
+				!c.isVisible() || (isInactiveStage && c instanceof AxialStage)) {
 			List<Icon> icons = new LinkedList<>();
 			if (c.getMassOverriddenBy() != null) {
 				icons.add(massOverrideSubcomponentIcon);
@@ -122,6 +149,9 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 			}
 			if (!c.isVisible()) {
 				icons.add(Icons.COMPONENT_HIDDEN);
+			}
+			if (isInactiveStage && c instanceof AxialStage) {
+				icons.add(Icons.COMPONENT_DISABLED);
 			}
 
 			Icon combinedIcon = combineIcons(3, icons.toArray(new Icon[0]));

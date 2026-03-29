@@ -35,6 +35,13 @@ public class ColorConversion {
 		return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()).toUpperCase();
 	}
 
+	public static Color brightenColor(Color color, int amount) {
+		return new Color(
+				Math.min(255, color.getRed() + amount),
+				Math.min(255, color.getGreen() + amount),
+				Math.min(255, color.getBlue() + amount));
+	}
+
 	public static ORColor fromHexColor(String hexColor) {
 		if (hexColor == null || hexColor.isBlank()) {
 			return null;

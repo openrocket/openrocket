@@ -1,10 +1,11 @@
 package info.openrocket.core.util;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class ORColor {
 
-	public static ORColor BLACK = new ORColor(0, 0, 0);
+	public static final ORColor BLACK = new ORColor(0, 0, 0);
 	public static ORColor INVISIBLE = new ORColor(1, 1, 1, 0);
 	public static ORColor DARK_RED = new ORColor(200, 0, 0);
 
@@ -133,5 +134,10 @@ public class ORColor {
 		ORColor c = (ORColor) obj;
 		return c.getRed() == getRed() && c.getGreen() == getGreen() && c.getBlue() == getBlue()
 				&& c.getAlpha() == getAlpha();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(red, green, blue, alpha);
 	}
 }

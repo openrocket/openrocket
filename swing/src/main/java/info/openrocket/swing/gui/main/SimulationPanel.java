@@ -15,7 +15,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
@@ -261,12 +260,12 @@ public class SimulationPanel extends JPanel {
 
 		// Unregister the default actions that would otherwise conflict with RocketActions and their acceleration keys
 		InputMap im = simulationTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.META_DOWN_MASK), "none");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.META_DOWN_MASK), "none");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.META_DOWN_MASK), "none");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.META_DOWN_MASK), "none");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.META_DOWN_MASK), "none");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.META_DOWN_MASK), "none");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, GUIUtil.getMenuShortcutKeyMask()), "none");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, GUIUtil.getMenuShortcutKeyMask()), "none");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, GUIUtil.getMenuShortcutKeyMask()), "none");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, GUIUtil.getMenuShortcutKeyMask()), "none");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, GUIUtil.getMenuShortcutKeyMask()), "none");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, GUIUtil.getMenuShortcutKeyMask()), "none");
 
 		// Context menu
 		pm = new JPopupMenu();

@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Objects;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -216,7 +218,7 @@ public class SerializeThrustcurveMotors {
 
     private static void writeBadFile(MotorBurnFile burnFile) {
         try (FileOutputStream out = new FileOutputStream("simfile-" + burnFile.getSimfileId())) {
-            out.write(burnFile.getContents().getBytes());
+            out.write(burnFile.getContents().getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             System.out.println("Unable to write bad file: " + e.getMessage());
         }
@@ -283,6 +285,13 @@ public class SerializeThrustcurveMotors {
 
         builder.setCommonName(tcMotor.getCommon_name());
         builder.setDesignation(tcMotor.getDesignation());
+        builder.setTcMotorId(tcMotor.getMotor_id());
+        builder.setInfoUrl(tcMotor.getInfo_url());
+        builder.setDataFiles(tcMotor.getData_files());
+        if (tcMotor.getUpdated_on() != null) {
+            builder.setUpdatedOn(Instant.ofEpochMilli(tcMotor.getUpdated_on().getTime()).toString());
+        }
+        builder.setDataSource("thrustcurve.org");
 
         if ("OOP".equals(tcMotor.getAvailability())) {
             builder.setAvailability(false);
@@ -329,6 +338,7 @@ public class SerializeThrustcurveMotors {
                 List<ThrustCurveMotor.Builder> motors = loader.load(is, fileName);
 
                 for (ThrustCurveMotor.Builder builder : motors) {
+                    builder.setDataSource("manual");
                     allMotors.add(builder.build());
                 }
             }

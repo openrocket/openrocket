@@ -18,9 +18,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.function.Consumer;
+
+import javax.swing.SwingUtilities;
 
 import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.ParallelStage;
@@ -101,6 +106,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private final ArrayList<FigureElement> relativeExtra = new ArrayList<>();
 	private final ArrayList<FigureElement> absoluteExtra = new ArrayList<>();
+	/** Elements painted last, on top of everything (including absoluteExtra), using the rocket transform. */
+	private final ArrayList<FigureElement> relativeTopExtra = new ArrayList<>();
 
 	private static Color motorFillColor;
 	private static Color motorBorderColor;
@@ -195,6 +202,10 @@ public class RocketFigure extends AbstractScaleFigure {
 		this.currentViewType = type;
 		updateFigure();
         fireChangeEvent();
+		
+		// Trigger a repaint after view type change is complete to ensure getVisibleRect() returns correct values
+		// This fixes issues where paint() is called before the visible rectangle is properly updated
+		SwingUtilities.invokeLater(this::repaint);
 	}
 		
 	
@@ -221,6 +232,19 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	public void clearAbsoluteExtra() {
 		absoluteExtra.clear();
+	}
+
+
+	public void addRelativeTopExtra(FigureElement p) {
+		relativeTopExtra.add(p);
+	}
+
+	public void removeRelativeTopExtra(FigureElement p) {
+		relativeTopExtra.remove(p);
+	}
+
+	public void clearRelativeTopExtra() {
+		relativeTopExtra.clear();
 	}
 	
 	
@@ -256,7 +280,8 @@ public class RocketFigure extends AbstractScaleFigure {
         updateShapes(figureShapes);
 
 		g2.transform(projection);
-		
+		AffineTransform rocketTransform = g2.getTransform();
+
 		// Set rendering hints appropriately
 		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 				RenderingHints.VALUE_STROKE_NORMALIZE);
@@ -324,9 +349,11 @@ public class RocketFigure extends AbstractScaleFigure {
 
 
 		// Draw relative extras
+		// Get visible rectangle for out-of-view indicators
+		Rectangle visibleRect = this.getVisibleRect();
 		if (drawCarets) {
 			for (FigureElement e : relativeExtra) {
-				e.paint(g2, scale);
+				e.paint(g2, scale, visibleRect);
 			}
 		}
 
@@ -334,11 +361,19 @@ public class RocketFigure extends AbstractScaleFigure {
 		// Draw absolute extras
 		g2.setTransform(baseTransform);
 		Rectangle rect = this.getVisibleRect();
-		
+
 		for (FigureElement e : absoluteExtra) {
 			e.paint(g2, 1.0, rect);
 		}
-		
+
+		// Draw relative top extras (on top of everything, using the rocket transform)
+		if (drawCarets && !relativeTopExtra.isEmpty()) {
+			g2.setTransform(rocketTransform);
+			for (FigureElement e : relativeTopExtra) {
+				e.paint(g2, scale, visibleRect);
+			}
+		}
+
 	}
 
 	private void drawMotors(Graphics2D g2) {
@@ -419,6 +454,26 @@ public class RocketFigure extends AbstractScaleFigure {
 		return l.toArray(new RocketComponent[0]);
 	}
 	
+	/**
+	 * Convert screen coordinates to model coordinates.
+	 * 
+	 * @param screenX the x coordinate in screen pixels
+	 * @param screenY the y coordinate in screen pixels
+	 * @return the point in model coordinates, or null if transformation fails
+	 */
+	public Point2D.Double screenToModel(double screenX, double screenY) {
+		Point2D.Double p = new Point2D.Double(screenX, screenY);
+		try {
+			if (projection != null) {
+				projection.inverseTransform(p, p);
+				return p;
+			}
+		} catch (NoninvertibleTransformException e) {
+			// Ignore
+		}
+		return null;
+	}
+	
 	private void updateShapes(PriorityQueue<RocketComponentShapes> allShapes) {
 		// source input
 		final FlightConfiguration config = rocket.getSelectedConfiguration();
@@ -455,6 +510,53 @@ public class RocketFigure extends AbstractScaleFigure {
 				allShapes = addThisShape(allShapes, this.currentViewType, comp, currentTransform);
 			}
 		}
+	}
+
+	/**
+	 * Get component transformations for all visible components.
+	 * Used for calculating snap targets.
+	 *
+	 * @return map of component to list of transformations (one per instance)
+	 */
+	public Map<RocketComponent, List<Transformation>> getComponentTransformations() {
+		Map<RocketComponent, List<Transformation>> result = new java.util.HashMap<>();
+		final FlightConfiguration config = rocket.getSelectedConfiguration();
+		
+		Consumer<Set<Entry<RocketComponent, ArrayList<InstanceContext>>>> addTransforms = entries -> {
+			for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : entries) {
+				final RocketComponent comp = entry.getKey();
+				if (!comp.isVisible()) {
+					continue;
+				}
+				
+				// Only include pod sets and boosters when they are selected
+				if (preferences.isShowMarkers() && (comp instanceof PodSet || comp instanceof ParallelStage)) {
+					boolean selected = false;
+					for (RocketComponent component : selection) {
+						if (comp == component) {
+							selected = true;
+							break;
+						}
+					}
+					if (!selected) continue;
+				}
+				
+				final ArrayList<InstanceContext> contextList = entry.getValue();
+				List<Transformation> transforms = new ArrayList<>();
+				for (InstanceContext context : contextList) {
+					final Transformation currentTransform = getFigureRotation().applyTransformation(context.transform);
+					transforms.add(currentTransform);
+				}
+				if (!transforms.isEmpty()) {
+					result.put(comp, transforms);
+				}
+			}
+		};
+		
+		addTransforms.accept(config.getActiveInstances().entrySet());
+		addTransforms.accept(config.getExtraRenderInstances().entrySet());
+		
+		return result;
 	}
 
 	/**

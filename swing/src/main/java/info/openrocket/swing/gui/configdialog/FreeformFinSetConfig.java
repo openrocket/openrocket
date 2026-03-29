@@ -81,6 +81,7 @@ import info.openrocket.swing.gui.scalefigure.ScaleScrollPane;
 import info.openrocket.swing.gui.scalefigure.ScaleSelector;
 import info.openrocket.swing.gui.util.CustomFinImporter;
 import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.widgets.DropdownButton;
 
 @SuppressWarnings("serial")
@@ -1108,9 +1109,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private void installFinPointUndoRedoKeyBindings(JComponent component) {
 		// Always consume the keystroke while editing fin points so global (document-level) undo/redo isn't triggered.
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_DOWN_MASK), "finPointUndo");
+				KeyStroke.getKeyStroke(KeyEvent.VK_Z, GUIUtil.getMenuShortcutKeyMask()), "finPointUndo");
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.META_DOWN_MASK), "finPointRedo");
+				KeyStroke.getKeyStroke(KeyEvent.VK_Y, GUIUtil.getMenuShortcutKeyMask()), "finPointRedo");
 
 		component.getActionMap().put("finPointUndo", new AbstractAction() {
 			@Override

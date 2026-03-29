@@ -14,7 +14,7 @@ public class IntegerColumnParser extends BaseColumnParser {
 
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
-		int value = Integer.valueOf(columnData);
+		int value = Integer.parseInt(columnData);
 		props.put(propKey, value);
 	}
 

@@ -4,6 +4,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import info.openrocket.core.logging.SimulationAbort;
+import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.util.CoordinateIF;
@@ -744,20 +746,53 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Can't calculate stability.  If it's the sustainer we'll abort; if a booster
 		// we'll just transition to tumbling (if it's a booster and under thrust code elsewhere
-		// will abort).
-		if (currentStatus.getSimulationConditions().getAerodynamicCalculator()
-			.getCP(configuration,
-				   new FlightConditions(configuration),
-				   new WarningSet()).getWeight() < MathUtil.EPSILON) {
+		// will abort).  One thing to note about the CP (and CG) calculations here is that this is
+		// executed immediately upon stage separation; the last values recorded for them in the flight
+		// data branch is before separation so we can't just look there for it.
+		CoordinateIF cp = currentStatus.getSimulationConditions().getAerodynamicCalculator()
+			.getCP(configuration, new FlightConditions(configuration), new WarningSet());
+		if (cp.getWeight() < MathUtil.EPSILON) {
 			if (configuration.isStageActive(0)) {
 				currentStatus.abortSimulation(SimulationAbort.Cause.NO_CP);
 			} else {
 				currentStatus.addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, currentStatus.getSimulationTime()));
 			}
 		}
-
+		
 		// see what the aero calculators have to say
-		currentStatus.getSimulationConditions().getAerodynamicCalculator().checkGeometry(configuration, configuration.getRocket(), currentStatus.getWarnings());
+		WarningSet geometryWarnings = new WarningSet();
+		currentStatus.getSimulationConditions().getAerodynamicCalculator().checkGeometry(configuration, configuration.getRocket(),
+																						 geometryWarnings);
+
+		// Under several circumstances to be detailed below, the open airframe warning is more confusing than helpful
+		// so we'll filter it out.
+		if (!geometryWarnings.isEmpty()) {
+			
+			// If it isn't stable, the user has bigger issues than the open from airframe and telling them about it
+			// would only be noise.
+			double cpx = cp.getX();
+			final double cgx = MassCalculator.calculateLaunch( currentStatus.getConfiguration()).getCM().getX();
+			boolean stable = cgx < cpx;
+			
+			// If we're about to deploy a recovery device, we don't care about the open
+			// airframe
+			boolean recoverySoon = false;
+			for (FlightEvent e : currentStatus.getEventQueue()) {
+				if ((e.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) &&
+					(e.getTime() < currentStatus.getSimulationTime() + 0.5)) {
+					recoverySoon = true;
+				}
+			}
+			
+			// If we've already deployed a recovery device, we don't care about open airframe
+			boolean recovered = !currentStatus.getDeployedRecoveryDevices().isEmpty();
+			
+			if (!stable || recoverySoon || recovered) {
+				geometryWarnings.filterOut(Warning.OPEN_AIRFRAME_FORWARD);
+			}
+			
+			currentStatus.addWarnings(geometryWarnings);
+		}
 	}
 	
 	private void checkNaN() throws SimulationException {

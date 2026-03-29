@@ -110,7 +110,7 @@ public abstract class ThrustCurveAPI {
 		conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
 		StringBuilder response = new StringBuilder();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				response.append(line);

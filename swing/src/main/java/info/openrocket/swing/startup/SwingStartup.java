@@ -200,12 +200,7 @@ public class SwingStartup {
 		Module pluginModule = new PluginModule();
 		Injector injector = Guice.createInjector(guiModule, pluginModule);
 		Application.setInjector(injector);
-		
-		guiModule.startLoader();
-		
-		// Start update info fetching
-		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
-		
+
 		// Set the look-and-feel
 		log.info("Setting LAF");
 		String cmdLAF = System.getProperty("openrocket.laf");
@@ -215,6 +210,11 @@ public class SwingStartup {
 			prefs.setUITheme(UITheme.Themes.valueOf(cmdLAF));
 		}
 		GUIUtil.applyLAF();
+		
+		guiModule.startLoader();
+		
+		// Start update info fetching
+		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
 		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);

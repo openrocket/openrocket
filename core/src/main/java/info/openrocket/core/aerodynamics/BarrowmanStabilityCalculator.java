@@ -153,8 +153,7 @@ public class BarrowmanStabilityCalculator implements StabilityCalculator {
 					if (prevComp == null) {
 						if (sym.getForeRadius() - sym.getThickness() > MathUtil.EPSILON) {
 
-							// only recorde open airframe warning if it's the sustainer is active or if
-							// the booster has a recovery device
+							// only record open airframe warning if it's the sustainer or it has a recovery device
 							boolean sustainer = configuration.isStageActive(0);
 							boolean hasRecoveryDevice = configuration.getBottomStage().hasRecoveryDevice();
 

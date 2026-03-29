@@ -38,6 +38,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	private volatile String requestMethod = "";
 	private final Map<String, String> requestProperties = new HashMap<>();
 	private volatile int connectTimeout = -1;
+	private volatile int readTimeout = -1;
 	private volatile String contentEncoding = "";
 
 	@SuppressWarnings("hiding")
@@ -168,6 +169,11 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	public void setConnectTimeout(int timeout) {
 		assertFalse(connected);
 		this.connectTimeout = timeout;
+	}
+
+	@Override
+	public int getReadTimeout() {
+		return this.readTimeout;
 	}
 
 	@Override
@@ -402,15 +408,10 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public int getReadTimeout() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Map<String, List<String>> getRequestProperties() {
-		throw new UnsupportedOperationException();
-	}
+		@Override
+		public Map<String, List<String>> getRequestProperties() {
+			throw new UnsupportedOperationException();
+		}
 
 	@Override
 	public URL getURL() {
@@ -434,7 +435,8 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
 	@Override
 	public void setReadTimeout(int timeout) {
-		throw new UnsupportedOperationException();
+		assertFalse(connected);
+		this.readTimeout = timeout;
 	}
 
 	@Override

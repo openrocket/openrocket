@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,7 +76,7 @@ public class SimulationTableCSVExport {
 		BufferedWriter bufferedWriter = null;
 		try {
 			CSVFile.createNewFile();
-			bufferedWriter = new BufferedWriter(new FileWriter(CSVFile));
+			bufferedWriter = new BufferedWriter(new FileWriter(CSVFile, StandardCharsets.UTF_8));
 			bufferedWriter.write(data);
 		} catch (IOException e) {
 			String msg = e.getMessage();

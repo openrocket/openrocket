@@ -231,8 +231,9 @@ public class RocketComponentSaver {
 	/**
 	 * Serialize motor mount configuration for a component acting as a motor mount.
 	 * <p>
-	 * For {@link info.openrocket.core.motor.ThrustCurveMotor} instances this also embeds the thrust curve data so the
-	 * resulting .ork file can be shared and re-opened without requiring the receiver to have the same motor database.
+	 * For {@link info.openrocket.core.motor.ThrustCurveMotor} instances the motor metadata (manufacturer, digest,
+	 * designation, dimensions) is written to the XML. The actual thrust curve data is stored separately as .rse files
+	 * in the {@code thrustcurves/} directory of the .ork zip archive (see {@link GeneralRocketSaver}).
 	 *
 	 * @param mount motor mount component
 	 * @return XML element lines (empty if not a motor mount)
@@ -271,44 +272,10 @@ public class RocketComponentSaver {
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
 			}
-			if (motor instanceof ThrustCurveMotor) {
-				ThrustCurveMotor m = (ThrustCurveMotor) motor;
+			if (motor instanceof ThrustCurveMotor m) {
 				elements.add("    <manufacturer>" + TextUtil.escapeXML(m.getManufacturer().getSimpleName()) +
 						"</manufacturer>");
 				elements.add("    <digest>" + m.getDigest() + "</digest>");
-
-				// Embed thrust curve data
-				// Standard delays are a comma-separated list; "none" represents a plugged/no-ejection-charge delay.
-				double[] standardDelays = m.getStandardDelays();
-				if (standardDelays != null && standardDelays.length > 0) {
-					StringBuilder delayString = new StringBuilder();
-					for (int i = 0; i < standardDelays.length; i++) {
-						if (i > 0) {
-							delayString.append(',');
-						}
-						// Use "none" for Motor.PLUGGED_DELAY so it round-trips via <delay>none</delay>.
-						delayString.append(ThrustCurveMotor.getDelayString(standardDelays[i], "none"));
-					}
-					elements.add("    <standarddelays>" + delayString + "</standarddelays>");
-				}
-
-				// Thrust curve points are stored as "time,thrust,cg_x,mass" with units:
-				//   time: seconds, thrust: N, cg_x: m, mass: kg
-				double[] timePoints = m.getTimePoints();
-				double[] thrustPoints = m.getThrustPoints();
-				CoordinateIF[] cgPoints = m.getCGPoints();
-				int pointCount = Math.min(timePoints.length, Math.min(thrustPoints.length, cgPoints.length));
-				for (int i = 0; i < pointCount; i++) {
-					CoordinateIF cgPoint = cgPoints[i];
-					if (cgPoint == null) {
-						continue;
-					}
-					String point = TextUtil.doubleToString(timePoints[i]) + "," +
-							TextUtil.doubleToString(thrustPoints[i]) + "," +
-							TextUtil.doubleToString(cgPoint.getX()) + "," +
-							TextUtil.doubleToString(cgPoint.getWeight());
-					elements.add("    <thrustcurvepoint>" + point + "</thrustcurvepoint>");
-				}
 			}
 			elements.add("    <designation>" + TextUtil.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");

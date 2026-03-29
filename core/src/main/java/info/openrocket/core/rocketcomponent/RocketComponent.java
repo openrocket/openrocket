@@ -56,7 +56,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
 
-	public static RemovedComponent REMOVED = new RemovedComponent();
+	public static final RemovedComponent REMOVED = new RemovedComponent();
 	
 	// Because of changes to Java 1.7.0-45's mechanism to construct DataFlavor objects (used in Drag and Drop)
 	// We cannot access static members of the Application object in this class.  Instead of holding
