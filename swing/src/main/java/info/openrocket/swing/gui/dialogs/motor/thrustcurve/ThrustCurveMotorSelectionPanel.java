@@ -380,7 +380,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
 		if (motorToSelect != null) {
-			ThrustCurveMotorSet motorSetToSelect = findMotorSet(motorToSelect);
+ 			ThrustCurveMotorSet motorSetToSelect = findMotorSet(motorToSelect);
 			if (motorSetToSelect == null) {
 				database = new ArrayList<>(database);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();

@@ -807,7 +807,7 @@ class MotorInformationPanel extends JPanel {
 	}
 
 	private class EjectionChargeDelaySelector extends JPanel {
-		ButtonGroup delayButtons;
+		 ButtonGroup delayButtons;
 			
 		EjectionChargeDelaySelector() {
 			super(new MigLayout("inset 0, fill"));
