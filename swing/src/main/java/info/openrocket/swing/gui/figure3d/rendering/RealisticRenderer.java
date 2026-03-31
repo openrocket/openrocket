@@ -134,6 +134,7 @@ public class RealisticRenderer implements Renderer {
 		public final int forceWhite;
 		public final int enableRoughnessBump;
 		public final int hideInnerSurfaces;
+		public final int xrayMode;
 
 		/**
 		 * Creates a new uniform location cache for the given shader.
@@ -175,6 +176,7 @@ public class RealisticRenderer implements Renderer {
 			this.forceWhite = shader.getUniformLocation("forceWhite");
 			this.enableRoughnessBump = shader.getUniformLocation("enableRoughnessBump");
 			this.hideInnerSurfaces = shader.getUniformLocation("hideInnerSurfaces");
+			this.xrayMode = shader.getUniformLocation("xrayMode");
 		}
 	}
 

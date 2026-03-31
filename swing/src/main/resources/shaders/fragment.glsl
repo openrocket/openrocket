@@ -62,6 +62,7 @@ uniform bool fogEnabled;
 uniform bool forceWhite;
 uniform bool enableRoughnessBump;
 uniform bool hideInnerSurfaces;
+uniform bool xrayMode;
 uniform sampler2D shadowMap;
 uniform bool shadowsEnabled;
 uniform int shadowLightIndex;
@@ -328,6 +329,11 @@ void main()
 
     // Final color with opacity
     vec4 finalColorRGBA = vec4(finalColor, surfaceColor.a * opacity);
+
+    if (xrayMode && !gl_FrontFacing) {
+        finalColorRGBA.rgb *= 0.7;
+        finalColorRGBA.a = 1.0;
+    }
 
     // 4. Apply selection
     if (isSelected) {

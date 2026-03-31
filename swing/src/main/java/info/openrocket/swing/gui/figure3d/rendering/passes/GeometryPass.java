@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
-import info.openrocket.core.rocketcomponent.BodyComponent;
+import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
@@ -98,7 +100,9 @@ public class GeometryPass implements RenderPass {
         List<SceneObject> opaqueObjects = new ArrayList<>();
         List<SceneObject> transparentObjects = new ArrayList<>();
         for (SceneObject obj : scene.getObjects()) {
-            if (obj.getAppearance().getOpacity() < 1.0f) {
+            boolean isXrayTransparent = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
+                    isFigureTransparentComponent(obj.getRocketComponent());
+            if (obj.getAppearance().getOpacity() < 1.0f || isXrayTransparent) {
                 transparentObjects.add(obj);
             } else {
                 opaqueObjects.add(obj);
@@ -138,7 +142,7 @@ public class GeometryPass implements RenderPass {
         glDepthMask(true);
         for (SceneObject obj : opaqueObjects) {
             boolean isXray = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
-					obj.getRocketComponent() instanceof BodyComponent;
+					isFigureTransparentComponent(obj.getRocketComponent());
 
             if (!obj.isRenderOnTop() && !isXray) {
                 renderSingleObject(obj);
@@ -151,7 +155,7 @@ public class GeometryPass implements RenderPass {
         //  disks at the length-wise segments (which appear to have culling)
         for (SceneObject obj : transparentObjects) {
             boolean isXray = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
-					obj.getRocketComponent() instanceof BodyComponent;
+					isFigureTransparentComponent(obj.getRocketComponent());
             if (!obj.isRenderOnTop() || isXray) { // Render on top objects are also rendered here if they are transparent
                 renderSingleObject(obj);
             }
@@ -207,5 +211,12 @@ public class GeometryPass implements RenderPass {
     @Override
     public void cleanup() {
         // Shaders are managed by the RealisticRenderer and cleaned up there
+    }
+
+    private static boolean isFigureTransparentComponent(RocketComponent component) {
+        if (component instanceof BodyTube) {
+            return true;
+        }
+        return component instanceof Transition;
     }
 }

@@ -101,6 +101,6 @@ public class DisplaySettings {
      * @return true if culling should be disabled
      */
     public boolean shouldDisableCulling() {
-        return mode == RenderMode.WIREFRAME;
+        return mode == RenderMode.WIREFRAME || mode == RenderMode.XRAY;
     }
 }
