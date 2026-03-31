@@ -39,7 +39,7 @@ public class GraphicsQualitySettings {
     private boolean useBackfaceCulling = true;
     private boolean enableRoughnessBump = true;
     private boolean enableFXAA = true; // Fast Approximate Anti-Aliasing
-    private boolean shadowsEnabled = false;
+    private boolean shadowsEnabled = true;
 
     // Render Quality
     
