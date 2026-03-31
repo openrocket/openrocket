@@ -19,6 +19,7 @@ import info.openrocket.swing.gui.figure3d.rendering.Shader;
 import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
+import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.VectorUtils;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import info.openrocket.swing.gui.theme.UITheme;
@@ -181,10 +182,16 @@ public class CaretsPass implements RenderPass {
         Color cgTheme = UITheme.getColor(UITheme.Keys.CG);
         Color cpTheme = UITheme.getColor(UITheme.Keys.CP);
         if (cgTheme != null) {
-            cgColor.set(cgTheme.getRed() / 255.0f, cgTheme.getGreen() / 255.0f, cgTheme.getBlue() / 255.0f);
+            cgColor.set(ColorUtils.srgbToLinear(new Vector3f(
+                    cgTheme.getRed() / 255.0f,
+                    cgTheme.getGreen() / 255.0f,
+                    cgTheme.getBlue() / 255.0f)));
         }
         if (cpTheme != null) {
-            cpColor.set(cpTheme.getRed() / 255.0f, cpTheme.getGreen() / 255.0f, cpTheme.getBlue() / 255.0f);
+            cpColor.set(ColorUtils.srgbToLinear(new Vector3f(
+                    cpTheme.getRed() / 255.0f,
+                    cpTheme.getGreen() / 255.0f,
+                    cpTheme.getBlue() / 255.0f)));
         }
     }
 }
