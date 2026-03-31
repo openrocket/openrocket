@@ -276,7 +276,8 @@ public class Camera {
 	 * @param dy vertical mouse movement delta for pitch rotation
 	 */
 	public void orbit(float dx, float dy) {
-		angleX += dx * CameraConstants.ROTATION_SENSITIVITY;
+		// Invert orbit drag so the rocket follows the cursor direction.
+		angleX -= dx * CameraConstants.ROTATION_SENSITIVITY;
 		angleY += dy * CameraConstants.ROTATION_SENSITIVITY;
 		if (pitchClampingEnabled) {
 			angleY = Math.max(CameraConstants.MIN_PITCH_ANGLE, Math.min(CameraConstants.MAX_PITCH_ANGLE, angleY)); // Clamp pitch
