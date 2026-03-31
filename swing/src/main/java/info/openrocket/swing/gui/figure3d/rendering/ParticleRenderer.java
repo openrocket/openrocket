@@ -3,6 +3,8 @@ package info.openrocket.swing.gui.figure3d.rendering;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.particles.Particle;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.core.particles.flame.FlameEmitter;
+import info.openrocket.swing.gui.figure3d.core.particles.smoke.SmokeEmitter;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import org.joml.Vector3f;
@@ -122,6 +124,11 @@ public class ParticleRenderer implements ParticleSystemRenderer {
         int vertexCount = 0;
 
         for (ParticleEmitter emitter : scene.getParticleEmitters()) {
+            // Flame and smoke emitters have dedicated renderers. If we also draw them here
+            // as line streaks, they show up as stray spark-like artifacts.
+            if (emitter instanceof FlameEmitter || emitter instanceof SmokeEmitter) {
+                continue;
+            }
             for (Particle particle : emitter.getParticles()) {
                 if (vertexCount >= maxParticles * 2) break;
 
