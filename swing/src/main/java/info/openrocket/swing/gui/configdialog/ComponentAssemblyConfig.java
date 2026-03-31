@@ -134,7 +134,7 @@ public class ComponentAssemblyConfig extends RocketComponentConfig {
 	@Override
 	public void updateFields() {
 		super.updateFields();
-		if (split != null) {
+		if (split != null && component != null) {
 			split.setEnabled(component.getInstanceCount() > 1);
 		}
 	}

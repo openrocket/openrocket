@@ -5,19 +5,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.file.DatabaseMotorFinder;
 import info.openrocket.core.file.DocumentLoadingContext;
+import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.file.rocksim.importt.RockSimLoader;
 import info.openrocket.core.file.rocksim.importt.RockSimLoaderTest;
 import info.openrocket.core.file.rocksim.importt.RockSimTestBase;
@@ -26,6 +30,7 @@ import info.openrocket.core.rocketcomponent.AxialStage;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.Bulkhead;
 import info.openrocket.core.rocketcomponent.CenteringRing;
+import info.openrocket.core.rocketcomponent.ClusterConfiguration;
 import info.openrocket.core.rocketcomponent.EngineBlock;
 import info.openrocket.core.rocketcomponent.InnerTube;
 import info.openrocket.core.rocketcomponent.MassComponent;
@@ -209,6 +214,107 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 
 		stream.close();
 		Files.delete(output);
+	}
+
+	/**
+	 * Verifies that instanced components (clustered inner tubes and pod sets) export
+	 * MIDDLE axial offsets without losing position data.
+	 */
+	@Test
+	public void testInstancedComponentsExportPreservesMiddleOffsets() throws Exception {
+		OpenRocketDocument document = OpenRocketDocumentFactory.createNewRocket();
+		Rocket rocket = document.getRocket();
+		AxialStage stage = rocket.getStage(0);
+
+		// Base body tube that will host instanced components.
+		BodyTube bodyTube = new BodyTube();
+		bodyTube.setName("Main Body");
+		bodyTube.setLength(1.0);
+		stage.addChild(bodyTube);
+
+		// Clustered inner tube: export splits into detached instances.
+		InnerTube innerTube = new InnerTube();
+		innerTube.setName("Cluster Tube");
+		innerTube.setLength(0.2);
+		bodyTube.addChild(innerTube);
+		innerTube.setClusterConfiguration(ClusterConfiguration.CONFIGURATIONS[1]);
+		innerTube.setAxialMethod(AxialMethod.MIDDLE);
+		innerTube.setAxialOffset(0.05);
+
+		// Pod set: export uses splitInstances with parent intact.
+		PodSet podSet = new PodSet();
+		podSet.setName("Pod Cluster");
+		bodyTube.addChild(podSet);
+		podSet.setInstanceCount(2);
+		podSet.setAxialMethod(AxialMethod.MIDDLE);
+		podSet.setAxialOffset(0.02);
+		podSet.setRadiusMethod(RadiusMethod.RELATIVE);
+		podSet.setRadiusOffset(0.02);
+
+		NoseCone podNose = new NoseCone();
+		podNose.setName("Pod Nose");
+		podSet.addChild(podNose);
+
+		double expectedInnerTubeXb = innerTube.getPosition().getX()
+				* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+		double expectedPodXb = podSet.getPosition().getX()
+				* RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+
+		String result = new RockSimSaver().marshalToRockSim(document);
+		Assertions.assertNotNull(result, "Exported RockSim XML should not be null.");
+
+		JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
+		Unmarshaller unmarshaller = binder.createUnmarshaller();
+		RockSimDocumentDTO exportedDocument = (RockSimDocumentDTO) unmarshaller.unmarshal(new StringReader(result));
+
+		StageDTO exportedStage = exportedDocument.getDesign().getDesign().getStage3();
+		BodyTubeDTO exportedBodyTube = findBodyTubeByName(exportedStage.getExternalPart(), "Main Body");
+		Assertions.assertNotNull(exportedBodyTube, "Main body tube not found in export.");
+
+		ArrayList<BodyTubeDTO> clusteredInnerTubes = new ArrayList<>();
+		ArrayList<PodSetDTO> podInstances = new ArrayList<>();
+		for (BasePartDTO part : exportedBodyTube.getAttachedParts()) {
+			if (part instanceof BodyTubeDTO) {
+				BodyTubeDTO tubePart = (BodyTubeDTO) part;
+				if (tubePart.getInsideTube() == 1 && tubePart.getName().startsWith("Cluster Tube")) {
+					clusteredInnerTubes.add(tubePart);
+				}
+			} else if (part instanceof PodSetDTO) {
+				PodSetDTO podPart = (PodSetDTO) part;
+				if (podPart.getName().startsWith("Pod Cluster")) {
+					podInstances.add(podPart);
+				}
+			}
+		}
+
+		assertEquals(2, clusteredInnerTubes.size(), "Clustered inner tube instances missing.");
+		for (BodyTubeDTO tubePart : clusteredInnerTubes) {
+			assertEquals(expectedInnerTubeXb, tubePart.getXb(), 0.0001, "Clustered inner tube Xb mismatch.");
+		}
+
+		assertEquals(2, podInstances.size(), "Pod instances missing.");
+		for (PodSetDTO podPart : podInstances) {
+			assertEquals(expectedPodXb, podPart.getXb(), 0.0001, "Pod Xb mismatch.");
+		}
+	}
+
+	/**
+	 * Find a body tube DTO by name in the top-level stage list.
+	 *
+	 * @param externalParts the stage external parts list
+	 * @param name          the body tube name
+	 * @return the matching body tube DTO, or null if none is found
+	 */
+	private BodyTubeDTO findBodyTubeByName(List<BasePartDTO> externalParts, String name) {
+		for (BasePartDTO part : externalParts) {
+			if (part instanceof BodyTubeDTO) {
+				BodyTubeDTO bodyTube = (BodyTubeDTO) part;
+				if (name.equals(bodyTube.getName())) {
+					return bodyTube;
+				}
+			}
+		}
+		return null;
 	}
 
 	private OpenRocketDocument makePodsRocket() {

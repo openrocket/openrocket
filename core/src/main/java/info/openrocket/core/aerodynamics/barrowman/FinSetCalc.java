@@ -622,7 +622,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	@Override
 	public double calculatePressureCD(FlightConditions conditions,
 									  double stagnationCD, double baseCD, WarningSet warnings) {
-		
+
 		// a fin with 0 area contributes no drag
 		if (finArea < MathUtil.EPSILON) {
 			return 0.0;
@@ -630,11 +630,11 @@ public class FinSetCalc extends RocketComponentCalc {
 
 		double mach = conditions.getMach();
 		double cd = 0;
-		
+
 		// Pressure fore-drag
 		if (crossSection == FinSet.CrossSection.AIRFOIL ||
 				crossSection == FinSet.CrossSection.ROUNDED) {
-			
+
 			// Round leading edge
 			if (mach < 0.9) {
 				cd = Math.pow(1 - pow2(mach), -0.417) - 1;
@@ -643,27 +643,43 @@ public class FinSetCalc extends RocketComponentCalc {
 			} else {
 				cd = 1.214 - 0.502 / pow2(mach) + 0.1095 / pow2(pow2(mach));
 			}
-			
+
 		} else if (crossSection == FinSet.CrossSection.SQUARE) {
 			cd = stagnationCD;
 		} else {
 			throw new UnsupportedOperationException("Unsupported fin profile: " + crossSection);
 		}
-		
+
 		// Slanted leading edge
 		cd *= pow2(cosGammaLead);
-		
-		// Trailing edge drag
-		if (crossSection == FinSet.CrossSection.SQUARE) {
-			cd += baseCD;
-		} else if (crossSection == FinSet.CrossSection.ROUNDED) {
-			cd += baseCD / 2;
-		}
-		// Airfoil assumed to have zero base drag
-		
+
 		// Scale to correct reference area
 		cd *= span * thickness / conditions.getRefArea();
-		
+
+		return cd;
+	}
+
+	@Override
+	public double calculateComponentBaseCD(FlightConditions conditions,
+										   double baseCD, WarningSet warnings) {
+		// a fin with 0 area contributes no drag
+		if (finArea < MathUtil.EPSILON) {
+			return 0.0;
+		}
+
+		double cd = 0;
+
+		// Trailing edge drag
+		if (crossSection == FinSet.CrossSection.SQUARE) {
+			cd = baseCD;
+		} else if (crossSection == FinSet.CrossSection.ROUNDED) {
+			cd = baseCD / 2;
+		}
+		// Airfoil assumed to have zero base drag
+
+		// Scale to correct reference area
+		cd *= span * thickness / conditions.getRefArea();
+
 		return cd;
 	}
 	

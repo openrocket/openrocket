@@ -3,12 +3,14 @@ package info.openrocket.swing.gui.figure3d;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
+import info.openrocket.swing.gui.theme.UITheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +18,19 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +50,12 @@ public class RocketFigure3d extends JPanel {
 	public static final int TYPE_UNFINISHED = 3;
 	public static final int TYPE_FINISHED = 4;
 
+	private static Color backgroundColor;
+
+	static {
+		initColors();
+	}
+
 	public interface ComponentSelectionListener {
 		void componentClicked(RocketComponent[] clicked, MouseEvent event);
 	}
@@ -56,12 +71,22 @@ public class RocketFigure3d extends JPanel {
 	private boolean selectionBridgeInstalled = false;
 	private RocketComponent[] pendingSelection;
 	private boolean glFailureLogged = false;
+	private Color customBackgroundColor = null;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
 		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
 		this.hudPanel = new HUDPanel(document.getRocket(), rocketInfo);
 		setLayout(new BorderLayout());
+	}
+
+	private static void initColors() {
+		updateColors();
+		UITheme.Theme.addUIThemeChangeListener(RocketFigure3d::updateColors);
+	}
+
+	public static void updateColors() {
+		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
 	}
 
 	private void ensureCanvasCreatedOnEdt() {
@@ -75,6 +100,7 @@ public class RocketFigure3d extends JPanel {
 		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
 		glScenePanel = panel;
 		add(panel, BorderLayout.CENTER);
+		applyBackgroundColor(panel);
 		revalidate();
 		repaint();
 	}
@@ -83,6 +109,7 @@ public class RocketFigure3d extends JPanel {
 		if (selectionBridgeInstalled || panel.glInitFailed || !panel.awaitInitialized(0)) {
 			return;
 		}
+		applyBackgroundColor(panel);
 		panel.addSceneSelectionListener(selection -> {
 			MouseEvent event = panel.consumePendingSelectionClickEvent();
 			if (event == null) {
@@ -146,6 +173,7 @@ public class RocketFigure3d extends JPanel {
 			GLScenePanel panel = glScenePanel;
 			if (panel != null) {
 				panel.requestPeerBoundsSyncNow();
+				applyBackgroundColor(panel);
 			}
 			EDT_RENDER_SCHEDULER.register(this);
 		});
@@ -163,6 +191,40 @@ public class RocketFigure3d extends JPanel {
 		if (listener != null) {
 			selectionListeners.add(listener);
 		}
+	}
+
+	private Color getBackgroundColor() {
+		return customBackgroundColor != null ? customBackgroundColor : backgroundColor;
+	}
+
+	public void setCustomBackgroundColor(Color color) {
+		this.customBackgroundColor = color;
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			applyBackgroundColor(panel);
+			panel.repaint();
+		}
+	}
+
+	private void applyBackgroundColor(GLScenePanel panel) {
+		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		Color color = getBackgroundColor();
+		float srgbR = color.getRed() / 255.0f;
+		float srgbG = color.getGreen() / 255.0f;
+		float srgbB = color.getBlue() / 255.0f;
+		float alpha = color.getAlpha() / 255.0f;
+		orchestrator.enqueueGlTask(() -> {
+			SceneView scene = orchestrator.getScene();
+			if (scene != null) {
+				scene.setBackground(new SolidColorBackground(srgbR, srgbG, srgbB, alpha));
+			}
+		});
 	}
 
 	public void flushTextureCaches() {
@@ -215,6 +277,10 @@ public class RocketFigure3d extends JPanel {
 		// Not implemented in the HUD overlay yet.
 	}
 
+	public void clearAbsoluteExtra() {
+		// HUD already renders the shared RocketInfo instance.
+	}
+
 	public void addAbsoluteExtra(RocketInfo info) {
 		// HUD already renders the shared RocketInfo instance.
 	}
@@ -257,6 +323,42 @@ public class RocketFigure3d extends JPanel {
 	public Scene3DOrchestrator getSceneController() {
 		GLScenePanel panel = glScenePanel;
 		return panel != null ? panel.getScene3DOrchestrator() : null;
+	}
+
+	public BufferedImage captureImage() {
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+			return null;
+		}
+
+		AtomicReference<BufferedImage> result = new AtomicReference<>();
+		if (SwingUtilities.isEventDispatchThread()) {
+			SecondaryLoop loop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+			panel.requestImageCapture(false, image -> {
+				result.set(image);
+				loop.exit();
+			});
+			panel.render();
+			loop.enter();
+			return result.get();
+		}
+
+		CountDownLatch latch = new CountDownLatch(1);
+		panel.requestImageCapture(false, image -> {
+			result.set(image);
+			latch.countDown();
+		});
+		SwingUtilities.invokeLater(panel::render);
+		try {
+			if (!latch.await(2, TimeUnit.SECONDS)) {
+				log.warn("Timed out capturing 3D image");
+				return null;
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return null;
+		}
+		return result.get();
 	}
 
 	public void cleanup() {

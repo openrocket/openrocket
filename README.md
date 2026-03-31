@@ -1,17 +1,16 @@
-# OpenRocket 🚀
-
-OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
+![OpenRocket banner](.github/banner.png)
 
 ![Build Status](https://github.com/openrocket/openrocket/actions/workflows/build.yml/badge.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![GitHub release](https://img.shields.io/github/release/openrocket/openrocket.svg)
 [![Github Releases (by release)](https://img.shields.io/github/downloads/openrocket/openrocket/latest/total.svg)](https://GitHub.com/openrocket/openrocket/releases/)
 [![Read the Docs](https://readthedocs.org/projects/openrocket/badge/?version=latest)](https://openrocket.readthedocs.io/en/latest/)
-
 [![snap release](https://snapcraft.io/openrocket/badge.svg)](https://snapcraft.io/openrocket)
 ![Chocolatey release](https://img.shields.io/chocolatey/v/openrocket)
 [![Crowdin](https://badges.crowdin.net/openrocket/localized.svg)](https://crowdin.com/project/openrocket)
 [![Join our Discord server!](https://img.shields.io/discord/1073297014814691328?logo=discord)](https://discord.gg/qD2G5v2FAw)
+
+OpenRocket is a free, fully featured model rocket simulator that allows you to design and simulate your rockets before actually building and flying them.
 
 --------
 
@@ -33,7 +32,7 @@ OpenRocket is a free, fully featured model rocket simulator that allows you to d
 - **Realtime simulated altitude, velocity, and acceleration display**
 - **Staging and clustering support**
 - **Export to other simulation programs (RockSim, RASAero II)**
-- **Export component(s) to OBJ file for 3D printing**
+- **Export component(s) to OBJ file for 3D printing or SVG for laser cutting**
 - **Cross-platform (Java-based)**
 
 ... plus many more
@@ -137,6 +136,8 @@ You can view the full list of contributors [here](https://github.com/openrocket/
 - Sibo Van Gool
 - Mohamed Amin Elkebsi
 - Oleksandr Hladin
+
+Want to help us translate OpenRocket into your language? Join our [Crowdin project](https://crowdin.com/project/openrocket) and contribute!
 
 ## 📜 License
 

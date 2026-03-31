@@ -194,6 +194,32 @@ the *openrocket/install4j/<build-version>/media/* directory.
 If you do not have access to the code signing certificates, you can create the installers without code signing by
 enabling the checkboxes ``Disable code signing`` and ``Disable notarization`` in the ``Build`` tab.
 
+macOS QuickLook Extension
+-------------------------
+
+The macOS installers include a QuickLook extension that allows users to preview ``.ork`` files directly in Finder
+(via spacebar or the preview pane). This extension is built and signed separately from the main install4j build,
+then merged into the final macOS DMG.
+
+The source code and full instructions for the QuickLook extension are maintained in a separate repository:
+`openrocket/macOS-QuickLook-extension <https://github.com/openrocket/macOS-QuickLook-extension>`__.
+
+After building the macOS DMG with install4j, follow the steps in that repository's README to:
+
+1. Build the QuickLook extension using Xcode.
+2. Sign and notarize the extension with your Apple Developer ID.
+3. Inject the signed extension into the install4j DMG using the ``runit`` script.
+
+.. note::
+   The QuickLook extension requires a **Developer ID Application** certificate and an **App-Specific Password**
+   for notarization. See the `macOS-QuickLook-extension README <https://github.com/openrocket/macOS-QuickLook-extension#readme>`__
+   for the full setup guide, including Apple Developer account configuration and Info.plist requirements.
+
+.. warning::
+   The install4j project must declare the ``info.openrocket.ork`` UTI (Uniform Type Identifier) in the macOS
+   launcher's file association settings. Without this, macOS will not associate ``.ork`` files with OpenRocket,
+   and the QuickLook extension will not activate. See the macOS-QuickLook-extension README for details.
+
 Release Procedure
 =================
 
@@ -239,49 +265,54 @@ with the new results) to ensure that they are up-to-date with the latest changes
       Make sure that `DS_Store <https://github.com/openrocket/openrocket/blob/unstable/install4j/23.09/macOS_resources/DS_Store>`__ for the macOS
       installer is updated. Instructions can be found `here <https://github.com/openrocket/openrocket/blob/unstable/install4j/README.md>`__.
 
-8. **Test the installers** to ensure that they work correctly.
+8. **Add the macOS QuickLook extension** to the macOS DMG installers.
 
-9. **Prepare the website** *(for official releases only, not for alpha, beta, or release candidate releases)*.
+   Follow the instructions in the `macOS-QuickLook-extension repository <https://github.com/openrocket/macOS-QuickLook-extension>`__
+   to build, sign, notarize, and inject the QuickLook preview extension into each macOS DMG (Apple Silicon and Intel).
 
-   The `source code for the website <https://github.com/openrocket/openrocket.github.io>`__ needs to be updated to point to the new release.
-   Follow these steps:
+9. **Test the installers** to ensure that they work correctly.
 
-   - Add the release to `downloads_config.json <https://github.com/openrocket/openrocket.github.io/blob/development/assets/downloads_config.json>`__.
-   - Update the ``current_version`` in `_config <https://github.com/openrocket/openrocket.github.io/blob/development/_config.yml>`__.
-   - Add a new entry to `_whats_new <https://github.com/openrocket/openrocket.github.io/tree/development/_whats-new>`__ for the new release.
-     Create a ``wn-<version number>.md`` file with the changes that are part of the new release. Please take a close look to the previous entries to see how it should be formatted.
-   - Update the `release notes <https://github.com/openrocket/openrocket.github.io/blob/development/_includes/ReleaseNotes.md>`__
-     (which is a link to the What's new file that you just created). Again, take a close look at the previous entries to see how it should be formatted.
+10. **Prepare the website** *(for official releases only, not for alpha, beta, or release candidate releases)*.
 
-   .. warning::
-      Make sure to **update the website on the** ``development`` **branch**. The ``master`` branch is the branch that is live
-      on the website. First update the ``development`` branch and test the changes on the website. In a later step, the
-      changes will be merged to the ``master`` branch.
+    The `source code for the website <https://github.com/openrocket/openrocket.github.io>`__ needs to be updated to point to the new release.
+    Follow these steps:
 
-10. **Publish the release on GitHub**.
+    - Add the release to `downloads_config.json <https://github.com/openrocket/openrocket.github.io/blob/development/assets/downloads_config.json>`__.
+    - Update the ``current_version`` in `_config <https://github.com/openrocket/openrocket.github.io/blob/development/_config.yml>`__.
+    - Add a new entry to `_whats_new <https://github.com/openrocket/openrocket.github.io/tree/development/_whats-new>`__ for the new release.
+      Create a ``wn-<version number>.md`` file with the changes that are part of the new release. Please take a close look to the previous entries to see how it should be formatted.
+    - Update the `release notes <https://github.com/openrocket/openrocket.github.io/blob/development/_includes/ReleaseNotes.md>`__
+      (which is a link to the What's new file that you just created). Again, take a close look at the previous entries to see how it should be formatted.
 
-   Go to the `releases page <https://github.com/openrocket/openrocket/releases>`__. Click *Draft a new release*.
-   Select *Choose a tag* and enter a new tag name, following the format ``release-<version number>``, e.g. ``release-23.09``.
-   The title should follow the format ``OpenRocket <version number> (<release date as YYYY-MM-DD>)``, e.g. ``OpenRocket 23.09 (2023-11-16)``.
+    .. warning::
+       Make sure to **update the website on the** ``development`` **branch**. The ``master`` branch is the branch that is live
+       on the website. First update the ``development`` branch and test the changes on the website. In a later step, the
+       changes will be merged to the ``master`` branch.
 
-   Fill in the release text, following the `ReleaseNotes.md <https://github.com/openrocket/openrocket/blob/unstable/ReleaseNotes.md>`__.
-   If you want to credit the developers who contributed to the release, you can tag them anywhere in the release text using the `@username` syntax.
-   They will then be automatically displayed in the contributors list on the release page.
+11. **Publish the release on GitHub**.
 
-   Finally, upload all the packaged installers and the JAR file to the release. The source code (zip and tar.gz) is
-   automatically appended to each release, you do not need to upload it manually.
+    Go to the `releases page <https://github.com/openrocket/openrocket/releases>`__. Click *Draft a new release*.
+    Select *Choose a tag* and enter a new tag name, following the format ``release-<version number>``, e.g. ``release-23.09``.
+    The title should follow the format ``OpenRocket <version number> (<release date as YYYY-MM-DD>)``, e.g. ``OpenRocket 23.09 (2023-11-16)``.
 
-   If this is an alpha, beta, or release candidate release, tick the *Set as a pre-release* checkbox.
+    Fill in the release text, following the `ReleaseNotes.md <https://github.com/openrocket/openrocket/blob/unstable/ReleaseNotes.md>`__.
+    If you want to credit the developers who contributed to the release, you can tag them anywhere in the release text using the `@username` syntax.
+    They will then be automatically displayed in the contributors list on the release page.
 
-   Click *Publish release*.
+    Finally, upload all the packaged installers and the JAR file to the release. The source code (zip and tar.gz) is
+    automatically appended to each release, you do not need to upload it manually.
 
-11. **Push the changes to the website**
+    If this is an alpha, beta, or release candidate release, tick the *Set as a pre-release* checkbox.
 
-   First, build the ``development`` branch locally to verify that the changes that you made in step 8 are correct.
-   If everything is working (test the download links, the release notes, and the What's new page), create a new PR
-   that merges the changes from the ``development`` branch to the ``master`` branch.
+    Click *Publish release*.
 
-12. **Send out the release announcement**.
+12. **Push the changes to the website**
+
+    First, build the ``development`` branch locally to verify that the changes that you made in step 9 are correct.
+    If everything is working (test the download links, the release notes, and the What's new page), create a new PR
+    that merges the changes from the ``development`` branch to the ``master`` branch.
+
+13. **Send out the release announcement**.
 
     Send out the release announcement to the OpenRocket mailing list, the TRF forum, and the OpenRocket social media channels
     (Discord, Facebook...).
@@ -289,16 +320,16 @@ with the new results) to ensure that they are up-to-date with the latest changes
     The announcement should include the new features, bug fixes, and other changes that are part of the new release.
     Make sure to include the download links to the new release. Here is an `example announcement <https://www.rocketryforum.com/threads/announcement-openrocket-23-09-is-now-available-for-download.183186/>`__.
 
-13. **Merge the** ``unstable`` **branch to the** ``master`` **branch**.
+14. **Merge the** ``unstable`` **branch to the** ``master`` **branch**.
 
     After the release is published, merge the changes from the `unstable <https://github.com/openrocket/openrocket>`__ branch
     to the `master <https://github.com/openrocket/openrocket/tree/master>`__ branch.
 
-14. **Upload the new release to** `SourceForge <https://sourceforge.net/projects/openrocket/>`__.
+15. **Upload the new release to** `SourceForge <https://sourceforge.net/projects/openrocket/>`__.
 
-   The downloads page on SourceForge is still very actively used, so be sure to upload the new release there as well.
+    The downloads page on SourceForge is still very actively used, so be sure to upload the new release there as well.
 
-15. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.
+16. **Update package managers** (e.g. snap, Chocolatey, Homebrew) with the new release.
 
 Snap
 ====

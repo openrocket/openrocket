@@ -133,6 +133,7 @@ public abstract class BasePartDTO {
 
         setXb(ec.getAxialOffset() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
+        RocketComponent parent = ec.getParent();
         // When the relative position is BOTTOM, the position location of the bottom
         // edge of the component is +
         // to the right of the bottom of the parent, and - to the left.
@@ -140,9 +141,13 @@ public abstract class BasePartDTO {
         if (ec.getAxialMethod().equals(AxialMethod.BOTTOM)) {
             setXb((-1 * ec.getAxialOffset()) * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         } else if (ec.getAxialMethod().equals(AxialMethod.MIDDLE)) {
-            // Mapped to TOP, so adjust accordingly
-            setXb((ec.getAxialOffset() + (ec.getParent().getLength() - ec.getLength()) / 2)
-                    * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (parent != null) {
+                setXb((ec.getAxialOffset() + (parent.getLength() - ec.getLength()) / 2)
+                        * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            } else {
+                // Detached components (e.g., clustered clones) keep a valid position; use it to map MIDDLE to TOP.
+                setXb(ec.getPosition().getX() * RockSimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            }
         }
 
         if (ec instanceof ExternalComponent) {

@@ -447,14 +447,14 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			// otherwise, just return what we found
 			if (!u.equals(type.getUnitGroup())) {
 				oldPriority = type.priority;
-				EXISTING_TYPES.remove(type);
+				EXISTING_TYPES.remove(symbol);
 				log.info("Unitgroup of type " + type.getName() +
 						", has changed from " + type.getUnitGroup().toString() +
 						" to " + u.toString() +
 						". Removing old version.");
 			} else if (!s.equals(type.getName())) {
 				oldPriority = type.priority;
-				EXISTING_TYPES.remove(type);
+				EXISTING_TYPES.remove(symbol);
 				log.info("Name of type " + type.getName() + ", has changed to " + s + ". Removing old version.");
 			} else {
 				return type;

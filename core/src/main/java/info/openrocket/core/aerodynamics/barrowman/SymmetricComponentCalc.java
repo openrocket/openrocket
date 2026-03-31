@@ -129,6 +129,19 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				final double A0 = Math.PI * pow2(r0);
 				final double A1 = Math.PI * pow2(r1);
 
+				// This calculation of CNa is based on slender body theory,
+				// which at first glance should not be appropriate
+				// particularly for boattails which one would intuitively
+				// expect would have less effect on stability than
+				// predicted here. However, replacing this code with
+				// the wind tunnel based data from Moore, F. G. and
+				// L. Y. Moore, "Improved Aerodynamics for Configurations
+				// With Boattails", Journal of Spacecraft and Rockets 45(2),
+				// March-April 2008 made almost no difference in CP
+				// calculations.  A short boattail added to the "simple
+				// model rocket" example shows a 1 mm difference between
+				// this code and that result, at the cost of a substantial
+				// increase in code complexity.
 				cnaCache = 2 * (A1 - A0);
 				// System.out.println("cnaCache = " + cnaCache);
 				cpCache = (length * A1 - fullVolume) / (A1 - A0);

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public class DefaultMtlWriter {
             Iterable<? extends Mtl> mtls, OutputStream outputStream)
             throws IOException {
         OutputStreamWriter outputStreamWriter =
-                new OutputStreamWriter(outputStream);
+                new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
         write(mtls, outputStreamWriter);
     }
 

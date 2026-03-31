@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -213,7 +214,7 @@ public class MultiLevelPinkNoiseWindModel implements WindModel {
 		// Clear the current levels
 		clearLevels();
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
 			TextLineReader textLineReader = new TextLineReader(reader);
 			// Map column indices
 			int altIndex, speedIndex, dirIndex, stddevIndex = -1;

@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class OpenRocketComponentLoader implements Loader<ComponentPreset> {
 
 		try {
 			OpenRocketComponentDTO dto = new OpenRocketComponentSaver()
-					.unmarshalFromOpenRocketComponent(new InputStreamReader(stream));
+					.unmarshalFromOpenRocketComponent(new InputStreamReader(stream, StandardCharsets.UTF_8));
 			if (dto == null) {
 				throw new IOException("Unable to parse component preset file: " + filename + 
 						" (invalid format or corrupted file)");

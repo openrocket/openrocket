@@ -361,12 +361,9 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			JLabel label = (JLabel) super.getTableCellRendererComponent(table, newValue, isSelected, hasFocus, row, column);
 			Object oldValue = table.getModel().getValueAt(row, column);
 			
-			// this block is more for the benefit of the reader than the computer -- 
-			// this assignment is technically redundant, but useful to point out that the new value here is often null, 
-			// while the old value seems to always be valid.
+			// newValue is often null here; oldValue is used for rendering in all cases below.
 			if( null == newValue ){
 				log.warn("Detected null newValue to render... (oldValue: "+oldValue+")");
-				newValue = oldValue;
 			}
 
 		    column = table.convertColumnIndexToModel(column);

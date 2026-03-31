@@ -78,6 +78,13 @@ public class RocketInfo implements FigureElement {
 	private static Color darkErrorColor;
 	private static Color flightDataTextActiveColor;
 	private static Color flightDataTextInactiveColor;
+	
+	// Custom text colors for this instance (null means use theme default)
+	// Separate for 2D and 3D views - when set, applies to all text (main, dim, flight data)
+	private Color customTextColor2D = null;
+	private Color customTextColor3D = null;
+	// Track which view type this is rendering (true for 3D, false for 2D)
+	private boolean is3DView = false;
 
 	static {
 		initColors();
@@ -100,6 +107,73 @@ public class RocketInfo implements FigureElement {
 		darkErrorColor = UITheme.getColor(UITheme.Keys.ERROR);
 		flightDataTextActiveColor = UITheme.getColor(UITheme.Keys.FLIGHTDATA_TEXT_ACTIVE);
 		flightDataTextInactiveColor = UITheme.getColor(UITheme.Keys.FLIGHTDATA_TEXT_INACTIVE);
+	}
+	
+	/**
+	 * Get the current text color (custom or theme default) based on view type.
+	 * If custom color is set, it applies to all text types. Otherwise uses theme default.
+	 * @return the text color to use
+	 */
+	private Color getTextColor() {
+		Color customColor = is3DView ? customTextColor3D : customTextColor2D;
+		return customColor != null ? customColor : textColor;
+	}
+	
+	/**
+	 * Get the current dim text color (custom or theme default) based on view type.
+	 * If custom color is set, uses that. Otherwise uses theme default dim text color.
+	 * @return the dim text color to use
+	 */
+	private Color getDimTextColor() {
+		Color customColor = is3DView ? customTextColor3D : customTextColor2D;
+		return customColor != null ? customColor : dimTextColor;
+	}
+	
+	/**
+	 * Get the current flight data text active color (custom or theme default) based on view type.
+	 * If custom color is set, uses that. Otherwise uses theme default flight data active color.
+	 * @return the flight data text active color to use
+	 */
+	private Color getFlightDataTextActiveColor() {
+		Color customColor = is3DView ? customTextColor3D : customTextColor2D;
+		return customColor != null ? customColor : flightDataTextActiveColor;
+	}
+	
+	/**
+	 * Get the current flight data text inactive color (custom or theme default) based on view type.
+	 * If custom color is set, uses that. Otherwise uses theme default flight data inactive color.
+	 * @return the flight data text inactive color to use
+	 */
+	private Color getFlightDataTextInactiveColor() {
+		Color customColor = is3DView ? customTextColor3D : customTextColor2D;
+		return customColor != null ? customColor : flightDataTextInactiveColor;
+	}
+	
+	/**
+	 * Set custom text colors for this instance. If null, uses theme defaults for each text type.
+	 * When a custom color is set, it applies to all text types (main, dim, flight data).
+	 * @param textColor2D the custom text color for 2D view, or null to use theme defaults
+	 * @param textColor3D the custom text color for 3D view, or null to use theme defaults
+	 */
+	public void setCustomTextColors(Color textColor2D, Color textColor3D) {
+		this.customTextColor2D = textColor2D;
+		this.customTextColor3D = textColor3D;
+	}
+	
+	/**
+	 * Set whether this RocketInfo is rendering in a 3D view.
+	 * @param is3D true if rendering in 3D view, false if 2D
+	 */
+	public void set3DView(boolean is3D) {
+		this.is3DView = is3D;
+	}
+	
+	/**
+	 * Get whether this RocketInfo is rendering in a 3D view.
+	 * @return true if rendering in 3D view, false if 2D
+	 */
+	public boolean is3DView() {
+		return is3DView;
 	}
 	
 	
@@ -219,7 +293,7 @@ public class RocketInfo implements FigureElement {
 
 		GlyphVector massLineWithoutMotors = createText(massTextWithoutMotors);
 
-		g2.setColor(textColor);
+		g2.setColor(getTextColor());
 
 		g2.drawGlyphVector(name, x1, y1);
 		g2.drawGlyphVector(lengthLine, x1, y1+line);
@@ -277,7 +351,7 @@ public class RocketInfo implements FigureElement {
 		unitWidth = unitWidth + spaceWidth;
 		stabUnitWidth = stabUnitWidth + spaceWidth;
 
-		g2.setColor(textColor);
+		g2.setColor(getTextColor());
 
 		// Draw the stability, CG & CP values (and units)
 		g2.drawGlyphVector(stabValue, (float)(x2-stabRect.getWidth()), y1);
@@ -304,7 +378,7 @@ public class RocketInfo implements FigureElement {
 			atPos = (float)(x2 - atTextRect.getWidth());
 		}
 		
-		g2.setColor(dimTextColor);
+		g2.setColor(getDimTextColor());
 		g2.drawGlyphVector(atText, atPos, y1 + 3*line);
 
 	}
@@ -454,7 +528,7 @@ public class RocketInfo implements FigureElement {
 		
 
 		float y = y2 - line * (texts.length-1);
-		g2.setColor(darkErrorColor);
+		g2.setColor(darkErrorColor); // Keep error color from theme for warnings
 
 		for (GlyphVector v: texts) {
 			Rectangle2D rect = v.getVisualBounds();
@@ -470,7 +544,7 @@ public class RocketInfo implements FigureElement {
 		if (calculatingData) {
 			//// Calculating...
 			GlyphVector calculating = createText(trans.get("RocketInfo.Calculating"));
-			g2.setColor(textColor);
+			g2.setColor(getTextColor());
 			g2.drawGlyphVector(calculating, x1, (float)(y2-height));
 		}
 	}
@@ -552,9 +626,9 @@ public class RocketInfo implements FigureElement {
 		}
 		
 		if (!calculatingData) 
-			g2.setColor(flightDataTextActiveColor);
+			g2.setColor(getFlightDataTextActiveColor());
 		else
-			g2.setColor(flightDataTextInactiveColor);
+			g2.setColor(getFlightDataTextInactiveColor());
 
 		g2.drawGlyphVector(flightConfig, x1, y2-3*line);
 		g2.drawGlyphVector(apogee, x1, y2-2*line);

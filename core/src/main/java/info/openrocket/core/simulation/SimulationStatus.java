@@ -464,8 +464,10 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	}
 
 	public void addWarnings(WarningSet warnings) {
-		for (Warning warning : warnings) {
-			addWarning(warning);
+		if (null != warnings) {
+			for (Warning warning : warnings) {
+				addWarning(warning);
+			}
 		}
 	}
 

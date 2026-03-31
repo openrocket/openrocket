@@ -28,8 +28,8 @@ public class ModID implements Comparable {
 	private ModID(int val) {
 		id = val;
 	}
-	public static ModID ZERO = new ModID(0);
-	public static ModID INVALID = new ModID(-1);
+	public static final ModID ZERO = new ModID(0);
+	public static final ModID INVALID = new ModID(-1);
 
 	public int toInt() {
 		return id;

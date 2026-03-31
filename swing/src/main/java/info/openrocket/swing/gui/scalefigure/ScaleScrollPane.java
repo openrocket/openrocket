@@ -20,6 +20,7 @@ import java.util.EventObject;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -303,6 +304,10 @@ public class ScaleScrollPane extends JScrollPane
 		horizontalRuler.updateSize();
 		verticalRuler.updateSize();
 		figureRescaled = false;
+		
+		// Trigger a repaint after resize is complete to ensure getVisibleRect() returns correct values
+		// This fixes issues where paint() is called before the visible rectangle is properly updated
+		SwingUtilities.invokeLater(figure::repaint);
 	}
 
 	@Override

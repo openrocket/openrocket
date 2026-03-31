@@ -14,7 +14,7 @@ public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
 	private final double DEFAULT_DIAMETER = 0.3;
 	private double diameter;
-	public static double DEFAULT_CD = 0.8;
+	public static final double DEFAULT_CD = 0.8;
 	private final Material DEFAULT_LINE_MATERIAL;
 	private Material lineMaterial;
 	private final int DEFAULT_LINE_COUNT = 6;

@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
@@ -26,8 +29,6 @@ import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.core.util.ModID;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.Transformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.appearance.Decal;
@@ -55,7 +56,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
 
-	public static RemovedComponent REMOVED = new RemovedComponent();
+	public static final RemovedComponent REMOVED = new RemovedComponent();
 	
 	// Because of changes to Java 1.7.0-45's mechanism to construct DataFlavor objects (used in Drag and Drop)
 	// We cannot access static members of the Application object in this class.  Instead of holding
@@ -473,20 +474,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		clone.configListeners = new LinkedList<>();
 		clone.bypassComponentChangeEvent = false;
 		return clone;
-	}
-	
-	/**
-	 * Return true if any of this component's children are a RecoveryDevice
-	 */
-	public boolean hasRecoveryDevice() {
-		Iterator<RocketComponent> iterator = this.iterator();
-		while (iterator.hasNext()) {
-			RocketComponent child = iterator.next();
-			if (child instanceof RecoveryDevice) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	//////////////  Methods that may not be overridden  ////////////

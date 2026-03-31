@@ -577,13 +577,14 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		materialDefault.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (builder == null) {
+					return;
+				}
 				if (materialDefault.isSelected()) {
 					if (!insideBuilder) {
-						previousUserSelectedAppearance = (builder == null) ? null
-								: builder.getAppearance();
+						previousUserSelectedAppearance = builder.getAppearance();
 					} else {
-						previousUserSelectedInsideAppearance = (builder == null) ? null
-								: builder.getAppearance();
+						previousUserSelectedInsideAppearance = builder.getAppearance();
 					}
 
 					// Set the listeners' appearance to the default appearance
@@ -670,11 +671,16 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 
 		//// Create texture button
 		JButton createTextureBtn = new JButton(Icons.IMAGE_NEW);
-		createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
 		createTextureBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		createTextureBtn.addActionListener(e -> handleCreateTexture(panel, document, c, decalModel,
 				insideBuilder, builder));
-		mDefault.addEnableComponent(createTextureBtn, false);
+		if (TextureCreationService.isComponentSupported(c)) {
+			createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture"));
+			mDefault.addEnableComponent(createTextureBtn, false);
+		} else {
+			createTextureBtn.setToolTipText(trans.get("AppearanceCfg.but.createTexture.ttip.unsupported"));
+			createTextureBtn.setEnabled(false);
+		}
 		textureButtonsPanel.add(createTextureBtn);
 		order.add(createTextureBtn);
 

@@ -7,6 +7,7 @@ plugins {
     id 'org.javamodularity.moduleplugin' version '2.0.0'
     id 'application'
     id 'jacoco'
+    id 'com.github.spotbugs' version '6.1.12' apply false
 }
 
 // Java settings
@@ -72,6 +73,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: "org.javamodularity.moduleplugin"
     apply plugin: 'jacoco'
+    apply plugin: 'com.github.spotbugs'
 
     // Configure the gradle-modules-plugin
     modularity {
@@ -100,9 +102,27 @@ subprojects {
         }
     }
 
+    spotbugs {
+        // Note: string-to-enum coercion is deprecated in Gradle 9, will error in Gradle 10.
+        // TODO: Replace with Effort.MAX / Confidence.HIGH when upgrading to Gradle 10+.
+        effort = 'max'
+        reportLevel = 'high'
+        excludeFilter = rootProject.file('config/spotbugs/excludeFilter.xml')
+    }
+
+    spotbugsMain {
+        reports {
+            html.required = true
+            xml.required = false
+        }
+    }
+
+    spotbugsTest.enabled = false
+
     // Always evaluate coverage as part of the verification lifecycle
     tasks.named('check') {
         dependsOn jacocoTestCoverageVerification
+        dependsOn spotbugsMain
     }
 
     // Common dependencies

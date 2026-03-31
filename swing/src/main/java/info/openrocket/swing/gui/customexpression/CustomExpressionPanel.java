@@ -212,7 +212,7 @@ public class CustomExpressionPanel extends JPanel {
 			UnitSelector unitSelector = new UnitSelector(expression.getType().getUnitGroup());
 			//JLabel unitSelector = new JLabel ( expression.getUnit() );
 			//unitSelector = setLabelStyle(unitSelector);
-			//unitSelector.setBackground(UITheme.getColor(UITheme.Keys.BACKGROUND));
+			//unitSelector.setBackground(UITheme.getORColor(UITheme.Keys.BACKGROUND));
 			
 			JButton editButton = new JButton(Icons.EDIT_EDIT);
 			editButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Edit"));

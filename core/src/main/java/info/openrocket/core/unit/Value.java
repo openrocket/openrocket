@@ -119,24 +119,7 @@ public class Value implements Comparable<Value> {
 		if (n != 0)
 			return n;
 
-		double us = this.getUnitValue();
-		double them = o.getUnitValue();
-
-		if (Double.isNaN(us)) {
-			if (Double.isNaN(them))
-				return 0;
-			else
-				return 1;
-		}
-		if (Double.isNaN(them))
-			return -1;
-
-		if (us < them)
-			return -1;
-		else if (us > them)
-			return 1;
-		else
-			return 0;
+		return Double.compare(this.getUnitValue(), o.getUnitValue());
 	}
 
 }

@@ -2,8 +2,12 @@ package info.openrocket.core.aerodynamics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.logging.WarningSet;
+import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +24,8 @@ import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.TestRockets;
 import info.openrocket.core.util.Transformation;
+
+import java.util.Map;
 
 public class FinSetCalcTest {
 	protected final double EPSILON = 0.0001;
@@ -177,5 +183,191 @@ public class FinSetCalcTest {
 		assertFalse(Double.isNaN(forces.getCP().getX()), "CP x-coordinate should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCP().getY()), "CP y-coordinate should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCP().getZ()), "CP z-coordinate should not be NaN for very small fin");
+	}
+
+	/**
+	 * Test that pressure and base drag are calculated separately for square cross-section fins.
+	 * Square fins should have both pressure drag (stagnation) and base drag.
+	 * The sum of the two should equal what the old combined method would have returned.
+	 */
+	@Test
+	public void testSquareFinPressureAndBaseDragSeparation() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		assertEquals(FinSet.CrossSection.SQUARE, fins.getCrossSection(), "Default cross-section should be SQUARE");
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setMach(0.3);
+		WarningSet warnings = new WarningSet();
+
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		double stagnationCD = 1.0;
+		double baseCD = 0.5;
+
+		double pressureCD = calc.calculatePressureCD(conditions, stagnationCD, baseCD, warnings);
+		double componentBaseCD = calc.calculateComponentBaseCD(conditions, baseCD, warnings);
+
+		// Square fins: both pressure and base drag should be positive
+		assertTrue(pressureCD > 0, "Square fin pressure CD should be positive");
+		assertTrue(componentBaseCD > 0, "Square fin base CD should be positive");
+
+		// Base drag should scale with baseCD (doubling baseCD should double component base drag)
+		double componentBaseCD2 = calc.calculateComponentBaseCD(conditions, baseCD * 2, warnings);
+		assertEquals(componentBaseCD * 2, componentBaseCD2, EPSILON,
+				"Square fin base CD should scale linearly with baseCD");
+
+		// Pressure CD should not change when baseCD changes (it depends on stagnationCD)
+		double pressureCD2 = calc.calculatePressureCD(conditions, stagnationCD, baseCD * 2, warnings);
+		assertEquals(pressureCD, pressureCD2, EPSILON,
+				"Square fin pressure CD should not depend on baseCD");
+	}
+
+	/**
+	 * Test that rounded cross-section fins get half the base drag.
+	 */
+	@Test
+	public void testRoundedFinPressureAndBaseDragSeparation() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCrossSection(FinSet.CrossSection.ROUNDED);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setMach(0.3);
+		WarningSet warnings = new WarningSet();
+
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		double stagnationCD = 1.0;
+		double baseCD = 0.5;
+
+		double pressureCD = calc.calculatePressureCD(conditions, stagnationCD, baseCD, warnings);
+		double componentBaseCD = calc.calculateComponentBaseCD(conditions, baseCD, warnings);
+
+		assertTrue(pressureCD > 0, "Rounded fin pressure CD should be positive");
+		assertTrue(componentBaseCD > 0, "Rounded fin base CD should be positive");
+
+		// Rounded fins get half the base drag
+		double refArea = conditions.getRefArea();
+		double span = fins.getSpan();
+		double thickness = fins.getThickness();
+		double scaleFactor = span * thickness / refArea;
+		double expectedBase = (baseCD / 2) * scaleFactor;
+
+		assertEquals(expectedBase, componentBaseCD, EPSILON, "Rounded fin base CD should be half of baseCD * scaleFactor");
+	}
+
+	/**
+	 * Test that airfoil cross-section fins have zero base drag.
+	 */
+	@Test
+	public void testAirfoilFinZeroBaseDrag() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCrossSection(FinSet.CrossSection.AIRFOIL);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setMach(0.3);
+		WarningSet warnings = new WarningSet();
+
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		double componentBaseCD = calc.calculateComponentBaseCD(conditions, 0.5, warnings);
+		assertEquals(0.0, componentBaseCD, EPSILON, "Airfoil fin should have zero base drag");
+	}
+
+	/**
+	 * Test that zero-area fins return zero for both pressure and base drag.
+	 */
+	@Test
+	public void testZeroAreaFinDragSeparation() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setHeight(0.0);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		WarningSet warnings = new WarningSet();
+
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		assertEquals(0.0, calc.calculatePressureCD(conditions, 1.0, 0.5, warnings), EPSILON,
+				"Zero-area fin pressure CD should be zero");
+		assertEquals(0.0, calc.calculateComponentBaseCD(conditions, 0.5, warnings), EPSILON,
+				"Zero-area fin base CD should be zero");
+	}
+
+	/**
+	 * Integration test: verify that getForceAnalysis reports separate pressure and base drag for fins.
+	 * The sum of pressureCD + baseCD for the fin should equal the total fin drag minus friction.
+	 */
+	@Test
+	public void testForceAnalysisFinDragSeparation() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setMach(0.3);
+		WarningSet warnings = new WarningSet();
+
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		Map<RocketComponent, AerodynamicForces> forceMap = calculator.getForceAnalysis(config, conditions, warnings);
+
+		// Find the fin set in the results
+		AerodynamicForces finForces = null;
+		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
+			if (entry.getKey() instanceof FinSet) {
+				finForces = entry.getValue();
+				break;
+			}
+		}
+
+		assertNotNull(finForces, "Fin set should be present in force analysis");
+
+		// Verify that both pressure and base CD are reported (not NaN)
+		assertFalse(Double.isNaN(finForces.getPressureCD()), "Fin pressure CD should not be NaN");
+		assertFalse(Double.isNaN(finForces.getBaseCD()), "Fin base CD should not be NaN");
+		assertFalse(Double.isNaN(finForces.getFrictionCD()), "Fin friction CD should not be NaN");
+
+		// For square fins, base drag should be positive
+		assertTrue(finForces.getBaseCD() > 0, "Square fin base CD should be positive in force analysis");
+		assertTrue(finForces.getPressureCD() > 0, "Square fin pressure CD should be positive in force analysis");
+
+		// Total CD should equal sum of components
+		double expectedCD = finForces.getPressureCD() + finForces.getBaseCD() + finForces.getFrictionCD();
+		assertEquals(expectedCD, finForces.getCD(), EPSILON,
+				"Total CD should equal pressureCD + baseCD + frictionCD");
+	}
+
+	/**
+	 * Integration test: verify that airfoil fins report zero base drag in force analysis.
+	 */
+	@Test
+	public void testForceAnalysisAirfoilFinZeroBaseDrag() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCrossSection(FinSet.CrossSection.AIRFOIL);
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		conditions.setMach(0.3);
+		WarningSet warnings = new WarningSet();
+
+		BarrowmanCalculator calculator = new BarrowmanCalculator();
+		Map<RocketComponent, AerodynamicForces> forceMap = calculator.getForceAnalysis(config, conditions, warnings);
+
+		AerodynamicForces finForces = null;
+		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forceMap.entrySet()) {
+			if (entry.getKey() instanceof FinSet) {
+				finForces = entry.getValue();
+				break;
+			}
+		}
+
+		assertNotNull(finForces, "Fin set should be present in force analysis");
+		assertEquals(0.0, finForces.getBaseCD(), EPSILON, "Airfoil fin base CD should be zero in force analysis");
+		assertTrue(finForces.getPressureCD() > 0, "Airfoil fin pressure CD should be positive");
 	}
 }
