@@ -16,6 +16,7 @@ import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
@@ -1242,7 +1243,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (scene == null) {
 			return;
 		}
-		Color color = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		Color color = GUIUtil.getUITheme().getBackgroundColor();
 		float srgbR = color.getRed() / 255.0f;
 		float srgbG = color.getGreen() / 255.0f;
 		float srgbB = color.getBlue() / 255.0f;

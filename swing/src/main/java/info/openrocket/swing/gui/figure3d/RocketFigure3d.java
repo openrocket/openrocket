@@ -12,6 +12,7 @@ import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.util.GUIUtil;
 import org.joml.Vector4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +89,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public static void updateColors() {
-		backgroundColor = UITheme.getColor(UITheme.Keys.BACKGROUND);
+		backgroundColor = GUIUtil.getUITheme().getBackgroundColor();
 	}
 
 	private void ensureCanvasCreatedOnEdt() {

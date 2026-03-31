@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL33;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
@@ -19,6 +20,7 @@ import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 
 /**
  * Motion blur post-processing pass for dynamic visual effects.
@@ -130,7 +132,7 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 
         motionBlurTexture = GL33.glGenTextures();
         GL33.glBindTexture(GL_TEXTURE_2D, motionBlurTexture);
-        GL33.glTexImage2D(GL_TEXTURE_2D, 0, GL33.GL_RGB, screenWidth, screenHeight, 0, GL33.GL_RGB, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+        GL33.glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
         GL33.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         GL33.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GL33.glFramebufferTexture2D(GL33.GL_FRAMEBUFFER, GL33.GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, motionBlurTexture, 0);

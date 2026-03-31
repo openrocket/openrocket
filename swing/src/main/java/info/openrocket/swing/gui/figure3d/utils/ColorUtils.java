@@ -15,32 +15,39 @@ public final class ColorUtils {
 
 	/**
 	 * Converts a color from sRGB space to linear space.
-	 * This is an approximate conversion using a gamma of 2.2.
+	 * Uses the standard sRGB transfer function.
 	 *
 	 * @param srgbColor The input color in sRGB space.
 	 * @return A new Vector3f representing the color in linear space.
 	 */
 	public static Vector3f srgbToLinear(Vector3f srgbColor) {
 		return new Vector3f(
-				(float) Math.pow(srgbColor.x, 2.2),
-				(float) Math.pow(srgbColor.y, 2.2),
-				(float) Math.pow(srgbColor.z, 2.2)
+				srgbChannelToLinear(srgbColor.x),
+				srgbChannelToLinear(srgbColor.y),
+				srgbChannelToLinear(srgbColor.z)
 		);
 	}
 
 	/**
 	 * Converts a color from sRGB space to linear space, preserving the alpha channel.
-	 * This is an approximate conversion using a gamma of 2.2.
+	 * Uses the standard sRGB transfer function.
 	 *
 	 * @param srgbColor The input color in sRGB space (with alpha).
 	 * @return A new Vector4f representing the color in linear space (with alpha).
 	 */
 	public static Vector4f srgbToLinear(Vector4f srgbColor) {
 		return new Vector4f(
-				(float) Math.pow(srgbColor.x, 2.2),
-				(float) Math.pow(srgbColor.y, 2.2),
-				(float) Math.pow(srgbColor.z, 2.2),
+				srgbChannelToLinear(srgbColor.x),
+				srgbChannelToLinear(srgbColor.y),
+				srgbChannelToLinear(srgbColor.z),
 				srgbColor.w
 		);
+	}
+
+	private static float srgbChannelToLinear(float srgb) {
+		if (srgb <= 0.04045f) {
+			return srgb / 12.92f;
+		}
+		return (float) Math.pow((srgb + 0.055f) / 1.055f, 2.4f);
 	}
 }

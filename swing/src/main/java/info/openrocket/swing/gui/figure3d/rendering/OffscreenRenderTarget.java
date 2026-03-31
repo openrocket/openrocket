@@ -3,12 +3,13 @@ package info.openrocket.swing.gui.figure3d.rendering;
 import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
 import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
+import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 
 /**
  * Utility wrapper around an OpenGL framebuffer/texture pair that is used as
@@ -72,7 +73,7 @@ public class OffscreenRenderTarget {
 
 		colorTextureId = GL33.glGenTextures();
 		GL33.glBindTexture(GL33.GL_TEXTURE_2D, colorTextureId);
-		GL33.glTexImage2D(GL33.GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+		GL33.glTexImage2D(GL33.GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
 		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		GL33.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL33.GL_TEXTURE_2D, colorTextureId, 0);

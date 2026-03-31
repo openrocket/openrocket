@@ -21,7 +21,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
@@ -43,6 +43,7 @@ import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
@@ -166,7 +167,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         // Create outline FBO
         outlineFBO = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, outlineFBO);
-        outlineColorTexture = createTexture(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+        outlineColorTexture = createTexture(width, height, GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outlineColorTexture, 0);
         outlineDepthTexture = createTexture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, outlineDepthTexture, 0);
@@ -177,7 +178,7 @@ public class OutlinePass implements RenderPass, ScreenTexturePass {
         // Create mask FBO
         maskFBO = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, maskFBO);
-        maskTexture = createTexture(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+        maskTexture = createTexture(width, height, GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, maskTexture, 0);
         maskDepthRBO = glGenRenderbuffers();
         glBindRenderbuffer(GL_RENDERBUFFER, maskDepthRBO);
