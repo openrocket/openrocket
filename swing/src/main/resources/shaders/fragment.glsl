@@ -172,16 +172,38 @@ float calculateShadow(vec3 normal, vec3 lightDir) {
     }
 
     float bias = max(0.0015 * (1.0 - dot(normal, lightDir)), 0.0004);
-    float shadow = 0.0;
+    float currentDepth = projCoords.z - bias;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for (int x = -1; x <= 2; ++x) {
-        for (int y = -1; y <= 2; ++y) {
-            float closestDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            float currentDepth = projCoords.z - bias;
-            shadow += currentDepth > closestDepth ? 1.0 : 0.0;
-        }
+    vec2 poissonDisk[12] = vec2[](
+        vec2(-0.326, -0.406),
+        vec2(-0.840, -0.074),
+        vec2(-0.696,  0.457),
+        vec2(-0.203,  0.621),
+        vec2( 0.962, -0.195),
+        vec2( 0.473, -0.480),
+        vec2( 0.519,  0.767),
+        vec2( 0.185, -0.893),
+        vec2( 0.507,  0.064),
+        vec2( 0.896,  0.412),
+        vec2(-0.322, -0.933),
+        vec2(-0.792, -0.598)
+    );
+    float poissonWeights[12] = float[](
+        1.00, 0.92, 0.88, 0.84,
+        0.82, 0.80, 0.78, 0.74,
+        0.72, 0.68, 0.64, 0.60
+    );
+    float shadow = 0.0;
+    float totalWeight = 0.0;
+    float filterRadius = 1.8;
+    for (int i = 0; i < 12; ++i) {
+        vec2 sampleUv = projCoords.xy + poissonDisk[i] * texelSize * filterRadius;
+        float closestDepth = texture(shadowMap, sampleUv).r;
+        float sampleShadow = currentDepth > closestDepth ? 1.0 : 0.0;
+        shadow += sampleShadow * poissonWeights[i];
+        totalWeight += poissonWeights[i];
     }
-    shadow /= 16.0;
+    shadow /= totalWeight;
     return shadow * shadowStrength;
 }
 
