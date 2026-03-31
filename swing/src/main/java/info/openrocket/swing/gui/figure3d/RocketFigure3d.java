@@ -9,8 +9,10 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
+import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 import info.openrocket.swing.gui.theme.UITheme;
+import org.joml.Vector4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,10 +221,11 @@ public class RocketFigure3d extends JPanel {
 		float srgbG = color.getGreen() / 255.0f;
 		float srgbB = color.getBlue() / 255.0f;
 		float alpha = color.getAlpha() / 255.0f;
+		Vector4f linear = ColorUtils.srgbToLinear(new Vector4f(srgbR, srgbG, srgbB, alpha));
 		orchestrator.enqueueGlTask(() -> {
 			SceneView scene = orchestrator.getScene();
 			if (scene != null) {
-				scene.setBackground(new SolidColorBackground(srgbR, srgbG, srgbB, alpha));
+				scene.setBackground(new SolidColorBackground(linear.x, linear.y, linear.z, linear.w));
 			}
 		});
 	}

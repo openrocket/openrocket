@@ -13,8 +13,10 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
+import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import info.openrocket.swing.gui.figure3d.utils.GLDebug;
 import info.openrocket.swing.gui.theme.UITheme;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
@@ -122,7 +124,6 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
 	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
 			System.getProperty("os.name", "").toLowerCase().contains("mac");
-	private static final float MAC_BACKGROUND_GAMMA = 1.8f;
 	private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
 	private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
@@ -1246,12 +1247,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		float srgbG = color.getGreen() / 255.0f;
 		float srgbB = color.getBlue() / 255.0f;
 		float alpha = color.getAlpha() / 255.0f;
-		if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-			srgbR = (float) Math.pow(srgbR, MAC_BACKGROUND_GAMMA);
-			srgbG = (float) Math.pow(srgbG, MAC_BACKGROUND_GAMMA);
-			srgbB = (float) Math.pow(srgbB, MAC_BACKGROUND_GAMMA);
-		}
-		scene.setBackground(new SolidColorBackground(srgbR, srgbG, srgbB, alpha));
+		Vector4f linear = ColorUtils.srgbToLinear(new Vector4f(srgbR, srgbG, srgbB, alpha));
+		scene.setBackground(new SolidColorBackground(linear.x, linear.y, linear.z, linear.w));
 	}
 	private void installThemeListener() {
 		if (uiThemeListener != null) {
