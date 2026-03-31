@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.rendering;
 
+import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.rocketcomponent.BodyTube;
 import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
@@ -7,6 +8,7 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
+import info.openrocket.swing.gui.figure3d.materials.AppearanceFactory;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
@@ -36,10 +38,14 @@ public class DefaultMaterialBinder implements MaterialBinder {
                      RenderingConfiguration config,
                      TextureBinder textureBinder) {
         final Appearance3D appearance = obj.getAppearance();
+        boolean unfinishedMode = config.getDisplay().getMode() == DisplaySettings.RenderMode.UNFINISHED;
         boolean isFigureMode = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY;
         boolean isXray = isFigureMode &&
                 isFigureTransparentComponent(obj.getRocketComponent());
         ORColor figureSourceColor = isFigureMode ? getFigureSourceColor(obj.getRocketComponent()) : null;
+        Appearance3D unfinishedAppearance = unfinishedMode && obj.getRocketComponent() != null
+                ? AppearanceFactory.createDefaultFrom(obj.getRocketComponent())
+                : null;
 
         // Set object-specific matrices and flags
         shader.setUniform(uniforms.model, obj.getModelMatrix());
@@ -48,41 +54,52 @@ public class DefaultMaterialBinder implements MaterialBinder {
         GL33.glUniform1i(uniforms.xrayMode, isXray ? 1 : 0);
 
         // Colors and material properties
-        Vector3f linearColor = isFigureMode ? getFigureXrayBaseColor(figureSourceColor) : appearance.getColor();
+        Vector3f linearColor = unfinishedMode
+                ? getAppearanceColor(unfinishedAppearance, appearance.getColor())
+                : isFigureMode ? getFigureXrayBaseColor(figureSourceColor) : appearance.getColor();
         if (isXray) {
             linearColor = toFigureXrayColor(linearColor);
         }
         GL33.glUniform3f(uniforms.objectColor, linearColor.x, linearColor.y, linearColor.z);
 
-        Vector3f specularColor = appearance.getSpecularColor();
+        Vector3f specularColor = unfinishedMode
+                ? getUnfinishedSpecularColor(unfinishedAppearance)
+                : appearance.getSpecularColor();
         if (isFigureMode) {
             specularColor = toFigureXraySpecular(linearColor, appearance.getShine());
         }
         GL33.glUniform3f(uniforms.materialSpecular, specularColor.x, specularColor.y, specularColor.z);
         GL33.glUniform1f(uniforms.specularTintFactor, appearance.getSpecularTint());
-        int renderStyle = isFigureMode ? Appearance3D.RenderStyle.SOLID.ordinal() : appearance.getStyle().ordinal();
+        int renderStyle = unfinishedMode
+                ? unfinishedAppearance.getStyle().ordinal()
+                : isFigureMode ? Appearance3D.RenderStyle.SOLID.ordinal() : appearance.getStyle().ordinal();
         GL33.glUniform1i(uniforms.renderStyle, renderStyle);
-        GL33.glUniform1f(uniforms.shine, appearance.getShine());
+        float shine = unfinishedMode ? getAppearanceShine(unfinishedAppearance, appearance.getShine()) : appearance.getShine();
+        GL33.glUniform1f(uniforms.shine, shine);
         GL33.glUniform1f(uniforms.roughnessScale, appearance.getRoughnessScale());
         GL33.glUniform1f(uniforms.roughnessStrength, appearance.getRoughnessStrength());
         GL33.glUniform1i(uniforms.hideInnerSurfaces, config.getDisplay().isRenderInternalSurfaces() ? 0 : 1);
 
         if (isFigureMode) {
             GL33.glUniform1f(uniforms.opacity, isXray ? config.getQuality().getXrayOpacity() : 1.0f);
+        } else if (unfinishedMode && obj.getRocketComponent() instanceof BodyTube) {
+            GL33.glUniform1f(uniforms.opacity, 0.2f);
         } else {
             GL33.glUniform1f(uniforms.opacity, appearance.getOpacity());
         }
 
-        Matrix4f textureTransformMatrix = appearance.getTextureTransform().getTransformMatrix(new Matrix4f());
+        Matrix4f textureTransformMatrix = unfinishedMode
+                ? unfinishedAppearance.getTextureTransform().getTransformMatrix(new Matrix4f())
+                : appearance.getTextureTransform().getTransformMatrix(new Matrix4f());
         shader.setUniform(uniforms.textureTransformMatrix, textureTransformMatrix);
-        boolean unfinishedMode = config.getDisplay().getMode() == DisplaySettings.RenderMode.UNFINISHED;
 
         // Base texture
-        if (!unfinishedMode && !isFigureMode && appearance.getStyle() != Appearance3D.RenderStyle.WIREFRAME) {
-            Texture tex = appearance.getTexture();
+        if (!isFigureMode && renderStyle != Appearance3D.RenderStyle.WIREFRAME.ordinal()) {
+            Texture tex = unfinishedMode ? unfinishedAppearance.getTexture() : appearance.getTexture();
             if (tex != null && tex.getId() != 0) {
                 textureBinder.bindTexture(0, GL33.GL_TEXTURE_2D, tex.getId());
-                int wrapMode = (appearance.getTextureMode() == Appearance3D.TextureMode.STRETCH) ? GL33.GL_CLAMP_TO_EDGE : GL_REPEAT;
+                Appearance3D.TextureMode textureMode = unfinishedMode ? unfinishedAppearance.getTextureMode() : appearance.getTextureMode();
+                int wrapMode = (textureMode == Appearance3D.TextureMode.STRETCH) ? GL33.GL_CLAMP_TO_EDGE : GL_REPEAT;
                 textureBinder.setTextureParams(tex.getId(), wrapMode, wrapMode, GL33.GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
                 GL33.glUniform1i(uniforms.textureSampler, 0);
                 GL33.glUniform1i(uniforms.hasTexture, 1);
@@ -94,14 +111,16 @@ public class DefaultMaterialBinder implements MaterialBinder {
         }
 
         // Decal texture
-        Texture decal = (unfinishedMode || isFigureMode) ? null : appearance.getDecalTexture();
+        Texture decal = isFigureMode ? null : unfinishedMode ? unfinishedAppearance.getDecalTexture() : appearance.getDecalTexture();
         if (decal != null) {
-            Matrix4f decalTransformMatrix = appearance.getDecalTransform().getTransformMatrix(new Matrix4f());
+            Matrix4f decalTransformMatrix = unfinishedMode
+                    ? unfinishedAppearance.getDecalTransform().getTransformMatrix(new Matrix4f())
+                    : appearance.getDecalTransform().getTransformMatrix(new Matrix4f());
             shader.setUniform(uniforms.decalTransformMatrix, decalTransformMatrix);
             textureBinder.bindTexture(1, GL33.GL_TEXTURE_2D, decal.getId());
             GL33.glUniform1i(uniforms.decalSampler, 1);
             GL33.glUniform1i(uniforms.hasDecal, 1);
-            GL33.glUniform1i(uniforms.decalSurfaceMask, appearance.getDecalSurfaceMask());
+            GL33.glUniform1i(uniforms.decalSurfaceMask, unfinishedMode ? unfinishedAppearance.getDecalSurfaceMask() : appearance.getDecalSurfaceMask());
         } else {
             GL33.glUniform1i(uniforms.hasDecal, 0);
         }
@@ -148,4 +167,21 @@ public class DefaultMaterialBinder implements MaterialBinder {
                 Math.max(figureColor.z, 0.9f) * shineMix
         );
     }
+
+    private static Vector3f getAppearanceColor(Appearance3D appearance, Vector3f fallbackLinearColor) {
+        if (appearance == null) {
+            return new Vector3f(fallbackLinearColor);
+        }
+        return new Vector3f(appearance.getColor());
+    }
+
+    private static float getAppearanceShine(Appearance3D appearance, float fallbackShine) {
+        return appearance != null ? appearance.getShine() : fallbackShine;
+    }
+
+    private static Vector3f getUnfinishedSpecularColor(Appearance3D appearance) {
+        float shine = appearance != null ? appearance.getShine() : 0.0f;
+        return new Vector3f(shine, shine, shine);
+    }
+
 }

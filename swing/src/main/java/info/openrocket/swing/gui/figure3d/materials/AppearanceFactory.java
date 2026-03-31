@@ -43,6 +43,11 @@ public abstract class AppearanceFactory {
 		return orAppearanceToAppearance3D(orAppearance, finish);
 	}
 
+	public static Appearance3D createDefaultFrom(RocketComponent component) {
+		Appearance defaultAppearance = DefaultAppearance.getDefaultAppearance(component);
+		return orAppearanceToAppearance3D(defaultAppearance);
+	}
+
 	public static Appearance3D createFrom(Motor motor) {
 		Appearance appearance = DefaultAppearance.getDefaultAppearance(motor);
 		Appearance3D appearance3D = orAppearanceToAppearance3D(appearance);

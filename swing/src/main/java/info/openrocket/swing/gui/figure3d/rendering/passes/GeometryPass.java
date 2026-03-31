@@ -102,7 +102,9 @@ public class GeometryPass implements RenderPass {
         for (SceneObject obj : scene.getObjects()) {
             boolean isXrayTransparent = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
                     isFigureTransparentComponent(obj.getRocketComponent());
-            if (obj.getAppearance().getOpacity() < 1.0f || isXrayTransparent) {
+            boolean isUnfinishedTransparent = config.getDisplay().getMode() == DisplaySettings.RenderMode.UNFINISHED &&
+                    obj.getRocketComponent() instanceof BodyTube;
+            if (obj.getAppearance().getOpacity() < 1.0f || isXrayTransparent || isUnfinishedTransparent) {
                 transparentObjects.add(obj);
             } else {
                 opaqueObjects.add(obj);
