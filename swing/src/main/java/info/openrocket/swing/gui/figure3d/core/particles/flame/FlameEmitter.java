@@ -152,15 +152,15 @@ public class FlameEmitter extends ParticleEmitter {
         Vector3f velocity = new Vector3f(direction).mul(settings.velocity);
 
         // Flames spread more in horizontal directions and rise upward
-        velocity.x += (float) ((Math.random() - 0.5) * settings.spread);
-        velocity.y += Math.abs((float) ((Math.random() - 0.5) * settings.spread * 0.5f)); // Mostly upward
-        velocity.z += (float) ((Math.random() - 0.5) * settings.spread);
+        velocity.x += nextRandomSignedFloat() * settings.spread;
+        velocity.y += Math.abs(nextRandomSignedFloat() * settings.spread * 0.5f); // Mostly upward
+        velocity.z += nextRandomSignedFloat() * settings.spread;
 
         // Use Perlin noise for flame color variation (creates realistic flame patterns)
-        float time = System.currentTimeMillis() * 0.001f;
+        float time = getNoiseTime();
         
         // Add random offset for each particle
-        float randomOffset = (float) Math.random() * 100.0f;
+        float randomOffset = nextRandomFloat() * 100.0f;
         
         // Quality-adjusted noise computation for flame
         float colorFactor = 0.5f;
@@ -192,21 +192,21 @@ public class FlameEmitter extends ParticleEmitter {
         float b = settings.minColor.z + colorFactor * (settings.maxColor.z - settings.minColor.z);
         Vector3f color = new Vector3f(r, g, b);
 
-        float size = (float) (Math.random() * (settings.maxSize - settings.minSize) + settings.minSize);
-        float life = (float) (Math.random() * (settings.maxLife - settings.minLife) + settings.minLife);
+        float size = nextRandomFloat() * (settings.maxSize - settings.minSize) + settings.minSize;
+        float life = nextRandomFloat() * (settings.maxLife - settings.minLife) + settings.minLife;
         
         // Flames have more chaotic orientation and movement
         Quaternionf orientation = new Quaternionf().rotateXYZ(
-            (float) (Math.random() * Math.PI * 2),
-            (float) (Math.random() * Math.PI * 2), 
-            (float) (Math.random() * Math.PI * 2)
+            nextRandomFloat() * (float) (Math.PI * 2),
+            nextRandomFloat() * (float) (Math.PI * 2), 
+            nextRandomFloat() * (float) (Math.PI * 2)
         );
         
         // More dramatic angular velocity for flame flicker
         Vector3f angularVelocity = new Vector3f(
-            (float) ((Math.random() - 0.5) * 2.0 * flickerIntensity),
-            (float) ((Math.random() - 0.5) * 2.0 * flickerIntensity),
-            (float) ((Math.random() - 0.5) * 2.0 * flickerIntensity)
+            nextRandomSignedFloat() * 2.0f * flickerIntensity,
+            nextRandomSignedFloat() * 2.0f * flickerIntensity,
+            nextRandomSignedFloat() * 2.0f * flickerIntensity
         );
 
         particles.add(new Particle(position, velocity, color, size, life, orientation, angularVelocity));

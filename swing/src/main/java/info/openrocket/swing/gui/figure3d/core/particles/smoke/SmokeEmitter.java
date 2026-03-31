@@ -50,17 +50,17 @@ public class SmokeEmitter extends ParticleEmitter {
 
         // For exhaust smoke, add spread perpendicular to main direction (+x)
         // Keep strong forward velocity, add spread only in y and z directions
-        velocity.x += (float) ((Math.random() - 0.5) * settings.spread * 0.2f); // Minimal x spread
-        velocity.y += (float) ((Math.random() - 0.5) * settings.spread); // Full y spread
-        velocity.z += (float) ((Math.random() - 0.5) * settings.spread); // Full z spread
+        velocity.x += nextRandomSignedFloat() * settings.spread * 0.2f; // Minimal x spread
+        velocity.y += nextRandomSignedFloat() * settings.spread; // Full y spread
+        velocity.z += nextRandomSignedFloat() * settings.spread; // Full z spread
 
         // Smoke naturally rises and disperses without strong forces
 
         // Use Perlin noise for more coherent color variations
-        float time = System.currentTimeMillis() * 0.001f; // Convert to seconds
+        float time = getNoiseTime();
         
         // Add random offset to position to ensure variation even when particles spawn at same spot
-        float randomOffset = (float) Math.random() * 100.0f;
+        float randomOffset = nextRandomFloat() * 100.0f;
         
         // Quality-adjusted noise computation - reduce noise samples for lower quality
         float colorFactor = 0.5f;
@@ -92,21 +92,21 @@ public class SmokeEmitter extends ParticleEmitter {
         float b = settings.minColor.z + colorFactor * (settings.maxColor.z - settings.minColor.z);
         Vector3f color = new Vector3f(r, g, b);
 
-        float size = (float) (Math.random() * (settings.maxSize - settings.minSize) + settings.minSize);
-        float life = (float) (Math.random() * (settings.maxLife - settings.minLife) + settings.minLife);
+        float size = nextRandomFloat() * (settings.maxSize - settings.minSize) + settings.minSize;
+        float life = nextRandomFloat() * (settings.maxLife - settings.minLife) + settings.minLife;
         
         // Random 3D orientation
         Quaternionf orientation = new Quaternionf().rotateXYZ(
-            (float) (Math.random() * Math.PI * 2), // Random X rotation
-            (float) (Math.random() * Math.PI * 2), // Random Y rotation  
-            (float) (Math.random() * Math.PI * 2)  // Random Z rotation
+            nextRandomFloat() * (float) (Math.PI * 2), // Random X rotation
+            nextRandomFloat() * (float) (Math.PI * 2), // Random Y rotation  
+            nextRandomFloat() * (float) (Math.PI * 2)  // Random Z rotation
         );
         
         // Random 3D angular velocity (rotation around random axes)
         Vector3f angularVelocity = new Vector3f(
-            (float) ((Math.random() - 0.5) * 0.3), // X axis rotation speed
-            (float) ((Math.random() - 0.5) * 0.3), // Y axis rotation speed
-            (float) ((Math.random() - 0.5) * 0.3)  // Z axis rotation speed
+            nextRandomSignedFloat() * 0.3f, // X axis rotation speed
+            nextRandomSignedFloat() * 0.3f, // Y axis rotation speed
+            nextRandomSignedFloat() * 0.3f  // Z axis rotation speed
         );
 
         particles.add(new Particle(position, velocity, color, size, life, orientation, angularVelocity));

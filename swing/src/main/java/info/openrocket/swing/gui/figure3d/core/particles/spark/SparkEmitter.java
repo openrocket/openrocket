@@ -31,13 +31,13 @@ public class SparkEmitter extends ParticleEmitter {
         Vector3f velocity = new Vector3f(direction).mul(settings.velocity);
 
         // Add some randomness to velocity based on spread
-        velocity.x += (float) ((Math.random() - 0.5) * settings.spread);
-        velocity.y += (float) ((Math.random() - 0.5) * settings.spread);
-        velocity.z += (float) ((Math.random() - 0.5) * settings.spread);
+        velocity.x += nextRandomSignedFloat() * settings.spread;
+        velocity.y += nextRandomSignedFloat() * settings.spread;
+        velocity.z += nextRandomSignedFloat() * settings.spread;
 
         float colorFactor = 0.5f;
         switch (settings.config.getQuality().getQuality()) {
-            case MEDIUM, HIGH -> colorFactor = (float) Math.random();
+            case MEDIUM, HIGH -> colorFactor = nextRandomFloat();
         }
 
         // Linearly interpolate between min and max color
@@ -46,8 +46,8 @@ public class SparkEmitter extends ParticleEmitter {
         float b = settings.minColor.z + colorFactor * (settings.maxColor.z - settings.minColor.z);
         Vector3f color = new Vector3f(r, g, b);
 
-        float size = (float) (Math.random() * (settings.maxSize - settings.minSize) + settings.minSize);
-        float life = (float) (Math.random() * (settings.maxLife - settings.minLife) + settings.minLife);
+        float size = nextRandomFloat() * (settings.maxSize - settings.minSize) + settings.minSize;
+        float life = nextRandomFloat() * (settings.maxLife - settings.minLife) + settings.minLife;
 
         particles.add(new Particle(position, velocity, color, size, life));
     }

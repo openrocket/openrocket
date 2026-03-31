@@ -4,6 +4,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Abstract base class for particle emitters that create and manage particles over time.
@@ -20,6 +21,8 @@ public abstract class ParticleEmitter {
     protected boolean isStaticMode;
     protected float staticCaptureTime;
     protected float currentTime;
+    protected final long baseSeed;
+    protected Random random;
 
     /**
      * Creates a new particle emitter.
@@ -37,6 +40,8 @@ public abstract class ParticleEmitter {
         this.isStaticMode = false;
         this.staticCaptureTime = 0.0f;
         this.currentTime = 0.0f;
+        this.baseSeed = computeBaseSeed(emitterPosition, direction);
+        this.random = new Random(baseSeed);
     }
 
     /**
@@ -97,6 +102,18 @@ public abstract class ParticleEmitter {
     public void setDirection(Vector3f direction) {
         this.direction.set(direction);
     }
+
+    protected float nextRandomFloat() {
+        return random.nextFloat();
+    }
+
+    protected float nextRandomSignedFloat() {
+        return random.nextFloat() - 0.5f;
+    }
+
+    protected float getNoiseTime() {
+        return currentTime;
+    }
     
     /**
      * Captures a static snapshot of particles at a specific time for performance.
@@ -133,6 +150,7 @@ public abstract class ParticleEmitter {
         staticParticles.clear();
         timeSinceLastCreation = 0;
         currentTime = 0;
+        random = new Random(baseSeed);
         
         // Simulate up to target time with small time steps
         float timeStep = 0.016f; // ~60 FPS time step
@@ -166,5 +184,16 @@ public abstract class ParticleEmitter {
         for (Particle p : particles) {
             staticParticles.add(p.clone());
         }
+    }
+
+    private long computeBaseSeed(Vector3f emitterPosition, Vector3f direction) {
+        long seed = getClass().getName().hashCode();
+        seed = 31L * seed + Float.floatToIntBits(emitterPosition.x);
+        seed = 31L * seed + Float.floatToIntBits(emitterPosition.y);
+        seed = 31L * seed + Float.floatToIntBits(emitterPosition.z);
+        seed = 31L * seed + Float.floatToIntBits(direction.x);
+        seed = 31L * seed + Float.floatToIntBits(direction.y);
+        seed = 31L * seed + Float.floatToIntBits(direction.z);
+        return seed;
     }
 }
