@@ -53,6 +53,11 @@ public class PhotoPanel extends JPanel {
 	private boolean lastParticlesEnabled;
 	private ORColor lastFlameColor;
 	private ORColor lastSmokeColor;
+	private float lastSmokeOpacity = Float.NaN;
+	private float lastExhaustScale = Float.NaN;
+	private float lastFlameAspectRatio = Float.NaN;
+	private float lastSparkConcentration = Float.NaN;
+	private float lastSparkWeight = Float.NaN;
 	private boolean cameraSettingsTracked;
 	private double lastViewAz;
 	private double lastViewAlt;
@@ -145,6 +150,11 @@ public class PhotoPanel extends JPanel {
 		pendingApply.set(false);
 		lastFlameColor = null;
 		lastSmokeColor = null;
+		lastSmokeOpacity = Float.NaN;
+		lastExhaustScale = Float.NaN;
+		lastFlameAspectRatio = Float.NaN;
+		lastSparkConcentration = Float.NaN;
+		lastSparkWeight = Float.NaN;
 		cameraSettingsTracked = false;
 		document = null;
 	}
@@ -466,16 +476,31 @@ public class PhotoPanel extends JPanel {
 		ORColor smokeColor = colorOrDefault(settings.getSmokeColor(), new ORColor(230, 230, 230));
 		effects.setFlameColor(toColorVector(flameColor));
 		effects.setSmokeColor(toColorVector(smokeColor));
+		effects.setSmokeOpacity((float) settings.getSmokeOpacity());
+		effects.setExhaustScale((float) settings.getExhaustScale());
+		effects.setFlameAspectRatio((float) settings.getFlameAspectRatio());
+		effects.setSparkConcentration((float) settings.getSparkConcentration());
+		effects.setSparkWeight((float) settings.getSparkWeight());
 
 		boolean flameColorChanged = !sameColor(flameColor, lastFlameColor);
 		boolean smokeColorChanged = !sameColor(smokeColor, lastSmokeColor);
+		boolean smokeOpacityChanged = !approximatelyEqual(settings.getSmokeOpacity(), lastSmokeOpacity);
+		boolean exhaustScaleChanged = !approximatelyEqual(settings.getExhaustScale(), lastExhaustScale);
+		boolean flameAspectRatioChanged = !approximatelyEqual(settings.getFlameAspectRatio(), lastFlameAspectRatio);
+		boolean sparkConcentrationChanged = !approximatelyEqual(settings.getSparkConcentration(), lastSparkConcentration);
+		boolean sparkWeightChanged = !approximatelyEqual(settings.getSparkWeight(), lastSparkWeight);
 
 		boolean rebuild = particlesEnabled != lastParticlesEnabled
 				|| settings.isFlame() != lastFlame
 				|| settings.isSmoke() != lastSmoke
 				|| settings.isSparks() != lastSparks
 				|| flameColorChanged
-				|| smokeColorChanged;
+				|| smokeColorChanged
+				|| smokeOpacityChanged
+				|| exhaustScaleChanged
+				|| flameAspectRatioChanged
+				|| sparkConcentrationChanged
+				|| sparkWeightChanged;
 
 		lastParticlesEnabled = particlesEnabled;
 		lastFlame = settings.isFlame();
@@ -483,6 +508,11 @@ public class PhotoPanel extends JPanel {
 		lastSparks = settings.isSparks();
 		lastFlameColor = copyColor(flameColor);
 		lastSmokeColor = copyColor(smokeColor);
+		lastSmokeOpacity = (float) settings.getSmokeOpacity();
+		lastExhaustScale = (float) settings.getExhaustScale();
+		lastFlameAspectRatio = (float) settings.getFlameAspectRatio();
+		lastSparkConcentration = (float) settings.getSparkConcentration();
+		lastSparkWeight = (float) settings.getSparkWeight();
 
 		return rebuild;
 	}

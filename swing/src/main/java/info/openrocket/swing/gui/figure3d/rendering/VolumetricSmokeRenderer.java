@@ -240,6 +240,7 @@ public class VolumetricSmokeRenderer implements ParticleSystemRenderer {
                     float fadeProgress = (ageRatio - 0.8f) / 0.2f; // 0 to 1 in last 20%
                     alpha = 0.7f * (1.0f - fadeProgress);
                 }
+                alpha *= smokeEmitter.getOpacityMultiplier();
                 
                 // Create billboard quad for this particle
                 vertexCount += createParticleBillboard(

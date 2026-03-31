@@ -15,6 +15,7 @@ public class SmokeEmitter extends ParticleEmitter {
     private final float noiseScale;
     private final float noiseSpeed;
     private final float lightSensitivity;
+    private final float opacityMultiplier;
 
     /**
      * Creates a smoke emitter with smoke-specific settings.
@@ -27,10 +28,15 @@ public class SmokeEmitter extends ParticleEmitter {
         this.noiseScale = smokeSettings.noiseScale;
         this.noiseSpeed = smokeSettings.noiseSpeed;
         this.lightSensitivity = smokeSettings.lightSensitivity;
+        this.opacityMultiplier = smokeSettings.opacityMultiplier;
     }
     
     public float getLightSensitivity() {
         return lightSensitivity;
+    }
+
+    public float getOpacityMultiplier() {
+        return opacityMultiplier;
     }
 
     /**

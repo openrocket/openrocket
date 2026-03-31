@@ -44,12 +44,19 @@ public class SparkSettings extends ParticleSettings {
      * Settings for an intense shower of sparks.
      */
     public static SparkSettings intense(RenderingConfiguration config) {
-        return new SparkSettings(10.0f, 200,    // Velocity and creation rate
+        return intense(config, 1.0f, 1.0f, 0.0f);
+    }
+
+    public static SparkSettings intense(RenderingConfiguration config, float exhaustScale, float sparkConcentration, float sparkWeight) {
+        float scale = Math.max(0.0f, exhaustScale);
+        float concentration = Math.max(0.0f, sparkConcentration);
+        float weight = Math.max(0.0f, sparkWeight);
+        return new SparkSettings(10.0f * scale, 200 * concentration,    // Velocity and creation rate
                 0.8f, 1.5f,     // Life span
-                0.03f, 0.06f,   // Size range
+                0.03f * scale, 0.06f * scale,   // Size range
                 10.0f,          // Spread factor
                 false,          // Burst
-                new Vector3f(0, 0, 0),      // Gravity
+                new Vector3f(0, -9.8f * weight, 0),      // Gravity
                 new Vector3f(1.0f, 0.8f, 0.2f), new Vector3f(1.0f, 1.0f, 0.8f),     // Color range
                 config);
     }

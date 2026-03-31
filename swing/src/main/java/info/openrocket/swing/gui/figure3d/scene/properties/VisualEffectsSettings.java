@@ -44,6 +44,11 @@ public class VisualEffectsSettings {
     private boolean flameParticlesEnabled = true;
     private Vector3f smokeColor = new Vector3f(0.9f, 0.9f, 0.9f);
     private Vector3f flameColor = new Vector3f(1.0f, 0.4f, 0.2f);
+    private float smokeOpacity = 1.0f;
+    private float exhaustScale = 1.0f;
+    private float flameAspectRatio = 1.0f;
+    private float sparkConcentration = 1.0f;
+    private float sparkWeight = 0.0f;
     
     // Per-motor particle control (motor component ID -> enabled state)
     private final Map<String, Boolean> perMotorParticleEnabled = new HashMap<>();
@@ -283,6 +288,46 @@ public class VisualEffectsSettings {
             throw new IllegalArgumentException("flameColor must not be null");
         }
         this.flameColor = new Vector3f(flameColor);
+    }
+
+    public float getSmokeOpacity() {
+        return smokeOpacity;
+    }
+
+    public void setSmokeOpacity(float smokeOpacity) {
+        this.smokeOpacity = Math.max(0.0f, Math.min(1.0f, smokeOpacity));
+    }
+
+    public float getExhaustScale() {
+        return exhaustScale;
+    }
+
+    public void setExhaustScale(float exhaustScale) {
+        this.exhaustScale = Math.max(0.0f, exhaustScale);
+    }
+
+    public float getFlameAspectRatio() {
+        return flameAspectRatio;
+    }
+
+    public void setFlameAspectRatio(float flameAspectRatio) {
+        this.flameAspectRatio = Math.max(0.0f, flameAspectRatio);
+    }
+
+    public float getSparkConcentration() {
+        return sparkConcentration;
+    }
+
+    public void setSparkConcentration(float sparkConcentration) {
+        this.sparkConcentration = Math.max(0.0f, sparkConcentration);
+    }
+
+    public float getSparkWeight() {
+        return sparkWeight;
+    }
+
+    public void setSparkWeight(float sparkWeight) {
+        this.sparkWeight = Math.max(0.0f, sparkWeight);
     }
 
     // Per-Motor Particle Control

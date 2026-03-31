@@ -167,6 +167,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
             
             FlameEmitter flameEmitter = (FlameEmitter) emitter;
             glUniform1f(flickerIntensityLocation, flameEmitter.getFlickerIntensity());
+            float flameSizeMultiplier = flameEmitter.getSizeMultiplier();
             
             // Render flame particles
             for (Particle particle : emitter.getParticles()) {
@@ -195,6 +196,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
                     float t = (ageRatio - 0.7f) / 0.3f; // 0 to 1
                     size = baseSize * 2.5f * (1.0f - 0.9f * t); // Shrink to 10% of max size
                 }
+                size *= flameSizeMultiplier;
                 
                 if (size < 0.01f) continue;
                 

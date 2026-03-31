@@ -17,6 +17,7 @@ public class FlameEmitter extends ParticleEmitter {
     private final float noiseSpeed;
     private final float flickerIntensity;
     private final float lightIntensity;
+    private final float sizeMultiplier;
     
     private Light flameLight;
 
@@ -32,6 +33,7 @@ public class FlameEmitter extends ParticleEmitter {
         this.noiseSpeed = flameSettings.noiseSpeed;
         this.flickerIntensity = flameSettings.flickerIntensity;
         this.lightIntensity = flameSettings.lightIntensity;
+        this.sizeMultiplier = flameSettings.sizeMultiplier;
     }
     
     public float getFlickerIntensity() {
@@ -40,6 +42,10 @@ public class FlameEmitter extends ParticleEmitter {
     
     public float getLightIntensity() {
         return lightIntensity;
+    }
+
+    public float getSizeMultiplier() {
+        return sizeMultiplier;
     }
     
     /**

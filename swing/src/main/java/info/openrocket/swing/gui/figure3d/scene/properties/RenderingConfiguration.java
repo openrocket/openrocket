@@ -145,6 +145,11 @@ public class RenderingConfiguration {
         visualEffects.setSparkParticlesEnabled(true);
         visualEffects.setSmokeParticlesEnabled(true);
         visualEffects.setFlameParticlesEnabled(true);
+        visualEffects.setSmokeOpacity(1.0f);
+        visualEffects.setExhaustScale(1.0f);
+        visualEffects.setFlameAspectRatio(1.0f);
+        visualEffects.setSparkConcentration(1.0f);
+        visualEffects.setSparkWeight(0.0f);
 
         // Quality defaults
         quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
@@ -192,6 +197,11 @@ public class RenderingConfiguration {
         private boolean sparkParticlesEnabled = true;
         private boolean smokeParticlesEnabled = true;
         private boolean flameParticlesEnabled = true;
+        private float smokeOpacity = 1.0f;
+        private float exhaustScale = 1.0f;
+        private float flameAspectRatio = 1.0f;
+        private float sparkConcentration = 1.0f;
+        private float sparkWeight = 0.0f;
         private float xrayOpacity = 0.1f;
         private boolean backfaceCullingEnabled = true;
         private boolean roughnessBumpEnabled = true;
@@ -408,6 +418,11 @@ public class RenderingConfiguration {
             config.getVisualEffects().setSparkParticlesEnabled(sparkParticlesEnabled);
             config.getVisualEffects().setSmokeParticlesEnabled(smokeParticlesEnabled);
             config.getVisualEffects().setFlameParticlesEnabled(flameParticlesEnabled);
+            config.getVisualEffects().setSmokeOpacity(smokeOpacity);
+            config.getVisualEffects().setExhaustScale(exhaustScale);
+            config.getVisualEffects().setFlameAspectRatio(flameAspectRatio);
+            config.getVisualEffects().setSparkConcentration(sparkConcentration);
+            config.getVisualEffects().setSparkWeight(sparkWeight);
             
             // Apply performance/quality modes (these override individual settings)
             if (usePerformanceMode) {

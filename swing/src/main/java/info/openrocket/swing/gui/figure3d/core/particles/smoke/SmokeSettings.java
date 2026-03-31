@@ -9,18 +9,20 @@ public class SmokeSettings extends ParticleSettings {
     public final float noiseScale;
     public final float noiseSpeed;
     public final float lightSensitivity;
+    public final float opacityMultiplier;
 	private static final Vector3f GRAVITY = new Vector3f(0, 0.4f, 0); // Upwards force
 	private static final Vector3f DEFAULT_MEDIUM_MIN_COLOR = new Vector3f(0.6f, 0.6f, 0.6f);
 	private static final Vector3f DEFAULT_MEDIUM_MAX_COLOR = new Vector3f(0.9f, 0.9f, 0.9f);
 
     public SmokeSettings(float velocity, float creationRate, float minLife, float maxLife, float minSize, float maxSize,
                          float spread, boolean burst, Vector3f gravity, Vector3f minColor, Vector3f maxColor,
-                         float noiseScale, float noiseSpeed, float lightSensitivity,
+                         float noiseScale, float noiseSpeed, float lightSensitivity, float opacityMultiplier,
                          RenderingConfiguration config) {
         super(velocity, creationRate, minLife, maxLife, minSize, maxSize, spread, burst, gravity, minColor, maxColor, config);
         this.noiseScale = noiseScale;
         this.noiseSpeed = noiseSpeed;
         this.lightSensitivity = lightSensitivity;
+        this.opacityMultiplier = opacityMultiplier;
     }
 
     /**
@@ -34,7 +36,7 @@ public class SmokeSettings extends ParticleSettings {
                 false,          // Burst
 				GRAVITY,      // Gravity
                 new Vector3f(0.7f, 0.7f, 0.7f), new Vector3f(1f, 1f, 1f),   // Color range
-                1.5f, 0.8f, 0.5f,   // Noise scale, speed, and light sensitivity
+                1.5f, 0.8f, 0.5f, 1.0f,   // Noise scale, speed, light sensitivity, opacity
                 config);
     }
 
@@ -49,6 +51,10 @@ public class SmokeSettings extends ParticleSettings {
 	 * Settings for medium smoke, tinted with the provided base color.
 	 */
 	public static SmokeSettings medium(RenderingConfiguration config, Vector3f smokeColor) {
+		return medium(config, smokeColor, 1.0f, 1.0f);
+	}
+
+	public static SmokeSettings medium(RenderingConfiguration config, Vector3f smokeColor, float opacityMultiplier, float exhaustScale) {
 		Vector3f minColor = new Vector3f(DEFAULT_MEDIUM_MIN_COLOR);
 		Vector3f maxColor = new Vector3f(DEFAULT_MEDIUM_MAX_COLOR);
 		if (smokeColor != null) {
@@ -56,15 +62,16 @@ public class SmokeSettings extends ParticleSettings {
 			minColor = clampColor(new Vector3f(clamped).mul(0.70f));
 			maxColor = clampColor(new Vector3f(clamped).mul(0.95f).add(0.05f, 0.05f, 0.05f));
 		}
+		float scale = Math.max(0.0f, exhaustScale);
 
-        return new SmokeSettings(10f, 300,  // Velocity and creation rate
+        return new SmokeSettings(10f * scale, 300,  // Velocity and creation rate
                 4.0f, 7.0f,     // Life span
-                0.1f, 0.25f,    // Size range
+                0.1f * scale, 0.25f * scale,    // Size range
                 1.2f,           // Spread factor
                 false,          // Burst
 				GRAVITY,  // Gravity
                 minColor, maxColor,     // Color range
-                2.0f, 1.0f, 0.6f,   // Noise scale, speed, and light sensitivity
+                2.0f, 1.0f, 0.6f, opacityMultiplier,   // Noise scale, speed, light sensitivity, opacity
                 config);
     }
 
@@ -79,7 +86,7 @@ public class SmokeSettings extends ParticleSettings {
                 false,          // Burst
 				GRAVITY,      // Gravity
                 new Vector3f(0.5f, 0.5f, 0.5f), new Vector3f(0.9f, 0.9f, 0.9f),     // Color range
-                3.0f, 1.2f, 0.8f,   // Noise scale, speed, and light sensitivity
+                3.0f, 1.2f, 0.8f, 1.0f,   // Noise scale, speed, light sensitivity, opacity
                 config);
     }
 
@@ -94,7 +101,7 @@ public class SmokeSettings extends ParticleSettings {
                 true,           // Burst
 				GRAVITY,      // Gravity
                 new Vector3f(0.3f, 0.3f, 0.3f), new Vector3f(0.8f, 0.8f, 0.8f),     // Color range
-                2.5f, 1.5f, 0.6f,   // Noise scale, speed, and light sensitivity
+                2.5f, 1.5f, 0.6f, 1.0f,   // Noise scale, speed, light sensitivity, opacity
                 config);
     }
 
