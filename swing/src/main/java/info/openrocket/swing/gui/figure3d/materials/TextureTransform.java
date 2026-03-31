@@ -45,8 +45,19 @@ public class TextureTransform {
 				.translate(1.0f, 1.0f, 0.0f)
 				.scale(-1.0f, -1.0f, 1.0f);
 
-		return dest.set(flipUV)
+		dest.set(flipUV)
 				.mul(legacy)
 				.mul(flipUV);
+
+		if (!scaleFromTop) {
+			Matrix4f halfTurn = new Matrix4f()
+					.identity()
+					.translate(0.5f, 0.5f, 0.0f)
+					.rotate((float) Math.PI, 0, 0, 1)
+					.translate(-0.5f, -0.5f, 0.0f);
+			dest.mul(halfTurn);
+		}
+
+		return dest;
 	}
 }
