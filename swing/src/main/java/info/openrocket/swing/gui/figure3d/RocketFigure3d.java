@@ -8,6 +8,7 @@ import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackgr
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
 import info.openrocket.swing.gui.figure3d.ui.HUDPanel;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
@@ -81,6 +82,7 @@ public class RocketFigure3d extends JPanel {
 	private RocketComponent[] pendingSelection;
 	private boolean glFailureLogged = false;
 	private Color customBackgroundColor = null;
+	private volatile int currentType = TYPE_FINISHED;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -107,6 +109,7 @@ public class RocketFigure3d extends JPanel {
 			return;
 		}
 		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
+		panel.setInitializationHook(orchestrator -> applyViewType(orchestrator, currentType));
 		glScenePanel = panel;
 		add(panel, BorderLayout.CENTER);
 		applyBackgroundColor(panel);
@@ -272,7 +275,28 @@ public class RocketFigure3d extends JPanel {
 	// Compatibility methods expected by RocketPanel.
 
 	public void setType(int type) {
-		// The new pipeline currently uses one renderer path for these view modes.
+		currentType = type;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		applyViewType(orchestrator, type);
+		panel.markHudForUpdate();
+		panel.repaint();
+	}
+
+	private void applyViewType(Scene3DOrchestrator orchestrator, int type) {
+		DisplaySettings.RenderMode mode = switch (type) {
+			case TYPE_FIGURE -> DisplaySettings.RenderMode.XRAY;
+			case TYPE_UNFINISHED -> DisplaySettings.RenderMode.UNFINISHED;
+			case TYPE_FINISHED -> DisplaySettings.RenderMode.FINISHED;
+			default -> DisplaySettings.RenderMode.FINISHED;
+		};
+		orchestrator.enqueueGlTask(() -> orchestrator.getRenderingConfiguration().getDisplay().setMode(mode));
 	}
 
 	public void setDrawCarets(boolean draw) {

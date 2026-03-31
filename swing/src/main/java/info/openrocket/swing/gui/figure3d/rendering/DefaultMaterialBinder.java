@@ -54,9 +54,10 @@ public class DefaultMaterialBinder implements MaterialBinder {
 
         Matrix4f textureTransformMatrix = appearance.getTextureTransform().getTransformMatrix(new Matrix4f());
         shader.setUniform(uniforms.textureTransformMatrix, textureTransformMatrix);
+        boolean unfinishedMode = config.getDisplay().getMode() == DisplaySettings.RenderMode.UNFINISHED;
 
         // Base texture
-        if (appearance.getStyle() != Appearance3D.RenderStyle.WIREFRAME) {
+        if (!unfinishedMode && appearance.getStyle() != Appearance3D.RenderStyle.WIREFRAME) {
             Texture tex = appearance.getTexture();
             if (tex != null && tex.getId() != 0) {
                 textureBinder.bindTexture(0, GL33.GL_TEXTURE_2D, tex.getId());
@@ -72,7 +73,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
         }
 
         // Decal texture
-        Texture decal = appearance.getDecalTexture();
+        Texture decal = unfinishedMode ? null : appearance.getDecalTexture();
         if (decal != null) {
             Matrix4f decalTransformMatrix = appearance.getDecalTransform().getTransformMatrix(new Matrix4f());
             shader.setUniform(uniforms.decalTransformMatrix, decalTransformMatrix);
