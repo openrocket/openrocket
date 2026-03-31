@@ -45,8 +45,10 @@ public class FlameSettings extends ParticleSettings {
         Vector3f maxColor = new Vector3f(DEFAULT_NORMAL_MAX_COLOR);
         if (flameColor != null) {
             Vector3f clamped = clampColor(flameColor);
-            minColor = clampColor(new Vector3f(clamped).mul(0.70f));
-            maxColor = clampColor(new Vector3f(clamped).lerp(new Vector3f(1.0f, 1.0f, 1.0f), 0.45f));
+            // Photo Studio expects the selected flame color to dominate the whole plume.
+            // Keep the hue close to the user's choice and vary mostly by brightness.
+            minColor = clampColor(new Vector3f(clamped).mul(0.35f));
+            maxColor = clampColor(new Vector3f(clamped));
         }
         float scale = Math.max(0.0f, exhaustScale);
         float sizeMultiplier = Math.max(0.0f, flameAspectRatio);

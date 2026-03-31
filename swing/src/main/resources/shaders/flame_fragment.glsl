@@ -13,7 +13,7 @@ uniform float time;
 
 void main()
 {
-    // Sample flame texture (reuse smoke texture)
+    // Treat the texture primarily as a shape mask, not as a color source.
     vec4 texColor = texture(flameTexture, texCoord);
     
     // Subtle flickering effect - much more gentle
@@ -33,32 +33,35 @@ void main()
     float temperature = (1.0 - particleDistance) * coreIntensity;
     temperature = pow(temperature, 0.4) * (1.0 + flicker * 0.15); // Gentle flicker
     
-    // Create realistic flame color gradient based on temperature
-    vec3 hotCore = vec3(1.2, 1.2, 1.0);      // Very bright white-yellow (hottest)
-    vec3 mediumFlame = vec3(1.0, 0.7, 0.2);  // Orange (medium)
-    vec3 coolEdge = vec3(1.0, 0.1, 0.0);     // Bright red (coolest)
-    
-    vec3 temperatureColor;
+    // Keep a bright physically-plausible heat ramp, then tint it with the selected
+    // flame color using a screen/soft-light-like blend so dark user colors don't
+    // collapse the flame luminance.
+    vec3 coolEdge = vec3(1.0, 0.18, 0.02);
+    vec3 mediumFlame = vec3(1.0, 0.72, 0.18);
+    vec3 hotCore = vec3(1.0, 0.98, 0.90);
+
+    vec3 heatColor;
     if (temperature > 0.8) {
-        // Very hot core region - blend from medium to extremely hot
         float t = (temperature - 0.8) / 0.2;
-        temperatureColor = mix(mediumFlame, hotCore, t);
+        heatColor = mix(mediumFlame, hotCore, t);
     } else if (temperature > 0.4) {
-        // Medium region - blend from cool to medium
         float t = (temperature - 0.4) / 0.4;
-        temperatureColor = mix(coolEdge, mediumFlame, t);
+        heatColor = mix(coolEdge, mediumFlame, t);
     } else {
-        // Cool edges - pure red with some variation
-        temperatureColor = coolEdge;
+        heatColor = coolEdge;
     }
-    
-    // Use mostly temperature-based color with minimal original color influence
-    vec3 finalColor = mix(temperatureColor, flameColor, 0.05);
-    
+
+    // Use the selected color as a hue tint only. Normalize by max channel so dark picks
+    // still produce a bright flame, and light picks don't collapse to white.
+    float tintMax = max(max(flameColor.r, flameColor.g), max(flameColor.b, 0.001));
+    vec3 tintHue = clamp(flameColor / tintMax, 0.0, 1.25);
+    vec3 tintedHeat = heatColor * mix(vec3(1.0), tintHue, 0.60);
+
     // Smoother brightness gradient for more cohesive appearance
-    float coreBrightness = pow(temperature, 0.5) * 3.0 + 0.4;
-    finalColor *= coreBrightness;
-    
+    float coreBrightness = pow(temperature, 0.42) * 4.2 + 0.55;
+    vec3 finalColor = tintedHeat * coreBrightness;
+
+    // Use the source texture only for silhouette/soft falloff.
     float finalAlpha = texColor.a * flameAlpha;
     
     FragColor = vec4(finalColor, finalAlpha);
