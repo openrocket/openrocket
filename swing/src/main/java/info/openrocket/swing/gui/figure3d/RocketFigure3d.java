@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d;
 
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.CoordinateIF;
@@ -30,9 +31,12 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -40,14 +44,16 @@ import java.util.stream.Collectors;
  * Swing adapter for the new GLScenePanel renderer.
  *
  * <p>The previous adapter introduced extra render threads and schedulers on top of
- * AWTGLCanvas. This version keeps rendering on the EDT with a single Swing timer,
- * which is a better fit for the surrounding Swing lifecycle.</p>
+ * AWTGLCanvas. The embedded Swing path still prefers the EDT by default, but macOS
+ * uses a dedicated scheduler to avoid UI stalls when the native canvas blocks.</p>
  */
 public class RocketFigure3d extends JPanel {
 
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
 	private static final int FRAME_INTERVAL_MS = 16;
+	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private static final EdtRenderScheduler EDT_RENDER_SCHEDULER = new EdtRenderScheduler();
+	private static final MacRenderScheduler MAC_RENDER_SCHEDULER = new MacRenderScheduler();
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -122,8 +128,15 @@ public class RocketFigure3d extends JPanel {
 					.map(SceneObject::getRocketComponent)
 					.filter(rc -> rc != null)
 					.toArray(RocketComponent[]::new);
-			for (ComponentSelectionListener listener : selectionListeners) {
-				listener.componentClicked(components, event);
+			Runnable notifyListeners = () -> {
+				for (ComponentSelectionListener listener : selectionListeners) {
+					listener.componentClicked(components, event);
+				}
+			};
+			if (SwingUtilities.isEventDispatchThread()) {
+				notifyListeners.run();
+			} else {
+				SwingUtilities.invokeLater(notifyListeners);
 			}
 		});
 		selectionBridgeInstalled = true;
@@ -134,7 +147,7 @@ public class RocketFigure3d extends JPanel {
 		}
 	}
 
-	private void renderFrameOnEdt() {
+	private void renderFrame() {
 		if (!renderingEnabled || disposed) {
 			return;
 		}
@@ -159,6 +172,14 @@ public class RocketFigure3d extends JPanel {
 		maybeInstallSelectionBridge(panel);
 	}
 
+	private void requestRenderNow() {
+		if (IS_MACOS) {
+			MAC_RENDER_SCHEDULER.requestImmediate(this);
+		} else {
+			SwingUtilities.invokeLater(this::renderFrame);
+		}
+	}
+
 	/**
 	 * Called by RocketPanel when switching to 3D mode.
 	 */
@@ -178,7 +199,11 @@ public class RocketFigure3d extends JPanel {
 				panel.requestPeerBoundsSyncNow();
 				applyBackgroundColor(panel);
 			}
-			EDT_RENDER_SCHEDULER.register(this);
+			if (IS_MACOS) {
+				MAC_RENDER_SCHEDULER.register(this);
+			} else {
+				EDT_RENDER_SCHEDULER.register(this);
+			}
 		});
 	}
 
@@ -188,6 +213,7 @@ public class RocketFigure3d extends JPanel {
 	public void stopRendering() {
 		renderingEnabled = false;
 		EDT_RENDER_SCHEDULER.unregister(this);
+		MAC_RENDER_SCHEDULER.unregister(this);
 	}
 
 	public void addComponentSelectionListener(ComponentSelectionListener listener) {
@@ -342,7 +368,7 @@ public class RocketFigure3d extends JPanel {
 				result.set(image);
 				loop.exit();
 			});
-			panel.render();
+			requestRenderNow();
 			loop.enter();
 			return result.get();
 		}
@@ -352,7 +378,7 @@ public class RocketFigure3d extends JPanel {
 			result.set(image);
 			latch.countDown();
 		});
-		SwingUtilities.invokeLater(panel::render);
+		requestRenderNow();
 		try {
 			if (!latch.await(2, TimeUnit.SECONDS)) {
 				log.warn("Timed out capturing 3D image");
@@ -457,9 +483,90 @@ public class RocketFigure3d extends JPanel {
 			RocketFigure3d figure = active.get(index);
 			index = (index + 1) % active.size();
 			try {
-				figure.renderFrameOnEdt();
+				figure.renderFrame();
 			} catch (Throwable t) {
 				log.error("Render scheduler failed for one 3D panel", t);
+			}
+		}
+	}
+
+	private static final class MacRenderScheduler implements Runnable {
+		private final ArrayList<RocketFigure3d> active = new ArrayList<>();
+		private final ScheduledExecutorService executor;
+		private int index = 0;
+
+		private MacRenderScheduler() {
+			ThreadFactory factory = r -> {
+				Thread t = new Thread(r, "figure3d-mac-render");
+				t.setDaemon(true);
+				return t;
+			};
+			executor = Executors.newSingleThreadScheduledExecutor(factory);
+			executor.scheduleAtFixedRate(this, 0, FRAME_INTERVAL_MS, TimeUnit.MILLISECONDS);
+		}
+
+		private void register(RocketFigure3d figure) {
+			synchronized (active) {
+				if (active.contains(figure)) {
+					return;
+				}
+				active.add(figure);
+			}
+		}
+
+		private void unregister(RocketFigure3d figure) {
+			synchronized (active) {
+				int removedIndex = active.indexOf(figure);
+				if (removedIndex < 0) {
+					return;
+				}
+				active.remove(removedIndex);
+				if (index > removedIndex) {
+					index--;
+				}
+				if (index >= active.size()) {
+					index = 0;
+				}
+			}
+		}
+
+		private void requestImmediate(RocketFigure3d figure) {
+			executor.execute(() -> {
+				try {
+					figure.renderFrame();
+				} catch (Throwable t) {
+					log.error("Immediate macOS render failed", t);
+				}
+			});
+		}
+
+		@Override
+		public void run() {
+			RocketFigure3d figure = null;
+			synchronized (active) {
+				for (int i = active.size() - 1; i >= 0; i--) {
+					RocketFigure3d candidate = active.get(i);
+					if (!candidate.renderingEnabled || candidate.disposed) {
+						active.remove(i);
+						if (index > i) {
+							index--;
+						}
+					}
+				}
+				if (active.isEmpty()) {
+					index = 0;
+					return;
+				}
+				if (index >= active.size()) {
+					index = 0;
+				}
+				figure = active.get(index);
+				index = (index + 1) % active.size();
+			}
+			try {
+				figure.renderFrame();
+			} catch (Throwable t) {
+				log.error("macOS render scheduler failed for one 3D panel", t);
 			}
 		}
 	}

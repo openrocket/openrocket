@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.swing.gui.figure3d.DemoFactory;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
@@ -123,8 +124,7 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
-	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND =
-			System.getProperty("os.name", "").toLowerCase().contains("mac");
+	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
 	private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
