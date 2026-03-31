@@ -92,6 +92,7 @@ public abstract class AppearanceFactory {
 						TextureTransform transform = engineAppearance.getTextureTransform();
 						transform.scale.set((float) orDecal.getScale().getX(), (float) orDecal.getScale().getY());
 						transform.offset.set((float) orDecal.getOffset().getX(), (float) orDecal.getOffset().getY());
+						transform.center.set((float) orDecal.getCenter().getX(), (float) orDecal.getCenter().getY());
 						transform.rotation = (float) orDecal.getRotation();
 					}
 				}

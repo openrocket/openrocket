@@ -10,6 +10,7 @@ import org.joml.Vector2f;
 public class TextureTransform {
 
 	public Vector2f offset = new Vector2f(0.0f, 0.0f);
+	public Vector2f center = new Vector2f(0.0f, 0.0f);
 	public Vector2f scale = new Vector2f(1.0f, 1.0f);
 	public float rotation = 0.0f; // In radians
 	private boolean scaleFromTop = true;
@@ -26,20 +27,26 @@ public class TextureTransform {
 	 * @return The destination matrix.
 	 */
 	public Matrix4f getTransformMatrix(Matrix4f dest) {
-		// Build a 4x4 matrix for the 2D transformation.
-		// Apply offset after scaling so the offset is not scaled.
-		// Optionally scale around the top edge (v=1) to match legacy behavior.
-		// Order here is reverse of application to coordinates (post-multiply).
-		dest.identity()
-				.translate(offset.x, offset.y, 0.0f)
-				.rotate(rotation, 0, 0, 1);
-		if (scaleFromTop) {
-			dest.translate(0.0f, 1.0f, 0.0f)
+		// Match the legacy fixed-function texture matrix composition from figure3d_old:
+		// T(-center) * R * T(center) * S * T(offset)
+		Matrix4f legacy = new Matrix4f()
+				.identity()
+				.translate(-center.x, -center.y, 0.0f)
+				.rotate(rotation, 0, 0, 1)
+				.translate(center.x, center.y, 0.0f)
 				.scale(scale.x, scale.y, 1.0f)
-				.translate(0.0f, -1.0f, 0.0f);
-		} else {
-			dest.scale(scale.x, scale.y, 1.0f);
-		}
-		return dest;
+				.translate(offset.x, offset.y, 0.0f);
+
+		// The new renderer's UV axes are flipped relative to the legacy JOGL path.
+		// Conjugate the full legacy transform by a UV flip so offset, scale origin,
+		// center and rotation all match the old visual behavior together.
+		Matrix4f flipUV = new Matrix4f()
+				.identity()
+				.translate(1.0f, 1.0f, 0.0f)
+				.scale(-1.0f, -1.0f, 1.0f);
+
+		return dest.set(flipUV)
+				.mul(legacy)
+				.mul(flipUV);
 	}
 }
