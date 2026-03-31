@@ -127,6 +127,7 @@ public class PhotoPanel extends JPanel {
 		this.document = doc;
 		pendingApply.set(true);
 		glPanel = new GLScenePanel(doc.getRocket(), null, false);
+		glPanel.setInitializationHook(this::applySettingsOnGlThread);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		add(glPanel, BorderLayout.CENTER);
 		revalidate();

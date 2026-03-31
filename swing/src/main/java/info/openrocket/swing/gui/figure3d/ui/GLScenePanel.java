@@ -191,6 +191,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Runnable renderActivityCallback;
 	private volatile Runnable uiThemeListener;
 	private final AtomicReference<ImageCaptureRequest> imageCaptureRequest = new AtomicReference<>();
+	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 
 	private static final class ImageCaptureRequest {
 		private final boolean transparent;
@@ -626,6 +627,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			// Focus on the rocket
 			scene3DOrchestrator.focusOnRocket();
+			Consumer<Scene3DOrchestrator> initHook = initializationHook;
+			if (initHook != null) {
+				initHook.accept(scene3DOrchestrator);
+			}
 			ImageCaptureRequest pendingCapture = imageCaptureRequest.get();
 			if (pendingCapture != null) {
 				scene3DOrchestrator.requestExport(pendingCapture.transparent);
@@ -1130,6 +1135,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (orchestrator != null) {
 			orchestrator.requestExport(transparent);
 		}
+	}
+
+	public void setInitializationHook(Consumer<Scene3DOrchestrator> initializationHook) {
+		this.initializationHook = initializationHook;
 	}
 
 	public void addSceneSelectionListener(SelectionListener listener) {
