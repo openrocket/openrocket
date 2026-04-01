@@ -154,6 +154,12 @@ vec2 getMaterialTexCoord() {
     return (textureTransformMatrix * vec4(finalTexCoord, 0.0, 1.0)).xy;
 }
 
+float adjustTextureCoverage(float alpha) {
+    // Thin line-art textures lose contrast quickly under mip filtering in the linear pipeline.
+    // Bias alpha slightly upward so narrow dark features stay closer to the legacy look.
+    return clamp(pow(alpha, 0.82), 0.0, 1.0);
+}
+
 vec3 getSurfaceNormal(vec3 normal, vec2 texCoord) {
     if (roughnessStrength <= 0.0) return normal;
 
@@ -259,8 +265,8 @@ void main()
     // Texture handling
     if (renderStyle == 1 && hasTexture == 1) { // 1 = TEXTURED
         vec4 texColor = texture(textureSampler, materialTexCoord);
-
-        surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, texColor.a);
+        float textureAlpha = adjustTextureCoverage(texColor.a);
+        surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, textureAlpha);
     }
 
     // 2. Apply decal
@@ -269,7 +275,8 @@ void main()
         if ((decalSurfaceMask & currentSurfaceBit) > 0) {
             vec2 transformedDecalCoord = (decalTransformMatrix * vec4(v_texCoord, 0.0, 1.0)).xy;
             vec4 decalColor = texture(decalSampler, transformedDecalCoord);
-            surfaceColor.rgb = mix(surfaceColor.rgb, decalColor.rgb, decalColor.a);
+            float decalAlpha = adjustTextureCoverage(decalColor.a);
+            surfaceColor.rgb = mix(surfaceColor.rgb, decalColor.rgb, decalAlpha);
         }
     }
 
