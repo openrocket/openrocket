@@ -24,7 +24,7 @@ public abstract class AppearanceFactory {
 	private static final Logger log = LoggerFactory.getLogger(AppearanceFactory.class);
 
 	private static final double[] ROUGHNESS_SIZES = {0.5e-6, 500e-6};
-	private static final float[] STRENGTH_VALUES = {0.0f, 0.8f};
+	private static final float[] STRENGTH_VALUES = {0.0f, 1.2f};
 	private static final float[] SCALE_VALUES    = {0.0f, 50.0f};
 
 	/**
