@@ -83,6 +83,7 @@ public class RocketFigure3d extends JPanel {
 	private boolean glFailureLogged = false;
 	private Color customBackgroundColor = null;
 	private volatile int currentType = TYPE_FINISHED;
+	private volatile boolean drawCarets = true;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -109,7 +110,10 @@ public class RocketFigure3d extends JPanel {
 			return;
 		}
 		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
-		panel.setInitializationHook(orchestrator -> applyViewType(orchestrator, currentType));
+		panel.setInitializationHook(orchestrator -> {
+			applyViewType(orchestrator, currentType);
+			applyCaretVisibility(orchestrator, drawCarets);
+		});
 		glScenePanel = panel;
 		add(panel, BorderLayout.CENTER);
 		applyBackgroundColor(panel);
@@ -299,11 +303,24 @@ public class RocketFigure3d extends JPanel {
 		orchestrator.enqueueGlTask(() -> orchestrator.getRenderingConfiguration().getDisplay().setMode(mode));
 	}
 
+	private void applyCaretVisibility(Scene3DOrchestrator orchestrator, boolean visible) {
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getVisualEffects().setCaretsVisible(visible);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+	}
+
 	public void setDrawCarets(boolean draw) {
+		drawCarets = draw;
 		hudPanel.setVisible(draw);
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
+			Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+			if (orchestrator != null) {
+				applyCaretVisibility(orchestrator, draw);
+			}
 			panel.markHudForUpdate();
+			panel.repaint();
 		}
 	}
 

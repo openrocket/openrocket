@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Window;
@@ -44,6 +45,9 @@ public class DisplaySettingsDialog extends JDialog {
 	private final boolean originalShadowsEnabled;
 	private final boolean originalAmbientOcclusionEnabled;
 	private final boolean originalRoughnessEnabled;
+	private final boolean originalOriginAxesVisible;
+	private final boolean originalLightVisualizersVisible;
+	private final boolean originalCaretScaleWithView;
 	
 	private ColorChooserButton color2DButton;
 	private ColorChooserButton color3DButton;
@@ -53,6 +57,9 @@ public class DisplaySettingsDialog extends JDialog {
 	private JCheckBox renderShadowsCheckBox;
 	private JCheckBox ambientOcclusionCheckBox;
 	private JCheckBox roughnessCheckBox;
+	private JCheckBox originAxesCheckBox;
+	private JCheckBox lightVisualizersCheckBox;
+	private JCheckBox scaleCaretsCheckBox;
 	
 	private JButton reset2DBgButton;
 	private JButton reset3DBgButton;
@@ -83,12 +90,59 @@ public class DisplaySettingsDialog extends JDialog {
 		originalShadowsEnabled = getCurrentShadowsEnabled();
 		originalAmbientOcclusionEnabled = getCurrentAmbientOcclusionEnabled();
 		originalRoughnessEnabled = getCurrentRoughnessEnabled();
+		originalOriginAxesVisible = getCurrentOriginAxesVisible();
+		originalLightVisualizersVisible = getCurrentLightVisualizersVisible();
+		originalCaretScaleWithView = getCurrentCaretScaleWithView();
 		
 		init();
 	}
 	
 	private void init() {
-		JPanel panel = new JPanel(new MigLayout("fill, ins 15", "[][grow][]"));
+		JPanel panel = new JPanel(new MigLayout("fill, ins 15", "[grow]", "[grow][]"));
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.addTab(trans.get("RocketPanel.dlg.displaySettings.generalTab"), createGeneralSettingsPanel());
+		tabbedPane.addTab(trans.get("RocketPanel.dlg.displaySettings.advancedTab"), createAdvancedSettingsPanel());
+		panel.add(tabbedPane, "grow, wrap");
+
+		// Buttons
+		JButton saveAsDefaultButton = new JButton(trans.get("RocketPanel.btn.saveAsDefault"));
+		saveAsDefaultButton.setToolTipText(trans.get("RocketPanel.btn.saveAsDefault.ttip"));
+		saveAsDefaultButton.addActionListener(e -> {
+			handleSaveAsDefault();
+		});
+		panel.add(saveAsDefaultButton, "split 3, right");
+		
+		JButton okButton = new JButton(trans.get("button.ok"));
+		okButton.addActionListener(e -> {
+			dispose();
+		});
+		panel.add(okButton, "gap para");
+		
+		JButton cancelButton = new JButton(trans.get("button.cancel"));
+		cancelButton.addActionListener(e -> {
+			// Revert to original colors (null means not set, will use theme/default)
+			docPreferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, original2DBgColor);
+			docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, original3DBgColor);
+			docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, original2DTextColor);
+			docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, original3DTextColor);
+			revert3DRenderingSettings();
+			revertAdvancedSettings();
+			update2DView();
+			update3DView();
+			updateTextColors();
+			dispose();
+		});
+		panel.add(cancelButton, "gap para");
+		
+		add(panel);
+		pack();
+		setLocationRelativeTo(getParent());
+		
+		GUIUtil.setDisposableDialogOptions(this, okButton);
+	}
+
+	private JPanel createGeneralSettingsPanel() {
+		JPanel panel = new JPanel(new MigLayout("fill, ins 10", "[][grow][]"));
 
 		// 2D View background color
 		JLabel label2D = new JLabel(trans.get("RocketPanel.dlg.displaySettings.2DBackground"));
@@ -183,42 +237,7 @@ public class DisplaySettingsDialog extends JDialog {
 		panel.add(reset3DTextButton, "wrap para");
 
 		panel.add(createRenderingSettingsPanel(), "span 3, growx, wrap para");
-		
-		// Buttons
-		JButton saveAsDefaultButton = new JButton(trans.get("RocketPanel.btn.saveAsDefault"));
-		saveAsDefaultButton.setToolTipText(trans.get("RocketPanel.btn.saveAsDefault.ttip"));
-		saveAsDefaultButton.addActionListener(e -> {
-			handleSaveAsDefault();
-		});
-		panel.add(saveAsDefaultButton, "span 3, split 2, right");
-		
-		JButton okButton = new JButton(trans.get("button.ok"));
-		okButton.addActionListener(e -> {
-			dispose();
-		});
-		panel.add(okButton, "gap para");
-		
-		JButton cancelButton = new JButton(trans.get("button.cancel"));
-		cancelButton.addActionListener(e -> {
-			// Revert to original colors (null means not set, will use theme/default)
-			docPreferences.putColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, original2DBgColor);
-			docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, original3DBgColor);
-			docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, original2DTextColor);
-			docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, original3DTextColor);
-			revert3DRenderingSettings();
-			update2DView();
-			update3DView();
-			updateTextColors();
-			dispose();
-		});
-		panel.add(cancelButton, "gap para");
-		
-		add(panel);
-		pack();
-		setLocationRelativeTo(getParent());
-		
-		GUIUtil.setDisposableDialogOptions(this, okButton);
-		
+
 		// Initialize reset button states (check if current colors equal factory defaults)
 		updateResetButtonState(reset2DBgButton, DocumentPreferences.PREF_2D_BACKGROUND_COLOR, 
 				color2DButton.getSelectedColor(), UITheme.getColor(UITheme.Keys.BACKGROUND));
@@ -228,6 +247,8 @@ public class DisplaySettingsDialog extends JDialog {
 				textColor2DButton.getSelectedColor(), UITheme.getColor(UITheme.Keys.TEXT));
 		updateResetButtonState(reset3DTextButton, DocumentPreferences.PREF_3D_TEXT_COLOR, 
 				textColor3DButton.getSelectedColor(), UITheme.getColor(UITheme.Keys.TEXT));
+
+		return panel;
 	}
 
 	private JPanel createRenderingSettingsPanel() {
@@ -316,11 +337,77 @@ public class DisplaySettingsDialog extends JDialog {
 		return panel;
 	}
 
+	private JPanel createAdvancedSettingsPanel() {
+		JPanel panel = new JPanel(new MigLayout("fillx, ins 10", "[grow]"));
+
+		// Show origin axes
+		originAxesCheckBox = new JCheckBox(trans.get("RocketPanel.dlg.displaySettings.advanced.originAxes"));
+		originAxesCheckBox.setSelected(originalOriginAxesVisible);
+		originAxesCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyVisualEffectsChange(
+					settings -> settings.setOriginAxesVisible(originAxesCheckBox.isSelected()),
+					true,
+					false);
+		});
+		panel.add(originAxesCheckBox, "wrap");
+
+		// Show light visualizers
+		lightVisualizersCheckBox = new JCheckBox(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.lightVisualizers"));
+		lightVisualizersCheckBox.setSelected(originalLightVisualizersVisible);
+		lightVisualizersCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyVisualEffectsChange(
+					settings -> settings.setLightVisualizersVisible(lightVisualizersCheckBox.isSelected()),
+					false,
+					true);
+		});
+		panel.add(lightVisualizersCheckBox, "wrap");
+
+		// Scale carets with view
+		scaleCaretsCheckBox = new JCheckBox(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.scaleCarets"));
+		scaleCaretsCheckBox.setSelected(originalCaretScaleWithView);
+		scaleCaretsCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyVisualEffectsChange(
+					settings -> settings.setCaretScaleWithView(scaleCaretsCheckBox.isSelected()),
+					false,
+					false);
+		});
+		panel.add(scaleCaretsCheckBox, "wrap");
+
+		boolean liveControlsAvailable = getScene3DOrchestrator() != null;
+		setAdvancedControlsEnabled(liveControlsAvailable);
+		if (!liveControlsAvailable) {
+			JLabel hint = new JLabel(trans.get("RocketPanel.dlg.displaySettings.rendering.liveHint"));
+			panel.add(hint, "gaptop 5");
+		}
+
+		return panel;
+	}
+
 	private void setRenderingControlsEnabled(boolean enabled) {
 		renderQualityCombo.setEnabled(enabled);
 		renderShadowsCheckBox.setEnabled(enabled);
 		ambientOcclusionCheckBox.setEnabled(enabled);
 		roughnessCheckBox.setEnabled(enabled);
+	}
+
+	private void setAdvancedControlsEnabled(boolean enabled) {
+		originAxesCheckBox.setEnabled(enabled);
+		lightVisualizersCheckBox.setEnabled(enabled);
+		scaleCaretsCheckBox.setEnabled(enabled);
 	}
 
 	private void applyRenderingChange(java.util.function.Consumer<RenderingConfiguration> change,
@@ -336,6 +423,28 @@ public class DisplaySettingsDialog extends JDialog {
 			if (rebuildScene) {
 				orchestrator.rebuildRocketScene(false);
 			}
+		});
+		rocketPanel.getFigure3d().repaint();
+	}
+
+	private void applyVisualEffectsChange(java.util.function.Consumer<info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings> change,
+			boolean rebuildOriginAxes, boolean updateLightVisualizers) {
+		Scene3DOrchestrator orchestrator = getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> {
+			RenderingConfiguration config = orchestrator.getRenderingConfiguration();
+			change.accept(config.getVisualEffects());
+			if (rebuildOriginAxes && orchestrator.getScene() instanceof info.openrocket.swing.gui.figure3d.scene.core.Scene scene) {
+				info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder.rebuildOriginAxes(
+						scene, config, true, true);
+			}
+			if (updateLightVisualizers) {
+				orchestrator.getScene().getLightController().setVisualizersVisible(
+						config.getVisualEffects().areLightVisualizersVisible());
+			}
+			config.notifyListeners();
 		});
 		rocketPanel.getFigure3d().repaint();
 	}
@@ -356,6 +465,22 @@ public class DisplaySettingsDialog extends JDialog {
 			config.getQuality().setAmbientOcclusionEnabled(originalAmbientOcclusionEnabled);
 			config.getQuality().setRoughnessBumpEnabled(originalRoughnessEnabled);
 		}, true);
+	}
+
+	private void revertAdvancedSettings() {
+		updatingRenderingControls = true;
+		try {
+			originAxesCheckBox.setSelected(originalOriginAxesVisible);
+			lightVisualizersCheckBox.setSelected(originalLightVisualizersVisible);
+			scaleCaretsCheckBox.setSelected(originalCaretScaleWithView);
+		} finally {
+			updatingRenderingControls = false;
+		}
+		applyVisualEffectsChange(settings -> {
+			settings.setOriginAxesVisible(originalOriginAxesVisible);
+			settings.setLightVisualizersVisible(originalLightVisualizersVisible);
+			settings.setCaretScaleWithView(originalCaretScaleWithView);
+		}, true, true);
 	}
 
 	private Scene3DOrchestrator getScene3DOrchestrator() {
@@ -397,6 +522,30 @@ public class DisplaySettingsDialog extends JDialog {
 			return config.getQuality().isRoughnessBumpEnabled();
 		}
 		return Figure3DPreferences.isRoughnessBumpEnabled(prefs);
+	}
+
+	private boolean getCurrentOriginAxesVisible() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getVisualEffects().isOriginAxesVisible();
+		}
+		return Figure3DPreferences.isOriginAxesVisible(prefs);
+	}
+
+	private boolean getCurrentLightVisualizersVisible() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getVisualEffects().areLightVisualizersVisible();
+		}
+		return Figure3DPreferences.areLightVisualizersVisible(prefs);
+	}
+
+	private boolean getCurrentCaretScaleWithView() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getVisualEffects().isCaretScaleWithView();
+		}
+		return Figure3DPreferences.isCaretScaleWithView(prefs);
 	}
 
 	private String getRenderQualityLabel(GraphicsQualitySettings.RenderQuality quality) {
@@ -534,6 +683,9 @@ public class DisplaySettingsDialog extends JDialog {
 		boolean defaultShadowsEnabled = Figure3DPreferences.isShadowsEnabled(prefs);
 		boolean defaultAmbientOcclusionEnabled = Figure3DPreferences.isAmbientOcclusionEnabled(prefs);
 		boolean defaultRoughnessEnabled = Figure3DPreferences.isRoughnessBumpEnabled(prefs);
+		boolean defaultOriginAxesVisible = Figure3DPreferences.isOriginAxesVisible(prefs);
+		boolean defaultLightVisualizersVisible = Figure3DPreferences.areLightVisualizersVisible(prefs);
+		boolean defaultCaretScaleWithView = Figure3DPreferences.isCaretScaleWithView(prefs);
 		
 		return current2DBg.equals(default2DBg) &&
 			   current3DBg.equals(default3DBg) &&
@@ -542,7 +694,10 @@ public class DisplaySettingsDialog extends JDialog {
 			   getSelectedRenderQuality() == defaultRenderQuality &&
 			   renderShadowsCheckBox.isSelected() == defaultShadowsEnabled &&
 			   ambientOcclusionCheckBox.isSelected() == defaultAmbientOcclusionEnabled &&
-			   roughnessCheckBox.isSelected() == defaultRoughnessEnabled;
+			   roughnessCheckBox.isSelected() == defaultRoughnessEnabled &&
+			   originAxesCheckBox.isSelected() == defaultOriginAxesVisible &&
+			   lightVisualizersCheckBox.isSelected() == defaultLightVisualizersVisible &&
+			   scaleCaretsCheckBox.isSelected() == defaultCaretScaleWithView;
 	}
 	
 	/**
@@ -575,6 +730,9 @@ public class DisplaySettingsDialog extends JDialog {
 		Figure3DPreferences.setShadowsEnabled(prefs, renderShadowsCheckBox.isSelected());
 		Figure3DPreferences.setAmbientOcclusionEnabled(prefs, ambientOcclusionCheckBox.isSelected());
 		Figure3DPreferences.setRoughnessBumpEnabled(prefs, roughnessCheckBox.isSelected());
+		Figure3DPreferences.setOriginAxesVisible(prefs, originAxesCheckBox.isSelected());
+		Figure3DPreferences.setLightVisualizersVisible(prefs, lightVisualizersCheckBox.isSelected());
+		Figure3DPreferences.setCaretScaleWithView(prefs, scaleCaretsCheckBox.isSelected());
 	}
 	
 	/**

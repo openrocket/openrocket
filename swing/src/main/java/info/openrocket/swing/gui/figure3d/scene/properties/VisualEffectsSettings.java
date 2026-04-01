@@ -19,6 +19,7 @@ public class VisualEffectsSettings {
     
     // Display elements
     private boolean originAxesVisible = false;
+    private boolean lightVisualizersVisible = false;
     private boolean caretsVisible = true;
     private boolean caretScaleWithView = false;
     private float ambientLightFactor = 0.1f;
@@ -102,6 +103,24 @@ public class VisualEffectsSettings {
      */
     public void setOriginAxesVisible(boolean originAxesVisible) {
         this.originAxesVisible = originAxesVisible;
+    }
+
+    /**
+     * Checks if scene light visualizers should be shown.
+     *
+     * @return true if light visualizers are visible
+     */
+    public boolean areLightVisualizersVisible() {
+        return lightVisualizersVisible;
+    }
+
+    /**
+     * Shows or hides scene light visualizers.
+     *
+     * @param lightVisualizersVisible true to show light visuals, false to hide them
+     */
+    public void setLightVisualizersVisible(boolean lightVisualizersVisible) {
+        this.lightVisualizersVisible = lightVisualizersVisible;
     }
 
     /**

@@ -17,6 +17,14 @@ public final class Figure3DPreferences {
 		quality.setShadowsEnabled(isShadowsEnabled(preferences));
 		quality.setAmbientOcclusionEnabled(isAmbientOcclusionEnabled(preferences));
 		quality.setRoughnessBumpEnabled(isRoughnessBumpEnabled(preferences));
+		applyVisualDefaults(config, preferences);
+	}
+
+	public static void applyVisualDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
+		VisualEffectsSettings visualEffects = config.getVisualEffects();
+		visualEffects.setOriginAxesVisible(isOriginAxesVisible(preferences));
+		visualEffects.setLightVisualizersVisible(areLightVisualizersVisible(preferences));
+		visualEffects.setCaretScaleWithView(isCaretScaleWithView(preferences));
 	}
 
 	public static GraphicsQualitySettings.RenderQuality getDefaultRenderQuality(ApplicationPreferences preferences) {
@@ -57,5 +65,29 @@ public final class Figure3DPreferences {
 
 	public static void setRoughnessBumpEnabled(ApplicationPreferences preferences, boolean enabled) {
 		preferences.putBoolean(ApplicationPreferences.OPENGL_ENABLE_ROUGHNESS_BUMP, enabled);
+	}
+
+	public static boolean isOriginAxesVisible(ApplicationPreferences preferences) {
+		return preferences.getBoolean(ApplicationPreferences.OPENGL_SHOW_ORIGIN_AXES, false);
+	}
+
+	public static void setOriginAxesVisible(ApplicationPreferences preferences, boolean enabled) {
+		preferences.putBoolean(ApplicationPreferences.OPENGL_SHOW_ORIGIN_AXES, enabled);
+	}
+
+	public static boolean areLightVisualizersVisible(ApplicationPreferences preferences) {
+		return preferences.getBoolean(ApplicationPreferences.OPENGL_SHOW_LIGHT_VISUALIZERS, false);
+	}
+
+	public static void setLightVisualizersVisible(ApplicationPreferences preferences, boolean enabled) {
+		preferences.putBoolean(ApplicationPreferences.OPENGL_SHOW_LIGHT_VISUALIZERS, enabled);
+	}
+
+	public static boolean isCaretScaleWithView(ApplicationPreferences preferences) {
+		return preferences.getBoolean(ApplicationPreferences.OPENGL_SCALE_CARETS_WITH_VIEW, false);
+	}
+
+	public static void setCaretScaleWithView(ApplicationPreferences preferences, boolean enabled) {
+		preferences.putBoolean(ApplicationPreferences.OPENGL_SCALE_CARETS_WITH_VIEW, enabled);
 	}
 }

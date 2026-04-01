@@ -136,6 +136,9 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String OPENGL_ENABLE_SHADOWS = "OpenGLShadowsEnabled";
 	public static final String OPENGL_ENABLE_AMBIENT_OCCLUSION = "OpenGLAmbientOcclusionEnabled";
 	public static final String OPENGL_ENABLE_ROUGHNESS_BUMP = "OpenGLRoughnessBumpEnabled";
+	public static final String OPENGL_SHOW_ORIGIN_AXES = "OpenGLShowOriginAxes";
+	public static final String OPENGL_SHOW_LIGHT_VISUALIZERS = "OpenGLShowLightVisualizers";
+	public static final String OPENGL_SCALE_CARETS_WITH_VIEW = "OpenGLScaleCaretsWithView";
 	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";

@@ -114,6 +114,7 @@ public class RenderingConfiguration {
         visualEffects.setMotionBlurEnabled(false);
         visualEffects.setMotionBlurFactor(5.0f);
         visualEffects.setOriginAxesVisible(false);
+        visualEffects.setLightVisualizersVisible(false);
         visualEffects.setAmbientLightFactor(0.1f);
         visualEffects.setParticleEffectsEnabled(true);
         visualEffects.setStaticParticles(true);
@@ -152,6 +153,7 @@ public class RenderingConfiguration {
         private boolean motionBlurEnabled = false;
         private float motionBlurFactor = 5.0f;
         private boolean originAxesVisible = false;
+        private boolean lightVisualizersVisible = false;
         private boolean caretsVisible = true;
         private boolean caretScaleWithView = false;
         private boolean staticParticles = true;
@@ -311,6 +313,16 @@ public class RenderingConfiguration {
         }
 
         /**
+         * Enables or disables light visualizers.
+         * @param visible Whether light visualizers should be visible
+         * @return This builder instance
+         */
+        public Builder withLightVisualizers(boolean visible) {
+            this.lightVisualizersVisible = visible;
+            return this;
+        }
+
+        /**
          * Enables or disables CG/CP caret rendering.
          * @param visible Whether carets should be visible
          * @return This builder instance
@@ -396,6 +408,7 @@ public class RenderingConfiguration {
             config.getVisualEffects().setMotionBlurEnabled(motionBlurEnabled);
             config.getVisualEffects().setMotionBlurFactor(motionBlurFactor);
             config.getVisualEffects().setOriginAxesVisible(originAxesVisible);
+            config.getVisualEffects().setLightVisualizersVisible(lightVisualizersVisible);
             config.getVisualEffects().setCaretsVisible(caretsVisible);
             config.getVisualEffects().setCaretScaleWithView(caretScaleWithView);
             config.getVisualEffects().setStaticParticles(staticParticles);

@@ -58,6 +58,7 @@ public class Scene implements SceneView {
 		this.objects = new ArrayList<>();
 		this.particleEmitters = new ArrayList<>();
 		this.lightManager = new LightManager(this);
+		this.lightManager.setVisualizersVisible(config.getVisualEffects().areLightVisualizersVisible());
 		this.lightManager.addLight(light);
 		this.background = new SolidColorBackground(0.1f, 0.1f, 0.12f);
 		this.config = config;

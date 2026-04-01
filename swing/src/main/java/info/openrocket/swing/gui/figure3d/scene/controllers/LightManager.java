@@ -34,6 +34,7 @@ public class LightManager implements LightController {
 	private final List<Light> lights = new ArrayList<>();
 	private final Map<Light, List<SceneObject>> lightVisualsMap = new HashMap<>();
 	private final LightVisualizer lightVisualizer = new LightVisualizer();
+	private boolean visualizersVisible = false;
 
 	/**
 	 * Constructs a new LightManager for the specified scene.
@@ -60,11 +61,7 @@ public class LightManager implements LightController {
 		}
 		this.lights.add(light);
 
-		if (addVisualizer) {
-			List<SceneObject> visuals = lightVisualizer.createVisualsForLight(light);
-			this.lightVisualsMap.put(light, visuals);
-			this.scene.addObjects(visuals);
-		}
+		updateLightVisualizer(light, addVisualizer || visualizersVisible);
 	}
 
 	/**
@@ -75,7 +72,7 @@ public class LightManager implements LightController {
 	 */
     @Override
     public void addLight(Light light) {
-        addLight(light, false);
+        addLight(light, visualizersVisible);
     }
 
 	/**
@@ -112,7 +109,7 @@ public class LightManager implements LightController {
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 */
     @Override
-    public void setLight(Light light, int index) {
+	public void setLight(Light light, int index) {
         if (index < 0 || index >= lights.size()) {
             throw new IndexOutOfBoundsException("Invalid light index: " + index);
         }
@@ -126,10 +123,8 @@ public class LightManager implements LightController {
 		// Set the new light
 		lights.set(index, light);
 
-		// Add the new light's visuals
-		List<SceneObject> visuals = lightVisualizer.createVisualsForLight(light);
-		lightVisualsMap.put(light, visuals);
-		this.scene.addObjects(visuals);
+		// Add the new light's visuals when enabled
+		updateLightVisualizer(light, visualizersVisible);
 	}
 
 	/**
@@ -141,13 +136,25 @@ public class LightManager implements LightController {
     @Override
     public void removeLight(Light light) {
         if (lights.remove(light)) {
-            // Remove the light's visuals if they exist
-            if (lightVisualsMap.containsKey(light)) {
-                lightVisualsMap.get(light).forEach(visual -> scene.getObjects().remove(visual));
-                lightVisualsMap.remove(light);
-            }
+            removeLightVisualizer(light);
         }
     }
+
+	@Override
+	public boolean areVisualizersVisible() {
+		return visualizersVisible;
+	}
+
+	@Override
+	public void setVisualizersVisible(boolean visible) {
+		if (visualizersVisible == visible) {
+			return;
+		}
+		visualizersVisible = visible;
+		for (Light light : lights) {
+			updateLightVisualizer(light, visible);
+		}
+	}
 
 	/**
 	 * Cleans up all resources associated with the light manager.
@@ -163,4 +170,24 @@ public class LightManager implements LightController {
         // Light objects themselves don't have resources to clean up.  
         // The visualizer SceneObjects will be cleaned up by the Scene's main cleanup method.
     }
+
+	private void updateLightVisualizer(Light light, boolean shouldShow) {
+		if (shouldShow) {
+			if (lightVisualsMap.containsKey(light)) {
+				return;
+			}
+			List<SceneObject> visuals = lightVisualizer.createVisualsForLight(light);
+			lightVisualsMap.put(light, visuals);
+			this.scene.addObjects(visuals);
+			return;
+		}
+		removeLightVisualizer(light);
+	}
+
+	private void removeLightVisualizer(Light light) {
+		List<SceneObject> visuals = lightVisualsMap.remove(light);
+		if (visuals != null) {
+			visuals.forEach(visual -> scene.getObjects().remove(visual));
+		}
+	}
 }
