@@ -202,7 +202,7 @@ public class GeometryPass implements RenderPass {
         }
 
         if (sortTriangles && obj.getRenderableMesh() instanceof RenderableMesh renderableMesh) {
-            renderableMesh.renderSorted(obj.getMesh(), obj.getModelMatrix(), viewMatrix);
+            renderableMesh.renderSorted(obj.getModelMatrix(), viewMatrix);
         } else {
             obj.getRenderableMesh().render();
         }

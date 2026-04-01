@@ -9,6 +9,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 import java.util.Arrays;
 
 /**
@@ -30,8 +31,13 @@ public class RenderableMesh implements Renderable {
 	private final int eboId;
 	private final int sortedEboId;
 	private final int vertexCount;
+	private final List<Vertex> vertices;
 	private final TriangleSortEntry[] triangleSortEntries;
 	private final IntBuffer sortedIndexBuffer;
+	private final Matrix4f scratchModelViewMatrix = new Matrix4f();
+	private final Matrix4f lastSortedModelViewMatrix = new Matrix4f();
+	private final Vector3f scratchCentroid = new Vector3f();
+	private boolean sortedIndicesDirty = true;
 
 	private static final class TriangleSortEntry {
 		private final int i0;
@@ -57,9 +63,11 @@ public class RenderableMesh implements Renderable {
 	 * @param mesh The source mesh containing vertices and indices
 	 */
 	public RenderableMesh(Mesh mesh) {
+		this.vertices = mesh.getVertices();
+
 		// Vertex data has 9 floats: 3 pos, 3 norm, 2 uv, 1 surfaceID (packed as float)
-		FloatBuffer vertexBuffer = MemoryUtil.memAllocFloat(mesh.getVertices().size() * 9);
-		for (Vertex vertex : mesh.getVertices()) {
+		FloatBuffer vertexBuffer = MemoryUtil.memAllocFloat(vertices.size() * 9);
+		for (Vertex vertex : vertices) {
 			vertexBuffer.put(vertex.position.x).put(vertex.position.y).put(vertex.position.z);
 			vertexBuffer.put(vertex.normal.x).put(vertex.normal.y).put(vertex.normal.z);
 			vertexBuffer.put(vertex.texCoords.x).put(vertex.texCoords.y);
@@ -139,21 +147,32 @@ public class RenderableMesh implements Renderable {
 		GL33.glBindVertexArray(0);
 	}
 
-	public void renderSorted(Mesh mesh, Matrix4f modelMatrix, Matrix4f viewMatrix) {
-		Matrix4f modelViewMatrix = new Matrix4f(viewMatrix).mul(modelMatrix);
-		Vector3f centroid = new Vector3f();
+	public void renderSorted(Matrix4f modelMatrix, Matrix4f viewMatrix) {
+		scratchModelViewMatrix.set(viewMatrix).mul(modelMatrix);
+		if (sortedIndicesDirty || !scratchModelViewMatrix.equals(lastSortedModelViewMatrix, 1.0e-6f)) {
+			resortTriangles();
+			lastSortedModelViewMatrix.set(scratchModelViewMatrix);
+			sortedIndicesDirty = false;
+		}
 
+		GL33.glBindVertexArray(vaoId);
+		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedEboId);
+		GL33.glDrawElements(GL33.GL_TRIANGLES, vertexCount, GL33.GL_UNSIGNED_INT, 0);
+		GL33.glBindVertexArray(0);
+	}
+
+	private void resortTriangles() {
 		for (TriangleSortEntry entry : triangleSortEntries) {
-			Vertex v0 = mesh.getVertices().get(entry.i0);
-			Vertex v1 = mesh.getVertices().get(entry.i1);
-			Vertex v2 = mesh.getVertices().get(entry.i2);
+			Vertex v0 = vertices.get(entry.i0);
+			Vertex v1 = vertices.get(entry.i1);
+			Vertex v2 = vertices.get(entry.i2);
 
-			centroid.set(v0.position)
+			scratchCentroid.set(v0.position)
 					.add(v1.position)
 					.add(v2.position)
 					.mul(1.0f / 3.0f);
-			modelViewMatrix.transformPosition(centroid);
-			entry.depth = centroid.z;
+			scratchModelViewMatrix.transformPosition(scratchCentroid);
+			entry.depth = scratchCentroid.z;
 		}
 
 		Arrays.sort(triangleSortEntries, (left, right) -> Float.compare(left.depth, right.depth));
@@ -164,11 +183,8 @@ public class RenderableMesh implements Renderable {
 		}
 		sortedIndexBuffer.flip();
 
-		GL33.glBindVertexArray(vaoId);
 		GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, sortedEboId);
 		GL33.glBufferSubData(GL33.GL_ELEMENT_ARRAY_BUFFER, 0, sortedIndexBuffer);
-		GL33.glDrawElements(GL33.GL_TRIANGLES, vertexCount, GL33.GL_UNSIGNED_INT, 0);
-		GL33.glBindVertexArray(0);
 	}
 
 	/**
