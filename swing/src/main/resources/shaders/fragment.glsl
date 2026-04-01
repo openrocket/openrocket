@@ -27,6 +27,7 @@ uniform mediump vec3 viewPos;
 uniform mediump vec3 materialSpecular;
 uniform float specularTintFactor;
 uniform bool isUnlit;
+uniform float ambientLightFactor;
 uniform float opacity;  // 0.0 = fully transparent, 1.0 = fully opaque
 uniform int textureMode;
 
@@ -279,7 +280,7 @@ void main()
         }
         vec3 viewDir = normalize(viewPos - v_fragPos);
 
-        vec3 ambient = 0.1 * surfaceColor.rgb;
+        vec3 ambient = ambientLightFactor * surfaceColor.rgb;
         vec3 totalLighting = vec3(0.0);
 
         for (int i = 0; i < numLights; i++) {

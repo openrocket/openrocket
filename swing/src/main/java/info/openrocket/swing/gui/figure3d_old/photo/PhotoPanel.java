@@ -347,7 +347,7 @@ public class PhotoPanel extends JPanel {
 
 		enforceOpaqueBodyComponents(scene);
 		applyBackground(scene);
-		applyLighting(scene);
+		applyLighting(scene, config);
 		if (camera != null) {
 			if (cameraSettingsChanged) {
 				applyCamera(camera);
@@ -452,7 +452,8 @@ public class PhotoPanel extends JPanel {
 				alpha);
 	}
 
-	private void applyLighting(SceneView scene) {
+	private void applyLighting(SceneView scene, RenderingConfiguration config) {
+		config.getVisualEffects().setAmbientLightFactor((float) settings.getAmbiance());
 		if (scene.getLightController().getLights().isEmpty()) {
 			return;
 		}

@@ -140,6 +140,7 @@ public class RenderingConfiguration {
         visualEffects.setMotionBlurEnabled(false);
         visualEffects.setMotionBlurFactor(5.0f);
         visualEffects.setOriginAxesVisible(false);
+        visualEffects.setAmbientLightFactor(0.1f);
         visualEffects.setParticleEffectsEnabled(true);
         visualEffects.setStaticParticles(true);
         visualEffects.setParticleTime(10.0f);

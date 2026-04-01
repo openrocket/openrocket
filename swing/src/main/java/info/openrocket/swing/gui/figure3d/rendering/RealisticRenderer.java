@@ -112,6 +112,7 @@ public class RealisticRenderer implements Renderer {
 		public final int selectionColor;
 		public final int isSelected;
 		public final int isUnlit;
+		public final int ambientLightFactor;
 		public final int objectColor;
 		public final int materialSpecular;
 		public final int specularTintFactor;
@@ -154,6 +155,7 @@ public class RealisticRenderer implements Renderer {
 			this.selectionColor = shader.getUniformLocation("selectionColor");
 			this.isSelected = shader.getUniformLocation("isSelected");
 			this.isUnlit = shader.getUniformLocation("isUnlit");
+			this.ambientLightFactor = shader.getUniformLocation("ambientLightFactor");
 			this.objectColor = shader.getUniformLocation("objectColor");
 			this.materialSpecular = shader.getUniformLocation("materialSpecular");
 			this.specularTintFactor = shader.getUniformLocation("specularTintFactor");
@@ -402,6 +404,7 @@ public class RealisticRenderer implements Renderer {
 		GL33.glUniform4f(mainShaderUniforms.selectionColor, selectionColor.x, selectionColor.y,
 				selectionColor.z, selectionColor.w);
 
+		GL33.glUniform1f(mainShaderUniforms.ambientLightFactor, config.getVisualEffects().getAmbientLightFactor());
 		GL33.glUniform1i(mainShaderUniforms.enableRoughnessBump, config.getQuality().isRoughnessBumpEnabled() ? 1 : 0);
 	}
 	

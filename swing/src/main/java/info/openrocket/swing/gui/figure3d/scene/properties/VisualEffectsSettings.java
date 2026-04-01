@@ -33,6 +33,7 @@ public class VisualEffectsSettings {
     private boolean originAxesVisible = false;
     private boolean caretsVisible = true;
     private boolean caretScaleWithView = false;
+    private float ambientLightFactor = 0.1f;
     
     // Global particle settings
     private boolean particleEffectsEnabled = true;
@@ -146,6 +147,24 @@ public class VisualEffectsSettings {
      */
     public void setCaretScaleWithView(boolean caretScaleWithView) {
         this.caretScaleWithView = caretScaleWithView;
+    }
+
+    /**
+     * Gets the ambient light factor applied to lit geometry.
+     *
+     * @return ambient light strength, where 0 disables ambient fill light
+     */
+    public float getAmbientLightFactor() {
+        return ambientLightFactor;
+    }
+
+    /**
+     * Sets the ambient light factor applied to lit geometry.
+     *
+     * @param ambientLightFactor ambient light strength
+     */
+    public void setAmbientLightFactor(float ambientLightFactor) {
+        this.ambientLightFactor = Math.max(0.0f, ambientLightFactor);
     }
 
     // Global Particle Settings
