@@ -1,6 +1,8 @@
 package info.openrocket.swing.gui.figure3d.materials;
 
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
+import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -35,6 +37,7 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glGenTextures;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL11.glTexParameterf;
 import static org.lwjgl.opengl.GL11.glTexSubImage2D;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
@@ -156,6 +159,70 @@ public class Texture {
 		return image;
 	}
 
+	private static void bleedTransparentRgb(ByteBuffer image, int width, int height) {
+		int pixelCount = width * height;
+		byte[] source = new byte[pixelCount * 4];
+		for (int i = 0; i < source.length; i++) {
+			source[i] = image.get(i);
+		}
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int pixelIndex = (y * width + x) * 4;
+				int alpha = Byte.toUnsignedInt(source[pixelIndex + 3]);
+				if (alpha != 0) {
+					continue;
+				}
+
+				int red = 0;
+				int green = 0;
+				int blue = 0;
+				int contributors = 0;
+
+				for (int oy = -1; oy <= 1; oy++) {
+					for (int ox = -1; ox <= 1; ox++) {
+						if (ox == 0 && oy == 0) {
+							continue;
+						}
+						int nx = x + ox;
+						int ny = y + oy;
+						if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
+							continue;
+						}
+
+						int neighborIndex = (ny * width + nx) * 4;
+						int neighborAlpha = Byte.toUnsignedInt(source[neighborIndex + 3]);
+						if (neighborAlpha == 0) {
+							continue;
+						}
+
+						red += Byte.toUnsignedInt(source[neighborIndex]);
+						green += Byte.toUnsignedInt(source[neighborIndex + 1]);
+						blue += Byte.toUnsignedInt(source[neighborIndex + 2]);
+						contributors++;
+					}
+				}
+
+				if (contributors > 0) {
+					image.put(pixelIndex, (byte) (red / contributors));
+					image.put(pixelIndex + 1, (byte) (green / contributors));
+					image.put(pixelIndex + 2, (byte) (blue / contributors));
+				}
+			}
+		}
+	}
+
+	private static void applyAnisotropicFilteringIfAvailable() {
+		if (!GL.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+			return;
+		}
+
+		float maxAnisotropy = GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+		if (maxAnisotropy > 1.0f) {
+			glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+		}
+	}
+
 	/**
 	 * Defines the layout of faces within a single cubemap atlas texture.
 	 */
@@ -188,17 +255,19 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		applyAnisotropicFilteringIfAvailable();
 
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			IntBuffer w = stack.mallocInt(1);
-		IntBuffer h = stack.mallocInt(1);
-		IntBuffer channels = stack.mallocInt(1);
+			IntBuffer h = stack.mallocInt(1);
+			IntBuffer channels = stack.mallocInt(1);
 
-		// Load image data, forcing 4 channels (RGBA) for consistency
+			// Load image data, forcing 4 channels (RGBA) for consistency
 			ByteBuffer image = loadImage(filePath, w, h, channels, 4);
 
 			int width = w.get();
 			int height = h.get();
+			bleedTransparentRgb(image, width, height);
 
 			this.width = width;
 			this.height = height;
@@ -464,6 +533,7 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		applyAnisotropicFilteringIfAvailable();
 
 		STBImage.stbi_set_flip_vertically_on_load(true);
 		try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -475,6 +545,7 @@ public class Texture {
 			if (image == null) {
 				throw new RuntimeException("Failed to load texture from memory: " + STBImage.stbi_failure_reason());
 			}
+			bleedTransparentRgb(image, w.get(0), h.get(0));
 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 			this.width = w.get(0);
@@ -557,7 +628,7 @@ public class Texture {
 	 * @return texture width
 	 */
 	public int getWidth() { return width; }
-	
+
 	/**
 	 * Gets texture height in pixels.
 	 * @return texture height
