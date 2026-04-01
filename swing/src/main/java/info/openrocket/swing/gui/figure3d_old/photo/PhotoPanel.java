@@ -330,6 +330,7 @@ public class PhotoPanel extends JPanel {
 		config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
 		config.getDisplay().setRenderInternalSurfaces(true);
 		config.getQuality().setBackfaceCullingEnabled(true);
+		config.getVisualEffects().setCaretsVisible(false);
 
 		boolean rebuild = applyEffects(config);
 		if (rebuild) {

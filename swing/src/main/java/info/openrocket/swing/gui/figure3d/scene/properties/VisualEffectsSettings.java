@@ -31,6 +31,7 @@ public class VisualEffectsSettings {
     
     // Display elements
     private boolean originAxesVisible = false;
+    private boolean caretsVisible = true;
     private boolean caretScaleWithView = false;
     
     // Global particle settings
@@ -112,6 +113,24 @@ public class VisualEffectsSettings {
      */
     public void setOriginAxesVisible(boolean originAxesVisible) {
         this.originAxesVisible = originAxesVisible;
+    }
+
+    /**
+     * Checks if CG/CP carets should be rendered.
+     *
+     * @return true if carets are visible
+     */
+    public boolean areCaretsVisible() {
+        return caretsVisible;
+    }
+
+    /**
+     * Shows or hides the CG/CP carets.
+     *
+     * @param caretsVisible true to render carets, false to suppress them
+     */
+    public void setCaretsVisible(boolean caretsVisible) {
+        this.caretsVisible = caretsVisible;
     }
 
     /**

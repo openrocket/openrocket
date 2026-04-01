@@ -192,6 +192,7 @@ public class RenderingConfiguration {
         private boolean motionBlurEnabled = false;
         private float motionBlurFactor = 5.0f;
         private boolean originAxesVisible = false;
+        private boolean caretsVisible = true;
         private boolean caretScaleWithView = false;
         private boolean staticParticles = true;
         private float particleTime = 10.0f;
@@ -339,6 +340,16 @@ public class RenderingConfiguration {
         }
 
         /**
+         * Enables or disables CG/CP caret rendering.
+         * @param visible Whether carets should be visible
+         * @return This builder instance
+         */
+        public Builder withCarets(boolean visible) {
+            this.caretsVisible = visible;
+            return this;
+        }
+
+        /**
          * Sets whether CG/CP carets scale with the camera view (zoom).
          * @param scaleWithView true to scale with view, false for fixed size
          * @return This builder instance
@@ -413,6 +424,7 @@ public class RenderingConfiguration {
             config.getVisualEffects().setMotionBlurEnabled(motionBlurEnabled);
             config.getVisualEffects().setMotionBlurFactor(motionBlurFactor);
             config.getVisualEffects().setOriginAxesVisible(originAxesVisible);
+            config.getVisualEffects().setCaretsVisible(caretsVisible);
             config.getVisualEffects().setCaretScaleWithView(caretScaleWithView);
             config.getVisualEffects().setStaticParticles(staticParticles);
             config.getVisualEffects().setParticleTime(particleTime);

@@ -302,7 +302,9 @@ public class RealisticRenderer implements Renderer {
         particleRenderer.render(scene, camera);
         volumetricSmokeRenderer.render(scene, camera);
         flameRenderer.render(scene, camera);
-        caretsPass.render(scene, windowManager, viewMatrix, projectionMatrix);
+        if (config.getVisualEffects().areCaretsVisible()) {
+            caretsPass.render(scene, windowManager, viewMatrix, projectionMatrix);
+        }
         renderTarget.unbind();
 
         // 2. Run the post-processing chain
