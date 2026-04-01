@@ -52,6 +52,8 @@ public class HUDPanel extends JPanel {
 		this.scene3DOrchestrator = svc;
 
 		StateChangeListener changeListener = e -> {
+			rocketInfo.setCurrentConfig(rocket.getSelectedConfiguration());
+
 			// Rate limit repaints to avoid excessive updates
 			long currentTime = System.currentTimeMillis();
 			if (currentTime - lastRepaintTime >= MIN_REPAINT_INTERVAL) {
@@ -73,6 +75,7 @@ public class HUDPanel extends JPanel {
 			}
 		});
 
+		rocketInfo.setCurrentConfig(rocket.getSelectedConfiguration());
 		needsRepaint = true;
 	}
 

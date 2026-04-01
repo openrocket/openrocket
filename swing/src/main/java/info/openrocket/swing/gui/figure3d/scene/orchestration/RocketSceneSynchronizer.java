@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d.scene.orchestration;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
@@ -48,6 +49,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
 	private final AtomicBoolean rebuildQueued = new AtomicBoolean(false);
 	private final AtomicBoolean refocusQueued = new AtomicBoolean(false);
+	private volatile FlightConfigurationId lastSelectedConfigurationId;
 
 	/**
 	 * Constructs a new RocketSceneSynchronizer and registers it with the rocket model.
@@ -62,6 +64,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		this.scene3DOrchestrator = scene3DOrchestrator;
 		this.scene = scene;
 		this.rocket = rocket;
+		this.lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
 		// Register this manager as a listener to the rocket model
 		this.rocket.addComponentChangeListener(this);
 	}
@@ -76,6 +79,11 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 */
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
+		if (hasSelectedConfigurationChanged()) {
+			queueRebuild(false);
+			return;
+		}
+
 		// Check for changes that only affect rendered appearance and not geometry/structure.
 		// These can be handled with a lightweight update and should not reset the camera.
 		if (isAppearanceOnlySceneChange(e)) {
@@ -92,6 +100,15 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private boolean isFinishAppearanceChange(ComponentChangeEvent e) {
 		int finishChangeType = ComponentChangeEvent.AERODYNAMIC_CHANGE | ComponentChangeEvent.GRAPHIC_CHANGE;
 		return e.getType() == finishChangeType && e.getSource() instanceof ExternalComponent;
+	}
+
+	private boolean hasSelectedConfigurationChanged() {
+		FlightConfigurationId currentSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
+		if (currentSelectedConfigurationId.equals(lastSelectedConfigurationId)) {
+			return false;
+		}
+		lastSelectedConfigurationId = currentSelectedConfigurationId;
+		return true;
 	}
 
 	/**
@@ -212,6 +229,8 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	public void rebuildRocketScene(boolean refocusCamera) {
+		lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
+
 		// First, create a list of all objects to be removed to avoid modification-during-iteration errors.
 		List<SceneObject> objectsToRemove = new ArrayList<>();
 		for (SceneObject obj : scene.getObjects()) {
