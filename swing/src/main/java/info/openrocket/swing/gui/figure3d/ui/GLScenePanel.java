@@ -1216,12 +1216,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			} catch (Exception e) {
 				log.warn("GL context unavailable during cleanup, some GL resources may leak: {}", e.getMessage());
 			}
-			// Dispose the AWTGLCanvas context/resources.
-			try {
-				disposeCanvas();
-			} catch (Exception e) {
-				log.debug("Canvas dispose failed: {}", e.getMessage());
-			}
+			// Do not call disposeCanvas() here. Swing/AWTGLCanvas will tear down the native
+			// drawing surface during removeNotify(), and forcing disposal earlier can double-free
+			// the JAWT surface on macOS during window close.
 		} else {
 			log.debug("Skipping runInContext cleanup for non-displayable canvas {}", instanceId);
 		}
