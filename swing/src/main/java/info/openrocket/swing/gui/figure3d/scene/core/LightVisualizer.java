@@ -88,6 +88,29 @@ public class LightVisualizer {
 		return visuals;
 	}
 
+	public void updateVisualsForLight(Light light, List<SceneObject> visuals) {
+		if (visuals == null || visuals.isEmpty()) {
+			return;
+		}
+
+		if (light.getType() == Light.LightType.POINT) {
+			SceneObject pointVisual = visuals.get(0);
+			pointVisual.setPosition(light.getPosition());
+			return;
+		}
+
+		if (visuals.size() < 2) {
+			return;
+		}
+
+		float sunDistance = 10.0f;
+		Vector3f sunPosition = new Vector3f(light.getDirection()).negate().mul(sunDistance);
+		SceneObject sunVisual = visuals.get(0);
+		SceneObject rayVisual = visuals.get(1);
+		sunVisual.setPosition(sunPosition);
+		updateRayTransform(rayVisual, sunPosition);
+	}
+
 	/**
 	 * Correctly calculates and applies the position and rotation for the directional light's ray visualizer.
 	 * This method handles the complex 3D transformation needed to position and orient the ray geometry

@@ -156,6 +156,18 @@ public class LightManager implements LightController {
 		}
 	}
 
+	@Override
+	public void refreshVisualizer(Light light) {
+		if (!visualizersVisible) {
+			return;
+		}
+		List<SceneObject> visuals = lightVisualsMap.get(light);
+		if (visuals == null) {
+			return;
+		}
+		lightVisualizer.updateVisualsForLight(light, visuals);
+	}
+
 	/**
 	 * Cleans up all resources associated with the light manager.
 	 * This method handles cleanup of light visualizers and prepares the manager
@@ -173,7 +185,9 @@ public class LightManager implements LightController {
 
 	private void updateLightVisualizer(Light light, boolean shouldShow) {
 		if (shouldShow) {
-			if (lightVisualsMap.containsKey(light)) {
+			List<SceneObject> existingVisuals = lightVisualsMap.get(light);
+			if (existingVisuals != null) {
+				lightVisualizer.updateVisualsForLight(light, existingVisuals);
 				return;
 			}
 			List<SceneObject> visuals = lightVisualizer.createVisualsForLight(light);

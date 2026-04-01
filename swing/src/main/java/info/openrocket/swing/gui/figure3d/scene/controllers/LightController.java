@@ -16,5 +16,6 @@ public interface LightController {
     void removeLight(Light light);
     boolean areVisualizersVisible();
     void setVisualizersVisible(boolean visible);
+    void refreshVisualizer(Light light);
     void cleanup();
 }

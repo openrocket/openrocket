@@ -202,5 +202,6 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
 
         // Update the light direction
         mainLight.setDirection(direction.x, direction.y, direction.z);
+        scene.getLightController().refreshVisualizer(mainLight);
     }
 }
