@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
@@ -31,6 +32,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -74,6 +76,7 @@ public class RocketFigure3d extends JPanel {
 	private final HUDPanel hudPanel;
 	private final RocketInfo rocketInfo;
 	private final List<ComponentSelectionListener> selectionListeners = new CopyOnWriteArrayList<>();
+	private final List<StateChangeListener> changeListeners = new CopyOnWriteArrayList<>();
 
 	private GLScenePanel glScenePanel;
 	private boolean renderingEnabled = false;
@@ -84,6 +87,9 @@ public class RocketFigure3d extends JPanel {
 	private Color customBackgroundColor = null;
 	private volatile int currentType = TYPE_FINISHED;
 	private volatile boolean drawCarets = true;
+	private volatile double zoomScale = 1.0;
+	private volatile boolean zoomFitting = true;
+	private volatile Double pendingZoomScale = null;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -113,6 +119,11 @@ public class RocketFigure3d extends JPanel {
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
+			Double requestedZoomScale = pendingZoomScale;
+			if (requestedZoomScale != null) {
+				orchestrator.getCameraController().setZoomScale(requestedZoomScale);
+			}
+			updateZoomState(orchestrator);
 		});
 		glScenePanel = panel;
 		add(panel, BorderLayout.CENTER);
@@ -177,6 +188,7 @@ public class RocketFigure3d extends JPanel {
 			return;
 		}
 		maybeInstallSelectionBridge(panel);
+		updateZoomState(panel.getScene3DOrchestrator());
 	}
 
 	private void requestRenderNow() {
@@ -227,6 +239,16 @@ public class RocketFigure3d extends JPanel {
 		if (listener != null) {
 			selectionListeners.add(listener);
 		}
+	}
+
+	public void addChangeListener(StateChangeListener listener) {
+		if (listener != null) {
+			changeListeners.add(listener);
+		}
+	}
+
+	public void removeChangeListener(StateChangeListener listener) {
+		changeListeners.remove(listener);
 	}
 
 	private Color getBackgroundColor() {
@@ -310,6 +332,27 @@ public class RocketFigure3d extends JPanel {
 		});
 	}
 
+	private void updateZoomState(Scene3DOrchestrator orchestrator) {
+		if (orchestrator == null) {
+			return;
+		}
+		double currentZoomScale = orchestrator.getCameraController().getZoomScale();
+		boolean currentlyFitting = orchestrator.getCameraController().isZoomFitting();
+		if (Math.abs(currentZoomScale - zoomScale) <= 0.001 && currentlyFitting == zoomFitting) {
+			return;
+		}
+		zoomScale = currentZoomScale;
+		zoomFitting = currentlyFitting;
+		fireChangeEvent();
+	}
+
+	private void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		for (StateChangeListener listener : changeListeners) {
+			listener.stateChanged(event);
+		}
+	}
+
 	public void setDrawCarets(boolean draw) {
 		drawCarets = draw;
 		hudPanel.setVisible(draw);
@@ -322,6 +365,45 @@ public class RocketFigure3d extends JPanel {
 			panel.markHudForUpdate();
 			panel.repaint();
 		}
+	}
+
+	public double getZoomScale() {
+		return zoomScale;
+	}
+
+	public boolean isZoomFitting() {
+		return zoomFitting;
+	}
+
+	public void setZoomScale(double scale) {
+		if (Double.isNaN(scale) || Double.isInfinite(scale) || scale <= 0.0) {
+			return;
+		}
+		pendingZoomScale = scale;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> orchestrator.getCameraController().setZoomScale(scale));
+		requestRenderNow();
+	}
+
+	public void zoomToFit() {
+		pendingZoomScale = 1.0;
+		GLScenePanel panel = glScenePanel;
+		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(orchestrator::focusOnRocket);
+		requestRenderNow();
 	}
 
 	public void setCG(CoordinateIF cg) {

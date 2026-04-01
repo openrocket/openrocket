@@ -24,6 +24,7 @@ public class CameraController implements CameraControls {
 	private final Rocket rocket;
     private final Camera camera;
     private final SceneView scene;
+    private float focusedDistance;
     
     /**
      * Constructs a new CameraController with the specified camera and scene references.
@@ -57,6 +58,7 @@ public class CameraController implements CameraControls {
             0
         );
         camera.setCenterOfInterest(centerOfInterest);
+        focusedDistance = camera.getDistance();
     }
     
     /**
@@ -93,6 +95,7 @@ public class CameraController implements CameraControls {
 				(float) (maxBounds.getZ() - minBounds.getZ())
 		);
         camera.fitBounds(dimensions);
+        focusedDistance = camera.getDistance();
     }
     
     /**
@@ -135,6 +138,30 @@ public class CameraController implements CameraControls {
     @Override
     public void update() {
         camera.update();
+    }
+
+    @Override
+    public double getZoomScale() {
+        if (focusedDistance <= 0.0f) {
+            return 1.0;
+        }
+        return focusedDistance / camera.getDistance();
+    }
+
+    @Override
+    public void setZoomScale(double scale) {
+        if (focusedDistance <= 0.0f || Double.isNaN(scale) || Double.isInfinite(scale) || scale <= 0.0) {
+            return;
+        }
+        camera.setDistance((float) (focusedDistance / scale));
+    }
+
+    @Override
+    public boolean isZoomFitting() {
+        if (focusedDistance <= 0.0f) {
+            return true;
+        }
+        return Math.abs(camera.getDistance() - focusedDistance) <= focusedDistance * 0.01f;
     }
     
     /**

@@ -587,7 +587,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figureCardLayout.show(figureHolder, "3d");
 		figure3d.startRendering();
 		rotationControl.setEnabled(false);
-		scaleSelector.setEnabled(false);
+		scaleSelector.setEnabled(true);
+		scaleSelector.update();
 
 		// Update text colors for 3D view
 		updateTextColors();
@@ -613,6 +614,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
+		scaleSelector.update();
 		
 		// Re-apply the current L&F to the scroll pane (rulers, etc.) which missed
 		// FlatLaf.updateUI() while detached from the component hierarchy in 3D mode.
@@ -699,7 +701,47 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ribbon.add(viewSelector, "cell 0 1");
 
 		// Zoom level selector
-		scaleSelector = new ScaleSelector(scrollPane);
+		scaleSelector = new ScaleSelector(new ScaleSelector.ZoomModel() {
+			@Override
+			public double getScale() {
+				return is3d ? figure3d.getZoomScale() : scrollPane.getUserScale();
+			}
+
+			@Override
+			public boolean isFit() {
+				return is3d ? figure3d.isZoomFitting() : scrollPane.isFitting();
+			}
+
+			@Override
+			public void setScale(double scale) {
+				if (is3d) {
+					figure3d.setZoomScale(scale);
+				} else {
+					scrollPane.setScaling(scale);
+				}
+			}
+
+			@Override
+			public void setFit() {
+				if (is3d) {
+					figure3d.zoomToFit();
+				} else {
+					scrollPane.setFitting(true);
+				}
+			}
+
+			@Override
+			public void addChangeListener(StateChangeListener listener) {
+				figure.addChangeListener(listener);
+				figure3d.addChangeListener(listener);
+			}
+
+			@Override
+			public void removeChangeListener(StateChangeListener listener) {
+				figure.removeChangeListener(listener);
+				figure3d.removeChangeListener(listener);
+			}
+		});
 		JButton zoomOutButton = scaleSelector.getZoomOutButton();
 		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
 		JButton zoomInButton = scaleSelector.getZoomInButton();

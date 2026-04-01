@@ -14,6 +14,8 @@ public interface CameraControls {
     void handlePan(float dx, float dy);
     void resize(float newAspectRatio);
     void update();
+    double getZoomScale();
+    void setZoomScale(double scale);
+    boolean isZoomFitting();
     Camera getCamera();
 }
-

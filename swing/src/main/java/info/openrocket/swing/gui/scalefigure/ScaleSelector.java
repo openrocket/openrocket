@@ -22,6 +22,15 @@ import info.openrocket.core.startup.Application;
 @SuppressWarnings("serial")
 public class ScaleSelector {
 	private static final Translator trans = Application.getTranslator();
+
+	public interface ZoomModel {
+		double getScale();
+		boolean isFit();
+		void setScale(double scale);
+		void setFit();
+		void addChangeListener(StateChangeListener listener);
+		void removeChangeListener(StateChangeListener listener);
+	}
     
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
@@ -36,14 +45,48 @@ public class ScaleSelector {
 		SCALE_LABELS[SCALE_LABELS.length - 1] = SCALE_FIT;
 	}
 
-	private final ScaleScrollPane scrollPane;
+	private final ZoomModel zoomModel;
 	private final JComboBox<String> scaleSelectorCombo;
 	private final JButton zoomOutButton;
 	private final JButton zoomInButton;
 	private final JButton zoomFitButton;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
-		this.scrollPane = scroll;
+		this(new ZoomModel() {
+			@Override
+			public double getScale() {
+				return scroll.getUserScale();
+			}
+
+			@Override
+			public boolean isFit() {
+				return scroll.isFitting();
+			}
+
+			@Override
+			public void setScale(double scale) {
+				scroll.setScaling(scale);
+			}
+
+			@Override
+			public void setFit() {
+				scroll.setFitting(true);
+			}
+
+			@Override
+			public void addChangeListener(StateChangeListener listener) {
+				scroll.getFigure().addChangeListener(listener);
+			}
+
+			@Override
+			public void removeChangeListener(StateChangeListener listener) {
+				scroll.getFigure().removeChangeListener(listener);
+			}
+		});
+	}
+
+	public ScaleSelector(ZoomModel zoomModel) {
+		this.zoomModel = zoomModel;
 
 		// Zoom out button
 		zoomOutButton = new IconButton(Icons.ZOOM_OUT);
@@ -51,9 +94,9 @@ public class ScaleSelector {
 		zoomOutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final double oldScale = scrollPane.getUserScale();
+				final double oldScale = ScaleSelector.this.zoomModel.getScale();
 				final double newScale = getNextLargerScale(oldScale);
-				scrollPane.setScaling(newScale);
+				ScaleSelector.this.zoomModel.setScale(newScale);
 				setZoomText();
 			}
 		});
@@ -83,7 +126,7 @@ public class ScaleSelector {
 					text = text.replaceAll("%", "").trim();
 
 					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
-						scrollPane.setFitting(true);
+						ScaleSelector.this.zoomModel.setFit();
 						setZoomText();
 						return;
 					}
@@ -93,7 +136,7 @@ public class ScaleSelector {
 					if (n <= 0.005)
 						n = 0.005;
 
-					scrollPane.setScaling(n);
+					ScaleSelector.this.zoomModel.setScale(n);
 					setZoomText();
 				} catch (NumberFormatException ignore) {
 				} finally {
@@ -101,7 +144,7 @@ public class ScaleSelector {
 				}
 			}
 		});
-		scrollPane.getFigure().addChangeListener(new StateChangeListener() {
+		zoomModel.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				update();
@@ -114,9 +157,9 @@ public class ScaleSelector {
 		zoomInButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double scale = scrollPane.getUserScale();
+				double scale = ScaleSelector.this.zoomModel.getScale();
 				scale = getNextSmallerScale(scale);
-				scrollPane.setScaling(scale);
+				ScaleSelector.this.zoomModel.setScale(scale);
 				update();
 			}
 		});
@@ -127,7 +170,7 @@ public class ScaleSelector {
 		zoomFitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				scrollPane.setFitting(true);
+				ScaleSelector.this.zoomModel.setFit();
 				update();
 			}
 		});
@@ -160,9 +203,9 @@ public class ScaleSelector {
 	}
 
 	private void setZoomText() {
-	    final double userScale = scrollPane.getUserScale();
+	    final double userScale = zoomModel.getScale();
 	    String text = PERCENT_FORMAT.format(userScale);
-		if (scrollPane.isFitting()) {
+		if (zoomModel.isFit()) {
 			text = "Fit (" + text + ")";
 		}
 		if (!text.equals(scaleSelectorCombo.getSelectedItem()))
