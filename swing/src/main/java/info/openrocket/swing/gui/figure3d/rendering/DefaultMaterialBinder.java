@@ -78,7 +78,10 @@ public class DefaultMaterialBinder implements MaterialBinder {
         GL33.glUniform1f(uniforms.shine, shine);
         GL33.glUniform1f(uniforms.roughnessScale, appearance.getRoughnessScale());
         GL33.glUniform1f(uniforms.roughnessStrength, appearance.getRoughnessStrength());
-        GL33.glUniform1i(uniforms.hideInnerSurfaces, config.getDisplay().isRenderInternalSurfaces() ? 0 : 1);
+        float effectiveOpacity = getEffectiveOpacity(obj.getRocketComponent(), appearance, config, unfinishedMode, isFigureMode, isXray);
+        boolean hideInnerSurfaces = !config.getDisplay().isRenderInternalSurfaces()
+                || shouldHideInnerSurfacesForTransparentShell(obj.getRocketComponent(), effectiveOpacity, isFigureMode);
+        GL33.glUniform1i(uniforms.hideInnerSurfaces, hideInnerSurfaces ? 1 : 0);
 
         if (isFigureMode) {
             GL33.glUniform1f(uniforms.opacity, isXray ? config.getQuality().getXrayOpacity() : 1.0f);
@@ -131,6 +134,25 @@ public class DefaultMaterialBinder implements MaterialBinder {
             return true;
         }
         return component instanceof Transition && !(component instanceof NoseCone);
+    }
+
+    private static boolean shouldHideInnerSurfacesForTransparentShell(RocketComponent component, float effectiveOpacity, boolean isFigureMode) {
+        if (isFigureMode || effectiveOpacity >= 1.0f) {
+            return false;
+        }
+        return isFigureTransparentComponent(component);
+    }
+
+    private static float getEffectiveOpacity(RocketComponent component, Appearance3D appearance,
+                                             RenderingConfiguration config, boolean unfinishedMode,
+                                             boolean isFigureMode, boolean isXray) {
+        if (isFigureMode) {
+            return isXray ? config.getQuality().getXrayOpacity() : 1.0f;
+        }
+        if (unfinishedMode && component instanceof BodyTube) {
+            return 0.2f;
+        }
+        return appearance.getOpacity();
     }
 
     private static ORColor getFigureSourceColor(RocketComponent component) {

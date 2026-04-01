@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.rendering.passes;
 
 import info.openrocket.core.rocketcomponent.BodyTube;
+import info.openrocket.core.rocketcomponent.NoseCone;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
@@ -201,8 +202,9 @@ public class GeometryPass implements RenderPass {
             renderStats.stateChanges++;
         }
 
-        if (sortTriangles && obj.getRenderableMesh() instanceof RenderableMesh renderableMesh) {
-            renderableMesh.renderSorted(obj.getModelMatrix(), viewMatrix);
+        if (sortTriangles && shouldSortTransparentTriangles(obj) &&
+                obj.getRenderableMesh() instanceof RenderableMesh renderableMesh) {
+            renderableMesh.renderSorted(obj.getMesh(), obj.getModelMatrix(), viewMatrix);
         } else {
             obj.getRenderableMesh().render();
         }
@@ -217,6 +219,19 @@ public class GeometryPass implements RenderPass {
         return config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
                 config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING ||
                 obj.getAppearance().getStyle() == Appearance3D.RenderStyle.WIREFRAME;
+    }
+
+    /**
+     * Per-triangle sorting makes hollow shell tessellation visible on semi-transparent
+     * body tubes and transitions. Those meshes now rely on inner-surface suppression
+     * instead, and stay on the regular indexed path.
+     */
+    private boolean shouldSortTransparentTriangles(SceneObject obj) {
+        if (isWireframe(obj)) {
+            return false;
+        }
+        RocketComponent component = obj.getRocketComponent();
+        return !isTransparentShellComponent(component);
     }
 
     @Override
@@ -234,5 +249,12 @@ public class GeometryPass implements RenderPass {
             return true;
         }
         return component instanceof Transition;
+    }
+
+    private static boolean isTransparentShellComponent(RocketComponent component) {
+        if (component instanceof BodyTube) {
+            return true;
+        }
+        return component instanceof Transition && !(component instanceof NoseCone);
     }
 }
