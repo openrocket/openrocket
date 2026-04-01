@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.scene.orchestration;
 
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.ComponentChangeListener;
+import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
@@ -75,13 +76,22 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 */
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		// Check for changes that only affect appearance and not geometry/structure.
-		// These can be handled with a lightweight update.
-		if (e.isNonFunctionalChange()) {
+		// Check for changes that only affect rendered appearance and not geometry/structure.
+		// These can be handled with a lightweight update and should not reset the camera.
+		if (isAppearanceOnlySceneChange(e)) {
 			queueAppearanceUpdate(e.getSource());
 		} else {
 			queueRebuild(shouldRefocusCamera(e));
 		}
+	}
+
+	private boolean isAppearanceOnlySceneChange(ComponentChangeEvent e) {
+		return e.isNonFunctionalChange() || isFinishAppearanceChange(e);
+	}
+
+	private boolean isFinishAppearanceChange(ComponentChangeEvent e) {
+		int finishChangeType = ComponentChangeEvent.AERODYNAMIC_CHANGE | ComponentChangeEvent.GRAPHIC_CHANGE;
+		return e.getType() == finishChangeType && e.getSource() instanceof ExternalComponent;
 	}
 
 	/**
@@ -123,7 +133,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private boolean shouldRefocusCamera(ComponentChangeEvent e) {
-		return e.isTreeChange() || e.isTreeChildrenChange() || e.isAerodynamicChange() || e.isMassChange();
+		return e.isTreeChange() || e.isTreeChildrenChange() || e.isMassChange();
 	}
 
 	private void queueRebuild(boolean refocusCamera) {

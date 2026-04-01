@@ -181,7 +181,7 @@ public abstract class ExternalComponent extends RocketComponent {
 		if (this.finish == finish)
 			return;
 		this.finish = finish;
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE | ComponentChangeEvent.GRAPHIC_CHANGE);
 	}
 
 	@Override
