@@ -74,11 +74,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 */
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		int type = e.getType();
-
 		// Check for changes that only affect appearance and not geometry/structure.
 		// These can be handled with a lightweight update.
-		if (type == ComponentChangeEvent.NONFUNCTIONAL_CHANGE || type == ComponentChangeEvent.GRAPHIC_CHANGE) {
+		if (e.isNonFunctionalChange()) {
 			queueAppearanceUpdate(e.getSource());
 		} else {
 			// For any other more significant change (geometry, tree structure, mass, etc.),
@@ -132,7 +130,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		scene3DOrchestrator.enqueueGlTask(() -> {
 			try {
 				pendingAppearanceUpdates.clear();
-				rebuildRocketScene();
+				rebuildRocketScene(false);
 			} finally {
 				rebuildQueued.set(false);
 			}
@@ -194,6 +192,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * <p>Non-rocket objects (axes, lights, etc.) are preserved during this operation.</p>
 	 */
 	public void rebuildRocketScene() {
+		rebuildRocketScene(true);
+	}
+
+	private void rebuildRocketScene(boolean refocusCamera) {
 		// First, create a list of all objects to be removed to avoid modification-during-iteration errors.
 		List<SceneObject> objectsToRemove = new ArrayList<>();
 		for (SceneObject obj : scene.getObjects()) {
@@ -223,6 +225,8 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 		// Finally, tell the RocketMeshBuilder to recreate the rocket objects from the current rocket state.
 		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
-		scene3DOrchestrator.focusOnRocket();
+		if (refocusCamera) {
+			scene3DOrchestrator.focusOnRocket();
+		}
 	}
 }
