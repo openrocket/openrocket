@@ -149,6 +149,12 @@ public class Scene implements SceneView {
 		if (background == null) {
 			throw new IllegalArgumentException("Background cannot be null");
 		}
+		if (this.background == background) {
+			return;
+		}
+		if (this.background != null) {
+			this.background.cleanup();
+		}
 		this.background = background;
 	}
 
@@ -286,6 +292,9 @@ public class Scene implements SceneView {
 	@Override
 	public void cleanup() {
 		objects.forEach(SceneObject::cleanup);
+		if (background != null) {
+			background.cleanup();
+		}
 	}
 
 	private void notifySelectionChanged() {

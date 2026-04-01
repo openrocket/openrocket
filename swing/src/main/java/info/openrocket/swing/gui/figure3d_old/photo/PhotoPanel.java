@@ -6,16 +6,28 @@ import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
+import info.openrocket.swing.gui.figure3d.materials.Texture;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.HDRIBackground;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.ImageBackground;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SkyboxBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.Light;
-import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
+import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.Sky;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Lake;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Meadow;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Miramar;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Mountains;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Orbit;
+import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Storm;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -58,6 +70,9 @@ public class PhotoPanel extends JPanel {
 	private float lastFlameAspectRatio = Float.NaN;
 	private float lastSparkConcentration = Float.NaN;
 	private float lastSparkWeight = Float.NaN;
+	private Sky lastSky;
+	private ORColor lastSkyColor;
+	private float lastSkyOpacity = Float.NaN;
 	private boolean cameraSettingsTracked;
 	private double lastViewAz;
 	private double lastViewAlt;
@@ -67,6 +82,30 @@ public class PhotoPanel extends JPanel {
 	private Timer renderTimer;
 	private static final int FRAME_INTERVAL_MS = 16;
 	private static final int STARTUP_RENDER_DELAY_MS = 120;
+	private static final String[] MOUNTAINS_CUBEMAP = {
+			"/datafiles/sky/box/East.jpg",
+			"/datafiles/sky/box/West.jpg",
+			"/datafiles/sky/box/Up.jpg",
+			"/datafiles/sky/box/Down.jpg",
+			"/datafiles/sky/box/North.jpg",
+			"/datafiles/sky/box/South.jpg"
+	};
+	private static final String[] MEADOW_CUBEMAP = {
+			"/datafiles/sky/Meadow/posx.jpg",
+			"/datafiles/sky/Meadow/negx.jpg",
+			"/datafiles/sky/Meadow/posy.jpg",
+			"/datafiles/sky/Meadow/negy.jpg",
+			"/datafiles/sky/Meadow/posz.jpg",
+			"/datafiles/sky/Meadow/negz.jpg"
+	};
+	private static final String[] MIRAMAR_CUBEMAP = {
+			"/datafiles/sky/miramar/miramar_ft.jpg",
+			"/datafiles/sky/miramar/miramar_bk.jpg",
+			"/datafiles/sky/miramar/miramar_up.jpg",
+			"/datafiles/sky/miramar/miramar_dn.jpg",
+			"/datafiles/sky/miramar/miramar_rt.jpg",
+			"/datafiles/sky/miramar/miramar_lf.jpg"
+	};
 
 	private static final class EmitterBase {
 		private final Vector3f position;
@@ -156,6 +195,9 @@ public class PhotoPanel extends JPanel {
 		lastFlameAspectRatio = Float.NaN;
 		lastSparkConcentration = Float.NaN;
 		lastSparkWeight = Float.NaN;
+		lastSky = null;
+		lastSkyColor = null;
+		lastSkyOpacity = Float.NaN;
 		cameraSettingsTracked = false;
 		document = null;
 	}
@@ -174,7 +216,7 @@ public class PhotoPanel extends JPanel {
 		if (!captureQueued.compareAndSet(false, true)) {
 			return;
 		}
-		boolean transparent = settings.getSkyColorOpacity() < 1.0;
+		boolean transparent = settings.getSky() == null && settings.getSkyColorOpacity() < 1.0;
 		panel.requestImageCapture(transparent, image -> {
 			List<ImageCallback> callbacks = new ArrayList<>(imageCallbacks);
 			imageCallbacks.clear();
@@ -358,11 +400,55 @@ public class PhotoPanel extends JPanel {
 			sky = new ORColor(0, 0, 0);
 		}
 		float alpha = (float) settings.getSkyColorOpacity();
-		scene.setBackground(new SolidColorBackground(
-				sky.getRed() / 255.0f,
-				sky.getGreen() / 255.0f,
-				sky.getBlue() / 255.0f,
-				alpha));
+		Sky selectedSky = settings.getSky();
+		if (selectedSky == lastSky && sameColor(sky, lastSkyColor) && approximatelyEqual(alpha, lastSkyOpacity)) {
+			return;
+		}
+
+		scene.setBackground(createBackground(selectedSky, sky, alpha));
+		lastSky = selectedSky;
+		lastSkyColor = copyColor(sky);
+		lastSkyOpacity = alpha;
+	}
+
+	private Background createBackground(Sky selectedSky, ORColor skyColor, float alpha) {
+		if (selectedSky == null) {
+			return new SolidColorBackground(
+					skyColor.getRed() / 255.0f,
+					skyColor.getGreen() / 255.0f,
+					skyColor.getBlue() / 255.0f,
+					alpha);
+		}
+
+		try {
+			if (selectedSky instanceof Mountains) {
+				return new SkyboxBackground(new Texture(MOUNTAINS_CUBEMAP));
+			}
+			if (selectedSky instanceof Meadow) {
+				return new SkyboxBackground(new Texture(MEADOW_CUBEMAP));
+			}
+			if (selectedSky instanceof Miramar) {
+				return new SkyboxBackground(new Texture(MIRAMAR_CUBEMAP));
+			}
+			if (selectedSky instanceof Storm) {
+				return new SkyboxBackground(new Texture("/datafiles/sky/cross1.jpg", Texture.AtlasLayout.HORIZONTAL_CROSS));
+			}
+			if (selectedSky instanceof Lake) {
+				return new HDRIBackground(new Texture("/datafiles/sky/lake.jpg"));
+			}
+			if (selectedSky instanceof Orbit) {
+				return new ImageBackground(new Texture("/datafiles/sky/space.jpg"));
+			}
+		} catch (RuntimeException e) {
+			log.warn("Could not load Photo Studio sky '{}', falling back to solid color: {}", selectedSky, e.getMessage());
+		}
+
+		log.warn("Photo Studio sky '{}' does not have a mapped background; falling back to solid color", selectedSky);
+		return new SolidColorBackground(
+				skyColor.getRed() / 255.0f,
+				skyColor.getGreen() / 255.0f,
+				skyColor.getBlue() / 255.0f,
+				alpha);
 	}
 
 	private void applyLighting(SceneView scene) {

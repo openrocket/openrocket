@@ -29,6 +29,7 @@ public interface Background {
 	enum BackgroundType {
 		SOLID_COLOR,
 		GRADIENT,
+		IMAGE,
 		SKYBOX,
 		HDRI,
 		PROCEDURAL

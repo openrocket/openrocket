@@ -6,6 +6,7 @@ import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.HDRIBackground;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.ImageBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SkyboxBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
@@ -75,6 +76,7 @@ public class BackgroundPass implements RenderPass {
 
     private final ShaderProgram gradientShader;
     private final int gradientVao;
+    private final ShaderProgram imageShader;
     private final ShaderProgram skyboxShader;
     private final int skyboxVao;
     private final ShaderProgram hdriShader;
@@ -93,6 +95,7 @@ public class BackgroundPass implements RenderPass {
      */
     public BackgroundPass(TextureBinder textureStateManager) throws Exception {
         gradientShader = new Shader("/shaders/background/gradient_vertex.glsl", "/shaders/background/gradient_fragment.glsl");
+        imageShader = new Shader("/shaders/background/image_vertex.glsl", "/shaders/background/image_fragment.glsl");
         skyboxShader = new Shader("/shaders/background/skybox_vertex.glsl", "/shaders/background/skybox_fragment.glsl");
         hdriShader = new Shader("/shaders/background/hdri_vertex.glsl", "/shaders/background/hdri_fragment.glsl");
         checkerboardShader = new Shader("/shaders/background/checkerboard_vertex.glsl", "/shaders/background/checkerboard_fragment.glsl");
@@ -192,6 +195,18 @@ public class BackgroundPass implements RenderPass {
             glDepthMask(true); // Ensure depth writes are enabled for geometry
             // Reset texture unit to 0 for geometry pass
             GL33.glActiveTexture(GL33.GL_TEXTURE0);
+        } else if (background instanceof ImageBackground imageBackground) {
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glDisable(GL_DEPTH_TEST);
+            imageShader.use();
+            textureStateManager.bindTexture(0, GL_TEXTURE_2D, imageBackground.getTexture().getId());
+            imageShader.setUniform("backgroundImage", 0);
+            GL33.glBindVertexArray(gradientVao);
+            GL33.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            GL33.glBindVertexArray(0);
+            glEnable(GL_DEPTH_TEST);
+            glDepthMask(true);
+            GL33.glActiveTexture(GL33.GL_TEXTURE0);
         } else if (background instanceof SkyboxBackground || background instanceof HDRIBackground) {
             // Clear depth first so geometry can render in front
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -231,6 +246,7 @@ public class BackgroundPass implements RenderPass {
     @Override
     public void cleanup() {
         gradientShader.cleanup();
+        imageShader.cleanup();
         skyboxShader.cleanup();
         hdriShader.cleanup();
         checkerboardShader.cleanup();
