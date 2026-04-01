@@ -43,23 +43,10 @@ import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
 /**
- * High-quality OpenGL renderer implementation for OpenRocket 3D visualization.
- * 
- * This renderer provides realistic rendering with advanced features including:
- * - Physically-based lighting with multiple light sources
- * - Multi-pass rendering pipeline with framebuffer objects
- * - Post-processing effects (FXAA, motion blur, outlines)
- * - Particle systems for flames and smoke
- * - Configurable backgrounds (gradients, HDRIs, skyboxes)
- * - Texture state management for performance optimization
- * - Fog effects and atmospheric rendering
- * - Material-based shading with textures and decals
- * 
- * The rendering pipeline consists of:
- * 1. Geometry passes (background, main geometry, carets)
- * 2. Particle rendering (flames, smoke, sparks)
- * 3. Post-processing chain (motion blur, outlines, FXAA)
- * 4. Final composite to screen
+ * Main OpenGL renderer for a figure3d scene.
+ *
+ * Owns the scene shader, render passes, particle renderers, and offscreen targets
+ * used to draw a single view.
  */
 public class RealisticRenderer implements Renderer {
 
@@ -94,10 +81,7 @@ public class RealisticRenderer implements Renderer {
 	private int resolvedTextureId;
 
 	/**
-	 * Cache for frequently accessed shader uniform locations.
-	 * 
-	 * Stores pre-resolved uniform locations to avoid repeated OpenGL lookups
-	 * during rendering, improving performance.
+	 * Cached uniform locations for the main scene shader.
 	 */
 	public static class ShaderUniforms {
 		public final int projection;

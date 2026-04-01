@@ -339,7 +339,7 @@ public class TubeGenerator implements GeometryGenerator {
 			float avgOuterSlope = getAvgOuterSlope(sortedOuterProfile, outerSlopes, i);
 			float avgInnerSlope = isFilled ? 0 : getAvgOuterSlope(sortedOuterProfile, innerSlopes, i);
 
-			// Your requested logic for determining the inner shell x position.
+			// Offset the inner shell at shoulder transitions.
 			float innerX = x;
 			if (!isFilled) {
 				if (hasForeShoulder && !foreShoulderOffsetAdded && i < sortedOuterProfile.size() - 1) {

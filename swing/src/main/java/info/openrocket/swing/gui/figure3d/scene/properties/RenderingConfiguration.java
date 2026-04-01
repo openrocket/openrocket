@@ -5,31 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Unified configuration system for all rendering and visual effects settings.
- * 
- * <p>This class consolidates the previously separate SceneProperties and RendererSettings
- * into a cohesive configuration system with logical groupings:</p>
- * <ul>
- *   <li>{@link VisualEffectsSettings} - Particles, motion blur, display elements</li>
- *   <li>{@link GraphicsQualitySettings} - Render quality, anti-aliasing, surface effects</li>
- *   <li>{@link DisplaySettings} - Render modes, wireframe, transparency</li>
- * </ul>
- * 
- * <p>The configuration supports change notification through listeners, allowing
- * components to react to settings changes automatically.</p>
- * 
- * <h3>Usage Example:</h3>
- * <pre>
- * RenderingConfiguration config = new RenderingConfiguration();
- * config.getVisualEffects().setParticleEffectsEnabled(true);
- * config.getQuality().setQuality(RenderQuality.HIGH);
- * config.getDisplay().setMode(RenderMode.XRAY);
- * 
- * config.addListener(newConfig -> {
- *     // React to configuration changes
- *     updateRenderer(newConfig);
- * });
- * </pre>
+ * Combined display, quality, and visual-effects settings for a figure3d view.
  */
 public class RenderingConfiguration {
 
@@ -96,11 +72,7 @@ public class RenderingConfiguration {
     }
 
     /**
-     * Notifies all listeners that the configuration has changed.
-     * 
-     * <p>This method should be called by UI components or other code
-     * that modifies the configuration to ensure all dependent systems
-     * are updated appropriately.</p>
+     * Notifies listeners after the configuration has changed.
      */
     public void notifyListeners() {
         for (Consumer<RenderingConfiguration> listener : listeners) {
@@ -168,23 +140,7 @@ public class RenderingConfiguration {
     }
     
     /**
-     * Builder class for creating RenderingConfiguration instances with custom settings.
-     * 
-     * <p>This builder provides a fluent API for configuring rendering settings,
-     * making it easier to set up complex rendering configurations.</p>
-     * 
-     * <h3>Usage Example:</h3>
-     * <pre>
-     * RenderingConfiguration config = RenderingConfiguration.builder()
-     *     .withRenderMode(DisplaySettings.RenderMode.XRAY)
-     *     .withQuality(GraphicsQualitySettings.RenderQuality.HIGH)
-     *     .withParticleEffects(true)
-     *     .withMotionBlur(true, 7.0f)
-     *     .withFXAA(true)
-     *     .withXrayOpacity(0.15f)
-     *     .withListener(config -> System.out.println("Config changed"))
-     *     .build();
-     * </pre>
+     * Builder for {@link RenderingConfiguration}.
      */
     public static class Builder {
         private DisplaySettings.RenderMode renderMode = DisplaySettings.RenderMode.FINISHED;

@@ -29,46 +29,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Orchestrates all components of the 3D scene rendering pipeline.
- * 
- * <p>This class serves as the central coordinator for the 3D visualization system,
- * managing the interaction between the scene, camera, input handling, and rendering
- * subsystems. It follows a composition pattern where specialized controllers handle
- * specific aspects of the 3D view while this orchestrator coordinates their activities.</p>
- * 
- * <h3>Key Responsibilities:</h3>
- * <ul>
- *   <li><b>Scene Management:</b> Maintains the 3D scene and its properties</li>
- *   <li><b>Camera Coordination:</b> Delegates camera operations to {@link CameraController}</li>
- *   <li><b>Input Processing:</b> Coordinates user input through {@link SceneInputProcessor}</li>
- *   <li><b>Rendering Pipeline:</b> Manages the {@link RealisticRenderer} and export functionality</li>
- *   <li><b>Frame Updates:</b> Orchestrates per-frame updates across all subsystems</li>
- *   <li><b>Resource Management:</b> Handles window/viewport resizing and dimension updates</li>
- * </ul>
- * 
- * <h3>Architecture:</h3>
- * <p>This class uses composition over inheritance, delegating specialized operations to:</p>
- * <ul>
- *   <li>{@link CameraController} - Camera positioning, movement, and focus management</li>
- *   <li>{@link SceneInputProcessor} - Mouse and keyboard input processing</li>
- *   <li>{@link RocketSceneSynchronizer} - Keeps the 3D scene synchronized with rocket model changes</li>
- * </ul>
- * 
- * <h3>Usage Example:</h3>
- * <pre>
- * Scene3DOrchestrator orchestrator = Scene3DOrchestrator.builder(rocket, 800, 600, 1600, 1200)
- *     .build();
- * orchestrator.focusOnRocket();
- * 
- * // In render loop:
- * orchestrator.update();
- * orchestrator.renderer.render(orchestrator.getScene(), null, true);
- * </pre>
- * 
- * @see CameraController
- * @see SceneInputProcessor
- * @see RocketSceneSynchronizer
- * @see RealisticRenderer
+ * Coordinates scene state, input, synchronization, and rendering for a figure3d view.
  */
 public class Scene3DOrchestrator {
 
@@ -135,17 +96,7 @@ public class Scene3DOrchestrator {
 	}
 
 	/**
-	 * Performs per-frame updates for all orchestrated components.
-	 * 
-	 * <p>This method should be called once per frame and handles:</p>
-	 * <ul>
-	 *   <li>Processing pending input events (mouse clicks, drags, keyboard)</li>
-	 *   <li>Updating camera matrices and transformations</li>
-	 *   <li>Advancing particle system simulations</li>
-	 *   <li>Calculating frame timing for smooth animations</li>
-	 * </ul>
-	 * 
-	 * <p><b>Note:</b> This method should be called before rendering each frame.</p>
+	 * Runs one frame of non-render updates before the caller renders the scene.
 	 */
 	public void update() {
 		runPendingGlTasks();
@@ -317,19 +268,7 @@ public class Scene3DOrchestrator {
 	}
 	
 	/**
-	 * Builder class for creating Scene3DOrchestrator instances with custom configuration.
-	 * 
-	 * <p>This builder allows for more flexible configuration of the orchestrator,
-	 * including custom rendering settings and camera parameters.</p>
-	 * 
-	 * <h3>Usage Example:</h3>
-	 * <pre>
-	 * Scene3DOrchestrator orchestrator = Scene3DOrchestrator.builder(rocket, 800, 600)
-	 *     .withFieldOfView(Math.toRadians(15))
-	 *     .withPerformanceMode()
-	 *     .withRenderMode(RenderMode.WIREFRAME)
-	 *     .build();
-	 * </pre>
+	 * Builder for {@link Scene3DOrchestrator}.
 	 */
 	public static class Builder {
 		private final Rocket rocket;

@@ -40,31 +40,7 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * 3D textured particle renderer with quaternion-based orientation.
- * 
- * This renderer provides advanced particle visualization using textured quads that
- * can be arbitrarily oriented in 3D space through quaternion rotations. Unlike
- * billboard-based renderers, this system allows particles to maintain specific
- * orientations independent of camera position, enabling more complex particle
- * behaviors and realistic 3D particle effects.
- * 
- * Key features:
- * - Quaternion-based 3D particle orientation
- * - Textured quad rendering with full UV mapping
- * - Independent 3D rotation per particle
- * - Optimized for smoke emitters with complex rotational behavior
- * - Full alpha blending support for transparency effects
- * - Dynamic buffer management for varying particle counts
- * 
- * Technical approach:
- * - Each particle maintains a quaternion for 3D orientation
- * - Particle quads are transformed from local space to world space using rotation matrices
- * - Texture coordinates are properly mapped across rotated geometry
- * - Supports complex particle motion patterns with realistic 3D rotation
- * 
- * This renderer is particularly effective for smoke particles that tumble and
- * rotate as they move, creating more convincing volumetric effects than
- * simple billboard-based approaches.
+ * Renders textured particles with per-particle quaternion orientation.
  */
 public class TexturedParticleRenderer {
 

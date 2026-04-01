@@ -7,21 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Configuration for visual effects within the OpenRocket 3D visualization system.
- * This class manages settings that control dynamic visual elements and post-processing
- * effects that enhance the realism and informativeness of the rocket visualization.
- * 
- * <p>The visual effects system provides control over:</p>
- * <ul>
- *   <li><b>Particle effects:</b> Realistic motor exhaust including flames, smoke, and sparks</li>
- *   <li><b>Motion blur:</b> Cinematic effects for dynamic camera movement</li>
- *   <li><b>Display elements:</b> Helper visualizations like coordinate axes</li>
- *   <li><b>Per-motor control:</b> Individual particle settings for multi-stage rockets</li>
- * </ul>
- * 
- * <p>These effects integrate with the rendering pipeline to provide realistic
- * visualization of rocket operation while maintaining performance through configurable
- * quality settings and selective enabling of effect types.</p>
+ * Visual-effects settings for figure3d.
+ *
+ * Includes particles, motion blur, helper overlays, and related tuning values.
  */
 public class VisualEffectsSettings {
 
