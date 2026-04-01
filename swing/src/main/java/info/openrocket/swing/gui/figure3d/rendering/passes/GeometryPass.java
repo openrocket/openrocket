@@ -7,6 +7,7 @@ import info.openrocket.swing.gui.figure3d.materials.Appearance3D;
 import info.openrocket.swing.gui.figure3d.rendering.DefaultMaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.MaterialBinder;
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
+import info.openrocket.swing.gui.figure3d.rendering.RenderableMesh;
 import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
 import info.openrocket.swing.gui.figure3d.rendering.TextureBinder;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
@@ -122,7 +123,7 @@ public class GeometryPass implements RenderPass {
             return Float.compare(dist2, dist1);
         });
 
-        renderObjects(opaqueObjects, transparentObjects);
+        renderObjects(opaqueObjects, transparentObjects, viewMatrix);
     }
 
     /**
@@ -136,7 +137,7 @@ public class GeometryPass implements RenderPass {
      * @param opaqueObjects List of fully opaque objects to render first
      * @param transparentObjects List of transparent objects requiring special handling
      */
-    private void renderObjects(List<SceneObject> opaqueObjects, List<SceneObject> transparentObjects) {
+    private void renderObjects(List<SceneObject> opaqueObjects, List<SceneObject> transparentObjects, Matrix4f viewMatrix) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -153,13 +154,11 @@ public class GeometryPass implements RenderPass {
 
         // --- Transparent & Special Pass ---
         glDepthMask(false);
-        // TODO: For some reason, transparent objects have a rendering artifact, e.g. for transitions, you see internal
-        //  disks at the length-wise segments (which appear to have culling)
         for (SceneObject obj : transparentObjects) {
             boolean isXray = config.getDisplay().getMode() == DisplaySettings.RenderMode.XRAY &&
 					isFigureTransparentComponent(obj.getRocketComponent());
             if (!obj.isRenderOnTop() || isXray) { // Render on top objects are also rendered here if they are transparent
-                renderSingleObject(obj);
+                renderTransparentObject(obj, viewMatrix);
             }
         }
 
@@ -186,10 +185,15 @@ public class GeometryPass implements RenderPass {
      * @param obj The scene object to render with its associated mesh and materials
      */
     private void renderSingleObject(SceneObject obj) {
-        boolean isWireframe = config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
-				config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING ||
-				obj.getAppearance().getStyle() == Appearance3D.RenderStyle.WIREFRAME;
+        renderObject(obj, false, null);
+    }
 
+    private void renderTransparentObject(SceneObject obj, Matrix4f viewMatrix) {
+        renderObject(obj, true, viewMatrix);
+    }
+
+    private void renderObject(SceneObject obj, boolean sortTriangles, Matrix4f viewMatrix) {
+        boolean isWireframe = isWireframe(obj);
         materialBinder.bind(obj, mainShader, mainShaderUniforms, config, textureStateManager);
 
         if (isWireframe) {
@@ -197,12 +201,22 @@ public class GeometryPass implements RenderPass {
             renderStats.stateChanges++;
         }
 
-        obj.getRenderableMesh().render();
+        if (sortTriangles && obj.getRenderableMesh() instanceof RenderableMesh renderableMesh) {
+            renderableMesh.renderSorted(obj.getMesh(), obj.getModelMatrix(), viewMatrix);
+        } else {
+            obj.getRenderableMesh().render();
+        }
         renderStats.objectsRendered++;
 
         if (isWireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
+    }
+
+    private boolean isWireframe(SceneObject obj) {
+        return config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME ||
+                config.getDisplay().getMode() == DisplaySettings.RenderMode.WIREFRAME_CULLING ||
+                obj.getAppearance().getStyle() == Appearance3D.RenderStyle.WIREFRAME;
     }
 
     @Override
