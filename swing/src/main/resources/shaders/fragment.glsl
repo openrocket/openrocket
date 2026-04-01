@@ -137,7 +137,24 @@ float fbm(vec2 v) {
     return total;
 }
 
-vec3 getSurfaceNormal(vec3 normal, vec3 fragPos, vec2 texCoord) {
+vec2 getMaterialTexCoord() {
+    vec2 finalTexCoord = v_texCoord;
+
+    if (textureMode == 0) { // STRETCH
+    } else if (textureMode == 1) { // REPEAT_AXIAL
+        finalTexCoord.x = v_texCoord.x;
+        finalTexCoord.y = v_texCoord.y;
+    } else if (textureMode == 2) { // REPEAT_RADIAL
+        finalTexCoord.x = v_texCoord.x;
+        finalTexCoord.y = v_texCoord.y;
+    } else if (textureMode == 3) { // REPEAT_BOTH
+        finalTexCoord = v_texCoord;
+    }
+
+    return (textureTransformMatrix * vec4(finalTexCoord, 0.0, 1.0)).xy;
+}
+
+vec3 getSurfaceNormal(vec3 normal, vec2 texCoord) {
     if (roughnessStrength <= 0.0) return normal;
 
     vec3 tangent = normalize(cross(normal, vec3(0.0, 1.0, 0.0)));
@@ -237,24 +254,11 @@ void main()
 
     // 1. Get base surface color
     vec4 surfaceColor = vec4(objectColor, 1.0);
+    vec2 materialTexCoord = getMaterialTexCoord();
 
     // Texture handling
     if (renderStyle == 1 && hasTexture == 1) { // 1 = TEXTURED
-        vec2 finalTexCoord = v_texCoord; 
-
-        if (textureMode == 0) { // STRETCH
-        } else if (textureMode == 1) { // REPEAT_AXIAL
-            finalTexCoord.x = v_texCoord.x;
-            finalTexCoord.y = v_texCoord.y;
-        } else if (textureMode == 2) { // REPEAT_RADIAL
-            finalTexCoord.x = v_texCoord.x;
-            finalTexCoord.y = v_texCoord.y;
-        } else if (textureMode == 3) { // REPEAT_BOTH
-            finalTexCoord = v_texCoord;
-        }
-
-        vec2 transformedTexCoord = (textureTransformMatrix * vec4(finalTexCoord, 0.0, 1.0)).xy;
-        vec4 texColor = texture(textureSampler, transformedTexCoord);
+        vec4 texColor = texture(textureSampler, materialTexCoord);
 
         surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, texColor.a);
     }
@@ -276,7 +280,7 @@ void main()
     } else {
         vec3 norm = normalize(v_normal);
         if (enableRoughnessBump) {
-            norm = getSurfaceNormal(norm, v_fragPos, v_texCoord);
+            norm = getSurfaceNormal(norm, materialTexCoord);
         }
         vec3 viewDir = normalize(viewPos - v_fragPos);
 
