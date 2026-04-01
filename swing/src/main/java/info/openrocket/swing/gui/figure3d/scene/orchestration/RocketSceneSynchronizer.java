@@ -211,7 +211,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		rebuildRocketScene(true);
 	}
 
-	private void rebuildRocketScene(boolean refocusCamera) {
+	public void rebuildRocketScene(boolean refocusCamera) {
 		// First, create a list of all objects to be removed to avoid modification-during-iteration errors.
 		List<SceneObject> objectsToRemove = new ArrayList<>();
 		for (SceneObject obj : scene.getObjects()) {

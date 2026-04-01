@@ -101,8 +101,8 @@ public class RenderingConfiguration {
         quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
         quality.setFXAAEnabled(true);
         quality.setRoughnessBumpEnabled(true);
-        quality.setShadowsEnabled(true);
-        quality.setAmbientOcclusionEnabled(true);
+        quality.setShadowsEnabled(false);
+        quality.setAmbientOcclusionEnabled(false);
         notifyListeners();
     }
 
@@ -168,8 +168,8 @@ public class RenderingConfiguration {
         private boolean backfaceCullingEnabled = true;
         private boolean roughnessBumpEnabled = true;
         private boolean fxaaEnabled = true;
-        private boolean shadowsEnabled = true;
-        private boolean ambientOcclusionEnabled = true;
+        private boolean shadowsEnabled = false;
+        private boolean ambientOcclusionEnabled = false;
         private boolean usePerformanceMode = false;
         private boolean useQualityMode = false;
         private final List<Consumer<RenderingConfiguration>> listeners = new ArrayList<>();

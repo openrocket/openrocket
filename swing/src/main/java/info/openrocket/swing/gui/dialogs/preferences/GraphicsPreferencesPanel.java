@@ -8,9 +8,13 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -28,6 +32,8 @@ import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
+import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
+import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.GraphicsEditorChooser;
 
@@ -40,7 +46,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 		super(parent, new MigLayout("fillx"));
 		
 		JPanel editorPrefPanel = new JPanel(new MigLayout("fill, ins n n n")) {
-			{ //Editor Options		
+			{ // Editor Options
 				TitledBorder border = BorderFactory.createTitledBorder(trans.get("pref.dlg.lbl.DecalEditor"));
 				GUIUtil.changeFontStyle(border, Font.BOLD);
 				setBorder(border);
@@ -77,7 +83,8 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					
 				}
 				
-				boolean commandLineIsSelected = preferences.isDecalEditorPreferenceSet() && !preferences.isDecalEditorPreferenceSystem();
+				boolean commandLineIsSelected = preferences.isDecalEditorPreferenceSet() &&
+						!preferences.isDecalEditorPreferenceSystem();
 				final JRadioButton commandRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.cmdline"));
 				commandRadio.setSelected(commandLineIsSelected);
 				add(commandRadio, "wrap");
@@ -112,15 +119,15 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						GraphicsEditorChooser.chooseEditor(GraphicsPreferencesPanel.this.parentDialog).ifPresent(commandLine -> {
-							commandText.setText(commandLine);
-							preferences.setDecalEditorPreference(false, commandLine);
-						});
+						GraphicsEditorChooser.chooseEditor(GraphicsPreferencesPanel.this.parentDialog)
+								.ifPresent(commandLine -> {
+									commandText.setText(commandLine);
+									preferences.setDecalEditorPreference(false, commandLine);
+								});
 					}
 					
 				});
 				add(chooser, "wrap");
-				
 				
 				commandRadio.addChangeListener(new ChangeListener() {
 					
@@ -144,18 +151,21 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 			this.add(editorPrefPanel, "growx, span");
 		}
 		
-		this.add(new JPanel(new MigLayout("fill, ins n n n")) {
-			{/////GL Options
+		this.add(new JPanel(new MigLayout("fill, ins n n n", "[][grow]")) {
+			{ // GL Options
 				TitledBorder border = BorderFactory.createTitledBorder(trans.get("pref.dlg.opengl.lbl.title"));
 				GUIUtil.changeFontStyle(border, Font.BOLD);
 				setBorder(border);
 				
-				//// The effects will take place the next time you open a window.
+				// The effects will take place the next time you open a window.
 				add(new StyledLabel(
 						trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
-						"spanx, wrap");
+						"span 2, wrap");
 				
-				BooleanModel enableGLModel = new BooleanModel(preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLED, true));
+				BooleanModel enableGLModel =
+						new BooleanModel(preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLED, true));
+				
+				// Enable 3D Graphics
 				final JCheckBox enableGL = new JCheckBox(enableGLModel);
 				enableGL.setText(trans.get("pref.dlg.opengl.but.enableGL"));
 				enableGL.addActionListener(new ActionListener() {
@@ -164,8 +174,38 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 						preferences.putBoolean(ApplicationPreferences.OPENGL_ENABLED, enableGL.isSelected());
 					}
 				});
-				add(enableGL, "wrap");
+				add(enableGL, "span 2, wrap");
+
+				// Level of detail
+				add(new JLabel(trans.get("pref.dlg.opengl.lbl.renderQuality")), "gapright unrel");
+				final JComboBox<GraphicsQualitySettings.RenderQuality> renderQualityCombo =
+						new JComboBox<>(GraphicsQualitySettings.RenderQuality.values());
+				renderQualityCombo.setRenderer(new DefaultListCellRenderer() {
+					@Override
+					public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, int index,
+							boolean isSelected, boolean cellHasFocus) {
+						Object labelValue = value;
+						if (value instanceof GraphicsQualitySettings.RenderQuality quality) {
+							labelValue = getRenderQualityLabel(quality);
+						}
+						return super.getListCellRendererComponent(list, labelValue, index, isSelected, cellHasFocus);
+					}
+				});
+				renderQualityCombo.setSelectedItem(Figure3DPreferences.getDefaultRenderQuality(preferences));
+				renderQualityCombo.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						GraphicsQualitySettings.RenderQuality quality =
+								(GraphicsQualitySettings.RenderQuality) renderQualityCombo.getSelectedItem();
+						if (quality != null) {
+							Figure3DPreferences.setDefaultRenderQuality(preferences, quality);
+						}
+					}
+				});
+				enableGLModel.addEnableComponent(renderQualityCombo);
+				add(renderQualityCombo, "growx, wrap");
 				
+				// Enable Anti-aliasing
 				final JCheckBox enableAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableAA"));
 				enableAA.setSelected(preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, true));
 				enableAA.addActionListener(new ActionListener() {
@@ -175,8 +215,46 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					}
 				});
 				enableGLModel.addEnableComponent(enableAA);
-				add(enableAA, "wrap");
+				add(enableAA, "span 2, wrap");
+
+				// Enable shadows
+				final JCheckBox enableShadows = new JCheckBox(trans.get("pref.dlg.opengl.but.enableShadows"));
+				enableShadows.setSelected(Figure3DPreferences.isShadowsEnabled(preferences));
+				enableShadows.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Figure3DPreferences.setShadowsEnabled(preferences, enableShadows.isSelected());
+					}
+				});
+				enableGLModel.addEnableComponent(enableShadows);
+				add(enableShadows, "span 2, wrap");
+
+				// Enable ambient occlusion
+				final JCheckBox enableAmbientOcclusion = new JCheckBox(trans.get("pref.dlg.opengl.but.enableAO"));
+				enableAmbientOcclusion.setSelected(Figure3DPreferences.isAmbientOcclusionEnabled(preferences));
+				enableAmbientOcclusion.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Figure3DPreferences.setAmbientOcclusionEnabled(preferences,
+								enableAmbientOcclusion.isSelected());
+					}
+				});
+				enableGLModel.addEnableComponent(enableAmbientOcclusion);
+				add(enableAmbientOcclusion, "span 2, wrap");
+
+				// Enable surface roughness
+				final JCheckBox enableRoughness = new JCheckBox(trans.get("pref.dlg.opengl.but.enableRoughness"));
+				enableRoughness.setSelected(Figure3DPreferences.isRoughnessBumpEnabled(preferences));
+				enableRoughness.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Figure3DPreferences.setRoughnessBumpEnabled(preferences, enableRoughness.isSelected());
+					}
+				});
+				enableGLModel.addEnableComponent(enableRoughness);
+				add(enableRoughness, "span 2, wrap");
 				
+				// Use Off-screen Rendering
 				final JCheckBox useFBO = new JCheckBox(trans.get("pref.dlg.opengl.lbl.useFBO"));
 				useFBO.setSelected(preferences.getBoolean(ApplicationPreferences.OPENGL_USE_FBO, false));
 				useFBO.addActionListener(new ActionListener() {
@@ -186,9 +264,16 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					}
 				});
 				enableGLModel.addEnableComponent(useFBO);
-				add(useFBO, "wrap");
+				add(useFBO, "span 2, wrap");
 			}
 		}, "growx, span");
 	}
 
+	private String getRenderQualityLabel(GraphicsQualitySettings.RenderQuality quality) {
+		return switch (quality) {
+			case LOW -> trans.get("LevelOfDetail.LOW_QUALITY");
+			case MEDIUM -> trans.get("LevelOfDetail.NORMAL_QUALITY");
+			case HIGH -> trans.get("LevelOfDetail.HIGH_QUALITY");
+		};
+	}
 }

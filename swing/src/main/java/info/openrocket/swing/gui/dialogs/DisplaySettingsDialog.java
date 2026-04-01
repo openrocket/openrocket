@@ -1,9 +1,12 @@
 package info.openrocket.swing.gui.dialogs;
 
-import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.core.startup.Application;
+import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
+import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
+import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.gui.components.ColorChooserButton;
 import info.openrocket.swing.gui.theme.UITheme;
@@ -12,15 +15,16 @@ import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import net.miginfocom.swing.MigLayout;
 
-import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Window;
 
@@ -34,12 +38,21 @@ public class DisplaySettingsDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	private static final SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 
+	private final RocketPanel rocketPanel;
 	private final DocumentPreferences docPreferences;
+	private final GraphicsQualitySettings.RenderQuality originalRenderQuality;
+	private final boolean originalShadowsEnabled;
+	private final boolean originalAmbientOcclusionEnabled;
+	private final boolean originalRoughnessEnabled;
 	
 	private ColorChooserButton color2DButton;
 	private ColorChooserButton color3DButton;
 	private ColorChooserButton textColor2DButton;
 	private ColorChooserButton textColor3DButton;
+	private JComboBox<GraphicsQualitySettings.RenderQuality> renderQualityCombo;
+	private JCheckBox renderShadowsCheckBox;
+	private JCheckBox ambientOcclusionCheckBox;
+	private JCheckBox roughnessCheckBox;
 	
 	private JButton reset2DBgButton;
 	private JButton reset3DBgButton;
@@ -53,17 +66,23 @@ public class DisplaySettingsDialog extends JDialog {
 	
 	// Easter egg: track clicks when settings are already at default
 	private int defaultStateClickCount = 0;
+	private boolean updatingRenderingControls = false;
 	
-	public DisplaySettingsDialog(Window parent, OpenRocketDocument document) {
+	public DisplaySettingsDialog(Window parent, RocketPanel rocketPanel) {
 		super(parent, trans.get("RocketPanel.dlg.displaySettings.title"), Dialog.ModalityType.APPLICATION_MODAL);
 
-		this.docPreferences = document.getDocumentPreferences();
+		this.rocketPanel = rocketPanel;
+		this.docPreferences = rocketPanel.getDocument().getDocumentPreferences();
 		
 		// Get current colors from document preferences (null if not explicitly set)
 		original2DBgColor = docPreferences.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
 		original3DBgColor = docPreferences.getColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, null);
 		original2DTextColor = docPreferences.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
 		original3DTextColor = docPreferences.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
+		originalRenderQuality = getCurrentRenderQuality();
+		originalShadowsEnabled = getCurrentShadowsEnabled();
+		originalAmbientOcclusionEnabled = getCurrentAmbientOcclusionEnabled();
+		originalRoughnessEnabled = getCurrentRoughnessEnabled();
 		
 		init();
 	}
@@ -161,7 +180,9 @@ public class DisplaySettingsDialog extends JDialog {
 		reset3DTextButton = createResetButton(textColor3DButton, DocumentPreferences.PREF_3D_TEXT_COLOR,
 				prefs.getDefault3DTextColor(), UITheme.getColor(UITheme.Keys.TEXT),
 				this::updateTextColors);
-		panel.add(reset3DTextButton, "wrap para*2");
+		panel.add(reset3DTextButton, "wrap para");
+
+		panel.add(createRenderingSettingsPanel(), "span 3, growx, wrap para");
 		
 		// Buttons
 		JButton saveAsDefaultButton = new JButton(trans.get("RocketPanel.btn.saveAsDefault"));
@@ -184,6 +205,7 @@ public class DisplaySettingsDialog extends JDialog {
 			docPreferences.putColor(DocumentPreferences.PREF_3D_BACKGROUND_COLOR, original3DBgColor);
 			docPreferences.putColor(DocumentPreferences.PREF_2D_TEXT_COLOR, original2DTextColor);
 			docPreferences.putColor(DocumentPreferences.PREF_3D_TEXT_COLOR, original3DTextColor);
+			revert3DRenderingSettings();
 			update2DView();
 			update3DView();
 			updateTextColors();
@@ -206,6 +228,191 @@ public class DisplaySettingsDialog extends JDialog {
 				textColor2DButton.getSelectedColor(), UITheme.getColor(UITheme.Keys.TEXT));
 		updateResetButtonState(reset3DTextButton, DocumentPreferences.PREF_3D_TEXT_COLOR, 
 				textColor3DButton.getSelectedColor(), UITheme.getColor(UITheme.Keys.TEXT));
+	}
+
+	private JPanel createRenderingSettingsPanel() {
+		JPanel panel = new JPanel(new MigLayout("fillx, ins 10", "[][grow]"));
+		panel.setBorder(javax.swing.BorderFactory.createTitledBorder(
+				trans.get("RocketPanel.dlg.displaySettings.rendering.title")));
+
+		// Level of detail
+		renderQualityCombo = new JComboBox<>(GraphicsQualitySettings.RenderQuality.values());
+		renderQualityCombo.setRenderer(new DefaultListCellRenderer() {
+			@Override
+			public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				Object labelValue = value;
+				if (value instanceof GraphicsQualitySettings.RenderQuality quality) {
+					labelValue = getRenderQualityLabel(quality);
+				}
+				return super.getListCellRendererComponent(list, labelValue, index, isSelected, cellHasFocus);
+			}
+		});
+		renderQualityCombo.setSelectedItem(originalRenderQuality);
+		renderQualityCombo.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			GraphicsQualitySettings.RenderQuality quality =
+					(GraphicsQualitySettings.RenderQuality) renderQualityCombo.getSelectedItem();
+			if (quality == null) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyRenderingChange(config -> config.getQuality().setQuality(quality), true);
+		});
+
+		panel.add(new JLabel(trans.get("RocketPanel.dlg.displaySettings.rendering.quality")), "gapright unrel");
+		panel.add(renderQualityCombo, "growx, wrap");
+
+		// Render shadows
+		renderShadowsCheckBox = new JCheckBox(trans.get("RocketPanel.dlg.displaySettings.rendering.shadows"));
+		renderShadowsCheckBox.setSelected(originalShadowsEnabled);
+		renderShadowsCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyRenderingChange(config -> config.getQuality().setShadowsEnabled(renderShadowsCheckBox.isSelected()),
+					false);
+		});
+		panel.add(renderShadowsCheckBox, "span 2, wrap");
+
+		// Ambient occlusion
+		ambientOcclusionCheckBox = new JCheckBox(
+				trans.get("RocketPanel.dlg.displaySettings.rendering.ambientOcclusion"));
+		ambientOcclusionCheckBox.setSelected(originalAmbientOcclusionEnabled);
+		ambientOcclusionCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyRenderingChange(
+					config -> config.getQuality().setAmbientOcclusionEnabled(ambientOcclusionCheckBox.isSelected()),
+					false);
+		});
+		panel.add(ambientOcclusionCheckBox, "span 2, wrap");
+
+		// Surface roughness
+		roughnessCheckBox = new JCheckBox(trans.get("RocketPanel.dlg.displaySettings.rendering.roughness"));
+		roughnessCheckBox.setSelected(originalRoughnessEnabled);
+		roughnessCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyRenderingChange(config -> config.getQuality().setRoughnessBumpEnabled(roughnessCheckBox.isSelected()),
+					false);
+		});
+		panel.add(roughnessCheckBox, "span 2, wrap");
+
+		boolean liveControlsAvailable = getScene3DOrchestrator() != null;
+		setRenderingControlsEnabled(liveControlsAvailable);
+		if (!liveControlsAvailable) {
+			JLabel hint = new JLabel(trans.get("RocketPanel.dlg.displaySettings.rendering.liveHint"));
+			panel.add(hint, "span 2, gaptop 5");
+		}
+
+		return panel;
+	}
+
+	private void setRenderingControlsEnabled(boolean enabled) {
+		renderQualityCombo.setEnabled(enabled);
+		renderShadowsCheckBox.setEnabled(enabled);
+		ambientOcclusionCheckBox.setEnabled(enabled);
+		roughnessCheckBox.setEnabled(enabled);
+	}
+
+	private void applyRenderingChange(java.util.function.Consumer<RenderingConfiguration> change,
+			boolean rebuildScene) {
+		Scene3DOrchestrator orchestrator = getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> {
+			RenderingConfiguration config = orchestrator.getRenderingConfiguration();
+			change.accept(config);
+			config.notifyListeners();
+			if (rebuildScene) {
+				orchestrator.rebuildRocketScene(false);
+			}
+		});
+		rocketPanel.getFigure3d().repaint();
+	}
+
+	private void revert3DRenderingSettings() {
+		updatingRenderingControls = true;
+		try {
+			renderQualityCombo.setSelectedItem(originalRenderQuality);
+			renderShadowsCheckBox.setSelected(originalShadowsEnabled);
+			ambientOcclusionCheckBox.setSelected(originalAmbientOcclusionEnabled);
+			roughnessCheckBox.setSelected(originalRoughnessEnabled);
+		} finally {
+			updatingRenderingControls = false;
+		}
+		applyRenderingChange(config -> {
+			config.getQuality().setQuality(originalRenderQuality);
+			config.getQuality().setShadowsEnabled(originalShadowsEnabled);
+			config.getQuality().setAmbientOcclusionEnabled(originalAmbientOcclusionEnabled);
+			config.getQuality().setRoughnessBumpEnabled(originalRoughnessEnabled);
+		}, true);
+	}
+
+	private Scene3DOrchestrator getScene3DOrchestrator() {
+		return rocketPanel.getFigure3d().getSceneController();
+	}
+
+	private RenderingConfiguration getCurrentRenderingConfiguration() {
+		Scene3DOrchestrator orchestrator = getScene3DOrchestrator();
+		return orchestrator != null ? orchestrator.getRenderingConfiguration() : null;
+	}
+
+	private GraphicsQualitySettings.RenderQuality getCurrentRenderQuality() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getQuality().getQuality();
+		}
+		return Figure3DPreferences.getDefaultRenderQuality(prefs);
+	}
+
+	private boolean getCurrentShadowsEnabled() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getQuality().isShadowsEnabled();
+		}
+		return Figure3DPreferences.isShadowsEnabled(prefs);
+	}
+
+	private boolean getCurrentAmbientOcclusionEnabled() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getQuality().isAmbientOcclusionEnabled();
+		}
+		return Figure3DPreferences.isAmbientOcclusionEnabled(prefs);
+	}
+
+	private boolean getCurrentRoughnessEnabled() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getQuality().isRoughnessBumpEnabled();
+		}
+		return Figure3DPreferences.isRoughnessBumpEnabled(prefs);
+	}
+
+	private String getRenderQualityLabel(GraphicsQualitySettings.RenderQuality quality) {
+		return switch (quality) {
+			case LOW -> trans.get("LevelOfDetail.LOW_QUALITY");
+			case MEDIUM -> trans.get("LevelOfDetail.NORMAL_QUALITY");
+			case HIGH -> trans.get("LevelOfDetail.HIGH_QUALITY");
+		};
+	}
+
+	private GraphicsQualitySettings.RenderQuality getSelectedRenderQuality() {
+		Object selected = renderQualityCombo.getSelectedItem();
+		if (selected instanceof GraphicsQualitySettings.RenderQuality quality) {
+			return quality;
+		}
+		return Figure3DPreferences.getDefaultRenderQuality(prefs);
 	}
 	
 	/**
@@ -322,11 +529,20 @@ public class DisplaySettingsDialog extends JDialog {
 		Color default3DBg = getEffectiveColor(null, prefs.getDefault3DBackgroundColor(), themeBg);
 		Color default2DText = getEffectiveColor(null, prefs.getDefault2DTextColor(), themeText);
 		Color default3DText = getEffectiveColor(null, prefs.getDefault3DTextColor(), themeText);
+		GraphicsQualitySettings.RenderQuality defaultRenderQuality =
+				Figure3DPreferences.getDefaultRenderQuality(prefs);
+		boolean defaultShadowsEnabled = Figure3DPreferences.isShadowsEnabled(prefs);
+		boolean defaultAmbientOcclusionEnabled = Figure3DPreferences.isAmbientOcclusionEnabled(prefs);
+		boolean defaultRoughnessEnabled = Figure3DPreferences.isRoughnessBumpEnabled(prefs);
 		
 		return current2DBg.equals(default2DBg) &&
 			   current3DBg.equals(default3DBg) &&
 			   current2DText.equals(default2DText) &&
-			   current3DText.equals(default3DText);
+			   current3DText.equals(default3DText) &&
+			   getSelectedRenderQuality() == defaultRenderQuality &&
+			   renderShadowsCheckBox.isSelected() == defaultShadowsEnabled &&
+			   ambientOcclusionCheckBox.isSelected() == defaultAmbientOcclusionEnabled &&
+			   roughnessCheckBox.isSelected() == defaultRoughnessEnabled;
 	}
 	
 	/**
@@ -355,6 +571,10 @@ public class DisplaySettingsDialog extends JDialog {
 				UITheme.getColor(UITheme.Keys.TEXT), prefs::setDefault2DTextColor);
 		saveDefaultIfDifferent(current3DText, 
 				UITheme.getColor(UITheme.Keys.TEXT), prefs::setDefault3DTextColor);
+		Figure3DPreferences.setDefaultRenderQuality(prefs, getSelectedRenderQuality());
+		Figure3DPreferences.setShadowsEnabled(prefs, renderShadowsCheckBox.isSelected());
+		Figure3DPreferences.setAmbientOcclusionEnabled(prefs, ambientOcclusionCheckBox.isSelected());
+		Figure3DPreferences.setRoughnessBumpEnabled(prefs, roughnessCheckBox.isSelected());
 	}
 	
 	/**
@@ -370,39 +590,21 @@ public class DisplaySettingsDialog extends JDialog {
 	}
 	
 	private void update2DView() {
-		Window window = SwingUtilities.getWindowAncestor(this);
-		if (window != null) {
-			RocketPanel panel = findRocketPanel(window);
-			if (panel != null) {
-				panel.updateBackgroundColors();
-				panel.updateTextColors();
-				panel.getFigure().repaint();
-			}
-		}
+		rocketPanel.updateBackgroundColors();
+		rocketPanel.updateTextColors();
+		rocketPanel.getFigure().repaint();
 	}
 	
 	private void update3DView() {
-		Window window = SwingUtilities.getWindowAncestor(this);
-		if (window != null) {
-			RocketPanel panel = findRocketPanel(window);
-			if (panel != null) {
-				panel.updateBackgroundColors();
-				panel.updateTextColors();
-				panel.getFigure3d().repaint();
-			}
-		}
+		rocketPanel.updateBackgroundColors();
+		rocketPanel.updateTextColors();
+		rocketPanel.getFigure3d().repaint();
 	}
 	
 	private void updateTextColors() {
-		Window window = SwingUtilities.getWindowAncestor(this);
-		if (window != null) {
-			RocketPanel panel = findRocketPanel(window);
-			if (panel != null) {
-				panel.updateTextColors();
-				panel.getFigure().repaint();
-				panel.getFigure3d().repaint();
-			}
-		}
+		rocketPanel.updateTextColors();
+		rocketPanel.getFigure().repaint();
+		rocketPanel.getFigure3d().repaint();
 	}
 	
 	/**
@@ -410,78 +612,54 @@ public class DisplaySettingsDialog extends JDialog {
 	 * Used when reset button is pressed to ensure we use theme default, not application default.
 	 */
 	private void forceUpdateView(String prefKey, Color themeDefault, Runnable updateAction) {
-		Window window = SwingUtilities.getWindowAncestor(this);
-		if (window != null) {
-			RocketPanel panel = findRocketPanel(window);
-			if (panel != null) {
-				// Force set to null (factory default) instead of using updateBackgroundColors()
-				// which would check SwingPreferences default
-				if (prefKey.equals(DocumentPreferences.PREF_2D_BACKGROUND_COLOR)) {
-					panel.getFigure().setCustomBackgroundColor(null); // null = factory default
-					panel.updateTextColors();
-					panel.getFigure().repaint();
-				} else if (prefKey.equals(DocumentPreferences.PREF_3D_BACKGROUND_COLOR)) {
-					panel.getFigure3d().setCustomBackgroundColor(null); // null = factory default
-					panel.updateTextColors();
-					panel.getFigure3d().repaint();
-				} else if (prefKey.equals(DocumentPreferences.PREF_2D_TEXT_COLOR) || 
-						   prefKey.equals(DocumentPreferences.PREF_3D_TEXT_COLOR)) {
-					// Force factory default by directly setting null for the reset view
-					// Get current effective colors for the other view to preserve it
-					DocumentPreferences docPrefs = panel.getDocument().getDocumentPreferences();
-					SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
-					
-					Color textColor2D, textColor3D;
-					
-					if (prefKey.equals(DocumentPreferences.PREF_2D_TEXT_COLOR)) {
-						// Resetting 2D text color - get current 3D color to preserve it
-						Color doc3DTextColor = docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
-						Color default3DTextColor = swingPrefs.getDefault3DTextColor();
-						textColor3D = doc3DTextColor != null ? doc3DTextColor : 
-							(default3DTextColor != null ? default3DTextColor : null);
-						textColor2D = null; // Force factory default for 2D
-					} else {
-						// Resetting 3D text color - get current 2D color to preserve it
-						Color doc2DTextColor = docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
-						Color default2DTextColor = swingPrefs.getDefault2DTextColor();
-						textColor2D = doc2DTextColor != null ? doc2DTextColor : 
-							(default2DTextColor != null ? default2DTextColor : null);
-						textColor3D = null; // Force factory default for 3D
-					}
-					
-					// Preserve the current view state before setting colors
-					boolean currentIs3DView = panel.getExtraText().is3DView();
-					
-					// Set the colors directly (bypassing updateTextColors priority logic)
-					panel.getExtraText().setCustomTextColors(textColor2D, textColor3D);
-					// Restore view state (updateTextColors would do this, but we skip it to avoid overwriting colors)
-					panel.getExtraText().set3DView(currentIs3DView);
-					panel.getFigure().repaint();
-					panel.getFigure3d().repaint();
-				} else {
-					// Fallback to normal update
-					updateAction.run();
-				}
+		// Force set to null (factory default) instead of using updateBackgroundColors()
+		// which would check SwingPreferences default
+		if (prefKey.equals(DocumentPreferences.PREF_2D_BACKGROUND_COLOR)) {
+			rocketPanel.getFigure().setCustomBackgroundColor(null); // null = factory default
+			rocketPanel.updateTextColors();
+			rocketPanel.getFigure().repaint();
+		} else if (prefKey.equals(DocumentPreferences.PREF_3D_BACKGROUND_COLOR)) {
+			rocketPanel.getFigure3d().setCustomBackgroundColor(null); // null = factory default
+			rocketPanel.updateTextColors();
+			rocketPanel.getFigure3d().repaint();
+		} else if (prefKey.equals(DocumentPreferences.PREF_2D_TEXT_COLOR) ||
+				prefKey.equals(DocumentPreferences.PREF_3D_TEXT_COLOR)) {
+			// Force factory default by directly setting null for the reset view
+			// Get current effective colors for the other view to preserve it
+			DocumentPreferences docPrefs = rocketPanel.getDocument().getDocumentPreferences();
+			SwingPreferences swingPrefs = (SwingPreferences) Application.getPreferences();
+
+			Color textColor2D;
+			Color textColor3D;
+
+			if (prefKey.equals(DocumentPreferences.PREF_2D_TEXT_COLOR)) {
+				// Resetting 2D text color - get current 3D color to preserve it
+				Color doc3DTextColor = docPrefs.getColor(DocumentPreferences.PREF_3D_TEXT_COLOR, null);
+				Color default3DTextColor = swingPrefs.getDefault3DTextColor();
+				textColor3D = doc3DTextColor != null ? doc3DTextColor :
+						(default3DTextColor != null ? default3DTextColor : null);
+				textColor2D = null; // Force factory default for 2D
+			} else {
+				// Resetting 3D text color - get current 2D color to preserve it
+				Color doc2DTextColor = docPrefs.getColor(DocumentPreferences.PREF_2D_TEXT_COLOR, null);
+				Color default2DTextColor = swingPrefs.getDefault2DTextColor();
+				textColor2D = doc2DTextColor != null ? doc2DTextColor :
+						(default2DTextColor != null ? default2DTextColor : null);
+				textColor3D = null; // Force factory default for 3D
 			}
+
+			// Preserve the current view state before setting colors
+			boolean currentIs3DView = rocketPanel.getExtraText().is3DView();
+
+			// Set the colors directly (bypassing updateTextColors priority logic)
+			rocketPanel.getExtraText().setCustomTextColors(textColor2D, textColor3D);
+			// Restore view state (updateTextColors would do this, but we skip it to avoid overwriting colors)
+			rocketPanel.getExtraText().set3DView(currentIs3DView);
+			rocketPanel.getFigure().repaint();
+			rocketPanel.getFigure3d().repaint();
+		} else {
+			// Fallback to normal update
+			updateAction.run();
 		}
-	}
-	
-	/**
-	 * Find RocketPanel in the component hierarchy.
-	 */
-	private RocketPanel findRocketPanel(Component component) {
-		if (component instanceof RocketPanel) {
-			return (RocketPanel) component;
-		}
-		if (component instanceof java.awt.Container) {
-			java.awt.Container container = (java.awt.Container) component;
-			for (Component child : container.getComponents()) {
-				RocketPanel panel = findRocketPanel(child);
-				if (panel != null) {
-					return panel;
-				}
-			}
-		}
-		return null;
 	}
 }

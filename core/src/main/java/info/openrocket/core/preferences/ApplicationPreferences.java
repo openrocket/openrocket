@@ -132,6 +132,10 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	// Preferences related to 3D graphics
 	public static final String OPENGL_ENABLED = "OpenGLIsEnabled";
 	public static final String OPENGL_ENABLE_AA = "OpenGLAntialiasingIsEnabled";
+	public static final String OPENGL_RENDER_QUALITY = "OpenGLRenderQuality";
+	public static final String OPENGL_ENABLE_SHADOWS = "OpenGLShadowsEnabled";
+	public static final String OPENGL_ENABLE_AMBIENT_OCCLUSION = "OpenGLAmbientOcclusionEnabled";
+	public static final String OPENGL_ENABLE_ROUGHNESS_BUMP = "OpenGLRoughnessBumpEnabled";
 	public static final String OPENGL_USE_FBO = "OpenGLUseFBO";
 
 	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";

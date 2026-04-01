@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.orchestration;
 
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.figure3d.animation.PlaybackClock;
 import info.openrocket.swing.gui.figure3d.animation.PoseProvider;
 import info.openrocket.swing.gui.figure3d.core.math.DefaultRaycaster;
@@ -18,6 +19,7 @@ import info.openrocket.swing.gui.figure3d.scene.core.Scene;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.events.ExportListener;
 import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
+import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import org.slf4j.Logger;
@@ -92,7 +94,14 @@ public class Scene3DOrchestrator {
 	 * Rebuilds the rocket scene geometry using the current rendering configuration.
 	 */
 	public void rebuildRocketScene() {
-		rocketSynchronizer.rebuildRocketScene();
+		rebuildRocketScene(true);
+	}
+
+	/**
+	 * Rebuilds the rocket scene geometry and optionally refocuses the camera.
+	 */
+	public void rebuildRocketScene(boolean refocusCamera) {
+		rocketSynchronizer.rebuildRocketScene(refocusCamera);
 	}
 
 	/**
@@ -365,6 +374,7 @@ public class Scene3DOrchestrator {
 					.withParticleEffects(false)
 					//.withParticleTiming(false, 0f)
 					.build();
+			Figure3DPreferences.applyQualityDefaults(config, Application.getPreferences());
 			
 			// Create scene
 			Scene scene = Scene.builder(rocket, camera, config).build();

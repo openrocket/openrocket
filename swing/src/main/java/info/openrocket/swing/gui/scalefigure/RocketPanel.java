@@ -1797,7 +1797,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * Shows a dialog for configuring display settings (background colors, etc.).
 	 */
 	private void showDisplaySettingsDialog() {
-		DisplaySettingsDialog dialog = new DisplaySettingsDialog(SwingUtilities.getWindowAncestor(this), document);
+		DisplaySettingsDialog dialog = new DisplaySettingsDialog(SwingUtilities.getWindowAncestor(this), this);
 		dialog.setVisible(true);
 		// Update colors after dialog is closed
 		updateBackgroundColors();
