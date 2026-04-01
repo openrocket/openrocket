@@ -90,6 +90,7 @@ public class RenderingConfiguration {
         quality.setFXAAEnabled(false);
         quality.setRoughnessBumpEnabled(false);
         quality.setShadowsEnabled(false);
+        quality.setAmbientOcclusionEnabled(false);
         notifyListeners();
     }
 
@@ -101,6 +102,7 @@ public class RenderingConfiguration {
         quality.setFXAAEnabled(true);
         quality.setRoughnessBumpEnabled(true);
         quality.setShadowsEnabled(true);
+        quality.setAmbientOcclusionEnabled(true);
         notifyListeners();
     }
 
@@ -132,6 +134,7 @@ public class RenderingConfiguration {
         quality.setRoughnessBumpEnabled(true);
         quality.setFXAAEnabled(true);
         quality.setShadowsEnabled(true);
+        quality.setAmbientOcclusionEnabled(true);
 
         // Display defaults
         display.setMode(DisplaySettings.RenderMode.FINISHED);
@@ -166,6 +169,7 @@ public class RenderingConfiguration {
         private boolean roughnessBumpEnabled = true;
         private boolean fxaaEnabled = true;
         private boolean shadowsEnabled = true;
+        private boolean ambientOcclusionEnabled = true;
         private boolean usePerformanceMode = false;
         private boolean useQualityMode = false;
         private final List<Consumer<RenderingConfiguration>> listeners = new ArrayList<>();
@@ -275,6 +279,16 @@ public class RenderingConfiguration {
             this.shadowsEnabled = enabled;
             return this;
         }
+
+        /**
+         * Enables or disables ambient occlusion post-processing.
+         * @param enabled whether ambient occlusion should be enabled
+         * @return This builder instance
+         */
+        public Builder withAmbientOcclusion(boolean enabled) {
+            this.ambientOcclusionEnabled = enabled;
+            return this;
+        }
         
         /**
          * Enables or disables backface culling.
@@ -375,6 +389,7 @@ public class RenderingConfiguration {
             config.getQuality().setRoughnessBumpEnabled(roughnessBumpEnabled);
             config.getQuality().setFXAAEnabled(fxaaEnabled);
             config.getQuality().setShadowsEnabled(shadowsEnabled);
+            config.getQuality().setAmbientOcclusionEnabled(ambientOcclusionEnabled);
             
             // Apply visual effects settings
             config.getVisualEffects().setParticleEffectsEnabled(particleEffectsEnabled);

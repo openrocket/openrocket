@@ -5,6 +5,7 @@ import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.core.particles.flame.FlameEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
+import info.openrocket.swing.gui.figure3d.rendering.passes.AmbientOcclusionPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.BackgroundPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.CaretsPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.FXAAPass;
@@ -76,6 +77,9 @@ public class RealisticRenderer implements Renderer {
     private final ShaderProgram screenQuadShader;
     private final CaretsPass caretsPass;
     private final ShadowPass shadowPass;
+    private final AmbientOcclusionPass ambientOcclusionPass;
+    private final OutlinePass outlinePass;
+    private final FXAAPass fxaaPass;
 
 	private final OffscreenRenderTarget renderTarget;
 	private int resolvedTextureId;
@@ -234,13 +238,13 @@ public class RealisticRenderer implements Renderer {
         this.caretsPass = new CaretsPass(rocket, config);
 
         // Initialize Post-Processing Passes
+        this.ambientOcclusionPass = new AmbientOcclusionPass(screenQuadVAO, textureStateManager,
+                config.getQuality(), initialWidth, initialHeight);
         this.motionBlurPass = new MotionBlurPass(screenQuadVAO, initialWidth, initialHeight);
         this.motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
-        postProcessingPasses.add(new OutlinePass(mainShader, mainShaderUniforms, textureStateManager,
-                screenQuadVAO, selectionColor, initialWidth, initialHeight, screenQuadShader));
-        if (config.getQuality().isFXAAEnabled()) {
-            postProcessingPasses.add(new FXAAPass(screenQuadVAO, initialWidth, initialHeight));
-        }
+        this.outlinePass = new OutlinePass(mainShader, mainShaderUniforms, textureStateManager,
+                screenQuadVAO, selectionColor, initialWidth, initialHeight, screenQuadShader);
+        this.fxaaPass = new FXAAPass(screenQuadVAO, initialWidth, initialHeight);
         
         // Apply initial settings
         updatePostProcessingChain();
@@ -295,6 +299,13 @@ public class RealisticRenderer implements Renderer {
 
         // 2. Run the post-processing chain
         int currentTexture = renderTarget.getColorTextureId();
+
+        if (config.getQuality().isAmbientOcclusionEnabled()) {
+            ambientOcclusionPass.setInputTexture(currentTexture);
+            ambientOcclusionPass.setDepthTexture(renderTarget.getDepthTextureId());
+            ambientOcclusionPass.render(scene, windowManager, viewMatrix, projectionMatrix);
+            currentTexture = ambientOcclusionPass.getOutputTexture();
+        }
         
         // Apply motion blur if enabled
         if (config.getVisualEffects().isMotionBlurEnabled()) {
@@ -509,9 +520,9 @@ public class RealisticRenderer implements Renderer {
 		for (RenderPass pass : geometryPasses) {
 			pass.resize(width, height);
 		}
-		for (RenderPass pass : postProcessingPasses) {
-			pass.resize(width, height);
-		}
+        ambientOcclusionPass.resize(width, height);
+        outlinePass.resize(width, height);
+        fxaaPass.resize(width, height);
 		motionBlurPass.resize(width, height);
 		caretsPass.resize(width, height);
 	}
@@ -535,9 +546,9 @@ public class RealisticRenderer implements Renderer {
 		for (RenderPass pass : geometryPasses) {
 			pass.cleanup();
 		}
-		for (RenderPass pass : postProcessingPasses) {
-			pass.cleanup();
-		}
+        ambientOcclusionPass.cleanup();
+        outlinePass.cleanup();
+        fxaaPass.cleanup();
 		motionBlurPass.cleanup();
 
 		renderTarget.cleanup();
@@ -565,8 +576,11 @@ public class RealisticRenderer implements Renderer {
 	}
 	
 	private void updatePostProcessingChain() {
-		// The motion blur pass is now handled separately in the render method
-		// based on sceneProperties.isMotionBlurEnabled()
+        postProcessingPasses.clear();
+        postProcessingPasses.add(outlinePass);
+        if (config.getQuality().isFXAAEnabled()) {
+            postProcessingPasses.add(fxaaPass);
+        }
 	}
 
 	/**

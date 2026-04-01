@@ -3,12 +3,24 @@ package info.openrocket.swing.gui.figure3d.rendering;
 import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
+import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
+import static org.lwjgl.opengl.GL30.GL_DEPTH_COMPONENT24;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
-import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
 import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 
 /**
@@ -23,7 +35,7 @@ public class OffscreenRenderTarget {
 
 	private int framebufferId;
 	private int colorTextureId;
-	private int depthRenderbufferId;
+	private int depthTextureId;
 	private int width;
 	private int height;
 
@@ -45,6 +57,10 @@ public class OffscreenRenderTarget {
 
 	public int getFramebufferId() {
 		return framebufferId;
+	}
+
+	public int getDepthTextureId() {
+		return depthTextureId;
 	}
 
 	public int getWidth() {
@@ -72,16 +88,20 @@ public class OffscreenRenderTarget {
 		GL33.glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
 
 		colorTextureId = GL33.glGenTextures();
-		GL33.glBindTexture(GL33.GL_TEXTURE_2D, colorTextureId);
-		GL33.glTexImage2D(GL33.GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
-		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		GL33.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL33.GL_TEXTURE_2D, colorTextureId, 0);
+		glBindTexture(GL_TEXTURE_2D, colorTextureId);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (java.nio.ByteBuffer) null);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		GL33.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId, 0);
 
-		depthRenderbufferId = GL33.glGenRenderbuffers();
-		GL33.glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbufferId);
-		GL33.glRenderbufferStorage(GL_RENDERBUFFER, GL33.GL_DEPTH_COMPONENT, width, height);
-		GL33.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL33.GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbufferId);
+		depthTextureId = GL33.glGenTextures();
+		glBindTexture(GL_TEXTURE_2D, depthTextureId);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL33.GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, (java.nio.ByteBuffer) null);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		GL33.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureId, 0);
 
 		if (GL33.glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			throw new IllegalStateException("Failed to create off-screen framebuffer");
@@ -89,7 +109,7 @@ public class OffscreenRenderTarget {
 
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.FRAMEBUFFER, framebufferId, "OffscreenRenderTarget " + width + "x" + height);
 		GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, colorTextureId, "OffscreenRenderTarget color");
-		GpuResourceTracker.register(GpuResourceTracker.ResourceType.RENDERBUFFER, depthRenderbufferId, "OffscreenRenderTarget depth");
+		GpuResourceTracker.register(GpuResourceTracker.ResourceType.TEXTURE, depthTextureId, "OffscreenRenderTarget depth");
 
 		GL33.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -105,10 +125,10 @@ public class OffscreenRenderTarget {
 			GL33.glDeleteTextures(colorTextureId);
 			colorTextureId = 0;
 		}
-		if (depthRenderbufferId != 0) {
-			GpuResourceTracker.release(GpuResourceTracker.ResourceType.RENDERBUFFER, depthRenderbufferId);
-			GL33.glDeleteRenderbuffers(depthRenderbufferId);
-			depthRenderbufferId = 0;
+		if (depthTextureId != 0) {
+			GpuResourceTracker.release(GpuResourceTracker.ResourceType.TEXTURE, depthTextureId);
+			GL33.glDeleteTextures(depthTextureId);
+			depthTextureId = 0;
 		}
 	}
 }

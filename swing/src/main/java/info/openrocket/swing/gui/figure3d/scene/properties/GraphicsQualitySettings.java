@@ -40,6 +40,7 @@ public class GraphicsQualitySettings {
     private boolean enableRoughnessBump = true;
     private boolean enableFXAA = true; // Fast Approximate Anti-Aliasing
     private boolean shadowsEnabled = true;
+    private boolean ambientOcclusionEnabled = true;
 
     // Render Quality
     
@@ -173,5 +174,71 @@ public class GraphicsQualitySettings {
      */
     public void setShadowsEnabled(boolean enabled) {
         this.shadowsEnabled = enabled;
+    }
+
+    /**
+     * Checks if screen-space ambient occlusion is enabled.
+     *
+     * @return true when the AO post-process should run
+     */
+    public boolean isAmbientOcclusionEnabled() {
+        return ambientOcclusionEnabled;
+    }
+
+    /**
+     * Enables or disables screen-space ambient occlusion.
+     *
+     * @param enabled whether AO should be rendered
+     */
+    public void setAmbientOcclusionEnabled(boolean enabled) {
+        this.ambientOcclusionEnabled = enabled;
+    }
+
+    /**
+     * Returns the SSAO sample count to use for the current quality level.
+     *
+     * @return number of SSAO kernel samples
+     */
+    public int getAmbientOcclusionSampleCount() {
+        return switch (quality) {
+            case LOW -> 8;
+            case MEDIUM -> 12;
+            case HIGH -> 16;
+        };
+    }
+
+    /**
+     * Returns the screen-space AO sampling radius in view-space units.
+     *
+     * @return AO radius
+     */
+    public float getAmbientOcclusionRadius() {
+        return switch (quality) {
+            case LOW -> 0.20f;
+            case MEDIUM -> 0.24f;
+            case HIGH -> 0.28f;
+        };
+    }
+
+    /**
+     * Returns the AO intensity multiplier for the current quality level.
+     *
+     * @return AO strength multiplier
+     */
+    public float getAmbientOcclusionStrength() {
+        return switch (quality) {
+            case LOW -> 0.30f;
+            case MEDIUM -> 0.38f;
+            case HIGH -> 0.46f;
+        };
+    }
+
+    /**
+     * Returns a small depth bias used to reduce self-occlusion artifacts.
+     *
+     * @return AO bias
+     */
+    public float getAmbientOcclusionBias() {
+        return 0.015f;
     }
 }
