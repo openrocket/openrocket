@@ -71,44 +71,64 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"),
 			"Az", UnitGroup.UNITS_ACCELERATION,
 			FlightDataTypeGroup.POSITION_AND_MOTION, 4);
+	//// X acceleration
+	public static final FlightDataType TYPE_ACCELERATION_X = newType(trans.get("FlightDataType.TYPE_ACCELERATION_X"),
+			"Ax", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 5);
+	//// Y acceleration
+	public static final FlightDataType TYPE_ACCELERATION_Y = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Y"),
+			"Ay", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 6);
+	//// X body acceleration
+	public static final FlightDataType TYPE_ACCELERATION_BODYX = newType(trans.get("FlightDataType.TYPE_ACCELERATION_BODYX"),
+			"Abx", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 7);
+	//// Y body acceleration
+	public static final FlightDataType TYPE_ACCELERATION_BODYY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_BODYY"),
+			"Aby", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 8);
+	//// Z body acceleration
+	public static final FlightDataType TYPE_ACCELERATION_BODYZ = newType(trans.get("FlightDataType.TYPE_ACCELERATION_BODYZ"),
+			"Abz", UnitGroup.UNITS_ACCELERATION,
+			FlightDataTypeGroup.POSITION_AND_MOTION, 9);
 	//// Total acceleration
 	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(
 			trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), "At", UnitGroup.UNITS_ACCELERATION,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 5);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 10);
 
 	//// Lateral position and motion
 	//// Position East of launch
 	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px",
 			UnitGroup.UNITS_DISTANCE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 10);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 11);
 	//// Position North of launch
 	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), "Py",
 			UnitGroup.UNITS_DISTANCE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 11);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 12);
 	//// Lateral distance
 	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl",
 			UnitGroup.UNITS_DISTANCE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 12);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 13);
 	//// Lateral direction
 	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(
 			trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "\u03b8l", UnitGroup.UNITS_ANGLE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 13);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 14);
 	//// Lateral velocity
 	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl",
 			UnitGroup.UNITS_VELOCITY,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 14);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 15);
 	//// Lateral acceleration
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"),
 			"Al", UnitGroup.UNITS_ACCELERATION,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 15);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 16);
 	//// Latitude
 	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6",
 			UnitGroup.UNITS_LATITUDE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 16);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 17);
 	//// Longitude
 	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb",
 			UnitGroup.UNITS_LONGITUDE,
-			FlightDataTypeGroup.POSITION_AND_MOTION, 17);
+			FlightDataTypeGroup.POSITION_AND_MOTION, 18);
 
 	// Orientation
 	//// Angle of attack
@@ -135,7 +155,6 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 	public static final FlightDataType TYPE_ORIENTATION_PHI = newType(trans.get("FlightDataType.TYPE_ORIENTATION_PHI"),
 			"\u03a6", UnitGroup.UNITS_ANGLE,
 			FlightDataTypeGroup.ORIENTATION, 5);
-
 	// Mass and inertia
 	//// Mass
 	public static final FlightDataType TYPE_MASS = newType(trans.get("FlightDataType.TYPE_MASS"), "m",
@@ -341,10 +360,15 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			TYPE_ALTITUDE_ABOVE_SEA,
 			TYPE_VELOCITY_Z,
 			TYPE_ACCELERATION_Z,
+			TYPE_ACCELERATION_BODYZ,
 			TYPE_VELOCITY_TOTAL,
 			TYPE_ACCELERATION_TOTAL,
 			TYPE_POSITION_X,
+			TYPE_ACCELERATION_X,
+			TYPE_ACCELERATION_BODYX,
 			TYPE_POSITION_Y,
+			TYPE_ACCELERATION_Y,
+			TYPE_ACCELERATION_BODYY,
 			TYPE_POSITION_XY,
 			TYPE_POSITION_DIRECTION,
 			TYPE_VELOCITY_XY,

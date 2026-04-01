@@ -475,11 +475,6 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		}
 
 		@Override
-		public Stroke lookupSeriesStroke(int series) {
-			return super.lookupSeriesStroke(series / branchCount);
-		}
-
-		@Override
 		public Stroke lookupSeriesOutlineStroke(int series) {
 			return super.lookupSeriesOutlineStroke(series / branchCount);
 		}

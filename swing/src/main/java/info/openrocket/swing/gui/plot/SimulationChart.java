@@ -34,6 +34,7 @@ import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import info.openrocket.swing.gui.plot.Plot.MetadataXYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import com.jogamp.newt.event.InputEvent;
@@ -287,7 +288,14 @@ public class SimulationChart extends ChartPanel {
                 BasicStroke base = (BasicStroke) baseStrokes.computeIfAbsent(key, k -> renderer.getSeriesStroke(finalS));
 
                 BasicStroke stroke = base;
-                if (hasHighlight && labelsToHighlight.contains(dataset.getSeries(s).getDescription())) {
+                // Match by base name so all branches of a variable are highlighted together.
+                // For MetadataXYSeries, the legend label equals the base name (branch 0 has no prefix),
+                // so checking baseName works for every branch regardless of which stage is selected.
+                String matchKey = dataset.getSeries(s).getDescription();
+                if (dataset.getSeries(s) instanceof MetadataXYSeries) {
+                    matchKey = ((MetadataXYSeries) dataset.getSeries(s)).getBaseName();
+                }
+                if (hasHighlight && labelsToHighlight.contains(matchKey)) {
                     stroke = new BasicStroke(base.getLineWidth() * 3.0f, base.getEndCap(), base.getLineJoin(), base.getMiterLimit(), base.getDashArray(), base.getDashPhase());
                 }
 

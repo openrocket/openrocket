@@ -35,7 +35,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="OpenRocket 26.xx" id="59" icnsFile="../../swing/build/resources/main/pix/icon/icon-macos.icns">
+    <launcher name="OpenRocket 26.xx" id="59" icnsFile="../../swing/build/resources/main/pix/icon/macos-squircle.icns">
       <executable name="OpenRocket" iconSet="true" iconFile="../../swing/build/resources/main/pix/icon/icon-windows.ico" executableDir="." executableMode="gui">
         <versionInfo include="true" fileDescription="A model rocket flight-trajectory simulator." legalCopyright="Copyright 2007-2025 Sampo Niskanen and Others" internalName="${compiler:sys.shortName} ${compiler:sys.version}" />
       </executable>

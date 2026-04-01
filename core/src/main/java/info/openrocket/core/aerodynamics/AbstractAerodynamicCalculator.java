@@ -34,16 +34,12 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	private ModID rocketTreeModID = new ModID();
 
 	/**
-	 * Determine whether calculations are suspect because we are stalling
+	 * Get this aerodynamic calculator's maximum stall angle
 	 *
-	 * @return               whether we are stalling, and the margin
-	 *                       between our AOA and a stall
-	 *                       If the return is positive we aren't;
-	 *                       If it's negative we are.
+	 * @return               stall angle (radians)
 	 *             
 	 */
-	@Override
-	public abstract double getStallMargin();
+	public abstract double getStallAngle();
 
 	//////////////// Aerodynamic calculators ////////////////
 

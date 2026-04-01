@@ -389,6 +389,12 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, accelerationData.getLinearAccelerationWC().length());
 				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Z, accelerationData.getLinearAccelerationWC().getZ());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_X, accelerationData.getLinearAccelerationWC().getX());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_Y, accelerationData.getLinearAccelerationWC().getY());
+
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_BODYZ, accelerationData.getLinearAccelerationRC().getZ());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_BODYX, accelerationData.getLinearAccelerationRC().getX());
+				dataBranch.setValue(FlightDataType.TYPE_ACCELERATION_BODYY, accelerationData.getLinearAccelerationRC().getY());
 			}
 
 			if (null != rocketMass) {

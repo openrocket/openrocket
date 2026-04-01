@@ -1,0 +1,1 @@
+You can create the .icns file for macOS from "macos-squircle-full.png" using Image2Icon

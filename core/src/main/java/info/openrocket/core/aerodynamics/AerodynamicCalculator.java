@@ -16,15 +16,12 @@ import info.openrocket.core.util.Monitorable;
 public interface AerodynamicCalculator extends Monitorable {
 
 	/**
-	 * Determine whether calculations are suspect because we are stalling
+	 * Get this aerodynamic calculator's maximum stall angle
 	 *
-	 * @return               whether we are stalling, and the margin
-	 *                       between our AOA and a stall
-	 *                       If the return is positive we aren't;
-	 *                       If it's negative we are.
+	 * @return               stall angle (radians)
 	 *             
 	 */
-	public double getStallMargin();
+	public double getStallAngle();
 	 
 	/**
 	 * Calculate the CP of the specified configuration.

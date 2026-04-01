@@ -73,7 +73,7 @@ public class DummyFrameMenuOSX extends JFrame {
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, GUIUtil.getMenuShortcutKeyMask()));
         //// Quit the program
         item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.quit.desc"));
-        item.setIcon(Icons.FILE_QUIT);
+        item.setIcon(Icons.deriveMenuIcon(Icons.FILE_QUIT));
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

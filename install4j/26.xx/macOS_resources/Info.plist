@@ -1,0 +1,16 @@
+<key>UTExportedTypeDeclarations</key>
+<array>
+    <dict>
+        <key>UTTypeIdentifier</key>
+        <string>info.openrocket.ork</string>
+        <key>UTTypeConformsTo</key>
+        <array><string>public.data</string></array>
+        <key>UTTypeDescription</key>
+        <string>OpenRocket Data File</string>
+        <key>UTTypeTagSpecification</key>
+        <dict>
+            <key>public.filename-extension</key>
+            <array><string>ork</string></array>
+        </dict>
+    </dict>
+</array>

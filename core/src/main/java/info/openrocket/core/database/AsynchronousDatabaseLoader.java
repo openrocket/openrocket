@@ -101,13 +101,18 @@ public abstract class AsynchronousDatabaseLoader {
 	 * 
 	 */
 	private void doLoad() {
-
-		// Pause for indicated startup time
-		pauseForStartupTime();
-
-		loadDatabase();
-
-		markAsLoaded();
+		try {
+			// Pause for indicated startup time
+			pauseForStartupTime();
+			loadDatabase();
+		} finally {
+			/*
+			 * Always release waiting threads, even if loading fails. Otherwise callers such
+			 * as the Swing motor loading dialog can block forever after a background loading
+			 * exception.
+			 */
+			markAsLoaded();
+		}
 	}
 
 	/**
