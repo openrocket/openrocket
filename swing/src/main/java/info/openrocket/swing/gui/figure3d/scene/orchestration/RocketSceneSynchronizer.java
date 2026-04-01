@@ -46,6 +46,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final ConcurrentLinkedQueue<RocketComponent> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
 	private final AtomicBoolean rebuildQueued = new AtomicBoolean(false);
+	private final AtomicBoolean refocusQueued = new AtomicBoolean(false);
 
 	/**
 	 * Constructs a new RocketSceneSynchronizer and registers it with the rocket model.
@@ -79,9 +80,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		if (e.isNonFunctionalChange()) {
 			queueAppearanceUpdate(e.getSource());
 		} else {
-			// For any other more significant change (geometry, tree structure, mass, etc.),
-			// the safest and simplest approach is a full rebuild of the rocket objects.
-			queueRebuild();
+			queueRebuild(shouldRefocusCamera(e));
 		}
 	}
 
@@ -123,14 +122,21 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		}
 	}
 
-	private void queueRebuild() {
+	private boolean shouldRefocusCamera(ComponentChangeEvent e) {
+		return e.isTreeChange() || e.isTreeChildrenChange() || e.isAerodynamicChange() || e.isMassChange();
+	}
+
+	private void queueRebuild(boolean refocusCamera) {
+		if (refocusCamera) {
+			refocusQueued.set(true);
+		}
 		if (!rebuildQueued.compareAndSet(false, true)) {
 			return;
 		}
 		scene3DOrchestrator.enqueueGlTask(() -> {
 			try {
 				pendingAppearanceUpdates.clear();
-				rebuildRocketScene(false);
+				rebuildRocketScene(refocusQueued.getAndSet(false));
 			} finally {
 				rebuildQueued.set(false);
 			}
