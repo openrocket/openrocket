@@ -9,8 +9,11 @@ import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
-import info.openrocket.swing.gui.figure3d.utils.VectorUtils;
 import org.joml.Vector3f;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * Controls camera operations and behaviors within the 3D scene management system.
@@ -26,6 +29,7 @@ public class CameraController implements CameraControls {
     private final Camera camera;
     private final SceneView scene;
     private final RenderingConfiguration renderingConfiguration;
+    private final List<Consumer<Camera>> cameraChangeListeners = new CopyOnWriteArrayList<>();
     private float focusedDistance;
     
     /**
@@ -104,12 +108,14 @@ public class CameraController implements CameraControls {
 		);
         camera.fitBounds(dimensions);
         focusedDistance = camera.getDistance();
+        notifyCameraChanged();
     }
 
 	@Override
 	public void resetView() {
 		camera.setView(CameraConstants.View.SIDE);
 		camera.update();
+        notifyCameraChanged();
 	}
     
     /**
@@ -120,6 +126,7 @@ public class CameraController implements CameraControls {
     @Override
     public void handleScroll(float scrollDelta) {
         camera.dolly(scrollDelta);
+        notifyCameraChanged();
     }
     
     /**
@@ -133,6 +140,7 @@ public class CameraController implements CameraControls {
         float sensitivity = CameraConstants.BASE_VIEW_ROTATION_SENSITIVITY *
                 renderingConfiguration.getVisualEffects().getDragRotationSensitivity();
         camera.orbit(dx, dy, sensitivity);
+        notifyCameraChanged();
     }
     
     /**
@@ -144,6 +152,7 @@ public class CameraController implements CameraControls {
     @Override
     public void handlePan(float dx, float dy) {
         camera.pan(dx, dy);
+        notifyCameraChanged();
     }
     
     /**
@@ -170,6 +179,7 @@ public class CameraController implements CameraControls {
             return;
         }
         camera.setDistance((float) (focusedDistance / scale));
+        notifyCameraChanged();
     }
 
     @Override
@@ -198,6 +208,24 @@ public class CameraController implements CameraControls {
     @Override
     public Camera getCamera() {
         return camera;
+    }
+
+    @Override
+    public void addCameraChangeListener(Consumer<Camera> listener) {
+        if (listener != null) {
+            cameraChangeListeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeCameraChangeListener(Consumer<Camera> listener) {
+        cameraChangeListeners.remove(listener);
+    }
+
+    private void notifyCameraChanged() {
+        for (Consumer<Camera> listener : cameraChangeListeners) {
+            listener.accept(camera);
+        }
     }
 
 	private void updateTransformedBounds(Vector3f minCorner, Vector3f maxCorner,
