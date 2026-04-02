@@ -180,10 +180,12 @@ public class Camera {
 	 */
 	private void updateProjectionMatrix() {
 		projectionMatrix.identity();
+		float nearPlane = getEffectiveNearPlane();
+		float farPlane = getEffectiveFarPlane();
 		
 		switch (projectionType) {
 			case PERSPECTIVE -> {
-				projectionMatrix.perspective(fov, aspectRatio, zNear, zFar);
+				projectionMatrix.perspective(fov, aspectRatio, nearPlane, farPlane);
 			}
 			case ORTHOGRAPHIC -> {
 				// For orthographic projection, we need to calculate appropriate bounds
@@ -192,9 +194,21 @@ public class Camera {
 				float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
 				float halfHeight = effectiveDistance * (float) Math.tan(fov / 2.0f);
 				float halfWidth = halfHeight * aspectRatio;
-				projectionMatrix.ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear, zFar);
+				projectionMatrix.ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, nearPlane, farPlane);
 			}
 		}
+	}
+
+	// Scale clipping planes with the current orbit distance so close inspection does not clip the model.
+	private float getEffectiveNearPlane() {
+		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
+		float dynamicNear = effectiveDistance * CameraConstants.DYNAMIC_Z_NEAR_DISTANCE_FACTOR;
+		return Math.max(CameraConstants.MIN_DYNAMIC_Z_NEAR, Math.min(zNear, dynamicNear));
+	}
+
+	private float getEffectiveFarPlane() {
+		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
+		return Math.max(zFar, effectiveDistance * CameraConstants.DYNAMIC_Z_FAR_DISTANCE_FACTOR);
 	}
 	/**
 	 * Sets the camera to a predefined view.
@@ -260,11 +274,8 @@ public class Camera {
 
 		this.maxZoom = newDistance * 2.0f; // Set max zoom to twice the calculated distance
 		this.distance = Math.max(minZoom, Math.min(maxZoom, newDistance)); // Clamp zoom
-		
-		// Update projection matrix if in orthographic mode, since distance affects the frustum size
-		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
-			updateProjectionMatrix();
-		}
+
+		updateProjectionMatrix();
 		updateViewMatrix();
 	}
 
@@ -314,11 +325,8 @@ public class Camera {
 	public void dolly(float scrollAmount) {
 		distance -= scrollAmount;
 		distance = Math.max(minZoom, Math.min(maxZoom, distance)); // Clamp zoom
-		
-		// Update projection matrix if in orthographic mode, since distance affects the frustum size
-		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
-			updateProjectionMatrix();
-		}
+
+		updateProjectionMatrix();
 	}
 
 	/**
@@ -328,9 +336,7 @@ public class Camera {
 	 */
 	public void setDistance(float distance) {
 		this.distance = Math.max(minZoom, Math.min(maxZoom, distance));
-		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
-			updateProjectionMatrix();
-		}
+		updateProjectionMatrix();
 		updateViewMatrix();
 	}
 
@@ -359,9 +365,7 @@ public class Camera {
 		this.minZoom = minZoom;
 		this.maxZoom = maxZoom;
 		this.distance = Math.max(minZoom, Math.min(maxZoom, distance));
-		if (projectionType == CameraConstants.ProjectionType.ORTHOGRAPHIC) {
-			updateProjectionMatrix();
-		}
+		updateProjectionMatrix();
 		updateViewMatrix();
 	}
 

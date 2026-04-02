@@ -31,6 +31,9 @@ public abstract class CameraConstants {
 	public static final float DEFAULT_FIELD_OF_VIEW = (float) Math.toRadians(45); // 45 degrees
 	public static final float DEFAULT_Z_NEAR = 0.1f;
 	public static final float DEFAULT_Z_FAR = 100.0f;
+	public static final float MIN_DYNAMIC_Z_NEAR = 0.002f;
+	public static final float DYNAMIC_Z_NEAR_DISTANCE_FACTOR = 0.02f;
+	public static final float DYNAMIC_Z_FAR_DISTANCE_FACTOR = 25.0f;
 
 	// --- Focus and Framing ---
 	public static final float MIN_FOCUS_DISTANCE = 0.01f;
