@@ -248,6 +248,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	/* Caliper tool */
 	private CaliperManager caliperManager = null;
+	private ThemedToggleButton showCalipersButton = null;
+	private JPanel caliperRibbonPanel = null;
 	private JPanel ribbon = null;  // Reference to ribbon for panel positioning
 
 	private double cpAOA = Double.NaN;
@@ -584,6 +586,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			caliperManager.onSwitchTo3D();
 		}
 		is3d = true;
+		updateCaliperUiState();
 		figureCardLayout.show(figureHolder, "3d");
 		figure3d.startRendering();
 		rotationControl.setEnabled(false);
@@ -615,6 +618,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
 		scaleSelector.update();
+		updateCaliperUiState();
 		
 		// Re-apply the current L&F to the scroll pane (rulers, etc.) which missed
 		// FlatLaf.updateUI() while detached from the component hierarchy in 3D mode.
@@ -773,27 +777,29 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		});
 
 		// Calipers toggle button - directly enables/disables the caliper tool
-		final ThemedToggleButton showCalipers = new ThemedToggleButton(trans.get("RocketPanel.checkbox.Calipers"), Icons.RULER);
-		showCalipers.setToolTipText(trans.get("RocketPanel.checkbox.Calipers.ttip"));
-		showCalipers.setSelected(false);
-		ribbon.add(showCalipers, "cell 4 1, gapleft para");
+		// Enable calipers
+		showCalipersButton = new ThemedToggleButton(trans.get("RocketPanel.checkbox.Calipers"), Icons.RULER);
+		showCalipersButton.setToolTipText(trans.get("RocketPanel.checkbox.Calipers.ttip"));
+		showCalipersButton.setSelected(false);
+		ribbon.add(showCalipersButton, "cell 4 1, gapleft para");
 
 		// Inline caliper controls (mode, snap, units, distance) — shown only when calipers enabled
 		if (caliperManager != null) {
-			JPanel caliperRibbonPanel = buildCaliperRibbonPanel();
+			caliperRibbonPanel = buildCaliperRibbonPanel();
 			caliperRibbonPanel.setVisible(false);
 			ribbon.add(caliperRibbonPanel, "cell 5 0, spany 2, gapleft para, gapright para, aligny center");
 
-			showCalipers.addActionListener(new ActionListener() {
+			showCalipersButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					boolean enabled = showCalipers.isSelected();
+					boolean enabled = showCalipersButton.isSelected();
 					caliperManager.setEnabled(enabled);
-					caliperRibbonPanel.setVisible(enabled);
+					updateCaliperUiState();
 					updateFigures();
 				}
 			});
 		}
+		updateCaliperUiState();
 
 		// Vertical separator
 		JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
@@ -1732,6 +1738,20 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		//figure3d.addRelativeExtra(extraCP);
 		//figure3d.addRelativeExtra(extraCG);
 		figure3d.addAbsoluteExtra(extraText);
+	}
+
+	private void updateCaliperUiState() {
+		if (showCalipersButton != null) {
+			showCalipersButton.setEnabled(!is3d);
+			showCalipersButton.setSelected(!is3d && caliperManager != null && caliperManager.isEnabled());
+		}
+		if (caliperRibbonPanel != null) {
+			caliperRibbonPanel.setVisible(!is3d && caliperManager != null && caliperManager.isEnabled());
+		}
+		if (ribbon != null) {
+			ribbon.revalidate();
+			ribbon.repaint();
+		}
 	}
 
 
