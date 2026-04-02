@@ -44,6 +44,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class PhotoPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -59,6 +60,8 @@ public class PhotoPanel extends JPanel {
 	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
 	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
 	private final AtomicBoolean syncingCameraToSettings = new AtomicBoolean(false);
+	private final AtomicBoolean suppressCameraToSettingsSync = new AtomicBoolean(false);
+	private final Consumer<Camera> cameraChangeListener = this::handleCameraChanged;
 	private final Map<SceneObject, Matrix4f> baseTransforms = new IdentityHashMap<>();
 	private final Map<ParticleEmitter, EmitterBase> baseEmitters = new IdentityHashMap<>();
 	private boolean lastFlame;
@@ -172,7 +175,7 @@ public class PhotoPanel extends JPanel {
 		this.document = doc;
 		pendingApply.set(true);
 		glPanel = new GLScenePanel(doc.getRocket(), null, false);
-		glPanel.setInitializationHook(this::applySettingsOnGlThread);
+		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		add(glPanel, BorderLayout.CENTER);
 		revalidate();
@@ -186,6 +189,10 @@ public class PhotoPanel extends JPanel {
 		debug("clearDoc");
 		stopRenderLoop();
 		if (glPanel != null) {
+			Scene3DOrchestrator orchestrator = glPanel.getScene3DOrchestrator();
+			if (orchestrator != null) {
+				orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
+			}
 			remove(glPanel);
 			glPanel.cleanup();
 			glPanel = null;
@@ -315,58 +322,67 @@ public class PhotoPanel extends JPanel {
 			applySettings();
 		}
 		panel.render();
-		syncSettingsFromCamera();
 		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
 			applySettings();
 		}
 	}
 
+	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
+		orchestrator.getCameraController().addCameraChangeListener(cameraChangeListener);
+		applySettingsOnGlThread(orchestrator);
+	}
+
 	private void applySettingsOnGlThread(Scene3DOrchestrator orchestrator) {
 		debug("applySettingsOnGlThread");
-		SceneView scene = orchestrator.getScene();
-		if (scene == null) {
-			debug("applySettingsOnGlThread: no scene");
-			return;
-		}
-		configurePhotoScene(scene);
-		Camera camera = scene.getCamera();
-		CameraState currentCameraState = camera != null ? new CameraState(camera) : null;
-		boolean cameraSettingsChanged = isCameraSettingsChanged();
-
-		RenderingConfiguration config = orchestrator.getRenderingConfiguration();
-		// PhotoStudio should render as a solid, production-style preview.
-		config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
-		config.getDisplay().setRenderInternalSurfaces(true);
-		config.getQuality().setBackfaceCullingEnabled(true);
-		config.getVisualEffects().setCaretsVisible(false);
-		// Photo Studio always orbits the camera on drag; rocket drag rotation is for design views only.
-		config.getVisualEffects().setRotateRocketOnDrag(false);
-
-		boolean rebuild = applyEffects(config);
-		if (rebuild) {
-			orchestrator.rebuildRocketScene();
-			baseTransforms.clear();
-			baseEmitters.clear();
-			scene = orchestrator.getScene();
+		suppressCameraToSettingsSync.set(true);
+		try {
+			SceneView scene = orchestrator.getScene();
 			if (scene == null) {
-				debug("applySettingsOnGlThread: scene lost after rebuild");
+				debug("applySettingsOnGlThread: no scene");
 				return;
 			}
-			camera = scene.getCamera();
-		}
+			configurePhotoScene(scene);
+			Camera camera = scene.getCamera();
+			CameraState currentCameraState = camera != null ? new CameraState(camera) : null;
+			boolean cameraSettingsChanged = isCameraSettingsChanged();
 
-		enforceOpaqueBodyComponents(scene);
-		applyBackground(scene);
-		applyLighting(scene, config);
-		if (camera != null) {
-			if (cameraSettingsChanged) {
-				applyCamera(camera);
-				rememberCameraSettings();
-			} else if (currentCameraState != null) {
-				restoreCamera(camera, currentCameraState);
+			RenderingConfiguration config = orchestrator.getRenderingConfiguration();
+			// PhotoStudio should render as a solid, production-style preview.
+			config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
+			config.getDisplay().setRenderInternalSurfaces(true);
+			config.getQuality().setBackfaceCullingEnabled(true);
+			config.getVisualEffects().setCaretsVisible(false);
+			// Photo Studio always orbits the camera on drag; rocket drag rotation is for design views only.
+			config.getVisualEffects().setRotateRocketOnDrag(false);
+
+			boolean rebuild = applyEffects(config);
+			if (rebuild) {
+				orchestrator.rebuildRocketScene();
+				baseTransforms.clear();
+				baseEmitters.clear();
+				scene = orchestrator.getScene();
+				if (scene == null) {
+					debug("applySettingsOnGlThread: scene lost after rebuild");
+					return;
+				}
+				camera = scene.getCamera();
 			}
+
+			enforceOpaqueBodyComponents(scene);
+			applyBackground(scene);
+			applyLighting(scene, config);
+			if (camera != null) {
+				if (cameraSettingsChanged) {
+					applyCamera(camera);
+					rememberCameraSettings();
+				} else if (currentCameraState != null) {
+					restoreCamera(camera, currentCameraState);
+				}
+			}
+			applyRocketTransform(scene, config);
+		} finally {
+			suppressCameraToSettingsSync.set(false);
 		}
-		applyRocketTransform(scene, config);
 	}
 
 	private void enforceOpaqueBodyComponents(SceneView scene) {
@@ -657,28 +673,23 @@ public class PhotoPanel extends JPanel {
 	 * Synchronizes camera settings from the scene back to the settings object, if they have changed.
 	 * This allows the settings to reflect user interactions with the camera (e.g. orbiting with mouse drag).
 	 */
-	private void syncSettingsFromCamera() {
-		GLScenePanel panel = glPanel;
-		if (panel == null) {
+	private void handleCameraChanged(Camera camera) {
+		if (suppressCameraToSettingsSync.get()) {
 			return;
 		}
-		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
-		if (orchestrator == null) {
-			return;
+		CameraState cameraState = new CameraState(camera);
+		if (SwingUtilities.isEventDispatchThread()) {
+			syncSettingsFromCameraState(cameraState);
+		} else {
+			SwingUtilities.invokeLater(() -> syncSettingsFromCameraState(cameraState));
 		}
-		SceneView scene = orchestrator.getScene();
-		if (scene == null) {
-			return;
-		}
-		Camera camera = scene.getCamera();
-		if (camera == null) {
-			return;
-		}
+	}
 
-		double viewAz = camera.getAngleX();
-		double viewAlt = camera.getAngleY();
-		double viewDistance = camera.getDistance() / RenderingConstants.WORLD_SCALE;
-		double fov = camera.getFieldOfView();
+	private void syncSettingsFromCameraState(CameraState cameraState) {
+		double viewAz = MathUtil.reduce2Pi(cameraState.angleX);
+		double viewAlt = cameraState.angleY;
+		double viewDistance = cameraState.distance / RenderingConstants.WORLD_SCALE;
+		double fov = cameraState.fieldOfView;
 
 		if (approximatelyEqual(viewAz, settings.getViewAz())
 				&& approximatelyEqual(viewAlt, settings.getViewAlt())
