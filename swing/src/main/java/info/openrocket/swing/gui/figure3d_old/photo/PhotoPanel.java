@@ -321,6 +321,7 @@ public class PhotoPanel extends JPanel {
 			debug("applySettingsOnGlThread: no scene");
 			return;
 		}
+		configurePhotoScene(scene);
 		Camera camera = scene.getCamera();
 		CameraState currentCameraState = camera != null ? new CameraState(camera) : null;
 		boolean cameraSettingsChanged = isCameraSettingsChanged();
@@ -331,6 +332,8 @@ public class PhotoPanel extends JPanel {
 		config.getDisplay().setRenderInternalSurfaces(true);
 		config.getQuality().setBackfaceCullingEnabled(true);
 		config.getVisualEffects().setCaretsVisible(false);
+		// Photo Studio always orbits the camera on drag; rocket drag rotation is for design views only.
+		config.getVisualEffects().setRotateRocketOnDrag(false);
 
 		boolean rebuild = applyEffects(config);
 		if (rebuild) {
@@ -364,6 +367,14 @@ public class PhotoPanel extends JPanel {
 			if (obj.getRocketComponent() instanceof BodyComponent) {
 				obj.getAppearance().setOpacity(1.0f);
 			}
+		}
+	}
+
+	private void configurePhotoScene(SceneView scene) {
+		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.core.Scene actualScene) {
+			// Photo Studio recenters the rocket to world origin before applying its own rotations.
+			// Keep interactive drag rotation around that origin instead of the design-view centerline pivot.
+			actualScene.setRocketRotationPivotOverride(0.0f, 0.0f, 0.0f);
 		}
 	}
 
@@ -484,7 +495,17 @@ public class PhotoPanel extends JPanel {
 		double advance = settings.getAdvance();
 		float translateX = (float) (-(centerX + advance) * RenderingConstants.WORLD_SCALE);
 
-		Matrix4f globalTransform = new Matrix4f()
+		Matrix4f sceneRotationTransform = new Matrix4f();
+		Matrix4f sceneRotationInverse = new Matrix4f();
+		if (scene instanceof info.openrocket.swing.gui.figure3d.scene.core.Scene actualScene) {
+			actualScene.getRocketRotationTransform(sceneRotationTransform);
+			sceneRotationInverse.set(sceneRotationTransform).invert();
+		} else {
+			sceneRotationTransform.identity();
+			sceneRotationInverse.identity();
+		}
+
+		Matrix4f globalTransform = new Matrix4f(sceneRotationTransform)
 				.rotateZ((float) -settings.getPitch())
 				.rotateY((float) settings.getYaw())
 				.rotateX((float) settings.getRoll())
@@ -505,7 +526,8 @@ public class PhotoPanel extends JPanel {
 			if (obj.getRocketComponent() == null) {
 				continue;
 			}
-			Matrix4f base = baseTransforms.computeIfAbsent(obj, key -> new Matrix4f(obj.getModelMatrix()));
+			Matrix4f base = baseTransforms.computeIfAbsent(obj,
+					key -> sceneRotationInverse.mul(key.getModelMatrix(), new Matrix4f()));
 			globalTransform.mul(base, obj.getModelMatrix());
 		}
 

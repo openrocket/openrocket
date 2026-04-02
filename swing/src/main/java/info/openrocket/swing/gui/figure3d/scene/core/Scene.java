@@ -64,6 +64,8 @@ public class Scene implements SceneView {
 	private final Matrix4f scratchPreviousRocketRotation = new Matrix4f();
 	private final Matrix4f scratchInverseRotationMatrix = new Matrix4f();
 	private final Vector3f rocketRotationPivot = new Vector3f();
+	private final Vector3f overriddenRocketRotationPivot = new Vector3f();
+	private boolean rocketRotationPivotOverridden = false;
 	private float rocketDragYaw = 0.0f;
 	private float rocketDragRoll = 0.0f;
 
@@ -187,6 +189,31 @@ public class Scene implements SceneView {
 			destination = new Vector3f();
 		}
 		return getRocketTransformMatrix().transformPosition(point, destination);
+	}
+
+	/**
+	 * Overrides the pivot used for interactive rocket drag rotation.
+	 */
+	public void setRocketRotationPivotOverride(float x, float y, float z) {
+		overriddenRocketRotationPivot.set(x, y, z);
+		rocketRotationPivotOverridden = true;
+	}
+
+	/**
+	 * Clears any custom rocket drag-rotation pivot override.
+	 */
+	public void clearRocketRotationPivotOverride() {
+		rocketRotationPivotOverridden = false;
+	}
+
+	/**
+	 * Copies the current rocket drag transform into the provided matrix.
+	 */
+	public Matrix4f getRocketRotationTransform(Matrix4f destination) {
+		if (destination == null) {
+			destination = new Matrix4f();
+		}
+		return getRocketTransformMatrix(rocketRotationMatrix, destination);
 	}
 
 	@Override
@@ -407,6 +434,11 @@ public class Scene implements SceneView {
 	}
 
 	private void updateRocketRotationPivot() {
+		if (rocketRotationPivotOverridden) {
+			rocketRotationPivot.set(overriddenRocketRotationPivot);
+			return;
+		}
+
 		BoundingBox bounds = rocket.getBoundingBox();
 		if (bounds == null || bounds.isEmpty()) {
 			rocketRotationPivot.zero();
