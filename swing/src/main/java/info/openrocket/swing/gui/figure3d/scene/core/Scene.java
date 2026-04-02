@@ -4,6 +4,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
@@ -60,8 +61,11 @@ public class Scene implements SceneView {
 	private final Matrix4f scratchRocketTransform = new Matrix4f();
 	private final Matrix4f scratchRotationMatrix = new Matrix4f();
 	private final Matrix4f scratchModelMatrix = new Matrix4f();
+	private final Matrix4f scratchPreviousRocketRotation = new Matrix4f();
+	private final Matrix4f scratchInverseRotationMatrix = new Matrix4f();
 	private final Vector3f rocketRotationPivot = new Vector3f();
-	private final Vector3f scratchPitchAxis = new Vector3f();
+	private float rocketDragYaw = 0.0f;
+	private float rocketDragRoll = 0.0f;
 
 	private Scene(Rocket rocket, Camera camera, RenderingConfiguration config, Light light) {
 		this.rocket = rocket;
@@ -131,19 +135,27 @@ public class Scene implements SceneView {
 
 	/**
 	 * Applies drag-based rocket rotation while keeping the camera and lights fixed.
+	 * Horizontal drag changes yaw around the vertical axis; vertical drag changes
+	 * rotation around the horizontal axis, matching the legacy design-view controls.
 	 *
 	 * @param dx horizontal drag delta
 	 * @param dy vertical drag delta
-	 * @param viewRight the current camera right vector for pitch rotation
+	 * @param viewRight unused legacy parameter retained for call-site compatibility
 	 */
 	public void orbitRocket(float dx, float dy, float sensitivity, Vector3f viewRight) {
-		if ((dx == 0.0f && dy == 0.0f) || viewRight == null) {
+		if (dx == 0.0f && dy == 0.0f) {
 			return;
 		}
 
-		float yawAngle = dx * sensitivity;
-		float pitchAngle = dy * sensitivity;
-		applyRocketRotation(yawAngle, pitchAngle, viewRight);
+		rocketDragYaw += dx * sensitivity;
+
+		float normalizedYaw = (float) MathUtil.reduce2Pi(rocketDragYaw);
+		float adjustedDy = dy;
+		if (normalizedYaw > ((float) Math.PI / 2.0f) && normalizedYaw < ((float) (3.0 * Math.PI / 2.0))) {
+			adjustedDy = -adjustedDy;
+		}
+		rocketDragRoll += adjustedDy * sensitivity;
+		applyRocketRotation();
 	}
 
 	/**
@@ -354,19 +366,14 @@ public class Scene implements SceneView {
 		}
 	}
 
-	private void applyRocketRotation(float yawAngle, float pitchAngle, Vector3f viewRight) {
-		scratchPitchAxis.set(viewRight);
-		if (scratchPitchAxis.lengthSquared() < 1.0e-6f) {
-			return;
-		}
-		scratchPitchAxis.normalize();
+	private void applyRocketRotation() {
+		scratchPreviousRocketRotation.set(rocketRotationMatrix);
+		rocketRotationMatrix.identity()
+				.rotateY(rocketDragYaw)
+				.rotateX(rocketDragRoll);
 
-		scratchRotationMatrix.identity()
-				.rotate(yawAngle, 0.0f, 1.0f, 0.0f)
-				.rotate(pitchAngle, scratchPitchAxis.x, scratchPitchAxis.y, scratchPitchAxis.z);
-
-		scratchModelMatrix.set(scratchRotationMatrix).mul(rocketRotationMatrix);
-		rocketRotationMatrix.set(scratchModelMatrix);
+		scratchInverseRotationMatrix.set(scratchPreviousRocketRotation).invert();
+		scratchRotationMatrix.set(rocketRotationMatrix).mul(scratchInverseRotationMatrix);
 
 		Matrix4f incrementalTransform = getRocketTransformMatrix(scratchRotationMatrix, scratchRocketTransform);
 		for (SceneObject object : objects) {
@@ -399,10 +406,11 @@ public class Scene implements SceneView {
 
 		CoordinateIF minBounds = bounds.min.multiply(RocketMeshBuilder.WORLD_SCALE);
 		CoordinateIF maxBounds = bounds.max.multiply(RocketMeshBuilder.WORLD_SCALE);
+		float pivotX = (float) ((minBounds.getX() + maxBounds.getX()) / 2.0);
 		rocketRotationPivot.set(
-				(float) ((minBounds.getX() + maxBounds.getX()) / 2.0),
-				(float) ((minBounds.getY() + maxBounds.getY()) / 2.0),
-				(float) ((minBounds.getZ() + maxBounds.getZ()) / 2.0));
+				pivotX,
+				0.0f,
+				0.0f);
 	}
 	
 	/**

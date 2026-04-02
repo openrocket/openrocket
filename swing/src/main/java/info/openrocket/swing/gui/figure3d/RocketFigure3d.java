@@ -324,7 +324,9 @@ public class RocketFigure3d extends JPanel {
 			case TYPE_FINISHED -> DisplaySettings.RenderMode.FINISHED;
 			default -> DisplaySettings.RenderMode.FINISHED;
 		};
-		orchestrator.enqueueGlTask(() -> orchestrator.getRenderingConfiguration().getDisplay().setMode(mode));
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getDisplay().setMode(mode);
+		});
 	}
 
 	private void applyCaretVisibility(Scene3DOrchestrator orchestrator, boolean visible) {

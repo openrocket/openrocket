@@ -113,13 +113,14 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
     private void processMouseDragInput() {
         inputState.consumeDragDelta(dragDelta);
         if (dragDelta.dx != 0f || dragDelta.dy != 0f) {
+            boolean rotateRocketOnDrag = renderingConfiguration.getVisualEffects().isRotateRocketOnDrag();
             float dragRotationSensitivity = CameraConstants.BASE_ROCKET_ROTATION_SENSITIVITY *
                     renderingConfiguration.getVisualEffects().getDragRotationSensitivity();
             if (inputState.isLightDragging) {
                 updateMainLightRadialAngle(dragDelta.dx, dragDelta.dy);
             } else if (inputState.isPanning) {
                 cameraController.handlePan(dragDelta.dx, dragDelta.dy);
-            } else if (renderingConfiguration.getVisualEffects().isRotateRocketOnDrag() && scene instanceof Scene sceneImpl) {
+            } else if (rotateRocketOnDrag && scene instanceof Scene sceneImpl) {
                 Vector3f viewRight = new Vector3f();
                 cameraController.getCamera().getViewMatrix().positiveX(viewRight);
                 sceneImpl.orbitRocket(dragDelta.dx, dragDelta.dy, dragRotationSensitivity, viewRight);
