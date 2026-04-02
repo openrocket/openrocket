@@ -40,14 +40,14 @@ class L10NGeneratorTest {
 	void outputRemovesDiacriticsAndPrintsMapping() throws Exception {
 		invokeOutput('é');
 		String generated = captured.toString(StandardCharsets.UTF_8);
-		assertEquals("m.put('\\u00e9', \"e\");" + System.lineSeparator(), generated);
+		assertEquals("m.put('\\u00e9', \"e\");" + "\n", generated);
 	}
 
 	@Test
 	void outputMapsFractionSlashToForwardSlash() throws Exception {
 		invokeOutput(Chars.FRACTION);
 		String generated = captured.toString(StandardCharsets.UTF_8);
-		assertEquals("m.put('\\u2044', \"/\");" + System.lineSeparator(), generated);
+		assertEquals("m.put('\\u2044', \"/\");" + "\n", generated);
 	}
 
 	@Test

@@ -80,6 +80,9 @@ public class JarUtil {
 				uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
 						url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 			} catch (URISyntaxException e1) {
+				if ("file".equals(url.getProtocol())) {
+					return new File(url.getPath());
+				}
 				throw new IllegalArgumentException("Broken URL: " + url);
 			}
 		}
