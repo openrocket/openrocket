@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -114,6 +115,7 @@ public class PhotoFrame extends JFrame {
 			@Override
 			public void windowOpened(WindowEvent e) {
 				attachCurrentDocumentIfReady();
+				SwingUtilities.invokeLater(PhotoFrame.this::showSettingsDialog);
 			}
 
 			@Override
@@ -128,17 +130,17 @@ public class PhotoFrame extends JFrame {
 		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.setWindowIcons(this);
 
-		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title")) {
-			{
-				setContentPane(new PhotoSettingsConfig(p, document));
-				setPreferredSize(new Dimension(600, 500));
-				pack();
-				this.setLocationByPlatform(true);
-				GUIUtil.rememberWindowSize(this);
-				GUIUtil.rememberWindowPosition(this);
-				setVisible(true);
-			}
-		};
+		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title"), Dialog.ModalityType.MODELESS);
+		settings.setContentPane(new PhotoSettingsConfig(p, document));
+		settings.setPreferredSize(new Dimension(600, 500));
+		settings.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+		settings.setModalityType(Dialog.ModalityType.MODELESS);
+		settings.setAlwaysOnTop(false);
+		settings.setType(Window.Type.NORMAL);
+		settings.pack();
+		settings.setLocationByPlatform(true);
+		GUIUtil.rememberWindowSize(settings);
+		GUIUtil.rememberWindowPosition(settings);
 	}
 
 	private JMenuBar getMenu(final boolean showOpen) {
@@ -283,7 +285,7 @@ public class PhotoFrame extends JFrame {
 		menu.add(new JMenuItem(new AbstractAction(trans.get("PhotoSettingsConfig.title")) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				settings.setVisible(true);
+				showSettingsDialog();
 			}
 		}));
 
@@ -356,6 +358,16 @@ public class PhotoFrame extends JFrame {
 			return;
 		}
 		photoPanel.setDoc(doc);
+	}
+
+	private void showSettingsDialog() {
+		if (resourcesReleased.get()) {
+			return;
+		}
+		if (!settings.isVisible()) {
+			settings.setVisible(true);
+		}
+		settings.requestFocus();
 	}
 
 	private void copyImageToClipboard(BufferedImage image) {
