@@ -90,6 +90,17 @@ public class Scene3DOrchestrator {
 	}
 
 	/**
+	 * Restores the default side view, clears any drag-applied rocket rotation, and fits the rocket.
+	 */
+	public void resetViewAndFocusOnRocket() {
+		if (scene instanceof Scene actualScene) {
+			actualScene.resetRocketRotation();
+		}
+		cameraController.resetView();
+		cameraController.focusOnRocket();
+	}
+
+	/**
 	 * Reapplies the persisted rocket drag rotation after the rocket mesh is rebuilt.
 	 */
 	public void applyRocketRotationToScene() {

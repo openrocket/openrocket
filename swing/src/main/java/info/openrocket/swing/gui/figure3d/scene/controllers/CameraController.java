@@ -105,6 +105,12 @@ public class CameraController implements CameraControls {
         camera.fitBounds(dimensions);
         focusedDistance = camera.getDistance();
     }
+
+	@Override
+	public void resetView() {
+		camera.setView(CameraConstants.View.SIDE);
+		camera.update();
+	}
     
     /**
      * Handle scroll input for camera dolly (zoom).

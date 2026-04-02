@@ -159,6 +159,15 @@ public class Scene implements SceneView {
 	}
 
 	/**
+	 * Clears the persisted drag rotation and reapplies the identity transform.
+	 */
+	public void resetRocketRotation() {
+		rocketDragYaw = 0.0f;
+		rocketDragRoll = 0.0f;
+		applyRocketRotation();
+	}
+
+	/**
 	 * Reapplies the persisted rocket drag rotation to freshly rebuilt rocket objects.
 	 */
 	public void applyRocketRotationToRocketObjects() {

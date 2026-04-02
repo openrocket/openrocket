@@ -422,7 +422,7 @@ public class RocketFigure3d extends JPanel {
 		if (orchestrator == null) {
 			return;
 		}
-		orchestrator.enqueueGlTask(orchestrator::focusOnRocket);
+		orchestrator.enqueueGlTask(orchestrator::resetViewAndFocusOnRocket);
 		requestRenderNow();
 	}
 

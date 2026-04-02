@@ -9,6 +9,7 @@ import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 public interface CameraControls {
     void initialize(Rocket rocket, float aspectRatio);
     void focusOnRocket();
+    void resetView();
     void handleScroll(float scrollDelta);
     void handleOrbit(float dx, float dy);
     void handlePan(float dx, float dy);
