@@ -123,7 +123,7 @@ import info.openrocket.swing.gui.dialogs.SwingWorkerDialog;
 import info.openrocket.swing.gui.dialogs.WarningDialog;
 import info.openrocket.swing.gui.dialogs.optimization.GeneralOptimizationDialog;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
-import info.openrocket.swing.gui.figure3d_old.photo.PhotoFrame;
+import info.openrocket.swing.gui.figure3d.photo.PhotoFrame;
 import info.openrocket.swing.gui.help.tours.GuidedTourSelectionDialog;
 import info.openrocket.swing.gui.main.componenttree.ComponentTree;
 import info.openrocket.swing.gui.scalefigure.RocketPanel;

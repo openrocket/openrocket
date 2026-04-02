@@ -1,15 +1,15 @@
 package info.openrocket.swing.file.photo;
 
 import info.openrocket.core.file.openrocket.importt.OpenRocketHandler;
-import info.openrocket.swing.gui.figure3d_old.photo.PhotoSettings;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.Sky;
+import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
+import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
 import info.openrocket.core.util.ORColor;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Lake;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Meadow;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Miramar;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Mountains;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Orbit;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Storm;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Lake;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Meadow;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Miramar;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,27 +170,24 @@ public class PhotoStudioGetter {
                 p.setSky(null);
                 return;
             }
-            Sky s = null;
-            try {
-                Class<?> cl = Class.forName(content);
-                if (Mountains.class.isAssignableFrom(cl))
-                    s = Mountains.instance;
-                else if (Lake.class.isAssignableFrom(cl))
-                    s = Lake.instance;
-                else if (Meadow.class.isAssignableFrom(cl))
-                    s = Meadow.instance;
-                else if (Miramar.class.isAssignableFrom(cl))
-                    s = Miramar.instance;
-                else if (Orbit.class.isAssignableFrom(cl))
-                    s = Orbit.instance;
-                else if (Storm.class.isAssignableFrom(cl))
-                    s = Storm.instance;
-            }
-            catch (ClassNotFoundException e) {
-                log.info("Could not load sky class '" + content + "'.");
-            }
-            p.setSky(s);
+            p.setSky(resolveSky(content));
         }
+    }
+
+    private Sky resolveSky(String content) {
+        String simpleName = content.substring(content.lastIndexOf('.') + 1);
+        return switch (simpleName) {
+            case "Mountains" -> Mountains.instance;
+            case "Lake" -> Lake.instance;
+            case "Meadow" -> Meadow.instance;
+            case "Miramar" -> Miramar.instance;
+            case "Orbit" -> Orbit.instance;
+            case "Storm" -> Storm.instance;
+            default -> {
+                log.info("Could not load sky class '{}'.", content);
+                yield null;
+            }
+        };
     }
 
     private ORColor getColor(String content) {

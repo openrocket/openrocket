@@ -1,13 +1,12 @@
-package info.openrocket.swing.gui.figure3d_old.photo;
+package info.openrocket.swing.gui.figure3d.photo;
 
-import info.openrocket.swing.gui.figure3d_old.photo.exhaust.FlameRenderer.FlameSettings;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.Sky;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Mountains;
+import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
 import info.openrocket.core.util.AbstractChangeSource;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.MathUtil;
 
-public class PhotoSettings extends AbstractChangeSource implements FlameSettings {
+public class PhotoSettings extends AbstractChangeSource {
 	private double roll = 3.14;
 	private double yaw = 0;
 	private double pitch = 2.05;

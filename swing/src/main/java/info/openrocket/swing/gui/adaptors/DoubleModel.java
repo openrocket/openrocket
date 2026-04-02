@@ -18,7 +18,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import info.openrocket.swing.gui.figure3d_old.photo.PhotoSettings;
+import info.openrocket.swing.gui.figure3d.photo.PhotoSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

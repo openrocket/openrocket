@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.figure3d_old.photo;
+package info.openrocket.swing.gui.figure3d.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.rocketcomponent.BodyComponent;
@@ -22,13 +22,13 @@ import info.openrocket.swing.gui.figure3d.scene.properties.DisplaySettings;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings;
 import info.openrocket.swing.gui.figure3d.ui.GLScenePanel;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.Sky;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Lake;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Meadow;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Miramar;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Mountains;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Orbit;
-import info.openrocket.swing.gui.figure3d_old.photo.sky.builtin.Storm;
+import info.openrocket.swing.gui.figure3d.photo.sky.Sky;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Lake;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Meadow;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Miramar;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
+import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.slf4j.Logger;

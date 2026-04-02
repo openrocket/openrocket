@@ -1,4 +1,4 @@
-package info.openrocket.swing.gui.figure3d_old.photo;
+package info.openrocket.swing.gui.figure3d.photo;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
