@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -21,6 +22,8 @@ public class VisualEffectsSettings {
     private boolean originAxesVisible = false;
     private boolean lightVisualizersVisible = false;
     private boolean caretsVisible = true;
+    private boolean rotateRocketOnDrag = true;
+    private float dragRotationSensitivity = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
     private boolean caretScaleWithView = false;
     private float ambientLightFactor = 0.1f;
     
@@ -139,6 +142,36 @@ public class VisualEffectsSettings {
      */
     public void setCaretsVisible(boolean caretsVisible) {
         this.caretsVisible = caretsVisible;
+    }
+
+    /**
+     * @return true if mouse drag rotates the rocket instead of orbiting the camera
+     */
+    public boolean isRotateRocketOnDrag() {
+        return rotateRocketOnDrag;
+    }
+
+    /**
+     * Sets whether mouse drag rotates the rocket instead of orbiting the camera.
+     * @param rotateRocketOnDrag true to rotate the rocket, false to rotate the view
+     */
+    public void setRotateRocketOnDrag(boolean rotateRocketOnDrag) {
+        this.rotateRocketOnDrag = rotateRocketOnDrag;
+    }
+
+    /**
+     * @return the mouse-drag rotation sensitivity multiplier for 3D orbit controls
+     */
+    public float getDragRotationSensitivity() {
+        return dragRotationSensitivity;
+    }
+
+    /**
+     * Sets the mouse-drag rotation sensitivity multiplier for 3D orbit controls.
+     * @param dragRotationSensitivity the sensitivity multiplier
+     */
+    public void setDragRotationSensitivity(float dragRotationSensitivity) {
+        this.dragRotationSensitivity = Math.max(0.05f, dragRotationSensitivity);
     }
 
     /**

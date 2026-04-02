@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 
 /**
  * Maps application preferences onto figure3d rendering defaults.
@@ -24,6 +25,8 @@ public final class Figure3DPreferences {
 		VisualEffectsSettings visualEffects = config.getVisualEffects();
 		visualEffects.setOriginAxesVisible(isOriginAxesVisible(preferences));
 		visualEffects.setLightVisualizersVisible(areLightVisualizersVisible(preferences));
+		visualEffects.setRotateRocketOnDrag(isRotateRocketOnDrag(preferences));
+		visualEffects.setDragRotationSensitivity(getDragRotationSensitivity(preferences));
 		visualEffects.setCaretScaleWithView(isCaretScaleWithView(preferences));
 	}
 
@@ -81,6 +84,28 @@ public final class Figure3DPreferences {
 
 	public static void setLightVisualizersVisible(ApplicationPreferences preferences, boolean enabled) {
 		preferences.putBoolean(ApplicationPreferences.OPENGL_SHOW_LIGHT_VISUALIZERS, enabled);
+	}
+
+	public static boolean isRotateRocketOnDrag(ApplicationPreferences preferences) {
+		return preferences.getBoolean(ApplicationPreferences.OPENGL_ROTATE_ROCKET_ON_DRAG, true);
+	}
+
+	public static void setRotateRocketOnDrag(ApplicationPreferences preferences, boolean enabled) {
+		preferences.putBoolean(ApplicationPreferences.OPENGL_ROTATE_ROCKET_ON_DRAG, enabled);
+	}
+
+	public static float getDragRotationSensitivity(ApplicationPreferences preferences) {
+		double factor = preferences.getDouble(ApplicationPreferences.OPENGL_DRAG_ROTATION_SENSITIVITY, Double.NaN);
+		if (!Double.isNaN(factor)) {
+			return (float) Math.max(0.05d, factor);
+		}
+
+		return CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
+	}
+
+	public static void setDragRotationSensitivity(ApplicationPreferences preferences, float sensitivity) {
+		preferences.putDouble(ApplicationPreferences.OPENGL_DRAG_ROTATION_SENSITIVITY,
+				Math.max(0.05f, sensitivity));
 	}
 
 	public static boolean isCaretScaleWithView(ApplicationPreferences preferences) {

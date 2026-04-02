@@ -8,6 +8,7 @@ import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.VectorUtils;
 import org.joml.Vector3f;
 
@@ -21,9 +22,10 @@ import org.joml.Vector3f;
  * a clean architecture for camera management within the 3D visualization pipeline.</p>
  */
 public class CameraController implements CameraControls {
-	private final Rocket rocket;
+    private final Rocket rocket;
     private final Camera camera;
     private final SceneView scene;
+    private final RenderingConfiguration renderingConfiguration;
     private float focusedDistance;
     
     /**
@@ -32,11 +34,14 @@ public class CameraController implements CameraControls {
 	 * @param rocket the rocket instance
      * @param camera the camera instance to control
      * @param scene the scene containing the rocket and other objects to interact with
+     * @param renderingConfiguration the active rendering configuration
      */
-    public CameraController(Rocket rocket, Camera camera, SceneView scene) {
+    public CameraController(Rocket rocket, Camera camera, SceneView scene,
+            RenderingConfiguration renderingConfiguration) {
         this.rocket = rocket;
 		this.camera = camera;
         this.scene = scene;
+        this.renderingConfiguration = renderingConfiguration;
     }
     
     /**
@@ -66,7 +71,7 @@ public class CameraController implements CameraControls {
      * Automatically determines the optimal camera distance and center point to frame
      * the entire rocket within the viewport.
      */
-    @Override
+	@Override
 	public void focusOnRocket() {
 		if (rocket == null) {
 			return;
@@ -79,20 +84,23 @@ public class CameraController implements CameraControls {
 		CoordinateIF minBounds = bounds.min.multiply(RocketMeshBuilder.WORLD_SCALE);
 		CoordinateIF maxBounds = bounds.max.multiply(RocketMeshBuilder.WORLD_SCALE);
 
+		Vector3f minCorner = new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+		Vector3f maxCorner = new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+		updateTransformedBounds(minCorner, maxCorner, minBounds, maxBounds);
+
         // 1. Center of Interest
         Vector3f rocketCenter = new Vector3f(
-				(float) ((minBounds.getX() + maxBounds.getX()) / 2.0),
-				(float) ((minBounds.getY() + maxBounds.getY()) / 2.0),
-				(float) ((minBounds.getZ() + maxBounds.getZ()) / 2.0)
+				(minCorner.x + maxCorner.x) * 0.5f,
+				(minCorner.y + maxCorner.y) * 0.5f,
+				(minCorner.z + maxCorner.z) * 0.5f
 		);
 		camera.setCenterOfInterest(rocketCenter);
 
         // 2. Calculate distance
-        // TODO: this doesn't always work well with fin sets....
 		Vector3f dimensions = new Vector3f(
-				(float) (maxBounds.getX() - minBounds.getX()),
-				(float) (maxBounds.getY() - minBounds.getY()),
-				(float) (maxBounds.getZ() - minBounds.getZ())
+				maxCorner.x - minCorner.x,
+				maxCorner.y - minCorner.y,
+				maxCorner.z - minCorner.z
 		);
         camera.fitBounds(dimensions);
         focusedDistance = camera.getDistance();
@@ -116,7 +124,9 @@ public class CameraController implements CameraControls {
      */
     @Override
     public void handleOrbit(float dx, float dy) {
-        camera.orbit(dx, dy);
+        camera.orbit(dx, dy,
+                CameraConstants.BASE_VIEW_ROTATION_SENSITIVITY *
+                        renderingConfiguration.getVisualEffects().getDragRotationSensitivity());
     }
     
     /**
@@ -183,4 +193,24 @@ public class CameraController implements CameraControls {
     public Camera getCamera() {
         return camera;
     }
+
+	private void updateTransformedBounds(Vector3f minCorner, Vector3f maxCorner,
+			CoordinateIF minBounds, CoordinateIF maxBounds) {
+		float[] xValues = {(float) minBounds.getX(), (float) maxBounds.getX()};
+		float[] yValues = {(float) minBounds.getY(), (float) maxBounds.getY()};
+		float[] zValues = {(float) minBounds.getZ(), (float) maxBounds.getZ()};
+		Vector3f corner = new Vector3f();
+		Vector3f transformed = new Vector3f();
+
+		for (float x : xValues) {
+			for (float y : yValues) {
+				for (float z : zValues) {
+					corner.set(x, y, z);
+					scene.transformRocketPoint(corner, transformed);
+					minCorner.min(transformed);
+					maxCorner.max(transformed);
+				}
+			}
+		}
+	}
 }

@@ -47,6 +47,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private final boolean originalRoughnessEnabled;
 	private final boolean originalOriginAxesVisible;
 	private final boolean originalLightVisualizersVisible;
+	private final boolean originalRotateRocketOnDrag;
 	private final boolean originalCaretScaleWithView;
 	
 	private ColorChooserButton color2DButton;
@@ -59,6 +60,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private JCheckBox roughnessCheckBox;
 	private JCheckBox originAxesCheckBox;
 	private JCheckBox lightVisualizersCheckBox;
+	private JCheckBox rotateRocketOnDragCheckBox;
 	private JCheckBox scaleCaretsCheckBox;
 	
 	private JButton reset2DBgButton;
@@ -92,6 +94,7 @@ public class DisplaySettingsDialog extends JDialog {
 		originalRoughnessEnabled = getCurrentRoughnessEnabled();
 		originalOriginAxesVisible = getCurrentOriginAxesVisible();
 		originalLightVisualizersVisible = getCurrentLightVisualizersVisible();
+		originalRotateRocketOnDrag = getCurrentRotateRocketOnDrag();
 		originalCaretScaleWithView = getCurrentCaretScaleWithView();
 		
 		init();
@@ -371,6 +374,22 @@ public class DisplaySettingsDialog extends JDialog {
 		});
 		panel.add(lightVisualizersCheckBox, "wrap");
 
+		// Rotate rocket when dragging
+		rotateRocketOnDragCheckBox = new JCheckBox(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.rotateRocketOnDrag"));
+		rotateRocketOnDragCheckBox.setSelected(originalRotateRocketOnDrag);
+		rotateRocketOnDragCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyVisualEffectsChange(
+					settings -> settings.setRotateRocketOnDrag(rotateRocketOnDragCheckBox.isSelected()),
+					false,
+					false);
+		});
+		panel.add(rotateRocketOnDragCheckBox, "wrap");
+
 		// Scale carets with view
 		scaleCaretsCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.advanced.scaleCarets"));
@@ -407,6 +426,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private void setAdvancedControlsEnabled(boolean enabled) {
 		originAxesCheckBox.setEnabled(enabled);
 		lightVisualizersCheckBox.setEnabled(enabled);
+		rotateRocketOnDragCheckBox.setEnabled(enabled);
 		scaleCaretsCheckBox.setEnabled(enabled);
 	}
 
@@ -472,6 +492,7 @@ public class DisplaySettingsDialog extends JDialog {
 		try {
 			originAxesCheckBox.setSelected(originalOriginAxesVisible);
 			lightVisualizersCheckBox.setSelected(originalLightVisualizersVisible);
+			rotateRocketOnDragCheckBox.setSelected(originalRotateRocketOnDrag);
 			scaleCaretsCheckBox.setSelected(originalCaretScaleWithView);
 		} finally {
 			updatingRenderingControls = false;
@@ -479,6 +500,7 @@ public class DisplaySettingsDialog extends JDialog {
 		applyVisualEffectsChange(settings -> {
 			settings.setOriginAxesVisible(originalOriginAxesVisible);
 			settings.setLightVisualizersVisible(originalLightVisualizersVisible);
+			settings.setRotateRocketOnDrag(originalRotateRocketOnDrag);
 			settings.setCaretScaleWithView(originalCaretScaleWithView);
 		}, true, true);
 	}
@@ -538,6 +560,14 @@ public class DisplaySettingsDialog extends JDialog {
 			return config.getVisualEffects().areLightVisualizersVisible();
 		}
 		return Figure3DPreferences.areLightVisualizersVisible(prefs);
+	}
+
+	private boolean getCurrentRotateRocketOnDrag() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getVisualEffects().isRotateRocketOnDrag();
+		}
+		return Figure3DPreferences.isRotateRocketOnDrag(prefs);
 	}
 
 	private boolean getCurrentCaretScaleWithView() {
@@ -685,6 +715,7 @@ public class DisplaySettingsDialog extends JDialog {
 		boolean defaultRoughnessEnabled = Figure3DPreferences.isRoughnessBumpEnabled(prefs);
 		boolean defaultOriginAxesVisible = Figure3DPreferences.isOriginAxesVisible(prefs);
 		boolean defaultLightVisualizersVisible = Figure3DPreferences.areLightVisualizersVisible(prefs);
+		boolean defaultRotateRocketOnDrag = Figure3DPreferences.isRotateRocketOnDrag(prefs);
 		boolean defaultCaretScaleWithView = Figure3DPreferences.isCaretScaleWithView(prefs);
 		
 		return current2DBg.equals(default2DBg) &&
@@ -697,6 +728,7 @@ public class DisplaySettingsDialog extends JDialog {
 			   roughnessCheckBox.isSelected() == defaultRoughnessEnabled &&
 			   originAxesCheckBox.isSelected() == defaultOriginAxesVisible &&
 			   lightVisualizersCheckBox.isSelected() == defaultLightVisualizersVisible &&
+			   rotateRocketOnDragCheckBox.isSelected() == defaultRotateRocketOnDrag &&
 			   scaleCaretsCheckBox.isSelected() == defaultCaretScaleWithView;
 	}
 	
@@ -732,6 +764,7 @@ public class DisplaySettingsDialog extends JDialog {
 		Figure3DPreferences.setRoughnessBumpEnabled(prefs, roughnessCheckBox.isSelected());
 		Figure3DPreferences.setOriginAxesVisible(prefs, originAxesCheckBox.isSelected());
 		Figure3DPreferences.setLightVisualizersVisible(prefs, lightVisualizersCheckBox.isSelected());
+		Figure3DPreferences.setRotateRocketOnDrag(prefs, rotateRocketOnDragCheckBox.isSelected());
 		Figure3DPreferences.setCaretScaleWithView(prefs, scaleCaretsCheckBox.isSelected());
 	}
 	

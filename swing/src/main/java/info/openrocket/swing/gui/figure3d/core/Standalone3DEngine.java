@@ -68,6 +68,7 @@ public class Standalone3DEngine implements Runnable {
 				.build();
 		SceneView scene = scene3DOrchestrator.getScene();
 		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
+		scene3DOrchestrator.applyRocketRotationToScene();
 		DemoFactory.setupBackground(scene, 1);
 		scene3DOrchestrator.focusOnRocket();
 

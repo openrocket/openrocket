@@ -260,6 +260,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 		// Finally, tell the RocketMeshBuilder to recreate the rocket objects from the current rocket state.
 		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
+		scene3DOrchestrator.applyRocketRotationToScene();
 		if (refocusCamera) {
 			scene3DOrchestrator.focusOnRocket();
 		}

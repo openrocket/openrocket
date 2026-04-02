@@ -369,6 +369,22 @@ public class RocketFigure3d extends JPanel {
 		}
 	}
 
+	public void setDragRotationSensitivity(float sensitivity) {
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.enqueueGlTask(() -> {
+			orchestrator.getRenderingConfiguration().getVisualEffects().setDragRotationSensitivity(sensitivity);
+			orchestrator.getRenderingConfiguration().notifyListeners();
+		});
+		panel.repaint();
+	}
+
 	public double getZoomScale() {
 		return zoomScale;
 	}

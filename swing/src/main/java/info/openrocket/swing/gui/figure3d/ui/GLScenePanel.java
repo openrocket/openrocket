@@ -617,6 +617,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			// Create the scene mesh
 			RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
+			scene3DOrchestrator.applyRocketRotationToScene();
 			//RocketMeshBuilder.createOriginAxes(scene, true, true);
 			applyThemeBackground(scene);
 			installThemeListener();

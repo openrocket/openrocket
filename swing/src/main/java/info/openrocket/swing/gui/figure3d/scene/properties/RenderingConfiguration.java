@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
+import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -115,6 +117,8 @@ public class RenderingConfiguration {
         visualEffects.setMotionBlurFactor(5.0f);
         visualEffects.setOriginAxesVisible(false);
         visualEffects.setLightVisualizersVisible(false);
+        visualEffects.setRotateRocketOnDrag(true);
+        visualEffects.setDragRotationSensitivity(CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR);
         visualEffects.setAmbientLightFactor(0.1f);
         visualEffects.setParticleEffectsEnabled(true);
         visualEffects.setStaticParticles(true);
@@ -155,6 +159,8 @@ public class RenderingConfiguration {
         private boolean originAxesVisible = false;
         private boolean lightVisualizersVisible = false;
         private boolean caretsVisible = true;
+        private boolean rotateRocketOnDrag = true;
+        private float dragRotationSensitivity = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
         private boolean caretScaleWithView = false;
         private boolean staticParticles = true;
         private float particleTime = 10.0f;
@@ -333,6 +339,26 @@ public class RenderingConfiguration {
         }
 
         /**
+         * Sets whether drag rotates the rocket instead of orbiting the camera.
+         * @param rotateRocketOnDrag true to rotate the rocket, false to rotate the view
+         * @return This builder instance
+         */
+        public Builder withRotateRocketOnDrag(boolean rotateRocketOnDrag) {
+            this.rotateRocketOnDrag = rotateRocketOnDrag;
+            return this;
+        }
+
+        /**
+         * Sets the mouse-drag rotation sensitivity for 3D orbit controls.
+         * @param dragRotationSensitivity the sensitivity multiplier
+         * @return This builder instance
+         */
+        public Builder withDragRotationSensitivity(float dragRotationSensitivity) {
+            this.dragRotationSensitivity = dragRotationSensitivity;
+            return this;
+        }
+
+        /**
          * Sets whether CG/CP carets scale with the camera view (zoom).
          * @param scaleWithView true to scale with view, false for fixed size
          * @return This builder instance
@@ -410,6 +436,8 @@ public class RenderingConfiguration {
             config.getVisualEffects().setOriginAxesVisible(originAxesVisible);
             config.getVisualEffects().setLightVisualizersVisible(lightVisualizersVisible);
             config.getVisualEffects().setCaretsVisible(caretsVisible);
+            config.getVisualEffects().setRotateRocketOnDrag(rotateRocketOnDrag);
+            config.getVisualEffects().setDragRotationSensitivity(dragRotationSensitivity);
             config.getVisualEffects().setCaretScaleWithView(caretScaleWithView);
             config.getVisualEffects().setStaticParticles(staticParticles);
             config.getVisualEffects().setParticleTime(particleTime);

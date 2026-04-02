@@ -9,7 +9,6 @@ import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.rendering.RealisticRenderer;
 import info.openrocket.swing.gui.figure3d.rendering.Renderer;
-import info.openrocket.swing.gui.figure3d.rendering.Renderer;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraController;
 import info.openrocket.swing.gui.figure3d.scene.controllers.CameraControls;
 import info.openrocket.swing.gui.figure3d.scene.controllers.DefaultSceneInputProcessor;
@@ -88,6 +87,15 @@ public class Scene3DOrchestrator {
 	 */
 	public void focusOnRocket() {
 		cameraController.focusOnRocket();
+	}
+
+	/**
+	 * Reapplies the persisted rocket drag rotation after the rocket mesh is rebuilt.
+	 */
+	public void applyRocketRotationToScene() {
+		if (scene instanceof Scene actualScene) {
+			actualScene.applyRocketRotationToRocketObjects();
+		}
 	}
 
 	/**
@@ -466,10 +474,11 @@ public class Scene3DOrchestrator {
 		}
 
 		// 3. Initialize controllers
-		this.cameraController = new CameraController(rocket, camera, scene);
+		this.cameraController = new CameraController(rocket, camera, scene, renderingConfiguration);
 		this.cameraController.initialize(rocket, viewport.getAspectRatio());
 		
-        this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController);
+        this.inputHandler = new DefaultSceneInputProcessor(inputState, raycaster, scene, cameraController,
+				renderingConfiguration);
         this.inputHandler.updateDimensions(viewport);
 
 		this.rocketSynchronizer = new RocketSceneSynchronizer(this, this.scene, rocket);

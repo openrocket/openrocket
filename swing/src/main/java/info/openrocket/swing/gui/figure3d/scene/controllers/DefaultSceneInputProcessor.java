@@ -1,11 +1,14 @@
 package info.openrocket.swing.gui.figure3d.scene.controllers;
 
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.scene.core.Light;
+import info.openrocket.swing.gui.figure3d.scene.core.Scene;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
+import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.scene.properties.ViewportDimensions;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -34,6 +37,7 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
     private final Raycaster raycaster;
     private final SceneView scene;
     private final CameraControls cameraController;
+    private final RenderingConfiguration renderingConfiguration;
     private final InputState.DragDelta dragDelta = new InputState.DragDelta();
     
     // Viewport dimensions for coordinate conversion
@@ -46,12 +50,15 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
      * @param raycaster the raycaster for 3D object intersection and selection
      * @param scene the scene containing objects and lights to interact with
      * @param cameraController the camera controller for view manipulation
+     * @param renderingConfiguration the active rendering configuration
      */
-    public DefaultSceneInputProcessor(InputState inputState, Raycaster raycaster, SceneView scene, CameraControls cameraController) {
+    public DefaultSceneInputProcessor(InputState inputState, Raycaster raycaster, SceneView scene,
+            CameraControls cameraController, RenderingConfiguration renderingConfiguration) {
         this.inputState = inputState;
         this.raycaster = raycaster;
         this.scene = scene;
         this.cameraController = cameraController;
+        this.renderingConfiguration = renderingConfiguration;
     }
     
     /**
@@ -106,10 +113,16 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
     private void processMouseDragInput() {
         inputState.consumeDragDelta(dragDelta);
         if (dragDelta.dx != 0f || dragDelta.dy != 0f) {
+            float dragRotationSensitivity = CameraConstants.BASE_ROCKET_ROTATION_SENSITIVITY *
+                    renderingConfiguration.getVisualEffects().getDragRotationSensitivity();
             if (inputState.isLightDragging) {
                 updateMainLightRadialAngle(dragDelta.dx, dragDelta.dy);
             } else if (inputState.isPanning) {
                 cameraController.handlePan(dragDelta.dx, dragDelta.dy);
+            } else if (renderingConfiguration.getVisualEffects().isRotateRocketOnDrag() && scene instanceof Scene sceneImpl) {
+                Vector3f viewRight = new Vector3f();
+                cameraController.getCamera().getViewMatrix().positiveX(viewRight);
+                sceneImpl.orbitRocket(dragDelta.dx, dragDelta.dy, dragRotationSensitivity, viewRight);
             } else {
                 cameraController.handleOrbit(dragDelta.dx, dragDelta.dy);
             }

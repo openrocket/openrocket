@@ -66,6 +66,8 @@ public class CaretsPass implements RenderPass {
     private final Renderable cpMesh;
     private final Vector3f cgColor = new Vector3f(0.0f, 0.0f, 1.0f);
     private final Vector3f cpColor = new Vector3f(1.0f, 0.0f, 0.0f);
+    private final Vector3f transformedCgPosition = new Vector3f();
+    private final Vector3f transformedCpPosition = new Vector3f();
     private final AerodynamicCalculator aerodynamicCalculator;
     private final RenderingConfiguration config;
 
@@ -150,14 +152,14 @@ public class CaretsPass implements RenderPass {
 
         if (cgValid) {
             // Render CG
-            shader.setUniform("center", cgPosition);
+            shader.setUniform("center", scene.transformRocketPoint(cgPosition, transformedCgPosition));
             shader.setUniform("color", cgColor);
             cgMesh.render();
         }
 
         if (cpValid) {
             // Render CP
-            shader.setUniform("center", cpPosition);
+            shader.setUniform("center", scene.transformRocketPoint(cpPosition, transformedCpPosition));
             shader.setUniform("color", cpColor);
             cpMesh.render();
         }

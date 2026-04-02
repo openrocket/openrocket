@@ -5,6 +5,7 @@ import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
 import info.openrocket.swing.gui.figure3d.scene.controllers.LightController;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -116,6 +117,20 @@ public interface SceneView {
 	 * @param deltaTime the time elapsed since the last update in seconds
 	 */
 	void updateParticles(float deltaTime);
+
+	/**
+	 * Transforms a point from rocket-local world space through the current rocket drag rotation.
+	 *
+	 * @param point the point to transform
+	 * @param destination the destination vector, or null to allocate one
+	 * @return the transformed point
+	 */
+	default Vector3f transformRocketPoint(Vector3f point, Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		return destination.set(point);
+	}
 
 	/**
 	 * Cleans up all resources associated with the scene.

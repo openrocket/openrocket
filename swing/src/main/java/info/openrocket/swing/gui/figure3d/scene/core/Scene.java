@@ -2,6 +2,9 @@ package info.openrocket.swing.gui.figure3d.scene.core;
 
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.core.math.Raycaster;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
@@ -10,6 +13,8 @@ import info.openrocket.swing.gui.figure3d.scene.controllers.LightController;
 import info.openrocket.swing.gui.figure3d.scene.controllers.LightManager;
 import info.openrocket.swing.gui.figure3d.scene.events.SelectionListener;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +56,12 @@ public class Scene implements SceneView {
 	private final RenderingConfiguration config;
 
 	private final Rocket rocket;
+	private final Matrix4f rocketRotationMatrix = new Matrix4f();
+	private final Matrix4f scratchRocketTransform = new Matrix4f();
+	private final Matrix4f scratchRotationMatrix = new Matrix4f();
+	private final Matrix4f scratchModelMatrix = new Matrix4f();
+	private final Vector3f rocketRotationPivot = new Vector3f();
+	private final Vector3f scratchPitchAxis = new Vector3f();
 
 	private Scene(Rocket rocket, Camera camera, RenderingConfiguration config, Light light) {
 		this.rocket = rocket;
@@ -116,6 +127,45 @@ public class Scene implements SceneView {
 		for (ParticleEmitter emitter : particleEmitters) {
 			emitter.update(deltaTime);
 		}
+	}
+
+	/**
+	 * Applies drag-based rocket rotation while keeping the camera and lights fixed.
+	 *
+	 * @param dx horizontal drag delta
+	 * @param dy vertical drag delta
+	 * @param viewRight the current camera right vector for pitch rotation
+	 */
+	public void orbitRocket(float dx, float dy, float sensitivity, Vector3f viewRight) {
+		if ((dx == 0.0f && dy == 0.0f) || viewRight == null) {
+			return;
+		}
+
+		float yawAngle = dx * sensitivity;
+		float pitchAngle = dy * sensitivity;
+		applyRocketRotation(yawAngle, pitchAngle, viewRight);
+	}
+
+	/**
+	 * Reapplies the persisted rocket drag rotation to freshly rebuilt rocket objects.
+	 */
+	public void applyRocketRotationToRocketObjects() {
+		Matrix4f rocketTransform = getRocketTransformMatrix();
+		for (SceneObject object : objects) {
+			if (object.getRocketComponent() == null) {
+				continue;
+			}
+			scratchModelMatrix.set(rocketTransform).mul(object.getModelMatrix());
+			object.getModelMatrix().set(scratchModelMatrix);
+		}
+	}
+
+	@Override
+	public Vector3f transformRocketPoint(Vector3f point, Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		return getRocketTransformMatrix().transformPosition(point, destination);
 	}
 
 	@Override
@@ -302,6 +352,57 @@ public class Scene implements SceneView {
 		for (SelectionListener l : selectionListeners) {
 			l.onSelectionChanged(new ArrayList<>(selectedObjects));
 		}
+	}
+
+	private void applyRocketRotation(float yawAngle, float pitchAngle, Vector3f viewRight) {
+		scratchPitchAxis.set(viewRight);
+		if (scratchPitchAxis.lengthSquared() < 1.0e-6f) {
+			return;
+		}
+		scratchPitchAxis.normalize();
+
+		scratchRotationMatrix.identity()
+				.rotate(yawAngle, 0.0f, 1.0f, 0.0f)
+				.rotate(pitchAngle, scratchPitchAxis.x, scratchPitchAxis.y, scratchPitchAxis.z);
+
+		scratchModelMatrix.set(scratchRotationMatrix).mul(rocketRotationMatrix);
+		rocketRotationMatrix.set(scratchModelMatrix);
+
+		Matrix4f incrementalTransform = getRocketTransformMatrix(scratchRotationMatrix, scratchRocketTransform);
+		for (SceneObject object : objects) {
+			if (object.getRocketComponent() == null) {
+				continue;
+			}
+			scratchModelMatrix.set(incrementalTransform).mul(object.getModelMatrix());
+			object.getModelMatrix().set(scratchModelMatrix);
+		}
+	}
+
+	private Matrix4f getRocketTransformMatrix() {
+		return getRocketTransformMatrix(rocketRotationMatrix, scratchRocketTransform);
+	}
+
+	private Matrix4f getRocketTransformMatrix(Matrix4f rotationMatrix, Matrix4f destination) {
+		updateRocketRotationPivot();
+		return destination.identity()
+				.translate(rocketRotationPivot)
+				.mul(rotationMatrix)
+				.translate(-rocketRotationPivot.x, -rocketRotationPivot.y, -rocketRotationPivot.z);
+	}
+
+	private void updateRocketRotationPivot() {
+		BoundingBox bounds = rocket.getBoundingBox();
+		if (bounds == null || bounds.isEmpty()) {
+			rocketRotationPivot.zero();
+			return;
+		}
+
+		CoordinateIF minBounds = bounds.min.multiply(RocketMeshBuilder.WORLD_SCALE);
+		CoordinateIF maxBounds = bounds.max.multiply(RocketMeshBuilder.WORLD_SCALE);
+		rocketRotationPivot.set(
+				(float) ((minBounds.getX() + maxBounds.getX()) / 2.0),
+				(float) ((minBounds.getY() + maxBounds.getY()) / 2.0),
+				(float) ((minBounds.getZ() + maxBounds.getZ()) / 2.0));
 	}
 	
 	/**

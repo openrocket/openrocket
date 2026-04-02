@@ -1,6 +1,9 @@
 package info.openrocket.swing.gui.dialogs.preferences;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -17,7 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -32,8 +37,10 @@ import info.openrocket.core.arch.SystemInfo.Platform;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
+import info.openrocket.swing.gui.figure3d.RocketFigure3d;
 import info.openrocket.swing.gui.figure3d.scene.properties.Figure3DPreferences;
 import info.openrocket.swing.gui.figure3d.scene.properties.GraphicsQualitySettings;
+import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.GraphicsEditorChooser;
 
@@ -253,6 +260,27 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				});
 				enableGLModel.addEnableComponent(enableRoughness);
 				add(enableRoughness, "span 2, wrap");
+
+				// 3D drag sensitivity
+				add(new JLabel(trans.get("pref.dlg.opengl.lbl.dragSensitivity")), "gapright unrel");
+				final JSpinner dragSensitivitySpinner = new JSpinner(new SpinnerNumberModel(
+						(double) Figure3DPreferences.getDragRotationSensitivity(preferences),
+						0.05d,
+						5.0d,
+						0.1d));
+				dragSensitivitySpinner.addChangeListener(new ChangeListener() {
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						Object value = dragSensitivitySpinner.getValue();
+						if (value instanceof Number number) {
+							float sensitivity = number.floatValue();
+							Figure3DPreferences.setDragRotationSensitivity(preferences, sensitivity);
+							applyDragSensitivityToOpenViews(sensitivity);
+						}
+					}
+				});
+				enableGLModel.addEnableComponent(dragSensitivitySpinner);
+				add(dragSensitivitySpinner, "growx, wrap");
 				
 				// Use Off-screen Rendering
 				final JCheckBox useFBO = new JCheckBox(trans.get("pref.dlg.opengl.lbl.useFBO"));
@@ -275,5 +303,29 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 			case MEDIUM -> trans.get("LevelOfDetail.NORMAL_QUALITY");
 			case HIGH -> trans.get("LevelOfDetail.HIGH_QUALITY");
 		};
+	}
+
+	private void applyDragSensitivityToOpenViews(float sensitivity) {
+		for (Window window : Window.getWindows()) {
+			if (window == null) {
+				continue;
+			}
+			applyDragSensitivityToComponentTree(window, sensitivity);
+		}
+	}
+
+	private void applyDragSensitivityToComponentTree(Component component, float sensitivity) {
+		if (component instanceof RocketPanel rocketPanel) {
+			RocketFigure3d figure3d = rocketPanel.getFigure3d();
+			if (figure3d != null) {
+				figure3d.setDragRotationSensitivity(sensitivity);
+			}
+		}
+		if (!(component instanceof Container container)) {
+			return;
+		}
+		for (Component child : container.getComponents()) {
+			applyDragSensitivityToComponentTree(child, sensitivity);
+		}
 	}
 }
