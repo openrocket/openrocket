@@ -6,6 +6,7 @@ import info.openrocket.core.appearance.defaults.DefaultAppearance;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
@@ -167,21 +168,12 @@ public abstract class AppearanceFactory {
 		}
 
 		// Interpolate both strength and scale within the segment
-		float strength = interpolate(roughnessSize, ROUGHNESS_SIZES[i], ROUGHNESS_SIZES[i + 1], STRENGTH_VALUES[i], STRENGTH_VALUES[i + 1]);
-		float scale = interpolate(roughnessSize, ROUGHNESS_SIZES[i], ROUGHNESS_SIZES[i + 1], SCALE_VALUES[i], SCALE_VALUES[i + 1]);
+		float strength = (float) MathUtil.map(roughnessSize, ROUGHNESS_SIZES[i], ROUGHNESS_SIZES[i + 1],
+				STRENGTH_VALUES[i], STRENGTH_VALUES[i + 1]);
+		float scale = (float) MathUtil.map(roughnessSize, ROUGHNESS_SIZES[i], ROUGHNESS_SIZES[i + 1],
+				SCALE_VALUES[i], SCALE_VALUES[i + 1]);
 
 		engineAppearance.setRoughnessStrength(strength);
 		engineAppearance.setRoughnessScale(scale);
-	}
-
-	/**
-	 * Performs linear interpolation between two points.
-	 */
-	private static float interpolate(double x, double x1, double x2, float y1, float y2) {
-		if (x1 >= x2) {
-			return y1; // Avoid division by zero or invalid range
-		}
-		double factor = (x - x1) / (x2 - x1);
-		return (float) (y1 + factor * (y2 - y1));
 	}
 }

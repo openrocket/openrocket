@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -436,7 +437,7 @@ public class PhotoPanel extends JPanel {
 		}
 		float alpha = (float) settings.getSkyColorOpacity();
 		Sky selectedSky = settings.getSky();
-		if (selectedSky == lastSky && sameColor(sky, lastSkyColor) && approximatelyEqual(alpha, lastSkyOpacity)) {
+		if (selectedSky == lastSky && Objects.equals(sky, lastSkyColor) && MathUtil.equals(alpha, lastSkyOpacity, CAMERA_SETTINGS_EPSILON)) {
 			return;
 		}
 
@@ -616,13 +617,13 @@ public class PhotoPanel extends JPanel {
 		effects.setSparkConcentration((float) settings.getSparkConcentration());
 		effects.setSparkWeight((float) settings.getSparkWeight());
 
-		boolean flameColorChanged = !sameColor(flameColor, lastFlameColor);
-		boolean smokeColorChanged = !sameColor(smokeColor, lastSmokeColor);
-		boolean smokeOpacityChanged = !approximatelyEqual(settings.getSmokeOpacity(), lastSmokeOpacity);
-		boolean exhaustScaleChanged = !approximatelyEqual(settings.getExhaustScale(), lastExhaustScale);
-		boolean flameAspectRatioChanged = !approximatelyEqual(settings.getFlameAspectRatio(), lastFlameAspectRatio);
-		boolean sparkConcentrationChanged = !approximatelyEqual(settings.getSparkConcentration(), lastSparkConcentration);
-		boolean sparkWeightChanged = !approximatelyEqual(settings.getSparkWeight(), lastSparkWeight);
+		boolean flameColorChanged = !Objects.equals(flameColor, lastFlameColor);
+		boolean smokeColorChanged = !Objects.equals(smokeColor, lastSmokeColor);
+		boolean smokeOpacityChanged = !MathUtil.equals(settings.getSmokeOpacity(), lastSmokeOpacity, CAMERA_SETTINGS_EPSILON);
+		boolean exhaustScaleChanged = !MathUtil.equals(settings.getExhaustScale(), lastExhaustScale, CAMERA_SETTINGS_EPSILON);
+		boolean flameAspectRatioChanged = !MathUtil.equals(settings.getFlameAspectRatio(), lastFlameAspectRatio, CAMERA_SETTINGS_EPSILON);
+		boolean sparkConcentrationChanged = !MathUtil.equals(settings.getSparkConcentration(), lastSparkConcentration, CAMERA_SETTINGS_EPSILON);
+		boolean sparkWeightChanged = !MathUtil.equals(settings.getSparkWeight(), lastSparkWeight, CAMERA_SETTINGS_EPSILON);
 
 		boolean rebuild = particlesEnabled != lastParticlesEnabled
 				|| settings.isFlame() != lastFlame
@@ -655,10 +656,10 @@ public class PhotoPanel extends JPanel {
 		if (!cameraSettingsTracked) {
 			return true;
 		}
-		return !approximatelyEqual(settings.getViewAz(), lastViewAz)
-				|| !approximatelyEqual(settings.getViewAlt(), lastViewAlt)
-				|| !approximatelyEqual(settings.getViewDistance(), lastViewDistance)
-				|| !approximatelyEqual(settings.getFov(), lastFov);
+		return !MathUtil.equals(settings.getViewAz(), lastViewAz, CAMERA_SETTINGS_EPSILON)
+				|| !MathUtil.equals(settings.getViewAlt(), lastViewAlt, CAMERA_SETTINGS_EPSILON)
+				|| !MathUtil.equals(settings.getViewDistance(), lastViewDistance, CAMERA_SETTINGS_EPSILON)
+				|| !MathUtil.equals(settings.getFov(), lastFov, CAMERA_SETTINGS_EPSILON);
 	}
 
 	private void rememberCameraSettings() {
@@ -691,10 +692,10 @@ public class PhotoPanel extends JPanel {
 		double viewDistance = cameraState.distance / RenderingConstants.WORLD_SCALE;
 		double fov = cameraState.fieldOfView;
 
-		if (approximatelyEqual(viewAz, settings.getViewAz())
-				&& approximatelyEqual(viewAlt, settings.getViewAlt())
-				&& approximatelyEqual(viewDistance, settings.getViewDistance())
-				&& approximatelyEqual(fov, settings.getFov())) {
+		if (MathUtil.equals(viewAz, settings.getViewAz(), CAMERA_SETTINGS_EPSILON)
+				&& MathUtil.equals(viewAlt, settings.getViewAlt(), CAMERA_SETTINGS_EPSILON)
+				&& MathUtil.equals(viewDistance, settings.getViewDistance(), CAMERA_SETTINGS_EPSILON)
+				&& MathUtil.equals(fov, settings.getFov(), CAMERA_SETTINGS_EPSILON)) {
 			return;
 		}
 
@@ -707,10 +708,6 @@ public class PhotoPanel extends JPanel {
 		}
 	}
 
-	private static boolean approximatelyEqual(double a, double b) {
-		return MathUtil.equals(a, b, CAMERA_SETTINGS_EPSILON);
-	}
-
 	private static ORColor colorOrDefault(ORColor color, ORColor fallback) {
 		return color != null ? color : fallback;
 	}
@@ -720,16 +717,6 @@ public class PhotoPanel extends JPanel {
 			return null;
 		}
 		return new ORColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-	}
-
-	private static boolean sameColor(ORColor a, ORColor b) {
-		if (a == b) {
-			return true;
-		}
-		if (a == null || b == null) {
-			return false;
-		}
-		return a.equals(b);
 	}
 
 	private static Vector3f toColorVector(ORColor color) {
