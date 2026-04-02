@@ -86,6 +86,15 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
 		fireChangeEvent();
 	}
+
+	public void setView(double viewAlt, double viewAz, double viewDistance, double fov) {
+		this.viewAz = viewAz;
+		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI / 2, Math.PI / 2);
+		this.viewDistance = Math.max(viewDistance, 0);
+		this.fov = MathUtil.clamp(fov, 0, Math.PI);
+		fireChangeEvent();
+	}
+
 	public void setViewAlt(double viewAlt) {
 		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
 		fireChangeEvent();

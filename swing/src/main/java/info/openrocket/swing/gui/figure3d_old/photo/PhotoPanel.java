@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d_old.photo;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.rocketcomponent.BodyComponent;
 import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
@@ -57,6 +58,7 @@ public class PhotoPanel extends JPanel {
 	private final AtomicBoolean captureQueued = new AtomicBoolean(false);
 	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
 	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
+	private final AtomicBoolean syncingCameraToSettings = new AtomicBoolean(false);
 	private final Map<SceneObject, Matrix4f> baseTransforms = new IdentityHashMap<>();
 	private final Map<ParticleEmitter, EmitterBase> baseEmitters = new IdentityHashMap<>();
 	private boolean lastFlame;
@@ -141,7 +143,11 @@ public class PhotoPanel extends JPanel {
 		this.settings = settings;
 		setLayout(new BorderLayout());
 		debug("PhotoPanel ctor");
-		settings.addChangeListener(e -> applySettings());
+		settings.addChangeListener(e -> {
+			if (!syncingCameraToSettings.get()) {
+				applySettings();
+			}
+		});
 	}
 
 	void addImageCallback(ImageCallback callback) {
@@ -309,6 +315,7 @@ public class PhotoPanel extends JPanel {
 			applySettings();
 		}
 		panel.render();
+		syncSettingsFromCamera();
 		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
 			applySettings();
 		}
@@ -646,8 +653,51 @@ public class PhotoPanel extends JPanel {
 		cameraSettingsTracked = true;
 	}
 
+	/**
+	 * Synchronizes camera settings from the scene back to the settings object, if they have changed.
+	 * This allows the settings to reflect user interactions with the camera (e.g. orbiting with mouse drag).
+	 */
+	private void syncSettingsFromCamera() {
+		GLScenePanel panel = glPanel;
+		if (panel == null) {
+			return;
+		}
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		SceneView scene = orchestrator.getScene();
+		if (scene == null) {
+			return;
+		}
+		Camera camera = scene.getCamera();
+		if (camera == null) {
+			return;
+		}
+
+		double viewAz = camera.getAngleX();
+		double viewAlt = camera.getAngleY();
+		double viewDistance = camera.getDistance() / RenderingConstants.WORLD_SCALE;
+		double fov = camera.getFieldOfView();
+
+		if (approximatelyEqual(viewAz, settings.getViewAz())
+				&& approximatelyEqual(viewAlt, settings.getViewAlt())
+				&& approximatelyEqual(viewDistance, settings.getViewDistance())
+				&& approximatelyEqual(fov, settings.getFov())) {
+			return;
+		}
+
+		syncingCameraToSettings.set(true);
+		try {
+			settings.setView(viewAlt, viewAz, viewDistance, fov);
+			rememberCameraSettings();
+		} finally {
+			syncingCameraToSettings.set(false);
+		}
+	}
+
 	private static boolean approximatelyEqual(double a, double b) {
-		return Math.abs(a - b) <= CAMERA_SETTINGS_EPSILON;
+		return MathUtil.equals(a, b, CAMERA_SETTINGS_EPSILON);
 	}
 
 	private static ORColor colorOrDefault(ORColor color, ORColor fallback) {
