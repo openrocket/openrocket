@@ -17,6 +17,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JComboBox;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JDialog;
@@ -164,6 +165,7 @@ public class DisplaySettingsDialog extends JDialog {
 			update2DView();
 		});
 		panel.add(color2DButton, "growx");
+		setTooltip(label2D, color2DButton, "RocketPanel.dlg.displaySettings.2DBackground.ttip");
 		
 		reset2DBgButton = createResetButton(color2DButton, DocumentPreferences.PREF_2D_BACKGROUND_COLOR,
 				prefs.getDefault2DBackgroundColor(), UITheme.getColor(UITheme.Keys.BACKGROUND),
@@ -187,6 +189,7 @@ public class DisplaySettingsDialog extends JDialog {
 			updateTextColors();
 		});
 		panel.add(textColor2DButton, "growx");
+		setTooltip(label2DText, textColor2DButton, "RocketPanel.dlg.displaySettings.2DTextColor.ttip");
 
 		reset2DTextButton = createResetButton(textColor2DButton, DocumentPreferences.PREF_2D_TEXT_COLOR,
 				prefs.getDefault2DTextColor(), UITheme.getColor(UITheme.Keys.TEXT),
@@ -210,6 +213,7 @@ public class DisplaySettingsDialog extends JDialog {
 			update3DView();
 		});
 		panel.add(color3DButton, "growx");
+		setTooltip(label3D, color3DButton, "RocketPanel.dlg.displaySettings.3DBackground.ttip");
 		
 		reset3DBgButton = createResetButton(color3DButton, DocumentPreferences.PREF_3D_BACKGROUND_COLOR,
 				prefs.getDefault3DBackgroundColor(), UITheme.getColor(UITheme.Keys.BACKGROUND),
@@ -233,6 +237,7 @@ public class DisplaySettingsDialog extends JDialog {
 			updateTextColors();
 		});
 		panel.add(textColor3DButton, "growx");
+		setTooltip(label3DText, textColor3DButton, "RocketPanel.dlg.displaySettings.3DTextColor.ttip");
 		
 		reset3DTextButton = createResetButton(textColor3DButton, DocumentPreferences.PREF_3D_TEXT_COLOR,
 				prefs.getDefault3DTextColor(), UITheme.getColor(UITheme.Keys.TEXT),
@@ -285,12 +290,16 @@ public class DisplaySettingsDialog extends JDialog {
 			resetDefaultStateClickCount();
 			applyRenderingChange(config -> config.getQuality().setQuality(quality), true);
 		});
+		renderQualityCombo.setToolTipText(trans.get("RocketPanel.dlg.displaySettings.rendering.quality.ttip"));
 
-		panel.add(new JLabel(trans.get("RocketPanel.dlg.displaySettings.rendering.quality")), "gapright unrel");
+		JLabel renderQualityLabel = new JLabel(trans.get("RocketPanel.dlg.displaySettings.rendering.quality"));
+		panel.add(renderQualityLabel, "gapright unrel");
 		panel.add(renderQualityCombo, "growx, wrap");
+		renderQualityLabel.setToolTipText(trans.get("RocketPanel.dlg.displaySettings.rendering.quality.ttip"));
 
 		// Render shadows
 		renderShadowsCheckBox = new JCheckBox(trans.get("RocketPanel.dlg.displaySettings.rendering.shadows"));
+		renderShadowsCheckBox.setToolTipText(trans.get("RocketPanel.dlg.displaySettings.rendering.shadows.ttip"));
 		renderShadowsCheckBox.setSelected(originalShadowsEnabled);
 		renderShadowsCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -305,6 +314,8 @@ public class DisplaySettingsDialog extends JDialog {
 		// Ambient occlusion
 		ambientOcclusionCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.rendering.ambientOcclusion"));
+		ambientOcclusionCheckBox.setToolTipText(
+				trans.get("RocketPanel.dlg.displaySettings.rendering.ambientOcclusion.ttip"));
 		ambientOcclusionCheckBox.setSelected(originalAmbientOcclusionEnabled);
 		ambientOcclusionCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -319,6 +330,7 @@ public class DisplaySettingsDialog extends JDialog {
 
 		// Surface roughness
 		roughnessCheckBox = new JCheckBox(trans.get("RocketPanel.dlg.displaySettings.rendering.roughness"));
+		roughnessCheckBox.setToolTipText(trans.get("RocketPanel.dlg.displaySettings.rendering.roughness.ttip"));
 		roughnessCheckBox.setSelected(originalRoughnessEnabled);
 		roughnessCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -345,6 +357,7 @@ public class DisplaySettingsDialog extends JDialog {
 
 		// Show origin axes
 		originAxesCheckBox = new JCheckBox(trans.get("RocketPanel.dlg.displaySettings.advanced.originAxes"));
+		originAxesCheckBox.setToolTipText(trans.get("RocketPanel.dlg.displaySettings.advanced.originAxes.ttip"));
 		originAxesCheckBox.setSelected(originalOriginAxesVisible);
 		originAxesCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -361,6 +374,8 @@ public class DisplaySettingsDialog extends JDialog {
 		// Show light visualizers
 		lightVisualizersCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.advanced.lightVisualizers"));
+		lightVisualizersCheckBox.setToolTipText(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.lightVisualizers.ttip"));
 		lightVisualizersCheckBox.setSelected(originalLightVisualizersVisible);
 		lightVisualizersCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -377,6 +392,8 @@ public class DisplaySettingsDialog extends JDialog {
 		// Rotate rocket when dragging
 		rotateRocketOnDragCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.advanced.rotateRocketOnDrag"));
+		rotateRocketOnDragCheckBox.setToolTipText(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.rotateRocketOnDrag.ttip"));
 		rotateRocketOnDragCheckBox.setSelected(originalRotateRocketOnDrag);
 		rotateRocketOnDragCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -393,6 +410,8 @@ public class DisplaySettingsDialog extends JDialog {
 		// Scale carets with view
 		scaleCaretsCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.advanced.scaleCarets"));
+		scaleCaretsCheckBox.setToolTipText(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.scaleCarets.ttip"));
 		scaleCaretsCheckBox.setSelected(originalCaretScaleWithView);
 		scaleCaretsCheckBox.addActionListener(e -> {
 			if (updatingRenderingControls) {
@@ -592,6 +611,12 @@ public class DisplaySettingsDialog extends JDialog {
 			return quality;
 		}
 		return Figure3DPreferences.getDefaultRenderQuality(prefs);
+	}
+
+	private void setTooltip(JLabel label, JComponent component, String key) {
+		String tooltip = trans.get(key);
+		label.setToolTipText(tooltip);
+		component.setToolTipText(tooltip);
 	}
 	
 	/**
