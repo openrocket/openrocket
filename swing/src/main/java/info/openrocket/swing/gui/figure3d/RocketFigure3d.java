@@ -223,6 +223,8 @@ public class RocketFigure3d extends JPanel {
 			} else {
 				EDT_RENDER_SCHEDULER.register(this);
 			}
+			requestRenderNow();
+			scheduleStartupWatchdog();
 		});
 	}
 
@@ -478,6 +480,36 @@ public class RocketFigure3d extends JPanel {
 		return panel != null ? panel.getScene3DOrchestrator() : null;
 	}
 
+	public int getCanvasRenderCallCount() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getRenderCallCount() : 0;
+	}
+
+	public int getCanvasPaintCallCount() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getPaintCallCount() : 0;
+	}
+
+	public int getCanvasSwapCallCount() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getSwapCallCount() : 0;
+	}
+
+	public boolean hasCompletedCanvasFrame() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null && panel.hasCompletedFrame();
+	}
+
+	public boolean isCanvasPeerMispositioned() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null && panel.isPeerMispositionedForDebug();
+	}
+
+	public String getCanvasDebugState() {
+		GLScenePanel panel = glScenePanel;
+		return panel != null ? panel.getDebugStateSummary() : "panel=null";
+	}
+
 	public BufferedImage captureImage() {
 		GLScenePanel panel = glScenePanel;
 		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
@@ -536,6 +568,36 @@ public class RocketFigure3d extends JPanel {
 		// Avoid forcing GLScenePanel.cleanup() here to prevent JAWT crashes on macOS.
 		glScenePanel = null;
 		super.removeNotify();
+	}
+
+	private void scheduleStartupWatchdog() {
+		int[] delaysMs = {750, 1500, 3000};
+		for (int delayMs : delaysMs) {
+			Timer timer = new Timer(delayMs, e -> runStartupWatchdog(delayMs));
+			timer.setRepeats(false);
+			timer.start();
+		}
+	}
+
+	private void runStartupWatchdog(int delayMs) {
+		if (!renderingEnabled || disposed) {
+			return;
+		}
+		ensureCanvasCreatedOnEdt();
+		GLScenePanel panel = glScenePanel;
+		if (panel == null) {
+			requestRenderNow();
+			return;
+		}
+		if (panel.hasCompletedFrame()) {
+			return;
+		}
+		panel.requestPeerBoundsSyncNow();
+		revalidate();
+		repaint();
+		panel.revalidate();
+		panel.repaint();
+		requestRenderNow();
 	}
 
 	private static final class EdtRenderScheduler implements ActionListener {

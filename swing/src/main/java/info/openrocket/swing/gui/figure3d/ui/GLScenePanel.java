@@ -125,13 +125,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private static final Logger log = LoggerFactory.getLogger(GLScenePanel.class);
 	private static final boolean NEEDS_PEER_BOUNDS_SYNC_WORKAROUND = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
-	private static final AtomicInteger INSTANCE_COUNTER = new AtomicInteger(0);
-	private final int instanceId = INSTANCE_COUNTER.incrementAndGet();
 	private final AtomicInteger renderCallCount = new AtomicInteger(0);
 	private final AtomicInteger paintCallCount = new AtomicInteger(0);
 	private final AtomicInteger swapCallCount = new AtomicInteger(0);
-	private volatile long lastPaintSkipDebugMs = 0;
-	private volatile long lastStatusDebugMs = 0;
 
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final KeyboardHandler keyboardHandler;
@@ -680,6 +676,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
 			return;
 		}
+		int paintBefore = paintCallCount.get();
+		int swapBefore = swapCallCount.get();
 		try {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				RENDER_LOCK.lock();
@@ -690,6 +688,17 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				// The native NSOpenGLView is created during the first render; schedule another bounds sync
 				// afterwards to catch late layout adjustments in Swing.
 				requestPeerBoundsSyncNow();
+			}
+			int paintAfter = paintCallCount.get();
+			int swapAfter = swapCallCount.get();
+			if (paintAfter == paintBefore && swapAfter == swapBefore) {
+				if (peerBoundsSyncEnabled) {
+					requestPeerBoundsSyncNow();
+				}
+				SwingUtilities.invokeLater(() -> {
+					revalidate();
+					repaint();
+				});
 			}
 		} catch (Throwable t) {
 			glInitFailed = true;
@@ -1220,7 +1229,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// drawing surface during removeNotify(), and forcing disposal earlier can double-free
 			// the JAWT surface on macOS during window close.
 		} else {
-			log.debug("Skipping runInContext cleanup for non-displayable canvas {}", instanceId);
+			log.debug("Skipping runInContext cleanup for non-displayable canvas");
 		}
 
 		// Always free native memory - this doesn't require GL context
@@ -1243,6 +1252,39 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		glCapabilities = null;
 
 		GpuResourceTracker.logLiveResources("Swing canvas cleanup (other canvases may still be active)", false);
+	}
+
+	public int getRenderCallCount() {
+		return renderCallCount.get();
+	}
+
+	public int getPaintCallCount() {
+		return paintCallCount.get();
+	}
+
+	public int getSwapCallCount() {
+		return swapCallCount.get();
+	}
+
+	public boolean hasCompletedFrame() {
+		return paintCallCount.get() > 0 || swapCallCount.get() > 0;
+	}
+
+	public boolean isPeerMispositionedForDebug() {
+		return peerBoundsSyncEnabled && isShowing() && isPeerMispositioned();
+	}
+
+	public String getDebugStateSummary() {
+		return "displayable=" + isDisplayable()
+				+ ", showing=" + isShowing()
+				+ ", visible=" + isVisible()
+				+ ", size=" + getWidth() + "x" + getHeight()
+				+ ", glInitialized=" + glInitialized
+				+ ", glInitFailed=" + glInitFailed
+				+ ", renderCalls=" + renderCallCount.get()
+				+ ", paintCalls=" + paintCallCount.get()
+				+ ", swapCalls=" + swapCallCount.get()
+				+ ", peerMispositioned=" + (peerBoundsSyncEnabled && isShowing() ? isPeerMispositioned() : false);
 	}
 
 	private void applyThemeBackground(SceneView scene) {

@@ -236,6 +236,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private ViewRotationControl rotationControl;
 	private ScaleSelector scaleSelector;
+	private JComboBox<RocketPanel.VIEW_TYPE> viewSelector;
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
@@ -635,6 +636,55 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure.repaint();
 	}
 
+	private void applyViewTypeSelection(VIEW_TYPE viewType) {
+		if (viewType == null || viewType == VIEW_TYPE.SEPARATOR) {
+			return;
+		}
+
+		// Save caliper state before switching views
+		if (caliperManager != null) {
+			caliperManager.saveCurrentCaliperState();
+		}
+
+		currentViewType = viewType;
+		if (viewType.is3d) {
+			figure3d.setType(viewType.type);
+			go3D();
+			updateRulers();
+		} else {
+			figure.setType(viewType);
+			if (caliperManager != null) {
+				caliperManager.loadCaliperStateForView(getCurrentViewType());
+				// Update snap targets when view type changes
+				if (caliperManager.isSnapModeActive()) {
+					caliperManager.updateSnapTargets();
+				}
+			}
+			updateExtras(); // when switching from side view to back view, need to clear CP & CG markers
+			go2D();
+			updateRulers();
+		}
+	}
+
+	public void setViewType(VIEW_TYPE viewType) {
+		if (viewType == null || viewType == VIEW_TYPE.SEPARATOR) {
+			return;
+		}
+		if (SwingUtilities.isEventDispatchThread()) {
+			if (viewSelector != null) {
+				viewSelector.setSelectedItem(viewType);
+			} else {
+				applyViewTypeSelection(viewType);
+			}
+			return;
+		}
+		try {
+			SwingUtilities.invokeAndWait(() -> setViewType(viewType));
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to switch RocketPanel view type to " + viewType, e);
+		}
+	}
+
 	/**
 	 * Get the current view type.
 	 * @return the current VIEW_TYPE
@@ -672,35 +722,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				if (v == VIEW_TYPE.SEPARATOR) {
 					return;
 				}
-
-				// Save caliper state before switching views
-				if (caliperManager != null) {
-					caliperManager.saveCurrentCaliperState();
-				}
-
 				super.setSelectedItem(o);
-				currentViewType = v;
-				if (v.is3d) {
-					figure3d.setType(v.type);
-					go3D();
-					updateRulers();
-				} else {
-					figure.setType(v);
-					if (caliperManager != null) {
-						caliperManager.loadCaliperStateForView(getCurrentViewType());
-						// Update snap targets when view type changes
-						if (caliperManager.isSnapModeActive()) {
-							caliperManager.updateSnapTargets();
-						}
-					}
-					updateExtras(); // when switching from side view to back view, need to clear CP & CG markers
-					go2D();
-					updateRulers();
-				}
+				applyViewTypeSelection(v);
 			}
 		};
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "cell 0 0");
-		final JComboBox<RocketPanel.VIEW_TYPE> viewSelector = new JComboBox<>(cm);
+		viewSelector = new JComboBox<>(cm);
 		viewSelector.setRenderer(new SeparatorComboBoxRenderer(viewSelector.getRenderer()));
 		ribbon.add(viewSelector, "cell 0 1");
 
