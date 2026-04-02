@@ -6,6 +6,8 @@ out vec4 FragColor;
 // Inputs from vertex shader
 in mediump vec3 v_fragPos;
 in mediump vec3 v_normal;
+in mediump vec3 v_objectPos;
+in mediump vec3 v_objectNormal;
 in mediump vec2 v_texCoord;
 flat in int v_surfaceID;
 in mediump float v_eyeSpaceZ;
@@ -16,6 +18,7 @@ uniform int renderStyle; // 0:COLOR_ONLY, 1:TEXTURE_ONLY, 2:WIREFRAME
 uniform mediump vec3 objectColor;
 uniform int hasTexture;
 uniform sampler2D textureSampler;
+uniform mat4 model;
 uniform mat4 textureTransformMatrix;
 uniform mat4 decalTransformMatrix;
 
@@ -69,72 +72,82 @@ uniform bool shadowsEnabled;
 uniform int shadowLightIndex;
 uniform float shadowStrength;
 
-// --- Simplex Noise (from simplex_noise.glsl) ---
-vec3 mod289(vec3 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+// Object-space value noise avoids UV seams and stretching across different mappings.
+float hash13(vec3 p) {
+    vec3 p3 = fract(p * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
 }
 
-vec2 mod289(vec2 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+float valueNoise3D(vec3 p) {
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+    vec3 u = f * f * (3.0 - 2.0 * f);
+
+    float n000 = hash13(i + vec3(0.0, 0.0, 0.0));
+    float n100 = hash13(i + vec3(1.0, 0.0, 0.0));
+    float n010 = hash13(i + vec3(0.0, 1.0, 0.0));
+    float n110 = hash13(i + vec3(1.0, 1.0, 0.0));
+    float n001 = hash13(i + vec3(0.0, 0.0, 1.0));
+    float n101 = hash13(i + vec3(1.0, 0.0, 1.0));
+    float n011 = hash13(i + vec3(0.0, 1.0, 1.0));
+    float n111 = hash13(i + vec3(1.0, 1.0, 1.0));
+
+    float nx00 = mix(n000, n100, u.x);
+    float nx10 = mix(n010, n110, u.x);
+    float nx01 = mix(n001, n101, u.x);
+    float nx11 = mix(n011, n111, u.x);
+    float nxy0 = mix(nx00, nx10, u.y);
+    float nxy1 = mix(nx01, nx11, u.y);
+    return mix(nxy0, nxy1, u.z);
 }
 
-vec3 permute(vec3 x) {
-  return mod289(((x*34.0)+1.0)*x);
+float ridgedNoise3D(vec3 p) {
+    return 1.0 - abs(2.0 * valueNoise3D(p) - 1.0);
 }
 
-float snoise(vec2 v)
-  {
-  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
-                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
-                     -0.577350269189626,  // -1.0 + 2.0 * C.x
-                      0.024390243902439); // 1.0 / 41.0
-// First corner
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-
-// Other corners
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-
-// Permutations
-  i = mod289(i); // Avoid truncation effects in permutation
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-		+ i.x + vec3(0.0, i1.x, 1.0 ));
-
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-  m = m*m;
-  m = m*m;
-
-// Gradients
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-
-// Compute final noise value
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
+vec3 rotateNoise3D(vec3 p) {
+    return mat3(
+         0.00,  0.80,  0.60,
+        -0.80,  0.36, -0.48,
+        -0.60, -0.48,  0.64
+    ) * p;
 }
 
-// --- FBM (Fractional Brownian Motion) for more complex noise ---
-float fbm(vec2 v) {
+float granularHeight(vec3 noisePos) {
+    vec3 warped = noisePos;
+    warped += vec3(
+        valueNoise3D(rotateNoise3D(noisePos * 0.55 + vec3(2.3, 5.1, 7.4))),
+        valueNoise3D(rotateNoise3D(noisePos.yzx * 0.50 + vec3(9.2, 1.8, 4.6))),
+        valueNoise3D(rotateNoise3D(noisePos.zxy * 0.60 + vec3(3.7, 8.9, 6.1)))
+    ) - 0.5;
+    warped += (vec3(
+        valueNoise3D(rotateNoise3D(noisePos * 1.3 + vec3(13.1, 4.7, 11.5))),
+        valueNoise3D(rotateNoise3D(noisePos.zxy * 1.2 + vec3(6.3, 12.8, 2.4))),
+        valueNoise3D(rotateNoise3D(noisePos.yzx * 1.4 + vec3(15.4, 9.6, 5.7)))
+    ) - 0.5) * 0.28;
+
+    vec3 octavePos = warped;
+    float amplitude = 0.50;
     float total = 0.0;
-    float amplitude = 1.0;
-    float frequency = 1.0;
-    int octaves = 2;
-    float persistence = 0.5;
+    float weight = 0.0;
 
-    for (int i = 0; i < octaves; i++) {
-        total += snoise(v * frequency) * amplitude;
-        frequency *= 2.0;
-        amplitude *= persistence;
+    for (int octave = 0; octave < 7; ++octave) {
+        float base = valueNoise3D(octavePos + vec3(17.0, 9.0, 13.0));
+        float ridge = ridgedNoise3D(octavePos * 1.17 + vec3(5.0, 23.0, 31.0));
+        float layer = mix(base, ridge, octave < 2 ? 0.18 : 0.38);
+        total += layer * amplitude;
+        weight += amplitude;
+
+        octavePos = rotateNoise3D(octavePos * 2.05 + vec3(11.3, 17.1, 7.7));
+        amplitude *= 0.58;
     }
-    return total;
+
+    float sparkle = valueNoise3D(rotateNoise3D(octavePos * 1.9 + vec3(29.0, 47.0, 19.0)));
+    total += sparkle * 0.08;
+    weight += 0.08;
+
+    return pow(clamp(total / max(weight, 1e-4), 0.0, 1.0), 1.22);
 }
 
 vec2 getMaterialTexCoord() {
@@ -160,53 +173,52 @@ float adjustTextureCoverage(float alpha) {
     return clamp(pow(alpha, 0.82), 0.0, 1.0);
 }
 
-vec3 getSurfaceNormal(vec3 normal, vec2 texCoord) {
-    if (roughnessStrength <= 0.0) return normal;
+vec3 getSurfaceNormal(vec3 normal) {
+    if (roughnessStrength <= 0.0 || roughnessScale <= 0.0) return normal;
 
+    vec3 objectNormal = normalize(v_objectNormal);
+    vec3 objectAxis = abs(objectNormal.y) < 0.85 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 objectTangent = normalize(cross(objectAxis, objectNormal));
+    if (length(objectTangent) < 1e-4) {
+        objectTangent = normalize(cross(vec3(0.0, 0.0, 1.0), objectNormal));
+    }
+    vec3 objectBitangent = normalize(cross(objectNormal, objectTangent));
+
+    mat3 normalMatrix = mat3(transpose(inverse(model)));
+    vec3 transformedTangent = normalMatrix * objectTangent;
+    transformedTangent -= normal * dot(normal, transformedTangent);
     vec3 tangent;
-    vec3 bitangent;
-
-    vec3 dp1 = dFdx(v_fragPos);
-    vec3 dp2 = dFdy(v_fragPos);
-    vec2 duv1 = dFdx(texCoord);
-    vec2 duv2 = dFdy(texCoord);
-    float det = duv1.x * duv2.y - duv1.y * duv2.x;
-
-    if (abs(det) > 1e-6) {
-        tangent = (dp1 * duv2.y - dp2 * duv1.y) / det;
-        tangent = normalize(tangent - normal * dot(normal, tangent));
-
-        bitangent = (-dp1 * duv2.x + dp2 * duv1.x) / det;
-        bitangent = normalize(bitangent - normal * dot(normal, bitangent));
-
-        if (length(tangent) < 0.1 || length(bitangent) < 0.1) {
-            tangent = normalize(cross(normal, vec3(0.0, 1.0, 0.0)));
-            if (length(tangent) < 0.1) tangent = normalize(cross(normal, vec3(1.0, 0.0, 0.0)));
-            bitangent = normalize(cross(normal, tangent));
-        } else if (dot(cross(tangent, bitangent), normal) < 0.0) {
-            bitangent = -bitangent;
-        }
+    if (length(transformedTangent) < 1e-4) {
+        vec3 worldAxis = abs(normal.y) < 0.85 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+        tangent = normalize(cross(worldAxis, normal));
     } else {
-        tangent = normalize(cross(normal, vec3(0.0, 1.0, 0.0)));
-        if (length(tangent) < 0.1) tangent = normalize(cross(normal, vec3(1.0, 0.0, 0.0)));
-        bitangent = normalize(cross(normal, tangent));
+        tangent = normalize(transformedTangent);
     }
 
-    // Use the texture coordinates to drive the noise, making it independent of object position
-    vec2 noiseCoord = texCoord * roughnessScale;
-    vec2 sampleStep = max(fwidth(noiseCoord), vec2(0.002));
+    vec3 transformedBitangent = normalMatrix * objectBitangent;
+    transformedBitangent -= normal * dot(normal, transformedBitangent);
+    vec3 bitangent = length(transformedBitangent) < 1e-4
+        ? normalize(cross(normal, tangent))
+        : normalize(transformedBitangent);
+    if (dot(cross(tangent, bitangent), normal) < 0.0) {
+        bitangent = -bitangent;
+    }
 
-    // Sample the procedural height field with an adaptive UV step to keep flat fin faces stable.
-    float noiseLeft = fbm(noiseCoord - vec2(sampleStep.x, 0.0));
-    float noiseRight = fbm(noiseCoord + vec2(sampleStep.x, 0.0));
-    float noiseDown = fbm(noiseCoord - vec2(0.0, sampleStep.y));
-    float noiseUp = fbm(noiseCoord + vec2(0.0, sampleStep.y));
+    float noiseFrequency = roughnessScale * 6.0;
+    vec3 noisePos = v_objectPos * noiseFrequency;
+    vec3 noiseWidth = fwidth(noisePos);
+    float sampleStep = clamp(max(max(noiseWidth.x, noiseWidth.y), noiseWidth.z) * 0.5, 0.01, 0.10);
+
+    float noiseLeft = granularHeight(noisePos - objectTangent * sampleStep);
+    float noiseRight = granularHeight(noisePos + objectTangent * sampleStep);
+    float noiseDown = granularHeight(noisePos - objectBitangent * sampleStep);
+    float noiseUp = granularHeight(noisePos + objectBitangent * sampleStep);
 
     vec2 bumpVec = vec2(
-        (noiseRight - noiseLeft) / max(2.0 * sampleStep.x, 1e-4),
-        (noiseUp - noiseDown) / max(2.0 * sampleStep.y, 1e-4)
+        (noiseRight - noiseLeft) / max(2.0 * sampleStep, 1e-4),
+        (noiseUp - noiseDown) / max(2.0 * sampleStep, 1e-4)
     );
-    bumpVec = clamp(bumpVec, vec2(-2.0), vec2(2.0));
+    bumpVec = clamp(bumpVec, vec2(-1.5), vec2(1.5));
 
     float bumpAmplitude = roughnessStrength * 0.06;
     return normalize(normal - (tangent * bumpVec.x + bitangent * bumpVec.y) * bumpAmplitude);
@@ -315,7 +327,7 @@ void main()
     } else {
         vec3 norm = normalize(v_normal);
         if (enableRoughnessBump) {
-            norm = getSurfaceNormal(norm, materialTexCoord);
+            norm = getSurfaceNormal(norm);
         }
         vec3 viewDir = normalize(viewPos - v_fragPos);
 

@@ -9,6 +9,8 @@ layout (location = 3) in float aSurfaceID_float; // Receive the packed float
 // Outputs to the fragment shader
 out mediump vec3 v_fragPos;
 out mediump vec3 v_normal;
+out mediump vec3 v_objectPos;
+out mediump vec3 v_objectNormal;
 out mediump vec2 v_texCoord;
 flat out int v_surfaceID; // Use 'flat' for integer varyings
 out float v_eyeSpaceZ;
@@ -27,6 +29,8 @@ void main()
     gl_Position = projection * view * worldPos;
     v_lightSpacePos = lightSpaceMatrix * worldPos;
     v_normal = mat3(transpose(inverse(model))) * aNormal;
+    v_objectPos = aPos;
+    v_objectNormal = aNormal;
     v_texCoord = aTexCoords;
     v_surfaceID = floatBitsToInt(aSurfaceID_float); // Unpack float to int
 
