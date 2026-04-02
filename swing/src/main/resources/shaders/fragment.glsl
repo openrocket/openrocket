@@ -163,25 +163,53 @@ float adjustTextureCoverage(float alpha) {
 vec3 getSurfaceNormal(vec3 normal, vec2 texCoord) {
     if (roughnessStrength <= 0.0) return normal;
 
-    vec3 tangent = normalize(cross(normal, vec3(0.0, 1.0, 0.0)));
-    if (length(tangent) < 0.1) tangent = normalize(cross(normal, vec3(1.0, 0.0, 0.0)));
-    vec3 bitangent = normalize(cross(normal, tangent));
+    vec3 tangent;
+    vec3 bitangent;
+
+    vec3 dp1 = dFdx(v_fragPos);
+    vec3 dp2 = dFdy(v_fragPos);
+    vec2 duv1 = dFdx(texCoord);
+    vec2 duv2 = dFdy(texCoord);
+    float det = duv1.x * duv2.y - duv1.y * duv2.x;
+
+    if (abs(det) > 1e-6) {
+        tangent = (dp1 * duv2.y - dp2 * duv1.y) / det;
+        tangent = normalize(tangent - normal * dot(normal, tangent));
+
+        bitangent = (-dp1 * duv2.x + dp2 * duv1.x) / det;
+        bitangent = normalize(bitangent - normal * dot(normal, bitangent));
+
+        if (length(tangent) < 0.1 || length(bitangent) < 0.1) {
+            tangent = normalize(cross(normal, vec3(0.0, 1.0, 0.0)));
+            if (length(tangent) < 0.1) tangent = normalize(cross(normal, vec3(1.0, 0.0, 0.0)));
+            bitangent = normalize(cross(normal, tangent));
+        } else if (dot(cross(tangent, bitangent), normal) < 0.0) {
+            bitangent = -bitangent;
+        }
+    } else {
+        tangent = normalize(cross(normal, vec3(0.0, 1.0, 0.0)));
+        if (length(tangent) < 0.1) tangent = normalize(cross(normal, vec3(1.0, 0.0, 0.0)));
+        bitangent = normalize(cross(normal, tangent));
+    }
 
     // Use the texture coordinates to drive the noise, making it independent of object position
     vec2 noiseCoord = texCoord * roughnessScale;
-    
-    // Use FBM for more detailed noise
-    float noise = fbm(noiseCoord);
+    vec2 sampleStep = max(fwidth(noiseCoord), vec2(0.002));
 
-    // Use central difference to get the gradient of the noise
-    float offset = 0.01;
-    float noise_dx = fbm(noiseCoord + vec2(offset, 0.0)) - noise;
-    float noise_dy = fbm(noiseCoord + vec2(0.0, offset)) - noise;
+    // Sample the procedural height field with an adaptive UV step to keep flat fin faces stable.
+    float noiseLeft = fbm(noiseCoord - vec2(sampleStep.x, 0.0));
+    float noiseRight = fbm(noiseCoord + vec2(sampleStep.x, 0.0));
+    float noiseDown = fbm(noiseCoord - vec2(0.0, sampleStep.y));
+    float noiseUp = fbm(noiseCoord + vec2(0.0, sampleStep.y));
 
-    // The bump vector is the gradient of the noise
-    vec2 bumpVec = vec2(noise_dx, noise_dy);
+    vec2 bumpVec = vec2(
+        (noiseRight - noiseLeft) / max(2.0 * sampleStep.x, 1e-4),
+        (noiseUp - noiseDown) / max(2.0 * sampleStep.y, 1e-4)
+    );
+    bumpVec = clamp(bumpVec, vec2(-2.0), vec2(2.0));
 
-    return normalize(normal + (tangent * bumpVec.x + bitangent * bumpVec.y) * roughnessStrength);
+    float bumpAmplitude = roughnessStrength * 0.06;
+    return normalize(normal - (tangent * bumpVec.x + bitangent * bumpVec.y) * bumpAmplitude);
 }
 
 float calculateShadow(vec3 normal, vec3 lightDir) {
