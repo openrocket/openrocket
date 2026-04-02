@@ -1,37 +1,29 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Method;
 import java.util.EventObject;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.colorchooser.ColorSelectionModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
 import info.openrocket.swing.gui.components.BasicSlider;
-import info.openrocket.swing.gui.components.ColorIcon;
+import info.openrocket.swing.gui.components.ColorChooserButton;
 import info.openrocket.swing.gui.components.EditableSpinner;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.components.StyledLabel.Style;
@@ -55,100 +47,21 @@ import info.openrocket.core.util.StateChangeListener;
 public class PhotoSettingsConfig extends JTabbedPane {
 	private final Translator trans = Application.getTranslator();
 
-	private static final JColorChooser colorChooser = new JColorChooser();
-
-	private class ColorActionListener implements ActionListener {
-		private final String valueName;
-		private final Object o;
-
-		ColorActionListener(final Object o, final String valueName) {
-			this.valueName = valueName;
-			this.o = o;
-		}
-
-		/**
-		 Changes the color of the selected component to <color>
-		 @param color: color to change the component to
-		 */
-		private void changeComponentColor(Color color) {
-			try {
-				final Method setMethod = o.getClass().getMethod("set" + valueName, ORColor.class);
-				if (color == null)
-					return;
-				try {
-					setMethod.invoke(o, ColorConversion.fromAwtColor(color));
-				} catch (Throwable e1) {
-					Application.getExceptionHandler().handleErrorCondition(e1);
-				}
-			} catch (Throwable e1) {
-				Application.getExceptionHandler().handleErrorCondition(e1);
-			}
-
-		}
-
-
-		@Override
-		public void actionPerformed(ActionEvent colorClickEvent) {
-			try {
-				final Method getMethod = o.getClass().getMethod("get" + valueName);
-				ORColor c = (ORColor) getMethod.invoke(o);
-				Color awtColor = ColorConversion.toAwtColor(c);
-				colorChooser.setColor(awtColor);
-
-				// Bind a change of color selection to a change in the components color
-				ColorSelectionModel model = colorChooser.getSelectionModel();
-				ChangeListener changeListener = new ChangeListener() {
-					public void stateChanged(ChangeEvent changeEvent) {
-						Color selected = colorChooser.getColor();
-						changeComponentColor(selected);
-					}
-				};
-				model.addChangeListener(changeListener);
-
-				Window owner = SwingUtilities.getWindowAncestor(PhotoSettingsConfig.this);
-				Component parentComponent = owner != null ? owner : PhotoSettingsConfig.this;
-				JDialog d = JColorChooser.createDialog(parentComponent,
-						trans.get("PhotoSettingsConfig.colorChooser.title"), true, colorChooser, new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent okEvent) {
-								changeComponentColor(colorChooser.getColor());
-								// Unbind listener to avoid the current component's appearance to change with other components
-								model.removeChangeListener(changeListener);
-							}
-						}, new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								changeComponentColor(awtColor);
-								// Unbind listener to avoid the current component's appearance to change with other components
-								model.removeChangeListener(changeListener);
-							}
-						});
-				if (owner != null) {
-					d.setLocationRelativeTo(owner);
-					d.toFront();
-				}
-				d.setVisible(true);
-			} catch (Throwable e1) {
-				Application.getExceptionHandler().handleErrorCondition(e1);
-			}
-		}
-	}
-
 	public PhotoSettingsConfig(PhotoSettings p, OpenRocketDocument document) {
 		super();
 
 		setPreferredSize(new Dimension(240, 320));
 
-		final JButton sunLightColorButton = new JButton();
+		final ColorChooserButton sunLightColorButton = createColorButton(p::getSunlight, p::setSunlight);
 		sunLightColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton skyColorButton = new JButton();
+		final ColorChooserButton skyColorButton = createColorButton(p::getSkyColor, p::setSkyColor);
 		skyColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton smokeColorButton = new JButton();
+		final ColorChooserButton smokeColorButton = createColorButton(p::getSmokeColor, p::setSmokeColor);
 		smokeColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton flameColorButton = new JButton();
+		final ColorChooserButton flameColorButton = createColorButton(p::getFlameColor, p::setFlameColor);
 		flameColorButton.setMaximumSize(new Dimension(35, 25));
 
 		p.addChangeListener(new StateChangeListener() {
@@ -158,16 +71,12 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 			@Override
 			public void stateChanged(EventObject e) {
-				sunLightColorButton.setIcon(new ColorIcon(p.getSunlight()));
-				skyColorButton.setIcon(new ColorIcon(p.getSkyColor()));
-				smokeColorButton.setIcon(new ColorIcon(p.getSmokeColor()));
-				flameColorButton.setIcon(new ColorIcon(p.getFlameColor()));
+				sunLightColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSunlight()));
+				skyColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSkyColor()));
+				smokeColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSmokeColor()));
+				flameColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getFlameColor()));
 			}
 		});
-		sunLightColorButton.addActionListener(new ColorActionListener(p, "Sunlight"));
-		skyColorButton.addActionListener(new ColorActionListener(p, "SkyColor"));
-		smokeColorButton.addActionListener(new ColorActionListener(p, "SmokeColor"));
-		flameColorButton.addActionListener(new ColorActionListener(p, "FlameColor"));
 
 		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
 			{
@@ -454,5 +363,16 @@ public class PhotoSettingsConfig extends JTabbedPane {
 			}
 		});
 
+	}
+
+	private ColorChooserButton createColorButton(Supplier<ORColor> getter, Consumer<ORColor> setter) {
+		ColorChooserButton button = new ColorChooserButton(ColorConversion.toAwtColor(getter.get()));
+		button.addColorPropertyChangeListener(e -> {
+			Color color = button.getSelectedColor();
+			if (color != null) {
+				setter.accept(ColorConversion.fromAwtColor(color));
+			}
+		});
+		return button;
 	}
 }
