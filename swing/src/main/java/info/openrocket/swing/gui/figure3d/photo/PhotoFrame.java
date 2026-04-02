@@ -3,6 +3,7 @@ package info.openrocket.swing.gui.figure3d.photo;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -31,6 +32,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.database.Databases;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.file.GeneralRocketLoader;
@@ -267,36 +269,7 @@ public class PhotoFrame extends JFrame {
 				photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
 					@Override
 					public void performAction(final BufferedImage image) {
-						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new Transferable() {
-							@Override
-							public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-									IOException {
-								if (flavor.equals(DataFlavor.imageFlavor) && image != null) {
-									return image;
-								} else {
-									throw new UnsupportedFlavorException(flavor);
-								}
-							}
-
-							@Override
-							public DataFlavor[] getTransferDataFlavors() {
-								DataFlavor[] flavors = new DataFlavor[1];
-								flavors[0] = DataFlavor.imageFlavor;
-								return flavors;
-							}
-
-							@Override
-							public boolean isDataFlavorSupported(DataFlavor flavor) {
-								DataFlavor[] flavors = getTransferDataFlavors();
-								for (DataFlavor dataFlavor : flavors) {
-									if (flavor.equals(dataFlavor)) {
-										return true;
-									}
-								}
-
-								return false;
-							}
-						}, null);
+						copyImageToClipboard(image);
 					}
 				});
 			}
@@ -383,6 +356,70 @@ public class PhotoFrame extends JFrame {
 			return;
 		}
 		photoPanel.setDoc(doc);
+	}
+
+	private void copyImageToClipboard(BufferedImage image) {
+		if (image == null) {
+			return;
+		}
+
+		if (SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS) {
+			copyImageToClipboardMacOS(image);
+			return;
+		}
+
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		clipboard.setContents(new TransferableImage(image), null);
+	}
+
+	private void copyImageToClipboardMacOS(BufferedImage image) {
+		try {
+			File tempFile = File.createTempFile("photostudio_clipboard_", ".png");
+			ImageIO.write(image, "png", tempFile);
+
+			String script = String.format(
+					"set the clipboard to (read (POSIX file \"%s\") as «class PNGf»)",
+					tempFile.getAbsolutePath()
+			);
+
+			Process process = new ProcessBuilder("osascript", "-e", script).start();
+			int exitCode = process.waitFor();
+			if (exitCode != 0) {
+				log.warn("Failed to copy Photo Studio image to clipboard via osascript, exitCode={}", exitCode);
+			}
+			tempFile.deleteOnExit();
+		} catch (IOException e) {
+			log.error("Failed to copy Photo Studio image to clipboard", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			log.error("Interrupted while copying Photo Studio image to clipboard", e);
+		}
+	}
+
+	private static final class TransferableImage implements Transferable {
+		private final BufferedImage image;
+
+		private TransferableImage(BufferedImage image) {
+			this.image = image;
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[] { DataFlavor.imageFlavor };
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+			return DataFlavor.imageFlavor.equals(flavor);
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+			if (!isDataFlavorSupported(flavor)) {
+				throw new UnsupportedFlavorException(flavor);
+			}
+			return image;
+		}
 	}
 
 	@Override

@@ -34,9 +34,11 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
@@ -283,9 +285,22 @@ public class RealisticRenderer implements Renderer {
 		// 1. Render the geometry passes to the main FBO
         renderTarget.bind();
         glViewport(0, 0, screenWidth, screenHeight);
-        glClear(GL_COLOR_BUFFER_BIT);
+        if (!renderBackground) {
+            if (scene.getBackground() instanceof SolidColorBackground solidBackground) {
+                Vector4f color = solidBackground.getColor();
+                glClearColor(color.x, color.y, color.z, color.w);
+            } else {
+                glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            }
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        } else {
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
 
         for (RenderPass pass : geometryPasses) {
+            if (!renderBackground && pass instanceof BackgroundPass) {
+                continue;
+            }
             pass.render(scene, windowManager, viewMatrix, projectionMatrix);
         }
 

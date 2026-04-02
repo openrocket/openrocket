@@ -12,11 +12,17 @@ uniform float rt_h; // reciprocal of screen height
 #define FXAA_SPAN_MAX     8.0
 
 vec4 fxaa(sampler2D tex, vec2 fragCoord, vec2 rcpFrame) {
-    vec3 rgbNW = texture(tex, fragCoord + vec2(-1.0, -1.0) * rcpFrame).xyz;
-    vec3 rgbNE = texture(tex, fragCoord + vec2(1.0, -1.0) * rcpFrame).xyz;
-    vec3 rgbSW = texture(tex, fragCoord + vec2(-1.0, 1.0) * rcpFrame).xyz;
-    vec3 rgbSE = texture(tex, fragCoord + vec2(1.0, 1.0) * rcpFrame).xyz;
-    vec3 rgbM  = texture(tex, fragCoord).xyz;
+    vec4 rgbaNW = texture(tex, fragCoord + vec2(-1.0, -1.0) * rcpFrame);
+    vec4 rgbaNE = texture(tex, fragCoord + vec2(1.0, -1.0) * rcpFrame);
+    vec4 rgbaSW = texture(tex, fragCoord + vec2(-1.0, 1.0) * rcpFrame);
+    vec4 rgbaSE = texture(tex, fragCoord + vec2(1.0, 1.0) * rcpFrame);
+    vec4 rgbaM  = texture(tex, fragCoord);
+
+    vec3 rgbNW = rgbaNW.xyz;
+    vec3 rgbNE = rgbaNE.xyz;
+    vec3 rgbSW = rgbaSW.xyz;
+    vec3 rgbSE = rgbaSE.xyz;
+    vec3 rgbM  = rgbaM.xyz;
 
     vec3 luma = vec3(0.299, 0.587, 0.114);
     float lumaNW = dot(rgbNW, luma);
@@ -44,18 +50,21 @@ vec4 fxaa(sampler2D tex, vec2 fragCoord, vec2 rcpFrame) {
           max(vec2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX),
           dir * rcpDirMin)) * rcpFrame;
 
-    vec3 rgbA = 0.5 * (
-        texture(tex, fragCoord + dir * (1.0/3.0 - 0.5)).xyz +
-        texture(tex, fragCoord + dir * (2.0/3.0 - 0.5)).xyz);
-    vec3 rgbB = rgbA * 0.5 + 0.25 * (
-        texture(tex, fragCoord + dir * -0.5).xyz +
-        texture(tex, fragCoord + dir * 0.5).xyz);
+    vec4 rgbaA = 0.5 * (
+        texture(tex, fragCoord + dir * (1.0/3.0 - 0.5)) +
+        texture(tex, fragCoord + dir * (2.0/3.0 - 0.5)));
+    vec4 rgbaB = rgbaA * 0.5 + 0.25 * (
+        texture(tex, fragCoord + dir * -0.5) +
+        texture(tex, fragCoord + dir * 0.5));
+
+    vec3 rgbA = rgbaA.xyz;
+    vec3 rgbB = rgbaB.xyz;
 
     float lumaB = dot(rgbB, luma);
     if ((lumaB < lumaMin) || (lumaB > lumaMax)) {
-        return vec4(rgbA, 1.0);
+        return rgbaA;
     } else {
-        return vec4(rgbB, 1.0);
+        return rgbaB;
     }
 }
 
