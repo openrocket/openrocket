@@ -372,8 +372,8 @@ public class PhotoPanel extends JPanel {
 		// PhotoStudio model transforms already recenter the rocket around world origin.
 		// Keep camera orbit pivot locked to origin to match legacy JOGL behavior.
 		camera.setCenterOfInterest(new Vector3f(0.0f, 0.0f, 0.0f));
-		camera.setAngleX((float) Math.toDegrees(settings.getViewAz()));
-		camera.setAngleY((float) Math.toDegrees(settings.getViewAlt()));
+		camera.setAngleX((float) settings.getViewAz());
+		camera.setAngleY((float) settings.getViewAlt());
 		camera.setFieldOfView(settings.getFov());
 		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
 		camera.update();

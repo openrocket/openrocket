@@ -10,8 +10,7 @@ public abstract class CameraConstants {
 
 	// --- Camera Movement Constants ---
 	public static final float BASE_ROCKET_ROTATION_SENSITIVITY = 0.01f; // radians per pixel
-	public static final float BASE_VIEW_ROTATION_SENSITIVITY =
-			(float) Math.toDegrees(BASE_ROCKET_ROTATION_SENSITIVITY); // degrees per pixel
+	public static final float BASE_VIEW_ROTATION_SENSITIVITY = BASE_ROCKET_ROTATION_SENSITIVITY;
 	public static final float DEFAULT_ROTATION_SENSITIVITY_FACTOR = 1.0f;
 	public static final float PAN_SENSITIVITY = 0.01f;
 	public static final float SCROLL_SENSITIVITY = 1.0f;
@@ -25,10 +24,10 @@ public abstract class CameraConstants {
 	public static final float MAX_DISTANCE = 1000.0f;
 
 	// --- Default Camera Angles ---
-	public static final float DEFAULT_ANGLE_X = 25.0f; // Yaw
-	public static final float DEFAULT_ANGLE_Y = 30.0f; // Pitch
-	public static final float MIN_PITCH_ANGLE = -89.0f;
-	public static final float MAX_PITCH_ANGLE = 89.0f;
+	public static final float DEFAULT_ANGLE_X = (float) Math.toRadians(25.0); // Yaw
+	public static final float DEFAULT_ANGLE_Y = (float) Math.toRadians(30.0); // Pitch
+	public static final float MIN_PITCH_ANGLE = (float) Math.toRadians(-89.0);
+	public static final float MAX_PITCH_ANGLE = (float) Math.toRadians(89.0);
 
 	// --- Projection Settings ---
 	public static final float DEFAULT_FIELD_OF_VIEW = (float) Math.toRadians(45); // 45 degrees

@@ -51,7 +51,7 @@ public class Camera {
 
 	/**
 	 * Creates a camera with a perspective projection.
-	 * @param fov Field of view in degrees.
+	 * @param fov Field of view in radians.
 	 * @param aspectRatio Aspect ratio of the window (width / height).
 	 * @param zNear Near clipping plane distance.
 	 * @param zFar Far clipping plane distance.
@@ -72,7 +72,7 @@ public class Camera {
 	/**
 	 * Gets the current horizontal rotation angle (yaw) of the camera.
 	 * 
-	 * @return the yaw angle in degrees
+	 * @return the yaw angle in radians
 	 */
 	public float getAngleX() {
 		return angleX;
@@ -81,7 +81,7 @@ public class Camera {
 	/**
 	 * Sets the horizontal rotation angle (yaw) of the camera.
 	 * 
-	 * @param angleX the yaw angle in degrees
+	 * @param angleX the yaw angle in radians
 	 */
 	public void setAngleX(float angleX) {
 		this.angleX = angleX;
@@ -90,7 +90,7 @@ public class Camera {
 	/**
 	 * Gets the current vertical rotation angle (pitch) of the camera.
 	 * 
-	 * @return the pitch angle in degrees
+	 * @return the pitch angle in radians
 	 */
 	public float getAngleY() {
 		return angleY;
@@ -99,7 +99,7 @@ public class Camera {
 	/**
 	 * Sets the vertical rotation angle (pitch) of the camera.
 	 * 
-	 * @param angleY the pitch angle in degrees
+	 * @param angleY the pitch angle in radians
 	 */
 	public void setAngleY(float angleY) {
 		this.angleY = angleY;
@@ -221,9 +221,9 @@ public class Camera {
 		Vector3f viewPos = view.getPosition();
 		// We use atan2 to correctly calculate the angle in all quadrants.
 		// Yaw (angleX) is the angle in the XZ plane.
-		this.angleX = (float) Math.toDegrees(Math.atan2(viewPos.x, viewPos.z));
+		this.angleX = (float) Math.atan2(viewPos.x, viewPos.z);
 		// Pitch (angleY) is the angle up from the XZ plane.
-		this.angleY = (float) Math.toDegrees(Math.asin(viewPos.y / viewPos.length()));
+		this.angleY = (float) Math.asin(viewPos.y / viewPos.length());
 	}
 
 	/**
@@ -406,7 +406,7 @@ public class Camera {
 
 	/**
 	 * Orbits the camera horizontally around the center of interest by a given angle.
-	 * @param angle The angle to rotate in degrees. Positive is right, negative is left.
+	 * @param angle The angle to rotate in radians. Positive is right, negative is left.
 	 */
 	public void orbitYaw(float angle) {
 		this.angleX += angle;
@@ -422,12 +422,10 @@ public class Camera {
 	}
 
 	private void updateViewMatrix() {
-		float yawRad = (float) Math.toRadians(angleX);
-		float pitchRad = (float) Math.toRadians(angleY);
-		float sinYaw = (float) Math.sin(yawRad);
-		float cosYaw = (float) Math.cos(yawRad);
-		float sinPitch = (float) Math.sin(pitchRad);
-		float cosPitch = (float) Math.cos(pitchRad);
+		float sinYaw = (float) Math.sin(angleX);
+		float cosYaw = (float) Math.cos(angleX);
+		float sinPitch = (float) Math.sin(angleY);
+		float cosPitch = (float) Math.cos(angleY);
 
 		float camX = distance * sinYaw * cosPitch;
 		float camY = distance * sinPitch;
@@ -495,7 +493,7 @@ public class Camera {
 	 *     .withClippingPlanes(0.1f, 200.0f)
 	 *     .withInitialDistance(10.0f)
 	 *     .withZoomLimits(1.0f, 50.0f)
-	 *     .withInitialAngles(45.0f, 30.0f)
+	 *     .withInitialAngles((float) Math.toRadians(45.0), (float) Math.toRadians(30.0))
 	 *     .withCenterOfInterest(0.0f, 0.0f, 0.0f)
 	 *     .withFixedCenterOfInterest(false)
 	 *     .build();
@@ -581,8 +579,8 @@ public class Camera {
 		
 		/**
 		 * Sets the initial camera angles.
-		 * @param angleX The initial yaw angle in degrees (default: 25.0)
-		 * @param angleY The initial pitch angle in degrees (default: 30.0)
+		 * @param angleX The initial yaw angle in radians (default: 25 degrees)
+		 * @param angleY The initial pitch angle in radians (default: 30 degrees)
 		 * @return This builder instance
 		 */
 		public Builder withInitialAngles(float angleX, float angleY) {
