@@ -18,6 +18,8 @@ package info.openrocket.swing.gui.figure3d.scene.properties;
  * while maintaining optimal performance for each rendering style.</p>
  */
 public class DisplaySettings {
+    public static final RenderMode DEFAULT_RENDER_MODE = RenderMode.FINISHED;
+    public static final boolean DEFAULT_RENDER_INTERNAL_SURFACES = true;
 
     /**
      * Defines the available rendering modes for visualizing rocket geometry.
@@ -39,9 +41,9 @@ public class DisplaySettings {
         XRAY_CUTAWAY
     }
 
-    private RenderMode mode = RenderMode.FINISHED;
+    private RenderMode mode = DEFAULT_RENDER_MODE;
     // Whether surfaces tagged as "inside" should be rendered (used for hollow geometry).
-    private boolean renderInternalSurfaces = true;
+    private boolean renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
 
     /**
      * Gets the current rendering mode.
@@ -78,6 +80,14 @@ public class DisplaySettings {
      */
     public void setRenderInternalSurfaces(boolean renderInternalSurfaces) {
         this.renderInternalSurfaces = renderInternalSurfaces;
+    }
+
+    /**
+     * Restores the display settings to their built-in defaults.
+     */
+    public void resetToDefaults() {
+        mode = DEFAULT_RENDER_MODE;
+        renderInternalSurfaces = DEFAULT_RENDER_INTERNAL_SURFACES;
     }
 
     /**

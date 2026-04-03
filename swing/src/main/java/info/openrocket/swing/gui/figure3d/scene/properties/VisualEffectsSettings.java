@@ -13,36 +13,62 @@ import java.util.Set;
  * Includes particles, motion blur, helper overlays, and related tuning values.
  */
 public class VisualEffectsSettings {
+    public static final boolean DEFAULT_MOTION_BLUR_ENABLED = false;
+    public static final float DEFAULT_MOTION_BLUR_FACTOR = 5.0f;
+    public static final boolean DEFAULT_ORIGIN_AXES_VISIBLE = false;
+    public static final boolean DEFAULT_LIGHT_VISUALIZERS_VISIBLE = false;
+    public static final boolean DEFAULT_CARETS_VISIBLE = true;
+    public static final boolean DEFAULT_ROTATE_ROCKET_ON_DRAG = true;
+    public static final float DEFAULT_DRAG_ROTATION_SENSITIVITY = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
+    public static final boolean DEFAULT_CARET_SCALE_WITH_VIEW = false;
+    public static final float DEFAULT_AMBIENT_LIGHT_FACTOR = 0.1f;
+    public static final boolean DEFAULT_PARTICLE_EFFECTS_ENABLED = true;
+    public static final boolean DEFAULT_STATIC_PARTICLES = true;
+    public static final float DEFAULT_PARTICLE_TIME = 10.0f;
+    public static final boolean DEFAULT_SPARK_PARTICLES_ENABLED = true;
+    public static final boolean DEFAULT_SMOKE_PARTICLES_ENABLED = true;
+    public static final boolean DEFAULT_FLAME_PARTICLES_ENABLED = true;
+    public static final float DEFAULT_SMOKE_RED = 0.9f;
+    public static final float DEFAULT_SMOKE_GREEN = 0.9f;
+    public static final float DEFAULT_SMOKE_BLUE = 0.9f;
+    public static final float DEFAULT_FLAME_RED = 1.0f;
+    public static final float DEFAULT_FLAME_GREEN = 0.4f;
+    public static final float DEFAULT_FLAME_BLUE = 0.2f;
+    public static final float DEFAULT_SMOKE_OPACITY = 1.0f;
+    public static final float DEFAULT_EXHAUST_SCALE = 1.0f;
+    public static final float DEFAULT_FLAME_ASPECT_RATIO = 1.0f;
+    public static final float DEFAULT_SPARK_CONCENTRATION = 1.0f;
+    public static final float DEFAULT_SPARK_WEIGHT = 0.0f;
 
     // Motion blur settings
-    private boolean motionBlurEnabled = false;
-    private float motionBlurFactor = 5.0f;
+    private boolean motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
+    private float motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;
     
     // Display elements
-    private boolean originAxesVisible = false;
-    private boolean lightVisualizersVisible = false;
-    private boolean caretsVisible = true;
-    private boolean rotateRocketOnDrag = true;
-    private float dragRotationSensitivity = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
-    private boolean caretScaleWithView = false;
-    private float ambientLightFactor = 0.1f;
+    private boolean originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
+    private boolean lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+    private boolean caretsVisible = DEFAULT_CARETS_VISIBLE;
+    private boolean rotateRocketOnDrag = DEFAULT_ROTATE_ROCKET_ON_DRAG;
+    private float dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;
+    private boolean caretScaleWithView = DEFAULT_CARET_SCALE_WITH_VIEW;
+    private float ambientLightFactor = DEFAULT_AMBIENT_LIGHT_FACTOR;
     
     // Global particle settings
-    private boolean particleEffectsEnabled = true;
-    private boolean staticParticles = true;
-    private float particleTime = 10.0f;
+    private boolean particleEffectsEnabled = DEFAULT_PARTICLE_EFFECTS_ENABLED;
+    private boolean staticParticles = DEFAULT_STATIC_PARTICLES;
+    private float particleTime = DEFAULT_PARTICLE_TIME;
     
     // Individual particle type settings
-    private boolean sparkParticlesEnabled = true;
-    private boolean smokeParticlesEnabled = true;
-    private boolean flameParticlesEnabled = true;
-    private Vector3f smokeColor = new Vector3f(0.9f, 0.9f, 0.9f);
-    private Vector3f flameColor = new Vector3f(1.0f, 0.4f, 0.2f);
-    private float smokeOpacity = 1.0f;
-    private float exhaustScale = 1.0f;
-    private float flameAspectRatio = 1.0f;
-    private float sparkConcentration = 1.0f;
-    private float sparkWeight = 0.0f;
+    private boolean sparkParticlesEnabled = DEFAULT_SPARK_PARTICLES_ENABLED;
+    private boolean smokeParticlesEnabled = DEFAULT_SMOKE_PARTICLES_ENABLED;
+    private boolean flameParticlesEnabled = DEFAULT_FLAME_PARTICLES_ENABLED;
+    private Vector3f smokeColor = createDefaultSmokeColor();
+    private Vector3f flameColor = createDefaultFlameColor();
+    private float smokeOpacity = DEFAULT_SMOKE_OPACITY;
+    private float exhaustScale = DEFAULT_EXHAUST_SCALE;
+    private float flameAspectRatio = DEFAULT_FLAME_ASPECT_RATIO;
+    private float sparkConcentration = DEFAULT_SPARK_CONCENTRATION;
+    private float sparkWeight = DEFAULT_SPARK_WEIGHT;
     
     // Per-motor particle control (motor component ID -> enabled state)
     private final Map<String, Boolean> perMotorParticleEnabled = new HashMap<>();
@@ -462,5 +488,42 @@ public class VisualEffectsSettings {
         for (String motorId : perMotorParticleEnabled.keySet()) {
             perMotorParticleEnabled.put(motorId, false);
         }
+    }
+
+    /**
+     * Restores the visual-effects settings to their built-in defaults.
+     */
+    public void resetToDefaults() {
+        motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
+        motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;
+        originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
+        lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+        caretsVisible = DEFAULT_CARETS_VISIBLE;
+        rotateRocketOnDrag = DEFAULT_ROTATE_ROCKET_ON_DRAG;
+        dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;
+        caretScaleWithView = DEFAULT_CARET_SCALE_WITH_VIEW;
+        ambientLightFactor = DEFAULT_AMBIENT_LIGHT_FACTOR;
+        particleEffectsEnabled = DEFAULT_PARTICLE_EFFECTS_ENABLED;
+        staticParticles = DEFAULT_STATIC_PARTICLES;
+        particleTime = DEFAULT_PARTICLE_TIME;
+        sparkParticlesEnabled = DEFAULT_SPARK_PARTICLES_ENABLED;
+        smokeParticlesEnabled = DEFAULT_SMOKE_PARTICLES_ENABLED;
+        flameParticlesEnabled = DEFAULT_FLAME_PARTICLES_ENABLED;
+        smokeColor = createDefaultSmokeColor();
+        flameColor = createDefaultFlameColor();
+        smokeOpacity = DEFAULT_SMOKE_OPACITY;
+        exhaustScale = DEFAULT_EXHAUST_SCALE;
+        flameAspectRatio = DEFAULT_FLAME_ASPECT_RATIO;
+        sparkConcentration = DEFAULT_SPARK_CONCENTRATION;
+        sparkWeight = DEFAULT_SPARK_WEIGHT;
+        perMotorParticleEnabled.clear();
+    }
+
+    private static Vector3f createDefaultSmokeColor() {
+        return new Vector3f(DEFAULT_SMOKE_RED, DEFAULT_SMOKE_GREEN, DEFAULT_SMOKE_BLUE);
+    }
+
+    private static Vector3f createDefaultFlameColor() {
+        return new Vector3f(DEFAULT_FLAME_RED, DEFAULT_FLAME_GREEN, DEFAULT_FLAME_BLUE);
     }
 }

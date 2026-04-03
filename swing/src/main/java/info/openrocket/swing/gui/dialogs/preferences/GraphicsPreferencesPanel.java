@@ -218,7 +218,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				enableAA.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						preferences.putBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, enableAA.isSelected());
+						Figure3DPreferences.setAntiAliasingEnabled(preferences, enableAA.isSelected());
 					}
 				});
 				enableGLModel.addEnableComponent(enableAA);

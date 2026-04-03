@@ -19,6 +19,13 @@ package info.openrocket.swing.gui.figure3d.scene.properties;
  * user preferences for the OpenRocket 3D rocket visualization.</p>
  */
 public class GraphicsQualitySettings {
+    public static final RenderQuality DEFAULT_QUALITY = RenderQuality.HIGH;
+    public static final float DEFAULT_XRAY_OPACITY = 0.1f;
+    public static final boolean DEFAULT_BACKFACE_CULLING = true;
+    public static final boolean DEFAULT_ROUGHNESS_BUMP = true;
+    public static final boolean DEFAULT_FXAA = true;
+    public static final boolean DEFAULT_SHADOWS = false;
+    public static final boolean DEFAULT_AMBIENT_OCCLUSION = false;
 
     /**
      * Defines overall rendering quality levels that affect multiple visual aspects.
@@ -34,13 +41,13 @@ public class GraphicsQualitySettings {
         HIGH
     }
 
-    private RenderQuality quality = RenderQuality.HIGH;
-    private float xrayOpacity = 0.1f;
-    private boolean useBackfaceCulling = true;
-    private boolean enableRoughnessBump = true;
-    private boolean enableFXAA = true; // Fast Approximate Anti-Aliasing
-    private boolean shadowsEnabled = false;
-    private boolean ambientOcclusionEnabled = false;
+    private RenderQuality quality = DEFAULT_QUALITY;
+    private float xrayOpacity = DEFAULT_XRAY_OPACITY;
+    private boolean useBackfaceCulling = DEFAULT_BACKFACE_CULLING;
+    private boolean enableRoughnessBump = DEFAULT_ROUGHNESS_BUMP;
+    private boolean enableFXAA = DEFAULT_FXAA; // Fast Approximate Anti-Aliasing
+    private boolean shadowsEnabled = DEFAULT_SHADOWS;
+    private boolean ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
 
     // Render Quality
     
@@ -240,5 +247,18 @@ public class GraphicsQualitySettings {
      */
     public float getAmbientOcclusionBias() {
         return 0.015f;
+    }
+
+    /**
+     * Restores the graphics quality settings to their built-in defaults.
+     */
+    public void resetToDefaults() {
+        quality = DEFAULT_QUALITY;
+        xrayOpacity = DEFAULT_XRAY_OPACITY;
+        useBackfaceCulling = DEFAULT_BACKFACE_CULLING;
+        enableRoughnessBump = DEFAULT_ROUGHNESS_BUMP;
+        enableFXAA = DEFAULT_FXAA;
+        shadowsEnabled = DEFAULT_SHADOWS;
+        ambientOcclusionEnabled = DEFAULT_AMBIENT_OCCLUSION;
     }
 }

@@ -7,27 +7,81 @@ import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
  * Maps application preferences onto figure3d rendering defaults.
  */
 public final class Figure3DPreferences {
+	public record Values(
+			GraphicsQualitySettings.RenderQuality renderQuality,
+			boolean antiAliasingEnabled,
+			boolean shadowsEnabled,
+			boolean ambientOcclusionEnabled,
+			boolean roughnessBumpEnabled,
+			boolean originAxesVisible,
+			boolean lightVisualizersVisible,
+			boolean rotateRocketOnDrag,
+			float dragRotationSensitivity,
+			boolean caretScaleWithView) {
+	}
 
 	private Figure3DPreferences() {
 	}
 
-	public static void applyQualityDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
+	public static void applyDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
+		apply(config, load(preferences));
+	}
+
+	public static void apply(RenderingConfiguration config, Values values) {
 		GraphicsQualitySettings quality = config.getQuality();
-		quality.setQuality(getDefaultRenderQuality(preferences));
-		quality.setFXAAEnabled(isAntiAliasingEnabled(preferences));
-		quality.setShadowsEnabled(isShadowsEnabled(preferences));
-		quality.setAmbientOcclusionEnabled(isAmbientOcclusionEnabled(preferences));
-		quality.setRoughnessBumpEnabled(isRoughnessBumpEnabled(preferences));
-		applyVisualDefaults(config, preferences);
+		quality.setQuality(values.renderQuality());
+		quality.setFXAAEnabled(values.antiAliasingEnabled());
+		quality.setShadowsEnabled(values.shadowsEnabled());
+		quality.setAmbientOcclusionEnabled(values.ambientOcclusionEnabled());
+		quality.setRoughnessBumpEnabled(values.roughnessBumpEnabled());
+
+		VisualEffectsSettings visualEffects = config.getVisualEffects();
+		visualEffects.setOriginAxesVisible(values.originAxesVisible());
+		visualEffects.setLightVisualizersVisible(values.lightVisualizersVisible());
+		visualEffects.setRotateRocketOnDrag(values.rotateRocketOnDrag());
+		visualEffects.setDragRotationSensitivity(values.dragRotationSensitivity());
+		visualEffects.setCaretScaleWithView(values.caretScaleWithView());
+	}
+
+	public static Values load(ApplicationPreferences preferences) {
+		return new Values(
+				getDefaultRenderQuality(preferences),
+				isAntiAliasingEnabled(preferences),
+				isShadowsEnabled(preferences),
+				isAmbientOcclusionEnabled(preferences),
+				isRoughnessBumpEnabled(preferences),
+				isOriginAxesVisible(preferences),
+				areLightVisualizersVisible(preferences),
+				isRotateRocketOnDrag(preferences),
+				getDragRotationSensitivity(preferences),
+				isCaretScaleWithView(preferences));
+	}
+
+	public static void save(ApplicationPreferences preferences, Values values) {
+		setDefaultRenderQuality(preferences, values.renderQuality());
+		setAntiAliasingEnabled(preferences, values.antiAliasingEnabled());
+		setShadowsEnabled(preferences, values.shadowsEnabled());
+		setAmbientOcclusionEnabled(preferences, values.ambientOcclusionEnabled());
+		setRoughnessBumpEnabled(preferences, values.roughnessBumpEnabled());
+		setOriginAxesVisible(preferences, values.originAxesVisible());
+		setLightVisualizersVisible(preferences, values.lightVisualizersVisible());
+		setRotateRocketOnDrag(preferences, values.rotateRocketOnDrag());
+		setDragRotationSensitivity(preferences, values.dragRotationSensitivity());
+		setCaretScaleWithView(preferences, values.caretScaleWithView());
+	}
+
+	public static void applyQualityDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
+		applyDefaults(config, preferences);
 	}
 
 	public static void applyVisualDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
+		Values values = load(preferences);
 		VisualEffectsSettings visualEffects = config.getVisualEffects();
-		visualEffects.setOriginAxesVisible(isOriginAxesVisible(preferences));
-		visualEffects.setLightVisualizersVisible(areLightVisualizersVisible(preferences));
-		visualEffects.setRotateRocketOnDrag(isRotateRocketOnDrag(preferences));
-		visualEffects.setDragRotationSensitivity(getDragRotationSensitivity(preferences));
-		visualEffects.setCaretScaleWithView(isCaretScaleWithView(preferences));
+		visualEffects.setOriginAxesVisible(values.originAxesVisible());
+		visualEffects.setLightVisualizersVisible(values.lightVisualizersVisible());
+		visualEffects.setRotateRocketOnDrag(values.rotateRocketOnDrag());
+		visualEffects.setDragRotationSensitivity(values.dragRotationSensitivity());
+		visualEffects.setCaretScaleWithView(values.caretScaleWithView());
 	}
 
 	public static GraphicsQualitySettings.RenderQuality getDefaultRenderQuality(ApplicationPreferences preferences) {
@@ -44,6 +98,10 @@ public final class Figure3DPreferences {
 
 	public static boolean isAntiAliasingEnabled(ApplicationPreferences preferences) {
 		return preferences.getBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, true);
+	}
+
+	public static void setAntiAliasingEnabled(ApplicationPreferences preferences, boolean enabled) {
+		preferences.putBoolean(ApplicationPreferences.OPENGL_ENABLE_AA, enabled);
 	}
 
 	public static boolean isShadowsEnabled(ApplicationPreferences preferences) {

@@ -1,7 +1,5 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
-import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -112,37 +110,9 @@ public class RenderingConfiguration {
      * Resets all settings to their default values.
      */
     public void resetToDefaults() {
-        // Visual Effects defaults
-        visualEffects.setMotionBlurEnabled(false);
-        visualEffects.setMotionBlurFactor(5.0f);
-        visualEffects.setOriginAxesVisible(false);
-        visualEffects.setLightVisualizersVisible(false);
-        visualEffects.setRotateRocketOnDrag(true);
-        visualEffects.setDragRotationSensitivity(CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR);
-        visualEffects.setAmbientLightFactor(0.1f);
-        visualEffects.setParticleEffectsEnabled(true);
-        visualEffects.setStaticParticles(true);
-        visualEffects.setParticleTime(10.0f);
-        visualEffects.setSparkParticlesEnabled(true);
-        visualEffects.setSmokeParticlesEnabled(true);
-        visualEffects.setFlameParticlesEnabled(true);
-        visualEffects.setSmokeOpacity(1.0f);
-        visualEffects.setExhaustScale(1.0f);
-        visualEffects.setFlameAspectRatio(1.0f);
-        visualEffects.setSparkConcentration(1.0f);
-        visualEffects.setSparkWeight(0.0f);
-
-        // Quality defaults
-        quality.setQuality(GraphicsQualitySettings.RenderQuality.HIGH);
-        quality.setXrayOpacity(0.1f);
-        quality.setBackfaceCullingEnabled(true);
-        quality.setRoughnessBumpEnabled(true);
-        quality.setFXAAEnabled(true);
-        quality.setShadowsEnabled(true);
-        quality.setAmbientOcclusionEnabled(true);
-
-        // Display defaults
-        display.setMode(DisplaySettings.RenderMode.FINISHED);
+        visualEffects.resetToDefaults();
+        quality.resetToDefaults();
+        display.resetToDefaults();
 
         notifyListeners();
     }
@@ -151,33 +121,33 @@ public class RenderingConfiguration {
      * Builder for {@link RenderingConfiguration}.
      */
     public static class Builder {
-        private DisplaySettings.RenderMode renderMode = DisplaySettings.RenderMode.FINISHED;
-        private GraphicsQualitySettings.RenderQuality quality = GraphicsQualitySettings.RenderQuality.HIGH;
-        private boolean particleEffectsEnabled = true;
-        private boolean motionBlurEnabled = false;
-        private float motionBlurFactor = 5.0f;
-        private boolean originAxesVisible = false;
-        private boolean lightVisualizersVisible = false;
-        private boolean caretsVisible = true;
-        private boolean rotateRocketOnDrag = true;
-        private float dragRotationSensitivity = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
-        private boolean caretScaleWithView = false;
-        private boolean staticParticles = true;
-        private float particleTime = 10.0f;
-        private boolean sparkParticlesEnabled = true;
-        private boolean smokeParticlesEnabled = true;
-        private boolean flameParticlesEnabled = true;
-        private float smokeOpacity = 1.0f;
-        private float exhaustScale = 1.0f;
-        private float flameAspectRatio = 1.0f;
-        private float sparkConcentration = 1.0f;
-        private float sparkWeight = 0.0f;
-        private float xrayOpacity = 0.1f;
-        private boolean backfaceCullingEnabled = true;
-        private boolean roughnessBumpEnabled = true;
-        private boolean fxaaEnabled = true;
-        private boolean shadowsEnabled = false;
-        private boolean ambientOcclusionEnabled = false;
+        private DisplaySettings.RenderMode renderMode = DisplaySettings.DEFAULT_RENDER_MODE;
+        private GraphicsQualitySettings.RenderQuality quality = GraphicsQualitySettings.DEFAULT_QUALITY;
+        private boolean particleEffectsEnabled = VisualEffectsSettings.DEFAULT_PARTICLE_EFFECTS_ENABLED;
+        private boolean motionBlurEnabled = VisualEffectsSettings.DEFAULT_MOTION_BLUR_ENABLED;
+        private float motionBlurFactor = VisualEffectsSettings.DEFAULT_MOTION_BLUR_FACTOR;
+        private boolean originAxesVisible = VisualEffectsSettings.DEFAULT_ORIGIN_AXES_VISIBLE;
+        private boolean lightVisualizersVisible = VisualEffectsSettings.DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+        private boolean caretsVisible = VisualEffectsSettings.DEFAULT_CARETS_VISIBLE;
+        private boolean rotateRocketOnDrag = VisualEffectsSettings.DEFAULT_ROTATE_ROCKET_ON_DRAG;
+        private float dragRotationSensitivity = VisualEffectsSettings.DEFAULT_DRAG_ROTATION_SENSITIVITY;
+        private boolean caretScaleWithView = VisualEffectsSettings.DEFAULT_CARET_SCALE_WITH_VIEW;
+        private boolean staticParticles = VisualEffectsSettings.DEFAULT_STATIC_PARTICLES;
+        private float particleTime = VisualEffectsSettings.DEFAULT_PARTICLE_TIME;
+        private boolean sparkParticlesEnabled = VisualEffectsSettings.DEFAULT_SPARK_PARTICLES_ENABLED;
+        private boolean smokeParticlesEnabled = VisualEffectsSettings.DEFAULT_SMOKE_PARTICLES_ENABLED;
+        private boolean flameParticlesEnabled = VisualEffectsSettings.DEFAULT_FLAME_PARTICLES_ENABLED;
+        private float smokeOpacity = VisualEffectsSettings.DEFAULT_SMOKE_OPACITY;
+        private float exhaustScale = VisualEffectsSettings.DEFAULT_EXHAUST_SCALE;
+        private float flameAspectRatio = VisualEffectsSettings.DEFAULT_FLAME_ASPECT_RATIO;
+        private float sparkConcentration = VisualEffectsSettings.DEFAULT_SPARK_CONCENTRATION;
+        private float sparkWeight = VisualEffectsSettings.DEFAULT_SPARK_WEIGHT;
+        private float xrayOpacity = GraphicsQualitySettings.DEFAULT_XRAY_OPACITY;
+        private boolean backfaceCullingEnabled = GraphicsQualitySettings.DEFAULT_BACKFACE_CULLING;
+        private boolean roughnessBumpEnabled = GraphicsQualitySettings.DEFAULT_ROUGHNESS_BUMP;
+        private boolean fxaaEnabled = GraphicsQualitySettings.DEFAULT_FXAA;
+        private boolean shadowsEnabled = GraphicsQualitySettings.DEFAULT_SHADOWS;
+        private boolean ambientOcclusionEnabled = GraphicsQualitySettings.DEFAULT_AMBIENT_OCCLUSION;
         private boolean usePerformanceMode = false;
         private boolean useQualityMode = false;
         private final List<Consumer<RenderingConfiguration>> listeners = new ArrayList<>();

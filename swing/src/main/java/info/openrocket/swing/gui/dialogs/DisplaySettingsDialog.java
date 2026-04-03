@@ -721,6 +721,7 @@ public class DisplaySettingsDialog extends JDialog {
 	 * Check if all current settings are already at their default values.
 	 */
 	private boolean areSettingsAtDefault() {
+		Figure3DPreferences.Values defaults = Figure3DPreferences.load(prefs);
 		Color themeBg = UITheme.getColor(UITheme.Keys.BACKGROUND);
 		Color themeText = UITheme.getColor(UITheme.Keys.TEXT);
 		
@@ -733,28 +734,18 @@ public class DisplaySettingsDialog extends JDialog {
 		Color default3DBg = getEffectiveColor(null, prefs.getDefault3DBackgroundColor(), themeBg);
 		Color default2DText = getEffectiveColor(null, prefs.getDefault2DTextColor(), themeText);
 		Color default3DText = getEffectiveColor(null, prefs.getDefault3DTextColor(), themeText);
-		GraphicsQualitySettings.RenderQuality defaultRenderQuality =
-				Figure3DPreferences.getDefaultRenderQuality(prefs);
-		boolean defaultShadowsEnabled = Figure3DPreferences.isShadowsEnabled(prefs);
-		boolean defaultAmbientOcclusionEnabled = Figure3DPreferences.isAmbientOcclusionEnabled(prefs);
-		boolean defaultRoughnessEnabled = Figure3DPreferences.isRoughnessBumpEnabled(prefs);
-		boolean defaultOriginAxesVisible = Figure3DPreferences.isOriginAxesVisible(prefs);
-		boolean defaultLightVisualizersVisible = Figure3DPreferences.areLightVisualizersVisible(prefs);
-		boolean defaultRotateRocketOnDrag = Figure3DPreferences.isRotateRocketOnDrag(prefs);
-		boolean defaultCaretScaleWithView = Figure3DPreferences.isCaretScaleWithView(prefs);
-		
 		return current2DBg.equals(default2DBg) &&
 			   current3DBg.equals(default3DBg) &&
 			   current2DText.equals(default2DText) &&
 			   current3DText.equals(default3DText) &&
-			   getSelectedRenderQuality() == defaultRenderQuality &&
-			   renderShadowsCheckBox.isSelected() == defaultShadowsEnabled &&
-			   ambientOcclusionCheckBox.isSelected() == defaultAmbientOcclusionEnabled &&
-			   roughnessCheckBox.isSelected() == defaultRoughnessEnabled &&
-			   originAxesCheckBox.isSelected() == defaultOriginAxesVisible &&
-			   lightVisualizersCheckBox.isSelected() == defaultLightVisualizersVisible &&
-			   rotateRocketOnDragCheckBox.isSelected() == defaultRotateRocketOnDrag &&
-			   scaleCaretsCheckBox.isSelected() == defaultCaretScaleWithView;
+			   getSelectedRenderQuality() == defaults.renderQuality() &&
+			   renderShadowsCheckBox.isSelected() == defaults.shadowsEnabled() &&
+			   ambientOcclusionCheckBox.isSelected() == defaults.ambientOcclusionEnabled() &&
+			   roughnessCheckBox.isSelected() == defaults.roughnessBumpEnabled() &&
+			   originAxesCheckBox.isSelected() == defaults.originAxesVisible() &&
+			   lightVisualizersCheckBox.isSelected() == defaults.lightVisualizersVisible() &&
+			   rotateRocketOnDragCheckBox.isSelected() == defaults.rotateRocketOnDrag() &&
+			   scaleCaretsCheckBox.isSelected() == defaults.caretScaleWithView();
 	}
 	
 	/**
@@ -783,14 +774,17 @@ public class DisplaySettingsDialog extends JDialog {
 				UITheme.getColor(UITheme.Keys.TEXT), prefs::setDefault2DTextColor);
 		saveDefaultIfDifferent(current3DText, 
 				UITheme.getColor(UITheme.Keys.TEXT), prefs::setDefault3DTextColor);
-		Figure3DPreferences.setDefaultRenderQuality(prefs, getSelectedRenderQuality());
-		Figure3DPreferences.setShadowsEnabled(prefs, renderShadowsCheckBox.isSelected());
-		Figure3DPreferences.setAmbientOcclusionEnabled(prefs, ambientOcclusionCheckBox.isSelected());
-		Figure3DPreferences.setRoughnessBumpEnabled(prefs, roughnessCheckBox.isSelected());
-		Figure3DPreferences.setOriginAxesVisible(prefs, originAxesCheckBox.isSelected());
-		Figure3DPreferences.setLightVisualizersVisible(prefs, lightVisualizersCheckBox.isSelected());
-		Figure3DPreferences.setRotateRocketOnDrag(prefs, rotateRocketOnDragCheckBox.isSelected());
-		Figure3DPreferences.setCaretScaleWithView(prefs, scaleCaretsCheckBox.isSelected());
+		Figure3DPreferences.save(prefs, new Figure3DPreferences.Values(
+				getSelectedRenderQuality(),
+				Figure3DPreferences.isAntiAliasingEnabled(prefs),
+				renderShadowsCheckBox.isSelected(),
+				ambientOcclusionCheckBox.isSelected(),
+				roughnessCheckBox.isSelected(),
+				originAxesCheckBox.isSelected(),
+				lightVisualizersCheckBox.isSelected(),
+				rotateRocketOnDragCheckBox.isSelected(),
+				Figure3DPreferences.getDragRotationSensitivity(prefs),
+				scaleCaretsCheckBox.isSelected()));
 	}
 	
 	/**
