@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -67,7 +69,7 @@ public class PhotoFrame extends JFrame {
 	private final Translator trans = Application.getTranslator();
 
 	private final PhotoPanel photoPanel;
-	private final JFrame settings;
+	private final JDialog settings;
 	private final AtomicBoolean resourcesReleased = new AtomicBoolean(false);
 	private volatile OpenRocketDocument currentDocument;
 
@@ -128,10 +130,11 @@ public class PhotoFrame extends JFrame {
 		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.setWindowIcons(this);
 
-		settings = new JFrame(trans.get("PhotoSettingsConfig.title"));
+		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title"), Dialog.ModalityType.MODELESS);
 		settings.setContentPane(new PhotoSettingsConfig(p, document));
+		settings.setJMenuBar(getMenu(app));
 		settings.setPreferredSize(new Dimension(600, 500));
-		settings.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		settings.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		settings.setAlwaysOnTop(false);
 		settings.setType(Window.Type.NORMAL);
 		GUIUtil.setWindowIcons(settings);
