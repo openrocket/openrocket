@@ -50,6 +50,7 @@ public class ScaleSelector {
 	private final JButton zoomOutButton;
 	private final JButton zoomInButton;
 	private final JButton zoomFitButton;
+	private boolean updatingScaleSelectorText = false;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
 		this(new ZoomModel() {
@@ -120,6 +121,9 @@ public class ScaleSelector {
 		scaleSelectorCombo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (updatingScaleSelectorText) {
+					return;
+				}
 				try {
 					String text = (String) scaleSelectorCombo.getSelectedItem();
 					if (text == null) return;
@@ -208,8 +212,14 @@ public class ScaleSelector {
 		if (zoomModel.isFit()) {
 			text = "Fit (" + text + ")";
 		}
-		if (!text.equals(scaleSelectorCombo.getSelectedItem()))
-			scaleSelectorCombo.setSelectedItem(text);
+		if (!text.equals(scaleSelectorCombo.getSelectedItem())) {
+			updatingScaleSelectorText = true;
+			try {
+				scaleSelectorCombo.setSelectedItem(text);
+			} finally {
+				updatingScaleSelectorText = false;
+			}
+		}
 	}
 
 	private static double getNextLargerScale(final double currentScale) {
