@@ -156,6 +156,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final AtomicInteger peerBoundsSyncAttempts = new AtomicInteger(0);
 	private static final int MAX_PEER_BOUNDS_SYNC_ATTEMPTS = 20;
 	private static final int PEER_BOUNDS_SYNC_RETRY_DELAY_MS = 50;
+	private static final int[] STARTUP_FRAME_RECOVERY_DELAYS_MS = {150, 400, 800, 1500, 3000, 5000};
+	private final AtomicInteger startupRecoveryGeneration = new AtomicInteger(0);
 
 	// Track dimensions to detect actual size changes
 	private int lastFramebufferWidth = -1;
@@ -233,14 +235,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// components without changing their local bounds. On macOS this can leave the
 			// native peer at an incorrect location until the next real resize. Force a peer
 			// bounds sync when the canvas becomes showing.
-			addHierarchyListener(e -> {
-				if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-					peerBoundsSyncAttempts.set(0);
-					if (isShowing()) {
-						requestPeerBoundsSync();
+				addHierarchyListener(e -> {
+					if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+						peerBoundsSyncAttempts.set(0);
+						if (isShowing()) {
+							requestPeerBoundsSync();
+							scheduleStartupFrameRecoverySequence();
+						}
 					}
-				}
-			});
+				});
 			// If an ancestor moves (e.g., JSplitPane divider/layout), Swing won't necessarily resize this
 			// canvas, but the native peer still needs an updated on-screen location.
 			addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
@@ -310,6 +313,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			schedulePeerBoundsSyncRetry(500);
 			schedulePeerBoundsSyncRetry(1000);
 		}
+		scheduleStartupFrameRecoverySequence();
 	}
 
 	/**
@@ -363,6 +367,44 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		Timer timer = new Timer(delayMs, e -> requestPeerBoundsSync());
 		timer.setRepeats(false);
 		timer.start();
+	}
+
+	private void scheduleStartupFrameRecoverySequence() {
+		int generation = startupRecoveryGeneration.incrementAndGet();
+		for (int delayMs : STARTUP_FRAME_RECOVERY_DELAYS_MS) {
+			Timer timer = new Timer(delayMs, e -> runStartupFrameRecovery(generation, delayMs));
+			timer.setRepeats(false);
+			timer.start();
+		}
+	}
+
+	private void runStartupFrameRecovery(int generation, int delayMs) {
+		if (generation != startupRecoveryGeneration.get() || glInitFailed || hasCompletedFrame()) {
+			return;
+		}
+		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
+			return;
+		}
+
+		requestPeerBoundsSyncNow();
+		Container parent = getParent();
+		if (parent != null) {
+			parent.revalidate();
+			parent.repaint();
+		}
+		revalidate();
+		repaint();
+
+		try {
+			render();
+		} catch (Throwable t) {
+			log.debug("Startup frame recovery render failed after {} ms: {}", delayMs, t.toString());
+		}
+
+		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
+				&& !hasCompletedFrame()) {
+			log.warn("No completed 3D frame after startup recovery: {}", getDebugStateSummary());
+		}
 	}
 
 	private void syncPeerBounds() {
@@ -1178,6 +1220,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	public void cleanup() {
 		// Prevent any further rendering/resize operations
 		glInitialized = false;
+		startupRecoveryGeneration.incrementAndGet();
 		hudPaintScheduled.set(false);
 		hudBufferReady.set(false);
 		uninstallThemeListener();
