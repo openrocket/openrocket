@@ -132,7 +132,6 @@ public class PhotoFrame extends JFrame {
 
 		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title"), Dialog.ModalityType.MODELESS);
 		settings.setContentPane(new PhotoSettingsConfig(p, document));
-		settings.setJMenuBar(getMenu(app));
 		settings.setPreferredSize(new Dimension(600, 500));
 		settings.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 		settings.setAlwaysOnTop(false);
