@@ -17,6 +17,7 @@ import info.openrocket.swing.gui.figure3d.rendering.passes.ScreenTexturePass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.ShadowPass;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.Light;
+import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
@@ -322,10 +323,12 @@ public class RealisticRenderer implements Renderer {
             currentTexture = ambientOcclusionPass.getOutputTexture();
         }
         
-        // Apply motion blur if enabled
+        // Apply motion blur if enabled (only affects the rocket, not the background)
         if (config.getVisualEffects().isMotionBlurEnabled()) {
 			motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
             motionBlurPass.setInputTexture(currentTexture);
+            motionBlurPass.setDepthTexture(renderTarget.getDepthTextureId());
+            computeAndSetBlurDirection(scene, viewMatrix, projectionMatrix);
             motionBlurPass.render(scene, windowManager, viewMatrix, projectionMatrix);
             currentTexture = motionBlurPass.getOutputTexture();
         }
@@ -347,11 +350,63 @@ public class RealisticRenderer implements Renderer {
 	}
 
 	/**
+	 * Computes the rocket's axis direction in screen space and passes it to the motion blur pass.
+	 * The rocket axis is along the local X-axis of its model matrix. We project this direction
+	 * through the view-projection matrix to get a 2D screen-space blur direction.
+	 */
+	private void computeAndSetBlurDirection(SceneView scene, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
+		// Find the first rocket component to get its model matrix
+		Matrix4f rocketModel = null;
+		for (SceneObject obj : scene.getObjects()) {
+			if (obj.getRocketComponent() != null) {
+				rocketModel = obj.getModelMatrix();
+				break;
+			}
+		}
+
+		if (rocketModel == null) {
+			motionBlurPass.setBlurDirection(1.0f, 0.0f);
+			return;
+		}
+
+		// The rocket axis is along X in model space.
+		// Extract the X-axis direction from the model matrix (first column).
+		Vector3f rocketAxis = new Vector3f(rocketModel.m00(), rocketModel.m01(), rocketModel.m02()).normalize();
+
+		// Pick a reference point (center of the rocket in world space)
+		Vector4f origin = new Vector4f(rocketModel.m30(), rocketModel.m31(), rocketModel.m32(), 1.0f);
+		Vector4f tip = new Vector4f(
+				origin.x + rocketAxis.x,
+				origin.y + rocketAxis.y,
+				origin.z + rocketAxis.z,
+				1.0f
+		);
+
+		// Transform both points to clip space
+		Matrix4f vp = new Matrix4f(projectionMatrix).mul(viewMatrix);
+		vp.transform(origin);
+		vp.transform(tip);
+
+		// Perspective divide to get NDC
+		if (Math.abs(origin.w) < 0.0001f || Math.abs(tip.w) < 0.0001f) {
+			motionBlurPass.setBlurDirection(1.0f, 0.0f);
+			return;
+		}
+		float ox = origin.x / origin.w;
+		float oy = origin.y / origin.w;
+		float tx = tip.x / tip.w;
+		float ty = tip.y / tip.w;
+
+		// Screen-space direction (NDC is -1..1, texture coords are 0..1, but direction is the same)
+		motionBlurPass.setBlurDirection(tx - ox, ty - oy);
+	}
+
+	/**
 	 * Sets up global shader uniforms that remain constant for the entire frame.
-	 * 
+	 *
 	 * This includes camera matrices, lighting information, fog settings,
 	 * and other frame-constant values to avoid redundant uniform updates.
-	 * 
+	 *
 	 * @param scene The scene containing lights and environment settings
 	 * @param camera The active camera
 	 * @param viewMatrix The camera's view transformation matrix

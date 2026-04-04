@@ -5,6 +5,7 @@ import info.openrocket.swing.gui.figure3d.rendering.ShaderProgram;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.lwjgl.opengl.GL33;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -56,8 +57,10 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 
     private final ShaderProgram shader;
     private float blurFactor = 1f;
+    private final Vector2f blurDirection = new Vector2f(1.0f, 0.0f);
     private final int screenQuadVAO;
     private int inputTexture;
+    private int depthTexture;
     private int motionBlurFBO;
     private int motionBlurTexture;
     private int screenWidth;
@@ -78,7 +81,8 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
         this.shader = new Shader("/shaders/post/motion_blur_vertex.glsl", "/shaders/post/motion_blur_fragment.glsl");
         this.screenQuadVAO = screenQuadVAO;
         this.shader.use();
-        this.shader.setUniform("screenTexture", 0); // Set texture unit once
+        this.shader.setUniform("screenTexture", 0);
+        GL33.glUniform1i(this.shader.getUniformLocation("depthTexture"), 1);
         this.shader.unbind();
         resize(initialWidth, initialHeight);
     }
@@ -100,20 +104,25 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
     @Override
     public void render(SceneView scene, WindowManager windowManager, Matrix4f viewMatrix, Matrix4f projectionMatrix) {
         GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, motionBlurFBO);
-        GL33.glClear(GL_COLOR_BUFFER_BIT); // Clear the buffer
+        GL33.glClear(GL_COLOR_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
 
         shader.use();
         shader.setUniform("blurFactor", blurFactor);
+        GL33.glUniform2f(shader.getUniformLocation("blurDirection"), blurDirection.x, blurDirection.y);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, inputTexture);
+
+        GL33.glActiveTexture(GL33.GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthTexture);
 
         GL33.glBindVertexArray(screenQuadVAO);
         GL33.glDrawArrays(GL_TRIANGLES, 0, 6);
         GL33.glBindVertexArray(0);
 
         shader.unbind();
+        glActiveTexture(GL_TEXTURE0);
         GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
     }
 
@@ -160,8 +169,34 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
     }
 
     /**
+     * Sets the depth texture used to distinguish rocket pixels from background.
+     * Background pixels (depth ~1.0) will not be blurred.
+     *
+     * @param textureId The OpenGL depth texture ID
+     */
+    public void setDepthTexture(int textureId) {
+        this.depthTexture = textureId;
+    }
+
+    /**
+     * Sets the blur direction in normalized screen space.
+     * This should be the rocket's axis direction projected to screen coordinates.
+     *
+     * @param x The horizontal component of the blur direction
+     * @param y The vertical component of the blur direction
+     */
+    public void setBlurDirection(float x, float y) {
+        float len = (float) Math.sqrt(x * x + y * y);
+        if (len > 0.0001f) {
+            this.blurDirection.set(x / len, y / len);
+        } else {
+            this.blurDirection.set(1.0f, 0.0f);
+        }
+    }
+
+    /**
      * Gets the current motion blur intensity factor.
-     * 
+     *
      * @return The blur factor (0.0 = no blur, higher values = more blur)
      */
     public float getBlurFactor() {
@@ -170,10 +205,10 @@ public class MotionBlurPass implements RenderPass, ScreenTexturePass {
 
     /**
      * Sets the motion blur intensity factor.
-     * 
+     *
      * Controls the strength of the motion blur effect. Higher values produce
      * more pronounced blur streaks, while lower values create subtle effects.
-     * 
+     *
      * @param blurFactor The blur intensity (0.0 = no blur, typical range 0.0-2.0)
      */
     public void setBlurFactor(float blurFactor) {
