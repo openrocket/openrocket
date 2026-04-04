@@ -359,7 +359,18 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// Speed
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.speed")));
-				add(new JCheckBox(new BooleanModel(p, "MotionBlurred")), "wrap");
+				BooleanModel speedModel = new BooleanModel(p, "MotionBlurred");
+				add(new JCheckBox(speedModel), "wrap");
+
+				/// Motion blur amount
+				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.motionBlurAmount")));
+				DoubleModel motionBlurAmountModel = new DoubleModel(p, "MotionBlurAmount", UnitGroup.UNITS_NONE, 0, 20);
+				EditableSpinner motionBlurAmountSpinner = new EditableSpinner(motionBlurAmountModel.getSpinnerModel());
+				BasicSlider motionBlurAmountSlider = new BasicSlider(motionBlurAmountModel.getSliderModel(0, 20));
+				add(motionBlurAmountSpinner, "growx");
+				add(motionBlurAmountSlider, "skip 1, wrap");
+				speedModel.addEnableComponent(motionBlurAmountSpinner);
+				speedModel.addEnableComponent(motionBlurAmountSlider);
 			}
 		});
 

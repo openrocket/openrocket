@@ -27,6 +27,7 @@ public class PhotoSettings extends AbstractChangeSource {
 	
 	
 	private boolean motionBlurred = false;
+	private double motionBlurAmount = 5.0;
 	private boolean flame = false;
 	private ORColor flameColor = new ORColor(255, 100, 50);
 	private boolean smoke = false;
@@ -152,7 +153,16 @@ public class PhotoSettings extends AbstractChangeSource {
 		this.motionBlurred = motionBlurred;
 		fireChangeEvent();
 	}
-	
+
+	public double getMotionBlurAmount() {
+		return motionBlurAmount;
+	}
+
+	public void setMotionBlurAmount(double motionBlurAmount) {
+		this.motionBlurAmount = MathUtil.clamp(motionBlurAmount, 0, 20);
+		fireChangeEvent();
+	}
+
 	public boolean isFlame() {
 		return flame;
 	}

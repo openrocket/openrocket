@@ -602,6 +602,7 @@ public class PhotoPanel extends JPanel {
 	private boolean applyEffects(RenderingConfiguration config) {
 		VisualEffectsSettings effects = config.getVisualEffects();
 		effects.setMotionBlurEnabled(settings.isMotionBlurred());
+		effects.setMotionBlurFactor((float) settings.getMotionBlurAmount());
 		boolean particlesEnabled = settings.isFlame() || settings.isSmoke() || settings.isSparks();
 		effects.setParticleEffectsEnabled(particlesEnabled);
 		effects.setFlameParticlesEnabled(settings.isFlame());
