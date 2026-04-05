@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * Manages all light sources and their visual representations within the 3D scene.
@@ -35,6 +37,7 @@ public class LightManager implements LightController {
 	private final Map<Light, List<SceneObject>> lightVisualsMap = new HashMap<>();
 	private final LightVisualizer lightVisualizer = new LightVisualizer();
 	private boolean visualizersVisible = false;
+	private final List<Consumer<Light>> lightChangeListeners = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Constructs a new LightManager for the specified scene.
@@ -166,6 +169,23 @@ public class LightManager implements LightController {
 			return;
 		}
 		lightVisualizer.updateVisualsForLight(light, visuals);
+	}
+
+	@Override
+	public void addLightChangeListener(Consumer<Light> listener) {
+		lightChangeListeners.add(listener);
+	}
+
+	@Override
+	public void removeLightChangeListener(Consumer<Light> listener) {
+		lightChangeListeners.remove(listener);
+	}
+
+	@Override
+	public void fireLightChanged(Light light) {
+		for (Consumer<Light> listener : lightChangeListeners) {
+			listener.accept(light);
+		}
 	}
 
 	/**

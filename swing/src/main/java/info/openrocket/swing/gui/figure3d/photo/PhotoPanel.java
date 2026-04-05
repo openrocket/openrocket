@@ -66,7 +66,9 @@ public class PhotoPanel extends JPanel {
 	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
 	private final AtomicBoolean syncingCameraToSettings = new AtomicBoolean(false);
 	private final AtomicBoolean suppressCameraToSettingsSync = new AtomicBoolean(false);
+	private final AtomicBoolean suppressLightToSettingsSync = new AtomicBoolean(false);
 	private final Consumer<Camera> cameraChangeListener = this::handleCameraChanged;
+	private final Consumer<Light> lightChangeListener = this::handleLightChanged;
 	private final Map<SceneObject, Matrix4f> baseTransforms = new IdentityHashMap<>();
 	private final Map<ParticleEmitter, EmitterBase> baseEmitters = new IdentityHashMap<>();
 	private boolean lastFlame;
@@ -152,7 +154,7 @@ public class PhotoPanel extends JPanel {
 		setLayout(new BorderLayout());
 		debug("PhotoPanel ctor");
 		settings.addChangeListener(e -> {
-			if (!syncingCameraToSettings.get()) {
+			if (!syncingCameraToSettings.get() && !suppressLightToSettingsSync.get()) {
 				applySettings();
 			}
 		});
@@ -197,6 +199,10 @@ public class PhotoPanel extends JPanel {
 			Scene3DOrchestrator orchestrator = glPanel.getScene3DOrchestrator();
 			if (orchestrator != null) {
 				orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
+				SceneView scene = orchestrator.getScene();
+				if (scene != null) {
+					scene.getLightController().removeLightChangeListener(lightChangeListener);
+				}
 			}
 			remove(glPanel);
 			glPanel.cleanup();
@@ -334,6 +340,10 @@ public class PhotoPanel extends JPanel {
 
 	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
 		orchestrator.getCameraController().addCameraChangeListener(cameraChangeListener);
+		SceneView scene = orchestrator.getScene();
+		if (scene != null) {
+			scene.getLightController().addLightChangeListener(lightChangeListener);
+		}
 		applySettingsOnGlThread(orchestrator);
 	}
 
@@ -727,6 +737,55 @@ public class PhotoPanel extends JPanel {
 			rememberCameraSettings();
 		} finally {
 			syncingCameraToSettings.set(false);
+		}
+	}
+
+	/**
+	 * Called when the light direction is modified interactively (e.g. Alt+drag).
+	 * Marshals the sync onto the EDT, matching the camera change listener pattern.
+	 */
+	private void handleLightChanged(Light light) {
+		if (suppressLightToSettingsSync.get()) {
+			return;
+		}
+		// Capture the direction vector from the GL thread before handing off to EDT
+		org.joml.Vector3f dir = light.getDirection();
+		float dx = dir.x, dy = dir.y, dz = dir.z;
+		if (SwingUtilities.isEventDispatchThread()) {
+			syncSettingsFromLightDirection(dx, dy, dz);
+		} else {
+			SwingUtilities.invokeLater(() -> syncSettingsFromLightDirection(dx, dy, dz));
+		}
+	}
+
+	/**
+	 * Converts the stored light direction vector back to (lightAlt, lightAz) settings values.
+	 *
+	 * <p>Inverse of the applyLighting() formula:
+	 * <pre>
+	 *   direction = (-cos(alt)*cos(az),  -sin(alt),  cos(alt)*sin(az))
+	 * </pre>
+	 * Recovery:
+	 * <pre>
+	 *   alt = asin(-direction.y)
+	 *   az  = atan2(direction.z, -direction.x)
+	 * </pre>
+	 */
+	private void syncSettingsFromLightDirection(float dx, float dy, float dz) {
+		double lightAlt = Math.asin(Math.max(-1.0, Math.min(1.0, -dy)));
+		double lightAz = MathUtil.reduce2Pi(Math.atan2(dz, -dx));
+
+		if (MathUtil.equals(lightAlt, settings.getLightAlt(), CAMERA_SETTINGS_EPSILON)
+				&& MathUtil.equals(lightAz, settings.getLightAz(), CAMERA_SETTINGS_EPSILON)) {
+			return;
+		}
+
+		suppressLightToSettingsSync.set(true);
+		try {
+			settings.setLightAlt(lightAlt);
+			settings.setLightAz(lightAz);
+		} finally {
+			suppressLightToSettingsSync.set(false);
 		}
 	}
 
