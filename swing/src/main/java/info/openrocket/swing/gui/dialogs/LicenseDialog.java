@@ -133,6 +133,33 @@ public class LicenseDialog extends JDialog {
 			"<br>" +
 			"You may obtain a copy of the License at <a href=\"https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt\">https://github.com/commonmark/commonmark-java/blob/main/LICENSE.txt</a>." +
 			"<br>";
+
+		/*****************************************************************************************************************************/
+		/* BSD 3-Clause:  LWJGL                                                                                                       */
+		/*****************************************************************************************************************************/
+		final String lwjglLicense =
+			"<strong>BSD 3-Clause License</strong><br>" +
+			"<br>" +
+			"OpenRocket makes use of LWJGL (Lightweight Java Game Library)<br>" +
+			"Copyright " + Chars.COPY + " LWJGL. All rights reserved.<br>" +
+			"Project page: <a href=\"https://www.lwjgl.org/\">https://www.lwjgl.org/</a><br>" +
+			"Source code: <a href=\"https://github.com/LWJGL/lwjgl3\">https://github.com/LWJGL/lwjgl3</a><br>" +
+			"<br>" +
+			"You may obtain a copy of the License at <a href=\"https://www.lwjgl.org/license\">https://www.lwjgl.org/license</a>." +
+			"<br>";
+
+		/*****************************************************************************************************************************/
+		/* MIT:  lwjgl3-awt                                                                                                           */
+		/*****************************************************************************************************************************/
+		final String lwjgl3AwtLicense =
+			"<strong>MIT License</strong><br>" +
+			"<br>" +
+			"OpenRocket makes use of LWJGLX/lwjgl3-awt<br>" +
+			"Copyright " + Chars.COPY + " 2015 Kai Burjack<br>" +
+			"Project page: <a href=\"https://github.com/LWJGLX/lwjgl3-awt\">https://github.com/LWJGLX/lwjgl3-awt</a><br>" +
+			"<br>" +
+			"You may obtain a copy of the License at <a href=\"http://www.opensource.org/licenses/mit-license.php\">http://www.opensource.org/licenses/mit-license.php</a>." +
+			"<br>";
 		
 		/*****************************************************************************************************************************/
         /* End of license text                                                                                                       */
@@ -140,7 +167,7 @@ public class LicenseDialog extends JDialog {
 
 		DescriptionArea info = new DescriptionArea(20);
 		info.setTextFont(UIManager.getFont("Label.font"));
-		info.setText(orLicense + componentsLicense + fontLicense + commonmarkLicense);
+		info.setText(orLicense + componentsLicense + fontLicense + commonmarkLicense + lwjglLicense + lwjgl3AwtLicense);
 		panel.add(info, "newline, width 700lp, height 250lp, pushy, grow, spanx, wrap para");
 		
 		//Close button
