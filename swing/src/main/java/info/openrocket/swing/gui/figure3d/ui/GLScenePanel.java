@@ -404,16 +404,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		revalidate();
 		repaint();
 
-		// On macOS, forcing a direct EDT render here can crash inside JAWT surface acquisition
-		// while the heavyweight peer is still settling. The owning render schedulers already keep
-		// driving this canvas, so recovery only needs to repair layout/peer state on that platform.
-		if (!NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
-			try {
-				render();
-			} catch (Throwable t) {
-				log.debug("Startup frame recovery render failed after {} ms: {}", delayMs, t.toString());
-			}
-		}
+		// The background render scheduler is already driving this canvas on all platforms.
+		// Forcing a direct EDT render here would race with the background thread and can
+		// crash inside JAWT surface acquisition while the heavyweight peer is still settling.
+		// Layout/peer-state repair above is sufficient; the background thread will pick up
+		// the corrected state on its next tick.
 
 		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
 				&& !hasCompletedFrame()) {

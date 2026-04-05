@@ -30,7 +30,6 @@ import java.awt.Color;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -57,8 +56,9 @@ public class RocketFigure3d extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
 	private static final int FRAME_INTERVAL_MS = 16;
 	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
-	private static final EdtRenderScheduler EDT_RENDER_SCHEDULER = new EdtRenderScheduler();
-	private static final MacRenderScheduler MAC_RENDER_SCHEDULER = new MacRenderScheduler();
+	// All platforms use the background scheduler so GL work (context creation, swap-buffers,
+	// vsync wait) never blocks the Event Dispatch Thread.
+	private static final BackgroundRenderScheduler RENDER_SCHEDULER = new BackgroundRenderScheduler();
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -221,11 +221,7 @@ public class RocketFigure3d extends JPanel {
 		if (!enable3d) {
 			return;
 		}
-		if (IS_MACOS) {
-			MAC_RENDER_SCHEDULER.requestImmediate(this);
-		} else {
-			SwingUtilities.invokeLater(this::renderFrame);
-		}
+		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	/**
@@ -247,11 +243,7 @@ public class RocketFigure3d extends JPanel {
 				panel.requestPeerBoundsSyncNow();
 				applyBackgroundColor(panel);
 			}
-			if (IS_MACOS) {
-				MAC_RENDER_SCHEDULER.register(this);
-			} else {
-				EDT_RENDER_SCHEDULER.register(this);
-			}
+			RENDER_SCHEDULER.register(this);
 			requestRenderNow();
 			scheduleStartupWatchdog();
 		});
@@ -262,8 +254,7 @@ public class RocketFigure3d extends JPanel {
 	 */
 	public void stopRendering() {
 		renderingEnabled = false;
-		EDT_RENDER_SCHEDULER.unregister(this);
-		MAC_RENDER_SCHEDULER.unregister(this);
+		RENDER_SCHEDULER.unregister(this);
 	}
 
 	public void addComponentSelectionListener(ComponentSelectionListener listener) {
@@ -669,89 +660,20 @@ public class RocketFigure3d extends JPanel {
 		}
 	}
 
-	private static final class EdtRenderScheduler implements ActionListener {
-		private final ArrayList<RocketFigure3d> active = new ArrayList<>();
-		private final Timer timer;
-		private int index = 0;
-
-		private EdtRenderScheduler() {
-			timer = new Timer(FRAME_INTERVAL_MS, this);
-			timer.setCoalesce(true);
-		}
-
-		private void register(RocketFigure3d figure) {
-			if (!SwingUtilities.isEventDispatchThread()) {
-				SwingUtilities.invokeLater(() -> register(figure));
-				return;
-			}
-			if (active.contains(figure)) {
-				return;
-			}
-			active.add(figure);
-			if (!timer.isRunning()) {
-				timer.start();
-			}
-		}
-
-		private void unregister(RocketFigure3d figure) {
-			if (!SwingUtilities.isEventDispatchThread()) {
-				SwingUtilities.invokeLater(() -> unregister(figure));
-				return;
-			}
-			int removedIndex = active.indexOf(figure);
-			if (removedIndex < 0) {
-				return;
-			}
-			active.remove(removedIndex);
-			if (index > removedIndex) {
-				index--;
-			}
-			if (index >= active.size()) {
-				index = 0;
-			}
-			if (active.isEmpty()) {
-				timer.stop();
-				index = 0;
-			}
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			for (int i = active.size() - 1; i >= 0; i--) {
-				RocketFigure3d figure = active.get(i);
-				if (!figure.renderingEnabled || figure.disposed) {
-					active.remove(i);
-					if (index > i) {
-						index--;
-					}
-				}
-			}
-			if (active.isEmpty()) {
-				timer.stop();
-				index = 0;
-				return;
-			}
-			if (index >= active.size()) {
-				index = 0;
-			}
-			RocketFigure3d figure = active.get(index);
-			index = (index + 1) % active.size();
-			try {
-				figure.renderFrame();
-			} catch (Throwable t) {
-				log.error("Render scheduler failed for one 3D panel", t);
-			}
-		}
-	}
-
-	private static final class MacRenderScheduler implements Runnable {
+	/**
+	 * Drives rendering on a dedicated background thread so that GL work
+	 * (context creation, buffer swaps, vsync waits) never blocks the EDT.
+	 * Safe for all platforms: lwjgl3-awt's AWTGLCanvas.render() handles its
+	 * own JAWT/X11 locking and may be called from any thread.
+	 */
+	private static final class BackgroundRenderScheduler implements Runnable {
 		private final ArrayList<RocketFigure3d> active = new ArrayList<>();
 		private final ScheduledExecutorService executor;
 		private int index = 0;
 
-		private MacRenderScheduler() {
+		private BackgroundRenderScheduler() {
 			ThreadFactory factory = r -> {
-				Thread t = new Thread(r, "figure3d-mac-render");
+				Thread t = new Thread(r, "figure3d-render");
 				t.setDaemon(true);
 				return t;
 			};
@@ -789,14 +711,14 @@ public class RocketFigure3d extends JPanel {
 				try {
 					figure.renderFrame();
 				} catch (Throwable t) {
-					log.error("Immediate macOS render failed", t);
+					log.error("Immediate render failed", t);
 				}
 			});
 		}
 
 		@Override
 		public void run() {
-			RocketFigure3d figure = null;
+			RocketFigure3d figure;
 			synchronized (active) {
 				for (int i = active.size() - 1; i >= 0; i--) {
 					RocketFigure3d candidate = active.get(i);
@@ -820,7 +742,7 @@ public class RocketFigure3d extends JPanel {
 			try {
 				figure.renderFrame();
 			} catch (Throwable t) {
-				log.error("macOS render scheduler failed for one 3D panel", t);
+				log.error("Render scheduler failed for one 3D panel", t);
 			}
 		}
 	}
