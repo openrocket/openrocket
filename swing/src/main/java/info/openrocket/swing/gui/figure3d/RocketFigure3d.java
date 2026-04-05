@@ -604,7 +604,9 @@ public class RocketFigure3d extends JPanel {
 		ensureCanvasCreatedOnEdt();
 		GLScenePanel panel = glScenePanel;
 		if (panel == null) {
-			requestRenderNow();
+			if (!IS_MACOS) {
+				requestRenderNow();
+			}
 			return;
 		}
 		if (panel.hasCompletedFrame()) {
@@ -615,7 +617,9 @@ public class RocketFigure3d extends JPanel {
 		repaint();
 		panel.revalidate();
 		panel.repaint();
-		requestRenderNow();
+		if (!IS_MACOS) {
+			requestRenderNow();
+		}
 	}
 
 	private static final class EdtRenderScheduler implements ActionListener {
