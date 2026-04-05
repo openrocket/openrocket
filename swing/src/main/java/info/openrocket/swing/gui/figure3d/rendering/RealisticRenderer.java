@@ -44,6 +44,7 @@ import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
 /**
@@ -556,16 +557,24 @@ public class RealisticRenderer implements Renderer {
 
 		glViewport(0, 0, screenWidth, screenHeight);
 		glDisable(GL_DEPTH_TEST);
+		// Disable automatic sRGB conversion — apply it manually in the shader instead,
+		// so behaviour is consistent regardless of whether the default framebuffer is
+		// sRGB-capable (it is silently ignored on many Linux/GLX drivers).
+		glDisable(GL_FRAMEBUFFER_SRGB);
 
 		screenQuadShader.use();
 		GL33.glActiveTexture(GL33.GL_TEXTURE0);
 		GL33.glBindTexture(GL33.GL_TEXTURE_2D, resolvedTextureId);
 		GL33.glUniform1i(screenQuadShader.getUniformLocation("screenTexture"), 0);
+		GL33.glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 1);
 
 		GL33.glBindVertexArray(screenQuadVAO);
 		GL33.glDrawArrays(GL_TRIANGLES, 0, 6);
 		GL33.glBindVertexArray(0);
 
+		// Reset uniform and restore sRGB state for subsequent intermediate passes
+		GL33.glUniform1i(screenQuadShader.getUniformLocation("applyGammaCorrection"), 0);
+		glEnable(GL_FRAMEBUFFER_SRGB);
 		glEnable(GL_DEPTH_TEST);
 	}
 
