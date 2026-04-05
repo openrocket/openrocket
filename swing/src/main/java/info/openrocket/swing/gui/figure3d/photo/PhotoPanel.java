@@ -204,13 +204,19 @@ public class PhotoPanel extends JPanel {
 					scene.getLightController().removeLightChangeListener(lightChangeListener);
 				}
 			}
-			remove(glPanel);
+			// Cleanup GL resources BEFORE removing from the hierarchy. Removing first calls
+			// AWTGLCanvas.removeNotify() which resets context = 0 and marks the canvas
+			// non-displayable, causing GLScenePanel.cleanup() to skip the runInContext block
+			// entirely and leave GL resources partially destroyed. That corrupted state can
+			// prevent a subsequently-created GL context (e.g. the design 3D view) from
+			// rendering correctly.
 			glPanel.cleanup();
+			remove(glPanel);
 			glPanel = null;
 		}
 		imageCallbacks.clear();
 		captureQueued.set(false);
-		settingsApplyQueued.set(false);
+		settingsApplyQueued.set(false);  // reset in case the GL task was cleared without running
 		pendingApply.set(false);
 		lastFlameColor = null;
 		lastSmokeColor = null;
