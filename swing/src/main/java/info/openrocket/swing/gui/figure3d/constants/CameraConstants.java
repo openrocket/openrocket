@@ -12,8 +12,7 @@ public abstract class CameraConstants {
 	public static final float BASE_ROCKET_ROTATION_SENSITIVITY = 0.01f; // radians per pixel
 	public static final float BASE_VIEW_ROTATION_SENSITIVITY = BASE_ROCKET_ROTATION_SENSITIVITY;
 	public static final float DEFAULT_ROTATION_SENSITIVITY_FACTOR = 1.0f;
-	public static final float PAN_SENSITIVITY = 0.01f;
-	public static final float SCROLL_SENSITIVITY = 1.0f;
+		public static final float SCROLL_SENSITIVITY = 1.0f;
 	public static final float ZOOM_PADDING_FACTOR = 1.2f;
 
 	// --- Camera Limits ---

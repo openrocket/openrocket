@@ -299,19 +299,27 @@ public class Camera {
 	/**
 	 * Moves the camera and its target point parallel to the view plane.
 	 *
-	 * @param dx The change in the horizontal screen direction.
-	 * @param dy The change in the vertical screen direction.
+	 * @param dx The change in the horizontal screen direction in viewport pixels.
+	 * @param dy The change in the vertical screen direction in viewport pixels.
+	 * @param viewportWidth The viewport width in logical pixels.
+	 * @param viewportHeight The viewport height in logical pixels.
 	 */
-	public void pan(float dx, float dy) {
+	public void pan(float dx, float dy, int viewportWidth, int viewportHeight) {
 		if (fixedCenterOfInterest) return;
+		if (viewportWidth <= 0 || viewportHeight <= 0) return;
 		Vector3f right = new Vector3f();
 		viewMatrix.positiveX(right);
 		Vector3f up = new Vector3f();
 		viewMatrix.positiveY(up);
 
-		// Scale down the panning effect for smoother movement
-		centerOfInterest.add(right.mul(-dx * CameraConstants.PAN_SENSITIVITY));
-		centerOfInterest.add(up.mul(dy * CameraConstants.PAN_SENSITIVITY));
+		float effectiveDistance = distance > 0 ? distance : CameraConstants.DEFAULT_DISTANCE;
+		float halfHeight = effectiveDistance * (float) Math.tan(fov / 2.0f);
+		float halfWidth = halfHeight * aspectRatio;
+		float worldUnitsPerPixelX = (halfWidth * 2.0f) / viewportWidth;
+		float worldUnitsPerPixelY = (halfHeight * 2.0f) / viewportHeight;
+
+		centerOfInterest.add(right.mul(-dx * worldUnitsPerPixelX));
+		centerOfInterest.add(up.mul(dy * worldUnitsPerPixelY));
 	}
 
 

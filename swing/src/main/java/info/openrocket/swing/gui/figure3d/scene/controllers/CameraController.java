@@ -150,8 +150,8 @@ public class CameraController implements CameraControls {
      * @param dy the vertical mouse movement delta
      */
     @Override
-    public void handlePan(float dx, float dy) {
-        camera.pan(dx, dy);
+    public void handlePan(float dx, float dy, int viewportWidth, int viewportHeight) {
+        camera.pan(dx, dy, viewportWidth, viewportHeight);
         notifyCameraChanged();
     }
     

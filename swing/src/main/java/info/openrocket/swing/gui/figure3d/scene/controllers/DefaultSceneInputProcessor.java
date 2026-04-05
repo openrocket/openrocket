@@ -119,7 +119,9 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
             if (inputState.isLightDragging) {
                 updateMainLightRadialAngle(dragDelta.dx, dragDelta.dy);
             } else if (inputState.isPanning) {
-                cameraController.handlePan(dragDelta.dx, dragDelta.dy);
+                int viewportWidth = viewport != null ? viewport.getWindowWidth() : 0;
+                int viewportHeight = viewport != null ? viewport.getWindowHeight() : 0;
+                cameraController.handlePan(dragDelta.dx, dragDelta.dy, viewportWidth, viewportHeight);
             } else if (rotateRocketOnDrag && scene instanceof Scene sceneImpl) {
                 Vector3f viewRight = new Vector3f();
                 cameraController.getCamera().getViewMatrix().positiveX(viewRight);
