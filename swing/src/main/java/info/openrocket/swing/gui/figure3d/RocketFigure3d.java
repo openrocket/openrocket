@@ -90,6 +90,7 @@ public class RocketFigure3d extends JPanel {
 	private volatile double zoomScale = 1.0;
 	private volatile boolean zoomFitting = true;
 	private volatile Double pendingZoomScale = null;
+	private volatile boolean panModeEnabled = false;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -116,6 +117,7 @@ public class RocketFigure3d extends JPanel {
 			return;
 		}
 		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
+		panel.setPanModeEnabled(panModeEnabled);
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
@@ -385,6 +387,15 @@ public class RocketFigure3d extends JPanel {
 			orchestrator.getRenderingConfiguration().notifyListeners();
 		});
 		panel.repaint();
+	}
+
+	public void setPanModeEnabled(boolean enabled) {
+		panModeEnabled = enabled;
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			panel.setPanModeEnabled(enabled);
+			panel.repaint();
+		}
 	}
 
 	public double getZoomScale() {

@@ -34,6 +34,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Point;
@@ -191,6 +192,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Runnable uiThemeListener;
 	private final AtomicReference<ImageCaptureRequest> imageCaptureRequest = new AtomicReference<>();
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
+	private volatile boolean panModeEnabled = false;
 
 	private static final class ImageCaptureRequest {
 		private final boolean transparent;
@@ -532,7 +534,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 						// Update input state based on modifiers
 						var inputState = scene3DOrchestrator.getInputHandler().getInputState();
-						inputState.isPanning = isCtrlDown;
+						inputState.isPanning = panModeEnabled || isCtrlDown;
 						inputState.isLightDragging = isAltDown;
 
 						// Always update the drag delta
@@ -1197,6 +1199,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	public void setInitializationHook(Consumer<Scene3DOrchestrator> initializationHook) {
 		this.initializationHook = initializationHook;
+	}
+
+	public void setPanModeEnabled(boolean enabled) {
+		panModeEnabled = enabled;
+		setCursor(enabled
+				? Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR)
+				: Cursor.getDefaultCursor());
 	}
 
 	public void addSceneSelectionListener(SelectionListener listener) {

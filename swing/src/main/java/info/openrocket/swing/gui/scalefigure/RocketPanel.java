@@ -231,12 +231,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private JLabel infoMessage;
 	private JCheckBox showWarnings;
+	private String infoMessageKey = "RocketPanel.lbl.infoMessage";
 
 	private TreeSelectionModel selectionModel = null;
 
 	private ViewRotationControl rotationControl;
 	private ScaleSelector scaleSelector;
 	private JComboBox<RocketPanel.VIEW_TYPE> viewSelector;
+	private ThemedToggleButton panViewButton;
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator;
@@ -427,43 +429,43 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				if (SwingUtilities.isMiddleMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
 					return true;
 				}
-				return SwingUtilities.isLeftMouseButton(e) && rotationControl.isDragRotationLocked();
+				return SwingUtilities.isLeftMouseButton(e) &&
+						(isPanViewModeActive() || rotationControl.isDragRotationLocked());
 			}
 
 			private boolean shouldRotateOnDrag(MouseEvent e) {
-				return SwingUtilities.isLeftMouseButton(e) && !rotationControl.isDragRotationLocked();
+				return SwingUtilities.isLeftMouseButton(e) &&
+						!isPanViewModeActive() &&
+						!rotationControl.isDragRotationLocked();
 			}
 
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				if (caliperManager != null && !is3d) {
-					Point p0 = e.getPoint();
-					Point p1 = getViewport().getViewPosition();
-					int x = p0.x + p1.x;
-					int y = p0.y + p1.y;
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					if (caliperManager != null && !is3d) {
+						Point p0 = e.getPoint();
+						Point p1 = getViewport().getViewPosition();
+						int x = p0.x + p1.x;
+						int y = p0.y + p1.y;
 
-					// Handle snap mode mouse move first
-					if (caliperManager.isSnapModeActive()) {
-						caliperManager.handleSnapModeMouseMoved(x, y, (p) -> screenToModel(p.x, p.y));
-					} else {
-						caliperManager.handleMouseMoved(x, y, (p) -> screenToModel(p.x, p.y));
+						// Handle snap mode mouse move first
+						if (caliperManager.isSnapModeActive()) {
+							caliperManager.handleSnapModeMouseMoved(x, y, (p) -> screenToModel(p.x, p.y));
+						} else {
+							caliperManager.handleMouseMoved(x, y, (p) -> screenToModel(p.x, p.y));
+						}
+
+						getViewport().setCursor(getViewportCursor());
 					}
-
-					Cursor cursor = caliperManager.isAnyLineHovered()
-							? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-							: Cursor.getDefaultCursor();
-					getViewport().setCursor(cursor);
 				}
-			}
 
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// Clear hover state when mouse leaves
-				if (caliperManager != null) {
-					caliperManager.handleMouseExited();
-					getViewport().setCursor(Cursor.getDefaultCursor());
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// Clear hover state when mouse leaves
+					if (caliperManager != null) {
+						caliperManager.handleMouseExited();
+						getViewport().setCursor(getViewportCursor());
+					}
 				}
-			}
 
 			/**
 			 * Convert screen coordinates to model coordinates.
@@ -488,11 +490,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 								if (caliperManager != null && caliperManager.isSnapModeActive()) {
 									caliperManager.exitSnapMode();
 								}
+								if (isPanViewModeActive()) {
+									setPanViewModeActive(false);
+								}
 							}
 						};
 						javax.swing.KeyStroke escapeKey = javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
-						rootPane.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKey, "exitSnapMode");
-						rootPane.getActionMap().put("exitSnapMode", escapeAction);
+						rootPane.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKey, "exitTransientRocketPanelMode");
+						rootPane.getActionMap().put("exitTransientRocketPanelMode", escapeAction);
 						// Remove listener after registration to avoid re-registering
 						scrollPane.removeHierarchyListener(this);
 					}
@@ -518,14 +523,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 					}
 				});
 
-		// Set info message updater for caliper manager
-		if (caliperManager != null) {
-			caliperManager.setInfoMessageUpdater((messageKey) -> {
-				if (infoMessage != null) {
-					infoMessage.setText(trans.get(messageKey));
-				}
-			});
-		}
+			// Set info message updater for caliper manager
+			if (caliperManager != null) {
+				caliperManager.setInfoMessageUpdater((messageKey) -> {
+					infoMessageKey = messageKey;
+					refreshInfoMessage();
+				});
+			}
 		createPanel();
 
 		is3d = true;
@@ -564,6 +568,56 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		});
 	}
 
+	private boolean isPanViewModeActive() {
+		return panViewButton != null && panViewButton.isSelected();
+	}
+
+	private void setPanViewModeActive(boolean active) {
+		if (panViewButton != null && panViewButton.isSelected() != active) {
+			panViewButton.setSelected(active);
+		}
+		updatePanViewUiState();
+	}
+
+	private void updatePanViewUiState() {
+		boolean active = isPanViewModeActive();
+		if (figure3d != null) {
+			figure3d.setPanModeEnabled(active);
+		}
+		if (scrollPane != null && scrollPane.getViewport() != null) {
+			scrollPane.getViewport().setCursor(getViewportCursor());
+		}
+		refreshInfoMessage();
+		if (active) {
+			if (is3d) {
+				figure3d.requestFocusInWindow();
+			} else if (scrollPane != null) {
+				scrollPane.requestFocusInWindow();
+			}
+		}
+	}
+
+	private Cursor getViewportCursor() {
+		if (isPanViewModeActive()) {
+			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+		}
+		if (!is3d && caliperManager != null && caliperManager.isAnyLineHovered()) {
+			return Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+		}
+		return Cursor.getDefaultCursor();
+	}
+
+	private void refreshInfoMessage() {
+		if (infoMessage == null) {
+			return;
+		}
+		if (isPanViewModeActive()) {
+			infoMessage.setText(trans.get("RocketPanel.lbl.infoMessage.panMode"));
+			return;
+		}
+		infoMessage.setText(trans.get(infoMessageKey));
+	}
+
 	public void updateFigures() {
 		if (!is3d)
 			figure.updateFigure();
@@ -596,6 +650,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Update text colors for 3D view
 		updateTextColors();
+		updatePanViewUiState();
 
 		revalidate();
 		figureHolder.revalidate();
@@ -618,6 +673,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		rotationControl.setEnabled(true);
 		scaleSelector.setEnabled(true);
+		updatePanViewUiState();
 		scaleSelector.update();
 		updateCaliperUiState();
 		
@@ -777,11 +833,15 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JComboBox<String> scaleSelectorCombo = scaleSelector.getScaleSelectorCombo();
 		JButton zoomInButton = scaleSelector.getZoomInButton();
 		JButton zoomFitButton = scaleSelector.getZoomFitButton();
+		panViewButton = new ThemedToggleButton(Icons.PAN_VIEW);
+		panViewButton.setToolTipText(trans.get("RocketPanel.btn.panView.ttip"));
+		panViewButton.addActionListener(e -> updatePanViewUiState());
 		ribbon.add(zoomOutButton, "gapleft para, cell 1 1");
 		ribbon.add(new JLabel(trans.get("RocketPanel.lbl.Zoom")), "cell 2 0, spanx 2");
 		ribbon.add(scaleSelectorCombo, "cell 2 1");
-		ribbon.add(zoomInButton, "cell 3 1, split 2");
+		ribbon.add(zoomInButton, "cell 3 1, split 3");
 		ribbon.add(zoomFitButton, "cell 3 1");
+		ribbon.add(panViewButton, "cell 3 1");
 
 		// Show CG/CP
 		final JCheckBox showCGCP = new JCheckBox();
@@ -891,9 +951,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Bottom row
 		JPanel bottomRow = new JPanel(new MigLayout("fillx, gapy 0, ins 0"));
 
-		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
-		infoMessage = new StyledLabel(trans.get("RocketPanel.lbl.infoMessage"), -3);
-		bottomRow.add(infoMessage);
+			//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
+			infoMessage = new StyledLabel(trans.get("RocketPanel.lbl.infoMessage"), -3);
+			bottomRow.add(infoMessage);
+			refreshInfoMessage();
 
 		//// Configure display button
 		JButton configureDisplayButton = new JButton(Icons.CONFIGURE_DISPLAY);
