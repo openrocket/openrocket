@@ -15,7 +15,9 @@ import info.openrocket.swing.gui.figure3d.scene.core.SceneObject;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -230,6 +232,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 
 	public void rebuildRocketScene(boolean refocusCamera) {
 		lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
+		boolean hadSelection = !scene.getSelectedObjects().isEmpty();
+		Set<RocketComponent> selectedRocketComponents = captureSelectedRocketComponents();
+		List<SceneObject> persistentSelection = capturePersistentSelection();
 
 		// First, create a list of all objects to be removed to avoid modification-during-iteration errors.
 		List<SceneObject> objectsToRemove = new ArrayList<>();
@@ -261,8 +266,48 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		// Finally, tell the RocketMeshBuilder to recreate the rocket objects from the current rocket state.
 		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
 		scene3DOrchestrator.applyRocketRotationToScene();
+		restoreSelectionAfterRebuild(hadSelection, selectedRocketComponents, persistentSelection);
 		if (refocusCamera) {
 			scene3DOrchestrator.focusOnRocket();
 		}
+	}
+
+	private Set<RocketComponent> captureSelectedRocketComponents() {
+		Set<RocketComponent> selectedComponents = new LinkedHashSet<>();
+		for (SceneObject selectedObject : scene.getSelectedObjects()) {
+			RocketComponent component = selectedObject.getRocketComponent();
+			if (component != null) {
+				selectedComponents.add(component);
+			}
+		}
+		return selectedComponents;
+	}
+
+	private List<SceneObject> capturePersistentSelection() {
+		List<SceneObject> persistentSelection = new ArrayList<>();
+		for (SceneObject selectedObject : scene.getSelectedObjects()) {
+			if (selectedObject.getRocketComponent() == null && scene.getObjects().contains(selectedObject)) {
+				persistentSelection.add(selectedObject);
+			}
+		}
+		return persistentSelection;
+	}
+
+	private void restoreSelectionAfterRebuild(boolean hadSelection, Set<RocketComponent> selectedRocketComponents,
+											  List<SceneObject> persistentSelection) {
+		if (!hadSelection && selectedRocketComponents.isEmpty() && persistentSelection.isEmpty()) {
+			return;
+		}
+
+		List<SceneObject> restoredSelection = new ArrayList<>(persistentSelection);
+		if (!selectedRocketComponents.isEmpty()) {
+			for (SceneObject sceneObject : scene.getObjects()) {
+				RocketComponent component = sceneObject.getRocketComponent();
+				if (component != null && selectedRocketComponents.contains(component)) {
+					restoredSelection.add(sceneObject);
+				}
+			}
+		}
+		scene.setSelection(restoredSelection);
 	}
 }
