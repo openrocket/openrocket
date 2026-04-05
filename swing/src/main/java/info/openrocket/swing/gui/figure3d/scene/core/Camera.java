@@ -35,6 +35,9 @@ public class Camera {
 	private float angleX; // Yaw
 	private float angleY; // Pitch
 	private boolean pitchClampingEnabled = true;
+	// When true, uses a fixed world-up vector (0,1,0) instead of the continuous orbitUp,
+	// matching the legacy JOGL photo-studio camera behavior.
+	private boolean forceFixedUp = false;
 
 	private float minZoom; // Minimum zoom distance
 	private float maxZoom; // Maximum zoom distance
@@ -387,6 +390,15 @@ public class Camera {
 	}
 
 	/**
+	 * When true the view matrix uses a fixed world-up vector (0,1,0) instead of the
+	 * continuous orbit-up, reproducing the legacy JOGL gluLookAt behaviour used by
+	 * the photo studio.
+	 */
+	public void setForceFixedUp(boolean forceFixedUp) {
+		this.forceFixedUp = forceFixedUp;
+	}
+
+	/**
 	 * Moves the camera and its target point left or right.
 	 *
 	 * @param amount The distance to move. Positive is right, negative is left.
@@ -440,15 +452,17 @@ public class Camera {
 		float camZ = distance * cosYaw * cosPitch;
 		position.set(centerOfInterest.x + camX, centerOfInterest.y + camY, centerOfInterest.z + camZ);
 
-		// Build an orbit up vector from yaw/pitch so crossing +/-90° pitch stays continuous
-		// (no snapping or inverted controls when pitch clamping is disabled).
-		Vector3f orbitUp = new Vector3f(
-				-sinYaw * sinPitch,
-				cosPitch,
-				-cosYaw * sinPitch
-		).normalize();
+		// Choose up vector: legacy photo-studio mode uses a fixed world-up (0,1,0) to match
+		// the old JOGL gluLookAt behaviour exactly; normal interactive mode uses an orbit-up
+		// computed from yaw/pitch so crossing ±90° pitch stays continuous without snapping.
+		Vector3f up;
+		if (forceFixedUp) {
+			up = new Vector3f(0, 1, 0);
+		} else {
+			up = new Vector3f(-sinYaw * sinPitch, cosPitch, -cosYaw * sinPitch).normalize();
+		}
 
-		viewMatrix.identity().lookAt(position, centerOfInterest, orbitUp);
+		viewMatrix.identity().lookAt(position, centerOfInterest, up);
 	}
 
 	/**

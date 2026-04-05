@@ -411,10 +411,14 @@ public class PhotoPanel extends JPanel {
 		// PhotoStudio model transforms already recenter the rocket around world origin.
 		// Keep camera orbit pivot locked to origin to match legacy JOGL behavior.
 		camera.setCenterOfInterest(new Vector3f(0.0f, 0.0f, 0.0f));
-		camera.setAngleX((float) settings.getViewAz());
+		// Negate viewAz so camX = -d·sin(az)·cos(alt), matching the legacy JOGL camera
+		// position (camera at (0,0,d), world rotated by Rx(alt)·Ry(az)).
+		camera.setAngleX((float) -settings.getViewAz());
 		camera.setAngleY((float) settings.getViewAlt());
 		camera.setFieldOfView(settings.getFov());
 		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
+		// Use a fixed world-up (0,1,0) to exactly reproduce the gluLookAt sky orientation.
+		camera.setForceFixedUp(true);
 		camera.update();
 	}
 
@@ -425,6 +429,7 @@ public class PhotoPanel extends JPanel {
 		camera.setAngleY(state.angleY);
 		camera.setFieldOfView(state.fieldOfView);
 		camera.setDistance(state.distance);
+		camera.setForceFixedUp(true);
 		camera.update();
 	}
 
@@ -503,10 +508,17 @@ public class PhotoPanel extends JPanel {
 		}
 		float alt = (float) settings.getLightAlt();
 		float az = (float) settings.getLightAz();
-		float x = (float) (Math.cos(alt) * Math.sin(az));
+		// Old code used glLightfv(GL_POSITION, {x, y, z, 0}) as the toward-light direction,
+		// then rendered in Z-flipped (left-handed) space, making the effective to-light
+		// direction in model space = (x, y, -z).
+		// The new shader stores the "shining-in" direction and negates it: lightDir = -direction.
+		// So direction = -(x, y, -z) = (-x, -y, z) to reproduce the old behaviour.
+		// The legacy azimuth convention is offset by 90°: substitute (az - π/2).
+		// sin(az - π/2) = -cos(az),  cos(az - π/2) = sin(az)
+		float x = (float) (-Math.cos(alt) * Math.cos(az));
 		float y = (float) Math.sin(alt);
-		float z = (float) (Math.cos(alt) * Math.cos(az));
-		light.setDirection(x, y, -z);
+		float z = (float) (Math.cos(alt) * Math.sin(az));
+		light.setDirection(-x, -y, z);
 	}
 
 	private void applyRocketTransform(SceneView scene, RenderingConfiguration config) {
@@ -696,7 +708,8 @@ public class PhotoPanel extends JPanel {
 	}
 
 	private void syncSettingsFromCameraState(CameraState cameraState) {
-		double viewAz = MathUtil.reduce2Pi(cameraState.angleX);
+		// camera.angleX is stored as -viewAz (negated in applyCamera), so negate back.
+		double viewAz = MathUtil.reduce2Pi(-cameraState.angleX);
 		double viewAlt = cameraState.angleY;
 		double viewDistance = cameraState.distance / RenderingConstants.WORLD_SCALE;
 		double fov = cameraState.fieldOfView;
