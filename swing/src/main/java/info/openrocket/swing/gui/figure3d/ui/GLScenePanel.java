@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.awt.GLData;
+import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
@@ -205,6 +206,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	static {
+		// LWJGL 3.3.4+ auto-detects Wayland and tries to initialise EGL, which conflicts
+		// with lwjgl3-awt's PlatformLinuxGLCanvas (X11/GLX). Forcing "native" here prevents
+		// that auto-switch and keeps the GLX path active. On Wayland systems, XWayland must
+		// be running; on X11-only or other platforms this is a no-op.
+		Configuration.OPENGL_CONTEXT_API.set("native");
+
 		// Ensure Swing popups render above the heavyweight AWTGLCanvas (notably on macOS).
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
@@ -753,7 +760,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 		} catch (Throwable t) {
 			glInitFailed = true;
-			log.error("Rendering failed: " + t.getClass().getSimpleName() + ": " + t.getMessage(), t);
+			String msg = t.getMessage();
+			if ((t instanceof IllegalStateException || t instanceof RuntimeException)
+					&& msg != null && (msg.contains("GLX") || msg.contains("glX"))) {
+				log.error("3D view disabled: OpenGL/GLX initialization failed. " +
+						"On Wayland systems this requires XWayland to be running — " +
+						"ensure DISPLAY is set (e.g. DISPLAY=:0) or use a session that " +
+						"provides XWayland. Cause: {}", msg);
+			} else {
+				log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
+			}
 		} finally {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
 				RENDER_LOCK.unlock();
