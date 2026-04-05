@@ -196,6 +196,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return SideView;
 		}
 
+		public static VIEW_TYPE[] getAvailableViewTypes(boolean enable3d) {
+			if (enable3d) {
+				return values();
+			}
+			return new VIEW_TYPE[] { TopView, SideView, BackView };
+		}
+
 		/**
 		 * Get VIEW_TYPE from its name (string).
 		 *
@@ -222,6 +229,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private boolean is3d;
 	private final RocketFigure figure;
 	private final RocketFigure3d figure3d;
+	private final boolean enable3dView;
 	private VIEW_TYPE currentViewType = VIEW_TYPE.getDefaultViewType();
 
 	private final ScaleScrollPane scrollPane;
@@ -314,6 +322,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Create figure and custom scroll pane
 		figure = new RocketFigure(rkt);
 		figure3d = new RocketFigure3d(document);
+		enable3dView = RocketFigure3d.is3dEnabled();
 		// Set document-specific background colors if available
 		updateBackgroundColors();
 		figureHolder = new JPanel(new BorderLayout());
@@ -635,6 +644,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void go3D() {
+		if (!enable3dView) {
+			go2D();
+			return;
+		}
 		if (is3d)
 			return;
 		if (caliperManager != null) {
@@ -696,6 +709,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		if (viewType == null || viewType == VIEW_TYPE.SEPARATOR) {
 			return;
 		}
+		if (!enable3dView && viewType.is3d) {
+			viewType = VIEW_TYPE.getDefaultViewType();
+		}
 
 		// Save caliper state before switching views
 		if (caliperManager != null) {
@@ -726,18 +742,22 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		if (viewType == null || viewType == VIEW_TYPE.SEPARATOR) {
 			return;
 		}
+		if (!enable3dView && viewType.is3d) {
+			viewType = VIEW_TYPE.getDefaultViewType();
+		}
+		final VIEW_TYPE targetViewType = viewType;
 		if (SwingUtilities.isEventDispatchThread()) {
 			if (viewSelector != null) {
-				viewSelector.setSelectedItem(viewType);
+				viewSelector.setSelectedItem(targetViewType);
 			} else {
-				applyViewTypeSelection(viewType);
+				applyViewTypeSelection(targetViewType);
 			}
 			return;
 		}
 		try {
-			SwingUtilities.invokeAndWait(() -> setViewType(viewType));
+			SwingUtilities.invokeAndWait(() -> setViewType(targetViewType));
 		} catch (Exception e) {
-			throw new IllegalStateException("Failed to switch RocketPanel view type to " + viewType, e);
+			throw new IllegalStateException("Failed to switch RocketPanel view type to " + targetViewType, e);
 		}
 	}
 
@@ -770,7 +790,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ribbon = new JPanel(new MigLayout("insets 0, fill, hidemode 2"));
 
 		// View Type drop-down
-		ComboBoxModel<VIEW_TYPE> cm = new ViewTypeComboBoxModel(VIEW_TYPE.values(), VIEW_TYPE.getDefaultViewType()) {
+			ComboBoxModel<VIEW_TYPE> cm = new ViewTypeComboBoxModel(
+					VIEW_TYPE.getAvailableViewTypes(enable3dView), VIEW_TYPE.getDefaultViewType()) {
 
 			@Override
 			public void setSelectedItem(Object o) {
@@ -2215,6 +2236,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private BufferedImage create3DPreviewFigure(VIEW_TYPE viewType, int targetWidth, int minHeight, int maxHeight) {
+		if (!enable3dView) {
+			return null;
+		}
 		// Only capture if we're currently in 3D mode
 		if (currentViewType != viewType) {
 			return null;

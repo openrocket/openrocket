@@ -2,7 +2,9 @@ package info.openrocket.swing.gui.figure3d;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.preferences.ApplicationPreferences;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
@@ -75,6 +77,7 @@ public class RocketFigure3d extends JPanel {
 	private final OpenRocketDocument document;
 	private final HUDPanel hudPanel;
 	private final RocketInfo rocketInfo;
+	private final boolean enable3d;
 	private final List<ComponentSelectionListener> selectionListeners = new CopyOnWriteArrayList<>();
 	private final List<StateChangeListener> changeListeners = new CopyOnWriteArrayList<>();
 
@@ -96,7 +99,15 @@ public class RocketFigure3d extends JPanel {
 		this.document = document;
 		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
 		this.hudPanel = new HUDPanel(document.getRocket(), rocketInfo);
+		this.enable3d = is3dEnabled();
 		setLayout(new BorderLayout());
+	}
+
+	public static boolean is3dEnabled() {
+		if (System.getProperty("openrocket.3d.disable") != null) {
+			return false;
+		}
+		return Application.getPreferences().getBoolean(ApplicationPreferences.OPENGL_ENABLED, true);
 	}
 
 	private static void initColors() {
@@ -109,6 +120,9 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void ensureCanvasCreatedOnEdt() {
+		if (!enable3d) {
+			return;
+		}
 		if (!SwingUtilities.isEventDispatchThread()) {
 			SwingUtilities.invokeLater(this::ensureCanvasCreatedOnEdt);
 			return;
@@ -168,7 +182,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void renderFrame() {
-		if (!renderingEnabled || disposed) {
+		if (!enable3d || !renderingEnabled || disposed) {
 			return;
 		}
 		ensureCanvasCreatedOnEdt();
@@ -194,6 +208,9 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void requestRenderNow() {
+		if (!enable3d) {
+			return;
+		}
 		if (IS_MACOS) {
 			MAC_RENDER_SCHEDULER.requestImmediate(this);
 		} else {
@@ -205,7 +222,7 @@ public class RocketFigure3d extends JPanel {
 	 * Called by RocketPanel when switching to 3D mode.
 	 */
 	public void startRendering() {
-		if (disposed) {
+		if (!enable3d || disposed) {
 			return;
 		}
 		renderingEnabled = true;
@@ -505,6 +522,9 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public Scene3DOrchestrator getSceneController() {
+		if (!enable3d) {
+			return null;
+		}
 		GLScenePanel panel = glScenePanel;
 		return panel != null ? panel.getScene3DOrchestrator() : null;
 	}
@@ -535,11 +555,17 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public String getCanvasDebugState() {
+		if (!enable3d) {
+			return "3d-disabled";
+		}
 		GLScenePanel panel = glScenePanel;
 		return panel != null ? panel.getDebugStateSummary() : "panel=null";
 	}
 
 	public BufferedImage captureImage() {
+		if (!enable3d) {
+			return null;
+		}
 		GLScenePanel panel = glScenePanel;
 		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
 			return null;
@@ -609,7 +635,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void runStartupWatchdog(int delayMs) {
-		if (!renderingEnabled || disposed) {
+		if (!enable3d || !renderingEnabled || disposed) {
 			return;
 		}
 		ensureCanvasCreatedOnEdt();
