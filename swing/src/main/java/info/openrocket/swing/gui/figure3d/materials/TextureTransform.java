@@ -27,7 +27,6 @@ public class TextureTransform {
 	 * @return The destination matrix.
 	 */
 	public Matrix4f getTransformMatrix(Matrix4f dest) {
-		// Match the legacy fixed-function texture matrix composition from figure3d_old:
 		// T(-center) * R * T(center) * S * T(offset)
 		Matrix4f legacy = new Matrix4f()
 				.identity()
