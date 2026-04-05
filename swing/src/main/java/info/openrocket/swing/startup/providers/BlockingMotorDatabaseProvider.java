@@ -59,6 +59,19 @@ public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorS
 		if (loader.isLoaded()) {
 			return;
 		}
+
+		/*
+		 * Startup currently performs the motor database update check before the normal
+		 * motor loader start call. Because that update check uses modal dialogs, the EDT
+		 * can re-enter startup code and request the motor database early. If we only show
+		 * the loading dialog here, it can wait forever because the original startup stack
+		 * has not yet resumed to call startLoading(). Starting the loader on demand breaks
+		 * that cycle and lets startup continue.
+		 */
+		if (!loader.hasStartedLoading()) {
+			log.info("Motor database requested before background loading started, starting it now");
+			loader.startLoading();
+		}
 		
 		SplashScreen splash = Splash.getSplashScreen();
 		if (splash == null || !splash.isVisible()) {
