@@ -5,6 +5,7 @@ import info.openrocket.core.appearance.Decal;
 import info.openrocket.core.appearance.defaults.DefaultAppearance;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
@@ -41,12 +42,16 @@ public abstract class AppearanceFactory {
 		if (component instanceof ExternalComponent) {
 			finish = ((ExternalComponent) component).getFinish();
 		}
-		return orAppearanceToAppearance3D(orAppearance, finish);
+		Appearance3D appearance3D = orAppearanceToAppearance3D(orAppearance, finish);
+		applyComponentTextureMapping(appearance3D, component);
+		return appearance3D;
 	}
 
 	public static Appearance3D createDefaultFrom(RocketComponent component) {
 		Appearance defaultAppearance = DefaultAppearance.getDefaultAppearance(component);
-		return orAppearanceToAppearance3D(defaultAppearance);
+		Appearance3D appearance3D = orAppearanceToAppearance3D(defaultAppearance);
+		applyComponentTextureMapping(appearance3D, component);
+		return appearance3D;
 	}
 
 	public static Appearance3D createFrom(Motor motor) {
@@ -131,6 +136,16 @@ public abstract class AppearanceFactory {
 			ret = DefaultAppearance.getDefaultAppearance(c);
 		}
 		return ret;
+	}
+
+	private static void applyComponentTextureMapping(Appearance3D appearance3D, RocketComponent component) {
+		if (appearance3D == null || component == null) {
+			return;
+		}
+		if (component instanceof FinSet) {
+			appearance3D.getTextureTransform().setScaleFromTop(false);
+			appearance3D.getDecalTransform().setScaleFromTop(false);
+		}
 	}
 
 	/**
