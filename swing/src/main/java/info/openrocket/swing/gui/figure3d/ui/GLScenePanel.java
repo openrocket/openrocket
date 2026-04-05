@@ -581,8 +581,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		data.minorVersion = 3;
 		data.profile = GLData.Profile.CORE;
 		data.doubleBuffer = true;
-		// On macOS, requesting a multisampled default framebuffer has proven to be less reliable
-		// when multiple canvases/windows are active. We rely on post-processing AA (FXAA) anyway.
+		// Default-framebuffer MSAA is disabled — see getRequestedSampleCount().
 		data.samples = getRequestedSampleCount();
 		data.sRGB = true;
 		// Disable swap interval to avoid vsync stalls when multiple canvases share a thread.
@@ -599,8 +598,11 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				// fall through
 			}
 		}
-		// Default: disable MSAA on macOS for multi-window stability.
-		return NEEDS_PEER_BOUNDS_SYNC_WORKAROUND ? 0 : 4;
+		// All rendering is done to intermediate FBOs; the default framebuffer's MSAA sample
+		// count has no effect on output quality (we use post-processing AA via FXAA).
+		// Requesting samples > 0 causes hard context-creation failures on Windows when
+		// WGL_ARB_multisample / WGL_EXT_multisample is unavailable (some drivers, VMs).
+		return 0;
 	}
 
 	/**
