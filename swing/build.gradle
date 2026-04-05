@@ -36,6 +36,10 @@ configurations {
     }
 }
 
+def lwjglVersionValue = "3.4.1"
+def lwjgl3AwtVersionValue = "0.2.4"
+def jomlVersionValue = "1.10.8"
+
 // Some older libraries are not modularized, so we need to add module-info.java files for them.
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
@@ -62,13 +66,13 @@ extraJavaModuleInfo {
     }
 
     automaticModule('obj-0.4.0.jar', 'de.javagl.obj')
-    automaticModule("lwjgl3-awt-0.2.3.jar", 'lwjgl3.awt')
+    automaticModule("lwjgl3-awt-${lwjgl3AwtVersionValue}.jar", 'lwjgl3.awt')
 }
 
 ext {
-    lwjglVersion = "3.3.6"
-    lwjgl3AwtVersion = "0.2.3"
-    jomlVersion = "1.10.8"
+    lwjglVersion = lwjglVersionValue
+    lwjgl3AwtVersion = lwjgl3AwtVersionValue
+    jomlVersion = jomlVersionValue
 
     switch (OperatingSystem.current()) {
         case OperatingSystem.FREE_BSD:
