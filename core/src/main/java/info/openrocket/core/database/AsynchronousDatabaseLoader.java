@@ -34,12 +34,23 @@ public abstract class AsynchronousDatabaseLoader {
 	 * 
 	 * @throws IllegalStateException if this method has already been called.
 	 */
-	public void startLoading() {
+	public synchronized void startLoading() {
 		if (startedLoading) {
 			throw new IllegalStateException("Already called startLoading");
 		}
 		startedLoading = true;
 		new LoadingThread().start();
+	}
+
+	/**
+	 * Return whether background loading has already been started.
+	 * This is used by Swing startup code to avoid deadlocks when modal dialogs
+	 * pump the EDT before the normal startup sequence reaches startLoading().
+	 *
+	 * @return whether startLoading() has already been called
+	 */
+	public boolean hasStartedLoading() {
+		return startedLoading;
 	}
 
 	/**
@@ -101,13 +112,18 @@ public abstract class AsynchronousDatabaseLoader {
 	 * 
 	 */
 	private void doLoad() {
-
-		// Pause for indicated startup time
-		pauseForStartupTime();
-
-		loadDatabase();
-
-		markAsLoaded();
+		try {
+			// Pause for indicated startup time
+			pauseForStartupTime();
+			loadDatabase();
+		} finally {
+			/*
+			 * Always release waiting threads, even if loading fails. Otherwise callers such
+			 * as the Swing motor loading dialog can block forever after a background loading
+			 * exception.
+			 */
+			markAsLoaded();
+		}
 	}
 
 	/**

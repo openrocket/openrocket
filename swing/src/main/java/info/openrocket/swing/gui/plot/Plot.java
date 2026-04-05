@@ -483,6 +483,26 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 		}
 
 		@Override
+		public Paint lookupSeriesPaint(int series) {
+			return super.lookupSeriesPaint(series / branchCount);
+		}
+
+		@Override
+		public Paint lookupSeriesFillPaint(int series) {
+			return super.lookupSeriesFillPaint(series / branchCount);
+		}
+
+		@Override
+		public Paint lookupSeriesOutlinePaint(int series) {
+			return super.lookupSeriesOutlinePaint(series / branchCount);
+		}
+
+		@Override
+		public Stroke lookupSeriesOutlineStroke(int series) {
+			return super.lookupSeriesOutlineStroke(series / branchCount);
+		}
+
+		@Override
 		public Shape lookupSeriesShape(int series) {
 			return DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE[series % branchCount % DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE.length];
 		}

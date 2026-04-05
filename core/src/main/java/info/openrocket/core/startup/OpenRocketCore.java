@@ -75,9 +75,19 @@ public class OpenRocketCore {
 	}
 	
 	/**
+	 * Reset the initialization state.
+	 * This is intended for testing purposes only.
+	 */
+	static synchronized void reset() {
+		initialized = false;
+		coreModule = null;
+		Application.setInjector(null);
+	}
+
+	/**
 	 * Get the core module instance.
 	 * Only available after initialization.
-	 * 
+	 *
 	 * @return the core module instance
 	 * @throws IllegalStateException if not initialized
 	 */

@@ -80,7 +80,15 @@ public class GuiModule extends AbstractModule {
 			MotorDatabaseInitializer.initialize();
 			// Check for a newer remote database and optionally install it before loading
 			MotorDatabaseUpdateChecker.checkForUpdatesAndInstallIfRequested();
-			motorLoader.startLoading();
+			/*
+			 * Modal dialogs shown during the update check can pump the EDT and trigger a
+			 * re-entrant motor database request. In that case the provider starts the
+			 * loader early to avoid an infinite "Loading motors" dialog, so only call
+			 * startLoading() here when startup has not already done so.
+			 */
+			if (!motorLoader.hasStartedLoading()) {
+				motorLoader.startLoading();
+			}
 		} else {
 			motorLoader.markAsLoaded();
 		}

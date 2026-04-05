@@ -38,8 +38,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 
 	@Override
-	public double getStallMargin() {
-		return stabilityCalculator.getStallMargin();
+	public double getStallAngle() {
+		return stabilityCalculator.getStallAngle();
 	}
 
 	@Override

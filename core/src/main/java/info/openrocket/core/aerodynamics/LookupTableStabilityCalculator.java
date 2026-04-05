@@ -25,7 +25,7 @@ public class LookupTableStabilityCalculator implements StabilityCalculator {
 	private static final String COLUMN_CP = "cp";
 
 	private final MachAoALookup table;
-	private double stallMargin = Double.POSITIVE_INFINITY;
+	private double stallAngle = Double.POSITIVE_INFINITY;
 
 	public LookupTableStabilityCalculator(Path csvPath) {
 		this(CsvMachAoALookup.fromCsv(csvPath, List.of(COLUMN_CN, COLUMN_CM, COLUMN_CP)));
@@ -33,6 +33,13 @@ public class LookupTableStabilityCalculator implements StabilityCalculator {
 
 	public LookupTableStabilityCalculator(MachAoALookup table) {
 		this.table = table;
+
+		// We'll assume anything with an angle of attack greater than
+		// the greatest defined AOA value is stalled.
+		if (table.hasAoA()) {
+			stallAngle = Math.toRadians(table.getMaxAoA());
+		}
+		
 	}
 
 	@Override
@@ -41,8 +48,9 @@ public class LookupTableStabilityCalculator implements StabilityCalculator {
 	}
 
 	@Override
-	public double getStallMargin() {
-		return stallMargin;
+	public double getStallAngle() {
+		
+		return stallAngle;
 	}
 
 	@Override
@@ -69,13 +77,6 @@ public class LookupTableStabilityCalculator implements StabilityCalculator {
 		forces.setCroll(0);
 		forces.setCrollDamp(0);
 		forces.setCrollForce(0);
-
-		if (table.hasAoA()) {
-			double maxAoARadians = Math.toRadians(table.getMaxAoA());
-			stallMargin = maxAoARadians - conditions.getAOA();
-		} else {
-			stallMargin = Double.POSITIVE_INFINITY;
-		}
 
 		return forces;
 	}

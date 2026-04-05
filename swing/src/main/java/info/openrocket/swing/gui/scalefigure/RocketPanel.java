@@ -643,7 +643,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		});
 
-		setLayout(new MigLayout("", "[shrink][grow]", "[shrink][grow][shrink]"));
+		setLayout(new MigLayout("", "[shrink][grow]", "[shrink 0][grow][shrink 0]"));
 
 		setPreferredSize(new Dimension(800, 300));
 

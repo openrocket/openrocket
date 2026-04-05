@@ -55,16 +55,21 @@ public class LookupTableStabilityCalculatorTest {
 		MachAoALookup table = CsvMachAoALookup.fromCsv(csv, List.of("cn", "cm", "cp"));
 		LookupTableStabilityCalculator calculator = new LookupTableStabilityCalculator(table);
 
+		double mach = 0.5;
+		double aoa = 5;
+		
 		FlightConditions conditions = new FlightConditions(null);
-		conditions.setMach(0.5);
-		conditions.setAOA(Math.toRadians(5));
+		conditions.setMach(mach);
+		conditions.setAOA(Math.toRadians(aoa));
 
 		AerodynamicForces forces = calculator.calculateNonAxialForces(null, conditions, new WarningSet());
 
 		assertEquals(0.25, forces.getCN(), EPSILON);
 		assertEquals(0.025, forces.getCm(), EPSILON);
 		assertEquals(0.575, forces.getCP().getX(), EPSILON);
-		assertEquals(Math.toRadians(10) - Math.toRadians(5), calculator.getStallMargin(), EPSILON);
+
+		// max aoa in table is 10, so this should be stall angle
+		assertEquals(Math.toRadians(10), calculator.getStallAngle(), EPSILON);
 	}
 
 	@Test
@@ -95,7 +100,7 @@ public class LookupTableStabilityCalculatorTest {
 	}
 
 	@Test
-	public void getStallMarginWithAoA() throws IOException {
+	public void getStallAngleWithAoA() throws IOException {
 		Path csv = tempDir.resolve("stability.csv");
 		String data = String.join("\n",
 				"mach,aoa,cn,cm,cp",
@@ -114,13 +119,13 @@ public class LookupTableStabilityCalculatorTest {
 		conditions.setAOA(Math.toRadians(3));
 
 		calculator.calculateNonAxialForces(null, conditions, new WarningSet());
-		double margin = calculator.getStallMargin();
-		// Max AoA is 10 degrees, current is 3 degrees, so margin should be 7 degrees
-		assertEquals(Math.toRadians(7), margin, EPSILON);
+
+		// max aoa in table is 10, so this should be stall angle
+		assertEquals(Math.toRadians(10), calculator.getStallAngle(), EPSILON);
 	}
 
 	@Test
-	public void getStallMarginWithoutAoA() throws IOException {
+	public void getStallAngleWithoutAoA() throws IOException {
 		Path csv = tempDir.resolve("stability_no_aoa.csv");
 		String data = String.join("\n",
 				"mach,cn,cm,cp",
@@ -138,9 +143,9 @@ public class LookupTableStabilityCalculatorTest {
 		conditions.setAOA(Math.toRadians(5));
 
 		calculator.calculateNonAxialForces(null, conditions, new WarningSet());
-		double margin = calculator.getStallMargin();
-		// Without AoA data, stall margin should be infinity
-		assertEquals(Double.POSITIVE_INFINITY, margin, EPSILON);
+		double stall = calculator.getStallAngle();
+		// Without AoA data in table, stall angle should be infinity
+		assertEquals(Double.POSITIVE_INFINITY, stall, EPSILON);
 	}
 
 	@Test

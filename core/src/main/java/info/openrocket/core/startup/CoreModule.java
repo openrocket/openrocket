@@ -1,5 +1,6 @@
 package info.openrocket.core.startup;
 
+import info.openrocket.core.database.ComponentPresetDao;
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.database.MotorDatabaseInitializer;
 import info.openrocket.core.database.motor.MotorDatabase;
@@ -49,6 +50,7 @@ public class CoreModule extends AbstractModule {
 		
 		CoreComponentPresetDatabaseProvider componentDatabaseProvider = new CoreComponentPresetDatabaseProvider(presetLoader);
 		bind(ComponentPresetDatabase.class).toProvider(componentDatabaseProvider).in(Scopes.SINGLETON);
+		bind(ComponentPresetDao.class).toProvider(componentDatabaseProvider).in(Scopes.SINGLETON);
 		
 		CoreMotorDatabaseProvider motorDatabaseProvider = new CoreMotorDatabaseProvider(motorLoader);
 		bind(ThrustCurveMotorSetDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);

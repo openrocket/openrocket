@@ -301,7 +301,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					final double cg = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_AOA);
 					final double margin =
-						currentStatus.getSimulationConditions().getAerodynamicCalculator().getStallMargin();
+						currentStatus.getSimulationConditions().getAerodynamicCalculator().getStallAngle() - aoa;
 
 					// large AOA -- stalling.					
 					if (margin < 0) {

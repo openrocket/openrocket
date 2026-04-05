@@ -71,6 +71,63 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+
+    // Workaround for Windows "CreateProcess error=206" (command line too long).
+    //
+    // Windows limits CreateProcess to 32,767 chars. A JPMS build produces two sources of
+    // length: (a) -classpath with every JAR/directory, and (b) --module-path (added by the
+    // module plugin as a JVM arg) with every module JAR. Both must be shortened.
+    //
+    // Strategy:
+    //   (a) Classpath → manifest JAR: a tiny JAR whose Class-Path manifest attribute lists
+    //       every real entry. Directory entries need a trailing '/' or the JVM treats them as
+    //       ZIPs. Use setFrom() to mutate the FileCollection in-place (Gradle's worker
+    //       infrastructure holds a reference to the same object).
+    //   (b) JVM args → @argfile: Java 9+ supports "@/path/to/file" as a command-line
+    //       argument; the launcher expands it before parsing. Writing all JVM args to a temp
+    //       file and replacing jvmArgs with a single "@<path>" entry keeps that part short.
+    //
+    // The block MUST be registered before the module plugin is applied so that Gradle's
+    // LIFO doFirst ordering puts our action AFTER the module plugin's doFirst. The plugin
+    // then runs first (populating --module-path in jvmArgs), and our action runs second
+    // (moving everything to files).
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+
+        Closure windowsLongCpFix = { task ->
+            doFirst {
+                // (a) Wrap classpath in a manifest JAR
+                def cpFiles = task.classpath.files
+                if (cpFiles) {
+                    def mf = new java.util.jar.Manifest()
+                    mf.mainAttributes.put(java.util.jar.Attributes.Name.MANIFEST_VERSION, '1.0')
+                    mf.mainAttributes.put(java.util.jar.Attributes.Name.CLASS_PATH,
+                        cpFiles.collect { f ->
+                            def url = f.toURI().toURL().toString()
+                            (f.isDirectory() && !url.endsWith('/')) ? url + '/' : url
+                        }.join(' '))
+                    def cpJar = new File(task.temporaryDir, 'classpath-manifest.jar')
+                    cpJar.parentFile.mkdirs()
+                    new java.util.jar.JarOutputStream(new java.io.FileOutputStream(cpJar), mf).close()
+                    task.classpath.setFrom(cpJar)
+                }
+
+                // (b) Move all JVM args into a @argfile so --module-path doesn't blow the limit.
+                //     One arg per line; quote entries that contain spaces.
+                def currentArgs = task.jvmArgs as List<String>
+                if (currentArgs) {
+                    def argFile = new File(task.temporaryDir, 'jvm.argfile')
+                    argFile.text = currentArgs.collect { arg ->
+                        arg.contains(' ') ? '"' + arg.replace('\\', '\\\\').replace('"', '\\"') + '"' : arg
+                    }.join('\n')
+                    task.jvmArgs = ['@' + argFile.absolutePath.replace('\\', '/')]
+                }
+            }
+        }
+
+        tasks.withType(Test).configureEach(windowsLongCpFix)
+        tasks.withType(JavaExec).configureEach(windowsLongCpFix)
+    }
+
     apply plugin: "org.javamodularity.moduleplugin"
     apply plugin: 'jacoco'
     apply plugin: 'com.github.spotbugs'
@@ -103,10 +160,8 @@ subprojects {
     }
 
     spotbugs {
-        // Note: string-to-enum coercion is deprecated in Gradle 9, will error in Gradle 10.
-        // TODO: Replace with Effort.MAX / Confidence.HIGH when upgrading to Gradle 10+.
-        effort = 'max'
-        reportLevel = 'high'
+        effort = com.github.spotbugs.snom.Effort.valueOf('MAX')
+        reportLevel = com.github.spotbugs.snom.Confidence.valueOf('HIGH')
         excludeFilter = rootProject.file('config/spotbugs/excludeFilter.xml')
     }
 
