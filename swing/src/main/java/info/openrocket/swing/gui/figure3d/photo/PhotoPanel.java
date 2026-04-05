@@ -181,7 +181,15 @@ public class PhotoPanel extends JPanel {
 		}
 		this.document = doc;
 		pendingApply.set(true);
-		glPanel = new GLScenePanel(doc.getRocket(), null, false);
+		GLScenePanel panel;
+		try {
+			panel = new GLScenePanel(doc.getRocket(), null, false);
+		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
+			log.warn("Photo Studio 3D view unavailable: LWJGL native libraries not found for {}/{}.",
+					System.getProperty("os.name"), System.getProperty("os.arch"), e);
+			return;
+		}
+		glPanel = panel;
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		add(glPanel, BorderLayout.CENTER);

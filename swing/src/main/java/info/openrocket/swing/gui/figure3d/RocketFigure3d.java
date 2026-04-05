@@ -87,6 +87,7 @@ public class RocketFigure3d extends JPanel {
 	private boolean selectionBridgeInstalled = false;
 	private RocketComponent[] pendingSelection;
 	private boolean glFailureLogged = false;
+	private boolean glNativesUnavailable = false;
 	private Color customBackgroundColor = null;
 	private volatile int currentType = TYPE_FINISHED;
 	private volatile boolean drawCarets = true;
@@ -120,7 +121,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void ensureCanvasCreatedOnEdt() {
-		if (!enable3d) {
+		if (!enable3d || glNativesUnavailable) {
 			return;
 		}
 		if (!SwingUtilities.isEventDispatchThread()) {
@@ -130,7 +131,16 @@ public class RocketFigure3d extends JPanel {
 		if (glScenePanel != null || disposed) {
 			return;
 		}
-		GLScenePanel panel = new GLScenePanel(document.getRocket(), hudPanel);
+		GLScenePanel panel;
+		try {
+			panel = new GLScenePanel(document.getRocket(), hudPanel);
+		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
+			glNativesUnavailable = true;
+			log.warn("3D view disabled: LWJGL native libraries not available for {}/{}. " +
+					"Use a platform-specific build or install the appropriate natives.",
+					System.getProperty("os.name"), System.getProperty("os.arch"), e);
+			return;
+		}
 		panel.setPanModeEnabled(panModeEnabled);
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);

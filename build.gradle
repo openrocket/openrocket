@@ -203,6 +203,18 @@ tasks.named('check') {
 //    dependsOn ':core:serializeEngines'
 //}
 
+// LWJGL version — must match swing/build.gradle
+def lwjglVersion = "3.4.1"
+
+configurations {
+    // All-platform LWJGL natives: resolved separately and merged into the shadow JAR
+    // so the distributed fat JAR runs on any supported OS/arch without rebuilding.
+    allPlatformNatives {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 // JAR config
 jar {
     archiveBaseName = 'OpenRocket'
@@ -216,6 +228,20 @@ jar {
 dependencies {
     implementation(project(path: ":core", configuration: "default"))
     implementation(project(path: ":swing", configuration: "default"))
+
+    // All-platform LWJGL natives for cross-platform fat JAR distribution
+    allPlatformNatives platform("org.lwjgl:lwjgl-bom:${lwjglVersion}")
+    for (String platform : [
+            "natives-linux", "natives-linux-arm32", "natives-linux-arm64",
+            "natives-linux-ppc64le", "natives-linux-riscv64",
+            "natives-macos", "natives-macos-arm64",
+            "natives-windows", "natives-windows-arm64", "natives-windows-x86",
+            "natives-freebsd"]) {
+        allPlatformNatives "org.lwjgl:lwjgl::${platform}"
+        allPlatformNatives "org.lwjgl:lwjgl-glfw::${platform}"
+        allPlatformNatives "org.lwjgl:lwjgl-opengl::${platform}"
+        allPlatformNatives "org.lwjgl:lwjgl-stb::${platform}"
+    }
 }
 
 tasks.named('shadowJar', ShadowJar) {
@@ -224,6 +250,10 @@ tasks.named('shadowJar', ShadowJar) {
     archiveVersion = '' + version
     archiveClassifier = ''
     dependsOn(distTar, distZip)
+
+    // Merge all-platform natives so the fat JAR runs on any supported OS/arch
+    configurations = [project.configurations.runtimeClasspath,
+                      project.configurations.allPlatformNatives]
 
     manifest {
         attributes(baseManifestAttributes)
