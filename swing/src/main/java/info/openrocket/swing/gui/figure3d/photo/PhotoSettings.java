@@ -21,7 +21,7 @@ public class PhotoSettings extends AbstractChangeSource {
 	private double lightAz = -1;
 	private double lightStrength = 0.8;
 	private ORColor sunlight = new ORColor(255, 255, 255);
-	private double ambiance = 0.3f;
+	private double ambiance = 0.1;
 	
 	private ORColor skyColor = new ORColor(55, 95, 155);
 	private double skyColorOpacity = 1.0;
