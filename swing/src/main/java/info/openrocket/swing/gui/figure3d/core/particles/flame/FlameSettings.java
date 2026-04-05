@@ -55,8 +55,9 @@ public class FlameSettings extends ParticleSettings {
         }
         float scale = Math.max(0.0f, exhaustScale);
         float sizeMultiplier = Math.max(0.0f, flameAspectRatio);
+        float lengthScale = Math.max(0.0f, config.getVisualEffects().getParticleLengthScale());
 
-        return new FlameSettings(18f * scale, 300, 0.3f, 1f, 0.1f * scale, 0.25f * scale, 0.6f, false,
+        return new FlameSettings(18f * scale, 300, 0.3f * lengthScale, 1f * lengthScale, 0.1f * scale, 0.25f * scale, 0.6f, false,
                 new Vector3f(0, 0f, 0), // No gravity
                 minColor,
                 maxColor,

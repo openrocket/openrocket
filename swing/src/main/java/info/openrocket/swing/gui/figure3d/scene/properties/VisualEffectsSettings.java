@@ -39,6 +39,9 @@ public class VisualEffectsSettings {
     public static final float DEFAULT_FLAME_ASPECT_RATIO = 1.0f;
     public static final float DEFAULT_SPARK_CONCENTRATION = 1.0f;
     public static final float DEFAULT_SPARK_WEIGHT = 0.0f;
+    public static final float DEFAULT_PARTICLE_LENGTH_SCALE = 1.0f;
+    public static final float DEFAULT_SMOKE_LENGTH_SCALE = 1.0f;
+    public static final float DEFAULT_SPARK_SPREAD_SCALE = 1.0f;
 
     // Motion blur settings
     private boolean motionBlurEnabled = DEFAULT_MOTION_BLUR_ENABLED;
@@ -69,6 +72,9 @@ public class VisualEffectsSettings {
     private float flameAspectRatio = DEFAULT_FLAME_ASPECT_RATIO;
     private float sparkConcentration = DEFAULT_SPARK_CONCENTRATION;
     private float sparkWeight = DEFAULT_SPARK_WEIGHT;
+    private float particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
+    private float smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
+    private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
     
     // Per-motor particle control (motor component ID -> enabled state)
     private final Map<String, Boolean> perMotorParticleEnabled = new HashMap<>();
@@ -434,6 +440,30 @@ public class VisualEffectsSettings {
         this.sparkWeight = Math.max(0.0f, sparkWeight);
     }
 
+    public float getParticleLengthScale() {
+        return particleLengthScale;
+    }
+
+    public void setParticleLengthScale(float particleLengthScale) {
+        this.particleLengthScale = Math.max(0.0f, particleLengthScale);
+    }
+
+    public float getSmokeLengthScale() {
+        return smokeLengthScale;
+    }
+
+    public void setSmokeLengthScale(float smokeLengthScale) {
+        this.smokeLengthScale = Math.max(0.0f, smokeLengthScale);
+    }
+
+    public float getSparkSpreadScale() {
+        return sparkSpreadScale;
+    }
+
+    public void setSparkSpreadScale(float sparkSpreadScale) {
+        this.sparkSpreadScale = Math.max(0.0f, sparkSpreadScale);
+    }
+
     // Per-Motor Particle Control
     
     /**
@@ -516,6 +546,9 @@ public class VisualEffectsSettings {
         flameAspectRatio = DEFAULT_FLAME_ASPECT_RATIO;
         sparkConcentration = DEFAULT_SPARK_CONCENTRATION;
         sparkWeight = DEFAULT_SPARK_WEIGHT;
+        particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
+        smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
+        sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
         perMotorParticleEnabled.clear();
     }
 

@@ -52,6 +52,9 @@ public class PhotoPanel extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
 	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
 	private static final double CAMERA_SETTINGS_EPSILON = 1.0e-6;
+	private static final float PHOTO_PARTICLE_LENGTH_SCALE = 0.82f;
+	private static final float PHOTO_SMOKE_LENGTH_SCALE = 0.50f;
+	private static final float PHOTO_SPARK_SPREAD_SCALE = 0.70f;
 
 	private final PhotoSettings settings;
 	private OpenRocketDocument document;
@@ -617,6 +620,9 @@ public class PhotoPanel extends JPanel {
 		effects.setFlameAspectRatio((float) settings.getFlameAspectRatio());
 		effects.setSparkConcentration((float) settings.getSparkConcentration());
 		effects.setSparkWeight((float) settings.getSparkWeight());
+		effects.setParticleLengthScale(PHOTO_PARTICLE_LENGTH_SCALE);
+		effects.setSmokeLengthScale(PHOTO_SMOKE_LENGTH_SCALE);
+		effects.setSparkSpreadScale(PHOTO_SPARK_SPREAD_SCALE);
 
 		boolean flameColorChanged = !Objects.equals(flameColor, lastFlameColor);
 		boolean smokeColorChanged = !Objects.equals(smokeColor, lastSmokeColor);

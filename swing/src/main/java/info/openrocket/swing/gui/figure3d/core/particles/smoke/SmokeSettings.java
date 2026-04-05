@@ -63,9 +63,11 @@ public class SmokeSettings extends ParticleSettings {
 			maxColor = clampColor(new Vector3f(clamped).mul(0.95f).add(0.05f, 0.05f, 0.05f));
 		}
 		float scale = Math.max(0.0f, exhaustScale);
+        float lengthScale = Math.max(0.0f, config.getVisualEffects().getParticleLengthScale())
+                * Math.max(0.0f, config.getVisualEffects().getSmokeLengthScale());
 
         return new SmokeSettings(10f * scale, 300,  // Velocity and creation rate
-                4.0f, 7.0f,     // Life span
+                4.0f * lengthScale, 7.0f * lengthScale,     // Life span
                 0.1f * scale, 0.25f * scale,    // Size range
                 1.2f,           // Spread factor
                 false,          // Burst
