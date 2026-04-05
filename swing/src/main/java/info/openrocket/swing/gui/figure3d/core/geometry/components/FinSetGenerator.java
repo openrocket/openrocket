@@ -116,7 +116,8 @@ public class FinSetGenerator {
 
 		// Create and add the fillet mesh
 		if (renderQuality != GraphicsQualitySettings.RenderQuality.LOW) {
-			Mesh filletMesh = createFilletMesh(finSet, parent, filletSegments, filletXSegments);
+			Mesh filletMesh = createFilletMesh(finSet, parent, filletSegments, filletXSegments,
+					minX, spanX, minY, spanY);
 			if (filletMesh != null && !filletMesh.getVertices().isEmpty()) {
 				int offset = combinedMeshData.vertices.size();
 				combinedMeshData.vertices.addAll(filletMesh.getVertices());
@@ -134,7 +135,8 @@ public class FinSetGenerator {
 	}
 
 	public static Mesh createFilletMesh(FinSet finSet, SymmetricComponent parent,
-										final int filletSegments, final int filletXSegments) {
+										final int filletSegments, final int filletXSegments,
+										float globalMinX, float globalSpanX, float globalMinY, float globalSpanY) {
 		float filletRadius = (float) finSet.getFilletRadius();
 		if (filletRadius <= 0) return null;
 
@@ -228,17 +230,21 @@ public class FinSetGenerator {
 					// else: Y outside fin -> skip clamp (prevents collapsing to x=0)
 				}
 
+				// Project UV from fin planform space: same axes as the fin face UVs
+				float uv_u = (clampedX - globalMinX) / globalSpanX;
+				float uv_v = (y_ring   - globalMinY) / globalSpanY;
+
 				// Right vertex
 				Vector3f pos_r = new Vector3f(clampedX, y_ring, z_r);
 				Vector3f nrm_r = new Vector3f(0, y_center - y_ring, z_center_r - z_r).normalize();
 				grid[i][j] = vertices.size();
-				vertices.add(new Vertex(pos_r, nrm_r, new Vector2f(t, (float) j / filletSegments), 0));
+				vertices.add(new Vertex(pos_r, nrm_r, new Vector2f(uv_u, uv_v), 0));
 
 				// Left vertex
 				Vector3f pos_l = new Vector3f(clampedX, y_ring, z_l);
 				Vector3f nrm_l = new Vector3f(0, y_center - y_ring, z_center_l - z_l).normalize();
 				grid[i][j + filletSegments + 1] = vertices.size();
-				vertices.add(new Vertex(pos_l, nrm_l, new Vector2f(t, (float) j / filletSegments), 0));
+				vertices.add(new Vertex(pos_l, nrm_l, new Vector2f(uv_u, uv_v), 0));
 			}
 		}
 
@@ -267,17 +273,20 @@ public class FinSetGenerator {
 			}
 		}
 
-		// End caps (unchanged)
-		addFilletCaps(vertices, indices, grid, 0, rootPoints[0], finSet, parent, filletSegments, false);
+		// End caps
+		addFilletCaps(vertices, indices, grid, 0, rootPoints[0], finSet, parent, filletSegments, false,
+				globalMinX, globalSpanX, globalMinY, globalSpanY);
 		addFilletCaps(vertices, indices, grid, filletXSegments, rootPoints[rootPoints.length - 1],
-				finSet, parent, filletSegments, true);
+				finSet, parent, filletSegments, true,
+				globalMinX, globalSpanX, globalMinY, globalSpanY);
 
 		return new Mesh(vertices, indices);
 	}
 
 	private static void addFilletCaps(List<Vertex> vertices, List<Integer> indices, int[][] gridIndices,
 									  int segmentIndex, CoordinateIF rootPoint, FinSet finSet,
-									  SymmetricComponent parent, int arcSegments, boolean isEndCap) {
+									  SymmetricComponent parent, int arcSegments, boolean isEndCap,
+									  float globalMinX, float globalSpanX, float globalMinY, float globalSpanY) {
 		float x = (float) rootPoint.getX();
 		float y = (float) rootPoint.getY(); // y-coordinate of the fin root from the 2D profile
 		float axialOffset = (float) finSet.getAxialOffset(AxialMethod.TOP);
@@ -294,8 +303,10 @@ public class FinSetGenerator {
 			// Get the original vertex from the fillet strip
 			int originalVertexIndex = gridIndices[segmentIndex][arcSegments - j + arcSegments + 1];
 			Vector3f filletPos = vertices.get(originalVertexIndex).position;
+			Vector2f filletUV = new Vector2f((filletPos.x - globalMinX) / globalSpanX,
+					(filletPos.y - globalMinY) / globalSpanY);
 			filletEdge.add(vertices.size());
-			vertices.add(new Vertex(filletPos, normal, new Vector2f(), 0));
+			vertices.add(new Vertex(filletPos, normal, filletUV, 0));
 
 			// Create the corresponding root vertex on the parent body
 			float z_fillet = filletPos.z;
@@ -304,7 +315,8 @@ public class FinSetGenerator {
 			float y_new = y + y_drop;
 
 			rootEdge.add(vertices.size());
-			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal, new Vector2f(), 0));
+			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal,
+					new Vector2f((x - globalMinX) / globalSpanX, (y_new - globalMinY) / globalSpanY), 0));
 		}
 
 		// Right side of fillet and root
@@ -312,8 +324,10 @@ public class FinSetGenerator {
 			// Get the original vertex from the fillet strip
 			int originalVertexIndex = gridIndices[segmentIndex][j];
 			Vector3f filletPos = vertices.get(originalVertexIndex).position;
+			Vector2f filletUV = new Vector2f((filletPos.x - globalMinX) / globalSpanX,
+					(filletPos.y - globalMinY) / globalSpanY);
 			filletEdge.add(vertices.size());
-			vertices.add(new Vertex(filletPos, normal, new Vector2f(), 0));
+			vertices.add(new Vertex(filletPos, normal, filletUV, 0));
 
 			// Create the corresponding root vertex on the parent body
 			float z_fillet = filletPos.z;
@@ -322,7 +336,8 @@ public class FinSetGenerator {
 			float y_new = y + y_drop;
 
 			rootEdge.add(vertices.size());
-			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal, new Vector2f(), 0));
+			vertices.add(new Vertex(new Vector3f(x, y_new, z_fillet), normal,
+					new Vector2f((x - globalMinX) / globalSpanX, (y_new - globalMinY) / globalSpanY), 0));
 		}
 
 		// Triangulate the left cap
