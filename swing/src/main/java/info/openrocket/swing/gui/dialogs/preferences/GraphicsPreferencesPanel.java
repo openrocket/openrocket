@@ -281,18 +281,6 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 				});
 				enableGLModel.addEnableComponent(dragSensitivitySpinner);
 				add(dragSensitivitySpinner, "alignx left, wrap");
-				
-				// Use Off-screen Rendering
-				final JCheckBox useFBO = new JCheckBox(trans.get("pref.dlg.opengl.lbl.useFBO"));
-				useFBO.setSelected(preferences.getBoolean(ApplicationPreferences.OPENGL_USE_FBO, false));
-				useFBO.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						preferences.putBoolean(ApplicationPreferences.OPENGL_USE_FBO, useFBO.isSelected());
-					}
-				});
-				enableGLModel.addEnableComponent(useFBO);
-				add(useFBO, "span 2, wrap");
 			}
 		}, "growx, span");
 	}
