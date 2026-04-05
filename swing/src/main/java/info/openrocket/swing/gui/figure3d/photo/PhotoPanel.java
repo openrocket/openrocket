@@ -514,7 +514,8 @@ public class PhotoPanel extends JPanel {
 		Light light = scene.getLightController().getLight(0);
 		ORColor sun = settings.getSunlight();
 		if (sun != null) {
-			light.setColor(sun.getRed() / 255.0f, sun.getGreen() / 255.0f, sun.getBlue() / 255.0f);
+			float strength = (float) settings.getLightStrength();
+			light.setColor(sun.getRed() / 255.0f * strength, sun.getGreen() / 255.0f * strength, sun.getBlue() / 255.0f * strength);
 		}
 		float alt = (float) settings.getLightAlt();
 		float az = (float) settings.getLightAz();

@@ -156,6 +156,13 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sun")));
 				add(sunLightColorButton, "wrap");
 
+				/// Light strength
+				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.lightStrength")));
+				DoubleModel lightStrengthModel = new DoubleModel(p, "LightStrength", UnitGroup.UNITS_RELATIVE, 0, 2);
+				add(new EditableSpinner(lightStrengthModel.getSpinnerModel()), "growx, split 2");
+				add(new UnitSelector(lightStrengthModel));
+				add(new BasicSlider(lightStrengthModel.getSliderModel(0, 2)), "pushx, left, wrap");
+
 				/// Ambiance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.amb")));
 				DoubleModel ambianceModel = new DoubleModel(p, "Ambiance", UnitGroup.UNITS_RELATIVE, 0, 1);

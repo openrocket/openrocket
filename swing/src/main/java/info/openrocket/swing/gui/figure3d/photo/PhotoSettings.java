@@ -19,6 +19,7 @@ public class PhotoSettings extends AbstractChangeSource {
 	
 	private double lightAlt = 0.35;
 	private double lightAz = -1;
+	private double lightStrength = 0.8;
 	private ORColor sunlight = new ORColor(255, 255, 255);
 	private double ambiance = 0.3f;
 	
@@ -144,7 +145,16 @@ public class PhotoSettings extends AbstractChangeSource {
 		this.lightAz = lightAz;
 		fireChangeEvent();
 	}
-	
+
+	public double getLightStrength() {
+		return lightStrength;
+	}
+
+	public void setLightStrength(double lightStrength) {
+		this.lightStrength = MathUtil.clamp(lightStrength, 0, 2);
+		fireChangeEvent();
+	}
+
 	public boolean isMotionBlurred() {
 		return motionBlurred;
 	}
