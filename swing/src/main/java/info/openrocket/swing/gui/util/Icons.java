@@ -352,6 +352,9 @@ public class Icons {
 					SVG_THEME_COLOR_RGB, SVG_DEFAULT_COLOR_KEY,
 					0x2d2dbd, "OR.icons.zoomFit"
 			));
+	public static final Icon PAN_VIEW = loadSvgIcon(
+			"pix/icons/lucide/move.svg",
+			"Pan view");
 
 	public static final Icon RULER = loadIcon(
 			"pix/icons/lucide/ruler-dimension-line.svg",
