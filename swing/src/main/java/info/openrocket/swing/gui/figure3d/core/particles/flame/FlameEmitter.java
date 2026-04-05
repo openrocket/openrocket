@@ -18,6 +18,7 @@ public class FlameEmitter extends ParticleEmitter {
     private final float flickerIntensity;
     private final float lightIntensity;
     private final float sizeMultiplier;
+    private final float exposureScale;
     
     private Light flameLight;
 
@@ -34,6 +35,7 @@ public class FlameEmitter extends ParticleEmitter {
         this.flickerIntensity = flameSettings.flickerIntensity;
         this.lightIntensity = flameSettings.lightIntensity;
         this.sizeMultiplier = flameSettings.sizeMultiplier;
+        this.exposureScale = flameSettings.exposureScale;
     }
     
     public float getFlickerIntensity() {
@@ -46,6 +48,10 @@ public class FlameEmitter extends ParticleEmitter {
 
     public float getSizeMultiplier() {
         return sizeMultiplier;
+    }
+
+    public float getExposureScale() {
+        return exposureScale;
     }
     
     /**
@@ -99,7 +105,7 @@ public class FlameEmitter extends ParticleEmitter {
             intensity += particleIntensity * sampleStep; // Compensate for sampling
         }
         
-        return Math.min(intensity * 0.01f, lightIntensity); // Scale down and cap
+        return Math.min(intensity * 0.01f, lightIntensity) * exposureScale; // Scale down, cap, and match visible flame brightness
     }
     
     /**

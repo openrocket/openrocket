@@ -71,6 +71,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
     private final int timeLocation;
     private final int flameTextureLocation;
     private final int flickerIntensityLocation;
+    private final int exposureScaleLocation;
 
     public FlameRenderer() throws Exception {
         shader = new Shader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
@@ -82,6 +83,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
         timeLocation = shader.getUniformLocation("time");
         flameTextureLocation = shader.getUniformLocation("flameTexture");
         flickerIntensityLocation = shader.getUniformLocation("flickerIntensity");
+        exposureScaleLocation = shader.getUniformLocation("exposureScale");
 
         flameTexture = new Texture("/textures/smoke2.png");
 
@@ -144,6 +146,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
             if (!(emitter instanceof FlameEmitter flameEmitter)) continue;
 
             glUniform1f(flickerIntensityLocation, flameEmitter.getFlickerIntensity());
+            glUniform1f(exposureScaleLocation, flameEmitter.getExposureScale());
             float flameSizeMultiplier = flameEmitter.getSizeMultiplier();
 
             for (Particle particle : emitter.getParticles()) {

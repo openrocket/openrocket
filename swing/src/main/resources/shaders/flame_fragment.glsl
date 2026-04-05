@@ -10,6 +10,7 @@ out vec4 FragColor;
 uniform sampler2D flameTexture;
 uniform float flickerIntensity;
 uniform float time;
+uniform float exposureScale;
 
 void main()
 {
@@ -63,9 +64,9 @@ void main()
     // per-vertex alpha from the renderer (controls overall opacity along the plume).
     // A slight alpha fade at low temperature avoids hard edges.
     float alphaFade = smoothstep(0.0, 0.12, temp);
-    float finalAlpha = texColor.a * flameAlpha * alphaFade;
+    float finalAlpha = texColor.a * flameAlpha * alphaFade * exposureScale;
 
-    FragColor = vec4(color, finalAlpha);
+    FragColor = vec4(color * exposureScale, finalAlpha);
 
     if (FragColor.a < 0.005) {
         discard;

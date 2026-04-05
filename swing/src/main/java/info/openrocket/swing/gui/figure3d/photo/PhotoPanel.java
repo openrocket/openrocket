@@ -54,6 +54,7 @@ public class PhotoPanel extends JPanel {
 	private static final double CAMERA_SETTINGS_EPSILON = 1.0e-6;
 	private static final float PHOTO_PARTICLE_LENGTH_SCALE = 0.82f;
 	private static final float PHOTO_SMOKE_LENGTH_SCALE = 0.50f;
+	private static final float PHOTO_FLAME_EXPOSURE_SCALE = 0.90f;
 	private static final float PHOTO_SPARK_SPREAD_SCALE = 0.70f;
 
 	private final PhotoSettings settings;
@@ -622,6 +623,7 @@ public class PhotoPanel extends JPanel {
 		effects.setSparkWeight((float) settings.getSparkWeight());
 		effects.setParticleLengthScale(PHOTO_PARTICLE_LENGTH_SCALE);
 		effects.setSmokeLengthScale(PHOTO_SMOKE_LENGTH_SCALE);
+		effects.setFlameExposureScale(PHOTO_FLAME_EXPOSURE_SCALE);
 		effects.setSparkSpreadScale(PHOTO_SPARK_SPREAD_SCALE);
 
 		boolean flameColorChanged = !Objects.equals(flameColor, lastFlameColor);

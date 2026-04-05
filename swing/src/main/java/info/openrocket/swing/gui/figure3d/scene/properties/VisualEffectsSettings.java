@@ -41,6 +41,7 @@ public class VisualEffectsSettings {
     public static final float DEFAULT_SPARK_WEIGHT = 0.0f;
     public static final float DEFAULT_PARTICLE_LENGTH_SCALE = 1.0f;
     public static final float DEFAULT_SMOKE_LENGTH_SCALE = 1.0f;
+    public static final float DEFAULT_FLAME_EXPOSURE_SCALE = 0.1f;
     public static final float DEFAULT_SPARK_SPREAD_SCALE = 1.0f;
 
     // Motion blur settings
@@ -74,6 +75,7 @@ public class VisualEffectsSettings {
     private float sparkWeight = DEFAULT_SPARK_WEIGHT;
     private float particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
     private float smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
+    private float flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
     private float sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
     
     // Per-motor particle control (motor component ID -> enabled state)
@@ -456,6 +458,14 @@ public class VisualEffectsSettings {
         this.smokeLengthScale = Math.max(0.0f, smokeLengthScale);
     }
 
+    public float getFlameExposureScale() {
+        return flameExposureScale;
+    }
+
+    public void setFlameExposureScale(float flameExposureScale) {
+        this.flameExposureScale = Math.max(0.0f, flameExposureScale);
+    }
+
     public float getSparkSpreadScale() {
         return sparkSpreadScale;
     }
@@ -548,6 +558,7 @@ public class VisualEffectsSettings {
         sparkWeight = DEFAULT_SPARK_WEIGHT;
         particleLengthScale = DEFAULT_PARTICLE_LENGTH_SCALE;
         smokeLengthScale = DEFAULT_SMOKE_LENGTH_SCALE;
+        flameExposureScale = DEFAULT_FLAME_EXPOSURE_SCALE;
         sparkSpreadScale = DEFAULT_SPARK_SPREAD_SCALE;
         perMotorParticleEnabled.clear();
     }
