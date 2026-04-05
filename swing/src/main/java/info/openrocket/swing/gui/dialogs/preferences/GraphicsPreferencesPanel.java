@@ -210,7 +210,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					}
 				});
 				enableGLModel.addEnableComponent(renderQualityCombo);
-				add(renderQualityCombo, "growx, wrap");
+				add(renderQualityCombo, "alignx left, wrap");
 				
 				// Enable Anti-aliasing
 				final JCheckBox enableAA = new JCheckBox(trans.get("pref.dlg.opengl.but.enableAA"));
@@ -280,7 +280,7 @@ public class GraphicsPreferencesPanel extends PreferencesPanel {
 					}
 				});
 				enableGLModel.addEnableComponent(dragSensitivitySpinner);
-				add(dragSensitivitySpinner, "growx, wrap");
+				add(dragSensitivitySpinner, "alignx left, wrap");
 				
 				// Use Off-screen Rendering
 				final JCheckBox useFBO = new JCheckBox(trans.get("pref.dlg.opengl.lbl.useFBO"));
