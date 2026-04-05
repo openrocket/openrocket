@@ -314,4 +314,24 @@ public class PhotoSettings extends AbstractChangeSource {
 		this.sparkWeight = sparkWeight;
 		fireChangeEvent();
 	}
+
+	// ---- Slider-adjusting flag ----
+	// Set to true while a slider thumb is being dragged; the render is deferred
+	// until the drag completes (mouse released) to avoid redundant GL work.
+	private boolean adjusting = false;
+
+	public boolean isAdjusting() {
+		return adjusting;
+	}
+
+	/**
+	 * Call with {@code true} on mouse-press and {@code false} on mouse-release.
+	 * Releasing ({@code false}) fires one change event so the deferred render runs.
+	 */
+	public void setAdjusting(boolean adjusting) {
+		this.adjusting = adjusting;
+		if (!adjusting) {
+			fireChangeEvent();
+		}
+	}
 }

@@ -154,6 +154,11 @@ public class PhotoPanel extends JPanel {
 		setLayout(new BorderLayout());
 		debug("PhotoPanel ctor");
 		settings.addChangeListener(e -> {
+			if (settings.isAdjusting()) {
+				// Slider is being dragged — defer the apply until mouse release.
+				pendingApply.set(true);
+				return;
+			}
 			if (!syncingCameraToSettings.get() && !suppressLightToSettingsSync.get()) {
 				applySettings();
 			}
