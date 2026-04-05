@@ -42,30 +42,21 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * Specialized renderer for realistic rocket flame particle systems.
- * 
- * This renderer creates rocket motor flames using billboarded textured quads
- * with particle sizing and opacity techniques (throat constriction, plume expansion, and
- * tapered tips).
- * 
- * Key features:
- * - Flame geometry modeling (throat -> expansion -> taper)
- * - Age-based particle size progression for natural flame shape
- * - Dynamic opacity management for flame intensity variation
- * - Texture-based rendering with flame-specific textures
- * - Billboard orientation for consistent camera-facing appearance
- * - Proper alpha blending for realistic flame translucency
- * - Time-based shader effects for flame flickering
- * 
- * Flame physics simulation:
- * - Initial 5%: Small throat size (60-100% of base size)
- * - Next 40%: Rapid expansion phase (100-250% of base size)
- * - Middle 25%: Maintained plume size (250% of base size)
- * - Final 30%: Sharp taper to point (250% -> 25% of base size)
- * 
- * This creates a visually accurate representation of rocket motor exhaust
- * with proper expansion characteristics and realistic flame behavior.
+ *
+ * Creates rocket motor flames using billboarded textured quads with age-based
+ * sizing (throat constriction, plume expansion, tapered tip) and additive
+ * blending so overlapping particles brighten naturally like real fire.
+ *
+ * Each vertex carries: position (3) + texcoord (2) + color+alpha (4) + ageRatio (1) = 10 floats.
+ * The ageRatio lets the fragment shader compute a physically-inspired temperature
+ * gradient along the length of the flame.
  */
 public class FlameRenderer implements ParticleSystemRenderer {
+
+    /** Floats per vertex: pos(3) + uv(2) + rgba(4) + age(1). */
+    private static final int FLOATS_PER_VERTEX = 10;
+    /** Vertices per quad (two triangles). */
+    private static final int VERTS_PER_QUAD = 6;
 
     private final Shader shader;
     private final int vao;
@@ -81,16 +72,9 @@ public class FlameRenderer implements ParticleSystemRenderer {
     private final int flameTextureLocation;
     private final int flickerIntensityLocation;
 
-    /**
-     * Initializes the flame rendering pipeline including specialized shaders for
-     * flame effects, texture resources, and vertex buffer objects optimized for
-     * quad-based billboard rendering.
-     * 
-     * @throws Exception If shader compilation, texture loading, or OpenGL resource creation fails
-     */
     public FlameRenderer() throws Exception {
         shader = new Shader("/shaders/flame_vertex.glsl", "/shaders/flame_fragment.glsl");
-        buffer = MemoryUtil.memAllocFloat(maxQuads * 6 * 9); // 6 vertices per quad, 9 floats per vertex
+        buffer = MemoryUtil.memAllocFloat(maxQuads * VERTS_PER_QUAD * FLOATS_PER_VERTEX);
 
         // Cache uniform locations
         projectionMatrixLocation = shader.getUniformLocation("projection");
@@ -98,8 +82,7 @@ public class FlameRenderer implements ParticleSystemRenderer {
         timeLocation = shader.getUniformLocation("time");
         flameTextureLocation = shader.getUniformLocation("flameTexture");
         flickerIntensityLocation = shader.getUniformLocation("flickerIntensity");
-        
-        // Reuse smoke texture for flames
+
         flameTexture = new Texture("/textures/smoke2.png");
 
         vao = glGenVertexArrays();
@@ -107,34 +90,30 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, buffer.capacity() * Float.BYTES, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (long) buffer.capacity() * Float.BYTES, GL_DYNAMIC_DRAW);
 
-        // Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 9 * Float.BYTES, 0);
+        int stride = FLOATS_PER_VERTEX * Float.BYTES;
+
+        // location 0: position (vec3)
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
         glEnableVertexAttribArray(0);
 
-        // Texture coordinates
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 9 * Float.BYTES, 3 * Float.BYTES);
+        // location 1: texture coordinates (vec2)
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, stride, 3 * Float.BYTES);
         glEnableVertexAttribArray(1);
 
-        // Color + alpha
-        glVertexAttribPointer(2, 4, GL_FLOAT, false, 9 * Float.BYTES, 5 * Float.BYTES);
+        // location 2: color + alpha (vec4)
+        glVertexAttribPointer(2, 4, GL_FLOAT, false, stride, 5 * Float.BYTES);
         glEnableVertexAttribArray(2);
+
+        // location 3: ageRatio (float)
+        glVertexAttribPointer(3, 1, GL_FLOAT, false, stride, 9 * Float.BYTES);
+        glEnableVertexAttribArray(3);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
 
-    /**
-     * Renders flame particles using realistic rocket exhaust physics.
-     * 
-     * Creates billboarded quads for each flame particle with size and opacity
-     * calculated based on particle age to simulate realistic flame shape progression.
-     * Only processes FlameEmitter particle systems.
-     * 
-     * @param scene The scene containing flame emitters to render
-     * @param camera The camera for billboard calculations and matrices
-     */
     public void render(SceneView scene, Camera camera) {
         shader.use();
         shader.setUniform(projectionMatrixLocation, camera.getProjectionMatrix());
@@ -145,13 +124,12 @@ public class FlameRenderer implements ParticleSystemRenderer {
         flameTexture.bind();
         glUniform1i(flameTextureLocation, 0);
 
-        // Enable blending for cohesive flame appearance
+        // Additive blending for RGB so overlapping particles brighten like real fire.
+        // Alpha channel uses standard blending to preserve compositing correctness.
         glEnable(GL_BLEND);
-        // Preserve particle opacity when exporting/copying with transparency.
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-        
-        // Keep depth testing enabled but disable depth writes
-        // This allows flames to respect depth but still blend properly
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Keep depth testing but disable depth writes for proper blending.
         glDepthMask(false);
 
         glBindVertexArray(vao);
@@ -160,71 +138,70 @@ public class FlameRenderer implements ParticleSystemRenderer {
         buffer.clear();
         int vertexCount = 0;
 
-        // Get camera position for billboarding
         Vector3f cameraPos = camera.getPosition();
 
         for (ParticleEmitter emitter : scene.getParticleEmitters()) {
-            if (!(emitter instanceof FlameEmitter)) continue;
-            
-            FlameEmitter flameEmitter = (FlameEmitter) emitter;
+            if (!(emitter instanceof FlameEmitter flameEmitter)) continue;
+
             glUniform1f(flickerIntensityLocation, flameEmitter.getFlickerIntensity());
             float flameSizeMultiplier = flameEmitter.getSizeMultiplier();
-            
-            // Render flame particles
+
             for (Particle particle : emitter.getParticles()) {
-                if (vertexCount >= maxQuads * 6) break;
-                
-                // Calculate age progression (0 = just born, 1 = about to die)
+                if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
+
                 float ageRatio = 1.0f - (particle.getLife() / particle.getMaxLife());
-                
-                // Create rocket motor flame shape: small base, expand, then taper
+
+                // --- Size profile: throat → expansion → plume → taper ---
                 float baseSize = particle.getSize() * 0.8f;
                 float size;
-                
                 if (ageRatio < 0.05f) {
-                    // First 5% of life: small at the base (throat)
-                    float t = ageRatio / 0.05f; // 0 to 1
-                    size = baseSize * (0.6f + 0.4f * t); // Start at 60%, grow to 100%
-                } else if (ageRatio < 0.45f) {
-                    // Next 40% of life: rapid expansion (exhaust plume)
-                    float t = (ageRatio - 0.05f) / 0.40f; // 0 to 1, ensures smooth transition
-                    size = baseSize * (1.0f + 1.5f * t); // Expand from 100% to 250%
-                } else if (ageRatio < 0.7f) {
-                    // Middle 25% of life: maintain size (main plume)
-                    size = baseSize * 2.5f;
+                    // Throat: narrow nozzle exit
+                    float t = ageRatio / 0.05f;
+                    size = baseSize * (0.5f + 0.5f * t);
+                } else if (ageRatio < 0.35f) {
+                    // Expansion: rapid widening
+                    float t = (ageRatio - 0.05f) / 0.30f;
+                    size = baseSize * (1.0f + 1.2f * t);
+                } else if (ageRatio < 0.65f) {
+                    // Main plume: slight continued growth
+                    float t = (ageRatio - 0.35f) / 0.30f;
+                    size = baseSize * (2.2f + 0.2f * t);
                 } else {
-                    // Final 30% of life: taper to sharp point
-                    float t = (ageRatio - 0.7f) / 0.3f; // 0 to 1
-                    size = baseSize * 2.5f * (1.0f - 0.9f * t); // Shrink to 10% of max size
+                    // Taper to point
+                    float t = (ageRatio - 0.65f) / 0.35f;
+                    size = baseSize * 2.4f * (1.0f - t * t);
                 }
                 size *= flameSizeMultiplier;
-                
-                if (size < 0.01f) continue;
-                
-                // Alpha: strong at base, fade towards tip
+                if (size < 0.005f) continue;
+
+                // --- Alpha profile ---
+                // Lower overall alpha than standard blending because additive
+                // accumulates across overlapping particles.
                 float alpha;
-                if (ageRatio < 0.45f) { // Corresponds to the expansion phase
-                    alpha = 1.0f; // Full intensity in base and expansion
-                } else if (ageRatio < 0.7f) {
-                    alpha = 0.9f; // Slightly dimmer in main plume
+                if (ageRatio < 0.10f) {
+                    // Throat ramp-up
+                    alpha = 0.45f * (ageRatio / 0.10f);
+                } else if (ageRatio < 0.50f) {
+                    // Main body: strong but not opaque
+                    alpha = 0.45f;
                 } else {
-                    // Fade out in the tapered tip
-                    float t = (ageRatio - 0.7f) / 0.3f;
-                    alpha = 0.9f * (1.0f - 0.8f * t); // Fade from 0.9 to 0.18
+                    // Fade towards the tip
+                    float t = (ageRatio - 0.50f) / 0.50f;
+                    alpha = 0.45f * (1.0f - t * t);
                 }
                 alpha = Math.max(0.0f, alpha);
-                
-                // Create billboard quad
+
                 vertexCount += createParticleBillboard(
-                    particle.getPosition(), 
-                    size, 
-                    alpha, 
+                    particle.getPosition(),
+                    size,
+                    alpha,
                     particle.getColor(),
+                    ageRatio,
                     cameraPos
                 );
             }
-            
-            if (vertexCount >= maxQuads * 6) break;
+
+            if (vertexCount >= maxQuads * VERTS_PER_QUAD) break;
         }
 
         buffer.flip();
@@ -237,30 +214,15 @@ public class FlameRenderer implements ParticleSystemRenderer {
         glDisable(GL_BLEND);
     }
 
-    /**
-     * Creates a camera-facing billboard quad for a single flame particle.
-     * 
-     * Generates two triangles forming a textured quad that always faces the camera.
-     * The quad is properly oriented using camera position for consistent appearance
-     * from any viewing angle.
-     * 
-     * @param position World position of the particle
-     * @param size Size of the billboard quad
-     * @param alpha Transparency value for the particle
-     * @param color RGB color of the particle
-     * @param cameraPos Camera position for billboard orientation
-     * @return Number of vertices added to the buffer (always 6)
-     */
-    private int createParticleBillboard(Vector3f position, float size, float alpha, Vector3f color, Vector3f cameraPos) {
-        // Same billboarding logic as smoke
+    private int createParticleBillboard(Vector3f position, float size, float alpha,
+                                         Vector3f color, float ageRatio, Vector3f cameraPos) {
         Vector3f toCamera = new Vector3f(cameraPos).sub(position);
-        
         if (toCamera.lengthSquared() < 0.001f) {
             toCamera.set(0, 0, 1);
         } else {
             toCamera.normalize();
         }
-        
+
         Vector3f worldUp = new Vector3f(0, 1, 0);
         Vector3f right = new Vector3f(worldUp).cross(toCamera);
         if (right.lengthSquared() < 0.001f) {
@@ -268,45 +230,38 @@ public class FlameRenderer implements ParticleSystemRenderer {
         } else {
             right.normalize();
         }
-        
+
         Vector3f up = new Vector3f(toCamera).cross(right).normalize();
-        
+
         right.mul(size);
         up.mul(size);
-        
-        Vector3f[] vertices = new Vector3f[4];
-        vertices[0] = new Vector3f(position).sub(right).sub(up);
-        vertices[1] = new Vector3f(position).add(right).sub(up);
-        vertices[2] = new Vector3f(position).add(right).add(up);
-        vertices[3] = new Vector3f(position).sub(right).add(up);
 
-        float[][] texCoords = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
-        
-        // First triangle
-        addVertex(vertices[0], texCoords[0], color, alpha);
-        addVertex(vertices[1], texCoords[1], color, alpha);
-        addVertex(vertices[2], texCoords[2], color, alpha);
-        
-        // Second triangle
-        addVertex(vertices[0], texCoords[0], color, alpha);
-        addVertex(vertices[2], texCoords[2], color, alpha);
-        addVertex(vertices[3], texCoords[3], color, alpha);
+        Vector3f[] v = {
+            new Vector3f(position).sub(right).sub(up),
+            new Vector3f(position).add(right).sub(up),
+            new Vector3f(position).add(right).add(up),
+            new Vector3f(position).sub(right).add(up)
+        };
+
+        float[][] uv = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+
+        // Two triangles
+        addVertex(v[0], uv[0], color, alpha, ageRatio);
+        addVertex(v[1], uv[1], color, alpha, ageRatio);
+        addVertex(v[2], uv[2], color, alpha, ageRatio);
+
+        addVertex(v[0], uv[0], color, alpha, ageRatio);
+        addVertex(v[2], uv[2], color, alpha, ageRatio);
+        addVertex(v[3], uv[3], color, alpha, ageRatio);
 
         return 6;
     }
 
-    /**
-     * Adds a single vertex to the rendering buffer.
-     * 
-     * @param position 3D world position of the vertex
-     * @param texCoord 2D texture coordinates [u, v]
-     * @param color RGB color values
-     * @param alpha Alpha transparency value
-     */
-    private void addVertex(Vector3f position, float[] texCoord, Vector3f color, float alpha) {
+    private void addVertex(Vector3f position, float[] texCoord, Vector3f color, float alpha, float ageRatio) {
         buffer.put(position.x).put(position.y).put(position.z);
         buffer.put(texCoord[0]).put(texCoord[1]);
         buffer.put(color.x).put(color.y).put(color.z).put(alpha);
+        buffer.put(ageRatio);
     }
 
     @Override
@@ -316,18 +271,17 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
     @Override
     public int getPriority() {
-        return 100; // High priority for flame rendering
+        return 100;
     }
 
     @Override
     public void setMaxParticles(int maxParticles) {
-        this.maxQuads = maxParticles / 4; // Assuming 4 particles per quad on average
-        // Note: In a real implementation, you might want to reallocate the buffer here
+        this.maxQuads = maxParticles / 4;
     }
 
     @Override
     public int getMaxParticles() {
-        return maxQuads * 4; // Approximate conversion
+        return maxQuads * 4;
     }
 
     @Override
@@ -337,17 +291,17 @@ public class FlameRenderer implements ParticleSystemRenderer {
 
     @Override
     public int getRenderOrder() {
-        return 500; // Render flames before smoke but after opaque geometry
+        return 500;
     }
 
     @Override
     public boolean requiresDepthSorting() {
-        return true; // Flames need proper alpha blending
+        return true;
     }
 
     @Override
     public boolean supportsBatching() {
-        return true; // Can batch multiple flame emitters
+        return true;
     }
 
     @Override

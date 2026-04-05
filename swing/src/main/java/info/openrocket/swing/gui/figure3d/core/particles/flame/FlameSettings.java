@@ -45,9 +45,12 @@ public class FlameSettings extends ParticleSettings {
         Vector3f maxColor = new Vector3f(DEFAULT_NORMAL_MAX_COLOR);
         if (flameColor != null) {
             Vector3f clamped = clampColor(flameColor);
-            // Photo Studio expects the selected flame color to dominate the whole plume.
-            // Keep the hue close to the user's choice and vary mostly by brightness.
-            minColor = clampColor(new Vector3f(clamped).mul(0.35f));
+            // minColor is a dimmer version of the user's pick (cool edge particles).
+            // maxColor is the full-brightness version (hot core particles).
+            // The fragment shader normalizes by max channel, so even dark picks
+            // produce a bright flame — the range here only controls per-particle
+            // brightness variation, not the overall flame luminance.
+            minColor = clampColor(new Vector3f(clamped).mul(0.30f));
             maxColor = clampColor(new Vector3f(clamped));
         }
         float scale = Math.max(0.0f, exhaustScale);
