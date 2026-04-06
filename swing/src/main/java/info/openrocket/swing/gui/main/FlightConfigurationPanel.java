@@ -264,6 +264,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		if (fcIds == null || fcIds.size() == 0)
 			return;
 
+		String msg = fcIds.size() == 1
+				? trans.get("FlightConfigurationPanel.confirm.delete.msg")
+				: String.format(trans.get("FlightConfigurationPanel.confirm.delete.msg.multi"), fcIds.size());
+		if (!MessageDialog.confirmYesNoWarningWithDontAsk(SwingUtilities.getWindowAncestor(this), msg,
+				trans.get("FlightConfigurationPanel.confirm.delete.title"),
+				trans.get("FlightConfigurationPanel.confirm.delete.dontAsk"),
+				Application.getPreferences()::getConfirmConfigurationDeletion,
+				() -> Application.getPreferences().setConfirmConfigurationDeletion(false))) return;
+
 		document.addUndoPosition("Remove configuration(s)");
 
 		for (FlightConfigurationId fcId : fcIds) {

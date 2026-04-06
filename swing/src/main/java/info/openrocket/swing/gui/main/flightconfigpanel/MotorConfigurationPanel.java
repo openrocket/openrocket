@@ -39,10 +39,12 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.unit.UnitGroup;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.Chars;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import info.openrocket.swing.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import info.openrocket.swing.gui.dialogs.flightconfiguration.MotorMountConfigurationPanel;
 import info.openrocket.swing.gui.dialogs.motor.MotorChooserDialog;
@@ -352,6 +354,17 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		if ((mounts == null) || (fcIds == null) || mounts.size() == 0 || fcIds.size() == 0) {
             return;
         }
+
+		int count = mounts.size() * fcIds.size();
+		String msg = count == 1
+				? trans.get("MotorConfigurationPanel.confirm.delete.msg")
+				: String.format(trans.get("MotorConfigurationPanel.confirm.delete.msg.multi"), count);
+		if (!MessageDialog.confirmYesNoWarningWithDontAsk(
+				SwingUtilities.getWindowAncestor(this.flightConfigurationPanel), msg,
+				trans.get("MotorConfigurationPanel.confirm.delete.title"),
+				trans.get("MotorConfigurationPanel.confirm.delete.dontAsk"),
+				Application.getPreferences()::getConfirmMotorDeletion,
+				() -> Application.getPreferences().setConfirmMotorDeletion(false))) return;
 
 		document.addUndoPosition("Delete motor(s)");
 

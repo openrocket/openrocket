@@ -970,6 +970,15 @@ public class RocketActions {
 			if (components.size() == 0) return;
 			components.sort(Comparator.comparing(c -> c.getParent().getChildPosition(c)));
 
+			String msg = components.size() == 1
+					? trans.get("RocketActions.DelAct.confirm.msg")
+					: String.format(trans.get("RocketActions.DelAct.confirm.msg.multi"), components.size());
+			if (!MessageDialog.confirmYesNoWarningWithDontAsk(parentFrame, msg,
+					trans.get("RocketActions.DelAct.confirm.title"),
+					trans.get("RocketActions.DelAct.confirm.dontAsk"),
+					Application.getPreferences()::getConfirmComponentDeletion,
+					() -> Application.getPreferences().setConfirmComponentDeletion(false))) return;
+
 			if (components.size() == 1) {
 				document.addUndoPosition("Delete " + components.get(0).getComponentName());
 			} else {

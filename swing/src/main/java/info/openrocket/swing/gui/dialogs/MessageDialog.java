@@ -7,7 +7,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import java.awt.event.ItemEvent;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -62,7 +61,8 @@ public abstract class MessageDialog {
 
 	/**
 	 * YES/NO warning dialog with an inline "Don't ask me again" checkbox.
-	 * When the checkbox is selected, {@code onDontAsk} is invoked immediately (before the dialog closes).
+	 * {@code onDontAsk} is invoked only when the user both checks the box AND clicks Yes,
+	 * so cancelling never permanently suppresses future prompts.
 	 * Returns true if the user clicked Yes.
 	 */
 	public static boolean confirmYesNoWarningWithDontAsk(Component parent, String message, String title,
@@ -70,15 +70,13 @@ public abstract class MessageDialog {
 		JPanel panel = new JPanel(new MigLayout());
 		panel.add(new JLabel(message), "left, wrap");
 		JCheckBox check = new JCheckBox(checkboxLabel);
-		check.addItemListener(e -> {
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				onDontAsk.run();
-			}
-			// Unselected state is not handled: preference is a one-way latch
-		});
 		panel.add(check, "left, gaptop para");
-		return JOptionPane.showConfirmDialog(parent, panel, title,
+		boolean confirmed = JOptionPane.showConfirmDialog(parent, panel, title,
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
+		if (confirmed && check.isSelected()) {
+			onDontAsk.run();
+		}
+		return confirmed;
 	}
 
 	/**
