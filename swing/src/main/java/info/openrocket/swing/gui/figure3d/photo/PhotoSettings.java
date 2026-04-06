@@ -7,24 +7,31 @@ import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.MathUtil;
 
 public class PhotoSettings extends AbstractChangeSource {
+	public enum BackgroundType {
+		SOLID_COLOR, GRADIENT, TEXTURE
+	}
+
 	private double roll = 3.14;
 	private double yaw = 0;
 	private double pitch = 2.05;
 	private double advance = 0;
-	
+
 	private double viewAlt = -0.23;
 	private double viewAz = 2.08;
 	private double viewDistance = 0.44;
 	private double fov = 1.4;
-	
+
 	private double lightAlt = 0.35;
 	private double lightAz = -1;
 	private double lightStrength = 0.8;
 	private ORColor sunlight = new ORColor(255, 255, 255);
 	private double ambiance = 0.1;
-	
+
+	private BackgroundType backgroundType = BackgroundType.TEXTURE;
 	private ORColor skyColor = new ORColor(55, 95, 155);
 	private double skyColorOpacity = 1.0;
+	private ORColor gradientTopColor = new ORColor(81, 126, 193);
+	private ORColor gradientBottomColor = new ORColor(32, 42, 58);
 	
 	
 	private boolean motionBlurred = false;
@@ -226,6 +233,33 @@ public class PhotoSettings extends AbstractChangeSource {
 	public void setSkyColorOpacity(double skyColorOpacity) {
 		this.skyColorOpacity = skyColorOpacity;
 		skyColor.setAlpha((int) (skyColorOpacity * 255));
+		fireChangeEvent();
+	}
+
+	public BackgroundType getBackgroundType() {
+		return backgroundType;
+	}
+
+	public void setBackgroundType(BackgroundType backgroundType) {
+		this.backgroundType = backgroundType;
+		fireChangeEvent();
+	}
+
+	public ORColor getGradientTopColor() {
+		return gradientTopColor;
+	}
+
+	public void setGradientTopColor(ORColor gradientTopColor) {
+		this.gradientTopColor = gradientTopColor;
+		fireChangeEvent();
+	}
+
+	public ORColor getGradientBottomColor() {
+		return gradientBottomColor;
+	}
+
+	public void setGradientBottomColor(ORColor gradientBottomColor) {
+		this.gradientBottomColor = gradientBottomColor;
 		fireChangeEvent();
 	}
 

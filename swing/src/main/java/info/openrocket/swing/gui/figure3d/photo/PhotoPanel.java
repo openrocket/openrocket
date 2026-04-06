@@ -9,6 +9,7 @@ import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.Background;
+import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.HDRIBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.ImageBackground;
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SkyboxBackground;
@@ -85,6 +86,9 @@ public class PhotoPanel extends JPanel {
 	private Sky lastSky;
 	private ORColor lastSkyColor;
 	private float lastSkyOpacity = Float.NaN;
+	private PhotoSettings.BackgroundType lastBackgroundType;
+	private ORColor lastGradientTopColor;
+	private ORColor lastGradientBottomColor;
 	private boolean cameraSettingsTracked;
 	private double lastViewAz;
 	private double lastViewAlt;
@@ -470,23 +474,60 @@ public class PhotoPanel extends JPanel {
 	}
 
 	private void applyBackground(SceneView scene) {
+		PhotoSettings.BackgroundType bgType = settings.getBackgroundType();
 		ORColor sky = settings.getSkyColor();
 		if (sky == null) {
 			sky = new ORColor(0, 0, 0);
 		}
 		float alpha = (float) settings.getSkyColorOpacity();
 		Sky selectedSky = settings.getSky();
-		if (selectedSky == lastSky && Objects.equals(sky, lastSkyColor) && MathUtil.equals(alpha, lastSkyOpacity, CAMERA_SETTINGS_EPSILON)) {
+		ORColor gradTop = settings.getGradientTopColor();
+		ORColor gradBottom = settings.getGradientBottomColor();
+
+		if (bgType == lastBackgroundType
+				&& selectedSky == lastSky
+				&& Objects.equals(sky, lastSkyColor)
+				&& MathUtil.equals(alpha, lastSkyOpacity, CAMERA_SETTINGS_EPSILON)
+				&& Objects.equals(gradTop, lastGradientTopColor)
+				&& Objects.equals(gradBottom, lastGradientBottomColor)) {
 			return;
 		}
 
-		scene.setBackground(createBackground(selectedSky, sky, alpha));
+		scene.setBackground(createBackground(bgType, selectedSky, sky, alpha, gradTop, gradBottom));
+		lastBackgroundType = bgType;
 		lastSky = selectedSky;
 		lastSkyColor = copyColor(sky);
 		lastSkyOpacity = alpha;
+		lastGradientTopColor = gradTop != null ? copyColor(gradTop) : null;
+		lastGradientBottomColor = gradBottom != null ? copyColor(gradBottom) : null;
 	}
 
-	private Background createBackground(Sky selectedSky, ORColor skyColor, float alpha) {
+	private Background createBackground(PhotoSettings.BackgroundType bgType, Sky selectedSky,
+			ORColor skyColor, float alpha, ORColor gradTop, ORColor gradBottom) {
+		switch (bgType) {
+			case GRADIENT -> {
+				Vector3f top = gradTop != null
+						? new Vector3f(gradTop.getRed() / 255.0f, gradTop.getGreen() / 255.0f, gradTop.getBlue() / 255.0f)
+						: new Vector3f(0.2f, 0.4f, 0.7f);
+				Vector3f bottom = gradBottom != null
+						? new Vector3f(gradBottom.getRed() / 255.0f, gradBottom.getGreen() / 255.0f, gradBottom.getBlue() / 255.0f)
+						: new Vector3f(0.04f, 0.08f, 0.16f);
+				return new GradientBackground(top, bottom);
+			}
+			case TEXTURE -> {
+				return createTextureBackground(selectedSky, skyColor, alpha);
+			}
+			default -> {
+				return new SolidColorBackground(
+						skyColor.getRed() / 255.0f,
+						skyColor.getGreen() / 255.0f,
+						skyColor.getBlue() / 255.0f,
+						alpha);
+			}
+		}
+	}
+
+	private Background createTextureBackground(Sky selectedSky, ORColor skyColor, float alpha) {
 		if (selectedSky == null) {
 			return new SolidColorBackground(
 					skyColor.getRed() / 255.0f,

@@ -1,9 +1,8 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
@@ -61,6 +60,12 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		final ColorChooserButton skyColorButton = createColorButton(p::getSkyColor, p::setSkyColor);
 		skyColorButton.setMaximumSize(new Dimension(35, 25));
 
+		final ColorChooserButton gradTopColorButton = createColorButton(p::getGradientTopColor, p::setGradientTopColor);
+		gradTopColorButton.setMaximumSize(new Dimension(35, 25));
+
+		final ColorChooserButton gradBottomColorButton = createColorButton(p::getGradientBottomColor, p::setGradientBottomColor);
+		gradBottomColorButton.setMaximumSize(new Dimension(35, 25));
+
 		final ColorChooserButton smokeColorButton = createColorButton(p::getSmokeColor, p::setSmokeColor);
 		smokeColorButton.setMaximumSize(new Dimension(35, 25));
 
@@ -76,12 +81,14 @@ public class PhotoSettingsConfig extends JTabbedPane {
 			public void stateChanged(EventObject e) {
 				sunLightColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSunlight()));
 				skyColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSkyColor()));
+				gradTopColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getGradientTopColor()));
+				gradBottomColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getGradientBottomColor()));
 				smokeColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getSmokeColor()));
 				flameColorButton.setSelectedColor(ColorConversion.toAwtColor(p.getFlameColor()));
 			}
 		});
 
-		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
+		addTab(trans.get("PhotoSettingsConfig.tab.orientation"), new JPanel(new MigLayout("fill", "[][][]")) {
 			{
 				// Rocket
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.rocket"), Style.BOLD), "split, span, gapright para");
@@ -149,7 +156,7 @@ public class PhotoSettingsConfig extends JTabbedPane {
 			}
 		});
 
-		addTab(trans.get("PhotoSettingsConfig.tab.environment"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
+		addTab(trans.get("PhotoSettingsConfig.tab.environment"), new JPanel(new MigLayout("fill", "[][][]")) {
 			{
 				// Light
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.light"), Style.BOLD), "split, span, gapright para");
@@ -187,97 +194,102 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(new UnitSelector(lightAltModel));
 				add(photoSlider(p, lightAltModel.getSliderModel(-Math.PI / 2, Math.PI / 2)), "wrap");
 
-				// Sky
-				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.sky"), Style.BOLD), "split, span, gapright para");
+				// Background
+				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.background"), Style.BOLD), "split, span, gapright para");
 				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
-				/// Sky color
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColor")));
-				add(skyColorButton, "wrap");
+				/// Background type combobox
+				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.backgroundType")));
+				String[] bgTypeLabels = {
+						trans.get("PhotoSettingsConfig.backgroundType.solidColor"),
+						trans.get("PhotoSettingsConfig.backgroundType.gradient"),
+						trans.get("PhotoSettingsConfig.backgroundType.texture")
+				};
+				JComboBox<String> bgTypeCombo = new JComboBox<>(bgTypeLabels);
+				add(bgTypeCombo, "spanx, wrap");
 
-				/// Sky color opacity
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColorOpacity")));
+				/// Card panel
+				CardLayout cardLayout = new CardLayout();
+				JPanel cards = new JPanel(cardLayout);
+
+				// -- Solid color card --
+				JPanel solidCard = new JPanel(new MigLayout("fill, insets 0", "[][][]"));
+				solidCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColor")));
+				solidCard.add(skyColorButton, "wrap");
+				solidCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyColorOpacity")));
 				DoubleModel skyColorOpacityModel = new DoubleModel(p, "SkyColorOpacity", UnitGroup.UNITS_RELATIVE, 0, 1);
 				EditableSpinner skyColorOpacitySpinner = new EditableSpinner(skyColorOpacityModel.getSpinnerModel());
-				add(skyColorOpacitySpinner, "growx, split 2");
+				solidCard.add(skyColorOpacitySpinner, "growx, split 2");
 				UnitSelector skyColorOpacityUnitSelector = new UnitSelector(skyColorOpacityModel);
-				add(skyColorOpacityUnitSelector);
+				solidCard.add(skyColorOpacityUnitSelector);
 				BasicSlider skyColorOpacitySlider = photoSlider(p, skyColorOpacityModel.getSliderModel());
-				add(skyColorOpacitySlider, "wrap");
+				solidCard.add(skyColorOpacitySlider, "wrap");
 				p.addChangeListener(skyColorOpacityModel);
 
-				/// Sky image
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyImage")));
+				// -- Gradient card --
+				JPanel gradientCard = new JPanel(new MigLayout("fill, insets 0", "[][][]"));
+				gradientCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.gradientTopColor")));
+				gradientCard.add(gradTopColorButton, "wrap");
+				gradientCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.gradientBottomColor")));
+				gradientCard.add(gradBottomColorButton, "wrap");
 
-				Sky noSky = new Sky() {		// Dummy sky for 'none' selection option
-					@Override
-					public String toString() {
-						return trans.get("DecalModel.lbl.select");
-					}
-				};
-				add(new JComboBox<>(new DefaultComboBoxModel<>(new Sky[]{noSky, Mountains.instance, Meadow.instance,
-						Storm.instance, Lake.instance, Orbit.instance, Miramar.instance}) {
-				}) {
-					{
-						addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								@SuppressWarnings("unchecked")
-								Object s = ((JComboBox<Sky>) e.getSource()).getSelectedItem();
-								if (s instanceof Sky && s != noSky) {
-									p.setSky((Sky) s);
-									skyColorButton.setEnabled(false);
-									skyColorOpacitySpinner.setEnabled(false);
-									skyColorOpacityUnitSelector.setEnabled(false);
-									skyColorOpacitySlider.setEnabled(false);
-								} else if (s == noSky) {
-									p.setSky(null);
-									skyColorButton.setEnabled(true);
-									skyColorOpacitySpinner.setEnabled(true);
-									skyColorOpacityUnitSelector.setEnabled(true);
-									skyColorOpacitySlider.setEnabled(true);
-								}
-							}
-						});
+				// -- Texture card --
+				JPanel textureCard = new JPanel(new MigLayout("fill, insets 0", "[][][]"));
+				textureCard.add(new JLabel(trans.get("PhotoSettingsConfig.lbl.skyImage")));
+				JComboBox<Sky> skyCombo = new JComboBox<>(new DefaultComboBoxModel<>(
+						new Sky[]{Mountains.instance, Meadow.instance, Storm.instance,
+								Lake.instance, Orbit.instance, Miramar.instance}));
+				textureCard.add(skyCombo, "spanx, wrap");
 
-						if (p.getSky() != null) {
-							setSelectedItem(p.getSky());
-						} else {
-							setSelectedItem(noSky);
-						}
-					}
-				}, "spanx, wrap");
-
-				/// Image credit
 				final JLabel creditLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.skyCredit"));
-				add(creditLabel);
-
+				textureCard.add(creditLabel);
 				final JTextArea credit = new JTextArea();
 				credit.setEditable(false);
 				credit.setCursor(null);
 				credit.setOpaque(false);
 				credit.setFocusable(false);
 				credit.setFont(creditLabel.getFont());
-				add(credit, "spanx");
+				textureCard.add(credit, "spanx");
 
-				final StateChangeListener skyChange = new StateChangeListener() {
-					@Override
-					public void stateChanged(EventObject e) {
-						if (p.getSky() instanceof Sky.Credit) {
-							credit.setText(((Credit) p.getSky()).getCredit());
-						} else {
-							credit.setText("");
-						}
+				skyCombo.addActionListener(e -> {
+					Sky selected = (Sky) skyCombo.getSelectedItem();
+					p.setSky(selected);
+					if (selected instanceof Sky.Credit) {
+						credit.setText(((Credit) selected).getCredit());
+					} else {
+						credit.setText("");
 					}
-				};
-				p.addChangeListener(skyChange);
+				});
+				// Initialize sky combo and credit
+				if (p.getSky() != null) {
+					skyCombo.setSelectedItem(p.getSky());
+				} else {
+					skyCombo.setSelectedIndex(0);
+					p.setSky((Sky) skyCombo.getSelectedItem());
+				}
+				if (p.getSky() instanceof Sky.Credit) {
+					credit.setText(((Credit) p.getSky()).getCredit());
+				}
 
-				skyChange.stateChanged(null);
+				cards.add(solidCard, PhotoSettings.BackgroundType.SOLID_COLOR.name());
+				cards.add(gradientCard, PhotoSettings.BackgroundType.GRADIENT.name());
+				cards.add(textureCard, PhotoSettings.BackgroundType.TEXTURE.name());
+				add(cards, "spanx, wrap");
+
+				// Initialize combobox selection from current setting
+				bgTypeCombo.setSelectedIndex(p.getBackgroundType().ordinal());
+				cardLayout.show(cards, p.getBackgroundType().name());
+
+				bgTypeCombo.addActionListener(e -> {
+					PhotoSettings.BackgroundType type = PhotoSettings.BackgroundType.values()[bgTypeCombo.getSelectedIndex()];
+					p.setBackgroundType(type);
+					cardLayout.show(cards, type.name());
+				});
 
 			}
 		});
 
-		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill", "[]100[]5[]")) {
+		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill", "[][][]")) {
 			{
 				// Smoke & Flame
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.smokeFlame"), Style.BOLD), "split, span, gapright para");
