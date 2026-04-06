@@ -1,6 +1,7 @@
 package info.openrocket.core.file.rasaero.export;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.util.BugException;
 import info.openrocket.core.document.StorageOptions;
 import info.openrocket.core.file.RocketSaver;
 import info.openrocket.core.logging.ErrorSet;
@@ -69,9 +70,13 @@ public class RASAeroSaver extends RocketSaver {
             ErrorSet errors) throws IOException {
         log.info("Saving .CDX1 file");
 
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8));
-        writer.write(marshalToRASAero(doc, warnings, errors));
-        writer.flush();
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, StandardCharsets.UTF_8))) {
+            writer.write(marshalToRASAero(doc, warnings, errors));
+            writer.flush();
+        } catch (IOException e) {
+            log.warn("Failed to write RASAero export: " + e.getMessage());
+            throw new BugException(e);
+        }
     }
 
     @Override
