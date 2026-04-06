@@ -6,12 +6,9 @@ import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
-@XmlRootElement(name = RASAeroCommonConstants.BOATTAIL)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.BOATTAIL)
 public class BoattailDTO extends TransitionDTO {
     /**
      * We need a default no-args constructor.

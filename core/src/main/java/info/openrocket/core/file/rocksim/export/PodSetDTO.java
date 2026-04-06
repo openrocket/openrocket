@@ -10,35 +10,28 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.position.AnglePositionable;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlElementRefs;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Models the XML element for a RockSim pod.
  */
-@XmlRootElement(name = RockSimCommonConstants.EXTERNAL_POD)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.EXTERNAL_POD)
 public class PodSetDTO extends BasePartDTO implements AttachableParts {
-    @XmlElement(name = RockSimCommonConstants.AUTO_CALC_RADIAL_DISTANCE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.AUTO_CALC_RADIAL_DISTANCE)
     private int autoCalcRadialDistance = 0;
-    @XmlElement(name = RockSimCommonConstants.AUTO_CALC_RADIAL_ANGLE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.AUTO_CALC_RADIAL_ANGLE)
     private int autoCalcRadialAngle = 0;
-    @XmlElement(name = RockSimCommonConstants.DETACHABLE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DETACHABLE)
     private int detachable = 0;       // This pod can be ejected during simulations (0 = false, 1 = true)
-    @XmlElement(name = RockSimCommonConstants.REMOVED)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.REMOVED)
     private int ejected = 0;          // Mark this pod as ejected (0 = false, 1 = true)
-    @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
-    @XmlElementRefs({
-            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.NOSE_CONE, type = NoseConeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class)})
+    @JacksonXmlElementWrapper(localName = RockSimCommonConstants.ATTACHED_PARTS)
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = PartListSerializer.class)
+    @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = AttachedPartsDeserializer.class)
     List<BasePartDTO> attachedParts = new ArrayList<>();
 
     /**
@@ -119,6 +112,7 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
         return autoCalcRadialDistance;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public void setAutoCalcRadialDistance(boolean motorMount) {
         if (motorMount) {
             this.autoCalcRadialDistance = 1;
@@ -131,6 +125,7 @@ public class PodSetDTO extends BasePartDTO implements AttachableParts {
         return autoCalcRadialAngle;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public void setAutoCalcRadialAngle(boolean motorMount) {
         if (motorMount) {
             this.autoCalcRadialAngle = 1;

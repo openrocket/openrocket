@@ -19,49 +19,33 @@ import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.TubeCoupler;
 import info.openrocket.core.rocketcomponent.TubeFinSet;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementRef;
-import jakarta.xml.bind.annotation.XmlElementRefs;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Models the XML element for a RockSim body tube.
  */
-@XmlRootElement(name = RockSimCommonConstants.BODY_TUBE)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.BODY_TUBE)
 public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 
-    @XmlElement(name = RockSimCommonConstants.OD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.OD)
     private double od = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.ID)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ID)
     private double id = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.IS_MOTOR_MOUNT)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.IS_MOTOR_MOUNT)
     private int isMotorMount = 0;
-    @XmlElement(name = RockSimCommonConstants.MOTOR_DIA)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.MOTOR_DIA)
     private double motorDia = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.ENGINE_OVERHANG)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ENGINE_OVERHANG)
     private double engineOverhang = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.IS_INSIDE_TUBE)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.IS_INSIDE_TUBE)
     private int isInsideTube = 0;
-    @XmlElementWrapper(name = RockSimCommonConstants.ATTACHED_PARTS)
-    @XmlElementRefs({
-            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.BODY_TUBE, type = InnerBodyTubeDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.TRANSITION, type = TransitionDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.RING, type = CenteringRingDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.LAUNCH_LUG, type = LaunchLugDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.FIN_SET, type = FinSetDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.CUSTOM_FIN_SET, type = CustomFinSetDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.TUBE_FIN_SET, type = TubeFinSetDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.STREAMER, type = StreamerDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class),
-            @XmlElementRef(name = RockSimCommonConstants.EXTERNAL_POD, type = PodSetDTO.class) })
+    @JacksonXmlElementWrapper(localName = RockSimCommonConstants.ATTACHED_PARTS)
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing = PartListSerializer.class)
+    @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = AttachedPartsDeserializer.class)
     List<BasePartDTO> attachedParts = new ArrayList<>();
 
     /**
@@ -160,6 +144,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
         return isMotorMount;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public void setMotorMount(boolean motorMount) {
         if (motorMount) {
             isMotorMount = 1;
@@ -193,6 +178,7 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
         return isInsideTube;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public void setInsideTube(boolean inside) {
         if (inside) {
             isInsideTube = 1;

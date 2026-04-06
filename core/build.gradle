@@ -62,9 +62,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.9'
     implementation 'org.ow2.asm:asm-commons:9.9'
 
-    implementation 'jakarta.activation:jakarta.activation-api:2.1.4'
-    implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.6'
-    implementation 'org.eclipse:yasson:2.0.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.0'
     implementation 'com.google.code.gson:gson:2.13.2'
 
     implementation 'org.xerial:sqlite-jdbc:3.51.1.0'

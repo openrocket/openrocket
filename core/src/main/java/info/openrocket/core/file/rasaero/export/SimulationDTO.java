@@ -20,92 +20,91 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
 import info.openrocket.core.startup.Application;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomBooleanAdapter;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 import java.util.List;
 import java.util.Map;
 
-@XmlRootElement(name = RASAeroCommonConstants.SIMULATION)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.SIMULATION)
 public class SimulationDTO {
-    @XmlElement(name = RASAeroCommonConstants.SUSTAINER_ENGINE)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SUSTAINER_ENGINE)
     private String sustainerEngine;
-    @XmlElement(name = RASAeroCommonConstants.SUSTAINER_LAUNCH_WT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SUSTAINER_LAUNCH_WT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double sustainerLaunchWt = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.SUSTAINER_NOZZLE_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SUSTAINER_NOZZLE_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double sustainerNozzleDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.SUSTAINER_CG)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SUSTAINER_CG)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double sustainerCG = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SUSTAINER_IGNITION_DELAY)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double sustainerIgnitionDelay = 0.0d;
 
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_ENGINE)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_ENGINE)
     private String booster1Engine;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_LAUNCH_WT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_LAUNCH_WT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster1LaunchWt = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_SEPARATION_DELAY)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_SEPARATION_DELAY)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster1SeparationDelay = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_IGNITION_DELAY)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster1IgnitionDelay = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_CG)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_CG)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster1CG = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER1_NOZZLE_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER1_NOZZLE_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster1NozzleDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.INCLUDE_BOOSTER1)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.INCLUDE_BOOSTER1)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean includeBooster1 = false;
 
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER2_ENGINE)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER2_ENGINE)
     private String booster2Engine;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER2_LAUNCH_WT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER2_LAUNCH_WT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster2LaunchWt = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER2_SEPARATION_DELAY)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster2Delay = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER2_CG)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER2_CG)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster2CG = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.BOOSTER2_NOZZLE_DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.BOOSTER2_NOZZLE_DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double booster2NozzleDiameter = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.INCLUDE_BOOSTER2)
-    @XmlJavaTypeAdapter(CustomBooleanAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.INCLUDE_BOOSTER2)
+    @JsonSerialize(using = CustomBooleanAdapter.Serializer.class)
     private Boolean includeBooster2 = false;
 
-    @XmlElement(name = RASAeroCommonConstants.FLIGHT_TIME)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.FLIGHT_TIME)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double flightTime = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.TIME_TO_APOGEE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.TIME_TO_APOGEE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double timetoApogee = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.MAX_ALTITUDE)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.MAX_ALTITUDE)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double maxAltitude = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.MAX_VELOCITY)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.MAX_VELOCITY)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double maxVelocity = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.OPTIMUM_WT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.OPTIMUM_WT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double optimumWt = 0.0d;
-    @XmlElement(name = RASAeroCommonConstants.OPTIMUM_MAX_ALT)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.OPTIMUM_MAX_ALT)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double optimumMaxAlt = 0.0d;
 
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     /**

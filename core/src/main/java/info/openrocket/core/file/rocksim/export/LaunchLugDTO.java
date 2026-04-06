@@ -1,9 +1,7 @@
 package info.openrocket.core.file.rocksim.export;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.LaunchLug;
@@ -11,13 +9,12 @@ import info.openrocket.core.rocketcomponent.LaunchLug;
 /**
  * This class models an XML element for a Rocksim LaunchLug.
  */
-@XmlRootElement(name = RockSimCommonConstants.LAUNCH_LUG)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.LAUNCH_LUG)
 public class LaunchLugDTO extends BasePartDTO {
 
-    @XmlElement(name = RockSimCommonConstants.OD)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.OD)
     private double od = 0.0d;
-    @XmlElement(name = RockSimCommonConstants.ID)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.ID)
     private double id = 0.0d;
 
     /**

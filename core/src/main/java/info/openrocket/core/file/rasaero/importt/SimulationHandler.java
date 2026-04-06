@@ -297,6 +297,9 @@ public class SimulationHandler extends AbstractElementHandler {
         }
 
         AxialStage booster = rocket.getStage(1);
+        if (booster == null) {
+            return 0;
+        }
         booster.setMassOverridden(true);
         booster.setSubcomponentsOverriddenMass(true);
         booster.setOverrideMass(boosterWt);
@@ -334,6 +337,9 @@ public class SimulationHandler extends AbstractElementHandler {
         }
 
         AxialStage booster = rocket.getStage(2);
+        if (booster == null) {
+            return 0;
+        }
         booster.setMassOverridden(true);
         booster.setSubcomponentsOverriddenMass(true);
         booster.setOverrideMass(boosterWt);

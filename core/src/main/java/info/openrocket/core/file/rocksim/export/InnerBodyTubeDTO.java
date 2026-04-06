@@ -3,9 +3,7 @@ package info.openrocket.core.file.rocksim.export;
 import java.util.List;
 
 import info.openrocket.core.util.CoordinateIF;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 import info.openrocket.core.rocketcomponent.BodyTube;
@@ -23,8 +21,7 @@ import info.openrocket.core.rocketcomponent.TubeCoupler;
 /**
  * This class models the XML element for a Rocksim inside tube.
  */
-@XmlRootElement(name = RockSimCommonConstants.BODY_TUBE)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.BODY_TUBE)
 public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachableParts {
 
 	/**

@@ -23,8 +23,11 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.ErrorSet;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.plugin.PluginModule;
+import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.database.Databases;
+import info.openrocket.core.formatting.RocketDescriptor;
 import info.openrocket.core.startup.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,6 +55,21 @@ public class RASAeroSaverTest {
     @BeforeAll
     public static void setup() {
         Module applicationModule = new ServicesForTesting();
+
+        // Pre-initialize Databases.trans with a real translator before DebugTranslator takes over.
+        // Uses applicationModule with RocketDescriptor overridden to a no-op stub so that
+        // Set<RocketSubstitutor> (from PluginModule) is not required — avoiding Multibinder conflicts.
+        Module noOpDescriptor = new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(RocketDescriptor.class).toInstance(new RocketDescriptor() {
+                    public String format(Rocket rocket, FlightConfigurationId fcid) { return ""; }
+                    public String format(String name, Rocket rocket, FlightConfigurationId fcid) { return ""; }
+                });
+            }
+        };
+        Application.setInjector(Guice.createInjector(Modules.override(applicationModule).with(noOpDescriptor)));
+        Databases.fakeMethod();
 
         Module pluginModule = new PluginModule();
 

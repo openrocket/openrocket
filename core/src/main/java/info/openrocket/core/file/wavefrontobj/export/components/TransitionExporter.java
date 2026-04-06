@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import de.javagl.obj.FloatTuple;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
@@ -26,7 +26,7 @@ public class TransitionExporter extends RocketComponentExporter<Transition> {
     private final int nrOfSides;
     private static final Translator trans = Application.getTranslator();
 
-    public TransitionExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+    public TransitionExporter(@Nonnull DefaultObj obj, FlightConfiguration config, @Nonnull CoordTransform transformer,
                               Transition component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances,
                               WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);

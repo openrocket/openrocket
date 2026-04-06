@@ -3,9 +3,7 @@ package info.openrocket.core.preset.xml;
 
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import info.openrocket.core.preset.ComponentPreset;
 import info.openrocket.core.preset.InvalidComponentPresetException;
@@ -13,8 +11,7 @@ import info.openrocket.core.preset.InvalidComponentPresetException;
 /**
  * Centering Ring preset XML handler.
  */
-@XmlRootElement(name = "CenteringRing")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = "CenteringRing")
 public class CenteringRingDTO extends BodyTubeDTO {
 
     /**

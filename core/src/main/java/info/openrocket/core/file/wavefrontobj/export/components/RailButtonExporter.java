@@ -1,6 +1,6 @@
 package info.openrocket.core.file.wavefrontobj.export.components;
 
-import com.sun.istack.NotNull;
+import javax.annotation.Nonnull;
 import de.javagl.obj.FloatTuple;
 import info.openrocket.core.file.wavefrontobj.CoordTransform;
 import info.openrocket.core.file.wavefrontobj.DefaultObj;
@@ -26,7 +26,7 @@ public class RailButtonExporter extends RocketComponentExporter<RailButton> {
      * @param groupName The name of the group to export to
      * @param LOD       Level of detail to use for the export (e.g. '80')
      */
-    public RailButtonExporter(@NotNull DefaultObj obj, FlightConfiguration config, @NotNull CoordTransform transformer,
+    public RailButtonExporter(@Nonnull DefaultObj obj, FlightConfiguration config, @Nonnull CoordTransform transformer,
                               RailButton component, String groupName, ObjUtils.LevelOfDetail LOD, boolean exportAllInstances, WarningSet warnings) {
         super(obj, config, transformer, component, groupName, LOD, exportAllInstances, warnings);
     }

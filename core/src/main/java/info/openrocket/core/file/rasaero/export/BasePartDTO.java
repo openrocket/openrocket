@@ -12,13 +12,11 @@ import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.Transition;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.XmlType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import info.openrocket.core.file.rasaero.CustomDoubleAdapter;
 
 import info.openrocket.core.file.rasaero.export.RASAeroSaver.RASAeroExportException;
 import info.openrocket.core.startup.Application;
@@ -27,32 +25,29 @@ import info.openrocket.core.util.MathUtil;
 /**
  * The base class for most RASAero components.
  */
-@XmlRootElement
-@XmlType(name = "RASAeroBasePartDTO")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlTransient
+@JacksonXmlRootElement
 public class BasePartDTO {
-    @XmlElement(name = RASAeroCommonConstants.PART_TYPE)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.PART_TYPE)
     private String partType;
-    @XmlElement(name = RASAeroCommonConstants.LENGTH)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LENGTH)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double length;
-    @XmlElement(name = RASAeroCommonConstants.DIAMETER)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.DIAMETER)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double diameter;
-    @XmlElement(name = RASAeroCommonConstants.LOCATION)
-    @XmlJavaTypeAdapter(CustomDoubleAdapter.class)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.LOCATION)
+    @JsonSerialize(using = CustomDoubleAdapter.Serializer.class)
     private Double location;
-    @XmlElement(name = RASAeroCommonConstants.COLOR)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.COLOR)
     private String color;
 
-    @XmlTransient
+    @JsonIgnore
     private final RocketComponent component;
-    @XmlTransient
+    @JsonIgnore
     private final WarningSet warnings;
-    @XmlTransient
+    @JsonIgnore
     private final ErrorSet errors;
-    @XmlTransient
+    @JsonIgnore
     private static final Translator trans = Application.getTranslator();
 
     /**

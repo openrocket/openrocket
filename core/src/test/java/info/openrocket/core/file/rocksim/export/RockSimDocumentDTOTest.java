@@ -5,17 +5,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
@@ -54,31 +52,26 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 	
 	@Test
 	public void testDTO() throws Exception {
-		JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
-		Marshaller marshaller = binder.createMarshaller();
-		marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
-		
+		XmlMapper xmlMapper = (XmlMapper) new XmlMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
 		NoseConeDTO noseCone = new NoseConeDTO();
 		noseCone.setBaseDia(10.0d);
 		noseCone.setCalcCG(1.3d);
-		
+
 		StageDTO stage1 = new StageDTO();
 		stage1.addExternalPart(noseCone);
-		
+
 		RocketDesignDTO design2 = new RocketDesignDTO();
 		design2.setName("Test");
 		design2.setStage3(stage1);
-		
+
 		RockSimDesignDTO design = new RockSimDesignDTO();
 		design.setDesign(design2);
 		RockSimDocumentDTO message = new RockSimDocumentDTO();
 		message.setDesign(design);
-		
-		StringWriter stringWriter = new StringWriter();
-		marshaller.marshal(message, stringWriter);
-		
-		String response = stringWriter.toString();
-		
+
+		String response = xmlMapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
+
 		// TODO need checks here to validation that correct things were done
 		//System.err.println(response);
 	}
@@ -263,9 +256,8 @@ public class RockSimDocumentDTOTest extends RockSimTestBase {
 		String result = new RockSimSaver().marshalToRockSim(document);
 		Assertions.assertNotNull(result, "Exported RockSim XML should not be null.");
 
-		JAXBContext binder = JAXBContext.newInstance(RockSimDocumentDTO.class);
-		Unmarshaller unmarshaller = binder.createUnmarshaller();
-		RockSimDocumentDTO exportedDocument = (RockSimDocumentDTO) unmarshaller.unmarshal(new StringReader(result));
+		XmlMapper xmlMapper = new XmlMapper();
+		RockSimDocumentDTO exportedDocument = xmlMapper.readValue(result, RockSimDocumentDTO.class);
 
 		StageDTO exportedStage = exportedDocument.getDesign().getDesign().getStage3();
 		BodyTubeDTO exportedBodyTube = findBodyTubeByName(exportedStage.getExternalPart(), "Main Body");

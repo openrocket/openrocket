@@ -2,22 +2,19 @@ package info.openrocket.core.file.rocksim.export;
 
 import info.openrocket.core.file.rocksim.RockSimCommonConstants;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * The top level Rocksim document.
  */
-@XmlRootElement(name = RockSimCommonConstants.ROCK_SIM_DOCUMENT)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RockSimCommonConstants.ROCK_SIM_DOCUMENT)
 public class RockSimDocumentDTO {
 
-    @XmlElement(name = RockSimCommonConstants.FILE_VERSION)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.FILE_VERSION)
     private final String version = "4";
 
-    @XmlElement(name = RockSimCommonConstants.DESIGN_INFORMATION)
+    @JacksonXmlProperty(localName = RockSimCommonConstants.DESIGN_INFORMATION)
     private RockSimDesignDTO design;
 
     /**

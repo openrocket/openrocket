@@ -13,19 +13,18 @@ import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-@XmlRootElement(name = RASAeroCommonConstants.SIMULATION_LIST)
-@XmlAccessorType(XmlAccessType.FIELD)
+@JacksonXmlRootElement(localName = RASAeroCommonConstants.SIMULATION_LIST)
 public class SimulationListDTO {
-    @XmlElement(name = RASAeroCommonConstants.SIMULATION)
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = RASAeroCommonConstants.SIMULATION)
     private final List<SimulationDTO> simulations = new LinkedList<>();
 
     /**
