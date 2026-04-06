@@ -96,6 +96,9 @@ public class RocketFigure3d extends JPanel {
 	private volatile boolean zoomFitting = true;
 	private volatile Double pendingZoomScale = null;
 	private volatile boolean panModeEnabled = false;
+	// Demand-driven rendering: the background thread only calls renderFrame() when this is true.
+	// Starts true so the first frame renders immediately without an explicit trigger.
+	private volatile boolean dirty = true;
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -143,6 +146,9 @@ public class RocketFigure3d extends JPanel {
 			return;
 		}
 		panel.setPanModeEnabled(panModeEnabled);
+		// Mark dirty whenever the user interacts (drag, scroll, resize, key) so the
+		// background thread renders on demand rather than unconditionally.
+		panel.setRenderActivityCallback(this::markDirty);
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
@@ -218,10 +224,16 @@ public class RocketFigure3d extends JPanel {
 		updateZoomState(panel.getScene3DOrchestrator());
 	}
 
+	/** Marks this view as needing a render on the next scheduler tick. */
+	void markDirty() {
+		dirty = true;
+	}
+
 	private void requestRenderNow() {
 		if (!enable3d) {
 			return;
 		}
+		markDirty();
 		renderScheduler.requestImmediate();
 	}
 
@@ -288,6 +300,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	private void applyBackgroundColor(GLScenePanel panel) {
+		markDirty();
 		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
 			return;
 		}
@@ -314,6 +327,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void updateFigure() {
+		markDirty();
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
 			panel.markHudForUpdate();
@@ -324,6 +338,7 @@ public class RocketFigure3d extends JPanel {
 	// Compatibility methods expected by RocketPanel.
 
 	public void setType(int type) {
+		markDirty();
 		currentType = type;
 		GLScenePanel panel = glScenePanel;
 		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
@@ -379,6 +394,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void setDrawCarets(boolean draw) {
+		markDirty();
 		drawCarets = draw;
 		hudPanel.setVisible(draw);
 		GLScenePanel panel = glScenePanel;
@@ -393,6 +409,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void setDragRotationSensitivity(float sensitivity) {
+		markDirty();
 		GLScenePanel panel = glScenePanel;
 		if (panel == null) {
 			return;
@@ -409,6 +426,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void setPanModeEnabled(boolean enabled) {
+		markDirty();
 		panModeEnabled = enabled;
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
@@ -457,6 +475,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void setCG(CoordinateIF cg) {
+		markDirty();
 		if (cg != null) {
 			rocketInfo.setCG(cg.getX());
 		}
@@ -467,6 +486,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void setCP(CoordinateIF cp) {
+		markDirty();
 		if (cp != null) {
 			rocketInfo.setCP(cp.getX());
 		}
@@ -489,6 +509,7 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	public void setSelection(RocketComponent[] components) {
+		markDirty();
 		RocketComponent[] copy = components != null ? components.clone() : null;
 		GLScenePanel panel = glScenePanel;
 		if (panel == null || panel.glInitFailed || !panel.awaitInitialized(0)) {
@@ -708,6 +729,7 @@ public class RocketFigure3d extends JPanel {
 		/** Submit a one-shot render outside the fixed-rate schedule (e.g. first-show). */
 		private void requestImmediate() {
 			executor.execute(() -> {
+				dirty = false;
 				try {
 					renderFrame();
 				} catch (Throwable t) {
@@ -717,6 +739,12 @@ public class RocketFigure3d extends JPanel {
 		}
 
 		private void tick() {
+			// Clear dirty before rendering so marks set during renderFrame() are preserved
+			// for the next tick (avoids a missed frame if something changes mid-render).
+			if (!dirty) {
+				return;
+			}
+			dirty = false;
 			try {
 				renderFrame();
 			} catch (Throwable t) {
