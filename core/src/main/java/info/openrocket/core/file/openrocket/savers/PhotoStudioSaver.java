@@ -38,6 +38,9 @@ public class PhotoStudioSaver {
         elements.add("<ambiance>" + photoSettings.get("ambiance") + "</ambiance>");
 
         emitColor("skyColor", elements, photoSettings.get("skyColor"));
+        elements.add("<backgroundType>" + photoSettings.get("backgroundType") + "</backgroundType>");
+        emitColor("gradientTopColor", elements, photoSettings.get("gradientTopColor"));
+        emitColor("gradientBottomColor", elements, photoSettings.get("gradientBottomColor"));
 
         elements.add("<motionBlurred>" + photoSettings.get("motionBlurred") + "</motionBlurred>");
         elements.add("<flame>" + photoSettings.get("flame") + "</flame>");

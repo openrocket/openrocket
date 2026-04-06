@@ -28,6 +28,7 @@ public class PhotoStudioGetter {
     private PhotoSettings p = null;
     private Map<String, String> parameters = null;
     private static final Logger log = LoggerFactory.getLogger(OpenRocketHandler.class);
+    private boolean backgroundTypeExplicitlySet = false;
 
     public PhotoStudioGetter(Map<String, String> par) {
         this.parameters = par;
@@ -39,6 +40,13 @@ public class PhotoStudioGetter {
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
                 processElement(entry.getKey(), entry.getValue());
             }
+        }
+        // Backward compat: files saved before backgroundType was introduced have only <sky>.
+        // Infer the background type from whether a sky texture was present.
+        if (!backgroundTypeExplicitlySet) {
+            p.setBackgroundType(p.getSky() != null
+                    ? PhotoSettings.BackgroundType.TEXTURE
+                    : PhotoSettings.BackgroundType.SOLID_COLOR);
         }
         return p;
     }
@@ -110,6 +118,25 @@ public class PhotoStudioGetter {
         if ("skyColor".equals(element)) {
             ORColor skyColor = getColor(content);
             p.setSkyColor(skyColor);
+            return;
+        }
+        if ("backgroundType".equals(element)) {
+            try {
+                p.setBackgroundType(PhotoSettings.BackgroundType.valueOf(content));
+                backgroundTypeExplicitlySet = true;
+            } catch (IllegalArgumentException e) {
+                log.warn("Unknown backgroundType '{}', using default.", content);
+            }
+            return;
+        }
+        if ("gradientTopColor".equals(element)) {
+            ORColor color = getColor(content);
+            if (color != null) p.setGradientTopColor(color);
+            return;
+        }
+        if ("gradientBottomColor".equals(element)) {
+            ORColor color = getColor(content);
+            if (color != null) p.setGradientBottomColor(color);
             return;
         }
 

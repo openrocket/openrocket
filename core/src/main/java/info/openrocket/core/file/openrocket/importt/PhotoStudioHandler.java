@@ -47,13 +47,14 @@ public class PhotoStudioHandler extends AbstractElementHandler {
             throws SAXException {
         String[] params = new String[] { "roll", "yaw", "pitch", "advance", "viewAlt", "viewAz", "viewDistance", "fov",
                 "lightAlt", "lightAz", "ambiance", "ambiance", "motionBlurred", "flame", "smoke", "smokeOpacity",
-                "sparks",
-                "exhaustScale", "flameAspectRatio", "sparkConcentration", "sparkWeight", "sky" };
+                "sparks", "exhaustScale", "flameAspectRatio", "sparkConcentration", "sparkWeight", "sky",
+                "backgroundType" };
         if (Arrays.asList(params).contains(element)) {
             p.put(element, content);
             return;
         }
-        String[] colors = new String[] { "sunlight", "skyColor", "flameColor", "smokeColor" };
+        String[] colors = new String[] { "sunlight", "skyColor", "flameColor", "smokeColor",
+                "gradientTopColor", "gradientBottomColor" };
         if (Arrays.asList(colors).contains(element)) {
             p.put(element, getColor(attributes));
             return;

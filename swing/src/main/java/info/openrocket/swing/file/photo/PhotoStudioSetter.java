@@ -35,6 +35,9 @@ public class PhotoStudioSetter {
         photoSettings.put("ambiance", String.valueOf(p.getAmbiance()));
 
         photoSettings.put("skyColor", getColor(p.getSkyColor()));
+        photoSettings.put("backgroundType", p.getBackgroundType().name());
+        photoSettings.put("gradientTopColor", getColor(p.getGradientTopColor()));
+        photoSettings.put("gradientBottomColor", getColor(p.getGradientBottomColor()));
 
         photoSettings.put("motionBlurred", String.valueOf(p.isMotionBlurred()));
         photoSettings.put("flame", String.valueOf(p.isFlame()));
