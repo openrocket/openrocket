@@ -84,23 +84,23 @@ public class PhotoSettings extends AbstractChangeSource {
 	
 	public void setViewAltAz(double viewAlt, double viewAz){
 		this.viewAz = MathUtil.reduce2Pi(viewAz);
-		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
+		this.viewAlt = MathUtil.reducePi(viewAlt);
 		fireChangeEvent();
 	}
 
 	public void setView(double viewAlt, double viewAz, double viewDistance, double fov) {
 		this.viewAz = MathUtil.reduce2Pi(viewAz);
-		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI / 2, Math.PI / 2);
+		this.viewAlt = MathUtil.reducePi(viewAlt);
 		this.viewDistance = Math.max(viewDistance, 0);
 		this.fov = MathUtil.clamp(fov, 0, Math.PI);
 		fireChangeEvent();
 	}
 
 	public void setViewAlt(double viewAlt) {
-		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
+		this.viewAlt = MathUtil.reducePi(viewAlt);
 		fireChangeEvent();
 	}
-	
+
 	public double getViewAz() {
 		return viewAz;
 	}

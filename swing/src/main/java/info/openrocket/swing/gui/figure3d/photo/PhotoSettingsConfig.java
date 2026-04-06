@@ -128,10 +128,10 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 				/// View altitude
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vAlt")));
-				DoubleModel viewAltModle = new DoubleModel(p, "ViewAlt", UnitGroup.UNITS_ANGLE, -Math.PI / 2, Math.PI / 2);
+				DoubleModel viewAltModle = new DoubleModel(p, "ViewAlt", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
 				add(new EditableSpinner(viewAltModle.getSpinnerModel()), "growx");
 				add(new UnitSelector(viewAltModle), "growx");
-				add(photoSlider(p, viewAltModle.getSliderModel(-Math.PI / 2, Math.PI / 2)), "wrap");
+				add(photoSlider(p, viewAltModle.getSliderModel()), "wrap");
 
 				/// View distance
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.vDist")));

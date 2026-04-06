@@ -446,8 +446,9 @@ public class PhotoPanel extends JPanel {
 		camera.setAngleY((float) settings.getViewAlt());
 		camera.setFieldOfView(settings.getFov());
 		camera.setDistance((float) (settings.getViewDistance() * RenderingConstants.WORLD_SCALE));
-		// Use a fixed world-up (0,1,0) to exactly reproduce the gluLookAt sky orientation.
-		camera.setForceFixedUp(true);
+		// Use the orbit-up vector so dragging past ±90° altitude doesn't snap the view.
+		// (forceFixedUp=true would use a fixed world-up that becomes degenerate at the poles.)
+		camera.setForceFixedUp(false);
 		camera.update();
 	}
 
@@ -458,7 +459,7 @@ public class PhotoPanel extends JPanel {
 		camera.setAngleY(state.angleY);
 		camera.setFieldOfView(state.fieldOfView);
 		camera.setDistance(state.distance);
-		camera.setForceFixedUp(true);
+		camera.setForceFixedUp(false);
 		camera.update();
 	}
 
