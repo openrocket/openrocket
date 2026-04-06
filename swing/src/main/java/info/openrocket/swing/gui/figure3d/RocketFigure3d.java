@@ -37,6 +37,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,9 +57,9 @@ public class RocketFigure3d extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
 	private static final int FRAME_INTERVAL_MS = 16;
 	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
-	// All platforms use the background scheduler so GL work (context creation, swap-buffers,
-	// vsync wait) never blocks the Event Dispatch Thread.
-	private static final BackgroundRenderScheduler RENDER_SCHEDULER = new BackgroundRenderScheduler();
+	// Each RocketFigure3d gets its own render thread so that N open design windows each
+	// maintain full frame rate rather than sharing one thread round-robin at (16*N) ms/frame.
+	private final BackgroundRenderScheduler renderScheduler = new BackgroundRenderScheduler();
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -221,7 +222,7 @@ public class RocketFigure3d extends JPanel {
 		if (!enable3d) {
 			return;
 		}
-		RENDER_SCHEDULER.requestImmediate(this);
+		renderScheduler.requestImmediate();
 	}
 
 	/**
@@ -243,7 +244,7 @@ public class RocketFigure3d extends JPanel {
 				panel.requestPeerBoundsSyncNow();
 				applyBackgroundColor(panel);
 			}
-			RENDER_SCHEDULER.register(this);
+			renderScheduler.start();
 			requestRenderNow();
 			scheduleStartupWatchdog();
 		});
@@ -254,7 +255,7 @@ public class RocketFigure3d extends JPanel {
 	 */
 	public void stopRendering() {
 		renderingEnabled = false;
-		RENDER_SCHEDULER.unregister(this);
+		renderScheduler.stop();
 	}
 
 	public void addComponentSelectionListener(ComponentSelectionListener listener) {
@@ -604,6 +605,7 @@ public class RocketFigure3d extends JPanel {
 
 	public void cleanup() {
 		stopRendering();
+		renderScheduler.shutdown();
 		disposed = true;
 		GLScenePanel panel = glScenePanel;
 		glScenePanel = null;
@@ -617,6 +619,7 @@ public class RocketFigure3d extends JPanel {
 	@Override
 	public void removeNotify() {
 		stopRendering();
+		renderScheduler.shutdown();
 		disposed = true;
 		selectionBridgeInstalled = false;
 		pendingSelection = null;
@@ -661,88 +664,63 @@ public class RocketFigure3d extends JPanel {
 	}
 
 	/**
-	 * Drives rendering on a dedicated background thread so that GL work
-	 * (context creation, buffer swaps, vsync waits) never blocks the EDT.
-	 * Safe for all platforms: lwjgl3-awt's AWTGLCanvas.render() handles its
-	 * own JAWT/X11 locking and may be called from any thread.
+	 * Drives rendering on a dedicated per-instance background thread so that GL work
+	 * (context creation, buffer swaps, vsync waits) never blocks the EDT, and so that
+	 * N open design windows each render at full frame rate rather than sharing a single
+	 * thread round-robin at (16 * N) ms per frame.
 	 */
-	private static final class BackgroundRenderScheduler implements Runnable {
-		private final ArrayList<RocketFigure3d> active = new ArrayList<>();
+	private final class BackgroundRenderScheduler {
 		private final ScheduledExecutorService executor;
-		private int index = 0;
+		private ScheduledFuture<?> scheduledTask;
 
 		private BackgroundRenderScheduler() {
-			ThreadFactory factory = r -> {
+			executor = Executors.newSingleThreadScheduledExecutor(r -> {
 				Thread t = new Thread(r, "figure3d-render");
 				t.setDaemon(true);
 				return t;
-			};
-			executor = Executors.newSingleThreadScheduledExecutor(factory);
-			executor.scheduleAtFixedRate(this, 0, FRAME_INTERVAL_MS, TimeUnit.MILLISECONDS);
+			});
 		}
 
-		private void register(RocketFigure3d figure) {
-			synchronized (active) {
-				if (active.contains(figure)) {
-					return;
-				}
-				active.add(figure);
+		/** Begin the fixed-rate render loop. Safe to call multiple times. */
+		private void start() {
+			if (scheduledTask != null && !scheduledTask.isCancelled()) {
+				return;
+			}
+			scheduledTask = executor.scheduleAtFixedRate(
+					this::tick, 0, FRAME_INTERVAL_MS, TimeUnit.MILLISECONDS);
+		}
+
+		/** Pause the render loop (e.g. when switching to 2D mode). May be restarted. */
+		private void stop() {
+			ScheduledFuture<?> task = scheduledTask;
+			if (task != null) {
+				task.cancel(false);
+				scheduledTask = null;
 			}
 		}
 
-		private void unregister(RocketFigure3d figure) {
-			synchronized (active) {
-				int removedIndex = active.indexOf(figure);
-				if (removedIndex < 0) {
-					return;
-				}
-				active.remove(removedIndex);
-				if (index > removedIndex) {
-					index--;
-				}
-				if (index >= active.size()) {
-					index = 0;
-				}
-			}
+		/** Stop the render loop and terminate the thread. Call on final disposal only. */
+		private void shutdown() {
+			stop();
+			executor.shutdownNow();
 		}
 
-		private void requestImmediate(RocketFigure3d figure) {
+		/** Submit a one-shot render outside the fixed-rate schedule (e.g. first-show). */
+		private void requestImmediate() {
 			executor.execute(() -> {
 				try {
-					figure.renderFrame();
+					renderFrame();
 				} catch (Throwable t) {
 					log.error("Immediate render failed", t);
 				}
 			});
 		}
 
-		@Override
-		public void run() {
-			RocketFigure3d figure;
-			synchronized (active) {
-				for (int i = active.size() - 1; i >= 0; i--) {
-					RocketFigure3d candidate = active.get(i);
-					if (!candidate.renderingEnabled || candidate.disposed) {
-						active.remove(i);
-						if (index > i) {
-							index--;
-						}
-					}
-				}
-				if (active.isEmpty()) {
-					index = 0;
-					return;
-				}
-				if (index >= active.size()) {
-					index = 0;
-				}
-				figure = active.get(index);
-				index = (index + 1) % active.size();
-			}
+		private void tick() {
 			try {
-				figure.renderFrame();
+				renderFrame();
 			} catch (Throwable t) {
-				log.error("Render scheduler failed for one 3D panel", t);
+				log.error("Render scheduler tick failed", t);
 			}
 		}
 	}
