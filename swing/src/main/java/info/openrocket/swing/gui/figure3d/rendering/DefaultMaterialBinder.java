@@ -31,6 +31,9 @@ import static org.lwjgl.opengl.GL11.GL_REPEAT;
  */
 public class DefaultMaterialBinder implements MaterialBinder {
     private static final Map<Class<? extends RocketComponent>, ORColor> FIGURE_DEFAULT_COLOR_CACHE = new HashMap<>();
+    // Default appearances are class-based (same for all BodyTubes, all NoseCones, etc.),
+    // so we can safely cache them by component class and avoid per-frame re-creation.
+    private static final Map<Class<? extends RocketComponent>, Appearance3D> UNFINISHED_APPEARANCE_CACHE = new HashMap<>();
 
     @Override
     public void bind(SceneObject obj,
@@ -45,7 +48,9 @@ public class DefaultMaterialBinder implements MaterialBinder {
                 isFigureTransparentComponent(obj.getRocketComponent());
         ORColor figureSourceColor = isFigureMode ? getFigureSourceColor(obj.getRocketComponent()) : null;
         Appearance3D unfinishedAppearance = unfinishedMode && obj.getRocketComponent() != null
-                ? AppearanceFactory.createDefaultFrom(obj.getRocketComponent())
+                ? UNFINISHED_APPEARANCE_CACHE.computeIfAbsent(
+                        obj.getRocketComponent().getClass(),
+                        k -> AppearanceFactory.createDefaultFrom(obj.getRocketComponent()))
                 : null;
 
         // Set object-specific matrices and flags
