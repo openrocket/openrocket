@@ -31,6 +31,7 @@ public class PhotoStudioSetter {
 
         photoSettings.put("lightAlt", String.valueOf(p.getLightAlt()));
         photoSettings.put("lightAz", String.valueOf(p.getLightAz()));
+        photoSettings.put("lightStrength", String.valueOf(p.getLightStrength()));
         photoSettings.put("sunlight", getColor(p.getSunlight()));
         photoSettings.put("ambiance", String.valueOf(p.getAmbiance()));
 
@@ -40,6 +41,7 @@ public class PhotoStudioSetter {
         photoSettings.put("gradientBottomColor", getColor(p.getGradientBottomColor()));
 
         photoSettings.put("motionBlurred", String.valueOf(p.isMotionBlurred()));
+        photoSettings.put("motionBlurAmount", String.valueOf(p.getMotionBlurAmount()));
         photoSettings.put("flame", String.valueOf(p.isFlame()));
         photoSettings.put("flameColor", getColor(p.getFlameColor()));
         photoSettings.put("smoke", String.valueOf(p.isSmoke()));

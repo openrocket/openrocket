@@ -109,6 +109,10 @@ public class PhotoStudioGetter {
             p.setSunlight(sunlight);
             return;
         }
+        if ("lightStrength".equals(element)) {
+            p.setLightStrength(Double.parseDouble(content));
+            return;
+        }
         if ("ambiance".equals(element)) {
             double ambiance = Double.parseDouble(content);
             p.setAmbiance(ambiance);
@@ -143,6 +147,10 @@ public class PhotoStudioGetter {
         if ("motionBlurred".equals(element)) {
             boolean motionBlurred = Boolean.parseBoolean(content);
             p.setMotionBlurred(motionBlurred);
+            return;
+        }
+        if ("motionBlurAmount".equals(element)) {
+            p.setMotionBlurAmount(Double.parseDouble(content));
             return;
         }
         if ("flame".equals(element)) {

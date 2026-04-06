@@ -34,6 +34,7 @@ public class PhotoStudioSaver {
 
         elements.add("<lightAlt>" + photoSettings.get("lightAlt") + "</lightAlt>");
         elements.add("<lightAz>" + photoSettings.get("lightAz") + "</lightAz>");
+        elements.add("<lightStrength>" + photoSettings.get("lightStrength") + "</lightStrength>");
         emitColor("sunlight", elements, photoSettings.get("sunlight"));
         elements.add("<ambiance>" + photoSettings.get("ambiance") + "</ambiance>");
 
@@ -43,6 +44,7 @@ public class PhotoStudioSaver {
         emitColor("gradientBottomColor", elements, photoSettings.get("gradientBottomColor"));
 
         elements.add("<motionBlurred>" + photoSettings.get("motionBlurred") + "</motionBlurred>");
+        elements.add("<motionBlurAmount>" + photoSettings.get("motionBlurAmount") + "</motionBlurAmount>");
         elements.add("<flame>" + photoSettings.get("flame") + "</flame>");
         emitColor("flameColor", elements, photoSettings.get("flameColor"));
         elements.add("<smoke>" + photoSettings.get("smoke") + "</smoke>");
