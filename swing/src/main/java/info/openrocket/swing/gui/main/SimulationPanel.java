@@ -95,6 +95,7 @@ import info.openrocket.swing.gui.adaptors.ColumnTableModel;
 import info.openrocket.swing.gui.adaptors.ColumnTableRowSorter;
 import info.openrocket.swing.gui.adaptors.ValueColumn;
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import info.openrocket.swing.gui.simulation.SimulationRunDialog;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.widgets.IconButton;
@@ -548,34 +549,12 @@ public class SimulationPanel extends JPanel {
 	}
 
 	private boolean verifyDeleteSimulation() {
-		boolean verify = Application.getPreferences().getConfirmSimDeletion();
-		if (!verify) {
-			return true;
-		}
-
-		JPanel panel = new JPanel(new MigLayout());
-		//// Do not ask me again
-		JCheckBox dontAsk = new JCheckBox(trans.get("simpanel.checkbox.donotask"));
-		panel.add(dontAsk, "wrap");
-		//// You can change the default operation in the preferences.
-		panel.add(new StyledLabel(trans.get("simpanel.lbl.defpref"), -2));
-
-		int ret = JOptionPane.showConfirmDialog(SimulationPanel.this,
-				new Object[] {
-				//// Delete the selected simulations?
+		return MessageDialog.confirmYesNoWarningWithDontAsk(SimulationPanel.this,
 				trans.get("simpanel.dlg.lbl.DeleteSim1"),
-				"",
-				panel },
-				//// Delete simulations
 				trans.get("simpanel.dlg.lbl.DeleteSim3"),
-				JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.WARNING_MESSAGE);
-
-		if (dontAsk.isSelected()) {
-			Application.getPreferences().setConfirmSimDeletion(false);
-		}
-
-		return ret == JOptionPane.OK_OPTION;
+				trans.get("simpanel.checkbox.donotask"),
+				Application.getPreferences()::getConfirmSimDeletion,
+				() -> Application.getPreferences().setConfirmSimDeletion(false));
 	}
 
 	private void runSimulation() {

@@ -16,6 +16,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -163,15 +164,8 @@ public class CAExportPanel extends CSVExportPanel<CADataType> {
 			}
 			message.append("\n").append(trans.get("CAExportPanel.dlg.MissingComponents.txt2"));
 
-			int result = JOptionPane.showConfirmDialog(
-					this,
-					message.toString(),
-					trans.get("CAExportPanel.dlg.MissingComponents.title"),
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE
-			);
-
-			if (result != JOptionPane.YES_OPTION) {
+			if (!MessageDialog.confirmYesNoWarning(this, message.toString(),
+					trans.get("CAExportPanel.dlg.MissingComponents.title"))) {
 				return false;
 			}
 		}

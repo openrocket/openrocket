@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 
 import info.openrocket.swing.gui.dialogs.flightconfiguration.RenameConfigDialog;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import info.openrocket.swing.gui.main.flightconfigpanel.FlightConfigurablePanel;
 import info.openrocket.swing.gui.main.flightconfigpanel.MotorConfigurationPanel;
 import info.openrocket.swing.gui.main.flightconfigpanel.RecoveryConfigurationPanel;

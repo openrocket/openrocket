@@ -743,7 +743,7 @@ public class SimulationConditionsPanel extends JPanel {
 			SimulationOptions defaults = f.getDefault();
 			options.copyConditionsFrom(defaults);
 		});
-		this.add(restoreDefaults, "span, split 3, skip, gapright para, right");
+		this.add(restoreDefaults, "span, split 2, gapbefore push, gapright rel");
 
 		// Save as default
 		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
@@ -751,7 +751,7 @@ public class SimulationConditionsPanel extends JPanel {
 			DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
 			f.saveDefault(options);
 		});
-		this.add(saveDefaults, "gapright para, right");
+		this.add(saveDefaults, "wrap");
 	}
 
 	/**

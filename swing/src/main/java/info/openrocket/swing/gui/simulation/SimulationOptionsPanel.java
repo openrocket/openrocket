@@ -328,7 +328,7 @@ class SimulationOptionsPanel extends JPanel {
 			}
 		});
 		
-		sub.add(resetBtn, "align left, split 2");
+		sub.add(resetBtn, "spanx, split 2, gapbefore push, gapright rel");
 		sub.add(saveBtn, "wrap");
 		
 		

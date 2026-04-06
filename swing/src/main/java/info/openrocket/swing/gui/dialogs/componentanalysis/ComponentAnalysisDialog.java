@@ -65,12 +65,16 @@ public class ComponentAnalysisDialog extends JDialog {
 				ComponentAnalysisDialog.this.dispose();
 			}
 		});
-		panel.add(closeBtn, "span, gapbefore push, split 2, right, tag cancel");
 
-		// OK button
+		// OK button (Plot/Export action) — starts hidden, shown when on the plot/export tab
 		this.okButton = plotExportTab.getOkButton();
 		this.okButton.setVisible(false);
-		panel.add(okButton, "tag cancel, wrap");
+
+		// buttonBar: action (ok) left, Close right. hidemode 3 removes ok slot when hidden.
+		JPanel buttonBar = new JPanel(new MigLayout("ins 0"));
+		buttonBar.add(okButton, "gapright rel, tag ok, hidemode 3");
+		buttonBar.add(closeBtn, "tag cancel");
+		panel.add(buttonBar, "span, right, wrap");
 
 		tabbedPane.addChangeListener(new ChangeListener() {
 			@Override

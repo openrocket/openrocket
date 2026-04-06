@@ -140,7 +140,7 @@ public class EditDecalDialog extends JDialog {
 				ok();
 			}
 		});
-		panel.add(okButton, "tag ok, spanx, split");
+		panel.add(okButton, "spanx, split 2, gapbefore push, gapright rel, tag ok");
 		
 		//// Cancel button
 		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));

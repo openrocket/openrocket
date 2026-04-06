@@ -13,6 +13,7 @@ import info.openrocket.swing.gui.components.StyledLabel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
@@ -59,16 +60,18 @@ public class SaveDesignInfoPanel extends RocketConfig {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 // Yes/No dialog: Are you sure you want to discard your changes?
-                JPanel msg = createCancelOperationContent();
-                int resultYesNo = JOptionPane.showConfirmDialog(SaveDesignInfoPanel.this, msg,
-                        trans.get("RocketCompCfg.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (resultYesNo == JOptionPane.YES_OPTION) {
+                String msg = isNewComponent ? trans.get("RocketCompCfg.CancelOperation.msg.undoAdd") :
+                        trans.get("RocketCompCfg.CancelOperation.msg.discardChanges");
+                if (MessageDialog.confirmYesNoWarningWithDontAsk(SaveDesignInfoPanel.this, msg,
+                        trans.get("RocketCompCfg.CancelOperation.title"),
+                        trans.get("RocketCompCfg.CancelOperation.checkbox.dontAskAgain"),
+                        () -> preferences.setShowDiscardConfirmation(false))) {
                     ComponentConfigDialog.clearConfigListeners = false;		// Undo action => config listeners of new component will be cleared
                     disposeDialog();
                 }
             }
         });
-        buttonPanel.add(cancelButton, "split 2, right, gapleft 30lp");
+        buttonPanel.add(cancelButton, "split 2, gapleft 30lp, gapright rel, tag cancel");
 
         //// Ok button
         this.okButton = new JButton(trans.get("dlg.but.ok"));
@@ -79,7 +82,7 @@ public class SaveDesignInfoPanel extends RocketConfig {
                 disposeDialog();
             }
         });
-        buttonPanel.add(okButton);
+        buttonPanel.add(okButton, "tag ok");
 
         this.add(buttonPanel, "newline, spanx, growx");
     }

@@ -175,7 +175,7 @@ public class CustomMaterialDialog extends JDialog {
 				CustomMaterialDialog.this.setVisible(false);
 			}
 		});
-		panel.add(okButton, "span, split, tag ok");
+		panel.add(okButton, "span, split 2, gapbefore push, gapright rel, tag ok");
 
 		////  Cancel
 		JButton closeButton = new JButton(trans.get("dlg.but.cancel"));

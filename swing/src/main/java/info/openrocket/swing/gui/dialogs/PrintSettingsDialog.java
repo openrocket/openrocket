@@ -113,7 +113,7 @@ public class PrintSettingsDialog extends JDialog {
 				PrintSettingsDialog.this.setVisible(false);
 			}
 		});
-		panel.add(closeButton, "right");
+		panel.add(closeButton, "tag ok");
 		
 		this.add(panel);
 		GUIUtil.setDisposableDialogOptions(this, closeButton);

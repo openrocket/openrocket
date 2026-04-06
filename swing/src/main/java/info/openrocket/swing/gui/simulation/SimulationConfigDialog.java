@@ -22,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -56,6 +57,7 @@ public class SimulationConfigDialog extends JDialog {
 	private final JTabbedPane tabbedPane;
 	private JButton okButton;
 	private JButton cancelButton;
+	private JPanel buttonBar;
 	private static final Translator trans = Application.getTranslator();
 	private static final ApplicationPreferences preferences = Application.getPreferences();
 
@@ -187,23 +189,27 @@ public class SimulationConfigDialog extends JDialog {
 						okButton.setText(trans.get("dlg.but.ok"));
 						cancelButton.setText(trans.get("dlg.but.cancel"));
 						cancelButton.setVisible(true);
+						setButtonOrder(false);
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case WARNINGS_IDX:
 						okButton.setText(trans.get("dlg.but.close"));
 						cancelButton.setVisible(false);
+						setButtonOrder(false);
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case PLOT_IDX:
 						okButton.setText(trans.get("SimulationConfigDialog.btn.plot"));
 						cancelButton.setText(trans.get("dlg.but.close"));
 						cancelButton.setVisible(true);
+						setButtonOrder(true);
 						SimulationConfigDialog.this.revalidate();
 						break;
 					case EXPORT_IDX:
 						okButton.setText(trans.get("SimulationConfigDialog.btn.export"));
 						cancelButton.setText(trans.get("dlg.but.close"));
 						cancelButton.setVisible(true);
+						setButtonOrder(true);
 						SimulationConfigDialog.this.revalidate();
 						break;
 				}
@@ -332,10 +338,10 @@ public class SimulationConfigDialog extends JDialog {
 	private JPanel generateBottomPanel() {
 		final JPanel bottomPanel = new JPanel(new MigLayout("fill, ins 0 n n n"));
 
-		//// Multi-simulation edit
+		//// Multi-simulation edit label (always present as a growx spacer)
+		StyledLabel multiSimEditLabel = new StyledLabel(" ", -1, StyledLabel.Style.BOLD);
+		multiSimEditLabel.setFontColor(multiCompEditColor);
 		if (isMultiCompEdit()) {
-			StyledLabel multiSimEditLabel = new StyledLabel("", -1, StyledLabel.Style.BOLD);
-			multiSimEditLabel.setFontColor(multiCompEditColor);
 			multiSimEditLabel.setText(trans.get("simedtdlg.title.MultiSimEdit"));
 			StringBuilder components = new StringBuilder(trans.get("simedtdlg.title.MultiSimEdit.ttip"));
 			for (int i = 0; i < simulationList.length; i++) {
@@ -346,8 +352,8 @@ public class SimulationConfigDialog extends JDialog {
 				}
 			}
 			multiSimEditLabel.setToolTipText(components.toString());
-			bottomPanel.add(multiSimEditLabel, "align left");
 		}
+		bottomPanel.add(multiSimEditLabel, "growx");
 
 		//// Run simulation button
 		// TODO: disable when sim is up to date?
@@ -377,8 +383,6 @@ public class SimulationConfigDialog extends JDialog {
 				cancelClose();
 			}
 		});
-		bottomPanel.add(this.cancelButton, "split 2, tag ok, pushx, align right");
-
 		//// Ok button
 		this.okButton = new JButton(trans.get("dlg.but.ok"));
 		this.okButton.setToolTipText(trans.get("SimulationConfigDialog.btn.OK.ttip"));
@@ -416,9 +420,31 @@ public class SimulationConfigDialog extends JDialog {
 				closeDialog();
 			}
 		});
-		bottomPanel.add(this.okButton, "tag ok");
+
+		// Button bar: cancel left, ok right. hidemode 3 on cancel removes its slot
+		// entirely when hidden, so ok stays flush to the right edge (e.g. Warnings tab).
+		this.buttonBar = new JPanel(new MigLayout("ins 0"));
+		JPanel buttonBar = this.buttonBar;
+		buttonBar.add(this.cancelButton, "gapright rel, tag cancel, hidemode 3");
+		buttonBar.add(this.okButton, "tag ok");
+		bottomPanel.add(buttonBar, "right");
 
 		return bottomPanel;
+	}
+
+	/** Swaps button order in the buttonBar. actionFirst=true → [OK/Plot/Export][Close], false → [Cancel][OK]. */
+	private void setButtonOrder(boolean actionFirst) {
+		buttonBar.remove(cancelButton);
+		buttonBar.remove(okButton);
+		if (actionFirst) {
+			buttonBar.add(okButton, "gapright rel, tag ok");
+			buttonBar.add(cancelButton, "tag cancel, hidemode 3");
+		} else {
+			buttonBar.add(cancelButton, "gapright rel, tag cancel, hidemode 3");
+			buttonBar.add(okButton, "tag ok");
+		}
+		buttonBar.revalidate();
+		buttonBar.repaint();
 	}
 
 	private void cancelClose() {
@@ -469,29 +495,6 @@ public class SimulationConfigDialog extends JDialog {
 		});
 	}
 
-	private JPanel createCancelOperationContent() {
-		JPanel panel = new JPanel(new MigLayout());
-		String msg = isNewSimulation ? trans.get("SimulationConfigDialog.CancelOperation.msg.undoAdd") :
-				trans.get("SimulationConfigDialog.CancelOperation.msg.discardChanges");
-		JLabel msgLabel = new JLabel(msg);
-		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationConfigDialog.CancelOperation.checkbox.dontAskAgain"));
-		dontAskAgain.setSelected(false);
-		dontAskAgain.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					preferences.setShowDiscardSimulationConfirmation(false);
-				}
-				// Unselected state should be not be possible and thus not be handled
-			}
-		});
-
-		panel.add(msgLabel, "left, wrap");
-		panel.add(dontAskAgain, "left, gaptop para");
-
-		return panel;
-	}
-
 	private void cancelSimEdit() {
 		// Don't do anything on cancel if you are editing an existing simulation, and it is not modified
 		if (!isNewSimulation && !isModified) {
@@ -506,10 +509,12 @@ public class SimulationConfigDialog extends JDialog {
 		}
 
 		// Yes/No dialog: Are you sure you want to discard your changes?
-		JPanel msg = createCancelOperationContent();
-		int resultYesNo = JOptionPane.showConfirmDialog(SimulationConfigDialog.this, msg,
-				trans.get("SimulationConfigDialog.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-		if (resultYesNo == JOptionPane.YES_OPTION) {
+		String msg = isNewSimulation ? trans.get("SimulationConfigDialog.CancelOperation.msg.undoAdd") :
+				trans.get("SimulationConfigDialog.CancelOperation.msg.discardChanges");
+		if (MessageDialog.confirmYesNoWarningWithDontAsk(SimulationConfigDialog.this, msg,
+				trans.get("SimulationConfigDialog.CancelOperation.title"),
+				trans.get("SimulationConfigDialog.CancelOperation.checkbox.dontAskAgain"),
+				() -> preferences.setShowDiscardSimulationConfirmation(false))) {
 			discardChanges();
 		}
 	}

@@ -15,6 +15,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -431,9 +432,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 		resetAllPreferences.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int resultYesNo = JOptionPane.showConfirmDialog(parent, trans.get("pref.dlg.clearCachedPreferences.message"),
-						trans.get("pref.dlg.clearCachedPreferences.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if (resultYesNo == JOptionPane.YES_OPTION) {
+				if (MessageDialog.confirmYesNoWarning(parent, trans.get("pref.dlg.clearCachedPreferences.message"),
+						trans.get("pref.dlg.clearCachedPreferences.title"))) {
 					preferences.clearPreferences();
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override

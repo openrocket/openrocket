@@ -16,6 +16,7 @@ import info.openrocket.swing.gui.scalefigure.RocketPanel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -291,13 +292,9 @@ public class DisplaySettingsDialog extends JDialog {
 		}
 		
 		// Show confirmation dialog
-		int result = JOptionPane.showConfirmDialog(this,
+		if (MessageDialog.confirmYesNo(this,
 				trans.get("RocketPanel.dlg.saveAsDefault.confirm.message"),
-				trans.get("RocketPanel.dlg.saveAsDefault.confirm.title"),
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE);
-		
-		if (result == JOptionPane.YES_OPTION) {
+				trans.get("RocketPanel.dlg.saveAsDefault.confirm.title"))) {
 			saveAsDefaults();
 			JOptionPane.showMessageDialog(this,
 					trans.get("RocketPanel.dlg.saveAsDefault.success.message"),

@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -125,16 +126,15 @@ public class PreferencesDialog extends JDialog {
 				}
 
 				// Yes/No dialog: Are you sure you want to discard your changes?
-				JPanel msg = createCancelOperationContent();
-				int resultYesNo = JOptionPane.showConfirmDialog(PreferencesDialog.this, msg,
-						trans.get("PreferencesDialog.CancelOperation.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if (resultYesNo == JOptionPane.YES_OPTION) {
+				if (MessageDialog.confirmYesNoWarningWithDontAsk(PreferencesDialog.this,
+						trans.get("PreferencesDialog.CancelOperation.msg.discardChanges"),
+						trans.get("PreferencesDialog.CancelOperation.title"),
+						trans.get("SimulationConfigDialog.CancelOperation.checkbox.dontAskAgain"),
+						() -> preferences.setShowDiscardPreferencesConfirmation(false))) {
 					closeDialog(false);
 				}
 			}
 		});
-		panel.add(cancelButton, "span, split 2, right, tag cancel");
-
 		//// Ok button
 		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.setToolTipText(trans.get("SimulationConfigDialog.btn.OK.ttip"));
@@ -144,7 +144,11 @@ public class PreferencesDialog extends JDialog {
 				closeDialog(true);
 			}
 		});
-		panel.add(okButton, "tag ok");
+
+		JPanel buttonBar = new JPanel(new MigLayout("ins 0"));
+		buttonBar.add(cancelButton, "gapright rel, tag cancel");
+		buttonBar.add(okButton, "tag ok");
+		panel.add(buttonBar, "span, right");
 
 
 
@@ -232,28 +236,6 @@ public class PreferencesDialog extends JDialog {
 			return;
 		}
 		PreferencesImporter.importPreferences(initPrefsFile);
-	}
-
-	private JPanel createCancelOperationContent() {
-		JPanel panel = new JPanel(new MigLayout());
-		String msg = trans.get("PreferencesDialog.CancelOperation.msg.discardChanges");
-		JLabel msgLabel = new JLabel(msg);
-		JCheckBox dontAskAgain = new JCheckBox(trans.get("SimulationConfigDialog.CancelOperation.checkbox.dontAskAgain"));
-		dontAskAgain.setSelected(false);
-		dontAskAgain.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					preferences.setShowDiscardPreferencesConfirmation(false);
-				}
-				// Unselected state should be not be possible and thus not be handled
-			}
-		});
-
-		panel.add(msgLabel, "left, wrap");
-		panel.add(dontAskAgain, "left, gaptop para");
-
-		return panel;
 	}
 
 	// ////// Singleton implementation ////////

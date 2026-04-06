@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -167,15 +168,10 @@ public class MultiLevelWindEditDialog extends JDialog {
 		JButton resetButton = new JButton(trans.get("WindProfileEditorDlg.but.ResetLevels"));
 		resetButton.setToolTipText(trans.get("WindProfileEditorDlg.but.ResetLevels.ttip"));
 		resetButton.addActionListener(e -> {
-			// Show confirmation dialog
-			int result = JOptionPane.showConfirmDialog(this,
-					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
-					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"),
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE);
-
 			// If confirmed, reset the levels
-			if (result == JOptionPane.YES_OPTION) {
+			if (MessageDialog.confirmYesNoWarning(this,
+					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
+					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"))) {
 				windTable.resetLevels();
 			}
 		});
@@ -269,9 +265,8 @@ public class MultiLevelWindEditDialog extends JDialog {
 
 		// Show a warning message that the current levels will be overwritten
 		if (!model.getLevels().isEmpty()) {
-			int result = JOptionPane.showConfirmDialog(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
-					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (result != JOptionPane.YES_OPTION) {
+			if (!MessageDialog.confirmYesNoWarning(this, trans.get("WindProfileEditorDlg.dlg.overwriteLevels.msg"),
+					trans.get("WindProfileEditorDlg.dlg.overwriteLevels.title"))) {
 				return;
 			}
 		}

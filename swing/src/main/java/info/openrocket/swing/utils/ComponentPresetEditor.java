@@ -32,6 +32,7 @@ import javax.swing.table.DefaultTableModel;
 import jakarta.xml.bind.JAXBException;
 
 import net.miginfocom.swing.MigLayout;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import info.openrocket.swing.gui.preset.ButtonColumn;
 import info.openrocket.swing.gui.preset.PresetEditorDialog;
 import info.openrocket.swing.gui.preset.PresetResultListener;
@@ -113,10 +114,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 				if (targetSelectedRow > -1 && targetSelectedRow < model.getRowCount()) {
 					int selectedRow = table.getRowSorter().convertRowIndexToModel(targetSelectedRow);
 					if (selectedColumn == 4) {
-						if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetEditor.this,
+						if (MessageDialog.confirmYesNo(ComponentPresetEditor.this,
 								"Do you want to delete this preset?",
-								"Confirm Delete", JOptionPane.YES_OPTION,
-								JOptionPane.QUESTION_MESSAGE)) {
+								"Confirm Delete")) {
 							model.removeRow(selectedRow);
 						}
 					}
@@ -377,8 +377,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 			}
 		} catch (Exception e) {
 			String fileName = (file == null) ? "(file is null, can't get name)" : file.getName();
-			JOptionPane.showMessageDialog(ComponentPresetEditor.this, "Unable to open OpenRocket component file: " +
-					fileName + " Invalid format. " + e.getMessage());
+			MessageDialog.showError(ComponentPresetEditor.this,
+					"Unable to open OpenRocket component file: " + fileName + " Invalid format. " + e.getMessage(),
+					"Error opening file");
 			editContext.setOpenedFile(null);
 			editContext.setEditingSelected(false);
 			return false;
@@ -390,8 +391,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		try {
 			return saveAsORC();
 		} catch (Exception e1) {
-			JOptionPane.showMessageDialog(ComponentPresetEditor.this, e1.getLocalizedMessage(),
-					"Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
+			MessageDialog.showError(ComponentPresetEditor.this, e1.getLocalizedMessage(), "Error saving ORC file");
 			return false;
 		}
 	}

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -302,13 +303,9 @@ public class MaterialEditPanel extends JPanel {
 		revertButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int sel = JOptionPane.showConfirmDialog(MaterialEditPanel.this,
-						//// Delete all user-defined materials?
+				if (MessageDialog.confirmYesNoWarning(MaterialEditPanel.this,
 						trans.get("matedtpan.title.Deletealluser-defined"),
-						//// Revert all?
-						trans.get("matedtpan.title.Revertall"),
-						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if (sel == JOptionPane.YES_OPTION) {
+						trans.get("matedtpan.title.Revertall"))) {
 					Iterator<Material> iterator;
 					
 					iterator = Databases.LINE_MATERIAL.iterator();

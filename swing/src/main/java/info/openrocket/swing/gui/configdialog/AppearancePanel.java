@@ -31,6 +31,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import info.openrocket.swing.gui.dialogs.MessageDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
@@ -958,12 +959,9 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 					JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-		int decision = JOptionPane.showConfirmDialog(parent,
+		if (MessageDialog.confirmOkCancelWarning(parent,
 				trans.get("DecalModel.msg.deleteConfirm", selected.getName()),
-				trans.get("DecalModel.msg.deleteTitle"),
-				JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.WARNING_MESSAGE);
-		if (decision == JOptionPane.OK_OPTION) {
+				trans.get("DecalModel.msg.deleteTitle"))) {
 			boolean removed = decalModel.deleteDecal(selected);
 			if (!removed) {
 				JOptionPane.showMessageDialog(parent,
