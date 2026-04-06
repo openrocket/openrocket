@@ -208,9 +208,18 @@ public class RocketFigure3d extends JPanel {
 		ensureCanvasCreatedOnEdt();
 		GLScenePanel panel = glScenePanel;
 		if (panel == null) {
+			// Canvas not created yet — keep dirty so the scheduler retries each tick
+			// until the EDT creates it.
+			markDirty();
 			return;
 		}
 		if (!panel.isDisplayable() || !panel.isShowing() || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+			// Panel not yet laid out or visible. Keep dirty only for the startup period
+			// (before the first frame). Once a frame has completed the panel is
+			// genuinely off-screen (minimized etc.) and we should not spin.
+			if (!panel.hasCompletedFrame()) {
+				markDirty();
+			}
 			return;
 		}
 
@@ -680,9 +689,10 @@ public class RocketFigure3d extends JPanel {
 		repaint();
 		panel.revalidate();
 		panel.repaint();
-		if (!IS_MACOS) {
-			requestRenderNow();
-		}
+		// Re-assert dirty on all platforms: with demand-driven rendering the background
+		// thread only fires when dirty=true, so the watchdog must re-mark it if the
+		// initial render was dropped (e.g. panel not yet showing when the first tick ran).
+		requestRenderNow();
 	}
 
 	/**
@@ -726,7 +736,9 @@ public class RocketFigure3d extends JPanel {
 
 		private void requestImmediate(RocketFigure3d figure) {
 			executor.execute(() -> {
-				figure.dirty = false;
+				// Do NOT clear dirty here. requestRenderNow() calls markDirty() before
+				// submitting this task, so dirty=true acts as a fallback: if renderFrame()
+				// returns early (panel not yet showing), the next tick will retry automatically.
 				try {
 					figure.renderFrame();
 				} catch (Throwable t) {

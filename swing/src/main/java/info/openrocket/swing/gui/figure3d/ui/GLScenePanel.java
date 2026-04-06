@@ -407,8 +407,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// The background render scheduler is already driving this canvas on all platforms.
 		// Forcing a direct EDT render here would race with the background thread and can
 		// crash inside JAWT surface acquisition while the heavyweight peer is still settling.
-		// Layout/peer-state repair above is sufficient; the background thread will pick up
-		// the corrected state on its next tick.
+		// Layout/peer-state repair above is sufficient: RocketFigure3d.renderFrame() re-marks
+		// itself dirty on every early return until hasCompletedFrame() is true, so the
+		// background thread will retry on the very next scheduler tick.
 
 		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
 				&& !hasCompletedFrame()) {
