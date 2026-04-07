@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +56,7 @@ public class ObjExporter implements MeshExporter {
 		}
 
 		// Write the processed data to the .obj file
-		try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+		try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
 			writer.println("# Exported from LWJGL Engine");
 			writer.printf("# Vertices: %d%n", positions.size());
 			writer.printf("# Normals: %d%n", normals.size());
