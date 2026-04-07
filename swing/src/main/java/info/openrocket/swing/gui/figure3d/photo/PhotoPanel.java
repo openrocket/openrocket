@@ -585,8 +585,8 @@ public class PhotoPanel extends JPanel {
 		// direction in model space = (x, y, -z).
 		// The new shader stores the "shining-in" direction and negates it: lightDir = -direction.
 		// So direction = -(x, y, -z) = (-x, -y, z) to reproduce the old behaviour.
-		// The legacy azimuth convention is offset by 90°: substitute (az - π/2).
-		// sin(az - π/2) = -cos(az),  cos(az - π/2) = sin(az)
+			// The legacy azimuth convention is offset by 90 deg: substitute (az - pi/2).
+			// sin(az - pi/2) = -cos(az),  cos(az - pi/2) = sin(az)
 		float x = (float) (-Math.cos(alt) * Math.cos(az));
 		float y = (float) Math.sin(alt);
 		float z = (float) (Math.cos(alt) * Math.sin(az));
