@@ -136,7 +136,7 @@ void main() {
     }
 
     float ao = 1.0 - strength * (occlusion / float(max(sampleCount, 1)));
-    ao = clamp(ao, 0.55, 1.0);
+    ao = clamp(ao, 0.20, 1.0);
 
     FragColor = vec4(sceneColor.rgb * ao, sceneColor.a);
 }

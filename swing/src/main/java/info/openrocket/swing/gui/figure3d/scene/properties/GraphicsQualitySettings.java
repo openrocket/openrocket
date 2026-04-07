@@ -221,9 +221,9 @@ public class GraphicsQualitySettings {
      */
     public float getAmbientOcclusionRadius() {
         return switch (quality) {
-            case LOW -> 0.20f;
-            case MEDIUM -> 0.24f;
-            case HIGH -> 0.28f;
+            case LOW -> 0.25f;
+            case MEDIUM -> 0.30f;
+            case HIGH -> 0.36f;
         };
     }
 
@@ -234,9 +234,9 @@ public class GraphicsQualitySettings {
      */
     public float getAmbientOcclusionStrength() {
         return switch (quality) {
-            case LOW -> 0.30f;
-            case MEDIUM -> 0.38f;
-            case HIGH -> 0.46f;
+            case LOW -> 0.55f;
+            case MEDIUM -> 0.70f;
+            case HIGH -> 0.85f;
         };
     }
 
