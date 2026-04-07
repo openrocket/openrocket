@@ -221,9 +221,6 @@ public class CameraController implements CameraControls {
     @Override
     public void handlePan(float dx, float dy, int viewportWidth, int viewportHeight) {
         camera.pan(dx, dy, viewportWidth, viewportHeight);
-        // Keep rocket rotation pivot in sync with centerOfInterest.x so rotation
-        // origin follows where the user panned to.
-        scene.updateRocketPivotFromCamera();
         notifyCameraChanged();
     }
     

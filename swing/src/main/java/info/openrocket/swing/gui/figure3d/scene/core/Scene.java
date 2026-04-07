@@ -444,34 +444,20 @@ public class Scene implements SceneView {
 	}
 
 	/**
-	 * Captures the camera's current centerOfInterest.x as the new rocket rotation pivot,
-	 * and adjusts all rocket object model matrices so their visual position is unchanged.
-	 * Call this once when a new rotation drag begins or after a horizontal pan.
+	 * Captures the camera's current centerOfInterest.x as the new rocket rotation pivot.
+	 * This is safe only when the rocket has no accumulated drag rotation (yaw == 0, roll == 0),
+	 * because changing the pivot with a non-identity rotation would physically move the rocket
+	 * to a different world position (the pivot encodes where the rotation is centered).
+	 * When R is identity, all encodings are equivalent so the pivot can be updated freely.
 	 */
 	public void updateRocketPivotFromCamera() {
 		if (rocketRotationPivotOverridden) return;
+		// Guard: only update when there is no accumulated rotation.
+		// T(P_new) * I * T(-P_new) == I for any P, so changing the pivot with R=I is always safe.
+		// With R != I the two encodings differ, causing a visible jump.
+		if (Math.abs(rocketDragYaw) > 1e-4f || Math.abs(rocketDragRoll) > 1e-4f) return;
 
-		float newPivotX = camera.getCenterOfInterest().x;
-		float oldPivotX = rocketRotationPivot.x;
-		if (Math.abs(newPivotX - oldPivotX) < 1e-6f) return;
-
-		// Correction matrix: maps world positions from old-pivot encoding to new-pivot encoding.
-		// new_model = T(Pnew) * R * T(Pold-Pnew) * R^-1 * T(-Pold) * old_model
-		Matrix4f rinv = new Matrix4f(rocketRotationMatrix).invert();
-		Matrix4f correction = new Matrix4f()
-				.translate(newPivotX, 0, 0)
-				.mul(rocketRotationMatrix)
-				.translate(oldPivotX - newPivotX, 0, 0)
-				.mul(rinv)
-				.translate(-oldPivotX, 0, 0);
-
-		for (SceneObject object : objects) {
-			if (object.getRocketComponent() == null) continue;
-			scratchModelMatrix.set(correction).mul(object.getModelMatrix());
-			object.getModelMatrix().set(scratchModelMatrix);
-		}
-
-		rocketRotationPivot.x = newPivotX;
+		rocketRotationPivot.x = camera.getCenterOfInterest().x;
 	}
 	
 	/**
