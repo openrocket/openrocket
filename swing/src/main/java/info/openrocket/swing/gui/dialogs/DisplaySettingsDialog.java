@@ -463,7 +463,7 @@ public class DisplaySettingsDialog extends JDialog {
 				orchestrator.rebuildRocketScene(false);
 			}
 		});
-		rocketPanel.getFigure3d().repaint();
+		rocketPanel.getFigure3d().updateFigure();
 	}
 
 	private void applyVisualEffectsChange(java.util.function.Consumer<info.openrocket.swing.gui.figure3d.scene.properties.VisualEffectsSettings> change,
@@ -485,7 +485,7 @@ public class DisplaySettingsDialog extends JDialog {
 			}
 			config.notifyListeners();
 		});
-		rocketPanel.getFigure3d().repaint();
+		rocketPanel.getFigure3d().updateFigure();
 	}
 
 	private void revert3DRenderingSettings() {
