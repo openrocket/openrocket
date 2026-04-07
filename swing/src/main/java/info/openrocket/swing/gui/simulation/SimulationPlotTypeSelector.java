@@ -6,10 +6,12 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -33,6 +35,7 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 
 	private final ColorChooserButton colorButton;
 	private final JComboBox<LineStyle> lineStyleSelector;
+	private final JButton setDefaultButton;
 
 	public SimulationPlotTypeSelector(int plotIndex, FlightDataType type, Unit unit, int position,
 									  List<FlightDataType> availableTypes, Color initialColor,
@@ -49,6 +52,10 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 		lineStyleSelector.setSelectedItem(initialLineStyle != null ? initialLineStyle : LineStyle.SOLID);
 		lineStyleSelector.setRenderer(new LineStyleRenderer());
 		appearancePanel.add(lineStyleSelector, "top");
+
+		setDefaultButton = new JButton(trans.get("simplotpanel.but.SetAsDefault"));
+		setDefaultButton.setToolTipText(trans.get("simplotpanel.but.SetAsDefault.ttip"));
+		appearancePanel.add(setDefaultButton, "gapleft para, top");
 
 		this.add(appearancePanel, "newline, gapleft para, spanx, wrap");
 	}
@@ -73,8 +80,12 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 		colorButton.addColorPropertyChangeListener(listener);
 	}
 
-	public void addLineStyleSelectionListener(java.awt.event.ActionListener listener) {
+	public void addLineStyleSelectionListener(ActionListener listener) {
 		lineStyleSelector.addActionListener(listener);
+	}
+
+	public void addSetAsDefaultListener(ActionListener listener) {
+		setDefaultButton.addActionListener(listener);
 	}
 
 	// Render a small stroke preview alongside the localized line style name.

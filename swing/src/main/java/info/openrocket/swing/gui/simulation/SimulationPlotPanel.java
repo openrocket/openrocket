@@ -298,7 +298,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 
 	@Override
 	protected SimulationPlotTypeSelector createSelector(int i, FlightDataType type, Unit unit, int axis) {
-		PlotAppearance storedAppearance = getStoredAppearance(type);
+		PlotAppearance storedAppearance = getEffectiveAppearance(type);
 		if (storedAppearance != null) {
 			applyStoredAppearance(i, storedAppearance);
 		}
@@ -356,10 +356,23 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			applyTypeAppearance(idx, selectedType, selector);
 			modifying--;
 		});
+
+		selector.addSetAsDefaultListener(e -> {
+			if (modifying > 0) {
+				return;
+			}
+			FlightDataType selectedType = selector.getSelectedType();
+			java.awt.Color explicitColor = configuration.getPlotDataColor(idx);
+			LineStyle lineStyle = configuration.getPlotDataLineStyle(idx);
+			PlotAppearance appearance = new PlotAppearance(
+					explicitColor != null ? ORColor.fromAWTColor(explicitColor) : null,
+					lineStyle);
+			preferences.setDefaultPlotAppearance(selectedType, appearance);
+		});
 	}
 
 	private void applyTypeAppearance(int index, FlightDataType type, SimulationPlotTypeSelector selector) {
-		PlotAppearance storedAppearance = getStoredAppearance(type);
+		PlotAppearance storedAppearance = getEffectiveAppearance(type);
 		java.awt.Color color = null;
 		LineStyle lineStyle = LineStyle.SOLID;
 		if (storedAppearance != null) {
@@ -381,8 +394,18 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		selector.setSelectedLineStyle(lineStyle);
 	}
 
-	private PlotAppearance getStoredAppearance(FlightDataType type) {
-		return simulation != null ? simulation.getPlotAppearance(type) : null;
+	/**
+	 * Returns the appearance to use for a given type.
+	 * If the simulation has an explicitly customized appearance (different from the factory default),
+	 * that is returned. Otherwise the user's application-level default (from preferences) is used,
+	 * falling back to {@code null} when neither exists.
+	 */
+	private PlotAppearance getEffectiveAppearance(FlightDataType type) {
+		PlotAppearance stored = simulation != null ? simulation.getPlotAppearance(type) : null;
+		if (stored == null || PlotAppearance.FACTORY_DEFAULT.equals(stored)) {
+			return preferences.getDefaultPlotAppearance(type);
+		}
+		return stored;
 	}
 
 	private void applyStoredAppearance(int index, PlotAppearance appearance) {

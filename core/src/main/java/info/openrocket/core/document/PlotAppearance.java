@@ -10,6 +10,9 @@ import info.openrocket.core.util.ORColor;
  * Keyed externally by {@link info.openrocket.core.simulation.FlightDataType#getSymbol()} for stable persistence.
  */
 public class PlotAppearance implements Cloneable {
+	/** The built-in factory default: no color override and solid line style. */
+	public static final PlotAppearance FACTORY_DEFAULT = new PlotAppearance(null, LineStyle.SOLID);
+
 	private ORColor color;
 	private LineStyle lineStyle;
 
