@@ -236,7 +236,9 @@ float calculateShadow(vec3 normal, vec3 lightDir) {
         return 0.0;
     }
 
-    float bias = max(0.0015 * (1.0 - dot(normal, lightDir)), 0.0004);
+    // Front-face culling in the shadow pass already provides implicit bias (back-face depth),
+    // so the explicit bias only needs to cover residual precision gaps, not acne prevention.
+    float bias = max(0.00025 * (1.0 - dot(normal, lightDir)), 0.00004);
     float currentDepth = projCoords.z - bias;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     vec2 poissonDisk[12] = vec2[](
