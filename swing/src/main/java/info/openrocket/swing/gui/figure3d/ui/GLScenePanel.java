@@ -528,6 +528,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				if (SwingUtilities.isLeftMouseButton(e) && pressPoint != null) {
 					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
 						isDragging = true;
+						scene3DOrchestrator.getInputHandler().getInputState().dragJustStarted = true;
 					}
 
 					if (isDragging) {
@@ -552,7 +553,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				markRenderActivity();
-				scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f);
+				scene3DOrchestrator.getInputHandler().getInputState().addScroll(e.getWheelRotation() * -1.0f, e.getX(), e.getY());
 				hudNeedsUpdate = true; // Mark HUD for update on zoom
 			}
 		};

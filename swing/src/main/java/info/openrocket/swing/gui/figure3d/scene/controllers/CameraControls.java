@@ -13,6 +13,11 @@ public interface CameraControls {
     void focusOnRocket();
     void resetView();
     void handleScroll(float scrollDelta);
+
+    /** Scroll with cursor position for zoom-toward-cursor behaviour. */
+    default void handleScroll(float scrollDelta, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
+        handleScroll(scrollDelta);
+    }
     void handleOrbit(float dx, float dy);
     void handlePan(float dx, float dy, int viewportWidth, int viewportHeight);
     void resize(float newAspectRatio);

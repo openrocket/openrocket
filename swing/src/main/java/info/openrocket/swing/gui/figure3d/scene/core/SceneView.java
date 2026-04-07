@@ -119,6 +119,13 @@ public interface SceneView {
 	void updateParticles(float deltaTime);
 
 	/**
+	 * Updates the rocket rotation pivot to match the camera's current centerOfInterest,
+	 * adjusting model matrices so the rocket's visual position stays the same.
+	 * Should be called at drag-start (rotation) and after horizontal pan.
+	 */
+	default void updateRocketPivotFromCamera() {}
+
+	/**
 	 * Transforms a point from rocket-local world space through the current rocket drag rotation.
 	 *
 	 * @param point the point to transform

@@ -9,7 +9,9 @@ import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.scene.core.Camera;
 import info.openrocket.swing.gui.figure3d.scene.core.SceneView;
 import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguration;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -68,6 +70,7 @@ public class CameraController implements CameraControls {
         );
         camera.setCenterOfInterest(centerOfInterest);
         focusedDistance = camera.getDistance();
+        scene.updateRocketPivotFromCamera();
     }
     
     /**
@@ -107,26 +110,92 @@ public class CameraController implements CameraControls {
 				maxCorner.z - minCorner.z
 		);
         camera.fitBounds(dimensions);
+        camera.resetViewOffset();
         focusedDistance = camera.getDistance();
+        scene.updateRocketPivotFromCamera();
         notifyCameraChanged();
     }
 
 	@Override
 	public void resetView() {
 		camera.setView(CameraConstants.View.SIDE);
+		camera.resetViewOffset();
 		camera.update();
+		scene.updateRocketPivotFromCamera();
         notifyCameraChanged();
 	}
     
     /**
      * Handle scroll input for camera dolly (zoom).
-     * 
+     *
      * @param scrollDelta the scroll wheel delta value for zoom amount
      */
     @Override
     public void handleScroll(float scrollDelta) {
         camera.dolly(scrollDelta);
         notifyCameraChanged();
+    }
+
+    /**
+     * Handle scroll with cursor position for zoom-toward-cursor behaviour.
+     * Moves the orbit pivot (centerOfInterest) toward the world point under the cursor
+     * so that subsequent orbit drags rotate around what the user zoomed into.
+     */
+    @Override
+    public void handleScroll(float scrollDelta, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
+        float prevDistance = camera.getDistance();
+        camera.dolly(scrollDelta);
+        float newDistance = camera.getDistance();
+
+        // Only update pivot if the distance actually changed (i.e. not already at zoom limit).
+        if (viewportWidth > 0 && viewportHeight > 0 && Math.abs(newDistance - prevDistance) > 1e-6f) {
+            Vector3f cursorWorld = unprojectToCoIPlane(mouseX, mouseY, viewportWidth, viewportHeight);
+            if (cursorWorld != null) {
+                // Only adjust centerOfInterest.x — the rocket lies along the world X axis,
+                // matching the same constraint applied in camera.pan().
+                float factor = 1.0f - (newDistance / prevDistance);
+                Vector3f coi = camera.getCenterOfInterest();
+                coi.x += factor * (cursorWorld.x - coi.x);
+                camera.setCenterOfInterest(coi);
+            }
+        }
+
+        notifyCameraChanged();
+    }
+
+    /**
+     * Unprojects the screen-space cursor position onto the plane passing through
+     * the current centerOfInterest, perpendicular to the camera's view direction.
+     * Returns the world-space intersection point, or null if the ray is parallel to the plane.
+     */
+    private Vector3f unprojectToCoIPlane(int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
+        float ndcX = (2.0f * mouseX / viewportWidth) - 1.0f;
+        float ndcY = 1.0f - (2.0f * mouseY / viewportHeight); // flip Y: screen down → NDC up
+
+        Matrix4f invVP = new Matrix4f(camera.getProjectionMatrix())
+                .mul(camera.getViewMatrix())
+                .invert();
+
+        Vector4f nearH = invVP.transform(new Vector4f(ndcX, ndcY, -1.0f, 1.0f));
+        Vector4f farH  = invVP.transform(new Vector4f(ndcX, ndcY,  1.0f, 1.0f));
+        nearH.div(nearH.w);
+        farH.div(farH.w);
+
+        Vector3f rayOrigin = new Vector3f(nearH.x, nearH.y, nearH.z);
+        Vector3f rayDir = new Vector3f(farH.x - nearH.x, farH.y - nearH.y, farH.z - nearH.z).normalize();
+
+        // Plane through the visual look-at target (orbit pivot + viewOffset), normal = camera forward.
+        Vector3f effectiveLookAt = camera.getEffectiveLookAt();
+        Vector3f camPos = camera.getPosition();
+        Vector3f planeNormal = new Vector3f(effectiveLookAt).sub(camPos).normalize();
+
+        float denom = planeNormal.dot(rayDir);
+        if (Math.abs(denom) < 1e-6f) return null; // ray nearly parallel to plane
+
+        float t = planeNormal.dot(new Vector3f(effectiveLookAt).sub(rayOrigin)) / denom;
+        if (t < 0.0f) return null; // intersection behind camera
+
+        return new Vector3f(rayDir).mul(t).add(rayOrigin);
     }
     
     /**
@@ -152,6 +221,9 @@ public class CameraController implements CameraControls {
     @Override
     public void handlePan(float dx, float dy, int viewportWidth, int viewportHeight) {
         camera.pan(dx, dy, viewportWidth, viewportHeight);
+        // Keep rocket rotation pivot in sync with centerOfInterest.x so rotation
+        // origin follows where the user panned to.
+        scene.updateRocketPivotFromCamera();
         notifyCameraChanged();
     }
     

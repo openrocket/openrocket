@@ -436,22 +436,42 @@ public class Scene implements SceneView {
 	private void updateRocketRotationPivot() {
 		if (rocketRotationPivotOverridden) {
 			rocketRotationPivot.set(overriddenRocketRotationPivot);
-			return;
+		}
+		// rocketRotationPivot is updated explicitly via updateRocketPivotFromCamera()
+		// at drag-start and after panning, so we do NOT read the camera here every frame.
+		// Reading it dynamically caused the caret to jump when centerOfInterest changed
+		// mid-rotation because the model matrices were built with the old pivot.
+	}
+
+	/**
+	 * Captures the camera's current centerOfInterest.x as the new rocket rotation pivot,
+	 * and adjusts all rocket object model matrices so their visual position is unchanged.
+	 * Call this once when a new rotation drag begins or after a horizontal pan.
+	 */
+	public void updateRocketPivotFromCamera() {
+		if (rocketRotationPivotOverridden) return;
+
+		float newPivotX = camera.getCenterOfInterest().x;
+		float oldPivotX = rocketRotationPivot.x;
+		if (Math.abs(newPivotX - oldPivotX) < 1e-6f) return;
+
+		// Correction matrix: maps world positions from old-pivot encoding to new-pivot encoding.
+		// new_model = T(Pnew) * R * T(Pold-Pnew) * R^-1 * T(-Pold) * old_model
+		Matrix4f rinv = new Matrix4f(rocketRotationMatrix).invert();
+		Matrix4f correction = new Matrix4f()
+				.translate(newPivotX, 0, 0)
+				.mul(rocketRotationMatrix)
+				.translate(oldPivotX - newPivotX, 0, 0)
+				.mul(rinv)
+				.translate(-oldPivotX, 0, 0);
+
+		for (SceneObject object : objects) {
+			if (object.getRocketComponent() == null) continue;
+			scratchModelMatrix.set(correction).mul(object.getModelMatrix());
+			object.getModelMatrix().set(scratchModelMatrix);
 		}
 
-		BoundingBox bounds = rocket.getBoundingBox();
-		if (bounds == null || bounds.isEmpty()) {
-			rocketRotationPivot.zero();
-			return;
-		}
-
-		CoordinateIF minBounds = bounds.min.multiply(RocketMeshBuilder.WORLD_SCALE);
-		CoordinateIF maxBounds = bounds.max.multiply(RocketMeshBuilder.WORLD_SCALE);
-		float pivotX = (float) ((minBounds.getX() + maxBounds.getX()) / 2.0);
-		rocketRotationPivot.set(
-				pivotX,
-				0.0f,
-				0.0f);
+		rocketRotationPivot.x = newPivotX;
 	}
 	
 	/**

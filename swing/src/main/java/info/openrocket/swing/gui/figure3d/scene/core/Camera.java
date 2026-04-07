@@ -31,6 +31,10 @@ public class Camera {
 	private final Vector3f position = new Vector3f();
 	private boolean fixedCenterOfInterest;
 	private final Vector3f centerOfInterest = new Vector3f(0.0f, 0.0f, 0.0f);
+	// Shifts the whole camera rig (eye + lookAt) without moving the orbit pivot.
+	// Horizontal pan goes to centerOfInterest.x; vertical pan goes here.
+	private final Vector3f viewOffset = new Vector3f();
+	private final Vector3f scratchLookAt = new Vector3f();
 	private float distance;
 	private float angleX; // Yaw
 	private float angleY; // Pitch
@@ -321,8 +325,33 @@ public class Camera {
 		float worldUnitsPerPixelX = (halfWidth * 2.0f) / viewportWidth;
 		float worldUnitsPerPixelY = (halfHeight * 2.0f) / viewportHeight;
 
-		centerOfInterest.add(right.mul(-dx * worldUnitsPerPixelX));
-		centerOfInterest.add(up.mul(dy * worldUnitsPerPixelY));
+		// Compute full 3D world-space pan movement.
+		float moveX = right.x * (-dx * worldUnitsPerPixelX) + up.x * (dy * worldUnitsPerPixelY);
+		float moveY = right.y * (-dx * worldUnitsPerPixelX) + up.y * (dy * worldUnitsPerPixelY);
+		float moveZ = right.z * (-dx * worldUnitsPerPixelX) + up.z * (dy * worldUnitsPerPixelY);
+
+		// Horizontal component updates the orbit pivot (rocket lies along world X).
+		centerOfInterest.x += moveX;
+		// Vertical component shifts the view offset without touching the orbit pivot.
+		viewOffset.y += moveY;
+		viewOffset.z += moveZ;
+	}
+
+	/**
+	 * Resets the view offset accumulated by vertical panning, re-centering the view
+	 * on the orbit pivot without changing the camera angles or orbit distance.
+	 */
+	public void resetViewOffset() {
+		viewOffset.zero();
+	}
+
+	/**
+	 * Returns the effective world-space look-at target (orbit pivot + view offset).
+	 *
+	 * @return a new Vector3f with the effective look-at position
+	 */
+	public Vector3f getEffectiveLookAt() {
+		return new Vector3f(centerOfInterest).add(viewOffset);
 	}
 
 
@@ -450,7 +479,12 @@ public class Camera {
 		float camX = distance * sinYaw * cosPitch;
 		float camY = distance * sinPitch;
 		float camZ = distance * cosYaw * cosPitch;
-		position.set(centerOfInterest.x + camX, centerOfInterest.y + camY, centerOfInterest.z + camZ);
+		// Eye position is shifted by viewOffset so vertical pan moves the whole rig.
+		position.set(
+			centerOfInterest.x + viewOffset.x + camX,
+			centerOfInterest.y + viewOffset.y + camY,
+			centerOfInterest.z + viewOffset.z + camZ
+		);
 
 		// Choose up vector: legacy photo-studio mode uses a fixed world-up (0,1,0) to match
 		// the old JOGL gluLookAt behaviour exactly; normal interactive mode uses an orbit-up
@@ -462,7 +496,9 @@ public class Camera {
 			up = new Vector3f(-sinYaw * sinPitch, cosPitch, -cosYaw * sinPitch).normalize();
 		}
 
-		viewMatrix.identity().lookAt(position, centerOfInterest, up);
+		// LookAt target is the orbit pivot shifted by the same viewOffset.
+		scratchLookAt.set(centerOfInterest).add(viewOffset);
+		viewMatrix.identity().lookAt(position, scratchLookAt, up);
 	}
 
 	/**

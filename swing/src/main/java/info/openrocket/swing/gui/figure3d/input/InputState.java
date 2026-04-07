@@ -22,10 +22,16 @@ public class InputState {
 	private float dy;
 	private float scrollDelta;
 
+	// Mouse position at the time of the most recent scroll event (window coordinates).
+	public volatile int scrollMouseX = -1;
+	public volatile int scrollMouseY = -1;
+
 	// State flags
 	public volatile boolean isPanning;
 	public volatile boolean isShiftPressed;
 	public volatile boolean isLightDragging;
+	/** True for exactly one frame when a new mouse drag gesture begins. */
+	public volatile boolean dragJustStarted;
 
 	// For thread-safe click detection between UI thread (Swing) and render thread.
 	public final AtomicReference<Point> clickPoint = new AtomicReference<>();
@@ -57,6 +63,15 @@ public class InputState {
 	 */
 	public synchronized void addScroll(float delta) {
 		scrollDelta += delta;
+	}
+
+	/**
+	 * Accumulates scroll deltas and records the cursor position at the time of the event.
+	 */
+	public synchronized void addScroll(float delta, int mouseX, int mouseY) {
+		scrollDelta += delta;
+		scrollMouseX = mouseX;
+		scrollMouseY = mouseY;
 	}
 
 	/**

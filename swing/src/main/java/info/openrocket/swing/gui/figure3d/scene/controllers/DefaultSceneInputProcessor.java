@@ -102,7 +102,11 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
     private void processScrollInput() {
         float scrollDelta = inputState.consumeScrollDelta();
         if (scrollDelta != 0f) {
-            cameraController.handleScroll(scrollDelta);
+            int mouseX = inputState.scrollMouseX;
+            int mouseY = inputState.scrollMouseY;
+            int viewportWidth  = viewport != null ? viewport.getWindowWidth()  : 0;
+            int viewportHeight = viewport != null ? viewport.getWindowHeight() : 0;
+            cameraController.handleScroll(scrollDelta, mouseX, mouseY, viewportWidth, viewportHeight);
         }
     }
     
@@ -111,6 +115,11 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
      * Handles different drag modes: orbit (default), pan (with modifier), and light dragging.
      */
     private void processMouseDragInput() {
+        boolean isNewDrag = inputState.dragJustStarted;
+        if (isNewDrag) {
+            inputState.dragJustStarted = false;
+        }
+
         inputState.consumeDragDelta(dragDelta);
         if (dragDelta.dx != 0f || dragDelta.dy != 0f) {
             boolean rotateRocketOnDrag = renderingConfiguration.getVisualEffects().isRotateRocketOnDrag();
@@ -123,6 +132,11 @@ public class DefaultSceneInputProcessor implements SceneInputProcessor {
                 int viewportHeight = viewport != null ? viewport.getWindowHeight() : 0;
                 cameraController.handlePan(dragDelta.dx, dragDelta.dy, viewportWidth, viewportHeight);
             } else if (rotateRocketOnDrag && scene instanceof Scene sceneImpl) {
+                if (isNewDrag) {
+                    // Capture current pivot at the start of each new rotation drag so the
+                    // model matrices and caret drawing stay consistent throughout the gesture.
+                    sceneImpl.updateRocketPivotFromCamera();
+                }
                 Vector3f viewRight = new Vector3f();
                 cameraController.getCamera().getViewMatrix().positiveX(viewRight);
                 sceneImpl.orbitRocket(dragDelta.dx, dragDelta.dy, dragRotationSensitivity, viewRight);
