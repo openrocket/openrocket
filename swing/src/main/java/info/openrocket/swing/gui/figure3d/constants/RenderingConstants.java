@@ -13,14 +13,14 @@ public abstract class RenderingConstants {
 
 	// --- Geometry Quality Levels ---
 	// Basic shapes (tubes, cones)
-	public static final int LOW_SEGMENT_COUNT = 8;
-	public static final int MEDIUM_SEGMENT_COUNT = 12;
-	public static final int HIGH_SEGMENT_COUNT = 16;
+	public static final int LOW_SEGMENT_COUNT = 18;
+	public static final int MEDIUM_SEGMENT_COUNT = 24;
+	public static final int HIGH_SEGMENT_COUNT = 32;
 
 	// Complex components (transitions, nose cones)
-	public static final int LOW_COMPLEX_SEGMENT_COUNT = 16;
-	public static final int MEDIUM_COMPLEX_SEGMENT_COUNT = 24;
-	public static final int HIGH_COMPLEX_SEGMENT_COUNT = 32;
+	public static final int LOW_COMPLEX_SEGMENT_COUNT = 24;
+	public static final int MEDIUM_COMPLEX_SEGMENT_COUNT = 32;
+	public static final int HIGH_COMPLEX_SEGMENT_COUNT = 48;
 
 	// --- Fin Set Geometry Segments ---
 	// Root segments (for curved root surface)
