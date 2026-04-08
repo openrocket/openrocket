@@ -13,24 +13,42 @@ uniform float strength;
 uniform float bias;
 uniform int sampleCount;
 
-const int MAX_SAMPLES = 16;
+// 32 Fibonacci-hemisphere samples biased toward the surface center.
+// Closer samples catch fine contact shadows; distant ones catch broader occlusion.
+const int MAX_SAMPLES = 32;
 const vec3 SAMPLE_KERNEL[MAX_SAMPLES] = vec3[](
-    vec3(0.141421, 0.000000, 0.989949),
-    vec3(-0.099014, 0.171499, 0.980581),
-    vec3(0.000000, -0.242536, 0.970143),
-    vec3(0.281718, 0.281718, 0.917663),
-    vec3(-0.359092, -0.130710, 0.924500),
-    vec3(0.131876, 0.492996, 0.859971),
-    vec3(-0.516398, 0.188982, 0.835629),
-    vec3(0.566947, -0.206284, 0.797724),
-    vec3(-0.221766, -0.607549, 0.762001),
-    vec3(0.401610, 0.695608, 0.596550),
-    vec3(-0.760885, -0.277124, 0.586443),
-    vec3(0.786334, 0.286185, 0.547723),
-    vec3(-0.294886, 0.810115, 0.506370),
-    vec3(0.094916, -0.875205, 0.474579),
-    vec3(-0.905255, 0.329442, 0.267261),
-    vec3(0.930758, -0.338697, 0.137361)
+    vec3( 0.017763,  0.000000,  0.099303),
+    vec3(-0.023095, -0.021157,  0.098663),
+    vec3( 0.003656,  0.041654,  0.099480),
+    vec3( 0.031559, -0.041163,  0.101587),
+    vec3(-0.061417,  0.010864,  0.104820),
+    vec3( 0.062261,  0.039605,  0.109015),
+    vec3(-0.022438, -0.083469,  0.114006),
+    vec3(-0.046327,  0.089201,  0.119629),
+    vec3( 0.109145, -0.039859,  0.125719),
+    vec3(-0.123495, -0.050977,  0.132111),
+    vec3( 0.064778,  0.138427,  0.138640),
+    vec3( 0.052065, -0.165993,  0.145142),
+    vec3(-0.170498,  0.098807,  0.151451),
+    vec3( 0.216973,  0.047701,  0.157404),
+    vec3(-0.143370, -0.203930,  0.162834),
+    vec3(-0.035786,  0.276156,  0.167578),
+    vec3( 0.236815, -0.199588,  0.171471),
+    vec3(-0.342705, -0.014172,  0.174347),
+    vec3( 0.268174,  0.266869,  0.176042),
+    vec3(-0.019201, -0.415242,  0.176392),
+    vec3(-0.291537,  0.349359,  0.175230),
+    vec3( 0.491870, -0.066180,  0.172394),
+    vec3(-0.442830, -0.308110,  0.167717),
+    vec3( 0.128281,  0.570220,  0.161035),
+    vec3( 0.313836, -0.547685,  0.152184),
+    vec3(-0.647516,  0.206575,  0.140997),
+    vec3( 0.662415,  0.306053,  0.127312),
+    vec3(-0.301599, -0.720656,  0.110962),
+    vec3(-0.282312,  0.784899,  0.091783),
+    vec3( 0.786307, -0.413261,  0.069611),
+    vec3(-0.912424, -0.240512,  0.044279),
+    vec3( 0.540772,  0.841024,  0.015625)
 );
 
 float hash12(vec2 p) {
@@ -106,6 +124,7 @@ void main() {
     mat3 tbn = mat3(tangent, bitangent, normal);
 
     float occlusion = 0.0;
+    int validSamples = 0;
     for (int i = 0; i < MAX_SAMPLES; i++) {
         if (i >= sampleCount) {
             break;
@@ -129,14 +148,22 @@ void main() {
         }
 
         vec3 sampleViewPos = reconstructViewPosition(sampleUv, sampleDepth);
-        float rangeWeight = smoothstep(0.0, 1.0, radius / (abs(centerPos.z - sampleViewPos.z) + 1e-4));
-        float normalWeight = max(dot(normal, normalize(sampleViewPos - centerPos)), 0.0);
-        float blocked = sampleViewPos.z >= samplePos.z + bias ? 1.0 : 0.0;
-        occlusion += blocked * rangeWeight * normalWeight;
+
+        // Smooth range attenuation — reject occluders that are too far away in depth
+        float depthDiff = abs(centerPos.z - sampleViewPos.z);
+        float rangeWeight = 1.0 - smoothstep(0.0, radius * 1.5, depthDiff);
+
+        // Smooth occlusion falloff instead of hard 0/1 cutoff
+        float occlusionDepth = sampleViewPos.z - samplePos.z - bias;
+        float blocked = smoothstep(0.0, bias * 2.0, occlusionDepth);
+
+        occlusion += blocked * rangeWeight;
+        validSamples++;
     }
 
-    float ao = 1.0 - strength * (occlusion / float(max(sampleCount, 1)));
-    ao = clamp(ao, 0.20, 1.0);
+    float divisor = float(max(validSamples, 1));
+    float ao = 1.0 - strength * (occlusion / divisor);
+    ao = clamp(ao, 0.15, 1.0);
 
     FragColor = vec4(sceneColor.rgb * ao, sceneColor.a);
 }

@@ -208,9 +208,9 @@ public class GraphicsQualitySettings {
      */
     public int getAmbientOcclusionSampleCount() {
         return switch (quality) {
-            case LOW -> 8;
-            case MEDIUM -> 12;
-            case HIGH -> 16;
+            case LOW -> 12;
+            case MEDIUM -> 24;
+            case HIGH -> 32;
         };
     }
 
@@ -221,9 +221,9 @@ public class GraphicsQualitySettings {
      */
     public float getAmbientOcclusionRadius() {
         return switch (quality) {
-            case LOW -> 0.25f;
-            case MEDIUM -> 0.30f;
-            case HIGH -> 0.36f;
+            case LOW -> 0.30f;
+            case MEDIUM -> 0.40f;
+            case HIGH -> 0.50f;
         };
     }
 
@@ -234,9 +234,9 @@ public class GraphicsQualitySettings {
      */
     public float getAmbientOcclusionStrength() {
         return switch (quality) {
-            case LOW -> 0.55f;
-            case MEDIUM -> 0.70f;
-            case HIGH -> 0.85f;
+            case LOW -> 0.70f;
+            case MEDIUM -> 0.85f;
+            case HIGH -> 1.0f;
         };
     }
 
