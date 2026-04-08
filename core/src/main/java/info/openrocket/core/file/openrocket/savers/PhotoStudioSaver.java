@@ -81,6 +81,6 @@ public class PhotoStudioSaver {
             elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
                     + "\" blue=\"" + color.getBlue() + "\" alpha=\"" + color.getAlpha() + "\"/>");
         } else
-            elements.add(String.format("<%s></%s>", elementName));
+            elements.add(String.format("<%s></%s>", elementName, elementName));
     }
 }
