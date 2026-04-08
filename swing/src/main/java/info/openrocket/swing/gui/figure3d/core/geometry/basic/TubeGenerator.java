@@ -493,10 +493,10 @@ public class TubeGenerator implements GeometryGenerator {
 			Vector3f pInner2 = new Vector3f(x, innerR * cos2, innerR * sin2);
 
 			int baseIndex = vertexList.size();
-			vertexList.add(new Vertex(pInner1, normal, getCapUV(pInner1), surfaceID));
-			vertexList.add(new Vertex(pOuter1, normal, getCapUV(pOuter1), surfaceID));
-			vertexList.add(new Vertex(pOuter2, normal, getCapUV(pOuter2), surfaceID));
-			vertexList.add(new Vertex(pInner2, normal, getCapUV(pInner2), surfaceID));
+			vertexList.add(new Vertex(pInner1, normal, getRingCapUV(theta1, innerR, outerR, innerR, isFore), surfaceID));
+			vertexList.add(new Vertex(pOuter1, normal, getRingCapUV(theta1, outerR, outerR, innerR, isFore), surfaceID));
+			vertexList.add(new Vertex(pOuter2, normal, getRingCapUV(theta2, outerR, outerR, innerR, isFore), surfaceID));
+			vertexList.add(new Vertex(pInner2, normal, getRingCapUV(theta2, innerR, outerR, innerR, isFore), surfaceID));
 
 			if (isCCWCulling) {
 				addQuadIndices(indexList, baseIndex, baseIndex + 3, baseIndex + 2, baseIndex + 1);
@@ -508,5 +508,13 @@ public class TubeGenerator implements GeometryGenerator {
 
 	private static Vector2f getCapUV(Vector3f p) {
 		return new Vector2f(p.y * 0.5f + 0.5f, p.z * 0.5f + 0.5f);
+	}
+
+	private static Vector2f getRingCapUV(float theta, float radius, float outerR, float innerR, boolean isFore) {
+		float u = 1.0f - theta / (float) (2.0 * Math.PI);
+		float radialSpan = Math.max(outerR - innerR, 1.0e-6f);
+		float radialOffset = (outerR - radius) / radialSpan;
+		float v = isFore ? 1.0f - radialOffset : radialOffset;
+		return new Vector2f(u, v);
 	}
 }
