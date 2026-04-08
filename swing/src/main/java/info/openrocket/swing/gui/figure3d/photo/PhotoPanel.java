@@ -204,6 +204,7 @@ public class PhotoPanel extends JPanel {
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		glPanel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
+		invalidateCachedSceneState();
 		add(glPanel, BorderLayout.CENTER);
 		revalidate();
 		repaint();
@@ -404,6 +405,7 @@ public class PhotoPanel extends JPanel {
 		panel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
+		invalidateCachedSceneState();
 		add(panel, BorderLayout.CENTER);
 		revalidate();
 		repaint();
@@ -487,6 +489,16 @@ public class PhotoPanel extends JPanel {
 		if (scene != null) {
 			scene.getLightController().removeLightChangeListener(lightChangeListener);
 		}
+	}
+
+	private void invalidateCachedSceneState() {
+		cameraSettingsTracked = false;
+		lastSky = null;
+		lastSkyColor = null;
+		lastSkyOpacity = Float.NaN;
+		lastBackgroundType = null;
+		lastGradientTopColor = null;
+		lastGradientBottomColor = null;
 	}
 
 	private void disableComponentSelection(SceneView scene) {
