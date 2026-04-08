@@ -180,6 +180,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	// Initialization guard - prevents resize/render operations before GL is fully ready
 	private volatile boolean glInitialized = false;
 	public volatile boolean glInitFailed = false;
+	private volatile boolean visibleFrameRecoveryPending = true;
 	private static final Semaphore INIT_SEMAPHORE = new Semaphore(1, true);
 	private static final ReentrantLock RENDER_LOCK = new ReentrantLock(true);
 	// LWJGL capabilities are thread-local; store per-canvas so we can render multiple canvases on one thread.
@@ -240,20 +241,17 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setFocusTraversalKeysEnabled(false);
 		setIgnoreRepaint(true);
 
+		addHierarchyListener(e -> {
+			if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+				handleShowingChanged();
+			}
+		});
+
 		if (peerBoundsSyncEnabled) {
 			// CardLayout/JSplitPane switches can change the on-screen position of heavyweight
 			// components without changing their local bounds. On macOS this can leave the
 			// native peer at an incorrect location until the next real resize. Force a peer
 			// bounds sync when the canvas becomes showing.
-				addHierarchyListener(e -> {
-					if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-						peerBoundsSyncAttempts.set(0);
-						if (isShowing()) {
-							requestPeerBoundsSync();
-							scheduleStartupFrameRecoverySequence();
-						}
-					}
-				});
 			// If an ancestor moves (e.g., JSplitPane divider/layout), Swing won't necessarily resize this
 			// canvas, but the native peer still needs an updated on-screen location.
 			addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsAdapter() {
@@ -312,9 +310,28 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
+	private void handleShowingChanged() {
+		peerBoundsSyncAttempts.set(0);
+		if (!isShowing()) {
+			startupRecoveryGeneration.incrementAndGet();
+			return;
+		}
+
+		visibleFrameRecoveryPending = true;
+		hudNeedsUpdate = true;
+		markRenderActivity();
+		if (peerBoundsSyncEnabled) {
+			requestPeerBoundsSyncNow();
+		}
+		revalidate();
+		repaint();
+		scheduleStartupFrameRecoverySequence();
+	}
+
 	@Override
 	public void addNotify() {
 		super.addNotify();
+		visibleFrameRecoveryPending = true;
 		if (peerBoundsSyncEnabled) {
 			peerBoundsSyncAttempts.set(0);
 			schedulePeerBoundsSyncRetry(0);
@@ -389,7 +406,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private void runStartupFrameRecovery(int generation, int delayMs) {
-		if (generation != startupRecoveryGeneration.get() || glInitFailed || hasCompletedFrame()) {
+		if (generation != startupRecoveryGeneration.get() || glInitFailed || !visibleFrameRecoveryPending) {
 			return;
 		}
 		if (!isDisplayable() || !isShowing() || getWidth() <= 0 || getHeight() <= 0) {
@@ -397,6 +414,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		requestPeerBoundsSyncNow();
+		markRenderActivity();
 		Container parent = getParent();
 		if (parent != null) {
 			parent.revalidate();
@@ -408,12 +426,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		// The background render scheduler is already driving this canvas on all platforms.
 		// Forcing a direct EDT render here would race with the background thread and can
 		// crash inside JAWT surface acquisition while the heavyweight peer is still settling.
-		// Layout/peer-state repair above is sufficient: RocketFigure3d.renderFrame() re-marks
-		// itself dirty on every early return until hasCompletedFrame() is true, so the
-		// background thread will retry on the very next scheduler tick.
+		// Instead, re-mark the view dirty so the shared scheduler performs the retry.
 
 		if (delayMs == STARTUP_FRAME_RECOVERY_DELAYS_MS[STARTUP_FRAME_RECOVERY_DELAYS_MS.length - 1]
-				&& !hasCompletedFrame()) {
+				&& visibleFrameRecoveryPending) {
 			log.warn("No completed 3D frame after startup recovery: {}", getDebugStateSummary());
 		}
 	}
@@ -973,6 +989,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (shouldSwap) {
 				swapCallCount.incrementAndGet();
 				swapBuffers();
+				visibleFrameRecoveryPending = false;
 			}
 		}
 	}
@@ -1366,6 +1383,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				+ ", size=" + getWidth() + "x" + getHeight()
 				+ ", glInitialized=" + glInitialized
 				+ ", glInitFailed=" + glInitFailed
+				+ ", visibleFrameRecoveryPending=" + visibleFrameRecoveryPending
 				+ ", renderCalls=" + renderCallCount.get()
 				+ ", paintCalls=" + paintCallCount.get()
 				+ ", swapCalls=" + swapCallCount.get()
