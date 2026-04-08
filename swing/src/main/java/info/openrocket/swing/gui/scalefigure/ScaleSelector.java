@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.EventObject;
-import java.util.Locale;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -34,15 +33,15 @@ public class ScaleSelector {
     
 	// Ready zoom settings
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("0.#%");
+	private static final String SCALE_FIT_SUFFIX = trans.get("ScaleSelector.lbl.ZoomFitSuffix");
 
 	private static final double[] SCALE_LEVELS = { 0.15, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
-	private static final String SCALE_FIT = "Fit"; // trans.get("ScaleSelector.something.something");
 	private static final String[] SCALE_LABELS;
 	static {
-		SCALE_LABELS = new String[SCALE_LEVELS.length + 1];
-		for (int i = 0; i < SCALE_LEVELS.length; i++)
-			SCALE_LABELS[i] = PERCENT_FORMAT.format(SCALE_LEVELS[i]);
-		SCALE_LABELS[SCALE_LABELS.length - 1] = SCALE_FIT;
+		SCALE_LABELS = new String[SCALE_LEVELS.length];
+		for (int i = 0; i < SCALE_LEVELS.length; i++) {
+			SCALE_LABELS[i] = formatScaleText(SCALE_LEVELS[i], SCALE_LEVELS[i] == 1.0);
+		}
 	}
 
 	private final ZoomModel zoomModel;
@@ -51,6 +50,7 @@ public class ScaleSelector {
 	private final JButton zoomInButton;
 	private final JButton zoomFitButton;
 	private boolean updatingScaleSelectorText = false;
+	private int comboTextWidth = -1;
 
 	public ScaleSelector(ScaleScrollPane scroll) {
 		this(new ZoomModel() {
@@ -108,15 +108,16 @@ public class ScaleSelector {
 			public Dimension getPreferredSize() {
 				Dimension d = super.getPreferredSize();
 				String currentText = getSelectedItem() != null ? getSelectedItem().toString() : "";
-				FontMetrics fm = getFontMetrics(getFont());
-				int textWidth = fm.stringWidth(currentText);
-				d.width = Math.max(d.width, textWidth + 30); // Add padding for combobox arrow
+				d.width = Math.max(d.width, getRequiredComboWidth(currentText));
 				return d;
 			}
 		};
 		scaleSelectorCombo.setEditable(true);
-		scaleSelectorCombo.setSelectedItem(" Fit (100.0%) ");	// Make sure the combobox can fit this text
-		scaleSelectorCombo.setPreferredSize(scaleSelectorCombo.getPreferredSize());
+		scaleSelectorCombo.setPrototypeDisplayValue(formatScaleText(1.0, true));
+		scaleSelectorCombo.setSelectedItem(formatScaleText(1.0, true));	// Make sure the combobox can fit this text
+		Dimension comboSize = scaleSelectorCombo.getPreferredSize();
+		scaleSelectorCombo.setPreferredSize(comboSize);
+		scaleSelectorCombo.setMinimumSize(comboSize);
 		setZoomText();
 		scaleSelectorCombo.addActionListener(new ActionListener() {
 			@Override
@@ -127,20 +128,19 @@ public class ScaleSelector {
 				try {
 					String text = (String) scaleSelectorCombo.getSelectedItem();
 					if (text == null) return;
-					text = text.replaceAll("%", "").trim();
-
-					if (text.toLowerCase(Locale.getDefault()).startsWith(SCALE_FIT.toLowerCase(Locale.getDefault()))){
-						ScaleSelector.this.zoomModel.setFit();
-						setZoomText();
-						return;
-					}
+					boolean fitSelection = text.endsWith(SCALE_FIT_SUFFIX);
+					text = text.replace(SCALE_FIT_SUFFIX, "").replace("%", "").trim();
 
 					double n = Double.parseDouble(text);
 					n /= 100;
 					if (n <= 0.005)
 						n = 0.005;
 
-					ScaleSelector.this.zoomModel.setScale(n);
+					if (fitSelection && Math.abs(n - 1.0) < 0.0001) {
+						ScaleSelector.this.zoomModel.setFit();
+					} else {
+						ScaleSelector.this.zoomModel.setScale(n);
+					}
 					setZoomText();
 				} catch (NumberFormatException ignore) {
 				} finally {
@@ -207,11 +207,7 @@ public class ScaleSelector {
 	}
 
 	private void setZoomText() {
-	    final double userScale = zoomModel.getScale();
-	    String text = PERCENT_FORMAT.format(userScale);
-		if (zoomModel.isFit()) {
-			text = "Fit (" + text + ")";
-		}
+		String text = formatScaleText(zoomModel.getScale(), zoomModel.isFit());
 		if (!text.equals(scaleSelectorCombo.getSelectedItem())) {
 			updatingScaleSelectorText = true;
 			try {
@@ -220,6 +216,27 @@ public class ScaleSelector {
 				updatingScaleSelectorText = false;
 			}
 		}
+	}
+
+	private static String formatScaleText(double scale, boolean fit) {
+		String text = PERCENT_FORMAT.format(scale);
+		if (fit) {
+			text = text + SCALE_FIT_SUFFIX;
+		}
+		return text;
+	}
+
+	private int getRequiredComboWidth(String currentText) {
+		FontMetrics fontMetrics = scaleSelectorCombo.getFontMetrics(scaleSelectorCombo.getFont());
+		if (comboTextWidth < 0) {
+			comboTextWidth = 0;
+			for (String label : SCALE_LABELS) {
+				comboTextWidth = Math.max(comboTextWidth, fontMetrics.stringWidth(label));
+			}
+			comboTextWidth = Math.max(comboTextWidth, fontMetrics.stringWidth(formatScaleText(1.0, true)));
+		}
+		int currentWidth = currentText != null ? fontMetrics.stringWidth(currentText) : 0;
+		return Math.max(comboTextWidth, currentWidth) + 40;
 	}
 
 	private static double getNextLargerScale(final double currentScale) {
