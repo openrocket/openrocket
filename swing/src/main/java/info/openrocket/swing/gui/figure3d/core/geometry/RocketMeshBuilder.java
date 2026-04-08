@@ -13,6 +13,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.Transition;
+import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
@@ -93,7 +94,12 @@ public abstract class RocketMeshBuilder {
 	public static void buildRocketMesh(SceneView scene, Rocket rocket, RenderingConfiguration config) {
 		for (RocketComponent component : rocket) {
 			if (component.isVisible()) {
-				buildComponent(scene, rocket.getSelectedConfiguration().getId(), component, config, RenderingConstants.WORLD_SCALE);
+				try {
+					buildComponent(scene, rocket.getSelectedConfiguration().getId(), component, config, RenderingConstants.WORLD_SCALE);
+				} catch (RuntimeException e) {
+					throw new BugException("Failed to build 3D mesh for component '" + component.getName()
+							+ "' (" + component.getClass().getSimpleName() + ")", e);
+				}
 			}
 		}
 
