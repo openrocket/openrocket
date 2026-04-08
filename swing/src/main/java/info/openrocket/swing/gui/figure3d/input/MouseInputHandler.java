@@ -9,6 +9,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
@@ -32,6 +33,7 @@ public class MouseInputHandler implements InputHandler {
     private Point pressPoint = null;
     private boolean isDragging = false;
     private boolean isMiddleMousePressed = false;
+    private int activeDragButton = -1;
     private static final double CLICK_DRAG_THRESHOLD_SQ = 5.0 * 5.0;
 
     // State for double-click detection
@@ -62,6 +64,7 @@ public class MouseInputHandler implements InputHandler {
                 lastX = pos[0];
                 lastY = pos[1];
                 isDragging = false;
+                activeDragButton = button;
                 
                 // Update shift key state for multi-selection
                 inputState.isShiftPressed = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_SHIFT);
@@ -90,6 +93,9 @@ public class MouseInputHandler implements InputHandler {
                 // Reset drag state at the end of the interaction.
                 pressPoint = null;
                 isDragging = false;
+                activeDragButton = -1;
+                inputState.isLightDragging = false;
+                inputState.isPanning = false;
             }
         } else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
             if (action == GLFW_PRESS) {
@@ -100,24 +106,35 @@ public class MouseInputHandler implements InputHandler {
             } else if (action == GLFW_RELEASE) {
                 isMiddleMousePressed = false;
             }
+        } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            if (action == GLFW_PRESS) {
+                double[] pos = windowManager.getCursorPosition();
+                pressPoint = new Point((int) pos[0], (int) pos[1]);
+                lastX = pos[0];
+                lastY = pos[1];
+                isDragging = false;
+                activeDragButton = button;
+            } else if (action == GLFW_RELEASE) {
+                pressPoint = null;
+                isDragging = false;
+                activeDragButton = -1;
+                inputState.isLightDragging = false;
+                inputState.isPanning = false;
+            }
         }
     }
 
     @Override
     public void handleMouseMovement(double xpos, double ypos) {
-        // Process left mouse button movement
         if (pressPoint != null) {
-            // Check if we should transition from a potential click to a definite drag
             if (!isDragging && pressPoint.distanceSq(xpos, ypos) > CLICK_DRAG_THRESHOLD_SQ) {
                 isDragging = true;
+                inputState.dragJustStarted = true;
             }
 
-            // If we are in a drag state, update the deltas for camera movement
             if (isDragging) {
                 inputState.addDrag((float) (xpos - lastX), (float) (ypos - lastY));
-                // Check key states for different drag modes
-                inputState.isPanning = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_CONTROL);
-                inputState.isLightDragging = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_ALT);
+                updateDragMode();
             }
         }
         
@@ -135,5 +152,12 @@ public class MouseInputHandler implements InputHandler {
     @Override
     public void handleScroll(double xoffset, double yoffset) {
         inputState.addScroll((float) yoffset * -1.0f);
+    }
+
+    private void updateDragMode() {
+        boolean isRightDrag = activeDragButton == GLFW_MOUSE_BUTTON_RIGHT;
+        boolean isAltDrag = keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_ALT);
+        inputState.isLightDragging = isRightDrag || isAltDrag;
+        inputState.isPanning = !inputState.isLightDragging && keyboardHandler.isKeyPressed(GLFW_KEY_LEFT_CONTROL);
     }
 }

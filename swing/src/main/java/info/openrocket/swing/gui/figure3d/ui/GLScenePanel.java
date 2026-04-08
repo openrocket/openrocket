@@ -4,6 +4,7 @@ import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.swing.gui.figure3d.DemoFactory;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
+import info.openrocket.swing.gui.figure3d.input.InputState;
 import info.openrocket.swing.gui.figure3d.input.KeyboardHandler;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
 import info.openrocket.swing.gui.figure3d.rendering.GpuResourceTracker;
@@ -485,20 +486,23 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			private Point pressPoint;
 			private Point lastPoint;
 			private boolean isDragging;
+			private int activeDragButton = MouseEvent.NOBUTTON;
 
 			@Override
 			public void mousePressed(MouseEvent e) {
 				markRenderActivity();
-				if (SwingUtilities.isLeftMouseButton(e)) {
+				if (SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
 					// Track modifier state for multi-selection.
-					scene3DOrchestrator.getInputHandler().getInputState().isShiftPressed = e.isShiftDown() || e.isMetaDown();
-					// Use Swing's built-in click count to detect double-clicks.
-					if (e.getClickCount() == 2) {
+					InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
+					inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
+					// Use Swing's built-in click count to detect double-clicks on left button.
+					if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
 						scene3DOrchestrator.getInputHandler().getInputState().doubleClickPoint.set(e.getPoint());
 					}
 					pressPoint = e.getPoint();
 					lastPoint = e.getPoint();
 					isDragging = false;
+					activeDragButton = e.getButton();
 					cameraIsMoving = true; // Start tracking camera movement
 				}
 			}
@@ -506,18 +510,22 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				markRenderActivity();
-				if (SwingUtilities.isLeftMouseButton(e)) {
+				if (SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
 					// We check for !isDragging to differentiate a click from a drag-release.
 					// A double-click will also fire this event for the second click.
-					if (!isDragging && pressPoint != null) {
+					if (SwingUtilities.isLeftMouseButton(e) && !isDragging && pressPoint != null) {
 						// Update modifier state and capture the click event for selection listeners.
-						var inputState = scene3DOrchestrator.getInputHandler().getInputState();
+						InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
 						inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
 						scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
 						pendingSelectionClickEvent.set(e);
 					}
 					pressPoint = null;
 					isDragging = false;
+					activeDragButton = MouseEvent.NOBUTTON;
+					InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
+					inputState.isLightDragging = false;
+					inputState.isPanning = false;
 					cameraIsMoving = false; // Stop tracking camera movement
 				}
 			}
@@ -525,21 +533,15 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				markRenderActivity();
-				if (SwingUtilities.isLeftMouseButton(e) && pressPoint != null) {
+				if ((activeDragButton == MouseEvent.BUTTON1 || activeDragButton == MouseEvent.BUTTON3) && pressPoint != null) {
 					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
 						isDragging = true;
 						scene3DOrchestrator.getInputHandler().getInputState().dragJustStarted = true;
 					}
 
 					if (isDragging) {
-						// Check for modifier keys
-						boolean isCtrlDown = (e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0;
-						boolean isAltDown = (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0;
-
-						// Update input state based on modifiers
-						var inputState = scene3DOrchestrator.getInputHandler().getInputState();
-						inputState.isPanning = panModeEnabled || isCtrlDown;
-						inputState.isLightDragging = isAltDown;
+						InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
+						updateDragMode(inputState, e);
 
 						// Always update the drag delta
 						float deltaX = e.getX() - lastPoint.x;
@@ -548,6 +550,14 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 					}
 					lastPoint = e.getPoint();
 				}
+			}
+
+			private void updateDragMode(InputState inputState, MouseEvent e) {
+				boolean isRightDrag = activeDragButton == MouseEvent.BUTTON3;
+				boolean isAltDown = (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0;
+				boolean isCtrlDown = (e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0;
+				inputState.isLightDragging = isRightDrag || isAltDown;
+				inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown);
 			}
 
 			@Override
