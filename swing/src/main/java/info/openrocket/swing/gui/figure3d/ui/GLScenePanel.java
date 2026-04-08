@@ -2,6 +2,8 @@ package info.openrocket.swing.gui.figure3d.ui;
 
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.startup.Application;
+import info.openrocket.core.util.BugException;
 import info.openrocket.swing.gui.figure3d.DemoFactory;
 import info.openrocket.swing.gui.figure3d.core.geometry.RocketMeshBuilder;
 import info.openrocket.swing.gui.figure3d.input.InputState;
@@ -196,6 +198,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final AtomicReference<ImageCaptureRequest> imageCaptureRequest = new AtomicReference<>();
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
+	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
 
 	private static final class ImageCaptureRequest {
 		private final boolean transparent;
@@ -301,6 +304,25 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	 */
 	public void setRenderActivityCallback(Runnable callback) {
 		this.renderActivityCallback = callback;
+	}
+
+	private void reportFatalRenderException(Throwable throwable) {
+		if (!fatalRenderExceptionReported.compareAndSet(false, true)) {
+			return;
+		}
+
+		Throwable reportable = throwable instanceof BugException
+				? throwable
+				: new BugException("3D view failed while initializing or rendering. Panel state: "
+						+ getDebugStateSummary(), throwable);
+
+		if (Application.getExceptionHandler() != null) {
+			Application.getExceptionHandler().handleErrorCondition(reportable);
+		} else if (reportable instanceof RuntimeException runtimeException) {
+			throw runtimeException;
+		} else {
+			throw new RuntimeException(reportable);
+		}
 	}
 
 	private void markRenderActivity() {
@@ -794,6 +816,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 						"provides XWayland. Cause: {}", msg);
 			} else {
 				log.error("3D rendering failed: {}: {}", t.getClass().getSimpleName(), msg, t);
+				reportFatalRenderException(t);
 			}
 		} finally {
 			if (NEEDS_PEER_BOUNDS_SYNC_WORKAROUND) {
