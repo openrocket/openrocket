@@ -6,6 +6,7 @@ import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.util.CoordinateIF;
 
 /**
@@ -50,5 +51,17 @@ public final class RocketInfoContextHelper {
 			return true;
 		}
 		return !Simulation.isStatusUpToDate(simulation.getStatus());
+	}
+
+	public static void applyCurrentConfigurationSimulation(
+			OpenRocketDocument document,
+			FlightConfiguration configuration,
+			RocketInfo rocketInfo) {
+		Simulation simulation = findCurrentConfigurationSimulation(document, configuration);
+		rocketInfo.setSimulation(simulation);
+		if (simulation == null) {
+			rocketInfo.setFlightData(FlightData.NaN_DATA);
+		}
+		rocketInfo.setCalculatingData(shouldShowCalculatingState(configuration, simulation));
 	}
 }

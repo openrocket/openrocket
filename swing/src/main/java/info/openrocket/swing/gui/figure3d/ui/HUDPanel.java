@@ -4,7 +4,6 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.document.Simulation;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
@@ -122,9 +121,7 @@ public class HUDPanel extends JPanel {
 		conditions.setRollRate(0);
 		RocketInfoContextHelper.calculateCp(currentConfiguration, conditions, warnings, aerodynamicCalculator, true);
 		rocketInfo.setWarnings(warnings);
-		Simulation simulation = RocketInfoContextHelper.findCurrentConfigurationSimulation(document, currentConfiguration);
-		rocketInfo.setSimulation(simulation);
-		rocketInfo.setCalculatingData(RocketInfoContextHelper.shouldShowCalculatingState(currentConfiguration, simulation));
+		RocketInfoContextHelper.applyCurrentConfigurationSimulation(document, currentConfiguration, rocketInfo);
 	}
 
 	/**
