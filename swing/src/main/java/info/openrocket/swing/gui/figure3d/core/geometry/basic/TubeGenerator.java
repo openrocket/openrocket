@@ -6,6 +6,8 @@ import info.openrocket.swing.gui.figure3d.core.geometry.Mesh;
 import info.openrocket.swing.gui.figure3d.core.geometry.Vertex;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
  * This version supports optional shoulders at the fore and aft ends.
  */
 public class TubeGenerator implements GeometryGenerator {
+	private static final Logger log = LoggerFactory.getLogger(TubeGenerator.class);
 
 	public record RadiusPoint(float position, float radius) {}
 
@@ -297,13 +300,17 @@ public class TubeGenerator implements GeometryGenerator {
 
 		List<RadiusPoint> innerProfile = null;
 		if (!isFilled) {
+			// Allow over-thick hollow components to collapse to a solid centerline instead of
+			// failing the entire 3D view. This occurs legitimately near pointed tips where the
+			// local outer radius can be smaller than the configured wall thickness.
 			innerProfile = sortedOuterProfile.stream()
 					.map(p -> new RadiusPoint(p.position, Math.max(0, p.radius - wallThickness)))
 					.toList();
 			float maxRadius = (float) sortedOuterProfile.stream()
 					.mapToDouble(RadiusPoint::radius).max().orElse(0.0);
 			if (wallThickness > 0 && wallThickness > maxRadius) {
-				throw new IllegalArgumentException("Wall thickness (" + wallThickness + ") must be less than or equal to the maximum outer radius (" + maxRadius + ") for a hollow object.");
+				log.warn("Clamping hollow 3D profile to a solid centerline because wall thickness {} exceeds max outer radius {} (length={}, profilePoints={})",
+						wallThickness, maxRadius, length, sortedOuterProfile.size());
 			}
 		}
 
