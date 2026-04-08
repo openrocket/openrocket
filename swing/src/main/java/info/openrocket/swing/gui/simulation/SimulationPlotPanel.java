@@ -369,6 +369,22 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 					lineStyle);
 			preferences.setDefaultPlotAppearance(selectedType, appearance);
 		});
+
+		selector.addResetToFactoryListener(e -> {
+			if (modifying > 0) {
+				return;
+			}
+			FlightDataType selectedType = selector.getSelectedType();
+			// Clear the per-simulation override so this type returns to factory defaults.
+			simulation.setPlotAppearance(selectedType, null);
+			configuration.setPlotDataColor(idx, null);
+			configuration.setPlotDataLineStyle(idx, LineStyle.SOLID);
+			// Update the UI to reflect the reset without triggering change listeners.
+			modifying++;
+			selector.setSelectedColor(defaultPlotColors.getOrDefault(idx, Util.getPlotColor(idx)));
+			selector.setSelectedLineStyle(LineStyle.SOLID);
+			modifying--;
+		});
 	}
 
 	private void applyTypeAppearance(int index, FlightDataType type, SimulationPlotTypeSelector selector) {

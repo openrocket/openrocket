@@ -37,6 +37,7 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 	private final ColorChooserButton colorButton;
 	private final JComboBox<LineStyle> lineStyleSelector;
 	private final JButton setDefaultButton;
+	private final JButton resetToFactoryButton;
 
 	public SimulationPlotTypeSelector(int plotIndex, FlightDataType type, Unit unit, int position,
 									  List<FlightDataType> availableTypes, Color initialColor,
@@ -57,6 +58,10 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 		setDefaultButton = new JButton(Icons.SET_AS_DEFAULT);
 		setDefaultButton.setToolTipText(trans.get("simplotpanel.but.SetAsDefault.ttip"));
 		appearancePanel.add(setDefaultButton, "gapleft para, top");
+
+		resetToFactoryButton = new JButton(Icons.RESET);
+		resetToFactoryButton.setToolTipText(trans.get("simplotpanel.but.ResetToFactory.ttip"));
+		appearancePanel.add(resetToFactoryButton, "top");
 
 		this.add(appearancePanel, "newline, gapleft para, spanx, wrap");
 	}
@@ -87,6 +92,10 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 
 	public void addSetAsDefaultListener(ActionListener listener) {
 		setDefaultButton.addActionListener(listener);
+	}
+
+	public void addResetToFactoryListener(ActionListener listener) {
+		resetToFactoryButton.addActionListener(listener);
 	}
 
 	// Render a small stroke preview alongside the localized line style name.
