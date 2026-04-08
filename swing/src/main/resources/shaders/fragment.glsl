@@ -68,7 +68,7 @@ uniform bool forceWhite;
 uniform bool enableRoughnessBump;
 uniform bool hideInnerSurfaces;
 uniform bool xrayMode;
-uniform sampler2D shadowMap;
+uniform sampler2DShadow shadowMap;
 uniform bool shadowsEnabled;
 uniform int shadowLightIndex;
 uniform float shadowStrength;
@@ -233,46 +233,34 @@ float calculateShadow(vec3 normal, vec3 lightDir) {
     vec3 projCoords = v_lightSpacePos.xyz / v_lightSpacePos.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0) {
+    if (projCoords.z <= 0.0 || projCoords.z >= 1.0 ||
+        projCoords.x <= 0.0 || projCoords.x >= 1.0 ||
+        projCoords.y <= 0.0 || projCoords.y >= 1.0) {
         return 0.0;
     }
 
-    // Front-face culling in the shadow pass already provides implicit bias (back-face depth),
-    // so the explicit bias only needs to cover residual precision gaps, not acne prevention.
-    float bias = max(0.00025 * (1.0 - dot(normal, lightDir)), 0.00004);
-    float currentDepth = projCoords.z - bias;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    vec2 poissonDisk[12] = vec2[](
-        vec2(-0.326, -0.406),
-        vec2(-0.840, -0.074),
-        vec2(-0.696,  0.457),
-        vec2(-0.203,  0.621),
-        vec2( 0.962, -0.195),
-        vec2( 0.473, -0.480),
-        vec2( 0.519,  0.767),
-        vec2( 0.185, -0.893),
-        vec2( 0.507,  0.064),
-        vec2( 0.896,  0.412),
-        vec2(-0.322, -0.933),
-        vec2(-0.792, -0.598)
+    float ndotl = max(dot(normal, lightDir), 0.0);
+    float bias = max(0.0012 * (1.0 - ndotl), 0.00015);
+    float receiverDepth = projCoords.z - bias;
+    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
+    vec2 poissonDisk[5] = vec2[](
+        vec2( 0.000,  0.000),
+        vec2( 0.557,  1.409),
+        vec2(-1.602,  0.331),
+        vec2( 1.287, -0.878),
+        vec2(-0.462, -1.514)
     );
-    float poissonWeights[12] = float[](
-        1.00, 0.92, 0.88, 0.84,
-        0.82, 0.80, 0.78, 0.74,
-        0.72, 0.68, 0.64, 0.60
+    float poissonWeights[5] = float[](
+        0.38, 0.16, 0.16, 0.15, 0.15
     );
-    float shadow = 0.0;
-    float totalWeight = 0.0;
-    float filterRadius = 1.8;
-    for (int i = 0; i < 12; ++i) {
+    float visibility = 0.0;
+    float filterRadius = 1.35;
+    for (int i = 0; i < 5; ++i) {
         vec2 sampleUv = projCoords.xy + poissonDisk[i] * texelSize * filterRadius;
-        float closestDepth = texture(shadowMap, sampleUv).r;
-        float sampleShadow = currentDepth > closestDepth ? 1.0 : 0.0;
-        shadow += sampleShadow * poissonWeights[i];
-        totalWeight += poissonWeights[i];
+        visibility += texture(shadowMap, vec3(sampleUv, receiverDepth)) * poissonWeights[i];
     }
-    shadow /= totalWeight;
-    return shadow * shadowStrength;
+
+    return (1.0 - visibility) * shadowStrength;
 }
 
 

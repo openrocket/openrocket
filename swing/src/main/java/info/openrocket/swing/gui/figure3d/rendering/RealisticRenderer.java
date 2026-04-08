@@ -428,10 +428,10 @@ public class RealisticRenderer implements Renderer {
 		Vector3f cameraPos = camera.getPosition();
 		GL33.glUniform3f(mainShaderUniforms.viewPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
+		mainShader.setUniform(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
+		textureStateManager.bindTexture(2, GL33.GL_TEXTURE_2D, shadowPass.getDepthMapTexture());
+		GL33.glUniform1i(mainShaderUniforms.shadowMap, 2);
 		if (shadowPass.hasShadowMap()) {
-			mainShader.setUniform(mainShaderUniforms.lightSpaceMatrix, shadowPass.getLightSpaceMatrix());
-			textureStateManager.bindTexture(2, GL33.GL_TEXTURE_2D, shadowPass.getDepthMapTexture());
-			GL33.glUniform1i(mainShaderUniforms.shadowMap, 2);
 			GL33.glUniform1i(mainShaderUniforms.shadowsEnabled, 1);
 			GL33.glUniform1i(mainShaderUniforms.shadowLightIndex, shadowPass.getShadowCastingLightIndex());
 			GL33.glUniform1f(mainShaderUniforms.shadowStrength, shadowPass.getShadowStrength());

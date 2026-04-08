@@ -1,5 +1,7 @@
 package info.openrocket.swing.gui.figure3d.core.geometry;
 
+import org.joml.Vector3f;
+
 import java.util.List;
 
 /**
@@ -10,6 +12,8 @@ import java.util.List;
 public class Mesh {
 	private final List<Vertex> vertices;
 	private final List<Integer> indices;
+	private final Vector3f boundsMin;
+	private final Vector3f boundsMax;
 
 	/**
 	 * Constructs a new Mesh.
@@ -19,6 +23,16 @@ public class Mesh {
 	public Mesh(List<Vertex> vertices, List<Integer> indices) {
 		this.vertices = vertices;
 		this.indices = indices;
+		this.boundsMin = new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+		this.boundsMax = new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+		for (Vertex vertex : vertices) {
+			boundsMin.min(vertex.position);
+			boundsMax.max(vertex.position);
+		}
+		if (vertices.isEmpty()) {
+			boundsMin.set(0.0f, 0.0f, 0.0f);
+			boundsMax.set(0.0f, 0.0f, 0.0f);
+		}
 	}
 
 	/**
@@ -33,5 +47,19 @@ public class Mesh {
 	 */
 	public List<Integer> getIndices() {
 		return indices;
+	}
+
+	public Vector3f getBoundsMin(Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		return destination.set(boundsMin);
+	}
+
+	public Vector3f getBoundsMax(Vector3f destination) {
+		if (destination == null) {
+			destination = new Vector3f();
+		}
+		return destination.set(boundsMax);
 	}
 }
