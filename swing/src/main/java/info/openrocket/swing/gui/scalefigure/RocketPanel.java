@@ -607,6 +607,17 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 	}
 
+	private void updatePanViewButtonVisibility() {
+		if (panViewButton == null) {
+			return;
+		}
+		panViewButton.setVisible(is3d);
+		if (ribbon != null) {
+			ribbon.revalidate();
+			ribbon.repaint();
+		}
+	}
+
 	private Cursor getViewportCursor() {
 		if (isPanViewModeActive()) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
@@ -656,6 +667,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		is3d = true;
 		updateCaliperUiState();
+		updatePanViewButtonVisibility();
 		figureCardLayout.show(figureHolder, "3d");
 		figure3d.startRendering();
 		rotationControl.setEnabled(false);
@@ -679,6 +691,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		}
 		is3d = false;
+		setPanViewModeActive(false);
+		updatePanViewButtonVisibility();
 		figureCardLayout.show(figureHolder, "2d");
 		figure3d.stopRendering();
 
@@ -864,6 +878,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		ribbon.add(zoomInButton, "cell 3 1, split 3");
 		ribbon.add(zoomFitButton, "cell 3 1");
 		ribbon.add(panViewButton, "cell 3 1");
+		updatePanViewButtonVisibility();
 
 		// Show CG/CP
 		final JCheckBox showCGCP = new JCheckBox();
