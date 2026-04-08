@@ -440,6 +440,8 @@ public class PhotoPanel extends JPanel {
 			config.getDisplay().setMode(DisplaySettings.RenderMode.FINISHED);
 			config.getDisplay().setRenderInternalSurfaces(true);
 			config.getQuality().setBackfaceCullingEnabled(true);
+			config.getQuality().setShadowsEnabled(true);
+			config.getQuality().setAmbientOcclusionEnabled(true);
 			config.getVisualEffects().setCaretsVisible(false);
 			// Photo Studio always orbits the camera on drag; rocket drag rotation is for design views only.
 			config.getVisualEffects().setRotateRocketOnDrag(false);
