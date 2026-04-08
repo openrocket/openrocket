@@ -459,6 +459,7 @@ public class PhotoPanel extends JPanel {
 				camera = scene.getCamera();
 			}
 
+			disableComponentSelection(scene);
 			enforceOpaqueBodyComponents(scene);
 			applyBackground(scene);
 			applyLighting(scene, config);
@@ -485,6 +486,14 @@ public class PhotoPanel extends JPanel {
 		SceneView scene = orchestrator.getScene();
 		if (scene != null) {
 			scene.getLightController().removeLightChangeListener(lightChangeListener);
+		}
+	}
+
+	private void disableComponentSelection(SceneView scene) {
+		scene.setSelection(List.of());
+		for (SceneObject obj : scene.getObjects()) {
+			obj.setSelected(false);
+			obj.setSelectable(false);
 		}
 	}
 
