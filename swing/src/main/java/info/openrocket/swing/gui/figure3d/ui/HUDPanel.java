@@ -1,10 +1,18 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
+import info.openrocket.core.aerodynamics.AerodynamicCalculator;
+import info.openrocket.core.aerodynamics.BarrowmanCalculator;
+import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.Simulation;
+import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.StateChangeListener;
+import info.openrocket.swing.gui.figureelements.RocketInfoContextHelper;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 
@@ -20,7 +28,9 @@ import java.awt.Graphics2D;
  */
 public class HUDPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
+	private static final AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
 
+	private final OpenRocketDocument document;
 	private final Rocket rocket;
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final RocketInfo rocketInfo;
@@ -41,6 +51,15 @@ public class HUDPanel extends JPanel {
 	 * @param rocketInfo the OpenRocket info component for rendering
 	 */
 	public HUDPanel(Rocket rocket, RocketInfo rocketInfo) {
+		this(null, rocket, rocketInfo);
+	}
+
+	public HUDPanel(OpenRocketDocument document, RocketInfo rocketInfo) {
+		this(document, document.getRocket(), rocketInfo);
+	}
+
+	private HUDPanel(OpenRocketDocument document, Rocket rocket, RocketInfo rocketInfo) {
+		this.document = document;
 		this.rocket = rocket;
 		this.rocketInfo = rocketInfo;
 		setOpaque(false);
@@ -58,7 +77,7 @@ public class HUDPanel extends JPanel {
 		this.scene3DOrchestrator = svc;
 
 		StateChangeListener changeListener = e -> {
-			rocketInfo.setCurrentConfig(rocket.getSelectedConfiguration());
+			refreshRocketInfo();
 
 			// Rate limit repaints to avoid excessive updates
 			long currentTime = System.currentTimeMillis();
@@ -73,6 +92,9 @@ public class HUDPanel extends JPanel {
 		};
 
 		rocket.addChangeListener(changeListener);
+		if (document != null) {
+			document.addDocumentChangeListener(event -> changeListener.stateChanged(event));
+		}
 
 		// Only listen for significant component changes
 		rocket.addComponentChangeListener(e -> {
@@ -81,8 +103,28 @@ public class HUDPanel extends JPanel {
 			}
 		});
 
-		rocketInfo.setCurrentConfig(rocket.getSelectedConfiguration());
+		refreshRocketInfo();
 		needsRepaint = true;
+	}
+
+	private void refreshRocketInfo() {
+		FlightConfiguration currentConfiguration = rocket.getSelectedConfiguration();
+		rocketInfo.setCurrentConfig(currentConfiguration);
+		rocketInfo.setCalculatingData(false);
+		if (document == null) {
+			return;
+		}
+
+		WarningSet warnings = new WarningSet();
+		FlightConditions conditions = new FlightConditions(currentConfiguration);
+		conditions.setMach(Application.getPreferences().getDefaultMach());
+		conditions.setAOA(0);
+		conditions.setRollRate(0);
+		RocketInfoContextHelper.calculateCp(currentConfiguration, conditions, warnings, aerodynamicCalculator, true);
+		rocketInfo.setWarnings(warnings);
+		Simulation simulation = RocketInfoContextHelper.findCurrentConfigurationSimulation(document, currentConfiguration);
+		rocketInfo.setSimulation(simulation);
+		rocketInfo.setCalculatingData(RocketInfoContextHelper.shouldShowCalculatingState(currentConfiguration, simulation));
 	}
 
 	/**

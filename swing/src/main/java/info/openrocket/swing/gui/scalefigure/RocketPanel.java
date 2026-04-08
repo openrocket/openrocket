@@ -45,6 +45,7 @@ import info.openrocket.swing.gui.figureelements.CGCaret;
 import info.openrocket.swing.gui.figureelements.CPCaret;
 import info.openrocket.swing.gui.figureelements.Caret;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
+import info.openrocket.swing.gui.figureelements.RocketInfoContextHelper;
 import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.main.componenttree.ComponentTreeModel;
 import info.openrocket.core.unit.UnitGroup;
@@ -1417,7 +1418,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		FlightConfiguration curConfig = document.getSelectedConfiguration();
 		// TODO: MEDIUM: User-definable conditions
 		FlightConditions conditions = new FlightConditions(curConfig);
-		warnings.clear();
 
 		extraText.setCurrentConfig(curConfig);
 
@@ -1444,9 +1444,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		if (!Double.isNaN(cpTheta)) {
 			conditions.setTheta(cpTheta);
-			cp = aerodynamicCalculator.getCP(curConfig, conditions, warnings);
+			cp = RocketInfoContextHelper.calculateCp(curConfig, conditions, warnings, aerodynamicCalculator, false);
 		} else {
-			cp = aerodynamicCalculator.getWorstCP(curConfig, conditions, warnings);
+			cp = RocketInfoContextHelper.calculateCp(curConfig, conditions, warnings, aerodynamicCalculator, true);
 		}
 		extraText.setTheta(cpTheta);
 		if (cp.getWeight() > MathUtil.EPSILON) {

@@ -106,7 +106,7 @@ public class RocketFigure3d extends JPanel {
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
 		this.rocketInfo = new RocketInfo(document.getRocket().getSelectedConfiguration());
-		this.hudPanel = new HUDPanel(document.getRocket(), rocketInfo);
+		this.hudPanel = new HUDPanel(document, rocketInfo);
 		this.enable3d = is3dEnabled();
 		setLayout(new BorderLayout());
 	}
