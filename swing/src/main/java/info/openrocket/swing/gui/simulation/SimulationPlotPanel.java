@@ -322,6 +322,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			java.awt.Color color = selector.getSelectedColor();
 			configuration.setPlotDataColor(idx, color);
 			updateSimulationAppearance(selector.getSelectedType(), color, null, true, false);
+			syncButtonStates(selector, idx);
 		});
 
 		selector.addLineStyleSelectionListener(e -> {
@@ -331,6 +332,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			LineStyle lineStyle = selector.getSelectedLineStyle();
 			configuration.setPlotDataLineStyle(idx, lineStyle);
 			updateSimulationAppearance(selector.getSelectedType(), null, lineStyle, false, true);
+			syncButtonStates(selector, idx);
 		});
 
 		selector.addAxisSelectionListener(e -> {
@@ -355,6 +357,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			defaultPlotColors = computeDefaultPlotColors();
 			applyTypeAppearance(idx, selectedType, selector);
 			modifying--;
+			syncButtonStates(selector, idx);
 		});
 
 		selector.addSetAsDefaultListener(e -> {
@@ -368,6 +371,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 					explicitColor != null ? ORColor.fromAWTColor(explicitColor) : null,
 					lineStyle);
 			preferences.setDefaultPlotAppearance(selectedType, appearance);
+			syncButtonStates(selector, idx);
 		});
 
 		selector.addResetToFactoryListener(e -> {
@@ -384,7 +388,36 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 			selector.setSelectedColor(defaultPlotColors.getOrDefault(idx, Util.getPlotColor(idx)));
 			selector.setSelectedLineStyle(LineStyle.SOLID);
 			modifying--;
+			syncButtonStates(selector, idx);
 		});
+
+		// Set initial button states now that all configuration for this selector is in place.
+		syncButtonStates(selector, idx);
+	}
+
+	/**
+	 * Compute and apply the enabled state of the "Set as default" and "Reset to factory default" buttons
+	 * for the given selector based on the current configuration values at {@code idx}.
+	 */
+	private void syncButtonStates(SimulationPlotTypeSelector selector, int idx) {
+		java.awt.Color explicitColor = configuration.getPlotDataColor(idx);
+		LineStyle lineStyle = configuration.getPlotDataLineStyle(idx);
+
+		PlotAppearance current = new PlotAppearance(
+				explicitColor != null ? ORColor.fromAWTColor(explicitColor) : null,
+				lineStyle);
+		boolean isAtFactory = PlotAppearance.FACTORY_DEFAULT.equals(current);
+
+		PlotAppearance appDefault = preferences.getDefaultPlotAppearance(selector.getSelectedType());
+		boolean isAtAppDefault;
+		if (appDefault == null) {
+			// No user default stored — the effective default is the factory default.
+			isAtAppDefault = isAtFactory;
+		} else {
+			isAtAppDefault = current.equals(appDefault);
+		}
+
+		selector.updateButtonStates(isAtFactory, isAtAppDefault);
 	}
 
 	private void applyTypeAppearance(int index, FlightDataType type, SimulationPlotTypeSelector selector) {

@@ -98,6 +98,17 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 		resetToFactoryButton.addActionListener(listener);
 	}
 
+	/**
+	 * Enable or disable the appearance buttons based on the current state.
+	 *
+	 * @param isAtFactoryDefault {@code true} when the current appearance is already the factory default
+	 * @param isAtAppDefault     {@code true} when the current appearance already matches the stored application default
+	 */
+	public void updateButtonStates(boolean isAtFactoryDefault, boolean isAtAppDefault) {
+		resetToFactoryButton.setEnabled(!isAtFactoryDefault);
+		setDefaultButton.setEnabled(!isAtAppDefault);
+	}
+
 	// Render a small stroke preview alongside the localized line style name.
 	private static class LineStyleRenderer implements ListCellRenderer<LineStyle> {
 		private final ListCellRenderer<? super LineStyle> delegate = new javax.swing.DefaultListCellRenderer();
