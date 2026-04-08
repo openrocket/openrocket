@@ -89,8 +89,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
                 : appearance.isOpacityAffectsTexture();
         GL33.glUniform1i(uniforms.textureOpacityAffectsAlpha, textureOpacityAffectsAlpha ? 1 : 0);
         float effectiveOpacity = getEffectiveOpacity(obj.getRocketComponent(), appearance, config, unfinishedMode, isFigureMode, isXray);
-        boolean hideInnerSurfaces = !config.getDisplay().isRenderInternalSurfaces()
-                || shouldHideInnerSurfacesForTransparentShell(obj.getRocketComponent(), effectiveOpacity, isFigureMode);
+        boolean hideInnerSurfaces = !config.getDisplay().isRenderInternalSurfaces();
         GL33.glUniform1i(uniforms.hideInnerSurfaces, hideInnerSurfaces ? 1 : 0);
 
         if (isFigureMode) {
@@ -148,13 +147,6 @@ public class DefaultMaterialBinder implements MaterialBinder {
             return true;
         }
         return component instanceof Transition && !(component instanceof NoseCone);
-    }
-
-    private static boolean shouldHideInnerSurfacesForTransparentShell(RocketComponent component, float effectiveOpacity, boolean isFigureMode) {
-        if (isFigureMode || effectiveOpacity >= 1.0f) {
-            return false;
-        }
-        return isFigureTransparentComponent(component);
     }
 
     private static float getEffectiveOpacity(RocketComponent component, Appearance3D appearance,

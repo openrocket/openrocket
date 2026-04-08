@@ -212,8 +212,14 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			}
 		}
 
-		// Create a new, updated engine appearance from the component's data.
-		Appearance3D newAppearance = AppearanceFactory.createFrom(component);
+		// Update the existing appearance in place when possible so slider-driven
+		// changes do not reload and upload the same texture every time.
+		Appearance3D newAppearance = oldAppearance;
+		if (newAppearance == null) {
+			newAppearance = AppearanceFactory.createFrom(component);
+		} else {
+			AppearanceFactory.updateFrom(newAppearance, component);
+		}
 
 		// Find all scene objects that represent this component and apply the new appearance.
 		for (SceneObject obj : scene.getObjects()) {
@@ -222,10 +228,6 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			}
 		}
 
-		// Clean up the old, now-unused appearance object to free its texture.
-		if (oldAppearance != null && oldAppearance != newAppearance) {
-			oldAppearance.cleanup();
-		}
 	}
 
 	/**

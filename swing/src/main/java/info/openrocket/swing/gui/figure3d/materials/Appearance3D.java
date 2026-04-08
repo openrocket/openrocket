@@ -1,5 +1,6 @@
 package info.openrocket.swing.gui.figure3d.materials;
 
+import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.swing.gui.figure3d.utils.ColorUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -40,6 +41,7 @@ public class Appearance3D implements Material {
 
 	// --- Texture & Decal Properties ---
 	private Texture texture;
+	private DecalImage textureSourceImage;
 	private TextureMode textureMode = TextureMode.STRETCH;
 	private final TextureTransform textureTransform = new TextureTransform();
 	private Texture decalTexture;
@@ -91,6 +93,9 @@ public class Appearance3D implements Material {
 	public void setTexture(Texture texture) {
 		this.texture = texture;
 	}
+	public void setTextureSourceImage(DecalImage textureSourceImage) {
+		this.textureSourceImage = textureSourceImage;
+	}
 	public void setUnlit(boolean unlit) {
 		isUnlit = unlit;
 	}
@@ -135,6 +140,7 @@ public class Appearance3D implements Material {
 	public float getSpecularTint() { return specularTint; }
 	public boolean isUnlit() { return isUnlit; }
 	public Texture getTexture() { return texture; }
+	public DecalImage getTextureSourceImage() { return textureSourceImage; }
 	public TextureMode getTextureMode() { return textureMode; }
 	public float getOpacity() { return opacity; }
 	public boolean isOpacityAffectsTexture() { return opacityAffectsTexture; }

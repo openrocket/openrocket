@@ -2,6 +2,7 @@ package info.openrocket.swing.gui.figure3d.materials;
 
 import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.appearance.Decal;
+import info.openrocket.core.appearance.DecalImage;
 import info.openrocket.core.appearance.defaults.DefaultAppearance;
 import info.openrocket.core.motor.Motor;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
@@ -37,32 +38,38 @@ public abstract class AppearanceFactory {
 	 * @return A configured Appearance object for the rendering engine.
 	 */
 	public static Appearance3D createFrom(RocketComponent component) {
+		Appearance3D appearance3D = new Appearance3D();
+		updateFrom(appearance3D, component);
+		return appearance3D;
+	}
+
+	public static void updateFrom(Appearance3D appearance3D, RocketComponent component) {
 		Appearance orAppearance = getAppearance(component);
 		ExternalComponent.Finish finish = null;
 		if (component instanceof ExternalComponent) {
 			finish = ((ExternalComponent) component).getFinish();
 		}
-		Appearance3D appearance3D = orAppearanceToAppearance3D(orAppearance, finish);
+		applyOrAppearanceToAppearance3D(appearance3D, orAppearance, finish);
 		applyComponentTextureMapping(appearance3D, component);
-		return appearance3D;
 	}
 
 	public static Appearance3D createDefaultFrom(RocketComponent component) {
 		Appearance defaultAppearance = DefaultAppearance.getDefaultAppearance(component);
-		Appearance3D appearance3D = orAppearanceToAppearance3D(defaultAppearance);
+		Appearance3D appearance3D = new Appearance3D();
+		applyOrAppearanceToAppearance3D(appearance3D, defaultAppearance, null);
 		applyComponentTextureMapping(appearance3D, component);
 		return appearance3D;
 	}
 
 	public static Appearance3D createFrom(Motor motor) {
 		Appearance appearance = DefaultAppearance.getDefaultAppearance(motor);
-		Appearance3D appearance3D = orAppearanceToAppearance3D(appearance);
+		Appearance3D appearance3D = new Appearance3D();
+		applyOrAppearanceToAppearance3D(appearance3D, appearance, null);
 		appearance3D.setShine(0);
 		return appearance3D;
 	}
 
-	private static Appearance3D orAppearanceToAppearance3D(Appearance orAppearance, ExternalComponent.Finish finish) {
-		Appearance3D engineAppearance = new Appearance3D();
+	private static void applyOrAppearanceToAppearance3D(Appearance3D engineAppearance, Appearance orAppearance, ExternalComponent.Finish finish) {
 		engineAppearance.setRenderStyle(Appearance3D.RenderStyle.SOLID);
 
 		// Map color and opacity from ORColor
@@ -79,43 +86,14 @@ public abstract class AppearanceFactory {
 		// Map texture/decal from OpenRocket's Decal object
 		Decal orDecal = orAppearance.getTexture();
 		if (orDecal != null && orDecal.getImage() != null) {
-			ByteBuffer buffer = null;
-			try {
-				try (InputStream stream = orDecal.getImage().getBytes()) {
-					if (stream == null) {
-						log.warn("Decal image stream missing for {}", orDecal.getImage().getName());
-					} else {
-						byte[] bytes = stream.readAllBytes();
-						buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
-						Texture engineTexture = new Texture(buffer);
-
-						// Set the wrapping mode based on the OpenRocket decal's setting
-						if (orDecal.getEdgeMode() == Decal.EdgeMode.REPEAT) {
-							engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT_BOTH);
-						} else {
-							engineAppearance.setTextureMode(Appearance3D.TextureMode.STRETCH);
-						}
-
-						// If an appearance has a texture, treat it as the main texture and set the render style accordingly.
-						engineAppearance.setTexture(engineTexture);
-						engineAppearance.setRenderStyle(Appearance3D.RenderStyle.TEXTURED);
-
-						// Map the transformation from the OpenRocket Decal to our TextureTransform.
-						TextureTransform transform = engineAppearance.getTextureTransform();
-						transform.scale.set((float) orDecal.getScale().getX(), (float) orDecal.getScale().getY());
-						transform.offset.set((float) orDecal.getOffset().getX(), (float) orDecal.getOffset().getY());
-						transform.center.set((float) orDecal.getCenter().getX(), (float) orDecal.getCenter().getY());
-						transform.rotation = (float) orDecal.getRotation();
-					}
-				}
-			} catch (Exception e) {
-				log.error("Failed to load decal image from OpenRocket component.", e);
-			} finally {
-				// Always free the native buffer
-				if (buffer != null) {
-					MemoryUtil.memFree(buffer);
-				}
+			updateTexture(engineAppearance, orDecal);
+		} else {
+			Texture existingTexture = engineAppearance.getTexture();
+			if (existingTexture != null) {
+				existingTexture.cleanup();
 			}
+			engineAppearance.setTexture(null);
+			engineAppearance.setTextureSourceImage(null);
 		}
 
 		// Roughness
@@ -123,12 +101,57 @@ public abstract class AppearanceFactory {
 			double roughnessSize = finish.getRoughnessSize(); // in meters
 			applyFinishRoughness(engineAppearance, roughnessSize);
 		}
-
-		return engineAppearance;
 	}
 
-	private static Appearance3D orAppearanceToAppearance3D(Appearance orAppearance) {
-		return orAppearanceToAppearance3D(orAppearance, null);
+	private static void updateTexture(Appearance3D engineAppearance, Decal orDecal) {
+		DecalImage decalImage = orDecal.getImage();
+		Texture engineTexture = engineAppearance.getTexture();
+		if (engineTexture == null || engineAppearance.getTextureSourceImage() != decalImage) {
+			if (engineTexture != null) {
+				engineTexture.cleanup();
+			}
+			engineTexture = loadTexture(decalImage);
+			engineAppearance.setTexture(engineTexture);
+			engineAppearance.setTextureSourceImage(decalImage);
+		}
+
+		if (engineTexture != null) {
+			if (orDecal.getEdgeMode() == Decal.EdgeMode.REPEAT) {
+				engineAppearance.setTextureMode(Appearance3D.TextureMode.REPEAT_BOTH);
+			} else {
+				engineAppearance.setTextureMode(Appearance3D.TextureMode.STRETCH);
+			}
+
+			engineAppearance.setRenderStyle(Appearance3D.RenderStyle.TEXTURED);
+
+			TextureTransform transform = engineAppearance.getTextureTransform();
+			transform.scale.set((float) orDecal.getScale().getX(), (float) orDecal.getScale().getY());
+			transform.offset.set((float) orDecal.getOffset().getX(), (float) orDecal.getOffset().getY());
+			transform.center.set((float) orDecal.getCenter().getX(), (float) orDecal.getCenter().getY());
+			transform.rotation = (float) orDecal.getRotation();
+		}
+	}
+
+	private static Texture loadTexture(DecalImage decalImage) {
+		ByteBuffer buffer = null;
+		try {
+			try (InputStream stream = decalImage.getBytes()) {
+				if (stream == null) {
+					log.warn("Decal image stream missing for {}", decalImage.getName());
+					return null;
+				}
+				byte[] bytes = stream.readAllBytes();
+				buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
+				return new Texture(buffer);
+			}
+		} catch (Exception e) {
+			log.error("Failed to load decal image from OpenRocket component.", e);
+			return null;
+		} finally {
+			if (buffer != null) {
+				MemoryUtil.memFree(buffer);
+			}
+		}
 	}
 
 	private static Appearance getAppearance(RocketComponent c) {
