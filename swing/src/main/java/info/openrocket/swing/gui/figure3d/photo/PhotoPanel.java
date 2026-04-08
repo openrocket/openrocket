@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class PhotoPanel extends JPanel {
@@ -65,6 +66,7 @@ public class PhotoPanel extends JPanel {
 	private final AtomicBoolean captureQueued = new AtomicBoolean(false);
 	private final AtomicBoolean settingsApplyQueued = new AtomicBoolean(false);
 	private final AtomicBoolean pendingApply = new AtomicBoolean(true);
+	private final AtomicReference<GLScenePanel> pendingCanvasRebuild = new AtomicReference<>();
 	private final AtomicBoolean syncingCameraToSettings = new AtomicBoolean(false);
 	private final AtomicBoolean suppressCameraToSettingsSync = new AtomicBoolean(false);
 	private final AtomicBoolean suppressLightToSettingsSync = new AtomicBoolean(false);
@@ -200,6 +202,7 @@ public class PhotoPanel extends JPanel {
 		}
 		glPanel = panel;
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
+		glPanel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		add(glPanel, BorderLayout.CENTER);
 		revalidate();
@@ -213,14 +216,8 @@ public class PhotoPanel extends JPanel {
 		debug("clearDoc");
 		stopRenderLoop();
 		if (glPanel != null) {
-			Scene3DOrchestrator orchestrator = glPanel.getScene3DOrchestrator();
-			if (orchestrator != null) {
-				orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
-				SceneView scene = orchestrator.getScene();
-				if (scene != null) {
-					scene.getLightController().removeLightChangeListener(lightChangeListener);
-				}
-			}
+			detachSceneListeners(glPanel);
+			glPanel.setBlankDefaultFramebufferCallback(null);
 			// Cleanup GL resources BEFORE removing from the hierarchy. Removing first calls
 			// AWTGLCanvas.removeNotify() which resets context = 0 and marks the canvas
 			// non-displayable, causing GLScenePanel.cleanup() to skip the runInContext block
@@ -235,6 +232,7 @@ public class PhotoPanel extends JPanel {
 		captureQueued.set(false);
 		settingsApplyQueued.set(false);  // reset in case the GL task was cleared without running
 		pendingApply.set(false);
+		pendingCanvasRebuild.set(null);
 		lastFlameColor = null;
 		lastSmokeColor = null;
 		lastSmokeOpacity = Float.NaN;
@@ -356,9 +354,62 @@ public class PhotoPanel extends JPanel {
 			applySettings();
 		}
 		panel.render();
+		if (processPendingCanvasRebuild(panel)) {
+			return;
+		}
 		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
 			applySettings();
 		}
+	}
+
+	private void requestCanvasRebuild(GLScenePanel failedPanel) {
+		pendingCanvasRebuild.compareAndSet(null, failedPanel);
+	}
+
+	private boolean processPendingCanvasRebuild(GLScenePanel panel) {
+		if (!pendingCanvasRebuild.compareAndSet(panel, null)) {
+			return false;
+		}
+		rebuildCanvasAfterBlankDefaultFramebuffer(panel);
+		return true;
+	}
+
+	private void rebuildCanvasAfterBlankDefaultFramebuffer(GLScenePanel failedPanel) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> rebuildCanvasAfterBlankDefaultFramebuffer(failedPanel));
+			return;
+		}
+		if (glPanel != failedPanel || document == null) {
+			return;
+		}
+
+		detachSceneListeners(failedPanel);
+		failedPanel.setInitializationHook(null);
+		failedPanel.setBlankDefaultFramebufferCallback(null);
+		remove(failedPanel);
+		glPanel = null;
+		revalidate();
+		repaint();
+		failedPanel.cleanup();
+
+		GLScenePanel panel;
+		try {
+			panel = new GLScenePanel(document.getRocket(), null, false);
+		} catch (UnsatisfiedLinkError | ExceptionInInitializerError e) {
+			log.warn("Photo Studio 3D view unavailable during recovery: LWJGL native libraries not found for {}/{}.",
+					System.getProperty("os.name"), System.getProperty("os.arch"), e);
+			return;
+		}
+		glPanel = panel;
+		panel.setInitializationHook(this::initializePhotoPanelOnGlThread);
+		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
+		add(panel, BorderLayout.CENTER);
+		revalidate();
+		repaint();
+		pendingApply.set(true);
+		settingsApplyQueued.set(false);
+		applySettings();
 	}
 
 	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
@@ -420,6 +471,18 @@ public class PhotoPanel extends JPanel {
 			applyRocketTransform(scene, config);
 		} finally {
 			suppressCameraToSettingsSync.set(false);
+		}
+	}
+
+	private void detachSceneListeners(GLScenePanel panel) {
+		Scene3DOrchestrator orchestrator = panel.getScene3DOrchestrator();
+		if (orchestrator == null) {
+			return;
+		}
+		orchestrator.getCameraController().removeCameraChangeListener(cameraChangeListener);
+		SceneView scene = orchestrator.getScene();
+		if (scene != null) {
+			scene.getLightController().removeLightChangeListener(lightChangeListener);
 		}
 	}
 
