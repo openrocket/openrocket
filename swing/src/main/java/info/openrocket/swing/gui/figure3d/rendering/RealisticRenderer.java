@@ -268,6 +268,11 @@ public class RealisticRenderer implements Renderer {
 		renderStats.reset();
 		long startTime = System.nanoTime();
 
+		// Some renderers and presentation paths bind textures directly instead of going
+		// through TextureStateManager. Reset the cache at the start of each frame so the
+		// first geometry/background/material bind always reflects the actual GL state.
+		textureStateManager.reset();
+
 		Camera camera = scene.getCamera();
 		camera.update();
 
@@ -319,6 +324,10 @@ public class RealisticRenderer implements Renderer {
             caretsPass.render(scene, windowManager, viewMatrix, projectionMatrix);
         }
         renderTarget.unbind();
+
+		// Particle renderers bind textures directly, so invalidate the cache before any
+		// post-processing pass that relies on TextureStateManager.
+		textureStateManager.reset();
 
         // 2. Run the post-processing chain
         int currentTexture = renderTarget.getColorTextureId();
