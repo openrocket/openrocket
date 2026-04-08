@@ -109,7 +109,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	}
 
 	private boolean isAppearanceOnlySceneChange(ComponentChangeEvent e) {
-		return e.isNonFunctionalChange() || isFinishAppearanceChange(e);
+		// Visibility toggles are emitted as pure GRAPHIC_CHANGE events and require a
+		// full rebuild so hidden components are removed from the scene graph.
+		return (e.isNonFunctionalChange() && e.getType() != ComponentChangeEvent.GRAPHIC_CHANGE)
+				|| isFinishAppearanceChange(e);
 	}
 
 	private boolean isFinishAppearanceChange(ComponentChangeEvent e) {

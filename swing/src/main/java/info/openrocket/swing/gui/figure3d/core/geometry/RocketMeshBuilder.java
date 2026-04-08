@@ -5,7 +5,9 @@ import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.rocketcomponent.Coaxial;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
+import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RailButton;
@@ -43,6 +45,8 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Factory class responsible for building complete 3D mesh representations of rockets and their components.
@@ -92,18 +96,31 @@ public abstract class RocketMeshBuilder {
 	 * @param config The rendering configuration specifying visual options and quality settings
 	 */
 	public static void buildRocketMesh(SceneView scene, Rocket rocket, RenderingConfiguration config) {
-		for (RocketComponent component : rocket) {
-			if (component.isVisible()) {
-				try {
-					buildComponent(scene, rocket.getSelectedConfiguration().getId(), component, config, RenderingConstants.WORLD_SCALE);
-				} catch (RuntimeException e) {
-					throw new BugException("Failed to build 3D mesh for component '" + component.getName()
-							+ "' (" + component.getClass().getSimpleName() + ")", e);
-				}
-			}
-		}
+		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
+		buildComponents(scene, flightConfig.getId(), flightConfig.getActiveInstances().entrySet(), config,
+				RenderingConstants.WORLD_SCALE);
+		buildComponents(scene, flightConfig.getId(), flightConfig.getExtraRenderInstances().entrySet(), config,
+				RenderingConstants.WORLD_SCALE);
 
 		createOriginAxes(scene, config, true, true);
+	}
+
+	private static void buildComponents(SceneView scene, FlightConfigurationId fcid,
+										Set<Entry<RocketComponent, ArrayList<InstanceContext>>> instanceEntries,
+										RenderingConfiguration config, float worldScale) {
+		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : instanceEntries) {
+			RocketComponent component = entry.getKey();
+			if (!component.isVisible()) {
+				continue;
+			}
+
+			try {
+				buildComponent(scene, fcid, component, entry.getValue(), config, worldScale);
+			} catch (RuntimeException e) {
+				throw new BugException("Failed to build 3D mesh for component '" + component.getName()
+						+ "' (" + component.getClass().getSimpleName() + ")", e);
+			}
+		}
 	}
 
 	/**
@@ -115,27 +132,26 @@ public abstract class RocketMeshBuilder {
 	 * @param worldScale The scale factor to apply to the component's dimensions and positions.
 	 */
 	private static void buildComponent(SceneView scene, FlightConfigurationId fcid, RocketComponent component,
-									   RenderingConfiguration config, float worldScale) {
+									   List<InstanceContext> instanceContexts, RenderingConfiguration config,
+									   float worldScale) {
+		if (instanceContexts == null || instanceContexts.isEmpty()) {
+			return;
+		}
+
 		Mesh mesh = createComponentMesh(component, config);
 		if (mesh == null) {
 			return;
 		}
 
 		Appearance3D appearance = AppearanceFactory.createFrom(component);
-		CoordinateIF[] locations = component.getComponentLocations();
-		CoordinateIF[] angles = component.getComponentAngles();
+		double angleOffsetX = component instanceof RailButton ? component.getAngleOffset() : 0.0;
 
-		if (locations == null || angles == null || locations.length != angles.length) {
-			return;
-		}
-
-		for (int i = 0; i < locations.length; i++) {
-			double angleOffsetX = 0;
-			if (component instanceof RailButton) {
-				angleOffsetX = component.getAngleOffset();
-			}
-			CoordinateIF instanceLocation = locations[i];
-			CoordinateIF instanceAngle = angles[i].add(angleOffsetX, 0, 0);
+		for (InstanceContext context : instanceContexts) {
+			CoordinateIF instanceLocation = context.getLocation();
+			CoordinateIF instanceAngle = new Coordinate(
+					context.transform.getXrotation() + angleOffsetX,
+					context.transform.getYrotation(),
+					context.transform.getZrotation());
 
 			// Create the SceneObject for the primary component
 			SceneObject obj = new SceneObject(component, mesh, new Vector3f(0, 0, 0), appearance);
@@ -182,9 +198,8 @@ public abstract class RocketMeshBuilder {
 		double motorFrontRelToMountFront = mount.getLength() + mount.getMotorOverhang() - motor.getLength();
 		// The motor mesh is centered, so we need to find the center position.
 		double motorCenterRelToMountFront = motorFrontRelToMountFront + motor.getLength() / 2.0;
-		// Get the absolute position of the mount's front, then add the motor's relative center.
-		CoordinateIF mountFrontAbsolute = mount.toAbsolute(new Coordinate(0,0,0))[0];
-		CoordinateIF motorCenterAbsolute = mountFrontAbsolute.add(motorCenterRelToMountFront, 0, 0);
+		// The mount location already represents this instance's front position in rocket coordinates.
+		CoordinateIF motorCenterAbsolute = mountLocation.add(motorCenterRelToMountFront, 0, 0);
 
 
 		// 5. Apply the transform to the motor object
@@ -385,41 +400,44 @@ public abstract class RocketMeshBuilder {
 	public static void rebuildParticles(Scene scene, Rocket rocket, RenderingConfiguration config) {
 		// Clear existing particle emitters
 		scene.getParticleEmitters().clear();
-		
-		// Rebuild particles for all motor mounts
-		for (RocketComponent component : rocket) {
-			if (component.isVisible() && component instanceof MotorMount) {
-				@SuppressWarnings("unchecked")
-				var mount = (RocketComponent & MotorMount) component;
-				rebuildMotorParticles(scene, rocket.getSelectedConfiguration().getId(), mount, config, RenderingConstants.WORLD_SCALE);
+
+		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
+		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : flightConfig.getActiveInstances().entrySet()) {
+			RocketComponent component = entry.getKey();
+			if (!component.isVisible() || !(component instanceof MotorMount)) {
+				continue;
 			}
+
+			@SuppressWarnings("unchecked")
+			var mount = (RocketComponent & MotorMount) component;
+			rebuildMotorParticles(scene, flightConfig.getId(), mount, entry.getValue(), config,
+					RenderingConstants.WORLD_SCALE);
 		}
 	}
 	
 	private static <T extends RocketComponent & MotorMount> void rebuildMotorParticles(
-			Scene scene, FlightConfigurationId fcid, T mount, RenderingConfiguration config, float worldScale) {
+			Scene scene, FlightConfigurationId fcid, T mount, List<InstanceContext> instanceContexts,
+			RenderingConfiguration config, float worldScale) {
 		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
 		if (motorCfg == null) return;
 		
 		Motor motor = motorCfg.getMotor();
 		if (motor == null) return;
-
-		CoordinateIF[] locations = mount.getComponentLocations();
-		CoordinateIF[] angles = mount.getComponentAngles();
-		
-		if (locations == null || angles == null || locations.length != angles.length) {
+		if (instanceContexts == null || instanceContexts.isEmpty()) {
 			return;
 		}
 		
-		for (int i = 0; i < locations.length; i++) {
-			CoordinateIF instanceLocation = locations[i];
-			CoordinateIF instanceAngle = angles[i];
-			
+		for (InstanceContext context : instanceContexts) {
+			CoordinateIF instanceLocation = context.getLocation();
+			CoordinateIF instanceAngle = new Coordinate(
+					context.transform.getXrotation(),
+					context.transform.getYrotation(),
+					context.transform.getZrotation());
+
 			// Calculate motor position (same logic as in buildMotor)
 			double motorFrontRelToMountFront = mount.getLength() + mount.getMotorOverhang() - motor.getLength();
 			double motorCenterRelToMountFront = motorFrontRelToMountFront + motor.getLength() / 2.0;
-			CoordinateIF mountFrontAbsolute = mount.toAbsolute(new Coordinate(0,0,0))[0];
-			CoordinateIF motorCenterAbsolute = mountFrontAbsolute.add(motorCenterRelToMountFront, 0, 0);
+			CoordinateIF motorCenterAbsolute = instanceLocation.add(motorCenterRelToMountFront, 0, 0);
 			
 			Vector3f positionInEngineCS = new Vector3f(
 					(float) motorCenterAbsolute.getX(),
