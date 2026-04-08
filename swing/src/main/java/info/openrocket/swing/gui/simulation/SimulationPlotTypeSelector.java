@@ -27,6 +27,7 @@ import info.openrocket.core.unit.Unit;
 import info.openrocket.core.util.LineStyle;
 import info.openrocket.swing.gui.components.ColorChooserButton;
 import info.openrocket.swing.gui.plot.PlotTypeSelector;
+import info.openrocket.swing.gui.util.Icons;
 import net.miginfocom.swing.MigLayout;
 
 public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType, FlightDataTypeGroup> {
@@ -53,7 +54,7 @@ public class SimulationPlotTypeSelector extends PlotTypeSelector<FlightDataType,
 		lineStyleSelector.setRenderer(new LineStyleRenderer());
 		appearancePanel.add(lineStyleSelector, "top");
 
-		setDefaultButton = new JButton(trans.get("simplotpanel.but.SetAsDefault"));
+		setDefaultButton = new JButton(Icons.SET_AS_DEFAULT);
 		setDefaultButton.setToolTipText(trans.get("simplotpanel.but.SetAsDefault.ttip"));
 		appearancePanel.add(setDefaultButton, "gapleft para, top");
 
