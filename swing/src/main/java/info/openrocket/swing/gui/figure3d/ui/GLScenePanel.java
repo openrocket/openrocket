@@ -1061,6 +1061,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			hudImageBuffer.rewind();
 			lastHudPaintTimeMs = System.currentTimeMillis();
 			hudBufferReady.set(true);
+			markRenderActivity();
 		}
 	}
 

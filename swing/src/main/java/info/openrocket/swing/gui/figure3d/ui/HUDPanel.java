@@ -1,12 +1,16 @@
 package info.openrocket.swing.gui.figure3d.ui;
 
+import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.StateChangeListener;
 import info.openrocket.swing.gui.figure3d.scene.orchestration.Scene3DOrchestrator;
 import info.openrocket.swing.gui.figureelements.RocketInfo;
 
 import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -15,10 +19,12 @@ import java.awt.Graphics2D;
  * Integrates with OpenRocket's RocketInfo component and provides rate-limited updates.
  */
 public class HUDPanel extends JPanel {
+	private static final Translator trans = Application.getTranslator();
 
 	private final Rocket rocket;
 	private Scene3DOrchestrator scene3DOrchestrator;
 	private final RocketInfo rocketInfo;
+	private volatile boolean panModeEnabled;
 
 	private volatile boolean needsRepaint = true;
 
@@ -91,6 +97,17 @@ public class HUDPanel extends JPanel {
 		return needsRepaint;
 	}
 
+	public void setPanModeEnabled(boolean enabled) {
+		if (panModeEnabled == enabled) {
+			return;
+		}
+		panModeEnabled = enabled;
+		needsRepaint = true;
+		if (hudUpdateListener != null) {
+			hudUpdateListener.markHudForUpdate();
+		}
+	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -103,7 +120,32 @@ public class HUDPanel extends JPanel {
 
 		// Paint rocket info
 		rocketInfo.paint(g2, paintScale, this.getBounds());
+		paintPanModeHint(g2);
 
 		needsRepaint = false;
+	}
+
+	private void paintPanModeHint(Graphics2D g2) {
+		if (!panModeEnabled) {
+			return;
+		}
+
+		String hintText = trans.get("RocketFigure3d.HUD.panModeHint");
+		FontMetrics metrics = g2.getFontMetrics();
+		int paddingX = 10;
+		int paddingY = 6;
+		int textWidth = metrics.stringWidth(hintText);
+		int textHeight = metrics.getHeight();
+		int boxWidth = textWidth + paddingX * 2;
+		int boxHeight = textHeight + paddingY * 2;
+		int boxX = (getWidth() - boxWidth) / 2;
+		int boxY = 12;
+
+		Color originalColor = g2.getColor();
+		g2.setColor(new Color(0, 0, 0, 170));
+		g2.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 10, 10);
+		g2.setColor(Color.WHITE);
+		g2.drawString(hintText, boxX + paddingX, boxY + paddingY + metrics.getAscent());
+		g2.setColor(originalColor);
 	}
 }

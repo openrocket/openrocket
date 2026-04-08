@@ -440,11 +440,14 @@ public class RocketFigure3d extends JPanel {
 	public void setPanModeEnabled(boolean enabled) {
 		markDirty();
 		panModeEnabled = enabled;
+		hudPanel.setPanModeEnabled(enabled);
 		GLScenePanel panel = glScenePanel;
 		if (panel != null) {
 			panel.setPanModeEnabled(enabled);
+			panel.markHudForUpdate();
 			panel.repaint();
 		}
+		requestRenderNow();
 	}
 
 	public double getZoomScale() {
