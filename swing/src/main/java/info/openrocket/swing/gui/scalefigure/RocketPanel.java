@@ -573,7 +573,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			@Override
 			public void componentClicked(RocketComponent[] clicked, MouseEvent event) {
 				clickCountListener.click();
-				handleComponentClick(clicked, event, clickCountListener.getClickCount());
+				handleComponentMouseClick(clicked, event, clickCountListener.getClickCount());
 			}
 		});
 	}
@@ -1271,35 +1271,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		}
 
-		if (event.getButton() == MouseEvent.BUTTON1) {
-			handleComponentClick(clicked, event, clickCount);
-		} else if (event.getButton() == MouseEvent.BUTTON3) {
-			List<RocketComponent> selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
-					.map(c -> (RocketComponent) c.getLastPathComponent()).collect(Collectors.toList());
+		handleComponentMouseClick(clicked, event, clickCount);
+	}
 
-			boolean newClick = true;
-			for (RocketComponent component : clicked) {
-				if (selectedComponents.contains(component)) {
-					newClick = false;
-					break;
-				}
-			}
-
-			if (newClick) {
-				for (RocketComponent rocketComponent : clicked) {
-					if (!selectedComponents.contains(rocketComponent)) {
-						setSelectedComponent(rocketComponent);
-					}
-				}
-			}
-
-			basicFrame.doComponentTreePopup(event);
+	private void handleComponentMouseClick(RocketComponent[] clicked, MouseEvent event, int clickCount) {
+		if (SwingUtilities.isRightMouseButton(event)) {
+			handleComponentPopupTrigger(clicked, event);
+			return;
+		}
+		if (SwingUtilities.isLeftMouseButton(event)) {
+			handlePrimaryComponentClick(clicked, event, clickCount);
 		}
 	}
 
-	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event, int clickCount) {
-		List<RocketComponent> selectedComponents = Arrays.stream(selectionModel.getSelectionPaths())
-				.map(c -> (RocketComponent) c.getLastPathComponent()).collect(Collectors.toList());
+	private void handlePrimaryComponentClick(RocketComponent[] clicked, MouseEvent event, int clickCount) {
+		List<RocketComponent> selectedComponents = getSelectedComponents();
 
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPaths(null);
@@ -1313,6 +1299,41 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		} else if (clickCount == 1) {
 			handleSingleComponentClick(clicked, event, selectedComponents);
 		}
+	}
+
+	private void handleComponentPopupTrigger(RocketComponent[] clicked, MouseEvent event) {
+		if (clicked == null || clicked.length == 0) {
+			selectionModel.setSelectionPath(null);
+			return;
+		}
+
+		List<RocketComponent> selectedComponents = getSelectedComponents();
+		boolean clickedExistingSelection = Arrays.stream(clicked).anyMatch(selectedComponents::contains);
+
+		if (!clickedExistingSelection) {
+			for (RocketComponent rocketComponent : clicked) {
+				if (!selectedComponents.contains(rocketComponent)) {
+					setSelectedComponent(rocketComponent);
+				}
+			}
+		} else if (!selectedComponents.isEmpty()) {
+			// The 3D picker may temporarily collapse the scene selection to the clicked
+			// component before the popup is shown. Re-apply the tree selection so 2D and
+			// 3D highlights stay aligned when opening a popup on an existing selection.
+			figure3d.setSelection(selectedComponents.toArray(new RocketComponent[0]));
+		}
+
+		basicFrame.doComponentTreePopup(event);
+	}
+
+	private List<RocketComponent> getSelectedComponents() {
+		TreePath[] selectionPaths = selectionModel.getSelectionPaths();
+		if (selectionPaths == null || selectionPaths.length == 0) {
+			return new ArrayList<>();
+		}
+		return Arrays.stream(selectionPaths)
+				.map(path -> (RocketComponent) path.getLastPathComponent())
+				.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	private void handleDoubleComponentClick(RocketComponent[] clicked, MouseEvent event, List<RocketComponent> selectedComponents) {

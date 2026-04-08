@@ -573,10 +573,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				if (SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
 					// We check for !isDragging to differentiate a click from a drag-release.
 					// A double-click will also fire this event for the second click.
-					if (SwingUtilities.isLeftMouseButton(e) && !isDragging && pressPoint != null) {
-						// Update modifier state and capture the click event for selection listeners.
+					if (!isDragging && pressPoint != null &&
+							(SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e))) {
 						InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
-						inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
+						// Right-click popup selection mirrors the 2D view and does not use
+						// shift/meta as a multi-select modifier.
+						inputState.isShiftPressed = SwingUtilities.isLeftMouseButton(e) &&
+								(e.isShiftDown() || e.isMetaDown());
 						scene3DOrchestrator.getInputHandler().getInputState().clickPoint.set(pressPoint);
 						pendingSelectionClickEvent.set(e);
 					}
