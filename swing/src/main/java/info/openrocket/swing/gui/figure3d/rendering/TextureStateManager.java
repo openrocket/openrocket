@@ -33,7 +33,7 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 public class TextureStateManager implements TextureBinder {
 	private static final int MAX_TEXTURE_UNITS = 32;
 	private final int[] boundTextures = new int[MAX_TEXTURE_UNITS];
-	private int activeTextureUnit = 0;
+	private int activeTextureUnit = -1;
 
 	/**
 	 * Cached texture parameters for a single texture.
@@ -140,9 +140,11 @@ public class TextureStateManager implements TextureBinder {
 	 * to ensure the cache remains consistent with actual GPU state.
 	 */
     @Override
-    public void reset() {
+	public void reset() {
 		Arrays.fill(boundTextures, -1);
 		textureParamsCache.clear();
-		activeTextureUnit = 0;
+		// Force the next bind to reselect the real GL active texture unit. Direct-render
+		// paths (particles, post-processing, HUD) may have changed it behind this cache.
+		activeTextureUnit = -1;
 	}
 }
