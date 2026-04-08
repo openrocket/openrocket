@@ -242,7 +242,7 @@ public class GeometryPass implements RenderPass {
 
     @Override
     public void cleanup() {
-        // Shaders are managed by the RealisticRenderer and cleaned up there
+        materialBinder.cleanup();
     }
 
     private static boolean isFigureTransparentComponent(RocketComponent component) {

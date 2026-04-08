@@ -12,5 +12,7 @@ public interface MaterialBinder {
               RealisticRenderer.ShaderUniforms uniforms,
               RenderingConfiguration config,
               TextureBinder textureBinder);
-}
 
+    default void cleanup() {
+    }
+}

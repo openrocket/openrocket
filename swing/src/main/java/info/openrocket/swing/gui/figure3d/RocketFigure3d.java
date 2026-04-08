@@ -102,6 +102,7 @@ public class RocketFigure3d extends JPanel {
 	// Demand-driven rendering: the background thread only calls renderFrame() when this is true.
 	// Starts true so the first frame renders immediately without an explicit trigger.
 	private volatile boolean dirty = true;
+	private final AtomicReference<GLScenePanel> pendingCanvasRebuild = new AtomicReference<>();
 
 	public RocketFigure3d(OpenRocketDocument document) {
 		this.document = document;
@@ -152,6 +153,7 @@ public class RocketFigure3d extends JPanel {
 		// Mark dirty whenever the user interacts (drag, scroll, resize, key) so the
 		// background thread renders on demand rather than unconditionally.
 		panel.setRenderActivityCallback(this::markDirty);
+		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
 		panel.setInitializationHook(orchestrator -> {
 			applyViewType(orchestrator, currentType);
 			applyCaretVisibility(orchestrator, drawCarets);
@@ -166,6 +168,36 @@ public class RocketFigure3d extends JPanel {
 		applyBackgroundColor(panel);
 		revalidate();
 		repaint();
+	}
+
+	private void rebuildCanvasAfterBlankDefaultFramebuffer(GLScenePanel failedPanel) {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(() -> rebuildCanvasAfterBlankDefaultFramebuffer(failedPanel));
+			return;
+		}
+		if (disposed || !renderingEnabled) {
+			return;
+		}
+		if (glScenePanel != failedPanel) {
+			return;
+		}
+		failedPanel.setRenderActivityCallback(null);
+		failedPanel.setBlankDefaultFramebufferCallback(null);
+		remove(failedPanel);
+		glScenePanel = null;
+		selectionBridgeInstalled = false;
+		revalidate();
+		repaint();
+		failedPanel.cleanup();
+
+		ensureCanvasCreatedOnEdt();
+		GLScenePanel panel = glScenePanel;
+		if (panel != null) {
+			panel.requestPeerBoundsSyncNow();
+			applyBackgroundColor(panel);
+		}
+		requestRenderNow();
+		scheduleStartupWatchdog();
 	}
 
 	private void maybeInstallSelectionBridge(GLScenePanel panel) {
@@ -224,6 +256,9 @@ public class RocketFigure3d extends JPanel {
 		}
 
 		panel.render();
+		if (processPendingCanvasRebuild(panel)) {
+			return;
+		}
 		if (panel.glInitFailed) {
 			if (!glFailureLogged) {
 				log.error("GL initialization/rendering failed in RocketFigure3d");
@@ -234,6 +269,22 @@ public class RocketFigure3d extends JPanel {
 		}
 		maybeInstallSelectionBridge(panel);
 		updateZoomState(panel.getScene3DOrchestrator());
+	}
+
+	private void requestCanvasRebuild(GLScenePanel failedPanel) {
+		pendingCanvasRebuild.compareAndSet(null, failedPanel);
+	}
+
+	private boolean processPendingCanvasRebuild(GLScenePanel panel) {
+		if (!pendingCanvasRebuild.compareAndSet(panel, null)) {
+			return false;
+		}
+		try {
+			SwingUtilities.invokeAndWait(() -> rebuildCanvasAfterBlankDefaultFramebuffer(panel));
+		} catch (Exception e) {
+			log.warn("Failed to rebuild blank 3D canvas", e);
+		}
+		return true;
 	}
 
 	/** Marks this view as needing a render on the next scheduler tick. */

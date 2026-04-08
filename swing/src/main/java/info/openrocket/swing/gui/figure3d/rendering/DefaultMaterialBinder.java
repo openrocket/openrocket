@@ -31,9 +31,8 @@ import static org.lwjgl.opengl.GL11.GL_REPEAT;
  */
 public class DefaultMaterialBinder implements MaterialBinder {
     private static final Map<Class<? extends RocketComponent>, ORColor> FIGURE_DEFAULT_COLOR_CACHE = new HashMap<>();
-    // Default appearances are class-based (same for all BodyTubes, all NoseCones, etc.),
-    // so we can safely cache them by component class and avoid per-frame re-creation.
-    private static final Map<Class<? extends RocketComponent>, Appearance3D> UNFINISHED_APPEARANCE_CACHE = new HashMap<>();
+    // Unfinished appearances own GL textures, so they must stay scoped to a single renderer/context.
+    private final Map<Class<? extends RocketComponent>, Appearance3D> unfinishedAppearanceCache = new HashMap<>();
 
     @Override
     public void bind(SceneObject obj,
@@ -48,7 +47,7 @@ public class DefaultMaterialBinder implements MaterialBinder {
                 isFigureTransparentComponent(obj.getRocketComponent());
         ORColor figureSourceColor = isFigureMode ? getFigureSourceColor(obj.getRocketComponent()) : null;
         Appearance3D unfinishedAppearance = unfinishedMode && obj.getRocketComponent() != null
-                ? UNFINISHED_APPEARANCE_CACHE.computeIfAbsent(
+                ? unfinishedAppearanceCache.computeIfAbsent(
                         obj.getRocketComponent().getClass(),
                         k -> AppearanceFactory.createDefaultFrom(obj.getRocketComponent()))
                 : null;
@@ -210,6 +209,14 @@ public class DefaultMaterialBinder implements MaterialBinder {
     private static Vector3f getUnfinishedSpecularColor(Appearance3D appearance) {
         float shine = appearance != null ? appearance.getShine() : 0.0f;
         return new Vector3f(shine, shine, shine);
+    }
+
+    @Override
+    public void cleanup() {
+        for (Appearance3D appearance : unfinishedAppearanceCache.values()) {
+            appearance.cleanup();
+        }
+        unfinishedAppearanceCache.clear();
     }
 
 }

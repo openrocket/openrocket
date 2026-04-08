@@ -71,6 +71,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
@@ -178,6 +179,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile int pendingWinHeight;
 	private volatile int pendingFbWidth;
 	private volatile int pendingFbHeight;
+	private volatile boolean suppressInternalResizeEvents = false;
 
 	// Initialization guard - prevents resize/render operations before GL is fully ready
 	private volatile boolean glInitialized = false;
@@ -199,6 +201,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private volatile Consumer<Scene3DOrchestrator> initializationHook;
 	private volatile boolean panModeEnabled = false;
 	private final AtomicBoolean fatalRenderExceptionReported = new AtomicBoolean(false);
+	private final AtomicBoolean startupBlankFramebufferRecoveryRequested = new AtomicBoolean(false);
+	private volatile int startupBlankFramebufferFrames = 0;
+	private volatile Runnable blankDefaultFramebufferCallback;
 
 	private static final class ImageCaptureRequest {
 		private final boolean transparent;
@@ -284,26 +289,26 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				if (!isDisplayable()) {
 					return;
 				}
-				markRenderActivity();
+				if (suppressInternalResizeEvents) {
+					return;
+				}
 				int width = Math.max(1, getWidth());
 				int height = Math.max(1, getHeight());
+				int[] fbSize = computeFramebufferSize(width, height);
+				if (width == pendingWinWidth && height == pendingWinHeight
+						&& fbSize[0] == pendingFbWidth && fbSize[1] == pendingFbHeight
+						&& resizeRequested) {
+					return;
+				}
+				markRenderActivity();
 				pendingWinWidth = width;
 				pendingWinHeight = height;
-				int[] fbSize = computeFramebufferSize(width, height);
 				pendingFbWidth = fbSize[0];
 				pendingFbHeight = fbSize[1];
 				resizeRequested = true;
 				hudNeedsUpdate = true;
 			}
 		});
-	}
-
-	/**
-	 * Registers a callback that is invoked when the user interacts with the canvas (mouse/keyboard/resize).
-	 * Used by the macOS render scheduler to prioritize recently active 3D views.
-	 */
-	public void setRenderActivityCallback(Runnable callback) {
-		this.renderActivityCallback = callback;
 	}
 
 	private void reportFatalRenderException(Throwable throwable) {
@@ -323,6 +328,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		} else {
 			throw new RuntimeException(reportable);
 		}
+	}
+
+	/**
+	 * Registers a callback that is invoked when the user interacts with the canvas (mouse/keyboard/resize).
+	 * Used by the macOS render scheduler to prioritize recently active 3D views.
+	 */
+	public void setRenderActivityCallback(Runnable callback) {
+		this.renderActivityCallback = callback;
+	}
+
+	public void setBlankDefaultFramebufferCallback(Runnable callback) {
+		this.blankDefaultFramebufferCallback = callback;
 	}
 
 	private void markRenderActivity() {
@@ -473,8 +490,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			// Nudge the peer size by 1px and back to force native bounds recomputation.
 			// On macOS, a real resize often "snaps" the canvas back to the correct location.
-			setBounds(x, y, width, height + 1);
-			setBounds(x, y, width, height);
+			suppressInternalResizeEvents = true;
+			try {
+				setBounds(x, y, width, height + 1);
+				setBounds(x, y, width, height);
+			} finally {
+				suppressInternalResizeEvents = false;
+			}
 			Container parent = getParent();
 			if (parent != null) {
 				parent.validate();
@@ -774,7 +796,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	@Override
 	public void render() {
-		int count = renderCallCount.incrementAndGet();
+		int renderCount = renderCallCount.incrementAndGet();
 		if (glInitFailed) {
 			return;
 		}
@@ -789,7 +811,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			}
 			// Delegate to AWTGLCanvas to make the context current and handle buffer swapping.
 			super.render();
-			if (peerBoundsSyncEnabled && count == 1) {
+			if (peerBoundsSyncEnabled && renderCount == 1) {
 				// The native NSOpenGLView is created during the first render; schedule another bounds sync
 				// afterwards to catch late layout adjustments in Swing.
 				requestPeerBoundsSyncNow();
@@ -936,6 +958,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		boolean shouldSwap = false;
+		boolean startupFrameVisible = false;
 		try {
 			if (scene3DOrchestrator == null) {
 				return;
@@ -970,6 +993,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			// --- Main Display Rendering (if not exporting) --
 			renderer.render(sceneView, null, true);
 			renderer.presentResolvedToCurrentFramebuffer();
+			startupFrameVisible = detectStartupFrameVisibility(renderer);
 
 			// --- 2D HUD Rendering - only update texture if needed ---
 			if (hudEnabled) {
@@ -1012,7 +1036,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			if (shouldSwap) {
 				swapCallCount.incrementAndGet();
 				swapBuffers();
-				visibleFrameRecoveryPending = false;
+				visibleFrameRecoveryPending = !startupFrameVisible;
 			}
 		}
 	}
@@ -1194,6 +1218,73 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 		buffer.rewind();
 		return buffer;
+	}
+
+	private boolean detectStartupFrameVisibility(Renderer renderer) {
+		int[] defaultFbSize = computeFramebufferSize();
+		int currentFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
+		int[] resolvedCenter = sampleFramebufferCenterPixelRgba(renderer.getResolvedFramebufferId(), GL_COLOR_ATTACHMENT0,
+				renderer.getRenderWidth(), renderer.getRenderHeight());
+		int[] presentedBackCenter = sampleFramebufferCenterPixelRgba(currentFramebuffer, GL_BACK,
+				defaultFbSize[0], defaultFbSize[1]);
+		int[] presentedFrontCenter = sampleFramebufferCenterPixelRgba(currentFramebuffer, GL_FRONT,
+				defaultFbSize[0], defaultFbSize[1]);
+		boolean resolvedHasContent = hasVisiblePixelContent(resolvedCenter);
+		boolean defaultHasContent = hasVisiblePixelContent(presentedBackCenter) || hasVisiblePixelContent(presentedFrontCenter);
+		boolean startupFrameVisible = !resolvedHasContent || defaultHasContent;
+		handleBlankDefaultFramebufferDuringStartup(startupFrameVisible, resolvedHasContent);
+		return startupFrameVisible;
+	}
+
+	private void handleBlankDefaultFramebufferDuringStartup(boolean startupFrameVisible, boolean resolvedHasContent) {
+		if (startupFrameVisible || !visibleFrameRecoveryPending || !resolvedHasContent) {
+			startupBlankFramebufferFrames = 0;
+			return;
+		}
+
+		startupBlankFramebufferFrames++;
+		if (startupBlankFramebufferFrames < 2) {
+			return;
+		}
+
+		Runnable callback = blankDefaultFramebufferCallback;
+		if (callback == null || !startupBlankFramebufferRecoveryRequested.compareAndSet(false, true)) {
+			return;
+		}
+
+		callback.run();
+	}
+
+	private int[] sampleFramebufferCenterPixelRgba(int framebufferId, int readBuffer, int width, int height) {
+		if (width <= 0 || height <= 0) {
+			return null;
+		}
+
+		int previousFramebuffer = glGetInteger(GL_FRAMEBUFFER_BINDING);
+		int previousReadBuffer = glGetInteger(GL_READ_BUFFER);
+		ByteBuffer pixel = BufferUtils.createByteBuffer(4);
+		int sampleX = Math.max(0, Math.min(width - 1, width / 2));
+		int sampleY = Math.max(0, Math.min(height - 1, height / 2));
+
+		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+		glReadBuffer(framebufferId == 0 ? readBuffer : GL_COLOR_ATTACHMENT0);
+		glReadPixels(sampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+		glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
+		glReadBuffer(previousReadBuffer);
+
+		return new int[]{
+				pixel.get(0) & 0xFF,
+				pixel.get(1) & 0xFF,
+				pixel.get(2) & 0xFF,
+				pixel.get(3) & 0xFF
+		};
+	}
+
+	private boolean hasVisiblePixelContent(int[] rgba) {
+		if (rgba == null || rgba.length < 4) {
+			return false;
+		}
+		return rgba[0] != 0 || rgba[1] != 0 || rgba[2] != 0 || rgba[3] != 0;
 	}
 
 	private BufferedImage bufferToImage(ByteBuffer buffer, int width, int height) {

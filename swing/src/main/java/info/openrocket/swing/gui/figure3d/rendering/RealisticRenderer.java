@@ -37,7 +37,11 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_DOUBLEBUFFER;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
+import static org.lwjgl.opengl.GL11.GL_STENCIL_TEST;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glCullFace;
@@ -557,8 +561,19 @@ public class RealisticRenderer implements Renderer {
 			return;
 		}
 
+		int presentBuffer = GL33.glGetInteger(GL_DOUBLEBUFFER) != 0 ? GL_BACK : GL_FRONT;
+
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
+		GL33.glDrawBuffer(presentBuffer);
+		GL33.glDepthMask(true);
+		GL33.glColorMask(true, true, true, true);
 		glViewport(0, 0, screenWidth, screenHeight);
 		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_SCISSOR_TEST);
+		glDisable(GL_STENCIL_TEST);
+		GL33.glDisable(GL33.GL_BLEND);
+		GL33.glDisable(GL_CULL_FACE);
+		GL33.glPolygonMode(GL33.GL_FRONT_AND_BACK, GL33.GL_FILL);
 		// Disable automatic sRGB conversion — apply it manually in the shader instead,
 		// so behaviour is consistent regardless of whether the default framebuffer is
 		// sRGB-capable (it is silently ignored on many Linux/GLX drivers).
