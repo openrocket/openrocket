@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manages real-time synchronization between the OpenRocket data model and the 3D scene visualization.
@@ -50,8 +51,19 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	private final ConcurrentLinkedQueue<RocketComponent> pendingAppearanceUpdates = new ConcurrentLinkedQueue<>();
 	private final AtomicBoolean appearanceQueued = new AtomicBoolean(false);
 	private final AtomicBoolean rebuildQueued = new AtomicBoolean(false);
-	private final AtomicBoolean refocusQueued = new AtomicBoolean(false);
+	private final AtomicReference<CameraUpdateBehavior> pendingCameraUpdateBehavior =
+			new AtomicReference<>(CameraUpdateBehavior.NONE);
 	private volatile FlightConfigurationId lastSelectedConfigurationId;
+
+	private enum CameraUpdateBehavior {
+		NONE,
+		REFIT_IF_FIT,
+		RESET;
+
+		private static CameraUpdateBehavior merge(CameraUpdateBehavior current, CameraUpdateBehavior requested) {
+			return current.ordinal() >= requested.ordinal() ? current : requested;
+		}
+	}
 
 	/**
 	 * Constructs a new RocketSceneSynchronizer and registers it with the rocket model.
@@ -81,8 +93,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 */
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
+		CameraUpdateBehavior requestedCameraUpdate = determineCameraUpdateBehavior(e);
 		if (hasSelectedConfigurationChanged()) {
-			queueRebuild(false);
+			queueRebuild(requestedCameraUpdate);
 			return;
 		}
 
@@ -91,7 +104,7 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		if (isAppearanceOnlySceneChange(e)) {
 			queueAppearanceUpdate(e.getSource());
 		} else {
-			queueRebuild(shouldRefocusCamera(e));
+			queueRebuild(requestedCameraUpdate);
 		}
 	}
 
@@ -151,21 +164,25 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		}
 	}
 
-	private boolean shouldRefocusCamera(ComponentChangeEvent e) {
-		return e.isTreeChange() || e.isTreeChildrenChange() || e.isMassChange();
+	private CameraUpdateBehavior determineCameraUpdateBehavior(ComponentChangeEvent e) {
+		if (e.isTreeChange()) {
+			return CameraUpdateBehavior.RESET;
+		}
+		if (e.isTreeChildrenChange() || e.isMassChange()) {
+			return CameraUpdateBehavior.REFIT_IF_FIT;
+		}
+		return CameraUpdateBehavior.NONE;
 	}
 
-	private void queueRebuild(boolean refocusCamera) {
-		if (refocusCamera) {
-			refocusQueued.set(true);
-		}
+	private void queueRebuild(CameraUpdateBehavior requestedCameraUpdate) {
+		pendingCameraUpdateBehavior.accumulateAndGet(requestedCameraUpdate, CameraUpdateBehavior::merge);
 		if (!rebuildQueued.compareAndSet(false, true)) {
 			return;
 		}
 		scene3DOrchestrator.enqueueGlTask(() -> {
 			try {
 				pendingAppearanceUpdates.clear();
-				rebuildRocketScene(refocusQueued.getAndSet(false));
+				rebuildRocketScene(pendingCameraUpdateBehavior.getAndSet(CameraUpdateBehavior.NONE));
 			} finally {
 				rebuildQueued.set(false);
 			}
@@ -227,10 +244,14 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 	 * <p>Non-rocket objects (axes, lights, etc.) are preserved during this operation.</p>
 	 */
 	public void rebuildRocketScene() {
-		rebuildRocketScene(true);
+		rebuildRocketScene(CameraUpdateBehavior.REFIT_IF_FIT);
 	}
 
 	public void rebuildRocketScene(boolean refocusCamera) {
+		rebuildRocketScene(refocusCamera ? CameraUpdateBehavior.REFIT_IF_FIT : CameraUpdateBehavior.NONE);
+	}
+
+	private void rebuildRocketScene(CameraUpdateBehavior cameraUpdateBehavior) {
 		lastSelectedConfigurationId = rocket.getSelectedConfiguration().getId();
 		boolean hadSelection = !scene.getSelectedObjects().isEmpty();
 		Set<RocketComponent> selectedRocketComponents = captureSelectedRocketComponents();
@@ -267,7 +288,10 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 		RocketMeshBuilder.buildRocketMesh(scene, rocket, scene3DOrchestrator.getRenderingConfiguration());
 		scene3DOrchestrator.applyRocketRotationToScene();
 		restoreSelectionAfterRebuild(hadSelection, selectedRocketComponents, persistentSelection);
-		if (refocusCamera) {
+		if (cameraUpdateBehavior == CameraUpdateBehavior.RESET) {
+			scene3DOrchestrator.resetViewAndFocusOnRocket();
+		} else if (cameraUpdateBehavior == CameraUpdateBehavior.REFIT_IF_FIT
+				&& scene3DOrchestrator.getCameraController().isZoomFitting()) {
 			scene3DOrchestrator.focusOnRocket();
 		}
 	}
