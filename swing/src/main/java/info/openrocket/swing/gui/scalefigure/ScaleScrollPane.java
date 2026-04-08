@@ -173,6 +173,19 @@ public class ScaleScrollPane extends JScrollPane
 	public double getUserScale() {
 		return figure.getUserScale();
 	}
+
+	public double getFitScale() {
+		Dimension calculatedViewSize = new Dimension(getWidth() - viewportMarginPx.width, getHeight() - viewportMarginPx.height);
+		return figure.getFitScale(calculatedViewSize);
+	}
+
+	public double getRelativeScale() {
+		double fitScale = getFitScale();
+		if (fitScale <= 0 || Double.isNaN(fitScale) || Double.isInfinite(fitScale)) {
+			return 1.0;
+		}
+		return figure.getUserScale() / fitScale;
+	}
 	
 	public void setScaling(final double newScale) {
 		// match if closer than 1%:
@@ -190,6 +203,14 @@ public class ScaleScrollPane extends JScrollPane
 		figureRescaled = figure.scaleTo(newScale, view);
 
 		revalidate();
+	}
+
+	public void setRelativeScaling(final double relativeScale) {
+		double fitScale = getFitScale();
+		if (fitScale <= 0 || Double.isNaN(fitScale) || Double.isInfinite(fitScale)) {
+			return;
+		}
+		setScaling(relativeScale * fitScale);
 	}
 	
 	

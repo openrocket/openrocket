@@ -827,7 +827,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		scaleSelector = new ScaleSelector(new ScaleSelector.ZoomModel() {
 			@Override
 			public double getScale() {
-				return is3d ? figure3d.getZoomScale() : scrollPane.getUserScale();
+				return is3d ? figure3d.getZoomScale() : scrollPane.getRelativeScale();
 			}
 
 			@Override
@@ -840,7 +840,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				if (is3d) {
 					figure3d.setZoomScale(scale);
 				} else {
-					scrollPane.setScaling(scale);
+					scrollPane.setRelativeScaling(scale);
 				}
 			}
 
