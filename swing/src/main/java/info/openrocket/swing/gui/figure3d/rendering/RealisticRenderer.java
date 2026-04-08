@@ -113,6 +113,7 @@ public class RealisticRenderer implements Renderer {
 		public final int roughnessScale;
 		public final int roughnessStrength;
 		public final int opacity;
+		public final int textureOpacityAffectsAlpha;
 		public final int shadowMap;
 		public final int shadowsEnabled;
 		public final int shadowLightIndex;
@@ -156,6 +157,7 @@ public class RealisticRenderer implements Renderer {
 			this.roughnessScale = shader.getUniformLocation("roughnessScale");
 			this.roughnessStrength = shader.getUniformLocation("roughnessStrength");
 			this.opacity = shader.getUniformLocation("opacity");
+			this.textureOpacityAffectsAlpha = shader.getUniformLocation("textureOpacityAffectsAlpha");
 			this.shadowMap = shader.getUniformLocation("shadowMap");
 			this.shadowsEnabled = shader.getUniformLocation("shadowsEnabled");
 			this.shadowLightIndex = shader.getUniformLocation("shadowLightIndex");

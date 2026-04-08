@@ -84,6 +84,10 @@ public class DefaultMaterialBinder implements MaterialBinder {
         GL33.glUniform1f(uniforms.shine, shine);
         GL33.glUniform1f(uniforms.roughnessScale, appearance.getRoughnessScale());
         GL33.glUniform1f(uniforms.roughnessStrength, appearance.getRoughnessStrength());
+        boolean textureOpacityAffectsAlpha = unfinishedMode
+                ? unfinishedAppearance.isOpacityAffectsTexture()
+                : appearance.isOpacityAffectsTexture();
+        GL33.glUniform1i(uniforms.textureOpacityAffectsAlpha, textureOpacityAffectsAlpha ? 1 : 0);
         float effectiveOpacity = getEffectiveOpacity(obj.getRocketComponent(), appearance, config, unfinishedMode, isFigureMode, isXray);
         boolean hideInnerSurfaces = !config.getDisplay().isRenderInternalSurfaces()
                 || shouldHideInnerSurfacesForTransparentShell(obj.getRocketComponent(), effectiveOpacity, isFigureMode);

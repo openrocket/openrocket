@@ -21,6 +21,7 @@ import info.openrocket.core.database.ComponentPresetDao;
 import info.openrocket.core.database.ComponentPresetDatabase;
 import info.openrocket.core.database.motor.MotorDatabase;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
+import info.openrocket.core.appearance.Appearance;
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.document.OpenRocketDocumentFactory;
 import info.openrocket.core.document.Simulation;
@@ -50,6 +51,7 @@ import info.openrocket.core.simulation.extension.impl.ScriptingUtil;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.CoordinateIF;
+import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.TestRockets;
 
 import org.junit.jupiter.api.AfterEach;
@@ -228,6 +230,22 @@ public class OpenRocketSaverTest {
 																			// marked inactive
 		config = rocketDocLoaded.getRocket().getSelectedConfiguration();
 		assertTrue(config.isStageActive(0), " empty rocket, selected config, stage 0 should have been enabled after saving");
+	}
+
+	@Test
+	public void testAppearanceTextureOpacityRoundTrip() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v106_withAppearance();
+		BodyTube bodyTube = (BodyTube) rocketDoc.getRocket().getStage(0).getChild(0);
+		bodyTube.setAppearance(new Appearance(new ORColor(100, 25, 50, 128), 1, null, true));
+
+		File file = saveRocket(rocketDoc, new StorageOptions());
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		BodyTube loadedBodyTube = (BodyTube) rocketDocLoaded.getRocket().getStage(0).getChild(0);
+		Appearance loadedAppearance = loadedBodyTube.getAppearance();
+
+		assertNotNull(loadedAppearance);
+		assertEquals(128, loadedAppearance.getPaint().getAlpha());
+		assertTrue(loadedAppearance.isOpacityAffectsTexture());
 	}
 
 	@Test

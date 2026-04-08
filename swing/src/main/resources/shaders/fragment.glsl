@@ -32,6 +32,7 @@ uniform float specularTintFactor;
 uniform bool isUnlit;
 uniform float ambientLightFactor;
 uniform float opacity;  // 0.0 = fully transparent, 1.0 = fully opaque
+uniform bool textureOpacityAffectsAlpha;
 uniform int textureMode;
 
 // Lighting
@@ -303,11 +304,13 @@ void main()
     // 1. Get base surface color
     vec4 surfaceColor = vec4(objectColor, 1.0);
     vec2 materialTexCoord = getMaterialTexCoord();
+    float textureCoverage = 0.0;
 
     // Texture handling
     if (renderStyle == 1 && hasTexture == 1) { // 1 = TEXTURED
         vec4 texColor = texture(textureSampler, materialTexCoord);
         float textureAlpha = adjustTextureCoverage(texColor.a);
+        textureCoverage = textureAlpha;
         surfaceColor.rgb = mix(surfaceColor.rgb, texColor.rgb, textureAlpha);
     }
 
@@ -382,7 +385,11 @@ void main()
     }
 
     // Final color with opacity
-    vec4 finalColorRGBA = vec4(finalColor, surfaceColor.a * opacity);
+    float finalAlpha = surfaceColor.a * opacity;
+    if (renderStyle == 1 && hasTexture == 1 && !textureOpacityAffectsAlpha) {
+        finalAlpha = max(finalAlpha, textureCoverage);
+    }
+    vec4 finalColorRGBA = vec4(finalColor, finalAlpha);
 
     if (xrayMode && !gl_FrontFacing) {
         finalColorRGBA.rgb *= 0.7;

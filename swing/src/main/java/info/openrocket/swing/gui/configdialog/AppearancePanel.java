@@ -811,8 +811,19 @@ public class AppearancePanel extends JPanel implements Invalidatable, Invalidati
 		transformControlMap.put(builder, new TextureTransformControls(
 				scaleXModel, scaleYModel, offsetUModel, offsetVModel, rotationModel));
 
+		// Opacity affects texture checkbox
+		BooleanModel opacityAffectsTextureModel = new BooleanModel(builder, "OpacityAffectsTexture");
+		register(opacityAffectsTextureModel);
+		JCheckBox opacityAffectsTextureCheckBox = new JCheckBox(opacityAffectsTextureModel);
+		opacityAffectsTextureCheckBox.setText(trans.get("AppearanceCfg.checkbox.opacityAffectsTexture"));
+		opacityAffectsTextureCheckBox.setToolTipText(trans.get("AppearanceCfg.checkbox.ttip.opacityAffectsTexture"));
+		mDefault.addEnableComponent(opacityAffectsTextureCheckBox, false);
+		panel.add(opacityAffectsTextureCheckBox, "span 2, gapleft para");
+		order.add(order.indexOf(((SpinnerEditor) spinOpacity.getEditor()).getTextField()) + 1,
+				opacityAffectsTextureCheckBox);
+
 		// Repeat
-		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "skip 2, gapleft para");
+		panel.add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")), "gapleft para");
 		EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
 		System.arraycopy(EdgeMode.values(), 0, list, 0,
 				EdgeMode.values().length);

@@ -36,6 +36,7 @@ public class Appearance3D implements Material {
 	private float roughnessScale;		// Scale for bump mapping (higher values = more detail)
 	private float roughnessStrength;		// Strength of the bump effect (0.0 = no bump, higher values = more pronounced bumps)
 	private float opacity = 1.0f;
+	private boolean opacityAffectsTexture;
 
 	// --- Texture & Decal Properties ---
 	private Texture texture;
@@ -105,6 +106,9 @@ public class Appearance3D implements Material {
 	public void setOpacity(float opacity) {
 		this.opacity = Math.max(0.0f, Math.min(1.0f, opacity));
 	}
+	public void setOpacityAffectsTexture(boolean opacityAffectsTexture) {
+		this.opacityAffectsTexture = opacityAffectsTexture;
+	}
 	public void setDecal(Texture decalTexture, Vector2f position, Vector2f scale) {
 		setDecal(decalTexture, position, scale, DECAL_SURFACE_ALL);
 	}
@@ -133,6 +137,7 @@ public class Appearance3D implements Material {
 	public Texture getTexture() { return texture; }
 	public TextureMode getTextureMode() { return textureMode; }
 	public float getOpacity() { return opacity; }
+	public boolean isOpacityAffectsTexture() { return opacityAffectsTexture; }
 
 	@Override
 	public RenderStyle getRenderStyle() { return style; }

@@ -67,6 +67,10 @@ class AppearanceHandler extends AbstractElementHandler {
 			builder.setShine(shine);
 			return;
 		}
+		if ("opacityaffectstexture".equals(element)) {
+			builder.setOpacityAffectsTexture(Boolean.parseBoolean(content));
+			return;
+		}
 		if (isInDecal && "center".equals(element)) {
 			double x = Double.parseDouble(attributes.get("x"));
 			double y = Double.parseDouble(attributes.get("y"));

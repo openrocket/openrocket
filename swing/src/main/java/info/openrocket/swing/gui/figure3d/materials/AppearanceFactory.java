@@ -71,6 +71,7 @@ public abstract class AppearanceFactory {
 			engineAppearance.setColor(new Vector3f(orColor.getRed() / 255.0f, orColor.getGreen() / 255.0f, orColor.getBlue() / 255.0f));
 			engineAppearance.setOpacity(orColor.getAlpha() / 255.0f);
 		}
+		engineAppearance.setOpacityAffectsTexture(orAppearance.isOpacityAffectsTexture());
 
 		// Map shine
 		engineAppearance.setShine((float) orAppearance.getShine());
