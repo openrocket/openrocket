@@ -380,8 +380,7 @@ void main()
     vec4 finalColorRGBA = vec4(finalColor, finalAlpha);
 
     if (xrayMode && !gl_FrontFacing) {
-        finalColorRGBA.rgb *= 0.7;
-        finalColorRGBA.a = 1.0;
+        finalColorRGBA.rgb *= 0.78;
     }
 
     // 4. Apply selection

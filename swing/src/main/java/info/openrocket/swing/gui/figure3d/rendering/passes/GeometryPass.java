@@ -18,6 +18,7 @@ import info.openrocket.swing.gui.figure3d.scene.properties.RenderingConfiguratio
 import info.openrocket.swing.gui.figure3d.window.WindowManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL33;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -194,23 +195,24 @@ public class GeometryPass implements RenderPass {
      * @param obj The scene object to render with its associated mesh and materials
      */
     private void renderSingleObject(SceneObject obj) {
-        renderObject(obj, false, null);
+        renderObject(obj, false, null, false);
     }
 
     private void renderTransparentObject(SceneObject obj, Matrix4f viewMatrix) {
-        if (shouldRenderTransparentShellInFacePasses(obj)) {
-            renderTransparentShellObject(obj, viewMatrix);
+        if (shouldRenderTransparentBodyInFacePasses(obj)) {
+            renderTransparentBodyObject(obj, viewMatrix);
             return;
         }
-        renderObject(obj, true, viewMatrix);
+        renderObject(obj, true, viewMatrix, false);
     }
 
     /**
-     * Transparent hollow shells look cleaner when their back-facing surfaces are blended
-     * before the front-facing ones. This avoids the triangle soup that appears when XRAY
-     * disables culling globally and both shell sides blend together in a single pass.
+     * Transparent rocket bodies and shells look cleaner when their back-facing
+     * surfaces are blended before the front-facing ones. This avoids the triangle
+     * soup caused by per-triangle sorting on curved convex meshes, and hiding the
+     * inner shell keeps tube wall thickness from making the whole part look too dark.
      */
-    private void renderTransparentShellObject(SceneObject obj, Matrix4f viewMatrix) {
+    private void renderTransparentBodyObject(SceneObject obj, Matrix4f viewMatrix) {
         boolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
         int previousCullFace = glGetInteger(GL_CULL_FACE_MODE);
 
@@ -221,11 +223,11 @@ public class GeometryPass implements RenderPass {
 
         glCullFace(GL_FRONT);
         renderStats.stateChanges++;
-        renderObject(obj, false, viewMatrix);
+        renderObject(obj, false, viewMatrix, true);
 
         glCullFace(GL_BACK);
         renderStats.stateChanges++;
-        renderObject(obj, false, viewMatrix);
+        renderObject(obj, false, viewMatrix, true);
 
         if (!cullWasEnabled) {
             glDisable(GL_CULL_FACE);
@@ -236,9 +238,12 @@ public class GeometryPass implements RenderPass {
         }
     }
 
-    private void renderObject(SceneObject obj, boolean sortTriangles, Matrix4f viewMatrix) {
+    private void renderObject(SceneObject obj, boolean sortTriangles, Matrix4f viewMatrix, boolean forceHideInnerSurfaces) {
         boolean isWireframe = isWireframe(obj);
         materialBinder.bind(obj, mainShader, mainShaderUniforms, config, textureStateManager);
+        if (forceHideInnerSurfaces) {
+            GL33.glUniform1i(mainShaderUniforms.hideInnerSurfaces, 1);
+        }
 
         if (isWireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -265,20 +270,20 @@ public class GeometryPass implements RenderPass {
     }
 
     /**
-     * Per-triangle sorting makes hollow shell tessellation visible on semi-transparent
-     * body tubes and transitions. Those meshes now rely on inner-surface suppression
-     * instead, and stay on the regular indexed path.
+     * Per-triangle sorting makes the tessellation of curved transparent rocket
+     * bodies visible, especially on nose cones when they get small on screen.
+     * Those components now use ordered face passes instead.
      */
     private boolean shouldSortTransparentTriangles(SceneObject obj) {
         if (isWireframe(obj)) {
             return false;
         }
         RocketComponent component = obj.getRocketComponent();
-        return !isTransparentShellComponent(component);
+        return !isTransparentBodyComponent(component);
     }
 
-    private boolean shouldRenderTransparentShellInFacePasses(SceneObject obj) {
-        return !isWireframe(obj) && isTransparentShellComponent(obj.getRocketComponent());
+    private boolean shouldRenderTransparentBodyInFacePasses(SceneObject obj) {
+        return !isWireframe(obj) && isTransparentBodyComponent(obj.getRocketComponent());
     }
 
     @Override
@@ -298,10 +303,10 @@ public class GeometryPass implements RenderPass {
         return component instanceof Transition;
     }
 
-    private static boolean isTransparentShellComponent(RocketComponent component) {
+    private static boolean isTransparentBodyComponent(RocketComponent component) {
         if (component instanceof BodyTube) {
             return true;
         }
-        return component instanceof Transition && !(component instanceof NoseCone);
+        return component instanceof Transition;
     }
 }
