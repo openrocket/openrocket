@@ -23,16 +23,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_BACK;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE_MODE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_FILL;
+import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
 import static org.lwjgl.opengl.GL11.GL_LINE;
 import static org.lwjgl.opengl.GL11.GL_ONE;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+import static org.lwjgl.opengl.GL11.glIsEnabled;
 import static org.lwjgl.opengl.GL11.glPolygonMode;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
@@ -191,7 +198,42 @@ public class GeometryPass implements RenderPass {
     }
 
     private void renderTransparentObject(SceneObject obj, Matrix4f viewMatrix) {
+        if (shouldRenderTransparentShellInFacePasses(obj)) {
+            renderTransparentShellObject(obj, viewMatrix);
+            return;
+        }
         renderObject(obj, true, viewMatrix);
+    }
+
+    /**
+     * Transparent hollow shells look cleaner when their back-facing surfaces are blended
+     * before the front-facing ones. This avoids the triangle soup that appears when XRAY
+     * disables culling globally and both shell sides blend together in a single pass.
+     */
+    private void renderTransparentShellObject(SceneObject obj, Matrix4f viewMatrix) {
+        boolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
+        int previousCullFace = glGetInteger(GL_CULL_FACE_MODE);
+
+        if (!cullWasEnabled) {
+            glEnable(GL_CULL_FACE);
+            renderStats.stateChanges++;
+        }
+
+        glCullFace(GL_FRONT);
+        renderStats.stateChanges++;
+        renderObject(obj, false, viewMatrix);
+
+        glCullFace(GL_BACK);
+        renderStats.stateChanges++;
+        renderObject(obj, false, viewMatrix);
+
+        if (!cullWasEnabled) {
+            glDisable(GL_CULL_FACE);
+            renderStats.stateChanges++;
+        } else if (previousCullFace != GL_BACK) {
+            glCullFace(previousCullFace);
+            renderStats.stateChanges++;
+        }
     }
 
     private void renderObject(SceneObject obj, boolean sortTriangles, Matrix4f viewMatrix) {
@@ -233,6 +275,10 @@ public class GeometryPass implements RenderPass {
         }
         RocketComponent component = obj.getRocketComponent();
         return !isTransparentShellComponent(component);
+    }
+
+    private boolean shouldRenderTransparentShellInFacePasses(SceneObject obj) {
+        return !isWireframe(obj) && isTransparentShellComponent(obj.getRocketComponent());
     }
 
     @Override
