@@ -393,7 +393,8 @@ public class Scene3DOrchestrator {
 					.withParticleEffects(false)
 					//.withParticleTiming(false, 0f)
 					.build();
-			Figure3DPreferences.applyDefaults(config, Application.getPreferences());
+			Figure3DPreferences.applyDefaults(config, rocket.getDocument().getDocumentPreferences(),
+					Application.getPreferences());
 			
 			// Create scene
 			Scene scene = Scene.builder(rocket, camera, config).build();

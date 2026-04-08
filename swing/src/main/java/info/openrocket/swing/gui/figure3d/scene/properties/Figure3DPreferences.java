@@ -1,6 +1,7 @@
 package info.openrocket.swing.gui.figure3d.scene.properties;
 
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.preferences.DocumentPreferences;
 import info.openrocket.swing.gui.figure3d.constants.CameraConstants;
 
 /**
@@ -25,6 +26,11 @@ public final class Figure3DPreferences {
 
 	public static void applyDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
 		apply(config, load(preferences));
+	}
+
+	public static void applyDefaults(RenderingConfiguration config, DocumentPreferences documentPreferences,
+			ApplicationPreferences preferences) {
+		apply(config, load(documentPreferences, preferences));
 	}
 
 	public static void apply(RenderingConfiguration config, Values values) {
@@ -57,6 +63,20 @@ public final class Figure3DPreferences {
 				isCaretScaleWithView(preferences));
 	}
 
+	public static Values load(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return new Values(
+				getRenderQuality(documentPreferences, preferences),
+				isAntiAliasingEnabled(preferences),
+				getShadowsEnabled(documentPreferences, preferences),
+				getAmbientOcclusionEnabled(documentPreferences, preferences),
+				getRoughnessBumpEnabled(documentPreferences, preferences),
+				getOriginAxesVisible(documentPreferences, preferences),
+				getLightVisualizersVisible(documentPreferences, preferences),
+				getRotateRocketOnDrag(documentPreferences, preferences),
+				getDragRotationSensitivity(preferences),
+				getCaretScaleWithView(documentPreferences, preferences));
+	}
+
 	public static void save(ApplicationPreferences preferences, Values values) {
 		setDefaultRenderQuality(preferences, values.renderQuality());
 		setAntiAliasingEnabled(preferences, values.antiAliasingEnabled());
@@ -70,8 +90,71 @@ public final class Figure3DPreferences {
 		setCaretScaleWithView(preferences, values.caretScaleWithView());
 	}
 
+	public static void saveToDocument(DocumentPreferences documentPreferences, ApplicationPreferences preferences,
+			Values values) {
+		putOrRemoveInt(documentPreferences, DocumentPreferences.PREF_3D_RENDER_QUALITY,
+				values.renderQuality().ordinal(), getDefaultRenderQuality(preferences).ordinal());
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_SHADOWS_ENABLED,
+				values.shadowsEnabled(), isShadowsEnabled(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_AMBIENT_OCCLUSION_ENABLED,
+				values.ambientOcclusionEnabled(), isAmbientOcclusionEnabled(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_ROUGHNESS_BUMP_ENABLED,
+				values.roughnessBumpEnabled(), isRoughnessBumpEnabled(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_ORIGIN_AXES_VISIBLE,
+				values.originAxesVisible(), isOriginAxesVisible(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_LIGHT_VISUALIZERS_VISIBLE,
+				values.lightVisualizersVisible(), areLightVisualizersVisible(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_ROTATE_ROCKET_ON_DRAG,
+				values.rotateRocketOnDrag(), isRotateRocketOnDrag(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_CARET_SCALE_WITH_VIEW,
+				values.caretScaleWithView(), isCaretScaleWithView(preferences));
+	}
+
 	public static void applyQualityDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
 		applyDefaults(config, preferences);
+	}
+
+	public static GraphicsQualitySettings.RenderQuality getRenderQuality(DocumentPreferences documentPreferences,
+			ApplicationPreferences preferences) {
+		int maxIndex = GraphicsQualitySettings.RenderQuality.values().length - 1;
+		int fallback = getDefaultRenderQuality(preferences).ordinal();
+		int choice = documentPreferences.getInt(DocumentPreferences.PREF_3D_RENDER_QUALITY, fallback);
+		choice = Math.max(0, Math.min(maxIndex, choice));
+		return GraphicsQualitySettings.RenderQuality.values()[choice];
+	}
+
+	public static boolean getShadowsEnabled(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_SHADOWS_ENABLED, isShadowsEnabled(preferences));
+	}
+
+	public static boolean getAmbientOcclusionEnabled(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_AMBIENT_OCCLUSION_ENABLED,
+				isAmbientOcclusionEnabled(preferences));
+	}
+
+	public static boolean getRoughnessBumpEnabled(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_ROUGHNESS_BUMP_ENABLED,
+				isRoughnessBumpEnabled(preferences));
+	}
+
+	public static boolean getOriginAxesVisible(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_ORIGIN_AXES_VISIBLE,
+				isOriginAxesVisible(preferences));
+	}
+
+	public static boolean getLightVisualizersVisible(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_LIGHT_VISUALIZERS_VISIBLE,
+				areLightVisualizersVisible(preferences));
+	}
+
+	public static boolean getRotateRocketOnDrag(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_ROTATE_ROCKET_ON_DRAG,
+				isRotateRocketOnDrag(preferences));
+	}
+
+	public static boolean getCaretScaleWithView(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_CARET_SCALE_WITH_VIEW,
+				isCaretScaleWithView(preferences));
 	}
 
 	public static void applyVisualDefaults(RenderingConfiguration config, ApplicationPreferences preferences) {
@@ -172,5 +255,22 @@ public final class Figure3DPreferences {
 
 	public static void setCaretScaleWithView(ApplicationPreferences preferences, boolean enabled) {
 		preferences.putBoolean(ApplicationPreferences.OPENGL_SCALE_CARETS_WITH_VIEW, enabled);
+	}
+
+	private static void putOrRemoveBoolean(DocumentPreferences documentPreferences, String key, boolean value,
+			boolean fallbackValue) {
+		if (value == fallbackValue) {
+			documentPreferences.removePreference(key);
+		} else {
+			documentPreferences.putBoolean(key, value);
+		}
+	}
+
+	private static void putOrRemoveInt(DocumentPreferences documentPreferences, String key, int value, int fallbackValue) {
+		if (value == fallbackValue) {
+			documentPreferences.removePreference(key);
+		} else {
+			documentPreferences.putInt(key, value);
+		}
 	}
 }

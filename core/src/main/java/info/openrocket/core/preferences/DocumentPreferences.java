@@ -36,6 +36,14 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	public static final String PREF_3D_BACKGROUND_COLOR = "RocketPanel.3DBackgroundColor";
 	public static final String PREF_2D_TEXT_COLOR = "RocketPanel.2DTextColor";
 	public static final String PREF_3D_TEXT_COLOR = "RocketPanel.3DTextColor";
+	public static final String PREF_3D_RENDER_QUALITY = "RocketPanel.3DRenderQuality";
+	public static final String PREF_3D_SHADOWS_ENABLED = "RocketPanel.3DShadowsEnabled";
+	public static final String PREF_3D_AMBIENT_OCCLUSION_ENABLED = "RocketPanel.3DAmbientOcclusionEnabled";
+	public static final String PREF_3D_ROUGHNESS_BUMP_ENABLED = "RocketPanel.3DRoughnessBumpEnabled";
+	public static final String PREF_3D_ORIGIN_AXES_VISIBLE = "RocketPanel.3DOriginAxesVisible";
+	public static final String PREF_3D_LIGHT_VISUALIZERS_VISIBLE = "RocketPanel.3DLightVisualizersVisible";
+	public static final String PREF_3D_ROTATE_ROCKET_ON_DRAG = "RocketPanel.3DRotateRocketOnDrag";
+	public static final String PREF_3D_CARET_SCALE_WITH_VIEW = "RocketPanel.3DCaretScaleWithView";
 
 
 	@Override
@@ -165,6 +173,10 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	 */
 	public Map<String, DocumentPreference> getPreferencesMap() {
 		return preferencesMap;
+	}
+
+	public void removePreference(String key) {
+		preferencesMap.remove(key);
 	}
 
 	public Database<Material> getBulkMaterials() {

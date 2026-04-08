@@ -42,6 +42,7 @@ public class DisplaySettingsDialog extends JDialog {
 
 	private final RocketPanel rocketPanel;
 	private final DocumentPreferences docPreferences;
+	private final Figure3DPreferences.Values originalDocument3DPreferences;
 	private final GraphicsQualitySettings.RenderQuality originalRenderQuality;
 	private final boolean originalShadowsEnabled;
 	private final boolean originalAmbientOcclusionEnabled;
@@ -83,6 +84,7 @@ public class DisplaySettingsDialog extends JDialog {
 
 		this.rocketPanel = rocketPanel;
 		this.docPreferences = rocketPanel.getDocument().getDocumentPreferences();
+		this.originalDocument3DPreferences = Figure3DPreferences.load(docPreferences, prefs);
 		
 		// Get current colors from document preferences (null if not explicitly set)
 		original2DBgColor = docPreferences.getColor(DocumentPreferences.PREF_2D_BACKGROUND_COLOR, null);
@@ -463,6 +465,7 @@ public class DisplaySettingsDialog extends JDialog {
 				orchestrator.rebuildRocketScene(false);
 			}
 		});
+		saveCurrent3DSettingsToDocument();
 		rocketPanel.getFigure3d().updateFigure();
 	}
 
@@ -485,6 +488,7 @@ public class DisplaySettingsDialog extends JDialog {
 			}
 			config.notifyListeners();
 		});
+		saveCurrent3DSettingsToDocument();
 		rocketPanel.getFigure3d().updateFigure();
 	}
 
@@ -504,6 +508,7 @@ public class DisplaySettingsDialog extends JDialog {
 			config.getQuality().setAmbientOcclusionEnabled(originalAmbientOcclusionEnabled);
 			config.getQuality().setRoughnessBumpEnabled(originalRoughnessEnabled);
 		}, true);
+		restoreDocument3DPreferences();
 	}
 
 	private void revertAdvancedSettings() {
@@ -522,6 +527,7 @@ public class DisplaySettingsDialog extends JDialog {
 			settings.setRotateRocketOnDrag(originalRotateRocketOnDrag);
 			settings.setCaretScaleWithView(originalCaretScaleWithView);
 		}, true, true);
+		restoreDocument3DPreferences();
 	}
 
 	private Scene3DOrchestrator getScene3DOrchestrator() {
@@ -538,7 +544,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getQuality().getQuality();
 		}
-		return Figure3DPreferences.getDefaultRenderQuality(prefs);
+		return Figure3DPreferences.getRenderQuality(docPreferences, prefs);
 	}
 
 	private boolean getCurrentShadowsEnabled() {
@@ -546,7 +552,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getQuality().isShadowsEnabled();
 		}
-		return Figure3DPreferences.isShadowsEnabled(prefs);
+		return Figure3DPreferences.getShadowsEnabled(docPreferences, prefs);
 	}
 
 	private boolean getCurrentAmbientOcclusionEnabled() {
@@ -554,7 +560,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getQuality().isAmbientOcclusionEnabled();
 		}
-		return Figure3DPreferences.isAmbientOcclusionEnabled(prefs);
+		return Figure3DPreferences.getAmbientOcclusionEnabled(docPreferences, prefs);
 	}
 
 	private boolean getCurrentRoughnessEnabled() {
@@ -562,7 +568,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getQuality().isRoughnessBumpEnabled();
 		}
-		return Figure3DPreferences.isRoughnessBumpEnabled(prefs);
+		return Figure3DPreferences.getRoughnessBumpEnabled(docPreferences, prefs);
 	}
 
 	private boolean getCurrentOriginAxesVisible() {
@@ -570,7 +576,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getVisualEffects().isOriginAxesVisible();
 		}
-		return Figure3DPreferences.isOriginAxesVisible(prefs);
+		return Figure3DPreferences.getOriginAxesVisible(docPreferences, prefs);
 	}
 
 	private boolean getCurrentLightVisualizersVisible() {
@@ -578,7 +584,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getVisualEffects().areLightVisualizersVisible();
 		}
-		return Figure3DPreferences.areLightVisualizersVisible(prefs);
+		return Figure3DPreferences.getLightVisualizersVisible(docPreferences, prefs);
 	}
 
 	private boolean getCurrentRotateRocketOnDrag() {
@@ -586,7 +592,7 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getVisualEffects().isRotateRocketOnDrag();
 		}
-		return Figure3DPreferences.isRotateRocketOnDrag(prefs);
+		return Figure3DPreferences.getRotateRocketOnDrag(docPreferences, prefs);
 	}
 
 	private boolean getCurrentCaretScaleWithView() {
@@ -594,7 +600,25 @@ public class DisplaySettingsDialog extends JDialog {
 		if (config != null) {
 			return config.getVisualEffects().isCaretScaleWithView();
 		}
-		return Figure3DPreferences.isCaretScaleWithView(prefs);
+		return Figure3DPreferences.getCaretScaleWithView(docPreferences, prefs);
+	}
+
+	private void saveCurrent3DSettingsToDocument() {
+		Figure3DPreferences.saveToDocument(docPreferences, prefs, new Figure3DPreferences.Values(
+				getSelectedRenderQuality(),
+				Figure3DPreferences.isAntiAliasingEnabled(prefs),
+				renderShadowsCheckBox.isSelected(),
+				ambientOcclusionCheckBox.isSelected(),
+				roughnessCheckBox.isSelected(),
+				originAxesCheckBox.isSelected(),
+				lightVisualizersCheckBox.isSelected(),
+				rotateRocketOnDragCheckBox.isSelected(),
+				Figure3DPreferences.getDragRotationSensitivity(prefs),
+				scaleCaretsCheckBox.isSelected()));
+	}
+
+	private void restoreDocument3DPreferences() {
+		Figure3DPreferences.saveToDocument(docPreferences, prefs, originalDocument3DPreferences);
 	}
 
 	private String getRenderQualityLabel(GraphicsQualitySettings.RenderQuality quality) {
