@@ -1,7 +1,6 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
-import info.openrocket.core.rocketcomponent.BodyComponent;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
@@ -462,7 +461,6 @@ public class PhotoPanel extends JPanel {
 			}
 
 			disableComponentSelection(scene);
-			enforceOpaqueBodyComponents(scene);
 			applyBackground(scene);
 			applyLighting(scene, config);
 			if (camera != null) {
@@ -506,14 +504,6 @@ public class PhotoPanel extends JPanel {
 		for (SceneObject obj : scene.getObjects()) {
 			obj.setSelected(false);
 			obj.setSelectable(false);
-		}
-	}
-
-	private void enforceOpaqueBodyComponents(SceneView scene) {
-		for (SceneObject obj : scene.getObjects()) {
-			if (obj.getRocketComponent() instanceof BodyComponent) {
-				obj.getAppearance().setOpacity(1.0f);
-			}
 		}
 	}
 
