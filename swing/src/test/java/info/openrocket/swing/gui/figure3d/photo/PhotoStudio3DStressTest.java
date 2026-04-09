@@ -323,6 +323,154 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	}
 
 	@Test
+	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void photoStudioOrbitAuxiliaryDragAndZoomBurstsKeepRenderingAndSettingsResponsive() throws Exception {
+		assumeUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-photo-input-harness");
+		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
+
+		PhotoHarness harness = null;
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"photoStudioOrbitAuxiliaryDragAndZoomBurstsKeepRenderingAndSettingsResponsive",
+				phase::get,
+				() -> describePhotoHarness(harnessRef.get()))) {
+			harness = createPhotoHarness("PhotoStudio3DStressTest-input-bursts");
+			harnessRef.set(harness);
+			final PhotoHarness currentHarness = harness;
+			try {
+				phase.set("await-input-showing");
+				waitForShowing(currentHarness.panel, 2_000,
+						"Photo Studio panel should become visible before input stress test");
+				phase.set("await-input-initial-frame");
+				awaitFreshPhotoFrame(currentHarness.panel, null, -1, -1, FRAME_TIMEOUT_MS,
+						"initial Photo Studio frame before input bursts");
+
+				for (int i = 0; i < 8; i++) {
+					final int iteration = i;
+					GLScenePanel canvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+							"Photo Studio input burst canvas " + iteration);
+					CameraSnapshot cameraBefore = snapshotCamera(canvas);
+					PhotoSettingsSnapshot settingsBefore = snapshotPhotoSettings(currentHarness.settings);
+					int beforeSwap = canvas.getSwapCallCount();
+					int beforePaint = canvas.getPaintCallCount();
+
+					phase.set("dispatch-orbit-light-zoom-burst-" + iteration);
+					onEdt(() -> {
+						currentHarness.frame.setSize(930 + (iteration % 3) * 55, 680 + (iteration % 2) * 45);
+						currentHarness.frame.setLocation(120 + iteration * 16, 110 + iteration * 12);
+						currentHarness.frame.validate();
+						currentHarness.frame.repaint();
+					});
+
+					int cx = centerX(canvas);
+					int cy = centerY(canvas);
+					dragCanvas(canvas, cx, cy,
+							cx + 35 + iteration * 3,
+							cy + ((iteration % 2 == 0) ? 28 : -24),
+							MouseEvent.BUTTON1, 0);
+					dragCanvas(canvas, cx - 18, cy + 12,
+							cx + 16,
+							cy - 20 - iteration * 2,
+							MouseEvent.BUTTON3, 0);
+					scrollCanvas(canvas, cx, cy, (iteration % 2 == 0) ? -1 : 1);
+
+					phase.set("await-input-burst-frame-" + iteration);
+					awaitFreshPhotoFrame(currentHarness.panel, canvas, beforeSwap, beforePaint,
+							FRAME_TIMEOUT_MS, "Photo Studio input burst frame " + iteration);
+					GLScenePanel updatedCanvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+							"Photo Studio input burst canvas after frame " + iteration);
+					phase.set("await-camera-change-" + iteration);
+					awaitCameraChange(updatedCanvas, cameraBefore, FRAME_TIMEOUT_MS,
+							"Photo Studio orbit burst should change camera state iteration " + iteration);
+					phase.set("await-view-sync-" + iteration);
+					awaitPhotoSettingsViewChange(currentHarness.settings, settingsBefore, FRAME_TIMEOUT_MS,
+							"Photo Studio orbit burst should sync final view settings iteration " + iteration);
+					phase.set("assert-settings-finite-" + iteration);
+					assertPhotoSettingsFinite(snapshotPhotoSettings(currentHarness.settings),
+							"Photo Studio settings should remain finite after input burst iteration " + iteration);
+
+					phase.set("capture-input-burst-" + iteration);
+					BufferedImage image = capturePhotoImage(currentHarness.panel);
+					assertNotNull(image, "Photo Studio capture should succeed after input burst iteration " + iteration);
+				}
+				phase.set("completed");
+			} finally {
+				disposePhotoHarness(harness);
+			}
+		}
+	}
+
+	@Test
+	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void photoStudioExtremeVerticalOrbitBurstsStayFiniteAndProduceFreshFrames() throws Exception {
+		assumeUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-photo-extreme-orbit-harness");
+		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
+
+		PhotoHarness harness = null;
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"photoStudioExtremeVerticalOrbitBurstsStayFiniteAndProduceFreshFrames",
+				phase::get,
+				() -> describePhotoHarness(harnessRef.get()))) {
+			harness = createPhotoHarness("PhotoStudio3DStressTest-extreme-orbit");
+			harnessRef.set(harness);
+			final PhotoHarness currentHarness = harness;
+			try {
+				phase.set("await-extreme-showing");
+				waitForShowing(currentHarness.panel, 2_000,
+						"Photo Studio panel should become visible before extreme orbit stress test");
+				phase.set("await-extreme-initial-frame");
+				awaitFreshPhotoFrame(currentHarness.panel, null, -1, -1, FRAME_TIMEOUT_MS,
+						"initial Photo Studio frame before extreme orbit");
+
+				for (int i = 0; i < 6; i++) {
+					final int iteration = i;
+					GLScenePanel canvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+							"Photo Studio extreme orbit canvas " + iteration);
+					CameraSnapshot cameraBefore = snapshotCamera(canvas);
+					int beforeSwap = canvas.getSwapCallCount();
+					int beforePaint = canvas.getPaintCallCount();
+
+					phase.set("dispatch-extreme-vertical-orbit-" + iteration);
+					int cx = centerX(canvas);
+					int cy = centerY(canvas);
+					int top = Math.max(4, canvas.getHeight() / 12);
+					int bottom = Math.max(top + 1, canvas.getHeight() - canvas.getHeight() / 12);
+					dragCanvas(canvas, cx, cy,
+							cx + ((iteration % 2 == 0) ? 24 : -26),
+							(iteration % 2 == 0) ? top : bottom,
+							MouseEvent.BUTTON1, 0);
+					dragCanvas(canvas, cx, (iteration % 2 == 0) ? top : bottom,
+							cx - ((iteration % 2 == 0) ? 18 : -20),
+							(iteration % 2 == 0) ? bottom : top,
+							MouseEvent.BUTTON1, 0);
+
+					phase.set("await-extreme-frame-" + iteration);
+					awaitFreshPhotoFrame(currentHarness.panel, canvas, beforeSwap, beforePaint,
+							FRAME_TIMEOUT_MS, "Photo Studio extreme orbit frame " + iteration);
+					GLScenePanel updatedCanvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+							"Photo Studio extreme orbit canvas after frame " + iteration);
+					phase.set("await-extreme-camera-change-" + iteration);
+					awaitCameraChange(updatedCanvas, cameraBefore, FRAME_TIMEOUT_MS,
+							"Photo Studio extreme orbit should change camera state iteration " + iteration);
+
+					PhotoSettingsSnapshot snapshot = snapshotPhotoSettings(currentHarness.settings);
+					phase.set("assert-extreme-settings-" + iteration);
+					assertPhotoSettingsFinite(snapshot,
+							"Photo Studio settings should remain finite after extreme orbit iteration " + iteration);
+
+					phase.set("capture-extreme-orbit-" + iteration);
+					BufferedImage image = capturePhotoImage(currentHarness.panel);
+					assertNotNull(image, "Photo Studio capture should succeed after extreme orbit iteration " + iteration);
+				}
+				phase.set("completed");
+			} finally {
+				disposePhotoHarness(harness);
+			}
+		}
+	}
+
+	@Test
 	@Timeout(value = 150, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	void concurrentDesignAndPhotoWindowsStayResponsiveUnderResizeAndInputBursts() throws Exception {
 		assumeUiEnvironment();
@@ -829,6 +977,16 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		return snapshotCamera(canvas);
 	}
 
+	private static PhotoSettingsSnapshot snapshotPhotoSettings(PhotoSettings settings) throws Exception {
+		return onEdt("snapshot Photo Studio settings", () -> new PhotoSettingsSnapshot(
+				settings.getViewAz(),
+				settings.getViewAlt(),
+				settings.getViewDistance(),
+				settings.getFov(),
+				settings.getLightAz(),
+				settings.getLightAlt()));
+	}
+
 	private static void awaitCameraChange(GLScenePanel canvas, CameraSnapshot previous, long timeoutMs, String context)
 			throws Exception {
 		long deadline = System.currentTimeMillis() + timeoutMs;
@@ -872,6 +1030,24 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		CameraSnapshot current = snapshotCamera(canvas);
 		assertTrue(Math.abs(current.distance() - previousDistance) > 0.001f,
 				context + ". previousDistance=" + previousDistance + ", current=" + current);
+	}
+
+	private static void awaitPhotoSettingsViewChange(PhotoSettings settings, PhotoSettingsSnapshot previous,
+			long timeoutMs, String context) throws Exception {
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		while (System.currentTimeMillis() < deadline) {
+			PhotoSettingsSnapshot current = snapshotPhotoSettings(settings);
+			if (current.viewChangedFrom(previous)) {
+				return;
+			}
+			Thread.sleep(25);
+		}
+		PhotoSettingsSnapshot current = snapshotPhotoSettings(settings);
+		assertTrue(current.viewChangedFrom(previous), context + ". previous=" + previous + ", current=" + current);
+	}
+
+	private static void assertPhotoSettingsFinite(PhotoSettingsSnapshot snapshot, String context) {
+		assertTrue(snapshot.isFiniteAndValid(), context + ". snapshot=" + snapshot);
 	}
 
 	private static void awaitCameraCenterChange(GLScenePanel canvas, CameraSnapshot previous, long timeoutMs, String context)
@@ -1189,6 +1365,30 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 			return Math.abs(centerX - other.centerX) > 0.001f
 					|| Math.abs(centerY - other.centerY) > 0.001f
 					|| Math.abs(centerZ - other.centerZ) > 0.001f;
+		}
+	}
+
+	private record PhotoSettingsSnapshot(double viewAz, double viewAlt, double viewDistance, double fov,
+			double lightAz, double lightAlt) {
+		private boolean viewChangedFrom(PhotoSettingsSnapshot other) {
+			return Math.abs(viewAz - other.viewAz) > 1.0e-4
+					|| Math.abs(viewAlt - other.viewAlt) > 1.0e-4
+					|| Math.abs(viewDistance - other.viewDistance) > 1.0e-4
+					|| Math.abs(fov - other.fov) > 1.0e-4;
+		}
+
+		private boolean isFiniteAndValid() {
+			return Double.isFinite(viewAz)
+					&& Double.isFinite(viewAlt)
+					&& Double.isFinite(viewDistance)
+					&& Double.isFinite(fov)
+					&& Double.isFinite(lightAz)
+					&& Double.isFinite(lightAlt)
+					&& viewDistance >= 0.0
+					&& fov >= 0.0
+					&& fov <= Math.PI
+					&& Math.abs(viewAlt) <= Math.PI
+					&& Math.abs(lightAlt) <= Math.PI / 2 + 1.0e-6;
 		}
 	}
 
