@@ -27,9 +27,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.SecondaryLoop;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -690,7 +690,7 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			});
 			requestRenderNow();
 			loop.enter();
-			return result.get();
+			return compositeHudOverlay(result.get(), panel);
 		}
 
 		CountDownLatch latch = new CountDownLatch(1);
@@ -708,7 +708,45 @@ public class RocketFigure3d extends JPanel implements SharedCanvasRenderSchedule
 			Thread.currentThread().interrupt();
 			return null;
 		}
-		return result.get();
+		return compositeHudOverlay(result.get(), panel);
+	}
+
+	private BufferedImage compositeHudOverlay(BufferedImage image, GLScenePanel panel) {
+		if (image == null || panel == null || hudPanel == null || !hudPanel.isVisible()) {
+			return image;
+		}
+
+		if (SwingUtilities.isEventDispatchThread()) {
+			paintHudIntoImage(image, panel);
+			return image;
+		}
+
+		try {
+			SwingUtilities.invokeAndWait(() -> paintHudIntoImage(image, panel));
+		} catch (Exception e) {
+			log.warn("Failed to paint HUD into captured 3D image", e);
+		}
+		return image;
+	}
+
+	private void paintHudIntoImage(BufferedImage image, GLScenePanel panel) {
+		if (image == null || panel == null || hudPanel == null || !hudPanel.isVisible()) {
+			return;
+		}
+
+		int logicalWidth = Math.max(1, panel.getWidth());
+		int logicalHeight = Math.max(1, panel.getHeight());
+		double scaleX = image.getWidth() / (double) logicalWidth;
+		double scaleY = image.getHeight() / (double) logicalHeight;
+
+		Graphics2D g2 = image.createGraphics();
+		try {
+			g2.scale(scaleX, scaleY);
+			hudPanel.setBounds(0, 0, logicalWidth, logicalHeight);
+			hudPanel.paint(g2);
+		} finally {
+			g2.dispose();
+		}
 	}
 
 	public void cleanup() {
