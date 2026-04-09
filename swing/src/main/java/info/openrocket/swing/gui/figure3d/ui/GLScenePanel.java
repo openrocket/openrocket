@@ -43,6 +43,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Window;
 import java.awt.geom.AffineTransform;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -52,6 +53,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -204,6 +207,18 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	private final AtomicBoolean startupBlankFramebufferRecoveryRequested = new AtomicBoolean(false);
 	private volatile int startupBlankFramebufferFrames = 0;
 	private volatile Runnable blankDefaultFramebufferCallback;
+	private volatile Window ancestorWindow;
+	private final WindowAdapter ancestorWindowListener = new WindowAdapter() {
+		@Override
+		public void windowIconified(WindowEvent e) {
+			startupRecoveryGeneration.incrementAndGet();
+		}
+
+		@Override
+		public void windowDeiconified(WindowEvent e) {
+			handleWindowDeiconified();
+		}
+	};
 
 	private static final class ImageCaptureRequest {
 		private final boolean transparent;
@@ -250,7 +265,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		setIgnoreRepaint(true);
 
 		addHierarchyListener(e -> {
-			if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+			long changeFlags = e.getChangeFlags();
+			if ((changeFlags & (HierarchyEvent.PARENT_CHANGED | HierarchyEvent.DISPLAYABILITY_CHANGED
+					| HierarchyEvent.SHOWING_CHANGED)) != 0) {
+				updateAncestorWindowListener();
+			}
+			if ((changeFlags & HierarchyEvent.SHOWING_CHANGED) != 0) {
 				handleShowingChanged();
 			}
 		});
@@ -349,14 +369,10 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 	}
 
-	private void handleShowingChanged() {
-		peerBoundsSyncAttempts.set(0);
-		if (!isShowing()) {
-			startupRecoveryGeneration.incrementAndGet();
-			return;
-		}
-
+	private void beginVisibleFrameRecovery() {
 		visibleFrameRecoveryPending = true;
+		startupBlankFramebufferFrames = 0;
+		startupBlankFramebufferRecoveryRequested.set(false);
 		hudNeedsUpdate = true;
 		markRenderActivity();
 		if (peerBoundsSyncEnabled) {
@@ -367,10 +383,53 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		scheduleStartupFrameRecoverySequence();
 	}
 
+	private void handleWindowDeiconified() {
+		if (!isDisplayable()) {
+			return;
+		}
+		peerBoundsSyncAttempts.set(0);
+		beginVisibleFrameRecovery();
+	}
+
+	private void updateAncestorWindowListener() {
+		Window window = SwingUtilities.getWindowAncestor(this);
+		if (window == ancestorWindow) {
+			return;
+		}
+		if (ancestorWindow != null) {
+			ancestorWindow.removeWindowListener(ancestorWindowListener);
+		}
+		ancestorWindow = window;
+		if (ancestorWindow != null) {
+			ancestorWindow.addWindowListener(ancestorWindowListener);
+		}
+	}
+
+	private void detachAncestorWindowListener() {
+		if (ancestorWindow == null) {
+			return;
+		}
+		ancestorWindow.removeWindowListener(ancestorWindowListener);
+		ancestorWindow = null;
+	}
+
+	private void handleShowingChanged() {
+		peerBoundsSyncAttempts.set(0);
+		if (!isShowing()) {
+			startupRecoveryGeneration.incrementAndGet();
+			return;
+		}
+
+		beginVisibleFrameRecovery();
+	}
+
 	@Override
 	public void addNotify() {
 		super.addNotify();
+		updateAncestorWindowListener();
 		visibleFrameRecoveryPending = true;
+		startupBlankFramebufferFrames = 0;
+		startupBlankFramebufferRecoveryRequested.set(false);
 		if (peerBoundsSyncEnabled) {
 			peerBoundsSyncAttempts.set(0);
 			schedulePeerBoundsSyncRetry(0);
@@ -380,6 +439,12 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			schedulePeerBoundsSyncRetry(1000);
 		}
 		scheduleStartupFrameRecoverySequence();
+	}
+
+	@Override
+	public void removeNotify() {
+		detachAncestorWindowListener();
+		super.removeNotify();
 	}
 
 	/**
