@@ -113,7 +113,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	@Test
 	@Timeout(value = 90, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	void photoStudioRepeatedMutationsResizesAndCapturesProduceFreshFrames() throws Exception {
-		assumeMacUiEnvironment();
+		assumeUiEnvironment();
 		AtomicReference<String> phase = new AtomicReference<>("create-photo-harness");
 		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
 
@@ -166,7 +166,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	@Test
 	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	void repeatedPhotoStudioOpenCloseCyclesDoNotBreakDesignViewRendering() throws Exception {
-		assumeMacUiEnvironment();
+		assumeUiEnvironment();
 		AtomicReference<String> phase = new AtomicReference<>("create-design-harness");
 		AtomicReference<DesignHarness> designHarnessRef = new AtomicReference<>();
 
@@ -263,7 +263,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	@Test
 	@Timeout(value = 150, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	void concurrentDesignAndPhotoWindowsStayResponsiveUnderResizeAndInputBursts() throws Exception {
-		assumeMacUiEnvironment();
+		assumeUiEnvironment();
 		AtomicReference<String> phase = new AtomicReference<>("create-concurrent-harnesses");
 		AtomicReference<DesignHarness> designARef = new AtomicReference<>();
 		AtomicReference<DesignHarness> designBRef = new AtomicReference<>();
@@ -377,7 +377,7 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 	@Test
 	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 	void designViewMouseDragScrollPanAndClickUpdateLiveSceneState() throws Exception {
-		assumeMacUiEnvironment();
+		assumeUiEnvironment();
 		AtomicReference<String> phase = new AtomicReference<>("create-design-input-harness");
 		AtomicReference<DesignHarness> harnessRef = new AtomicReference<>();
 
@@ -469,11 +469,9 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		settings.setAdjusting(false);
 	}
 
-	private static void assumeMacUiEnvironment() {
+	private static void assumeUiEnvironment() {
 		Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),
 				"3D stress test requires a live graphical environment");
-		Assumptions.assumeTrue(SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS,
-				"3D stress test targets the macOS AWTGLCanvas path");
 	}
 
 	private static PhotoHarness createPhotoHarness(String frameTitle) throws Exception {
