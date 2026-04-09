@@ -7,6 +7,7 @@ import info.openrocket.swing.gui.figure3d.rendering.backgrounds.GradientBackgrou
 import info.openrocket.swing.gui.figure3d.rendering.backgrounds.SolidColorBackground;
 import info.openrocket.swing.gui.figure3d.rendering.passes.AmbientOcclusionPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.BackgroundPass;
+import info.openrocket.swing.gui.figure3d.rendering.passes.CameraPointOfInterestPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.CaretsPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.FXAAPass;
 import info.openrocket.swing.gui.figure3d.rendering.passes.GeometryPass;
@@ -85,6 +86,7 @@ public class RealisticRenderer implements Renderer {
 	private final FlameRenderer flameRenderer;
     private final ShaderProgram screenQuadShader;
     private final CaretsPass caretsPass;
+    private final CameraPointOfInterestPass cameraPointOfInterestPass;
     private final ShadowPass shadowPass;
     private final AmbientOcclusionPass ambientOcclusionPass;
     private final OutlinePass outlinePass;
@@ -247,6 +249,7 @@ public class RealisticRenderer implements Renderer {
         geometryPasses.add(new BackgroundPass(textureStateManager));
         geometryPasses.add(new GeometryPass(mainShader, config, textureStateManager, mainShaderUniforms, renderStats));
         this.caretsPass = new CaretsPass(rocket, config);
+        this.cameraPointOfInterestPass = new CameraPointOfInterestPass(config);
 
         // Initialize Post-Processing Passes
         this.ambientOcclusionPass = new AmbientOcclusionPass(screenQuadVAO, textureStateManager,
@@ -324,6 +327,7 @@ public class RealisticRenderer implements Renderer {
         if (config.getVisualEffects().areCaretsVisible()) {
             caretsPass.render(scene, windowManager, viewMatrix, projectionMatrix);
         }
+        cameraPointOfInterestPass.render(scene, windowManager, viewMatrix, projectionMatrix);
         renderTarget.unbind();
 
 		// Particle renderers bind textures directly, so invalidate the cache before any
@@ -631,6 +635,7 @@ public class RealisticRenderer implements Renderer {
         fxaaPass.resize(width, height);
 		motionBlurPass.resize(width, height);
 		caretsPass.resize(width, height);
+		cameraPointOfInterestPass.resize(width, height);
 	}
 
 	@Override
@@ -647,6 +652,7 @@ public class RealisticRenderer implements Renderer {
         screenQuadShader.cleanup();
 
 		caretsPass.cleanup();
+		cameraPointOfInterestPass.cleanup();
 		shadowPass.cleanup();
 
 		for (RenderPass pass : geometryPasses) {

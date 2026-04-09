@@ -138,6 +138,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String OPENGL_ENABLE_ROUGHNESS_BUMP = "OpenGLRoughnessBumpEnabled";
 	public static final String OPENGL_SHOW_ORIGIN_AXES = "OpenGLShowOriginAxes";
 	public static final String OPENGL_SHOW_LIGHT_VISUALIZERS = "OpenGLShowLightVisualizers";
+	public static final String OPENGL_SHOW_CAMERA_POINT_OF_INTEREST = "OpenGLShowCameraPointOfInterest";
 	public static final String OPENGL_DRAG_ROTATION_SENSITIVITY = "OpenGLDragRotationSensitivityFactor";
 	public static final String OPENGL_ROTATE_ROCKET_ON_DRAG = "OpenGLRotateRocketOnDrag";
 	public static final String OPENGL_SCALE_CARETS_WITH_VIEW = "OpenGLScaleCaretsWithView";

@@ -42,6 +42,7 @@ public class DocumentPreferences implements ChangeSource, ORPreferences {
 	public static final String PREF_3D_ROUGHNESS_BUMP_ENABLED = "RocketPanel.3DRoughnessBumpEnabled";
 	public static final String PREF_3D_ORIGIN_AXES_VISIBLE = "RocketPanel.3DOriginAxesVisible";
 	public static final String PREF_3D_LIGHT_VISUALIZERS_VISIBLE = "RocketPanel.3DLightVisualizersVisible";
+	public static final String PREF_3D_CAMERA_POINT_OF_INTEREST_VISIBLE = "RocketPanel.3DCameraPointOfInterestVisible";
 	public static final String PREF_3D_ROTATE_ROCKET_ON_DRAG = "RocketPanel.3DRotateRocketOnDrag";
 	public static final String PREF_3D_CARET_SCALE_WITH_VIEW = "RocketPanel.3DCaretScaleWithView";
 

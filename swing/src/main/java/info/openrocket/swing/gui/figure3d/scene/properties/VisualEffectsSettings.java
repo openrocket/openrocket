@@ -17,6 +17,7 @@ public class VisualEffectsSettings {
     public static final float DEFAULT_MOTION_BLUR_FACTOR = 5.0f;
     public static final boolean DEFAULT_ORIGIN_AXES_VISIBLE = false;
     public static final boolean DEFAULT_LIGHT_VISUALIZERS_VISIBLE = false;
+    public static final boolean DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE = false;
     public static final boolean DEFAULT_CARETS_VISIBLE = true;
     public static final boolean DEFAULT_ROTATE_ROCKET_ON_DRAG = true;
     public static final float DEFAULT_DRAG_ROTATION_SENSITIVITY = CameraConstants.DEFAULT_ROTATION_SENSITIVITY_FACTOR;
@@ -51,6 +52,7 @@ public class VisualEffectsSettings {
     // Display elements
     private boolean originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
     private boolean lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+    private boolean cameraPointOfInterestVisible = DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE;
     private boolean caretsVisible = DEFAULT_CARETS_VISIBLE;
     private boolean rotateRocketOnDrag = DEFAULT_ROTATE_ROCKET_ON_DRAG;
     private float dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;
@@ -158,6 +160,24 @@ public class VisualEffectsSettings {
      */
     public void setLightVisualizersVisible(boolean lightVisualizersVisible) {
         this.lightVisualizersVisible = lightVisualizersVisible;
+    }
+
+    /**
+     * Checks if the camera point-of-interest marker should be shown.
+     *
+     * @return true if the camera pivot marker is visible
+     */
+    public boolean isCameraPointOfInterestVisible() {
+        return cameraPointOfInterestVisible;
+    }
+
+    /**
+     * Shows or hides the camera point-of-interest marker.
+     *
+     * @param cameraPointOfInterestVisible true to show the marker, false to hide it
+     */
+    public void setCameraPointOfInterestVisible(boolean cameraPointOfInterestVisible) {
+        this.cameraPointOfInterestVisible = cameraPointOfInterestVisible;
     }
 
     /**
@@ -538,6 +558,7 @@ public class VisualEffectsSettings {
         motionBlurFactor = DEFAULT_MOTION_BLUR_FACTOR;
         originAxesVisible = DEFAULT_ORIGIN_AXES_VISIBLE;
         lightVisualizersVisible = DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+        cameraPointOfInterestVisible = DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE;
         caretsVisible = DEFAULT_CARETS_VISIBLE;
         rotateRocketOnDrag = DEFAULT_ROTATE_ROCKET_ON_DRAG;
         dragRotationSensitivity = DEFAULT_DRAG_ROTATION_SENSITIVITY;

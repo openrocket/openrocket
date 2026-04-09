@@ -49,6 +49,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private final boolean originalRoughnessEnabled;
 	private final boolean originalOriginAxesVisible;
 	private final boolean originalLightVisualizersVisible;
+	private final boolean originalCameraPointOfInterestVisible;
 	private final boolean originalRotateRocketOnDrag;
 	private final boolean originalCaretScaleWithView;
 	
@@ -62,6 +63,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private JCheckBox roughnessCheckBox;
 	private JCheckBox originAxesCheckBox;
 	private JCheckBox lightVisualizersCheckBox;
+	private JCheckBox cameraPointOfInterestCheckBox;
 	private JCheckBox rotateRocketOnDragCheckBox;
 	private JCheckBox scaleCaretsCheckBox;
 	
@@ -97,6 +99,7 @@ public class DisplaySettingsDialog extends JDialog {
 		originalRoughnessEnabled = getCurrentRoughnessEnabled();
 		originalOriginAxesVisible = getCurrentOriginAxesVisible();
 		originalLightVisualizersVisible = getCurrentLightVisualizersVisible();
+		originalCameraPointOfInterestVisible = getCurrentCameraPointOfInterestVisible();
 		originalRotateRocketOnDrag = getCurrentRotateRocketOnDrag();
 		originalCaretScaleWithView = getCurrentCaretScaleWithView();
 		
@@ -391,6 +394,24 @@ public class DisplaySettingsDialog extends JDialog {
 		});
 		panel.add(lightVisualizersCheckBox, "wrap");
 
+		// Show camera point of interest
+		cameraPointOfInterestCheckBox = new JCheckBox(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.cameraPointOfInterest"));
+		cameraPointOfInterestCheckBox.setToolTipText(
+				trans.get("RocketPanel.dlg.displaySettings.advanced.cameraPointOfInterest.ttip"));
+		cameraPointOfInterestCheckBox.setSelected(originalCameraPointOfInterestVisible);
+		cameraPointOfInterestCheckBox.addActionListener(e -> {
+			if (updatingRenderingControls) {
+				return;
+			}
+			resetDefaultStateClickCount();
+			applyVisualEffectsChange(
+					settings -> settings.setCameraPointOfInterestVisible(cameraPointOfInterestCheckBox.isSelected()),
+					false,
+					false);
+		});
+		panel.add(cameraPointOfInterestCheckBox, "wrap");
+
 		// Rotate rocket when dragging
 		rotateRocketOnDragCheckBox = new JCheckBox(
 				trans.get("RocketPanel.dlg.displaySettings.advanced.rotateRocketOnDrag"));
@@ -447,6 +468,7 @@ public class DisplaySettingsDialog extends JDialog {
 	private void setAdvancedControlsEnabled(boolean enabled) {
 		originAxesCheckBox.setEnabled(enabled);
 		lightVisualizersCheckBox.setEnabled(enabled);
+		cameraPointOfInterestCheckBox.setEnabled(enabled);
 		rotateRocketOnDragCheckBox.setEnabled(enabled);
 		scaleCaretsCheckBox.setEnabled(enabled);
 	}
@@ -516,6 +538,7 @@ public class DisplaySettingsDialog extends JDialog {
 		try {
 			originAxesCheckBox.setSelected(originalOriginAxesVisible);
 			lightVisualizersCheckBox.setSelected(originalLightVisualizersVisible);
+			cameraPointOfInterestCheckBox.setSelected(originalCameraPointOfInterestVisible);
 			rotateRocketOnDragCheckBox.setSelected(originalRotateRocketOnDrag);
 			scaleCaretsCheckBox.setSelected(originalCaretScaleWithView);
 		} finally {
@@ -524,6 +547,7 @@ public class DisplaySettingsDialog extends JDialog {
 		applyVisualEffectsChange(settings -> {
 			settings.setOriginAxesVisible(originalOriginAxesVisible);
 			settings.setLightVisualizersVisible(originalLightVisualizersVisible);
+			settings.setCameraPointOfInterestVisible(originalCameraPointOfInterestVisible);
 			settings.setRotateRocketOnDrag(originalRotateRocketOnDrag);
 			settings.setCaretScaleWithView(originalCaretScaleWithView);
 		}, true, true);
@@ -587,6 +611,14 @@ public class DisplaySettingsDialog extends JDialog {
 		return Figure3DPreferences.getLightVisualizersVisible(docPreferences, prefs);
 	}
 
+	private boolean getCurrentCameraPointOfInterestVisible() {
+		RenderingConfiguration config = getCurrentRenderingConfiguration();
+		if (config != null) {
+			return config.getVisualEffects().isCameraPointOfInterestVisible();
+		}
+		return Figure3DPreferences.getCameraPointOfInterestVisible(docPreferences, prefs);
+	}
+
 	private boolean getCurrentRotateRocketOnDrag() {
 		RenderingConfiguration config = getCurrentRenderingConfiguration();
 		if (config != null) {
@@ -612,6 +644,7 @@ public class DisplaySettingsDialog extends JDialog {
 				roughnessCheckBox.isSelected(),
 				originAxesCheckBox.isSelected(),
 				lightVisualizersCheckBox.isSelected(),
+				cameraPointOfInterestCheckBox.isSelected(),
 				rotateRocketOnDragCheckBox.isSelected(),
 				Figure3DPreferences.getDragRotationSensitivity(prefs),
 				scaleCaretsCheckBox.isSelected()));
@@ -768,6 +801,7 @@ public class DisplaySettingsDialog extends JDialog {
 			   roughnessCheckBox.isSelected() == defaults.roughnessBumpEnabled() &&
 			   originAxesCheckBox.isSelected() == defaults.originAxesVisible() &&
 			   lightVisualizersCheckBox.isSelected() == defaults.lightVisualizersVisible() &&
+			   cameraPointOfInterestCheckBox.isSelected() == defaults.cameraPointOfInterestVisible() &&
 			   rotateRocketOnDragCheckBox.isSelected() == defaults.rotateRocketOnDrag() &&
 			   scaleCaretsCheckBox.isSelected() == defaults.caretScaleWithView();
 	}
@@ -806,6 +840,7 @@ public class DisplaySettingsDialog extends JDialog {
 				roughnessCheckBox.isSelected(),
 				originAxesCheckBox.isSelected(),
 				lightVisualizersCheckBox.isSelected(),
+				cameraPointOfInterestCheckBox.isSelected(),
 				rotateRocketOnDragCheckBox.isSelected(),
 				Figure3DPreferences.getDragRotationSensitivity(prefs),
 				scaleCaretsCheckBox.isSelected()));

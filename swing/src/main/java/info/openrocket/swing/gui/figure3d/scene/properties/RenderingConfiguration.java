@@ -128,6 +128,7 @@ public class RenderingConfiguration {
         private float motionBlurFactor = VisualEffectsSettings.DEFAULT_MOTION_BLUR_FACTOR;
         private boolean originAxesVisible = VisualEffectsSettings.DEFAULT_ORIGIN_AXES_VISIBLE;
         private boolean lightVisualizersVisible = VisualEffectsSettings.DEFAULT_LIGHT_VISUALIZERS_VISIBLE;
+        private boolean cameraPointOfInterestVisible = VisualEffectsSettings.DEFAULT_CAMERA_POINT_OF_INTEREST_VISIBLE;
         private boolean caretsVisible = VisualEffectsSettings.DEFAULT_CARETS_VISIBLE;
         private boolean rotateRocketOnDrag = VisualEffectsSettings.DEFAULT_ROTATE_ROCKET_ON_DRAG;
         private float dragRotationSensitivity = VisualEffectsSettings.DEFAULT_DRAG_ROTATION_SENSITIVITY;
@@ -299,6 +300,16 @@ public class RenderingConfiguration {
         }
 
         /**
+         * Enables or disables the camera point-of-interest marker.
+         * @param visible Whether the camera pivot marker should be visible
+         * @return This builder instance
+         */
+        public Builder withCameraPointOfInterest(boolean visible) {
+            this.cameraPointOfInterestVisible = visible;
+            return this;
+        }
+
+        /**
          * Enables or disables CG/CP caret rendering.
          * @param visible Whether carets should be visible
          * @return This builder instance
@@ -405,6 +416,7 @@ public class RenderingConfiguration {
             config.getVisualEffects().setMotionBlurFactor(motionBlurFactor);
             config.getVisualEffects().setOriginAxesVisible(originAxesVisible);
             config.getVisualEffects().setLightVisualizersVisible(lightVisualizersVisible);
+            config.getVisualEffects().setCameraPointOfInterestVisible(cameraPointOfInterestVisible);
             config.getVisualEffects().setCaretsVisible(caretsVisible);
             config.getVisualEffects().setRotateRocketOnDrag(rotateRocketOnDrag);
             config.getVisualEffects().setDragRotationSensitivity(dragRotationSensitivity);

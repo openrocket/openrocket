@@ -16,6 +16,7 @@ public final class Figure3DPreferences {
 			boolean roughnessBumpEnabled,
 			boolean originAxesVisible,
 			boolean lightVisualizersVisible,
+			boolean cameraPointOfInterestVisible,
 			boolean rotateRocketOnDrag,
 			float dragRotationSensitivity,
 			boolean caretScaleWithView) {
@@ -44,6 +45,7 @@ public final class Figure3DPreferences {
 		VisualEffectsSettings visualEffects = config.getVisualEffects();
 		visualEffects.setOriginAxesVisible(values.originAxesVisible());
 		visualEffects.setLightVisualizersVisible(values.lightVisualizersVisible());
+		visualEffects.setCameraPointOfInterestVisible(values.cameraPointOfInterestVisible());
 		visualEffects.setRotateRocketOnDrag(values.rotateRocketOnDrag());
 		visualEffects.setDragRotationSensitivity(values.dragRotationSensitivity());
 		visualEffects.setCaretScaleWithView(values.caretScaleWithView());
@@ -58,6 +60,7 @@ public final class Figure3DPreferences {
 				isRoughnessBumpEnabled(preferences),
 				isOriginAxesVisible(preferences),
 				areLightVisualizersVisible(preferences),
+				isCameraPointOfInterestVisible(preferences),
 				isRotateRocketOnDrag(preferences),
 				getDragRotationSensitivity(preferences),
 				isCaretScaleWithView(preferences));
@@ -72,6 +75,7 @@ public final class Figure3DPreferences {
 				getRoughnessBumpEnabled(documentPreferences, preferences),
 				getOriginAxesVisible(documentPreferences, preferences),
 				getLightVisualizersVisible(documentPreferences, preferences),
+				getCameraPointOfInterestVisible(documentPreferences, preferences),
 				getRotateRocketOnDrag(documentPreferences, preferences),
 				getDragRotationSensitivity(preferences),
 				getCaretScaleWithView(documentPreferences, preferences));
@@ -85,6 +89,7 @@ public final class Figure3DPreferences {
 		setRoughnessBumpEnabled(preferences, values.roughnessBumpEnabled());
 		setOriginAxesVisible(preferences, values.originAxesVisible());
 		setLightVisualizersVisible(preferences, values.lightVisualizersVisible());
+		setCameraPointOfInterestVisible(preferences, values.cameraPointOfInterestVisible());
 		setRotateRocketOnDrag(preferences, values.rotateRocketOnDrag());
 		setDragRotationSensitivity(preferences, values.dragRotationSensitivity());
 		setCaretScaleWithView(preferences, values.caretScaleWithView());
@@ -104,6 +109,8 @@ public final class Figure3DPreferences {
 				values.originAxesVisible(), isOriginAxesVisible(preferences));
 		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_LIGHT_VISUALIZERS_VISIBLE,
 				values.lightVisualizersVisible(), areLightVisualizersVisible(preferences));
+		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_CAMERA_POINT_OF_INTEREST_VISIBLE,
+				values.cameraPointOfInterestVisible(), isCameraPointOfInterestVisible(preferences));
 		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_ROTATE_ROCKET_ON_DRAG,
 				values.rotateRocketOnDrag(), isRotateRocketOnDrag(preferences));
 		putOrRemoveBoolean(documentPreferences, DocumentPreferences.PREF_3D_CARET_SCALE_WITH_VIEW,
@@ -147,6 +154,12 @@ public final class Figure3DPreferences {
 				areLightVisualizersVisible(preferences));
 	}
 
+	public static boolean getCameraPointOfInterestVisible(DocumentPreferences documentPreferences,
+			ApplicationPreferences preferences) {
+		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_CAMERA_POINT_OF_INTEREST_VISIBLE,
+				isCameraPointOfInterestVisible(preferences));
+	}
+
 	public static boolean getRotateRocketOnDrag(DocumentPreferences documentPreferences, ApplicationPreferences preferences) {
 		return documentPreferences.getBoolean(DocumentPreferences.PREF_3D_ROTATE_ROCKET_ON_DRAG,
 				isRotateRocketOnDrag(preferences));
@@ -162,6 +175,7 @@ public final class Figure3DPreferences {
 		VisualEffectsSettings visualEffects = config.getVisualEffects();
 		visualEffects.setOriginAxesVisible(values.originAxesVisible());
 		visualEffects.setLightVisualizersVisible(values.lightVisualizersVisible());
+		visualEffects.setCameraPointOfInterestVisible(values.cameraPointOfInterestVisible());
 		visualEffects.setRotateRocketOnDrag(values.rotateRocketOnDrag());
 		visualEffects.setDragRotationSensitivity(values.dragRotationSensitivity());
 		visualEffects.setCaretScaleWithView(values.caretScaleWithView());
@@ -225,6 +239,14 @@ public final class Figure3DPreferences {
 
 	public static void setLightVisualizersVisible(ApplicationPreferences preferences, boolean enabled) {
 		preferences.putBoolean(ApplicationPreferences.OPENGL_SHOW_LIGHT_VISUALIZERS, enabled);
+	}
+
+	public static boolean isCameraPointOfInterestVisible(ApplicationPreferences preferences) {
+		return preferences.getBoolean(ApplicationPreferences.OPENGL_SHOW_CAMERA_POINT_OF_INTEREST, false);
+	}
+
+	public static void setCameraPointOfInterestVisible(ApplicationPreferences preferences, boolean enabled) {
+		preferences.putBoolean(ApplicationPreferences.OPENGL_SHOW_CAMERA_POINT_OF_INTEREST, enabled);
 	}
 
 	public static boolean isRotateRocketOnDrag(ApplicationPreferences preferences) {
