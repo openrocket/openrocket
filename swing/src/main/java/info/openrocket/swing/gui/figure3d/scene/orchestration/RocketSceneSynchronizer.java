@@ -297,7 +297,9 @@ public class RocketSceneSynchronizer implements ComponentChangeListener {
 			scene3DOrchestrator.resetViewAndFocusOnRocket();
 		} else if (cameraUpdateBehavior == CameraUpdateBehavior.REFIT_IF_FIT
 				&& scene3DOrchestrator.getCameraController().isZoomFitting()) {
-			scene3DOrchestrator.focusOnRocket();
+			// When the user is in Zoom Fit, rebuilds should restore the same centered default
+			// framing as an explicit Zoom Fit action instead of preserving a stale orbit pivot.
+			scene3DOrchestrator.resetViewAndFocusOnRocket();
 		}
 	}
 
