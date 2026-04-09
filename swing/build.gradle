@@ -34,6 +34,11 @@ configurations {
         canBeResolved = true
         visible = false
     }
+    lwjglNativeArtifacts {
+        canBeConsumed = false
+        canBeResolved = true
+        visible = false
+    }
 }
 
 def lwjglVersionValue = "3.4.1"
@@ -107,9 +112,7 @@ def extractLwjglNatives = tasks.register('extractLwjglNatives', Sync) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from({
-        configurations.runtimeClasspath.files.findAll { file ->
-            file.name.startsWith('lwjgl-') && file.name.contains('-natives-')
-        }.collect { zipTree(it) }
+        configurations.lwjglNativeArtifacts.files.collect { zipTree(it) }
     }) {
         include '**/*.dll', '**/*.dylib', '**/*.jnilib', '**/*.so'
         eachFile { details ->
@@ -171,6 +174,11 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+    lwjglNativeArtifacts platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    lwjglNativeArtifacts "org.lwjgl:lwjgl::$lwjglNatives"
+    lwjglNativeArtifacts "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    lwjglNativeArtifacts "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    lwjglNativeArtifacts "org.lwjgl:lwjgl-stb::$lwjglNatives"
 
     implementation("org.lwjglx:lwjgl3-awt:${lwjgl3AwtVersion}") {
         exclude group: "org.lwjgl"
