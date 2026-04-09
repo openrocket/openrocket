@@ -751,8 +751,9 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				// fall through
 			}
 		}
-		// All rendering is done to intermediate FBOs; the default framebuffer's MSAA sample
-		// count has no effect on output quality (we use post-processing AA via FXAA).
+		// The main scene now handles anti-aliasing inside the off-screen pipeline. Keep the
+		// heavyweight AWT default framebuffer single-sampled to avoid WGL multisample context
+		// creation failures on Windows; the renderer resolves its own MSAA target before present.
 		// Requesting samples > 0 causes hard context-creation failures on Windows when
 		// WGL_ARB_multisample / WGL_EXT_multisample is unavailable (some drivers, VMs).
 		return 0;

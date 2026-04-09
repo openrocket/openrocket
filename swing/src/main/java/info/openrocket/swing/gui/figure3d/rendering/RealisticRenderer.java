@@ -60,6 +60,7 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 public class RealisticRenderer implements Renderer {
 
 	private static final Logger log = LoggerFactory.getLogger(RealisticRenderer.class);
+	private static final int DEFAULT_SCENE_MSAA_SAMPLES = 4;
 
 	private final ShaderProgram mainShader;
 	private final Vector4f selectionColor = ColorUtils.srgbToLinear(new org.joml.Vector4f(1.0f, 0.2f, 0.1f, 1.0f));
@@ -236,7 +237,7 @@ public class RealisticRenderer implements Renderer {
 		GL33.glBindVertexArray(0);
 
 		// Initialize framebuffer
-		this.renderTarget = new OffscreenRenderTarget(initialWidth, initialHeight);
+		this.renderTarget = new OffscreenRenderTarget(initialWidth, initialHeight, getRequestedSceneSampleCount());
 		this.resolvedTextureId = renderTarget.getColorTextureId();
         this.shadowPass = new ShadowPass(initialWidth, initialHeight);
         this.shadowPass.setQuality(config.getQuality().getQuality());
@@ -672,6 +673,8 @@ public class RealisticRenderer implements Renderer {
 	private void onScenePropertiesChanged(RenderingConfiguration config) {
 		// Update motion blur settings
 		motionBlurPass.setBlurFactor(config.getVisualEffects().getMotionBlurFactor());
+		renderTarget.setSamples(getRequestedSceneSampleCount());
+		resolvedTextureId = renderTarget.getColorTextureId();
 		
 		// Update post-processing chain based on current settings
 		updatePostProcessingChain();
@@ -686,6 +689,23 @@ public class RealisticRenderer implements Renderer {
         if (config.getQuality().isFXAAEnabled()) {
             postProcessingPasses.add(fxaaPass);
         }
+	}
+
+	private int getRequestedSceneSampleCount() {
+		if (!config.getQuality().isFXAAEnabled()) {
+			return 0;
+		}
+
+		String override = System.getProperty("openrocket.figure3d.msaaSamples");
+		if (override != null) {
+			try {
+				return Math.max(0, Integer.parseInt(override.trim()));
+			} catch (NumberFormatException ignored) {
+				// fall through
+			}
+		}
+
+		return DEFAULT_SCENE_MSAA_SAMPLES;
 	}
 
 	/**
