@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.EventObject;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,16 +66,18 @@ import com.google.inject.Module;
 @SuppressWarnings("serial")
 public class PhotoFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(PhotoFrame.class);
+	private static final Map<Window, PhotoFrame> activeFramesByOwner = new IdentityHashMap<>();
 	private final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 	private final Translator trans = Application.getTranslator();
 
 	private final PhotoPanel photoPanel;
 	private final JDialog settings;
 	private final AtomicBoolean resourcesReleased = new AtomicBoolean(false);
+	private final Window ownerWindow;
 	private volatile OpenRocketDocument currentDocument;
 
 	public PhotoFrame(OpenRocketDocument document, Window parent) {
-		this(false, document);
+		this(false, document, parent);
 		setTitle(trans.get("PhotoFrame.title") + " - " + document.getRocket().getName());
 
 		// Close this window when the parent is closed
@@ -87,6 +90,11 @@ public class PhotoFrame extends JFrame {
 	}
 
 	public PhotoFrame(boolean app, OpenRocketDocument document) {
+		this(app, document, null);
+	}
+
+	private PhotoFrame(boolean app, OpenRocketDocument document, Window ownerWindow) {
+		this.ownerWindow = ownerWindow;
 		this.currentDocument = document;
 		PhotoSettings p = new PhotoStudioGetter(document.getPhotoSettings()).getPhotoSettings();
 
@@ -122,6 +130,13 @@ public class PhotoFrame extends JFrame {
 			public void windowClosing(WindowEvent e) {
 				releaseResources();
 			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				if (ownerWindow != null && activeFramesByOwner.get(ownerWindow) == PhotoFrame.this) {
+					activeFramesByOwner.remove(ownerWindow);
+				}
+			}
 		});
 
 		
@@ -141,6 +156,22 @@ public class PhotoFrame extends JFrame {
 		settings.setLocationByPlatform(true);
 		GUIUtil.rememberWindowSize(settings);
 		GUIUtil.rememberWindowPosition(settings);
+	}
+
+	public static void openForDocument(OpenRocketDocument document, Window parent) {
+		PhotoFrame existingFrame = activeFramesByOwner.get(parent);
+		if (existingFrame != null && existingFrame.isDisplayable()) {
+			existingFrame.setVisible(true);
+			existingFrame.toFront();
+			existingFrame.requestFocus();
+			return;
+		}
+
+		PhotoFrame frame = new PhotoFrame(document, parent);
+		activeFramesByOwner.put(parent, frame);
+		frame.setVisible(true);
+		frame.toFront();
+		frame.requestFocus();
 	}
 
 	private JMenuBar getMenu(final boolean showOpen) {
