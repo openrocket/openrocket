@@ -62,6 +62,14 @@ The ``swing`` module contains the user interface of OpenRocket. It is built usin
 interface for designing rockets, running simulations, and viewing the results. This module depends on the core module
 and uses its functionality to perform the simulations and display the results.
 
+3D Visualization Engine
+=======================
+
+The 3D design view and Photo Studio are implemented entirely inside the ``swing`` module. They share one rendering
+engine built around LWJGL, ``AWTGLCanvas``, a scene/orchestration layer, and a multi-pass OpenGL renderer.
+
+For the detailed package-level breakdown and render pipeline description, see :doc:`three_d_engine`.
+
 Rocket Components
 =================
 
@@ -87,7 +95,6 @@ Scripts
 
 Plugins
 =======
-
 
 
 

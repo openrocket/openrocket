@@ -147,11 +147,34 @@ The following is an overview of the packages in the ``info.openrocket.swing`` mo
    │   │   ├── preferences
    │   │   └── preset
    │   ├── figure3d
-   │   │   ├── geometry
-   │   │   └── photo
-   │   │      ├── exhaust
-   │   │      └── sky
-   │   │         └── builtin
+   │   │   ├── animation
+   │   │   ├── constants
+   │   │   ├── core
+   │   │   │   ├── geography
+   │   │   │   ├── geometry
+   │   │   │   ├── math
+   │   │   │   └── particles
+   │   │   ├── export
+   │   │   ├── input
+   │   │   ├── materials
+   │   │   ├── photo
+   │   │   │   └── sky
+   │   │   │      └── builtin
+   │   │   ├── rendering
+   │   │   │   ├── backgrounds
+   │   │   │   ├── offscreen
+   │   │   │   ├── passes
+   │   │   │   ├── pipeline
+   │   │   │   └── state
+   │   │   ├── scene
+   │   │   │   ├── controllers
+   │   │   │   ├── core
+   │   │   │   ├── events
+   │   │   │   ├── orchestration
+   │   │   │   └── properties
+   │   │   ├── ui
+   │   │   ├── utils
+   │   │   └── window
    │   ├── figureelements
    │   ├── help
    │   │   └── tours
@@ -179,6 +202,8 @@ The following is an overview of the packages in the ``info.openrocket.swing`` mo
    │   ├── jij
    │   └── providers
    └── utils
+
+For a focused explanation of the 3D renderer architecture, see :doc:`three_d_engine`.
 
 UI Theme Customization
 ======================
