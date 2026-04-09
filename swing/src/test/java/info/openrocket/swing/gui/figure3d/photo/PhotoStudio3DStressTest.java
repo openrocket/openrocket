@@ -52,6 +52,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MonitorInfo;
@@ -256,6 +257,67 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 				phase.set("completed");
 			} finally {
 				disposeDesignHarness(designHarness);
+			}
+		}
+	}
+
+	@Test
+	@Timeout(value = 120, unit = TimeUnit.SECONDS, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+	void repeatedBlankFramebufferRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain() throws Exception {
+		assumeUiEnvironment();
+		AtomicReference<String> phase = new AtomicReference<>("create-photo-recovery-harness");
+		AtomicReference<PhotoHarness> harnessRef = new AtomicReference<>();
+
+		PhotoHarness harness;
+		try (DiagnosticWatchdog ignored = startWatchdog(
+				"repeatedBlankFramebufferRecoveryRebuildsReplaceThePhotoStudioCanvasAndRenderAgain",
+				phase::get,
+				() -> describePhotoHarness(harnessRef.get()))) {
+			harness = createPhotoHarness("PhotoStudio3DStressTest-blank-framebuffer-recovery");
+			harnessRef.set(harness);
+			final PhotoHarness currentHarness = harness;
+			try {
+				phase.set("await-recovery-showing");
+				waitForShowing(currentHarness.panel, 2_000,
+						"Photo Studio panel should become visible before recovery stress test");
+				phase.set("await-recovery-initial-frame");
+				awaitFreshPhotoFrame(currentHarness.panel, null, -1, -1, FRAME_TIMEOUT_MS,
+						"initial Photo Studio frame before forced recovery");
+
+				for (int i = 0; i < 8; i++) {
+					final int iteration = i;
+					GLScenePanel failedCanvas = awaitReadyPhotoCanvas(currentHarness.panel, FRAME_TIMEOUT_MS,
+							"Photo Studio canvas before forced recovery cycle " + iteration);
+					int beforeSwap = failedCanvas.getSwapCallCount();
+					int beforePaint = failedCanvas.getPaintCallCount();
+
+					phase.set("force-rebuild-cycle-" + iteration);
+					onEdt(() -> {
+						mutatePhotoSettings(currentHarness.settings, iteration + 2);
+						currentHarness.frame.setSize(950 + (iteration % 3) * 55, 690 + (iteration % 2) * 40);
+						currentHarness.frame.setLocation(140 + iteration * 14, 120 + iteration * 10);
+						currentHarness.frame.validate();
+						currentHarness.frame.repaint();
+						forceBlankFramebufferRecovery(currentHarness.panel, failedCanvas);
+					});
+
+					phase.set("await-rebuilt-canvas-cycle-" + iteration);
+					GLScenePanel rebuiltCanvas = awaitReplacedPhotoCanvas(currentHarness.panel, failedCanvas,
+							FRAME_TIMEOUT_MS, "Photo Studio rebuild cycle " + iteration);
+					assertTrue(rebuiltCanvas != failedCanvas,
+							"Forced blank-framebuffer recovery should replace the Photo Studio GL canvas");
+
+					phase.set("await-rebuilt-frame-cycle-" + iteration);
+					awaitFreshPhotoFrame(currentHarness.panel, failedCanvas, beforeSwap, beforePaint,
+							FRAME_TIMEOUT_MS, "Photo Studio frame after forced recovery cycle " + iteration);
+
+					phase.set("capture-rebuilt-frame-cycle-" + iteration);
+					BufferedImage image = capturePhotoImage(currentHarness.panel);
+					assertNotNull(image, "Photo Studio capture should succeed after forced recovery cycle " + iteration);
+				}
+				phase.set("completed");
+			} finally {
+				disposePhotoHarness(harness);
 			}
 		}
 	}
@@ -631,6 +693,24 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		return canvas;
 	}
 
+	private static GLScenePanel awaitReplacedPhotoCanvas(PhotoPanel panel, GLScenePanel previousCanvas,
+			long timeoutMs, String context) throws Exception {
+		long deadline = System.currentTimeMillis() + timeoutMs;
+		while (System.currentTimeMillis() < deadline) {
+			GLScenePanel canvas = currentPhotoCanvas(panel);
+			if (canvas != null && canvas != previousCanvas) {
+				if (isCanvasReady(canvas)) {
+					return canvas;
+				}
+			}
+			Thread.sleep(25);
+		}
+		GLScenePanel canvas = currentPhotoCanvas(panel);
+		assertTrue(canvas != null && canvas != previousCanvas && isCanvasReady(canvas),
+				context + " did not replace the Photo Studio GL canvas");
+		return canvas;
+	}
+
 	private static GLScenePanel currentPhotoCanvas(PhotoPanel panel) throws Exception {
 		return onEdt("locate Photo Studio GL canvas", () -> {
 			for (Component component : panel.getComponents()) {
@@ -940,6 +1020,17 @@ class PhotoStudio3DStressTest extends BaseTestCase {
 		assertTrue(latch.await(CAPTURE_TIMEOUT_MS, TimeUnit.MILLISECONDS),
 				"Timed out capturing Photo Studio image");
 		return result.get();
+	}
+
+	private static void forceBlankFramebufferRecovery(PhotoPanel panel, GLScenePanel failedCanvas) {
+		try {
+			Method rebuild = PhotoPanel.class.getDeclaredMethod(
+					"rebuildCanvasAfterBlankDefaultFramebuffer", GLScenePanel.class);
+			rebuild.setAccessible(true);
+			rebuild.invoke(panel, failedCanvas);
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Failed to force Photo Studio blank-framebuffer recovery", e);
+		}
 	}
 
 	private static OpenRocketDocument loadMotorizedDocumentUnchecked() {
