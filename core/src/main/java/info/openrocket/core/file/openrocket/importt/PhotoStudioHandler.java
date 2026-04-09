@@ -56,17 +56,24 @@ public class PhotoStudioHandler extends AbstractElementHandler {
         String[] colors = new String[] { "sunlight", "skyColor", "flameColor", "smokeColor",
                 "gradientTopColor", "gradientBottomColor" };
         if (Arrays.asList(colors).contains(element)) {
-            p.put(element, getColor(attributes));
+            String color = getColor(element, attributes);
+            if (color != null) {
+                p.put(element, color);
+            }
             return;
         }
 
         super.closeElement(element, attributes, content, warnings);
     }
 
-    private String getColor(HashMap<String, String> attributes) {
-        int red = Integer.parseInt(attributes.get("red"));
-        int green = Integer.parseInt(attributes.get("green"));
-        int blue = Integer.parseInt(attributes.get("blue"));
+    private String getColor(String element, HashMap<String, String> attributes) {
+        Integer red = safeParseColor(attributes, "red");
+        Integer green = safeParseColor(attributes, "green");
+        Integer blue = safeParseColor(attributes, "blue");
+        if (red == null || green == null || blue == null) {
+            log.warn("Missing color component in PhotoStudioHandler element: {}", element);
+            return null;
+        }
         int alpha = 255;// set default
         // add a test if "alpha" was added to the XML / backwards compatibility
         String a = attributes.get("alpha");
@@ -75,5 +82,13 @@ public class PhotoStudioHandler extends AbstractElementHandler {
             alpha = Integer.parseInt(a);
         }
         return red + " " + green + " " + blue + " " + alpha;
+    }
+
+    private static Integer safeParseColor(HashMap<String, String> attributes, String key) {
+        String value = attributes.get(key);
+        if (value == null) {
+            return null;
+        }
+        return Integer.parseInt(value);
     }
 }
