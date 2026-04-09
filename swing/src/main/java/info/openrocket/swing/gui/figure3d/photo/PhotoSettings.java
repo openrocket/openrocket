@@ -153,6 +153,12 @@ public class PhotoSettings extends AbstractChangeSource {
 		fireChangeEvent();
 	}
 
+	public void setLight(double lightAlt, double lightAz) {
+		this.lightAlt = lightAlt;
+		this.lightAz = lightAz;
+		fireChangeEvent();
+	}
+
 	public double getLightStrength() {
 		return lightStrength;
 	}

@@ -38,7 +38,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.BorderLayout;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -61,7 +63,6 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private static final float PHOTO_SPARK_SPREAD_SCALE = 0.70f;
 	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
 	private static final long RENDER_SHUTDOWN_TIMEOUT_MS = 2_000;
-
 	private final PhotoSettings settings;
 	private OpenRocketDocument document;
 	private GLScenePanel glPanel;
@@ -73,8 +74,30 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 	private final AtomicBoolean syncingCameraToSettings = new AtomicBoolean(false);
 	private final AtomicBoolean suppressCameraToSettingsSync = new AtomicBoolean(false);
 	private final AtomicBoolean suppressLightToSettingsSync = new AtomicBoolean(false);
+	private final AtomicBoolean deferringInteractiveSettingsSync = new AtomicBoolean(false);
+	private final AtomicReference<CameraState> deferredCameraState = new AtomicReference<>();
+	private final AtomicReference<LightDirectionState> deferredLightDirection = new AtomicReference<>();
 	private final Consumer<Camera> cameraChangeListener = this::handleCameraChanged;
 	private final Consumer<Light> lightChangeListener = this::handleLightChanged;
+	private final MouseInputAdapter interactionSyncMouseListener = new MouseInputAdapter() {
+		private boolean pressed;
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (isTrackedDragButton(e.getButton())) {
+				pressed = true;
+				deferringInteractiveSettingsSync.set(true);
+			}
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (pressed && isTrackedDragButton(e.getButton())) {
+				pressed = false;
+				finishDeferredInteractiveSettingsSync();
+			}
+		}
+	};
 	private final Map<SceneObject, Matrix4f> baseTransforms = new IdentityHashMap<>();
 	private final Map<ParticleEmitter, EmitterBase> baseEmitters = new IdentityHashMap<>();
 	private boolean lastFlame;
@@ -135,6 +158,18 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		private EmitterBase(Vector3f position, Vector3f direction) {
 			this.position = new Vector3f(position);
 			this.direction = new Vector3f(direction);
+		}
+	}
+
+	private static final class LightDirectionState {
+		private final float dx;
+		private final float dy;
+		private final float dz;
+
+		private LightDirectionState(float dx, float dy, float dz) {
+			this.dx = dx;
+			this.dy = dy;
+			this.dz = dz;
 		}
 	}
 
@@ -206,6 +241,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		glPanel = panel;
 		glPanel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		glPanel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		attachInteractionSyncListener(glPanel);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		invalidateCachedSceneState();
 		add(glPanel, BorderLayout.CENTER);
@@ -222,6 +258,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		if (glPanel != null) {
 			RENDER_SCHEDULER.awaitQuiescence(RENDER_SHUTDOWN_TIMEOUT_MS);
 			detachSceneListeners(glPanel);
+			detachInteractionSyncListener(glPanel);
 			glPanel.setBlankDefaultFramebufferCallback(null);
 			GLScenePanel panel = glPanel;
 			if (IS_MACOS) {
@@ -243,6 +280,9 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		settingsApplyQueued.set(false);  // reset in case the GL task was cleared without running
 		pendingApply.set(false);
 		pendingCanvasRebuild.set(null);
+		deferringInteractiveSettingsSync.set(false);
+		deferredCameraState.set(null);
+		deferredLightDirection.set(null);
 		lastFlameColor = null;
 		lastSmokeColor = null;
 		lastSmokeOpacity = Float.NaN;
@@ -878,6 +918,28 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		cameraSettingsTracked = true;
 	}
 
+	private void attachInteractionSyncListener(GLScenePanel panel) {
+		panel.addMouseListener(interactionSyncMouseListener);
+		panel.addMouseMotionListener(interactionSyncMouseListener);
+	}
+
+	private void detachInteractionSyncListener(GLScenePanel panel) {
+		panel.removeMouseListener(interactionSyncMouseListener);
+		panel.removeMouseMotionListener(interactionSyncMouseListener);
+	}
+
+	private void finishDeferredInteractiveSettingsSync() {
+		deferringInteractiveSettingsSync.set(false);
+		CameraState cameraState = deferredCameraState.getAndSet(null);
+		LightDirectionState lightDirection = deferredLightDirection.getAndSet(null);
+		if (cameraState != null) {
+			syncSettingsFromCameraState(cameraState);
+		}
+		if (lightDirection != null) {
+			syncSettingsFromLightDirection(lightDirection.dx, lightDirection.dy, lightDirection.dz);
+		}
+	}
+
 	/**
 	 * Synchronizes camera settings from the scene back to the settings object, if they have changed.
 	 * This allows the settings to reflect user interactions with the camera (e.g. orbiting with mouse drag).
@@ -887,6 +949,10 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 		CameraState cameraState = new CameraState(camera);
+		if (deferringInteractiveSettingsSync.get()) {
+			deferredCameraState.set(cameraState);
+			return;
+		}
 		if (SwingUtilities.isEventDispatchThread()) {
 			syncSettingsFromCameraState(cameraState);
 		} else {
@@ -928,6 +994,10 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		// Capture the direction vector from the GL thread before handing off to EDT
 		org.joml.Vector3f dir = light.getDirection();
 		float dx = dir.x, dy = dir.y, dz = dir.z;
+		if (deferringInteractiveSettingsSync.get()) {
+			deferredLightDirection.set(new LightDirectionState(dx, dy, dz));
+			return;
+		}
 		if (SwingUtilities.isEventDispatchThread()) {
 			syncSettingsFromLightDirection(dx, dy, dz);
 		} else {
@@ -959,11 +1029,14 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 
 		suppressLightToSettingsSync.set(true);
 		try {
-			settings.setLightAlt(lightAlt);
-			settings.setLightAz(lightAz);
+			settings.setLight(lightAlt, lightAz);
 		} finally {
 			suppressLightToSettingsSync.set(false);
 		}
+	}
+
+	private static boolean isTrackedDragButton(int button) {
+		return button == MouseEvent.BUTTON1 || button == MouseEvent.BUTTON2 || button == MouseEvent.BUTTON3;
 	}
 
 	private static ORColor colorOrDefault(ORColor color, ORColor fallback) {
