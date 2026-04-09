@@ -72,6 +72,36 @@ vec3 sampleViewPosition(vec2 uv, vec3 fallback) {
     return reconstructViewPosition(uv, depth);
 }
 
+float computeEdgeFade(vec2 uv, vec3 centerPos) {
+    vec2 texel = 1.0 / screenSize;
+    vec2 offsets[4] = vec2[](
+        vec2(texel.x, 0.0),
+        vec2(-texel.x, 0.0),
+        vec2(0.0, texel.y),
+        vec2(0.0, -texel.y)
+    );
+
+    float maxGap = 0.0;
+    bool touchesBackground = false;
+    for (int i = 0; i < 4; i++) {
+        vec2 sampleUv = clamp(uv + offsets[i], 0.0, 1.0);
+        float sampleDepth = texture(depthTexture, sampleUv).r;
+        if (sampleDepth >= 0.9999) {
+            touchesBackground = true;
+            continue;
+        }
+
+        vec3 samplePos = reconstructViewPosition(sampleUv, sampleDepth);
+        maxGap = max(maxGap, length(samplePos - centerPos));
+    }
+
+    if (touchesBackground) {
+        maxGap = max(maxGap, radius * 2.0);
+    }
+
+    return 1.0 - smoothstep(radius * 0.35, radius * 0.9, maxGap);
+}
+
 vec3 reconstructNormal(vec2 uv, vec3 centerPos) {
     vec2 texel = 1.0 / screenSize;
     vec3 rightPos = sampleViewPosition(clamp(uv + vec2(texel.x, 0.0), 0.0, 1.0), centerPos);
@@ -107,6 +137,7 @@ void main() {
 
     vec3 centerPos = reconstructViewPosition(TexCoords, centerDepth);
     vec3 normal = reconstructNormal(TexCoords, centerPos);
+    float edgeFade = computeEdgeFade(TexCoords, centerPos);
 
     float angle = hash12(TexCoords * screenSize) * 6.2831853;
     vec2 rotation = vec2(cos(angle), sin(angle));
@@ -148,22 +179,24 @@ void main() {
         }
 
         vec3 sampleViewPos = reconstructViewPosition(sampleUv, sampleDepth);
+        vec3 sampleOffset = sampleViewPos - centerPos;
 
-        // Smooth range attenuation — reject occluders that are too far away in depth
-        float depthDiff = abs(centerPos.z - sampleViewPos.z);
-        float rangeWeight = 1.0 - smoothstep(0.0, radius * 1.5, depthDiff);
+        // Use full view-space separation so silhouette pixels do not become dark halos.
+        float rangeWeight = 1.0 - smoothstep(0.0, radius * 1.5, length(sampleOffset));
+        float normalWeight = max(dot(normalize(sampleOffset), normal), 0.0);
 
         // Smooth occlusion falloff instead of hard 0/1 cutoff
         float occlusionDepth = sampleViewPos.z - samplePos.z - bias;
         float blocked = smoothstep(0.0, bias * 2.0, occlusionDepth);
 
-        occlusion += blocked * rangeWeight;
+        occlusion += blocked * rangeWeight * normalWeight;
         validSamples++;
     }
 
     float divisor = float(max(validSamples, 1));
     float ao = 1.0 - strength * (occlusion / divisor);
     ao = clamp(ao, 0.15, 1.0);
+    ao = mix(1.0, ao, edgeFade);
 
     FragColor = vec4(sceneColor.rgb * ao, sceneColor.a);
 }
