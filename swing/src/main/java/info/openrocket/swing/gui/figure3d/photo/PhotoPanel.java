@@ -1,9 +1,11 @@
 package info.openrocket.swing.gui.figure3d.photo;
 
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.ORColor;
+import info.openrocket.swing.gui.figure3d.SharedCanvasRenderScheduler;
 import info.openrocket.swing.gui.figure3d.constants.RenderingConstants;
 import info.openrocket.swing.gui.figure3d.core.particles.ParticleEmitter;
 import info.openrocket.swing.gui.figure3d.materials.Texture;
@@ -36,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -48,15 +49,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class PhotoPanel extends JPanel {
+public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Client {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(PhotoPanel.class);
 	private static final boolean DEBUG = Boolean.getBoolean("openrocket.figure3d.debug");
+	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	private static final double CAMERA_SETTINGS_EPSILON = 1.0e-6;
 	private static final float PHOTO_PARTICLE_LENGTH_SCALE = 0.82f;
 	private static final float PHOTO_SMOKE_LENGTH_SCALE = 0.50f;
 	private static final float PHOTO_FLAME_EXPOSURE_SCALE = 0.90f;
 	private static final float PHOTO_SPARK_SPREAD_SCALE = 0.70f;
+	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
+	private static final long RENDER_SHUTDOWN_TIMEOUT_MS = 2_000;
 
 	private final PhotoSettings settings;
 	private OpenRocketDocument document;
@@ -96,7 +100,7 @@ public class PhotoPanel extends JPanel {
 	private double lastViewDistance;
 	private double lastFov;
 	private volatile long earliestRenderAtMs;
-	private Timer renderTimer;
+	private volatile boolean renderLoopRunning = false;
 	private static final int FRAME_INTERVAL_MS = 16;
 	private static final int STARTUP_RENDER_DELAY_MS = 120;
 	private static final String[] MOUNTAINS_CUBEMAP = {
@@ -216,17 +220,23 @@ public class PhotoPanel extends JPanel {
 		debug("clearDoc");
 		stopRenderLoop();
 		if (glPanel != null) {
+			RENDER_SCHEDULER.awaitQuiescence(RENDER_SHUTDOWN_TIMEOUT_MS);
 			detachSceneListeners(glPanel);
 			glPanel.setBlankDefaultFramebufferCallback(null);
-			// Cleanup GL resources BEFORE removing from the hierarchy. Removing first calls
-			// AWTGLCanvas.removeNotify() which resets context = 0 and marks the canvas
-			// non-displayable, causing GLScenePanel.cleanup() to skip the runInContext block
-			// entirely and leave GL resources partially destroyed. That corrupted state can
-			// prevent a subsequently-created GL context (e.g. the design 3D view) from
-			// rendering correctly.
-			glPanel.cleanup();
-			remove(glPanel);
-			glPanel = null;
+			GLScenePanel panel = glPanel;
+			if (IS_MACOS) {
+				// On macOS, attempting runInContext cleanup during Photo Studio teardown can crash
+				// inside the native JAWT surface path. Detach first so GLScenePanel.cleanup()
+				// takes its non-context cleanup path instead of re-entering the native peer.
+				remove(panel);
+				glPanel = null;
+				panel.cleanup();
+			} else {
+				// Other platforms still prefer explicit in-context cleanup before detach.
+				panel.cleanup();
+				remove(panel);
+				glPanel = null;
+			}
 		}
 		imageCallbacks.clear();
 		captureQueued.set(false);
@@ -313,13 +323,12 @@ public class PhotoPanel extends JPanel {
 			SwingUtilities.invokeLater(this::startRenderLoop);
 			return;
 		}
-		if (renderTimer != null) {
+		if (renderLoopRunning) {
 			return;
 		}
-		renderTimer = new Timer(FRAME_INTERVAL_MS, e -> renderFrame());
-		renderTimer.setRepeats(true);
-		renderTimer.setCoalesce(true);
-		renderTimer.start();
+		renderLoopRunning = true;
+		RENDER_SCHEDULER.register(this);
+		RENDER_SCHEDULER.requestImmediate(this);
 	}
 
 	private void stopRenderLoop() {
@@ -327,18 +336,22 @@ public class PhotoPanel extends JPanel {
 			SwingUtilities.invokeLater(this::stopRenderLoop);
 			return;
 		}
-		if (renderTimer != null) {
-			renderTimer.stop();
-			renderTimer = null;
+		if (renderLoopRunning) {
+			renderLoopRunning = false;
+			RENDER_SCHEDULER.unregister(this);
 		}
 	}
 
 	private void renderFrame() {
+		if (!renderLoopRunning) {
+			return;
+		}
 		GLScenePanel panel = glPanel;
 		if (panel == null) {
 			return;
 		}
 		if (panel.glInitFailed) {
+			stopRenderLoop();
 			return;
 		}
 		if (System.currentTimeMillis() < earliestRenderAtMs) {
@@ -360,6 +373,26 @@ public class PhotoPanel extends JPanel {
 		if (pendingApply.get() && panel.getScene3DOrchestrator() != null && !settingsApplyQueued.get()) {
 			applySettings();
 		}
+	}
+
+	@Override
+	public boolean isRenderActive() {
+		return renderLoopRunning && glPanel != null && document != null;
+	}
+
+	@Override
+	public boolean shouldRenderOnTick() {
+		return true;
+	}
+
+	@Override
+	public void renderScheduledFrame() {
+		renderFrame();
+	}
+
+	@Override
+	public String getRenderDebugName() {
+		return "PhotoPanel";
 	}
 
 	private void requestCanvasRebuild(GLScenePanel failedPanel) {

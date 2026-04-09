@@ -35,9 +35,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -51,10 +48,9 @@ import java.util.stream.Collectors;
  * AWTGLCanvas. The embedded Swing path still prefers the EDT by default, but macOS
  * uses a dedicated scheduler to avoid UI stalls when the native canvas blocks.</p>
  */
-public class RocketFigure3d extends JPanel {
+public class RocketFigure3d extends JPanel implements SharedCanvasRenderScheduler.Client {
 
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
-	private static final int FRAME_INTERVAL_MS = 16;
 	private static final boolean IS_MACOS = SystemInfo.getPlatform() == SystemInfo.Platform.MAC_OS;
 	// Single shared render thread — AWTGLCanvas.render() acquires a JAWT drawing-surface
 	// lock that must be serialized across canvases on most platforms. Per-window threads
@@ -62,7 +58,7 @@ public class RocketFigure3d extends JPanel {
 	// round-robin frame-rate degradation by rendering *all* dirty windows per tick instead
 	// of one window per tick, so N idle windows cost nothing and N active windows all
 	// receive their full 16 ms cadence.
-	private static final BackgroundRenderScheduler RENDER_SCHEDULER = new BackgroundRenderScheduler();
+	private static final SharedCanvasRenderScheduler RENDER_SCHEDULER = SharedCanvasRenderScheduler.getInstance();
 
 	public static final int TYPE_FIGURE = 2;
 	public static final int TYPE_UNFINISHED = 3;
@@ -290,6 +286,31 @@ public class RocketFigure3d extends JPanel {
 	/** Marks this view as needing a render on the next scheduler tick. */
 	void markDirty() {
 		dirty = true;
+	}
+
+	@Override
+	public boolean isRenderActive() {
+		return enable3d && renderingEnabled && !disposed;
+	}
+
+	@Override
+	public boolean shouldRenderOnTick() {
+		if (!dirty) {
+			return false;
+		}
+		// Clear before rendering so marks set during renderFrame() survive.
+		dirty = false;
+		return true;
+	}
+
+	@Override
+	public void renderScheduledFrame() {
+		renderFrame();
+	}
+
+	@Override
+	public String getRenderDebugName() {
+		return "RocketFigure3d";
 	}
 
 	private void requestRenderNow() {
@@ -749,80 +770,4 @@ public class RocketFigure3d extends JPanel {
 		requestRenderNow();
 	}
 
-	/**
-	 * Drives rendering on a single shared background thread.
-	 *
-	 * <p>AWTGLCanvas.render() acquires a JAWT drawing-surface lock that must be serialized
-	 * across canvases on most platforms; rendering from multiple simultaneous threads causes
-	 * silent failures on the second canvas. The single thread avoids that.</p>
-	 *
-	 * <p>The old round-robin "one window per tick" problem is eliminated by the dirty flag:
-	 * every tick renders ALL registered windows that are dirty and skips the rest.  N idle
-	 * windows cost only N boolean reads per 16 ms; N active windows all get rendered within
-	 * the same tick, so each still sees a ~16 ms frame cadence regardless of N.</p>
-	 */
-	private static final class BackgroundRenderScheduler {
-		private final ArrayList<RocketFigure3d> active = new ArrayList<>();
-		private final ScheduledExecutorService executor;
-
-		private BackgroundRenderScheduler() {
-			executor = Executors.newSingleThreadScheduledExecutor(r -> {
-				Thread t = new Thread(r, "figure3d-render");
-				t.setDaemon(true);
-				return t;
-			});
-			executor.scheduleAtFixedRate(this::tick, 0, FRAME_INTERVAL_MS, TimeUnit.MILLISECONDS);
-		}
-
-		private void register(RocketFigure3d figure) {
-			synchronized (active) {
-				if (!active.contains(figure)) {
-					active.add(figure);
-				}
-			}
-		}
-
-		private void unregister(RocketFigure3d figure) {
-			synchronized (active) {
-				active.remove(figure);
-			}
-		}
-
-		private void requestImmediate(RocketFigure3d figure) {
-			executor.execute(() -> {
-				// Do NOT clear dirty here. requestRenderNow() calls markDirty() before
-				// submitting this task, so dirty=true acts as a fallback: if renderFrame()
-				// returns early (panel not yet showing), the next tick will retry automatically.
-				try {
-					figure.renderFrame();
-				} catch (Throwable t) {
-					log.error("Immediate render failed", t);
-				}
-			});
-		}
-
-		private void tick() {
-			List<RocketFigure3d> snapshot;
-			synchronized (active) {
-				// Purge stale entries while holding the lock, then snapshot.
-				active.removeIf(f -> !f.renderingEnabled || f.disposed);
-				if (active.isEmpty()) {
-					return;
-				}
-				snapshot = new ArrayList<>(active);
-			}
-			for (RocketFigure3d figure : snapshot) {
-				if (!figure.dirty) {
-					continue;
-				}
-				// Clear before rendering so marks set during renderFrame() survive.
-				figure.dirty = false;
-				try {
-					figure.renderFrame();
-				} catch (Throwable t) {
-					log.error("Render scheduler tick failed for one 3D panel", t);
-				}
-			}
-		}
-	}
 }

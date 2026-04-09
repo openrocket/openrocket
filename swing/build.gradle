@@ -101,11 +101,30 @@ ext {
     }
 }
 
+def extractLwjglNatives = tasks.register('extractLwjglNatives', Sync) {
+    into layout.buildDirectory.dir('lwjgl-natives')
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from({
+        configurations.runtimeClasspath.files.findAll { file ->
+            file.name.startsWith('lwjgl-') && file.name.contains('-natives-')
+        }.collect { zipTree(it) }
+    }) {
+        include '**/*.dll', '**/*.dylib', '**/*.jnilib', '**/*.so'
+        eachFile { details ->
+            details.path = details.name
+        }
+    }
+}
+
 tasks.withType(JavaExec).configureEach {
+    dependsOn(extractLwjglNatives)
     systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
 }
 
 tasks.withType(Test).configureEach {
+    dependsOn(extractLwjglNatives)
     systemProperty 'org.lwjgl.librarypath', "${buildDir}/lwjgl-natives"
 }
 

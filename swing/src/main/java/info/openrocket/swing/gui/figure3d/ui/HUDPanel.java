@@ -4,8 +4,10 @@ import info.openrocket.core.aerodynamics.AerodynamicCalculator;
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
 import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.document.OpenRocketDocument;
+import info.openrocket.core.document.events.DocumentChangeListener;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.rocketcomponent.ComponentChangeListener;
 import info.openrocket.core.rocketcomponent.ComponentChangeEvent;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.Rocket;
@@ -36,6 +38,9 @@ public class HUDPanel extends JPanel {
 	private volatile boolean panModeEnabled;
 
 	private volatile boolean needsRepaint = true;
+	private StateChangeListener rocketChangeListener;
+	private DocumentChangeListener documentChangeListener;
+	private ComponentChangeListener componentChangeListener;
 
 	// Rate limiting for change events
 	private long lastRepaintTime = 0;
@@ -73,9 +78,14 @@ public class HUDPanel extends JPanel {
 	 * @param svc the scene orchestrator to coordinate with
 	 */
 	public void setSceneViewController(Scene3DOrchestrator svc) {
+		detachListeners();
 		this.scene3DOrchestrator = svc;
+		if (svc == null) {
+			needsRepaint = false;
+			return;
+		}
 
-		StateChangeListener changeListener = e -> {
+		rocketChangeListener = e -> {
 			refreshRocketInfo();
 
 			// Rate limit repaints to avoid excessive updates
@@ -90,20 +100,38 @@ public class HUDPanel extends JPanel {
 			}
 		};
 
-		rocket.addChangeListener(changeListener);
+		documentChangeListener = event -> rocketChangeListener.stateChanged(event);
+		componentChangeListener = e -> {
+			if (e.getType() != ComponentChangeEvent.MASS_CHANGE) {
+				rocketChangeListener.stateChanged(e);
+			}
+		};
+
+		rocket.addChangeListener(rocketChangeListener);
 		if (document != null) {
-			document.addDocumentChangeListener(event -> changeListener.stateChanged(event));
+			document.addDocumentChangeListener(documentChangeListener);
 		}
 
 		// Only listen for significant component changes
-		rocket.addComponentChangeListener(e -> {
-			if (e.getType() != ComponentChangeEvent.MASS_CHANGE) {
-				changeListener.stateChanged(e);
-			}
-		});
+		rocket.addComponentChangeListener(componentChangeListener);
 
 		refreshRocketInfo();
 		needsRepaint = true;
+	}
+
+	private void detachListeners() {
+		if (rocketChangeListener != null) {
+			rocket.removeChangeListener(rocketChangeListener);
+			rocketChangeListener = null;
+		}
+		if (document != null && documentChangeListener != null) {
+			document.removeDocumentChangeListener(documentChangeListener);
+			documentChangeListener = null;
+		}
+		if (componentChangeListener != null) {
+			rocket.removeComponentChangeListener(componentChangeListener);
+			componentChangeListener = null;
+		}
 	}
 
 	private void refreshRocketInfo() {

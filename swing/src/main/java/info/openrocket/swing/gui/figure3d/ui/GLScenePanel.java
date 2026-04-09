@@ -828,12 +828,16 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				SwingUtilities.invokeLater(() -> {
 					revalidate();
 					repaint();
-				});
-			}
-		} catch (Throwable t) {
-			glInitFailed = true;
-			String msg = t.getMessage();
-			if ((t instanceof IllegalStateException || t instanceof RuntimeException)
+					});
+				}
+			} catch (Throwable t) {
+				if (isLateTeardownRenderFailure(t)) {
+					log.debug("Ignoring 3D render failure during canvas teardown: {}", t.toString());
+					return;
+				}
+				glInitFailed = true;
+				String msg = t.getMessage();
+				if ((t instanceof IllegalStateException || t instanceof RuntimeException)
 					&& msg != null && (msg.contains("GLX") || msg.contains("glX"))) {
 				log.error("3D view disabled: OpenGL/GLX initialization failed. " +
 						"On Wayland systems this requires XWayland to be running — " +
@@ -848,6 +852,26 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 				RENDER_LOCK.unlock();
 			}
 		}
+	}
+
+	private boolean isLateTeardownRenderFailure(Throwable throwable) {
+		if (isDisplayable() && getWidth() > 0 && getHeight() > 0) {
+			return false;
+		}
+		if (!(throwable instanceof NullPointerException)) {
+			return false;
+		}
+		String message = throwable.getMessage();
+		if (message != null && message.contains("JAWTDrawingSurface.Unlock()")) {
+			return true;
+		}
+		for (StackTraceElement frame : throwable.getStackTrace()) {
+			if (frame.getClassName().contains("PlatformMacOSXGLCanvas")
+					&& "unlock".equals(frame.getMethodName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1073,7 +1097,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 	}
 
 	private boolean requestHudRepaint(boolean highPriority) {
-		if (hudPanel == null || hudGraphics == null) {
+		if (hudPanel == null || hudGraphics == null || scene3DOrchestrator == null || !isDisplayable()) {
 			return false;
 		}
 		if (!highPriority) {
@@ -1097,7 +1121,8 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 	private void paintHudOnEdt() {
 		synchronized (hudLock) {
-			if (hudImage == null || hudPanel == null || hudGraphics == null || hudImageBuffer == null || hudIntBuffer == null) {
+			if (hudImage == null || hudPanel == null || hudGraphics == null || hudImageBuffer == null || hudIntBuffer == null
+					|| scene3DOrchestrator == null || !isDisplayable()) {
 				return;
 			}
 
@@ -1452,7 +1477,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 		}
 
 		// Always free native memory - this doesn't require GL context
-		synchronized (hudLock) {
+			synchronized (hudLock) {
 			if (hudImageBuffer != null) {
 				MemoryUtil.memFree(hudImageBuffer);
 				hudImageBuffer = null;
@@ -1466,9 +1491,13 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			hudBufferReady.set(false);
 			hudTexture = null;
 			hudShader = null;
-		}
-		scene3DOrchestrator = null;
-		glCapabilities = null;
+			}
+			if (hudPanel != null) {
+				hudPanel.setGLScenePanel(null);
+				hudPanel.setSceneViewController(null);
+			}
+			scene3DOrchestrator = null;
+			glCapabilities = null;
 
 		GpuResourceTracker.logLiveResources("Swing canvas cleanup (other canvases may still be active)", false);
 	}

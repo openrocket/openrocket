@@ -1275,6 +1275,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void handleComponentMouseClick(RocketComponent[] clicked, MouseEvent event, int clickCount) {
+		if (selectionModel == null) {
+			return;
+		}
 		if (SwingUtilities.isRightMouseButton(event)) {
 			handleComponentPopupTrigger(clicked, event);
 			return;
@@ -1285,6 +1288,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void handlePrimaryComponentClick(RocketComponent[] clicked, MouseEvent event, int clickCount) {
+		if (selectionModel == null) {
+			return;
+		}
 		List<RocketComponent> selectedComponents = getSelectedComponents();
 
 		if (clicked == null || clicked.length == 0) {
@@ -1302,6 +1308,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private void handleComponentPopupTrigger(RocketComponent[] clicked, MouseEvent event) {
+		if (selectionModel == null) {
+			return;
+		}
 		if (clicked == null || clicked.length == 0) {
 			selectionModel.setSelectionPath(null);
 			return;
@@ -1327,6 +1336,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	}
 
 	private List<RocketComponent> getSelectedComponents() {
+		if (selectionModel == null) {
+			return new ArrayList<>();
+		}
 		TreePath[] selectionPaths = selectionModel.getSelectionPaths();
 		if (selectionPaths == null || selectionPaths.length == 0) {
 			return new ArrayList<>();
