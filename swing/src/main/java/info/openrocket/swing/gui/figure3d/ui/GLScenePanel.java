@@ -616,7 +616,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				markRenderActivity();
-				if (SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
+				if (isTrackedDragButton(e)) {
 					// Track modifier state for multi-selection.
 					InputState inputState = scene3DOrchestrator.getInputHandler().getInputState();
 					inputState.isShiftPressed = e.isShiftDown() || e.isMetaDown();
@@ -635,7 +635,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				markRenderActivity();
-				if (SwingUtilities.isLeftMouseButton(e) || SwingUtilities.isRightMouseButton(e)) {
+				if (isTrackedDragButton(e)) {
 					// We check for !isDragging to differentiate a click from a drag-release.
 					// A double-click will also fire this event for the second click.
 					if (!isDragging && pressPoint != null &&
@@ -661,7 +661,7 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				markRenderActivity();
-				if ((activeDragButton == MouseEvent.BUTTON1 || activeDragButton == MouseEvent.BUTTON3) && pressPoint != null) {
+				if (isTrackedDragButton(activeDragButton) && pressPoint != null) {
 					if (!isDragging && pressPoint.distanceSq(e.getPoint()) > CLICK_DRAG_THRESHOLD_SQ) {
 						isDragging = true;
 						scene3DOrchestrator.getInputHandler().getInputState().dragJustStarted = true;
@@ -682,10 +682,23 @@ public class GLScenePanel extends AWTGLCanvas implements HUDUpdateListener {
 
 			private void updateDragMode(InputState inputState, MouseEvent e) {
 				boolean isRightDrag = activeDragButton == MouseEvent.BUTTON3;
+				boolean isMiddleDrag = activeDragButton == MouseEvent.BUTTON2;
 				boolean isAltDown = (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0;
 				boolean isCtrlDown = (e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0;
 				inputState.isLightDragging = isRightDrag || isAltDown;
-				inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown);
+				inputState.isPanning = !inputState.isLightDragging && (panModeEnabled || isCtrlDown || isMiddleDrag);
+			}
+
+			private boolean isTrackedDragButton(MouseEvent e) {
+				return SwingUtilities.isLeftMouseButton(e)
+						|| SwingUtilities.isMiddleMouseButton(e)
+						|| SwingUtilities.isRightMouseButton(e);
+			}
+
+			private boolean isTrackedDragButton(int button) {
+				return button == MouseEvent.BUTTON1
+						|| button == MouseEvent.BUTTON2
+						|| button == MouseEvent.BUTTON3;
 			}
 
 			@Override
