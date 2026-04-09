@@ -664,6 +664,38 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 		return activeMotors;
 	}
 
+	/**
+	 * Returns the lowest positioned renderable motor instances in this configuration.
+	 * "Lowest" here means furthest aft in rocket coordinates, based on the motor nozzle
+	 * position (`mount location + mount length + motor overhang`).
+	 * If multiple motor instances share the same lowest position, all of them are returned.
+	 *
+	 * <p>The returned map includes instances from both the active and extra render instance
+	 * collections, but only for visible motor mounts with an actual motor configured.</p>
+	 *
+	 * @return an {@link InstanceMap} containing only the lowest positioned motor instances
+	 */
+	public InstanceMap getLowestMotorInstances() {
+		InstanceMap lowestMotorInstances = new InstanceMap();
+		double lowestAxialPosition = Double.NEGATIVE_INFINITY;
+		boolean foundMotorInstance = false;
+
+		for (Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>> entry : getActiveInstances().entrySet()) {
+			LowestMotorState state = collectLowestMotorInstances(entry, lowestMotorInstances, lowestAxialPosition,
+					foundMotorInstance);
+			lowestAxialPosition = state.lowestAxialPosition;
+			foundMotorInstance = state.foundMotorInstance;
+		}
+		for (Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>> entry : getExtraRenderInstances().entrySet()) {
+			LowestMotorState state = collectLowestMotorInstances(entry, lowestMotorInstances, lowestAxialPosition,
+					foundMotorInstance);
+			lowestAxialPosition = state.lowestAxialPosition;
+			foundMotorInstance = state.foundMotorInstance;
+		}
+
+		return lowestMotorInstances;
+	}
+
 	public void clearAllMotors() {
 		for (RocketComponent comp : getActiveComponents()) {
 			if ((comp instanceof MotorMount) && (((MotorMount) comp).isMotorMount())) {
@@ -696,6 +728,44 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 				activeMotors.add(config);
 			}
 		}
+	}
+
+	private LowestMotorState collectLowestMotorInstances(
+			Map.Entry<RocketComponent, java.util.ArrayList<InstanceContext>> entry,
+			InstanceMap lowestMotorInstances, double lowestAxialPosition, boolean foundMotorInstance) {
+		RocketComponent component = entry.getKey();
+		if (!component.isVisible() || !(component instanceof MotorMount)) {
+			return new LowestMotorState(lowestAxialPosition, foundMotorInstance);
+		}
+
+		MotorMount motorMount = (MotorMount) component;
+		MotorConfiguration motorConfig = motorMount.getMotorConfig(fcid);
+		if (motorConfig == null || motorConfig.getMotor() == null) {
+			return new LowestMotorState(lowestAxialPosition, foundMotorInstance);
+		}
+
+		java.util.ArrayList<InstanceContext> lowestContextsForComponent = new java.util.ArrayList<>();
+		for (InstanceContext context : entry.getValue()) {
+			double nozzleAxialPosition = context.getLocation().getX() + motorMount.getLength() + motorMount.getMotorOverhang();
+
+			if (!foundMotorInstance || nozzleAxialPosition > lowestAxialPosition + MathUtil.EPSILON) {
+				lowestMotorInstances.clear();
+				lowestContextsForComponent.clear();
+				lowestContextsForComponent.add(context);
+				lowestMotorInstances.put(component, lowestContextsForComponent);
+				lowestAxialPosition = nozzleAxialPosition;
+				foundMotorInstance = true;
+			} else if (MathUtil.equals(nozzleAxialPosition, lowestAxialPosition)) {
+				lowestContextsForComponent = lowestMotorInstances.computeIfAbsent(component,
+						key -> new java.util.ArrayList<>());
+				lowestContextsForComponent.add(context);
+			}
+		}
+
+		return new LowestMotorState(lowestAxialPosition, foundMotorInstance);
+	}
+
+	private record LowestMotorState(double lowestAxialPosition, boolean foundMotorInstance) {
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.InstanceContext;
+import info.openrocket.core.rocketcomponent.InstanceMap;
 import info.openrocket.core.rocketcomponent.MassObject;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RailButton;
@@ -97,17 +98,19 @@ public abstract class RocketMeshBuilder {
 	 */
 	public static void buildRocketMesh(SceneView scene, Rocket rocket, RenderingConfiguration config) {
 		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
+		InstanceMap lowestMotorInstances = flightConfig.getLowestMotorInstances();
 		buildComponents(scene, flightConfig.getId(), flightConfig.getActiveInstances().entrySet(), config,
-				RenderingConstants.WORLD_SCALE);
+				RenderingConstants.WORLD_SCALE, lowestMotorInstances);
 		buildComponents(scene, flightConfig.getId(), flightConfig.getExtraRenderInstances().entrySet(), config,
-				RenderingConstants.WORLD_SCALE);
+				RenderingConstants.WORLD_SCALE, lowestMotorInstances);
 
 		createOriginAxes(scene, config, true, true);
 	}
 
 	private static void buildComponents(SceneView scene, FlightConfigurationId fcid,
 										Set<Entry<RocketComponent, ArrayList<InstanceContext>>> instanceEntries,
-										RenderingConfiguration config, float worldScale) {
+										RenderingConfiguration config, float worldScale,
+										InstanceMap lowestMotorInstances) {
 		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : instanceEntries) {
 			RocketComponent component = entry.getKey();
 			if (!component.isVisible()) {
@@ -115,7 +118,7 @@ public abstract class RocketMeshBuilder {
 			}
 
 			try {
-				buildComponent(scene, fcid, component, entry.getValue(), config, worldScale);
+				buildComponent(scene, fcid, component, entry.getValue(), config, worldScale, lowestMotorInstances);
 			} catch (RuntimeException e) {
 				throw new BugException("Failed to build 3D mesh for component '" + component.getName()
 						+ "' (" + component.getClass().getSimpleName() + ")", e);
@@ -133,7 +136,7 @@ public abstract class RocketMeshBuilder {
 	 */
 	private static void buildComponent(SceneView scene, FlightConfigurationId fcid, RocketComponent component,
 									   List<InstanceContext> instanceContexts, RenderingConfiguration config,
-									   float worldScale) {
+									   float worldScale, InstanceMap lowestMotorInstances) {
 		if (instanceContexts == null || instanceContexts.isEmpty()) {
 			return;
 		}
@@ -161,7 +164,7 @@ public abstract class RocketMeshBuilder {
 			// Add motor
 			if (component instanceof MotorMount) {
 				buildMotor(scene, fcid, (RocketComponent & MotorMount) component, instanceLocation, instanceAngle,
-						worldScale, config);
+						worldScale, config, context, lowestMotorInstances);
 			}
 		}
 	}
@@ -177,7 +180,8 @@ public abstract class RocketMeshBuilder {
 	 */
 	private static <T extends RocketComponent & MotorMount> void buildMotor(
 			SceneView scene, FlightConfigurationId fcid, T mount, CoordinateIF mountLocation, CoordinateIF mountAngle,
-			float worldScale, RenderingConfiguration config) {
+			float worldScale, RenderingConfiguration config, InstanceContext context,
+			InstanceMap lowestMotorInstances) {
 		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
 		if (motorCfg == null) return;
 
@@ -224,7 +228,9 @@ public abstract class RocketMeshBuilder {
 
 		// 6. Create a particle emitter for the motor exhaust
 		String motorComponentId = generateMotorComponentId(fcid, mount);
-		addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+		if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
+			addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+		}
 	}
 
 	private static void addParticles(SceneView scene, float worldScale, Vector3f positionInEngineCS, Motor motor,
@@ -402,22 +408,21 @@ public abstract class RocketMeshBuilder {
 		scene.getParticleEmitters().clear();
 
 		FlightConfiguration flightConfig = rocket.getSelectedConfiguration();
+		InstanceMap lowestMotorInstances = flightConfig.getLowestMotorInstances();
 		for (Entry<RocketComponent, ArrayList<InstanceContext>> entry : flightConfig.getActiveInstances().entrySet()) {
 			RocketComponent component = entry.getKey();
 			if (!component.isVisible() || !(component instanceof MotorMount)) {
 				continue;
 			}
 
-			@SuppressWarnings("unchecked")
-			var mount = (RocketComponent & MotorMount) component;
-			rebuildMotorParticles(scene, flightConfig.getId(), mount, entry.getValue(), config,
-					RenderingConstants.WORLD_SCALE);
+			rebuildMotorParticles(scene, flightConfig.getId(), (RocketComponent & MotorMount) component,
+					entry.getValue(), config, RenderingConstants.WORLD_SCALE, lowestMotorInstances);
 		}
 	}
 	
 	private static <T extends RocketComponent & MotorMount> void rebuildMotorParticles(
 			Scene scene, FlightConfigurationId fcid, T mount, List<InstanceContext> instanceContexts,
-			RenderingConfiguration config, float worldScale) {
+			RenderingConfiguration config, float worldScale, InstanceMap lowestMotorInstances) {
 		MotorConfiguration motorCfg = mount.getMotorConfig(fcid);
 		if (motorCfg == null) return;
 		
@@ -452,7 +457,9 @@ public abstract class RocketMeshBuilder {
 
 			// TODO: is there a better way to do this indexing?
 			String motorComponentId = generateMotorComponentId(fcid, mount);
-			addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+			if (isLowestMotorInstance(lowestMotorInstances, mount, context)) {
+				addParticles(scene, worldScale, positionInEngineCS, motor, rotationMatrix, config, motorComponentId);
+			}
 		}
 	}
 	
@@ -462,6 +469,20 @@ public abstract class RocketMeshBuilder {
 	 */
 	private static String generateMotorComponentId(FlightConfigurationId fcid, RocketComponent mount) {
 		return fcid.key.toString() + "-" + mount.getID().toString();
+	}
+
+	private static boolean isLowestMotorInstance(InstanceMap lowestMotorInstances, RocketComponent mount,
+			InstanceContext context) {
+		List<InstanceContext> lowestInstances = lowestMotorInstances.get(mount);
+		if (lowestInstances == null || lowestInstances.isEmpty()) {
+			return lowestMotorInstances.isEmpty();
+		}
+		for (InstanceContext lowestContext : lowestInstances) {
+			if (lowestContext.instanceNumber == context.instanceNumber) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

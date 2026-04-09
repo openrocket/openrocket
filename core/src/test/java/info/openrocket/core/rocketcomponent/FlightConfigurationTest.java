@@ -516,6 +516,85 @@ public class FlightConfigurationTest {
 	}
 
 	@Test
+	public void testGetLowestMotorInstancesReturnsEmptyForMotorlessConfiguration() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+
+		InstanceMap lowestMotorInstances = config.getLowestMotorInstances();
+
+		assertTrue(lowestMotorInstances.isEmpty());
+	}
+
+	@Test
+	public void testGetLowestMotorInstancesReturnsCoreMotorWhenOnlyCoreIsActive() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BodyTube coreBody = (BodyTube) rocket.getChild(1).getChild(0);
+		ParallelStage boosterStage = (ParallelStage) coreBody.getChild(0);
+		BodyTube boosterBody = (BodyTube) boosterStage.getChild(1);
+		InnerTube boosterMotorTubes = (InnerTube) boosterBody.getChild(0);
+
+		config.setOnlyStage(1);
+
+		InstanceMap lowestMotorInstances = config.getLowestMotorInstances();
+
+		assertEquals(1, lowestMotorInstances.size());
+		assertTrue(lowestMotorInstances.containsKey(coreBody));
+		assertFalse(lowestMotorInstances.containsKey(boosterMotorTubes));
+
+		List<InstanceContext> coreMotorContexts = lowestMotorInstances.getInstanceContexts(coreBody);
+		assertEquals(1, coreMotorContexts.size());
+		assertEquals(0.0, coreMotorContexts.get(0).getLocation().getZ(), EPSILON);
+	}
+
+	@Test
+	public void testGetLowestMotorInstancesReturnsLowestBoosterMotorRow() {
+		Rocket rocket = TestRockets.makeBeta();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BodyTube sustainerBody = (BodyTube) rocket.getChild(0).getChild(1);
+		InnerTube sustainerMotorMount = (InnerTube) sustainerBody.getChild(2);
+		AxialStage boosterStage = (AxialStage) rocket.getChild(1);
+		BodyTube boosterBody = (BodyTube) boosterStage.getChild(0);
+		InnerTube boosterMotorMount = (InnerTube) boosterBody.getChild(2);
+
+		config.setAllStages();
+
+		InstanceMap lowestMotorInstances = config.getLowestMotorInstances();
+
+		assertEquals(1, lowestMotorInstances.size());
+		assertTrue(lowestMotorInstances.containsKey(boosterMotorMount));
+		assertFalse(lowestMotorInstances.containsKey(sustainerMotorMount));
+
+		List<InstanceContext> lowestContexts = lowestMotorInstances.getInstanceContexts(boosterMotorMount);
+		assertEquals(1, lowestContexts.size());
+		assertEquals(0.285, lowestContexts.get(0).getLocation().getX(), EPSILON);
+	}
+
+	@Test
+	public void testGetLowestMotorInstancesReturnsAllMotorsOnLowestAftRow() {
+		Rocket rocket = TestRockets.makeFalcon9Heavy();
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		BodyTube coreBody = (BodyTube) rocket.getChild(1).getChild(0);
+		ParallelStage boosterStage = (ParallelStage) coreBody.getChild(0);
+		BodyTube boosterBody = (BodyTube) boosterStage.getChild(1);
+		InnerTube boosterMotorTubes = (InnerTube) boosterBody.getChild(0);
+
+		config.setAllStages();
+
+		InstanceMap lowestMotorInstances = config.getLowestMotorInstances();
+
+		assertEquals(1, lowestMotorInstances.size());
+		assertTrue(lowestMotorInstances.containsKey(boosterMotorTubes));
+		assertFalse(lowestMotorInstances.containsKey(coreBody));
+
+		List<InstanceContext> lowestContexts = lowestMotorInstances.getInstanceContexts(boosterMotorTubes);
+		assertEquals(8, lowestContexts.size());
+		for (InstanceContext context : lowestContexts) {
+			assertEquals(1.214, context.getLocation().getX(), EPSILON);
+		}
+	}
+
+	@Test
 	public void testIterateCoreComponents_AllStagesActive() {
 		Rocket rocket = TestRockets.makeFalcon9Heavy();
 		FlightConfiguration selected = rocket.getSelectedConfiguration();
