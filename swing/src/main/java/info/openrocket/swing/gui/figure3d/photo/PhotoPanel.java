@@ -257,23 +257,7 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		stopRenderLoop();
 		if (glPanel != null) {
 			RENDER_SCHEDULER.awaitQuiescence(RENDER_SHUTDOWN_TIMEOUT_MS);
-			detachSceneListeners(glPanel);
-			detachInteractionSyncListener(glPanel);
-			glPanel.setBlankDefaultFramebufferCallback(null);
-			GLScenePanel panel = glPanel;
-			if (IS_MACOS) {
-				// On macOS, attempting runInContext cleanup during Photo Studio teardown can crash
-				// inside the native JAWT surface path. Detach first so GLScenePanel.cleanup()
-				// takes its non-context cleanup path instead of re-entering the native peer.
-				remove(panel);
-				glPanel = null;
-				panel.cleanup();
-			} else {
-				// Other platforms still prefer explicit in-context cleanup before detach.
-				panel.cleanup();
-				remove(panel);
-				glPanel = null;
-			}
+			disposeCurrentCanvas(glPanel);
 		}
 		imageCallbacks.clear();
 		captureQueued.set(false);
@@ -456,14 +440,17 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 			return;
 		}
 
-		detachSceneListeners(failedPanel);
-		failedPanel.setInitializationHook(null);
-		failedPanel.setBlankDefaultFramebufferCallback(null);
-		remove(failedPanel);
-		glPanel = null;
-		revalidate();
-		repaint();
-		failedPanel.cleanup();
+		boolean resumeRenderLoop = renderLoopRunning;
+		stopRenderLoop();
+		RENDER_SCHEDULER.awaitQuiescence(RENDER_SHUTDOWN_TIMEOUT_MS);
+		if (glPanel != failedPanel || document == null) {
+			if (resumeRenderLoop && glPanel != null) {
+				startRenderLoop();
+			}
+			return;
+		}
+
+		disposeCurrentCanvas(failedPanel);
 
 		GLScenePanel panel;
 		try {
@@ -476,14 +463,40 @@ public class PhotoPanel extends JPanel implements SharedCanvasRenderScheduler.Cl
 		glPanel = panel;
 		panel.setInitializationHook(this::initializePhotoPanelOnGlThread);
 		panel.setBlankDefaultFramebufferCallback(() -> requestCanvasRebuild(panel));
+		attachInteractionSyncListener(panel);
 		earliestRenderAtMs = System.currentTimeMillis() + STARTUP_RENDER_DELAY_MS;
 		invalidateCachedSceneState();
 		add(panel, BorderLayout.CENTER);
 		revalidate();
 		repaint();
+		if (resumeRenderLoop) {
+			startRenderLoop();
+		}
 		pendingApply.set(true);
 		settingsApplyQueued.set(false);
 		applySettings();
+	}
+
+	private void disposeCurrentCanvas(GLScenePanel panel) {
+		detachSceneListeners(panel);
+		detachInteractionSyncListener(panel);
+		panel.setInitializationHook(null);
+		panel.setBlankDefaultFramebufferCallback(null);
+		if (IS_MACOS) {
+			// On macOS, attempting runInContext cleanup during Photo Studio teardown can crash
+			// inside the native JAWT surface path. Detach first so GLScenePanel.cleanup()
+			// takes its non-context cleanup path instead of re-entering the native peer.
+			remove(panel);
+			glPanel = null;
+			panel.cleanup();
+		} else {
+			// Other platforms still prefer explicit in-context cleanup before detach.
+			panel.cleanup();
+			remove(panel);
+			glPanel = null;
+		}
+		revalidate();
+		repaint();
 	}
 
 	private void initializePhotoPanelOnGlThread(Scene3DOrchestrator orchestrator) {
