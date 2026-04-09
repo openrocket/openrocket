@@ -777,11 +777,17 @@ public class PhotoPanel extends JPanel {
 		VisualEffectsSettings effects = config.getVisualEffects();
 		effects.setMotionBlurEnabled(settings.isMotionBlurred());
 		effects.setMotionBlurFactor((float) settings.getMotionBlurAmount());
-		boolean particlesEnabled = settings.isFlame() || settings.isSmoke() || settings.isSparks();
+		boolean motorsAvailable = document != null
+				&& document.getSelectedConfiguration() != null
+				&& document.getSelectedConfiguration().hasMotors();
+		boolean flameEnabled = motorsAvailable && settings.isFlame();
+		boolean smokeEnabled = motorsAvailable && settings.isSmoke();
+		boolean sparksEnabled = motorsAvailable && settings.isSparks();
+		boolean particlesEnabled = flameEnabled || smokeEnabled || sparksEnabled;
 		effects.setParticleEffectsEnabled(particlesEnabled);
-		effects.setFlameParticlesEnabled(settings.isFlame());
-		effects.setSmokeParticlesEnabled(settings.isSmoke());
-		effects.setSparkParticlesEnabled(settings.isSparks());
+		effects.setFlameParticlesEnabled(flameEnabled);
+		effects.setSmokeParticlesEnabled(smokeEnabled);
+		effects.setSparkParticlesEnabled(sparksEnabled);
 		ORColor flameColor = colorOrDefault(settings.getFlameColor(), new ORColor(255, 100, 50));
 		ORColor smokeColor = colorOrDefault(settings.getSmokeColor(), new ORColor(230, 230, 230));
 		effects.setFlameColor(toColorVector(flameColor));
@@ -805,9 +811,9 @@ public class PhotoPanel extends JPanel {
 		boolean sparkWeightChanged = !MathUtil.equals(settings.getSparkWeight(), lastSparkWeight, CAMERA_SETTINGS_EPSILON);
 
 		boolean rebuild = particlesEnabled != lastParticlesEnabled
-				|| settings.isFlame() != lastFlame
-				|| settings.isSmoke() != lastSmoke
-				|| settings.isSparks() != lastSparks
+				|| flameEnabled != lastFlame
+				|| smokeEnabled != lastSmoke
+				|| sparksEnabled != lastSparks
 				|| flameColorChanged
 				|| smokeColorChanged
 				|| smokeOpacityChanged
@@ -817,9 +823,9 @@ public class PhotoPanel extends JPanel {
 				|| sparkWeightChanged;
 
 		lastParticlesEnabled = particlesEnabled;
-		lastFlame = settings.isFlame();
-		lastSmoke = settings.isSmoke();
-		lastSparks = settings.isSparks();
+		lastFlame = flameEnabled;
+		lastSmoke = smokeEnabled;
+		lastSparks = sparksEnabled;
 		lastFlameColor = copyColor(flameColor);
 		lastSmokeColor = copyColor(smokeColor);
 		lastSmokeOpacity = (float) settings.getSmokeOpacity();

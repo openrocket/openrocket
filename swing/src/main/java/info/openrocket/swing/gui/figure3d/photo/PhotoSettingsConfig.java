@@ -13,11 +13,13 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
@@ -38,6 +40,7 @@ import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Miramar;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Mountains;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Orbit;
 import info.openrocket.swing.gui.figure3d.photo.sky.builtin.Storm;
+import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.util.ColorConversion;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
@@ -291,20 +294,28 @@ public class PhotoSettingsConfig extends JTabbedPane {
 
 		addTab(trans.get("PhotoSettingsConfig.tab.effects"), new JPanel(new MigLayout("fill", "[][][]")) {
 			{
+				StyledLabel noMotorsInfo = new StyledLabel(
+						trans.get("PhotoSettingsConfig.lbl.effectsDisabledNoMotors"), -1, Style.ITALIC);
+				noMotorsInfo.setFontColor(GUIUtil.getUITheme().getInformationColor());
+				add(noMotorsInfo, "spanx, growx, wrap para");
+
 				// Smoke & Flame
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.smokeFlame"), Style.BOLD), "split, span, gapright para");
 				add(new JSeparator(SwingConstants.HORIZONTAL), "wrap, growx");
 
 				/// Smoke
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smoke")));
+				JLabel smokeLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.smoke"));
+				add(smokeLabel);
 				BooleanModel smokeModel = new BooleanModel(p, "Smoke");
-				add(new JCheckBox(smokeModel), "split 2, spanx");
+				JCheckBox smokeCheck = new JCheckBox(smokeModel);
+				add(smokeCheck, "split 2, spanx");
 
 				add(smokeColorButton, "wrap");
 				smokeModel.addEnableComponent(smokeColorButton);
 
 				/// Smoke opacity
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity")));
+				JLabel smokeOpacityLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity"));
+				add(smokeOpacityLabel);
 				DoubleModel smokeOpacityModel = new DoubleModel(p, "SmokeOpacity", UnitGroup.UNITS_RELATIVE, 0, 1);
 				EditableSpinner opacitySpinner = new EditableSpinner(smokeOpacityModel.getSpinnerModel());
 				UnitSelector opacitySelector = new UnitSelector(smokeOpacityModel);
@@ -317,15 +328,18 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				smokeModel.addEnableComponent(opacitySlider);
 
 				/// Flame
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.flame")));
+				JLabel flameLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.flame"));
+				add(flameLabel);
 				BooleanModel fireModel = new BooleanModel(p, "Flame");
-				add(new JCheckBox(fireModel), "split 2, spanx");
+				JCheckBox flameCheck = new JCheckBox(fireModel);
+				add(flameCheck, "split 2, spanx");
 
 				add(flameColorButton, "wrap");
 				fireModel.addEnableComponent(flameColorButton);
 
 				/// Flame aspect ratio
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.flameAspect")));
+				JLabel flameAspectLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.flameAspect"));
+				add(flameAspectLabel);
 				DoubleModel flameAspectModel = new DoubleModel(p, "FlameAspectRatio", 100, UnitGroup.UNITS_NONE, 25,
 						250);
 				EditableSpinner flameAspectSpinner = new EditableSpinner(flameAspectModel.getSpinnerModel());
@@ -336,14 +350,16 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				fireModel.addEnableComponent(flameAspectSlider);
 
 				/// Sparks
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sparks")));
+				JLabel sparksLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.sparks"));
+				add(sparksLabel);
 				BooleanModel sparksModel = new BooleanModel(p, "Sparks");
 				JCheckBox sparksCheck = new JCheckBox(sparksModel);
 				add(sparksCheck, "wrap");
 				fireModel.addEnableComponent(sparksCheck);
 
 				/// Sparks concentration
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkConcentration")));
+				JLabel sparkConcentrationLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkConcentration"));
+				add(sparkConcentrationLabel);
 				DoubleModel sparkConcentrationModel = new DoubleModel(p, "SparkConcentration",
 						UnitGroup.UNITS_RELATIVE, 0, 1);
 				EditableSpinner sparkConcentrationSpinner = new EditableSpinner(sparkConcentrationModel.getSpinnerModel());
@@ -357,7 +373,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				sparksModel.addEnableComponent(sparkConcentrationSlider);
 
 				/// Spark weight
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkWeight")));
+				JLabel sparkWeightLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.sparkWeight"));
+				add(sparkWeightLabel);
 				DoubleModel sparkWeightModel = new DoubleModel(p, "SparkWeight", UnitGroup.UNITS_RELATIVE, 0, 1);
 				EditableSpinner sparkWeightSpinner = new EditableSpinner(sparkWeightModel.getSpinnerModel());
 				UnitSelector sparkWeightSelector = new UnitSelector(sparkWeightModel);
@@ -370,10 +387,13 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				sparksModel.addEnableComponent(sparkWeightSlider);
 
 				/// Exhaust scale
-				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.exhaustScale")));
+				JLabel exhaustScaleLabel = new JLabel(trans.get("PhotoSettingsConfig.lbl.exhaustScale"));
+				add(exhaustScaleLabel);
 				DoubleModel exhaustScaleModel = new DoubleModel(p, "ExhaustScale", 100, UnitGroup.UNITS_NONE, 0, 1000);
-				add(new EditableSpinner(exhaustScaleModel.getSpinnerModel()), "growx");
-				add(photoSlider(p, exhaustScaleModel.getSliderModel(0, 1000)), "skip 1, wrap");
+				EditableSpinner exhaustScaleSpinner = new EditableSpinner(exhaustScaleModel.getSpinnerModel());
+				BasicSlider exhaustScaleSlider = photoSlider(p, exhaustScaleModel.getSliderModel(0, 1000));
+				add(exhaustScaleSpinner, "growx");
+				add(exhaustScaleSlider, "skip 1, wrap");
 
 				// Effects
 				add(new StyledLabel(trans.get("PhotoSettingsConfig.lbl.effects"), Style.BOLD), "split, span, gapright para");
@@ -393,9 +413,76 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				add(motionBlurAmountSlider, "skip 1, wrap");
 				speedModel.addEnableComponent(motionBlurAmountSpinner);
 				speedModel.addEnableComponent(motionBlurAmountSlider);
+
+				Runnable refreshMotorEffectsAvailability = () -> updateMotorEffectsAvailability(document, p,
+						noMotorsInfo,
+						smokeLabel, smokeCheck, smokeColorButton, smokeOpacityLabel, opacitySpinner, opacitySelector, opacitySlider,
+						flameLabel, flameCheck, flameColorButton, flameAspectLabel, flameAspectSpinner, flameAspectSlider,
+						sparksLabel, sparksCheck, sparkConcentrationLabel, sparkConcentrationSpinner, sparkConcentrationSelector,
+						sparkConcentrationSlider, sparkWeightLabel, sparkWeightSpinner, sparkWeightSelector, sparkWeightSlider,
+						exhaustScaleLabel, exhaustScaleSpinner, exhaustScaleSlider);
+				p.addChangeListener(e -> refreshMotorEffectsAvailability.run());
+				document.getRocket().addChangeListener(e -> SwingUtilities.invokeLater(refreshMotorEffectsAvailability));
+				refreshMotorEffectsAvailability.run();
 			}
 		});
 
+	}
+
+	private void updateMotorEffectsAvailability(OpenRocketDocument document, PhotoSettings settings,
+			StyledLabel noMotorsInfo,
+			JComponent smokeLabel, JCheckBox smokeCheck, JComponent smokeColorButton, JComponent smokeOpacityLabel,
+			JComponent opacitySpinner, JComponent opacitySelector, JComponent opacitySlider,
+			JComponent flameLabel, JCheckBox flameCheck, JComponent flameColorButton, JComponent flameAspectLabel,
+			JComponent flameAspectSpinner, JComponent flameAspectSlider,
+			JComponent sparksLabel, JCheckBox sparksCheck, JComponent sparkConcentrationLabel,
+			JComponent sparkConcentrationSpinner, JComponent sparkConcentrationSelector, JComponent sparkConcentrationSlider,
+			JComponent sparkWeightLabel, JComponent sparkWeightSpinner, JComponent sparkWeightSelector,
+			JComponent sparkWeightSlider,
+			JComponent exhaustScaleLabel, JComponent exhaustScaleSpinner, JComponent exhaustScaleSlider) {
+		boolean motorsAvailable = hasMotorsInSelectedConfiguration(document);
+		boolean smokeEnabled = motorsAvailable && settings.isSmoke();
+		boolean flameEnabled = motorsAvailable && settings.isFlame();
+		boolean sparksAvailable = motorsAvailable && settings.isFlame();
+		boolean sparksEnabled = motorsAvailable && settings.isSparks();
+
+		noMotorsInfo.setVisible(!motorsAvailable);
+
+		smokeLabel.setEnabled(motorsAvailable);
+		smokeCheck.setEnabled(motorsAvailable);
+		smokeColorButton.setEnabled(smokeEnabled);
+		smokeOpacityLabel.setEnabled(smokeEnabled);
+		opacitySpinner.setEnabled(smokeEnabled);
+		opacitySelector.setEnabled(smokeEnabled);
+		opacitySlider.setEnabled(smokeEnabled);
+
+		flameLabel.setEnabled(motorsAvailable);
+		flameCheck.setEnabled(motorsAvailable);
+		flameColorButton.setEnabled(flameEnabled);
+		flameAspectLabel.setEnabled(flameEnabled);
+		flameAspectSpinner.setEnabled(flameEnabled);
+		flameAspectSlider.setEnabled(flameEnabled);
+
+		sparksLabel.setEnabled(sparksAvailable);
+		sparksCheck.setEnabled(sparksAvailable);
+		sparkConcentrationLabel.setEnabled(sparksEnabled);
+		sparkConcentrationSpinner.setEnabled(sparksEnabled);
+		sparkConcentrationSelector.setEnabled(sparksEnabled);
+		sparkConcentrationSlider.setEnabled(sparksEnabled);
+		sparkWeightLabel.setEnabled(sparksEnabled);
+		sparkWeightSpinner.setEnabled(sparksEnabled);
+		sparkWeightSelector.setEnabled(sparksEnabled);
+		sparkWeightSlider.setEnabled(sparksEnabled);
+
+		exhaustScaleLabel.setEnabled(motorsAvailable);
+		exhaustScaleSpinner.setEnabled(motorsAvailable);
+		exhaustScaleSlider.setEnabled(motorsAvailable);
+	}
+
+	private boolean hasMotorsInSelectedConfiguration(OpenRocketDocument document) {
+		return document != null
+				&& document.getSelectedConfiguration() != null
+				&& document.getSelectedConfiguration().hasMotors();
 	}
 
 	/**
