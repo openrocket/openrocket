@@ -20,7 +20,6 @@ version = buildProperties['build.version']
 repositories {
     mavenCentral()
     maven { url = "https://jitpack.io" }
-    maven { url = "https://jogamp.org/deployment/maven/" }
 }
 
 checkstyle {
@@ -52,15 +51,6 @@ extraJavaModuleInfo {
     automaticModule('slf4j-api-1.7.25.jar', 'org.slf4j.api')
     automaticModule('slf4j-api-1.7.32.jar', 'org.slf4j.api')
     automaticModule('versioncompare-1.5.0.jar', 'versioncompare')
-    module('gluegen-rt-2.6.0.jar', 'org.jogamp.gluegen.rt', '2.6.0') {
-        requires('java.desktop')
-        exportAllPackages()
-    }
-    module('jogl-all-2.6.0.jar', 'org.jogamp.jogl.all', '2.6.0') {
-        requires('java.desktop')
-        requires('org.jogamp.gluegen.rt')
-        exportAllPackages()
-    }
     module('jcommon-1.0.24.jar', 'jcommon', '1.0.24') {
         requires('java.desktop')
         exportAllPackages()
@@ -157,9 +147,6 @@ dependencies {
 
     implementation 'ch.qos.logback:logback-core:1.5.20'
     implementation 'ch.qos.logback:logback-classic:1.5.20'
-
-    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.6.0'
-    implementation 'org.jogamp.jogl:jogl-all-main:2.6.0'
 
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 

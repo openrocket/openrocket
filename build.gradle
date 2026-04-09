@@ -23,7 +23,7 @@ application {
     /*applicationDefaultJvmArgs = [
             // Use the system appearance on macOS for the FlatLaf title bar
             '-Dapple.awt.application.appearance=system',
-            // Fix JOGL 3D importing on Windows
+            // Fix 3D importing on Windows
             '--add-exports',
             'java.base/java.lang=ALL-UNNAMED',
             '--add-exports',
@@ -65,7 +65,6 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url = "https://jitpack.io" }
-        maven { url = "https://jogamp.org/deployment/maven/" }
     }
 }
 

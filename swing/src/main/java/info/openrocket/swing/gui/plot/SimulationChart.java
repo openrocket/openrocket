@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -36,8 +37,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import info.openrocket.swing.gui.plot.Plot.MetadataXYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-
-import com.jogamp.newt.event.InputEvent;
 
 /**
  * Custom implementation of JFreeChart's ChartPanel which changes the mouse handling.
@@ -399,7 +398,7 @@ public class SimulationChart extends ChartPanel {
 			if (SimulationChart.this.isDomainZoomable()) {
 				zoomable.zoomDomainAxes(zf, pinfo, p, true);
 			}
-			boolean domainOnly = (e.getModifiers() & InputEvent.CTRL_MASK) != 0;
+			boolean domainOnly = (e.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0;
 			if (SimulationChart.this.isRangeZoomable() && !domainOnly) {
 				zoomable.zoomRangeAxes(zf, pinfo, p, true);
 			}

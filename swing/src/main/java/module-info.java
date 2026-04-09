@@ -21,8 +21,6 @@ open module info.openrocket.swing {
 	requires com.miglayout.core;
 	requires com.miglayout.swing;
 	requires com.google.guice;
-	requires org.jogamp.gluegen.rt;
-	requires org.jogamp.jogl.all;
 	requires java.scripting;
 	requires org.fife.RSyntaxTextArea;
 	requires jakarta.xml.bind;

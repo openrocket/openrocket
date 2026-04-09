@@ -150,7 +150,7 @@ public class SwingStartup {
 			setPropertyIfNotSet("openrocket.debug.menu", "true");
 			setPropertyIfNotSet("openrocket.debug.mutexlocation", "true");
 			setPropertyIfNotSet("openrocket.debug.motordigest", "true");
-			setPropertyIfNotSet("jogl.debug", "all");
+			setPropertyIfNotSet("openrocket.gl.debug", "true");
 		}
 	}
 	
